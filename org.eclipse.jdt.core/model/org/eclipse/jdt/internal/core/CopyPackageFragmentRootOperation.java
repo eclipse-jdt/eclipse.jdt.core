@@ -195,7 +195,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 			case IClasspathEntry.CPE_PROJECT:
 				return JavaCore.newProjectEntry(entry.getPath(), entry.isExported());
 			case IClasspathEntry.CPE_SOURCE:
-				return JavaCore.newSourceEntry(this.destination, entry.getExclusionPatterns(), entry.getOutputLocation());
+				return JavaCore.newSourceEntry(this.destination, entry.getInclusionPatterns(), entry.getExclusionPatterns(), entry.getOutputLocation());
 			case IClasspathEntry.CPE_VARIABLE:
 				return JavaCore.newVariableEntry(entry.getPath(), entry.getSourceAttachmentPath(), entry.getSourceAttachmentRootPath(), entry.isExported());
 			default:

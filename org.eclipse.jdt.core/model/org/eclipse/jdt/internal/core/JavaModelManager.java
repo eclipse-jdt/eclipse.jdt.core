@@ -400,22 +400,25 @@ public class JavaModelManager implements ISaveParticipant {
 				IPath rootPath = entry.getPath();
 				if (rootPath.equals(resourcePath)) {
 					return project.getPackageFragmentRoot(resource);
-				} else if (rootPath.isPrefixOf(resourcePath) && !Util.isExcluded(resource, ((ClasspathEntry)entry).fullExclusionPatternChars())) {
-					// given we have a resource child of the root, it cannot be a JAR pkg root
-					IPackageFragmentRoot root = ((JavaProject) project).getFolderPackageFragmentRoot(rootPath);
-					if (root == null) return null;
-					IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
-
-					if (resource.getType() == IResource.FILE) {
-						// if the resource is a file, then remove the last segment which
-						// is the file name in the package
-						pkgPath = pkgPath.removeLastSegments(1);
+				} else if (rootPath.isPrefixOf(resourcePath)) {
+					// allow creation of package fragment if it contains a .java file that is included
+					if (!Util.isExcluded(resource, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars())) {
+						// given we have a resource child of the root, it cannot be a JAR pkg root
+						IPackageFragmentRoot root = ((JavaProject) project).getFolderPackageFragmentRoot(rootPath);
+						if (root == null) return null;
+						IPath pkgPath = resourcePath.removeFirstSegments(rootPath.segmentCount());
+	
+						if (resource.getType() == IResource.FILE) {
+							// if the resource is a file, then remove the last segment which
+							// is the file name in the package
+							pkgPath = pkgPath.removeLastSegments(1);
+						}
+						String pkgName = Util.packageName(pkgPath);
+						if (pkgName == null || JavaConventions.validatePackageName(pkgName).getSeverity() == IStatus.ERROR) {
+							return null;
+						}
+						return root.getPackageFragment(pkgName);
 					}
-					String pkgName = Util.packageName(pkgPath);
-					if (pkgName == null || JavaConventions.validatePackageName(pkgName).getSeverity() == IStatus.ERROR) {
-						return null;
-					}
-					return root.getPackageFragment(pkgName);
 				}
 			}
 		} catch (JavaModelException npe) {
@@ -493,6 +496,38 @@ public class JavaModelManager implements ISaveParticipant {
 			this.resolvedClasspath = null;
 			this.resolvedPathToRawEntries = null;
 		}
+		public String toString() {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("Info for "); //$NON-NLS-1$
+			buffer.append(this.project.getFullPath());
+			buffer.append("\nRaw classpath:\n"); //$NON-NLS-1$
+			if (this.rawClasspath == null) {
+				buffer.append("  <null>\n"); //$NON-NLS-1$
+			} else {
+				for (int i = 0, length = this.rawClasspath.length; i < length; i++) {
+					buffer.append("  "); //$NON-NLS-1$
+					buffer.append(this.rawClasspath[i]);
+					buffer.append('\n');
+				}
+			}
+			buffer.append("Resolved classpath:\n"); //$NON-NLS-1$
+			if (this.resolvedClasspath == null) {
+				buffer.append("  <null>\n"); //$NON-NLS-1$
+			} else {
+				for (int i = 0, length = this.resolvedClasspath.length; i < length; i++) {
+					buffer.append("  "); //$NON-NLS-1$
+					buffer.append(this.resolvedClasspath[i]);
+					buffer.append('\n');
+				}
+			}
+			buffer.append("Output location:\n  "); //$NON-NLS-1$
+			if (this.outputLocation == null) {
+				buffer.append("<null>"); //$NON-NLS-1$
+			} else {
+				buffer.append(this.outputLocation);
+			}
+			return buffer.toString();
+		}
 	}
 	
 	public static class PerWorkingCopyInfo implements IProblemRequestor {
@@ -520,6 +555,16 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		public boolean isActive() {
 			return this.problemRequestor != null && this.problemRequestor.isActive();
+		}
+		public String toString() {
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("Info for "); //$NON-NLS-1$
+			buffer.append(((JavaElement)workingCopy).toStringWithAncestors());
+			buffer.append("\nUse count = "); //$NON-NLS-1$
+			buffer.append(this.useCount);
+			buffer.append("\nProblem requestor:\n  "); //$NON-NLS-1$
+			buffer.append(this.problemRequestor);
+			return buffer.toString();
 		}
 	}
 	

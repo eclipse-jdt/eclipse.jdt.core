@@ -450,7 +450,7 @@ protected boolean equalsDOMNode(IDOMNode node) {
 	return false;
 }
 public boolean exists() {
-	// working copy always exists in the model until it is gotten rid of
+	// working copy always exists in the model until it is gotten rid of (even if not on classpath)
 	if (getPerWorkingCopyInfo() != null) return true;	
 	
 	// if not a working copy, it exists only if it is a primary compilation unit
@@ -933,8 +933,9 @@ protected boolean isValidCompilationUnit() {
 	}
 	IResource resource = getResource();
 	if (resource != null) {
+		char[][] inclusionPatterns = ((PackageFragmentRoot)root).fullInclusionPatternChars();
 		char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
-		if (Util.isExcluded(resource, exclusionPatterns)) return false;
+		if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
 	}
 	if (!Util.isValidCompilationUnitName(getElementName())) return false;
 	return true;

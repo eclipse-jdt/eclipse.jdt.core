@@ -111,7 +111,7 @@ private void computeClasspathLocations(
 						createFolder(outputFolder);
 				}
 				sLocations.add(
-					ClasspathLocation.forSourceFolder((IContainer) target, outputFolder, entry.fullExclusionPatternChars()));
+					ClasspathLocation.forSourceFolder((IContainer) target, outputFolder, entry.fullInclusionPatternChars(), entry.fullExclusionPatternChars()));
 				continue nextEntry;
 
 			case IClasspathEntry.CPE_PROJECT :

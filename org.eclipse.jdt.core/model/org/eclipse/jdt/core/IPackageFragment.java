@@ -161,7 +161,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * Non-Java resources includes other files and folders located in the same
 	 * directory as the compilation units or class files for this package 
 	 * fragment. Source files excluded from this package by one or more
-	 * exclusion patterns on the corresponding source classpath entry are
+	 * inclusion/exclusion patterns on the corresponding source classpath entry are
 	 * considered non-Java resources and will appear in the result
 	 * (possibly in a folder).
 	 * </p>
@@ -172,6 +172,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 *              <code>IFolder</code>s, or <code>IStorage</code>s if the
 	 *              package fragment is in an archive) contained in this package 
 	 *              fragment
+	 * @see IClasspathEntry#getInclusionPatterns()
 	 * @see IClasspathEntry#getExclusionPatterns()
 	 */
 	Object[] getNonJavaResources() throws JavaModelException;

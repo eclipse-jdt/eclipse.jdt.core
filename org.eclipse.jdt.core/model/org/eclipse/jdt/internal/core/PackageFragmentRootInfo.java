@@ -56,7 +56,7 @@ public PackageFragmentRootInfo() {
  * 
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
-static Object[] computeFolderNonJavaResources(JavaProject project, IContainer folder, char[][] exclusionPatterns) throws JavaModelException {
+static Object[] computeFolderNonJavaResources(JavaProject project, IContainer folder, char[][] inclusionPatterns, char[][] exclusionPatterns) throws JavaModelException {
 	Object[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
 	try {
@@ -69,7 +69,7 @@ static Object[] computeFolderNonJavaResources(JavaProject project, IContainer fo
 					String fileName = member.getName();
 					
 					// ignore .java files that are not excluded
-					if (Util.isValidCompilationUnitName(fileName) && !Util.isExcluded(member, exclusionPatterns)) 
+					if (Util.isValidCompilationUnitName(fileName) && !Util.isExcluded(member, inclusionPatterns, exclusionPatterns)) 
 						continue nextResource;
 					// ignore .class files
 					if (Util.isValidClassFileName(fileName)) 
@@ -82,7 +82,7 @@ static Object[] computeFolderNonJavaResources(JavaProject project, IContainer fo
 				case IResource.FOLDER :
 					// ignore valid packages or excluded folders that correspond to a nested pkg fragment root
 					if (Util.isValidFolderNameForPackage(member.getName())
-							&& (!Util.isExcluded(member, exclusionPatterns) 
+							&& (!Util.isExcluded(member, inclusionPatterns, exclusionPatterns) 
 								|| isClasspathEntry(member.getFullPath(), classpath)))
 						continue nextResource;
 					break;
@@ -117,6 +117,7 @@ private Object[] computeNonJavaResources(IJavaProject project, IResource underly
 				computeFolderNonJavaResources(
 					(JavaProject)project, 
 					(IContainer) underlyingResource,  
+					handle.fullInclusionPatternChars(),
 					handle.fullExclusionPatternChars());
 		}
 	} catch (JavaModelException e) {

@@ -68,6 +68,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		IPath projectPath = project.getProject().getFullPath();
 		boolean srcIsProject = false;
 		boolean binIsProject = false;
+		char[][] inclusionPatterns = null;
 		char[][] exclusionPatterns = null;
 		IClasspathEntry[] classpath = null;
 		IPath projectOutput = null;
@@ -77,6 +78,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 				IClasspathEntry entry = classpath[i];
 				if (projectPath.equals(entry.getPath())) {
 					srcIsProject = true;
+					inclusionPatterns = ((ClasspathEntry)entry).fullInclusionPatternChars();
 					exclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
 					break;
 				}
@@ -105,7 +107,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 						// ignore .java file if src == project
 						if (srcIsProject 
 							&& Util.isValidCompilationUnitName(resName)
-							&& !Util.isExcluded(res, exclusionPatterns)) {
+							&& !Util.isExcluded(res, inclusionPatterns, exclusionPatterns)) {
 							break;
 						}
 						// ignore .class file if bin == project
@@ -128,7 +130,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 						resFullPath = res.getFullPath();
 						
 						// ignore non-excluded folders on the classpath or that correspond to an output location
-						if ((srcIsProject && !Util.isExcluded(res, exclusionPatterns) && Util.isValidFolderNameForPackage(res.getName()))
+						if ((srcIsProject && !Util.isExcluded(res, inclusionPatterns, exclusionPatterns) && Util.isValidFolderNameForPackage(res.getName()))
 								|| this.isClasspathEntryOrOutputLocation(resFullPath, classpath, projectOutput)) {
 							break;
 						}

@@ -336,7 +336,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 				if (path.segment(0).toString().equals(projectName)) {
 					newPath = path.removeFirstSegments(1);
 				}
-				return Util.bind("classpath.disabledExclusionPatterns", newPath.makeRelative().toString(), projectName); //$NON-NLS-1$
+				return Util.bind("classpath.disabledInclusionExclusionPatterns", newPath.makeRelative().toString(), projectName); //$NON-NLS-1$
 
 			case DISABLED_CP_MULTIPLE_OUTPUT_LOCATIONS:
 				javaProject = (IJavaProject)elements[0];

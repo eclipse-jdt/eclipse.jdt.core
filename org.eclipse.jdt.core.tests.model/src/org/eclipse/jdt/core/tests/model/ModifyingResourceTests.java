@@ -299,19 +299,35 @@ protected void swapFiles(String firstPath, String secondPath) throws CoreExcepti
  *   "src2", "*.txt|com.tests/**"
  * }
  */
-protected IClasspathEntry[] createClasspath(String[] sourceFoldersAndExclusionPatterns) {
-	int length = sourceFoldersAndExclusionPatterns.length;
-	IClasspathEntry[] classpath = new IClasspathEntry[length/2];
-	for (int i = 0; i < length; i+=2) {
-		String src = sourceFoldersAndExclusionPatterns[i];
-		String patterns = sourceFoldersAndExclusionPatterns[i+1];
-		StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
-		int patternsCount =  tokenizer.countTokens();
-		IPath[] patternPaths = new IPath[patternsCount];
-		for (int j = 0; j < patternsCount; j++) {
-			patternPaths[j] = new Path(tokenizer.nextToken());
+protected IClasspathEntry[] createClasspath(String[] sourceFoldersAndPatterns, boolean hasInclusionPatterns, boolean hasExclusionPatterns) {
+	int length = sourceFoldersAndPatterns.length;
+	int increment = 1;
+	if (hasInclusionPatterns) increment++;
+	if (hasExclusionPatterns) increment++;
+	IClasspathEntry[] classpath = new IClasspathEntry[length/increment];
+	for (int i = 0; i < length; i+=increment) {
+		String src = sourceFoldersAndPatterns[i];
+		IPath[] inclusionPatternPaths = new IPath[0];
+		if (hasInclusionPatterns) {
+			String patterns = sourceFoldersAndPatterns[i+1];
+			StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
+			int patternsCount =  tokenizer.countTokens();
+			inclusionPatternPaths = new IPath[patternsCount];
+			for (int j = 0; j < patternsCount; j++) {
+				inclusionPatternPaths[j] = new Path(tokenizer.nextToken());
+			}
 		}
-		classpath[i/2] = JavaCore.newSourceEntry(new Path(src), patternPaths); 
+		IPath[] exclusionPatternPaths = new IPath[0];
+		if (hasExclusionPatterns) {
+			String patterns = sourceFoldersAndPatterns[i+increment-1];
+			StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
+			int patternsCount =  tokenizer.countTokens();
+			exclusionPatternPaths = new IPath[patternsCount];
+			for (int j = 0; j < patternsCount; j++) {
+				exclusionPatternPaths[j] = new Path(tokenizer.nextToken());
+			}
+		}
+		classpath[i/increment] = JavaCore.newSourceEntry(new Path(src), inclusionPatternPaths, exclusionPatternPaths, null); 
 	}
 	return classpath;
 }

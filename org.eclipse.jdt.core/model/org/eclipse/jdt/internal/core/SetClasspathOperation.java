@@ -123,6 +123,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 		IClasspathEntry entry) {
 
 		IPath[] exclusionPatterns = entry.getExclusionPatterns();
+		IPath[] inclusionPatterns = entry.getInclusionPatterns();
 		nextEntry: for (int i = 0; i < list.length; i++) {
 			IClasspathEntry other = list[i];
 			if (other.getContentKind() == entry.getContentKind()
@@ -140,11 +141,26 @@ public class SetClasspathOperation extends JavaModelOperation {
 							continue;
 					}
 					
+					// check inclusion patterns
+					IPath[] otherIncludes = other.getInclusionPatterns();
+					if (inclusionPatterns != otherIncludes) {
+					    if (inclusionPatterns == null) continue;
+						int includeLength = inclusionPatterns.length;
+						if (otherIncludes == null || otherIncludes.length != includeLength)
+							continue;
+						for (int j = 0; j < includeLength; j++) {
+							// compare toStrings instead of IPaths 
+							// since IPath.equals is specified to ignore trailing separators
+							if (!inclusionPatterns[j].toString().equals(otherIncludes[j].toString()))
+								continue nextEntry;
+						}
+					}
 					// check exclusion patterns
 					IPath[] otherExcludes = other.getExclusionPatterns();
 					if (exclusionPatterns != otherExcludes) {
+					    if (exclusionPatterns == null) continue;
 						int excludeLength = exclusionPatterns.length;
-						if (otherExcludes.length != excludeLength)
+						if (otherExcludes == null || otherExcludes.length != excludeLength)
 							continue;
 						for (int j = 0; j < excludeLength; j++) {
 							// compare toStrings instead of IPaths 
@@ -365,13 +381,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 					final IPath path = oldEntry.getPath();
 					switch (changeKind) {
 						case IClasspathEntry.CPE_SOURCE:
+							final char[][] inclusionPatterns = ((ClasspathEntry)oldEntry).fullInclusionPatternChars();
 							final char[][] exclusionPatterns = ((ClasspathEntry)oldEntry).fullExclusionPatternChars();
 							postAction(new IPostAction() {
 								public String getID() {
 									return path.toString();
 								}
 								public void run() /* throws JavaModelException */ {
-									indexManager.removeSourceFolderFromIndex(project, path, exclusionPatterns);
+									indexManager.removeSourceFolderFromIndex(project, path, inclusionPatterns, exclusionPatterns);
 								}
 							}, 
 							REMOVEALL_APPEND);
@@ -491,13 +508,14 @@ public class SetClasspathOperation extends JavaModelOperation {
 						case IClasspathEntry.CPE_SOURCE:
 							IClasspathEntry entry = newResolvedPath[i];
 							final IPath path = entry.getPath();
+							final char[][] inclusionPatterns = ((ClasspathEntry)entry).fullInclusionPatternChars();
 							final char[][] exclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
 							postAction(new IPostAction() {
 								public String getID() {
 									return path.toString();
 								}
 								public void run() /* throws JavaModelException */ {
-									indexManager.indexSourceFolder(project, path, exclusionPatterns);
+									indexManager.indexSourceFolder(project, path, inclusionPatterns, exclusionPatterns);
 								}
 							}, 
 							APPEND); // append so that a removeSourceFolder action is not removed

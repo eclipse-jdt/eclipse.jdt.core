@@ -607,7 +607,7 @@ public class HandleFactory {
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
 				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {
 					PackageFragmentRoot root= (PackageFragmentRoot)roots[j];
-					if (root.getPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullExclusionPatternChars())) {
+					if (root.getPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullInclusionPatternChars(), root.fullExclusionPatternChars(), false)) {
 						return root;
 					}
 				}

@@ -267,7 +267,7 @@ public interface IJavaModelStatusConstants {
 	 public static final int CLASSPATH_CYCLE = 1001;
 	 
 	/**
-	 * Status constant indicating that an exclusion pattern got specified
+	 * Status constant indicating that an inclusion or an exclusion pattern got specified
 	 * on a classpath source entry, though it was explicitely disabled 
 	 * according to its project preference settings.
 	 * @see org.eclipse.jdt.core.IJavaProject#getOptions(boolean)

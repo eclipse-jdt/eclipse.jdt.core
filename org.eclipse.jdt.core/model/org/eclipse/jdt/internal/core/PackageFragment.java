@@ -72,12 +72,14 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	// add compilation units/class files from resources
 	HashSet vChildren = new HashSet();
 	try {
-		char[][] exclusionPatterns = getPackageFragmentRoot().fullExclusionPatternChars();
+	    PackageFragmentRoot root = getPackageFragmentRoot();
+		char[][] inclusionPatterns = root.fullInclusionPatternChars();
+		char[][] exclusionPatterns = root.fullExclusionPatternChars();
 		IResource[] members = ((IContainer) underlyingResource).members();
 		for (int i = 0, max = members.length; i < max; i++) {
 			IResource child = members[i];
 			if (child.getType() != IResource.FOLDER
-					&& !Util.isExcluded(child, exclusionPatterns)) {
+					&& !Util.isExcluded(child, inclusionPatterns, exclusionPatterns)) {
 				String extension = child.getProjectRelativePath().getFileExtension();
 				if (extension != null) {
 					if (extension.equalsIgnoreCase(extType)) {

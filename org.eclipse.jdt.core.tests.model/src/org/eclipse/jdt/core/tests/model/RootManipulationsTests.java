@@ -196,7 +196,7 @@ public void testCopySourceFolder2() throws CoreException {
 public void testCopySourceFolder3() throws CoreException {
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {}, "bin");
-		p1.setRawClasspath(createClasspath(new String[] {"/P1/src1", "src2/**", "/P1/src1/src2", ""}), null);
+		p1.setRawClasspath(createClasspath(new String[] {"/P1/src1", "src2/**", "/P1/src1/src2", ""}, false/*no inclusion*/, true/*exclusion*/), null);
 		this.createJavaProject("P2", new String[] {}, "bin");
 		this.createFolder("/P1/src1/p");
 		this.createFile(
@@ -580,7 +580,7 @@ public void testDeleteSourceFolder1() throws CoreException {
 public void testDeleteSourceFolder2() throws CoreException {
 	try {
 		IJavaProject project = this.createJavaProject("P", new String[] {}, "bin");
-		project.setRawClasspath(createClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""}), null);
+		project.setRawClasspath(createClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""}, false/*no inclusion*/, true/*exclusion*/), null);
 		IFolder folder = this.createFolder("/P/src1/p");
 		IFile file = this.createFile(
 			"/P/src1/p/X.java", 
@@ -729,7 +729,7 @@ public void testMoveSourceFolder2() throws CoreException {
 public void testMoveSourceFolder3() throws CoreException {
 	try {
 		IJavaProject p1 = this.createJavaProject("P1", new String[] {}, "bin");
-		p1.setRawClasspath(createClasspath(new String[] {"/P1/src1", "src2/**", "/P1/src1/src2", ""}), null);
+		p1.setRawClasspath(createClasspath(new String[] {"/P1/src1", "src2/**", "/P1/src1/src2", ""}, false/*no inclusion*/, true/*exclusion*/), null);
 		IJavaProject p2 = this.createJavaProject("P2", new String[] {}, "bin");
 		this.createFolder("/P1/src1/p");
 		this.createFile(

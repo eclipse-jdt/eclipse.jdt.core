@@ -62,17 +62,18 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 	for (int i = 0, l = sourceLocations.length; i < l; i++) {
 		final ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 		final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
+		final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
 		final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
 		sourceLocation.sourceFolder.accept(
 			new IResourceProxyVisitor() {
 				public boolean visit(IResourceProxy proxy) throws CoreException {
 					IResource resource = null;
-					if (exclusionPatterns != null) {
-						resource = proxy.requestResource();
-						if (Util.isExcluded(resource, exclusionPatterns)) return false;
-					}
 					switch(proxy.getType()) {
 						case IResource.FILE :
+							if (exclusionPatterns != null || inclusionPatterns != null) {
+								resource = proxy.requestResource();
+								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
+							}
 							if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 								if (resource == null)
 									resource = proxy.requestResource();
@@ -80,6 +81,11 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 							}
 							return false;
 						case IResource.FOLDER :
+							if (exclusionPatterns != null && inclusionPatterns == null) {
+								// if there are inclusion patterns then we must walk the children
+								resource = proxy.requestResource();
+								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
+							}
 							if (isAlsoProject && isExcludedFromProject(proxy.requestFullPath())) return false;
 					}
 					return true;
@@ -127,21 +133,30 @@ protected void cleanOutputFolders() throws CoreException {
 					isOutputFolder
 						? sourceLocation.exclusionPatterns
 						: null; // ignore exclusionPatterns if output folder == another source folder... not this one
+				final char[][] inclusionPatterns =
+					isOutputFolder
+						? sourceLocation.inclusionPatterns
+						: null; // ignore inclusionPatterns if output folder == another source folder... not this one
 				sourceLocation.binaryFolder.accept(
 					new IResourceProxyVisitor() {
 						public boolean visit(IResourceProxy proxy) throws CoreException {
 							IResource resource = null;
-							if (exclusionPatterns != null) {
-								resource = proxy.requestResource();
-								if (Util.isExcluded(resource, exclusionPatterns)) return false;
-							}
 							if (proxy.getType() == IResource.FILE) {
+								if (exclusionPatterns != null || inclusionPatterns != null) {
+									resource = proxy.requestResource();
+									if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
+								}
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
 									if (resource == null)
 										resource = proxy.requestResource();
 									resource.delete(IResource.FORCE, null);
 								}
 								return false;
+							}
+							if (exclusionPatterns != null && inclusionPatterns == null) {
+								// if there are inclusion patterns then we must walk the children
+								resource = proxy.requestResource();
+								if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns)) return false;
 							}
 							notifier.checkCancel();
 							return true;
@@ -175,6 +190,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 	notifier.subTask(Util.bind("build.copyingResources")); //$NON-NLS-1$
 	final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
 	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
+	final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
 	final IContainer outputFolder = sourceLocation.binaryFolder;
 	final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
 	sourceLocation.sourceFolder.accept(
@@ -188,8 +204,9 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 
 						resource = proxy.requestResource();
 						if (javaBuilder.filterExtraResource(resource)) return false;
-						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
-							return false;
+						if (exclusionPatterns != null || inclusionPatterns != null)
+							if (Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
+								return false;
 
 						IPath partialPath = resource.getFullPath().removeFirstSegments(segmentCount);
 						IResource copiedResource = outputFolder.getFile(partialPath);
@@ -212,11 +229,10 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 					case IResource.FOLDER :
 						resource = proxy.requestResource();
 						if (javaBuilder.filterExtraResource(resource)) return false;
-						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
-							return false;
-
 						IPath folderPath = resource.getFullPath();
 						if (isAlsoProject && isExcludedFromProject(folderPath)) return false; // the sourceFolder == project
+						if (exclusionPatterns != null && Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
+					        return inclusionPatterns != null; // need to go further only if inclusionPatterns are set
 						createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
 				}
 				return true;
@@ -229,6 +245,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 protected void copyPackages(ClasspathMultiDirectory sourceLocation) throws CoreException {
 	final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
 	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
+	final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
 	final IContainer outputFolder = sourceLocation.binaryFolder;
 	final boolean isAlsoProject = sourceLocation.sourceFolder.equals(javaBuilder.currentProject);
 	sourceLocation.sourceFolder.accept(
@@ -240,11 +257,10 @@ protected void copyPackages(ClasspathMultiDirectory sourceLocation) throws CoreE
 					case IResource.FOLDER :
 						IResource resource = proxy.requestResource();
 						if (javaBuilder.filterExtraResource(resource)) return false;
-						if (exclusionPatterns != null && Util.isExcluded(resource, exclusionPatterns))
-							return false;
-
 						IPath folderPath = resource.getFullPath();
 						if (isAlsoProject && isExcludedFromProject(folderPath)) return false; // the sourceFolder == project
+						if (exclusionPatterns != null && Util.isExcluded(resource, inclusionPatterns, exclusionPatterns))
+					        return inclusionPatterns != null; // need to go further only if inclusionPatterns are set
 						createFolder(folderPath.removeFirstSegments(segmentCount), outputFolder);
 				}
 				return true;

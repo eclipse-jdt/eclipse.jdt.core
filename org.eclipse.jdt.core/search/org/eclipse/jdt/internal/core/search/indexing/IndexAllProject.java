@@ -97,7 +97,8 @@ public class IndexAllProject extends IndexRequest {
 						}
 						final boolean hasOutputs = !outputs.isEmpty();
 						
-						final char[][] patterns = ((ClasspathEntry) entry).fullExclusionPatternChars();
+						final char[][] inclusionPatterns = ((ClasspathEntry) entry).fullInclusionPatternChars();
+						final char[][] exclusionPatterns = ((ClasspathEntry) entry).fullExclusionPatternChars();
 						if (max == 0) {
 							sourceFolder.accept(
 								new IResourceProxyVisitor() {
@@ -107,12 +108,12 @@ public class IndexAllProject extends IndexRequest {
 											case IResource.FILE :
 												if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 													IFile file = (IFile) proxy.requestResource();
-													if (file.getLocation() != null && (patterns == null || !Util.isExcluded(file, patterns)))
+													if (file.getLocation() != null && (!Util.isExcluded(file, inclusionPatterns, exclusionPatterns)))
 														indexedFileNames.put(new JavaSearchDocument(file, null).getPath(), file);
 												}
 												return false;
 											case IResource.FOLDER :
-												if (patterns != null && Util.isExcluded(proxy.requestResource(), patterns))
+												if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
 													return false;
 												if (hasOutputs && outputs.contains(proxy.requestFullPath())) {
 													return false;
@@ -133,7 +134,7 @@ public class IndexAllProject extends IndexRequest {
 												if (org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(proxy.getName())) {
 													IFile file = (IFile) proxy.requestResource();
 													IPath location = file.getLocation();
-													if (location != null && (patterns == null || !Util.isExcluded(file, patterns))) {
+													if (location != null && (!Util.isExcluded(file, inclusionPatterns, exclusionPatterns))) {
 														String path = new JavaSearchDocument(file, null).getPath();
 														indexedFileNames.put(path,
 															indexedFileNames.get(path) == null || indexLastModified < location.toFile().lastModified()
@@ -143,7 +144,7 @@ public class IndexAllProject extends IndexRequest {
 												}
 												return false;
 											case IResource.FOLDER :
-												if (patterns != null && Util.isExcluded(proxy.requestResource(), patterns))
+												if (Util.isExcluded(proxy.requestResource(), inclusionPatterns, exclusionPatterns))
 													return false;
 												if (hasOutputs && outputs.contains(proxy.requestFullPath())) {
 													return false;

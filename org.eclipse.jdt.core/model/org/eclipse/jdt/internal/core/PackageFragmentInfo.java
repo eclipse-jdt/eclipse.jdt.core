@@ -45,6 +45,7 @@ Object[] getNonJavaResources(IResource underlyingResource, PackageFragmentRoot r
 				PackageFragmentRootInfo.computeFolderNonJavaResources(
 					(JavaProject)rootHandle.getJavaProject(), 
 					(IContainer)underlyingResource, 
+					rootHandle.fullInclusionPatternChars(),
 					rootHandle.fullExclusionPatternChars());
 		} catch (JavaModelException e) {
 			// root doesn't exist: consider package has no nonJavaResources

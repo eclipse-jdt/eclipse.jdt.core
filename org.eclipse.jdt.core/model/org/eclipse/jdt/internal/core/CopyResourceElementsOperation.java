@@ -136,7 +136,8 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 		JavaElementDelta projectDelta = null;
 		String[] names = Util.getTrimmedSimpleNames(newFragName);
 		StringBuffer sideEffectPackageName = new StringBuffer();
-		char[][] exclusionsPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
+		char[][] inclusionPatterns = ((PackageFragmentRoot)root).fullInclusionPatternChars();
+		char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
 		for (int i = 0; i < names.length; i++) {
 			String subFolderName = names[i];
 			sideEffectPackageName.append(subFolderName);
@@ -153,7 +154,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				}
 				IPackageFragment sideEffectPackage = root.getPackageFragment(sideEffectPackageName.toString());
 				if (i < names.length - 1 // all but the last one are side effect packages
-						&& !Util.isExcluded(parentFolder, exclusionsPatterns)) { 
+						&& !Util.isExcluded(parentFolder, inclusionPatterns, exclusionPatterns)) { 
 					if (projectDelta == null) {
 						projectDelta = getDeltaFor(root.getJavaProject());
 					}

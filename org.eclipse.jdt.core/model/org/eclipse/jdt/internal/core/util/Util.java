@@ -1219,51 +1219,85 @@ public class Util {
 
 	/*
 	 * Returns whether the given java element is exluded from its root's classpath.
+	 * It doesn't check whether the root itself is on the classpath or not
 	 */
 	public static final boolean isExcluded(IJavaElement element) {
 		int elementType = element.getElementType();
 		switch (elementType) {
+			case IJavaElement.JAVA_MODEL:
+			case IJavaElement.JAVA_PROJECT:
+			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+				return false;
+
 			case IJavaElement.PACKAGE_FRAGMENT:
 				PackageFragmentRoot root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 				IResource resource = element.getResource();
-				return resource != null && Util.isExcluded(resource, root.fullExclusionPatternChars());
+				return resource != null && Util.isExcluded(resource, root.fullInclusionPatternChars(), root.fullExclusionPatternChars());
+				
 			case IJavaElement.COMPILATION_UNIT:
 				root = (PackageFragmentRoot)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 				resource = element.getResource();
-				if (resource != null && Util.isExcluded(resource, root.fullExclusionPatternChars()))
+				if (resource != null && Util.isExcluded(resource, root.fullInclusionPatternChars(), root.fullExclusionPatternChars()))
 					return true;
 				return isExcluded(element.getParent());
+				
 			default:
 				IJavaElement cu = element.getAncestor(IJavaElement.COMPILATION_UNIT);
 				return cu != null && isExcluded(cu);
 		}
 	}
 	/*
-	 * Returns whether the given resource path matches one of the exclusion
+	 * Returns whether the given resource path matches one of the inclusion/exclusion
 	 * patterns.
-	 * 
+	 * NOTE: should not be asked directly using pkg root pathes
+	 * @see IClasspathEntry#getInclusionPatterns
 	 * @see IClasspathEntry#getExclusionPatterns
 	 */
-	public final static boolean isExcluded(IPath resourcePath, char[][] exclusionPatterns) {
-		if (exclusionPatterns == null) return false;
+	public final static boolean isExcluded(IPath resourcePath, char[][] inclusionPatterns, char[][] exclusionPatterns, boolean isFolderPath) {
+		if (inclusionPatterns == null && exclusionPatterns == null) return false;
 		char[] path = resourcePath.toString().toCharArray();
-		for (int i = 0, length = exclusionPatterns.length; i < length; i++)
-			if (CharOperation.pathMatch(exclusionPatterns[i], path, true, '/'))
-				return true;
+
+		inclusionCheck: if (inclusionPatterns != null) {
+			for (int i = 0, length = inclusionPatterns.length; i < length; i++) {
+				char[] pattern = inclusionPatterns[i];
+				char[] folderPattern = pattern;
+				if (isFolderPath) {
+					int lastSlash = CharOperation.lastIndexOf('/', pattern);
+					if (lastSlash != -1) {
+						int star = CharOperation.indexOf('*', pattern, lastSlash);
+						if (star == -1 || star >= pattern.length-1 || pattern[star+1] != '*') {
+							folderPattern = CharOperation.subarray(pattern, 0, lastSlash);
+						}
+					}
+				}
+				if (CharOperation.pathMatch(folderPattern, path, true, '/')) {
+					break inclusionCheck;
+				}
+			}
+			return true; // never included
+		}
+		if (isFolderPath) {
+			path = CharOperation.concat(path, new char[] {'*'}, '/');
+		}
+		exclusionCheck: if (exclusionPatterns != null) {
+			for (int i = 0, length = exclusionPatterns.length; i < length; i++) {
+				if (CharOperation.pathMatch(exclusionPatterns[i], path, true, '/')) {
+					return true;
+				}
+			}
+		}
 		return false;
 	}	
 	
 	/*
 	 * Returns whether the given resource matches one of the exclusion patterns.
-	 * 
+	 * NOTE: should not be asked directly using pkg root pathes
 	 * @see IClasspathEntry#getExclusionPatterns
 	 */
-	public final static boolean isExcluded(IResource resource, char[][] exclusionPatterns) {
+	public final static boolean isExcluded(IResource resource, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 		IPath path = resource.getFullPath();
 		// ensure that folders are only excluded if all of their children are excluded
-		if (resource.getType() == IResource.FOLDER)
-			path = path.append("*"); //$NON-NLS-1$
-		return isExcluded(path, exclusionPatterns);
+		return isExcluded(path, inclusionPatterns, exclusionPatterns, resource.getType() == IResource.FOLDER);
 	}
 
 	/**

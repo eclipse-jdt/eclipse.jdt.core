@@ -72,6 +72,7 @@ protected void executeOperation() throws JavaModelException {
 	IContainer parentFolder = (IContainer) root.getResource();
 	String sideEffectPackageName = ""; //$NON-NLS-1$
 	ArrayList results = new ArrayList(names.length);
+	char[][] inclusionPatterns = ((PackageFragmentRoot)root).fullInclusionPatternChars();
 	char[][] exclusionPatterns = ((PackageFragmentRoot)root).fullExclusionPatternChars();
 	int i;
 	for (i = 0; i < names.length; i++) {
@@ -82,7 +83,7 @@ protected void executeOperation() throws JavaModelException {
 			createFolder(parentFolder, subFolderName, force);
 			parentFolder = parentFolder.getFolder(new Path(subFolderName));
 			IPackageFragment addedFrag = root.getPackageFragment(sideEffectPackageName);
-			if (!Util.isExcluded(parentFolder, exclusionPatterns)) {
+			if (!Util.isExcluded(parentFolder, inclusionPatterns, exclusionPatterns)) {
 				if (delta == null) {
 					delta = newJavaElementDelta();
 				}

@@ -1857,9 +1857,9 @@ public class JavaProject
 						if (rawEntry.isExported()){
 							cEntry = new ClasspathEntry(cEntry.getContentKind(),
 								cEntry.getEntryKind(), cEntry.getPath(),
-								cEntry.getExclusionPatterns(), cEntry.getSourceAttachmentPath(),
-								cEntry.getSourceAttachmentRootPath(), cEntry.getOutputLocation(), 
-								true); // duplicate container entry for tagging it as exported
+								cEntry.getInclusionPatterns(), cEntry.getExclusionPatterns(), 
+								cEntry.getSourceAttachmentPath(), cEntry.getSourceAttachmentRootPath(), 
+								cEntry.getOutputLocation(), true); // duplicate container entry for tagging it as exported
 						}
 						if (reverseMap != null && reverseMap.get(resolvedPath = cEntry.getPath()) == null) reverseMap.put(resolvedPath, rawEntry);
 						resolvedEntries.add(cEntry);
@@ -2030,23 +2030,53 @@ public class JavaProject
 	 */
 	public boolean isOnClasspath(IJavaElement element) {
 		IPath path = element.getPath();
+		IClasspathEntry[] classpath;
+		try {
+			classpath = this.getResolvedClasspath(true/*ignore unresolved variable*/);
+		} catch(JavaModelException e){
+			return false; // not a Java project
+		}
+		boolean isFolderPath = false;
 		switch (element.getElementType()) {
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-				if (!((IPackageFragmentRoot)element).isArchive()) {
-					// ensure that folders are only excluded if all of their children are excluded
-					path = path.append("*"); //$NON-NLS-1$
+				// package fragment roots must match exactly entry pathes (no exclusion there)
+				for (int i = 0; i < classpath.length; i++) {
+					IClasspathEntry entry = classpath[i];
+					IPath entryPath = entry.getPath();
+					if (entryPath.equals(path)) {
+						return true;
+					}
 				}
-				break;
+				return false;
+				
 			case IJavaElement.PACKAGE_FRAGMENT:
 				if (!((IPackageFragmentRoot)element.getParent()).isArchive()) {
 					// ensure that folders are only excluded if all of their children are excluded
-					path = path.append("*"); //$NON-NLS-1$
+					isFolderPath = true;
 				}
 				break;
 		}
-		return this.isOnClasspath(path);
+		for (int i = 0; i < classpath.length; i++) {
+			IClasspathEntry entry = classpath[i];
+			IPath entryPath = entry.getPath();
+			if (entryPath.isPrefixOf(path) 
+					&& !Util.isExcluded(path, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars(), isFolderPath)) {
+				return true;
+			}
+		}
+		return false;
 	}
-	private boolean isOnClasspath(IPath path) {
+
+	/*
+	 * @see IJavaProject
+	 */
+	public boolean isOnClasspath(IResource resource) {
+		IPath exactPath = resource.getFullPath();
+		IPath path = exactPath;
+		
+		// ensure that folders are only excluded if all of their children are excluded
+		boolean isFolderPath = resource.getType() == IResource.FOLDER;
+		
 		IClasspathEntry[] classpath;
 		try {
 			classpath = this.getResolvedClasspath(true/*ignore unresolved variable*/);
@@ -2055,25 +2085,16 @@ public class JavaProject
 		}
 		for (int i = 0; i < classpath.length; i++) {
 			IClasspathEntry entry = classpath[i];
-			if (entry.getPath().isPrefixOf(path) 
-					&& !Util.isExcluded(path, ((ClasspathEntry)entry).fullExclusionPatternChars())) {
+			IPath entryPath = entry.getPath();
+			if (entryPath.equals(exactPath)) { // package fragment roots must match exactly entry pathes (no exclusion there)
+				return true;
+			}
+			if (entryPath.isPrefixOf(path) 
+					&& !Util.isExcluded(path, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars(), isFolderPath)) {
 				return true;
 			}
 		}
 		return false;
-	}
-	/*
-	 * @see IJavaProject
-	 */
-	public boolean isOnClasspath(IResource resource) {
-		IPath path = resource.getFullPath();
-		
-		// ensure that folders are only excluded if all of their children are excluded
-		if (resource.getType() == IResource.FOLDER) {
-			path = path.append("*"); //$NON-NLS-1$
-		}
-		
-		return this.isOnClasspath(path);
 	}
 
 

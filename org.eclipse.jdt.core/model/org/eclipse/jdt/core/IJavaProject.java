@@ -525,6 +525,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @param element the given element
 	 * @return <code>true</code> if the given element is on the classpath of
 	 * this project, <code>false</code> otherwise
+	 * @see IClasspathEntry#getInclusionPatterns()
 	 * @see IClasspathEntry#getExclusionPatterns()
 	 * @since 2.0
 	 */
@@ -537,6 +538,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @param resource the given resource
 	 * @return <code>true</code> if the given resource is on the classpath of
 	 * this project, <code>false</code> otherwise
+	 * @see IClasspathEntry#getInclusionPatterns()
 	 * @see IClasspathEntry#getExclusionPatterns()
 	 * @since 2.1
 	 */

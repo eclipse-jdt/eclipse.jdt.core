@@ -75,19 +75,25 @@ public class ClasspathEntry implements IClasspathEntry {
 	public IPath path;
 
 	/**
-	 * Patterns allowing to exclude portions of the resource tree denoted by this entry path.
+	 * Patterns allowing to include/exclude portions of the resource tree denoted by this entry path.
 	 */
-	
+	public IPath[] inclusionPatterns;
+	private char[][] fullCharInclusionPatterns;
 	public IPath[] exclusionPatterns;
 	private char[][] fullCharExclusionPatterns;
 	private final static char[][] UNINIT_PATTERNS = new char[][] { "Non-initialized yet".toCharArray() }; //$NON-NLS-1$
 
 	private String rootID;
 	
-	/**
+	/*
+	 * Default inclusion pattern set
+	 */
+	public final static IPath[] INCLUDE_ALL = {};
+				
+	/*
 	 * Default exclusion pattern set
 	 */
-	public final static IPath[] NO_EXCLUSION_PATTERNS = {};
+	public final static IPath[] EXCLUDE_NONE = {};
 				
 	/**
 	 * Describes the path to the source archive associated with this
@@ -133,6 +139,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		int contentKind,
 		int entryKind,
 		IPath path,
+		IPath[] inclusionPatterns,
 		IPath[] exclusionPatterns,
 		IPath sourceAttachmentPath,
 		IPath sourceAttachmentRootPath,
@@ -142,10 +149,18 @@ public class ClasspathEntry implements IClasspathEntry {
 		this.contentKind = contentKind;
 		this.entryKind = entryKind;
 		this.path = path;
+		this.inclusionPatterns = inclusionPatterns;
+	    if (inclusionPatterns != INCLUDE_ALL && inclusionPatterns.length > 0) {
+			this.fullCharInclusionPatterns = UNINIT_PATTERNS;
+	    } else {
+			this.fullCharInclusionPatterns = null; // empty inclusion pattern means everything is included
+	    }
 		this.exclusionPatterns = exclusionPatterns;
-		if (exclusionPatterns.length > 0) {
+	    if (exclusionPatterns.length > 0) {
 			this.fullCharExclusionPatterns = UNINIT_PATTERNS;
-		}
+	    } else {
+			this.fullCharExclusionPatterns = null; // empty exclusion pattern means nothing is excluded
+	    }
 		this.sourceAttachmentPath = sourceAttachmentPath;
 		this.sourceAttachmentRootPath = sourceAttachmentRootPath;
 		this.specificOutputLocation = specificOutputLocation;
@@ -169,6 +184,23 @@ public class ClasspathEntry implements IClasspathEntry {
 		return this.fullCharExclusionPatterns;
 	}
 	
+	/*
+	 * Returns a char based representation of the exclusions patterns full path.
+	 */
+	public char[][] fullInclusionPatternChars() {
+
+		if (this.fullCharInclusionPatterns == UNINIT_PATTERNS) {
+			int length = this.inclusionPatterns.length;
+			this.fullCharInclusionPatterns = new char[length][];
+			IPath prefixPath = this.path.removeTrailingSeparator();
+			for (int i = 0; i < length; i++) {
+				this.fullCharInclusionPatterns[i] = 
+					prefixPath.append(this.inclusionPatterns[i]).toString().toCharArray();
+			}
+		}
+		return this.fullCharInclusionPatterns;
+	}
+
 	/**
 	 * Returns the XML encoding of the class path.
 	 */
@@ -210,8 +242,15 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (this.isExported) {
 			parameters.put("exported", "true");//$NON-NLS-1$//$NON-NLS-2$
 		}
-		
-		if (this.exclusionPatterns.length > 0) {
+		if (this.inclusionPatterns != null && this.inclusionPatterns.length > 0) {
+			StringBuffer includeRule = new StringBuffer(10);
+			for (int i = 0, max = this.inclusionPatterns.length; i < max; i++){
+				if (i > 0) includeRule.append('|');
+				includeRule.append(this.inclusionPatterns[i]);
+			}
+			parameters.put("including", String.valueOf(includeRule));//$NON-NLS-1$
+		}
+		if (this.exclusionPatterns != null && this.exclusionPatterns.length > 0) {
 			StringBuffer excludeRule = new StringBuffer(10);
 			for (int i = 0, max = this.exclusionPatterns.length; i < max; i++){
 				if (i > 0) excludeRule.append('|');
@@ -257,9 +296,23 @@ public class ClasspathEntry implements IClasspathEntry {
 		// exported flag (optional)
 		boolean isExported = element.getAttribute("exported").equals("true"); //$NON-NLS-1$ //$NON-NLS-2$
 
+		// inclusion patterns (optional)
+		String inclusion = element.getAttribute("including"); //$NON-NLS-1$ 
+		IPath[] inclusionPatterns = INCLUDE_ALL;
+		if (!inclusion.equals("")) { //$NON-NLS-1$ 
+			char[][] patterns = CharOperation.splitOn('|', inclusion.toCharArray());
+			int patternCount;
+			if ((patternCount  = patterns.length) > 0) {
+				inclusionPatterns = new IPath[patternCount];
+				for (int j = 0; j < patterns.length; j++){
+					inclusionPatterns[j] = new Path(new String(patterns[j]));
+				}
+			}
+		}
+
 		// exclusion patterns (optional)
 		String exclusion = element.getAttribute("excluding"); //$NON-NLS-1$ 
-		IPath[] exclusionPatterns = ClasspathEntry.NO_EXCLUSION_PATTERNS;
+		IPath[] exclusionPatterns = EXCLUDE_NONE;
 		if (!exclusion.equals("")) { //$NON-NLS-1$ 
 			char[][] patterns = CharOperation.splitOn('|', exclusion.toCharArray());
 			int patternCount;
@@ -291,7 +344,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				// must be an entry in this project or specify another project
 				String projSegment = path.segment(0);
 				if (projSegment != null && projSegment.equals(project.getElementName())) { // this project
-					return JavaCore.newSourceEntry(path, exclusionPatterns, outputLocation);
+					return JavaCore.newSourceEntry(path, inclusionPatterns, exclusionPatterns, outputLocation);
 				} else { // another project
 					return JavaCore.newProjectEntry(path, isExported);
 				}
@@ -314,7 +367,8 @@ public class ClasspathEntry implements IClasspathEntry {
 						ClasspathEntry.K_OUTPUT,
 						IClasspathEntry.CPE_LIBRARY,
 						path,
-						ClasspathEntry.NO_EXCLUSION_PATTERNS, 
+						ClasspathEntry.INCLUDE_ALL, 
+						ClasspathEntry.EXCLUDE_NONE, 
 						null, // source attachment
 						null, // source attachment root
 						null, // custom output location
@@ -364,10 +418,25 @@ public class ClasspathEntry implements IClasspathEntry {
 					return false;
 			}
 
+			IPath[] otherIncludes = otherEntry.getInclusionPatterns();
+			if (this.inclusionPatterns != otherIncludes){
+			    if (this.inclusionPatterns == null) return false;
+				int includeLength = this.inclusionPatterns.length;
+				if (otherIncludes == null || otherIncludes.length != includeLength) 
+					return false;
+				for (int i = 0; i < includeLength; i++) {
+					// compare toStrings instead of IPaths 
+					// since IPath.equals is specified to ignore trailing separators
+					if (!this.inclusionPatterns[i].toString().equals(otherIncludes[i].toString()))
+						return false;
+				}
+			}
+
 			IPath[] otherExcludes = otherEntry.getExclusionPatterns();
 			if (this.exclusionPatterns != otherExcludes){
+			    if (this.exclusionPatterns == null) return false;
 				int excludeLength = this.exclusionPatterns.length;
-				if (otherExcludes.length != excludeLength) 
+				if (otherExcludes == null || otherExcludes.length != excludeLength) 
 					return false;
 				for (int i = 0; i < excludeLength; i++) {
 					// compare toStrings instead of IPaths 
@@ -410,6 +479,13 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public IPath[] getExclusionPatterns() {
 		return this.exclusionPatterns;
+	}
+
+	/**
+	 * @see IClasspathEntry#getExclusionPatterns()
+	 */
+	public IPath[] getInclusionPatterns() {
+		return this.inclusionPatterns;
 	}
 
 	/**
@@ -547,9 +623,20 @@ public class ClasspathEntry implements IClasspathEntry {
 		buffer.append("[isExported:"); //$NON-NLS-1$
 		buffer.append(this.isExported);
 		buffer.append(']');
-		IPath[] patterns = getExclusionPatterns();
+		IPath[] patterns = getInclusionPatterns();
 		int length;
-		if ((length = patterns.length) > 0) {
+		if ((length = patterns == null ? 0 : patterns.length) > 0) {
+			buffer.append("[including:"); //$NON-NLS-1$
+			for (int i = 0; i < length; i++) {
+				buffer.append(patterns[i]);
+				if (i != length-1) {
+					buffer.append('|');
+				}
+			}
+			buffer.append(']');
+		}
+		patterns = getExclusionPatterns();
+		if ((length = patterns == null ? 0 : patterns.length) > 0) {
 			buffer.append("[excluding:"); //$NON-NLS-1$
 			for (int i = 0; i < length; i++) {
 				buffer.append(patterns[i]);
@@ -689,7 +776,9 @@ public class ClasspathEntry implements IClasspathEntry {
 				case IClasspathEntry.CPE_SOURCE :
 					sourceEntryCount++;
 
-					if (disableExclusionPatterns && resolvedEntry.getExclusionPatterns() != null && resolvedEntry.getExclusionPatterns().length > 0) {
+					if (disableExclusionPatterns &&
+					        ((resolvedEntry.getInclusionPatterns() != null && resolvedEntry.getInclusionPatterns().length > 0) 
+					        || (resolvedEntry.getExclusionPatterns() != null && resolvedEntry.getExclusionPatterns().length > 0))) {
 						return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_EXCLUSION_PATTERNS, javaProject, resolvedEntry.getPath());
 					}
 					IPath customOutput; 
@@ -800,13 +889,12 @@ public class ClasspathEntry implements IClasspathEntry {
 						&& (otherKind == IClasspathEntry.CPE_SOURCE 
 								|| (otherKind == IClasspathEntry.CPE_LIBRARY 
 										&& !org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(otherPath.lastSegment())))){
-						char[][] exclusionPatterns;
+						char[][] inclusionPatterns, exclusionPatterns;
 						if (otherPath.isPrefixOf(entryPath) 
 								&& !otherPath.equals(entryPath)
-								&& !Util.isExcluded(entryPath.append("*"), exclusionPatterns = ((ClasspathEntry)otherEntry).fullExclusionPatternChars())) { //$NON-NLS-1$
-									
+								&& !Util.isExcluded(entryPath.append("*"), inclusionPatterns = ((ClasspathEntry)otherEntry).fullInclusionPatternChars(), exclusionPatterns = ((ClasspathEntry)otherEntry).fullExclusionPatternChars(), false)) { //$NON-NLS-1$
 							String exclusionPattern = entryPath.removeFirstSegments(otherPath.segmentCount()).segment(0);
-							if (Util.isExcluded(entryPath, exclusionPatterns)) {
+							if (Util.isExcluded(entryPath, inclusionPatterns, exclusionPatterns, false)) {
 								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.mustEndWithSlash", exclusionPattern, entryPath.makeRelative().toString())); //$NON-NLS-1$
 							} else {
 								if (otherKind == IClasspathEntry.CPE_SOURCE) {
@@ -822,12 +910,13 @@ public class ClasspathEntry implements IClasspathEntry {
 			}
 			
 			// prevent nesting output location inside entry unless enclosing is a source entry which explicitly exclude the output location
+		    char[][] inclusionPatterns = ((ClasspathEntry)entry).fullInclusionPatternChars();
 		    char[][] exclusionPatterns = ((ClasspathEntry)entry).fullExclusionPatternChars();
 		    for (int j = 0; j < outputCount; j++){
 		        IPath currentOutput = outputLocations[j];
     			if (entryPath.equals(currentOutput)) continue;
 				if (entryPath.isPrefixOf(currentOutput)) {
-				    if (kind != IClasspathEntry.CPE_SOURCE || !Util.isExcluded(currentOutput, exclusionPatterns)) {
+				    if (kind != IClasspathEntry.CPE_SOURCE || !Util.isExcluded(currentOutput, inclusionPatterns, exclusionPatterns, true)) {
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInEntry", currentOutput.makeRelative().toString(), entryPath.makeRelative().toString())); //$NON-NLS-1$
 				    }
 				}
@@ -1036,8 +1125,8 @@ public class ClasspathEntry implements IClasspathEntry {
 
 			// project source folder
 			case IClasspathEntry.CPE_SOURCE :
-				if (entry.getExclusionPatterns() != null 
-						&& entry.getExclusionPatterns().length > 0
+				if (((entry.getInclusionPatterns() != null && entry.getInclusionPatterns().length > 0)
+				        	|| (entry.getExclusionPatterns() != null && entry.getExclusionPatterns().length > 0))
 						&& JavaCore.DISABLED.equals(project.getOption(JavaCore.CORE_ENABLE_CLASSPATH_EXCLUSION_PATTERNS, true))) {
 					return new JavaModelStatus(IJavaModelStatusConstants.DISABLED_CP_EXCLUSION_PATTERNS, project, path);
 				}
