@@ -158,6 +158,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests("testCompletionAssignmentInMethod4"));
 	suite.addTest(new CompletionTests("testCompletionEmptyTypeName1"));
 	suite.addTest(new CompletionTests("testCompletionEmptyTypeName2"));
+	suite.addTest(new CompletionTests("testCompletionExpectedTypeIsNotValid"));
 	
 	return suite;
 }
@@ -2219,6 +2220,22 @@ public void testCompletionVariableName2() throws JavaModelException {
 		"element:bar_MyClass    completion:bar_MyClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
 		"element:myClass    completion:myClass    relevance:"+(R_DEFAULT + R_CASE)+"\n" +
 		"element:test_Bar_MyClass    completion:test_Bar_MyClass    relevance:"+(R_DEFAULT + R_CASE),
+		requestor.getResults());
+}
+/*
+* http://dev.eclipse.org/bugs/show_bug.cgi?id=25820
+*/
+public void testCompletionExpectedTypeIsNotValid() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionExpectedTypeIsNotValid.java");
+
+	String str = cu.getSource();
+	String completeBehind = "new ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	assertEquals(
+		"element:CompletionExpectedTypeIsNotValid    completion:CompletionExpectedTypeIsNotValid    relevance:"+(R_DEFAULT + R_CASE),
 		requestor.getResults());
 }
 }

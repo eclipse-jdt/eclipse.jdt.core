@@ -2868,6 +2868,8 @@ public final class CompletionEngine
 		}
 	}
 	private void addExpectedType(TypeBinding type){
+		if(type == null || !type.isValidBinding()) return;
+		
 		try {
 			this.expectedTypes[++this.expectedTypesPtr] = type;
 		} catch (IndexOutOfBoundsException e) {
