@@ -50,9 +50,22 @@ public boolean encloses(String resourcePath);
 public boolean encloses(IJavaElement element);
 /**
  * Returns the paths to the enclosing projects and JARs for this search scope.
+ * <ul>
+ * <li> If the path is a project path, this is the full path of the project
+ *       (see <code>IResource.getFullPath()</code>).
+ *        E.g. /MyProject
+ * </li>
+ * <li> If the path is a JAR path and this JAR is internal to the workspace,
+ *        this is the full path of the JAR file (see <code>IResource.getFullPath()</code>).
+ *        E.g. /MyProject/mylib.jar
+ * </li>
+ * <li> If the path is a JAR path and this JAR is external to the workspace,
+ *        this is the full OS path to the JAR file on the file system.
+ *        E.g. d:\libs\mylib.jar
+ * </li>
+ * </ul>
  * 
- * @return an array of paths to the enclosing projects and JARS. A project path is
- *			the full path to the project. A JAR path is the full OS path to the JAR file.			
+ * @return an array of paths to the enclosing projects and JARS.
  */
 IPath[] enclosingProjectsAndJars();
 /**
