@@ -2365,6 +2365,11 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 		}
 
+		if (isSemiColon()) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printTrailingComment();
+			this.scribe.printNewLine();
+		}
 		/*
 		 * Type declarations
 		 */
@@ -2375,8 +2380,19 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				types[i].traverse(this, scope);
 				this.scribe.printComment();
 				this.scribe.printNewLine();
+				if (isSemiColon()) {
+					this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+					this.scribe.printTrailingComment();
+					this.scribe.printNewLine();
+				}
 			}
 			format(types[typesLength - 1]);
+		}
+		if (isSemiColon()) {
+			this.scribe.printNewLine();
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printTrailingComment();
+			this.scribe.printNewLine();
 		}
 		this.scribe.printComment();
 		return false;
