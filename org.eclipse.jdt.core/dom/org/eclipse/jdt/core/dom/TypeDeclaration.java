@@ -424,8 +424,8 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * Returns whether this type declaration is a type member.
 	 * <p>
 	 * Note that this is a convenience method that simply checks whether
-	 * this node's parent is a type declaration node or a class instance
-	 * creation node declaring an anonymous subclass.
+	 * this node's parent is a type declaration node or an anonymous 
+	 * class declaration.
 	 * </p>
 	 * 
 	 * @return <code>true</code> if this type declaration is a child of
@@ -435,7 +435,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	public boolean isMemberTypeDeclaration() {
 		ASTNode parent = getParent();
 		return (parent instanceof TypeDeclaration)
-			|| (parent instanceof ClassInstanceCreation);
+			|| (parent instanceof AnonymousClassDeclaration);
 	}
 
 	/**

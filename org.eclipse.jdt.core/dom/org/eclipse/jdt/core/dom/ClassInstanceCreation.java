@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,7 +21,7 @@ import java.util.List;
  * ClassInstanceCreation:
  *        [ Expression <b>.</b> ] <b>new</b> TypeName
  *            <b>(</b> [ Expression { <b>,</b> Expression } ] <b>)</b>
- *            [ <b>{</b> ClassBodyDeclaration <b>}</b> ]
+ *            [ AnonymousClassDeclaration ]
  * </pre>
  * 
  * @since 2.0
@@ -46,22 +47,16 @@ public class ClassInstanceCreation extends Expression {
 		new ASTNode.NodeList(true, Expression.class);
 		
 	/**
-	 * Indicates whether there are body declarations.
+	 * The optional anonymous class declaration; <code>null</code> for none; 
+	 * defaults to none.
 	 */
-	private boolean hasBody = false;
-
-	/**
-	 * The body declarations (element type: <code>BodyDeclaration</code>).
-	 * Defaults to none.
-	 */
-	private ASTNode.NodeList bodyDeclarations = 
-		new ASTNode.NodeList(true, BodyDeclaration.class);
-
+	private AnonymousClassDeclaration optionalAnonymousClassDeclaration = null;
+	
 	/**
 	 * Creates a new AST node for a class instance creation expression owned 
 	 * by the given AST. By default, there is no qualifying expression,
 	 * an unspecified (but legal) type name, an empty list of arguments,
-	 * and does not declare an anonymous class (body declarations are empty).
+	 * and does not declare an anonymous class.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be 
 	 * declared in the same package; clients are unable to declare 
@@ -83,9 +78,9 @@ public class ClassInstanceCreation extends Expression {
 			(Expression) ASTNode.copySubtree(target, getExpression()));
 		result.setName((Name) getName().clone(target));
 		result.arguments().addAll(ASTNode.copySubtrees(target, arguments()));
-		result.setAnonymousClassDeclaration(isAnonymousClassDeclaration());
-		result.bodyDeclarations().addAll(
-			ASTNode.copySubtrees(target, bodyDeclarations()));
+		result.setAnonymousClassDeclaration(
+			(AnonymousClassDeclaration) 
+			   ASTNode.copySubtree(target, getAnonymousClassDeclaration()));
 		return result;
 	}
 
@@ -107,7 +102,7 @@ public class ClassInstanceCreation extends Expression {
 			acceptChild(visitor, getExpression());
 			acceptChild(visitor, getName());
 			acceptChildren(visitor, arguments);
-			acceptChildren(visitor, bodyDeclarations);
+			acceptChild(visitor, getAnonymousClassDeclaration());
 		}
 		visitor.endVisit(this);
 	}
@@ -180,14 +175,40 @@ public class ClassInstanceCreation extends Expression {
 	}
 	
 	/**
+	 * Returns the anonymous class declaration introduced by this
+	 * class instance creation expression, if it has one.
+	 * 
+	 * @return the anonymous class declaration, or <code>null</code> if none
+	 */ 
+	public AnonymousClassDeclaration getAnonymousClassDeclaration() {
+		return optionalAnonymousClassDeclaration;
+	}
+	
+	/**
+	 * Sets whether this class instance creation expression declares
+	 * an anonymous class (that is, has class body declarations).
+	 * 
+	 * @param decl the anonymous class declaration, or <code>null</code> 
+	 *    if none
+	 */ 
+	public void setAnonymousClassDeclaration(AnonymousClassDeclaration decl) {
+		// a ClassInstanceCreation may occur inside an AnonymousClassDeclaration
+		// must check cycles
+		replaceChild(this.optionalAnonymousClassDeclaration, decl, true);
+		this.optionalAnonymousClassDeclaration = decl;
+	}
+
+	/**
 	 * Returns whether this class instance creation expression declares
 	 * an anonymous class (that is, has class body declarations).
 	 * 
 	 * @return <code>true</code> if this declares an anonymous class,
 	 *    and <code>false</code> otherwise
+	 * @deprecated Made obsolete by AnonymousClassDeclaration
 	 */ 
 	public boolean isAnonymousClassDeclaration() {
-		return hasBody;
+		// temporary
+		return optionalAnonymousClassDeclaration != null;
 	}
 	
 	/**
@@ -196,10 +217,19 @@ public class ClassInstanceCreation extends Expression {
 	 * 
 	 * @param hasBody <code>true</code> if this declares an anonymous class,
 	 *    and <code>false</code> otherwise
+	 * @deprecated Made obsolete by AnonymousClassDeclaration
 	 */ 
 	public void setAnonymousClassDeclaration(boolean hasBody) {
-		modifying();
-		this.hasBody = hasBody;
+		// temporary
+		if (hasBody) {
+			if (optionalAnonymousClassDeclaration == null) {
+				setAnonymousClassDeclaration(getAST().newAnonymousClassDeclaration());
+			}
+		} else {
+			if (optionalAnonymousClassDeclaration != null) {
+				setAnonymousClassDeclaration(null);
+			}
+		}
 	}
 
 	/**
@@ -213,9 +243,16 @@ public class ClassInstanceCreation extends Expression {
 	 * 
 	 * @return the live list of body declarations
 	 *    (element type: <code>BodyDeclaration</code>)
+	 * @deprecated Made obsolete by AnonymousClassDeclaration
 	 */ 
 	public List bodyDeclarations() {
-		return bodyDeclarations;
+		// temporary
+		AnonymousClassDeclaration x = getAnonymousClassDeclaration();
+		if (x != null) {
+			return x.bodyDeclarations();
+		} else {
+			return new ArrayList(0);
+		}
 	}
 
 	/**
@@ -239,7 +276,7 @@ public class ClassInstanceCreation extends Expression {
 	 */
 	int memSize() {
 		// treat Code as free
-		return BASE_NODE_SIZE + 5 * 4;
+		return BASE_NODE_SIZE + 4 * 4;
 	}
 	
 	/* (omit javadoc for this method)
@@ -251,7 +288,7 @@ public class ClassInstanceCreation extends Expression {
 			+ (typeName == null ? 0 : getName().treeSize())
 			+ (optionalExpression == null ? 0 : getExpression().treeSize())
 			+ arguments.listSize()
-			+ bodyDeclarations.listSize();
+			+ (optionalAnonymousClassDeclaration == null ? 0 : getAnonymousClassDeclaration().treeSize());
 	}
 }
 

@@ -80,6 +80,9 @@ package org.eclipse.jdt.core.dom;
  * @see ASTNode#accept
  */
 public abstract class ASTVisitor {
+	public boolean visit(AnonymousClassDeclaration node) {
+		return true;
+	}
 	public boolean visit(ArrayAccess node) {
 		return true;
 	}
@@ -261,6 +264,8 @@ public abstract class ASTVisitor {
 		return true;
 	}
 
+	public void endVisit(AnonymousClassDeclaration node) {
+	}
 	public void endVisit(ArrayAccess node) {
 	}
 	public void endVisit(ArrayCreation node) {

@@ -1252,12 +1252,23 @@ public final class AST {
 	 * ("new") expression node owned by this AST. By default, 
 	 * there is no qualifying expression, an unspecified (but legal) type name,
 	 * an empty list of arguments, and does not declare an anonymous
-	 * class (and body declaration list is empty).
+	 * class declaration.
 	 * 
 	 * @return a new unparented class instance creation expression node
 	 */
 	public ClassInstanceCreation newClassInstanceCreation() {
 		ClassInstanceCreation result = new ClassInstanceCreation(this);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a new unparented anonymous class declaration
+	 * node owned by this AST. By default, the body declaration list is empty.
+	 * 
+	 * @return a new unparented anonymous class declaration node
+	 */
+	public AnonymousClassDeclaration newAnonymousClassDeclaration() {
+		AnonymousClassDeclaration result = new AnonymousClassDeclaration(this);
 		return result;
 	}
 

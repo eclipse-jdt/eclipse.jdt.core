@@ -148,6 +148,28 @@ public class ASTMatcher {
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
 	 */
+	public boolean match(AnonymousClassDeclaration node, Object other) {
+		if (!(other instanceof AnonymousClassDeclaration)) {
+			return false;
+		}
+		AnonymousClassDeclaration o = (AnonymousClassDeclaration) other;
+		return safeSubtreeListMatch(node.bodyDeclarations(), o.bodyDeclarations());
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 * 
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or 
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 */
 	public boolean match(ArrayAccess node, Object other) {
 		if (!(other instanceof ArrayAccess)) {
 			return false;
@@ -435,8 +457,9 @@ public class ASTMatcher {
 			safeSubtreeMatch(node.getExpression(), o.getExpression())
 				&& safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.arguments(), o.arguments())
-				&& node.isAnonymousClassDeclaration() == o.isAnonymousClassDeclaration()
-				&& safeSubtreeListMatch(node.bodyDeclarations(), o.bodyDeclarations()));
+				&& safeSubtreeMatch(
+					node.getAnonymousClassDeclaration(),
+					o.getAnonymousClassDeclaration()));
 	}
 
 	/**
