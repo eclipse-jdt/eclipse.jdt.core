@@ -330,4 +330,81 @@ public void test014() {
 		"----------\n"
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
+ */
+public void test015() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"// some code\n" + 
+			"}\n" + 
+			"/*\n" + 
+			"// some comments\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	/*\n" + 
+		"// some comments\n" + 
+		"\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unexpected end of comment\n" + 
+		"----------\n"
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
+ */
+public void test016() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	String s = \""
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	String s = \"\n" + 
+		"	           ^\n" + 
+		"String literal is not properly closed by a double-quote\n" + 
+		"----------\n"
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
+ */
+public void test017() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	char c = '"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	char c = \'\n" + 
+		"	         ^\n" + 
+		"Invalid character constant\n" + 
+		"----------\n"
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60848
+ */
+public void test018() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	char c = '\\u0"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	char c = \'\\u0\n" + 
+		"	          ^^^\n" + 
+		"Invalid unicode\n" + 
+		"----------\n"
+	);
+}
 }

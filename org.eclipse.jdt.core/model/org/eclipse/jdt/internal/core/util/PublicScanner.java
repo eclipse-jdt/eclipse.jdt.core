@@ -1096,8 +1096,7 @@ public int getNextToken() throws InvalidInputException {
 							checkIfUnicode = ((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 							&& (this.source[this.currentPosition] == 'u');
 						} catch(IndexOutOfBoundsException e) {
-							if (this.currentPosition > this.eofPosition)
-								return TokenNameEOF;
+							this.currentPosition--;
 							throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
 						}
 						if (checkIfUnicode) {
@@ -1203,6 +1202,7 @@ public int getNextToken() throws InvalidInputException {
 
 						}
 					} catch (IndexOutOfBoundsException e) {
+						this.currentPosition--;
 						throw new InvalidInputException(UNTERMINATED_STRING);
 					} catch (InvalidInputException e) {
 						if (e.getMessage().equals(INVALID_ESCAPE)) {
@@ -1454,6 +1454,7 @@ public int getNextToken() throws InvalidInputException {
 									return token;
 								}
 							} catch (IndexOutOfBoundsException e) {
+								this.currentPosition--;
 								throw new InvalidInputException(UNTERMINATED_COMMENT);
 							}
 							break;
@@ -1488,7 +1489,7 @@ public int getNextToken() throws InvalidInputException {
 	return TokenNameEOF;
 }
 public final void getNextUnicodeChar()
-	throws IndexOutOfBoundsException, InvalidInputException {
+	throws InvalidInputException {
 	//VOID
 	//handle the case of unicode.
 	//when a unicode appears then we must use a buffer that holds char internal values
@@ -1497,39 +1498,44 @@ public final void getNextUnicodeChar()
 
 	//ALL getNextChar.... ARE OPTIMIZED COPIES 
 
-	int c1 = 0, c2 = 0, c3 = 0, c4 = 0, unicodeSize = 6;
-	this.currentPosition++;
-	while (this.source[this.currentPosition] == 'u') {
+	try {
+		int c1 = 0, c2 = 0, c3 = 0, c4 = 0, unicodeSize = 6;
 		this.currentPosition++;
-		unicodeSize++;
-	}
-
-	if ((c1 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-		|| c1 < 0
-		|| (c2 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-		|| c2 < 0
-		|| (c3 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-		|| c3 < 0
-		|| (c4 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
-		|| c4 < 0){
-		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
-	} else {
-		this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-		//need the unicode buffer
-		if (this.withoutUnicodePtr == 0) {
-			//buffer all the entries that have been left aside....
-			this.withoutUnicodePtr = this.currentPosition - unicodeSize - this.startPosition;
-			System.arraycopy(
-				this.source, 
-				this.startPosition, 
-				this.withoutUnicodeBuffer, 
-				1, 
-				this.withoutUnicodePtr); 
+		while (this.source[this.currentPosition] == 'u') {
+			this.currentPosition++;
+			unicodeSize++;
 		}
-		//fill the buffer with the char
-		this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+
+		if ((c1 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
+			|| c1 < 0
+			|| (c2 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
+			|| c2 < 0
+			|| (c3 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
+			|| c3 < 0
+			|| (c4 = Character.getNumericValue(this.source[this.currentPosition++])) > 15
+			|| c4 < 0){
+			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+		} else {
+			this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+			//need the unicode buffer
+			if (this.withoutUnicodePtr == 0) {
+				//buffer all the entries that have been left aside....
+				this.withoutUnicodePtr = this.currentPosition - unicodeSize - this.startPosition;
+				System.arraycopy(
+					this.source, 
+					this.startPosition, 
+					this.withoutUnicodeBuffer, 
+					1, 
+					this.withoutUnicodePtr); 
+			}
+			//fill the buffer with the char
+			this.withoutUnicodeBuffer[++this.withoutUnicodePtr] = this.currentCharacter;
+		}
+		this.unicodeAsBackSlash = this.currentCharacter == '\\';
+	} catch (ArrayIndexOutOfBoundsException e) {
+		this.currentPosition--;
+		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 	}
-	this.unicodeAsBackSlash = this.currentCharacter == '\\';
 }
 
 public char[] getSource(){
@@ -1915,6 +1921,7 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 		//this.withoutUnicodePtr == 1 is true here
 		return false;
 	} catch (IndexOutOfBoundsException e){
+		this.currentPosition--;
 		throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
 	}
 }
