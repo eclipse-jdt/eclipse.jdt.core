@@ -302,7 +302,8 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * <p>
 	 * Note that this child is not relevant for constructor declarations
 	 * (although it does still figure in subtree equality comparisons
-	 * and visits).
+	 * and visits), and is devoid of the binding information ordinarily
+	 * available.
 	 * </p>
 	 * 
 	 * @return the return type, possibly the void primitive type
