@@ -210,7 +210,7 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 				suite.addTest(new ASTConverterTest(methods[i].getName()));
 			}
 		}
-//		suite.addTest(new ASTConverterTest("test0397"));
+//		suite.addTest(new ASTConverterTest("test0398"));
 		return suite;
 	}
 		
@@ -9862,6 +9862,32 @@ public class ASTConverterTest extends AbstractJavaModelTests {
 		assertEquals("Wrong dimension", 2, singleVariableDeclaration.getExtraDimensions());
 	}
 
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23362
+	 */
+	public void test0398() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0398", "A.java");
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
+		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) node;
+		List fragments = variableDeclarationStatement.fragments();
+		assertEquals("wrong size", 1, fragments.size());
+		VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = variableDeclarationFragment.getInitializer();
+		assertTrue("Not an infix expression", expression.getNodeType() == ASTNode.INFIX_EXPRESSION);
+		InfixExpression infixExpression = (InfixExpression) expression;
+		checkSourceRange(infixExpression, "(1 + 2) * 3", source);
+		Expression expression2 = infixExpression.getLeftOperand();
+		assertTrue("Not an parenthesis expression", expression2.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION);
+		ParenthesizedExpression parenthesizedExpression = (ParenthesizedExpression) expression2;
+		Expression expression3 = parenthesizedExpression.getExpression();
+		assertTrue("Not an infix expression", expression3.getNodeType() == ASTNode.INFIX_EXPRESSION);
+		checkSourceRange(expression3, "1 + 2", source);
+	}
+	
 	private ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 0, 0);
 		return (ASTNode) ((MethodInvocation) statement.getExpression()).arguments().get(0);
