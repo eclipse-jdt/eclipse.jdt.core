@@ -161,7 +161,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 
 	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
 	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
-
 	
 	// source encoding format
 	public String defaultEncoding = null; // will use the platform default encoding

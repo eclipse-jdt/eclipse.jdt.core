@@ -26,7 +26,6 @@ public interface IJavaModelMarker {
 	 */
 	public static final String JAVA_MODEL_PROBLEM_MARKER = JavaCore.PLUGIN_ID + ".problem"; //$NON-NLS-1$
 
-
 	/**
 	 * Java model transient problem marker type (value <code>"org.eclipse.jdt.core.transient_problem"</code>).
 	 * This can be used to recognize those markers in the workspace that flag transient
@@ -44,7 +43,6 @@ public interface IJavaModelMarker {
 	 * @since 2.1
 	 */
 	public static final String TASK_MARKER = JavaCore.PLUGIN_ID + ".task"; //$NON-NLS-1$
-
     
     /** 
 	 * Id marker attribute (value <code>"arguments"</code>).

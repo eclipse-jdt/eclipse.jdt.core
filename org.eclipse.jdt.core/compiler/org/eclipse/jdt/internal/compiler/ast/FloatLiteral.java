@@ -51,8 +51,6 @@ public void computeConstant() {
 					break label; //exposant are valid !....
 				default :
 					return; //error
-
-
 			}
 		}
 	}
