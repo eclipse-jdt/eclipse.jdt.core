@@ -330,6 +330,36 @@ public void testDeleteJarFile1() throws CoreException {
 	}
 }
 /*
+ * Ensure that deleting am external jar package fragment root triggers the right delta
+ * and that the model is up-to-date.
+ * (regression test for bug 30506 IPackageFragmentRoot:delete does not handle external jars)
+ */
+public void testDeleteJarFile3() throws CoreException {
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin");
+
+		IPackageFragmentRoot root = project.getPackageFragmentRoot(getExternalJCLPathString());
+		this.startDeltas();
+		this.delete(root);
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN}\n" + 
+			"	" + getExternalJCLPath() + "[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]"
+		);
+		assertJavaProject(
+			"P\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"	L/P/.classpath\n" + 
+			"	L/P/.project",
+			project);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
  * Ensure that deleting a jar file that is referenced by 2 projects triggers the right delta
  * and that the model is up-to-date.
  */
