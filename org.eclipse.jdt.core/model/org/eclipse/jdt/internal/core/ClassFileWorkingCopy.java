@@ -612,10 +612,6 @@ public IType findPrimaryType() {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 	}
 
-
-
-
-
 	/**
 	 * @see org.eclipse.jdt.core.ICodeAssist#codeSelect(int, int, WorkingCopyOwner)
 	 */
