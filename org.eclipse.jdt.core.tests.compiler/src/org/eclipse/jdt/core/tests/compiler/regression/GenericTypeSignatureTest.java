@@ -915,7 +915,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			"  public static void main(String[] args) {\n" + 
 			"    new X<Thread>().foo(new X<String>().new MX<Thread>());\n" + 
 			"  }\n" + 
-			"  void foo(X.MX mx) {			// pas de signature\n" + 
+			"  void foo(X.MX mx) {			// no signature\n" + 
 			"	System.out.println(\"SUCCESS\");\n" + 
 			"  }\n" + 
 			"}",
@@ -1056,6 +1056,40 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			char[] signature = methods[2].getGenericSignature();
 			assertNotNull("No signature", signature);
 			assertEquals("Wrong signature", "<U:Ljava/lang/Object;>([TU;)V", new String(signature));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}	
+	public void test017() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"  static class MX<U> {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    new X<Thread>().foo(new MX<Thread>());\n" + 
+			"  }\n" + 
+			"  void foo(X.MX<?> mx) {\n" + 
+			"	System.out.println(\"SUCCESS\");\n" + 
+			"  }\n" + 
+			"}",
+		};
+		this.runConformTest(
+			testsSource,
+			"SUCCESS");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 3, methods.length);
+			assertEquals("Wrong name", "foo", new String(methods[2].getSelector()));
+			char[] signature = methods[2].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "(LX$MX<*>;)V", new String(signature));
 		} catch (ClassFormatException e) {
 			assertTrue(false);
 		} catch (IOException e) {

@@ -22,6 +22,26 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClassFileReader extends ClassFileStruct implements AttributeNamesConstants, IBinaryType {
+	private int accessFlags;
+	private char[] classFileName;
+	private char[] className;
+	private int classNameIndex;
+	private int constantPoolCount;
+	private int[] constantPoolOffsets;
+	private FieldInfo[] fields;
+	private int fieldsCount;
+	// initialized in case the .class file is a nested type
+	private InnerClassInfo innerInfo;
+	private int innerInfoIndex;
+	private InnerClassInfo[] innerInfos;
+	private char[][] interfaceNames;
+	private int interfacesCount;
+	private MethodInfo[] methods;
+	private int methodsCount;
+	private char[] signature;
+	private char[] sourceFileName;
+	private char[] superclassName;
+	private long version;
 public static ClassFileReader read(File file) throws ClassFormatException, IOException {
 	return read(file, false);
 }
@@ -60,26 +80,6 @@ public static ClassFileReader read(String fileName) throws ClassFormatException,
 public static ClassFileReader read(String fileName, boolean fullyInitialize) throws ClassFormatException, java.io.IOException {
 	return read(new File(fileName), fullyInitialize);
 }
-	private int accessFlags;
-	private char[] classFileName;
-	private char[] className;
-	private int classNameIndex;
-	private int constantPoolCount;
-	private int[] constantPoolOffsets;
-	private FieldInfo[] fields;
-	private int fieldsCount;
-	// initialized in case the .class file is a nested type
-	private InnerClassInfo innerInfo;
-	private int innerInfoIndex;
-	private InnerClassInfo[] innerInfos;
-	private char[][] interfaceNames;
-	private int interfacesCount;
-	private MethodInfo[] methods;
-	private int methodsCount;
-	private char[] signature;
-	private char[] sourceFileName;
-	private char[] superclassName;
-	private long version;
 
 /**
  * @param classFileBytes Actual bytes of a .class file
@@ -428,11 +428,7 @@ public IBinaryMethod[] getMethods() {
  */
 public int getModifiers() {
 	if (this.innerInfo != null) {
-		if ((this.accessFlags & AccDeprecated) != 0) {
-			return this.innerInfo.getModifiers() | AccDeprecated;
-		} else {
-			return this.innerInfo.getModifiers();
-		}
+		return this.innerInfo.getModifiers() | (this.accessFlags & AccDeprecated);
 	}
 	return this.accessFlags;
 }
@@ -802,7 +798,6 @@ protected void reset() {
 	this.constantPoolOffsets = null;
 	super.reset();
 }
-
 /**
  * Answer the source file name attribute. Return null if there is no source file attribute for the receiver.
  * 
@@ -823,5 +818,4 @@ public String toString() {
 	print.flush();
 	return out.toString();
 }
-
 }
