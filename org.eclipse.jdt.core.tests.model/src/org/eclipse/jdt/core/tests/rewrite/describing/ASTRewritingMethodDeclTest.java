@@ -2100,14 +2100,8 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
-	private static final boolean BUG_79752= true;
 
 	public void testEnumConstantDeclaration2() throws Exception {
-		if (BUG_79752) {
-			return;
-		}
-
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -2255,6 +2249,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    E5Add(1) {\n");
 		buf.append("        private void test(String str) {\n");
 		buf.append("        }\n");
+		buf.append("\n");
 		buf.append("        public void foo() {\n");
 		buf.append("        }\n");
 		buf.append("    },\n");	
