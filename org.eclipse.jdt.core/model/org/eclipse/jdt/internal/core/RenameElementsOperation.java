@@ -78,6 +78,12 @@ protected void verify(IJavaElement element) throws JavaModelException {
 	if (elementType < IJavaElement.TYPE || elementType == IJavaElement.INITIALIZER)
 		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
 		
+	Member localContext;
+	if (element instanceof Member && (localContext = ((Member)element).getOuterMostLocalContext()) != null && localContext != element) {
+		// JDOM doesn't support source manipulation in local/anonymous types
+		error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, element);
+	}
+
 	verifyRenaming(element);
 }
 }

@@ -117,6 +117,12 @@ public IJavaModelStatus verify() {
 	if (!status.isOK()) {
 		return status;
 	}
+	IJavaElement parent = getParentElement(); // non-null since check was done in supper
+	Member localContext;
+	if (parent instanceof Member && (localContext = ((Member)parent).getOuterMostLocalContext()) != null && localContext != parent) {
+		// JDOM doesn't support source manipulation in local/anonymous types
+		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, parent);
+	}
 	if (fSource == null) {
 		return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CONTENTS);
 	}

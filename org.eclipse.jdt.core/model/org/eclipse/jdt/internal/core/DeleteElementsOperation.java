@@ -156,6 +156,13 @@ public class DeleteElementsOperation extends MultiOperation {
 			IJavaElement child = children[i];
 			if (child.getCorrespondingResource() != null)
 				error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, child);
+
+			Member localContext;
+			if (child instanceof Member && (localContext = ((Member)child).getOuterMostLocalContext()) != null && localContext != child) {
+				// JDOM doesn't support source manipulation in local/anonymous types
+				error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, child);
+			}
+
 			if (child.isReadOnly())
 				error(IJavaModelStatusConstants.READ_ONLY, child);
 		}
