@@ -321,37 +321,35 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 	if (isReadOnly() || this.file == null) {
 		return;
 	}
-	synchronized (this.lock) {
-		if (!hasUnsavedChanges())
-			return;
-			
-		// use a platform operation to update the resource contents
-		try {
-			String encoding = ((IJavaElement)this.owner).getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
-			String stringContents = this.getContents();
-			if (stringContents == null) return;
-			byte[] bytes = encoding == null 
-				? stringContents.getBytes() 
-				: stringContents.getBytes(encoding);
-			ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+	if (!hasUnsavedChanges())
+		return;
+		
+	// use a platform operation to update the resource contents
+	try {
+		String encoding = ((IJavaElement)this.owner).getJavaProject().getOption(JavaCore.CORE_ENCODING, true);
+		String stringContents = this.getContents();
+		if (stringContents == null) return;
+		byte[] bytes = encoding == null 
+			? stringContents.getBytes() 
+			: stringContents.getBytes(encoding);
+		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 
-			if (this.file.exists()) {
-				this.file.setContents(
-					stream, 
-					force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
-					null);
-			} else {
-				this.file.create(stream, force, null);
-			}	
-		} catch (IOException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-		} catch (CoreException e) {
-			throw new JavaModelException(e);
-		}
-
-		// the resource no longer has unsaved changes
-		this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
+		if (this.file.exists()) {
+			this.file.setContents(
+				stream, 
+				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY, 
+				null);
+		} else {
+			this.file.create(stream, force, null);
+		}	
+	} catch (IOException e) {
+		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+	} catch (CoreException e) {
+		throw new JavaModelException(e);
 	}
+
+	// the resource no longer has unsaved changes
+	this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
 }
 /**
  * @see IBuffer
