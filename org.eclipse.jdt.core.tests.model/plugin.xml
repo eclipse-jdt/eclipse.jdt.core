@@ -2,7 +2,7 @@
 <plugin
    id="org.eclipse.jdt.core.tests.model"
    name="Java Model Tests"
-   version="2.0.1">
+   version="2.1.0">
 
    <runtime>
       <library name="jdtcoretestsmodel.jar"/>
