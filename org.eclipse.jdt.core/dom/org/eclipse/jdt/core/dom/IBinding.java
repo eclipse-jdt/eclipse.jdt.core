@@ -145,7 +145,7 @@ public interface IBinding {
 	 * <li>constructors - the key of its declaring class, and the 
 	 *   keys of the parameter types</li>
 	 * </ul>
-	 * Some bindings, like ones that correspond to declarations occuring
+	 * Some bindings, like ones that correspond to declarations occurring
 	 * within the body of a method, are problematic because of the lack of
 	 * any universally acceptable way of assigning keys that are both
 	 * predictable and stable. The keys for bindings to local variables, 

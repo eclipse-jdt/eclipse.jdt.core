@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.dom;
 
 /**
  * AST node for a qualified name. A qualified name is defined recursively
- * as a simple name preceded by a name which qualifies it. Expressing it this
+ * as a simple name preceded by a name, which qualifies it. Expressing it this
  * way means that the qualifier and the simple name get their own AST nodes.
  * <pre>
  * QualifiedName:

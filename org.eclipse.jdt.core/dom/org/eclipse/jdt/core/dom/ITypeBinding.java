@@ -162,7 +162,7 @@ public interface ITypeBinding extends IBinding {
 	 * interface of which it is a member. The declaring class of a local class
 	 * or interface (including anonymous classes) is the innermost class or
 	 * interface containing the expression or statement in which this type is
-	 * declared. Array types, primitive types, the null type, and top level types 
+	 * declared. Array types, primitive types, the null type, and top-level types 
 	 * have no declaring class.
 	 * </p>
 	 * 
@@ -251,7 +251,7 @@ public interface ITypeBinding extends IBinding {
 	 * Returns whether this type binding represents a top-level class or
 	 * interface.
 	 * <p>
-	 * A top level type is any class or interface whose declaration does not
+	 * A top-level type is any class or interface whose declaration does not
 	 * occur within the body of another class or interface. The set of top
 	 * level types is disjoint from the set of nested types.
 	 * </p>
@@ -267,7 +267,7 @@ public interface ITypeBinding extends IBinding {
 	 * <p>
 	 * A nested type is any class or interface whose declaration occurs within
 	 * the body of another class or interface. The set of nested types is 
-	 * disjoint from the set of top level types. Nested types further subdivide
+	 * disjoint from the set of top-level types. Nested types further subdivide
 	 * into member types, local types, and anonymous types.
 	 * </p>
 	 *

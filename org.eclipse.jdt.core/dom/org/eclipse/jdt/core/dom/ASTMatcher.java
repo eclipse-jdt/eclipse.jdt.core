@@ -63,8 +63,8 @@ public class ASTMatcher {
 	 *    (element type: <code>ASTNode</code>)
 	 * @param list2 the second list of AST nodes
 	 *    (element type: <code>ASTNode</code>)
-	 * @return <code>true</code> if the list have the same number of elements
-	 *    and match pairwise according to <code>ASTNode.subtreeMatch</code> 
+	 * @return <code>true</code> if the lists have the same number of elements
+	 *    and match pair-wise according to <code>ASTNode.subtreeMatch</code> 
 	 * @see ASTNode#subtreeMatch(ASTMatcher matcher, Object other)
 	 */
 	public final boolean safeSubtreeListMatch(List list1, List list2) {

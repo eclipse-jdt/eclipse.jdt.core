@@ -117,7 +117,7 @@ public interface ICodeSnippetRequestor {
  * Also before the call, the implementation should copy the values of the local 
  * variables (if any) into the corresponding fields of the code snippet instance. 
  * A field name is formed of <code>LOCAL_VAR_PREFIX</code> 
- * prepended the name of the local variable. For example, the field name for 
+ * preceded the name of the local variable. For example, the field name for 
  * local variable <code>"myLocal"</code> is <code>"val$myLocal"</code> (assuming the 
  * value of <code>LOCAL_VAR_PREFIX</code> is "val$"). In the 
  * same way, the implementation should copy the value of the 'this' object into the 

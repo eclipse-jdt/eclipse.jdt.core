@@ -134,7 +134,7 @@ public Object clone();
 /**
  * Returns the current contents of this document fragment as a character array.
  * <p>
- * Note: To obtain complete source for the".java" file, ask a compilation unit
+ * Note: To obtain complete source for the ".java" file, ask a compilation unit
  * node for its contents.
  * </p>
  *
@@ -159,7 +159,7 @@ public Enumeration getChildren();
 /**
  * Returns the current contents of this document fragment.
  * <p>
- * Note: To obtain complete source for the".java" file, ask a compilation unit
+ * Note: To obtain complete source for the ".java" file, ask a compilation unit
  * node for its contents.
  * </p>
  *
@@ -250,7 +250,7 @@ public boolean isAllowableChild(IDOMNode node);
  */
 public boolean isSignatureEqual(IDOMNode node);
 /**
- * Separates this node from its parent and siblings, maintaing any ties that this node
+ * Separates this node from its parent and siblings, maintaining any ties that this node
  * has to the underlying document fragment. A document fragment that is removed
  * from its host document may still be dependent on that host document until it is
  * inserted into a different document. Removing a root node has no effect.

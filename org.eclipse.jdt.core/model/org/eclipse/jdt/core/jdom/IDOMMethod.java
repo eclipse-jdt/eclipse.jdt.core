@@ -67,7 +67,7 @@ public String[] getExceptions();
 /**
  * The <code>IDOMMethod</code> refinement of this <code>IDOMNode</code>
  * method returns the name of this method. Returns <code>null</code> for
- * constructors. The syntax for a method  name is defined by Identifer
+ * constructors. The syntax for a method  name is defined by Identifier
  * of MethodDeclarator (JLS2 8.4).
  */
 public String getName();

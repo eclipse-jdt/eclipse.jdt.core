@@ -77,7 +77,7 @@ public class PrefixExpression extends Expression {
 		public static final Operator MINUS = new Operator("-");//$NON-NLS-1$
 		/** Bitwise complement "~" operator. */
 		public static final Operator COMPLEMENT = new Operator("~");//$NON-NLS-1$
-		/** Logical complement complement "!" operator. */
+		/** Logical complement "!" operator. */
 		public static final Operator NOT = new Operator("!");//$NON-NLS-1$
 		
 		/**

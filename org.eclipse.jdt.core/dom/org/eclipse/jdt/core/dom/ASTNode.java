@@ -29,7 +29,7 @@ import java.util.Map;
  * Each AST node belongs to a unique AST instance, called the owning AST.
  * The children of an AST node always have the same owner as their parent node.
  * If a node from one AST is to be added to a different AST, the subtree must
- * be cloned first to ensures that the added nodes have the correct owning AST.
+ * be cloned first to ensure that the added nodes have the correct owning AST.
  * </p>
  * <p>
  * When an AST node is part of an AST, it has a unique parent node.
@@ -77,12 +77,12 @@ import java.util.Map;
  * as a whole.
  * </p>
  * <p>
- * Each AST node carries bit flags which may convey additional information about
+ * Each AST node carries bit flags, which may convey additional information about
  * the node. For instance, the parser uses a flag to indicate a syntax error.
  * Newly created nodes have no flags set.
  * </p>
  * <p>
- * Each AST node is capable of carraying an open-ended collection of
+ * Each AST node is capable of carrying an open-ended collection of
  * client-defined properties. Newly created nodes have none. 
  * <code>getProperty</code> and <code>setProperty</code> are used to access
  * these properties.
@@ -1076,7 +1076,7 @@ public abstract class ASTNode {
 	 * Note that modifying a property is not considered a modification to the 
 	 * AST itself. This is to allow clients to decorate existing nodes with 
 	 * their own properties without jeopardizing certain things (like the 
-	 * validity of bindings) which rely on the underlying tree remaining static.
+	 * validity of bindings), which rely on the underlying tree remaining static.
 	 * </p>
 	 * 
 	 * @param propertyName the property name
@@ -1174,7 +1174,7 @@ public abstract class ASTNode {
 	/**
 	 * Returns the flags associated with this node.
 	 * <p>
-	 * No flags are associated with newly-created nodes.
+	 * No flags are associated with newly created nodes.
 	 * </p>
 	 * <p>
 	 * The flags are the bitwise-or of individual flags.

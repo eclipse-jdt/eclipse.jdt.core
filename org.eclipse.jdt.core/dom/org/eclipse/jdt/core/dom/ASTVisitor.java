@@ -20,7 +20,7 @@ package org.eclipse.jdt.core.dom;
  * <li><code>public boolean visit(<it>T</it> node)</code> - Visits
  * the given node to perform some arbitrary operation. If <code>true</code>
  * is returned, the given node's child nodes will be visited next; however,
- * if <code>false</code>is returned, the given node's child nodes will 
+ * if <code>false</code> is returned, the given node's child nodes will 
  * not be visited. The default implementation provided by this class does
  * nothing and returns <code>true</code>. Subclasses may reimplement
  * this method as needed.</li>

@@ -308,7 +308,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	 * Returns the live ordered list of body declarations of this type 
 	 * declaration. For a class declaration, these are the
 	 * initializer, field, method, constructor, and member type
-	 * declarations; for an interface declaration, these are the 
+	 * declarations; for an interface declaration, these are 
 	 * the constant, method, and member type declarations.
 	 * 
 	 * @return the live list of body declarations
@@ -321,7 +321,7 @@ public class TypeDeclaration extends BodyDeclaration {
 	/**
 	 * Returns the ordered list of field declarations of this type 
 	 * declaration. For a class declaration, these are the
-	 * field declarations; for an interface declaration, these are the 
+	 * field declarations; for an interface declaration, these are
 	 * the constant declarations.
 	 * <p>
 	 * This convenience method returns this node's body declarations

@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.*;
  * </p>
  * <p>
  * Even if a DF is created successfully from source code, it does not guarantee
- * that the source code will compile error free. Similary, the contents of a DF
+ * that the source code will compile error free. Similarly, the contents of a DF
  * are not guaranteed to compile error free. However, syntactically correct 
  * source code is guaranteed to be recognized and successfully generate a DF.
  * Similarly, if all of the fragments of a JDOM are syntactically correct, the

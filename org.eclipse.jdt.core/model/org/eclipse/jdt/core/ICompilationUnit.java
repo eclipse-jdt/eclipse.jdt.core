@@ -118,7 +118,7 @@ IType createType(String contents, IJavaElement sibling, boolean force, IProgress
  * This includes all top-level types and nested member types.
  * It does NOT include local types (types defined in methods).
  *
- * @return the array of toplevel and member types defined in a compilation unit, in declaration order.
+ * @return the array of top-level and member types defined in a compilation unit, in declaration order.
  * @exception JavaModelException if this element does not exist or if an
  *		exception occurs while accessing its corresponding resource
  */

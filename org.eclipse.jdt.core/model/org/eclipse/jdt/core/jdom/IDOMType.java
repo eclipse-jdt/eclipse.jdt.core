@@ -93,7 +93,7 @@ public void setClass(boolean b);
  */
 public void setName(String name) throws IllegalArgumentException;
 /**
- * Sets the name of this type's superclass. Has nbo effect if this type
+ * Sets the name of this type's superclass. Has no effect if this type
  * represents an interface. A <code>null</code> name indicates that no 
  * superclass name (extends clause) should appear in the source code.
  * The syntax for a superclass name is specified by Super in ClassDeclaration

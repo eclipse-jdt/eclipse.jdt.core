@@ -28,7 +28,7 @@ public interface IType extends IMember, IParent {
  * Do code completion inside a code snippet in the context of the current type.
  * 
  * If the type can access to his source code and the insertion position is valid,
- * then completion is performed againt source. Otherwise the completion is performed
+ * then completion is performed against source. Otherwise the completion is performed
  * against type structure and given locals variables.
  * 
  * @param snippet the code snippet

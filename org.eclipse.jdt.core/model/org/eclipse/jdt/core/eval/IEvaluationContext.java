@@ -157,7 +157,7 @@ public interface IEvaluationContext {
 	 * </ol>
 	 * </p>
 	 * <p>
-	 * This method is long-running; progress and cancelation are provided
+	 * This method is long-running; progress and cancellation are provided
 	 * by the given progress monitor.
 	 * </p>
 	 *
@@ -193,12 +193,12 @@ public interface IEvaluationContext {
 	 * method to deploy and run. The requestor is also responsible for getting the
 	 * result back. 
 	 * <p>
-	 * This method is long-running; progress and cancelation are provided
+	 * This method is long-running; progress and cancellation are provided
 	 * by the given progress monitor.
 	 * </p>
 	 *
 	 * @param codeSnippet the code snippet
-	 * @param requestor the code snipper requestor
+	 * @param requestor the code snippet requestor
 	 * @param progressMonitor a progress monitor
 	 * @exception JavaModelException if a runtime problem occurred or if this
 	 *   context's project has no build state
@@ -214,12 +214,12 @@ public interface IEvaluationContext {
 	 * variables are verified. The given requestor's <code>acceptProblem</code>
 	 * method will be called for each problem that is detected.
 	 * <p>
-	 * This method is long-running; progress and cancelation are provided
+	 * This method is long-running; progress and cancellation are provided
 	 * by the given progress monitor.
 	 * </p>
 	 *
 	 * @param variable the global variable
-	 * @param requestor the code snipper requestor
+	 * @param requestor the code snippet requestor
 	 * @param progressMonitor a progress monitor
 	 * @exception JavaModelException if a runtime problem occurred or if this
 	 *   context's project has no build state
@@ -295,7 +295,7 @@ public interface IEvaluationContext {
 	 * Validates this evaluation context's import declarations. The given requestor's
 	 * <code>acceptProblem</code> method is called for each problem that is detected.
 	 *
-	 * @param requestor the code snipper requestor
+	 * @param requestor the code snippet requestor
 	 * @exception JavaModelException if this context's project has no build state
 	 */
 	public void validateImports(ICodeSnippetRequestor requestor)

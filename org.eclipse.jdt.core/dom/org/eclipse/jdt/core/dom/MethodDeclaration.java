@@ -297,7 +297,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * declaration. This is one of the few places where the void type 
 	 * is meaningful.
 	 * <p>
-	 * Note that this child is not relevant for constructors declarations
+	 * Note that this child is not relevant for constructor declarations
 	 * (although it does still figure in subtree equality comparisons).
 	 * </p>
 	 * 
@@ -316,7 +316,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * to the given type. This is one of the few places where the void type is
 	 * meaningful.
 	 * <p>
-	 * Note that this child is not relevant for constructors declarations
+	 * Note that this child is not relevant for constructor declarations
 	 * (although it does still figure in subtree equality comparisons).
 	 * </p>
 	 * 

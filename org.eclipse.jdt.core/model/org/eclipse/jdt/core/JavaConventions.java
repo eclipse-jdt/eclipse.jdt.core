@@ -106,7 +106,7 @@ private static synchronized char[] scannedIdentifier(String id) {
  * <li> it must include the <code>".java"</code> suffix
  * <li> its prefix must be a valid identifier
  * <li> it must not contain any characters or substrings that are not valid 
- *		   on the filesystem on which workspace root is located.
+ *		   on the file system on which workspace root is located.
  * </ul>
  * </p>
  * @param name the name of a compilation unit
@@ -146,7 +146,7 @@ public static IStatus validateCompilationUnitName(String name) {
  * <li> it must include the <code>".class"</code> suffix
  * <li> its prefix must be a valid identifier
  * <li> it must not contain any characters or substrings that are not valid 
- *		   on the filesystem on which workspace root is located.
+ *		   on the file system on which workspace root is located.
  * </ul>
  * </p>
  * @param name the name of a .class file
@@ -201,7 +201,7 @@ public static IStatus validateFieldName(String name) {
  *
  * @param id the Java identifier
  * @return a status object with code <code>IStatus.OK</code> if
- *		the given identifier is a valid Java idetifier, otherwise a status 
+ *		the given identifier is a valid Java identifier, otherwise a status 
  *		object indicating what is wrong with the identifier
  */
 public static IStatus validateIdentifier(String id) {
@@ -293,7 +293,7 @@ public static IStatus validateJavaTypeName(String name) {
  * Validate the given method name.
  * The special names "&lt;init&gt;" and "&lt;clinit&gt;" are not valid.
  * <p>
- * The syntax for a method  name is defined by Identifer
+ * The syntax for a method  name is defined by Identifier
  * of MethodDeclarator (JLS2 8.4). For example "println".
  *
  * @param name the name of a method
@@ -313,7 +313,7 @@ public static IStatus validateMethodName(String name) {
  * Note that the given name must be a non-empty package name (ie. attempting to
  * validate the default package will return an error status.)
  * Also it must not contain any characters or substrings that are not valid 
- * on the filesystem on which workspace root is located.
+ * on the file system on which workspace root is located.
  *
  * @param name the name of a package
  * @return a status object with code <code>IStatus.OK</code> if
@@ -367,8 +367,8 @@ public static IStatus validatePackageName(String name) {
  * <ul>
  *   <li> No duplicate path amongst classpath entries.
  *   <li> Output location path is not null, it is absolute and located inside the project.
- *   <li> A project cannot prerequisite itself directly.
- *   <li> Source/library folders cannot be nested inside the binary output, and reciprocally. They can coincidate.
+ *   <li> A project cannot depend on itself directly.
+ *   <li> Source/library folders cannot be nested inside the binary output, and reciprocally.
  *   <li> Source/library folders cannot be nested in each other.
  *   <li> Output location must be nested inside project.
  * </ul>

@@ -58,7 +58,7 @@ String getSource() throws JavaModelException;
  * associated with the class file (if there is one).
  * </p>
  *
- * @return the source range, or <code>null</code> if if this element has no 
+ * @return the source range, or <code>null</code> if this element has no 
  *   associated source code
  * @exception JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource

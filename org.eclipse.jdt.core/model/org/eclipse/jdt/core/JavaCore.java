@@ -153,7 +153,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *
 	 * This listener will only be notified during the POST_CHANGE resource change notification
 	 * and any reconcile operation (POST_RECONCILE).
-	 * For finer control of the notification, use <code>addElementChangedListener(IElementChangedListener,int)</code>
+	 * For finer control of the notification, use <code>addElementChangedListener(IElementChangedListener,int)</code>,
 	 * which allows to specify a different eventMask.
 	 * 
 	 * @see ElementChangedEvent
@@ -166,7 +166,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	/**
 	 * Adds the given listener for changes to Java elements.
 	 * Has no effect if an identical listener is already registered.
-	 * After completion of this method, the given listener will be registered for exactly the
+	 * After completion of this method, the given listener will be registered for exactly
 	 * the specified events.  If they were previously registered for other events, they
 	 * will be deregistered.  
 	 * <p>
@@ -195,7 +195,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	/**
 	 * Configures the given marker attribute map for the given Java element.
-	 * Used for markers which denote a Java element rather than a resource.
+	 * Used for markers, which denote a Java element rather than a resource.
 	 *
 	 * @param attributes the mutable marker attribute map (key type: <code>String</code>,
 	 *   value type: <code>String</code>)
@@ -212,7 +212,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	
 	/**
 	 * Configures the given marker for the given Java element.
-	 * Used for markers which denote a Java element rather than a resource.
+	 * Used for markers, which denote a Java element rather than a resource.
 	 *
 	 * @param marker the marker to be configured
 	 * @param element the Java element for which the marker needs to be configured
@@ -348,7 +348,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * In case this container path could not be resolved, then will answer <code>null</code>.
 	 * Both the container path and the project context are supposed to be non-null.
 	 * <p>
-	 * The containerPath is a formed by a first ID segment followed with extra segments which can be 
+	 * The containerPath is a formed by a first ID segment followed with extra segments, which can be 
 	 * used as additional hints for resolution. If no container was ever recorded for this container path 
 	 * onto this project (using <code>setClasspathContainer</code>, then a 
 	 * <code>ClasspathContainerInitializer</code> will be activated if any was registered for this container 
@@ -363,7 +363,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <code>ClasspathContainerInitializer</code> for each referenced container 
 	 * (through the extension point "org.eclipse.jdt.core.ClasspathContainerInitializer").
 	 * <p>
-	 * @param containerPath - the name of the container which needs to be resolved
+	 * @param containerPath - the name of the container, which needs to be resolved
 	 * @param project - a specific project in which the container is being resolved
 	 * @return IClasspathContainer - the corresponding classpath container or <code>null</code> if unable to find one.
 	 * 
@@ -521,7 +521,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	/**
 	 * Returns a table of all known configurable options with their default values.
-	 * These options allow to configure the behavior of the underlying components.
+	 * These options allow to configure the behaviour of the underlying components.
 	 * The client may safely use the result as a template that they can modify and
 	 * then pass to <code>setOptions</code>.
 	 * 
@@ -583,7 +583,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 *
 	 *	COMPILER / Reporting Attempt to Override Package-Default Method
 	 *    A package default method is not visible in a different package, and thus 
-	 *    cannot be overriden. When enabling this option, the compiler will signal 
+	 *    cannot be overridden. When enabling this option, the compiler will signal 
 	 *    such scenarii either as an error or a warning.
 	 *     - option id:			"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"
 	 *     - possible values:	{ "error", "warning", "ignore" }
@@ -759,7 +759,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * 
 	 *	CODEASSIST / Activate Visibility Sensitive Completion
 	 *    When active, completion doesn't show that you can not see
-	 *    (eg. you can not see private methods of a super class).
+	 *    (e.g. you can not see private methods of a super class).
 	 *     - option id:			"org.eclipse.jdt.core.codeComplete.visibilityCheck"
 	 *     - possible values:	{ "enabled", "disabled" }
 	 *     - default:			"disabled"
@@ -880,7 +880,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	}
 
 	/**
-	 * This is a helper method which returns the resolved classpath entry denoted 
+	 * This is a helper method, which returns the resolved classpath entry denoted 
 	 * by a given entry (if it is a variable entry). It is obtained by resolving the variable 
 	 * reference in the first segment. Returns <node>null</code> if unable to resolve using 
 	 * the following algorithm:
@@ -1072,7 +1072,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	
 	/**
 	 * Returns whether the given marker references the given Java element.
-	 * Used for markers which denote a Java element rather than a resource.
+	 * Used for markers, which denote a Java element rather than a resource.
 	 *
 	 * @param element the element
 	 * @param marker the marker
@@ -1091,7 +1091,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 
 	/**
 	 * Returns whether the given marker delta references the given Java element.
-	 * Used for markers deltas which denote a Java element rather than a resource.
+	 * Used for markers deltas, which denote a Java element rather than a resource.
 	 *
 	 * @param element the element
 	 * @param markerDelta the marker delta
@@ -1374,7 +1374,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * The source folder is referred to using an absolute path relative to the workspace root, e.g. <code>"/Project/src"</code>.
 	 * </p>
 	 * <p>
-	 * A source entry is used to setup the internal source layout of a project, and cannot be used out of the
+	 * A source entry is used to set up the internal source layout of a project, and cannot be used out of the
 	 * context of the containing project (a source entry "Proj1/src" cannot be used on the classpath of Proj2).
 	 * </p>
 	 * <p>
@@ -1406,15 +1406,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
 	 * depending on what the classpath variable is referring.
 	 * <p>
-	 *	It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>)
+	 *	It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>),
 	 * which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
 	 * After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>	 
 	 * <p>
 	 * e.g. Here are some examples of variable path usage<ul>
 	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "c:/jars/jdtcore.jar". The resoved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
+	 *		bound to "c:/jars/jdtcore.jar". The resolved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
 	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "/Project_JDTCORE". The resoved classpath entry is denoting the project "/Project_JDTCORE"</li>
+	 *		bound to "/Project_JDTCORE". The resolved classpath entry is denoting the project "/Project_JDTCORE"</li>
 	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
 	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
 	 * </ul>
@@ -1455,15 +1455,15 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * A variable entry allows to express indirect references on a classpath to other projects or libraries,
 	 * depending on what the classpath variable is referring.
 	 * <p>
-	 *	It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>)
+	 *	It is possible to register an automatic initializer (<code>ClasspathVariableInitializer</code>),
 	 * which will be invoked through the extension point "org.eclipse.jdt.core.classpathVariableInitializer".
 	 * After resolution, a classpath variable entry may either correspond to a project or a library entry. </li>	 
 	 * <p>
 	 * e.g. Here are some examples of variable path usage<ul>
 	 * <li><"JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "c:/jars/jdtcore.jar". The resoved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
+	 *		bound to "c:/jars/jdtcore.jar". The resolved classpath entry is denoting the library "c:\jars\jdtcore.jar"</li>
 	 * <li> "JDTCORE" where variable <code>JDTCORE</code> is 
-	 *		bound to "/Project_JDTCORE". The resoved classpath entry is denoting the project "/Project_JDTCORE"</li>
+	 *		bound to "/Project_JDTCORE". The resolved classpath entry is denoting the project "/Project_JDTCORE"</li>
 	 * <li> "PLUGINS/com.example/example.jar" where variable <code>PLUGINS</code>
 	 *      is bound to "c:/eclipse/plugins". The resolved classpath entry is denoting the library "c:/eclipse/plugins/com.example/example.jar"</li>
 	 * </ul>
@@ -1564,7 +1564,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * <p>
 	 * <code>containerPath</code> is the path under which these values can be referenced through
 	 * container classpath entries (<code>IClasspathEntry#CPE_CONTAINER</code>). A container path 
-	 * is formed by a first ID segment followed with extra segments which can be used as additional hints
+	 * is formed by a first ID segment followed with extra segments, which can be used as additional hints
 	 * for the resolution. The container ID is used to identify a <code>ClasspathContainerInitializer</code> 
 	 * registered on the extension point "org.eclipse.jdt.core.classpathContainerInitializer".
 	 * <p>
@@ -1586,7 +1586,7 @@ public final class JavaCore extends Plugin implements IExecutableExtension {
 	 * (through the extension point "org.eclipse.jdt.core.ClasspathContainerInitializer").
 	 * <p>
 	 * 
-	 * @param containerPath - the name of the container reference which is being updated
+	 * @param containerPath - the name of the container reference, which is being updated
 	 * @param affectedProjects - the set of projects for which this container is being bound
 	 * @param respectiveContainers - the set of respective containers for the affected projects
 	 * @param monitor a monitor to report progress

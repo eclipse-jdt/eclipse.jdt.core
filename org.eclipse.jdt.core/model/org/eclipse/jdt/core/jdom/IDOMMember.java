@@ -6,7 +6,7 @@ package org.eclipse.jdt.core.jdom;
 import org.eclipse.jdt.internal.core.*;
 
 /**
- * An <code>IDOMMember</code> defines functionality common to nodes which
+ * An <code>IDOMMember</code> defines functionality common to nodes, which
  * can be members of types.
  * <p>
  * This interface is not intended to be implemented by clients.

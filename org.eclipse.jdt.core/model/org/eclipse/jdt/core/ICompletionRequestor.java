@@ -27,10 +27,10 @@ public interface ICompletionRequestor {
 /**
  * Code assist notification of an anonymous type declaration completion.
  * @param superTypePackageName char[]
- * 		Name of the package that contains the super type of this new anonynous type declaration .
+ * 		Name of the package that contains the super type of this new anonymous type declaration .
  * 
  * @param superTypeName char[]
- * 		Name of the super type of this new anonynous type declaration.
+ * 		Name of the super type of this new anonymous type declaration.
  * 
  * @param parameterPackageNames char[][]
  * 		Names of the packages in which the parameter types are declared.
@@ -41,7 +41,7 @@ public interface ICompletionRequestor {
  *    	Should contain as many elements as parameterPackageNames.
  * 
  * @param completionName char[]
- * 		The completion for the anonynous type declaration.
+ * 		The completion for the anonymous type declaration.
  * 		Can include zero, one or two brackets. If the closing bracket is included,
  * 		then the cursor should be placed before it.
  * 
@@ -49,10 +49,10 @@ public interface ICompletionRequestor {
  * 		The modifiers of the constructor.
  * 
  * @param completionStart int
- * 		The start position of insertion of the name of this new anonynous type declaration.
+ * 		The start position of insertion of the name of this new anonymous type declaration.
  * 
  * @param completionEnd int
- * 		The end position of insertion of the name of this new anonynous type declaration.
+ * 		The end position of insertion of the name of this new anonymous type declaration.
  * 
  * @param relevance int
  * 		The relevance of the completion proposal

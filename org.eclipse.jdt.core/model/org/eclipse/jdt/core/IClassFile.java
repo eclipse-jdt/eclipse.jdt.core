@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.core.*;
  * case.
  * <p>
  * Note: <code>IClassFile</code> extends <code>ISourceReference</code>.
- * Source can be obtained for a class file iff source has been attached to this
+ * Source can be obtained for a class file if and only if source has been attached to this
  * class file. The source associated with a class file is the source code of
  * the compilation unit it was (nominally) generated from.
  * </p>

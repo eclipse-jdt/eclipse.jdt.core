@@ -93,11 +93,11 @@ public abstract class Statement extends ASTNode {
 	 * Examples:
 	 * <code>
 	 * <pre>
-	 * setLeadingComment("/&ast; single-line comment &ast;/") - correct
+	 * setLeadingComment("/&#42; single-line comment &#42;/") - correct
 	 * setLeadingComment("missing comment delimiters") - wrong!
-	 * setLeadingComment("/&ast; unterminated comment ") - wrong!
+	 * setLeadingComment("/&#42; unterminated comment ") - wrong!
 	 * setLeadingComment("// end-of-line comment") - correct
-	 * setLeadingComment("/&ast; multi-line\n comment &ast;/")  - correct
+	 * setLeadingComment("/&#42; multi-line\n comment &#42;/")  - correct
 	 * setLeadingComment("// broken end-of-line\n comment ") - wrong!
 	 * </pre>
 	 * </code>

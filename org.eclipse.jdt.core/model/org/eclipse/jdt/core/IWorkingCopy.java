@@ -209,7 +209,7 @@ public interface IWorkingCopy {
 	 * a working copy, or this element if this element is already a working copy.
 	 *
 	 * Note: if intending to share a working copy amongst several clients, then 
-	 * <code>#getSharedWorkingCopy</code> should be used insted.
+	 * <code>#getSharedWorkingCopy</code> should be used instead.
 	 * 
 	 * @exception JavaModelException if the contents of this element can
 	 *   not be determined. Reasons include:
@@ -228,7 +228,7 @@ public interface IWorkingCopy {
 	 * upon creation.
 	 *
 	 * Note: if intending to share a working copy amongst several clients, then 
-	 * <code>#getSharedWorkingCopy</code> should be used insted.
+	 * <code>#getSharedWorkingCopy</code> should be used instead.
 	 *
 	 * @param monitor a progress monitor used to report progress while opening this compilation unit
 	 *                 or <code>null</code> if no progress should be reported 

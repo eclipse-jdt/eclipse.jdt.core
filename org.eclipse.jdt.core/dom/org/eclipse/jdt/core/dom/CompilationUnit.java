@@ -163,8 +163,8 @@ public class CompilationUnit extends ASTNode {
 	 * node to the given package declaration node.
 	 * 
 	 * @param pkgDecl the new package declaration node, or 
-	 *   <code>null</code> if this compilation unit is not have no package
-	 *   declaration (that is, is to be in the default package)
+	 *   <code>null</code> if this compilation unit does not have a package
+	 *   declaration (that is in the default package)
 	 * @exception IllegalArgumentException if the node belongs to a different AST
 	 * @exception IllegalArgumentException if the node already has a parent
 	 */ 

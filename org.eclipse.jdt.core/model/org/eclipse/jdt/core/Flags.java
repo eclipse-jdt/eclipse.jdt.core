@@ -181,7 +181,7 @@ public final class Flags {
 	 *   <code>abstract</code> <code>final</code> <code>native</code> <code>synchronized</code> <code>transient</code> <code>volatile</code> <code>strictfp</code>
 	 * </pre>
 	 * This is a compromise between the orders specified in sections 8.1.1,
-	 * 8.3.1, 8.4.3, 8.8.3, 9.1.1, and 9.3 of the <em>The Java Language 
+	 * 8.3.1, 8.4.3, 8.8.3, 9.1.1, and 9.3 of <em>The Java Language 
 	 * Specification, Second Edition</em> (JLS2).
 	 * </p> 
 	 * <p>

@@ -79,7 +79,7 @@ public class ToolFactory {
 	}
 
 	/**
-	 * Create an instance of the buit-in code formatter. A code formatter implementation can be contributed via the 
+	 * Create an instance of the built-in code formatter. A code formatter implementation can be contributed via the 
 	 * extension point "org.eclipse.jdt.core.codeFormatter". If unable to find a registered extension, the factory will 
 	 * default to using the default code formatter.
 	 * 

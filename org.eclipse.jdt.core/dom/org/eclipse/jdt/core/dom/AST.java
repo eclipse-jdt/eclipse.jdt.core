@@ -183,7 +183,7 @@ public final class AST {
 	 * generally afford a more powerful vantage point for clients who wish to
 	 * analyze a program's structure more deeply. These bindings come at a 
 	 * considerable cost in both time and space, however, and should not be
-	 * requested frivilously. The additional space is not reclaimed until the 
+	 * requested frivolously. The additional space is not reclaimed until the 
 	 * AST, all its nodes, and all its bindings become garbage. So it is very
 	 * important to not retain any of these objects longer than absolutely
 	 * necessary. Note that bindings can only be resolved while the AST remains
@@ -248,7 +248,7 @@ public final class AST {
 	}
 
 	/**
-	 * Parses the given string as the hypothethetical contents of the named
+	 * Parses the given string as the hypothetical contents of the named
 	 * compilation unit and creates and returns a corresponding abstract syntax tree.
 	 * <p>
 	 * The returned compilation unit node is the root node of a new AST.
@@ -266,7 +266,7 @@ public final class AST {
 	 * generally afford a more powerful vantage point for clients who wish to
 	 * analyze a program's structure more deeply. These bindings come at a 
 	 * considerable cost in both time and space, however, and should not be
-	 * requested frivilously. The additional space is not reclaimed until the 
+	 * requested frivolously. The additional space is not reclaimed until the 
 	 * AST, all its nodes, and all its bindings become garbage. So it is very
 	 * important to not retain any of these objects longer than absolutely
 	 * necessary. Note that bindings can only be resolved while the AST remains
@@ -830,7 +830,7 @@ public final class AST {
 	
 	/**
 	 * Creates a new unparented if statement node owned by this AST.
-	 * By default, the expresssion is unspecified (but legal), 
+	 * By default, the expression is unspecified (but legal), 
 	 * the then statement is an empty block, and there is no else statement.
 	 * 
 	 * @return a new unparented if statement node
@@ -841,7 +841,7 @@ public final class AST {
 
 	/**
 	 * Creates a new unparented while statement node owned by this AST.
-	 * By default, the expresssion is unspecified (but legal), and
+	 * By default, the expression is unspecified (but legal), and
 	 * the body statement is an empty block.
 	 * 
 	 * @return a new unparented while statement node
@@ -852,7 +852,7 @@ public final class AST {
 
 	/**
 	 * Creates a new unparented do statement node owned by this AST.
-	 * By default, the expresssion is unspecified (but legal), and
+	 * By default, the expression is unspecified (but legal), and
 	 * the body statement is an empty block.
 	 * 
 	 * @return a new unparented do statement node

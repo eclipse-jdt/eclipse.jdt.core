@@ -50,9 +50,9 @@ public class InfixExpression extends Expression {
 	 *    <b><code>==</code></p>  <code>EQUALS</code>
 	 *    <b><code>!=</code></p>  <code>NOT_EQUALS</code>
 	 *    <b><code>^</code></p>  <code>XOR</code>
-	 *    <b><code>%amp;</code></p>  <code>AND</code>
+	 *    <b><code>&amp;</code></p>  <code>AND</code>
 	 *    <b><code>|</code></p>  <code>OR</code>
-	 *    <b><code>%amp;%amp;</code></p>  <code>CONDITIONAL_AND</code>
+	 *    <b><code>&amp;&amp;</code></p>  <code>CONDITIONAL_AND</code>
 	 *    <b><code>||</code></p>  <code>CONDITIONAL_OR</code>
 	 * </pre>
 	 */
@@ -120,7 +120,7 @@ public class InfixExpression extends Expression {
 		public static final Operator OR = new Operator("|");//$NON-NLS-1$
 		/** AND "&amp;" operator. */
 		public static final Operator AND = new Operator("&");//$NON-NLS-1$
-		/** Consitional OR "||" operator. */
+		/** Conditional OR "||" operator. */
 		public static final Operator CONDITIONAL_OR = new Operator("||");//$NON-NLS-1$
 		/** Conditional AND "&amp;&amp;" operator. */
 		public static final Operator CONDITIONAL_AND = new Operator("&&");//$NON-NLS-1$

@@ -19,7 +19,7 @@ public DOMException() {}
 /**
  * Creates a new exception with the given detail message.
  *
- * @param message the deatil message
+ * @param message the detail message
  */
 public DOMException(String message) {
 	super(message);
