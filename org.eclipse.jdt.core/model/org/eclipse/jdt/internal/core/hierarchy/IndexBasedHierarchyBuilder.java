@@ -214,7 +214,7 @@ private void buildForProject(JavaProject project, ArrayList infos, ArrayList uni
 			this.hierarchyResolver = 
 				new HierarchyResolver(this.searchableEnvironment, project.getOptions(true), this, new DefaultProblemFactory());
 			if (focusType != null) {
-				Member declaringMember = ((Member)focusType).getInnerMostDeclaringMember();
+				Member declaringMember = ((Member)focusType).getOuterMostLocalContext();
 				if (declaringMember == null) {
 					// top level or member type
 					char[] fullyQualifiedName = focusType.getFullyQualifiedName().toCharArray();
