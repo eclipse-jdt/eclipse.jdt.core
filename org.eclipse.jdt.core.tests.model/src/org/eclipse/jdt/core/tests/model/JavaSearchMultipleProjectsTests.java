@@ -311,6 +311,45 @@ public void testMethodOccurences() throws CoreException {
 	}
 }
 /**
+ * Package declaration with 2 unrelated projects that contain the same source.
+ * (regression test for bug 46276 Search for package declarations incorrectly finds matches in clone project)
+ */
+public void testPackageDeclaration() throws CoreException {
+	try {
+		// setup project P1
+		IJavaProject p1 = createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		
+		// copy to project P2
+		p1.getProject().copy(new Path("/P2"), false, null);
+		IJavaProject p2 = getJavaProject("P2");
+		
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1, p2});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		IPackageFragment pkg = getPackage("/P1/p");
+		new SearchEngine().search(
+			getWorkspace(), 
+			pkg,
+			DECLARATIONS, 
+			scope, 
+			resultCollector);
+		assertEquals(
+			"Unexpected package declarations",
+			"p [in P1] p",
+			resultCollector.toString());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+	}
+}
+/**
  * Type declaration in external jar file that is shared by 2 projects.
  * (regression test for bug 27485 SearchEngine returns wrong java element when searching in an archive that is included by two distinct java projects.)
  */
