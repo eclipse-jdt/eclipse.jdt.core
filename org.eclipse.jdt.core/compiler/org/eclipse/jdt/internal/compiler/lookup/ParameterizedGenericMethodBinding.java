@@ -64,11 +64,11 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     	                    originalParameterizedType.type, substitutedArguments, originalParameterizedType.enclosingType);
         	    } 
 			} else if (originalType.isArrayType()) {
-    			TypeBinding originalLeafComponentType = originalType.leafComponentType();
-    			TypeBinding substitutedLeafComponentType = substitute(originalLeafComponentType);
-    			if (substitutedLeafComponentType != originalLeafComponentType) {
-    			    return this.environment.createArrayType(substitutedLeafComponentType, originalType.dimensions());
-    			}
+				TypeBinding originalLeafComponentType = originalType.leafComponentType();
+				TypeBinding substitute = substitute(originalLeafComponentType); // substitute could itself be array type
+				if (substitute != originalLeafComponentType) {
+					return this.environment.createArrayType(substitute.leafComponentType(), substitute.dimensions() + originalType.dimensions());
+				}
 			} else if (originalType.isWildcard()) {
 		        WildcardBinding wildcard = (WildcardBinding) originalType;
 		        if (wildcard.kind != Wildcard.UNBOUND) {

@@ -4132,7 +4132,8 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			"	          ^\n" + 
 			"Unsafe wildcard operation: Cannot assign expression of type X to wildcard type ?\n" + 
 			"----------\n");
-	}		
+	}
+	// 59628
 	public void test146() {
 		this.runConformTest(
 			new String[] {
@@ -4148,4 +4149,22 @@ public class GenericTypeTest extends AbstractRegressionTest {
 			},
 			"SUCCESS");
 	}
+	// 59723
+	public void test147() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	    char[][] tokens = new char[0][];\n" + 
+				"	    ArrayList list = new ArrayList();\n" + 
+				"		list.toArray(tokens);\n" + 
+				"      System.out.println(\"SUCCESS\");\n" + 
+				"    }    	\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}	
 }
