@@ -327,7 +327,7 @@ public final class NamingConventions {
 	 * @param packageName package of the argument's type.
 	 * @param qualifiedTypeName argument's type.
 	 * @param dim argument's dimension (0 if the argument is not an array).
-	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
 	 * @see JavaCore#setOptions
@@ -366,7 +366,7 @@ public final class NamingConventions {
 	 * @param packageName package of the argument's type.
 	 * @param qualifiedTypeName argument's type.
 	 * @param dim argument's dimension (0 if the argument is not an array).
-	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
 	 * @see JavaCore#setOptions
@@ -400,7 +400,7 @@ public final class NamingConventions {
 	 * @param dim field's dimension (0 if the field is not an array).
 	 * @param modifiers field's modifiers as defined by the class
 	 * <code>Flags</code>.
-	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
 	 * @see Flags
@@ -444,7 +444,7 @@ public final class NamingConventions {
 	 * @param dim field's dimension (0 if the field is not an array).
 	 * @param modifiers field's modifiers as defined by the class
 	 * <code>Flags</code>.
-	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
 	 * @see Flags
@@ -478,7 +478,7 @@ public final class NamingConventions {
 	 * @param packageName package of the variable's type.
 	 * @param qualifiedTypeName variable's type.
 	 * @param dim variable's dimension (0 if the variable is not an array).
-	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
 	 * @see JavaCore#setOptions
@@ -516,7 +516,7 @@ public final class NamingConventions {
 	 * @param packageName package of the variable's type.
 	 * @param qualifiedTypeName variable's type.
 	 * @param dim variable's dimension (0 if the variable is not an array).
-	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[][] an array of names.
 	 * @see JavaCore#setOptions
@@ -550,16 +550,16 @@ public final class NamingConventions {
 			prefixes = new char[1][0];
 		} else {
 			int length = prefixes.length;
-			System.arraycopy(prefixes, 0, prefixes = new char[length+1][], 1, length);
-			prefixes[0] = CharOperation.NO_CHAR;
+			System.arraycopy(prefixes, 0, prefixes = new char[length+1][], 0, length);
+			prefixes[length] = CharOperation.NO_CHAR;
 		}
 		
 		if(suffixes == null || suffixes.length == 0) {
 			suffixes = new char[1][0];
 		} else {
 			int length = suffixes.length;
-			System.arraycopy(suffixes, 0, suffixes = new char[length+1][], 1, length);
-			suffixes[0] = CharOperation.NO_CHAR;
+			System.arraycopy(suffixes, 0, suffixes = new char[length+1][], 0, length);
+			suffixes[length] = CharOperation.NO_CHAR;
 		}
 		
 		char[][] names = new char[5][];
@@ -680,7 +680,7 @@ public final class NamingConventions {
 	 * @param modifiers field's modifiers as defined by the class
 	 * <code>Flags</code>.
 	 * @param isBoolean <code>true</code> if the field's type is boolean
-	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
 	 * @see Flags
@@ -726,7 +726,7 @@ public final class NamingConventions {
 	 * @param modifiers field's modifiers as defined by the class
 	 * <code>Flags</code>.
 	 * @param isBoolean <code>true</code> if the field's type is boolean
-	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
 	 * @see Flags
@@ -759,7 +759,7 @@ public final class NamingConventions {
 	 * @param modifiers field's modifiers as defined by the class
 	 * <code>Flags</code>.
 	 * @param isBoolean <code>true</code> if the field's type is boolean
-	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
 	 * @see Flags
@@ -808,7 +808,7 @@ public final class NamingConventions {
 	 * @param modifiers field's modifiers as defined by the class
 	 * <code>Flags</code>.
 	 * @param isBoolean <code>true</code> if the field's type is boolean
-	 * @param excludedNames a list of names which can not be suggest (already use names).
+	 * @param excludedNames a list of names which cannot be suggested (already used names).
 	 *         Can be <code>null</code> if there is no excluded names.
 	 * @return char[] a name.
 	 * @see Flags
