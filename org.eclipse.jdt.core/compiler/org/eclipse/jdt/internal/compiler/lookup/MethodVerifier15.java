@@ -27,14 +27,12 @@ boolean areMethodsEqual(MethodBinding one, MethodBinding substituteTwo) {
 
 		for (int i = 0; i < length; i++) {
 			if (oneParams[i] != twoParams[i]) {
-				checkParameters |= oneParams[i].leafComponentType().isParameterizedType();
 				if (!areTypesEqual(oneParams[i], twoParams[i])) {
-					while (!checkParameters && ++i < length)
-						checkParameters |= oneParams[i].leafComponentType().isParameterizedType();
 					if (one.areParameterErasuresEqual(substituteTwo)) // at least one parameter may cause a name clash
-						detectNameClash(one, substituteTwo, checkParameters);
+						detectNameClash(one, substituteTwo, true);
 					return false; // no match but needed to check for a name clash
 				}
+				checkParameters = true;
 			}
 		}
 	}
@@ -186,7 +184,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 boolean detectNameClash(MethodBinding one, MethodBinding substituteTwo, boolean checkParameters) {
 	if (doTypeVariablesClash(one, substituteTwo) || (checkParameters && doParametersClash(one, substituteTwo))) {
 		if (this.type == one.declaringClass)
-		 	problemReporter(one).methodNameClash(one, substituteTwo);
+			problemReporter(one).methodNameClash(one, substituteTwo);
 		else
 			problemReporter().inheritedMethodsHaveNameClash(this.type, one, substituteTwo);
 		return true;
@@ -202,13 +200,19 @@ boolean doParametersClash(MethodBinding one, MethodBinding substituteTwo) {
 	TypeBinding[] twoParams = substituteTwo.parameters;
 	for (int i = 0, l = oneParams.length; i < l; i++) {
 		if (oneParams[i] == twoParams[i]) continue;
-		if (!oneParams[i].leafComponentType().isParameterizedType()) continue;
-
-		if (!twoParams[i].leafComponentType().isParameterizedType()
-			|| !oneParams[i].isEquivalentTo(twoParams[i])
-			|| !twoParams[i].isEquivalentTo(oneParams[i])) {
-				return true;
+		switch (oneParams[i].leafComponentType().kind()) {
+			case Binding.PARAMETERIZED_TYPE :
+				if (!twoParams[i].leafComponentType().isParameterizedType()
+					|| !oneParams[i].isEquivalentTo(twoParams[i])
+					|| !twoParams[i].isEquivalentTo(oneParams[i])) {
+						return true;
+				}
+				break;
+			case Binding.TYPE_PARAMETER :
+				return true; // type variables must be identical (due to substitution) given their erasures are equal
 		}
+		if (twoParams[i].leafComponentType().isTypeVariable())
+			return true; // type variables must be identical (due to substitution) given their erasures are equal
 	}
 	return false;
 }

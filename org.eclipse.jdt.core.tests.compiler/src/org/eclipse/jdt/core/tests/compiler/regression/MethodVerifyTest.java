@@ -54,12 +54,22 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"	      ^\n" + 
 			"The type L<T> must implement the inherited abstract method I.foo(Object)\n" + 
 			"----------\n" + 
-			"3. ERROR in ALL.java (at line 8)\n" + 
+			"3. ERROR in ALL.java (at line 7)\n" + 
+			"	class L<T> implements I { public void foo(T t) {} }\n" + 
+			"	                                      ^^^^^^^^\n" + 
+			"Name clash: The method foo(T) of type L<T> has the same erasure as foo(U) of type I but does not override it\n" + 
+			"----------\n" + 
+			"4. ERROR in ALL.java (at line 8)\n" + 
 			"	class Y<T> extends X<A> { public void foo(T t) { super.foo(t); } }\n" + 
 			"	                                                       ^^^\n" + 
 			"The method foo(A) in the type X<A> is not applicable for the arguments (T)\n" + 
 			"----------\n" + 
-			"4. WARNING in ALL.java (at line 10)\n" + 
+			"5. ERROR in ALL.java (at line 10)\n" + 
+			"	class W<T> extends X { public void foo(T t) { super.foo(t); } }\n" + 
+			"	                                   ^^^^^^^^\n" + 
+			"Name clash: The method foo(T) of type W<T> has the same erasure as foo(U) of type X but does not override it\n" + 
+			"----------\n" + 
+			"6. WARNING in ALL.java (at line 10)\n" + 
 			"	class W<T> extends X { public void foo(T t) { super.foo(t); } }\n" + 
 			"	                                              ^^^^^^^^^^^^\n" + 
 			"Type safety: The method foo(Object) belongs to the raw type X. References to generic type X<U> should be parameterized\n" + 
@@ -69,6 +79,32 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			ALL.java:7: L is not abstract and does not override abstract method foo(java.lang.Object) in I
 			ALL.java:8: foo(A) in X<A> cannot be applied to (T)
 			ALL.java:10: warning: [unchecked] unchecked call to foo(U) as a member of the raw type X
+			 */
+		);
+		// and just to show that name clash errors are NOT generated when another error is detected
+		this.runNegativeTest(
+			new String[] {
+				"ALL.java",
+				"class A {}\n" +
+				"class B {}\n" +
+				"class X<U> { public void foo(U u) {} }\n" +
+
+				"class W<T> extends X { public void foo(T t) { super.foo(t); } }\n",
+			},
+			"----------\n" + 
+			"1. ERROR in ALL.java (at line 4)\r\n" + 
+			"	class W<T> extends X { public void foo(T t) { super.foo(t); } }\r\n" + 
+			"	                                   ^^^^^^^^\n" + 
+			"Name clash: The method foo(T) of type W<T> has the same erasure as foo(U) of type X but does not override it\n" + 
+			"----------\n" + 
+			"2. WARNING in ALL.java (at line 4)\r\n" + 
+			"	class W<T> extends X { public void foo(T t) { super.foo(t); } }\r\n" + 
+			"	                                              ^^^^^^^^^^^^\n" + 
+			"Type safety: The method foo(Object) belongs to the raw type X. References to generic type X<U> should be parameterized\n" + 
+			"----------\n"
+			/*
+			 ALL.java:4: warning: [unchecked] unchecked call to foo(U) as a member of the raw type X
+			 ALL.java:4: name clash: foo(T) in W<T> and foo(U) in X have the same erasure, yet neither overrides the other
 			 */
 		);
 	}
@@ -111,6 +147,11 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"	      ^\n" + 
 			"The type L<T> must implement the inherited abstract method I.foo(Object)\n" + 
 			"----------\n" + 
+			"2. ERROR in L.java (at line 1)\n" + 
+			"	class L<T> implements I { public void foo(T t) {} }\n" + 
+			"	                                      ^^^^^^^^\n" + 
+			"Name clash: The method foo(T) of type L<T> has the same erasure as foo(U) of type I but does not override it\n" + 
+			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in Y.java (at line 1)\n" + 
 			"	class Y<T> extends X<A> { public void foo(T t) { super.foo(t); } }\n" + 
@@ -118,7 +159,12 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"The method foo(A) in the type X<A> is not applicable for the arguments (T)\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. WARNING in W.java (at line 1)\n" + 
+			"1. ERROR in W.java (at line 1)\n" + 
+			"	class W<T> extends X { public void foo(T t) { super.foo(t); } }\n" + 
+			"	                                   ^^^^^^^^\n" + 
+			"Name clash: The method foo(T) of type W<T> has the same erasure as foo(U) of type X but does not override it\n" + 
+			"----------\n" + 
+			"2. WARNING in W.java (at line 1)\n" + 
 			"	class W<T> extends X { public void foo(T t) { super.foo(t); } }\n" + 
 			"	                                              ^^^^^^^^^^^^\n" + 
 			"Type safety: The method foo(Object) belongs to the raw type X. References to generic type X<U> should be parameterized\n" + 
@@ -174,6 +220,11 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"	      ^\n" + 
 			"The type L<T> must implement the inherited abstract method I.foo(Object)\n" + 
 			"----------\n" + 
+			"2. ERROR in L.java (at line 1)\n" + 
+			"	class L<T> implements I { public void foo(T t) {} }\n" + 
+			"	                                      ^^^^^^^^\n" + 
+			"Name clash: The method foo(T) of type L<T> has the same erasure as foo(U) of type I but does not override it\n" + 
+			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in Y.java (at line 1)\n" + 
 			"	class Y<T> extends X<A> { public void foo(T t) { super.foo(t); } }\n" + 
@@ -181,7 +232,12 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 			"The method foo(A) in the type X<A> is not applicable for the arguments (T)\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. WARNING in W.java (at line 1)\n" + 
+			"1. ERROR in W.java (at line 1)\n" + 
+			"	class W<T> extends X { public void foo(T t) { super.foo(t); } }\n" + 
+			"	                                   ^^^^^^^^\n" + 
+			"Name clash: The method foo(T) of type W<T> has the same erasure as foo(U) of type X but does not override it\n" + 
+			"----------\n" + 
+			"2. WARNING in W.java (at line 1)\n" + 
 			"	class W<T> extends X { public void foo(T t) { super.foo(t); } }\n" + 
 			"	                                              ^^^^^^^^^^^^\n" + 
 			"Type safety: The method foo(Object) belongs to the raw type X. References to generic type X<U> should be parameterized\n" + 
@@ -1332,7 +1388,57 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82102
-	public void _test027() {
+	public void test027() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X { <T> void test() {} }\n" + 
+				"class Y extends X { void test() {} }\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X { void test() {} }\n" + 
+				"class Y extends X { <T> void test() {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	class Y extends X { <T> void test() {} }\n" + 
+			"	                             ^^^^^^\n" + 
+			"Name clash: The method test() of type Y has the same erasure as test() of type X but does not override it\n" + 
+			"----------\n"
+			// name clash: <T>foo() in Y and foo() in X have the same erasure, yet neither overrides the other
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> { void test(T o) {} }\n" + 
+				"class Y<T> extends X<T> { void test(Object o) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	class Y<T> extends X<T> { void test(Object o) {} }\r\n" + 
+			"	                               ^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method test(Object) of type Y<T> has the same erasure as test(T) of type X<T> but does not override it\n" + 
+			"----------\n"
+			// no error unless you try to do a super send which then fails
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> { void test(T o, T t) {} }\n" + 
+				"class Y<T> extends X<T> { void test(Object o, T t) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	class Y<T> extends X<T> { void test(Object o, T t) {} }\r\n" + 
+			"	                               ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Name clash: The method test(Object, T) of type Y<T> has the same erasure as test(T, T) of type X<T> but does not override it\n" + 
+			"----------\n"
+			// name clash: test(java.lang.Object,T) in Y<T> and test(T,T) in X<T> have the same erasure, yet neither overrides the other
+		);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1349,7 +1455,12 @@ public class MethodVerifyTest extends AbstractComparisonTest {
 				"	public void setA(A a) {}\n" + 
 				"}\n"
 			},
-			"name clash: "
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	public void setA(A a) {}\n" + 
+			"	            ^^^^^^^^^\n" + 
+			"Name clash: The method setA(A) of type InvertedPair<A,B> has the same erasure as setA(A) of type Pair<B,A> but does not override it\n" + 
+			"----------\n"
 			// name clash: setA(A) in InvertedPair<A,B> and setA(A) in Pair<B,A> have the same erasure, yet neither overrides the other
 		);
 	}
