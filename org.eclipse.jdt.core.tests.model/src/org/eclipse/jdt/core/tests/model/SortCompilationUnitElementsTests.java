@@ -855,5 +855,50 @@ public void test011() throws CoreException {
 		this.deleteFile("/P/src/p/BaseTypes.java"); //$NON-NLS-1$
 	}
 }
-
+public void test012() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/p/X.java", //$NON-NLS-1$
+			"package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		return null;\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	bar() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		Object o = new Object() {    };\n" + //$NON-NLS-1$
+			"		System.out.println(o);\n" + //$NON-NLS-1$
+			"		class C {\n" + //$NON-NLS-1$
+			"			void bar6() {}\n" + //$NON-NLS-1$
+			"			void bar4() {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		return new C();\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}" //$NON-NLS-1$
+		);
+		String expectedSource = "package p;\n" + //$NON-NLS-1$
+			"public class X {\n" + //$NON-NLS-1$
+			"	bar() {\n" + //$NON-NLS-1$
+			"		System.out.println();\n" + //$NON-NLS-1$
+			"		Object o = new Object() {    };\n" + //$NON-NLS-1$
+			"		System.out.println(o);\n" + //$NON-NLS-1$
+			"		class C {\n" + //$NON-NLS-1$
+			"			void bar4() {}\n" + //$NON-NLS-1$
+			"			void bar5() {}\n" + //$NON-NLS-1$
+			"			void bar6() {}\n" + //$NON-NLS-1$
+			"		}\n" + //$NON-NLS-1$
+			"		return new C();\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"	\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		return null;\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
+			"}"; //$NON-NLS-1$
+		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
+	} finally {
+		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
+	}
+}
 }
