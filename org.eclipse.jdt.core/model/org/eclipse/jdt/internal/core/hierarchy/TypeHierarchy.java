@@ -926,9 +926,9 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 					IPath rootPath = root.getPath();
 					IJavaElement[] elements = this.projectRegion.getElements();
 					for (int i = 0; i < elements.length; i++) {
-						IJavaProject javaProject = (IJavaProject)elements[i];
+						JavaProject javaProject = (JavaProject)elements[i];
 						try {
-							IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true);
+							IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 							for (int j = 0; j < classpath.length; j++) {
 								IClasspathEntry entry = classpath[j];
 								if (entry.getPath().equals(rootPath)) {

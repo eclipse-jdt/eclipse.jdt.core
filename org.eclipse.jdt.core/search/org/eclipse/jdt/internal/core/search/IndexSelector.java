@@ -59,8 +59,8 @@ public static boolean canSeeFocus(IJavaElement focus, boolean isPolymorphicSearc
 			// it can see the focus only if it is on the classpath of a project that can see the focus
 			IJavaProject[] allProjects = model.getJavaProjects();
 			for (int i = 0, length = allProjects.length; i < length; i++) {
-				IJavaProject otherProject = allProjects[i];
-				IClasspathEntry[] entries = otherProject.getResolvedClasspath(true);
+				JavaProject otherProject = (JavaProject) allProjects[i];
+				IClasspathEntry[] entries = otherProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 				for (int j = 0, length2 = entries.length; j < length2; j++) {
 					IClasspathEntry entry = entries[j];
 					if ((entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) 

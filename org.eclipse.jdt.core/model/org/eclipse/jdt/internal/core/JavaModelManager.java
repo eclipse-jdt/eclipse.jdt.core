@@ -133,7 +133,7 @@ public class JavaModelManager implements ISaveParticipant {
 			if (outputLocation.isPrefixOf(folderPath)) {
 				// only allow nesting in project's output if there is a corresponding source folder
 				// or if the project's output is not used (in other words, if all source folders have their custom output)
-				IClasspathEntry[] classpath = project.getResolvedClasspath(true);
+				IClasspathEntry[] classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 				boolean isOutputUsed = false;
 				for (int i = 0, length = classpath.length; i < length; i++) {
 					IClasspathEntry entry = classpath[i];
@@ -414,7 +414,7 @@ public class JavaModelManager implements ISaveParticipant {
 		// Create a jar package fragment root only if on the classpath
 		IPath resourcePath = file.getFullPath();
 		try {
-			IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true);
+			IClasspathEntry[] entries = ((JavaProject)project).getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 			for (int i = 0, length = entries.length; i < length; i++) {
 				IClasspathEntry entry = entries[i];
 				IPath rootPath = entry.getPath();
@@ -442,7 +442,7 @@ public class JavaModelManager implements ISaveParticipant {
 			IClasspathEntry[] entries = 
 				org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(resourcePath.lastSegment())
 					? project.getRawClasspath() // JAVA file can only live inside SRC folder (on the raw path)
-					: ((JavaProject)project).getResolvedClasspath(true);
+					: ((JavaProject)project).getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 				
 			for (int i = 0; i < entries.length; i++) {
 				IClasspathEntry entry = entries[i];

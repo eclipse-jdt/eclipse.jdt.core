@@ -271,11 +271,11 @@ public void indexAll(IProject project) {
 	// determine the new children
 	try {
 		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-		IJavaProject javaProject = model.getJavaProject(project);	
+		JavaProject javaProject = (JavaProject) model.getJavaProject(project);	
 		// only consider immediate libraries - each project will do the same
 		// NOTE: force to resolve CP variables before calling indexer - 19303, so that initializers
 		// will be run in the current thread.
-		IClasspathEntry[] entries = javaProject.getResolvedClasspath(true);	
+		IClasspathEntry[] entries = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);	
 		for (int i = 0; i < entries.length; i++) {
 			IClasspathEntry entry= entries[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)

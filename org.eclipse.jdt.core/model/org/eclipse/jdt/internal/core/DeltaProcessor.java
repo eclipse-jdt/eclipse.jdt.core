@@ -337,8 +337,9 @@ public class DeltaProcessor {
 					IJavaElementDelta delta = projectDeltas[i];
 					JavaProject javaProject = (JavaProject)delta.getElement();
 					javaProject.getResolvedClasspath(
-						true, // ignoreUnresolvedEntry
-						true); // generateMarkerOnError
+						true/*ignoreUnresolvedEntry*/, 
+						true/*generateMarkerOnError*/, 
+						false/*don't returnResolutionInProgress*/);
 					
 					try {
 						// touch the project to force it to be recompiled
@@ -714,14 +715,14 @@ public class DeltaProcessor {
 						archivePathsToRefresh.add(element.getPath());
 						break;
 					case IJavaElement.JAVA_PROJECT :
-						IJavaProject project = (IJavaProject) element;
+						JavaProject project = (JavaProject) element;
 						if (!JavaProject.hasJavaNature(project.getProject())) {
 							// project is not accessible or has lost its Java nature
 							break;
 						}
 						IClasspathEntry[] classpath;
 						try {
-							classpath = project.getResolvedClasspath(true);
+							classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 							for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
 								if (classpath[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY){
 									archivePathsToRefresh.add(classpath[j].getPath());
@@ -740,13 +741,13 @@ public class DeltaProcessor {
 							continue;
 						}
 						for (int j = 0, projectsLength = projects.length; j < projectsLength; j++){
-							project = projects[j];
+							project = (JavaProject) projects[j];
 							if (!JavaProject.hasJavaNature(project.getProject())) {
 								// project is not accessible or has lost its Java nature
 								continue;
 							}
 							try {
-								classpath = project.getResolvedClasspath(true);
+								classpath = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 							} catch (JavaModelException e2) {
 								// project doesn't exist -> ignore
 								continue;
@@ -777,14 +778,14 @@ public class DeltaProcessor {
 			
 			if (monitor != null && monitor.isCanceled()) break; 
 			
-			IJavaProject project = projects[i];
+			JavaProject project = (JavaProject) projects[i];
 			if (!JavaProject.hasJavaNature(project.getProject())) {
 				// project is not accessible or has lost its Java nature
 				continue;
 			}
 			IClasspathEntry[] entries;
 			try {
-				entries = project.getResolvedClasspath(true);
+				entries = project.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 			} catch (JavaModelException e1) {
 				// project does not exist -> ignore
 				continue;
@@ -910,7 +911,7 @@ public class DeltaProcessor {
 				this.removedRoots.put(
 					javaProject, 
 					javaProject.computePackageFragmentRoots(
-						javaProject.getResolvedClasspath(true), 
+						javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/), 
 						false));
 			}
 			
@@ -1553,9 +1554,9 @@ public class DeltaProcessor {
 	
 	private OutputsInfo outputsInfo(RootInfo rootInfo, IResource res) {
 		try {
-			IJavaProject proj =
+			JavaProject proj =
 				rootInfo == null ?
-					(IJavaProject)this.createElement(res.getProject(), IJavaElement.JAVA_PROJECT, null) :
+					(JavaProject)this.createElement(res.getProject(), IJavaElement.JAVA_PROJECT, null) :
 					rootInfo.project;
 			if (proj != null) {
 				IPath projectOutput = proj.getOutputLocation();
@@ -1563,7 +1564,7 @@ public class DeltaProcessor {
 				if (proj.getProject().getFullPath().equals(projectOutput)){ // case of proj==bin==src
 					return new OutputsInfo(new IPath[] {projectOutput}, new int[] {SOURCE}, 1);
 				} 
-				IClasspathEntry[] classpath = proj.getResolvedClasspath(true);
+				IClasspathEntry[] classpath = proj.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 				IPath[] outputs = new IPath[classpath.length+1];
 				int[] traverseModes = new int[classpath.length+1];
 				int outputCount = 1;
@@ -2158,7 +2159,7 @@ public class DeltaProcessor {
 							// check if all entries exist
 							try {
 								JavaProject javaProject = (JavaProject)JavaCore.create(project);
-								javaProject.getResolvedClasspath(true/*ignore unresolved entry*/, true/*generate marker on error*/);
+								javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, 	true/*generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 							} catch (JavaModelException e) {
 								// project doesn't exist: ignore
 							}
@@ -2219,7 +2220,7 @@ public class DeltaProcessor {
 					if (preferredClasspaths.get(javaProject) == null) { // not already updated
 						try {
 							IPath projectPath = project.getFullPath();
-							IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true); // allowed to reuse model cache
+							IClasspathEntry[] classpath = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/); // allowed to reuse model cache
 							for (int j = 0, cpLength = classpath.length; j < cpLength; j++) {
 								IClasspathEntry entry = classpath[j];
 								switch (entry.getEntryKind()) {

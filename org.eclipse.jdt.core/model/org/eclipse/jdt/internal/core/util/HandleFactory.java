@@ -481,10 +481,10 @@ public class HandleFactory {
 			//  e.g. org.eclipse.swt.win32/ws/win32/swt.jar 
 			//        is NOT on the classpath of org.eclipse.swt.win32
 			IFile jarFile = (IFile)target;
-			IJavaProject javaProject = this.javaModel.getJavaProject(jarFile);
+			JavaProject javaProject = (JavaProject) this.javaModel.getJavaProject(jarFile);
 			IClasspathEntry[] classpathEntries;
 			try {
-				classpathEntries = javaProject.getResolvedClasspath(true);
+				classpathEntries = javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 				for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
 					if (classpathEntries[j].getPath().equals(jarPath)) {
 						return javaProject.getPackageFragmentRoot(jarFile);
@@ -534,7 +534,7 @@ public class HandleFactory {
 		for (int i= 0, projectCount= projects.length; i < projectCount; i++) {
 			try {
 				JavaProject javaProject= (JavaProject)projects[i];
-				IClasspathEntry[] classpathEntries= javaProject.getResolvedClasspath(true);
+				IClasspathEntry[] classpathEntries= javaProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 				for (int j= 0, entryCount= classpathEntries.length; j < entryCount; j++) {
 					if (classpathEntries[j].getPath().equals(jarPath)) {
 						if (target instanceof IFile) {
