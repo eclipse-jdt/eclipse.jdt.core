@@ -137,6 +137,21 @@ public void testAnonymousType5() throws JavaModelException {
 		"Sub types:\n",
 		hierarchy);
 }
+/*
+ * Ensures that a hierarchy on an anonymous type that uses a non-default constructor is correct.
+ */
+public void testAnonymousType6() throws JavaModelException {
+	IType typeA = getCompilationUnit("TypeHierarchy", "src", "p8", "X.java").getType("X");
+	IType type = typeA.getMethod("foo", new String[] {}).getType("", 1);
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: <anonymous #1> [in foo() [in X [in X.java [in p8 [in src [in TypeHierarchy]]]]]]\n" + 
+		"Super types:\n" + 
+		"  X [in X.java [in p8 [in src [in TypeHierarchy]]]]\n" + 
+		"    Object [in Object.class [in java.lang [in "+  getExternalJCLPath() +" [in TypeHierarchy]]]]\n" + 
+		"Sub types:\n",
+		hierarchy);
+}
 /**
  * Ensures that the superclass can be retrieved for a binary inner type.
  */
