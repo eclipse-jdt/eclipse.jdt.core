@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -17,6 +20,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -332,6 +336,77 @@ public void testBufferOpenAfterReconcile() throws CoreException {
 		assertTrue("Buffer should still be open", !buffer.isClosed());
 	} finally {
 		deleteFile("/Reconciler/src/p1/Super.java");
+	}
+}
+/**
+ * Ensures that the reconciler reconciles the new contents with the current
+ * contents,updating the structure of this reconciler's compilation
+ * unit, and fires the Java element deltas for the structural changes
+ * of a method's type parameter change.
+ */
+public void testChangeMethodTypeParameters() throws JavaModelException {
+	IJavaProject project = getJavaProject("Reconciler");
+	Map existingOptions = project.getOptions(true);
+	try {
+		Map options = new HashMap();
+		options.putAll(existingOptions);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+		project.setOptions(options);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		
+		clearDeltas();
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"import p2.*;\n" +
+			"public class X {\n" +
+			"  public <T> void foo() {\n" +
+			"  }\n" +
+			"}");
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertDeltas(
+			"Unexpected delta", 
+			"X[*]: {CHILDREN | FINE GRAINED}\n" +
+			"	foo()[*]: {CONTENT}"
+		);
+	} finally {
+		project.setOptions(existingOptions);
+	}
+}
+/**
+ * Ensures that the reconciler reconciles the new contents with the current
+ * contents,updating the structure of this reconciler's compilation
+ * unit, and fires the Java element deltas for the structural changes
+ * of a type's type parameter change.
+ */
+public void testChangeTypeTypeParameters() throws JavaModelException {
+	IJavaProject project = getJavaProject("Reconciler");
+	Map existingOptions = project.getOptions(true);
+	try {
+		Map options = new HashMap();
+		options.putAll(existingOptions);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+		project.setOptions(options);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		
+		clearDeltas();
+		setWorkingCopyContents(
+			"package p1;\n" +
+			"import p2.*;\n" +
+			"public class X <T> {\n" +
+			"  public void foo() {\n" +
+			"  }\n" +
+			"}");
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertDeltas(
+			"Unexpected delta", 
+			"X[*]: {CONTENT}"
+		);
+	} finally {
+		project.setOptions(existingOptions);
 	}
 }
 /**
