@@ -21,24 +21,24 @@ public class EqualExpression extends BinaryExpression {
 	public EqualExpression(Expression left, Expression right,int operator) {
 		super(left,right,operator);
 	}
-	public void checkNullComparison(BlockScope scope, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
+	public void checkNullComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
 		
 		LocalVariableBinding local = this.left.localVariableBinding();
 		if (local != null) {
-			checkVariableComparison(scope, flowInfo, initsWhenTrue, initsWhenFalse, local, right.nullStatus(flowInfo), this.left);
+			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, right.nullStatus(flowInfo), this.left);
 		}
 		local = this.right.localVariableBinding();
 		if (local != null) {
-			checkVariableComparison(scope, flowInfo, initsWhenTrue, initsWhenFalse, local, left.nullStatus(flowInfo), this.right);
+			checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, left.nullStatus(flowInfo), this.right);
 		}
 	}
-	private void checkVariableComparison(BlockScope scope, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, LocalVariableBinding local, int nullStatus, Expression reference) {
+	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, LocalVariableBinding local, int nullStatus, Expression reference) {
 		switch (nullStatus) {
 			case FlowInfo.NULL :
 				if (flowInfo.isDefinitelyNonNull(local)) {
-					scope.problemReporter().localVariableCannotBeNull(local, reference);
+					flowContext.recordUsingNullReference(scope, local, reference, FlowInfo.NON_NULL, flowInfo);
 				} else if (flowInfo.isDefinitelyNull(local)) {
-					scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+					flowContext.recordUsingNullReference(scope, local, reference, FlowInfo.NULL, flowInfo);
 				}
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 					initsWhenTrue.markAsDefinitelyNull(local); // from thereon it is set
@@ -50,7 +50,7 @@ public class EqualExpression extends BinaryExpression {
 				break;
 			case FlowInfo.NON_NULL :
 				if (flowInfo.isDefinitelyNull(local)) {
-					scope.problemReporter().localVariableCanOnlyBeNull(local, reference);
+					flowContext.recordUsingNullReference(scope, local, reference, FlowInfo.NULL, flowInfo);
 				}
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
 					initsWhenTrue.markAsDefinitelyNonNull(local); // from thereon it is set

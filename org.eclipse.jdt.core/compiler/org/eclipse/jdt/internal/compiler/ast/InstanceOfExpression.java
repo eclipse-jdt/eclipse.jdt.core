@@ -40,7 +40,7 @@ public class InstanceOfExpression extends OperatorExpression {
 		flowInfo = expression
 			.analyseCode(currentScope, flowContext, flowInfo)
 			.unconditionalInits();
-		expression.checkNullStatus(currentScope, flowInfo, FlowInfo.NON_NULL);
+		expression.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
 		return flowInfo;
 	}
 

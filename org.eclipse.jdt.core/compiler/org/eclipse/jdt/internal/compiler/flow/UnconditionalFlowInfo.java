@@ -122,29 +122,38 @@ public class UnconditionalFlowInfo extends FlowInfo {
 			return this;
 		}
 		// union of potentially set ones
-		potentialInits |= otherInits.potentialInits;
+		this.potentialInits |= otherInits.potentialInits;
+		// also merge null check information (affected by potential inits)
+		this.definiteNulls &= otherInits.definiteNulls;
+		this.definiteNonNulls &= otherInits.definiteNonNulls;
 	
 		// treating extra storage
-		if (extraDefiniteInits != null) {
+		if (this.extraDefiniteInits != null) {
 			if (otherInits.extraDefiniteInits != null) {
 				// both sides have extra storage
 				int i = 0, length, otherLength;
-				if ((length = extraDefiniteInits.length) < (otherLength = otherInits.extraDefiniteInits.length)) {
+				if ((length = this.extraDefiniteInits.length) < (otherLength = otherInits.extraDefiniteInits.length)) {
 					// current storage is shorter -> grow current (could maybe reuse otherInits extra storage?)
-					System.arraycopy(extraDefiniteInits, 0, (extraDefiniteInits = new long[otherLength]), 0, length);
-					System.arraycopy(extraPotentialInits, 0, (extraPotentialInits = new long[otherLength]), 0, length);
-					System.arraycopy(extraDefiniteNulls, 0, (extraDefiniteNulls = new long[otherLength]), 0, length);
-					System.arraycopy(extraDefiniteNonNulls, 0, (extraDefiniteNonNulls = new long[otherLength]), 0, length);
+					System.arraycopy(this.extraDefiniteInits, 0, (this.extraDefiniteInits = new long[otherLength]), 0, length);
+					System.arraycopy(this.extraPotentialInits, 0, (this.extraPotentialInits = new long[otherLength]), 0, length);
+					System.arraycopy(this.extraDefiniteNulls, 0, (this.extraDefiniteNulls = new long[otherLength]), 0, length);
+					System.arraycopy(this.extraDefiniteNonNulls, 0, (this.extraDefiniteNonNulls = new long[otherLength]), 0, length);
 					while (i < length) {
-						extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
+						this.extraPotentialInits[i] |= otherInits.extraPotentialInits[i];
+						this.extraDefiniteNulls[i] &= otherInits.extraDefiniteNulls[i];
+						this.extraDefiniteNonNulls[i] &= otherInits.extraDefiniteNonNulls[i++];
 					}
 					while (i < otherLength) {
-						extraPotentialInits[i] = otherInits.extraPotentialInits[i++];
+						this.extraPotentialInits[i] = otherInits.extraPotentialInits[i];
+						this.extraDefiniteNulls[i] &= otherInits.extraDefiniteNulls[i];
+						this.extraDefiniteNonNulls[i] &= otherInits.extraDefiniteNonNulls[i++];
 					}
 				} else {
 					// current storage is longer
 					while (i < otherLength) {
-						extraPotentialInits[i] |= otherInits.extraPotentialInits[i++];
+						this.extraPotentialInits[i] |= otherInits.extraPotentialInits[i];
+						this.extraDefiniteNulls[i] &= otherInits.extraDefiniteNulls[i];
+						this.extraDefiniteNonNulls[i] &= otherInits.extraDefiniteNonNulls[i++];
 					}
 				}
 			}
@@ -152,10 +161,10 @@ public class UnconditionalFlowInfo extends FlowInfo {
 			if (otherInits.extraDefiniteInits != null) {
 				// no storage here, but other has extra storage.
 				int otherLength;
-				extraDefiniteInits = new long[otherLength = otherInits.extraDefiniteInits.length];			
-				System.arraycopy(otherInits.extraPotentialInits, 0, (extraPotentialInits = new long[otherLength]), 0, otherLength);
-				extraDefiniteNulls = new long[otherLength];			
-				extraDefiniteNonNulls = new long[otherLength];			
+				this.extraDefiniteInits = new long[otherLength = otherInits.extraDefiniteInits.length];			
+				System.arraycopy(otherInits.extraPotentialInits, 0, (this.extraPotentialInits = new long[otherLength]), 0, otherLength);
+				this.extraDefiniteNulls = new long[otherLength];			
+				this.extraDefiniteNonNulls = new long[otherLength];			
 			}
 		return this;
 	}

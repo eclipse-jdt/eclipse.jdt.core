@@ -292,7 +292,7 @@ public void test008() {
 		customOptions,
 		null);
 }
-public void test009() {
+public void _test009() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
 	this.runNegativeTest(
@@ -397,7 +397,7 @@ public void test011() {
 		true,
 		customOptions);
 }
-public void _test012() {
+public void test012() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
 	this.runConformTest(
@@ -450,6 +450,157 @@ public void test013() {
 		"	x.foo(this);\n" + 
 		"	^\n" + 
 		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+public void test014() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(X x) {\n" + 
+			"		x = null;\n" + 
+			"		try {\n" + 
+			"			x = this;\n" + 
+			"		} finally {\n" + 
+			"			if (x != null) {\n" + 
+			"				x.foo(null);\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
+public void test015() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    void foo() {\n" + 
+			"       Object o = null;\n" + 
+			"       int i = 1;\n" + 
+			"       switch (i) {\n" + 
+			"          case 1:\n" + 
+			"             o = new Object();\n" + 
+			"             break;\n" + 
+			"       }\n" + 
+			"       if (o != null)\n" + 
+			"            o.toString();\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);
+}
+public void test016() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(X x) {\n" + 
+			"		x = null;\n" + 
+			"		try {\n" + 
+			"			x = null;\n" + 
+			"		} finally {\n" + 
+			"			if (x != null) {\n" + 
+			"				x.foo(null);\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	x = null;\n" + 
+		"	^\n" + 
+		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	if (x != null) {\n" + 
+		"	    ^\n" + 
+		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+public void test017() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo(X x) {\n" + 
+			"		x = this;\n" + 
+			"		try {\n" + 
+			"			x = null;\n" + 
+			"		} finally {\n" + 
+			"			if (x == null) {\n" + 
+			"				x.foo(null);\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	x.foo(null);\n" + 
+		"	^\n" + 
+		"The variable x can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
+}
+public void test018() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportInconsistentNullCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		Object o = null;\n" + 
+			"		do {\n" + 
+			"			if (o != null) return;\n" + 
+			"			o = null;\n" + 
+			"		} while (true);\n" + 
+			"	}\n" + 
+			"	X bar() { \n" + 
+			"		return null; \n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\r\n" + 
+		"	if (o != null) return;\r\n" + 
+		"	    ^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\r\n" + 
+		"	o = null;\r\n" + 
+		"	^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
 		"----------\n",
 		null,
 		true,

@@ -39,7 +39,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	boolean nonStatic = !binding.isStatic();
 	flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
-	if (nonStatic) receiver.checkNullStatus(currentScope, flowInfo, FlowInfo.NON_NULL);
+	if (nonStatic) receiver.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
 
 	if (arguments != null) {
 		int length = arguments.length;

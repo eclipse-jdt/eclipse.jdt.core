@@ -401,20 +401,20 @@ public abstract class Expression extends Statement {
 		return true;
 	}	
 	
-	public FlowInfo checkNullStatus(BlockScope scope, FlowInfo flowInfo, int nullStatus) {
+	public FlowInfo checkNullStatus(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int nullStatus) {
 
 		LocalVariableBinding local = this.localVariableBinding();
 		if (local != null) {
 			switch(nullStatus) {
 				case FlowInfo.NULL :
 					if (flowInfo.isDefinitelyNonNull(local)) {
-						scope.problemReporter().localVariableCannotBeNull(local, this);
+						flowContext.recordUsingNullReference(scope, local, this, FlowInfo.NON_NULL, flowInfo);
 					}
 					flowInfo.markAsDefinitelyNull(local); // from thereon it is set
 					break;
 				case FlowInfo.NON_NULL :
 					if (flowInfo.isDefinitelyNull(local)) {
-						scope.problemReporter().localVariableCanOnlyBeNull(local, this);
+						flowContext.recordUsingNullReference(scope, local, this, FlowInfo.NULL, flowInfo);
 					}
 					flowInfo.markAsDefinitelyNonNull(local); // from thereon it is set
 					break;
@@ -442,7 +442,7 @@ public abstract class Expression extends Statement {
 			getAllInheritedMethods0(superInterfaces[i], collector);
 		}
 	}
-	public void checkNullComparison(BlockScope scope, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
+	public void checkNullComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse) {
 		// do nothing by default - see EqualExpression
 	}
 

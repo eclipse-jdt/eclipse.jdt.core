@@ -128,7 +128,9 @@ public class TryStatement extends SubRoutineStatement {
 						.addPotentialInitializationsFrom(handlingContext.initsOnReturn);
 
 				// catch var is always set
-				catchInfo.markAsDefinitelyAssigned(catchArguments[i].binding);
+				LocalVariableBinding catchArg = catchArguments[i].binding;
+				catchInfo.markAsDefinitelyAssigned(catchArg);
+				catchInfo.markAsDefinitelyNonNull(catchArg);
 				/*
 				"If we are about to consider an unchecked exception handler, potential inits may have occured inside
 				the try block that need to be detected , e.g. 
@@ -159,7 +161,7 @@ public class TryStatement extends SubRoutineStatement {
 
 		// we also need to check potential multiple assignments of final variables inside the finally block
 		// need to include potential inits from returns inside the try/catch parts - 1GK2AOF
-		finallyContext.complainOnRedundantFinalAssignments(
+		finallyContext.complainOnDeferredChecks(
 			tryInfo.isReachable() 
 				? (tryInfo.addPotentialInitializationsFrom(insideSubContext.initsOnReturn))
 				: insideSubContext.initsOnReturn, 

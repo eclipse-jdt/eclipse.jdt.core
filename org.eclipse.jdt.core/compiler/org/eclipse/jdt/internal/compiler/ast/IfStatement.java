@@ -75,7 +75,7 @@ public class IfStatement extends Statement {
 		if (isConditionOptimizedTrue) {
 			elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE); 
 		}
-		this.condition.checkNullComparison(currentScope, flowInfo, thenFlowInfo, elseFlowInfo);
+		this.condition.checkNullComparison(currentScope, flowContext, flowInfo, thenFlowInfo, elseFlowInfo);
 		if (this.thenStatement != null) {
 			// Save info for code gen
 			thenInitStateIndex =

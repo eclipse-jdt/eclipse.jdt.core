@@ -82,7 +82,7 @@ public class DoStatement extends Statement {
 					? flowInfo
 					: (flowInfo.mergedWith(loopingContext.initsOnContinue))));
 		if (!isConditionOptimizedFalse && continueLabel != null) {
-			loopingContext.complainOnFinalAssignmentsInLoop(currentScope, flowInfo);
+			loopingContext.complainOnDeferredChecks(currentScope, flowInfo);
 		}
 
 		// end of loop

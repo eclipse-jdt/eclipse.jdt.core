@@ -52,7 +52,7 @@ public class ArrayReference extends Reference {
 		FlowInfo flowInfo) {
 
 		flowInfo = receiver.analyseCode(currentScope, flowContext, flowInfo);
-		receiver.checkNullStatus(currentScope, flowInfo, FlowInfo.NON_NULL);
+		receiver.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
 		return position.analyseCode(currentScope, flowContext, flowInfo);
 	}
 

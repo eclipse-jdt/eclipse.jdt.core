@@ -103,7 +103,7 @@ public class ForeachStatement extends Statement {
 				continueLabel = null;
 			} else {
 				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
-				loopingContext.complainOnFinalAssignmentsInLoop(scope, actionInfo);
+				loopingContext.complainOnDeferredChecks(scope, actionInfo);
 			}
 		}
 

@@ -66,7 +66,7 @@ public class WhileStatement extends Statement {
 		FlowInfo actionInfo;
 		if (action == null 
 			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3)) {
-			condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
+			condLoopContext.complainOnDeferredChecks(currentScope, postCondInfo);
 			if (isConditionTrue) {
 				return FlowInfo.DEAD_END;
 			} else {
@@ -110,9 +110,9 @@ public class WhileStatement extends Statement {
 			if (!actionInfo.isReachable() && !loopingContext.initsOnContinue.isReachable()) {
 				continueLabel = null;
 			} else {
-				condLoopContext.complainOnFinalAssignmentsInLoop(currentScope, postCondInfo);
+				condLoopContext.complainOnDeferredChecks(currentScope, postCondInfo);
 				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
-				loopingContext.complainOnFinalAssignmentsInLoop(currentScope, actionInfo);
+				loopingContext.complainOnDeferredChecks(currentScope, actionInfo);
 			}
 		}
 

@@ -275,22 +275,6 @@ public class QualifiedNameReference extends NameReference {
 		return flowInfo;
 	}
 
-	public FlowInfo checkNull(BlockScope scope, FlowInfo flowInfo) {
-
-		switch (bits & RestrictiveFlagMASK) {
-			case Binding.FIELD : // reading a field
-				break;
-			case Binding.LOCAL : // reading a local variable
-				LocalVariableBinding local = (LocalVariableBinding) this.binding;
-				if (flowInfo.isDefinitelyNonNull(local)) {
-					scope.problemReporter().localVariableCannotBeNull(local, this);
-				}
-				flowInfo.markAsDefinitelyNull(local); // from thereon it is set
-				break;
-		}
-		return flowInfo;
-	}	
-	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#computeConversion(org.eclipse.jdt.internal.compiler.lookup.Scope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding)
 	 */

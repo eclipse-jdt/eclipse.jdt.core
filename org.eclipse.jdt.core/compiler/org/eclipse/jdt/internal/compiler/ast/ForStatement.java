@@ -100,7 +100,7 @@ public class ForStatement extends Statement {
 		if (action == null 
 			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3)) {
 			if (condLoopContext != null)
-				condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
+				condLoopContext.complainOnDeferredChecks(scope, flowInfo);
 			if (isConditionTrue) {
 				return FlowInfo.DEAD_END;
 			} else {
@@ -135,9 +135,9 @@ public class ForStatement extends Statement {
 				continueLabel = null;
 			} else {
 				if (condLoopContext != null)
-					condLoopContext.complainOnFinalAssignmentsInLoop(scope, flowInfo);
+					condLoopContext.complainOnDeferredChecks(scope, flowInfo);
 				actionInfo = actionInfo.mergedWith(loopingContext.initsOnContinue.unconditionalInits());
-				loopingContext.complainOnFinalAssignmentsInLoop(scope, actionInfo);
+				loopingContext.complainOnDeferredChecks(scope, actionInfo);
 			}
 		}
 		// for increments
@@ -147,7 +147,7 @@ public class ForStatement extends Statement {
 			for (int i = 0, count = increments.length; i < count; i++) {
 				actionInfo = increments[i].analyseCode(scope, loopContext, actionInfo);
 			}
-			loopContext.complainOnFinalAssignmentsInLoop(scope, actionInfo);
+			loopContext.complainOnDeferredChecks(scope, actionInfo);
 		}
 
 		//end of loop

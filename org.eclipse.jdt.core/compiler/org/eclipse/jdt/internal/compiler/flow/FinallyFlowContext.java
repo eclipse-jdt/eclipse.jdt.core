@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -23,9 +24,13 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
  */
 public class FinallyFlowContext extends FlowContext {
 	
-	Reference finalAssignments[];
-	VariableBinding finalVariables[];
+	Reference[] finalAssignments;
+	VariableBinding[] finalVariables;
 	int assignCount;
+
+	Expression[] nullReferences;
+	int[] nullStatus;
+	int nullCount;
 	
 	public FinallyFlowContext(FlowContext parent, ASTNode associatedNode) {
 		super(parent, associatedNode);
@@ -36,9 +41,9 @@ public class FinallyFlowContext extends FlowContext {
 	 * code will check that the subroutine context does not also initialize a final variable potentially set
 	 * redundantly.
 	 */
-	public void complainOnRedundantFinalAssignments(
-		FlowInfo flowInfo,
-		BlockScope scope) {
+	public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
+		
+		// check redundant final assignments
 		for (int i = 0; i < assignCount; i++) {
 			VariableBinding variable = finalVariables[i];
 			if (variable == null) continue;
@@ -71,6 +76,28 @@ public class FinallyFlowContext extends FlowContext {
 				}
 			}
 		}
+		
+		// check inconsistent null checks
+		for (int i = 0; i < nullCount; i++) {
+			Expression expression = nullReferences[i];
+			if (expression == null) continue;
+			// final local variable
+			LocalVariableBinding local = expression.localVariableBinding();
+			switch (nullStatus[i]) {
+				case FlowInfo.NULL :
+					if (flowInfo.isDefinitelyNull(local)) {
+						nullReferences[i] = null;
+						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
+					}
+					break;
+				case FlowInfo.NON_NULL :
+					if (flowInfo.isDefinitelyNonNull(local)) {
+						nullReferences[i] = null;
+						scope.problemReporter().localVariableCannotBeNull(local, expression);
+					}
+					break;
+			}
+		}
 	}
 
 	public String individualToString() {
@@ -84,7 +111,7 @@ public class FinallyFlowContext extends FlowContext {
 		return true;
 	}
 
-	boolean recordFinalAssignment(
+	protected boolean recordFinalAssignment(
 		VariableBinding binding,
 		Reference finalAssignment) {
 		if (assignCount == 0) {
@@ -118,5 +145,20 @@ public class FinallyFlowContext extends FlowContext {
 				return;
 			}
 		}
+	}
+
+	protected boolean recordNullReference(Expression expression, int status) {
+		if (nullCount == 0) {
+			nullReferences = new Expression[5];
+			nullStatus = new int[5];
+		} else {
+			if (nullCount == nullReferences.length) {
+				System.arraycopy(nullReferences, 0, nullReferences = new Expression[nullCount * 2], 0, nullCount);
+				System.arraycopy(nullStatus, 0, nullStatus = new int[nullCount * 2], 0, nullCount);
+			}
+		}
+		nullReferences[nullCount] = expression;
+		nullStatus[nullCount++] = status;
+		return true;
 	}
 }

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.flow;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.codegen.Label;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -30,6 +31,11 @@ public class LoopingFlowContext extends SwitchFlowContext {
 	Reference finalAssignments[];
 	VariableBinding finalVariables[];
 	int assignCount = 0;
+	
+	Expression[] nullReferences;
+	int[] nullStatus;
+	int nullCount;
+	
 	Scope associatedScope;
 	
 	public LoopingFlowContext(
@@ -43,9 +49,9 @@ public class LoopingFlowContext extends SwitchFlowContext {
 		this.associatedScope = associatedScope;
 	}
 	
-	public void complainOnFinalAssignmentsInLoop(
-		BlockScope scope,
-		FlowInfo flowInfo) {
+	public void complainOnDeferredChecks(BlockScope scope, FlowInfo flowInfo) {
+		
+		// complain on final assignments in loops
 		for (int i = 0; i < assignCount; i++) {
 			VariableBinding variable = finalVariables[i];
 			if (variable == null) continue;
@@ -75,6 +81,27 @@ public class LoopingFlowContext extends SwitchFlowContext {
 				}
 			}
 		}
+		// check inconsistent null checks
+		for (int i = 0; i < nullCount; i++) {
+			Expression expression = nullReferences[i];
+			if (expression == null) continue;
+			// final local variable
+			LocalVariableBinding local = expression.localVariableBinding();
+			switch (nullStatus[i]) {
+				case FlowInfo.NULL :
+					if (flowInfo.isDefinitelyNull(local)) {
+						nullReferences[i] = null;
+						scope.problemReporter().localVariableCanOnlyBeNull(local, expression);
+					}
+					break;
+				case FlowInfo.NON_NULL :
+					if (flowInfo.isDefinitelyNonNull(local)) {
+						nullReferences[i] = null;
+						scope.problemReporter().localVariableCannotBeNull(local, expression);
+					}
+					break;
+			}
+		}		
 	}
 
 	public Label continueLabel() {
@@ -106,7 +133,7 @@ public class LoopingFlowContext extends SwitchFlowContext {
 		}
 	}
 
-	boolean recordFinalAssignment(
+	protected boolean recordFinalAssignment(
 		VariableBinding binding,
 		Reference finalAssignment) {
 
@@ -141,6 +168,21 @@ public class LoopingFlowContext extends SwitchFlowContext {
 		return true;
 	}
 
+	protected boolean recordNullReference(Expression expression, int status) {
+		if (nullCount == 0) {
+			nullReferences = new Expression[5];
+			nullStatus = new int[5];
+		} else {
+			if (nullCount == nullReferences.length) {
+				System.arraycopy(nullReferences, 0, nullReferences = new Expression[nullCount * 2], 0, nullCount);
+				System.arraycopy(nullStatus, 0, nullStatus = new int[nullCount * 2], 0, nullCount);
+			}
+		}
+		nullReferences[nullCount] = expression;
+		nullStatus[nullCount++] = status;
+		return true;
+	}	
+	
 	void removeFinalAssignmentIfAny(Reference reference) {
 		for (int i = 0; i < assignCount; i++) {
 			if (finalAssignments[i] == reference) {
