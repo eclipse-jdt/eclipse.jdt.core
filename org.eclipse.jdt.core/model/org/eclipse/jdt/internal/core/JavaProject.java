@@ -1220,18 +1220,12 @@ public IResource getResource() {
 	public IClasspathEntry[] getExpandedClasspath(
 		boolean ignoreUnresolvedVariable,
 		boolean generateMarkerOnError) throws JavaModelException {
-
-		// expanded path is cached on its info
-//		IClasspathEntry[] infoPath = getJavaProjectElementInfo().lastExpandedClasspath;
-//		if (infoPath != null) return infoPath;
-		
+	
 		ObjectVector accumulatedEntries = new ObjectVector();		
 		computeExpandedClasspath(this, ignoreUnresolvedVariable, generateMarkerOnError, new HashSet(5), accumulatedEntries);
 		
 		IClasspathEntry[] expandedPath = new IClasspathEntry[accumulatedEntries.size()];
 		accumulatedEntries.copyInto(expandedPath);
-		
-//		getJavaProjectElementInfo().lastExpandedClasspath = expandedPath;
 
 		return expandedPath;
 	}

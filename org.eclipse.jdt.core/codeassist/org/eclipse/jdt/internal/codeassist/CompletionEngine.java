@@ -1904,9 +1904,11 @@ public final class CompletionEngine
 		
 		if(isCompletingDeclaration) {
 			MethodBinding[] methods = receiverType.availableMethods();
-			for (int i = 0; i < methods.length; i++) {
-				if(!methods[i].isDefaultAbstract()) {
-					methodsFound.add(methods[i]);
+			if (methods != null){
+				for (int i = 0; i < methods.length; i++) {
+					if(!methods[i].isDefaultAbstract()) {
+						methodsFound.add(methods[i]);
+					}
 				}
 			}
 		}
