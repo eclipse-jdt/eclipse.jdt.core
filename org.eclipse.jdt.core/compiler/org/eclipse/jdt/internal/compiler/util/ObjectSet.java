@@ -9,7 +9,7 @@ import org.eclipse.jdt.internal.compiler.*;
 /**
  * Set of Objects
  */
-public final class ObjectSet {
+public final class ObjectSet implements Cloneable {
 	
 	private Object[] elementTable;
 	private int elementSize; // number of elements in the table
@@ -29,6 +29,19 @@ public final class ObjectSet {
 		this.elementTable = new Object[extraRoom];
 	}
 
+	public Object clone() throws CloneNotSupportedException {
+		
+		ObjectSet set = (ObjectSet)super.clone();
+		set.elementSize = this.elementSize;
+		set.threshold = this.threshold;
+		
+		int length = this.elementTable.length;
+		set.elementTable = new Object[length][];
+		System.arraycopy(this.elementTable, 0, set.elementTable, 0, length);
+		
+		return set;
+	}
+	
 	public boolean contains(Object element) {
 		
 		int length = elementTable.length;
@@ -65,6 +78,14 @@ public final class ObjectSet {
 		}
 	}
 
+	public void addAll(ObjectSet set) {
+
+		for (int i = 0, length = set.elementTable.length; i < length; i++){
+			Object item = set.elementTable[i];
+			if (item != null) add(item);
+		}
+	}
+
 	public void copyInto(Object[] targetArray){
 		
 		int index = 0;
@@ -85,12 +106,12 @@ public final class ObjectSet {
 			}
 			public Object nextElement(){
 				do {
-					Object current = ObjectSet.this.elementTable[index];
+					Object current = ObjectSet.this.elementTable[index++];
 					if (current != null){
 						count++;
 						return current;
 					}
-				} while(++this.index < ObjectSet.this.elementTable.length);
+				} while(this.index < ObjectSet.this.elementTable.length);
 				return null;
 			}	
 		};
