@@ -95,7 +95,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0138"));
+		suite.addTest(new ASTConverter15Test("test0140"));
 		return suite;
 	}
 	
@@ -4165,5 +4165,27 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong type", IBinding.PACKAGE, binding.getKind());
 		IPackageBinding packageBinding = (IPackageBinding) binding;
 		assertEquals("wrong name", "test0139a", packageBinding.getName());
+	}
+	
+	    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=81544
+	public void test0140() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+    		"import java.util.Vector;\n" +
+    		"public class X {\n" +
+    		"	void f(){\n" +
+    		"   	Vector v = new Vector();\n" +
+    		"   	/*start*/v.add(\"\")/*end*/;\n" +
+    		"	}\n" +
+    		"}";
+    	ASTNode node = buildAST(
+			contents,
+			this.workingCopy,
+			false);
+     	assertNotNull("No node", node);
+    	assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, node.getNodeType());
+   		MethodInvocation methodInvocation = (MethodInvocation) node;
+   		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+   		assertTrue("Not a raw method", methodBinding.isRawMethod());
 	}
 }

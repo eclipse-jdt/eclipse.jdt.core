@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -343,16 +344,20 @@ class MethodBinding implements IMethodBinding {
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isParameterizedMethod()
 	 */
 	public boolean isParameterizedMethod() {
-		return (this.binding instanceof ParameterizedGenericMethodBinding)
-			&& !((ParameterizedGenericMethodBinding) this.binding).isRaw;
+		return ((this.binding instanceof ParameterizedGenericMethodBinding)
+			&& !((ParameterizedGenericMethodBinding) this.binding).isRaw)
+			|| ((this.binding instanceof ParameterizedMethodBinding)
+					&& !this.binding.declaringClass.isRawType());
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isRawMethod()
 	 */
 	public boolean isRawMethod() {
-		return (this.binding instanceof ParameterizedGenericMethodBinding)
-			&& ((ParameterizedGenericMethodBinding) this.binding).isRaw;
+		return ((this.binding instanceof ParameterizedGenericMethodBinding)
+					&& ((ParameterizedGenericMethodBinding) this.binding).isRaw)
+				|| ((this.binding instanceof ParameterizedMethodBinding)
+					&& this.binding.declaringClass.isRawType());
 	}
 
 	/**
