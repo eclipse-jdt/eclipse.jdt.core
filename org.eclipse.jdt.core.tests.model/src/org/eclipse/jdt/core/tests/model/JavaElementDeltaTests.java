@@ -115,7 +115,6 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testCloseNonJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testCloseNonJavaProjectUpdateDependent"));
 	suite.addTest(new JavaElementDeltaTests("testRenameNonJavaProject"));
-	// TO DO: suite.addTest(new JavaElementDeltaTests("testChangeNonJavaProject"));
 	
 	// package fragment roots
 	suite.addTest(new JavaElementDeltaTests("testDeleteInnerJar"));
@@ -145,6 +144,7 @@ public static Test suite() {
 	suite.addTest(new JavaElementDeltaTests("testMergeResourceDeltas"));
 	suite.addTest(new JavaElementDeltaTests("testAddFileToNonJavaProject"));
 	suite.addTest(new JavaElementDeltaTests("testDeleteNonJavaFolder"));
+	suite.addTest(new JavaElementDeltaTests("testAddInvalidSubfolder"));
 	
 	// listeners
 	suite.addTest(new JavaElementDeltaTests("testListenerAutoBuild"));
@@ -275,7 +275,7 @@ public void testAddDotClasspathFile() throws CoreException {
 	}
 }
 /*
- * Ensure that a delta is not fired when a file is added to a non-java project.
+ * Ensure that a resource delta is fired when a file is added to a non-java project.
  * (regression test for bug 18698 Seeing non-java projects in package view)
  */
 public void testAddFileToNonJavaProject() throws CoreException {
@@ -286,6 +286,26 @@ public void testAddFileToNonJavaProject() throws CoreException {
 		assertDeltas(
 			"Unexpected delta", 
 			"ResourceDelta(/P)"
+		);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that a resource delta is fired when a .name folder is added to a java project where prj=src.
+ * (regression test for bug 31383 Strange rendering of of link resources when link points to Eclipse workspace)
+ */
+public void testAddInvalidSubfolder() throws CoreException {
+	try {
+		this.createJavaProject("P");
+		this.startDeltas();
+		this.createFolder("/P/p/.folder");
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n" + 
+			"	[project root][*]: {CHILDREN}\n" + 
+			"		p[+]: {}"
 		);
 	} finally {
 		this.stopDeltas();

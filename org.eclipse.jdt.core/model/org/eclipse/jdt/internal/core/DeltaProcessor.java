@@ -886,13 +886,16 @@ public class DeltaProcessor implements IResourceChangeListener {
 							IResourceDelta child = children[i];
 							IResource resource = child.getResource();
 							if (resource instanceof IFolder) {
-								String subpkgName = 
-									name.length() == 0 ? 
-										resource.getName() : 
-										name + "." + resource.getName(); //$NON-NLS-1$
-								Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
-								this.updateIndex(subpkg, child);
-								this.elementAdded(subpkg, child, rootInfo);
+								String folderName = resource.getName();
+								if (Util.isValidFolderNameForPackage(folderName)) {
+									String subpkgName = 
+										name.length() == 0 ? 
+											folderName : 
+											name + "." + folderName; //$NON-NLS-1$
+									Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
+									this.updateIndex(subpkg, child);
+									this.elementAdded(subpkg, child, rootInfo);
+								}
 							}
 						}
 					}
@@ -993,13 +996,16 @@ public class DeltaProcessor implements IResourceChangeListener {
 						IResourceDelta child = children[i];
 						IResource resource = child.getResource();
 						if (resource instanceof IFolder) {
-							String subpkgName = 
-								name.length() == 0 ? 
-									resource.getName() : 
-									name + "." + resource.getName(); //$NON-NLS-1$
-							Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
-							this.updateIndex(subpkg, child);
-							this.elementRemoved(subpkg, child, rootInfo);
+							String folderName = resource.getName();
+							if (Util.isValidFolderNameForPackage(folderName)) {
+								String subpkgName = 
+									name.length() == 0 ? 
+										folderName : 
+										name + "." + folderName; //$NON-NLS-1$
+								Openable subpkg = (Openable)root.getPackageFragment(subpkgName);
+								this.updateIndex(subpkg, child);
+								this.elementRemoved(subpkg, child, rootInfo);
+							}
 						}
 					}
 				}

@@ -139,12 +139,18 @@ protected IFile createFile(String path, String content) throws CoreException {
 	return file;
 }
 protected IFolder createFolder(String path) throws CoreException {
-	IFolder folder = this.getFolder(path);
-	IContainer parent = folder.getParent();
-	if (parent instanceof IFolder && !parent.exists()) {
-		this.createFolder(parent.getFullPath().toString());
-	} 
-	folder.create(true, true, null);
+	final IFolder folder = this.getFolder(path);
+	getWorkspace().run(new IWorkspaceRunnable() {
+		public void run(IProgressMonitor monitor) throws CoreException {
+			IContainer parent = folder.getParent();
+			if (parent instanceof IFolder && !parent.exists()) {
+				createFolder(parent.getFullPath().toString());
+			} 
+			folder.create(true, true, null);
+		}
+	},
+	null);
+
 	return folder;
 }
 protected void deleteFile(String filePath) throws CoreException {

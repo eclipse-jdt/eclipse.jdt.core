@@ -237,6 +237,12 @@ protected void copyDirectory(File source, File target) throws IOException {
 }
 
 /*
+ * Creates a Java project where prj=src=bin
+ */
+protected IJavaProject createJavaProject(String projectName) throws CoreException {
+	return this.createJavaProject("P", new String[] {""}, "");
+}
+/*
  * Creates a Java project with the given source folders an output location. 
  * Add those on the project's classpath.
  */
