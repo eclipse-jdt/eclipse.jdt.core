@@ -454,27 +454,6 @@ protected void finishedWith(String sourceLocation, CompilationResult result, cha
 	super.finishedWith(sourceLocation, result, mainTypeName, definedTypeNames, duplicateTypeNames);
 }
 
-protected boolean isClassFileChanged(IFile file, String fileName, byte[] newBytes) throws CoreException {
-	try {
-		byte[] oldBytes = Util.getResourceContentsAsByteArray(file);
-		notEqual : if (newBytes.length == oldBytes.length) {
-			for (int i = newBytes.length; --i >= 0;)
-				if (newBytes[i] != oldBytes[i]) break notEqual;
-			return false; // bytes are identical so skip them
-		}
-		ClassFileReader reader = new ClassFileReader(oldBytes, file.getLocation().toString().toCharArray());
-		// ignore local types since they're only visible inside a single method
-		if (!(reader.isLocal() || reader.isAnonymous()) && reader.hasStructuralChanges(newBytes)) {
-			if (JavaBuilder.DEBUG)
-				System.out.println("Type has structural changes " + fileName); //$NON-NLS-1$
-			addDependentsOf(new Path(fileName), true);
-		}
-	} catch (ClassFormatException e) {
-		addDependentsOf(new Path(fileName), true);
-	}
-	return true;
-}
-
 protected void removeClassFile(IPath typePath) throws CoreException {
 	if (typePath.lastSegment().indexOf('$') == -1) { // is not a nested type
 		newState.removeTypeLocation(typePath.toString());
@@ -527,7 +506,7 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 	// Before writing out the class file, compare it to the previous file
 	// If structural changes occured then add dependent source files
 	if (file.exists()) {
-		if (isClassFileChanged(file, qualifiedFileName, bytes)) {
+		if (writeClassFileCheck(file, qualifiedFileName, bytes)) {
 			if (JavaBuilder.DEBUG)
 				System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
 			file.setContents(new ByteArrayInputStream(bytes), true, false, null);
@@ -539,6 +518,27 @@ protected void writeClassFileBytes(byte[] bytes, IFile file, String qualifiedFil
 			addDependentsOf(new Path(qualifiedFileName), true); // new secondary type
 		super.writeClassFileBytes(bytes, file, qualifiedFileName, isSecondaryType);
 	}
+}
+
+protected boolean writeClassFileCheck(IFile file, String fileName, byte[] newBytes) throws CoreException {
+	try {
+		byte[] oldBytes = Util.getResourceContentsAsByteArray(file);
+		notEqual : if (newBytes.length == oldBytes.length) {
+			for (int i = newBytes.length; --i >= 0;)
+				if (newBytes[i] != oldBytes[i]) break notEqual;
+			return false; // bytes are identical so skip them
+		}
+		ClassFileReader reader = new ClassFileReader(oldBytes, file.getLocation().toString().toCharArray());
+		// ignore local types since they're only visible inside a single method
+		if (!(reader.isLocal() || reader.isAnonymous()) && reader.hasStructuralChanges(newBytes)) {
+			if (JavaBuilder.DEBUG)
+				System.out.println("Type has structural changes " + fileName); //$NON-NLS-1$
+			addDependentsOf(new Path(fileName), true);
+		}
+	} catch (ClassFormatException e) {
+		addDependentsOf(new Path(fileName), true);
+	}
+	return true;
 }
 
 public String toString() {
