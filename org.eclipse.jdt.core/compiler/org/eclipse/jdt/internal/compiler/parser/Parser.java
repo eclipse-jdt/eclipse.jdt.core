@@ -7497,6 +7497,8 @@ protected void resetStacks() {
 	realBlockStack[realBlockPtr = 0] = 0;
 	recoveredStaticInitializerStart = 0;
 	listLength = 0;
+	// Fix for http://dev.eclipse.org/bugs/show_bug.cgi?id=29365
+	if (this.scanner != null) this.scanner.currentLine = null;
 }
 /*
  * Reset context so as to resume to regular parse loop
