@@ -900,5 +900,36 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"");
-	}			
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83032
+	public void test022() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	String[] args;\n" +
+				"	public X(String... args) {\n" +
+				"		this.args = args;\n" +
+				"	}\n" +
+				"	public static X foo() {\n" +
+				"		return new X(\"SU\", \"C\", \"CE\", \"SS\"){};\n" +
+				"	}\n" +
+				"	public String bar() {\n" +
+				"		if (this.args != null) {\n" +
+				"			StringBuffer buffer = new StringBuffer();\n" +
+				"			for (String s : this.args) {\n" +
+				"				buffer.append(s);\n" +
+				"			}\n" +
+				"			return String.valueOf(buffer);\n" +
+				"		}\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.print(foo().bar());\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"SUCCESS");
+	}
 }

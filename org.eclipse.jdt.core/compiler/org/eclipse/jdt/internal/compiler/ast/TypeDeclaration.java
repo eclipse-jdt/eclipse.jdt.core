@@ -372,7 +372,11 @@ public class TypeDeclaration
 		cd.selector = new char[] { 'x' }; //no maining
 		cd.sourceStart = sourceStart;
 		cd.sourceEnd = sourceEnd;
-		cd.modifiers = modifiers & AccVisibilityMASK;
+		int newModifiers = modifiers & AccVisibilityMASK;
+		if (inheritedConstructorBinding.isVarargs()) {
+			newModifiers |= AccVarargs;
+		}
+		cd.modifiers = newModifiers;
 		cd.isDefaultConstructor = true;
 
 		if (argumentsLength > 0) {
