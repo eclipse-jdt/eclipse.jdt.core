@@ -84,6 +84,22 @@ public class Scribe {
 	
 	public Alignment createAlignment(String name, int mode, int tieBreakRule, int count, int sourceRestart){
 		Alignment alignment = new Alignment(name, mode, tieBreakRule, this, count, sourceRestart);
+		// adjust break indentation
+		if (this.currentAlignment != null) {
+			Alignment current = this.currentAlignment;
+			while (current.enclosing != null) {
+				current = current.enclosing;
+			}
+			switch(current.chunkKind) {
+				case Alignment.CHUNK_METHOD :
+				case Alignment.CHUNK_TYPE :
+					alignment.breakIndentationLevel = this.indentationLevel + (this.useTab ? 1 : this.tabSize);
+					break;
+				case Alignment.CHUNK_FIELD :
+					alignment.breakIndentationLevel = current.originalIndentationLevel + (this.useTab ? 1 : this.tabSize);
+					break;
+			}
+		}
 		return alignment; 
 	}
 	

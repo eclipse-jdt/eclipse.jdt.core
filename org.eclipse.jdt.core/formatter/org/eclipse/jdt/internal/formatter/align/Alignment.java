@@ -123,6 +123,12 @@ public class Alignment {
 	// alignment effects on a per fragment basis
 	public static int NONE = 0;
 	public static int BREAK = 1;
+	
+	// chunk kind
+	public static final int CHUNK_FIELD = 1;
+	public static final int CHUNK_METHOD = 2;
+	public static final int CHUNK_TYPE = 3;
+
 
 	// location to align and break on.
 	public Alignment(String name, int mode, int tieBreakRule, Scribe scribe, int fragmentCount, int sourceRestart){

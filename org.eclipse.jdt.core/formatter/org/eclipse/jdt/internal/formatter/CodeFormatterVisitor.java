@@ -616,9 +616,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 			}
 			
 			if (i != length - 1) {
-				if (i == 0 && fieldDeclaration.initialization == null) {
-					this.scribe.alignFragment(fieldAlignment, 1);
-				}				
 				this.scribe.printNextToken(ITerminalSymbols.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_multiple_field_declarations);
 				if (this.preferences.insert_space_after_comma_in_multiple_field_declarations) {
 					this.scribe.space();
@@ -1164,7 +1161,6 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 	 * Merged traversal of member (types, fields, methods)
 	 */
 	private void formatTypeMembers(TypeDeclaration typeDeclaration) {
-		final int FIELD = 1, METHOD = 2, TYPE = 3;
 		
 		Alignment memberAlignment = this.scribe.createAlignment("typeMembers", this.preferences.type_member_alignment, 3, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterAlignment(memberAlignment);
@@ -1177,7 +1173,7 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 				for (int i = startIndex, max = members.length; i < max; i++) {
 					AstNode member = members[i];
 					if (member instanceof FieldDeclaration) {
-						isChunkStart = memberAlignment.checkChunkStart(FIELD, i, this.scribe.scanner.currentPosition);
+						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_FIELD, i, this.scribe.scanner.currentPosition);
 						if (member instanceof MultiFieldDeclaration){
 							MultiFieldDeclaration multiField = (MultiFieldDeclaration) member;
 							
@@ -1206,10 +1202,10 @@ public class CodeFormatterVisitor extends AbstractSyntaxTreeVisitorAdapter {
 							}					
 						}
 					} else if (member instanceof AbstractMethodDeclaration) {
-						isChunkStart = memberAlignment.checkChunkStart(METHOD, i, this.scribe.scanner.currentPosition);
+						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_METHOD, i, this.scribe.scanner.currentPosition);
 						format((AbstractMethodDeclaration) member, typeDeclaration.scope, isChunkStart);
 					} else {
-						isChunkStart = memberAlignment.checkChunkStart(TYPE, i, this.scribe.scanner.currentPosition);
+						isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_TYPE, i, this.scribe.scanner.currentPosition);
 						format((MemberTypeDeclaration)member, typeDeclaration.scope, isChunkStart);
 					}
 					if (isSemiColon()) {
