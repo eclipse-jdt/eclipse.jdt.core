@@ -1213,10 +1213,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 				} else {
 					// semicolon separates last enum constant declaration from 
 					// first class body declarations
-					this.result.append(' ');
+					this.result.append(';');
 				}
 			}
 			d.accept(this);
+			prev= d;
 		}
 		this.result.append('}');
 		return false;

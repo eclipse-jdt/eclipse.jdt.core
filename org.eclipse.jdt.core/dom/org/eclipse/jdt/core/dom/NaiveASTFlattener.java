@@ -557,6 +557,7 @@ class NaiveASTFlattener extends ASTVisitor {
 				}
 			}
 			d.accept(this);
+			prev = d;
 		}
 		this.buffer.append("}");//$NON-NLS-1$
 		return false;
