@@ -176,10 +176,10 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public static final int BracketKinds = 3;
 	
 	// extended unicode support
-	private static final int LOW_SURROGATE_MIN_VALUE = 0xDC00;
-	private static final int HIGH_SURROGATE_MIN_VALUE = 0xD800;
-	private static final int HIGH_SURROGATE_MAX_VALUE = 0xDBFF;
-	private static final int LOW_SURROGATE_MAX_VALUE = 0xDFFF;
+	public static final int LOW_SURROGATE_MIN_VALUE = 0xDC00;
+	public static final int HIGH_SURROGATE_MIN_VALUE = 0xD800;
+	public static final int HIGH_SURROGATE_MAX_VALUE = 0xDBFF;
+	public static final int LOW_SURROGATE_MAX_VALUE = 0xDFFF;
 
 public PublicScanner() {
 	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
@@ -263,8 +263,8 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 				if (tagLength == 0) continue nextTag;
 	
 				// ensure tag is not leaded with letter if tag starts with a letter
-				if (isJavaIdentifierStart(tag[0])) {
-					if (isJavaIdentifierPart(previous)) {
+				if (Character.isJavaIdentifierStart(tag[0])) {
+					if (Character.isJavaIdentifierPart(previous)) {
 						continue nextTag;
 					}
 				}
@@ -280,8 +280,8 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 					}
 				}
 				// ensure tag is not followed with letter if tag finishes with a letter
-				if (i+tagLength < commentEnd && isJavaIdentifierPart(src[i+tagLength-1])) {
-					if (isJavaIdentifierPart(src[i + tagLength]))
+				if (i+tagLength < commentEnd && Character.isJavaIdentifierPart(src[i+tagLength-1])) {
+					if (Character.isJavaIdentifierPart(src[i + tagLength]))
 						continue nextTag;
 				}
 				if (this.foundTaskTags == null) {
@@ -743,17 +743,45 @@ public boolean getNextCharAsJavaIdentifierPart() {
 	int temp = this.currentPosition;
 	int temp2 = this.withoutUnicodePtr;
 	try {
+		boolean unicode = false;
 		if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 			&& (this.source[this.currentPosition] == 'u')) {
 			getNextUnicodeChar();
-			if (!isJavaIdentifierPart(this.currentCharacter)) {
+			unicode = true;
+		}
+		boolean isJavaIdentifierPart = false;
+		if (this.currentCharacter >= HIGH_SURROGATE_MIN_VALUE && this.currentCharacter <= HIGH_SURROGATE_MAX_VALUE) {
+			if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+				this.currentPosition = temp;
+				this.withoutUnicodePtr = temp2;
+				return false;
+			}
+			// Unicode 4 detection
+			char low = (char) getNextChar();
+			if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
+				// illegal low surrogate
+				this.currentPosition = temp;
+				this.withoutUnicodePtr = temp2;
+				return false;
+			}
+			isJavaIdentifierPart = ScannerHelper.isJavaIdentifierPart(this.currentCharacter, low);
+		}
+		else if (this.currentCharacter >= LOW_SURROGATE_MIN_VALUE && this.currentCharacter <= LOW_SURROGATE_MAX_VALUE) {
+			this.currentPosition = temp;
+			this.withoutUnicodePtr = temp2;
+			return false;
+		} else {
+			isJavaIdentifierPart = Character.isJavaIdentifierPart(this.currentCharacter);
+		}
+		if (unicode) {
+			if (!isJavaIdentifierPart) {
 				this.currentPosition = temp;
 				this.withoutUnicodePtr = temp2;
 				return false;
 			}
 			return true;
 		} else {
-			if (!isJavaIdentifierPart(this.currentCharacter)) {
+			if (!isJavaIdentifierPart) {
 				this.currentPosition = temp;
 				this.withoutUnicodePtr = temp2;
 				return false;
@@ -1359,7 +1387,28 @@ public int getNextToken() throws InvalidInputException {
 					throw new InvalidInputException("Ctrl-Z"); //$NON-NLS-1$
 
 				default :
-					if (isJavaIdentifierStart(this.currentCharacter))
+					boolean isJavaIdStart = false;
+					if (this.currentCharacter >= HIGH_SURROGATE_MIN_VALUE && this.currentCharacter <= HIGH_SURROGATE_MAX_VALUE) {
+						if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+							throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+						}
+						// Unicode 4 detection
+						char low = (char) getNextChar();
+						if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
+							// illegal low surrogate
+							throw new InvalidInputException(INVALID_LOW_SURROGATE);
+						}
+						isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.currentCharacter, low);
+					}
+					else if (this.currentCharacter >= LOW_SURROGATE_MIN_VALUE && this.currentCharacter <= LOW_SURROGATE_MAX_VALUE) {
+						if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+							throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+						}
+						throw new InvalidInputException(INVALID_HIGH_SURROGATE);
+					} else {
+						isJavaIdStart = Character.isJavaIdentifierStart(this.currentCharacter);
+					}
+					if (isJavaIdStart)
 						return scanIdentifierOrKeyword();
 					if (isDigit(this.currentCharacter)) {
 						return scanNumber(false);
@@ -1443,102 +1492,6 @@ protected boolean isDigit(char c) throws InvalidInputException {
 	} else {
 		return false;
 	}
-}
-/**
- * isJavaIdentifierPart(int)
- * <ol>
- * <li>isLetter(codePoint)  returns true
- *    <ul>
- *    <li>UPPERCASE_LETTER (General category "Lu" in the Unicode specification)</li>
- *    <li>LOWERCASE_LETTER (General category "Ll" in the Unicode specification)</li>
- *    <li>TITLECASE_LETTER (General category "Lt" in the Unicode specification)</li>
- *    <li>MODIFIER_LETTER (General category "Lm" in the Unicode specification)</li>
- *    <li>OTHER_LETTER (General category "Lo" in the Unicode specification)</li>
- *    </ul>
- * </li>
- * <li>getType(codePoint) returns LETTER_NUMBER (General category "Nl" in the Unicode specification)</li>
- * <li>the referenced character is a currency symbol (such as "$") (General category "Sc" in the Unicode specification)</li>
- * <li>the referenced character is a connecting punctuation character (such as "_") (General category "Pc" in the Unicode specification)</li>
- * <li>it is a digit (General category "Nd" in the Unicode specification)<br>
- * Some Unicode character ranges that contain digits:
- * <ul>
- * <li>'\u0030' through '\u0039', ISO-LATIN-1 digits ('0' through '9')</li>
- * <li>'\u0660' through '\u0669', Arabic-Indic digits</li>
- * <li>'\u06F0' through '\u06F9', Extended Arabic-Indic digits</li>
- * <li>'\u0966' through '\u096F', Devanagari digits</li>
- * <li>'\uFF10' through '\uFF19', Fullwidth digits</li>
- * </ul></li>
- * <li>it is a numeric letter (such as a Roman numeral character)</li>
- * <li>it is a combining mark (General category "Mc" in the Unicode specification)</li>
- * <li>it is a non-spacing mark (General category "Mn" in the Unicode specification)</li>
- * <li>isIdentifierIgnorable(codePoint) returns true for the character</li>
- * <li>ISO control characters that are not whitespace
- * <ul>
- *	   <li>'\u0000' through '\u0008'</li>
- *	   <li>'\u000E' through '\u001B'</li>
- *	   <li>'\u007F' through '\u009F'</li>
- * </ul></li>
- * <li>all characters that have the FORMAT general category value (General category "Cf" in the Unicode specification)</li>
- * </ol>
- */
-private boolean isJavaIdentifierPart(char c) throws InvalidInputException {
-	if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
-		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
-		}
-		// Unicode 4 detection
-		char low = (char) getNextChar();
-		if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
-			// illegal low surrogate
-			throw new InvalidInputException(INVALID_LOW_SURROGATE);
-		}
-		return ScannerHelper.isJavaIdentifierPart(c, low);
-	}
-	if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
-		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
-		}
-		throw new InvalidInputException(INVALID_HIGH_SURROGATE);
-	}
-	return Character.isJavaIdentifierPart(c);
-}
-/**
- * isJavaIdentifierStart(int)
- * <ol>
- * <li>isLetter(codePoint)  returns true
- *    <ul>
- *    <li>UPPERCASE_LETTER (General category "Lu" in the Unicode specification)</li>
- *    <li>LOWERCASE_LETTER (General category "Ll" in the Unicode specification)</li>
- *    <li>TITLECASE_LETTER (General category "Lt" in the Unicode specification)</li>
- *    <li>MODIFIER_LETTER (General category "Lm" in the Unicode specification)</li>
- *    <li>OTHER_LETTER (General category "Lo" in the Unicode specification)</li>
- *    </ul>
- * </li>
- * <li>getType(codePoint) returns LETTER_NUMBER (General category "Nl" in the Unicode specification)</li>
- * <li>the referenced character is a currency symbol (such as "$") (General category "Sc" in the Unicode specification)</li>
- * <li>the referenced character is a connecting punctuation character (such as "_") (General category "Pc" in the Unicode specification)</li>
- * </ol>
- */
-private boolean isJavaIdentifierStart(char c) throws InvalidInputException {
-	if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
-		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
-		}
-		// Unicode 4 detection
-		char low = (char) getNextChar();
-		if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
-			// illegal low surrogate
-			throw new InvalidInputException(INVALID_LOW_SURROGATE);
-		}
-		return ScannerHelper.isJavaIdentifierStart(c, low);
-	}
-	if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
-		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-			throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
-		}
-		throw new InvalidInputException(INVALID_HIGH_SURROGATE);
-	}
-	return Character.isJavaIdentifierStart(c);
 }
 public final void jumpOverMethodBody() {
 
@@ -1801,7 +1754,28 @@ public final void jumpOverMethodBody() {
 
 				default :
 					try {
-						if (isJavaIdentifierStart(this.currentCharacter)) {
+						boolean isJavaIdStart = false;
+						if (this.currentCharacter >= HIGH_SURROGATE_MIN_VALUE && this.currentCharacter <= HIGH_SURROGATE_MAX_VALUE) {
+							if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+								throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+							}
+							// Unicode 4 detection
+							char low = (char) getNextChar();
+							if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
+								// illegal low surrogate
+								throw new InvalidInputException(INVALID_LOW_SURROGATE);
+							}
+							isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.currentCharacter, low);
+						}
+						else if (this.currentCharacter >= LOW_SURROGATE_MIN_VALUE && this.currentCharacter <= LOW_SURROGATE_MAX_VALUE) {
+							if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+								throw new InvalidInputException(INVALID_UNICODE_ESCAPE);
+							}
+							throw new InvalidInputException(INVALID_HIGH_SURROGATE);
+						} else {
+							isJavaIdStart = Character.isJavaIdentifierStart(this.currentCharacter);
+						}
+						if (isJavaIdStart) {
 							scanIdentifierOrKeyword();
 							break;
 						}
