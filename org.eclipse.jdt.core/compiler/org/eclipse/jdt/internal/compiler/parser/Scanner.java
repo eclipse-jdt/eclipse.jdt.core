@@ -1710,10 +1710,7 @@ public final void jumpOverMethodBody() {
 
 				default :
 					if (Character.isJavaIdentifierStart(currentCharacter)) {
-						try {
-							scanIdentifierOrKeyword();
-						} catch (InvalidInputException ex) {
-						}
+						scanIdentifierOrKeyword();
 						break;
 					}
 					if (Character.isDigit(currentCharacter)) {
@@ -2256,7 +2253,7 @@ public final void scanEscapeCharacter() throws InvalidInputException {
 				throw new InvalidInputException(INVALID_ESCAPE);
 	}
 }
-public int scanIdentifierOrKeyword() throws InvalidInputException {
+public int scanIdentifierOrKeyword() {
 	//test keywords
 
 	//first dispatch on the first char.

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 
 /**
@@ -190,17 +189,13 @@ public class AnnotationParser {
 	
 		if (!Character.isJavaIdentifierStart(this.currentCharacter)) return null;
 		char[] identifier = null;
-		try {
-			this.scanner.currentCharacter = this.currentCharacter;
-			this.scanner.startPosition = this.startPosition;
-			this.scanner.currentPosition = this.currentPosition;
-			
-			int token = this.scanner.scanIdentifierOrKeyword();		
-			if (token == TerminalTokens.TokenNameIdentifier) {
-				identifier = this.scanner.getCurrentIdentifierSource();
-			}
-		} catch (InvalidInputException e) {
-			// ignore
+		this.scanner.currentCharacter = this.currentCharacter;
+		this.scanner.startPosition = this.startPosition;
+		this.scanner.currentPosition = this.currentPosition;
+		
+		int token = this.scanner.scanIdentifierOrKeyword();		
+		if (token == TerminalTokens.TokenNameIdentifier) {
+			identifier = this.scanner.getCurrentIdentifierSource();
 		}
 		return identifier;
 	}
