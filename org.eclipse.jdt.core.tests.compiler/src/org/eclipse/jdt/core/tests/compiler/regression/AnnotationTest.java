@@ -2897,4 +2897,45 @@ public class AnnotationTest extends AbstractComparisonTest {
 			},
 			"");
 	}
+
+	// check attributes for parameters
+	public void test096() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static java.lang.annotation.RetentionPolicy.*;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.Annotation;\n" +
+				"import java.lang.reflect.Method;\n" +
+				"\n" +
+				"@Retention(CLASS) @interface Attr {\n" +
+				"}\n" +
+				"\n" +
+				"@Retention(RUNTIME) @interface Foo {\n" +
+				"	int id() default 0;\n" +
+				"}\n" +
+				"@Foo(id=5) @Attr public class X {\n" +
+				"	public void foo(@Foo(id=5) @Attr final int j, @Attr final int k, int n) {\n" +
+				"	}\n" +
+				"	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		try {\n" +
+				"			Class c = X.class;\n" +
+				"			Annotation[] annots = c.getAnnotations();\n" +
+				"			System.out.print(annots.length);\n" +				"			Method method = c.getMethod(\"foo\", Integer.TYPE, Integer.TYPE, Integer.TYPE);\n" +
+				"			Annotation[][] annotations = method.getParameterAnnotations();\n" +
+				"			final int length = annotations.length;\n" +
+				"			System.out.print(length);\n" +
+				"			if (length == 3) {\n" +
+				"				System.out.print(annotations[0].length);\n" +
+				"				System.out.print(annotations[1].length);\n" +
+				"				System.out.print(annotations[2].length);\n" +
+				"			}\n" +
+				"		} catch(NoSuchMethodException e) {\n" +
+				"		}\n" +
+				"	}\n" +
+				"}",
+			},
+			"13100");
+	}
 }
