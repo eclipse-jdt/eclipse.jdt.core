@@ -970,9 +970,10 @@ protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement ele
 			}
 			for (int i = 0, length = types.length; i < length; i++) {
 				IType type = types[i];
-				if (typeHasSupertype(type) 
+				String typeName = type.getElementName();
+				if (hasSupertype(typeName) 
 					|| subtypesIncludeSupertypeOf(type)
-					|| this.missingTypes.contains(type.getElementName())) {
+					|| this.missingTypes.contains(typeName)) {
 						
 					return true;
 				}
@@ -1036,9 +1037,10 @@ protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement ele
 protected boolean isAffectedByType(IJavaElementDelta delta, IType type, boolean hasImportChange) {
 	switch (delta.getKind()) {
 		case IJavaElementDelta.ADDED:
-			if (typeHasSupertype(type) 
+			String typeName = type.getElementName();
+			if (hasSupertype(typeName) 
 				|| subtypesIncludeSupertypeOf(type) 
-				|| this.missingTypes.contains(type.getElementName())) {
+				|| this.missingTypes.contains(typeName)) {
 				
 				return true;
 			}
@@ -1046,7 +1048,7 @@ protected boolean isAffectedByType(IJavaElementDelta delta, IType type, boolean 
 		case IJavaElementDelta.CHANGED:
 			boolean hasVisibilityChange = (delta.getFlags() & IJavaElementDelta.F_MODIFIERS) > 0;
 			boolean hasSupertypeChange = (delta.getFlags() & IJavaElementDelta.F_SUPER_TYPES) > 0;
-			if ((hasVisibilityChange && typeHasSupertype(type))
+			if ((hasVisibilityChange && hasSupertype(type.getElementName()))
 					|| ((hasImportChange || hasSupertypeChange) 
 						&& includesTypeOrSupertype(type))) {
 				return true;
@@ -1565,14 +1567,12 @@ private void toString(StringBuffer buffer, IType type, int indent, boolean ascen
 		buffer.append('\n');
 		toString(buffer, types[i], indent + 1, ascendant);
 	}
-
 }
 /**
  * Returns whether one of the types in this hierarchy has a supertype whose simple 
- * name is the simple name of the given type.
+ * name is the given simple name.
  */
-private boolean typeHasSupertype(IType type) {
-	String simpleName = type.getElementName();
+private boolean hasSupertype(String simpleName) {
 	for(Iterator iter = this.classToSuperclass.values().iterator(); iter.hasNext();){
 		IType superType = (IType)iter.next();
 		if (superType.getElementName().equals(simpleName)) {
