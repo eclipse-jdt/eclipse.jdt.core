@@ -110,6 +110,7 @@ public class WildcardBinding extends ReferenceBinding {
 	    if (this == otherType) return true;
         if (otherType == null) return false;
         return otherType.erasure() == this.erasure();
+        // TODO (philippe) need to improve? shouldn't it perform bound check ?
 	}
 
 	/* (non-Javadoc)
