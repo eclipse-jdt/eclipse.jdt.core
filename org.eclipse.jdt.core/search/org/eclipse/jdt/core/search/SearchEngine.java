@@ -408,7 +408,6 @@ public class SearchEngine {
 	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
 	 *	</ul>
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
-	 * @deprecated use SearchPattern.createPattern(IJavaElement, int) instead
 	 * @deprecated Use {@link SearchPattern#createPattern(IJavaElement, int)} instead.
 	 */
 	public static ISearchPattern createSearchPattern(IJavaElement element, int limitTo) {
