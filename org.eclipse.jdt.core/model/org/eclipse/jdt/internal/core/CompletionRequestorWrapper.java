@@ -292,7 +292,6 @@ public void acceptType(char[] packageName, char[] typeName, char[] completionNam
 public void acceptVariableName(char[] typePackageName, char[] typeName, char[] name, char[] completionName, int completionStart, int completionEnd, int relevance){
 	
 	if(CompletionEngine.DEBUG) {
-		System.out.println("COMPLETION - acceptVariableName"); //$NON-NLS-1$
 		printDebug("acceptVariableName",  new String[]{ //$NON-NLS-1$
 			String.valueOf(typePackageName),
 			String.valueOf(typeName),
