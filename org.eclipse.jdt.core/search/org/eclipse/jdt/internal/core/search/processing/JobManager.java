@@ -101,13 +101,15 @@ public abstract class JobManager implements Runnable {
 			synchronized(this) {
 				for (int i = this.jobStart; i <= this.jobEnd; i++) {
 					currentJob = this.awaitingJobs[i];
-					this.awaitingJobs[i] = null;
-					if (!(jobFamily == null || currentJob.belongsTo(jobFamily))) { // copy down, compacting
-						this.awaitingJobs[++loc] = currentJob;
-					} else {
-						if (VERBOSE)
-							Util.verbose("-> discarding background job  - " + currentJob); //$NON-NLS-1$
-						currentJob.cancel();
+					if (currentJob != null) { // sanity check
+						this.awaitingJobs[i] = null;
+						if (!(jobFamily == null || currentJob.belongsTo(jobFamily))) { // copy down, compacting
+							this.awaitingJobs[++loc] = currentJob;
+						} else {
+							if (VERBOSE)
+								Util.verbose("-> discarding background job  - " + currentJob); //$NON-NLS-1$
+							currentJob.cancel();
+						}
 					}
 				}
 				this.jobStart = 0;
