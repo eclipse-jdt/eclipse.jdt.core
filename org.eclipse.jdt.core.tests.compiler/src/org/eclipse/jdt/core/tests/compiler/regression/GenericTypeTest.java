@@ -32,7 +32,7 @@ public class GenericTypeTest extends AbstractComparisonTest {
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
 //		TESTS_NUMBERS = new int[] { 0 };
-//		TESTS_RANGE = new int[] { 359, -1 };
+//		TESTS_RANGE = new int[] { 379, -1 };
 //	}
 	public static Test suite() {
 		return buildTestSuite(testClass());
@@ -9872,45 +9872,80 @@ abstract class GenericMap<S, V> implements java.util.Map<S, V> {
 			false,
 			null);
 	}	
-	
-	// 76601
-	 public void test377() {
-	  this.runConformTest(
-	   new String[] {
-	    "Test.java",
-	    "public class Test {\n" + 
-	     " public static void main (String[] args) {\n" + 
-	     "  final String val = (args == null||args.length==0 ? \"SUCC\" : args[0]) + \"ESS\";\n" + 
-	     "  class AllegedBoundMismatch<E2 extends SuperI<E2>> {\n" + 
-	     "   String field = val;\n" + 
-	     "  }\n" + 
-	     "  System.out.println(new Object() {\n" + 
-	     "   AllegedBoundMismatch<SubI<Q>> trial = new AllegedBoundMismatch<SubI<Q>>();\n" + 
-	     "  }.trial.field);\n" + 
-	     " }\n" + 
-	     "}\n" + 
-	     "class Q {}\n" + 
-	     "interface SubI<Q> extends SuperI<SubI<Q>> {}\n" + 
-	     "interface SuperI<Q> {}"
-	   },
-	   "SUCCESS");
-	 }  
-	 
-	 // 76219
-	 public void test378() {
-	  this.runConformTest(
-	   new String[] {
-	    "BB.java",
-	    "interface AA<W, Z extends AA<W, Z>> { \n" + 
-	     " public boolean m(AA<W, ?> that); \n" + 
-	     " public Z z(); \n" + 
-	     " public boolean b(); \n" + 
-	     "}\n" + 
-	     "abstract class BB<U, V extends AA<U, V>> implements AA<U,V> { \n" + 
-	     " public boolean m(AA<U, ?> wht) { return wht.z().b(); } \n" + 
-	     "}\n"
-	   }
-	  );
-	 }  	
-}	
 
+	// 76601
+	public void test377() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+					" public static void main (String[] args) {\n" +
+					"  final String val = (args == null||args.length==0 ? \"SUCC\" : args[0]) + \"ESS\";\n" +
+					"  class AllegedBoundMismatch<E2 extends SuperI<E2>> {\n" +
+					"   String field = val;\n" +
+					"  }\n" +
+					"  System.out.println(new Object() {\n" +
+					"   AllegedBoundMismatch<SubI<Q>> trial = new AllegedBoundMismatch<SubI<Q>>();\n" +
+					"  }.trial.field);\n" +
+					" }\n" +
+					"}\n" +
+					"class Q {}\n" +
+					"interface SubI<Q> extends SuperI<SubI<Q>> {}\n" +
+					"interface SuperI<Q> {}"
+			},
+		"SUCCESS");
+	}
+
+	// 76219
+	public void test378() {
+		this.runConformTest(
+			new String[] {
+				"BB.java",
+				"interface AA<W, Z extends AA<W, Z>> { \n" +
+					" public boolean m(AA<W, ?> that); \n" +
+					" public Z z(); \n" +
+					" public boolean b(); \n" +
+					"}\n" +
+					"abstract class BB<U, V extends AA<U, V>> implements AA<U,V> { \n" +
+					" public boolean m(AA<U, ?> wht) { return wht.z().b(); } \n" +
+					"}\n"}
+		);
+	}
+
+	// 71612
+	public void test379() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.AbstractSet;\n" + 
+					"import java.util.Iterator;\n" + 
+					"public class Test extends AbstractSet<Runnable>{\n" + 
+					"    public static void main(String[] args) {\n" + 
+					"        Test t=new Test();\n" + 
+					"        t.add(null);\n" + 
+					"    }\n" + 
+					"    public boolean add(Runnable run) {\n" + 
+					"        System.out.println(\"success\");\n" + 
+					"        return true;\n" + 
+					"    }\n" + 
+					"    public Iterator<Runnable> iterator() {return null;}\n" + 
+					"    public int size() {return 0;}\n" + 
+					"}"
+				}
+		);
+	}
+
+	// 77327
+	public void test380() {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.List;\n" + 
+					"public class Test {\n" + 
+					"	List<? super Number> wsn= null; // Contravariance\n" + 
+					"	List<? super Integer> wsi= wsn; // should work!\n" + 
+					"}\n"
+				}
+		);
+	}
+}	
