@@ -39,7 +39,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			}
 			return suite;
 		}
-		suite.addTest(new ASTConverterTest2("test0452"));			
+		suite.addTest(new ASTConverterTest2("test0453"));			
 		return suite;
 	}
 	/**
@@ -110,6 +110,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertTrue("Wrong type", binding2.getKind() == IBinding.METHOD); //$NON-NLS-1$
 		IMethodBinding methodBinding = (IMethodBinding) binding2;
 		assertEquals("Wrong name", "clone", methodBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		IMethodBinding methodBinding2 = methodInvocation.resolveMethodBinding();
+		assertNotNull("No method binding2", methodBinding2);
+		assertTrue("Wrong binding", methodBinding == methodBinding2);
 	}	
 
 	/**
@@ -1404,6 +1407,25 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		SimpleName name = methodDeclaration.getName();
 		assertEquals("wrong line number", 3, compilationUnit.lineNumber(name.getStartPosition()));
 	}
-	
+
+	/**
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=27173
+	 */
+	public void test0453() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "", "test0453", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		ASTNode node = getASTNode(compilationUnit, 0, 0,0);
+		assertNotNull("No node", node);
+		assertTrue("not a return statement", node.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
+		ReturnStatement returnStatement = (ReturnStatement) node;
+		Expression expression = returnStatement.getExpression();
+		assertTrue("not a super method invocation", expression.getNodeType() == ASTNode.SUPER_METHOD_INVOCATION); //$NON-NLS-1$
+		SuperMethodInvocation methodInvocation = (SuperMethodInvocation) expression;
+		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+		assertNotNull("No method binding", methodBinding);
+		assertEquals("Wrong binding", "toString", methodBinding.getName());
+	}	
 }
 

@@ -181,8 +181,7 @@ public class SuperMethodInvocation extends Expression {
 	 * @since 2.1
 	 */
 	public IMethodBinding resolveMethodBinding() {
-		// TODO: missing implementation
-		throw new RuntimeException();
+		return getAST().getBindingResolver().resolveMethod(this);
 	}
 
 	/* (omit javadoc for this method)

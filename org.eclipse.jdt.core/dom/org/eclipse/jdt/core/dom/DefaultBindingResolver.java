@@ -393,9 +393,53 @@ class DefaultBindingResolver extends BindingResolver {
 	IMethodBinding resolveMethod(MethodDeclaration method) {
 		Object oldNode = this.newAstToOldAst.get(method);
 		if (oldNode instanceof AbstractMethodDeclaration) {
-			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) this.newAstToOldAst.get(method);
+			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) oldNode;
 			if (methodDeclaration != null) {
 				IMethodBinding methodBinding = this.getMethodBinding(methodDeclaration.binding);
+				if (methodBinding == null) {
+					return null;
+				}
+				this.bindingsToAstNodes.put(methodBinding, method);
+				String key = methodBinding.getKey();
+				if (key != null) {
+					this.bindingKeysToAstNodes.put(key, method);				
+				}
+				return methodBinding;
+			}
+		}
+		return null;
+	}
+	/*
+	 * Method declared on BindingResolver.
+	 */
+	IMethodBinding resolveMethod(MethodInvocation method) {
+		Object oldNode = this.newAstToOldAst.get(method);
+		if (oldNode instanceof MessageSend) {
+			MessageSend messageSend = (MessageSend) oldNode;
+			if (messageSend != null) {
+				IMethodBinding methodBinding = this.getMethodBinding(messageSend.binding);
+				if (methodBinding == null) {
+					return null;
+				}
+				this.bindingsToAstNodes.put(methodBinding, method);
+				String key = methodBinding.getKey();
+				if (key != null) {
+					this.bindingKeysToAstNodes.put(key, method);				
+				}
+				return methodBinding;
+			}
+		}
+		return null;
+	}
+	/*
+	 * Method declared on BindingResolver.
+	 */
+	IMethodBinding resolveMethod(SuperMethodInvocation method) {
+		Object oldNode = this.newAstToOldAst.get(method);
+		if (oldNode instanceof MessageSend) {
+			MessageSend messageSend = (MessageSend) oldNode;
+			if (messageSend != null) {
+				IMethodBinding methodBinding = this.getMethodBinding(messageSend.binding);
 				if (methodBinding == null) {
 					return null;
 				}

@@ -183,7 +183,46 @@ class BindingResolver {
 	IMethodBinding resolveMethod(MethodDeclaration method) {
 		return null;
 	}
-	
+	/**
+	 * Resolves the given method invocation and returns the binding for it.
+	 * <p>
+	 * The implementation of <code>MethodInvocation.resolveMethodBinding</code>
+	 * forwards to this method. How the method resolves is often a function of
+	 * the context in which the method invocation node is embedded as well as
+	 * the method invocation subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param method the method invocation of interest
+	 * @return the binding for the given method invocation, or 
+	 *    <code>null</code> if no binding is available
+	 */
+	IMethodBinding resolveMethod(MethodInvocation method) {
+		return null;
+	}
+	/**
+	 * Resolves the given method invocation and returns the binding for it.
+	 * <p>
+	 * The implementation of <code>MethodInvocation.resolveMethodBinding</code>
+	 * forwards to this method. How the method resolves is often a function of
+	 * the context in which the method invocation node is embedded as well as
+	 * the method invocation subtree itself.
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param method the method invocation of interest
+	 * @return the binding for the given method invocation, or 
+	 *    <code>null</code> if no binding is available
+	 */
+	IMethodBinding resolveMethod(SuperMethodInvocation method) {
+		return null;
+	}	
 	/**
 	 * Resolves the given variable declaration and returns the binding for it.
 	 * <p>
