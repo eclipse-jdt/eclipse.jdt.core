@@ -94,7 +94,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			return new Suite(ASTConverter15Test.class);
 		}
 		TestSuite suite = new Suite(ASTConverter15Test.class.getName());
-		suite.addTest(new ASTConverter15Test("test0130"));
+		suite.addTest(new ASTConverter15Test("test0132"));
 		return suite;
 	}
 	
@@ -3881,4 +3881,73 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No binding", typeBinding);
 		assertEquals("Wrong qualified name 8", "Outer", typeBinding.getQualifiedName());
    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84140
+    public void test0131() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X {\n" +
+			"	public void bar(String... args){\n" +
+			"	}\n" +
+			"}";
+     	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+	   	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+    	MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+    	List parameters = methodDeclaration.parameters();
+    	assertEquals("Wrong size", 1, parameters.size());
+    	SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+    	assertTrue("Not a var args", singleVariableDeclaration.isVarargs());
+	   	Type type = singleVariableDeclaration.getType();
+    	checkSourceRange(type, "String", contents);
+     	assertTrue("Not a simple type", type.isSimpleType());
+    	checkSourceRange(type, "String", contents);
+    	ITypeBinding typeBinding = type.resolveBinding();
+    	assertNotNull("No binding", typeBinding);
+    	assertFalse("An array", typeBinding.isArray());
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84140
+    public void test0132() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X {\n" +
+    		"	public void bar(String[]... args[]){\n" +
+    		"	}\n" +
+    		"}";
+    	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy,
+    			false);
+    	assertNotNull("No node", node);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 1, "Extended dimensions are illegal for a variable argument");
+    	node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+    	MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+    	List parameters = methodDeclaration.parameters();
+    	assertEquals("Wrong size", 1, parameters.size());
+    	SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+    	assertTrue("Not a var args", singleVariableDeclaration.isVarargs());
+    	Type type = singleVariableDeclaration.getType();
+    	checkSourceRange(type, "String[]", contents);
+    	assertTrue("Not an array type", type.isArrayType());
+    	ITypeBinding typeBinding = type.resolveBinding();
+    	assertNotNull("No binding", typeBinding);
+    	assertTrue("Not an array", typeBinding.isArray());
+    	assertEquals("wrong dimensions", 1, typeBinding.getDimensions());
+    	ArrayType arrayType = (ArrayType) type;
+    	assertEquals("Wrong dimension", 1, arrayType.getDimensions());
+    	type = arrayType.getComponentType();
+    	assertTrue("Not a simple type", type.isSimpleType());
+    	checkSourceRange(type, "String", contents);
+    	assertEquals("Wrong extra dimension", 1, singleVariableDeclaration.getExtraDimensions());
+    }
 }
