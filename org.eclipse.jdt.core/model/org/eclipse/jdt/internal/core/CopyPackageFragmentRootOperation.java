@@ -238,7 +238,9 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_SIBLING, this.sibling == null ? "null" : this.sibling.toString()); //$NON-NLS-1$
 					}
 					if (foundExistingEntry && (this.updateResourceFlags & IResource.FORCE) == 0) {
-						return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, this.destination.toString());
+						return new JavaModelStatus(
+							IJavaModelStatusConstants.NAME_COLLISION, 
+							Util.bind("status.nameCollision", this.destination.toString())); //$NON-NLS-1$
 					}
 				} catch (JavaModelException e) {
 					return e.getJavaModelStatus();

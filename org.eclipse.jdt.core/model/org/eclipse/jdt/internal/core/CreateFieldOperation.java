@@ -96,7 +96,9 @@ protected void initializeDefaultPosition() {
 protected IJavaModelStatus verifyNameCollision() {
 	IType type= getType();
 	if (type.getField(fDOMNode.getName()).exists()) {
-		return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION);
+		return new JavaModelStatus(
+			IJavaModelStatusConstants.NAME_COLLISION, 
+			Util.bind("status.nameCollision", fDOMNode.getName())); //$NON-NLS-1$
 	}
 	return JavaModelStatus.VERIFIED_OK;
 }

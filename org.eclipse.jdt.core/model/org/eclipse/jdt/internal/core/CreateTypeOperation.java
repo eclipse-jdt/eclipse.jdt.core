@@ -92,12 +92,16 @@ protected IJavaModelStatus verifyNameCollision() {
 	int type = parent.getElementType();
 	if (type == IJavaElement.TYPE) {
 		if (((IType) parent).getType(fDOMNode.getName()).exists()) {
-			return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION);
+			return new JavaModelStatus(
+				IJavaModelStatusConstants.NAME_COLLISION, 
+				Util.bind("status.nameCollision", fDOMNode.getName())); //$NON-NLS-1$
 		}
 	} else
 		if (type == IJavaElement.COMPILATION_UNIT) {
 			if (((ICompilationUnit) parent).getType(fDOMNode.getName()).exists()) {
-				return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION);
+				return new JavaModelStatus(
+					IJavaModelStatusConstants.NAME_COLLISION, 
+					Util.bind("status.nameCollision", fDOMNode.getName())); //$NON-NLS-1$
 			}
 		}
 	return JavaModelStatus.VERIFIED_OK;

@@ -226,7 +226,9 @@ public class CopyResourceElementsOperation extends MultiOperation {
 						deleteResource(destFile, IResource.KEEP_HISTORY);
 					} else {
 						// abort
-						throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
+						throw new JavaModelException(new JavaModelStatus(
+							IJavaModelStatusConstants.NAME_COLLISION, 
+							Util.bind("status.nameCollision", destFile.getFullPath().toString()))); //$NON-NLS-1$
 					}
 				}
 				int flags = fForce ? IResource.FORCE : IResource.NONE;
@@ -272,7 +274,9 @@ public class CopyResourceElementsOperation extends MultiOperation {
 			}
 		} else {
 			if (!fForce) {
-				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
+				throw new JavaModelException(new JavaModelStatus(
+					IJavaModelStatusConstants.NAME_COLLISION, 
+					Util.bind("status.nameCollision", destFile.getFullPath().toString()))); //$NON-NLS-1$
 			}
 			// update new resource content
 			// in case we do a saveas on the same resource we have to simply update the contents
@@ -391,7 +395,9 @@ public class CopyResourceElementsOperation extends MultiOperation {
 								if (fForce) {
 									deleteResource(destinationResource, IResource.KEEP_HISTORY);
 								} else {
-									throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
+									throw new JavaModelException(new JavaModelStatus(
+										IJavaModelStatusConstants.NAME_COLLISION, 
+										Util.bind("status.nameCollision", destinationResource.getFullPath().toString()))); //$NON-NLS-1$
 								}
 							}
 						}
@@ -405,7 +411,9 @@ public class CopyResourceElementsOperation extends MultiOperation {
 									// we need to delete this resource if this operation wants to override existing resources
 									deleteResource(destinationResource, IResource.KEEP_HISTORY);
 								} else {
-									throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
+									throw new JavaModelException(new JavaModelStatus(
+										IJavaModelStatusConstants.NAME_COLLISION, 
+										Util.bind("status.nameCollision", destinationResource.getFullPath().toString()))); //$NON-NLS-1$
 								}
 							}
 						}

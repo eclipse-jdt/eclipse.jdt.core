@@ -97,7 +97,9 @@ protected void executeOperation() throws JavaModelException {
 					addDelta(delta);
 				}
 			} else {
-				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION));
+				throw new JavaModelException(new JavaModelStatus(
+					IJavaModelStatusConstants.NAME_COLLISION, 
+					Util.bind("status.nameCollision", compilationUnitFile.getFullPath().toString()))); //$NON-NLS-1$
 			}
 		} else {
 			try {

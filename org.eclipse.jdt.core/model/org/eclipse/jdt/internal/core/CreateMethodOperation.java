@@ -107,7 +107,9 @@ protected IJavaModelStatus verifyNameCollision() {
 		}
 		String[] types = convertDOMMethodTypesToSignatures();
 		if (type.getMethod(name, types).exists()) {
-			return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION);
+			return new JavaModelStatus(
+				IJavaModelStatusConstants.NAME_COLLISION, 
+				Util.bind("status.nameCollision", name)); //$NON-NLS-1$
 		}
 	}
 	return JavaModelStatus.VERIFIED_OK;

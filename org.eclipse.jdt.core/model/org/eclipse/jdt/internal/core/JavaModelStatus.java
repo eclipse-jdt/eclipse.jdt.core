@@ -216,7 +216,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					if (fString != null) {
 						return fString;
 					} else {
-						return Util.bind("status.nameCollision"); //$NON-NLS-1$
+						return Util.bind("status.nameCollision", ""); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				case NO_ELEMENTS_TO_PROCESS:
 					return Util.bind("operation.needElements"); //$NON-NLS-1$

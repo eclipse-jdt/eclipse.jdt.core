@@ -136,7 +136,9 @@ public IJavaModelStatus verify() {
 		IResource subFolder = parentFolder.findMember(names[i]);
 		if (subFolder != null) {
 			if (subFolder.getType() != IResource.FOLDER) {
-				return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION);
+				return new JavaModelStatus(
+					IJavaModelStatusConstants.NAME_COLLISION, 
+					Util.bind("status.nameCollision", subFolder.getFullPath().toString())); //$NON-NLS-1$
 			}
 			parentFolder = (IContainer) subFolder;
 		}

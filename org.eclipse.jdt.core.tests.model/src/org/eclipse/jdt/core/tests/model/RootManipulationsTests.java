@@ -300,6 +300,94 @@ public void testCopySourceFolder4() throws CoreException {
 	}
 }
 /*
+ * Ensure that coping a source root to another project with an existing source root in
+ * REPLACE mode triggers the right delta and that the model is up-to-date.
+ * (regression test bug 30511 IPackageFragmentRoot:move ignores FORCE flag)
+ */
+public void testCopySourceFolder5() throws CoreException {
+	try {
+		this.createJavaProject("P1", new String[] {"src"}, "bin");
+		IJavaProject p2 = this.createJavaProject("P2", new String[] {"src"}, "bin");
+		this.createFolder("/P1/src/p");
+		this.createFile(
+			"/P1/src/p/X.java", 
+			"package p;\n" +
+			"public class X {\n" +
+			"}"
+		);
+
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src");
+		this.startDeltas();
+		root.copy(new Path("/P2/src"), IResource.NONE, IPackageFragmentRoot.REPLACE, null, null);
+		assertDeltas(
+			"Unexpected delta",
+			"P2[*]: {CHILDREN}\n" + 
+			"	src[*]: {CHILDREN}\n" + 
+			"		p[+]: {}"
+		);
+		assertJavaProject(
+			"P2\n" + 
+			"	src\n" + 
+			"		[default]\n" + 
+			"		p\n" + 
+			"			X.java\n" + 
+			"	L/P2/.classpath\n" + 
+			"	L/P2/.project",
+			p2);
+	} finally {
+		this.stopDeltas();
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
+/*
+ * Ensure that coping a source root to another project with an existing source root in
+ * non REPLACE mode throws the right JavaModelException.
+ * (regression test bug 30511 IPackageFragmentRoot:move ignores FORCE flag)
+ */
+public void testFailCopySourceFolder1() throws CoreException {
+	try {
+		this.createJavaProject("P1", new String[] {"src"}, "bin");
+		this.createJavaProject("P2", new String[] {"src"}, "bin");
+
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src");
+		try {
+			root.copy(new Path("/P2/src"), IResource.NONE, IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH, null, null);
+		} catch (JavaModelException e) {
+			assertEquals("/P2/src already exists in target.", e.getMessage());
+			return;
+		}
+		assertTrue("Should throw a JavaModelException", false);
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
+/*
+ * Ensure that coping a source root to another project with an existing source root in
+ * non REPLACE mode throws the right JavaModelException.
+ * (regression test bug 30511 IPackageFragmentRoot:move ignores FORCE flag)
+ */
+public void testFailCopySourceFolder2() throws CoreException {
+	try {
+		this.createJavaProject("P1", new String[] {"src"}, "bin");
+		this.createJavaProject("P2", new String[] {"src"}, "bin");
+		this.deleteFolder("/P2/src");
+
+		IPackageFragmentRoot root = this.getPackageFragmentRoot("/P1/src");
+		try {
+			root.copy(new Path("/P2/src"), IResource.NONE, IPackageFragmentRoot.DESTINATION_PROJECT_CLASSPATH, null, null);
+		} catch (JavaModelException e) {
+			assertEquals("/P2/src already exists in target.", e.getMessage());
+			return;
+		}
+		assertTrue("Should throw a JavaModelException", false);
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
+/*
  * Ensure that deleting a jar package fragment root triggers the right delta
  * and that the model is up-to-date.
  */
