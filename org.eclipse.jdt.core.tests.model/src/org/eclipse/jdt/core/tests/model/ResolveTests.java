@@ -477,6 +477,18 @@ public void testLocalClass6() throws JavaModelException {
 		elements
 	);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68710
+ */
+public void testLocalClass7() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalClass7.java");
+	IJavaElement[] elements = codeSelect(cu, "X var", "X");
+	assertElementsEqual(
+		"Unexpected elements",
+		"X [in <anonymous #2> [in foo2() [in ResolveLocalClass7 [in ResolveLocalClass7.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
 /**
  * Resolve a local constructor
  */
@@ -510,6 +522,18 @@ public void testLocalField() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"fred [in Y [in foo() [in ResolveLocalField [in ResolveLocalField.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68710
+ */
+public void testLocalField2() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalField2.java");
+	IJavaElement[] elements = codeSelect(cu, "var =", "var");
+	assertElementsEqual(
+		"Unexpected elements",
+		"var [in <anonymous #2> [in foo2() [in ResolveLocalField2 [in ResolveLocalField2.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -558,6 +582,18 @@ public void testLocalMethod() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"foo(String) [in Y [in bar() [in ResolveLocalMethod [in ResolveLocalMethod.java [in <default> [in src [in Resolve]]]]]]]",
+		elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68710
+ */
+public void testLocalMethod2() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalMethod2.java");
+	IJavaElement[] elements = codeSelect(cu, "bar();", "bar");
+	assertElementsEqual(
+		"Unexpected elements",
+		"bar() [in <anonymous #2> [in foo2() [in ResolveLocalMethod2 [in ResolveLocalMethod2.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
 }
@@ -1363,6 +1399,18 @@ public void testDeepLocalVariable() throws JavaModelException {
 			"Unexpected elements",
 			"foo [in D9() [in D9 [in D8 [in D7 [in D6 [in D5 [in D4 [in D3 [in D2 [in D1 [in ResolveDeepLocalVariable [in ResolveDeepLocalVariable.java [in <default> [in src [in Resolve]]]]]]]]]]]]]]]",
 			elements
+	);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=68710
+ */
+public void testLocalVariable() throws JavaModelException {
+	ICompilationUnit cu = getCompilationUnit("Resolve", "src", "", "ResolveLocalVariable.java");
+	IJavaElement[] elements = codeSelect(cu, "var =", "var");
+	assertElementsEqual(
+		"Unexpected elements",
+		"var [in toto() [in <anonymous #2> [in foo2() [in ResolveLocalVariable [in ResolveLocalVariable.java [in <default> [in src [in Resolve]]]]]]]]",
+		elements
 	);
 }
 }

@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
@@ -26,11 +28,13 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
-import org.eclipse.jdt.internal.codeassist.impl.Engine;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Implementation of <code>ISelectionRequestor</code> to assist with
@@ -145,10 +149,12 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 public void acceptInterface(char[] packageName, char[] interfaceName, boolean needQualification, boolean isDeclaration, int start, int end) {
 	acceptType(packageName, interfaceName, NameLookup.ACCEPT_INTERFACES, needQualification, isDeclaration, start, end);
 }
-public void acceptLocalField(SourceTypeBinding typeBinding, char[] name, CompilationUnitDeclaration parsedUnit) {
-	IType type = (IType)this.handleFactory.createElement(typeBinding.scope.referenceContext, parsedUnit, this.openable);
-	if (type != null) {
-		IField field= type.getField(new String(name));
+public void acceptLocalField(FieldBinding fieldBinding) {
+	SourceTypeBinding typeBinding = (SourceTypeBinding)fieldBinding.declaringClass;
+	IJavaElement res = findLocalElement(typeBinding.sourceStart());
+	if (res != null && res.getElementType() == IJavaElement.TYPE) {
+		IType type = (IType) res;
+		IField field= type.getField(new String(fieldBinding.name));
 		if (field.exists()) {
 			addElement(field);
 			if(SelectionEngine.DEBUG){
@@ -159,52 +165,42 @@ public void acceptLocalField(SourceTypeBinding typeBinding, char[] name, Compila
 		}
 	}
 }
-public void acceptLocalMethod(SourceTypeBinding typeBinding, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, boolean isConstructor, CompilationUnitDeclaration parsedUnit, boolean isDeclaration, int start, int end) {
-	IType type = (IType)this.handleFactory.createElement(typeBinding.scope.referenceContext, parsedUnit, this.openable);
-	// fix for 1FWFT6Q
-	if (type != null) {
-		if (type.isBinary()) {
-			
-			// need to add a paramater for constructor in binary type
-			IType declaringDeclaringType = type.getDeclaringType();
-			
-			boolean isStatic = false;
-			try {
-				isStatic = Flags.isStatic(type.getFlags());
-			} catch (JavaModelException e) {
-				// isStatic == false
-			}
-			
-			if(declaringDeclaringType != null && isConstructor	&& !isStatic) {
-				int length = parameterPackageNames.length;
-				System.arraycopy(parameterPackageNames, 0, parameterPackageNames = new char[length+1][], 1, length);
-				System.arraycopy(parameterTypeNames, 0, parameterTypeNames = new char[length+1][], 1, length);
-				System.arraycopy(parameterSignatures, 0, parameterSignatures = new String[length+1], 1, length);
-				
-				parameterPackageNames[0] = declaringDeclaringType.getPackageFragment().getElementName().toCharArray();
-				parameterTypeNames[0] = declaringDeclaringType.getTypeQualifiedName().toCharArray();
-				parameterSignatures[0] = new String(Engine.getSignature(typeBinding.enclosingType()));
-			}
-			
-			acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures);
-		} else {
-			acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames);
-		}
-	}
-}
-public void acceptLocalType(SourceTypeBinding typeBinding, CompilationUnitDeclaration parsedUnit) {
-	IJavaElement type = this.handleFactory.createElement(typeBinding.scope.referenceContext, parsedUnit, this.openable);
-	if (type != null) {
-		addElement(type);
+public void acceptLocalMethod(MethodBinding methodBinding) {
+	IJavaElement res = findLocalElement(methodBinding.sourceStart());
+	if(res != null && res.getElementType() == IJavaElement.METHOD) {
+		addElement(res);
 		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept local type("); //$NON-NLS-1$
-			System.out.print(type.toString());
+			System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+			System.out.print(res.toString());
 			System.out.println(")"); //$NON-NLS-1$
 		}
 	}
 }
-public void acceptLocalVariable(LocalVariableBinding binding, CompilationUnitDeclaration parsedUnit) {
-	IJavaElement localVar = this.handleFactory.createElement(binding.declaration, parsedUnit, this.openable);
+public void acceptLocalType(SourceTypeBinding typeBinding) {
+	IJavaElement res = findLocalElement(typeBinding.sourceStart());
+	if(res != null && res.getElementType() == IJavaElement.TYPE) {
+		addElement(res);
+		if(SelectionEngine.DEBUG){
+			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+			System.out.print(res.toString());
+			System.out.println(")"); //$NON-NLS-1$
+		}
+	}
+}
+public void acceptLocalVariable(LocalVariableBinding binding) {
+	LocalDeclaration local = binding.declaration;
+	IJavaElement parent = findLocalElement(local.sourceStart); // findLocalElement() cannot find local variable
+	IJavaElement localVar = null;
+	if(parent != null) {
+		localVar = new LocalVariable(
+				(JavaElement)parent, 
+				new String(local.name), 
+				local.declarationSourceStart,
+				local.declarationSourceEnd,
+				local.sourceStart,
+				local.sourceEnd,
+				Util.typeSignature(local.type));
+	}
 	if (localVar != null) {
 		addElement(localVar);
 		if(SelectionEngine.DEBUG){
@@ -491,6 +487,29 @@ protected void addElement(IJavaElement element) {
 		System.arraycopy(this.elements, 0, this.elements = new IJavaElement[(elementLength*2) + 1], 0, elementLength);
 	}
 	this.elements[++this.elementIndex] = element;
+}
+
+/*
+ * findLocalElement() cannot find local variable
+ */
+protected IJavaElement findLocalElement(int pos) {
+	IJavaElement res = null;
+	if(this.openable instanceof ICompilationUnit) {
+		ICompilationUnit cu = (ICompilationUnit) this.openable;
+		try {
+			res = cu.getElementAt(pos);
+		} catch (JavaModelException e) {
+			// do nothing
+		}
+	} else if (this.openable instanceof ClassFile) {
+		ClassFile cf = (ClassFile) this.openable;
+		try {
+			 res = cf.getElementAtConsideringSibling(pos);
+		} catch (JavaModelException e) {
+			// do nothing
+		}
+	}
+	return res;
 }
 /**
  * Returns the resolved elements.

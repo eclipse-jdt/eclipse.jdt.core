@@ -582,9 +582,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if (typeBinding.isInterface()) {
 				this.noProposal = false;
 				if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
-					((SelectionRequestor)this.requestor).acceptLocalType(
-						(SourceTypeBinding)typeBinding,
-						parsedUnit);
+					((SelectionRequestor)this.requestor).acceptLocalType((SourceTypeBinding)typeBinding);
 				} else {
 					this.requestor.acceptInterface(
 						typeBinding.qualifiedPackageName(),
@@ -599,9 +597,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				if(original == null) return;
 				this.noProposal = false;
 				if (isLocal(original) && this.requestor instanceof SelectionRequestor) {
-					((SelectionRequestor)this.requestor).acceptLocalType(
-						(SourceTypeBinding)original,
-						parsedUnit);
+					((SelectionRequestor)this.requestor).acceptLocalType((SourceTypeBinding)original);
 				} else {
 					this.requestor.acceptClass(
 						original.qualifiedPackageName(),
@@ -614,9 +610,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			} else {
 				this.noProposal = false;
 				if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
-					((SelectionRequestor)this.requestor).acceptLocalType(
-						(SourceTypeBinding)typeBinding,
-						parsedUnit);
+					((SelectionRequestor)this.requestor).acceptLocalType((SourceTypeBinding)typeBinding);
 				} else {
 					this.requestor.acceptClass(
 						typeBinding.qualifiedPackageName(),
@@ -644,19 +638,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.noProposal = false;
 				ReferenceBinding declaringClass = methodBinding.declaringClass;
 				if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
-					((SelectionRequestor)this.requestor).acceptLocalMethod(
-						(SourceTypeBinding)declaringClass,
-						methodBinding.isConstructor()
-							? declaringClass.sourceName()
-							: methodBinding.selector,
-						parameterPackageNames,
-						parameterTypeNames,
-						parameterSignatures,
-						methodBinding.isConstructor(),
-						parsedUnit,
-						isDeclaration,
-						this.actualSelectionStart,
-						this.actualSelectionEnd);
+					((SelectionRequestor)this.requestor).acceptLocalMethod(methodBinding);
 				} else {
 					this.requestor.acceptMethod(
 						declaringClass.qualifiedPackageName(),
@@ -681,10 +663,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					if (declaringClass != null) { // arraylength
 						this.noProposal = false;
 						if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
-							((SelectionRequestor)this.requestor).acceptLocalField(
-								(SourceTypeBinding)declaringClass,
-								fieldBinding.name,
-								parsedUnit);
+							((SelectionRequestor)this.requestor).acceptLocalField(fieldBinding);
 						} else {
 							this.requestor.acceptField(
 								declaringClass.qualifiedPackageName(),
@@ -699,9 +678,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				} else
 					if (binding instanceof LocalVariableBinding) {
 						if (this.requestor instanceof SelectionRequestor) {
-							((SelectionRequestor)this.requestor).acceptLocalVariable(
-								(LocalVariableBinding)binding,
-								parsedUnit);
+							((SelectionRequestor)this.requestor).acceptLocalVariable((LocalVariableBinding)binding);
 							this.acceptedAnswer = true;
 						} else {
 							// open on the type of the variable

@@ -19,7 +19,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -33,23 +32,14 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -163,242 +153,6 @@ public class HandleFactory {
 		}
 	}
 	
-	/*
-	 * Returns an element handle corresponding to the given ASTNode in the given parsed unit.
-	 * Returns null if the given ASTNode could not be found.
-	 */
-	public IJavaElement createElement(final ASTNode toBeFound, CompilationUnitDeclaration parsedUnit, Openable openable) {
-		class EndVisit extends RuntimeException {
-			// marker to stop traversing ast
-			private static final long serialVersionUID = 7264372508108115988L; // backward compatible
-		}
-		class Visitor extends ASTVisitor {
-		    ASTNode[] nodeStack = new ASTNode[10];
-		    int nodeIndex = -1;
-			
-		    public void push(ASTNode node) {
-		    	if (++this.nodeIndex >= this.nodeStack.length) 
-		            System.arraycopy(this.nodeStack, 0, this.nodeStack = new ASTNode[this.nodeStack.length*2], 0, this.nodeIndex);
-	            this.nodeStack[this.nodeIndex] = node;
-		    }
-		    
-		    public void pop(ASTNode node) {
-		    	while (this.nodeIndex >= 0 && this.nodeStack[this.nodeIndex--] != node){/*empty*/}
-		    }
-		    
-			public boolean visit(Argument node, BlockScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(Argument node, BlockScope scope) {
-			    pop(node);
-            }
-
-			public boolean visit(ConstructorDeclaration node, ClassScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(ConstructorDeclaration node, ClassScope scope) {
-				pop(node);
-			}
-			
-			public boolean visit(FieldDeclaration node, MethodScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(FieldDeclaration node, MethodScope scope) {
-			    pop(node);
-			}
-
-			public boolean visit(Initializer node, MethodScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			// don't pop initializers (used to count how many occurrences are in the type)
-
-			public boolean visit(LocalDeclaration node, BlockScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(LocalDeclaration node, BlockScope scope) {
-			    pop(node);
-            }
-
-			public boolean visit(TypeDeclaration node, BlockScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(TypeDeclaration node, BlockScope scope) {
-				if ((node.bits & ASTNode.IsMemberTypeMASK) != 0) {
-				    pop(node);
-				}
-				// don't pop local/anonymous types (used to count how many occurrences are in the method)
-			}
-
-			public boolean visit(TypeDeclaration node, ClassScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(TypeDeclaration node, ClassScope scope) {
-				if ((node.bits & ASTNode.IsMemberTypeMASK) != 0) {
-				    pop(node);
-				}
-				// don't pop local/anonymous types (used to count how many occurrences are in the initializer)
-			}
-						
-			public boolean visit(MethodDeclaration node, ClassScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(MethodDeclaration node, ClassScope scope) {
-				pop(node);
-			}
-			
-			public boolean visit(TypeDeclaration node, CompilationUnitScope scope) {
-			    push(node);
-				if (node == toBeFound) throw new EndVisit();
-				return true;
-			}
-			public void endVisit(TypeDeclaration node, CompilationUnitScope scope) {
-				pop(node);
-			}
-		}
-		Visitor visitor = new Visitor();
-		try {
-			parsedUnit.traverse(visitor, parsedUnit.scope);
-		} catch (EndVisit e) {
-		    ASTNode[] nodeStack = visitor.nodeStack;
-		    int end = visitor.nodeIndex;
-		    int start = 0;
-		    
-		    // find the inner most type declaration if binary type
-		    ASTNode typeDecl = null;
-		    if (openable instanceof ClassFile) {
-				for (int i = end; i >= 0; i--) {
-				    if (nodeStack[i] instanceof TypeDeclaration) {
-				        typeDecl = nodeStack[i];
-				        start = i;
-				        break;
-				    }
-				}
-		    }
-			
-			// find the openable corresponding to this type declaration
-			if (typeDecl != null) {
-			    openable = getOpenable(typeDecl, openable);
-			}
-			
-			return createElement(nodeStack, start, end, openable);
-		}
-		return null;
-	}
-	private IJavaElement createElement(ASTNode[] nodeStack, int start, int end, IJavaElement parent) {
-		if (start > end) return parent;
-        ASTNode node = nodeStack[start];
-        IJavaElement element = parent;
-		switch(parent.getElementType()) {
-	        case IJavaElement.COMPILATION_UNIT:
-	            String typeName = new String(((TypeDeclaration)node).name);
-	        	element = ((ICompilationUnit)parent).getType(typeName);
-	        	break;
-	        case IJavaElement.CLASS_FILE:
-	            try {
-                    element = ((IClassFile)parent).getType();
-                } catch (JavaModelException e) {
-					// class file doesn't exist: ignore
-                }
-                break;
-            case IJavaElement.TYPE:
-                IType type = (IType)parent;
-                if (node instanceof ConstructorDeclaration) {
-	 				element = type.getMethod(
-						parent.getElementName(), 
-						Util.typeParameterSignatures((ConstructorDeclaration)node));
-				} else if (node instanceof MethodDeclaration) {
-				    MethodDeclaration method = (MethodDeclaration)node;
-					element = type.getMethod(
-						new String(method.selector), 
-						Util.typeParameterSignatures(method));
-				} else if (node instanceof Initializer) {
-				    int occurrenceCount = 1;
-				    while (start < end) {
-				        if (nodeStack[start+1] instanceof Initializer) {
-				            start++;
-				        	occurrenceCount++;
-				    	} else {
-				            break;
-				    	}
-				    }
-				    element = type.getInitializer(occurrenceCount);
-                } else if (node instanceof FieldDeclaration) {
-                    String fieldName = new String(((FieldDeclaration)node).name);
-                    element = type.getField(fieldName);
-                } else if (node instanceof TypeDeclaration) {
-					typeName = new String(((TypeDeclaration)node).name);
-                    element = type.getType(typeName);
-                }
-                break;
-			case IJavaElement.FIELD:
-			    IField field = (IField)parent;
-			    if (field.isBinary()) {
-			        return null;
-			    } else {
-					// child of a field can only be anonymous type
-					element = field.getType("", 1); //$NON-NLS-1$
-			    }
-				break;
-			case IJavaElement.METHOD:
-			case IJavaElement.INITIALIZER:
-				IMember member = (IMember)parent;
-				if (node instanceof TypeDeclaration) {
-				    if (member.isBinary()) {
-				        return null;
-				    } else {
-					    int typeIndex = start;
-					    while (typeIndex <= end) {
-					        ASTNode typeDecl = nodeStack[typeIndex+1];
-					        if (typeDecl instanceof TypeDeclaration && (typeDecl.bits & ASTNode.AnonymousAndLocalMask) != 0) {
-					            typeIndex++;
-					    	} else {
-					            break;
-					    	}
-					    }
-					    char[] name = ((TypeDeclaration)nodeStack[typeIndex]).name;
-					    int occurrenceCount = 1;
-						for (int i = start; i < typeIndex; i++) {
-						    if (CharOperation.equals(name, ((TypeDeclaration)nodeStack[i]).name)) {
-						        occurrenceCount++;
-						    }
-						}
-						start = typeIndex;
-						typeName = (node.bits & ASTNode.IsAnonymousTypeMASK) != 0 ? "" : new String(name); //$NON-NLS-1$
-						element = member.getType(typeName, occurrenceCount);
-				    }
-				} else if (node instanceof LocalDeclaration) {
-				    if (start == end) {
-					    LocalDeclaration local = (LocalDeclaration)node;
-						element = new LocalVariable(
-								(JavaElement)parent, 
-								new String(local.name), 
-								local.declarationSourceStart,
-								local.declarationSourceEnd,
-								local.sourceStart,
-								local.sourceEnd,
-								Util.typeSignature(local.type));
-				    } // else the next node is an anonymous (initializer of the local variable)
-				}
-				break;
- 	    }
-	   return createElement(nodeStack, start+1, end, element);
-	}
 	/**
 	 * Returns a handle denoting the class member identified by its scope.
 	 */
@@ -569,41 +323,6 @@ public class HandleFactory {
 			}
 		}
 		return null;
-	}
-
-	/*
-	 * Returns the openable that contains the given AST node.
-	 */
-	private Openable getOpenable(ASTNode toBeFound, Openable openable) {
-	    if (openable instanceof ClassFile) {
-	        try {
-	            int sourceStart = toBeFound.sourceStart;
-	            int sourceEnd = toBeFound.sourceEnd;
-	            ClassFile classFile = (ClassFile)openable;
-                ISourceRange sourceRange = classFile.getType().getSourceRange();
-                int offset = sourceRange.getOffset();
-                if (offset == sourceStart && offset + sourceRange.getLength() != sourceEnd) {
-                    return openable;
-                } else {
-                    String prefix = classFile.getTopLevelTypeName() + '$';
-                    IPackageFragment pkg = (IPackageFragment)classFile.getParent();
-                    IClassFile[] children = pkg.getClassFiles();
-                    for (int i = 0, length = children.length; i < length; i++) {
-                        IClassFile child = children[i];
-                        if (child.getElementName().startsWith(prefix)) {
-			                sourceRange = child.getType().getSourceRange();
-			                offset = sourceRange.getOffset();
-                        	if (offset == sourceStart && offset + sourceRange.getLength() != sourceEnd) {
-                        	    return (Openable)child;
-                        	}
-                        }
-                    }
-                }
-            } catch (JavaModelException e) {
-                // class file doesn't exist: ignore
-            }
-	    }
-	    return openable;
 	}
 	
 	/**

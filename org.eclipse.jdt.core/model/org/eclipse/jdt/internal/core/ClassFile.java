@@ -306,6 +306,61 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
 		return findElement(type, position, mapper);
 	}
 }
+public IJavaElement getElementAtConsideringSibling(int position) throws JavaModelException {
+	IPackageFragment fragment = (IPackageFragment)getParent();
+	PackageFragmentRoot root = (PackageFragmentRoot) fragment.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+	SourceMapper mapper = root.getSourceMapper();
+	if (mapper == null) {
+		return null;
+	} else {		
+		String prefix = null;
+		int index = name.indexOf('$');
+		if (index > -1) {
+			prefix = name.substring(0, index);
+		} else {
+			prefix = name.substring(0, name.indexOf('.'));
+		}
+		
+		
+		IType type = null;
+		int start = -1;
+		int end = Integer.MAX_VALUE;
+		IJavaElement[] children = fragment.getChildren();
+		for (int i = 0; i < children.length; i++) {
+			String childName = children[i].getElementName();
+			
+			String childPrefix = null;
+			int childIndex = childName.indexOf('$');
+			if (childIndex > -1) {
+				childPrefix = childName.substring(0, childIndex);
+			} else {
+				childPrefix = childName.substring(0, childName.indexOf('.'));
+			}
+			
+			if(prefix.equals(childPrefix)) {
+				IClassFile classFile = (IClassFile) children[i];
+				
+				// ensure this class file's buffer is open so that source ranges are computed
+				classFile.getBuffer();
+				
+				SourceRange range = mapper.getSourceRange(classFile.getType());
+				if (range == SourceMapper.fgUnknownRange) continue; 
+				int newStart = range.offset;
+				int newEnd = newStart + range.length - 1;
+				if(newStart > start && newEnd < end
+						&& newStart <= position && newEnd >= position) {
+					type = classFile.getType();
+					start = newStart;
+					end = newEnd;
+				}
+			}
+		}
+		if(type != null) {
+			return findElement(type, position, mapper);
+		}
+		return null;
+	}
+}
 public String getElementName() {
 	return this.name;
 }
