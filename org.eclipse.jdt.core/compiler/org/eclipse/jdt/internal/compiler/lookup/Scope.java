@@ -2729,25 +2729,28 @@ public abstract class Scope
 		if (mecs == null) return null;
 		int length = mecs.length;
 		if (length == 0) return VoidBinding;
-		int count = 0, last = -1;
+		int count = 0;
 		TypeBinding firstBound = null;
 		for (int i = 0; i < length; i++) {
 			TypeBinding mec = mecs[i];
 			if (mec == null) continue;
-			last = i;
-			count++;
-			mecs[i] = leastContainingInvocation(mec, (Set)invocations.get(mec), lubStack);
-			if (mec.isClass()) firstBound = mecs[i];
+			mec = leastContainingInvocation(mec, (Set)invocations.get(mec), lubStack);
+			if (mec == null) return null;
+			if (mec.isClass()) firstBound = mec;
+			mecs[count++] = mec; // recompact them to the front
+
 		}
 		switch (count) {
 			case 0 : return VoidBinding;
-			case 1 : return mecs[last];
+			case 1 : return mecs[0];
+			case 2 : 
+				if (mecs[1].id == T_JavaLangObject) return mecs[0];
+				if (mecs[0].id == T_JavaLangObject) return mecs[1];
 		}
 		TypeBinding[] otherBounds = new TypeBinding[count - 1];
 		int rank = 0;
-		for (int i = 0; i < length; i++) {
+		for (int i = 0; i < count; i++) {
 			TypeBinding mec = mecs[i];
-			if (mec == null) continue;
 			if (mec.isInterface()) {
 				otherBounds[rank++] = (ReferenceBinding)mec;
 			}
