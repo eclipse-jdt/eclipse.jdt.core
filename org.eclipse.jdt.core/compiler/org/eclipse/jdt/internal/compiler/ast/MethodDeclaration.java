@@ -127,7 +127,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if ((modifiers & AccSemicolonBody) != 0) {
 				if ((modifiers & AccNative) == 0)
 					if ((modifiers & AccAbstract) == 0)
-						scope.problemReporter().methodNeedingAbstractModifier(this);
+						scope.problemReporter().methodNeedBody(this);
 			} else {
 				// the method HAS a body --> abstract native modifiers are forbiden
 				if (((modifiers & AccNative) != 0) || ((modifiers & AccAbstract) != 0))

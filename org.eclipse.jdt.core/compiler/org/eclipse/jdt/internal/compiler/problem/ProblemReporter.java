@@ -2506,7 +2506,7 @@ public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, 
 			local.sourceEnd);
 	}
 }
-public void methodNeedingAbstractModifier(MethodDeclaration methodDecl) {
+public void methodNeedBody(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.MethodRequiresBody,
 		NoArgument,

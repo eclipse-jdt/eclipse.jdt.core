@@ -424,7 +424,9 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				this.constructorCall.resolve(this.scope);
 			}
 		}
-		
+		if ((modifiers & AccSemicolonBody) != 0) {
+			scope.problemReporter().methodNeedBody(this);		
+		}
 		super.resolveStatements();
 	}
 
