@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2003 IBM Corporation and others.
+ * Copyright (c) 2000, 2004 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,27 @@
  *								   UnusedConstructorDeclaredThrownException
  *								   InvalidCatchBlockSequence
  *								   UnqualifiedFieldAccess
+ *     IBM Corporation - added the following constants
  *								   Javadoc
+ *								   JavadocUnexpectedTag
+ *								   JavadocMissingParamTag
+ *								   JavadocMissingParamName
+ *								   JavadocDuplicateParamName
+ *								   JavadocInvalidParamName
+ *								   JavadocMissingReturnTag
+ *								   JavadocDuplicateReturnTag
+ *								   JavadocMissingThrowsTag
+ *								   JavadocMissingThrowsClassName
+ *								   JavadocInvalidThrowsClass
+ *								   JavadocDuplicateThrowsClassName
+ *								   JavadocInvalidThrowsClassName
+ *								   JavadocMissingSeeReference
+ *								   JavadocInvalidSeeReference
+ *								   JavadocInvalidSeeHref
+ *								   JavadocInvalidSeeArgs
+ *								   JavadocMissing
+ *								   JavadocInvalidTag
+ *								   JavadocMessagePrefix
  ****************************************************************************/
 package org.eclipse.jdt.core.compiler;
  
@@ -704,42 +724,7 @@ public interface IProblem {
 	/** @since 3.0 */
 	int JavadocMissing = Javadoc + Internal + 486;
 	/** @since 3.0 */
+	int JavadocInvalidTag = Javadoc + Internal + 487;
+	/** @since 3.0 */
 	int JavadocMessagePrefix = Internal + 489;
-
-	/**@deprecated */
-	int AnnotationUnexpectedTag = JavadocUnexpectedTag;
-	/**@deprecated */
-	int AnnotationMissingParamTag = JavadocMissingParamTag;
-	/**@deprecated */
-	int AnnotationMissingParamName = JavadocMissingParamName;
-	/**@deprecated */
-	int AnnotationDuplicateParamName = JavadocDuplicateParamName;
-	/**@deprecated */
-	int AnnotationInvalidParamName = JavadocInvalidParamName;
-	/**@deprecated */
-	int AnnotationMissingReturnTag = JavadocMissingReturnTag;
-	/**@deprecated */
-	int AnnotationDuplicateReturnTag = JavadocDuplicateReturnTag;
-	/**@deprecated */
-	int AnnotationMissingThrowsTag = JavadocMissingThrowsTag;
-	/**@deprecated */
-	int AnnotationMissingThrowsClassName = JavadocMissingThrowsClassName;
-	/**@deprecated */
-	int AnnotationInvalidThrowsClass = JavadocInvalidThrowsClass;
-	/**@deprecated */
-	int AnnotationDuplicateThrowsClassName = JavadocDuplicateThrowsClassName;
-	/**@deprecated */
-	int AnnotationInvalidThrowsClassName = JavadocInvalidThrowsClassName;
-	/**@deprecated */
-	int AnnotationMissingSeeReference = JavadocMissingSeeReference;
-	/**@deprecated */
-	int AnnotationInvalidSeeReference = JavadocInvalidSeeReference;
-	/**@deprecated */
-	int AnnotationInvalidSeeHref = JavadocInvalidSeeHref;
-	/**@deprecated */
-	int AnnotationInvalidSeeArgs = JavadocInvalidSeeArgs;
-	/**@deprecated */
-	int AnnotationMissing = JavadocMissing;
-	/**@deprecated */
-	int AnnotationMessagePrefix = JavadocMessagePrefix;
 }

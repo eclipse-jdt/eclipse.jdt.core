@@ -532,6 +532,7 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocInvalidSeeReference:
 		case IProblem.JavadocInvalidSeeHref:
 		case IProblem.JavadocInvalidSeeArgs:
+		case IProblem.JavadocInvalidTag:
 			return this.options.getSeverity(CompilerOptions.InvalidJavadoc);
 
 		/*
@@ -2350,6 +2351,9 @@ public void javadocInvalidSeeReferenceArgs(int sourceStart, int sourceEnd) {
 }
 public void javadocInvalidSeeUrlReference(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidSeeHref, NoArgument, NoArgument, sourceStart, sourceEnd);
+}
+public void javadocInvalidTag(int sourceStart, int sourceEnd) {
+	this.handle(IProblem.JavadocInvalidTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocInvalidThrowsClass(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidThrowsClass, NoArgument, NoArgument, sourceStart, sourceEnd);
