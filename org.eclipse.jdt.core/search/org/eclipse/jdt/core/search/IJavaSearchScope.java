@@ -118,7 +118,7 @@ public void setIncludesBinaries(boolean includesBinaries);
  * Sets whether this scope includes the classpaths defined by 
  * the projects of the resources of this search scope.
  * 
- * @return includesClasspaths whether this scope includes classpaths
+ * @param includesClasspaths whether this scope includes classpaths
  * @deprecated Use SearchEngine.createJavaSearchScope(IJavaElement[]) 
  * 				with a Java project instead
  */
