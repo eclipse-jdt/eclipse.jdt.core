@@ -1800,7 +1800,7 @@ public class DeltaProcessor {
 						if(resource.getType() == IResource.PROJECT 
 							&& ((IProject) resource).hasNature(JavaCore.NATURE_ID)) {
 								
-							this.deleting((IProject)resource);
+							deleting((IProject)resource);
 						}
 					} catch(CoreException e){
 					}
@@ -1808,22 +1808,22 @@ public class DeltaProcessor {
 					
 				case IResourceChangeEvent.PRE_AUTO_BUILD :
 					if(isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
-						this.checkProjectsBeingAddedOrRemoved(delta);
+						checkProjectsBeingAddedOrRemoved(delta);
 						
 						// update the classpath related markers
-						this.updateClasspathMarkers();
+						updateClasspathMarkers();
 	
 						// the following will close project if affected by the property file change
 						try {
 							// don't fire classpath change deltas right away, but batch them
-							this.stopDeltas();
-							this.performPreBuildCheck(delta, null); 
+							stopDeltas();
+							performPreBuildCheck(delta, null); 
 						} finally {
-							this.startDeltas();
+							startDeltas();
 						}
 					}
 					// only fire already computed deltas (resource ones will be processed in post change only)
-					this.fire(null, ElementChangedEvent.PRE_AUTO_BUILD);
+					fire(null, ElementChangedEvent.PRE_AUTO_BUILD);
 					break;
 
 				case IResourceChangeEvent.POST_AUTO_BUILD :
@@ -1831,16 +1831,16 @@ public class DeltaProcessor {
 					break;
 					
 				case IResourceChangeEvent.POST_CHANGE :
-					if (isAffectedBy(delta)) {
+					if (isAffectedBy(delta)) { // avoid populating for SYNC or MARKER deltas
 						try {
 							if (this.refreshedElements != null) {
 								createExternalArchiveDelta(null);
 							}
-							IJavaElementDelta translatedDelta = this.processResourceDelta(delta);
+							IJavaElementDelta translatedDelta = processResourceDelta(delta);
 							if (translatedDelta != null) { 
-								this.registerJavaModelDelta(translatedDelta);
+								registerJavaModelDelta(translatedDelta);
 							}
-							this.fire(null, ElementChangedEvent.POST_CHANGE);
+							fire(null, ElementChangedEvent.POST_CHANGE);
 						} finally {
 							// workaround for bug 15168 circular errors not reported 
 							this.manager.javaProjectsCache = null;

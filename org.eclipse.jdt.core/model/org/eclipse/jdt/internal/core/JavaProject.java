@@ -1126,12 +1126,13 @@ public class JavaProject
 				outputLocation = SetClasspathOperation.ReuseOutputLocation;
 				// clean mode will also default to reusing current one
 			}
+			IClasspathEntry[] oldResolvedClasspath = info.resolvedClasspath;
 			setRawClasspath(
 				fileEntries, 
 				outputLocation, 
 				monitor, 
 				true, // canChangeResource
-				getResolvedClasspath(true), // ignoreUnresolvedVariable
+				oldResolvedClasspath != null ? oldResolvedClasspath : getResolvedClasspath(true), // ignoreUnresolvedVariable
 				true, // needValidation
 				false); // no need to save
 			
