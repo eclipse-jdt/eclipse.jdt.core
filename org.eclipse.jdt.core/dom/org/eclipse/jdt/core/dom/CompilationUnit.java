@@ -250,7 +250,7 @@ public class CompilationUnit extends ASTNode {
 	 * @return the corresponding node where the given binding is declared,
 	 * or <code>null</code> if the binding does not correspond to a node in this
 	 * compilation unit or if bindings were not requested when this AST was built
-	 * @see #findDeclaringNode(java.lang.String)
+	 * @see #findDeclaringNode(String)
 	 */
 	public ASTNode findDeclaringNode(IBinding binding) {
 		return getAST().getBindingResolver().findDeclaringNode(binding);
@@ -293,7 +293,7 @@ public class CompilationUnit extends ASTNode {
 	 * key is declared, or <code>null</code> if the key is <code>null</code>
 	 * or if the key does not correspond to a node in this compilation unit
 	 * or if bindings were not requested when this AST was built
-	 * @see IBinding#getKey
+	 * @see IBinding#getKey()
 	 * @since 2.1
 	 */
 	public ASTNode findDeclaringNode(String key) {
@@ -384,7 +384,7 @@ public class CompilationUnit extends ASTNode {
 	 * </p>
 	 *
 	 * @return the list of messages, possibly empty
-	 * @see #getProblems
+	 * @see #getProblems()
 	 * @see AST#parseCompilationUnit
 	 */
 	public Message[] getMessages() {
@@ -416,12 +416,12 @@ public class CompilationUnit extends ASTNode {
 	 * </p>
 	 * 
 	 * @return the list of detailed problem objects, possibly empty
-	 * @see #getMessages
+	 * @see #getMessages()
 	 * @see AST#parseCompilationUnit
 	 * @since 2.1
 	 */
 	public IProblem[] getProblems() {
-		return problems;
+		return this.problems;
 	}
 
 	/**
