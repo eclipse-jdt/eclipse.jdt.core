@@ -381,7 +381,7 @@ class MethodBinding implements IMethodBinding {
 	 * @see org.eclipse.jdt.core.dom.IMethodBinding#isRawMethod()
 	 */
 	public boolean isRawMethod() {
-		return !(this.binding instanceof ParameterizedGenericMethodBinding);
+		return !isParameterizedMethod() && !isGenericMethod();
 	}
 
 	/* (non-Javadoc)

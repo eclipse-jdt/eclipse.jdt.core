@@ -308,7 +308,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public IVariableBinding[] getDeclaredFields() {
 		try {
-			if (this.binding.isClass() || this.binding.isInterface()) {
+			if (isClass() || isInterface()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 				FieldBinding[] fields = referenceBinding.fields();
 				int length = fields.length;
@@ -333,7 +333,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public IMethodBinding[] getDeclaredMethods() {
 		try {
-			if (this.binding.isClass() || this.binding.isInterface()) {
+			if (isClass() || isInterface()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 				org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] methods = referenceBinding.methods();
 				int length = methods.length;
@@ -372,7 +372,7 @@ class TypeBinding implements ITypeBinding {
 	 */
 	public ITypeBinding[] getDeclaredTypes() {
 		try {
-			if (this.binding.isClass() || this.binding.isInterface()) {
+			if (isClass() || isInterface()) {
 				ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 				ReferenceBinding[] members = referenceBinding.memberTypes();
 				int length = members.length;
@@ -541,14 +541,14 @@ class TypeBinding implements ITypeBinding {
 	 * @see IBinding#getModifiers()
 	 */
 	public int getModifiers() {
-		if (this.binding.isClass()) {
+		if (isClass()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
 			if (referenceBinding.isAnonymousType()) {
 				return accessFlags & ~Modifier.FINAL;
 			}
 			return accessFlags;
-		} else if (this.binding.isInterface()) {
+		} else if (isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			final int accessFlags = referenceBinding.getAccessFlags() & VALID_MODIFIERS;
 			// clear the AccAbstract and the AccInterface bits
@@ -562,7 +562,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see IBinding#getName()
 	 */
 	public String getName() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
+		if (isClass() || isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			if (referenceBinding.isAnonymousType()) {
 				return NO_NAME;
@@ -875,7 +875,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isAnonymous()
 	 */
 	public boolean isAnonymous() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
+		if (isClass() || isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isAnonymousType();
 		}
@@ -893,14 +893,14 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isClass()
 	 */
 	public boolean isClass() {
-		return this.binding.isClass();
+		return this.binding.isClass() && !isTypeVariable();
 	}
 
 	/*
 	 * @see IBinding#isDeprecated()
 	 */
 	public boolean isDeprecated() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
+		if (isClass() || isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isDeprecated();
 		}
@@ -939,7 +939,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isFromSource()
 	 */
 	public boolean isFromSource() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
+		if (isClass() || isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return !referenceBinding.isBinaryBinding();
 		}
@@ -950,14 +950,14 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isInterface()
 	 */
 	public boolean isInterface() {
-		return this.binding.isInterface();
+		return this.binding.isInterface() && !this.binding.isTypeVariable();
 	}
 
 	/*
 	 * @see ITypeBinding#isLocal()
 	 */
 	public boolean isLocal() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
+		if (isClass() || isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isLocalType() && !referenceBinding.isMemberType();
 		}
@@ -968,7 +968,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isMember()
 	 */
 	public boolean isMember() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
+		if (isClass() || isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isMemberType();
 		}
@@ -979,7 +979,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isNested()
 	 */
 	public boolean isNested() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
+		if (isClass() || isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return referenceBinding.isNestedType();
 		}
@@ -1025,7 +1025,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isTopLevel()
 	 */
 	public boolean isTopLevel() {
-		if (this.binding.isClass() || this.binding.isInterface()) {
+		if (isClass() || isInterface()) {
 			ReferenceBinding referenceBinding = (ReferenceBinding) this.binding;
 			return !referenceBinding.isNestedType();
 		}
