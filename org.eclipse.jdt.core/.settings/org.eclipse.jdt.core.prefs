@@ -62,3 +62,6 @@ org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverridin
 org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral=warning
 org.eclipse.jdt.core.builder.duplicateResourceTask=warning
 org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete=disabled
+org.eclipse.jdt.core.compiler.accessRestriction.import.exclude=**/internal/
+org.eclipse.jdt.core.compiler.accessRestriction.export.exclude=**/internal/
+org.eclipse.jdt.core.compiler.problem.forbiddenReference=warning

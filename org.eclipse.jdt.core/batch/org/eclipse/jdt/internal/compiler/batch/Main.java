@@ -202,7 +202,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		// for compatibility with MessageFormat which eliminates double quotes in original message
 		char[] messageWithNoDoubleQuotes =
 			CharOperation.replace(message.toCharArray(), DOUBLE_QUOTES, SINGLE_QUOTE);
-		if (arguments == null) return new String(messageWithNoDoubleQuotes);
 		
 		message = new String(messageWithNoDoubleQuotes);
 		int length = message.length();
