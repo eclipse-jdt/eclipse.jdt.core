@@ -1099,7 +1099,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.preferences.alignment_for_selector_in_method_invocation,
 				Alignment.R_INNERMOST,
 				size,
-				this.scribe.scanner.currentPosition); //$NON-NLS-1$
+				this.scribe.scanner.currentPosition);
 		this.scribe.enterAlignment(cascadingMessageSendAlignment);
 		boolean ok = false;
 		do {
@@ -2230,32 +2230,32 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		final Statement[] statements = block.statements;
 		if (statements != null) {
 			this.scribe.printNewLine();
-			if (this.preferences.indent_block_statements) {
+			if (this.preferences.indent_statements_compare_to_block) {
 				this.scribe.indent();
 			}
 			formatStatements(scope, statements, true);
 			this.scribe.printComment();
 	
-			if (this.preferences.indent_block_statements) {
+			if (this.preferences.indent_statements_compare_to_block) {
 				this.scribe.unIndent();
 			}
 		} else if (this.preferences.insert_new_line_in_empty_block) {
 			this.scribe.printNewLine();
-			if (this.preferences.indent_block_statements) {
+			if (this.preferences.indent_statements_compare_to_block) {
 				this.scribe.indent();
 			}
 			this.scribe.printComment();
 	
-			if (this.preferences.indent_block_statements) {
+			if (this.preferences.indent_statements_compare_to_block) {
 				this.scribe.unIndent();
 			}
 		} else {
-			if (this.preferences.indent_block_statements) {
+			if (this.preferences.indent_statements_compare_to_block) {
 				this.scribe.indent();
 			}
 			this.scribe.printComment();
 	
-			if (this.preferences.indent_block_statements) {
+			if (this.preferences.indent_statements_compare_to_block) {
 				this.scribe.unIndent();
 			}
 		}
@@ -2629,32 +2629,32 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			}
 			if (constructorDeclaration.constructorCall != null && !constructorDeclaration.constructorCall.isImplicitSuper()) {
 				this.scribe.printNewLine();
-				if (this.preferences.indent_block_statements) {
+				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.indent();
 				}
 				constructorDeclaration.constructorCall.traverse(this, constructorDeclaration.scope);
-				if (this.preferences.indent_block_statements) {
+				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.unIndent();
 				}
 			}
 			final Statement[] statements = constructorDeclaration.statements;
 			if (statements != null) {
 				this.scribe.printNewLine();
-				if (this.preferences.indent_block_statements) {
+				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.indent();
 				}
 				formatStatements(constructorDeclaration.scope, statements, true);
 				this.scribe.printComment();
-				if (this.preferences.indent_block_statements) {
+				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.unIndent();
 				}
 			} else if (this.preferences.insert_new_line_in_empty_method_body) {
 				this.scribe.printNewLine();
-				if (this.preferences.indent_block_statements) {
+				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.indent();
 				}
 				this.scribe.printComment();
-				if (this.preferences.indent_block_statements) {
+				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.unIndent();
 				}
 			}
@@ -3361,21 +3361,21 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			final Statement[] statements = methodDeclaration.statements;
 			if (statements != null) {
 				this.scribe.printNewLine();
-				if (this.preferences.indent_block_statements) {
+				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.indent();
 				}
 				formatStatements(methodDeclarationScope, statements, true);
 				this.scribe.printComment();
-				if (this.preferences.indent_block_statements) {
+				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.unIndent();
 				}
 			} else if (this.preferences.insert_new_line_in_empty_method_body) {
 				this.scribe.printNewLine();
-				if (this.preferences.indent_block_statements) {
+				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.indent();
 				}
 				this.scribe.printComment();
-				if (this.preferences.indent_block_statements) {
+				if (this.preferences.indent_statements_compare_to_body) {
 					this.scribe.unIndent();
 				}
 			}

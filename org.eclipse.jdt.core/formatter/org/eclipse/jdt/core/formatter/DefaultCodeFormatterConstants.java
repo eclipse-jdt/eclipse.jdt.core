@@ -592,18 +592,6 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to indent statements inside a block
-	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_block_statements"
-	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           TRUE
-	 * </pre>
-	 * @see #TRUE
-	 * @see #FALSE
-	 * @since 3.0
-	 */
-	public static final String FORMATTER_INDENT_BLOCK_STATEMENTS = JavaCore.PLUGIN_ID + ".formatter.indent_block_statements"; //$NON-NLS-1$
-	/**
-	 * <pre>
 	 * FORMATTER / Option to indent body declarations compare to its enclosing type header
 	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_body_declarations_compare_to_type_header"
 	 *     - possible values:   { TRUE, FALSE }
@@ -626,6 +614,30 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES = JavaCore.PLUGIN_ID + ".formatter.indent_breaks_compare_to_cases";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to indent statements inside a block
+	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_statements_compare_to_block"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.0
+	 */
+	public static final String FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BLOCK = JavaCore.PLUGIN_ID + ".formatter.indent_statements_compare_to_block"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to indent statements inside the body of a method or a constructor
+	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_statements_compare_to_body"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.0
+	 */
+	public static final String FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BODY = JavaCore.PLUGIN_ID + ".formatter.indent_statements_compare_to_body"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to indent switch statements compare to cases
@@ -2950,5 +2962,17 @@ public class DefaultCodeFormatterConstants {
 	 * @deprecated Use the API method to set alignments
 	 */
 	public static final String FORMATTER_ONE_PER_LINE_SPLIT = "48";//$NON-NLS-1$
-
+	/**
+	 * <pre>
+	 * FORMATTER / Option to indent statements inside a block
+	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_block_statements"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @deprecated Use FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BODY and FORMATTER_INDENT_STATEMENTS_COMPARE_TO_BLOCK instead
+	 * @since 3.0
+	 */
+	public static final String FORMATTER_INDENT_BLOCK_STATEMENTS = JavaCore.PLUGIN_ID + ".formatter.indent_block_statements"; //$NON-NLS-1$
 }
