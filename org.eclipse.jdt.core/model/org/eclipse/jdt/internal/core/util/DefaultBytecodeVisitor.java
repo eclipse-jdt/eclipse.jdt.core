@@ -2608,7 +2608,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		char[] classInfoName = constantClass.getClassInfoName();
 		if (classInfoName.length == 0) {
 			return EMPTY_CLASS_NAME;
-		} else if ((mode & ClassFileBytesDisassembler.COMPACT) != 0) {
+		} else if (isCompact()) {
 			int lastIndexOfSlash = CharOperation.lastIndexOf('/', classInfoName);
 			if (lastIndexOfSlash != -1) {
 				return new String(classInfoName, lastIndexOfSlash + 1, classInfoName.length - lastIndexOfSlash - 1);
