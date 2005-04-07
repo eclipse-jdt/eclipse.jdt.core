@@ -804,8 +804,6 @@ public class MultiProjectTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
-		IJavaProject project2 = env.getJavaProject(project2Path);
-		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {new Path("**/internal/")}, false);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
@@ -850,8 +848,6 @@ public class MultiProjectTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
-		IJavaProject project2 = env.getJavaProject(project2Path);
-		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {new Path("**/internal/")}, false);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
@@ -903,8 +899,6 @@ public class MultiProjectTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
-		IJavaProject project2 = env.getJavaProject(project2Path);
-		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {new Path("**/internal/")}, false);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
@@ -955,8 +949,6 @@ public class MultiProjectTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
-		IJavaProject project2 = env.getJavaProject(project2Path);
-		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {new Path("**")}, false);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
@@ -1001,8 +993,6 @@ public class MultiProjectTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
-		IJavaProject project2 = env.getJavaProject(project2Path);
-		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {new Path("**")}, false);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$
@@ -1054,8 +1044,6 @@ public class MultiProjectTests extends Tests {
 			//         Project2
 			//----------------------------
 		IPath project2Path = env.addProject("Project2"); //$NON-NLS-1$
-		IJavaProject project2 = env.getJavaProject(project2Path);
-		project2.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		env.addExternalJars(project2Path, Util.getJavaClassLibs());
 		env.addRequiredProject(project2Path, project1Path, new IPath[] {new Path("**/api/")}, new IPath[] {new Path("**")}, false);
 		IPath root2 = env.getPackageFragmentRootPath(project2Path, ""); //$NON-NLS-1$

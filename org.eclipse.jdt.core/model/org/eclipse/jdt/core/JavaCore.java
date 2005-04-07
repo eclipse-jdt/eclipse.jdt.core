@@ -2299,7 +2299,7 @@ public final class JavaCore extends Plugin {
 	
 		Hashtable defaultOptions = new Hashtable(10);
 
-		// see #initializeDefaultPluginPreferences() for changing default settings
+		// see JavaCorePreferenceInitializer#initializeDefaultPluginPreferences() for changing default settings
 		IEclipsePreferences defaultPreferences = getDefaultPreferences();
 		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		
