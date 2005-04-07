@@ -16228,7 +16228,7 @@ public void test500(){
 			},
 			"SUCCESS");	
 	}
-	// [1.5][compiler] Casted Enum-class is not of correct type in Eclipse
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90430
 	public void _test572() {
 		this.runConformTest(
 			new String[] {
@@ -16245,7 +16245,7 @@ public void test500(){
 			},
 			"");	
 	}		
-	// [1.5][compiler] Casted Enum-class is not of correct type in Eclipse - check unchecked warnings
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90430 - check unchecked warnings
 	public void _test573() {
 		this.runNegativeTest(
 			new String[] {
