@@ -951,8 +951,8 @@ public MethodBinding[] methods() {
 							 // colllision when parameters are identical & type variable erasures match
 							if (!method.areParametersEqual(method2))
 								continue nextMethod;
-							if (!method.areTypeVariableErasuresEqual(method2))
-								if (method.typeVariables != NoTypeVariables && method2.typeVariables != NoTypeVariables)
+							if (method.typeVariables != NoTypeVariables && method2.typeVariables != NoTypeVariables)
+								if (!method.areTypeVariableErasuresEqual(method2))
 									continue nextMethod;
 						} else if (!method.areParameterErasuresEqual(method2)) { // colllision when parameter & return type erasures match
 							continue nextMethod;
