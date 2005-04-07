@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.builder;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -60,6 +61,7 @@ public void test001() throws JavaModelException {
     incrementalBuild(projectPath);
     expectingOnlyProblemsFor(packageInfoPath);
     final Problem[] problems = env.getProblems();
+	Arrays.sort(problems);
     assertNotNull(problems);
     final StringWriter stringWriter = new StringWriter();
     final PrintWriter writer = new PrintWriter(stringWriter);
@@ -74,8 +76,8 @@ public void test001() throws JavaModelException {
     }
     writer.close();
     final String expectedOutput =
-        "The declared package does not match the expected package pack\n" + 
-        "Syntax error on token \"p1\", ; expected after this token"; 
+        "Syntax error on token \"p1\", ; expected after this token\n" + 
+    	"The declared package does not match the expected package pack"; 
     assertSourceEquals("Different messages", expectedOutput, stringWriter.toString());
 }
 protected void assertSourceEquals(String message, String expected, String actual) {

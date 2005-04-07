@@ -13,7 +13,7 @@ package org.eclipse.jdt.core.tests.builder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.IPath;
 
-public class Problem {
+public class Problem implements Comparable {
 	private String location;
 	private String message;
 	private IPath resourcePath;
@@ -91,6 +91,20 @@ public class Problem {
 			return this.toString().equals(o.toString());
 		}
 		return false;
+	}
+	
+	public int compareTo(Object o) {
+		Problem problem = (Problem) o;
+		if (!(this.getLocation().equals(problem.getLocation()))) {
+			return this.getLocation().compareTo(problem.getLocation());
+		}
+		if (this.getStart() < problem.getStart()) {
+			return -1;
+		}
+		if (this.getEnd() < problem.getEnd()) {
+			return -1;
+		}
+		return this.getMessage().compareTo(problem.getMessage());
 	}
 }
 
