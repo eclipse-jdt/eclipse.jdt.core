@@ -942,38 +942,56 @@ public MethodBinding[] methods() {
 				TypeBinding methodTypeErasure = method.returnType == null ? null : method.returnType.erasure();
 				char[] selector = method.selector;
 				AbstractMethodDeclaration methodDecl = null;
-				for (int j = length - 1; j > i; j--) {
-					MethodBinding method2 = methods[j];
-					if (method2 != null && CharOperation.equals(selector, method2.selector)) {
-						boolean paramsMatch = complyTo15 && methodTypeErasure == (method2.returnType == null ? null : method2.returnType.erasure()) // see 87956 & 88094
-							? method.areParameterErasuresEqual(method2)
-							: method.areParametersEqual(method2);
-						if (paramsMatch) {
-							boolean isEnumSpecialMethod = isEnum()
-								&& (selector == TypeConstants.VALUEOF || selector == TypeConstants.VALUES);
-							if (methodDecl == null) {
-								methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost & may still be null if method is special
-								if (methodDecl != null && methodDecl.binding != null) { // ensure its a valid user defined method
-									if (isEnumSpecialMethod)
-										scope.problemReporter().duplicateEnumSpecialMethod(this, methodDecl);
-									else
-										scope.problemReporter().duplicateMethodInType(this, methodDecl);
-									methodDecl.binding = null;
-									methods[i] = null;
-									failed++;
-								}
-							}
-							AbstractMethodDeclaration method2Decl = method2.sourceMethod();
-							if (method2Decl != null && method2Decl.binding != null) { // ensure its a valid user defined method
-								if (isEnumSpecialMethod)
-									scope.problemReporter().duplicateEnumSpecialMethod(this, method2Decl);
-								else
-									scope.problemReporter().duplicateMethodInType(this, method2Decl);
-								method2Decl.binding = null;
-								methods[j] = null;
-								failed++;
-							}
+				nextOtherMethod: for (int j = length - 1; j > i; j--) {
+					MethodBinding otherMethod = methods[j];
+					// check collision with otherMethod
+					if (otherMethod == null) 
+						continue nextOtherMethod;
+					if (!CharOperation.equals(selector, otherMethod.selector))
+						continue nextOtherMethod;
+					if (complyTo15) {
+						TypeBinding otherMethodTypeErasure = otherMethod.returnType == null ? null : otherMethod.returnType.erasure();
+						if (methodTypeErasure != otherMethodTypeErasure) {
+							if (method.typeVariables != NoTypeVariables && otherMethod.typeVariables != NoTypeVariables) {
+								// for generic methods, no need to check arguments
+								continue nextOtherMethod;
+							} else {
+								if (!method.areParametersEqual(otherMethod)) 
+									continue nextOtherMethod;
+							}							
+						} else {
+							if (!method.areParameterErasuresEqual(otherMethod))
+								continue nextOtherMethod;
 						}
+					} else {
+						// prior to 1.5, parameter match is enough for collision
+						if (!method.areParametersEqual(otherMethod)) 
+							continue nextOtherMethod;
+					}
+					// report duplicate
+					boolean isEnumSpecialMethod = isEnum()
+						&& (selector == TypeConstants.VALUEOF || selector == TypeConstants.VALUES);
+					if (methodDecl == null) {
+						methodDecl = method.sourceMethod(); // cannot be retrieved after binding is lost & may still be null if method is special
+						if (methodDecl != null && methodDecl.binding != null) { // ensure its a valid user defined method
+							if (isEnumSpecialMethod)
+								scope.problemReporter().duplicateEnumSpecialMethod(this, methodDecl);
+							else
+								scope.problemReporter().duplicateMethodInType(this, methodDecl);
+							methodDecl.binding = null;
+							methods[i] = null;
+							failed++;
+						}
+					}
+					AbstractMethodDeclaration otherMethodDecl = otherMethod.sourceMethod();
+					if (otherMethodDecl != null && otherMethodDecl.binding != null) { // ensure its a valid user defined method
+						if (isEnumSpecialMethod)
+							scope.problemReporter().duplicateEnumSpecialMethod(this, otherMethodDecl);
+						else
+							scope.problemReporter().duplicateMethodInType(this, otherMethodDecl);
+						otherMethodDecl.binding = null;
+						methods[j] = null;
+						failed++;
 					}
 				}
 				if (methodTypeErasure == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions

@@ -16263,4 +16263,24 @@ public void test500(){
 			},
 			"");	
 	}			
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
+	public void _test574() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	class C2 {\n" + 
+				"		<T extends Integer> T foo(Object o) {  return null; } // ok\n" + 
+				"		<T extends String> T foo(Object o) {  return null; } // ok\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().new C2().foo((List<String>) null);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"complain about ambiguity");
+	}	
 }

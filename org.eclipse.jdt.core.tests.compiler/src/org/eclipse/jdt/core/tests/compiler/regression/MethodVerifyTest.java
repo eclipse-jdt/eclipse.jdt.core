@@ -2716,7 +2716,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
-	public void _test050() {
+	public void test050() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2737,7 +2737,126 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"		 }\n" + 
 				"}\n"
 			},
-			"StringNumberNumber"
-		);
+			"StringNumberNumber");
+	}	
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
+	public void test051() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	class C1 {\n" + 
+				"		Integer foo(Object o) {  return null; } // duplicate\n" + 
+				"		String foo(Object o) {  return null; } // duplicate\n" + 
+				"	}\n" + 
+				"	class C2 {\n" + 
+				"		<T extends Integer> T foo(Object o) {  return null; } // ok\n" + 
+				"		<T extends String> T foo(Object o) {  return null; } // ok\n" + 
+				"	}\n" + 
+				"	class C3 {\n" + 
+				"		Integer foo(Object o) {  return null; } // duplicate\n" + 
+				"		<T extends String> T foo(Object o) {  return null; } // duplicate\n" + 
+				"	}\n" + 
+				"	class C4 {\n" + 
+				"		List<Integer> foo(Object o) {  return null; } // duplicate\n" + 
+				"		List<String> foo(Object o) {  return null; } // duplicate\n" + 
+				"	}\n" + 
+				"	class C5 {\n" + 
+				"		List<Integer> foo(List<Integer> o) {  return null; } // duplicate\n" + 
+				"		List<String> foo(List<String> o) {  return null; } // duplicate\n" + 
+				"	}\n" + 
+				"	class C6 {\n" + 
+				"		<T extends Integer> T foo(List<Integer> o) {  return null; } // ok\n" + 
+				"		<T extends String> T foo(List<String> o) {  return null; } // ok\n" + 
+				"	}\n" + 
+				"	class C7 {\n" + 
+				"		<T extends Integer, U> T foo(Object o) {  return null; } // ok\n" + 
+				"		<T extends String> T foo(Object o) {  return null; } // ok\n" + 
+				"	}	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"//		new X().new C2().foo((List<String>) null);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	Integer foo(Object o) {  return null; } // duplicate\n" + 
+			"	        ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C1\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	String foo(Object o) {  return null; } // duplicate\n" + 
+			"	       ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C1\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	<T extends Integer> T foo(Object o) {  return null; } // ok\n" + 
+			"	           ^^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
+			"	<T extends String> T foo(Object o) {  return null; } // ok\n" + 
+			"	           ^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 14)\n" + 
+			"	Integer foo(Object o) {  return null; } // duplicate\n" + 
+			"	        ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C3\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 15)\n" + 
+			"	<T extends String> T foo(Object o) {  return null; } // duplicate\n" + 
+			"	           ^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 15)\n" + 
+			"	<T extends String> T foo(Object o) {  return null; } // duplicate\n" + 
+			"	                     ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C3\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 18)\n" + 
+			"	List<Integer> foo(Object o) {  return null; } // duplicate\n" + 
+			"	              ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C4\n" + 
+			"----------\n" + 
+			"9. ERROR in X.java (at line 19)\n" + 
+			"	List<String> foo(Object o) {  return null; } // duplicate\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(Object) in type X.C4\n" + 
+			"----------\n" + 
+			"10. ERROR in X.java (at line 22)\n" + 
+			"	List<Integer> foo(List<Integer> o) {  return null; } // duplicate\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(List<Integer>) in type X.C5\n" + 
+			"----------\n" + 
+			"11. ERROR in X.java (at line 23)\n" + 
+			"	List<String> foo(List<String> o) {  return null; } // duplicate\n" + 
+			"	             ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(List<String>) in type X.C5\n" + 
+			"----------\n" + 
+			"12. WARNING in X.java (at line 26)\n" + 
+			"	<T extends Integer> T foo(List<Integer> o) {  return null; } // ok\n" + 
+			"	           ^^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"13. WARNING in X.java (at line 27)\n" + 
+			"	<T extends String> T foo(List<String> o) {  return null; } // ok\n" + 
+			"	           ^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"14. WARNING in X.java (at line 30)\n" + 
+			"	<T extends Integer, U> T foo(Object o) {  return null; } // ok\n" + 
+			"	           ^^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"15. WARNING in X.java (at line 31)\n" + 
+			"	<T extends String> T foo(Object o) {  return null; } // ok\n" + 
+			"	           ^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n");
 	}	
 }
