@@ -76,7 +76,6 @@
        <fileset dir="bin"/>
        <fileset file="plugin.xml"/>
        <fileset file=".options"/>
-       <fileset file="component.xml"/>
        <fileset file="about.html"/>
        <fileset file="plugin.properties"/>
        <fileset file="${plugin-dir}/jdtCompilerAdapter.jar"/>
@@ -85,6 +84,7 @@
 	<delete file="${plugin-dir}/jdtCompilerAdapter.jar"/>
 	<echo message="UPDATE jdtcoresrc.zip" />
 	<zip zipfile="${plugin-dir}/jdtcoresrc.zip">
+        <fileset file="component.xml"/>	
 	    <fileset dir="batch" />
 	    <fileset dir="codeassist" />
 	    <fileset dir="compiler" />
