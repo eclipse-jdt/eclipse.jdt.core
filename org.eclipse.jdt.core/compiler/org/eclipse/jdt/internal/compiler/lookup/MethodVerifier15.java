@@ -388,9 +388,7 @@ public boolean doReturnTypesCollide(MethodBinding method, MethodBinding inherite
 		&& !areReturnTypesEqual(method, sub);
 }
 boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
-	TypeBinding[] currentVars = one.typeVariables;
-	TypeBinding[] inheritedVars = substituteTwo.original().typeVariables;
-	return currentVars.length != inheritedVars.length && currentVars.length > 0;
+	return one.typeVariables.length > 0 && !one.areTypeVariableErasuresEqual(substituteTwo.original());
 }
 boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBinding existingMethod, ReferenceBinding superType) {
 	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);

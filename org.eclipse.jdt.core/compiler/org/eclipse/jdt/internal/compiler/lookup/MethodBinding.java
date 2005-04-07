@@ -58,6 +58,22 @@ public MethodBinding(MethodBinding initialMethodBinding, ReferenceBinding declar
 	this.thrownExceptions = initialMethodBinding.thrownExceptions;
 	this.declaringClass = declaringClass;
 }
+/* Answer true if the argument types & the receiver's parameters have the same erasure
+*/
+public final boolean areParameterErasuresEqual(MethodBinding method) {
+	TypeBinding[] args = method.parameters;
+	if (parameters == args)
+		return true;
+
+	int length = parameters.length;
+	if (length != args.length)
+		return false;
+
+	for (int i = 0; i < length; i++)
+		if (parameters[i] != args[i] && parameters[i].erasure() != args[i].erasure())
+			return false;
+	return true;
+}
 /* Answer true if the argument types & the receiver's parameters are equal
 */
 public final boolean areParametersEqual(MethodBinding method) {
@@ -101,22 +117,6 @@ public final boolean areParametersCompatibleWith(TypeBinding[] arguments) {
 	return true;
 }
 
-/* Answer true if the argument types & the receiver's parameters have the same erasure
-*/
-public final boolean areParameterErasuresEqual(MethodBinding method) {
-	TypeBinding[] args = method.parameters;
-	if (parameters == args)
-		return true;
-
-	int length = parameters.length;
-	if (length != args.length)
-		return false;
-
-	for (int i = 0; i < length; i++)
-		if (parameters[i] != args[i] && parameters[i].erasure() != args[i].erasure())
-			return false;
-	return true;
-}
 /* API
 * Answer the receiver's binding type from Binding.BindingID.
 */
@@ -133,6 +133,22 @@ public final boolean canBeSeenBy(PackageBinding invocationPackage) {
 
 	// isProtected() or isDefault()
 	return invocationPackage == declaringClass.getPackage();
+}
+/* Answer true if the type variables have the same erasure
+*/
+public final boolean areTypeVariableErasuresEqual(MethodBinding method) {
+	TypeVariableBinding[] vars = method.typeVariables;
+	if (this.typeVariables == vars)
+		return true;
+
+	int length = this.typeVariables.length;
+	if (length != vars.length)
+		return false;
+
+	for (int i = 0; i < length; i++)
+		if (this.typeVariables[i] != vars[i] && this.typeVariables[i].erasure() != vars[i].erasure())
+			return false;
+	return true;
 }
 /* Answer true if the receiver is visible to the type provided by the scope.
 * InvocationSite implements isSuperAccess() to provide additional information

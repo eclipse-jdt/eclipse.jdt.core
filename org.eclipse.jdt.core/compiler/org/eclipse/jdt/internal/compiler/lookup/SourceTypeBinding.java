@@ -939,35 +939,28 @@ public MethodBinding[] methods() {
 		for (int i = 0, length = methods.length; i < length; i++) {
 			MethodBinding method = methods[i];
 			if (method != null) {
-				TypeBinding methodTypeErasure = method.returnType == null ? null : method.returnType.erasure();
+				TypeBinding returnErasure = method.returnType == null ? null : method.returnType.erasure();
 				char[] selector = method.selector;
 				AbstractMethodDeclaration methodDecl = null;
-				nextOtherMethod: for (int j = length - 1; j > i; j--) {
-					MethodBinding otherMethod = methods[j];
-					// check collision with otherMethod
-					if (otherMethod == null) 
-						continue nextOtherMethod;
-					if (!CharOperation.equals(selector, otherMethod.selector))
-						continue nextOtherMethod;
+				nextMethod : for (int j = length - 1; j > i; j--) {
+					MethodBinding method2 = methods[j];
+					if (method2 == null || !CharOperation.equals(selector, method2.selector))
+						continue nextMethod;
 					if (complyTo15) {
-						TypeBinding otherMethodTypeErasure = otherMethod.returnType == null ? null : otherMethod.returnType.erasure();
-						if (methodTypeErasure != otherMethodTypeErasure) {
-							if (method.typeVariables != NoTypeVariables && otherMethod.typeVariables != NoTypeVariables) {
-								// for generic methods, no need to check arguments
-								continue nextOtherMethod;
-							} else {
-								if (!method.areParametersEqual(otherMethod)) 
-									continue nextOtherMethod;
-							}							
-						} else {
-							if (!method.areParameterErasuresEqual(otherMethod))
-								continue nextOtherMethod;
+						if (returnErasure != (method2.returnType == null ? null : method2.returnType.erasure())) {
+							 // colllision when parameters are identical & type variable erasures match
+							if (!method.areParametersEqual(method2))
+								continue nextMethod;
+							if (!method.areTypeVariableErasuresEqual(method2))
+								if (method.typeVariables.length > 0 && method2.typeVariables.length > 0)
+									continue nextMethod;
+						} else if (!method.areParameterErasuresEqual(method2)) { // colllision when parameter & return type erasures match
+							continue nextMethod;
 						}
-					} else {
-						// prior to 1.5, parameter match is enough for collision
-						if (!method.areParametersEqual(otherMethod)) 
-							continue nextOtherMethod;
+					} else if (!method.areParametersEqual(method2)) { // prior to 1.5, parameter identity meant a collision case
+						continue nextMethod;
 					}
+
 					// report duplicate
 					boolean isEnumSpecialMethod = isEnum()
 						&& (selector == TypeConstants.VALUEOF || selector == TypeConstants.VALUES);
@@ -983,18 +976,18 @@ public MethodBinding[] methods() {
 							failed++;
 						}
 					}
-					AbstractMethodDeclaration otherMethodDecl = otherMethod.sourceMethod();
-					if (otherMethodDecl != null && otherMethodDecl.binding != null) { // ensure its a valid user defined method
+					AbstractMethodDeclaration method2Decl = method2.sourceMethod();
+					if (method2Decl != null && method2Decl.binding != null) { // ensure its a valid user defined method
 						if (isEnumSpecialMethod)
-							scope.problemReporter().duplicateEnumSpecialMethod(this, otherMethodDecl);
+							scope.problemReporter().duplicateEnumSpecialMethod(this, method2Decl);
 						else
-							scope.problemReporter().duplicateMethodInType(this, otherMethodDecl);
-						otherMethodDecl.binding = null;
+							scope.problemReporter().duplicateMethodInType(this, method2Decl);
+						method2Decl.binding = null;
 						methods[j] = null;
 						failed++;
 					}
 				}
-				if (methodTypeErasure == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
+				if (returnErasure == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
 					method.sourceMethod().binding = null;
 					methods[i] = null;
 					failed++;
