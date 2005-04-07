@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.jdom;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 /**
  * DOMInitializer provides an implementation of IDOMInitializer.
@@ -107,7 +107,7 @@ protected void appendMemberBodyContents(CharArrayBuffer buffer) {
 			.append(getBody())
 			.append(fDocument, fBodyRange[1] + 1, fSourceRange[1] - fBodyRange[1]);
 	} else {
-		buffer.append("{}").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
+		buffer.append("{}").append(org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR); //$NON-NLS-1$
 	}
 }
 /**

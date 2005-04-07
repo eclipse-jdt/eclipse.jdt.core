@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 /**
  * DOMMethod provides an implementation of IDOMMethod.
@@ -599,7 +599,7 @@ public void setBody(String body) {
 	fBody= body;
 	setHasBody(body != null);
 	if (!hasBody()) {
-		fBody= ";"+Util.LINE_SEPARATOR; //$NON-NLS-1$
+		fBody= ";" + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR; //$NON-NLS-1$
 	}
 }
 /**

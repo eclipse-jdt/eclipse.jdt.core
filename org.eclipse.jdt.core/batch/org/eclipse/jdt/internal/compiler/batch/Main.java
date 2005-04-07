@@ -51,9 +51,11 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.osgi.util.NLS;
 
 public class Main implements ProblemSeverities, SuffixConstants {
 
@@ -250,7 +252,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			int endPosition = problem.getSourceEnd();
 			if ((startPosition > endPosition)
 				|| ((startPosition < 0) && (endPosition < 0))) {
-				this.parameters.put(VALUE, Util.bind("problem.noSourceInformation")); //$NON-NLS-1$
+				this.parameters.put(VALUE, Messages.problem_noSourceInformation);
 				this.parameters.put(SOURCE_START, "-1"); //$NON-NLS-1$
 				this.parameters.put(SOURCE_END, "-1"); //$NON-NLS-1$
 				return;
@@ -2371,7 +2373,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					String relativeStringName = new String(relativeName);
 					try {
 						if (this.compilerOptions.verbose)
-							System.out.println(Util.bind("compilation.write", //$NON-NLS-1$
+							System.out.println(NLS.bind(Messages.compilation_write,
 								new String[] {
 									String.valueOf(this.exportedClassFilesCounter+1),
 									relativeStringName

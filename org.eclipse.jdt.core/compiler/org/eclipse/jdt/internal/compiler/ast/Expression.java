@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
-import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.compiler.util.Messages;
 
 public abstract class Expression extends Statement {
 	
@@ -577,7 +577,7 @@ public abstract class Expression extends Statement {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} else {
 			// actual non-constant code generation
-			throw new ShouldNotImplement(Util.bind("ast.missingCode")); //$NON-NLS-1$
+			throw new ShouldNotImplement(Messages.ast_missingCode);
 		}
 	}
 

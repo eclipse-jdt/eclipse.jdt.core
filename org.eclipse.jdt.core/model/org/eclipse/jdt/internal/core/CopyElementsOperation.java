@@ -83,7 +83,7 @@ public CopyElementsOperation(IJavaElement[] elementsToCopy, IJavaElement destCon
  * for progress monitoring.
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.copyElementProgress"); //$NON-NLS-1$
+	return org.eclipse.jdt.internal.core.util.Util.bind("operation.copyElementProgress"); //$NON-NLS-1$
 }
 /**
  * Returns the nested operation to use for processing this element

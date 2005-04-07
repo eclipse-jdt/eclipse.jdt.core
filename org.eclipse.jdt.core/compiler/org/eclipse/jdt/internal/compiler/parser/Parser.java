@@ -37,7 +37,9 @@ import org.eclipse.jdt.internal.compiler.parser.diagnose.DiagnoseParser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.osgi.util.NLS;
 
 public class Parser implements  ParserBasicInformation, TerminalTokens, CompilerModifiers, OperatorIds, TypeIds {
 	protected static final int THIS_CALL = ExplicitConstructorCall.This;
@@ -429,7 +431,7 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	try {
 		contents = Util.getFileCharContent(new File(dataFilename), null);
 	} catch (IOException ex) {
-		System.out.println(Util.bind("parser.incorrectPath")); //$NON-NLS-1$
+		System.out.println(Messages.parser_incorrectPath);
 		return;
 	}
 	java.util.StringTokenizer st = 
@@ -470,7 +472,7 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	try {
 		contents = Util.getFileCharContent(new File(dataFilename2), null);
 	} catch (IOException ex) {
-		System.out.println(Util.bind("parser.incorrectPath")); //$NON-NLS-1$
+		System.out.println(Messages.parser_incorrectPath);
 		return;
 	}
 	st = new java.util.StringTokenizer(new String(contents), "\t\n\r=#");  //$NON-NLS-1$
@@ -483,7 +485,7 @@ public final static void buildFilesFromLPG(String dataFilename, String dataFilen
 	buildFileForCompliance(prefix + (++i) + ".rsc", newRhs.length, tokens);//$NON-NLS-1$
 	buildFileForReadableName(READABLE_NAMES_FILE+".properties", newLhs, newNonTerminalIndex, newName, tokens);//$NON-NLS-1$
 	
-	System.out.println(Util.bind("parser.moveFiles")); //$NON-NLS-1$
+	System.out.println(Messages.parser_moveFiles);
 }
 public static int in_symbol(int state) {
 	return in_symb[original_state(state)];
@@ -541,7 +543,7 @@ protected static byte[] readByteTable(String filename) throws java.io.IOExceptio
 
 	InputStream stream = Parser.class.getResourceAsStream(filename);
 	if (stream == null) {
-		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
+		throw new java.io.IOException(NLS.bind(Messages.parser_missingFile, filename));
 	}
 	byte[] bytes = null;
 	try {
@@ -602,7 +604,7 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 
 	InputStream stream = Parser.class.getResourceAsStream(filename);
 	if (stream == null) {
-		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
+		throw new java.io.IOException(NLS.bind(Messages.parser_missingFile, filename));
 	}
 	byte[] bytes = null;
 	try {
@@ -619,7 +621,7 @@ protected static char[] readTable(String filename) throws java.io.IOException {
 	//minimal integrity check (even size expected)
 	int length = bytes.length;
 	if (length % 2 != 0)
-		throw new java.io.IOException(Util.bind("parser.corruptedFile",filename)); //$NON-NLS-1$
+		throw new java.io.IOException(NLS.bind(Messages.parser_corruptedFile, filename));
 
 	// convert bytes into chars
 	char[] chars = new char[length / 2];
@@ -639,7 +641,7 @@ protected static long[] readLongTable(String filename) throws java.io.IOExceptio
 
 	InputStream stream = Parser.class.getResourceAsStream(filename);
 	if (stream == null) {
-		throw new java.io.IOException(Util.bind("parser.missingFile",filename)); //$NON-NLS-1$
+		throw new java.io.IOException(NLS.bind(Messages.parser_missingFile, filename));
 	}
 	byte[] bytes = null;
 	try {
@@ -656,7 +658,7 @@ protected static long[] readLongTable(String filename) throws java.io.IOExceptio
 	//minimal integrity check (even size expected)
 	int length = bytes.length;
 	if (length % 8 != 0)
-		throw new java.io.IOException(Util.bind("parser.corruptedFile",filename)); //$NON-NLS-1$
+		throw new java.io.IOException(NLS.bind(Messages.parser_corruptedFile, filename));
 
 	// convert bytes into longs
 	long[] longs = new long[length / 8];
@@ -7536,14 +7538,14 @@ protected CompilationUnitDeclaration endParse(int act) {
 	if (this.currentElement != null){
 		this.currentElement.topElement().updateParseTree();
 		if (VERBOSE_RECOVERY){
-			System.out.print(Util.bind("parser.syntaxRecovery")); //$NON-NLS-1$
+			System.out.print(Messages.parser_syntaxRecovery);
 			System.out.println("--------------------------");		 //$NON-NLS-1$
 			System.out.println(this.compilationUnit);		
 			System.out.println("----------------------------------"); //$NON-NLS-1$
 		}		
 	} else {
 		if (this.diet & VERBOSE_RECOVERY){
-			System.out.print(Util.bind("parser.regularParse"));	 //$NON-NLS-1$
+			System.out.print(Messages.parser_regularParse);
 			System.out.println("--------------------------");	 //$NON-NLS-1$
 			System.out.println(this.compilationUnit);		
 			System.out.println("----------------------------------"); //$NON-NLS-1$

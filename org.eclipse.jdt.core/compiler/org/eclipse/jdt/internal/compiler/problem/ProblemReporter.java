@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
-import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.compiler.util.Messages;
 
 public class ProblemReporter extends ProblemHandler implements ProblemReasons {
 	
@@ -3945,7 +3945,7 @@ public void nativeMethodsCannotBeStrictfp(ReferenceBinding type, AbstractMethodD
 		methodDecl.sourceEnd);
 }
 public void needImplementation() {
-	this.abortDueToInternalError(Util.bind("abort.missingCode")); //$NON-NLS-1$
+	this.abortDueToInternalError(Messages.abort_missingCode);
 }
 public void needToEmulateFieldAccess(FieldBinding field, ASTNode location, boolean isReadAccess) {
 	this.handle(
@@ -4563,13 +4563,13 @@ public void parseErrorUnexpectedEnd(
 		
 	String[] arguments;
 	if(this.referenceContext instanceof ConstructorDeclaration) {
-		arguments = new String[] {Util.bind("parser.endOfConstructor")}; //$NON-NLS-1$
+		arguments = new String[] {Messages.parser_endOfConstructor};
 	} else if(this.referenceContext instanceof MethodDeclaration) {
-		arguments = new String[] {Util.bind("parser.endOfMethod")}; //$NON-NLS-1$
+		arguments = new String[] {Messages.parser_endOfMethod};
 	} else if(this.referenceContext instanceof TypeDeclaration) {
-		arguments = new String[] {Util.bind("parser.endOfInitializer")}; //$NON-NLS-1$
+		arguments = new String[] {Messages.parser_endOfInitializer};
 	} else {
-		arguments = new String[] {Util.bind("parser.endOfFile")}; //$NON-NLS-1$
+		arguments = new String[] {Messages.parser_endOfFile};
 	}
 	this.handle(
 		IProblem.ParsingErrorUnexpectedEOF,

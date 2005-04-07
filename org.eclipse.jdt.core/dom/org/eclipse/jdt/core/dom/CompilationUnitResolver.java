@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
-import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.core.BinaryMember;
 import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.CancelableProblemFactory;
@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.util.BindingKeyResolver;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 import org.eclipse.jdt.internal.core.util.DOMFinder;
+import org.eclipse.osgi.util.NLS;
 
 class CompilationUnitResolver extends Compiler {
 	
@@ -164,12 +165,12 @@ class CompilationUnitResolver extends Compiler {
 			try {
 				if (options.verbose) {
 					System.out.println(
-						Util.bind(
-							"compilation.request" , //$NON-NLS-1$
+						NLS.bind(Messages.compilation_request,
 							new String[] {
 								String.valueOf(index++ + 1),
 								String.valueOf(maxUnits),
-								new String(sourceUnit.getFileName())}));
+								new String(sourceUnit.getFileName())
+							}));
 				}
 				// diet parsing for large collection of units
 				if (this.totalUnits < this.parseThreshold) {
