@@ -445,8 +445,8 @@ public synchronized Index recreateIndex(IPath containerPath) {
  * Trigger removal of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void remove(String resourceName, IPath indexedContainer){
-	request(new RemoveFromIndex(resourceName, indexedContainer, this));
+public void remove(String containerRelativePath, IPath indexedContainer){
+	request(new RemoveFromIndex(containerRelativePath, indexedContainer, this));
 }
 /**
  * Removes the index for a given path. 

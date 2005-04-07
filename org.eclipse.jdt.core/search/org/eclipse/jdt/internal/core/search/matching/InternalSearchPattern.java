@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.*;
 
@@ -32,25 +33,33 @@ public abstract class InternalSearchPattern {
 	int kind;
 	boolean mustResolve = true;
 	
-	void acceptMatch(String documentName, String containerPath, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
-		String documentPath = Index.convertPath(documentName);
+	void acceptMatch(String relativePath, String containerPath, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
 
 		if (scope instanceof JavaSearchScope) {
 			JavaSearchScope javaSearchScope = (JavaSearchScope) scope;
 			// Get document path access restriction from java search scope
 			// Note that requestor has to verify if needed whether the document violates the access restriction or not
-			AccessRuleSet access = javaSearchScope.getAccessRuleSet(documentPath, containerPath);
+			AccessRuleSet access = javaSearchScope.getAccessRuleSet(relativePath, containerPath);
 			if (access != JavaSearchScope.NOT_ENCLOSED) { // scope encloses the document path
+				String documentPath = documentPath(containerPath, relativePath);
 				if (!requestor.acceptIndexMatch(documentPath, pattern, participant, access)) 
 					throw new OperationCanceledException();
 			}
-		} else if (scope.encloses(documentPath)) {
-			if (!requestor.acceptIndexMatch(documentPath, pattern, participant, null)) 
-				throw new OperationCanceledException();
+		} else {
+			String documentPath = documentPath(containerPath, relativePath);
+			if (scope.encloses(documentPath)) 
+				if (!requestor.acceptIndexMatch(documentPath, pattern, participant, null)) 
+					throw new OperationCanceledException();
+			
 		}
 	}
 	SearchPattern currentPattern() {
 		return (SearchPattern) this;
+	}
+	String documentPath(String containerPath, String relativePath) {
+		if (Util.isArchiveFileName(containerPath))
+			return containerPath + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + relativePath;
+		return containerPath + '/' + relativePath;
 	}
 	/**
 	 * Query a given index for matching entries. Assumes the sender has opened the index and will close when finished.

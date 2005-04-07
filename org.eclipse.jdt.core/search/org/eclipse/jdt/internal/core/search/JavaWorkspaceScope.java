@@ -69,10 +69,10 @@ public IPath[] enclosingProjectsAndJars() {
 public boolean equals(Object o) {
   return o instanceof JavaWorkspaceScope;
 }
-public AccessRuleSet getAccessRuleSet(String path, String containerPath) {
+public AccessRuleSet getAccessRuleSet(String relativePath, String containerPath) {
 	if (this.pathRestrictions == null) 
 		return null;
-	return super.getAccessRuleSet(path, containerPath);
+	return super.getAccessRuleSet(relativePath, containerPath);
 }
 public int hashCode() {
 	return JavaWorkspaceScope.class.hashCode();

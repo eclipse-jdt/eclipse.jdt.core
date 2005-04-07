@@ -127,7 +127,7 @@ public class IndexAllProject extends IndexRequest {
 												if (exclusionPatterns != null || inclusionPatterns != null)
 													if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
 														return false;
-												indexedFileNames.put(file.getFullPath().toString(), file);
+												indexedFileNames.put(Util.relativePath(file.getFullPath(), 1/*remove project segment*/), file);
 											}
 											return false;
 										case IResource.FOLDER :
@@ -158,9 +158,9 @@ public class IndexAllProject extends IndexRequest {
 												if (exclusionPatterns != null || inclusionPatterns != null)
 													if (Util.isExcluded(file, inclusionPatterns, exclusionPatterns))
 														return false;
-												String path = file.getFullPath().toString();
-												indexedFileNames.put(path,
-													indexedFileNames.get(path) == null || indexLastModified < location.toFile().lastModified()
+												String relativePathString = Util.relativePath(file.getFullPath(), 1/*remove project segment*/);
+												indexedFileNames.put(relativePathString,
+													indexedFileNames.get(relativePathString) == null || indexLastModified < location.toFile().lastModified()
 														? (Object) file
 														: (Object) OK);
 											}

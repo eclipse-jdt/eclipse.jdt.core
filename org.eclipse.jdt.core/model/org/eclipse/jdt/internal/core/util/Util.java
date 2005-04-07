@@ -1739,6 +1739,48 @@ public class Util {
 	}
 
 	/**
+	 * Returns the toString() of the given full path minus the first given number of segments.
+	 * The returned string is always a relative path (it has no leading slash)
+	 */
+	public static String relativePath(IPath fullPath, int skipSegmentCount) {
+		boolean hasTrailingSeparator = fullPath.hasTrailingSeparator();
+		String[] segments = fullPath.segments();
+		
+		// compute length
+		int length = 0;
+		int max = segments.length;
+		if (max > skipSegmentCount) {
+			for (int i1 = skipSegmentCount; i1 < max; i1++) {
+				length += segments[i1].length();
+			}
+			//add the separator lengths
+			length += max - skipSegmentCount - 1;
+		}
+		if (hasTrailingSeparator)
+			length++;
+
+		char[] result = new char[length];
+		int offset = 0;
+		int len = segments.length - 1;
+		if (len >= skipSegmentCount) {
+			//append all but the last segment, with separators
+			for (int i = skipSegmentCount; i < len; i++) {
+				int size = segments[i].length();
+				segments[i].getChars(0, size, result, offset);
+				offset += size;
+				result[offset++] = '/';
+			}
+			//append the last segment
+			int size = segments[len].length();
+			segments[len].getChars(0, size, result, offset);
+			offset += size;
+		}
+		if (hasTrailingSeparator)
+			result[offset++] = '/';
+		return new String(result);
+	}
+	
+	/**
 	 * Creates a NLS catalog for the given locale.
 	 */
 	public static void relocalize() {

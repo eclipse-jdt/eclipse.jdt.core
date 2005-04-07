@@ -130,10 +130,9 @@ class AddJarFileToIndex extends IndexRequest {
 					for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 						// iterate each entry to index it
 						ZipEntry ze = (ZipEntry) e.nextElement();
-						if (Util.isClassFileName(ze.getName())) {
-							JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, null, null);
-							indexedFileNames.put(entryDocument.getPath(), EXISTS);
-						}
+						String zipEntryName = ze.getName();
+						if (Util.isClassFileName(zipEntryName))
+							indexedFileNames.put(zipEntryName, EXISTS);
 					}
 					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
 					if (!needToReindex) {

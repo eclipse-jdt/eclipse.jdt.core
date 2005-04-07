@@ -130,8 +130,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 						if ((includeMask & APPLICATION_LIBRARIES) != 0) {
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
-								String pathString = path.toString();
-								add(pathString, pathString, true, access);
+								add("", path.toString(), true, access); //$NON-NLS-1$
 								addEnclosingProjectOrJar(path);
 							}
 						}
@@ -143,8 +142,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 								|| (includeMask & SYSTEM_LIBRARIES) != 0) {
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
-								String pathString = path.toString();
-								add(pathString, pathString, true, access);
+								add("", path.toString(), true, access); //$NON-NLS-1$
 								addEnclosingProjectOrJar(path);
 							}
 						}
@@ -163,7 +161,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 				if ((includeMask & SOURCES) != 0) {
 					IPath path = entry.getPath();
 					if (pathToAdd == null || pathToAdd.equals(path)) {
-						add(path.toString(), projectPathString, true, access);
+						add(Util.relativePath(path,1/*remove project segment*/), projectPathString, true, access);
 					}
 				}
 				break;
@@ -189,20 +187,20 @@ public void add(IJavaElement element) throws JavaModelException {
 			IPackageFragmentRoot root = (IPackageFragmentRoot)element;
 			IPath rootPath = root.getPath();
 			containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : rootPath;
-			add(rootPath.toString(), containerPath.toString(), true, null);
+			add("", containerPath.toString(), true, null); //$NON-NLS-1$
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
 			root = (IPackageFragmentRoot)element.getParent();
 			if (root.isArchive()) {
 				String relativePath = Util.concatWith(((PackageFragment) element).names, '/');
 				containerPath = root.getPath();
-				IPath path = containerPath.append(new Path(relativePath));
-				add(path.toString(), containerPath.toString(), false, null);
+				add(relativePath, containerPath.toString(), false, null);
 			} else {
 				IResource resource = element.getResource();
 				if (resource != null && resource.isAccessible()) {
 					containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : root.getPath();
-					add(resource.getFullPath().toString(), containerPath.toString(), false, null);
+					String relativePath = Util.relativePath(resource.getFullPath(), containerPath.segmentCount());
+					add(relativePath, containerPath.toString(), false, null);
 				}
 			}
 			break;
@@ -215,8 +213,15 @@ public void add(IJavaElement element) throws JavaModelException {
 				this.elements.add(element);
 			}
 			root = (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-			containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : root.getPath();
-			add(fullPath(element), containerPath.toString(), true, null);
+			String relativePath;
+			if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
+				containerPath = root.getParent().getPath();
+				relativePath = Util.relativePath(getPath(element, false/*full path*/), 1/*remove project segmet*/);
+			} else {
+				containerPath = root.getPath();
+				relativePath = getPath(element, true/*relative path*/).toString();
+			}
+			add(relativePath, containerPath.toString(), true, null);
 	}
 	
 	if (containerPath != null)
@@ -227,15 +232,15 @@ public void add(IJavaElement element) throws JavaModelException {
  * Adds the given path to this search scope. Remember if subfolders need to be included
  * and associated access restriction as well.
  */
-private void add(String path, String containerPath, boolean withSubFolders, AccessRuleSet access) {
+private void add(String relativePath, String containerPath, boolean withSubFolders, AccessRuleSet access) {
 	int index = (containerPath.hashCode() & 0x7FFFFFFF) % this.paths.length;
 	String currentPath, currentContainerPath;
 	while ((currentPath = this.paths[index]) != null && (currentContainerPath = this.containerPaths[index]) != null) {
-		if (currentPath.equals(path) && currentContainerPath.equals(containerPath))
+		if (currentPath.equals(relativePath) && currentContainerPath.equals(containerPath))
 			return;
 		index = (index + 1) % this.paths.length;
 	}
-	this.paths[index] = path;
+	this.paths[index] = relativePath;
 	this.containerPaths[index] = containerPath;
 	this.pathWithSubFolders[index] = withSubFolders;
 	if (this.pathRestrictions != null)
@@ -255,20 +260,17 @@ private void add(String path, String containerPath, boolean withSubFolders, Acce
  * @see IJavaSearchScope#encloses(String)
  */
 public boolean encloses(String resourcePathString) {
-	return indexOf(fullPath(resourcePathString), null) >= 0;
-}
-private String fullPath(String resourcePathString) {
 	int separatorIndex = resourcePathString.indexOf(JAR_FILE_ENTRY_SEPARATOR);
 	if (separatorIndex != -1) {
-		return resourcePathString.substring(0, separatorIndex).replace('\\', '/') + '/' + resourcePathString.substring(separatorIndex+1);
+		return indexOf(resourcePathString.substring(separatorIndex+1), resourcePathString.substring(0, separatorIndex)) >= 0;
 	}
-	return resourcePathString;
+	return indexOf(resourcePathString, null) >= 0;
 }
 
 /**
  * Returns paths list index of given path or -1 if not found.
  */
-private int indexOf(String path, String containerPath) {
+private int indexOf(String relativePath, String containerPath) {
 	if (containerPath != null) {
 		// if container path is known, use the hash to get faster comparison
 		int index = (containerPath.hashCode()& 0x7FFFFFFF) % this.paths.length;
@@ -276,7 +278,7 @@ private int indexOf(String path, String containerPath) {
 		while ((currentContainerPath = this.containerPaths[index]) != null) {
 			if (currentContainerPath.equals(containerPath)) {
 				String scopePath = this.paths[index];
-				if (encloses(scopePath, path, index))
+				if (encloses(scopePath, relativePath, index))
 					return index;
 			}
 			index = (index + 1) % this.paths.length;
@@ -284,11 +286,11 @@ private int indexOf(String path, String containerPath) {
 		return -1;
 	}
 	
-	// fallback to sequentially look at all known paths
+	// fallback to sequentially looking at all known paths
 	for (int i = 0, length = this.paths.length; i < length; i++) {
 		String scopePath = this.paths[i];
 		if (scopePath == null) continue;
-		if (encloses(scopePath, path, i))
+		if (encloses(this.containerPaths[i] + '/' + scopePath, relativePath, i))
 			return i;
 	}
 	return -1;
@@ -328,7 +330,13 @@ public boolean encloses(IJavaElement element) {
 		}
 		return false;
 	}
-	return this.indexOf(fullPath(element), null) >= 0;
+	IPackageFragmentRoot root = (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+	if (root != null && root.isArchive()) {
+		IPath rootPath = root.getPath();
+		IPath relativePath = getPath(element, true/*relative path*/);
+		return indexOf(relativePath.toString(), rootPath.toString()) >= 0;
+	}
+	return this.indexOf(getPath(element, false/*full path*/).toString(), null) >= 0;
 }
 
 /* (non-Javadoc)
@@ -337,32 +345,34 @@ public boolean encloses(IJavaElement element) {
 public IPath[] enclosingProjectsAndJars() {
 	return this.enclosingProjectsAndJars;
 }
-private String fullPath(IJavaElement element) {
+private IPath getPath(IJavaElement element, boolean relativeToRoot) {
 	if (element instanceof IPackageFragmentRoot) {
-		return ((IPackageFragmentRoot)element).getPath().toString();
+		if (relativeToRoot)
+			return Path.EMPTY;
+		return ((IPackageFragmentRoot)element).getPath();
 	}
 	IJavaElement parent = element.getParent();
-	String parentPath = parent == null ? null : fullPath(parent);
-	String childPath;
+	IPath parentPath = parent == null ? null : getPath(parent, relativeToRoot);
+	IPath childPath;
 	if (element instanceof PackageFragment) {
 		String relativePath = Util.concatWith(((PackageFragment) element).names, '/');
-		childPath = relativePath;
+		childPath = new Path(relativePath);
 	} else if (element instanceof IOpenable) {
-		childPath = element.getElementName();
+		childPath = new Path(element.getElementName());
 	} else {
 		return parentPath;
 	}
-	return parentPath == null ? childPath : parentPath + '/' + childPath;
+	return parentPath == null ? childPath : parentPath.append(childPath);
 }
 
 /**
  * Get access rule set corresponding to a given path.
- * @param path The path user want to have restriction access
+ * @param relativePath The path user want to have restriction access
  * @return The access rule set for given path or null if none is set for it.
  * 	Returns specific uninit access rule set when scope does not enclose the given path.
  */
-public AccessRuleSet getAccessRuleSet(String path, String containerPath) {
-	int index = indexOf(fullPath(path), containerPath);
+public AccessRuleSet getAccessRuleSet(String relativePath, String containerPath) {
+	int index = indexOf(relativePath, containerPath);
 	if (index == -1) {
 		// this search scope does not enclose given path
 		return NOT_ENCLOSED;
@@ -461,7 +471,11 @@ public String toString() {
 				String path = this.paths[i];
 				if (path == null) continue;
 				result.append("\n\t"); //$NON-NLS-1$
-				result.append(path);
+				result.append(this.containerPaths[i]);
+				if (path.length() > 0) {
+					result.append('/');
+					result.append(path);
+				}
 			}
 			result.append("\n]"); //$NON-NLS-1$
 		}

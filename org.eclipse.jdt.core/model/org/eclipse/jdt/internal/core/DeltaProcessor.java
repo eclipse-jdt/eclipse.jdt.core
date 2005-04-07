@@ -2369,7 +2369,8 @@ public class DeltaProcessor {
 						indexManager.addBinary(file, binaryFolderPath);
 						break;
 					case IResourceDelta.REMOVED :
-						indexManager.remove(file.getFullPath().toString(), binaryFolderPath);
+						String containerRelativePath = Util.relativePath(file.getFullPath(), binaryFolderPath.segmentCount());
+						indexManager.remove(containerRelativePath, binaryFolderPath);
 						break;
 				}
 				break;
@@ -2385,7 +2386,7 @@ public class DeltaProcessor {
 						indexManager.addSource(file, file.getProject().getFullPath());
 						break;
 					case IResourceDelta.REMOVED :
-						indexManager.remove(file.getFullPath().toString(), file.getProject().getFullPath());
+						indexManager.remove(Util.relativePath(file.getFullPath(), 1/*remove project segment*/), file.getProject().getFullPath());
 						break;
 				}
 		}

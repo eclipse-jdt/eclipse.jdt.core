@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
@@ -21,6 +22,7 @@ import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class LocalVariablePattern extends VariablePattern implements IIndexConstants {
 	
@@ -32,26 +34,29 @@ public LocalVariablePattern(boolean findDeclarations, boolean readAccess, boolea
 }
 public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor progressMonitor) {
     IPackageFragmentRoot root = (IPackageFragmentRoot)this.localVariable.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-	String path;
+	String documentPath;
+	String relativePath;
     if (root.isArchive()) {
         IType type = (IType)this.localVariable.getAncestor(IJavaElement.TYPE);
-        String filePath = (type.getFullyQualifiedName('/')).replace('.', '/') + SuffixConstants.SUFFIX_STRING_class;
-        path = root.getPath() + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + filePath;
+        relativePath = (type.getFullyQualifiedName('/')).replace('.', '/') + SuffixConstants.SUFFIX_STRING_class;
+        documentPath = root.getPath() + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + relativePath;
     } else {
-        path = this.localVariable.getPath().toString();
+		IPath path = this.localVariable.getPath();
+        documentPath = path.toString();
+		relativePath = Util.relativePath(path, 1/*remove project segment*/);
     }
 
 	if (scope instanceof JavaSearchScope) {
 		JavaSearchScope javaSearchScope = (JavaSearchScope) scope;
 		// Get document path access restriction from java search scope
 		// Note that requestor has to verify if needed whether the document violates the access restriction or not
-		AccessRuleSet access = javaSearchScope.getAccessRuleSet(path, index.containerPath);
+		AccessRuleSet access = javaSearchScope.getAccessRuleSet(relativePath, index.containerPath);
 		if (access != JavaSearchScope.NOT_ENCLOSED) { // scope encloses the path
-			if (!requestor.acceptIndexMatch(path, this, participant, access)) 
+			if (!requestor.acceptIndexMatch(documentPath, this, participant, access)) 
 				throw new OperationCanceledException();
 		}
-	} else if (scope.encloses(path)) {
-		if (!requestor.acceptIndexMatch(path, this, participant, null)) 
+	} else if (scope.encloses(documentPath)) {
+		if (!requestor.acceptIndexMatch(documentPath, this, participant, null)) 
 			throw new OperationCanceledException();
 	}
 }
