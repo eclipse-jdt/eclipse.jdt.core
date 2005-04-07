@@ -80,9 +80,7 @@ public void addIndexEntry(char[] category, char[] key, String containerRelativeP
 }
 public String containerRelativePath(String documentPath) {
 	int jarSeparator = documentPath.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
-	if (jarSeparator != -1)
-		return documentPath.substring(jarSeparator+1);
-	return documentPath.substring(this.containerPath.length()+1);
+	return documentPath.substring((jarSeparator == -1 ? this.containerPath.length() : jarSeparator) + 1);
 }
 public File getIndexFile() {
 	if (this.diskIndex == null) return null;
@@ -110,11 +108,11 @@ public EntryResult[] query(char[][] categories, char[] key, int matchRule) throw
 	int rule = matchRule & MATCH_RULE_INDEX_MASK;
 	if (this.memoryIndex.hasChanged()) {
 		results = this.diskIndex.addQueryResults(categories, key, rule, this.memoryIndex);
-		this.memoryIndex.addQueryResults(categories, key, rule, results);
+		results = this.memoryIndex.addQueryResults(categories, key, rule, results);
 	} else {
 		results = this.diskIndex.addQueryResults(categories, key, rule, null);
 	}
-	if (results.elementSize == 0) return null;
+	if (results == null) return null;
 
 	EntryResult[] entryResults = new EntryResult[results.elementSize];
 	int count = 0;

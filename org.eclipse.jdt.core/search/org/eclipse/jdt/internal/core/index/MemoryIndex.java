@@ -52,7 +52,7 @@ void addIndexEntry(char[] category, char[] key, String documentName) {
 
 	existingWords.add(this.allWords.add(key));
 }
-void addQueryResults(char[][] categories, char[] key, int matchRule, HashtableOfObject results) {
+HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule, HashtableOfObject results) {
 	// assumed the disk index already skipped over documents which have been added/changed/deleted
 	// results maps a word -> EntryResult
 	Object[] paths = this.docsToReferences.keyTable;
@@ -64,6 +64,8 @@ void addQueryResults(char[][] categories, char[] key, int matchRule, HashtableOf
 				for (int j = 0, m = categories.length; j < m; j++) {
 					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(categories[j]);
 					if (wordSet != null && wordSet.includes(key)) {
+						if (results == null)
+							results = new HashtableOfObject(13);
 						EntryResult result = (EntryResult) results.get(key);
 						if (result == null)
 							results.put(key, result = new EntryResult(key, null));
@@ -84,6 +86,8 @@ void addQueryResults(char[][] categories, char[] key, int matchRule, HashtableOf
 						for (int k = 0, n = words.length; k < n; k++) {
 							char[] word = words[k];
 							if (word != null && Index.isMatch(key, word, matchRule)) {
+								if (results == null)
+									results = new HashtableOfObject(13);
 								EntryResult result = (EntryResult) results.get(word);
 								if (result == null)
 									results.put(word, result = new EntryResult(word, null));
@@ -95,6 +99,7 @@ void addQueryResults(char[][] categories, char[] key, int matchRule, HashtableOf
 			}
 		}
 	}
+	return results;
 }
 boolean hasChanged() {
 	return this.docsToReferences.elementSize > 0;

@@ -112,8 +112,10 @@ SimpleSet addDocumentNames(String substring, MemoryIndex memoryIndex) throws IOE
 	}
 	return results;
 }
-private void addQueryResult(HashtableOfObject results, char[] word, HashtableOfObject wordsToDocNumbers, MemoryIndex memoryIndex) throws IOException {
+private HashtableOfObject addQueryResult(HashtableOfObject results, char[] word, HashtableOfObject wordsToDocNumbers, MemoryIndex memoryIndex) throws IOException {
 	// must skip over documents which have been added/changed/deleted in the memory index
+	if (results == null)
+		results = new HashtableOfObject(13);
 	EntryResult result = (EntryResult) results.get(word);
 	if (memoryIndex == null) {
 		if (result == null)
@@ -133,18 +135,18 @@ private void addQueryResult(HashtableOfObject results, char[] word, HashtableOfO
 		if (!result.isEmpty())
 			results.put(word, result);
 	}
+	return results;
 }
 HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule, MemoryIndex memoryIndex) throws IOException {
 	// assumes sender has called startQuery() & will call stopQuery() when finished
-	HashtableOfObject results = new HashtableOfObject(13);
-	if (this.categoryOffsets == null)
-		return results; // file is empty
+	if (this.categoryOffsets == null) return null; // file is empty
 
+	HashtableOfObject results = null; // initialized if needed
 	if (matchRule == SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE) {
 		for (int i = 0, l = categories.length; i < l; i++) {
 			HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
 			if (wordsToDocNumbers != null && wordsToDocNumbers.containsKey(key))
-				addQueryResult(results, key, wordsToDocNumbers, memoryIndex);
+				results = addQueryResult(results, key, wordsToDocNumbers, memoryIndex);
 		}
 	} else {
 		for (int i = 0, l = categories.length; i < l; i++) {
@@ -154,11 +156,13 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 				for (int j = 0, m = words.length; j < m; j++) {
 					char[] word = words[j];
 					if (word != null && Index.isMatch(key, word, matchRule))
-						addQueryResult(results, word, wordsToDocNumbers, memoryIndex);
+						results = addQueryResult(results, word, wordsToDocNumbers, memoryIndex);
 				}
 			}
 		}
 	}
+
+	if (results == null) return null;
 	return results;
 }
 private String[] computeDocumentNames(String[] onDiskNames, int[] positions, SimpleLookupTable indexedDocuments, MemoryIndex memoryIndex) {
@@ -477,7 +481,7 @@ private synchronized String[] readAllDocumentNames() throws IOException {
 	if (this.numberOfChunks <= 0)
 		return new String[0];
 
-	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
+	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 4096));
 	try {
 		stream.skip(this.chunkOffsets[0]);
 		int lastIndex = this.numberOfChunks - 1;
@@ -572,18 +576,19 @@ private int[] readDocumentArray(DataInputStream stream) throws IOException {
 	if (arraySize == 0x7FFF)
 		arraySize = stream.readInt();
 	int[] result = new int[arraySize];
-	for (int i = 0; i < arraySize; i++) {
-		switch (this.documentReferenceSize) {
-			case 1 :
+	switch (this.documentReferenceSize) {
+		case 1 :
+			for (int i = 0; i < arraySize; i++)
 				result[i] = stream.readUnsignedByte();
-				break;
-			case 2 :
+			break;
+		case 2 :
+			for (int i = 0; i < arraySize; i++)
 				result[i] = stream.readUnsignedShort();
-				break;
-			default :
+			break;
+		default :
+			for (int i = 0; i < arraySize; i++)
 				result[i] = stream.readInt();
-				break;
-		}
+			break;
 	}
 	return result;
 }
@@ -693,6 +698,7 @@ private void writeAllDocumentNames(String[] sortedDocNames, DataOutputStream str
 			while (current.charAt(--len1) == next.charAt(--len2)) {
 				end++;
 				if (len2 == start) break; // current is 'abbba', next is 'abba'
+				if (len1 == 0) break; // current is 'xabc', next is 'xyabc'
 			}
 			if (end > 255) end = 255;
 			stream.writeByte(start);
@@ -752,18 +758,19 @@ private void writeDocumentNumbers(int[] documentNumbers, DataOutputStream stream
 		stream.writeInt(length);
 	}
 	Util.sort(documentNumbers);
-	for (int i = 0; i < length; i++) {
-		switch (this.documentReferenceSize) {
-			case 1 :
+	switch (this.documentReferenceSize) {
+		case 1 :
+			for (int i = 0; i < length; i++)
 				stream.writeByte(documentNumbers[i]);
-				break;
-			case 2 :
+			break;
+		case 2 :
+			for (int i = 0; i < length; i++)
 				stream.writeShort(documentNumbers[i]);
-				break;
-			default :
+			break;
+		default :
+			for (int i = 0; i < length; i++)
 				stream.writeInt(documentNumbers[i]);
-				break;
-		}
+			break;
 	}
 }
 private void writeHeaderInfo(DataOutputStream stream) throws IOException {
