@@ -30,7 +30,6 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.dom.rewrite.Indents;
 import org.eclipse.jface.text.IDocument;
@@ -124,13 +123,9 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, IDocument document, IC
 private String removeIndentAndNewLines(String code, IDocument document, ICompilationUnit cu) {
 	IJavaProject project = cu.getJavaProject();
 	Map options = project.getOptions(true/*inherit JavaCore options*/);
-	int tabWidth;
-	try {
-		tabWidth = Integer.parseInt((String) options.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE));
-	} catch (NumberFormatException e) {
-		tabWidth = 4;
-	}
-	int indent = Indents.computeIndent(code, tabWidth);
+	int tabWidth = Indents.getTabWidth(options);
+	int indentWidth = Indents.getIndentWidth(options, tabWidth);
+	int indent = Indents.computeIndentUnits(code, tabWidth, indentWidth);
 	int firstNonWhiteSpace = -1;
 	int length = code.length();
 	while (firstNonWhiteSpace < length-1)
@@ -141,7 +136,7 @@ private String removeIndentAndNewLines(String code, IDocument document, ICompila
 		if (!Character.isWhitespace(code.charAt(--lastNonWhiteSpace)))
 			break;
 	String lineDelimiter = TextUtilities.getDefaultLineDelimiter(document);
-	return Indents.changeIndent(code.substring(firstNonWhiteSpace, lastNonWhiteSpace+1), indent, tabWidth, "", lineDelimiter); //$NON-NLS-1$
+	return Indents.changeIndent(code.substring(firstNonWhiteSpace, lastNonWhiteSpace+1), indent, tabWidth, indentWidth, "", lineDelimiter); //$NON-NLS-1$
 }
 /*
  * Renames the given node to the given name.
