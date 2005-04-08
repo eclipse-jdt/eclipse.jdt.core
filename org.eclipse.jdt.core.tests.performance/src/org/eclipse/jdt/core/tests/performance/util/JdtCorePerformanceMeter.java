@@ -59,7 +59,7 @@ public class JdtCorePerformanceMeter extends OSPerformanceMeter {
 	private void storeCpuTime(Sample sample) {
 		DataPoint[] dataPoints= sample.getDataPoints();
 		String name = getScenarioName();
-		System.out.println("Scenario '" + name.substring(name.lastIndexOf('.'), name.length()-2)+ "':"); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Scenario '" + name.substring(name.lastIndexOf('.')+1, name.length()-2)+ "':"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (dataPoints.length > 0) {
 			StatisticsSession s= new StatisticsSession(dataPoints);
 			Dim[] dimensions= dataPoints[0].getDimensions();

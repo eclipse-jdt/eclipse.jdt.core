@@ -53,13 +53,16 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
      * @see junit.framework.TestCase#tearDown()
      */
     protected void tearDown() throws Exception {
+
+		// End of execution => one test less
         TESTS_COUNT--;
 
         // Log perf result
         if (LOG_DIR != null) {
             logPerfResult(LOG_STREAMS, TESTS_COUNT);
         }
-
+		
+		// Call super at the end as it close print streams
         super.tearDown();
 	}
 
@@ -579,11 +582,11 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 * @deprecated To reduce deprecated warnings
 	 */
 	public void testPerfDomAstCreationJLS2() throws JavaModelException {
-		tagAsSummary("AST Creation", Dimension.CPU_TIME);
+		tagAsSummary("DOM>Creation>JLS2", Dimension.CPU_TIME, true/*put in fingerprint*/);
 		runAstCreation(AST.JLS2);
 	}
 	public void testPerfDomAstCreationJLS3() throws JavaModelException {
-		tagAsSummary("AST Creation using JLS3", Dimension.CPU_TIME);
+		tagAsSummary("DOM>Creation>JLS3", Dimension.CPU_TIME, true/*put in fingerprint*/);
 		runAstCreation(AST.JLS3);
 	}
 }

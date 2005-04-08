@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
+import java.io.PrintStream;
 import java.text.NumberFormat;
 import junit.framework.*;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
@@ -22,8 +24,14 @@ import org.eclipse.test.performance.Dimension;
  */
 public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
 	
-	static int[] COUNTERS = new int[4];
-	private static int COUNT = 0;
+    // Tests counter
+    private static int TESTS_COUNT = 0;
+//	private final static int ITERATIONS_COUNT = 10;
+
+    // Log files
+    private static PrintStream[] LOG_STREAMS = new PrintStream[4];
+
+	static int[] COUNTERS = new int[1];
 	
 	/**
 	 * @param name
@@ -33,12 +41,17 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	}
 
 //	static {
-//		TESTS_NAMES = new String[] { "testPerfSearchType" };
+//		TESTS_NAMES = new String[] { "testPerfAllTypes" };
 //	}
 	public static Test suite() {
-		Test suite = buildSuite(FullSourceWorkspaceTypeHierarchyTests.class);
-		COUNT = suite.countTestCases();
-		return suite;
+        Test suite = buildSuite(testClass());
+        TESTS_COUNT = suite.countTestCases();
+        createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, null);
+        return suite;
+    }
+
+    private static Class testClass() {
+        return FullSourceWorkspaceTypeHierarchyTests.class;
 	}
 
 	/* (non-Javadoc)
@@ -52,9 +65,17 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		super.tearDown();
-		COUNT--;
-		if (COUNT == 0) {
+
+		// End of execution => one test less
+		TESTS_COUNT--;
+
+		// Log perf result
+		if (LOG_DIR != null) {
+			logPerfResult(LOG_STREAMS, TESTS_COUNT);
+		}
+		
+		// Print statistics
+		if (TESTS_COUNT == 0) {
 			// Print statistics
 			System.out.println("-------------------------------------");
 			System.out.println("Type Hierarchy test statistics:");
@@ -62,6 +83,9 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 			System.out.println("  - "+intFormat.format(COUNTERS[0])+" all types found.");
 			System.out.println("-------------------------------------\n");
 		}
+		
+		// Call super at the end as it close print streams
+		super.tearDown();
 	}
 
 	/**
@@ -76,18 +100,29 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	
 	protected JavaSearchResultCollector resultCollector;
 
-	// Do NOT forget that tests must start with "testPerf"
 	public void testPerfAllTypes() throws CoreException {
-		tagAsSummary("Type Hierarchy all types", Dimension.CPU_TIME);
+		tagAsSummary("Type Hierarchy>All Types", Dimension.CPU_TIME, true/*put in fingerprint*/);
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.ast", "ASTNode.java");
 		assertNotNull("ASTNode not found!", unit);
-		startMeasuring();
-		ITypeHierarchy hierarchy = unit.getType("ASTNode").newTypeHierarchy(null);
-		IType[] types = hierarchy.getAllClasses();
-		stopMeasuring();
+
+		// warm-up
+		IType[] types = unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses();
+		int length = types.length;
+
+		// Loop of measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			startMeasuring();
+//			for (int j=0; j<ITERATIONS_COUNT; j++) {
+				assertEquals("Unexpected classes number in hierarchy!", length, unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses().length);
+//			}
+			stopMeasuring();
+		}
+		
+		// Commit measures
 		commitMeasurements();
 		assertPerformance();
-		// store counter
-		COUNTERS[0] = types.length;
+
+		// Store counter
+		COUNTERS[0] = length;
 	}
 }

@@ -17,9 +17,8 @@ import junit.framework.*;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.test.performance.Dimension;
 
@@ -28,14 +27,13 @@ import org.eclipse.test.performance.Dimension;
  */
 public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
 
-	// Tests counter
+	// Tests counters
 	private static int TESTS_COUNT = 0;
+	private final static int ITERATIONS_COUNT = 10;
 
 	// Search stats
 	private static int[] REFERENCES = new int[4];
-	private static IJavaSearchScope SEARCH_SCOPE;
 	private static int ALL_TYPES_NAMES = 0;
-	private static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
 
 	// Log file streams
 	private static PrintStream[] LOG_STREAMS = new PrintStream[4];
@@ -48,6 +46,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	}
 
 	static {
+//		org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = true;
 //		TESTS_NAMES = new String[] { "testPerfIndexing", "testPerfSearchAllTypeNames" };
 	}
 	/*
@@ -58,28 +57,9 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * then time for other tests may include time spent to index files!
 	 */
 	public static Test suite() {
-		
-		// Create suite
 		Test suite = buildSuite(testClass());
 		TESTS_COUNT = suite.countTestCases();
-	
-		// Add test to sjuite and disable indexing if subset of test does include indexing test
-		boolean indexing = false;
-		for (int i=0, size= TESTS_NAME_LIST.size(); i<size; i++) {
-			String testName = (String) TESTS_NAME_LIST.get(i);
-			if (testName.equals("testPerfIndexing")) {
-				indexing = true;
-			}
-		}
-		if (indexing) {
-			INDEX_MANAGER.disable();
-		}
-
-		// Init log
-		initLogDir();
-		createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, "Search");
-		
-		// Return created suite
+		createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, null);
 		return suite;
 	}
 
@@ -90,16 +70,15 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.resultCollector = new JavaSearchResultCollector();
-		if (SEARCH_SCOPE == null) {
-			SEARCH_SCOPE = SearchEngine.createJavaSearchScope(ALL_PROJECTS);
-		}
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
+
+		// End of execution => one test less
 		TESTS_COUNT--;
-		
+
 		// Log perf result
 		if (LOG_DIR != null) {
 			logPerfResult(LOG_STREAMS, TESTS_COUNT);
@@ -130,42 +109,15 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	}
 	/**
 	 * Simple type name requestor: only count classes and interfaces.
+	 * @deprecated
 	 */
-	class SearchTypeNameRequestor extends TypeNameRequestor {
+	class SearchTypeNameRequestor implements ITypeNameRequestor {
 		int count = 0;
-		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
+		public void acceptClass(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
 			this.count++;
 		}
-	}
-	/**
-	 * Simple Job which does nothing
-	 */
-	class	 DoNothing implements IJob {
-		/**
-		 * Answer true if the job belongs to a given family (tag)
-		 */
-		public boolean belongsTo(String jobFamily) {
-			return true;
-		}
-		/**
-		 * Asks this job to cancel its execution. The cancellation
-		 * can take an undertermined amount of time.
-		 */
-		public void cancel() {
-			// nothing to cancel
-		}
-		/**
-		 * Ensures that this job is ready to run.
-		 */
-		public void ensureReadyToRun() {
-			// always ready to do nothing
-		}
-		/**
-		 * Execute the current job, answer whether it was successful.
-		 */
-		public boolean execute(IProgressMonitor progress) {
-			// always succeed to do nothing
-			return true;
+		public void acceptInterface(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path){
+			this.count++;
 		}
 	}
 	/**
@@ -214,34 +166,61 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			SEARCH_SCOPE,
+			SearchEngine.createWorkspaceScope(),
 			requestor,
 			null);
 	}
 
 	// Do NOT forget that tests must start with "testPerf"
 
+	/**
+	 * Performance tests for search: Indexing.
+	 * 
+	 * First wait that already started indexing jobs end before perform test.
+	 * Consider this initial indexing jobs as warm-up for this test.
+	 */
 	public void testPerfIndexing() throws CoreException {
-		tagAsSummary("Indexing", Dimension.CPU_TIME);
-		INDEX_MANAGER.discardJobs(null); // discard all previous index jobs
-		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+		tagAsSummary("Search>Indexing", Dimension.CPU_TIME, true/*put in fingerprint*/);
+//		INDEX_MANAGER.discardJobs(null); // discard all previous index jobs
+		// Wait for indexing end (we use initial indexing as warm-up)
+		waitUntilIndexesReady();
+//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+		
+		// Remove all previous indexing
+		INDEX_MANAGER.removeIndexFamily(new Path(""));
+		INDEX_MANAGER.reset();
+		
+		// Restart brand new indexing
 		INDEX_MANAGER.request(new Measuring(true/*start measuring*/));
 		for (int i=0, length=ALL_PROJECTS.length; i<length; i++) {
 			INDEX_MANAGER.indexAll(ALL_PROJECTS[i].getProject());
 		}
-		INDEX_MANAGER.enable();
-		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+//		INDEX_MANAGER.enable();
+		
+		// Wait for indexing end
+		waitUntilIndexesReady();
+//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+		
+		// Commit measures
 		INDEX_MANAGER.request(new Measuring(false /*end measuring*/));
-		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+		waitUntilIndexesReady();
+//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
 	}
-
-	/*
-	 * Performance tests for search.
+	
+	/**
+	 * Old version no longer used as scope is now a Workspace scope
+	 * instead of all projects scope.
+	 * 
+	 * CAUTION: This test result is no longer put in performance fingerprint as its scope
+	 * did not match common usage of search all type names functionality.
+	 * @deprecated
 	 */
 	public void testPerfSearchAllTypeNames() throws CoreException {
-		tagAsSummary("Search All Type Names", Dimension.CPU_TIME);
+		// Do no longer print results for this test
+		tagAsSummary("Search>Names>All Projects", Dimension.CPU_TIME, false/*do NOT put in fingerprint*/);
 		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 		startMeasuring();
 		new SearchEngine().searchAllTypeNames(
@@ -249,7 +228,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			null,
 			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 			IJavaSearchConstants.TYPE,
-			SEARCH_SCOPE, 
+			SearchEngine.createJavaSearchScope(ALL_PROJECTS), 
 			requestor,
 			WAIT_UNTIL_READY_TO_SEARCH,
 			null);
@@ -259,63 +238,199 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		// store counter
 		ALL_TYPES_NAMES = requestor.count;
 	}
-	public void testPerfSearchType() throws CoreException {
-		tagAsSummary("Search Type all occurences", Dimension.CPU_TIME);
-		startMeasuring();
-		search(
-//			"String",  > 65000 macthes: needs -Xmx512M
-//			"Object", 13497 matches: needs -Xmx128M
-//			"IResource", 5886 macthes: fails needs ?
-			"JavaCore", // 2145 m	atches
-			TYPE,
-			ALL_OCCURRENCES, 
-			this.resultCollector);
-		stopMeasuring();
+
+	/**
+	 * Performance tests for search: Declarations Types Names.
+	 * 
+	 * First wait that already started indexing jobs end before perform test.
+	 * Perform one search before measure performance for warm-up.
+	 * 
+	 * @deprecated
+	 */
+	public void testPerfSearchWkspAllTypeNames() throws CoreException {
+		tagAsSummary("Search>Names>Workspace", Dimension.CPU_TIME, true/*put in fingerprint*/);
+		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
+
+		// Wait for indexing end
+		waitUntilIndexesReady();
+//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+
+		// warmup
+		new SearchEngine().searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+			IJavaSearchConstants.TYPE,
+			SearchEngine.createWorkspaceScope(), 
+			requestor,
+			WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+
+		// Loop of measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			startMeasuring();
+			for (int j=0; j<ITERATIONS_COUNT; j++) {
+				new SearchEngine().searchAllTypeNames(
+					null,
+					null,
+					SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+					IJavaSearchConstants.TYPE,
+					SearchEngine.createWorkspaceScope(), 
+					requestor,
+					WAIT_UNTIL_READY_TO_SEARCH,
+					null);
+			}
+			stopMeasuring();
+		}
+		
+		// Commit
 		commitMeasurements();
 		assertPerformance();
-		// store counter
+
+		// Store counter
+		ALL_TYPES_NAMES = requestor.count;
+	}
+
+	/**
+	 * Performance tests for search: Occurence Types.
+	 * 
+	 * First wait that already started indexing jobs end before perform test.
+	 * Perform one search before measure performance for warm-up.
+	 * 
+	 * Note that following search have been tested:
+	 *		- "String":				> 65000 macthes (CAUTION: needs -Xmx512M)
+	 *		- "Object":			13497 matches
+	 *		- ""IResource":	5886 macthes
+	 *		- "JavaCore":		2145 matches
+	 */
+	public void testPerfSearchType() throws CoreException {
+		tagAsSummary("Search>Occurences>Types", Dimension.CPU_TIME, true/*put in fingerprint*/);
+
+		// Wait for indexing end
+		waitUntilIndexesReady();
+//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+
+		// warm-up
+		search("JavaCore", TYPE, ALL_OCCURRENCES, this.resultCollector);
+
+		// Loop of measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			startMeasuring();
+//			for (int j=0; j<ITERATIONS_COUNT; j++) {
+				search("JavaCore", TYPE, ALL_OCCURRENCES, this.resultCollector);
+//			}
+			stopMeasuring();
+		}
+		
+		// Commit measures
+		commitMeasurements();
+		assertPerformance();
+
+		// Store counter
 		REFERENCES[0] = this.resultCollector.count;
 	}
+
+	/**
+	 * Performance tests for search: Declarations Types Names.
+	 * 
+	 * First wait that already started indexing jobs end before perform test.
+	 * Perform one search before measure performance for warm-up.
+	 */
 	public void testPerfSearchField() throws CoreException {
-		tagAsSummary("Search Field all occurences", Dimension.CPU_TIME);
-		startMeasuring();
-		search(
-			"FILE", 
-			FIELD,
-			ALL_OCCURRENCES, 
-			this.resultCollector);
-		stopMeasuring();
+		tagAsSummary("Search>Occurences>Fields", Dimension.CPU_TIME, true/*put in fingerprint*/);
+
+		// Wait for indexing end
+		waitUntilIndexesReady();
+//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+
+		// warm-up
+		search("FILE", FIELD, ALL_OCCURRENCES, this.resultCollector);
+
+		// Loop of measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			startMeasuring();
+//			for (int j=0; j<ITERATIONS_COUNT; j++) {
+				search("FILE", FIELD, ALL_OCCURRENCES, this.resultCollector);
+//			}
+			stopMeasuring();
+		}
+		
+		// Commit measures
 		commitMeasurements();
 		assertPerformance();
-		// store counter
+
+		// Store counter
 		REFERENCES[1] = this.resultCollector.count;
 	}
+
+	/**
+	 * Performance tests for search: Declarations Types Names.
+	 * 
+	 * First wait that already started indexing jobs end before perform test.
+	 * Perform one search before measure performance for warm-up.
+	 */
 	public void testPerfSearchMethod() throws CoreException {
-		tagAsSummary("Search Method all occurences", Dimension.CPU_TIME);
-		startMeasuring();
-		search(
-			"equals", 
-			METHOD,
-			ALL_OCCURRENCES, 
-			this.resultCollector);
-		stopMeasuring();
+		tagAsSummary("Search>Occurences>Methods", Dimension.CPU_TIME, true/*put in fingerprint*/);
+
+		// Wait for indexing end
+		waitUntilIndexesReady();
+//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+
+		// warm-up
+		search("equals", METHOD, ALL_OCCURRENCES, this.resultCollector);
+
+		// Loop of measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			startMeasuring();
+//			for (int j=0; j<ITERATIONS_COUNT; j++) {
+				search("equals", METHOD, ALL_OCCURRENCES, this.resultCollector);
+//			}
+			stopMeasuring();
+		}
+		
+		// Commit measures
 		commitMeasurements();
 		assertPerformance();
-		// store counter
+
+		// Store counter
 		REFERENCES[2] = this.resultCollector.count;
 	}
+
+	/**
+	 * Performance tests for search: Declarations Types Names.
+	 * 
+	 * First wait that already started indexing jobs end before perform test.
+	 * Perform one search before measure performance for warm-up.
+	 */
 	public void testPerfSearchConstructor() throws CoreException {
-		tagAsSummary("Search Constructor all occurences", Dimension.CPU_TIME);
-		startMeasuring();
-		search(
-			"String", 
-			CONSTRUCTOR,
-			ALL_OCCURRENCES, 
-			this.resultCollector);
-		stopMeasuring();
+		tagAsSummary("Search>Occurences>Constructors", Dimension.CPU_TIME, true/*put in fingerprint*/);
+
+		// Wait for indexing end
+		waitUntilIndexesReady();
+//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+
+		// warm-up
+		search("String", CONSTRUCTOR, ALL_OCCURRENCES, this.resultCollector);
+
+		// Loop of measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			startMeasuring();
+//			for (int j=0; j<ITERATIONS_COUNT; j++) {
+				search("String", CONSTRUCTOR, ALL_OCCURRENCES, this.resultCollector);
+//			}
+			stopMeasuring();
+		}
+		
+		// Commit measures
 		commitMeasurements();
 		assertPerformance();
-		// store counter
+
+		// Store counter
 		REFERENCES[3] = this.resultCollector.count;
 	}
 }
