@@ -180,8 +180,10 @@ public class CompilationUnitProblemFinder extends Compiler {
 					true); // generate code
 			}
 			reportProblems(unit, problemRequestor, monitor);
-			if (NameLookup.VERBOSE)
+			if (NameLookup.VERBOSE) {
 				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInSourcePackage: " + environment.nameLookup.timeSpentInSeekTypesInSourcePackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+				System.out.println(Thread.currentThread() + " TIME SPENT in NameLoopkup#seekTypesInBinaryPackage: " + environment.nameLookup.timeSpentInSeekTypesInBinaryPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			return unit;
 		} catch (OperationCanceledException e) {
 			throw e;

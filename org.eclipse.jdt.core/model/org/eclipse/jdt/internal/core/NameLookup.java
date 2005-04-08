@@ -120,6 +120,7 @@ public class NameLookup implements SuffixConstants {
 	protected HashMap unitsToLookInside;
 	
 	public long timeSpentInSeekTypesInSourcePackage = 0;
+	public long timeSpentInSeekTypesInBinaryPackage = 0;
 
 	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies, Map rootToResolvedEntries) {
 		if (VERBOSE) {
@@ -769,46 +770,54 @@ public class NameLookup implements SuffixConstants {
 	 * Performs type search in a binary package.
 	 */
 	protected void seekTypesInBinaryPackage(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
-		IClassFile[] classFiles= null;
+		long start = -1;
+		if (VERBOSE)
+			start = System.currentTimeMillis();
 		try {
-			classFiles= pkg.getClassFiles();
-		} catch (JavaModelException npe) {
-			return; // the package is not present
-		}
-		int length= classFiles.length;
-
-		String unqualifiedName= name;
-		int index= name.lastIndexOf('$');
-		if (index != -1) {
-			//the type name of the inner type
-			unqualifiedName= Util.localTypeName(name, index, name.length());
-			// unqualifiedName is empty if the name ends with a '$' sign.
-			// See http://dev.eclipse.org/bugs/show_bug.cgi?id=14642
-		}
-		String matchName= partialMatch ? name.toLowerCase() : name;
-		for (int i= 0; i < length; i++) {
-			if (requestor.isCanceled())
-				return;
-			IClassFile classFile= classFiles[i];
-			String elementName = classFile.getElementName();
-			if (partialMatch) elementName = elementName.toLowerCase();
-
-			/**
-			 * Must use startWith because matchName will never have the 
-			 * extension ".class" and the elementName always will.
-			 */
-			if (elementName.startsWith(matchName)) {
-				IType type= null;
-				try {
-					type= classFile.getType();
-				} catch (JavaModelException npe) {
-					continue; // the classFile is not present
-				}
-				if (!partialMatch || (type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
-					if (nameMatches(unqualifiedName, type, partialMatch) && acceptType(type, acceptFlags, false/*not a source type*/))
-						requestor.acceptType(type);
+			IClassFile[] classFiles= null;
+			try {
+				classFiles= pkg.getClassFiles();
+			} catch (JavaModelException npe) {
+				return; // the package is not present
+			}
+			int length= classFiles.length;
+	
+			String unqualifiedName= name;
+			int index= name.lastIndexOf('$');
+			if (index != -1) {
+				//the type name of the inner type
+				unqualifiedName= Util.localTypeName(name, index, name.length());
+				// unqualifiedName is empty if the name ends with a '$' sign.
+				// See http://dev.eclipse.org/bugs/show_bug.cgi?id=14642
+			}
+			String matchName= partialMatch ? name.toLowerCase() : name;
+			for (int i= 0; i < length; i++) {
+				if (requestor.isCanceled())
+					return;
+				IClassFile classFile= classFiles[i];
+				String elementName = classFile.getElementName();
+				if (partialMatch) elementName = elementName.toLowerCase();
+	
+				/**
+				 * Must use startWith because matchName will never have the 
+				 * extension ".class" and the elementName always will.
+				 */
+				if (elementName.startsWith(matchName)) {
+					IType type= null;
+					try {
+						type= classFile.getType();
+					} catch (JavaModelException npe) {
+						continue; // the classFile is not present
+					}
+					if (!partialMatch || (type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
+						if (nameMatches(unqualifiedName, type, partialMatch) && acceptType(type, acceptFlags, false/*not a source type*/))
+							requestor.acceptType(type);
+					}
 				}
 			}
+		} finally {
+			if (VERBOSE)
+				this.timeSpentInSeekTypesInBinaryPackage += System.currentTimeMillis()-start;
 		}
 	}
 
