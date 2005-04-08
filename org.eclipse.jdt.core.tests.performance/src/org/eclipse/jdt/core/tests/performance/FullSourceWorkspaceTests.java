@@ -71,7 +71,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected final static String[] LOG_TYPES = { "count", "average", "sum", "stddev" };
 	// Main version which is logged
 	// TODO (frederic) see whether this could be computed automatically
-	private final static String LOG_VERSION = "_v31_";
+	private final static String LOG_VERSION = "_v30_";
 	String scenario;
 
 	/**
