@@ -130,11 +130,14 @@ public void test005() {
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 2]\n" + 
 		"        [pc: 7, line: 1]\n";
-		
-	if (actualOutput.indexOf(expectedOutput) == -1) {
-		System.out.println(Util.displayString(actualOutput, 2));
+
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 3));
 	}
-	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	if (index == -1) {
+		assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
+	}
 }
 /**
  * http://dev.eclipse.org/bugs/show_bug.cgi?id=80597

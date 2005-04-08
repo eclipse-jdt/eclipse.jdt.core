@@ -2769,7 +2769,6 @@ public class ClassFileReaderTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}";
 		String expectedOutput =
-			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"public class X extends java.lang.Object {\n" + 
 			"  Constant pool:\n" + 
 			"    constant #1 utf8: X\n" + 
