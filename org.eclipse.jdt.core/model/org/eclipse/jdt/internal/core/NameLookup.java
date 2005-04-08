@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -324,7 +325,7 @@ public class NameLookup implements SuffixConstants {
 	 */
 	public IPackageFragment findPackageFragment(IPath path) {
 		if (!path.isAbsolute()) {
-			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.path_mustBeAbsolute); 
 		}
 /*
  * TODO (jerome) this code should rather use the package fragment map to find the candidate package, then

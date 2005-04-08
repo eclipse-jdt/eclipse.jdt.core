@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 /**
  * DOMMethod provides an implementation of IDOMMethod.
@@ -245,7 +245,7 @@ DOMMethod(char[] document, int[] sourceRange, String name, int[] nameRange, int 
  */
 public void addException(String name) throws IllegalArgumentException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullExceptionType")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.dom_nullExceptionType); 
 	}
 	if (fExceptions == null) {
 		fExceptions= new String[1];
@@ -260,10 +260,10 @@ public void addException(String name) throws IllegalArgumentException {
  */
 public void addParameter(String type, String name) throws IllegalArgumentException {
 	if (type == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullTypeParameter")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.dom_nullTypeParameter); 
 	}
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullNameParameter")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.dom_nullNameParameter); 
 	}
 	if (fParameterNames == null) {
 		fParameterNames= new String[1];
@@ -440,7 +440,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 		}
 		return ((IType)parent).getMethod(name, sigs);
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.element_illegalParent); 
 	}
 }
 /**
@@ -641,7 +641,7 @@ public void setExceptions(String[] names) {
  */
 public void setName(String name) {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.element_nullName); 
 	} else {
 		super.setName(name);
 	}
@@ -657,10 +657,10 @@ public void setParameters(String[] types, String[] names) throws IllegalArgument
 			fParameterNames= null;
 			fParameterList= new char[] {'(',')'};
 		} else {
-			throw new IllegalArgumentException(Util.bind("dom.mismatchArgNamesAndTypes")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.dom_mismatchArgNamesAndTypes); 
 		}
 	} else if (names.length != types.length) {
-		throw new IllegalArgumentException(Util.bind("dom.mismatchArgNamesAndTypes")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.dom_mismatchArgNamesAndTypes); 
 	} else if (names.length == 0) {
 		setParameters(null, null);
 	} else {
@@ -688,7 +688,7 @@ public void setParameters(String[] types, String[] names) throws IllegalArgument
  */
 public void setReturnType(String name) throws IllegalArgumentException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("dom.nullReturnType")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.dom_nullReturnType); 
 	}
 	becomeDetailed();
 	fragment();

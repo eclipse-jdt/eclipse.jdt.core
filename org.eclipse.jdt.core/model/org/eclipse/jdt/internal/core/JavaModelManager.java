@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.osgi.service.prefs.BackingStoreException;
 import org.w3c.dom.Element;
@@ -913,7 +914,7 @@ public class JavaModelManager implements ISaveParticipant {
 			info.triedRead = true;
 			try {
 				if (monitor != null)
-					monitor.subTask(Util.bind("build.readStateProgress", project.getName())); //$NON-NLS-1$
+					monitor.subTask(Messages.bind(Messages.build_readStateProgress, project.getName())); 
 				info.savedState = readState(project);
 			} catch (CoreException e) {
 				e.printStackTrace();
@@ -1153,7 +1154,7 @@ public class JavaModelManager implements ISaveParticipant {
 			// internal resource
 			IPath location;
 			if (file.getType() != IResource.FILE || (location = file.getLocation()) == null) {
-				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound", path.toString()), null)); //$NON-NLS-1$
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null)); 
 			}
 			fileSystemPath= location.toOSString();
 		} else {
@@ -1171,7 +1172,7 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			return zipFile;
 		} catch (IOException e) {
-			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("status.IOException"), e)); //$NON-NLS-1$
+			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, e)); 
 		}
 	}
 	
@@ -1542,10 +1543,10 @@ public class JavaModelManager implements ISaveParticipant {
 				try {
 					String pluginID= in.readUTF();
 					if (!pluginID.equals(JavaCore.PLUGIN_ID))
-						throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
+						throw new IOException(Messages.build_wrongFileFormat); 
 					String kind= in.readUTF();
 					if (!kind.equals("STATE")) //$NON-NLS-1$
-						throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
+						throw new IOException(Messages.build_wrongFileFormat); 
 					if (in.readBoolean())
 						return JavaBuilder.readState(project, in);
 					if (JavaBuilder.DEBUG)
@@ -1723,7 +1724,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	private void saveBuiltState(PerProjectInfo info) throws CoreException {
 		if (JavaBuilder.DEBUG)
-			System.out.println(Util.bind("build.saveStateProgress", info.project.getName())); //$NON-NLS-1$
+			System.out.println(Messages.bind(Messages.build_saveStateProgress, info.project.getName())); 
 		File file = getSerializationFile(info.project);
 		if (file == null) return;
 		long t = System.currentTimeMillis();
@@ -1749,7 +1750,7 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			throw new CoreException(
 				new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR,
-					Util.bind("build.cannotSaveState", info.project.getName()), e)); //$NON-NLS-1$
+					Messages.bind(Messages.build_cannotSaveState, info.project.getName()), e)); 
 		} catch (IOException e) {
 			try {
 				file.delete();
@@ -1758,11 +1759,11 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			throw new CoreException(
 				new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR,
-					Util.bind("build.cannotSaveState", info.project.getName()), e)); //$NON-NLS-1$
+					Messages.bind(Messages.build_cannotSaveState, info.project.getName()), e)); 
 		}
 		if (JavaBuilder.DEBUG) {
 			t = System.currentTimeMillis() - t;
-			System.out.println(Util.bind("build.saveStateComplete", String.valueOf(t))); //$NON-NLS-1$
+			System.out.println(Messages.bind(Messages.build_saveStateComplete, String.valueOf(t))); 
 		}
 	}
 
@@ -1839,7 +1840,7 @@ public class JavaModelManager implements ISaveParticipant {
 		if (vStats != null) {
 			IStatus[] stats= new IStatus[vStats.size()];
 			vStats.toArray(stats);
-			throw new CoreException(new MultiStatus(JavaCore.PLUGIN_ID, IStatus.ERROR, stats, Util.bind("build.cannotSaveStates"), null)); //$NON-NLS-1$
+			throw new CoreException(new MultiStatus(JavaCore.PLUGIN_ID, IStatus.ERROR, stats, Messages.build_cannotSaveStates, null)); 
 		}
 	}
 

@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jface.text.IDocument;
 
 /**
@@ -65,7 +65,7 @@ protected IJavaElement generateResultHandle() {
  * @see CreateElementInCUOperation#getMainTaskName()
  */
 public String getMainTaskName(){
-	return Util.bind("operation.createTypeProgress"); //$NON-NLS-1$
+	return Messages.operation_createTypeProgress; 
 }
 /**
  * Returns the <code>IType</code> the member is to be created in.
@@ -88,7 +88,7 @@ protected IJavaModelStatus verifyNameCollision() {
 			if (((ICompilationUnit) parent).getType(typeName).exists()) {
 				return new JavaModelStatus(
 					IJavaModelStatusConstants.NAME_COLLISION, 
-					Util.bind("status.nameCollision", typeName)); //$NON-NLS-1$
+					Messages.bind(Messages.status_nameCollision, typeName)); 
 			}
 			break;
 		case IJavaElement.TYPE:
@@ -96,7 +96,7 @@ protected IJavaModelStatus verifyNameCollision() {
 			if (((IType) parent).getType(typeName).exists()) {
 				return new JavaModelStatus(
 					IJavaModelStatusConstants.NAME_COLLISION, 
-					Util.bind("status.nameCollision", typeName)); //$NON-NLS-1$
+					Messages.bind(Messages.status_nameCollision, typeName)); 
 			}
 			break;
 		// Note: creating local/anonymous type is not supported 

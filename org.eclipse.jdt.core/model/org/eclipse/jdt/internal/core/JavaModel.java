@@ -31,7 +31,7 @@ import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * Implementation of <code>IJavaModel<code>. The Java Model maintains a cache of
@@ -212,7 +212,7 @@ public IJavaProject getJavaProject(IResource resource) {
 		case IResource.PROJECT:
 			return new JavaProject((IProject)resource, this);
 		default:
-			throw new IllegalArgumentException(Util.bind("element.invalidResourceForProject")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.element_invalidResourceForProject); 
 	}
 }
 /**

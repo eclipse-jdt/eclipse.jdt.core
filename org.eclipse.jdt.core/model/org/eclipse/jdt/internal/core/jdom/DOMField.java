@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 /**
  * DOMField provides an implementation of IDOMField.
@@ -237,7 +237,7 @@ protected void becomeDetailed() throws DOMException {
 			DOMBuilder builder = new DOMBuilder();
 			IDOMField[] details= builder.createFields(source.toCharArray());
 			if (details.length == 0) {
-				throw new DOMException(Util.bind("dom.cannotDetail")); //$NON-NLS-1$
+				throw new DOMException(Messages.dom_cannotDetail); 
 			} else {
 				node= this;
 				for (int i= 0; i < details.length; i++) {
@@ -324,7 +324,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	if (parent.getElementType() == IJavaElement.TYPE) {
 		return ((IType)parent).getField(getName());
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.element_illegalParent); 
 	}
 }
 /**
@@ -574,7 +574,7 @@ protected void setIsVariableDeclarator(boolean isVariableDeclarator) {
  */
 public void setName(String name) throws IllegalArgumentException {
 	if (name == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.element_nullName); 
 	} else {
 		super.setName(name);
 		setTypeAltered(true);
@@ -585,7 +585,7 @@ public void setName(String name) throws IllegalArgumentException {
  */
 public void setType(String typeName) throws IllegalArgumentException {
 	if (typeName == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullType")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.element_nullType); 
 	}
 	becomeDetailed();
 	expand();

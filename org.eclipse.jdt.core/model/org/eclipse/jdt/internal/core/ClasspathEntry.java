@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -617,7 +618,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						false, // no accessible files to combine
 						NO_EXTRA_ATTRIBUTES);
 			default :
-				throw new Assert.AssertionFailedException(Util.bind("classpath.unknownKind", kindAttr)); //$NON-NLS-1$
+				throw new Assert.AssertionFailedException(Messages.bind(Messages.classpath_unknownKind, kindAttr)); 
 		}
 		return entry;
 	}
@@ -778,7 +779,9 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 	private String getMessageTemplate() {
 		if (this.entryKind == CPE_PROJECT || this.entryKind == CPE_SOURCE) { // can be remote source entry when reconciling
-			return org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.project", "{0}", getPath().segment(0)); //$NON-NLS-1$//$NON-NLS-2$
+			return Messages.bind(
+				org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_project,
+				new String[] {"{0}", getPath().segment(0)});  //$NON-NLS-1$
 		} else {
 			IPath libPath = getPath();
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), libPath, false);
@@ -787,7 +790,9 @@ public class ClasspathEntry implements IClasspathEntry {
 				pathString = libPath.toOSString();
 			else
 				pathString = libPath.makeRelative().toString();
-			return org.eclipse.jdt.internal.core.util.Util.bind("restrictedAccess.library", "{0}", pathString); //$NON-NLS-1$//$NON-NLS-2$
+			return Messages.bind(
+				org.eclipse.jdt.internal.core.util.Messages.restrictedAccess_library,
+				new String[] {"{0}", pathString}); //$NON-NLS-1$ 
 		}
 	}
 
@@ -1162,7 +1167,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					// output before complaining
 					if (potentialNestedOutput == null) potentialNestedOutput = customOutput;
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInOutput", customOutput.makeRelative().toString(), outputLocations[index].makeRelative().toString())); //$NON-NLS-1$
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestOutputInOutput, new String[] {customOutput.makeRelative().toString(), outputLocations[index].makeRelative().toString()})); 
 				}
 			}
 		}	
@@ -1170,7 +1175,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (sourceEntryCount <= outputCount-1) {
 		    allowNestingInOutputLocations[0] = true;
 		} else if (potentialNestedOutput != null) {
-			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInOutput", potentialNestedOutput.makeRelative().toString(), outputLocations[0].makeRelative().toString())); //$NON-NLS-1$
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestOutputInOutput, new String[] {potentialNestedOutput.makeRelative().toString(), outputLocations[0].makeRelative().toString()})); 
 		}
 
 		for (int i = 0 ; i < length; i++) {
@@ -1213,13 +1218,13 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 			// complain if duplicate path
 			if (!pathes.add(entryPath)){
-				return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Util.bind("classpath.duplicateEntryPath", entryPathMsg, projectName)); //$NON-NLS-1$
+				return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Messages.bind(Messages.classpath_duplicateEntryPath, new String[] {entryPathMsg, projectName})); 
 			}
 			// no further check if entry coincidates with project or output location
 			if (entryPath.equals(projectPath)){
 				// complain if self-referring project entry
 				if (kind == IClasspathEntry.CPE_PROJECT){
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, Util.bind("classpath.cannotReferToItself", entryPath.makeRelative().toString()));//$NON-NLS-1$
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, Messages.bind(Messages.classpath_cannotReferToItself, new String[] {entryPath.makeRelative().toString()}));
 				}
 				// tolerate nesting output in src if src==prj
 				continue;
@@ -1243,13 +1248,13 @@ public class ClasspathEntry implements IClasspathEntry {
 								&& !Util.isExcluded(entryPath.append("*"), inclusionPatterns = ((ClasspathEntry)otherEntry).fullInclusionPatternChars(), exclusionPatterns = ((ClasspathEntry)otherEntry).fullExclusionPatternChars(), false)) { //$NON-NLS-1$
 							String exclusionPattern = entryPath.removeFirstSegments(otherPath.segmentCount()).segment(0);
 							if (Util.isExcluded(entryPath, inclusionPatterns, exclusionPatterns, false)) {
-								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.mustEndWithSlash", exclusionPattern, entryPath.makeRelative().toString())); //$NON-NLS-1$
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_mustEndWithSlash, new String[] {exclusionPattern, entryPath.makeRelative().toString()})); 
 							} else {
 								if (otherKind == IClasspathEntry.CPE_SOURCE) {
 									exclusionPattern += '/';
-									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInEntry", new String[] {entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString(), exclusionPattern})); //$NON-NLS-1$
+									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestEntryInEntry, new String[] {entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString(), exclusionPattern})); 
 								} else {
-									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInLibrary", entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString())); //$NON-NLS-1$
+									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestEntryInLibrary, new String[] {entryPath.makeRelative().toString(), otherEntry.getPath().makeRelative().toString()})); 
 								}
 							}
 						}
@@ -1265,7 +1270,7 @@ public class ClasspathEntry implements IClasspathEntry {
     			if (entryPath.equals(currentOutput)) continue;
 				if (entryPath.isPrefixOf(currentOutput)) {
 				    if (kind != IClasspathEntry.CPE_SOURCE || !Util.isExcluded(currentOutput, inclusionPatterns, exclusionPatterns, true)) {
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestOutputInEntry", currentOutput.makeRelative().toString(), entryPath.makeRelative().toString())); //$NON-NLS-1$
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestOutputInEntry, new String[] {currentOutput.makeRelative().toString(), entryPath.makeRelative().toString()})); 
 				    }
 				}
 		    }
@@ -1275,7 +1280,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		        if (allowNestingInOutputLocations[j]) continue;
 		        IPath currentOutput = outputLocations[j];
 				if (currentOutput.isPrefixOf(entryPath)) {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotNestEntryInOutput", entryPath.makeRelative().toString(), currentOutput.makeRelative().toString())); //$NON-NLS-1$
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotNestEntryInOutput, new String[] {entryPath.makeRelative().toString(), currentOutput.makeRelative().toString()})); 
 				}
 		    }			
 		}
@@ -1309,12 +1314,12 @@ public class ClasspathEntry implements IClasspathEntry {
 					switch (otherEntry.getEntryKind()) {
 						case IClasspathEntry.CPE_SOURCE :
 							if (otherEntry.getPath().equals(output)) {
-								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotUseDistinctSourceFolderAsOutput", new String[] {entryPathMsg, otherPathMsg, projectName})); //$NON-NLS-1$
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotUseDistinctSourceFolderAsOutput, new String[] {entryPathMsg, otherPathMsg, projectName})); 
 							}
 							break;
 						case IClasspathEntry.CPE_LIBRARY :
 							if (otherEntry.getPath().equals(output)) {
-								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.cannotUseLibraryAsOutput", new String[] {entryPathMsg, otherPathMsg, projectName})); //$NON-NLS-1$
+								return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_cannotUseLibraryAsOutput, new String[] {entryPathMsg, otherPathMsg, projectName})); 
 							}
 					}
 				}
@@ -1383,7 +1388,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						return new JavaModelStatus(e);
 					}
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalContainerPath", entryPathMsg, projectName));					 //$NON-NLS-1$
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalContainerPath, new String[] {entryPathMsg, projectName}));					 
 				}
 				break;
 				
@@ -1402,7 +1407,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					}
 					return validateClasspathEntry(project, entry, checkSourceAttachment, recurseInContainers);
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalVariablePath", entryPathMsg, projectName));					 //$NON-NLS-1$
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalVariablePath, new String[] {entryPathMsg, projectName}));					 
 				}
 	
 			// library entry check
@@ -1426,10 +1431,10 @@ public class ClasspathEntry implements IClasspathEntry {
 										&& sourceAttachment != null
 										&& !sourceAttachment.isEmpty()
 										&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", new String [] {sourceAttachment.toString(), path.toString(), projectName})); //$NON-NLS-1$
+										return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), projectName})); 
 									}
 								} else {
-									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalLibraryArchive", entryPathMsg, projectName)); //$NON-NLS-1$
+									return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalLibraryArchive, new String[] {entryPathMsg, projectName})); 
 								}
 								break;
 							case IResource.FOLDER :	// internal binary folder
@@ -1437,31 +1442,31 @@ public class ClasspathEntry implements IClasspathEntry {
 									&& sourceAttachment != null 
 									&& !sourceAttachment.isEmpty()
 									&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-									return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", new String [] {sourceAttachment.toString(), path.toString(), projectName})); //$NON-NLS-1$
+									return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toString(), projectName})); 
 								}
 						}
 					} else if (target instanceof File){
 					    File file = (File) target;
 					    if (!file.isFile()) {
-							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalExternalFolder", path.toOSString(), projectName)); //$NON-NLS-1$
+							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolder, new String[] {path.toOSString(), projectName})); 
 					    } else if (!org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())) {
-							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalLibraryArchive", path.toOSString(), projectName)); //$NON-NLS-1$
+							return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalLibraryArchive, (new String[] {path.toOSString(), projectName}))); 
 					    } else if (checkSourceAttachment 
 								&& sourceAttachment != null 
 								&& !sourceAttachment.isEmpty()
 								&& JavaModel.getTarget(workspaceRoot, sourceAttachment, true) == null){
-								return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceAttachment", new String [] {sourceAttachment.toString(), path.toOSString(), projectName})); //$NON-NLS-1$
+								return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceAttachment, new String [] {sourceAttachment.toString(), path.toOSString(), projectName})); 
 					    }
 					} else {
 						boolean isExternal = path.getDevice() != null || !workspaceRoot.getProject(path.segment(0)).exists();
 						if (isExternal) {
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundLibrary", path.toOSString(), projectName)); //$NON-NLS-1$
+							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundLibrary, new String[] {path.toOSString(), projectName})); 
 						} else {
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundLibrary", entryPathMsg, projectName)); //$NON-NLS-1$
+							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundLibrary, new String[] {entryPathMsg, projectName})); 
 						}
 					}
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalLibraryPath", entryPathMsg, projectName)); //$NON-NLS-1$
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalLibraryPath, new String[] {entryPathMsg, projectName})); 
 				}
 				break;
 	
@@ -1472,10 +1477,10 @@ public class ClasspathEntry implements IClasspathEntry {
 					IJavaProject prereqProject = JavaCore.create(prereqProjectRsc);
 					try {
 						if (!prereqProjectRsc.exists() || !prereqProjectRsc.hasNature(JavaCore.NATURE_ID)){
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundProject", path.segment(0), projectName)); //$NON-NLS-1$
+							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundProject, new String[] {path.segment(0), projectName})); 
 						}
 						if (!prereqProjectRsc.isOpen()){
-							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.closedProject", path.segment(0))); //$NON-NLS-1$
+							return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_closedProject, new String[] {path.segment(0)})); 
 						}
 						if (project.getOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, true) != JavaCore.IGNORE) {
 							long projectTargetJDK = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true));
@@ -1485,10 +1490,10 @@ public class ClasspathEntry implements IClasspathEntry {
 							}
 						}
 					} catch (CoreException e){
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundProject", path.segment(0), projectName)); //$NON-NLS-1$
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundProject, new String[] {path.segment(0), projectName})); 
 					}
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalProjectPath", path.segment(0), projectName)); //$NON-NLS-1$
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalProjectPath, new String[] {path.segment(0), projectName})); 
 				}
 				break;
 	
@@ -1505,10 +1510,10 @@ public class ClasspathEntry implements IClasspathEntry {
 				if (path != null && path.isAbsolute() && !path.isEmpty()) {
 					IPath projectPath= project.getProject().getFullPath();
 					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(workspaceRoot, path, true) == null){
-						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.unboundSourceFolder", entryPathMsg, projectName)); //$NON-NLS-1$
+						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceFolder, new String[] {entryPathMsg, projectName})); 
 					}
 				} else {
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Util.bind("classpath.illegalSourceFolderPath", entryPathMsg, projectName)); //$NON-NLS-1$
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalSourceFolderPath, new String[] {entryPathMsg, projectName})); 
 				}
 				break;
 		}

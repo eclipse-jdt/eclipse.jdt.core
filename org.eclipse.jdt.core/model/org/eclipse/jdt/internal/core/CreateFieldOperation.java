@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jface.text.IDocument;
 
 /**
@@ -61,7 +61,7 @@ protected IJavaElement generateResultHandle() {
  * @see CreateElementInCUOperation#getMainTaskName()
  */
 public String getMainTaskName(){
-	return Util.bind("operation.createFieldProgress"); //$NON-NLS-1$
+	return Messages.operation_createFieldProgress; 
 }
 /**
  * By default the new field is positioned after the last existing field
@@ -94,7 +94,7 @@ protected IJavaModelStatus verifyNameCollision() {
 		if (type.getField(fieldName).exists()) {
 			return new JavaModelStatus(
 				IJavaModelStatusConstants.NAME_COLLISION, 
-				Util.bind("status.nameCollision", fieldName)); //$NON-NLS-1$
+				Messages.bind(Messages.status_nameCollision, fieldName)); 
 		}
 	}
 	return JavaModelStatus.VERIFIED_OK;

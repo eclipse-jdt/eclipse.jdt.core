@@ -941,11 +941,14 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 				if ((this.progressWorked%this.progressStep)==0) this.progressMonitor.worked(this.progressStep);
 			}
 			if (this.options.verbose)
-				System.out.println(Util.bind("compilation.done", //$NON-NLS-1$
-					new String[] {
-						String.valueOf(i + 1),
-						String.valueOf(this.numberOfMatches),
-						new String(possibleMatch.parsedUnit.getFileName())}));
+				System.out.println(
+					org.eclipse.jdt.internal.compiler.util.Util.bind(
+						org.eclipse.jdt.internal.compiler.util.Util.bind("compilation.done"), //$NON-NLS-1$
+						new String[] {
+							String.valueOf(i + 1),
+							String.valueOf(this.numberOfMatches),
+							new String(possibleMatch.parsedUnit.getFileName())
+						}));
 			// cleanup compilation unit result
 			possibleMatch.cleanUp();
 		}

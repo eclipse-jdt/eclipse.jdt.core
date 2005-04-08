@@ -71,6 +71,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.prefs.BackingStoreException;
@@ -2906,7 +2907,7 @@ public final class JavaCore extends Plugin {
 	 */
 	public static ITypeHierarchy newTypeHierarchy(IRegion region, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
 		if (region == null) {
-			throw new IllegalArgumentException(Util.bind("hierarchy.nullRegion"));//$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.hierarchy_nullRegion);
 		}
 		ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 		CreateTypeHierarchyOperation op =
@@ -4106,7 +4107,7 @@ public final class JavaCore extends Plugin {
 			
 			// process deltas since last activated in indexer thread so that indexes are up-to-date.
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658
-			Job processSavedState = new Job(Util.bind("savedState.jobName")) { //$NON-NLS-1$
+			Job processSavedState = new Job(Messages.savedState_jobName) { 
 				protected IStatus run(IProgressMonitor monitor) {
 					try {
 						// add save participant and process delta atomically

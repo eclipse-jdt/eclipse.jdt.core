@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * Handle for a source type. Info object is a SourceTypeElementInfo.
@@ -39,7 +39,7 @@ public class SourceType extends NamedMember implements IType {
 	
 protected SourceType(JavaElement parent, String name) {
 	super(parent, name);
-	Assert.isTrue(name.indexOf('.') == -1, Util.bind("sourcetype.invalidName", name)); //$NON-NLS-1$
+	Assert.isTrue(name.indexOf('.') == -1, Messages.bind(Messages.sourcetype_invalidName, name)); 
 }
 protected void closing(Object info) throws JavaModelException {
 	super.closing(info);
@@ -676,7 +676,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
  */
 public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
 	if (project == null) {
-		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.hierarchy_nullProject); 
 	}
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 	ICompilationUnit[] projectWCs = null;

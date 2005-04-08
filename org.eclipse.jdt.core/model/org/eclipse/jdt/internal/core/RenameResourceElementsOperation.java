@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * This operation renames resources (Package fragments and compilation units).
@@ -38,7 +38,7 @@ public RenameResourceElementsOperation(IJavaElement[] elements, IJavaElement[] d
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.renameResourceProgress"); //$NON-NLS-1$
+	return Messages.operation_renameResourceProgress; 
 }
 /**
  * @see CopyResourceElementsOperation#isRename()

@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.PatternSearchJob;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexManager extends JobManager implements IIndexConstants {
@@ -385,7 +386,7 @@ protected void notifyIdle(long idlingTime){
  * Name of the background process
  */
 public String processName(){
-	return Util.bind("process.name"); //$NON-NLS-1$
+	return Messages.process_name; 
 }
 private void rebuildIndex(String indexLocation, IPath containerPath) {
 	IWorkspace workspace = ResourcesPlugin.getWorkspace();

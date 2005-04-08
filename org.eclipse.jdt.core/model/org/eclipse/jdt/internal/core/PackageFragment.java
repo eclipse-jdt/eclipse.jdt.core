@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -112,7 +113,7 @@ public boolean containsJavaResources() throws JavaModelException {
  */
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.operation_nullContainer); 
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] containers= new IJavaElement[] {container};
@@ -161,7 +162,7 @@ public boolean equals(Object o) {
  */
 public IClassFile getClassFile(String classFileName) {
 	if (!org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(classFileName)) {
-		throw new IllegalArgumentException(Util.bind("element.invalidClassFileName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.element_invalidClassFileName); 
 	}
 	return new ClassFile(this, classFileName);
 }
@@ -188,7 +189,7 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  */
 public ICompilationUnit getCompilationUnit(String cuName) {
 	if (!org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(cuName)) {
-		throw new IllegalArgumentException(Util.bind("convention.unit.notJavaName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.convention_unit_notJavaName); 
 	}
 	return new CompilationUnit(this, cuName, DefaultWorkingCopyOwner.PRIMARY);
 }
@@ -377,7 +378,7 @@ public boolean isDefaultPackage() {
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.operation_nullContainer); 
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] containers= new IJavaElement[] {container};
@@ -396,7 +397,7 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
  */
 public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (newName == null) {
-		throw new IllegalArgumentException(Util.bind("element.nullName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.element_nullName); 
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};

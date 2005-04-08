@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import java.io.*;
@@ -142,7 +143,7 @@ public void acceptResult(CompilationResult result) {
 						String simpleName = qualifiedTypeName.substring(qualifiedTypeName.lastIndexOf('/')+1);
 						type = mainType == null ? null : mainType.getCompilationUnit().getType(simpleName);
 					}
-					createProblemFor(compilationUnit.resource, type, Util.bind("build.duplicateClassFile", new String(typeName)), JavaCore.ERROR); //$NON-NLS-1$
+					createProblemFor(compilationUnit.resource, type, Messages.bind(Messages.build_duplicateClassFile, new String(typeName)), JavaCore.ERROR); 
 					continue;
 				}
 				newState.recordLocatorForType(qualifiedTypeName, typeLocator);
@@ -152,9 +153,9 @@ public void acceptResult(CompilationResult result) {
 			} catch (CoreException e) {
 				Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
 				if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
-					createProblemFor(compilationUnit.resource, null, Util.bind("build.classFileCollision", e.getMessage()), JavaCore.ERROR); //$NON-NLS-1$
+					createProblemFor(compilationUnit.resource, null, Messages.bind(Messages.build_classFileCollision, e.getMessage()), JavaCore.ERROR); 
 				else
-					createProblemFor(compilationUnit.resource, null, Util.bind("build.inconsistentClassFile"), JavaCore.ERROR); //$NON-NLS-1$
+					createProblemFor(compilationUnit.resource, null, Messages.build_inconsistentClassFile, JavaCore.ERROR); 
 			}
 		}
 		finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);

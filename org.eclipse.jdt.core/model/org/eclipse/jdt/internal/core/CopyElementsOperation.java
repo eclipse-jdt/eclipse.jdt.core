@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * This operation copies/moves a collection of elements from their current
@@ -83,7 +84,7 @@ public CopyElementsOperation(IJavaElement[] elementsToCopy, IJavaElement destCon
  * for progress monitoring.
  */
 protected String getMainTaskName() {
-	return org.eclipse.jdt.internal.core.util.Util.bind("operation.copyElementProgress"); //$NON-NLS-1$
+	return Messages.operation_copyElementProgress; 
 }
 /**
  * Returns the nested operation to use for processing this element

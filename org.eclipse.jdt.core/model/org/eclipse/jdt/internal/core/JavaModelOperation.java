@@ -18,7 +18,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jface.text.IDocument;
 
 /**
@@ -209,7 +209,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	protected void checkCanceled() {
 		if (isCanceled()) {
-			throw new OperationCanceledException(Util.bind("operation.cancelled")); //$NON-NLS-1$
+			throw new OperationCanceledException(Messages.operation_cancelled); 
 		}
 	}
 	/**

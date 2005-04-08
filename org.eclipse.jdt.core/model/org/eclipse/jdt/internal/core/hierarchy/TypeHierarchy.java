@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.Region;
 import org.eclipse.jdt.internal.core.TypeVector;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -1222,9 +1223,9 @@ public synchronized void refresh(IProgressMonitor monitor) throws JavaModelExcep
 		this.progressMonitor = monitor;
 		if (monitor != null) {
 			if (this.focusType != null) {
-				monitor.beginTask(Util.bind("hierarchy.creatingOnType", this.focusType.getFullyQualifiedName()), 100); //$NON-NLS-1$
+				monitor.beginTask(Messages.bind(Messages.hierarchy_creatingOnType, this.focusType.getFullyQualifiedName()), 100); 
 			} else {
-				monitor.beginTask(Util.bind("hierarchy.creating"), 100); //$NON-NLS-1$
+				monitor.beginTask(Messages.hierarchy_creating, 100); 
 			}
 		}
 		long start = -1;

@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.jdom;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
@@ -112,7 +112,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	if (parent.getElementType() == IJavaElement.COMPILATION_UNIT) {
 		return ((ICompilationUnit)parent).getPackageDeclaration(getName());
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.element_illegalParent); 
 	}
 }
 /**

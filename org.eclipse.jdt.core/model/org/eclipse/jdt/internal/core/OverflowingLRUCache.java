@@ -15,7 +15,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 
 import org.eclipse.jdt.internal.core.util.LRUCache;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  *	The <code>OverflowingLRUCache</code> is an LRUCache which attempts
@@ -387,7 +387,7 @@ public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException 
 	if(newLoadFactor <= 1.0 && newLoadFactor > 0.0)
 		fLoadFactor = newLoadFactor;
 	else
-		throw new IllegalArgumentException(Util.bind("cache.invalidLoadFactor")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.cache_invalidLoadFactor); 
 }
 	/**
 	 * Sets the maximum amount of space that the cache can store

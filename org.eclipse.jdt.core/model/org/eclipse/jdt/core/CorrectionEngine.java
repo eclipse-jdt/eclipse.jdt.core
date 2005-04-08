@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.parser.*;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -144,7 +145,7 @@ public class CorrectionEngine implements ProblemReasons {
 	 */
 	public void computeCorrections(IProblem problem, ICompilationUnit targetUnit, ICorrectionRequestor requestor) throws JavaModelException {
 		if (requestor == null) {
-			throw new IllegalArgumentException(Util.bind("correction.nullUnit")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.correction_nullUnit);
 		}
 		this.computeCorrections(
 			targetUnit, problem.getID(), 
@@ -184,7 +185,7 @@ public class CorrectionEngine implements ProblemReasons {
 		if(id == -1 || arguments == null || start == -1 || end == -1)
 			return;		
 		if (requestor == null) {
-			throw new IllegalArgumentException(Util.bind("correction.nullRequestor")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.correction_nullRequestor);
 		}
 		
 		this.correctionRequestor = requestor;

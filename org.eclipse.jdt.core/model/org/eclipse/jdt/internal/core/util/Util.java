@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.util;
 
 import java.io.*;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -72,10 +71,6 @@ public class Util {
 	}
 	private static final String ARGUMENTS_DELIMITER = "#"; //$NON-NLS-1$
 
-	/* Bundle containing messages */
-	protected static ResourceBundle bundle;
-	private final static String bundleName = "org.eclipse.jdt.internal.core.util.messages"; //$NON-NLS-1$
-
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
 	
 	private static char[][] JAVA_LIKE_EXTENSIONS;
@@ -90,10 +85,6 @@ public class Util {
 	private static final char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
 	private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
 	private static final char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
-
-	static {
-		relocalize();
-	}	
 
 	private Util() {
 		// cannot be instantiated
@@ -146,47 +137,6 @@ public class Util {
 		System.arraycopy(first, 0, result, 0, length);
 		result[length] = second;
 		return result;
-	}
-
-	/**
-	 * Lookup the message with the given ID in this catalog 
-	 */
-	public static String bind(String id) {
-		return bind(id, (String[])null);
-	}
-	
-	/**
-	 * Lookup the message with the given ID in this catalog and bind its
-	 * substitution locations with the given string.
-	 */
-	public static String bind(String id, String binding) {
-		return bind(id, new String[] {binding});
-	}
-	
-	/**
-	 * Lookup the message with the given ID in this catalog and bind its
-	 * substitution locations with the given strings.
-	 */
-	public static String bind(String id, String binding1, String binding2) {
-		return bind(id, new String[] {binding1, binding2});
-	}
-
-	/**
-	 * Lookup the message with the given ID in this catalog and bind its
-	 * substitution locations with the given string values.
-	 */
-	public static String bind(String id, String[] arguments) {
-		if (id == null)
-			return "No message available"; //$NON-NLS-1$
-		String message = null;
-		try {
-			message = bundle.getString(id);
-		} catch (MissingResourceException e) {
-			// If we got an exception looking for the message, fail gracefully by just returning
-			// the id we were looking for.  In most cases this is semi-informative so is not too bad.
-			return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
-		}
-		return MessageFormat.format(message, arguments);
 	}
 
 	/**
@@ -1780,17 +1730,6 @@ public class Util {
 		return new String(result);
 	}
 	
-	/**
-	 * Creates a NLS catalog for the given locale.
-	 */
-	public static void relocalize() {
-		try {
-			bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
-		} catch(MissingResourceException e) {
-			System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
-			throw e;
-		}
-	}
 	/**
 	 * Return a new array which is the split of the given string using the given divider. The given end 
 	 * is exclusive and the given start is inclusive.

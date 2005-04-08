@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * Provides methods for checking Java-specific conventions such as name syntax.
@@ -125,16 +125,16 @@ public final class JavaConventions {
 	 */
 	public static IStatus validateCompilationUnitName(String name) {
 		if (name == null) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.nullName"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_unit_nullName, null); 
 		}
 		if (!org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(name)) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_unit_notJavaName, null); 
 		}
 		String identifier;
 		int index;
 		index = name.lastIndexOf('.');
 		if (index == -1) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.unit.notJavaName"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_unit_notJavaName, null); 
 		}
 		identifier = name.substring(0, index);
 		// JSR-175 metadata strongly recommends "package-info.java" as the
@@ -172,16 +172,15 @@ public final class JavaConventions {
 	 */
 	public static IStatus validateClassFileName(String name) {
 		if (name == null) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.nullName"), null); //$NON-NLS-1$
-		}
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_classFile_nullName, null);		}
 		if (!org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notClassFileName"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_classFile_notClassFileName, null); 
 		}
 		String identifier;
 		int index;
 		index = name.lastIndexOf('.');
 		if (index == -1) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notClassFileName"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_classFile_notClassFileName, null); 
 		}
 		identifier = name.substring(0, index);
 		IStatus status = validateIdentifier(identifier);
@@ -226,7 +225,7 @@ public final class JavaConventions {
 		if (scannedIdentifier(id) != null) {
 			return JavaModelStatus.VERIFIED_OK;
 		} else {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.illegalIdentifier", id), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.convention_illegalIdentifier, id), null); 
 		}
 	}
 
@@ -244,13 +243,13 @@ public final class JavaConventions {
 	 */
 	public static IStatus validateImportDeclaration(String name) {
 		if (name == null || name.length() == 0) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.import.nullImport"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_import_nullImport, null); 
 		} 
 		if (name.charAt(name.length() - 1) == '*') {
 			if (name.charAt(name.length() - 2) == '.') {
 				return validatePackageName(name.substring(0, name.length() - 2));
 			} else {
-				return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.import.unqualifiedImport"), null); //$NON-NLS-1$
+				return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_import_unqualifiedImport, null); 
 			}
 		}
 		return validatePackageName(name);
@@ -271,11 +270,11 @@ public final class JavaConventions {
 	 */
 	public static IStatus validateJavaTypeName(String name) {
 		if (name == null) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.nullName"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_type_nullName, null); 
 		}
 		String trimmed = name.trim();
 		if (!name.equals(trimmed)) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.nameWithBlanks"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_type_nameWithBlanks, null); 
 		}
 		int index = name.lastIndexOf('.');
 		char[] scannedID;
@@ -299,14 +298,14 @@ public final class JavaConventions {
 				return status;
 			}
 			if (CharOperation.contains('$', scannedID)) {
-				return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.dollarName"), null); //$NON-NLS-1$
+				return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Messages.convention_type_dollarName, null); 
 			}
 			if ((scannedID.length > 0 && Character.isLowerCase(scannedID[0]))) {
-				return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.lowercaseName"), null); //$NON-NLS-1$
+				return new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Messages.convention_type_lowercaseName, null); 
 			}
 			return JavaModelStatus.VERIFIED_OK;
 		} else {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.type.invalidName", name), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.convention_type_invalidName, (new String[] {name})), null); 
 		}
 	}
 
@@ -346,22 +345,22 @@ public final class JavaConventions {
 	public static IStatus validatePackageName(String name) {
 
 		if (name == null) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nullName"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_package_nullName, null); 
 		}
 		int length;
 		if ((length = name.length()) == 0) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.emptyName"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_package_emptyName, null); 
 		}
 		if (name.charAt(0) == DOT || name.charAt(length-1) == DOT) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.dotName"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_package_dotName, null); 
 		}
 		if (CharOperation.isWhitespace(name.charAt(0)) || CharOperation.isWhitespace(name.charAt(name.length() - 1))) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.nameWithBlanks"), null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_package_nameWithBlanks, null); 
 		}
 		int dot = 0;
 		while (dot != -1 && dot < length-1) {
 			if ((dot = name.indexOf(DOT, dot+1)) != -1 && dot < length-1 && name.charAt(dot+1) == DOT) {
-				return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.consecutiveDotsName"), null); //$NON-NLS-1$
+				return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_package_consecutiveDotsName, null); 
 				}
 		}
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -373,7 +372,7 @@ public final class JavaConventions {
 			typeName = typeName.trim(); // grammar allows spaces
 			char[] scannedID = scannedIdentifier(typeName);
 			if (scannedID == null) {
-				return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.illegalIdentifier", typeName), null); //$NON-NLS-1$
+				return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.convention_illegalIdentifier, (new String[] {typeName})), null); 
 			}
 			IStatus status = workspace.validateName(new String(scannedID), IResource.FOLDER);
 			if (!status.isOK()) {
@@ -381,7 +380,7 @@ public final class JavaConventions {
 			}
 			if (firstToken && scannedID.length > 0 && Character.isUpperCase(scannedID[0])) {
 				if (warningStatus == null) {
-					warningStatus = new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Util.bind("convention.package.uppercaseName"), null); //$NON-NLS-1$
+					warningStatus = new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, -1, Messages.convention_package_uppercaseName, null); 
 				}
 			}
 			firstToken = false;

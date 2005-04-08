@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -68,7 +69,7 @@ public void attachSource(IPath sourcePath, IPath rootPath, IProgressMonitor moni
 	try {
 		verifyAttachSource(sourcePath);
 		if (monitor != null) {
-			monitor.beginTask(Util.bind("element.attachingSource"), 2); //$NON-NLS-1$
+			monitor.beginTask(Messages.element_attachingSource, 2); 
 		}
 		SourceMapper oldMapper= getSourceMapper();
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();

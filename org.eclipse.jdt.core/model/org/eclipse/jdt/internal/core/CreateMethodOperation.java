@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jface.text.IDocument;
 
@@ -88,7 +89,7 @@ private String getASTNodeName() {
  * @see CreateElementInCUOperation#getMainTaskName()
  */
 public String getMainTaskName(){
-	return Util.bind("operation.createMethodProgress"); //$NON-NLS-1$
+	return Messages.operation_createMethodProgress; 
 }
 protected SimpleName rename(ASTNode node, SimpleName newName) {
 	MethodDeclaration method = (MethodDeclaration) node;
@@ -111,7 +112,7 @@ protected IJavaModelStatus verifyNameCollision() {
 		if (type.getMethod(name, types).exists()) {
 			return new JavaModelStatus(
 				IJavaModelStatusConstants.NAME_COLLISION, 
-				Util.bind("status.nameCollision", name)); //$NON-NLS-1$
+				Messages.bind(Messages.status_nameCollision, name)); 
 		}
 	}
 	return JavaModelStatus.VERIFIED_OK;

@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -331,7 +332,7 @@ public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws Ja
  */
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.operation_nullContainer); 
 	}
 	IJavaElement[] elements = new IJavaElement[] {this};
 	IJavaElement[] containers = new IJavaElement[] {container};
@@ -973,7 +974,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(boolean createAST
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.operation_nullContainer); 
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] containers= new IJavaElement[] {container};
@@ -1094,7 +1095,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
  */
 public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (newName == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.operation_nullName); 
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};

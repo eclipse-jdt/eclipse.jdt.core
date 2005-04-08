@@ -33,7 +33,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.RangeMarker;
@@ -75,7 +75,7 @@ public class SortElementsOperation extends JavaModelOperation {
 	 */
 	protected void executeOperation() throws JavaModelException {
 		try {
-			beginTask(Util.bind("operation.sortelements"), getMainAmountOfWork()); //$NON-NLS-1$
+			beginTask(Messages.operation_sortelements, getMainAmountOfWork()); 
 			CompilationUnit copy = (CompilationUnit) this.elementsToProcess[0];
 			ICompilationUnit unit = copy.getPrimary();
 			IBuffer buffer = copy.getBuffer();

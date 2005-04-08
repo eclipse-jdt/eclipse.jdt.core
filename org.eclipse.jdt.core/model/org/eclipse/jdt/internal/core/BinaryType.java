@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -768,7 +769,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, IProgressMonitor mo
  */
 public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
 	if (project == null) {
-		throw new IllegalArgumentException(Util.bind("hierarchy.nullProject")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.hierarchy_nullProject); 
 	}
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 	ICompilationUnit[] projectWCs = null;

@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -624,7 +625,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 
 	private void updateClasspath() throws JavaModelException {
 
-		beginTask(Util.bind("classpath.settingProgress", project.getElementName()), 2); //$NON-NLS-1$
+		beginTask(Messages.bind(Messages.classpath_settingProgress, project.getElementName()), 2); 
 
 		// SIDE-EFFECT: from thereon, the classpath got modified
 		project.getPerProjectInfo().updateClasspathInformation(this.newRawPath);
@@ -733,7 +734,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 	 */
 	protected void updateOutputLocation() throws JavaModelException {
 		
-		beginTask(Util.bind("classpath.settingOutputLocationProgress", project.getElementName()), 2); //$NON-NLS-1$
+		beginTask(Messages.bind(Messages.classpath_settingOutputLocationProgress, project.getElementName()), 2); 
 		
 		IPath oldLocation= project.getOutputLocation();
 	

@@ -327,7 +327,7 @@ void initialize(boolean reuseExistingFile) throws IOException {
 			try {
 				String signature = file.readUTF();
 				if (!signature.equals(SIGNATURE))
-					throw new IOException(Util.bind("exception.wrongFormat")); //$NON-NLS-1$
+					throw new IOException(Messages.exception_wrongFormat); 
 
 				this.headerInfoOffset = file.readInt();
 				if (this.headerInfoOffset > 0) // file is empty if its not set

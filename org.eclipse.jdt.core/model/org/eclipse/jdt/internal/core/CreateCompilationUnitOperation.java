@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaConventions;
 //import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -79,7 +80,7 @@ public CreateCompilationUnitOperation(IPackageFragment parentElement, String nam
  */
 protected void executeOperation() throws JavaModelException {
 	try {
-		beginTask(Util.bind("operation.createUnitProgress"), 2); //$NON-NLS-1$
+		beginTask(Messages.operation_createUnitProgress, 2); 
 		JavaElementDelta delta = newJavaElementDelta();
 		ICompilationUnit unit = getCompilationUnit();
 		IPackageFragment pkg = (IPackageFragment) getParentElement();
@@ -104,7 +105,7 @@ protected void executeOperation() throws JavaModelException {
 			} else {
 				throw new JavaModelException(new JavaModelStatus(
 					IJavaModelStatusConstants.NAME_COLLISION, 
-					Util.bind("status.nameCollision", compilationUnitFile.getFullPath().toString()))); //$NON-NLS-1$
+					Messages.bind(Messages.status_nameCollision, (new String[] {compilationUnitFile.getFullPath().toString()})))); 
 			}
 		} else {
 			try {

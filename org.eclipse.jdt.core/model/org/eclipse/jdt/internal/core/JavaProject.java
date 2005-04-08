@@ -71,6 +71,7 @@ import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.eval.EvaluationContext;
 import org.osgi.service.prefs.BackingStoreException;
@@ -792,7 +793,7 @@ public class JavaProject
 				new Object[] {
 					status.getMessage(),
 					new Integer(severity), 
-					Util.bind("classpath.buildPath"),//$NON-NLS-1$
+					Messages.classpath_buildPath,
 					isCycleProblem ? "true" : "false",//$NON-NLS-1$ //$NON-NLS-2$
 					isClasspathFileFormatProblem ? "true" : "false",//$NON-NLS-1$ //$NON-NLS-2$
 					new Integer(status.getCode()),
@@ -831,15 +832,15 @@ public class JavaProject
 					DocumentBuilderFactory.newInstance().newDocumentBuilder();
 				cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 			} catch (SAXException e) {
-				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+				throw new IOException(Messages.file_badFormat); 
 			} catch (ParserConfigurationException e) {
-				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+				throw new IOException(Messages.file_badFormat); 
 			} finally {
 				reader.close();
 			}
 	
 			if (!cpElement.getNodeName().equalsIgnoreCase("classpath")) { //$NON-NLS-1$
-				throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+				throw new IOException(Messages.file_badFormat); 
 			}
 			NodeList list = cpElement.getElementsByTagName("classpathentry"); //$NON-NLS-1$
 			int length = list.getLength();
@@ -862,7 +863,7 @@ public class JavaProject
 			if (createMarker && this.project.isAccessible()) {
 					this.createClasspathProblemMarker(new JavaModelStatus(
 							IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-							Util.bind("classpath.xmlFormatError", this.getElementName(), e.getMessage()))); //$NON-NLS-1$
+							Messages.bind(Messages.classpath_xmlFormatError, (new String[] {this.getElementName(), e.getMessage()})))); 
 			}
 			if (logProblems) {
 				Util.log(e, 
@@ -875,7 +876,7 @@ public class JavaProject
 			if (createMarker && this.project.isAccessible()) {
 				this.createClasspathProblemMarker(new JavaModelStatus(
 						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-						Util.bind("classpath.illegalEntryInClasspathFile", this.getElementName(), e.getMessage()))); //$NON-NLS-1$
+						Messages.bind(Messages.classpath_illegalEntryInClasspathFile, (new String[] {this.getElementName(), e.getMessage()})))); 
 			}
 			if (logProblems) {
 				Util.log(e, 
@@ -1093,7 +1094,7 @@ public class JavaProject
 
 		IPackageFragmentRoot[] allRoots = this.getAllPackageFragmentRoots();
 		if (!path.isAbsolute()) {
-			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.path_mustBeAbsolute); 
 		}
 		for (int i= 0; i < allRoots.length; i++) {
 			IPackageFragmentRoot classpathRoot= allRoots[i];
@@ -1284,11 +1285,11 @@ public class JavaProject
 						// happens if the .classpath could not be written to disk
 						createClasspathProblemMarker(new JavaModelStatus(
 								IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-								Util.bind("classpath.couldNotWriteClasspathFile", getElementName(), e.getMessage()))); //$NON-NLS-1$
+								Messages.bind(Messages.classpath_couldNotWriteClasspathFile, new String[] {getElementName(), e.getMessage()}))); 
 					} else {
 						createClasspathProblemMarker(new JavaModelStatus(
 								IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-								Util.bind("classpath.invalidClasspathInClasspathFile", getElementName(), e.getMessage()))); //$NON-NLS-1$
+								Messages.bind(Messages.classpath_invalidClasspathInClasspathFile, new String[] {getElementName(), e.getMessage()}))); 
 					}			
 				}
 			}
@@ -1956,7 +1957,7 @@ public class JavaProject
 					this.flushClasspathProblemMarkers(false, true);
 					this.createClasspathProblemMarker(new JavaModelStatus(
 						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-						Util.bind("classpath.cannotReadClasspathFile", this.getElementName()))); //$NON-NLS-1$
+						Messages.bind(Messages.classpath_cannotReadClasspathFile, this.getElementName()))); 
 			}
 
 			perProjectInfo.resolvedClasspath = resolvedPath;
@@ -2377,7 +2378,7 @@ public class JavaProject
 		throws JavaModelException {
 
 		if (region == null) {
-			throw new IllegalArgumentException(Util.bind("hierarchy.nullRegion"));//$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.hierarchy_nullRegion);
 		}
 		ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 		CreateTypeHierarchyOperation op =
@@ -2409,10 +2410,10 @@ public class JavaProject
 		throws JavaModelException {
 
 		if (type == null) {
-			throw new IllegalArgumentException(Util.bind("hierarchy.nullFocusType"));//$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.hierarchy_nullFocusType);
 		}
 		if (region == null) {
-			throw new IllegalArgumentException(Util.bind("hierarchy.nullRegion"));//$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.hierarchy_nullRegion);
 		}
 		ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, true/*add primary working copies*/);
 		CreateTypeHierarchyOperation op =
@@ -2456,7 +2457,7 @@ public class JavaProject
 				if (createMarker && this.project.isAccessible()) {
 						this.createClasspathProblemMarker(new JavaModelStatus(
 							IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-							Util.bind("classpath.cannotReadClasspathFile", this.getElementName()))); //$NON-NLS-1$
+							Messages.bind(Messages.classpath_cannotReadClasspathFile, this.getElementName()))); 
 				}
 				return null;
 			}
@@ -2466,7 +2467,7 @@ public class JavaProject
 			if (createMarker && this.project.isAccessible()) {
 					this.createClasspathProblemMarker(new JavaModelStatus(
 						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-						Util.bind("classpath.cannotReadClasspathFile", this.getElementName()))); //$NON-NLS-1$
+						Messages.bind(Messages.classpath_cannotReadClasspathFile, this.getElementName()))); 
 			}
 			if (logProblems) {
 				Util.log(e, 
@@ -2671,7 +2672,7 @@ public class JavaProject
 		throws JavaModelException {
 
 		if (path == null) {
-			throw new IllegalArgumentException(Util.bind("path.nullPath")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.path_nullPath); 
 		}
 		if (path.equals(getOutputLocation())) {
 			return;

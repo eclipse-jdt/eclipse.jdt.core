@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 /**
  * DOMCompilation unit provides an implementation of IDOMCompilationUnit.
@@ -80,7 +81,7 @@ public IJavaElement getJavaElement(IJavaElement parent) throws IllegalArgumentEx
 	if (parent.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
 		return ((IPackageFragment)parent).getCompilationUnit(getName());
 	} else {
-		throw new IllegalArgumentException(Util.bind("element.illegalParent")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.element_illegalParent); 
 	}
 }
 /**

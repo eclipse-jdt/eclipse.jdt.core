@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * This operation moves elements from their current
@@ -35,7 +35,7 @@ public MoveElementsOperation(IJavaElement[] elementsToMove, IJavaElement[] destC
  * for progress monitoring.
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.moveElementProgress"); //$NON-NLS-1$
+	return Messages.operation_moveElementProgress; 
 }
 /**
  * @see CopyElementsOperation#isMove()

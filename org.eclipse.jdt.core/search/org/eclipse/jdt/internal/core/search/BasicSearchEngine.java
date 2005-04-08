@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.search.matching.*;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * Search basic engine. Public search engine (see {@link org.eclipse.jdt.core.search.SearchEngine}
@@ -170,7 +170,7 @@ public class BasicSearchEngine {
 	
 		/* initialize progress monitor */
 		if (monitor != null)
-			monitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
+			monitor.beginTask(Messages.engine_searching, 100); 
 		if (BasicSearchEngine.VERBOSE) {
 			System.out.println("Searching for pattern: " + pattern.toString()); //$NON-NLS-1$
 			System.out.println(scope); //$NON-NLS-1$
@@ -186,7 +186,7 @@ public class BasicSearchEngine {
 				SubProgressMonitor subMonitor= monitor==null ? null : new SubProgressMonitor(monitor, 1000);
 				if (subMonitor != null) subMonitor.beginTask("", 1000); //$NON-NLS-1$
 				try {
-					if (subMonitor != null) subMonitor.subTask(Util.bind("engine.searching.indexing", participant.getDescription())); //$NON-NLS-1$
+					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_indexing, (new String[] {participant.getDescription()}))); 
 					participant.beginSearching();
 					requestor.enterParticipant(participant);
 					PathCollector pathCollector = new PathCollector();
@@ -197,7 +197,7 @@ public class BasicSearchEngine {
 					if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	
 					// locate index matches if any (note that all search matches could have been issued during index querying)
-					if (subMonitor != null) subMonitor.subTask(Util.bind("engine.searching.matching", participant.getDescription())); //$NON-NLS-1$
+					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_matching, (new String[] {participant.getDescription()}))); 
 					String[] indexMatchPaths = pathCollector.getPaths();
 					pathCollector = null; // release
 					int indexMatchLength = indexMatchPaths == null ? 0 : indexMatchPaths.length;
@@ -529,7 +529,7 @@ public class BasicSearchEngine {
 	
 		try {
 			if (progressMonitor != null) {
-				progressMonitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
+				progressMonitor.beginTask(Messages.engine_searching, 100); 
 			}
 			// add type names from indexes
 			indexManager.performConcurrentJob(
@@ -743,7 +743,7 @@ public class BasicSearchEngine {
 	
 		try {
 			if (progressMonitor != null) {
-				progressMonitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
+				progressMonitor.beginTask(Messages.engine_searching, 100); 
 			}
 			// add type names from indexes
 			indexManager.performConcurrentJob(
