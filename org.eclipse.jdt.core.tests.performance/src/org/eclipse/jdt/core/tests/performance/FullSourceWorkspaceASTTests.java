@@ -574,7 +574,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 
 	// Do NOT forget that tests must start with "testPerf"
 	public void testPerfDomAstCreationJLS2() throws JavaModelException {
-		tagAsSummary("AST Creation", Dimension.CPU_TIME);
+		tagAsSummary("AST Creation", Dimension.CPU_TIME, true); // put on fingerprinprint
 		runAstCreation(AST.JLS2);
 	}
 }
