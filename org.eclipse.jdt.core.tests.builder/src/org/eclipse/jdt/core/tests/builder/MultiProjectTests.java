@@ -12,10 +12,11 @@ package org.eclipse.jdt.core.tests.builder;
 
 import java.util.Hashtable;
 
-import junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
