@@ -61,7 +61,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.compiler.util.Messages;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
@@ -158,7 +158,7 @@ public void accept(IBinaryType binaryType, PackageBinding packageBinding, Access
 public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
 	//System.out.println("Cannot accept compilation units inside the HierarchyResolver.");
 	this.lookupEnvironment.problemReporter.abortDueToInternalError(
-		new StringBuffer(Messages.accept_cannot)
+		new StringBuffer(Util.bind("accept.cannot")) //$NON-NLS-1$
 			.append(sourceUnit.getFileName())
 			.toString());
 }

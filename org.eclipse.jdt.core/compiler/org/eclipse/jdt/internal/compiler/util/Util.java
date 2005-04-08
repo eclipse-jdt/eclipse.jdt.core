@@ -17,6 +17,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -26,12 +30,56 @@ public class Util implements SuffixConstants {
 	public interface Displayable {
 		String displayString(Object o);
 	}
+	static {
+		relocalize();
+	}
 
+	/* Bundle containing messages */
+	protected static ResourceBundle bundle;
+	private final static String bundleName =
+		"org.eclipse.jdt.internal.compiler.util.messages"; //$NON-NLS-1$
 	private static final int DEFAULT_READING_SIZE = 8192;
 
 	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 	public static char[] LINE_SEPARATOR_CHARS = LINE_SEPARATOR.toCharArray();
 	
+	/**
+	 * Lookup the message with the given ID in this catalog 
+	 */
+	public static String bind(String id) {
+		return bind(id, (String[]) null);
+	}
+	/**
+	 * Lookup the message with the given ID in this catalog and bind its
+	 * substitution locations with the given string.
+	 */
+	public static String bind(String id, String argument) {
+		return bind(id, new String[] { argument });
+	}
+	/**
+	 * Lookup the message with the given ID in this catalog and bind its
+	 * substitution locations with the given strings.
+	 */
+	public static String bind(String id, String argument1, String argument2) {
+		return bind(id, new String[] { argument1, argument2 });
+	}
+	/**
+	 * Lookup the message with the given ID in this catalog and bind its
+	 * substitution locations with the given string values.
+	 */
+	public static String bind(String id, String[] arguments) {
+		if (id == null)
+			return "No message available"; //$NON-NLS-1$
+		String message = null;
+		try {
+			message = bundle.getString(id);
+		} catch (MissingResourceException e) {
+			// If we got an exception looking for the message, fail gracefully by just returning
+			// the id we were looking for.  In most cases this is semi-informative so is not too bad.
+			return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
+		}
+		return MessageFormat.format(message, arguments);
+	}
 	/**
 	 * Returns the given bytes as a char array using a given encoding (null means platform default).
 	 */
@@ -418,6 +466,18 @@ public class Util implements SuffixConstants {
 		}
 		return true;		
 	}
+	/**
+	 * Creates a NLS catalog for the given locale.
+	 */
+	public static void relocalize() {
+		try {
+			bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
+		} catch(MissingResourceException e) {
+			System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
+			throw e;
+		}
+	}
+
 	/**
 	 * Converts a boolean value into Boolean.
 	 * @param bool The boolean to convert

@@ -13,8 +13,7 @@ package org.eclipse.jdt.internal.compiler.impl;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
-import org.eclipse.jdt.internal.compiler.util.Messages;
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class Constant implements TypeIds, OperatorIds {
 	
@@ -26,12 +25,12 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	
 	public boolean booleanValue() {
 
-		throw new ShouldNotImplement(NLS.bind(Messages.constant_cannotCastedInto, typeName(), "boolean")); //$NON-NLS-1$
+		throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto", typeName(), "boolean")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public byte byteValue() {
 
-		throw new ShouldNotImplement(NLS.bind(Messages.constant_cannotCastedInto, typeName(), "byte")); //$NON-NLS-1$
+		throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto", typeName(), "byte")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public final Constant castTo(int conversionToTargetType){
@@ -206,7 +205,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 	
 	public char charValue() {
 		
-		throw new ShouldNotImplement(NLS.bind(Messages.constant_cannotCastedInto, typeName(), "char")); //$NON-NLS-1$
+		throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto", typeName(), "char")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	public static final Constant computeConstantOperation(Constant cst, int id, int operator) {
@@ -1515,12 +1514,12 @@ public abstract class Constant implements TypeIds, OperatorIds {
 
 	public double doubleValue() {
 
-		throw new ShouldNotImplement(NLS.bind(Messages.constant_cannotCastedInto, typeName(), "double")); //$NON-NLS-1$
+		throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto", typeName(), "double")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public float floatValue() {
 
-		throw new ShouldNotImplement(NLS.bind(Messages.constant_cannotCastedInto, typeName(), "float")); //$NON-NLS-1$
+		throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto", typeName(), "float")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public static Constant fromValue(byte value) {
@@ -1570,22 +1569,22 @@ public abstract class Constant implements TypeIds, OperatorIds {
 
 	public int intValue() {
 
-		throw new ShouldNotImplement(NLS.bind(Messages.constant_cannotCastedInto, typeName(), "int")); //$NON-NLS-1$
+		throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto", typeName(), "int")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public long longValue() {
 
-		throw new ShouldNotImplement(NLS.bind(Messages.constant_cannotCastedInto, typeName(), "long")); //$NON-NLS-1$
+		throw new ShouldNotImplement(Util.bind("constant.cannotCastedInto", typeName(), "long")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public short shortValue() {
 
-		throw new ShouldNotImplement(NLS.bind(Messages.constant_cannotConvertedTo, typeName(), "short")); //$NON-NLS-1$
+		throw new ShouldNotImplement(Util.bind("constant.cannotConvertedTo", typeName(), "short")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String stringValue() {
 
-		throw new ShouldNotImplement(NLS.bind(Messages.constant_cannotConvertedTo, typeName(), "String")); //$NON-NLS-1$
+		throw new ShouldNotImplement(Util.bind("constant.cannotConvertedTo", typeName(), "String")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public String toString(){
