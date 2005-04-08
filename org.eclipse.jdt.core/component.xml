@@ -2,7 +2,7 @@
 <component xmlns="http://eclipse.org/component"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://eclipse.org/component ../component.xsd "
-   name="Eclipse JDT/Core">
+   name="org.eclipse.jdt.core">
  <plugin id="org.eclipse.jdt.core" />
 
  <package name="org.eclipse.jdt.core">
