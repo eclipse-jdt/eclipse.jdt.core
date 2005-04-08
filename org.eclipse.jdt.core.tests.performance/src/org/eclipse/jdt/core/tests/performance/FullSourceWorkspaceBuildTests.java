@@ -14,21 +14,20 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.Hashtable;
 
-import junit.framework.*;
+import junit.framework.Test;
 
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
-import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -41,19 +40,20 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.test.performance.Dimension;
 
 /**
+ * Class to test compiler performance.
+ * This includes tests on build, batch compiler, Scanner and Parser.
  */
 public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	
-	// Loops repeat
-	private final static int REPEAT = 10;
-	private final static int SCAN_REPEAT = 800; // 800 is default
-	private final static long FILE_SIZE_THRESHOLD = 100000L; 	//100,000 characters
-	private static int PARSE_REPEAT = 100; // xxx is default
-	private static int TIME_THRESHOLD = 150;
-	
-	// Tests counter
+	// Tests counters
 	private static int TESTS_COUNT = 0;
+	private final static int ITERATIONS_COUNT = 10;
+	private final static int SCAN_REPEAT = 800; // 800 is default
 
+	// Tests thresholds
+	private final static long FILE_SIZE_THRESHOLD = 100000L; 	//100,000 characters
+	private final static int TIME_THRESHOLD = 150;
+	
 	// Log files
 	private static PrintStream[] LOG_STREAMS = new PrintStream[4];
 
@@ -66,7 +66,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	}
 
 	static {
-//		TESTS_PREFIX = "testPerfScanner";
+//		TESTS_PREFIX = "testPerfBatch";
 //		TESTS_NAMES = new String[] { "testPerfParserFiles" };
 	}
 
@@ -85,20 +85,31 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
+
+		// End of execution => one test less
 		TESTS_COUNT--;
 
 		// Log perf result
 		if (LOG_DIR != null) {
 			logPerfResult(LOG_STREAMS, TESTS_COUNT);
 		}
-
+		
+		// Call super at the end as it close print streams
 		super.tearDown();
 	}
 
-	// No javadoc support
-	// This test is now redundant with following one. Just execute it as warm up...
+	/**
+	 * No javadoc support.
+	 * Although this test is redundant with "Build>Clean>Src:full wksp>Warn:None"
+	 * we keep it not to break performance results history.
+	 * Consider this test as warm up of full build tests which are run only once...
+	 * 
+	 * @throws CoreException
+	 * @throws IOException
+	 */
 	public void testPerfFullBuildNoComments() throws CoreException, IOException {
-		tagAsSummary("Full source workspace build without comment support", Dimension.CPU_TIME);
+		// Do no longer print results for this test
+		tagAsSummary("Compile>Build>Clean>Src:full wksp>Options:NoCommentSupport", Dimension.CPU_TIME, true); // put in fingerprint
 		Hashtable options = JavaCore.getOptions();
 		options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
 		options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.IGNORE);
@@ -107,89 +118,41 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		startBuild(options);
 	}
 
-	// Set doc comment support
+	/**
+	 * Full build with JavaCore default options.
+	 * 
+	 * @throws CoreException
+	 * @throws IOException
+	 */
 	public void testPerfFullBuild() throws CoreException, IOException {
-		tagAsGlobalSummary("Full source workspace build", Dimension.CPU_TIME);
-		startBuild(JavaCore.getDefaultOptions());
-	}
-
-	// Set invalid javadoc tags
-	public void _testPerfWithInvalidJavadocTags() throws CoreException, IOException {
-		tagAsSummary("Full build + Invalid Javadoc Tags", Dimension.CPU_TIME);
-		Hashtable options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
-		options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS_VISIBILITY, JavaCore.PRIVATE);
-		options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, JavaCore.IGNORE);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.IGNORE);
-		startBuild(options);
-	}
-
-	// Set missing javadoc tags
-	public void _testPerfWithMissingJavadocTags() throws CoreException, IOException {
-		tagAsSummary("Full build + Invalid & Missing Tags", Dimension.CPU_TIME);
-		Hashtable options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
-		options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS_VISIBILITY, JavaCore.PRIVATE);
-		options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, JavaCore.WARNING);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS_VISIBILITY, JavaCore.PRIVATE);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS_OVERRIDING, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.IGNORE);
-		startBuild(options);
-	}
-
-	// Set missing javadoc comments
-	public void _testPerfWithMissingJavadocComments() throws CoreException, IOException {
-		tagAsSummary("Full build + Full Javadoc", Dimension.CPU_TIME);
-		Hashtable options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
-		options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS_VISIBILITY, JavaCore.PRIVATE);
-		options.put(JavaCore.COMPILER_PB_INVALID_JAVADOC_TAGS, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, JavaCore.WARNING);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS_VISIBILITY, JavaCore.PRIVATE);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS_OVERRIDING, JavaCore.ENABLED);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.WARNING);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS_VISIBILITY, JavaCore.PRIVATE);
-		options.put(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS_OVERRIDING, JavaCore.ENABLED);
-		startBuild(options);
-	}
-
-	public void testPerfBuildCompilerUsingBatchCompiler() throws IOException {
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		final String targetWorkspacePath = workspaceRoot.getProject(JavaCore.PLUGIN_ID)
-			.getLocation()
-			.toFile()
-			.getCanonicalPath();
-		final String sources = targetWorkspacePath + File.separator + "compiler"; //$NON-NLS-1$
-		final String bins = targetWorkspacePath + File.separator + "bin"; //$NON-NLS-1$
-		final String logs = targetWorkspacePath + File.separator + "log.txt"; //$NON-NLS-1$
-
-		// Note this test is not a finger print test, so we don't want to use
-		// tagAsGlobalSummary(...)
-		tagAsSummary("Build jdt-core/compiler using batch compiler", Dimension.CPU_TIME);
-
-		// Compile 10 times
-		Main.compile(sources + " -1.4 -g -preserveAllLocals -enableJavadoc -nowarn -d " + bins + " -log " + logs); //$NON-NLS-1$ //$NON-NLS-2$
-		for (int i = 0; i < REPEAT; i++) {
-			startMeasuring();
-			Main.compile(sources + " -1.4 -g -preserveAllLocals -enableJavadoc -nowarn -d " + bins + " -log " + logs); //$NON-NLS-1$ //$NON-NLS-2$
-			stopMeasuring();
-			cleanupDirectory(new File(bins));
+		tagAsGlobalSummary("Compile>Build>Clean>Src:full wksp>Options:Default", Dimension.CPU_TIME, true); // put in fingerprint
+		int warnings = startBuild(JavaCore.getDefaultOptions());
+		if (DEBUG && warnings > 0) {
+			System.out.println(warnings+" warnings were diagnosed");
 		}
-		commitMeasurements();
-		assertPerformance();
+	}
 
-		File logsFile = new File(logs);
+	/**
+	 * Batch compiler build with JavaCore default options
+	 *		+ Invalid Javadoc Tag
+	 * 	+ Missing Javadoc Tag
+	 * 	+ Missing Javadoc Comments options activated.
+	 * 
+	 * @throws IOException
+	 */
+	public void testPerfBuildCompilerUsingBatchCompiler() throws IOException {
+		// Do no longer print results in performance fingerprint
+		tagAsSummary("Compile>Build>Batch>Src:compiler>Options:DocCommentSupport,None", Dimension.CPU_TIME, true); // put in fingerprint
+
+		File logsFile = buildUsingBatchCompiler("-enableJavadoc -nowarn");
+
+		// Should not get any error
 		assertTrue("No log file", logsFile.exists());
-		assertEquals("Has errors", 0, logsFile.length());
+		if (logsFile.length() != 0) {
+			char[] errors = Util.getFileCharContent(logsFile, null);
+			int length = Math.min(errors.length, 1000);
+			assertTrue("Should have NO warning!\nAlthoug, got following ones:\n"+(new String(errors, 0, length)), false);
+		}
 	}
 
 	/*
@@ -234,7 +197,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 		// loop for time measuring
 		long size = 0;
-		for (int i = 0; i < REPEAT; i++) {
+		for (int i = 0; i < MEASURES_COUNT; i++) {
 			startMeasuring();
 			for (int j = 0; j < SCAN_REPEAT; j++) {
 				scanner.resetTo(0, content.length);
@@ -284,15 +247,14 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	/**
 	 * Test performance for Scanner on one file.
 	 * Scan is executed many times ({@link #SCAN_REPEAT}) to have significant time for execution.
-	 * This test is repeated several times ({@link #REPEAT}) to average time measuring.
+	 * This test is repeated several times ({@link #ITERATIONS_COUNT}) to average time measuring.
 	 *  
 	 * @throws InvalidInputException
 	 * @throws IOException
 	 */
 	public void testPerfScannerOneFile() throws InvalidInputException, IOException {
-
-		// Note this test is not a finger print test, so we don't want to use tagAsGlobalSummary(...)
-		tagAsSummary("Scanner", Dimension.CPU_TIME);
+		// Do no longer print result in performance fingerprint
+		tagAsSummary("Compile>Scan>Src:parser>Options:Default", Dimension.CPU_TIME, true); // put in fingerprint
 
 		// Get workspace path
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -439,11 +401,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws IOException
 	 */
 	public void testPerfScannerFiles() throws InvalidInputException, IOException {
+		tagAsSummary("Compile>Scan>Src:large files>Options:Default", Dimension.CPU_TIME, false); // do NOT put in fingerprint
 
-		// Note this test is not a finger print test, so we don't want to use tagAsGlobalSummary(...)
-		tagAsSummary("Scan Files", Dimension.CPU_TIME);
-
-		// Run test
 //		scanFiles(FILE_SIZE_THRESHOLD, 0);
 		scanFiles(FILE_SIZE_THRESHOLD, 1);
 	}
@@ -451,7 +410,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	/*
 	 * Parse several times a file giving its name.
 	 */
-	private long[] parseFile(String fileName, int repeat) throws InvalidInputException, IOException {
+	private long[] parseFile(String fileName, int iterations) throws InvalidInputException, IOException {
 
 		// Test for parser
 		File file = new File(fileName);
@@ -466,7 +425,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 					new DefaultProblemFactory());
         Parser parser = new Parser(problemReporter, true);
 
-		// warm-up
+		// Warm-up
 		for (int i = 0; i < 2; i++) {
 			ICompilationUnit unit = new CompilationUnit(content, file.getName(), null);
 			CompilationResult unitResult = new CompilationResult(unit, 0, 1, options.maxProblemsPerUnit);				
@@ -474,36 +433,33 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			parser.getMethodBodies(unitDeclaration);
 		}
 
-		// loop for time measuring
+		// Measures
 		long parsedLines = 0;
 		long parsedCharacters = 0;
 		long start = 0;
+		if (DEBUG) {
+			start = System.currentTimeMillis();
+		}
 		startMeasuring();
-		for (int i = 0; i < REPEAT; i++) {
-			if (DEBUG) {
-				start = System.currentTimeMillis();
-			}
-			// Measure time for parse
-			for (int j = 0; j < repeat; j++) {
-				ICompilationUnit unit = new CompilationUnit(content, file.getName(), null);
-				CompilationResult unitResult = new CompilationResult(unit, 0, 1, options.maxProblemsPerUnit);				
-				CompilationUnitDeclaration unitDeclaration = parser.dietParse(unit, unitResult);
-				parser.getMethodBodies(unitDeclaration);
-				parsedCharacters += content.length;
-				parsedLines += unitResult.lineSeparatorPositions.length;
-            }
-
-			// Warn if measure time is not enough while debugging
-			if (DEBUG) {
-				long time = System.currentTimeMillis() - start;
-				if (time < TIME_THRESHOLD) {
-		            System.err.print(parsedLines + " lines/"+ parsedCharacters + " characters parsed");
-				} else {
-		            System.out.print(parsedLines + " lines/"+ parsedCharacters + " characters parsed");
-				}
-			}
+		for (int i = 0; i < iterations; i++) {
+			ICompilationUnit unit = new CompilationUnit(content, file.getName(), null);
+			CompilationResult unitResult = new CompilationResult(unit, 0, 1, options.maxProblemsPerUnit);				
+			CompilationUnitDeclaration unitDeclaration = parser.dietParse(unit, unitResult);
+			parser.getMethodBodies(unitDeclaration);
+			parsedCharacters += content.length;
+			parsedLines += unitResult.lineSeparatorPositions.length;
 		}
 		stopMeasuring();
+
+		// Warn if measure time is not enough while debugging
+		if (DEBUG) {
+			long time = System.currentTimeMillis() - start;
+			if (time < TIME_THRESHOLD) {
+	            System.err.print(parsedLines + " lines/"+ parsedCharacters + " characters parsed");
+			} else {
+	            System.out.print(parsedLines + " lines/"+ parsedCharacters + " characters parsed");
+			}
+		}
 
 		// Return stats
 		return new long[] { parsedCharacters, parsedLines };
@@ -512,16 +468,15 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Test performance for Parser on one file.
-	 * Parse is executed many times ({@link #PARSE_REPEAT}) to have significant time for execution.
-	 * This test is repeated several times ({@link #REPEAT}) to average time measuring.
+	 * Parse is executed many times ({@link #ITERATIONS_COUNT}) to have significant time for execution.
+	 * This test is repeated several times ({@link #MEASURES_COUNT}) to average time measuring.
 	 *  
 	 * @throws InvalidInputException
 	 * @throws IOException
 	 */
 	public void testPerfParserOneFile() throws InvalidInputException, IOException {
-
-		// Note this test is not a finger print test, so we don't want to use tagAsGlobalSummary(...)
-		tagAsSummary("Parser", Dimension.CPU_TIME);
+		// Do no longer print result in performance fingerprint
+		tagAsSummary("Compile>Parse>Src:parser>Options:Default", Dimension.CPU_TIME, true); // put in fingerprint
 
 		// Get workspace path
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -532,7 +487,9 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			.getCanonicalPath();
 		
 		// Run test
-		parseFile(targetWorkspacePath+"/compiler/org/eclipse/jdt/internal/compiler/parser/Parser.java", PARSE_REPEAT);
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			parseFile(targetWorkspacePath+"/compiler/org/eclipse/jdt/internal/compiler/parser/Parser.java", ITERATIONS_COUNT*6);
+		}
 
 		// dump measure
 		commitMeasurements();
@@ -567,7 +524,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		long parsedCharacters = 0;
 		long parsedLines = 0;
 		for (int i = 0, max = wkspFiles.length; i < max; i++) {
-			long[] stats = parseFile(wkspFiles[i].getCanonicalPath(), PARSE_REPEAT/10);
+			long[] stats = parseFile(wkspFiles[i].getCanonicalPath(), ITERATIONS_COUNT*10);
 			parsedCharacters += stats[0];
 			parsedLines += stats[1];
 		}
@@ -580,7 +537,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Test performance for Parser on several files.
-	 * Parse is executed many times ({@link #PARSE_REPEAT}/10) to have significant time for execution.
+	 * Parse is executed many times ({@link #ITERATIONS_COUNT}) to have significant time for execution.
 	 * This test is repeated once for each file over {@link #FILE_SIZE_THRESHOLD} characters
 	 * found in workspace to average time measuring.
 	 *  
@@ -588,14 +545,9 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws IOException
 	 */
 	public void testPerfParserFiles() throws InvalidInputException, IOException {
+		tagAsSummary("Compile>Parse>Src:large files>Options:Default", Dimension.CPU_TIME, false); // do NOT put in fingerprint
 
-		// Note this test is not a finger print test, so we don't want to use tagAsGlobalSummary(...)
-		tagAsSummary("Parse Files", Dimension.CPU_TIME);
-
-		// Run test
 		parseFiles(FILE_SIZE_THRESHOLD);
-
-		// dump measure
 		commitMeasurements();
 		assertPerformance();
 	}
