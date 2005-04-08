@@ -188,7 +188,7 @@ public final class BindingKey {
 	
 	/**
 	 * Returns the type argument signatures of the element represented by this binding key.
-	 * If this binding key doesn't represent a parameterized type or a pamaterized method,
+	 * If this binding key doesn't represent a parameterized type or a parameterized method,
 	 * returns an empty array.
 	 * 
 	 * @return the type argument signatures 
