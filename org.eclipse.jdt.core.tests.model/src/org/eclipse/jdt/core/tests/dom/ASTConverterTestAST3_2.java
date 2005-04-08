@@ -101,7 +101,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			return new Suite(ASTConverterTestAST3_2.class);		
 		}
 		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0601"));
+		suite.addTest(new ASTConverterTestAST3_2("test0602"));
 		return suite;
 	}
 	/**
@@ -6183,5 +6183,24 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=70526
+	 */
+	public void test0602() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0602", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		compilationUnit.accept(new ASTVisitor() {
+			public boolean visit(StringLiteral stringLiteral) {
+				assertTrue("Wrong start position", stringLiteral.getStartPosition() != 0);
+				assertTrue("Wrong length", stringLiteral.getLength() != -1);
+				return false;
+			}
+		});
 	}
 }
