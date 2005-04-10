@@ -52,7 +52,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug88300";
 //		TESTS_NAMES = new String[] { "testBug89848" };
-//		TESTS_NUMBERS = new int[] { 83693 };
+//		TESTS_NUMBERS = new int[] { 90915 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -2033,6 +2033,38 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		assertSearchResults(
 			"lib/b89848/Test.class void b89848.Test.foo() EXACT_MATCH\n" + 
 			"lib/b89848/X.class void b89848.X.foo() EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 90915: [1.5][search] NPE in PatternLocator
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=90915"
+	 */
+	public void testBug90915() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b90915/X.java",
+			"package b90915;\n" +
+			"import g5.m.def.Single;\n" + 
+			"public class X<T> {\n" + 
+			"	void foo() {\n" + 
+			"		Single<String> single = new Single<String>() {\n" + 
+			"			public <U> String generic(U u) { return \"\"; }\n" + 
+			"			public void paramTypesArgs(Single<String> gs) {}\n" + 
+			"		};\n" + 
+			"		single.paramTypesArgs(null);\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("X");
+		IMethod[] methods = type.getMethods();
+		assertEquals("Wrong number of methods", 1, methods.length);
+		IType anonymous = methods[0].getType("", 1);
+		assertNotNull("Cannot find anonymous in method foo()", anonymous);
+		methods = anonymous.getMethods();
+		assertEquals("Wrong number of methods", 2, methods.length);
+		search(methods[1], REFERENCES);
+		assertSearchResults(
+			"src/b90915/X.java void b90915.X.foo() [paramTypesArgs(null)] EXACT_MATCH"
 		);
 	}
 }

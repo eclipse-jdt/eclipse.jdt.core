@@ -348,8 +348,8 @@ protected void updateMatch(ParameterizedTypeBinding parameterizedBinding, char[]
 	if (locator.unitScope == null) return;
 
 	// Set match raw flag
-	boolean endPattern = depth>=patternTypeArguments.length;
-	char[][] patternArguments = (patternTypeArguments==null || endPattern) ? null : patternTypeArguments[depth];
+	boolean endPattern = patternTypeArguments==null  ? true  : depth>=patternTypeArguments.length;
+	char[][] patternArguments =  endPattern ? null : patternTypeArguments[depth];
 	boolean isRaw = parameterizedBinding.isRawType()|| (parameterizedBinding.arguments==null && parameterizedBinding.type.isGenericType());
 	if (isRaw && !match.isRaw()) {
 		match.setRaw(isRaw);
