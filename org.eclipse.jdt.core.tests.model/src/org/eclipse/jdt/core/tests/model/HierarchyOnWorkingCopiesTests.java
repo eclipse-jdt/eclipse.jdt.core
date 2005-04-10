@@ -57,9 +57,9 @@ public void testSimpleSubTypeHierarchy() throws CoreException {
 		assertHierarchyEquals(
 			"Focus: B [in B.java [in x.y [in src [in P]]]]\n" + 
 			"Super types:\n" + 
-			"  Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in P]]]]\n" + 
+			"  Object {key=Ljava/lang/Object;} [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in P]]]]\n" + 
 			"Sub types:\n" + 
-			"  A [in [Working copy] A.java [in x.y [in src [in P]]]]\n",
+			"  A {key=Lx/y/A;} [in [Working copy] A.java [in x.y [in src [in P]]]]\n",
 			h);
 	} finally {
 		if (file != null) {
@@ -93,8 +93,8 @@ public void testSimpleSuperTypeHierarchy() throws CoreException {
 		assertHierarchyEquals(
 			"Focus: C [in C.java [in x.y [in src [in P]]]]\n" + 
 			"Super types:\n" + 
-			"  B [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
-			"    Object [in Object.class [in java.lang [in "+  getExternalJCLPathString() +" [in P]]]]\n" + 
+			"  B {key=Lx/y/A~B;} [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
+			"    Object {key=Ljava/lang/Object;} [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in P]]]]\n" + 
 			"Sub types:\n",
 			h);
 	} finally {

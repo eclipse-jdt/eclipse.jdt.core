@@ -16,12 +16,12 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.util.Util;
 
-public abstract class HierarchyBuilder implements IHierarchyRequestor {
+public abstract class HierarchyBuilder {
 	/**
 	 * The hierarchy being built.
 	 */
@@ -124,81 +124,49 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 		}
 	}
 	/**
-	 * @see IHierarchyRequestor
+	 * Connect the supplied type to its superclass & superinterfaces.
+	 * The superclass & superinterfaces are the identical binary or source types as
+	 * supplied by the name environment.
 	 */
 	public void connect(
-		IGenericType suppliedType,
-		IGenericType superclass,
-		IGenericType[] superinterfaces) {
+		IGenericType type,
+		IType typeHandle,
+		IType superclassHandle,
+		IType[] superinterfaceHandles) {
 
-		// convert all infos to handles
-		IType typeHandle = getHandle(suppliedType);
 		/*
 		 * Temporary workaround for 1G2O5WK: ITPJCORE:WINNT - NullPointerException when selecting "Show in Type Hierarchy" for a inner class
 		 */
 		if (typeHandle == null)
 			return;
-		IType superHandle = null;
-		if (superclass != null) {
-			if (superclass instanceof HierarchyResolver.MissingType) {
-				this.hierarchy.missingTypes.add(((HierarchyResolver.MissingType)superclass).simpleName);
-			} else {
-				superHandle = getHandle(superclass);
-			}
-		}
-		IType[] interfaceHandles = null;
-		if (superinterfaces != null && superinterfaces.length > 0) {
-			int length = superinterfaces.length;
-			IType[] resolvedInterfaceHandles = new IType[length];
-			int index = 0;
-			for (int i = 0; i < length; i++) {
-				IGenericType superInterface = superinterfaces[i];
-				if (superInterface != null) {
-					if (superInterface instanceof HierarchyResolver.MissingType) {
-						this.hierarchy.missingTypes.add(((HierarchyResolver.MissingType)superInterface).simpleName);
-					} else {
-						resolvedInterfaceHandles[index] = getHandle(superInterface);
-						if (resolvedInterfaceHandles[index] != null) {
-							index++;
-						}
-					}
-				}
-			}
-			// resize
-			System.arraycopy(
-				resolvedInterfaceHandles,
-				0,
-				interfaceHandles = new IType[index],
-				0,
-				index);
-		}
 		if (TypeHierarchy.DEBUG) {
 			System.out.println(
 				"Connecting: " + ((JavaElement) typeHandle).toStringWithAncestors()); //$NON-NLS-1$
 			System.out.println(
 				"  to superclass: " //$NON-NLS-1$
-					+ (superHandle == null
+					+ (superclassHandle == null
 						? "<None>" //$NON-NLS-1$
-						: ((JavaElement) superHandle).toStringWithAncestors()));
+						: ((JavaElement) superclassHandle).toStringWithAncestors()));
 			System.out.print("  and superinterfaces:"); //$NON-NLS-1$
-			if (interfaceHandles == null || interfaceHandles.length == 0) {
+			if (superinterfaceHandles == null || superinterfaceHandles.length == 0) {
 				System.out.println(" <None>"); //$NON-NLS-1$
 			} else {
 				System.out.println();
-				for (int i = 0, length = interfaceHandles.length; i < length; i++) {
+				for (int i = 0, length = superinterfaceHandles.length; i < length; i++) {
+					if (superinterfaceHandles[i] == null) continue;
 					System.out.println(
-						"    " + ((JavaElement) interfaceHandles[i]).toStringWithAncestors()); //$NON-NLS-1$
+						"    " + ((JavaElement) superinterfaceHandles[i]).toStringWithAncestors()); //$NON-NLS-1$
 				}
 			}
 		}
 		// now do the caching
-		switch (suppliedType.getKind()) {
+		switch (type.getKind()) {
 			case IGenericType.CLASS_DECL :
 			case IGenericType.ENUM_DECL :
-				if (superHandle == null) {
+				if (superclassHandle == null) {
 					this.hierarchy.addRootClass(typeHandle);
 				} else {
-					this.hierarchy.cacheSuperclass(typeHandle, superHandle);
+					this.hierarchy.cacheSuperclass(typeHandle, superclassHandle);
 				}
 				break;
 			case IGenericType.INTERFACE_DECL :
@@ -206,29 +174,30 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 				this.hierarchy.addInterface(typeHandle);
 				break;
 		}		
-		if (interfaceHandles == null) {
-			interfaceHandles = TypeHierarchy.NO_TYPE;
+		if (superinterfaceHandles == null) {
+			superinterfaceHandles = TypeHierarchy.NO_TYPE;
 		}
-		this.hierarchy.cacheSuperInterfaces(typeHandle, interfaceHandles);
+		this.hierarchy.cacheSuperInterfaces(typeHandle, superinterfaceHandles);
 		 
 		// record flags
-		this.hierarchy.cacheFlags(typeHandle, suppliedType.getModifiers());
+		this.hierarchy.cacheFlags(typeHandle, type.getModifiers());
 	}
 	/**
 	 * Returns a handle for the given generic type or null if not found.
 	 */
-	protected IType getHandle(IGenericType genericType) {
+	protected IType getHandle(IGenericType genericType, ReferenceBinding binding) {
 		if (genericType == null)
 			return null;
 		if (genericType instanceof HierarchyType) {
 			IType handle = (IType)this.infoToHandle.get(genericType);
 			if (handle == null) {
 				handle = ((HierarchyType)genericType).typeHandle;
+				handle = new ResolvedSourceType((SourceType) handle, new String(binding.computeUniqueKey()));
 				this.infoToHandle.put(genericType, handle);
 			}
 			return handle;
 		} else if (genericType.isBinaryType()) {
-			IClassFile classFile = (IClassFile) this.infoToHandle.get(genericType);
+			ClassFile classFile = (ClassFile) this.infoToHandle.get(genericType);
 			// if it's null, it's from outside the region, so do lookup
 			if (classFile == null) {
 				IType handle = lookupBinaryHandle((IBinaryType) genericType);
@@ -236,17 +205,13 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
 					return null;
 				// case of an anonymous type (see 1G2O5WK: ITPJCORE:WINNT - NullPointerException when selecting "Show in Type Hierarchy" for a inner class)
 				// optimization: remember the handle for next call (case of java.io.Serializable that a lot of classes implement)
-				this.infoToHandle.put(genericType, handle.getParent());
-				return handle;
-			} else {
-				try {
-					return classFile.getType();
-				} catch (JavaModelException e) {
-					return null;
-				}
-			}
+				classFile = (ClassFile) handle.getParent();
+				this.infoToHandle.put(genericType, classFile);
+			} 
+			return new ResolvedBinaryType(classFile, classFile.getTypeName(), new String(binding.computeUniqueKey()));
 		} else if (genericType instanceof SourceTypeElementInfo) {
-			return ((SourceTypeElementInfo) genericType).getHandle();
+			IType handle = ((SourceTypeElementInfo) genericType).getHandle();
+			return new ResolvedSourceType((SourceType) handle, new String(binding.computeUniqueKey()));
 		} else
 			return null;
 	}
@@ -292,12 +257,12 @@ public abstract class HierarchyBuilder implements IHierarchyRequestor {
  * Create an ICompilationUnit info from the given compilation unit on disk.
  */
 protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String osPath) {
-	return 
-		new BasicCompilationUnit(
-			null,
-			null,
-			osPath,
-			handle);
+	final char[] elementName = handle.getElementName().toCharArray();
+	return new BasicCompilationUnit(null/* no source*/, null/* no package */, osPath, handle) {
+		public char[] getFileName() {
+			return elementName;
+		}
+	};
 }
 	/**
  * Creates the type info from the given class file on disk and

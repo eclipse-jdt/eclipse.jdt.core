@@ -333,7 +333,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 		if (monitor != null) monitor.done();
 	}
 }
-protected ICompilationUnit createCompilationUnitFromPath(Openable handle,String osPath) {
+protected ICompilationUnit createCompilationUnitFromPath(Openable handle, String osPath) {
 	ICompilationUnit unit = super.createCompilationUnitFromPath(handle, osPath);
 	this.cuToHandle.put(unit, handle);
 	return unit;

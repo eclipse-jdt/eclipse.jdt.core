@@ -28,6 +28,11 @@ public class ResolvedSourceType extends SourceType {
 		this.uniqueKey = uniqueKey;
 	}
 	
+	public ResolvedSourceType(SourceType original, String uniqueKey) {
+		this(original.parent, original.getElementName(), uniqueKey);
+		this.occurrenceCount = original.occurrenceCount;
+	}
+	
 	public String getFullyQualifiedParameterizedName() throws JavaModelException {
 		return getFullyQualifiedParameterizedName(getFullyQualifiedName(), this.uniqueKey);
 	}

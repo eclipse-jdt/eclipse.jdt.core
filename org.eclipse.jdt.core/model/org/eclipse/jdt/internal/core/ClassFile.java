@@ -452,16 +452,14 @@ public String getTopLevelTypeName() {
  */
 public IType getType() {
 	if (this.binaryType == null) {
-		// Internal class file name doesn't contain ".class" file extension
-		String typeName = this.name;
-		typeName = typeName.substring(typeName.lastIndexOf('.') + 1);
-		int index = typeName.lastIndexOf('$');
-		if (index > -1) {
-			typeName = Util.localTypeName(typeName, index, typeName.length());
-		}
-		this.binaryType = new BinaryType(this, typeName);
+		this.binaryType = new BinaryType(this, getTypeName());
 	}
 	return this.binaryType;
+}
+public String getTypeName() {
+	// Internal class file name doesn't contain ".class" file extension
+	int lastDollar = this.name.lastIndexOf('$');
+	return lastDollar > -1 ? Util.localTypeName(this.name, lastDollar, this.name.length()) : this.name;
 }
 /*
  * @see IClassFile
