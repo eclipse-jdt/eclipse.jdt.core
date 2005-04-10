@@ -32,13 +32,11 @@ public class TypeHierarchyTests extends ModifyingResourceTests {
 public TypeHierarchyTests(String name) {
 	super(name);
 }
+static {
+//	TESTS_NAMES= new String[] { "testBinaryTypeHiddenByOtherJar" };
+}
 public static Test suite() {
-	if (false) {
-		Suite suite = new Suite(TypeHierarchyTests.class.getName());
-		suite.addTest(new TypeHierarchyTests("testAnonymousType4"));
-		return suite;
-	}
-	return new Suite(TypeHierarchyTests.class);
+	return buildTestSuite(TypeHierarchyTests.class);
 }
 
 /* (non-Javadoc)
@@ -319,9 +317,9 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB", externalJar1, externalJar2}, "");
 		IType focus = project.getPackageFragmentRoot(externalJar2).getPackageFragment("p").getClassFile("Y.class").getType();
 		assertHierarchyEquals(
-			"Focus: Y [in Y.class [in p [in C:\\Documents and Settings\\jerome\\comptest\\test2.jar [in P]]]]\n" + 
+			"Focus: Y [in Y.class [in p [in " + externalJar2 + " [in P]]]]\n" + 
 			"Super types:\n" + 
-			"  X {key=Lp/X;} [in X.class [in p [in C:\\Documents and Settings\\jerome\\comptest\\test1.jar [in P]]]]\n" + 
+			"  X {key=Lp/X;} [in X.class [in p [in " + externalJar1 + " [in P]]]]\n" + 
 			"    Object {key=Ljava/lang/Object;} [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
 			"Sub types:\n",
 			focus.newTypeHierarchy(null)
