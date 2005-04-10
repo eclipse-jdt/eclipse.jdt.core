@@ -27,7 +27,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 9, 10 };
+//		TESTS_NUMBERS = new int[] { 90266 };
 //		TESTS_RANGE = new int[] { 13, 16 };
 	}
 
@@ -824,6 +824,49 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"field [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
 			"Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
 			"field [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]",
+			elements
+		);
+	}
+
+	/**
+	 * Bug 90266: [select] Code select returns null when there's a string including a slash on same line
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=90266"
+	 */
+	public void testBug90266_String() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b90266/Test.java",
+			"package b90266;\n" + 
+			"public class Test {\n" + 
+			"	public int field;\n" + 
+			"	public void foo(String str, int i) {}\n" +
+			"	public void bar() {\n" + 
+			"		foo(\"String including / (slash)\", this.field)\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		int[] selectionPositions = selectionInfo(workingCopies[0], "field", 2);
+		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
+		assertElementsEqual("Invalid selection(s)",
+			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in b90266 [in Tests]]]]]",
+			elements
+		);
+	}
+	public void testBug90266_Char() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Tests/b90266/Test.java",
+			"package b90266;\n" + 
+			"public class Test {\n" + 
+			"	public int field;\n" + 
+			"	public void foo(Char c, int i) {}\n" +
+			"	public void bar() {\n" + 
+			"		foo('/', this.field)\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		int[] selectionPositions = selectionInfo(workingCopies[0], "field", 2);
+		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
+		assertElementsEqual("Invalid selection(s)",
+			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in b90266 [in Tests]]]]]",
 			elements
 		);
 	}

@@ -361,6 +361,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						case '\r':
 						case '\n':
 						case '/':
+						case '"':
+						case '\'':
 							break lineLoop;
 					}
 					currentPosition--;
