@@ -192,7 +192,7 @@ public abstract class HierarchyBuilder {
 			IType handle = (IType)this.infoToHandle.get(genericType);
 			if (handle == null) {
 				handle = ((HierarchyType)genericType).typeHandle;
-				handle = new ResolvedSourceType((SourceType) handle, new String(binding.computeUniqueKey()));
+				handle = (IType) ((JavaElement) handle).resolved(binding);
 				this.infoToHandle.put(genericType, handle);
 			}
 			return handle;
@@ -211,7 +211,7 @@ public abstract class HierarchyBuilder {
 			return new ResolvedBinaryType(classFile, classFile.getTypeName(), new String(binding.computeUniqueKey()));
 		} else if (genericType instanceof SourceTypeElementInfo) {
 			IType handle = ((SourceTypeElementInfo) genericType).getHandle();
-			return new ResolvedSourceType((SourceType) handle, new String(binding.computeUniqueKey()));
+			return (IType) ((JavaElement) handle).resolved(binding);
 		} else
 			return null;
 	}

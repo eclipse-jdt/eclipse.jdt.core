@@ -55,8 +55,10 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 	// check class definition
 	SearchPattern pattern = locator.pattern;
 	BinaryType binaryType = (BinaryType) classFile.getType();
-	if (matchBinary(pattern, info, null))
-		locator.reportBinaryMemberDeclaration(null, binaryType, info, SearchMatch.A_ACCURATE);
+	if (matchBinary(pattern, info, null)) {
+		binaryType = new ResolvedBinaryType((JavaElement) binaryType.getParent(), binaryType.getElementName(), binaryType.getKey());
+		locator.reportBinaryMemberDeclaration(null, binaryType, null, info, SearchMatch.A_ACCURATE);
+	}
 
 	int accuracy = SearchMatch.A_ACCURATE;
 	if (((InternalSearchPattern)pattern).mustResolve) {
@@ -73,7 +75,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 						IMethod methodHandle = binaryType.getMethod(
 							new String(method.isConstructor() ? binding.compoundName[binding.compoundName.length-1] : method.selector),
 							CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.signature()))));
-						locator.reportBinaryMemberDeclaration(null, methodHandle, info, SearchMatch.A_ACCURATE);
+						locator.reportBinaryMemberDeclaration(null, methodHandle, method, info, SearchMatch.A_ACCURATE);
 					}
 				}
 
@@ -82,7 +84,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 					FieldBinding field = fields[i];
 					if (locator.patternLocator.resolveLevel(field) == PatternLocator.ACCURATE_MATCH) {
 						IField fieldHandle = binaryType.getField(new String(field.name));
-						locator.reportBinaryMemberDeclaration(null, fieldHandle, info, SearchMatch.A_ACCURATE);
+						locator.reportBinaryMemberDeclaration(null, fieldHandle, field, info, SearchMatch.A_ACCURATE);
 					}
 				}
 
@@ -110,10 +112,11 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 				} else {
 					name = method.getSelector();
 				}
-				IMethod methodHandle = binaryType.getMethod(
-					new String(name),
-					CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.getMethodDescriptor()))));
-				locator.reportBinaryMemberDeclaration(null, methodHandle, info, accuracy);
+				String selector = new String(name);
+				String[] parameterTypes = CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(method.getMethodDescriptor())));
+				IMethod methodHandle = binaryType.getMethod(selector, parameterTypes);
+				methodHandle = new ResolvedBinaryMethod(binaryType, selector, parameterTypes, methodHandle.getKey());
+				locator.reportBinaryMemberDeclaration(null, methodHandle, null, info, accuracy);
 			}
 		}
 	}
@@ -123,8 +126,10 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 		for (int i = 0, l = fields.length; i < l; i++) {
 			IBinaryField field = fields[i];
 			if (matchBinary(pattern, field, info)) {
-				IField fieldHandle = binaryType.getField(new String(field.getName()));
-				locator.reportBinaryMemberDeclaration(null, fieldHandle, info, accuracy);
+				String fieldName = new String(field.getName());
+				IField fieldHandle = binaryType.getField(fieldName);
+				fieldHandle = new ResolvedBinaryField(binaryType, fieldName, fieldHandle.getKey());
+				locator.reportBinaryMemberDeclaration(null, fieldHandle, null, info, accuracy);
 			}
 		}
 	}

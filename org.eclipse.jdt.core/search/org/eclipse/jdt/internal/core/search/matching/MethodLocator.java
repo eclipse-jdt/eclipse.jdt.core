@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 public class MethodLocator extends PatternLocator {
@@ -191,9 +192,9 @@ protected int matchMethod(MethodBinding method) {
 	return level;
 }
 /**
- * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchReportReference(org.eclipse.jdt.internal.compiler.ast.ASTNode, org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
+ * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchReportReference(org.eclipse.jdt.internal.compiler.ast.ASTNode, org.eclipse.jdt.core.IJavaElement, Binding, int, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
  */
-protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfReferencedMethodsPattern) {
 		// need exact match to be able to open on type ref
 		if (accuracy != SearchMatch.A_ACCURATE) return;
@@ -206,7 +207,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			reportDeclaration(((MessageSend) reference).binding, locator, declPattern.knownMethods);
 		}
 	} else {
-		match = locator.newMethodReferenceMatch(element, accuracy, -1, -1, false /*not constructor*/, false/*not synthetic*/, reference);
+		match = locator.newMethodReferenceMatch(element, elementBinding, accuracy, -1, -1, false /*not constructor*/, false/*not synthetic*/, reference);
 		if (this.pattern.findReferences && reference instanceof MessageSend) {
 			IJavaElement focus = ((InternalSearchPattern) this.pattern).focus;
 			// verify closest match if pattern was bound
@@ -316,7 +317,7 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 		if (resource == null)
 			resource = type.getJavaProject().getProject();
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile)type.getClassFile(), resource);
-		locator.reportBinaryMemberDeclaration(resource, method, info, SearchMatch.A_ACCURATE);
+		locator.reportBinaryMemberDeclaration(resource, method, methodBinding, info, SearchMatch.A_ACCURATE);
 	} else {
 		if (declaringClass instanceof ParameterizedTypeBinding)
 			declaringClass = ((ParameterizedTypeBinding) declaringClass).type;
@@ -333,6 +334,9 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 			} 
 			if (methodDecl != null) {
 				int offset = methodDecl.sourceStart;
+				Binding binding = methodDecl.binding;
+				if (binding != null)
+					method = (IMethod) ((JavaElement) method).resolved(binding);
 				match = new MethodDeclarationMatch(method, SearchMatch.A_ACCURATE, offset, methodDecl.sourceEnd-offset+1, locator.getParticipant(), resource);
 				locator.report(match);
 			}

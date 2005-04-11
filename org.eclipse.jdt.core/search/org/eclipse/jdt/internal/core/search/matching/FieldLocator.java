@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 public class FieldLocator extends VariableLocator {
@@ -133,7 +134,7 @@ protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean wr
 	}
 	return super.matchReference(node, nodeSet, writeOnlyAccess);
 }
-protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	if (this.isDeclarationOfAccessedFieldsPattern) {
 		// need exact match to be able to open on type ref
 		if (accuracy != SearchMatch.A_ACCURATE) return;
@@ -147,9 +148,9 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 				reportDeclaration(((FieldReference) reference).binding, locator, declPattern.knownFields);
 			} else if (reference instanceof QualifiedNameReference) {
 				QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
-				Binding binding = qNameRef.binding;
-				if (binding instanceof FieldBinding)
-					reportDeclaration((FieldBinding)binding, locator, declPattern.knownFields);
+				Binding nameBinding = qNameRef.binding;
+				if (nameBinding instanceof FieldBinding)
+					reportDeclaration((FieldBinding)nameBinding, locator, declPattern.knownFields);
 				int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
 				for (int i = 0; i < otherMax; i++)
 					reportDeclaration(qNameRef.otherBindings[i], locator, declPattern.knownFields);
@@ -163,38 +164,38 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		int lastIndex = importRef.tokens.length - 1;
 		int start = (int) ((positions[lastIndex]) >>> 32);
 		int end = (int) positions[lastIndex];
-		match = locator.newFieldReferenceMatch(element, accuracy, start, end-start+1, importRef);
+		match = locator.newFieldReferenceMatch(element, elementBinding, accuracy, start, end-start+1, importRef);
 		locator.report(match);
 	} else if (reference instanceof FieldReference) {
 		FieldReference fieldReference = (FieldReference) reference;
 		long position = fieldReference.nameSourcePosition;
 		int start = (int) (position >>> 32);
 		int end = (int) position;
-		match = locator.newFieldReferenceMatch(element, accuracy, start, end-start+1, fieldReference);
+		match = locator.newFieldReferenceMatch(element, elementBinding, accuracy, start, end-start+1, fieldReference);
 		locator.report(match);
 	} else if (reference instanceof SingleNameReference) {
 		int offset = reference.sourceStart;
-		match = locator.newFieldReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
+		match = locator.newFieldReferenceMatch(element, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);
 		locator.report(match);
 	} else if (reference instanceof QualifiedNameReference) {
 		QualifiedNameReference qNameRef = (QualifiedNameReference) reference;
 		int length = qNameRef.tokens.length;
 		SearchMatch[] matches = new SearchMatch[length];
-		Binding binding = qNameRef.binding;
+		Binding nameBinding = qNameRef.binding;
 		int indexOfFirstFieldBinding = qNameRef.indexOfFirstFieldBinding > 0 ? qNameRef.indexOfFirstFieldBinding-1 : 0;
 
 		// first token
-		if (matchesName(this.pattern.name, qNameRef.tokens[indexOfFirstFieldBinding]) && !(binding instanceof LocalVariableBinding)) {
-			FieldBinding fieldBinding = binding instanceof FieldBinding ? (FieldBinding) binding : null;
+		if (matchesName(this.pattern.name, qNameRef.tokens[indexOfFirstFieldBinding]) && !(nameBinding instanceof LocalVariableBinding)) {
+			FieldBinding fieldBinding = nameBinding instanceof FieldBinding ? (FieldBinding) nameBinding : null;
 			if (fieldBinding == null) {
-				matches[indexOfFirstFieldBinding] = locator.newFieldReferenceMatch(element, accuracy, -1, -1, reference);
+				matches[indexOfFirstFieldBinding] = locator.newFieldReferenceMatch(element, elementBinding, accuracy, -1, -1, reference);
 			} else {
 				switch (matchField(fieldBinding, false)) {
 					case ACCURATE_MATCH:
-						matches[indexOfFirstFieldBinding] = locator.newFieldReferenceMatch(element, SearchMatch.A_ACCURATE, -1, -1, reference);
+						matches[indexOfFirstFieldBinding] = locator.newFieldReferenceMatch(element, elementBinding, SearchMatch.A_ACCURATE, -1, -1, reference);
 						break;
 					case INACCURATE_MATCH:
-						match = locator.newFieldReferenceMatch(element, SearchMatch.A_INACCURATE, -1, -1, reference);
+						match = locator.newFieldReferenceMatch(element, elementBinding, SearchMatch.A_INACCURATE, -1, -1, reference);
 						if (fieldBinding.type.isParameterizedType() && this.pattern.hasTypeArguments()) {
 							updateMatch((ParameterizedTypeBinding) fieldBinding.type, this.pattern.getTypeArguments(), locator);
 						}
@@ -210,14 +211,14 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			if (matchesName(this.pattern.name, token)) {
 				FieldBinding otherBinding = qNameRef.otherBindings == null ? null : qNameRef.otherBindings[i-(indexOfFirstFieldBinding+1)];
 				if (otherBinding == null) {
-					matches[i] = locator.newFieldReferenceMatch(element, accuracy, -1, -1, reference);
+					matches[i] = locator.newFieldReferenceMatch(element, elementBinding, accuracy, -1, -1, reference);
 				} else {
 					switch (matchField(otherBinding, false)) {
 						case ACCURATE_MATCH:
-							matches[i] = locator.newFieldReferenceMatch(element, SearchMatch.A_ACCURATE, -1, -1, reference);
+							matches[i] = locator.newFieldReferenceMatch(element, elementBinding, SearchMatch.A_ACCURATE, -1, -1, reference);
 							break;
 						case INACCURATE_MATCH:
-							match = locator.newFieldReferenceMatch(element, SearchMatch.A_INACCURATE, -1, -1, reference);
+							match = locator.newFieldReferenceMatch(element, elementBinding, SearchMatch.A_INACCURATE, -1, -1, reference);
 							if (otherBinding.type.isParameterizedType() && this.pattern.hasTypeArguments()) {
 								updateMatch((ParameterizedTypeBinding) otherBinding.type, this.pattern.getTypeArguments(), locator);
 							}
@@ -264,7 +265,7 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 		if (resource == null)
 			resource = type.getJavaProject().getProject();
 		info = locator.getBinaryInfo((org.eclipse.jdt.internal.core.ClassFile) type.getClassFile(), resource);
-		locator.reportBinaryMemberDeclaration(resource, field, info, SearchMatch.A_ACCURATE);
+		locator.reportBinaryMemberDeclaration(resource, field, fieldBinding, info, SearchMatch.A_ACCURATE);
 	} else {
 		if (declaringClass instanceof ParameterizedTypeBinding)
 			declaringClass = ((ParameterizedTypeBinding) declaringClass).type;
@@ -281,7 +282,7 @@ protected void reportDeclaration(FieldBinding fieldBinding, MatchLocator locator
 			} 
 			if (fieldDecl != null) {
 				int offset = fieldDecl.sourceStart;
-				match = new FieldDeclarationMatch(field, SearchMatch.A_ACCURATE, offset, fieldDecl.sourceEnd-offset+1, locator.getParticipant(), resource);
+				match = new FieldDeclarationMatch(((JavaElement) field).resolved(fieldBinding), SearchMatch.A_ACCURATE, offset, fieldDecl.sourceEnd-offset+1, locator.getParticipant(), resource);
 				locator.report(match);
 			}
 		}

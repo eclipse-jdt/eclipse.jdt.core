@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -30,15 +31,15 @@ public class SourceMethod extends NamedMember implements IMethod {
 	 * to perform equality test. <code>null</code> indicates no
 	 * parameters.
 	 */
-	protected String[] fParameterTypes;
+	protected String[] parameterTypes;
 
 protected SourceMethod(JavaElement parent, String name, String[] parameterTypes) {
 	super(parent, name);
 	Assert.isTrue(name.indexOf('.') == -1);
 	if (parameterTypes == null) {
-		fParameterTypes= CharOperation.NO_STRINGS;
+		this.parameterTypes= CharOperation.NO_STRINGS;
 	} else {
-		fParameterTypes= parameterTypes;
+		this.parameterTypes= parameterTypes;
 	}
 }
 protected void closing(Object info) throws JavaModelException {
@@ -51,7 +52,7 @@ protected void closing(Object info) throws JavaModelException {
 }
 public boolean equals(Object o) {
 	if (!(o instanceof SourceMethod)) return false;
-	return super.equals(o) && Util.equalArraysOrNull(fParameterTypes, ((SourceMethod)o).fParameterTypes);
+	return super.equals(o) && Util.equalArraysOrNull(this.parameterTypes, ((SourceMethod)o).parameterTypes);
 }
 /**
  * @see IJavaElement
@@ -75,9 +76,9 @@ protected void getHandleMemento(StringBuffer buff) {
 	char delimiter = getHandleMementoDelimiter();
 	buff.append(delimiter);
 	escapeMementoName(buff, getElementName());
-	for (int i = 0; i < fParameterTypes.length; i++) {
+	for (int i = 0; i < this.parameterTypes.length; i++) {
 		buff.append(delimiter);
-		escapeMementoName(buff, fParameterTypes[i]);
+		escapeMementoName(buff, this.parameterTypes[i]);
 	}
 	if (this.occurrenceCount > 1) {
 		buff.append(JEM_COUNT);
@@ -100,7 +101,7 @@ public String getKey() {
  * @see IMethod
  */
 public int getNumberOfParameters() {
-	return fParameterTypes == null ? 0 : fParameterTypes.length;
+	return this.parameterTypes == null ? 0 : this.parameterTypes.length;
 }
 /**
  * @see IMethod
@@ -114,7 +115,7 @@ public String[] getParameterNames() throws JavaModelException {
  * @see IMethod
  */
 public String[] getParameterTypes() {
-	return fParameterTypes;
+	return this.parameterTypes;
 }
 
 public ITypeParameter getTypeParameter(String typeParameterName) {
@@ -162,7 +163,7 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 		if (cu.isPrimary()) return this;
 	}
 	IJavaElement primaryParent = this.parent.getPrimaryElement(false);
-	return ((IType)primaryParent).getMethod(this.name, fParameterTypes);
+	return ((IType)primaryParent).getMethod(this.name, this.parameterTypes);
 }
 /**
  * @see IMethod
@@ -176,15 +177,15 @@ public String getReturnType() throws JavaModelException {
  */
 public String getSignature() throws JavaModelException {
 	SourceMethodElementInfo info = (SourceMethodElementInfo) getElementInfo();
-	return Signature.createMethodSignature(fParameterTypes, Signature.createTypeSignature(info.getReturnTypeName(), false));
+	return Signature.createMethodSignature(this.parameterTypes, Signature.createTypeSignature(info.getReturnTypeName(), false));
 }
 /**
  * @see org.eclipse.jdt.internal.core.JavaElement#hashCode()
  */
 public int hashCode() {
    int hash = super.hashCode();
-	for (int i = 0, length = fParameterTypes.length; i < length; i++) {
-	    hash = Util.combineHashCodes(hash, fParameterTypes[i].hashCode());
+	for (int i = 0, length = this.parameterTypes.length; i < length; i++) {
+	    hash = Util.combineHashCodes(hash, this.parameterTypes[i].hashCode());
 	}
 	return hash;
 }
@@ -224,11 +225,10 @@ public String readableName() {
 
 	StringBuffer buffer = new StringBuffer(super.readableName());
 	buffer.append('(');
-	String[] parameterTypes = this.getParameterTypes();
 	int length;
-	if (parameterTypes != null && (length = parameterTypes.length) > 0) {
+	if (this.parameterTypes != null && (length = this.parameterTypes.length) > 0) {
 		for (int i = 0; i < length; i++) {
-			buffer.append(Signature.toString(parameterTypes[i]));
+			buffer.append(Signature.toString(this.parameterTypes[i]));
 			if (i < length - 1) {
 				buffer.append(", "); //$NON-NLS-1$
 			}
@@ -236,6 +236,11 @@ public String readableName() {
 	}
 	buffer.append(')');
 	return buffer.toString();
+}
+public JavaElement resolved(Binding binding) {
+	SourceRefElement resolvedHandle = new ResolvedSourceMethod(this.parent, this.name, this.parameterTypes, new String(binding.computeUniqueKey()));
+	resolvedHandle.occurrenceCount = this.occurrenceCount;
+	return resolvedHandle;
 }
 /**
  * @private Debugging purposes

@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 
 /**
  * @see IField
@@ -81,6 +82,11 @@ public String getTypeSignature() throws JavaModelException {
  */
 public boolean isResolved() {
 	return false;
+}
+public JavaElement resolved(Binding binding) {
+	SourceRefElement resolvedHandle = new ResolvedBinaryField(this.parent, this.name, new String(binding.computeUniqueKey()));
+	resolvedHandle.occurrenceCount = this.occurrenceCount;
+	return resolvedHandle;
 }
 /*
  * @private Debugging purposes

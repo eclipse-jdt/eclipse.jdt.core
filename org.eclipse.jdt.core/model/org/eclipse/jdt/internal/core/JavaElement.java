@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -511,6 +512,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public String readableName() {
 		return this.getElementName();
+	}
+	public JavaElement resolved(Binding binding) {
+		return this;
 	}
 	protected String tabString(int tab) {
 		StringBuffer buffer = new StringBuffer();

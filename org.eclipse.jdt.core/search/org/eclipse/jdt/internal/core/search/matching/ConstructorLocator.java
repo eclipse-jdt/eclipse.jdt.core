@@ -182,7 +182,7 @@ protected int matchLevelForDeclarations(ConstructorDeclaration constructor) {
 
 	return ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 }
-protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 
 	MethodBinding constructorBinding = null;
 	boolean isSynthetic = false;
@@ -194,12 +194,12 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		AllocationExpression alloc = (AllocationExpression) reference;
 		constructorBinding = alloc.binding;
 	} else if (reference instanceof TypeDeclaration || reference instanceof FieldDeclaration) {
-		super.matchReportReference(reference, element, accuracy, locator);
+		super.matchReportReference(reference, element, elementBinding, accuracy, locator);
 		if (match != null) return;
 	}
 
 	// Create search match
-	match = locator.newMethodReferenceMatch(element, accuracy, -1, -1, true, isSynthetic, reference);
+	match = locator.newMethodReferenceMatch(element, elementBinding, accuracy, -1, -1, true, isSynthetic, reference);
 
 	// Look to refine accuracy
 	if (constructorBinding instanceof ParameterizedGenericMethodBinding) { // parameterized generic method
@@ -259,7 +259,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 	match.setLength(reference.sourceEnd - offset + 1);
 	locator.report(match);
 }
-public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, int accuracy, int length, MatchLocator locator) {
+public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, Binding binding, int accuracy, int length, MatchLocator locator) {
 	match = null;
 	int offset = reference.sourceStart;
 	if (this.pattern.findReferences) {
@@ -270,21 +270,21 @@ public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, 
 				for (int i = 0, max = methods.length; i < max; i++) {
 					AbstractMethodDeclaration method = methods[i];
 					boolean synthetic = method.isDefaultConstructor() && method.sourceStart < type.bodyStart;
-					match = locator.newMethodReferenceMatch(element, accuracy, offset, length, method.isConstructor(), synthetic, method);
+					match = locator.newMethodReferenceMatch(element, binding, accuracy, offset, length, method.isConstructor(), synthetic, method);
 				}
 			}
 		} else if (reference instanceof ConstructorDeclaration) {
 			ConstructorDeclaration constructor = (ConstructorDeclaration) reference;
 			ExplicitConstructorCall call = constructor.constructorCall;
 			boolean synthetic = call != null && call.isImplicitSuper();
-			match = locator.newMethodReferenceMatch(element, accuracy, offset, length, constructor.isConstructor(), synthetic, constructor);
+			match = locator.newMethodReferenceMatch(element, binding, accuracy, offset, length, constructor.isConstructor(), synthetic, constructor);
 		}
 	}
 	if (match != null) {
 		return match;
 	}
 	// super implementation...
-    return locator.newDeclarationMatch(element, accuracy, reference.sourceStart, length);
+    return locator.newDeclarationMatch(element, binding, accuracy, reference.sourceStart, length);
 }
 public int resolveLevel(ASTNode node) {
 	if (this.pattern.findReferences) {

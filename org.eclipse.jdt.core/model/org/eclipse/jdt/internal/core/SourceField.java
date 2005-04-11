@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 
 /**
  * @see IField
@@ -128,6 +129,11 @@ public String getTypeSignature() throws JavaModelException {
  */
 public boolean isResolved() {
 	return false;
+}
+public JavaElement resolved(Binding binding) {
+	SourceRefElement resolvedHandle = new ResolvedSourceField(this.parent, this.name, new String(binding.computeUniqueKey()));
+	resolvedHandle.occurrenceCount = this.occurrenceCount;
+	return resolvedHandle;
 }
 /**
  * @private Debugging purposes

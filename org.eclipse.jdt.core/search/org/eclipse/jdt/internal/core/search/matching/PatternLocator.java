@@ -279,13 +279,13 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (locator.encloses(element)) {
 		// default is to report a match as a regular ref.
-		this.matchReportReference(importRef, element, accuracy, locator);
+		this.matchReportReference(importRef, element, null/*no binding*/, accuracy, locator);
 	}
 }
 /**
  * Reports the match of the given reference.
  */
-protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	match = null;
 	int referenceType = referenceType();
 	int offset = reference.sourceStart;
@@ -294,10 +294,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			match = locator.newPackageReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.TYPE:
-			match = locator.newTypeReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
+			match = locator.newTypeReferenceMatch(element, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.FIELD:
-			match = locator.newFieldReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
+			match = locator.newFieldReferenceMatch(element, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.LOCAL_VARIABLE:
 			match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
@@ -310,8 +310,8 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		locator.report(match);
 	}
 }
-public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, int accuracy, int length, MatchLocator locator) {
-    return locator.newDeclarationMatch(element, accuracy, reference.sourceStart, length);
+public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, int length, MatchLocator locator) {
+    return locator.newDeclarationMatch(element, elementBinding, accuracy, reference.sourceStart, length);
 }
 protected int referenceType() {
 	return 0; // defaults to unknown (a generic JavaSearchMatch will be created)

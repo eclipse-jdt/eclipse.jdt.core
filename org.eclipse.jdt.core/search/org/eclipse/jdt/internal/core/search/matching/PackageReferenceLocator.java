@@ -142,7 +142,7 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 }
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (binding == null) {
-		this.matchReportReference(importRef, element, accuracy, locator);
+		this.matchReportReference(importRef, element, null/*no binding*/, accuracy, locator);
 	} else {
 		if (locator.encloses(element)) {
 			long[] positions = importRef.sourcePositions;
@@ -163,7 +163,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 		}
 	}
 }
-protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	long[] positions = null;
 	int last = -1;
 	if (reference instanceof ImportReference) {

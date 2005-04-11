@@ -122,10 +122,12 @@ SimpleLookupTable bindings;
  */
 public class LocalDeclarationVisitor extends ASTVisitor {
 	IJavaElement enclosingElement;
+	Binding enclosingElementBinding;
 	MatchingNodeSet nodeSet;
 	HashtableOfIntValues occurrencesCounts = new HashtableOfIntValues(); // key = class name (char[]), value = occurrenceCount (int)
-	public LocalDeclarationVisitor(IJavaElement enclosingElement, MatchingNodeSet nodeSet) {
+	public LocalDeclarationVisitor(IJavaElement enclosingElement, Binding enclosingElementBinding, MatchingNodeSet nodeSet) {
 		this.enclosingElement = enclosingElement;
+		this.enclosingElementBinding = enclosingElementBinding;
 		this.nodeSet = nodeSet;
 	}
 	public boolean visit(TypeDeclaration typeDeclaration, BlockScope unused) {
@@ -145,17 +147,17 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 			occurrencesCounts.put(simpleName, occurrenceCount);
 			if (typeDeclaration.allocation == null || typeDeclaration.allocation.enumConstant == null) {
 				if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
-					reportMatching(typeDeclaration, enclosingElement, -1, nodeSet, occurrenceCount);
+					reportMatching(typeDeclaration, this.enclosingElement, -1, nodeSet, occurrenceCount);
 				} else {
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
-					reportMatching(typeDeclaration, enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount);
+					reportMatching(typeDeclaration, this.enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount);
 				}
 			} else {
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
 				if (level != null) {
 					FieldDeclaration enumConstant = typeDeclaration.allocation.enumConstant;
 					int offset = enumConstant.sourceStart;
-					SearchMatch match = newDeclarationMatch(enclosingElement, level.intValue(), offset, enumConstant.sourceEnd-offset+1);
+					SearchMatch match = newDeclarationMatch(this.enclosingElement, this.enclosingElementBinding, level.intValue(), offset, enumConstant.sourceEnd-offset+1);
 					report(match);
 				}
 			}
@@ -1120,7 +1122,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 			SearchDocument document = participant.getDocument(focus.getPath().toString());
 			this.currentPossibleMatch = new PossibleMatch(this, focus.getResource(), null, document);
 			if (encloses(focus)) {
-				SearchMatch match = newDeclarationMatch(focus.getAncestor(IJavaElement.PACKAGE_FRAGMENT), SearchMatch.A_ACCURATE, -1, -1);
+				SearchMatch match = newDeclarationMatch(focus.getAncestor(IJavaElement.PACKAGE_FRAGMENT), null/*no binding*/, SearchMatch.A_ACCURATE, -1, -1);
 				report(match);
 			}
 			return;
@@ -1162,7 +1164,7 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 						this.currentPossibleMatch = new PossibleMatch(this, resource, null, document);
 						try {
 							if (encloses(pkg)) {
-								SearchMatch match = newDeclarationMatch(pkg, SearchMatch.A_ACCURATE, -1, -1);
+								SearchMatch match = newDeclarationMatch(pkg, null/*no binding*/, SearchMatch.A_ACCURATE, -1, -1);
 								report(match);
 							}
 						} catch (JavaModelException e) {
@@ -1221,16 +1223,18 @@ protected IType lookupType(ReferenceBinding typeBinding) {
 }
 public SearchMatch newDeclarationMatch(
 		IJavaElement element,
+		Binding binding,
 		int accuracy,
 		int offset,  
 		int length) {
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
-	return newDeclarationMatch(element, accuracy, offset, length, participant, resource);
+	return newDeclarationMatch(element, binding, accuracy, offset, length, participant, resource);
 }
 
 public SearchMatch newDeclarationMatch(
 		IJavaElement element,
+		Binding binding,
 		int accuracy,
 		int offset,  
 		int length,
@@ -1240,11 +1244,11 @@ public SearchMatch newDeclarationMatch(
 		case IJavaElement.PACKAGE_FRAGMENT:
 			return new PackageDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		case IJavaElement.TYPE:
-			return new TypeDeclarationMatch(element, accuracy, offset, length, participant, resource);
+			return new TypeDeclarationMatch(binding == null ? element : ((JavaElement) element).resolved(binding), accuracy, offset, length, participant, resource);
 		case IJavaElement.FIELD:
-			return new FieldDeclarationMatch(element, accuracy, offset, length, participant, resource);
+			return new FieldDeclarationMatch(binding == null ? element : ((JavaElement) element).resolved(binding), accuracy, offset, length, participant, resource);
 		case IJavaElement.METHOD:
-			return new MethodDeclarationMatch(element, accuracy, offset, length, participant, resource);
+			return new MethodDeclarationMatch(binding == null ? element : ((JavaElement) element).resolved(binding), accuracy, offset, length, participant, resource);
 		case IJavaElement.LOCAL_VARIABLE:
 			return new LocalVariableDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		case IJavaElement.PACKAGE_DECLARATION:
@@ -1258,6 +1262,7 @@ public SearchMatch newDeclarationMatch(
 
 public SearchMatch newFieldReferenceMatch(
 		IJavaElement enclosingElement,
+		Binding enclosingBinding,
 		int accuracy,
 		int offset,  
 		int length,
@@ -1269,6 +1274,8 @@ public SearchMatch newFieldReferenceMatch(
 	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
+	if (enclosingBinding != null)
+		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
 	return new FieldReferenceMatch(enclosingElement, accuracy, offset, length, isReadAccess, isWriteAccess, insideDocComment, participant, resource);
 }
 
@@ -1290,6 +1297,7 @@ public SearchMatch newLocalVariableReferenceMatch(
 
 public SearchMatch newMethodReferenceMatch(
 		IJavaElement enclosingElement,
+		Binding enclosingBinding,
 		int accuracy,
 		int offset,  
 		int length,
@@ -1299,6 +1307,8 @@ public SearchMatch newMethodReferenceMatch(
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
+	if (enclosingBinding != null)
+		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
 	return new MethodReferenceMatch(enclosingElement, accuracy, offset, length, isConstructor, isSynthetic, insideDocComment, participant, resource);
 }
 
@@ -1329,6 +1339,7 @@ public SearchMatch newTypeParameterReferenceMatch(
 
 public SearchMatch newTypeReferenceMatch(
 		IJavaElement enclosingElement,
+		Binding enclosingBinding,
 		int accuracy,
 		int offset,  
 		int length,
@@ -1336,14 +1347,17 @@ public SearchMatch newTypeReferenceMatch(
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
 	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
+	if (enclosingBinding != null)
+		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
 	return new TypeReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
 }
 
 public SearchMatch newTypeReferenceMatch(
 		IJavaElement enclosingElement,
+		Binding enclosingBinding,
 		int accuracy,
 		ASTNode reference) {
-	return newTypeReferenceMatch(enclosingElement, accuracy, reference.sourceStart, reference.sourceEnd-reference.sourceStart+1, reference);
+	return newTypeReferenceMatch(enclosingElement, enclosingBinding, accuracy, reference.sourceStart, reference.sourceEnd-reference.sourceStart+1, reference);
 }
 
 /*
@@ -1692,7 +1706,7 @@ protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedName
 	} while (token != TerminalTokens.TokenNameEOF);
 
 }
-protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryMember, IBinaryType info, int accuracy) throws CoreException {
+protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryMember, Binding binaryMemberBinding, IBinaryType info, int accuracy) throws CoreException {
 	ClassFile classFile = (ClassFile) binaryMember.getClassFile();
 	ISourceRange range = classFile.isOpen() ? binaryMember.getNameRange() : SourceMapper.fgUnknownRange;
 	if (range.getOffset() == -1) {
@@ -1708,7 +1722,7 @@ protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryM
 		}
 	}
 	if (resource == null) resource =  this.currentPossibleMatch.resource;
-	SearchMatch match = newDeclarationMatch(binaryMember, accuracy, range.getOffset(), range.getLength(), getParticipant(), resource);
+	SearchMatch match = newDeclarationMatch(binaryMember, binaryMemberBinding, accuracy, range.getOffset(), range.getLength(), getParticipant(), resource);
 	report(match);
 }
 /**
@@ -1733,7 +1747,7 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 			}
 			if (encloses(enclosingElement)) {
 				int length = scanner.currentPosition - nameSourceStart;
-				SearchMatch match = this.patternLocator.newDeclarationMatch(method, enclosingElement, accuracy, length, this);
+				SearchMatch match = this.patternLocator.newDeclarationMatch(method, enclosingElement, method.binding, accuracy, length, this);
 				report(match);
 			}
 		}
@@ -1743,7 +1757,7 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 	if ((method.bits & ASTNode.HasLocalTypeMASK) != 0) {
 		if (enclosingElement == null)
 			enclosingElement = createHandle(method, parent);
-		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, nodeSet);
+		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, method.binding, nodeSet);
 		try {
 			method.traverse(localDeclarationVisitor, (ClassScope) null);
 		} catch (WrappedCoreException e) {
@@ -1759,7 +1773,7 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 			if (level != null) {
 				if (enclosingElement == null)
 					enclosingElement = createHandle(method, parent);
-				this.patternLocator.matchReportReference(typeRef, enclosingElement, level.intValue(), this);
+				this.patternLocator.matchReportReference(typeRef, enclosingElement, method.binding, level.intValue(), this);
 			}
 		}
 	}
@@ -1775,7 +1789,7 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 					for (int i = 0, l = nodes.length; i < l; i++) {
 						ASTNode node = nodes[i];
 						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-						this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+						this.patternLocator.matchReportReference(node, enclosingElement, method.binding, level.intValue(), this);
 					}
 					return;
 				}
@@ -1830,7 +1844,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 				ImportReference importRef = imports[i];
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(importRef);
 				if (level != null)
-					this.patternLocator.matchReportImportRef(importRef, null, createImportHandle(importRef), level.intValue(), this);
+					this.patternLocator.matchReportImportRef(importRef, null/*no binding*/, createImportHandle(importRef), level.intValue(), this);
 			}
 		}
 	}
@@ -1856,7 +1870,7 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 		enclosingElement = createHandle(field, type, parent);
 		if (encloses(enclosingElement)) {
 			int offset = field.sourceStart;
-			SearchMatch match = newDeclarationMatch(enclosingElement, accuracy, offset, field.sourceEnd-offset+1);
+			SearchMatch match = newDeclarationMatch(enclosingElement, field.binding, accuracy, offset, field.sourceEnd-offset+1);
 			report(match);
 		}
 	}
@@ -1865,7 +1879,7 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 	if ((field.bits & ASTNode.HasLocalTypeMASK) != 0) {
 		if (enclosingElement == null)
 			enclosingElement = createHandle(field, type, parent);
-		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, nodeSet);
+		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, field.binding, nodeSet);
 		try {
 			field.traverse(localDeclarationVisitor, null);
 		} catch (WrappedCoreException e) {
@@ -1881,7 +1895,7 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 			if (level != null) {
 				if (enclosingElement == null)
 					enclosingElement = createHandle(field, type, parent);
-				this.patternLocator.matchReportReference(typeRef, enclosingElement, level.intValue(), this);
+				this.patternLocator.matchReportReference(typeRef, enclosingElement, field.binding, level.intValue(), this);
 			}
 		}
 	}
@@ -1901,7 +1915,7 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 					for (int i = 0, l = nodes.length; i < l; i++) {
 						ASTNode node = nodes[i];
 						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-						this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+						this.patternLocator.matchReportReference(node, enclosingElement, field.binding, level.intValue(), this);
 					}
 			}
 		}
@@ -1930,7 +1944,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	// report the type declaration
 	if (accuracy > -1 && encloses(enclosingElement)) {
 		int offset = type.sourceStart;
-		SearchMatch match = this.patternLocator.newDeclarationMatch(type, enclosingElement, accuracy, type.sourceEnd-offset+1, this);
+		SearchMatch match = this.patternLocator.newDeclarationMatch(type, enclosingElement, type.binding, accuracy, type.sourceEnd-offset+1, this);
 		report(match);
 	}
 
@@ -1945,21 +1959,21 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 				if (level != null && matchedClassContainer) {
 					if (level.intValue() > -1 && encloses(enclosingElement)) {
 						int offset = typeParameter.sourceStart;
-						SearchMatch match = this.patternLocator.newDeclarationMatch(typeParameter, enclosingElement, level.intValue(), typeParameter.sourceEnd-offset+1, this);
+						SearchMatch match = this.patternLocator.newDeclarationMatch(typeParameter, enclosingElement, type.binding, level.intValue(), typeParameter.sourceEnd-offset+1, this);
 						report(match);
 					}
 				}
 				if (typeParameter.type != null) {
 					level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter.type);
 					if (level != null && matchedClassContainer) {
-						this.patternLocator.matchReportReference(typeParameter.type, enclosingElement, level.intValue(), this);
+						this.patternLocator.matchReportReference(typeParameter.type, enclosingElement, type.binding, level.intValue(), this);
 					}
 				}
 				if (typeParameter.bounds != null) {
 					for (int j=0, b=typeParameter.bounds.length; j<b; j++) {
 						level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter.bounds[j]);
 						if (level != null && matchedClassContainer) {
-							this.patternLocator.matchReportReference(typeParameter.bounds[j], enclosingElement, level.intValue(), this);
+							this.patternLocator.matchReportReference(typeParameter.bounds[j], enclosingElement, type.binding, level.intValue(), this);
 						}
 					}
 				}
@@ -1973,7 +1987,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			TypeReference typeRef = type.annotations[i].type;
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
 			if (level != null && matchedClassContainer) {
-				this.patternLocator.matchReportReference(typeRef, enclosingElement, level.intValue(), this);
+				this.patternLocator.matchReportReference(typeRef, enclosingElement, type.binding, level.intValue(), this);
 			}
 		}
 	}
@@ -1990,7 +2004,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
 					if (encloses(enclosingElement))
-						this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+						this.patternLocator.matchReportReference(node, enclosingElement, type.binding, level.intValue(), this);
 				}
 			}
 		}
@@ -2002,17 +2016,17 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 		if (superType != null) {
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(superType);
 			if (level != null && matchedClassContainer)
-				this.patternLocator.matchReportReference(superType, enclosingElement, level.intValue(), this);
+				this.patternLocator.matchReportReference(superType, enclosingElement, type.binding, level.intValue(), this);
 		}
 	} else {
 		TypeReference superClass = type.superclass;
 		if (superClass != null) {
-			reportMatchingSuper(superClass, enclosingElement, nodeSet, matchedClassContainer);
+			reportMatchingSuper(superClass, enclosingElement, type.binding, nodeSet, matchedClassContainer);
 		}
 		TypeReference[] superInterfaces = type.superInterfaces;
 		if (superInterfaces != null) {
 			for (int i = 0, l = superInterfaces.length; i < l; i++) {
-				reportMatchingSuper(superInterfaces[i], enclosingElement, nodeSet, matchedClassContainer);
+				reportMatchingSuper(superInterfaces[i], enclosingElement, type.binding, nodeSet, matchedClassContainer);
 			}
 		}
 	}
@@ -2054,7 +2068,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 		}
 	}
 }
-protected void reportMatchingSuper(TypeReference superReference, IJavaElement enclosingElement, MatchingNodeSet nodeSet, boolean matchedClassContainer) throws CoreException {
+protected void reportMatchingSuper(TypeReference superReference, IJavaElement enclosingElement, Binding elementBinding, MatchingNodeSet nodeSet, boolean matchedClassContainer) throws CoreException {
 	ASTNode[] nodes = null;
 	if (superReference instanceof ParameterizedSingleTypeReference || superReference instanceof ParameterizedQualifiedTypeReference) {
 		long lastTypeArgumentInfo = findLastTypeArgumentInfo(superReference);
@@ -2069,13 +2083,13 @@ protected void reportMatchingSuper(TypeReference superReference, IJavaElement en
 				for (int i = 0, l = nodes.length; i < l; i++) {
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-					this.patternLocator.matchReportReference(node, enclosingElement, level.intValue(), this);
+					this.patternLocator.matchReportReference(node, enclosingElement, elementBinding, level.intValue(), this);
 				}
 		}
 	} else {
 		Integer level = (Integer) nodeSet.matchingNodes.removeKey(superReference);
 		if (level != null && matchedClassContainer)
-			this.patternLocator.matchReportReference(superReference, enclosingElement, level.intValue(), this);
+			this.patternLocator.matchReportReference(superReference, enclosingElement, elementBinding, level.intValue(), this);
 	}
 }
 protected boolean typeInHierarchy(ReferenceBinding binding) {

@@ -178,7 +178,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 	if (closestPattern != null)
 		closestPattern.matchReportImportRef(importRef, binding, element, accuracy, locator);
 }
-protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	PatternLocator closestPattern = null;
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
@@ -191,9 +191,9 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		}
 	}
 	if (closestPattern != null)
-		closestPattern.matchReportReference(reference, element, accuracy, locator);
+		closestPattern.matchReportReference(reference, element, elementBinding, accuracy, locator);
 }
-public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, int accuracy, int length, MatchLocator locator) {
+public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, int length, MatchLocator locator) {
 	PatternLocator closestPattern = null;
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, pl = this.patternLocators.length; i < pl; i++) {
@@ -206,10 +206,10 @@ public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, 
 		}
 	}
 	if (closestPattern != null) {
-	    return closestPattern.newDeclarationMatch(reference, element, accuracy, length, locator);
+	    return closestPattern.newDeclarationMatch(reference, element, elementBinding, accuracy, length, locator);
 	}
 	// super implementation...
-    return locator.newDeclarationMatch(element, accuracy, reference.sourceStart, length);
+    return locator.newDeclarationMatch(element, elementBinding, accuracy, reference.sourceStart, length);
 }
 public int resolveLevel(ASTNode node) {
 	int level = IMPOSSIBLE_MATCH;
