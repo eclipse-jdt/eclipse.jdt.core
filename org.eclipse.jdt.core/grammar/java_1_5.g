@@ -367,9 +367,13 @@ PackageDeclarationName ::= Modifiers 'package' PushRealModifiers Name
 /:$readableName PackageDeclarationName:/
 /:$compliance 1.5:/
 
-PackageDeclarationName ::= 'package' Name
+PackageDeclarationName ::= PackageComment 'package' Name
 /.$putCase  consumePackageDeclarationName(); $break ./
 /:$readableName PackageDeclarationName:/
+
+PackageComment ::= $empty
+/.$putCase  consumePackageComment(); $break ./
+/:$readableName PackageComment:/
 
 ImportDeclaration -> SingleTypeImportDeclaration
 ImportDeclaration -> TypeImportOnDemandDeclaration
