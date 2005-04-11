@@ -67,10 +67,14 @@ public class IndexAllProject extends IndexRequest {
 				if ((entry.getEntryKind() == IClasspathEntry.CPE_SOURCE)) 
 					sourceEntries[sourceEntriesNumber++] = entry;
 			}
-			if (sourceEntriesNumber == 0) 
-				// nothing to index
+			if (sourceEntriesNumber == 0) {
+				// nothing to index but want to save empty index file
+				Index index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
+				if (index != null)
+					this.manager.saveIndex(index);
 				// also the project might be a library folder (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89815)
 				return true;
+			}
 			if (sourceEntriesNumber != length)
 				System.arraycopy(sourceEntries, 0, sourceEntries = new IClasspathEntry[sourceEntriesNumber], 0, sourceEntriesNumber);
 	
