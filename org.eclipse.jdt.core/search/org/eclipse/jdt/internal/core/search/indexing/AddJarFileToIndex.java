@@ -148,6 +148,7 @@ class AddJarFileToIndex extends IndexRequest {
 								org.eclipse.jdt.internal.core.util.Util.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
 								+ zip.getName() + " (" //$NON-NLS-1$
 								+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
+							this.manager.saveIndex(index); // to ensure its placed into the saved state
 							return true;
 						}
 					}
