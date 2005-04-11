@@ -49,9 +49,6 @@ public int getSourceLength() {
 protected ISourceRange getSourceRange() {
 	return new SourceRange(0, this.sourceLength);
 }
-protected boolean isOpen() {
-	return true;
-}
 /**
  * Sets the length of the source string.
  */

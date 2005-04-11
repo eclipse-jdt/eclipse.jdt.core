@@ -903,14 +903,6 @@ public boolean isBasedOn(IResource resource) {
 public boolean isConsistent() {
 	return JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().get(this) == null;
 }
-/**
- * 
- * @see IOpenable
- */
-public boolean isOpen() {
-	Object info = JavaModelManager.getJavaModelManager().getInfo(this);
-	return info != null && ((CompilationUnitElementInfo)info).isOpen();
-}
 public boolean isPrimary() {
 	return this.owner == DefaultWorkingCopyOwner.PRIMARY;
 }
