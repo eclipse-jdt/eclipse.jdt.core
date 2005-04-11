@@ -69,9 +69,10 @@ public class IndexAllProject extends IndexRequest {
 			}
 			if (sourceEntriesNumber == 0) {
 				// nothing to index but want to save empty index file
-				Index index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
-				if (index != null)
-					this.manager.saveIndex(index);
+// TODO (kent) how should empty projects be saved? if no rebuild job is issued then we would be ok
+//				Index index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
+//				if (index != null)
+//					this.manager.saveIndex(index);
 				// also the project might be a library folder (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89815)
 				return true;
 			}
