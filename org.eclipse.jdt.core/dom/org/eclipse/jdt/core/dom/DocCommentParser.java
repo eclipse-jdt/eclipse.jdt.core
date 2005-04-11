@@ -411,7 +411,9 @@ class DocCommentParser extends AbstractCommentParser {
 							// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
 							// was encountered in comment. But it cannot be the case for COMPILER_PARSER
 							// and so is enough as it is only this parser which signals the missing tag warnings...
-							this.inherited = this.astPtr==-1;
+							if (this.astPtr==-1) {
+								this.inheritedPositions = (((long) this.tagSourceStart) << 32) + this.tagSourceEnd;
+							}
 							this.tagValue = TAG_INHERITDOC_VALUE;
 						} else {
 							this.tagValue = TAG_OTHERS_VALUE;

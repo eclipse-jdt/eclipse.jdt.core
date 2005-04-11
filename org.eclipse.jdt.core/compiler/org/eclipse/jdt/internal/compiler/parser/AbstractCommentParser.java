@@ -72,7 +72,8 @@ public abstract class AbstractCommentParser {
 	protected boolean jdk15;
 	
 	// Results
-	protected boolean inherited, deprecated;
+	protected long inheritedPositions;
+	protected boolean deprecated;
 	protected Object returnStatement;
 	
 	// Positions
@@ -144,7 +145,7 @@ public abstract class AbstractCommentParser {
 			this.inlineTagStart = -1;
 			this.lineStarted = false;
 			this.returnStatement = null;
-			this.inherited = false;
+			this.inheritedPositions = -1;
 			this.deprecated = false;
 			this.linePtr = getLineNumber(javadocStart);
 			this.lastLinePtr = getLineNumber(javadocEnd);

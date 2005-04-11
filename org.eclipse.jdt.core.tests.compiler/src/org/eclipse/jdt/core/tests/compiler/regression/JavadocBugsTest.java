@@ -852,21 +852,26 @@ public class JavadocBugsTest extends JavadocTest {
 					"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
-				"	       ^^^\n" + 
-				"Javadoc: Missing tag for return type\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
-				"	                      ^^^\n" + 
-				"Javadoc: Missing tag for parameter str\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
-				"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
-				"	                                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Missing tag for declared exception IllegalArgumentException\n" + 
-				"----------\n"
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	* {@inheritDoc}\n" + 
+			"	    ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
+			"	       ^^^\n" + 
+			"Javadoc: Missing tag for return type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
+			"	                      ^^^\n" + 
+			"Javadoc: Missing tag for parameter str\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
+			"	                                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Missing tag for declared exception IllegalArgumentException\n" + 
+			"----------\n"
 		);
 	}
 
@@ -3776,6 +3781,112 @@ public class JavadocBugsTest extends JavadocTest {
 				"	void bar() {}\n" + 
 				"}"
 			}
+		);
+	}
+
+	/**
+	 * Bug 90302: [javadoc] {@inheritedDoc} should be inactive for non-overridden method
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=90302"
+	 */
+	public void testBug90302() {
+		this.reportMissingJavadocTags = CompilerOptions.ERROR;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+				" * @see #foo(String)\n" + 
+				" */\n" + 
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * Static method\n" + 
+				"	 * @param str\n" + 
+				"	 * @return int\n" + 
+				"	 * @throws NumberFormatException\n" + 
+				"	 */\n" + 
+				"	static int foo(String str) throws NumberFormatException{\n" + 
+				"		return Integer.parseInt(str);\n" + 
+				"	}\n" + 
+				"}\n",
+				"Y.java",
+				"/**\n" + 
+				" * @see #foo(String)\n" + 
+				" */\n" + 
+				"public class Y extends X { \n" + 
+				"	/**\n" + 
+				"	 * Static method: does not override super\n" + 
+				"	 * {@inheritDoc}\n" + 
+				"	 */\n" + 
+				"	static int foo(String str) throws NumberFormatException{\n" + 
+				"		return Integer.parseInt(str);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 7)\n" + 
+			"	* {@inheritDoc}\n" + 
+			"	    ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"2. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	       ^^^\n" + 
+			"Javadoc: Missing tag for return type\n" + 
+			"----------\n" + 
+			"3. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	                      ^^^\n" + 
+			"Javadoc: Missing tag for parameter str\n" + 
+			"----------\n" + 
+			"4. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	                                  ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Missing tag for declared exception NumberFormatException\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug90302b() {
+		this.reportMissingJavadocTags = CompilerOptions.ERROR;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/** */\n" + 
+				"public class X {\n" + 
+				"}\n",
+				"Y.java",
+				"/**\n" + 
+				" * @see #foo(String)\n" + 
+				" */\n" + 
+				"public class Y extends X { \n" + 
+				"	/**\n" + 
+				"	 * Simple method: does not override super\n" + 
+				"	 * {@inheritDoc}\n" + 
+				"	 */\n" + 
+				"	static int foo(String str) throws NumberFormatException{\n" + 
+				"		return Integer.parseInt(str);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 7)\n" + 
+			"	* {@inheritDoc}\n" + 
+			"	    ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"2. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	       ^^^\n" + 
+			"Javadoc: Missing tag for return type\n" + 
+			"----------\n" + 
+			"3. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	                      ^^^\n" + 
+			"Javadoc: Missing tag for parameter str\n" + 
+			"----------\n" + 
+			"4. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	                                  ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Missing tag for declared exception NumberFormatException\n" + 
+			"----------\n"
 		);
 	}
 }
