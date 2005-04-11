@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.compiler.util.Messages;
 
 /**
  * Represents a class file wrapper on bytes, it is aware of its actual
@@ -79,14 +79,14 @@ public class ClassFile
 		f = new File(outputPath);
 		if (f.exists()) {
 			if (!f.isDirectory()) {
-				System.out.println(Util.bind("output.isFile", f.getAbsolutePath()));//$NON-NLS-1$
-				throw new IOException(Util.bind("output.isFileNotDirectory"));//$NON-NLS-1$
+				System.out.println(Messages.bind(Messages.output_isFile, f.getAbsolutePath()));
+				throw new IOException(Messages.output_isFileNotDirectory);
 			}
 		} else {
 			// we have to create that directory
 			if (!f.mkdirs()) {
-				System.out.println(Util.bind("output.dirName", f.getAbsolutePath()));//$NON-NLS-1$
-				throw new IOException(Util.bind("output.notValidAll"));//$NON-NLS-1$
+				System.out.println(Messages.bind(Messages.output_dirName, f.getAbsolutePath()));
+				throw new IOException(Messages.output_notValidAll);
 			}
 		}
 		StringBuffer outDir = new StringBuffer(outputPath);
@@ -102,8 +102,8 @@ public class ClassFile
 			} else {
 				// Need to add the outDir
 				if (!f.mkdir()) {
-					System.out.println(Util.bind("output.fileName", f.getName()));//$NON-NLS-1$
-					throw new IOException(Util.bind("output.notValid"));//$NON-NLS-1$
+					System.out.println(Messages.bind(Messages.output_fileName, f.getName()));
+					throw new IOException(Messages.output_notValid);
 				}
 			}
 			token = tokenizer.nextToken();
@@ -933,7 +933,7 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		StringBuffer buffer = new StringBuffer(25);
 		buffer.append("\t"  + problem.getMessage() + "\n" ); //$NON-NLS-1$ //$NON-NLS-2$
-		buffer.insert(0, Util.bind("compilation.unresolvedProblem"));//$NON-NLS-1$
+		buffer.insert(0, Messages.compilation_unresolvedProblem);
 		String problemString = buffer.toString();
 		
 		codeStream.init(this);
@@ -987,9 +987,9 @@ public class ClassFile
 				}
 			} // insert the top line afterwards, once knowing how many problems we have to consider
 			if (count > 1) {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblems"));//$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblems);
 			} else {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblem"));//$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblem);
 			}
 			problemString = buffer.toString();
 		}
@@ -1049,9 +1049,9 @@ public class ClassFile
 				}
 			} // insert the top line afterwards, once knowing how many problems we have to consider
 			if (count > 1) {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblems"));//$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblems);
 			} else {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblem"));//$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblem);
 			}
 			problemString = buffer.toString();
 		}
@@ -1139,9 +1139,9 @@ public class ClassFile
 				}
 			} // insert the top line afterwards, once knowing how many problems we have to consider
 			if (count > 1) {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblems"));//$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblems);
 			} else {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblem"));//$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblem);
 			}
 			problemString = buffer.toString();
 		}
@@ -1658,7 +1658,7 @@ public class ClassFile
 					if (startPC != endPC) { // only entries for non zero length
 						if (endPC == -1) {
 							localVariable.declaringScope.problemReporter().abortDueToInternalError(
-									Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
+									Messages.bind(Messages.abort_invalidAttribute, new String(localVariable.name)), 
 									(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (isParameterizedType) {
@@ -1950,7 +1950,7 @@ public class ClassFile
 						if (startPC != endPC) { // only entries for non zero length
 							if (endPC == -1) {
 								localVariable.declaringScope.problemReporter().abortDueToInternalError(
-									Util.bind("abort.invalidAttribute", new String(localVariable.name)), //$NON-NLS-1$
+									Messages.bind(Messages.abort_invalidAttribute, new String(localVariable.name)), 
 									(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 							}
 							if (localContentsOffset + 10 >= this.contents.length) {
@@ -2669,7 +2669,7 @@ public class ClassFile
 					if (startPC != endPC) { // only entries for non zero length
 						if (endPC == -1) {
 							localVariable.declaringScope.problemReporter().abortDueToInternalError(
-								Util.bind("abort.invalidAttribute", new String(localVariable.name)), //$NON-NLS-1$
+								Messages.bind(Messages.abort_invalidAttribute, new String(localVariable.name)), 
 								(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (localContentsOffset + 10 > this.contents.length) {

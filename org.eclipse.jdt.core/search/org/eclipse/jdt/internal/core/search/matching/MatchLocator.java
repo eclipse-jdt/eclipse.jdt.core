@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfIntValues;
+import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
@@ -944,8 +945,7 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 			}
 			if (this.options.verbose)
 				System.out.println(
-					org.eclipse.jdt.internal.compiler.util.Util.bind(
-						org.eclipse.jdt.internal.compiler.util.Util.bind("compilation.done"), //$NON-NLS-1$
+					Messages.bind(Messages.compilation_done,
 						new String[] {
 							String.valueOf(i + 1),
 							String.valueOf(this.numberOfMatches),

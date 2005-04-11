@@ -183,10 +183,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		if (options.verbose) {
 			System.out.println(
-				Util.bind("compilation.loadBinary",  //$NON-NLS-1$
-				new String[] {
-					new String(binaryType.getName())
-				}));
+				Messages.bind(Messages.compilation_loadBinary, new String(binaryType.getName())));
 //			new Exception("TRACE BINARY").printStackTrace(System.out);
 //		    System.out.println();
 		}
@@ -205,12 +202,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			if (options.verbose) {
 				String count = String.valueOf(totalUnits + 1);
 				System.out.println(
-					Util.bind("compilation.request", //$NON-NLS-1$
-					new String[] {
-						count,
-						count,
-						new String(sourceUnit.getFileName())
-					}));
+					Messages.bind(Messages.compilation_request,
+						new String[] {
+							count,
+							count,
+							new String(sourceUnit.getFileName())
+						}));
 			}
 			// diet parsing for large collection of unit
 			CompilationUnitDeclaration parsedUnit;
@@ -241,7 +238,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 */
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		problemReporter.abortDueToInternalError(
-			Util.bind("abort.againstSourceModel", String.valueOf(sourceTypes[0].getName()), String.valueOf(sourceTypes[0].getFileName()))); //$NON-NLS-1$
+			Messages.bind(Messages.abort_againstSourceModel, new String[] { String.valueOf(sourceTypes[0].getName()), String.valueOf(sourceTypes[0].getFileName()) })); 
 	}
 
 	protected void addCompilationUnit(
@@ -278,12 +275,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			try {
 				if (options.verbose) {
 					System.out.println(
-						Util.bind("compilation.request", //$NON-NLS-1$
-							new String[] {
-								String.valueOf(i + 1),
-								String.valueOf(maxUnits),
-								new String(sourceUnits[i].getFileName())
-							}));
+						Messages.bind(Messages.compilation_request,
+						new String[] {
+							String.valueOf(i + 1),
+							String.valueOf(maxUnits),
+							new String(sourceUnits[i].getFileName())
+						}));
 				}
 				// diet parsing for large collection of units
 				if (totalUnits < parseThreshold) {
@@ -323,12 +320,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				try {
 					if (options.verbose)
 						System.out.println(
-							Util.bind("compilation.process", //$NON-NLS-1$
-								new String[] {
-									String.valueOf(i + 1),
-									String.valueOf(totalUnits),
-									new String(unitsToProcess[i].getFileName())
-								}));
+							Messages.bind(Messages.compilation_process,
+							new String[] {
+								String.valueOf(i + 1),
+								String.valueOf(totalUnits),
+								new String(unitsToProcess[i].getFileName())
+							}));
 					process(unit, i);
 				} finally {
 					// cleanup compilation unit result
@@ -338,12 +335,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 				if (options.verbose)
 					System.out.println(
-						Util.bind("compilation.done", //$NON-NLS-1$
-							new String[] {
-								String.valueOf(i + 1),
-								String.valueOf(totalUnits),
-								new String(unit.getFileName())
-							}));
+						Messages.bind(Messages.compilation_done,
+						new String[] {
+							String.valueOf(i + 1),
+							String.valueOf(totalUnits),
+							new String(unit.getFileName())
+						}));
 			}
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
@@ -359,10 +356,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		if (options.verbose) {
 			if (totalUnits > 1) {
 				System.out.println(
-					Util.bind("compilation.units", String.valueOf(totalUnits))); //$NON-NLS-1$
+					Messages.bind(Messages.compilation_units, String.valueOf(totalUnits))); 
 			} else {
 				System.out.println(
-					Util.bind("compilation.unit", String.valueOf(totalUnits))); //$NON-NLS-1$
+					Messages.bind(Messages.compilation_unit, String.valueOf(totalUnits))); 
 			}
 		}
 	}
@@ -391,7 +388,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			StringBuffer buffer = stringWriter.getBuffer();
 
 			String[] pbArguments = new String[] {
-				Util.bind("compilation.internalError") //$NON-NLS-1$
+				Messages.compilation_internalError
 					+ "\n"  //$NON-NLS-1$
 					+ buffer.toString()};
 
