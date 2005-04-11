@@ -80,6 +80,7 @@ public abstract class InternalSearchPattern {
 				EntryResult entry = entries[i];
 				decodedResult.decodeIndexKey(entry.getWord());
 				if (pattern.matchesDecodedKey(decodedResult)) {
+					// TODO (kent) some clients may not need the document names
 					String[] names = entry.getDocumentNames(index);
 					for (int j = 0, n = names.length; j < n; j++)
 						acceptMatch(names[j], containerPath, decodedResult, requestor, participant, scope);
