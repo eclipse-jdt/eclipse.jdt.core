@@ -1087,8 +1087,10 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				} catch (JavaModelException e) {
 					return null;
 				}
-				if (!ignoreDeclaringType) {
-					IType declaringClass = method.getDeclaringType();
+				IType declaringClass = method.getDeclaringType();
+				if (ignoreDeclaringType) {
+					if (isConstructor) declaringSimpleName = declaringClass.getElementName().toCharArray();
+				} else {
 					declaringSimpleName = declaringClass.getElementName().toCharArray();
 					declaringQualification = declaringClass.getPackageFragment().getElementName().toCharArray();
 					char[][] enclosingNames = enclosingTypeNames(declaringClass);

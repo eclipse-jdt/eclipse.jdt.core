@@ -52,7 +52,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug88300";
 //		TESTS_NAMES = new String[] { "testBug89848" };
-//		TESTS_NUMBERS = new int[] { 90915 };
+//		TESTS_NUMBERS = new int[] { 90779 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -2033,6 +2033,39 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		assertSearchResults(
 			"lib/b89848/Test.class void b89848.Test.foo() EXACT_MATCH\n" + 
 			"lib/b89848/X.class void b89848.X.foo() EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 90779: [search] Constructor Declaration search with ignoring declaring and return type also ignores type name
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=90779"
+	 */
+	public void testBug90779() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b90779/A.java",
+			"package b90779;\n" +
+			"public class A {\n" + 
+			"	public A() {}\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b90779/B.java",
+			"package b90779;\n" +
+			"public class B {\n" + 
+			"	public B() {}\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b90779/C.java",
+			"package b90779;\n" +
+			"public class C {\n" + 
+			"	public C() {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("A");
+		IMethod[] methods = type.getMethods();
+		assertEquals("Wrong number of methods", 1, methods.length);
+		search(methods[0], DECLARATIONS | IGNORE_DECLARING_TYPE | IGNORE_RETURN_TYPE);
+		assertSearchResults(
+			"src/b90779/A.java b90779.A() [A] EXACT_MATCH"
 		);
 	}
 
