@@ -27,7 +27,7 @@
    <type name="IClasspathEntry" implement="false"/>
    <type name="ICodeAssist" implement="false"/>
    <type name="ICodeCompletionRequestor"/>
-   <type name="ICodeFormatter" implement="false"/> ???
+   <type name="ICodeFormatter" implement="false"/>
    <type name="ICompilationUnit" implement="false"/>
    <type name="ICompletionRequestor"/>
    <type name="ICorrectionRequestor" implement="false"/>
@@ -59,7 +59,7 @@
    <type name="IType" implement="false"/>
    <type name="ITypeHierarchy" implement="false"/>
    <type name="ITypeHierarchyChangedListener"/>
-   <type name="ITypeParameter" implement="false"/> ???
+   <type name="ITypeParameter" implement="false"/>
    <type name="IWorkingCopy" implement="false"/>
    <type name="JavaConventions" subclass="false" instantiate="false"/>
    <type name="JavaCore" subclass="false" instantiate="false"/>
@@ -70,7 +70,7 @@
    <type name="WorkingCopyOwner" instantiate="false"/>
  </package>
  <package name="org.eclipse.jdt.core.compiler">
-   <type name="IScanner" implement="false"/> ???
+   <type name="IScanner" implement="false"/>
    <type name="ITerminalSymbols" implement="false"/>
    <type name="CharOperation" subclass="false" instantiate="false"/>
    <type name="InvalidInputException" subclass="false" instantiate="false"/>
