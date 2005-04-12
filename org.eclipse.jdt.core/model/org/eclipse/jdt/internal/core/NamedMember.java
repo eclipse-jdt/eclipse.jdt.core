@@ -97,12 +97,7 @@ public abstract class NamedMember extends Member {
 		key.append(')');
 		
 		// return type
-		try {
-			key.append(method.getReturnType());
-		} catch (JavaModelException e) {
-			// method doesn't exist
-			key.append('V');
-		}
+		key.append('V'); // cannot get the return type without opening the element, default to void
 		
 		return key.toString();
 	}
