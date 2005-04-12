@@ -344,6 +344,9 @@ public class GetSourceTests extends ModifyingResourceTests {
 				"  static final long field1 = 938245798324893L;\n" +
 				"  static final long field2 = 938245798324893l;\n" +
 				"  static final long field3 = 938245798324893;\n" +
+				"  static final char field4 = ' ';\n" +
+				"  static final double field5 = 938245798324893D;\n" +
+				"  static final float field6 = 123456f;\n" +
 				"}";
 			createFile("/P/p/Y.java", cuSource);
 			IType type = getCompilationUnit("/P/p/Y.java").getType("Y");
@@ -355,6 +358,8 @@ public class GetSourceTests extends ModifyingResourceTests {
 			Object constant = field.getConstant();
 			assertNotNull("No constant", constant);
 			assertTrue("Not a Long", constant instanceof Long);
+			Long value = (Long) constant;
+			assertEquals("Wrong value", 938245798324893l, value.longValue());
 			
 			field = type.getField("field2");
 		
@@ -364,7 +369,9 @@ public class GetSourceTests extends ModifyingResourceTests {
 			constant = field.getConstant();
 			assertNotNull("No constant", constant);
 			assertTrue("Not a Long", constant instanceof Long);
-
+			value = (Long) constant;
+			assertEquals("Wrong value", 938245798324893l, value.longValue());
+			
 			field = type.getField("field3");
 		
 			actualSource = field.getSource();
@@ -373,6 +380,41 @@ public class GetSourceTests extends ModifyingResourceTests {
 			constant = field.getConstant();
 			assertNotNull("No constant", constant);
 			assertTrue("Not a Long", constant instanceof Long);
+			value = (Long) constant;
+			assertEquals("Wrong value", 938245798324893l, value.longValue());
+
+			field = type.getField("field4");
+			
+			actualSource = field.getSource();
+			expectedSource = "static final char field4 = ' ';";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+			constant = field.getConstant();
+			assertNotNull("No constant", constant);
+			assertTrue("Not a Character", constant instanceof Character);
+			Character character = (Character) constant;
+			assertEquals("Wrong value", ' ', character.charValue());
+			
+			field = type.getField("field5");
+			
+			actualSource = field.getSource();
+			expectedSource = "static final double field5 = 938245798324893D;";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+			constant = field.getConstant();
+			assertNotNull("No constant", constant);
+			assertTrue("Not a Double", constant instanceof Double);
+			Double double1 = (Double) constant;
+			assertEquals("Wrong value", 938245798324893l, double1.doubleValue(), 0.01);			
+
+			field = type.getField("field6");
+			
+			actualSource = field.getSource();
+			expectedSource = "static final float field6 = 123456f;";
+			assertSourceEquals("Unexpected source'", expectedSource, actualSource);
+			constant = field.getConstant();
+			assertNotNull("No constant", constant);
+			assertTrue("Not a Float", constant instanceof Float);
+			Float float1 = (Float) constant;
+			assertEquals("Wrong value", 123456, float1.floatValue(), 0.01f);			
 		} finally {
 			deleteFile("/P/p/Y.java");
 		}

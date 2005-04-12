@@ -47,11 +47,12 @@ public ASTNode findNode(org.eclipse.jdt.core.dom.CompilationUnit ast) {
 public Object getConstant() throws JavaModelException {
 	Object constant = null;	
 	SourceFieldElementInfo info = (SourceFieldElementInfo) getElementInfo();
-	if (info.initializationSource == null) {
+	final char[] constantSourceChars = info.initializationSource;
+	if (constantSourceChars == null) {
 		return null;
 	}
 			
-	String constantSource = new String(info.initializationSource);
+	String constantSource = new String(constantSourceChars);
 	String signature = info.getTypeSignature();
 	if (signature.equals(Signature.SIG_INT)) {
 		constant = new Integer(constantSource);
@@ -62,7 +63,10 @@ public Object getConstant() throws JavaModelException {
 	} else if (signature.equals(Signature.SIG_BOOLEAN)) {
 		constant = Boolean.valueOf(constantSource);
 	} else if (signature.equals(Signature.SIG_CHAR)) {
-		constant = new Character(constantSource.charAt(0));
+		if (constantSourceChars.length != 3) {
+			return null;
+		}
+		constant = new Character(constantSourceChars[1]);
 	} else if (signature.equals(Signature.SIG_DOUBLE)) {
 		constant = new Double(constantSource);
 	} else if (signature.equals(Signature.SIG_FLOAT)) {
