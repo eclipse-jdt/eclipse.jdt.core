@@ -57,9 +57,12 @@ public abstract class InternalSearchPattern {
 		return (SearchPattern) this;
 	}
 	String documentPath(String containerPath, String relativePath) {
-		if (Util.isArchiveFileName(containerPath))
-			return containerPath + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + relativePath;
-		return containerPath + '/' + relativePath;
+		String separator = Util.isArchiveFileName(containerPath) ? IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR : "/"; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer(containerPath.length() + separator.length() + relativePath.length());
+		buffer.append(containerPath);
+		buffer.append(separator);
+		buffer.append(relativePath);
+		return buffer.toString();
 	}
 	/**
 	 * Query a given index for matching entries. Assumes the sender has opened the index and will close when finished.
