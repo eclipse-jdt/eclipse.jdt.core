@@ -64,16 +64,21 @@ public class IndexAllProject extends IndexRequest {
 			int sourceEntriesNumber = 0;
 			for (int i = 0; i < length; i++) {
 				IClasspathEntry entry = entries[i];
-				if ((entry.getEntryKind() == IClasspathEntry.CPE_SOURCE)) 
+				if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE)
 					sourceEntries[sourceEntriesNumber++] = entry;
 			}
 			if (sourceEntriesNumber == 0) {
-				// nothing to index but want to save empty index file
-// TODO (kent) how should empty projects be saved? if no rebuild job is issued then we would be ok
-//				Index index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
-//				if (index != null)
-//					this.manager.saveIndex(index);
-				// also the project might be a library folder (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89815)
+				IPath projectPath = javaProject.getPath();
+				for (int i = 0; i < length; i++) {
+					IClasspathEntry entry = entries[i];
+					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && entry.getPath().equals(projectPath))
+						return true; // the project is also a library folder (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89815)
+				}
+
+				// nothing to index but want to save an empty index file so its not 'rebuilt' when part of a search request
+				Index index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
+				if (index != null)
+					this.manager.saveIndex(index);
 				return true;
 			}
 			if (sourceEntriesNumber != length)
