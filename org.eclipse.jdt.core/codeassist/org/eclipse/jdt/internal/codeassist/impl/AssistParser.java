@@ -73,6 +73,7 @@ public abstract class AssistParser extends Parser {
 	protected static final int K_TYPE_DELIMITER = ASSIST_PARSER + 2; // whether we are inside a type declaration
 	protected static final int K_METHOD_DELIMITER = ASSIST_PARSER + 3; // whether we are inside a method declaration
 	protected static final int K_FIELD_INITIALIZER_DELIMITER = ASSIST_PARSER + 4; // whether we are inside a field initializer
+	protected static final int K_ATTRIBUTE_VALUE_DELIMITER = ASSIST_PARSER + 5; // whether we are inside a annotation attribute valuer
 	
 	// selector constants
 	protected static final int THIS_CONSTRUCTOR = -1;
@@ -274,9 +275,17 @@ protected void consumeEnterAnonymousClassBody() {
 	popElement(K_SELECTOR);
 	pushOnElementStack(K_TYPE_DELIMITER);
 }
+protected void consumeEnterMemberValue() {
+	super.consumeEnterMemberValue();
+	pushOnElementStack(K_ATTRIBUTE_VALUE_DELIMITER, this.identifierPtr);
+}
 protected void consumeEnumHeader() {
 	super.consumeEnumHeader();
 	pushOnElementStack(K_TYPE_DELIMITER);
+}
+protected void consumeExitMemberValue() {
+	super.consumeExitMemberValue();
+	popElement(K_ATTRIBUTE_VALUE_DELIMITER);
 }
 protected void consumeExplicitConstructorInvocation(int flag, int recFlag) {
 	super.consumeExplicitConstructorInvocation(flag, recFlag);
@@ -671,7 +680,7 @@ protected void consumeToken(int token) {
 	}
 	// register message send selector only if inside a method or if looking at a field initializer 
 	// and if the current token is an open parenthesis
-	if (isInsideMethod() || isInsideFieldInitialization()) {
+	if (isInsideMethod() || isInsideFieldInitialization() || isInsideAttributeValue()) {
 		switch (token) {
 			case TokenNameLPAREN :
 				switch (this.previousToken) {
@@ -1071,6 +1080,19 @@ protected boolean isIndirectlyInsideType(){
 	}
 	return false;
 }
+protected boolean isInsideAttributeValue(){
+	int i = elementPtr;
+	while(i > -1) {
+		switch (elementKindStack[i]) {
+			case K_TYPE_DELIMITER : return false;
+			case K_METHOD_DELIMITER : return false;
+			case K_FIELD_INITIALIZER_DELIMITER : return false;
+			case K_ATTRIBUTE_VALUE_DELIMITER : return true;
+		}
+		i--;
+	}
+	return false;
+}
 protected boolean isInsideFieldInitialization(){
 	int i = elementPtr;
 	while(i > -1) {
@@ -1411,7 +1433,7 @@ public void recoveryTokenCheck() {
 			break;
 		case TokenNameRBRACE :
 			super.recoveryTokenCheck();
-			if(currentElement != oldElement) {
+			if(currentElement != oldElement && !isInsideAttributeValue()) {
 				if(oldElement instanceof RecoveredInitializer
 					|| oldElement instanceof RecoveredMethod
 					|| (oldElement instanceof RecoveredBlock && oldElement.parent instanceof RecoveredInitializer)) {

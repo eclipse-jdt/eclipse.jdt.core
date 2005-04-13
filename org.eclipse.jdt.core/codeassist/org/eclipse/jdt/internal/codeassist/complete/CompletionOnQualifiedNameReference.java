@@ -38,9 +38,11 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnQualifiedNameReference extends QualifiedNameReference {
 	public char[] completionIdentifier;
-public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions) {
+	public boolean isInsideAnnotationAttribute;
+public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions, boolean isInsideAnnotationAttribute) {
 	super(previousIdentifiers, positions, (int) (positions[0] >>> 32), (int) positions[positions.length - 1]);
 	this.completionIdentifier = completionIdentifier;
+	this.isInsideAnnotationAttribute = isInsideAnnotationAttribute;
 }
 public StringBuffer printExpression(int indent, StringBuffer output) {
 

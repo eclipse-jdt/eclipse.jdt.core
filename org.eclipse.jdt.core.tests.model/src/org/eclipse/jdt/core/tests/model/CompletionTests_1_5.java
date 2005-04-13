@@ -46,7 +46,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests_1_5("test0136"));			
+	suite.addTest(new CompletionTests_1_5("test0184"));			
 	return suite;
 }
 
@@ -3045,6 +3045,2022 @@ public void test0144() throws JavaModelException {
 			aClass.discardWorkingCopy();
 		}
 		JavaCore.setOptions(oldCurrentOptions);
+	}
+}
+// complete annotation attribute value
+public void test0145() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0145/ZZAnnotation.java",
+				"package test0145;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0145/ZZClass.java",
+				"package test0145;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0145/Test.java",
+				"package test0145;\n" +
+				"@ZZAnnotation(foo1=ZZ)\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0145, Ltest0145.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0145, Ltest0145.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0146() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0146/ZZAnnotation.java",
+				"package test0146;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0146/ZZClass.java",
+				"package test0146;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0146/Test.java",
+				"package test0146;\n" +
+				"@ZZAnnotation(foo1= 0 + ZZ)\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0146, Ltest0146.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0146, Ltest0146.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0147() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0147/ZZAnnotation.java",
+				"package test0147;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0147/ZZClass.java",
+				"package test0147;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0147/Test.java",
+				"package test0147;\n" +
+				"@ZZAnnotation(foo1= {ZZ})\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0147, Ltest0147.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0147, Ltest0147.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0148() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0148/ZZAnnotation.java",
+				"package test0148;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0148/ZZClass.java",
+				"package test0148;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0148/Test.java",
+				"package test0148;\n" +
+				"@ZZAnnotation(foo1=ZZ\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0148, Ltest0148.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0148, Ltest0148.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0149() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0149/ZZAnnotation.java",
+				"package test0149;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0149/ZZClass.java",
+				"package test0149;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0149/Test.java",
+				"package test0149;\n" +
+				"@ZZAnnotation(foo1= 0 + ZZ\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0149, Ltest0149.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0149, Ltest0149.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0150() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0150/ZZAnnotation.java",
+				"package test0150;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0150/ZZClass.java",
+				"package test0150;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0150/Test.java",
+				"package test0150;\n" +
+				"@ZZAnnotation(foo1= {ZZ}\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0150, Ltest0150.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0150, Ltest0150.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0151() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0151/ZZAnnotation.java",
+				"package test0151;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0151/ZZClass.java",
+				"package test0151;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0151/Test.java",
+				"package test0151;\n" +
+				"@ZZAnnotation(foo1= {ZZ\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0151, Ltest0151.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0151, Ltest0151.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0152() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0152/ZZAnnotation.java",
+				"package test0152;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0152/ZZClass.java",
+				"package test0152;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0152/Test.java",
+				"package test0152;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1=ZZ)\n" +
+				"  void bar(){}\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0152, Ltest0152.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0152, Ltest0152.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0152.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0153() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0153/ZZAnnotation.java",
+				"package test0153;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0153/ZZClass.java",
+				"package test0153;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0153/Test.java",
+				"package test0153;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1= 0 + ZZ)\n" +
+				"  void bar(){}\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0153, Ltest0153.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0153, Ltest0153.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0153.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0154() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0154/ZZAnnotation.java",
+				"package test0154;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0154/ZZClass.java",
+				"package test0154;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0154/Test.java",
+				"package test0154;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1= {ZZ})\n" +
+				"  void bar(){}\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0154.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0154, Ltest0154.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0154, Ltest0154.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0155() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0155/ZZAnnotation.java",
+				"package test0155;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0155/ZZClass.java",
+				"package test0155;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0155/Test.java",
+				"package test0155;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1=ZZ\n" +
+				"  void bar(){}\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0155, Ltest0155.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0155, Ltest0155.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0155.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0156() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0156/ZZAnnotation.java",
+				"package test0156;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0156/ZZClass.java",
+				"package test0156;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0156/Test.java",
+				"package test0156;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1= 0 + ZZ\n" +
+				"  void bar(){}\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0156, Ltest0156.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0156, Ltest0156.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0156.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0157() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0157/ZZAnnotation.java",
+				"package test0157;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0157/ZZClass.java",
+				"package test0157;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0157/Test.java",
+				"package test0157;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1= {ZZ}\n" +
+				"  void bar(){}\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0157.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0157, Ltest0157.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0157, Ltest0157.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0158() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0158/ZZAnnotation.java",
+				"package test0158;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0158/ZZClass.java",
+				"package test0158;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0158/Test.java",
+				"package test0158;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1= {ZZ\n" +
+				"  void bar(){}\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0158.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0158, Ltest0158.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0158, Ltest0158.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0159() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0159/ZZAnnotation.java",
+				"package test0159;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0159/ZZClass.java",
+				"package test0159;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0159/Test.java",
+				"package test0159;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1=ZZ)\n" +
+				"  int bar;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0159, Ltest0159.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0159, Ltest0159.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0159.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0160() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0160/ZZAnnotation.java",
+				"package test0160;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0160/ZZClass.java",
+				"package test0160;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0160/Test.java",
+				"package test0160;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1= 0 + ZZ)\n" +
+				"  int bar;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0160, Ltest0160.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0160, Ltest0160.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0160.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0161() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0161/ZZAnnotation.java",
+				"package test0161;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0161/ZZClass.java",
+				"package test0161;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0161/Test.java",
+				"package test0161;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1= {ZZ})\n" +
+				"  int bar;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0161.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0161, Ltest0161.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0161, Ltest0161.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0162() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0162/ZZAnnotation.java",
+				"package test0162;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0162/ZZClass.java",
+				"package test0162;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0162/Test.java",
+				"package test0162;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1=ZZ\n" +
+				"  int bar;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0162, Ltest0162.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0162, Ltest0162.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0162.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0163() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0163/ZZAnnotation.java",
+				"package test0163;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0163/ZZClass.java",
+				"package test0163;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0163/Test.java",
+				"package test0163;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1= 0 + ZZ\n" +
+				"  int bar;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0163, Ltest0163.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0163, Ltest0163.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0163.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0164() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0164/ZZAnnotation.java",
+				"package test0164;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0164/ZZClass.java",
+				"package test0164;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0164/Test.java",
+				"package test0164;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1= {ZZ}\n" +
+				"  int bar;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0164.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0164, Ltest0164.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0164, Ltest0164.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0165() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0165/ZZAnnotation.java",
+				"package test0165;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0165/ZZClass.java",
+				"package test0165;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0165/Test.java",
+				"package test0165;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(foo1= {ZZ\n" +
+				"  int bar;\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0165.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0165, Ltest0165.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0165, Ltest0165.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0166() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0166/ZZAnnotation.java",
+				"package test0166;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0166/ZZClass.java",
+				"package test0166;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0166/Test.java",
+				"package test0166;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz() {\n" +
+				"    @ZZAnnotation(foo1=ZZ)\n" +
+				"    int bar;\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0166, Ltest0166.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0166, Ltest0166.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0166.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0167() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0167/ZZAnnotation.java",
+				"package test0167;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0167/ZZClass.java",
+				"package test0167;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0167/Test.java",
+				"package test0167;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz() {\n" +
+				"    @ZZAnnotation(foo1= 0 + ZZ)\n" +
+				"    int bar;\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0167, Ltest0167.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0167, Ltest0167.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0167.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0168() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0168/ZZAnnotation.java",
+				"package test0168;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0168/ZZClass.java",
+				"package test0168;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0168/Test.java",
+				"package test0168;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz() {\n" +
+				"    @ZZAnnotation(foo1= {ZZ})\n" +
+				"    int bar;\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0168.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0168, Ltest0168.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0168, Ltest0168.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0169() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0169/ZZAnnotation.java",
+				"package test0169;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0169/ZZClass.java",
+				"package test0169;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0169/Test.java",
+				"package test0169;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz() {\n" +
+				"    @ZZAnnotation(foo1=ZZ\n" +
+				"    int bar;\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0169, Ltest0169.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0169, Ltest0169.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0169.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0170() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0170/ZZAnnotation.java",
+				"package test0170;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0170/ZZClass.java",
+				"package test0170;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0170/Test.java",
+				"package test0170;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz() {\n" +
+				"    @ZZAnnotation(foo1= 0 + ZZ\n" +
+				"    int bar;\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0170, Ltest0170.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0170, Ltest0170.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0170.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0171() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0171/ZZAnnotation.java",
+				"package test0171;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0171/ZZClass.java",
+				"package test0171;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0171/Test.java",
+				"package test0171;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz() {\n" +
+				"    @ZZAnnotation(foo1= {ZZ}\n" +
+				"    int bar;\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0171.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0171, Ltest0171.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0171, Ltest0171.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0172() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0172/ZZAnnotation.java",
+				"package test0172;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0172/ZZClass.java",
+				"package test0172;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0172/Test.java",
+				"package test0172;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz() {\n" +
+				"    @ZZAnnotation(foo1= {ZZ\n" +
+				"    int bar;\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0172.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0172, Ltest0172.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0172, Ltest0172.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0173() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0173/ZZAnnotation.java",
+				"package test0173;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0173/ZZClass.java",
+				"package test0173;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0173/Test.java",
+				"package test0173;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz(@ZZAnnotation(foo1=ZZ) int bar) {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0173, Ltest0173.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0173, Ltest0173.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0173.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0174() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0174/ZZAnnotation.java",
+				"package test0174;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0174/ZZClass.java",
+				"package test0174;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0174/Test.java",
+				"package test0174;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz(@ZZAnnotation(foo1= 0 + ZZ) int bar) {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0174, Ltest0174.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0174, Ltest0174.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0174.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0175() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0175/ZZAnnotation.java",
+				"package test0175;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0175/ZZClass.java",
+				"package test0175;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0175/Test.java",
+				"package test0175;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz(@ZZAnnotation(foo1= {ZZ}) int bar) {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0175.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0175, Ltest0175.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0175, Ltest0175.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0176() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0176/ZZAnnotation.java",
+				"package test0176;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0176/ZZClass.java",
+				"package test0176;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0176/Test.java",
+				"package test0176;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz(@ZZAnnotation(foo1=ZZ int bar) {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0176, Ltest0176.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0176, Ltest0176.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0176.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0177() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0177/ZZAnnotation.java",
+				"package test0177;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0177/ZZClass.java",
+				"package test0177;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0177/Test.java",
+				"package test0177;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz(@ZZAnnotation(foo1= 0 + ZZ int bar) {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0177, Ltest0177.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0177, Ltest0177.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0177.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0178() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0178/ZZAnnotation.java",
+				"package test0178;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0178/ZZClass.java",
+				"package test0178;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0178/Test.java",
+				"package test0178;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz(@ZZAnnotation(foo1= {ZZ} int bar) {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0178.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0178, Ltest0178.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0178, Ltest0178.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0179() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0179/ZZAnnotation.java",
+				"package test0179;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] foo1();\n" +
+				"  int foo2();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0179/ZZClass.java",
+				"package test0179;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0179/Test.java",
+				"package test0179;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  void baz(@ZZAnnotation(foo1= {ZZ int bar) {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0179.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0179, Ltest0179.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0179, Ltest0179.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0180() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0180/ZZAnnotation.java",
+				"package test0180;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int value();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0180/ZZClass.java",
+				"package test0180;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0180/Test.java",
+				"package test0180;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(ZZ)\n" +
+				"  void bar() {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0180, Ltest0180.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0180, Ltest0180.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0180.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0181() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0181/ZZAnnotation.java",
+				"package test0181;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int value();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0181/ZZClass.java",
+				"package test0181;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0181/Test.java",
+				"package test0181;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(0 + ZZ)\n" +
+				"  void bar() {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0181, Ltest0181.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0181, Ltest0181.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0181.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0182() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0182/ZZAnnotation.java",
+				"package test0182;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] value();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0182/ZZClass.java",
+				"package test0182;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0182/Test.java",
+				"package test0182;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation({ZZ})\n" +
+				"  void bar() {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0182.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0182, Ltest0182.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0182, Ltest0182.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0183() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0183/ZZAnnotation.java",
+				"package test0183;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int value();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0183/ZZClass.java",
+				"package test0183;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0183/Test.java",
+				"package test0183;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(ZZ\n" +
+				"  void bar() {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0183, Ltest0183.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0183, Ltest0183.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0183.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0184() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0184/ZZAnnotation.java",
+				"package test0184;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int value();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0184/ZZClass.java",
+				"package test0184;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0184/Test.java",
+				"package test0184;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation(0 + ZZ\n" +
+				"  void bar() {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				result.context);
+		
+		assertResults(
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0184, Ltest0184.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0184, Ltest0184.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0184.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0185() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0185/ZZAnnotation.java",
+				"package test0185;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] value();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0185/ZZClass.java",
+				"package test0185;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0185/Test.java",
+				"package test0185;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation({ZZ}\n" +
+				"  void bar() {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0185.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0185, Ltest0185.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0185, Ltest0185.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
+	}
+}
+// complete annotation attribute value
+public void test0186() throws JavaModelException {
+	ICompilationUnit anAnnotation = null;
+	ICompilationUnit aClass = null;
+	try {
+		anAnnotation = getWorkingCopy(
+				"/Completion/src3/test0186/ZZAnnotation.java",
+				"package test0186;\n" +
+				"public @interface ZZAnnotation {\n" +
+				"  int[] value();\n" +
+				"}");
+		
+		aClass = getWorkingCopy(
+				"/Completion/src3/test0186/ZZClass.java",
+				"package test0186;\n" +
+				"public class ZZClass {\n" +
+				"}");
+		
+		CompletionResult result = complete(
+				"/Completion/src3/test0186/Test.java",
+				"package test0186;\n" +
+				"public class Test {\n" +
+				"  public static final int zzint = 0;\n" +
+				"  @ZZAnnotation({ZZ\n" +
+				"  void bar() {\n" +
+				"  }\n" +
+				"}",
+				"ZZ");
+		
+		assertResults(
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
+				result.context);
+		
+		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0186.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0186, Ltest0186.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0186, Ltest0186.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(anAnnotation != null) {
+			anAnnotation.discardWorkingCopy();
+		}
+		if(aClass != null) {
+			aClass.discardWorkingCopy();
+		}
 	}
 }
 }

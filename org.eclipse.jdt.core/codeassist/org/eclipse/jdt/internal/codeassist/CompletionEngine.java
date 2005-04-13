@@ -75,6 +75,7 @@ public final class CompletionEngine
 	private final static char[] VOID = "void".toCharArray();  //$NON-NLS-1$
 	private final static char[] INT = "int".toCharArray();  //$NON-NLS-1$
 	private final static char[] INT_SIGNATURE = new char[]{Signature.C_INT};
+	private final static char[] VALUE = "value".toCharArray();  //$NON-NLS-1$
 	
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
@@ -399,7 +400,7 @@ public final class CompletionEngine
 		this.requestor.acceptContext(context);
 	}
 	
-	private void complete(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
+	private void complete(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope, boolean insideTypeAnnotation) {
 
 		setSourceRange(astNode.sourceStart, astNode.sourceEnd);
 		
@@ -465,23 +466,29 @@ public final class CompletionEngine
 							this.findEnumConstant(this.completionToken, (SwitchStatement) astNodeParent);
 						}
 					} else {
-						findVariablesAndMethods(
-							this.completionToken,
-							scope,
-							(CompletionOnSingleNameReference) astNode,
-							scope);
-						// can be the start of a qualified type name
-						findTypesAndPackages(this.completionToken, scope);
-						if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-							findKeywords(this.completionToken, singleNameReference.possibleKeywords);
-						}
-						if(singleNameReference.canBeExplicitConstructor && !this.requestor.isIgnored(CompletionProposal.METHOD_REF)){
-							if(CharOperation.prefixEquals(this.completionToken, Keywords.THIS, false)) {
-								ReferenceBinding ref = scope.enclosingSourceType();
-								findExplicitConstructors(Keywords.THIS, ref, (MethodScope)scope, singleNameReference);
-							} else if(CharOperation.prefixEquals(this.completionToken, Keywords.SUPER, false)) {
-								ReferenceBinding ref = scope.enclosingSourceType();
-								findExplicitConstructors(Keywords.SUPER, ref.superclass(), (MethodScope)scope, singleNameReference);
+						if(this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
+							findTypesAndPackages(this.completionToken, scope);
+						} else {
+							findVariablesAndMethods(
+								this.completionToken,
+								scope,
+								singleNameReference,
+								scope,
+								insideTypeAnnotation,
+								singleNameReference.isInsideAnnotationAttribute);
+							// can be the start of a qualified type name
+							findTypesAndPackages(this.completionToken, scope);
+							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+								findKeywords(this.completionToken, singleNameReference.possibleKeywords);
+							}
+							if(singleNameReference.canBeExplicitConstructor && !this.requestor.isIgnored(CompletionProposal.METHOD_REF)){
+								if(CharOperation.prefixEquals(this.completionToken, Keywords.THIS, false)) {
+									ReferenceBinding ref = scope.enclosingSourceType();
+									findExplicitConstructors(Keywords.THIS, ref, (MethodScope)scope, singleNameReference);
+								} else if(CharOperation.prefixEquals(this.completionToken, Keywords.SUPER, false)) {
+									ReferenceBinding ref = scope.enclosingSourceType();
+									findExplicitConstructors(Keywords.SUPER, ref.superclass(), (MethodScope)scope, singleNameReference);
+								}
 							}
 						}
 					}
@@ -531,7 +538,7 @@ public final class CompletionEngine
 							} else {
 	
 								if (qualifiedBinding instanceof ReferenceBinding) {
-	
+									boolean isInsideAnnotationAttribute = ref.isInsideAnnotationAttribute;
 									ReferenceBinding receiverType = (ReferenceBinding) qualifiedBinding;
 									setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
 	
@@ -543,7 +550,8 @@ public final class CompletionEngine
 									}
 									
 									MethodScope methodScope = null;
-									if(!this.requestor.isIgnored(CompletionProposal.KEYWORD) &&
+									if(isInsideAnnotationAttribute &&
+											!this.requestor.isIgnored(CompletionProposal.KEYWORD) &&
 											((scope instanceof MethodScope && !((MethodScope)scope).isStatic)
 											|| ((methodScope = scope.enclosingMethodScope()) != null && !methodScope.isStatic))) {
 										if(this.completionToken.length > 0) {
@@ -582,7 +590,7 @@ public final class CompletionEngine
 											true);
 									}
 	
-									if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+									if(!isInsideAnnotationAttribute && !this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 										findMethods(
 											this.completionToken,
 											null,
@@ -860,9 +868,16 @@ public final class CompletionEngine
 																	} else if(annot.type instanceof CompletionOnQualifiedTypeReference) {
 																		CompletionOnQualifiedTypeReference type = (CompletionOnQualifiedTypeReference) annot.type;
 																		this.completionToken = type.completionIdentifier;
-																		setSourceRange(type.sourceStart, type.sourceEnd);
-																		
-																		findTypesAndPackages(this.completionToken, scope);
+																		long completionPosition = type.sourcePositions[type.tokens.length];
+																		setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+										
+																		findMemberTypes(
+																			this.completionToken,
+																			(ReferenceBinding) qualifiedBinding,
+																			scope,
+																			scope.enclosingSourceType(),
+																			false,
+																			new ObjectVector());
 																	}
 																} else if (astNode instanceof CompletionOnMemberValueName) {
 																	if(!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {
@@ -871,7 +886,32 @@ public final class CompletionEngine
 																		
 																		this.completionToken = memberValuePair.name;
 																		
+																		MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
 																		this.findAnnotationAttributes(this.completionToken, annotation.memberValuePairs(), (ReferenceBinding)annotation.resolvedType);
+																		if(memberValuePairs == null || memberValuePairs.length == 0) {
+																			if(annotation.resolvedType instanceof ReferenceBinding) {
+																				MethodBinding[] methodBindings =
+																					((ReferenceBinding)annotation.resolvedType).availableMethods();
+																				if(methodBindings != null &&
+																						methodBindings.length == 1 &&
+																						CharOperation.equals(methodBindings[0].selector, VALUE)) {
+																					if(this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
+																						findTypesAndPackages(this.completionToken, scope);
+																					} else {
+																						findVariablesAndMethods(
+																							this.completionToken,
+																							scope,
+																							FakeInvocationSite,
+																							scope,
+																							insideTypeAnnotation,
+																							true);
+																						// can be the start of a qualified type name
+																						findTypesAndPackages(this.completionToken, scope);
+																					}
+																				}
+																			}
+																			
+																		}
 																	}
 																}
 															}
@@ -960,7 +1000,7 @@ public final class CompletionEngine
 						if (e.astNode != null) {
 							contextAccepted = true;
 							// if null then we found a problem in the completion node
-							complete(e.astNode, this.parser.assistNodeParent, e.qualifiedBinding, e.scope);
+							complete(e.astNode, this.parser.assistNodeParent, e.qualifiedBinding, e.scope, e.insideTypeAnnotation);
 						}
 					}
 				}
@@ -1164,7 +1204,7 @@ public final class CompletionEngine
 							}
 							contextAccepted = true;
 							// if null then we found a problem in the completion node
-							complete(e.astNode, this.parser.assistNodeParent, e.qualifiedBinding, e.scope);
+							complete(e.astNode, this.parser.assistNodeParent, e.qualifiedBinding, e.scope, e.insideTypeAnnotation);
 						}
 					}
 				}
@@ -3922,7 +3962,9 @@ public final class CompletionEngine
 		char[] token,
 		Scope scope,
 		InvocationSite invocationSite,
-		Scope invocationScope) {
+		Scope invocationScope,
+		boolean insideTypeAnnotation,
+		boolean insideAnnotationAttribute) {
 
 		if (token == null)
 			return;
@@ -4042,36 +4084,39 @@ public final class CompletionEngine
 											findMethods(token, enclosingType.methods(), classScope, methodsFound, staticsOnly, false);
 											break done;
 										} else { */
-						if(proposeField) {
-							findFields(
-								token,
-								enclosingType,
-								classScope,
-								fieldsFound,
-								localsFound,
-								staticsOnly,
-								invocationSite,
-								invocationScope,
-								true,
-								true);
-						}
-						if(proposeMethod) {
-							findMethods(
-								token,
-								null,
-								enclosingType,
-								classScope,
-								methodsFound,
-								staticsOnly,
-								false,
-								false,
-								invocationSite,
-								invocationScope,
-								true,
-								false,
-								true);
+						if(!insideTypeAnnotation) {
+							if(proposeField) {
+								findFields(
+									token,
+									enclosingType,
+									classScope,
+									fieldsFound,
+									localsFound,
+									staticsOnly,
+									invocationSite,
+									invocationScope,
+									true,
+									true);
+							}
+							if(proposeMethod && !insideAnnotationAttribute) {
+								findMethods(
+									token,
+									null,
+									enclosingType,
+									classScope,
+									methodsFound,
+									staticsOnly,
+									false,
+									false,
+									invocationSite,
+									invocationScope,
+									true,
+									false,
+									true);
+							}
 						}
 						staticsOnly |= enclosingType.isStatic();
+						insideTypeAnnotation = false;
 						//				}
 						break;
 	
@@ -4102,7 +4147,7 @@ public final class CompletionEngine
 										true,
 										false);
 								}
-								if(proposeMethod) {
+								if(proposeMethod && !insideAnnotationAttribute) {
 									findMethods(
 										token,
 										null,
@@ -4136,7 +4181,7 @@ public final class CompletionEngine
 												false);
 								}
 							} else if ((binding.kind() & Binding.METHOD) != 0) {
-								if(proposeMethod) {
+								if(proposeMethod && !insideAnnotationAttribute) {
 									MethodBinding methodBinding = (MethodBinding)binding;
 									if(CharOperation.prefixEquals(token, methodBinding.selector))
 										
@@ -4499,6 +4544,25 @@ public final class CompletionEngine
 					}
 				}
 			}
+		} else if(parent instanceof MemberValuePair) {
+			MemberValuePair memberValuePair = (MemberValuePair) parent;
+			if(memberValuePair.binding != null) {
+				addExpectedType(memberValuePair.binding.returnType);
+			}
+		} else if (parent instanceof NormalAnnotation) {
+			NormalAnnotation annotation = (NormalAnnotation) parent;
+			MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
+			if(memberValuePairs == null || memberValuePairs.length == 0) {
+				if(annotation.resolvedType instanceof ReferenceBinding) {
+					MethodBinding[] methodBindings =
+						((ReferenceBinding)annotation.resolvedType).availableMethods();
+					if(methodBindings != null &&
+							methodBindings.length == 1 &&
+							CharOperation.equals(methodBindings[0].selector, VALUE)) {
+						addExpectedType(methodBindings[0].returnType);
+					}
+				}
+			}
 		}
 		
 		if(this.expectedTypesPtr + 1 != this.expectedTypes.length) {
@@ -4688,6 +4752,12 @@ public final class CompletionEngine
 				}
 			}
 		}
+//		else if(scope instanceof MethodScope) {
+//			MethodScope methodScope = (MethodScope) scope;
+//			if(methodScope.insideTypeAnnotation) {
+//				return methodScope.parent.parent;
+//			}
+//		}
 		return scope;
 	}
 	private char[] computePrefix(SourceTypeBinding declarationType, SourceTypeBinding invocationType, boolean isStatic){

@@ -67,9 +67,9 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_PARAMETERIZED_ALLOCATION = COMPLETION_PARSER + 31;
 	protected static final int K_PARAMETERIZED_CAST = COMPLETION_PARSER + 32;
 	protected static final int K_BETWEEN_ANNOTATION_NAME_AND_RPAREN = COMPLETION_PARSER + 33;
-	protected static final int K_ANNOTATION_ASSIGNMENT_OPERATOR = COMPLETION_PARSER + 34;
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
+	public final static char[] VALUE = new char[]{'v', 'a', 'l', 'u', 'e'};
 	
 	/* public fields */
 
@@ -244,7 +244,56 @@ protected void attachOrphanCompletionNode(){
 						
 						buildMoreAnnotationCompletionContext(memberValueName);
 						return;
+					} else if (expression instanceof QualifiedNameReference) {
+						MemberValuePair valuePair =
+							new MemberValuePair(VALUE, expression.sourceStart, expression.sourceEnd, expression);
+						buildMoreAnnotationCompletionContext(valuePair);
 					}
+				} else {
+					int index;
+					if((index = lastIndexOfElement(K_ATTRIBUTE_VALUE_DELIMITER)) != -1) {
+						int attributeIndentifierPtr = this.elementInfoStack[index];
+						int identLengthPtr = this.identifierLengthPtr;
+						int identPtr = this.identifierPtr;
+						while (attributeIndentifierPtr < identPtr) {
+							identPtr -= this.identifierLengthStack[identLengthPtr--];
+						}
+						
+						if(attributeIndentifierPtr != identPtr) return;
+						
+						this.identifierLengthPtr = identLengthPtr;
+						this.identifierPtr = identPtr;
+						
+						this.identifierLengthPtr--;
+						MemberValuePair memberValuePair = new MemberValuePair(
+								this.identifierStack[this.identifierPtr--],
+								expression.sourceStart,
+								expression.sourceEnd,
+								expression);
+						
+						buildMoreAnnotationCompletionContext(memberValuePair);
+						return;
+					}
+				}
+			} else {
+				CompletionNodeDetector detector =  new CompletionNodeDetector(this.assistNode, expression);
+				if(detector.containsCompletionNode()) {
+					MemberValuePair valuePair =
+						new MemberValuePair(VALUE, expression.sourceStart, expression.sourceEnd, expression);
+					buildMoreAnnotationCompletionContext(valuePair);
+				}
+			}
+		}
+		
+		if (this.astPtr > -1) {
+			ASTNode node = this.astStack[this.astPtr];
+			if(node instanceof MemberValuePair) {
+				MemberValuePair memberValuePair = (MemberValuePair) node;
+				CompletionNodeDetector detector =  new CompletionNodeDetector(this.assistNode, memberValuePair);
+				if(detector.containsCompletionNode()) {
+					buildMoreAnnotationCompletionContext(memberValuePair);
+					this.assistNodeParent = detector.getCompletionNodeParent();
+					return;
 				}
 			}
 		}
@@ -307,7 +356,7 @@ protected void attachOrphanCompletionNode(){
 	}
 	
 	// the following code applies only in methods, constructors or initializers
-	if ((!isInsideMethod() && !isInsideFieldInitialization())) { 
+	if ((!isInsideMethod() && !isInsideFieldInitialization() && !isInsideAttributeValue())) { 
 		return;
 	}
 	
@@ -372,32 +421,66 @@ private void buildMoreAnnotationCompletionContext(MemberValuePair memberValuePai
 	
 	int nodesToRemove = this.astPtr > -1 && this.astStack[this.astPtr] == memberValuePair ? 1 : 0;
 
-	MemberValuePair[] memberValuePairs = null;
-	int length;
-	if (astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) > nodesToRemove) {
-		if (this.astStack[this.astPtr] instanceof MemberValuePair) {
-			System.arraycopy(
-				this.astStack, 
-				(this.astPtr -= length) + 1, 
-				memberValuePairs = new MemberValuePair[length - nodesToRemove], 
-				0, 
-				length - nodesToRemove); 
+	NormalAnnotation annotation;
+	if (memberValuePair instanceof CompletionOnMemberValueName) { 
+		MemberValuePair[] memberValuePairs = null;
+		int length;
+		if (astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) > nodesToRemove) {
+			if (this.astStack[this.astPtr] instanceof MemberValuePair) {
+				System.arraycopy(
+					this.astStack, 
+					(this.astPtr -= length) + 1, 
+					memberValuePairs = new MemberValuePair[length - nodesToRemove], 
+					0, 
+					length - nodesToRemove); 
+			}
 		}
+		annotation =
+			new CompletionOnAnnotationMemberValuePair(
+					typeReference,
+					this.intStack[this.intPtr--],
+					memberValuePairs,
+					memberValuePair);
+		
+		this.assistNode = memberValuePair;
+		this.assistNodeParent = annotation;
+		
+		if (memberValuePair.sourceEnd >= this.lastCheckPoint) {
+			this.lastCheckPoint = memberValuePair.sourceEnd + 1;
+		}
+	} else {
+		MemberValuePair[] memberValuePairs = null;
+		int length = 0;
+		if (astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) > nodesToRemove) {
+			if (this.astStack[this.astPtr] instanceof MemberValuePair) {
+				System.arraycopy(
+					this.astStack, 
+					(this.astPtr -= length) + 1, 
+					memberValuePairs = new MemberValuePair[length - nodesToRemove + 1], 
+					0, 
+					length - nodesToRemove); 
+			}
+			if(memberValuePairs != null) {
+				memberValuePairs[length - nodesToRemove] = memberValuePair;
+			} else {
+				memberValuePairs = new MemberValuePair[]{memberValuePair};
+			}
+		} else {
+			memberValuePairs = new MemberValuePair[]{memberValuePair};
+		}
+		
+		annotation =
+			new NormalAnnotation(
+					typeReference,
+					this.intStack[this.intPtr--]);
+		annotation.memberValuePairs = memberValuePairs;
+					
 	}
-	
-	CompletionOnAnnotationMemberValuePair annotation =
-		new CompletionOnAnnotationMemberValuePair(typeReference, this.intStack[this.intPtr--], memberValuePairs, memberValuePair);
 	TypeDeclaration fakeType =
 		new CompletionOnAnnotationOfType(
 				FAKE_TYPE_NAME, 
 				this.compilationUnit.compilationResult(),
 				annotation);
-	
-	this.assistNode = memberValuePair;
-	this.assistNodeParent = annotation;
-	if (memberValuePair.sourceEnd >= this.lastCheckPoint) {
-		this.lastCheckPoint = memberValuePair.sourceEnd + 1;
-	}
 	
 	currentElement.add(fakeType, 0);
 }
@@ -1286,7 +1369,8 @@ public void completionIdentifierCheck(){
 
 	// if not in a method in non diet mode and if not inside a field initializer, only record references attached to types
 	if (!(isInsideMethod() && !this.diet)
-		&& !isIndirectlyInsideFieldInitialization()) return; 
+		&& !isIndirectlyInsideFieldInitialization()
+		&& !isInsideAttributeValue()) return; 
 
 	/*
 	 	In some cases, the completion identifier may not have yet been consumed,
@@ -2095,8 +2179,11 @@ protected void consumeMarkerAnnotation() {
 protected void consumeMemberValuePair() {
 	/* check if current awaiting identifier is the completion identifier */
 	if (this.indexOfAssistIdentifier() < 0){
-		this.popElement(K_ANNOTATION_ASSIGNMENT_OPERATOR);
 		super.consumeMemberValuePair();
+		MemberValuePair memberValuePair = (MemberValuePair) this.astStack[this.astPtr];
+		if(this.assistNode != null && memberValuePair.value == this.assistNode) {
+			this.assistNodeParent = memberValuePair;
+		}
 		return;
 	}
 	
@@ -2203,7 +2290,7 @@ protected void consumeToken(int token) {
 	int previous = this.previousToken;
 	int prevIdentifierPtr = this.previousIdentifierPtr;
 	
-	if (isInsideMethod() || isInsideFieldInitialization()) {
+	if (isInsideMethod() || isInsideFieldInitialization() || isInsideAnnotation()) {
 		switch(token) {
 			case TokenNameLPAREN:
 				popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
@@ -2233,14 +2320,6 @@ protected void consumeToken(int token) {
 		}
 	}
 	super.consumeToken(token);
-
-	switch(token) {
-		case TokenNameEQUAL:
-			if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) {
-				pushOnElementStack(K_ANNOTATION_ASSIGNMENT_OPERATOR);
-			}
-			break;
-	}
 	
 	// if in field initializer (directly or not), on the completion identifier and not in recovery mode yet
 	// then position end of file at cursor location (so that we have the same behavior as
@@ -2253,7 +2332,7 @@ protected void consumeToken(int token) {
 	}
 	
 	// if in a method or if in a field initializer 
-	if (isInsideMethod() || isInsideFieldInitialization()) {
+	if (isInsideMethod() || isInsideFieldInitialization() || isInsideAttributeValue()) {
 		switch (token) {
 			case TokenNameDOT:
 				switch (previous) {
@@ -2743,7 +2822,8 @@ public NameReference createQualifiedAssistNameReference(char[][] previousIdentif
 	return new CompletionOnQualifiedNameReference(
 					previousIdentifiers, 
 					assistName, 
-					positions); 	
+					positions,
+					isInsideAttributeValue()); 	
 }
 public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions){
 	switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
@@ -2801,7 +2881,7 @@ public TypeReference createParameterizedQualifiedAssistTypeReference(char[][] pr
 public NameReference createSingleAssistNameReference(char[] assistName, long position) {
 	int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
 	if(!isInsideMethod()) {
-		return new CompletionOnSingleNameReference(assistName, position);
+		return new CompletionOnSingleNameReference(assistName, position, isInsideAttributeValue());
 	} else {
 		boolean canBeExplicitConstructorCall = false;
 		if(kind == K_BLOCK_DELIMITER
@@ -2876,7 +2956,7 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 			}
 			System.arraycopy(keywords, 0 , keywords = new char[count][], 0, count);
 			
-			return new CompletionOnSingleNameReference(assistName, position, keywords, canBeExplicitConstructorCall);
+			return new CompletionOnSingleNameReference(assistName, position, keywords, canBeExplicitConstructorCall, isInsideAttributeValue());
 		}
 	}
 }

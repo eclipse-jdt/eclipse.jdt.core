@@ -2128,9 +2128,19 @@ MemberValuePairs ::= MemberValuePairs ',' MemberValuePair
 /:$readableName MemberValuePairs:/
 /:$compliance 1.5:/
 
-MemberValuePair ::= SimpleName '=' MemberValue
+MemberValuePair ::= SimpleName '=' EnterMemberValue MemberValue ExitMemberValue
 /.$putCase consumeMemberValuePair() ; $break ./
 /:$readableName MemberValuePair:/
+/:$compliance 1.5:/
+
+EnterMemberValue ::= $empty
+/.$putCase consumeEnterMemberValue() ; $break ./
+/:$readableName EnterMemberValue:/
+/:$compliance 1.5:/
+
+ExitMemberValue ::= $empty
+/.$putCase consumeExitMemberValue() ; $break ./
+/:$readableName ExitMemberValue:/
 /:$compliance 1.5:/
 
 MemberValue -> ConditionalExpression_NotName

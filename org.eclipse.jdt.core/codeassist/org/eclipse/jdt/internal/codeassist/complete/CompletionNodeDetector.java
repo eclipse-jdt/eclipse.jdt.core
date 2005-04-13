@@ -152,6 +152,12 @@ public class CompletionNodeDetector extends ASTVisitor {
 	public void endVisit(UnaryExpression unaryExpression, BlockScope scope) {
 		endVisit(unaryExpression);
 	}
+	public void endVisit(MemberValuePair pair, BlockScope scope) {
+		endVisit(pair);
+	}
+	public void endVisit(MemberValuePair pair, CompilationUnitScope scope) {
+		endVisit(pair);
+	}
 	public boolean visit(AllocationExpression allocationExpression, BlockScope scope) {
 		return this.visit(allocationExpression);
 	}
@@ -266,7 +272,12 @@ public class CompletionNodeDetector extends ASTVisitor {
 	public boolean visit(UnaryExpression unaryExpression, BlockScope scope) {
 		return this.visit(unaryExpression);
 	}
-	
+	public boolean visit(MemberValuePair pair, BlockScope scope) {
+		return this.visit(pair);
+	}
+	public boolean visit(MemberValuePair pair, CompilationUnitScope scope) {
+		return this.visit(pair);
+	}
 	private void endVisit(ASTNode astNode) {
 		if(this.result && this.parent == null && astNode != this.searchedNode) {
 			if(!(astNode instanceof AllocationExpression && ((AllocationExpression) astNode).type == this.searchedNode)
