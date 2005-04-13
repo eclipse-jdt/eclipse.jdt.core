@@ -2916,6 +2916,14 @@ class ASTConverter {
 			if (dimensions != 0) {
 				type = this.ast.newArrayType(type, dimensions);
 				type.setSourceRange(sourceStart, length);
+				ArrayType subarrayType = (ArrayType) type;
+				int index = dimensions - 1;
+				while (index > 0) {
+					subarrayType = (ArrayType) subarrayType.getComponentType();
+					int end = retrieveProperRightBracketPosition(index, sourceStart);
+					subarrayType.setSourceRange(sourceStart, end - sourceStart + 1);
+					index--;
+				}
 				if (this.resolveBindings) {
 					// store keys for inner types
 					completeRecord((ArrayType) type, typeReference);
@@ -3066,6 +3074,14 @@ class ASTConverter {
 					type.setSourceRange(sourceStart, end - sourceStart + 1);
 				} else {
 					type.setSourceRange(sourceStart, length);
+				}
+				ArrayType subarrayType = (ArrayType) type;
+				int index = dimensions - 1;
+				while (index > 0) {
+					subarrayType = (ArrayType) subarrayType.getComponentType();
+					end = retrieveProperRightBracketPosition(index, sourceStart);
+					subarrayType.setSourceRange(sourceStart, end - sourceStart + 1);
+					index--;
 				}
 			}
 		}
