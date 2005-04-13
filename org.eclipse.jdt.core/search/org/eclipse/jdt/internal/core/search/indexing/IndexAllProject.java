@@ -71,8 +71,12 @@ public class IndexAllProject extends IndexRequest {
 				IPath projectPath = javaProject.getPath();
 				for (int i = 0; i < length; i++) {
 					IClasspathEntry entry = entries[i];
-					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && entry.getPath().equals(projectPath))
-						return true; // the project is also a library folder (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89815)
+					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && entry.getPath().equals(projectPath)) {
+						// the project is also a library folder (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89815)
+						// ensure a job exists to index it as a binary folder
+						this.manager.indexLibrary(projectPath, this.project);
+						return true;
+					}
 				}
 
 				// nothing to index but want to save an empty index file so its not 'rebuilt' when part of a search request
