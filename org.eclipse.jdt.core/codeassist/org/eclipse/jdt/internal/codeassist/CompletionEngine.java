@@ -66,7 +66,8 @@ public final class CompletionEngine
 	public HashtableOfObject typeCache;
 	
 	public static boolean DEBUG = false;
-
+	public static boolean PERF = false;
+	
 	private final static char[] ERROR_PATTERN = "*error*".toCharArray();  //$NON-NLS-1$
 	private final static char[] EXCEPTION_PATTERN = "*exception*".toCharArray();  //$NON-NLS-1$
 	private final static char[] SEMICOLON = new char[] { ';' };

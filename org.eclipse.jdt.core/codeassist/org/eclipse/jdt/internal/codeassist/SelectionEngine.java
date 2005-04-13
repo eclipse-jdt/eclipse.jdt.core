@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
 public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	public static boolean DEBUG = false;
+	public static boolean PERF = false;
 	
 	SelectionParser parser;
 	ISelectionRequestor requestor;

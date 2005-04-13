@@ -46,6 +46,18 @@ Eclipse SDK 3.1M7 - ?th April 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added performance instrumentation to track performance problem (use PerformanceStats from Core).<br>
+To enabled this Jdtcore instrumentation, you must add some new entries inside .options.
+<ul>
+<li><code>org.eclipse.jdt.core/perf/completion=300</code>: add an entry to preformance.log if CompletionEngine.complete() take more than 300ms</li>
+<li><code>org.eclipse.jdt.core/perf/selection=300</code> add an entry to preformance.log if SelectionEngine.select() take more than 300ms</li>
+<li><code>org.eclipse.jdt.core/perf/javadeltalistener=500</code> add an entry to preformance.log if the call to the listener take more than 300ms</li>
+<li><code>org.eclipse.jdt.core/perf/variableinitializer=5000</code> add an entry to preformance.log if the initialization take more than 300ms</li>
+<li><code>org.eclipse.jdt.core/perf/containerinitializer=5000</code> add an entry to preformance.log if the initialization take more than 300ms</li>
+<li><code>org.eclipse.jdt.core/perf/reconcile=1000</code> add an entry to preformance.log if ComplationUnit.reconcile() take more than 300ms</li>
+</ul>
+Current default thresholds are not accurate and must be adjusted.
+</li>
 <li>Added support for completion inside single member annotation and annotation attribute value.
 <pre>
 @MyAnnotation(&lt;complete here&gt;

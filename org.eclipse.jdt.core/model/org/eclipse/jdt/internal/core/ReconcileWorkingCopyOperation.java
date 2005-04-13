@@ -24,7 +24,8 @@ import org.eclipse.jdt.internal.core.util.Messages;
  * Reconcile a working copy and signal the changes through a delta.
  */
 public class ReconcileWorkingCopyOperation extends JavaModelOperation {
-		
+	public static boolean PERF = false;
+	
 	boolean createAST;
 	int astLevel;
 	boolean forceProblemDetection;

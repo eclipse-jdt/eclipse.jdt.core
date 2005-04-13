@@ -1065,6 +1065,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	if (!isWorkingCopy()) return null; // Reconciling is not supported on non working copies
 	if (workingCopyOwner == null) workingCopyOwner = DefaultWorkingCopyOwner.PRIMARY;
 	
+	
 	boolean createAST = false;
 	switch(astLevel) {
 		case JLS2_INTERNAL :
@@ -1077,8 +1078,16 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 			// either way, request denied
 			createAST = false;
 	}
+	PerformanceStats stats = null;
+	if(ReconcileWorkingCopyOperation.PERF) {
+		stats = PerformanceStats.getStats(JavaModelManager.RECONCILE_PERF, this);
+		stats.startRun(new String(this.getFileName()));
+	}
 	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, createAST, astLevel, forceProblemDetection, workingCopyOwner);
 	op.runOperation(monitor);
+	if(ReconcileWorkingCopyOperation.PERF) {
+		stats.endRun();
+	}
 	return op.ast;
 }
 

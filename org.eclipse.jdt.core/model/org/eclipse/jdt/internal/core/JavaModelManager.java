@@ -138,6 +138,16 @@ public class JavaModelManager implements ISaveParticipant {
 	private static final String SELECTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
 
+	public static final String COMPLETION_PERF = JavaCore.PLUGIN_ID + "/perf/completion" ; //$NON-NLS-1$
+	public static final String SELECTION_PERF = JavaCore.PLUGIN_ID + "/perf/selection" ; //$NON-NLS-1$
+	public static final String DELTA_LISTENER_PERF = JavaCore.PLUGIN_ID + "/perf/javadeltalistener" ; //$NON-NLS-1$
+	public static final String VARIABLE_INITIALIZER_PERF = JavaCore.PLUGIN_ID + "/perf/variableinitializer" ; //$NON-NLS-1$
+	public static final String CONTAINER_INITIALIZER_PERF = JavaCore.PLUGIN_ID + "/perf/containerinitializer" ; //$NON-NLS-1$
+	public static final String RECONCILE_PERF = JavaCore.PLUGIN_ID + "/perf/reconcile" ; //$NON-NLS-1$
+	
+	public static boolean PERF_VARIABLE_INITIALIZER = false;
+	public static boolean PERF_CONTAINER_INITIALIZER = false;
+	
 	public final static ICompilationUnit[] NO_WORKING_COPY = new ICompilationUnit[0];
 	
 	public HashSet optionNames = new HashSet(20);
@@ -759,6 +769,16 @@ public class JavaModelManager implements ISaveParticipant {
 			option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
 			if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 		}
+		
+		// configure performance options
+		if(PerformanceStats.ENABLED) {
+			CompletionEngine.PERF = PerformanceStats.isEnabled(COMPLETION_PERF);
+			SelectionEngine.PERF = PerformanceStats.isEnabled(SELECTION_PERF);
+			DeltaProcessor.PERF = PerformanceStats.isEnabled(DELTA_LISTENER_PERF);
+			JavaModelManager.PERF_VARIABLE_INITIALIZER = PerformanceStats.isEnabled(VARIABLE_INITIALIZER_PERF);
+			JavaModelManager.PERF_CONTAINER_INITIALIZER = PerformanceStats.isEnabled(CONTAINER_INITIALIZER_PERF);
+			ReconcileWorkingCopyOperation.PERF = PerformanceStats.isEnabled(RECONCILE_PERF);
+		}
 	}
 	
 	/*
@@ -1274,6 +1294,11 @@ public class JavaModelManager implements ISaveParticipant {
 					"	invocation stack trace:"); //$NON-NLS-1$
 				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 			}
+			PerformanceStats stats = null;
+			if(JavaModelManager.PERF_CONTAINER_INITIALIZER) {
+				stats = PerformanceStats.getStats(JavaModelManager.CONTAINER_INITIALIZER_PERF, this);
+				stats.startRun(containerPath + " of " + project.getPath()); //$NON-NLS-1$
+			}
 			containerPut(project, containerPath, CONTAINER_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 			boolean ok = false;
 			try {
@@ -1302,6 +1327,9 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 				throw e;
 			} finally {
+				if(JavaModelManager.PERF_CONTAINER_INITIALIZER) {
+					stats.endRun();
+				}
 				if (!ok) {
 					containerPut(project, containerPath, null); // flush cache
 					if (CP_RESOLVE_VERBOSE) {

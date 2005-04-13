@@ -178,6 +178,7 @@ public class DeltaProcessor {
 	private final static int NON_JAVA_RESOURCE = -1;
 	public static boolean DEBUG = false;
 	public static boolean VERBOSE = false;
+	public static boolean PERF = false;
 
 	public static final int DEFAULT_CHANGE_EVENT = 0; // must not collide with ElementChangedEvent event masks
 
@@ -1423,7 +1424,15 @@ public class DeltaProcessor {
 						Util.log(exception, "Exception occurred in listener of Java element change notification"); //$NON-NLS-1$
 					}
 					public void run() throws Exception {
+						PerformanceStats stats = null;
+						if(PERF) {
+							stats = PerformanceStats.getStats(JavaModelManager.DELTA_LISTENER_PERF, listener);
+							stats.startRun();
+						}
 						listener.elementChanged(extraEvent);
+						if(PERF) {
+							stats.endRun();
+						}
 					}
 				});
 				if (VERBOSE) {
