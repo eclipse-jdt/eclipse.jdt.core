@@ -539,7 +539,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to control whether blank lines are cleared inside comments
 	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.clear_blank_lines"
 	 *     - possible values:   { TRUE, FALSE }
-	 *     - default:           TRUE
+	 *     - default:           FALSE
 	 * </pre>
 	 * @see #TRUE
 	 * @see #FALSE

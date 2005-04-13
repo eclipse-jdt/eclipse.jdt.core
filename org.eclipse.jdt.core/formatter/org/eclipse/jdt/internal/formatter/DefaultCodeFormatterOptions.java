@@ -1839,7 +1839,7 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
-		this.comment_clear_blank_lines = true;
+		this.comment_clear_blank_lines = false;
 		this.comment_format = true;
 		this.comment_format_header = false;
 		this.comment_format_html = true;
@@ -2088,7 +2088,7 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
-		this.comment_clear_blank_lines = true;
+		this.comment_clear_blank_lines = false;
 		this.comment_format = true;
 		this.comment_format_header = false;
 		this.comment_format_html = true;
