@@ -76,8 +76,8 @@ public Object get(Object key) {
 
 public Object keyForValue(Object valueToMatch) {
 	if (valueToMatch != null)
-		for (int i = 0, l = valueTable.length; i < l; i++)
-			if (valueToMatch.equals(valueTable[i]))
+		for (int i = 0, l = keyTable.length; i < l; i++)
+			if (keyTable[i] != null && valueToMatch.equals(valueTable[i]))
 				return keyTable[i];
 	return null;
 }

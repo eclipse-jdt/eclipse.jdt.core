@@ -163,6 +163,18 @@ public void ensureIndexExists(String indexLocation, IPath containerPath) {
  * 
  * Warning: Does not check whether index is consistent (not being used)
  */
+public synchronized Index getIndex(IPath containerPath, boolean reuseExistingFile, boolean createIfMissing) {
+	String indexLocation = computeIndexLocation(containerPath);
+	return getIndex(containerPath, indexLocation, reuseExistingFile, createIfMissing);
+}
+/**
+ * Returns the index for a given project, according to the following algorithm:
+ * - if index is already in memory: answers this one back
+ * - if (reuseExistingFile) then read it and return this index and record it in memory
+ * - if (createIfMissing) then create a new empty index and record it in memory
+ * 
+ * Warning: Does not check whether index is consistent (not being used)
+ */
 public synchronized Index getIndex(IPath containerPath, String indexLocation, boolean reuseExistingFile, boolean createIfMissing) {
 	// Path is already canonical per construction
 	Index index = (Index) indexes.get(indexLocation);
@@ -219,17 +231,8 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 	//System.out.println(" index name: " + path.toOSString() + " <----> " + index.getIndexFile().getName());	
 	return index;
 }
-/**
- * Returns the index for a given project, according to the following algorithm:
- * - if index is already in memory: answers this one back
- * - if (reuseExistingFile) then read it and return this index and record it in memory
- * - if (createIfMissing) then create a new empty index and record it in memory
- * 
- * Warning: Does not check whether index is consistent (not being used)
- */
-public synchronized Index getIndex(IPath containerPath, boolean reuseExistingFile, boolean createIfMissing) {
-	String indexLocation = computeIndexLocation(containerPath);
-	return getIndex(containerPath, indexLocation, reuseExistingFile, createIfMissing);
+public synchronized Index getIndex(String indexLocation) {
+	return (Index) indexes.get(indexLocation); // is null if unknown, call if the containerPath must be computed
 }
 public synchronized Index getIndexForUpdate(IPath containerPath, boolean reuseExistingFile, boolean createIfMissing) {
 	String indexLocation = computeIndexLocation(containerPath);
