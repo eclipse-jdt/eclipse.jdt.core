@@ -60,6 +60,7 @@ public static Test suite() {
 	
 	suite.addTest(new CompletionTests2("testBug29832"));
 	suite.addTest(new CompletionTests2("testBug33560"));
+	suite.addTest(new CompletionTests2("testBug79288"));
 	suite.addTest(new CompletionTests2("testAccessRestriction1"));
 	suite.addTest(new CompletionTests2("testAccessRestriction2"));
 	suite.addTest(new CompletionTests2("testAccessRestriction3"));
@@ -316,6 +317,79 @@ public void testBug33560() throws Exception {
 
 		assertEquals(
 			"element:ZZZ    completion:pz.ZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED),
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+		this.deleteProject("P3");
+	}
+}
+public void testBug79288() throws Exception {
+	try {
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
+
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			Util.getJavaClassLibs(),
+			 "bin");
+		
+		this.createFolder("/P1/src/a");
+		this.createFile(
+				"/P1/src/a/XX1.java",
+				"package a;\n"+
+				"public class XX1 {\n"+
+				"}");
+		
+		// create P2
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			Util.getJavaClassLibs(),
+			new String[]{"/P1"},
+			"bin");
+		
+		this.createFolder("/P2/src/b");
+		this.createFile(
+				"/P2/src/b/XX2.java",
+				"package b;\n"+
+				"public class XX2 {\n"+
+				"}");
+		
+		// create P3
+		this.createJavaProject(
+			"P3",
+			new String[]{"src"},
+			Util.getJavaClassLibs(),
+			new String[]{"/P2"},
+			"bin");
+		
+		this.createFile(
+				"/P3/src/YY.java",
+				"public class YY {\n"+
+				"  vois foo(){\n"+
+				"    XX\n"+
+				"  }\n"+
+				"}");
+		
+		waitUntilIndexesReady();
+		
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P3", "src", "", "YY.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "XX";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 	} finally {
 		this.deleteProject("P1");

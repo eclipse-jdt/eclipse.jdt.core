@@ -118,6 +118,9 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 		AccessRuleSet access = null;
 		ClasspathEntry cpEntry = (ClasspathEntry) rawEntry;
 		if (referringEntry != null) {
+			// Add only exported entries.
+			// Source folder are implicitly exported.
+			if (!rawEntry.isExported() && rawEntry.getEntryKind() != IClasspathEntry.CPE_SOURCE) continue;
 			cpEntry = cpEntry.combineWith((ClasspathEntry)referringEntry);
 //				cpEntry = ((ClasspathEntry)referringEntry).combineWith(cpEntry);
 		}
