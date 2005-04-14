@@ -304,4 +304,15 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Lp/X;.foo()V:TSomeTypeVariable;",
 			key);
 	}
+	
+	/*
+	 * Paramterized member type
+	 */
+	public void test027() {
+		assertBindingKeySignatureEquals(
+			"Lp1.X<Ljava.lang.String;>.Member;",
+			"Lp1/X<Ljava/lang/String;>.Member;"
+		);
+	}
+
 }

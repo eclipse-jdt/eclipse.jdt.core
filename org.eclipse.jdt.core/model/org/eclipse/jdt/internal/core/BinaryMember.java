@@ -49,10 +49,18 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	if (openableParentInfo == null) return;
 	openableParentInfo.getBinaryChildren(newElements); // forces the initialization
 }
+public String getKey() {
+	try {
+		return getKey(false/*don't open*/);
+	} catch (JavaModelException e) {
+		// happen only if force open is true
+		return null;
+	}
+}
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#computeUniqueKey()
  */
-public abstract String getKey() throws JavaModelException;
+public abstract String getKey(boolean forceOpen) throws JavaModelException;
 /*
  * @see ISourceReference
  */

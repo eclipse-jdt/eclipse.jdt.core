@@ -335,7 +335,12 @@ public IInitializer[] getInitializers() throws JavaModelException {
  * @see org.eclipse.jdt.core.IType#getKey()
  */
 public String getKey() {
-	return getKey(this);
+	try {
+		return getKey(this, org.eclipse.jdt.internal.compiler.lookup.Binding.USE_ACCESS_FLAGS_IN_BINDING_KEY/*with access flags*/, false/*don't open*/);
+	} catch (JavaModelException e) {
+		// happen only if force open is true
+		return null;
+	}
 }
 /**
  * @see IType#getMethod

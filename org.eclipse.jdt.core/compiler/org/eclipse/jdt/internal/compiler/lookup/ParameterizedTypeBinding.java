@@ -123,10 +123,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		this.id = NoId;		
 	}
 	
-	public char[] computeUniqueKey() {
+	public char[] computeUniqueKey(boolean withAccessFlags) {
 	    StringBuffer sig = new StringBuffer(10);
 		if (this.isMemberType() && enclosingType().isParameterizedType()) {
-		    char[] typeSig = enclosingType().computeUniqueKey();
+		    char[] typeSig = enclosingType().computeUniqueKey(false/*without access flags*/);
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 		    sig.append('.').append(sourceName());
 		} else if(this.type.isLocalType()){
@@ -146,11 +146,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (this.arguments != null) {
 		    sig.append('<');
 		    for (int i = 0, length = this.arguments.length; i < length; i++) {
-		        sig.append(this.arguments[i].computeUniqueKey());
+		        sig.append(this.arguments[i].computeUniqueKey(false/*without access flags*/));
 		    }
 		    sig.append('>'); //$NON-NLS-1$
 		}
 		sig.append(';');
+		if (withAccessFlags) {
+			sig.append('^');
+			sig.append(getAccessFlags());
+		}
 		int sigLength = sig.length();
 		char[] uniqueKey = new char[sigLength];
 		sig.getChars(0, sigLength, uniqueKey, 0);			

@@ -372,6 +372,30 @@ public void computeId() {
 			break;
 	}
 }
+/*
+ * p.X<T extends Y & I, U extends Y> {} -> Lp/X<TT;TU;>;^123
+ */
+public char[] computeUniqueKey(boolean withAccessFlags) {
+	// generic type signature
+	char[] genericSignature = genericTypeSignature();
+	int sigLength = genericSignature.length;
+	
+	if (!withAccessFlags) return genericSignature;
+	
+	// flags
+	String flags = Integer.toString(getAccessFlags());
+	int flagsLength = flags.length();
+	
+	// unique key
+	char[] uniqueKey = new char[sigLength + 1 + flagsLength];
+	int index = 0;
+	System.arraycopy(genericSignature, 0, uniqueKey, index, sigLength);
+	index += sigLength;
+	uniqueKey[index++] = '^';
+	flags.getChars(0, flagsLength, uniqueKey, index);
+	
+	return uniqueKey;
+}
 /* Answer the receiver's constant pool name.
 *
 * NOTE: This method should only be used during/after code gen.

@@ -18,15 +18,16 @@ public class BindingKeyParser {
 	int keyStart;
 	
 	class Scanner {
-		static final int ARRAY = 4;
-		static final int END = 6;
-		static final int FIELD = 2;
-		static final int LOCAL_VAR = 5;
-		static final int METHOD = 3;
 		static final int PACKAGE = 0;
+		static final int TYPE = 1;
+		static final int FIELD = 2;
+		static final int METHOD = 3;
+		static final int ARRAY = 4;
+		static final int LOCAL_VAR = 5;
+		static final int FLAGS = 6;
+		static final int END = 7;
 		
 		static final int START = -1;
-		static final int TYPE = 1;
 		
 		int index = 0, start;
 		char[] source;
@@ -45,8 +46,8 @@ public class BindingKeyParser {
 		
 		boolean isAtFieldOrMethodStart() {
 			return 
-				this.index+1 < this.source.length
-				&& this.source[this.index+1] == '.';
+				this.index < this.source.length
+				&& this.source[this.index] == '.';
 		}
 		
 		boolean isAtLocalVariableStart() {
@@ -57,18 +58,15 @@ public class BindingKeyParser {
 		
 		boolean isAtMemberTypeStart() {
 			return 
-				this.index+2 < this.source.length
+				this.index < this.source.length
 				&& (this.source[this.index] == '$'
-					|| this.source[this.index+2] == '$'
 					|| (this.source[this.index] == '.' && this.source[this.index-1] == '>'));
 		}
 		
 		boolean isAtParametersEnd() {
 			return 
-				this.index-1 > 0
-				&& this.index+1 < this.source.length
-				&& ((this.source[this.index] == ';' && this.source[this.index+1] == '>') 
-					|| (this.source[this.index-1] == '*' && this.source[this.index] == '>'));
+				this.index < this.source.length
+					&& this.source[this.index] == '>';
 		}
 		
 		boolean isAtParametersStart() {
@@ -82,9 +80,9 @@ public class BindingKeyParser {
 		
 		boolean isAtRawTypeEnd() {
 			return 
-				this.index+1 > 0
-				&& this.index+1 < this.source.length
-				&& this.source[this.index+1] == '>';
+				this.index > 0
+				&& this.index < this.source.length
+				&& this.source[this.index] == '>';
 		}
 		
 		boolean isAtSecondaryTypeStart() {
@@ -95,12 +93,12 @@ public class BindingKeyParser {
 		
 		boolean isAtTypeParameterStart() {
 			return 
-				this.index+1 < this.source.length
-				&& this.source[this.index+1] == 'T';
+				this.index < this.source.length
+				&& this.source[this.index] == 'T';
 		}
 	
 		boolean isAtTypeStart() {
-			return this.index+1 < this.source.length && "LIZVCDBFJS[".indexOf(this.source[this.index+1]) != -1; //$NON-NLS-1$
+			return this.index < this.source.length && "LIZVCDBFJS[".indexOf(this.source[this.index]) != -1; //$NON-NLS-1$
 		}
 		
 		boolean isAtMethodTypeVariableStart() {
@@ -109,14 +107,20 @@ public class BindingKeyParser {
 				&& this.source[this.index] == ':';
 		}
 
+		boolean isAtFlagsStart() {
+			return 
+				this.index < this.source.length
+				&& this.source[this.index] == '^';
+		}
+		
 		boolean isAtTypeTypeVariableStart() {
 			return 
-				this.index+3 < this.source.length
-				&& this.source[this.index+3] == ':';
+				this.index < this.source.length
+				&& this.source[this.index] == ':';
 		}
 		
 		boolean isAtWildCardStart() {
-			return this.index+1 < this.source.length && "*+-".indexOf(this.source[this.index+1]) != -1; //$NON-NLS-1$
+			return this.index < this.source.length && "*+-".indexOf(this.source[this.index]) != -1; //$NON-NLS-1$
 		}
 		
 		int nextToken() {
@@ -158,6 +162,27 @@ public class BindingKeyParser {
 							return this.token;
 						}
 						break;
+					case '^':
+						if (this.index == previousTokenEnd) {
+							this.index++;
+							this.start = this.index;
+							while (this.index < length && Character.isDigit(this.source[this.index]))
+								this.index++;
+							this.token = FLAGS;
+							return this.token;
+						} else {
+							switch (this.token) {
+								case METHOD:
+								case LOCAL_VAR:
+									this.token = LOCAL_VAR;
+									break;
+								case TYPE:
+									if (this.index > this.start && this.source[this.start-1] == '.')
+										this.token = FIELD;
+									break;
+							}							
+							return this.token;
+						}
 					case '$':
 					case '~':
 						if (this.index == previousTokenEnd) {
@@ -254,6 +279,7 @@ public class BindingKeyParser {
 				switch (this.source[this.index]) {
 					case '#':
 					case '%':
+					case '^':
 						return;
 					case ':':
 						if (braket == 0)
@@ -272,10 +298,20 @@ public class BindingKeyParser {
 			}
 		}
 		
+		void skipParametersStart() {
+			if (this.index < this.source.length && this.source[this.index] == '<')
+				this.index++;
+		}
+		
 		void skipParametersEnd() {
 			while (this.index < this.source.length && this.source[this.index] != '>')
 				this.index++;
 			this.index++;
+		}
+		
+		void skipTypeEnd() {
+			if (this.index < this.source.length && this.source[this.index] == ';')
+				this.index++;
 		}
 		
 		public String toString() {
@@ -301,6 +337,9 @@ public class BindingKeyParser {
 					break;
 				case LOCAL_VAR:
 					buffer.append("LOCAL VAR: "); //$NON-NLS-1$
+					break;
+				case FLAGS:
+					buffer.append("MODIFIERS: "); //$NON-NLS-1$
 					break;
 				case END:
 					buffer.append("END: "); //$NON-NLS-1$
@@ -361,6 +400,10 @@ public class BindingKeyParser {
 	}
 	
 	public void consumeMethod(char[] selector, char[] signature) {
+		// default is to do nothing
+	}
+	
+	public void consumeModifiers(char[] modifiers) {
 		// default is to do nothing
 	}
 	
@@ -459,14 +502,17 @@ public class BindingKeyParser {
 		parseInnerType();
 		
 		if (this.scanner.isAtParametersStart()) {
+			this.scanner.skipParametersStart();
 			if (this.scanner.isAtTypeParameterStart())	{		
 				// generic type
 				parseGenericType();
+			 	// skip ";>"
+			 	this.scanner.skipParametersEnd();
 				// local type in generic type
 				parseInnerType();
 			} else if (this.scanner.isAtTypeStart() || this.scanner.isAtWildCardStart())
 				// parameterized type
-				parseParameterizedType(null/*top level type*/);
+				parseParameterizedType(null/*top level type*/, false/*no raw*/);
 			else if (this.scanner.isAtRawTypeEnd())
 				// raw type
 				parseRawType();
@@ -476,11 +522,14 @@ public class BindingKeyParser {
 		}
 		
 		consumeType();
+		this.scanner.skipTypeEnd();
+		parseFlags();
 		
 		if (this.scanner.isAtFieldOrMethodStart()) {
 			switch (this.scanner.nextToken()) {
  				case Scanner.FIELD:
  					consumeField(this.scanner.getTokenSource());
+					parseFlags();
  					return;
  				case Scanner.METHOD:
  					parseMethod();
@@ -495,8 +544,6 @@ public class BindingKeyParser {
  					return;
 			}
 		} else if (this.scanner.isAtTypeTypeVariableStart()) {
-		 	// skip ";>"
-		 	this.scanner.skipParametersEnd();
 			parseTypeVariable();
 		}
 	}
@@ -541,6 +588,7 @@ public class BindingKeyParser {
 				return;
 			}
 			consumeTypeParameter(this.scanner.getTokenSource());
+			this.scanner.skipTypeEnd();
 		}
 	}
 	
@@ -577,6 +625,7 @@ public class BindingKeyParser {
 			parseLocalVariable();
 		} else {
 		 	consumeLocalVar(varName);
+			parseFlags();
 		}
  	}
 	
@@ -585,31 +634,39 @@ public class BindingKeyParser {
 	 	this.scanner.skipMethodSignature();
 	 	char[] signature = this.scanner.getTokenSource();
 	 	consumeMethod(selector, signature);
+		parseFlags();
 		if (this.scanner.isAtParametersStart())
 			parseParameterizedMethod();
 	}
 	
-	private void parseParameterizedType(char[] typeName) {
-		boolean isRaw = false;
-		if (this.scanner.isAtParametersStart()) {
-			if (!this.scanner.isAtRawTypeEnd()) {
-				int rank = 0;
-				while (!this.scanner.isAtParametersEnd()) {
-			 		if (this.scanner.isAtWildCardStart()) {
-			 			parseWildCard(rank++);
-			 		} else {
-						parseTypeArgument();
-			 		}
-				}
-			}  else
-				isRaw = true;
-		 	// skip ";>"
-		 	this.scanner.skipParametersEnd();
+	private void parseFlags() {
+		if (!this.scanner.isAtFlagsStart() || this.scanner.nextToken() != Scanner.FLAGS) return;
+		consumeModifiers(this.scanner.getTokenSource());
+	}
+	
+	private void parseParameterizedType(char[] typeName, boolean isRaw) {
+		if (!isRaw) {
+			int rank = 0;
+			while (!this.scanner.isAtParametersEnd()) {
+		 		if (this.scanner.isAtWildCardStart()) {
+		 			parseWildCard(rank++);
+		 		} else {
+					parseTypeArgument();
+		 		}
+			}
 		}
+	 	// skip ";>"
+	 	this.scanner.skipParametersEnd();
 		consumeParameterizedType(typeName, isRaw);
+		this.scanner.skipTypeEnd();
+		parseFlags();
 	 	if (this.scanner.isAtMemberTypeStart() && this.scanner.nextToken() == Scanner.TYPE) {
 	 		typeName = this.scanner.getTokenSource();
-	 		parseParameterizedType(typeName);
+			if (this.scanner.isAtParametersStart()) {
+				this.scanner.skipParametersStart();
+		 		parseParameterizedType(typeName, this.scanner.isAtRawTypeEnd());
+			} else
+				consumeParameterizedType(typeName, true/*raw*/);
 	 	}
 	}
 	
@@ -635,6 +692,7 @@ public class BindingKeyParser {
 			return;
 		}
 		consumeTypeVariable(this.scanner.getTokenSource());
+		this.scanner.skipTypeEnd();
 	}
 	
 	private void parseWildCard(int rank) {

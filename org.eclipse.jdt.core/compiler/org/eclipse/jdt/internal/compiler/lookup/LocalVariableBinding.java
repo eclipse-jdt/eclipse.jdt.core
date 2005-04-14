@@ -57,9 +57,9 @@ public class LocalVariableBinding extends VariableBinding {
 	
 	/*
 	 * declaringUniqueKey # scopeIndex / varName
-	 * p.X { void foo() { int local; } } --> Lp/X;.foo()V#1/local
+	 * p.X { void foo() { int local; } } --> Lp/X;.foo()V#1/local^123
 	 */
-	public char[] computeUniqueKey() {
+	public char[] computeUniqueKey(boolean withAccessFlags) {
 		StringBuffer buffer = new StringBuffer();
 		
 		// declaring method or type
@@ -69,12 +69,12 @@ public class LocalVariableBinding extends VariableBinding {
 		if (referenceContext instanceof AbstractMethodDeclaration) {
 			MethodBinding methodBinding = ((AbstractMethodDeclaration) referenceContext).binding;
 			if (methodBinding != null) {
-				buffer.append(methodBinding.computeUniqueKey());
+				buffer.append(methodBinding.computeUniqueKey(false/*without access flags*/));
 			}
 		} else if (referenceContext instanceof TypeDeclaration) {
 			TypeBinding typeBinding = ((TypeDeclaration) referenceContext).binding;
 			if (typeBinding != null) {
-				buffer.append(typeBinding.computeUniqueKey());
+				buffer.append(typeBinding.computeUniqueKey(false/*without access flags*/));
 			}
 		}
 
@@ -84,6 +84,12 @@ public class LocalVariableBinding extends VariableBinding {
 		// variable name
 		buffer.append('#');
 		buffer.append(this.name);
+		
+		// flags
+		if (withAccessFlags) {
+			buffer.append('^');
+			buffer.append(this.modifiers & AccJustFlag);
+		}
 		
 		int length = buffer.length();
 		char[] uniqueKey = new char[length];

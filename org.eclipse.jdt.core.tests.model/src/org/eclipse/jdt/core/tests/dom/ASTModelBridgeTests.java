@@ -165,7 +165,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IType typeX = this.workingCopies[0].getType("X");
 		IJavaElement[] elements = new IJavaElement[] {
 			typeX, 
-			getClassFile("P", getExternalJCLPathString(), "java.lang", "Object.class").getType(),
+			getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "Object.class").getType(),
 			typeX.getMethod("foo", new String[] {"I", "QString;"}),
 			this.workingCopies[2].getType("I").getField("BAR"),
 			this.workingCopies[1].getType("Y").getMethod("bar", new String[0]).getType("", 1)

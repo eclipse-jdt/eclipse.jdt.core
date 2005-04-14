@@ -29,6 +29,9 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	public static final int GENERIC_TYPE = TYPE | ASTNode.Bit11;
 	public static final int TYPE_PARAMETER = TYPE | ASTNode.Bit12;
 	public static final int ANNOTATION_BINDING = TYPE | ASTNode.Bit13; // for annotation refs
+	
+	// TODO (jerome) change to true to fix https://bugs.eclipse.org/bugs/show_bug.cgi?id=90392
+	public static boolean USE_ACCESS_FLAGS_IN_BINDING_KEY = false;
 
 	/* API
 	* Answer the receiver's binding type from Binding.BindingID.
@@ -42,9 +45,15 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	 * Returns null if binding is not a TypeBinding, a MethodBinding, a FieldBinding or a PackageBinding.
 	 */
 	public char[] computeUniqueKey() {
+		return computeUniqueKey(USE_ACCESS_FLAGS_IN_BINDING_KEY/*without access flags*/);
+	}
+	/*
+	 * Computes a key that uniquely identifies this binding. Optinaly include access flags.
+	 * Returns null if binding is not a TypeBinding, a MethodBinding, a FieldBinding or a PackageBinding.
+	 */
+	public char[] computeUniqueKey(boolean withAccessFlags) {
 		return null;
 	}
-	
 	/**
 	 * Compute the tagbits for standard annotations. For source types, these could require
 	 * lazily resolving corresponding annotation nodes, in case of forward references.

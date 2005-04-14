@@ -500,8 +500,8 @@ public int kind() {
 	if (this.typeVariables != NoTypeVariables) return Binding.GENERIC_TYPE;
 	return Binding.TYPE;
 }
-public char[] computeUniqueKey() {
-	char[] uniqueKey = super.computeUniqueKey();
+public char[] computeUniqueKey(boolean withAccessFlags) {
+	char[] uniqueKey = super.computeUniqueKey(withAccessFlags);
 	if (uniqueKey.length == 2) return uniqueKey; // problem type's unique key is "L;"
 	int start = CharOperation.lastIndexOf('/', this.fileName) + 1;
 	int end = CharOperation.lastIndexOf('.', this.fileName);

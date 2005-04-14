@@ -257,14 +257,14 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 	}
 	
-	public char[] computeUniqueKey() {
+	public char[] computeUniqueKey(boolean withAccessFlags) {
         switch (this.kind) {
             case Wildcard.UNBOUND : 
                 return WILDCARD_STAR;
             case Wildcard.EXTENDS :
-                return CharOperation.concat(WILDCARD_PLUS, this.bound.computeUniqueKey());
+                return CharOperation.concat(WILDCARD_PLUS, this.bound.computeUniqueKey(false/*without access flags*/));
 			default: // SUPER
-			    return CharOperation.concat(WILDCARD_MINUS, this.bound.computeUniqueKey());
+			    return CharOperation.concat(WILDCARD_MINUS, this.bound.computeUniqueKey(false/*without access flags*/));
         }
        }
 	

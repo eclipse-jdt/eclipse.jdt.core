@@ -290,14 +290,14 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 }
 /*
  * declaringUniqueKey dot selector genericSignature
- * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V
+ * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V^123
  */
-public char[] computeUniqueKey() {
-	return computeUniqueKey(this);
+public char[] computeUniqueKey(boolean withAccessFlags) {
+	return computeUniqueKey(this, withAccessFlags);
 }
-protected char[] computeUniqueKey(MethodBinding methodBinding) {
+protected char[] computeUniqueKey(MethodBinding methodBinding, boolean withAccessFlags) {
 	// declaring class 
-	char[] declaringKey = this.declaringClass.computeUniqueKey();
+	char[] declaringKey = this.declaringClass.computeUniqueKey(false/*without access flags*/);
 	int declaringLength = declaringKey.length;
 	
 	// selector
@@ -308,13 +308,36 @@ protected char[] computeUniqueKey(MethodBinding methodBinding) {
 	if (sig == null) sig = methodBinding.signature();
 	int signatureLength = sig.length;
 	
-	// compute unique key
-	char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength];
-	System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
-	uniqueKey[declaringLength] = '.';
-	System.arraycopy(this.selector, 0, uniqueKey, declaringLength+1, selectorLength);
-	System.arraycopy(sig, 0, uniqueKey, declaringLength + 1 + selectorLength, signatureLength);
-	return uniqueKey;
+	if (withAccessFlags) {
+		// flags
+		String flags = Integer.toString(methodBinding.getAccessFlags());
+		int flagsLength = flags.length();
+		
+		char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength + 1 + flagsLength];
+		int index = 0;
+		System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
+		index = declaringLength;
+		uniqueKey[index++] = '.';
+		System.arraycopy(this.selector, 0, uniqueKey, index, selectorLength);
+		index += selectorLength;
+		System.arraycopy(sig, 0, uniqueKey, index, signatureLength);
+		index += signatureLength;
+		uniqueKey[index++] = '^';
+		flags.getChars(0, flagsLength, uniqueKey, index);
+		// index += modifiersLength
+		return uniqueKey;
+	} else {
+		char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength];
+		int index = 0;
+		System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
+		index = declaringLength;
+		uniqueKey[index++] = '.';
+		System.arraycopy(this.selector, 0, uniqueKey, index, selectorLength);
+		index += selectorLength;
+		System.arraycopy(sig, 0, uniqueKey, index, signatureLength);
+		//index += signatureLength;
+		return uniqueKey;
+	}
 }
 /* 
  * Answer the declaring class to use in the constant pool

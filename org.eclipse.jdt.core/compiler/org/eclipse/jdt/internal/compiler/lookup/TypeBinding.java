@@ -75,12 +75,6 @@ public boolean canBeInstantiated() {
 public void collectSubstitutes(Scope scope, TypeBinding otherType, Map substitutes, int constraint) {
     // no substitute by default
 }
-/*
- * genericTypeSignature
- */
-public char[] computeUniqueKey() {
-	return genericTypeSignature();
-}
 /**
  *  Answer the receiver's constant pool name.
  *  NOTE: This method should only be used during/after code gen.

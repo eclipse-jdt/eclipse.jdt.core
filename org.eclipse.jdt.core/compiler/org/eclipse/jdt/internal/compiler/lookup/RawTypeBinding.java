@@ -30,15 +30,19 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 			this.modifiers &= ~AccGenericSignature; // only need signature if enclosing needs one
 	}    
 	
-	public char[] computeUniqueKey() {
+	public char[] computeUniqueKey(boolean withAccessFlags) {
 	    StringBuffer sig = new StringBuffer(10);
 		if (isMemberType() && enclosingType().isParameterizedType()) {
-		    char[] typeSig = enclosingType().computeUniqueKey();
+		    char[] typeSig = enclosingType().computeUniqueKey(false/*without access flags*/);
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 		    sig.append('.').append(sourceName()).append('<').append('>').append(';');
 		} else {
 		     sig.append(this.type.signature()); // erasure
 		     sig.insert(sig.length()-1, "<>"); //$NON-NLS-1$
+		}
+		if (withAccessFlags) {
+			sig.append('^');
+			sig.append(getAccessFlags());
 		}
 		int sigLength = sig.length();
 		char[] uniqueKey = new char[sigLength];

@@ -23,6 +23,13 @@ public final class BaseTypeBinding extends TypeBinding {
 		this.constantPoolName = constantPoolName;
 	}
 
+	/**
+	 * int -> I
+	 */
+	public char[] computeUniqueKey(boolean withAccessFlags) {
+		return constantPoolName();
+	}
+	
 	/* Answer the receiver's constant pool name.
 	*/
 	public char[] constantPoolName() {

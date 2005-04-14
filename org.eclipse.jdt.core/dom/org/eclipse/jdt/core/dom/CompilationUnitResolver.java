@@ -212,7 +212,7 @@ class CompilationUnitResolver extends Compiler {
 					char[] pkgName = CharOperation.concatWith(resolver.compoundName(), '.');
 					this.requestedKeys.put(pkgName, resolver);
 				} else {
-					// base type binding
+					// base type binding or binary binding
 					char[] key = resolver.getKey().toCharArray();
 					this.requestedKeys.put(key, resolver);
 				}
@@ -549,7 +549,7 @@ class CompilationUnitResolver extends Compiler {
 			} else {
 				// binary member
 				try {
-					String key = ((BinaryMember) element).getKey();
+					String key = ((BinaryMember) element).getKey(true/*open to get resolved info*/);
 					binaryElementPositions.put(key, i);
 				} catch (JavaModelException e) {
 					throw new IllegalArgumentException(element + " does not exist"); //$NON-NLS-1$

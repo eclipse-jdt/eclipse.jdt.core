@@ -151,17 +151,43 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 }
 /*
  * declaringUniqueKey dot fieldName
- * p.X { X<T> x} --> Lp/X;.x;
+ * p.X { X<T> x} --> Lp/X;.x^123
  */
-public char[] computeUniqueKey() {
-	char[] declaringKey = this.declaringClass == null /*case of length field for an array*/ ? CharOperation.NO_CHAR : this.declaringClass.computeUniqueKey();
+public char[] computeUniqueKey(boolean withAccessFlags) {
+	// declaring key
+	char[] declaringKey = 
+		this.declaringClass == null /*case of length field for an array*/ 
+			? CharOperation.NO_CHAR 
+			: this.declaringClass.computeUniqueKey(false/*without access flags*/);
 	int declaringLength = declaringKey.length;
+	
+	// name
 	int nameLength = this.name.length;
-	char[] uniqueKey = new char[declaringLength + 1 + nameLength];
-	System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
-	uniqueKey[declaringLength] = '.';
-	System.arraycopy(this.name, 0, uniqueKey, declaringLength + 1, nameLength);
-	return uniqueKey;
+	
+	if (withAccessFlags) {
+		// flags
+		String flags = Integer.toString(getAccessFlags());
+		int flagsLength = flags.length();
+	
+		char[] uniqueKey = new char[declaringLength + 1 + nameLength + 1 + flagsLength];
+		int index = 0;
+		System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
+		index += declaringLength;
+		uniqueKey[index++] = '.';
+		System.arraycopy(this.name, 0, uniqueKey, index, nameLength);
+		index += nameLength;
+		uniqueKey[index++] = '^';
+		flags.getChars(0, flagsLength, uniqueKey, index);
+		return uniqueKey;
+	} else {
+		char[] uniqueKey = new char[declaringLength + 1 + nameLength];
+		int index = 0;
+		System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
+		index += declaringLength;
+		uniqueKey[index++] = '.';
+		System.arraycopy(this.name, 0, uniqueKey, index, nameLength);
+		return uniqueKey;
+	}
 }
 /**
  * X<T> t   -->  LX<TT;>;

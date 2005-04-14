@@ -301,19 +301,19 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 
 	/*
 	 * parameterizedDeclaringUniqueKey dot selector originalMethodGenericSignature percent typeArguments
-	 * p.X<U> { <T> void bar(T t, U u) { new X<String>().bar(this, "") } } --> Lp/X<Ljava/lang/String;>;.bar<T:Ljava/lang/Object;>(TT;TU;)V%<Lp/X;>
+	 * p.X<U> { <T> void bar(T t, U u) { new X<String>().bar(this, "") } } --> Lp/X<Ljava/lang/String;>;.bar<T:Ljava/lang/Object;>(TT;TU;)V^123%<Lp/X;>
 	 */
-	public char[] computeUniqueKey() {
+	public char[] computeUniqueKey(boolean withAccessFlags) {
 		if (this.isRaw)
-			return super.computeUniqueKey();
+			return super.computeUniqueKey(withAccessFlags);
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(super.computeUniqueKey());
+		buffer.append(super.computeUniqueKey(withAccessFlags));
 		buffer.append('%');
 		buffer.append('<');
 		int length = this.typeArguments.length;
 		for (int i = 0; i < length; i++) {
 			TypeBinding typeArgument = this.typeArguments[i];
-			buffer.append(typeArgument.computeUniqueKey());
+			buffer.append(typeArgument.computeUniqueKey(false/*without access flags*/));
 		}
 		buffer.append('>');
 		int resultLength = buffer.length();

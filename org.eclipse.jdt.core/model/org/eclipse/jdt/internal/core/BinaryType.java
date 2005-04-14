@@ -394,11 +394,8 @@ public IInitializer getInitializer(int count) {
 public IInitializer[] getInitializers() {
 	return NO_INITIALIZERS;
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.IType#getKey()
- */
-public String getKey() {
-	return getKey(this);
+public String getKey(boolean forceOpen) throws JavaModelException {
+	return getKey(this, org.eclipse.jdt.internal.compiler.lookup.Binding.USE_ACCESS_FLAGS_IN_BINDING_KEY/*with access flags*/, forceOpen);
 }
 /*
  * @see IType#getMethod(String name, String[] parameterTypeSignatures)
