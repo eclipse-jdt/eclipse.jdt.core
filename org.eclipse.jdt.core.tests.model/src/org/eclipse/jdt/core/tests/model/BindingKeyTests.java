@@ -306,7 +306,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	}
 	
 	/*
-	 * Paramterized member type
+	 * Parameterized member type
 	 */
 	public void test027() {
 		assertBindingKeySignatureEquals(
