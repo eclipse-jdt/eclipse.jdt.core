@@ -617,25 +617,44 @@ private void buildMoreCompletionContext(Expression expression) {
 				}
 				break nextElement;
 			case K_BINARY_OPERATOR :
-				if(expressionPtr > 0) {
+				if(expressionPtr > -1) {
 					Expression operatorExpression = null;
-					switch (info) {
-						case AND_AND :
-							operatorExpression = new AND_AND_Expression(this.expressionStack[expressionPtr-1], expression, info);
-							break;
-						case OR_OR :
-							operatorExpression = new OR_OR_Expression(this.expressionStack[expressionPtr-1], expression, info);
-							break;
-						case EQUAL_EQUAL :
-						case NOT_EQUAL :
-							operatorExpression = new EqualExpression(this.expressionStack[expressionPtr-1], expression, info);
-							break;
-						case INSTANCEOF :
-							// should never occur
-							break;
-						default :
-							operatorExpression = new BinaryExpression(this.expressionStack[expressionPtr-1], expression, info);
-							break;
+					Expression left = null;
+					if(expressionPtr == 0) {
+						// it is  a ***_NotName rule
+						if(this.identifierPtr > -1) {
+							left = getUnspecifiedReferenceOptimized();
+						}
+					} else {
+						left = this.expressionStack[expressionPtr-1];
+						// is it a ***_NotName rule ?
+						if(this.identifierPtr > -1) {
+							int start = (int) (identifierPositionStack[this.identifierPtr] >>> 32);
+							if(left.sourceStart < start) {
+								left = getUnspecifiedReferenceOptimized();
+							}
+						}
+					}
+					
+					if(left != null) {
+						switch (info) {
+							case AND_AND :
+								operatorExpression = new AND_AND_Expression(left, expression, info);
+								break;
+							case OR_OR :
+								operatorExpression = new OR_OR_Expression(left, expression, info);
+								break;
+							case EQUAL_EQUAL :
+							case NOT_EQUAL :
+								operatorExpression = new EqualExpression(left, expression, info);
+								break;
+							case INSTANCEOF :
+								// should never occur
+								break;
+							default :
+								operatorExpression = new BinaryExpression(left, expression, info);
+								break;
+						}
 					}
 					if(operatorExpression != null) {
 						assistNodeParent = operatorExpression;
