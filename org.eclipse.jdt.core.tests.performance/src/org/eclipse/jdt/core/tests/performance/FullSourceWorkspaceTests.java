@@ -1,29 +1,62 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2004 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+
 package org.eclipse.jdt.core.tests.performance;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.security.CodeSource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
+import java.util.List;
 
-import junit.framework.*;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.tests.builder.TestingEnvironment;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.test.performance.Dimension;
+import org.eclipse.test.performance.Performance;
 
 
 
@@ -31,23 +64,27 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	protected static TestingEnvironment env = null;
 	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
-	static int TESTS_COUNT = 0;
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
 	static IJavaProject[] ALL_PROJECTS;
 	
+	// Tests counters
+	static int TESTS_COUNT = 0;
+	protected final static int MEASURES_COUNT = 10;
+	protected static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
+	
+	// Garbage collect constants
+	final static int MAX_GC = 10; // Max gc iterations
+	final static int TIME_GC = 500; // Sleep to wait gc to run (in ms)
+	final static int DELTA_GC = 100; // Threshold to leave gc loop
+
+	// Scenario information
+	String scenarioReadableName, scenarioShortName;
 
 	/**
 	 * @param name
 	 */
 	public FullSourceWorkspaceTests(String name) {
 		super(name);
-	}
-
-//	static {
-//		TESTS_NAMES = new String[] { "testPerfFullBuildNoDocCommentSupport" };
-//	}
-	public static Test suite() {
-		return buildSuite(FullSourceWorkspaceTests.class);
 	}
 
 	protected static Test buildSuite(Class testClass) {
@@ -60,6 +97,33 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		return suite;
 	}
 
+	/*
+	 * Perform gc several times to be sure that it won't take time while executing current test.
+	 */
+	protected void runGc() {
+		int iterations = 0;
+		long delta, free;
+		do {
+			free = Runtime.getRuntime().freeMemory();
+			System.gc();
+			delta = Runtime.getRuntime().freeMemory() - free;
+			if (DEBUG) System.out.println("Loop gc "+ ++iterations + " (free="+free+", delta="+delta+")");
+			try {
+				Thread.sleep(TIME_GC);
+			} catch (InterruptedException e) {
+				// do nothing
+			}
+		} while (iterations<MAX_GC && delta>DELTA_GC);
+		if (iterations == MAX_GC && delta > (DELTA_GC*10)) {
+			// perhaps gc was not well executed
+			System.err.println(this.scenarioShortName+": still get "+delta+" unfreeable memory (free="+free+",total="+Runtime.getRuntime().totalMemory()+") after "+MAX_GC+" gc...");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// do nothing
+			}
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -68,39 +132,60 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
+
+		// Store scenario readable name
+		String scenario = Performance.getDefault().getDefaultScenarioId(this);
+		this.scenarioReadableName = scenario.substring(scenario.lastIndexOf('.')+1, scenario.length()-2);
+		this.scenarioShortName = this.scenarioReadableName.substring(this.scenarioReadableName.lastIndexOf('#')+5/*1+"test".length()*/, this.scenarioReadableName.length());
+
+		// Init workspace at first test run
 		if (env == null) {
 			env = new TestingEnvironment();
 			env.openEmptyWorkspace();
 			setUpFullSourceWorkspace();
 		}
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.test.performance.PerformanceTestCase#tagAsGlobalSummary(java.lang.String, org.eclipse.test.performance.Dimension)
+	/**
+	 * @deprecated Use {@link #tagAsGlobalSummary(String,Dimension,boolean)} instead
 	 */
 	public void tagAsGlobalSummary(String shortName, Dimension dimension) {
-		if (DEBUG) System.out.println(shortName);
-		super.tagAsGlobalSummary(shortName, dimension);
+		tagAsGlobalSummary(shortName, dimension, false); // do NOT put in fingerprint
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.test.performance.PerformanceTestCase#tagAsGlobalSummary(java.lang.String, org.eclipse.test.performance.Dimension[])
+	protected void tagAsGlobalSummary(String shortName, boolean fingerprint) {
+		tagAsGlobalSummary(shortName, Dimension.ELAPSED_PROCESS, fingerprint);
+	}
+	protected void tagAsGlobalSummary(String shortName, Dimension dimension, boolean fingerprint) {
+		if (DEBUG) System.out.println(shortName);
+		if (fingerprint) super.tagAsGlobalSummary(shortName, dimension);
+	}
+	/**
+	 * @deprecated We do not use this method...
 	 */
 	public void tagAsGlobalSummary(String shortName, Dimension[] dimensions) {
-		if (DEBUG) System.out.println(shortName);
-		super.tagAsGlobalSummary(shortName, dimensions);
+		System.out.println("ERROR: tagAsGlobalSummary(String, Dimension[]) is not implemented!!!");
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.test.performance.PerformanceTestCase#tagAsSummary(java.lang.String, org.eclipse.test.performance.Dimension)
+	/**
+	 * @deprecated Use {@link #tagAsSummary(String,Dimension,boolean)} instead
 	 */
 	public void tagAsSummary(String shortName, Dimension dimension) {
-		if (DEBUG) System.out.println(shortName);
-		super.tagAsSummary(shortName, dimension);
+		tagAsSummary(shortName, dimension, false); // do NOT put in fingerprint
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.test.performance.PerformanceTestCase#tagAsSummary(java.lang.String, org.eclipse.test.performance.Dimension[])
+	protected void tagAsSummary(String shortName, boolean fingerprint) {
+		tagAsSummary(shortName, Dimension.ELAPSED_PROCESS, fingerprint);
+	}
+	public void tagAsSummary(String shortName, Dimension dimension, boolean fingerprint) {
+		if (DEBUG) System.out.println(shortName);
+		if (fingerprint) super.tagAsSummary(shortName, dimension);
+	}
+	/**
+	 * @deprecated We do not use this method...
 	 */
 	public void tagAsSummary(String shortName, Dimension[] dimensions) {
+		System.out.println("ERROR: tagAsGlobalSummary(String, Dimension[]) is not implemented!!!");
+	}
+	public void tagAsSummary(String shortName, Dimension[] dimensions, boolean fingerprint) {
 		if (DEBUG) System.out.println(shortName);
-		super.tagAsSummary(shortName, dimensions);
+		if (fingerprint) super.tagAsSummary(shortName, dimensions);
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
@@ -181,6 +266,49 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		if (DEBUG) System.out.println("done!");
 	}
 
+	/*
+	 * Full Build using batch compiler
+	 */
+	protected void buildUsingBatchCompiler(String options) throws IOException {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
+		final String targetWorkspacePath = workspaceRoot.getProject(JavaCore.PLUGIN_ID).getLocation().toFile().getCanonicalPath();
+		final String sources = targetWorkspacePath + File.separator + "compiler";
+		final String bins = targetWorkspacePath + File.separator + "bin"; //$NON-NLS-1$
+		final String logs = targetWorkspacePath + File.separator + "log.txt"; //$NON-NLS-1$
+
+		// Warm up
+		PrintWriter out = new PrintWriter(new StringWriter());
+		PrintWriter err = new PrintWriter(new StringWriter());
+		String cmdLine = sources + " -1.4 -g -preserveAllLocals "+(options==null?"":options)+" -d " + bins + " -log " + logs; //$NON-NLS-1$ //$NON-NLS-2$
+		for (int i=0; i<2; i++) {
+			Main main = new Main(out, err, false);
+			main.compile(Main.tokenize(cmdLine));
+		}
+
+		// Measures
+		int max = MEASURES_COUNT * 2;
+		int warnings = 0;
+		for (int i = 0; i < max; i++) {
+			runGc();
+			startMeasuring();
+			Main main = new Main(out, err, false);
+			main.compile(Main.tokenize(cmdLine));
+			stopMeasuring();
+			cleanupDirectory(new File(bins));
+			warnings = main.globalWarningsCount;
+		}
+		
+		// Commit measures
+		commitMeasurements();
+		assertPerformance();
+
+		// Store warning
+		if (warnings>0) {
+			System.out.println("\t"+warnings+" warnings found while performing batch compilation.");
+		}
+	}
+
 	/**
 	 * Delete a directory from file system.
 	 * @param directory
@@ -201,6 +329,30 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 		if (!directory.delete())
 			System.out.println("Could not delete directory " + directory.getPath()); //$NON-NLS-1$
+	}
+
+	private void collectAllFiles(File root, ArrayList collector, FileFilter fileFilter) {
+		File[] files = root.listFiles(fileFilter);
+		for (int i = 0; i < files.length; i++) {
+			final File currentFile = files[i];
+			if (currentFile.isDirectory()) {
+				collectAllFiles(currentFile, collector, fileFilter);
+			} else {
+				collector.add(currentFile);
+			}
+		}
+	}
+
+	protected File[] getAllFiles(File root, FileFilter fileFilter) {
+		ArrayList files = new ArrayList();
+		if (root.isDirectory()) {
+			collectAllFiles(root, files, fileFilter);
+			File[] result = new File[files.size()];
+			files.toArray(result);
+			return result;
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -315,7 +467,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * @param options
 	 * @throws IOException
 	 * @throws CoreException
-	 */
+	 *
 	protected void startBuild(Hashtable options) throws IOException, CoreException {
 		if (DEBUG) System.out.print("\tstart build...");
 		JavaCore.setOptions(options);
@@ -324,5 +476,191 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		stopMeasuring();
 		commitMeasurements();
 		assertPerformance();
+	}
+	*/
+
+	/**
+	 * Start a build on workspace using given options.
+	 * @param options
+	 * @throws IOException
+	 * @throws CoreException
+	 */
+	protected void startBuild(Hashtable options, boolean noWarning) throws IOException, CoreException {
+		if (DEBUG) System.out.print("\tstart build...");
+		JavaCore.setOptions(options);
+		
+		// Clean memory
+		runGc();
+		
+		// Measure
+		startMeasuring();
+		env.fullBuild();
+		stopMeasuring();
+		
+		// Verify markers
+		IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		List resources = new ArrayList();
+		List messages = new ArrayList();
+		int warnings = 0;
+		for (int i = 0, length = markers.length; i < length; i++) {
+			IMarker marker = markers[i];
+			switch (((Integer) marker.getAttribute(IMarker.SEVERITY)).intValue()) {
+				case IMarker.SEVERITY_ERROR:
+					resources.add(marker.getResource().getName());
+					messages.add(marker.getAttribute(IMarker.MESSAGE));
+					break;
+				case IMarker.SEVERITY_WARNING:
+					warnings++;
+					if (noWarning) {
+						resources.add(marker.getResource().getName());
+						messages.add(marker.getAttribute(IMarker.MESSAGE));
+					}
+					break;
+			}
+		}
+		
+		// Assert result
+		int size = messages.size();
+		if (size > 0) {
+			/*
+			if (LOG_DIR == null) {
+				StringBuffer buffer = new StringBuffer();
+				int max = size > 10 ? 10 : size;
+				for (int i=0; i<max; i++) {
+					buffer.append(resources.get(i));
+					buffer.append(":\n\t");
+					buffer.append(messages.get(i));
+					buffer.append('\n');
+				}
+				if (size > max)
+					buffer.append("...\n");
+				assertTrue("Unexpected marker(s):\n" + buffer.toString(), size==0);
+			}
+			*/
+//			if (LOG_DIR != null || DEBUG) {
+				StringBuffer debugBuffer = new StringBuffer();
+				for (int i=0; i<size; i++) {
+					debugBuffer.append(resources.get(i));
+					debugBuffer.append(":\n\t");
+					debugBuffer.append(messages.get(i));
+					debugBuffer.append('\n');
+				}
+				System.out.println("ERROR: Unexpected marker(s):\n" + debugBuffer.toString());
+//			}
+		}
+		if (DEBUG) System.out.println("done");
+		
+		// Commit measure
+		commitMeasurements();
+		assertPerformance();
+
+		// Store warning
+		if (warnings>0) {
+			System.out.println("\t"+warnings+" warnings found while performing build.");
+		}
+	}
+
+	protected void waitUntilIndexesReady() {
+		/**
+		 * Simple Job which does nothing
+		 */
+		class	 DoNothing implements IJob {
+			/**
+			 * Answer true if the job belongs to a given family (tag)
+			 */
+			public boolean belongsTo(String jobFamily) {
+				return true;
+			}
+			/**
+			 * Asks this job to cancel its execution. The cancellation
+			 * can take an undertermined amount of time.
+			 */
+			public void cancel() {
+				// nothing to cancel
+			}
+			/**
+			 * Execute the current job, answer whether it was successful.
+			 */
+			public boolean execute(IProgressMonitor progress) {
+				// always succeed to do nothing
+				return true;
+			}
+			public boolean isReadyToRun() {
+				// always ready to run
+				return true;
+			}
+		}
+		
+		// Run simple job which does nothing but wait for indexing end
+		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
+	}
+
+	/*
+	 * Create hashtable of none or all warning options.
+	 */
+	protected Hashtable warningOptions(boolean all) {
+
+		// Values
+		Hashtable optionsMap = new Hashtable(30);
+		String generate = all ? CompilerOptions.GENERATE : CompilerOptions.DO_NOT_GENERATE;
+		String warning = all ? CompilerOptions.WARNING : CompilerOptions.IGNORE;
+		String enabled = all ? CompilerOptions.ENABLED : CompilerOptions.DISABLED;
+		String preserve = all ? CompilerOptions.OPTIMIZE_OUT : CompilerOptions.PRESERVE;
+		
+		// Set options values
+		optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, generate); 
+		optionsMap.put(CompilerOptions.OPTION_LineNumberAttribute, generate);
+		optionsMap.put(CompilerOptions.OPTION_SourceFileAttribute, generate);
+		optionsMap.put(CompilerOptions.OPTION_PreserveUnusedLocal, preserve);
+		optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportDeprecation, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, enabled); 
+		optionsMap.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportUnusedLocal, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameter, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportNoEffectAssignment, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, warning); 
+		optionsMap.put(CompilerOptions.OPTION_TaskTags, all ? JavaCore.DEFAULT_TASK_TAG : "");
+		optionsMap.put(CompilerOptions.OPTION_TaskPriorities, all ? JavaCore.DEFAULT_TASK_PRIORITY : "");
+		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled); 
+		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled); 
+		optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, warning); 
+		
+		// Since 3.0 options
+//		optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, enabled); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, enabled); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportLocalVariableHiding, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryElse, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadoc, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, enabled); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTags, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocComments, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, enabled); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled); 
+//		optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
+		
+		// Since 3.1 options
+//		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, warning); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, warning); 
+
+		// Return created options map
+		return optionsMap;
 	}
 }
