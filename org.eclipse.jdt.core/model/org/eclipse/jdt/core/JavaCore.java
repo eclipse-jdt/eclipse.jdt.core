@@ -68,6 +68,7 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.core.compiler.ICompilationParticipant;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -1015,6 +1016,18 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
+	 * Add a compilation participant listener dynamically.  It is not necessary
+	 * to call this for listeners registered with the compilationParticipants
+	 * extension point.
+	 * @param icp the listener
+	 * @param eventMask the set of events for which the listener will be notified,
+	 * built by ORing together values from CompilationParticipantEvent.
+	 */
+	public static void addCompilationParticipant(ICompilationParticipant icp, int eventMask) {
+		JavaModelManager.getJavaModelManager().getCompilationParticipants().add(icp, eventMask);
+	}
+
+	/**
 	 * Adds the given listener for changes to Java elements.
 	 * Has no effect if an identical listener is already registered.
 	 *
@@ -1515,7 +1528,23 @@ public final class JavaCore extends Plugin {
 	public static String[] getClasspathVariableNames() {
 		return JavaModelManager.getJavaModelManager().variableNames();
 	}
-
+	
+	/**
+	 * Returns an immutable list containing the subset of registered
+	 * listeners that have requested notification of at least one of
+	 * the events in the flags mask.
+	 * The first time this is called, it loads listeners from plugins,
+	 * which may cause plugins to be loaded.  If this is called on
+	 * multiple threads simultaneously, or if loading a plugin causes
+	 * this to be reentered, it may return an incomplete list of listeners,
+	 * but it is guaranteed not to crash or deadlock.
+	 * @param eventMask an ORed combination of values from ICompilationParticipant.
+	 * @return an immutable list of ICompilationParticipant.
+	 */
+	public static List getCompilationParticipants(int eventMask) {
+		return JavaModelManager.getJavaModelManager().getCompilationParticipants().get(eventMask);
+	}
+	
 	/**
 	 * Returns a table of all known configurable options with their default values.
 	 * These options allow to configure the behaviour of the underlying components.
@@ -3564,6 +3593,17 @@ public final class JavaCore extends Plugin {
 		} catch (JavaModelException e) {
 			// cannot happen: ignore
 		}
+	}
+
+	/**
+	 * Removes the specified compilation participant listener.  Has no effect
+	 * if the listener was not on the list, or if it was registered via the 
+	 * compilationParticipant extension point rather than a call to 
+	 * addCompilationParticipant.
+	 * @param icp the listener to remove
+	 */
+	public static void removeCompilationParticipant(ICompilationParticipant icp) {
+		JavaModelManager.getJavaModelManager().getCompilationParticipants().remove(icp);
 	}
 
 	/**

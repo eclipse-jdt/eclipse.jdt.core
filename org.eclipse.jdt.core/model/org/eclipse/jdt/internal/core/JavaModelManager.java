@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.ICompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
@@ -105,6 +106,11 @@ public class JavaModelManager implements ISaveParticipant {
 	public static final String FORMATTER_EXTPOINT_ID = "codeFormatter" ; //$NON-NLS-1$
 	
 	/**
+	 * Name of the extension point for contributing a compilation participant
+	 */
+	public static final String COMPILATION_PARTICIPANT_EXTPOINT_ID = "compilationParticipant" ; //$NON-NLS-1$
+	
+	/**
 	 * Value of the content-type for Java source files
 	 */
 	public static final String JAVA_SOURCE_CONTENT_TYPE = JavaCore.PLUGIN_ID+".javaSource" ; //$NON-NLS-1$
@@ -141,6 +147,111 @@ public class JavaModelManager implements ISaveParticipant {
 	
 	public HashSet optionNames = new HashSet(20);
 
+	public class CompilationParticipants {
+		
+		/** Map<ICompilationParticipant, eventMask> registered by plugins */
+		private Map pluginCPs;
+		
+		/** Map<ICompilationParticipant, eventMask> from calls to add() */
+		private Map dynamicCPs = new HashMap();
+		
+		/**
+		 * @see JavaCore#addCompilationParticipant(ICompilationParticipant, int)
+		 */
+		public synchronized void add(ICompilationParticipant icp, int eventMask) {
+			dynamicCPs.put(icp, new Integer(eventMask));
+		}
+
+		/**
+		 * @see JavaCore#removeCompilationParticipant(ICompilationParticipant)
+		 */
+		public synchronized void remove(ICompilationParticipant icp) {
+			dynamicCPs.remove(icp);
+		}
+		
+		/**
+		 * Returns an immutable list containing the subset of registered
+		 * listeners that have requested notification of at least one of
+		 * the events in the flags mask.
+		 * The first time this is called, it loads listeners from plugins,
+		 * which may cause plugins to be loaded.  If this is called on
+		 * multiple threads simultaneously, or if loading a plugin causes
+		 * this to be reentered, it may return an incomplete list of listeners,
+		 * but it is guaranteed not to crash or deadlock.
+		 * @param eventMask an ORed combination of values from ICompilationParticipant.
+		 * @return an immutable list of ICompilationParticipant.
+		 */
+		public List get(int eventMask) {
+			initPlugins();
+			List filteredICPs = new ArrayList();
+			Iterator it;
+			synchronized(this) {
+				it = dynamicCPs.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry cp = (Map.Entry)it.next();
+					if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
+						filteredICPs.add(cp.getKey());
+					}
+				}
+			}
+			it = pluginCPs.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry cp = (Map.Entry)it.next();
+				if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
+					filteredICPs.add(cp.getKey());
+				}
+			}
+			return Collections.unmodifiableList(filteredICPs);
+		}
+		
+		private void initPlugins() {
+			synchronized (this) {
+				if (null != pluginCPs) {
+					return;
+				}
+				pluginCPs = new HashMap();
+			}
+			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
+					JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
+			if (extension == null)
+				return;
+			IExtension[] extensions = extension.getExtensions();
+			for(int iExtension = 0; iExtension < extensions.length; iExtension++){
+				// for all extensions of this point...
+				for(int i = 0; i < extensions.length; i++){
+					IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+					// for all config elements named "compilationParticipant"
+					for(int j = 0; j < configElements.length; j++){
+						String elementName = configElements[j].getName();
+						if (!("compilationParticipant".equals(elementName))) { //$NON-NLS-1$ - name of configElement
+							continue;
+						}
+						String eventMaskStr = configElements[j].getAttribute("eventMask"); //$NON-NLS-1$ - name of attribute
+						try {
+							Integer eventMask;
+							if (null != eventMaskStr) {
+								eventMask = Integer.decode(eventMaskStr);
+							}
+							else {
+								// if mask is unspecified, send it all events
+								eventMask = new Integer(-1); 
+							}
+							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
+							if (execExt instanceof ICompilationParticipant){
+								pluginCPs.put(execExt, eventMask);
+							}
+						} catch(CoreException e) {
+							// TODO: what is the right way to handle exceptions?
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	private final CompilationParticipants compilationParticipants = new CompilationParticipants();
+	
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
 	 * of the given project.
@@ -855,6 +966,10 @@ public class JavaModelManager implements ISaveParticipant {
 			return initializeContainer(project, containerPath);
 		}
 		return container;			
+	}
+	
+	public CompilationParticipants getCompilationParticipants() {
+		return compilationParticipants;
 	}
 
 	public DeltaProcessor getDeltaProcessor() {

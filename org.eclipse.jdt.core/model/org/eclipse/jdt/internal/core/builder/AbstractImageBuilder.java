@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -26,6 +27,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 import java.io.*;
 import java.util.*;
+
 
 /**
  * The abstract superclass of Java builders.
@@ -210,9 +212,79 @@ protected void compile(SourceFile[] units) {
 			System.arraycopy(units, i, additionalUnits, 0, additionalUnits.length);
 			compilingFirstGroup = false;
 			compile(toCompile, additionalUnits);
-		}
+		}	
 	}
 }
+
+
+/**
+ *  notify the ICompilationParticipants of the pre-build event 
+ */
+private Set notifyCompilationParticipants(ICompilationUnit[] sourceUnits) {
+	List cps = JavaCore
+			.getCompilationParticipants( ICompilationParticipant.PRE_BUILD_EVENT );
+	if ( cps.isEmpty() ) {
+		return Collections.EMPTY_SET;
+	}
+
+	IFile[] files = new IFile[sourceUnits.length];
+	for ( int i = 0; i < files.length; i++ ) {
+		if ( sourceUnits[i] instanceof SourceFile ) {
+			files[i] = ( ( SourceFile ) sourceUnits[i] ).getFile();
+		} else {
+			String fname = new String( sourceUnits[i].getFileName() );
+			javaBuilder.javaProject.getProject().getFile( fname );
+		}
+	}
+	PreBuildCompilationEvent pbce = new PreBuildCompilationEvent( files,
+			javaBuilder.javaProject );
+
+	Set newFiles = new HashSet();
+	java.util.Iterator it = cps.iterator();
+	while ( it.hasNext() ) {
+		ICompilationParticipant p = ( ICompilationParticipant ) it.next();
+
+		CompilationParticipantResult cpr = p.notify( pbce );
+		if ( cpr instanceof PreBuildCompilationResult ) {
+			PreBuildCompilationResult pbcr = ( PreBuildCompilationResult ) cpr;
+
+			IFile[] f = pbcr.getNewFiles();
+			if ( f != null ) {
+				for ( int i = 0; i < f.length; i++ )
+					newFiles.add( f[i] );
+			}
+		}
+	}
+	return newFiles;
+}	
+
+
+/** 
+ * given a source file, determine which of the project's source folders the file lives 
+ */
+protected ClasspathMultiDirectory getSourceLocationForFile(IFile file) {
+	ClasspathMultiDirectory md = null;
+	if ( file.exists() ) {
+		md = sourceLocations[0];
+		if ( sourceLocations.length > 1 ) {
+			IPath sourceFileFullPath = file.getFullPath();
+			for ( int j = 0, m = sourceLocations.length; j < m; j++ ) {
+				if ( sourceLocations[j].sourceFolder.getFullPath()
+						.isPrefixOf( sourceFileFullPath ) ) {
+					md = sourceLocations[j];
+					if ( md.exclusionPatterns == null
+							&& md.inclusionPatterns == null )
+						break;
+					if ( !Util.isExcluded( file, md.inclusionPatterns,
+							md.exclusionPatterns ) )
+						break;
+				}
+			}
+		}
+	}
+	return md;
+}
+
 
 void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 	if (units.length == 0) return;
@@ -236,6 +308,22 @@ void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 	notifier.checkCancel();
 	try {
 		inCompiler = true;
+		
+		// notify compilation participants, and add any new files created
+		// by the participants into the set of files being compiled. 
+		Set newFiles = notifyCompilationParticipants( units );
+		if ( newFiles != null && newFiles.size() > 0 ) {
+				SourceFile[] newUnits = new SourceFile[units.length + newFiles.size()];
+				System.arraycopy( units, 0, newUnits, 0, units.length );
+				Iterator it = newFiles.iterator();
+				int idx = units.length;
+				while ( it.hasNext() ) {
+					IFile f = ( IFile ) it.next();
+					newUnits[idx++] = new SourceFile( f, getSourceLocationForFile( f ) );
+				}
+				units = newUnits;
+		}
+		
 		compiler.compile(units);
 	} catch (AbortCompilation ignored) {
 		// ignore the AbortCompilcation coming from BuildNotifier.checkCancelWithinCompiler()
