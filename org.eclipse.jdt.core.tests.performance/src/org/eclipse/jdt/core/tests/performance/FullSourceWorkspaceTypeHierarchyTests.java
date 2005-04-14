@@ -17,8 +17,6 @@ import junit.framework.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.test.performance.Dimension;
-
 
 /**
  */
@@ -29,7 +27,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 //	private final static int ITERATIONS_COUNT = 10;
 
     // Log files
-    private static PrintStream[] LOG_STREAMS = new PrintStream[4];
+    private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
 	static int[] COUNTERS = new int[1];
 	
@@ -101,24 +99,25 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	protected JavaSearchResultCollector resultCollector;
 
 	public void testPerfAllTypes() throws CoreException {
-		tagAsSummary("Type Hierarchy>All Types", Dimension.CPU_TIME, true/*put in fingerprint*/);
+		tagAsSummary("Type Hierarchy>All Types", true); // put in fingerprint
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.ast", "ASTNode.java");
 		assertNotNull("ASTNode not found!", unit);
 
-		// warm-up
+		// Warm up
 		IType[] types = unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses();
 		int length = types.length;
 
-		// Loop of measures
+		// Clean memory
+		runGc();
+
+		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			startMeasuring();
-//			for (int j=0; j<ITERATIONS_COUNT; j++) {
-				assertEquals("Unexpected classes number in hierarchy!", length, unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses().length);
-//			}
+			assertEquals("Unexpected classes number in hierarchy!", length, unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses().length);
 			stopMeasuring();
 		}
 		
-		// Commit measures
+		// Commit
 		commitMeasurements();
 		assertPerformance();
 

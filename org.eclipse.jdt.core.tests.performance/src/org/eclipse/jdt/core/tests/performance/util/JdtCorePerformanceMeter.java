@@ -21,7 +21,7 @@ import org.eclipse.test.internal.performance.eval.StatisticsSession;
 
 public class JdtCorePerformanceMeter extends OSPerformanceMeter {
 
-    public static Map CPU_TIMES = null;
+    public static Map CPU_TIMES = null, ELAPSED_TIMES = null;
 	
 	public static final class Statistics {
 		public long count;
@@ -44,6 +44,7 @@ public class JdtCorePerformanceMeter extends OSPerformanceMeter {
 	public JdtCorePerformanceMeter(String scenarioId) {
 		super(scenarioId);
 		CPU_TIMES = new HashMap();
+		ELAPSED_TIMES = new HashMap();
     }
 
 	/*
@@ -58,8 +59,7 @@ public class JdtCorePerformanceMeter extends OSPerformanceMeter {
 
 	private void storeCpuTime(Sample sample) {
 		DataPoint[] dataPoints= sample.getDataPoints();
-		String name = getScenarioName();
-		System.out.println("Scenario '" + name.substring(name.lastIndexOf('.')+1, name.length()-2)+ "':"); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Scenario '" + getReadableName()+ "':"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (dataPoints.length > 0) {
 			StatisticsSession s= new StatisticsSession(dataPoints);
 			Dim[] dimensions= dataPoints[0].getDimensions();
@@ -68,11 +68,26 @@ public class JdtCorePerformanceMeter extends OSPerformanceMeter {
 				    Dim dimension= dimensions[i];
 					if (dimension.getName().equals("CPU Time")) {
 						Statistics stat = new Statistics(s, dimension);
-					    CPU_TIMES.put(getScenarioName(), stat);
+					    CPU_TIMES.put(getReadableName(), stat);
 						System.out.println("	- CPU Time: "+stat.toString());
+					} else if (dimension.getName().startsWith("Elapsed")) {
+						Statistics stat = new Statistics(s, dimension);
+					    ELAPSED_TIMES.put(getReadableName(), stat);
+						System.out.println("	- Elapsed process: "+stat.toString());
 					}
 				}
 			}
 		}
 	}
+
+	public String getReadableName() {
+		String name = getScenarioName();
+		return name.substring(name.lastIndexOf('.')+1, name.length()-2);
+	}
+
+	public String getShortName() {
+		String name = getReadableName();
+		return name.substring(name.lastIndexOf('#')+5/*1+"test".length()*/, name.length());
+	}
+
 }
