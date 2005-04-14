@@ -135,10 +135,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		if (CharOperation.equals(typeName, this.selectedIdentifier)) {
 			if(mustQualifyType(packageName, typeName)) {
 				int length = 0;
-				int kind = modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
+				int kind = modifiers & (IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation);
 				switch (kind) {
 					case IConstants.AccAnnotation:
-					case IConstants.AccAnnotation+IConstants.AccInterface:
+					case IConstants.AccAnnotation | IConstants.AccInterface:
 						char[][] acceptedAnnotation = new char[2][];
 						acceptedAnnotation[0] = packageName;
 						acceptedAnnotation[1] = typeName;

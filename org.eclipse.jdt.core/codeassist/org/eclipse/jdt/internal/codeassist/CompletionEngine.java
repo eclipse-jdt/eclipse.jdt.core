@@ -306,10 +306,10 @@ public final class CompletionEngine
 			relevance += computeRelevanceForExpectingType(packageName, typeName);
 			relevance += computeRelevanceForQualification(isQualified);
 			
-			int kind = modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
+			int kind = modifiers & (IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation);
 			switch (kind) {
 				case IConstants.AccAnnotation:
-				case IConstants.AccAnnotation+IConstants.AccInterface:
+				case IConstants.AccAnnotation | IConstants.AccInterface:
 					relevance += computeRelevanceForAnnotation();
 					relevance += computeRelevanceForInterface();
 					break;
