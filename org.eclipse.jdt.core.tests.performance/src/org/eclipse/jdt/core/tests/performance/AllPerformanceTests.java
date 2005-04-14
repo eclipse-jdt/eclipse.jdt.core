@@ -18,7 +18,7 @@ import junit.framework.Test;
 public class AllPerformanceTests extends junit.framework.TestCase {
 
 	static String LENGTH = System.getProperty("length", "0");
-	static String COMPLETE = System.getProperty("complete");
+	static String ADDITIONAL = System.getProperty("additional");
 
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
@@ -28,9 +28,8 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 			FullSourceWorkspaceTypeHierarchyTests.class
 		};
 	}
-	public static Class[] getCompleteClasses() {
+	public static Class[] getAdditionalTestClasses() {
 		return new Class[] {
-			CompleteFullSourceWorkspaceBuildTests.class,
 			FullSourceWorkspaceCompletionTests.class
 		};
 	}
@@ -53,11 +52,11 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 		} catch (NumberFormatException e1) {
 			length = testSuites.length;
 		}
-		if (COMPLETE != null) {
+		if (ADDITIONAL != null) {
 			int pos = -1;
 			try {
-				pos = Integer.parseInt(COMPLETE);
-				Class[] complete = getCompleteClasses();
+				pos = Integer.parseInt(ADDITIONAL);
+				Class[] complete = getAdditionalTestClasses();
 				int cl = complete.length;
 				Class[] newSuites = new Class[length+cl];
 				if (pos <= 0) {
