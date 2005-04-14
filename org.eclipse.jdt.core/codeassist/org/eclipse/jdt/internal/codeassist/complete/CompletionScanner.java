@@ -36,6 +36,7 @@ public class CompletionScanner extends Scanner {
 	 */
 	public int completedIdentifierStart = 0;
 	public int completedIdentifierEnd = -1;
+	public int unicodeCharSize;
 
 	public static final char[] EmptyCompletionIdentifier = {};
 	
@@ -68,10 +69,11 @@ public char[] getCurrentIdentifierSource() {
 			this.completedIdentifierStart = this.startPosition;
 			this.completedIdentifierEnd = this.currentPosition - 1;
 			if (this.withoutUnicodePtr != 0){			// check unicode scenario
-				System.arraycopy(this.withoutUnicodeBuffer, 1, this.completionIdentifier = new char[this.withoutUnicodePtr], 0, this.withoutUnicodePtr);
+				int length = this.cursorLocation + 1 - this.startPosition - this.unicodeCharSize;
+				System.arraycopy(this.withoutUnicodeBuffer, 1, this.completionIdentifier = new char[length], 0, length);
 			} else {
-				int length = this.cursorLocation + 1 - this.startPosition;
 				// no char[] sharing around completionIdentifier, we want it to be unique so as to use identity checks	
+				int length = this.cursorLocation + 1 - this.startPosition;
 				System.arraycopy(this.source, this.startPosition, (this.completionIdentifier = new char[length]), 0, length);
 			}
 			return this.completionIdentifier;
@@ -83,6 +85,7 @@ public char[] getCurrentIdentifierSource() {
 public int getNextToken() throws InvalidInputException {
 
 	this.wasAcr = false;
+	this.unicodeCharSize = 0;
 	if (this.diet) {
 		jumpOverMethodBody();
 		this.diet = false;
@@ -752,8 +755,9 @@ public int getNextToken() throws InvalidInputException {
 	return TokenNameEOF;
 }
 public final void getNextUnicodeChar() throws InvalidInputException {
-	int temp = this.currentPosition;
+	int temp = this.currentPosition; // the \ is already read
 	super.getNextUnicodeChar();
+	this.unicodeCharSize += (this.currentPosition - temp);
 	if (temp < this.cursorLocation && this.cursorLocation < this.currentPosition-1){
 		throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_UNICODE);
 	}
@@ -784,13 +788,5 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 		throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_NUMBER);
 	}
 	return token;
-}
-public void unicodeStore() {
-	// store the current unicode, only if we did not pass the cursor location
-	// Note: this does not handle cases where the cursor is in the middle of a unicode
-	if ((this.completionIdentifier != null)
-			|| (this.startPosition <= this.cursorLocation+1 && this.cursorLocation >= this.currentPosition-1)){
-		super.unicodeStore();
-	}
 }
 }
