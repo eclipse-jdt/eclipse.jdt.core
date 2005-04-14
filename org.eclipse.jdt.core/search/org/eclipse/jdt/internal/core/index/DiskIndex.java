@@ -33,6 +33,7 @@ private HashtableOfIntValues categoryOffsets;
 private int cacheUserCount;
 private String[][] cachedChunks; // decompressed chunks of document names
 private HashtableOfObject categoryTables; // category name -> HashtableOfObject(words -> int[] of document #'s) or offset if not read yet
+private char[] cachedCategoryName;
 
 public static final String SIGNATURE= "INDEX VERSION 1.100"; //$NON-NLS-1$
 public static boolean DEBUG = false;
@@ -79,6 +80,7 @@ DiskIndex(String fileName) {
 	this.cacheUserCount = -1;
 	this.cachedChunks = null;
 	this.categoryTables = null;
+	this.cachedCategoryName = null;
 	this.categoryOffsets = null;
 }
 SimpleSet addDocumentNames(String substring, MemoryIndex memoryIndex) throws IOException {
@@ -529,7 +531,7 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		return null;
 
 	if (this.categoryTables == null) {
-		this.categoryTables = new HashtableOfObject(this.categoryOffsets.elementSize);
+		this.categoryTables = new HashtableOfObject(3);
 	} else {
 		HashtableOfObject cachedTable = (HashtableOfObject) this.categoryTables.get(categoryName);
 		if (cachedTable != null)
@@ -570,6 +572,9 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 			}
 		}
 		this.categoryTables.put(categoryName, categoryTable);
+		// cache the table as long as its not too big
+		// in practise, some tables can be greater than 500K when the contain more than 10K elements
+		this.cachedCategoryName = categoryTable.elementSize < 10000 ? categoryName : null;
 	} finally {
 		stream.close();
 	}
@@ -685,7 +690,7 @@ private void readHeaderInfo(RandomAccessFile file) throws IOException {
 	this.categoryOffsets = new HashtableOfIntValues(size);
 	for (int i = 0; i < size; i++)
 		this.categoryOffsets.put(Util.readUTF(file), file.readInt()); // cache offset to category table
-	this.categoryTables = new HashtableOfObject(size);
+	this.categoryTables = new HashtableOfObject(3);
 }
 synchronized void startQuery() {
 	this.cacheUserCount++;
@@ -695,7 +700,15 @@ synchronized void stopQuery() {
 		// clear cached items
 		this.cacheUserCount = -1;
 		this.cachedChunks = null;
-		this.categoryTables = null;
+		if (this.categoryTables != null) {
+			if (this.cachedCategoryName == null) {
+				this.categoryTables = null;
+			} else if (this.categoryTables.elementSize > 1) {
+				HashtableOfObject newTables = new HashtableOfObject(3);
+				newTables.put(this.cachedCategoryName, this.categoryTables.get(this.cachedCategoryName));
+				this.categoryTables = newTables;
+			}
+		}
 	}
 }
 private void writeAllDocumentNames(String[] sortedDocNames, DataOutputStream stream) throws IOException {
