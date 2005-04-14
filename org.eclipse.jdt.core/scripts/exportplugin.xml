@@ -69,17 +69,17 @@
 		basedir="antbin"/>
 
 	<echo message="UPDATE ${plugin}_${jdt_core_version}.jar" />
-	<jar 
-		jarfile="${plugin-dir}/${plugin}_${jdt_core_version}.jar"
-		basedir="bin"
-		manifest="META-INF/MANIFEST.MF">
-       <fileset dir="bin"/>
-       <fileset file="plugin.xml"/>
-       <fileset file=".options"/>
-       <fileset file="about.html"/>
-       <fileset file="plugin.properties"/>
-       <fileset file="${plugin-dir}/jdtCompilerAdapter.jar"/>
-	</jar>
+	<zip zipfile="${plugin-dir}/${plugin}_${jdt_core_version}.jar">
+		<fileset dir=".">
+		  <include name="plugin.xml" />
+		  <include name="plugin.properties" />
+		  <include name="META-INF/**" />
+	      <include name=".options"/>
+          <include name="about.html"/>
+        </fileset>
+        <fileset dir="bin" />
+        <fileset file="${plugin-dir}/jdtCompilerAdapter.jar"/>
+	</zip>
 
 	<delete file="${plugin-dir}/jdtCompilerAdapter.jar"/>
 	<echo message="UPDATE jdtcoresrc.zip" />
@@ -99,11 +99,12 @@
 	<zip zipfile="${plugin-dir}/jdtCompilerAdaptersrc.zip">
 		<fileset dir="antadapter" />
 	</zip>	    
-
 	<echo message="UPDATE ${export-dir}/../${plugin}_${jdt_core_version}.zip" />
 	<zip zipfile="${export-dir}/../${plugin}_${jdt_core_version}.zip"
 	    basedir="${export-dir}" 
 	    includes="${plugin}_${jdt_core_version}/**"	/>		
+
+	<delete dir="${plugin-dir}" />
 </target>
 
 <target name="zz_internal_export_structure">
