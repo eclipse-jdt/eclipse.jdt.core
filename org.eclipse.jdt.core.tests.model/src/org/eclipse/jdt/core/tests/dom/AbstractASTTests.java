@@ -149,7 +149,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		}
 		String actual = buffer.toString();
 		if (!expected.equals(actual)) {
-			System.out.print(displayString(actual, 4));
+			System.out.print(displayString(actual, 3));
 			System.out.println(',');
 		}
 		assertEquals(
