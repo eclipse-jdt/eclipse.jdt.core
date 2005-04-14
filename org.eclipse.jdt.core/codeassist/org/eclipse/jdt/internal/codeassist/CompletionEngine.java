@@ -551,7 +551,7 @@ public final class CompletionEngine
 									}
 									
 									MethodScope methodScope = null;
-									if(isInsideAnnotationAttribute &&
+									if(!isInsideAnnotationAttribute &&
 											!this.requestor.isIgnored(CompletionProposal.KEYWORD) &&
 											((scope instanceof MethodScope && !((MethodScope)scope).isStatic)
 											|| ((methodScope = scope.enclosingMethodScope()) != null && !methodScope.isStatic))) {
