@@ -89,6 +89,10 @@ public char[] getFileName() {
 	return this.resource.getFullPath().toString().toCharArray(); // do not know what you want to return here
 }
 
+public IFile getFile() {
+	return resource;
+}
+
 public char[] getMainTypeName() {
 	char[] typeName = this.initialTypeName.toCharArray();
 	int lastIndex = CharOperation.lastIndexOf('/', typeName);
