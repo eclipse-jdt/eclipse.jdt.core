@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.tests.performance;
 import java.io.*;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 import junit.framework.*;
@@ -38,9 +39,14 @@ import org.eclipse.test.performance.Performance;
 
 public abstract class FullSourceWorkspaceTests extends TestCase {
 
+	// Final static variables
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
-	final static boolean INCLUDE_ALL = "true".equals(System.getProperty("includeAll"));
 	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
+	
+	// Garbage collect constants
+	final static int MAX_GC = 10; // Max gc iterations
+	final static int TIME_GC = 500; // Sleep to wait gc to run (in ms)
+	final static int DELTA_GC = 100; // Threshold to leave gc loop
 
 	// Workspace variables
 	protected static TestingEnvironment ENV = null;
@@ -51,10 +57,16 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	
 	// Tests infos
 	protected static int ALL_TESTS_COUNT = 0;
+	protected static int TEST_POSITION = 0;
 	protected static List TESTS_NAME_LIST;
 
 	// Tests counters
 	protected final static int MEASURES_COUNT = 10;
+
+	// Scenario information
+	String scenarioReadableName, scenarioShortName;
+	StringBuffer scenarioComment;
+	static Map SCENARII_COMMENT = new HashMap();
 	
 	/**
 	 * Variable used for log files.
@@ -68,25 +80,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 */
 	// Store directory where to put files
 	protected static File LOG_DIR;
-	// Types of statistic whcih can be stored.
-	protected final static String[] LOG_TYPES = { "count", "average", "sum", "stddev" };
+	// Types of statistic which can be stored.
+	protected final static String[] LOG_TYPES = { "cpu", "elapsed" };
 	// Main version which is logged
-	// TODO (frederic) see whether this could be computed automatically
-	private final static String LOG_VERSION = "_v31_";
-	String scenario;
+	protected final static String LOG_VERSION = "_v31_"; // TODO (frederic) see whether this could be computed automatically
+	// Standard deviation threshold. Statistic should not be take into account when it's reached
+	protected final static double STDDEV_THRESHOLD = 0.02; // default is 2%
 
 	/**
 	 * @param name
 	 */
 	public FullSourceWorkspaceTests(String name) {
 		super(name);
-	}
-
-//	static {
-//		TESTS_NAMES = new String[] { "testPerfFullBuildNoDocCommentSupport" };
-//	}
-	public static Test suite() {
-		return buildSuite(FullSourceWorkspaceTests.class);
 	}
 
 	protected static Test buildSuite(Class testClass) {
@@ -151,30 +156,20 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				File logFile = new File(LOG_DIR, "Perfs"+testTypeName+LOG_VERSION+LOG_TYPES[i]+".log");
 				try {
 					boolean fileExist = logFile.exists();
-					PrintStream logStream = null;
-					// Open stream
-					if (LOG_TYPES[i].equals("count")) {
-						logStream = logStreams[0] = new PrintStream(new FileOutputStream(logFile, true));
-					} else if (LOG_TYPES[i].equals("sum")) {
-						logStream = logStreams[1] = new PrintStream(new FileOutputStream(logFile, true));
-					} else if (LOG_TYPES[i].equals("average")) {
-						logStream = logStreams[2] = new PrintStream(new FileOutputStream(logFile, true));
-					} else if (LOG_TYPES[i].equals("stddev")) {
-						logStream = logStreams[3] = new PrintStream(new FileOutputStream(logFile, true));
-					}
-					if (!fileExist && logStream != null) {
-						logStream.print("Date  \tTime  \t");
+					logStreams[i] = new PrintStream(new FileOutputStream(logFile, true));
+					if (!fileExist && logStreams[i] != null) {
+						logStreams[i].print("Date  \tTime  \t");
 						for (int j=0; j<count; j++) {
-							String testName = ((String) TESTS_NAME_LIST.get(j)).substring(8+(prefix==null?0:prefix.length())); // 8="testPerf".length()
-							logStream.print(testName+'\t');
+							String testName = ((String) TESTS_NAME_LIST.get(j)).substring(4+(prefix==null?0:prefix.length())); // 4="test".length()
+							logStreams[i].print(testName+'\t');
 						}
-						logStream.println("Comment");
+						logStreams[i].println("Comment");
 						
 					}
 					// Log date and time
 					Date date = new Date(System.currentTimeMillis());
-					logStream.print(DateFormat.getDateInstance(3).format(date)+'\t');
-					logStream.print(DateFormat.getTimeInstance(3).format(date)+'\t');
+					logStreams[i].print(DateFormat.getDateInstance(3).format(date)+'\t');
+					logStreams[i].print(DateFormat.getTimeInstance(3).format(date)+'\t');
 					System.out.println("Log file "+logFile.getPath()+" opened.");
 				} catch (FileNotFoundException e) {
 					// no log available for this statistic
@@ -183,71 +178,147 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 	}
 
-	/**
-	 * Log test performance result and close stream if it was last one.
+	/*
+	 * Perform gc several times to be sure that it won't take time while executing current test.
 	 */
-	protected void logPerfResult(PrintStream[] logStreams, int count) {
-
-		// Log perf result
-		boolean haveTimes  = JdtCorePerformanceMeter.CPU_TIMES != null;
-		if (haveTimes) {
-			JdtCorePerformanceMeter.Statistics stats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.CPU_TIMES.get(this.scenario);
-			if (stats != null) {
-				if (logStreams[0] != null) {
-					logStreams[0].print(""+stats.count+"\t");
-					if (DEBUG) System.out.println("	- count stored in log file.\n");
-				}
-				if (logStreams[1] != null) {
-					logStreams[1].print(""+stats.sum+"\t");
-					if (DEBUG) System.out.println("	- sum stored in log file.\n");
-				}
-				if (logStreams[2] != null) {
-					logStreams[2].print(""+stats.average+"\t");
-					if (DEBUG) System.out.println("	- average stored in log file.\n");
-				}
-				if (logStreams[3] != null) {
-					logStreams[3].print(""+stats.stddev+"\t");
-					if (DEBUG) System.out.println("	- stddev stored in log file.\n");
-				}
-			} else {
-				System.err.println("We should have stored Cpu Time for "+this.scenario);
+	protected void runGc() {
+		int iterations = 0;
+		long delta, free;
+		do {
+			free = Runtime.getRuntime().freeMemory();
+			System.gc();
+			delta = Runtime.getRuntime().freeMemory() - free;
+			if (DEBUG) System.out.println("Loop gc "+ ++iterations + " (free="+free+", delta="+delta+")");
+			try {
+				Thread.sleep(TIME_GC);
+			} catch (InterruptedException e) {
+				// do nothing
 			}
-		}
-
-		// Close log
-		if (count == 0) {
-			for (int i=0, ln=logStreams.length; i<ln; i++) {
-				if (logStreams[i] != null) {
-					if (haveTimes) logStreams[i].println();
-					logStreams[i].close();
-				}
+		} while (iterations<MAX_GC && delta>DELTA_GC);
+		if (iterations == MAX_GC && delta > (DELTA_GC*10)) {
+			// perhaps gc was not well executed
+			System.err.println(this.scenarioShortName+": still get "+delta+" unfreeable memory (free="+free+",total="+Runtime.getRuntime().totalMemory()+") after "+MAX_GC+" gc...");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// do nothing
 			}
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#setUp()
-	 */
+		/**
+		 * Log test performance result and close stream if it was last one.
+		 */
+		protected void logPerfResult(PrintStream[] logStreams, int count) {
+
+			// Perfs comment buffers
+			String[] comments = new String[2];
+
+			// Log perf result
+			boolean haveTimes  = JdtCorePerformanceMeter.CPU_TIMES != null && JdtCorePerformanceMeter.ELAPSED_TIMES != null;
+			if (haveTimes) {
+				NumberFormat pFormat = NumberFormat.getPercentInstance();
+				pFormat.setMaximumFractionDigits(1);
+				NumberFormat dFormat = NumberFormat.getNumberInstance();
+				dFormat.setMaximumFractionDigits(2);
+				try {
+					// Store CPU Time
+					JdtCorePerformanceMeter.Statistics cpuStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.CPU_TIMES.get(this.scenarioReadableName);
+					if (cpuStats != null) {
+						double percent = cpuStats.stddev/cpuStats.average;
+						if (percent > STDDEV_THRESHOLD) {
+							if (logStreams[0] != null) logStreams[0].print("'");
+							System.out.println("	WARNING: CPU time standard deviation is over 2%: "+dFormat.format(cpuStats.stddev)+"/"+cpuStats.average+"="+ pFormat.format(percent));
+							comments[0] = "stddev=" + pFormat.format(percent);
+						}
+						if (logStreams[0] != null) {
+							logStreams[0].print(""+cpuStats.average+"\t");
+						}
+					} else {
+						Thread.sleep(1000);
+						System.err.println(this.scenarioShortName+": we should have stored CPU time!");
+						Thread.sleep(1000);
+					}
+					// Store Elapsed time
+					JdtCorePerformanceMeter.Statistics elapsedStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.ELAPSED_TIMES.get(this.scenarioReadableName);
+					if (elapsedStats != null) {
+						double percent = elapsedStats.stddev/elapsedStats.average;
+						if (percent > STDDEV_THRESHOLD) {
+							if (logStreams[1] != null) logStreams[1].print("'");
+							System.out.println("	WARNING: Elapsed time standard deviation is over 2%: "+dFormat.format(elapsedStats.stddev)+"/"+elapsedStats.average+"="+ pFormat.format(percent));
+							comments[1] = "stddev=" + pFormat.format(percent);
+						}
+						if (logStreams[1] != null) {
+							logStreams[1].print(""+elapsedStats.average+"\t");
+						}
+					} else {
+						Thread.sleep(1000);
+						System.err.println(this.scenarioShortName+": we should have stored Elapsed time");
+						Thread.sleep(1000);
+					}
+				} catch (InterruptedException e) {
+					// do nothing
+				}
+			}
+
+			// Update comment buffers
+			StringBuffer[] scenarioComments = (StringBuffer[]) SCENARII_COMMENT.get(getClass());
+			if (scenarioComments == null) {
+				scenarioComments = new StringBuffer[LOG_TYPES.length];
+				SCENARII_COMMENT.put(getClass(), scenarioComments);
+			}
+			for (int i=0, ln=LOG_TYPES.length; i<ln; i++) {
+				if (comments[i] != null) {
+					if (scenarioComments[i] == null) {
+						scenarioComments[i] = new StringBuffer();
+					} else {
+						scenarioComments[i].append(' ');
+					}
+					if (this.scenarioComment == null) {
+						scenarioComments[i].append("["+TEST_POSITION+"]");
+					} else {
+						scenarioComments[i].append(this.scenarioComment);
+					}
+					scenarioComments[i].append(' ');
+					scenarioComments[i].append(comments[i]);
+				}	
+			}
+
+			// Close log
+			if (count == 0) {
+				for (int i=0, ln=logStreams.length; i<ln; i++) {
+					if (logStreams[i] != null) {
+						if (haveTimes) {
+							if (comments[i] != null) {
+								logStreams[i].print(scenarioComments[i].toString());
+							}	
+							logStreams[i].println();
+						}
+						logStreams[i].close();
+					}
+				}
+				TEST_POSITION = 0;
+			}
+		}
+
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.scenario = Performance.getDefault().getDefaultScenarioId(this);
+
+		// Store scenario readable name
+		String scenario = Performance.getDefault().getDefaultScenarioId(this);
+		this.scenarioReadableName = scenario.substring(scenario.lastIndexOf('.')+1, scenario.length()-2);
+		this.scenarioShortName = this.scenarioReadableName.substring(this.scenarioReadableName.lastIndexOf('#')+5/*1+"test".length()*/, this.scenarioReadableName.length());
+		this.scenarioComment = null;
+
+		// Set testing environment if null
 		if (ENV == null) {
 			ENV = new TestingEnvironment();
 			ENV.openEmptyWorkspace();
 			setUpFullSourceWorkspace();
 		}
-		// Perform gc several times to be sure that it won't take time while executing current test
-		int iterations = 0;
-		long delta;
-		do {
-			long free = Runtime.getRuntime().freeMemory();
-			System.gc();
-			delta = Runtime.getRuntime().freeMemory() -free;
-			if (DEBUG) System.out.println("Loop gc "+ ++iterations + " (free="+free+", delta="+delta+")");
-			Thread.sleep(500);
-		} while (iterations<10 && delta>100);
+		
+		// Increment test position
+		TEST_POSITION++;
 	}
 	/**
 	 * @deprecated Use {@link #tagAsGlobalSummary(String,Dimension,boolean)} instead
@@ -255,19 +326,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	public void tagAsGlobalSummary(String shortName, Dimension dimension) {
 		tagAsGlobalSummary(shortName, dimension, false); // do NOT put in fingerprint
 	}
-	public void tagAsGlobalSummary(String shortName, Dimension dimension, boolean fingerprint) {
+	protected void tagAsGlobalSummary(String shortName, boolean fingerprint) {
+		tagAsGlobalSummary(shortName, Dimension.ELAPSED_PROCESS, fingerprint);
+	}
+	protected void tagAsGlobalSummary(String shortName, Dimension dimension, boolean fingerprint) {
 		if (DEBUG) System.out.println(shortName);
 		if (fingerprint) super.tagAsGlobalSummary(shortName, dimension);
 	}
 	/**
-	 * @deprecated Use {@link #tagAsGlobalSummary(String,Dimension[],boolean)} instead
+	 * @deprecated We do not use this method...
 	 */
 	public void tagAsGlobalSummary(String shortName, Dimension[] dimensions) {
-		tagAsGlobalSummary(shortName, dimensions, false); // do NOT put in fingerprint
-	}
-	public void tagAsGlobalSummary(String shortName, Dimension[] dimensions, boolean fingerprint) {
-		if (DEBUG) System.out.println(shortName);
-		if (fingerprint) super.tagAsGlobalSummary(shortName, dimensions);
+		System.out.println("ERROR: tagAsGlobalSummary(String, Dimension[]) is not implemented!!!");
 	}
 	/**
 	 * @deprecated Use {@link #tagAsSummary(String,Dimension,boolean)} instead
@@ -275,15 +345,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	public void tagAsSummary(String shortName, Dimension dimension) {
 		tagAsSummary(shortName, dimension, false); // do NOT put in fingerprint
 	}
+	protected void tagAsSummary(String shortName, boolean fingerprint) {
+		tagAsSummary(shortName, Dimension.ELAPSED_PROCESS, fingerprint);
+	}
 	public void tagAsSummary(String shortName, Dimension dimension, boolean fingerprint) {
 		if (DEBUG) System.out.println(shortName);
 		if (fingerprint) super.tagAsSummary(shortName, dimension);
 	}
 	/**
-	 * @deprecated Use {@link #tagAsSummary(String,Dimension[],boolean)} instead
+	 * @deprecated We do not use this method...
 	 */
 	public void tagAsSummary(String shortName, Dimension[] dimensions) {
-		tagAsSummary(shortName, dimensions, false); // do NOT put in fingerprint
+		System.out.println("ERROR: tagAsGlobalSummary(String, Dimension[]) is not implemented!!!");
 	}
 	public void tagAsSummary(String shortName, Dimension[] dimensions, boolean fingerprint) {
 		if (DEBUG) System.out.println(shortName);
@@ -358,7 +431,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	/*
 	 * Full Build using batch compiler
 	 */
-	protected File buildUsingBatchCompiler(String options) throws IOException {
+	protected void buildUsingBatchCompiler(String options) throws IOException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		final String targetWorkspacePath = workspaceRoot.getProject(JavaCore.PLUGIN_ID).getLocation().toFile().getCanonicalPath();
@@ -367,25 +440,42 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		final String logs = targetWorkspacePath + File.separator + "log.txt"; //$NON-NLS-1$
 
 		// Warm up
+		PrintWriter out = new PrintWriter(new StringWriter());
+		PrintWriter err = new PrintWriter(new StringWriter());
 		String cmdLine = sources + " -1.4 -g -preserveAllLocals "+(options==null?"":options)+" -d " + bins + " -log " + logs; //$NON-NLS-1$ //$NON-NLS-2$
 		for (int i=0; i<2; i++) {
-			Main.compile(cmdLine, new PrintWriter(new StringWriter()), new PrintWriter(new StringWriter()));
+			Main main = new Main(out, err, false);
+			main.compile(Main.tokenize(cmdLine));
 		}
 
 		// Measures
 		int max = MEASURES_COUNT * 2;
+		int warnings = 0;
 		for (int i = 0; i < max; i++) {
+			runGc();
 			startMeasuring();
-			Main.compile(cmdLine, new PrintWriter(new StringWriter()), new PrintWriter(new StringWriter()));
+			Main main = new Main(out, err, false);
+			main.compile(Main.tokenize(cmdLine));
 			stopMeasuring();
 			cleanupDirectory(new File(bins));
+			warnings = main.globalWarningsCount;
 		}
 		
 		// Commit measures
 		commitMeasurements();
 		assertPerformance();
 
-		return new File(logs);
+		// Store warning
+		if (warnings>0) {
+			System.out.println("\t- "+warnings+" warnings found while performing batch compilation.");
+		}
+		if (this.scenarioComment == null) {
+			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
+		} else {
+			this.scenarioComment.append(' ');
+		}
+		this.scenarioComment.append("warn=");
+		this.scenarioComment.append(warnings);
 	}
 
 	/**
@@ -547,31 +637,86 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * @throws IOException
 	 * @throws CoreException
 	 */
-	protected int startBuild(Hashtable options) throws IOException, CoreException {
+	protected void startBuild(Hashtable options, boolean noWarning) throws IOException, CoreException {
 		if (DEBUG) System.out.print("\tstart build...");
 		JavaCore.setOptions(options);
+		
+		// Clean memory
+		runGc();
+		
+		// Measure
 		startMeasuring();
 		ENV.fullBuild();
 		stopMeasuring();
+		
+		// Verify markers
 		IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		List resources = new ArrayList();
+		List messages = new ArrayList();
 		int warnings = 0;
 		for (int i = 0, length = markers.length; i < length; i++) {
 			IMarker marker = markers[i];
 			switch (((Integer) marker.getAttribute(IMarker.SEVERITY)).intValue()) {
 				case IMarker.SEVERITY_ERROR:
-					assertTrue("Unexpected marker: " + marker.getAttribute(IMarker.MESSAGE), false);
+					resources.add(marker.getResource().getName());
+					messages.add(marker.getAttribute(IMarker.MESSAGE));
 					break;
 				case IMarker.SEVERITY_WARNING:
 					warnings++;
+					if (noWarning) {
+						resources.add(marker.getResource().getName());
+						messages.add(marker.getAttribute(IMarker.MESSAGE));
+					}
 					break;
 			}
 		}
-		if (DEBUG) System.out.println("done");
-		{
-			commitMeasurements();
-			assertPerformance();
+		
+		// Assert result
+		int size = messages.size();
+		if (size > 0) {
+			/*
+			if (LOG_DIR == null) {
+				StringBuffer buffer = new StringBuffer();
+				int max = size > 10 ? 10 : size;
+				for (int i=0; i<max; i++) {
+					buffer.append(resources.get(i));
+					buffer.append(":\n\t");
+					buffer.append(messages.get(i));
+					buffer.append('\n');
+				}
+				if (size > max)
+					buffer.append("...\n");
+				assertTrue("Unexpected marker(s):\n" + buffer.toString(), size==0);
+			}
+			*/
+//			if (LOG_DIR != null || DEBUG) {
+				StringBuffer debugBuffer = new StringBuffer();
+				for (int i=0; i<size; i++) {
+					debugBuffer.append(resources.get(i));
+					debugBuffer.append(":\n\t");
+					debugBuffer.append(messages.get(i));
+					debugBuffer.append('\n');
+				}
+				System.out.println("ERROR: Unexpected marker(s):\n" + debugBuffer.toString());
+//			}
 		}
-		return warnings;
+		if (DEBUG) System.out.println("done");
+		
+		// Commit measure
+		commitMeasurements();
+		assertPerformance();
+
+		// Store warning
+		if (warnings>0) {
+			System.out.println("\t- "+warnings+" warnings found while performing build.");
+		}
+		if (this.scenarioComment == null) {
+			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
+		} else {
+			this.scenarioComment.append(' ');
+		}
+		this.scenarioComment.append("warn=");
+		this.scenarioComment.append(warnings);
 	}
 
 	// Wait for indexing end
@@ -669,8 +814,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled); 
 		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled); 
 		optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled); 
+		optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
 		
+		// Since 3.1 options
+		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, warning); 
+		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, warning); 
+
 		// Return created options map
 		return optionsMap;
 	}

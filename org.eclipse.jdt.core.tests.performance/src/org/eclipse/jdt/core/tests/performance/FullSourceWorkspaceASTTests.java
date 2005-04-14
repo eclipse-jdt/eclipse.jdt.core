@@ -13,13 +13,12 @@ package org.eclipse.jdt.core.tests.performance;
 import java.io.PrintStream;
 import java.text.NumberFormat;
 import java.util.List;
+
 import junit.framework.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.test.performance.Dimension;
-
 
 /**
  */
@@ -27,15 +26,21 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 
     // Tests counter
     private static int TESTS_COUNT = 0;
+	private final static int ITERATIONS_COUNT = 10;
+	int nodesCount = 0;
 
     // Log files
-    private static PrintStream[] LOG_STREAMS = new PrintStream[4];
+    private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
 	/**
 	 * @param name
 	 */
 	public FullSourceWorkspaceASTTests(String name) {
 		super(name);
+	}
+
+	static {
+		TESTS_PREFIX = "testPerfDom";
 	}
 
 	public static Test suite() {
@@ -49,7 +54,12 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
         return FullSourceWorkspaceASTTests.class;
     }
 
-    /* (non-Javadoc)
+    protected void setUp() throws Exception {
+		waitUntilIndexesReady();
+		super.setUp();
+	}
+
+	/* (non-Javadoc)
      * @see junit.framework.TestCase#tearDown()
      */
     protected void tearDown() throws Exception {
@@ -62,6 +72,15 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
             logPerfResult(LOG_STREAMS, TESTS_COUNT);
         }
 		
+		// Print statistics
+        if (TESTS_COUNT == 0) {
+			System.out.println("-------------------------------------");
+			System.out.println("DOM/AST creation performance test statistics:");
+			NumberFormat intFormat = NumberFormat.getIntegerInstance();
+			System.out.println("  - "+intFormat.format(this.nodesCount)+" nodes have been parsed.");
+			System.out.println("-------------------------------------\n");
+        }
+
 		// Call super at the end as it close print streams
         super.tearDown();
 	}
@@ -71,7 +90,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 */
 	class CommentMapperASTVisitor extends ASTVisitor {
 		CompilationUnit compilationUnit;
-		int nodesCount = 0;
+		int nodes = 0;
 		int extendedStartPositions = 0;
 		int extendedEndPositions = 0;
 
@@ -87,7 +106,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 			// update counters
 			if (extendedStart < nodeStart) this.extendedStartPositions++;
 			if (extendedEnd > nodeEnd) this.extendedEndPositions++;
-			this.nodesCount++;
+			this.nodes++;
 			return true;
 		}
 		protected void endVisitNode(ASTNode node) {
@@ -515,10 +534,61 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		}
 	}
 
-	private void runAstCreation(int astLevel) throws JavaModelException {
-		int allExtendedStartPositions = 0;
-		int allExtendedEndPositions = 0;
-		int allNodesCount = 0;
+	private void createAST(ICompilationUnit unit, int astLevel) throws JavaModelException {
+
+		// Warm up
+		for (int i = 0; i < 2; i++) {
+			ASTParser parser = ASTParser.newParser(astLevel);
+			parser.setSource(unit);
+			parser.setResolveBindings(false);
+			parser.createAST(null);
+		}
+		
+		// Clean memory
+		runGc();
+		
+		// Measures
+		for (int i = 0; i < MEASURES_COUNT; i++) {
+			ASTNode result = null;
+			startMeasuring();
+			for (int j=0; j<ITERATIONS_COUNT; j++) {
+				ASTParser parser = ASTParser.newParser(astLevel);
+				parser.setSource(unit);
+				parser.setResolveBindings(false);
+				result = parser.createAST(null);
+			}
+			stopMeasuring();
+			assertEquals("Wrong type for node"+result, result.getNodeType(), ASTNode.COMPILATION_UNIT);
+			CompilationUnit compilationUnit = (CompilationUnit) result;
+			CommentMapperASTVisitor visitor = new CommentMapperASTVisitor(compilationUnit);
+			compilationUnit.accept(visitor);
+			nodesCount += visitor.nodes * ITERATIONS_COUNT;
+		}
+
+		// Commit
+		commitMeasurements();
+		assertPerformance();
+	}
+
+	// Do NOT forget that tests must start with "testPerf"
+	/**
+	 * @deprecated To reduce deprecated warnings
+	 */
+	public void testDomAstCreationJLS2() throws JavaModelException {
+		tagAsSummary("DOM>Creation>Src>JLS2", true); // put in fingerprint
+
+		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
+		createAST(unit, AST.JLS2);
+	}
+	public void testDomAstCreationJLS3() throws JavaModelException {
+		tagAsSummary("DOM>Creation>Src>JLS3", true); // put in fingerprint
+
+		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
+		createAST(unit, AST.JLS3);
+	}
+
+	private int runAstCreation(int astLevel) throws JavaModelException {
+		int unitsCount = 0;
 		startMeasuring();
 		if (DEBUG) System.out.println("Creating AST hierarchy for all units of projects:");
 		for (int i = 0; i < ALL_PROJECTS.length; i++) {
@@ -530,6 +600,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 				if (DEBUG) System.out.println(": empty!");
 				continue;
 			}
+			unitsCount += size;
 			List unitsArrays = splitListInSmallArrays(units, 20);
 			int n = unitsArrays.size();
 			if (DEBUG)
@@ -553,40 +624,25 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 					assertEquals("Wrong type for node"+result, result.getNodeType(), ASTNode.COMPILATION_UNIT);
 					compilationUnits[ptr] = (CompilationUnit) result;
 				}
-				for (int ptr=0; ptr<length; ptr++) {
-					CommentMapperASTVisitor visitor = new CommentMapperASTVisitor(compilationUnits[ptr]);
-					compilationUnits[ptr].accept(visitor);
-					allExtendedStartPositions += visitor.extendedStartPositions;
-					allExtendedEndPositions += visitor.extendedEndPositions;
-					allNodesCount += visitor.nodesCount;
-				}
 			}
 			if (DEBUG) System.out.println(" done!");
 		}
 		stopMeasuring();
 		commitMeasurements();
 		assertPerformance();
-
-		// Print statistics
-		System.out.println("-------------------------------------");
-		System.out.println("DOM/AST creation performance test statistics:");
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("  - "+intFormat.format(allNodesCount)+" nodes have been parsed.");
-		System.out.println("  - "+intFormat.format(allExtendedStartPositions)+" nodes have extended start position.");
-		System.out.println("  - "+intFormat.format(allExtendedEndPositions)+" nodes have extended end position.");
-		System.out.println("-------------------------------------\n");
+		return unitsCount;
 	}
 
-	// Do NOT forget that tests must start with "testPerf"
 	/**
 	 * @deprecated To reduce deprecated warnings
 	 */
-	public void testPerfDomAstCreationJLS2() throws JavaModelException {
-		tagAsSummary("DOM>Creation>JLS2", Dimension.CPU_TIME, true/*put in fingerprint*/);
+	public void testWkspDomAstCreationJLS2() throws JavaModelException {
+		tagAsSummary("DOM>Creation>Wksp>JLS2", true); // put in fingerprint
 		runAstCreation(AST.JLS2);
 	}
-	public void testPerfDomAstCreationJLS3() throws JavaModelException {
-		tagAsSummary("DOM>Creation>JLS3", Dimension.CPU_TIME, true/*put in fingerprint*/);
+
+	public void testWkspDomAstCreationJLS3() throws JavaModelException {
+		tagAsSummary("DOM>Creation>Wksp>JLS3", true); // put in fingerprint
 		runAstCreation(AST.JLS3);
 	}
 }

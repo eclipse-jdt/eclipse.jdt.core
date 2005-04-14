@@ -15,18 +15,19 @@ import java.text.NumberFormat;
 import junit.framework.*;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.test.performance.Dimension;
-
 
 /**
  */
 public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests {
+	
+	// Counters
 	private static final int WARMUP_COUNT = 10;
 	private static final int ITERATION_COUNT = 40;
+	int proposalCount = 0;
 
 	// Log files
 	private static int TESTS_COUNT = 0;
-	private static PrintStream[] LOG_STREAMS = new PrintStream[4];
+	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
 	public FullSourceWorkspaceCompletionTests(String name) {
 		super(name);
@@ -55,48 +56,24 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
         if (LOG_DIR != null) {
             logPerfResult(LOG_STREAMS, TESTS_COUNT);
         }
+        
+		// Print statistics
+        if (TESTS_COUNT == 0) {
+			System.out.println("-------------------------------------");
+			System.out.println("Completion performance test statistics:");
+			NumberFormat intFormat = NumberFormat.getIntegerInstance();
+			System.out.println("  - "+intFormat.format(ITERATION_COUNT*MEASURES_COUNT)+" completions have been performed");
+			System.out.println("  - "+intFormat.format(this.proposalCount)+" proposals have been done");
+			System.out.println("-------------------------------------\n");
+        }
 		
 		// Call super at the end as it close print streams
 		super.tearDown();
 	}
-
-	/*
-	private void waitUntilIndexesReady() {
-		if (DEBUG) System.out.print("Wait until indexes ready...");
-		// dummy query for waiting until the indexes are ready
-		SearchEngine engine = new SearchEngine();
-		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-		try {
-			engine.searchAllTypeNames(
-				null,
-				"!@$#!@".toCharArray(),
-				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-				IJavaSearchConstants.CLASS,
-				scope, 
-				new ITypeNameRequestor() {
-					public void acceptClass(
-							char[] packageName,
-							char[] simpleTypeName,
-							char[][] enclosingTypeNames,
-							String path){}
-					public void acceptInterface(
-							char[] packageName,
-							char[] simpleTypeName,
-							char[][] enclosingTypeNames,
-							String path){}
-				},
-				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-				null);
-		} catch (CoreException e) {
-		}
-		if (DEBUG) System.out.println("done!");
-	}
-	*/
 	
 	private class TestCompletionRequestor extends CompletionRequestor {
-		public int proposalCount = 0;
 		public void accept(CompletionProposal proposal) {
-			this.proposalCount++;
+			proposalCount++;
 		}
 	}
 
@@ -131,7 +108,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 			int warmupCount,
 			int iterationCount) throws JavaModelException {
 		
-		tagAsSummary(testName, Dimension.CPU_TIME, false/* do NOT put in fingerprint*/);
+		tagAsSummary(testName, false); // do NOT put in fingerprint
 		
 		waitUntilIndexesReady();
 		
@@ -157,8 +134,11 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				unit.codeComplete(completionIndex, requestor);
 			}
 		}
-		
-		// Measure loops
+
+		// Clean memory
+		runGc();
+
+		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			startMeasuring();
 			for (int j = 0; j < iterationCount; j++) {
@@ -168,20 +148,12 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 		}
 		if (DEBUG) System.out.println("done!");
 		
-		// Commit measure
+		// Commit
 		commitMeasurements();
 		assertPerformance();
-		
-		// Print statistics
-		System.out.println("-------------------------------------");
-		System.out.println("Completion performance test statistics:");
-		NumberFormat intFormat = NumberFormat.getIntegerInstance();
-		System.out.println("  - "+intFormat.format(iterationCount)+" completions have been performed");
-		System.out.println("  - "+intFormat.format(requestor.proposalCount)+" proposals have been proposed");
-		System.out.println("-------------------------------------\n");
 	}
 	
-	public void testPerfCompleteMethodDeclaration() throws JavaModelException {
+	public void testCompleteMethodDeclaration() throws JavaModelException {
 		this.complete(
 				"Completion>Method>Declaration",
 				"org.eclipse.jdt.core",
@@ -192,7 +164,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testPerfCompleteMemberAccess() throws JavaModelException {
+	public void testCompleteMemberAccess() throws JavaModelException {
 		this.complete(
 				"Completion>Member>Access",
 				"org.eclipse.jdt.core",
@@ -203,7 +175,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testPerfCompleteTypeReference() throws JavaModelException {
+	public void testCompleteTypeReference() throws JavaModelException {
 		this.complete(
 				"Completion>Type>Reference",
 				"org.eclipse.jdt.core",
@@ -214,7 +186,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testPerfCompleteEmptyName() throws JavaModelException {
+	public void testCompleteEmptyName() throws JavaModelException {
 		this.complete(
 				"Completion>Name>Empty",
 				"org.eclipse.jdt.core",
@@ -225,7 +197,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testPerfCompleteName() throws JavaModelException {
+	public void testCompleteName() throws JavaModelException {
 		this.complete(
 				"Completion>Name",
 				"org.eclipse.jdt.core",
@@ -236,7 +208,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testPerfCompleteEmptyNameWithoutTypes() throws JavaModelException {
+	public void testCompleteEmptyNameWithoutTypes() throws JavaModelException {
 		this.complete(
 				"Completion>Name>Empty>No Type",
 				"org.eclipse.jdt.core",
@@ -248,7 +220,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testPerfCompleteNameWithoutTypes() throws JavaModelException {
+	public void testCompleteNameWithoutTypes() throws JavaModelException {
 		this.complete(
 				"Completion>Name>No Type",
 				"org.eclipse.jdt.core",
@@ -260,7 +232,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testPerfCompleteEmptyNameWithoutMethods() throws JavaModelException {
+	public void testCompleteEmptyNameWithoutMethods() throws JavaModelException {
 		this.complete(
 				"Completion>Name>Empty>No Method",
 				"org.eclipse.jdt.core",
@@ -272,7 +244,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 				WARMUP_COUNT,
 				ITERATION_COUNT);
 	}
-	public void testPerfCompleteNameWithoutMethods() throws JavaModelException {
+	public void testCompleteNameWithoutMethods() throws JavaModelException {
 		this.complete(
 				"Completion>Name>No Method",
 				"org.eclipse.jdt.core",

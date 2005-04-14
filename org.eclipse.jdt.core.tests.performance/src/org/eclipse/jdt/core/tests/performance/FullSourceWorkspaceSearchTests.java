@@ -20,8 +20,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
-import org.eclipse.test.performance.Dimension;
-
 
 /**
  */
@@ -36,8 +34,11 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	private static int ALL_TYPES_NAMES = 0;
 
 	// Log file streams
-	private static PrintStream[] LOG_STREAMS = new PrintStream[4];
-	
+	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
+
+	// Scopes
+	IJavaSearchScope workspaceScope;
+
 	/**
 	 * @param name
 	 */
@@ -70,6 +71,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.resultCollector = new JavaSearchResultCollector();
+		this.workspaceScope = SearchEngine.createWorkspaceScope();
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
@@ -166,7 +168,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		new SearchEngine().search(
 			pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			SearchEngine.createWorkspaceScope(),
+			this.workspaceScope,
 			requestor,
 			null);
 	}
@@ -179,64 +181,31 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * First wait that already started indexing jobs end before perform test.
 	 * Consider this initial indexing jobs as warm-up for this test.
 	 */
-	public void testPerfIndexing() throws CoreException {
-		tagAsSummary("Search>Indexing", Dimension.CPU_TIME, true/*put in fingerprint*/);
-//		INDEX_MANAGER.discardJobs(null); // discard all previous index jobs
+	public void testIndexing() throws CoreException {
+		tagAsSummary("Search>Indexing", true); // put in fingerprint
+	
 		// Wait for indexing end (we use initial indexing as warm-up)
 		waitUntilIndexesReady();
-//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
 		
 		// Remove all previous indexing
 		INDEX_MANAGER.removeIndexFamily(new Path(""));
 		INDEX_MANAGER.reset();
 		
+		// Clean memory
+		runGc();
+	
 		// Restart brand new indexing
 		INDEX_MANAGER.request(new Measuring(true/*start measuring*/));
 		for (int i=0, length=ALL_PROJECTS.length; i<length; i++) {
 			INDEX_MANAGER.indexAll(ALL_PROJECTS[i].getProject());
 		}
-//		INDEX_MANAGER.enable();
 		
 		// Wait for indexing end
 		waitUntilIndexesReady();
-//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
 		
-		// Commit measures
+		// Commit
 		INDEX_MANAGER.request(new Measuring(false /*end measuring*/));
 		waitUntilIndexesReady();
-//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
-	}
-	
-	/**
-	 * Old version no longer used as scope is now a Workspace scope
-	 * instead of all projects scope.
-	 * 
-	 * CAUTION: This test result is no longer put in performance fingerprint as its scope
-	 * did not match common usage of search all type names functionality.
-	 * @deprecated
-	 */
-	public void testPerfSearchAllTypeNames() throws CoreException {
-		// Do no longer print results for this test
-		tagAsSummary("Search>Names>All Projects", Dimension.CPU_TIME, false/*do NOT put in fingerprint*/);
-		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
-		startMeasuring();
-		new SearchEngine().searchAllTypeNames(
-			null,
-			null,
-			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-			IJavaSearchConstants.TYPE,
-			SearchEngine.createJavaSearchScope(ALL_PROJECTS), 
-			requestor,
-			WAIT_UNTIL_READY_TO_SEARCH,
-			null);
-		stopMeasuring();
-		commitMeasurements();
-		assertPerformance();
-		// store counter
-		ALL_TYPES_NAMES = requestor.count;
 	}
 
 	/**
@@ -245,29 +214,30 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
 	 * 
-	 * @deprecated
+	 * @deprecated As we use deprecated API
 	 */
-	public void testPerfSearchWkspAllTypeNames() throws CoreException {
-		tagAsSummary("Search>Names>Workspace", Dimension.CPU_TIME, true/*put in fingerprint*/);
+	public void testSearchAllTypeNames() throws CoreException {
+		tagAsSummary("Search>Names>Workspace", true); // put in fingerprint
 		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
-//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
 
-		// warmup
+		// Warm up
 		new SearchEngine().searchAllTypeNames(
 			null,
 			null,
 			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 			IJavaSearchConstants.TYPE,
-			SearchEngine.createWorkspaceScope(), 
+			this.workspaceScope, 
 			requestor,
 			WAIT_UNTIL_READY_TO_SEARCH,
 			null);
 
-		// Loop of measures
+		// Clean memory
+		runGc();
+
+		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			startMeasuring();
 			for (int j=0; j<ITERATIONS_COUNT; j++) {
@@ -276,7 +246,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 					null,
 					SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
 					IJavaSearchConstants.TYPE,
-					SearchEngine.createWorkspaceScope(), 
+					this.workspaceScope, 
 					requestor,
 					WAIT_UNTIL_READY_TO_SEARCH,
 					null);
@@ -304,27 +274,26 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 *		- ""IResource":	5886 macthes
 	 *		- "JavaCore":		2145 matches
 	 */
-	public void testPerfSearchType() throws CoreException {
-		tagAsSummary("Search>Occurences>Types", Dimension.CPU_TIME, true/*put in fingerprint*/);
+	public void testSearchType() throws CoreException {
+		tagAsSummary("Search>Occurences>Types", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
-//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
 
-		// warm-up
+		// Warm up
 		search("JavaCore", TYPE, ALL_OCCURRENCES, this.resultCollector);
 
-		// Loop of measures
+		// Clean memory
+		runGc();
+
+		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			startMeasuring();
-//			for (int j=0; j<ITERATIONS_COUNT; j++) {
-				search("JavaCore", TYPE, ALL_OCCURRENCES, this.resultCollector);
-//			}
+			search("JavaCore", TYPE, ALL_OCCURRENCES, this.resultCollector);
 			stopMeasuring();
 		}
 		
-		// Commit measures
+		// Commit
 		commitMeasurements();
 		assertPerformance();
 
@@ -338,27 +307,26 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
 	 */
-	public void testPerfSearchField() throws CoreException {
-		tagAsSummary("Search>Occurences>Fields", Dimension.CPU_TIME, true/*put in fingerprint*/);
+	public void testSearchField() throws CoreException {
+		tagAsSummary("Search>Occurences>Fields", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
-//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
 
-		// warm-up
+		// Warm up
 		search("FILE", FIELD, ALL_OCCURRENCES, this.resultCollector);
 
-		// Loop of measures
+		// Clean memory
+		runGc();
+
+		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			startMeasuring();
-//			for (int j=0; j<ITERATIONS_COUNT; j++) {
-				search("FILE", FIELD, ALL_OCCURRENCES, this.resultCollector);
-//			}
+			search("FILE", FIELD, ALL_OCCURRENCES, this.resultCollector);
 			stopMeasuring();
 		}
 		
-		// Commit measures
+		// Commit
 		commitMeasurements();
 		assertPerformance();
 
@@ -372,27 +340,26 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
 	 */
-	public void testPerfSearchMethod() throws CoreException {
-		tagAsSummary("Search>Occurences>Methods", Dimension.CPU_TIME, true/*put in fingerprint*/);
+	public void testSearchMethod() throws CoreException {
+		tagAsSummary("Search>Occurences>Methods", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
-//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
 
-		// warm-up
+		// Warm up
 		search("equals", METHOD, ALL_OCCURRENCES, this.resultCollector);
 
-		// Loop of measures
+		// Clean memory
+		runGc();
+
+		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			startMeasuring();
-//			for (int j=0; j<ITERATIONS_COUNT; j++) {
-				search("equals", METHOD, ALL_OCCURRENCES, this.resultCollector);
-//			}
+			search("equals", METHOD, ALL_OCCURRENCES, this.resultCollector);
 			stopMeasuring();
 		}
 		
-		// Commit measures
+		// Commit
 		commitMeasurements();
 		assertPerformance();
 
@@ -406,27 +373,26 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
 	 */
-	public void testPerfSearchConstructor() throws CoreException {
-		tagAsSummary("Search>Occurences>Constructors", Dimension.CPU_TIME, true/*put in fingerprint*/);
+	public void testSearchConstructor() throws CoreException {
+		tagAsSummary("Search>Occurences>Constructors", true); // put in fingerprint
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
-//		INDEX_MANAGER.performConcurrentJob(new DoNothing(), IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
-//		assertEquals("Index manager should not have remaining jobs!", 0, INDEX_MANAGER.awaitingJobsCount()); //$NON-NLS-1$
 
-		// warm-up
+		// Warm up
 		search("String", CONSTRUCTOR, ALL_OCCURRENCES, this.resultCollector);
 
-		// Loop of measures
+		// Clean memory
+		runGc();
+
+		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
 			startMeasuring();
-//			for (int j=0; j<ITERATIONS_COUNT; j++) {
-				search("String", CONSTRUCTOR, ALL_OCCURRENCES, this.resultCollector);
-//			}
+			search("String", CONSTRUCTOR, ALL_OCCURRENCES, this.resultCollector);
 			stopMeasuring();
 		}
 		
-		// Commit measures
+		// Commit
 		commitMeasurements();
 		assertPerformance();
 
