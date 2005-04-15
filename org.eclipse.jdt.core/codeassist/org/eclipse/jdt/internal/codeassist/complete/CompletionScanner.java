@@ -351,9 +351,22 @@ public int getNextToken() throws InvalidInputException {
 						}
 						throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
 					}
-					if (getNextChar('\\'))
+					if (getNextChar('\\')) {
+						if (this.unicodeAsBackSlash) {
+							// consume next character
+							this.unicodeAsBackSlash = false;
+							if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
+								getNextUnicodeChar();
+							} else {
+								if (this.withoutUnicodePtr != 0) {
+									unicodeStore();
+								}
+							}
+						} else {
+							this.currentCharacter = this.source[this.currentPosition++];
+						}
 						scanEscapeCharacter();
-					else { // consume next character
+					} else { // consume next character
 						this.unicodeAsBackSlash = false;
 						boolean checkIfUnicode = false;
 						try {
@@ -431,22 +444,25 @@ public int getNextToken() throws InvalidInputException {
 								throw new InvalidInputException(INVALID_CHAR_IN_STRING);
 							}
 							if (this.currentCharacter == '\\') {
-								int escapeSize = this.currentPosition;
-								boolean backSlashAsUnicodeInString = this.unicodeAsBackSlash;
-								//scanEscapeCharacter make a side effect on this value and we need the previous value few lines down this one
-								scanEscapeCharacter();
-								escapeSize = this.currentPosition - escapeSize;
-								if (this.withoutUnicodePtr == 0) {
-									//buffer all the entries that have been left aside....
-
-									unicodeInitializeBuffer(this.currentPosition - escapeSize - 1 - this.startPosition);
-									this.unicodeStore();
-								} else { //overwrite the / in the buffer
-									this.withoutUnicodePtr--; // unicode store will increment
-								    this.unicodeStore();
-									if (backSlashAsUnicodeInString) { //there are TWO \ in the stream where only one is correct
+								if (this.unicodeAsBackSlash) {
+									this.withoutUnicodePtr--;
+									// consume next character
+									this.unicodeAsBackSlash = false;
+									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
+										getNextUnicodeChar();
 										this.withoutUnicodePtr--;
 									}
+								} else {
+									if (this.withoutUnicodePtr == 0) {
+										unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+									}
+									this.withoutUnicodePtr --;
+									this.currentCharacter = this.source[this.currentPosition++];
+								}
+								// we need to compute the escape character in a separate buffer
+								scanEscapeCharacter();
+								if (this.withoutUnicodePtr != 0) {
+									unicodeStore();
 								}
 							}
 							// consume next character
