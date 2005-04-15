@@ -279,6 +279,48 @@ public void testAccessRestriction4() throws CoreException {
 		deleteProjects(new String[] {"P1", "P2", "P3" });
 	}
 }
+/*
+ * Ensures that a problem is created for a reference to a type that is no longer accessible in a prereq project.
+ * (regression test for bug 91498 Reconcile still sees old access rules)
+ */
+public void testAccessRestriction5() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile("/P1/p/X.java", "package p; public class X {}");	
+		IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		IClasspathEntry[] classpath = p2.getRawClasspath();
+		int length = classpath.length;
+		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
+		classpath[length] = createSourceEntry("P2", "/P1", "+**/p/|-**/*");
+		p2.setRawClasspath(classpath, null);
+		setUpWorkingCopy("/P2/src/Y.java", "public class Y extends p.X {}");
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"----------\n"
+		);
+		
+		// remove accessible rule
+		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
+		classpath[length] = createSourceEntry("P2", "/P1", "-**/*");
+		p2.setRawClasspath(classpath, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
+		assertProblems(
+			"Unexpected problems", 
+			"----------\n" + 
+			"1. ERROR in /P2/src/Y.java (at line 1)\n" + 
+			"	public class Y extends p.X {}\n" + 
+			"	                       ^^^\n" + 
+			"Access restriction: The type X is not accessible due to restriction on required project P1\n" + 
+			"----------\n"
+		);
+
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
 /**
  * Ensures that the reconciler handles duplicate members correctly.
  */

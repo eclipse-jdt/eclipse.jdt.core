@@ -398,7 +398,6 @@ public class JavaProject
 				}	
 			}
 		}
-		info.resetCaches(); // discard caches (hold onto roots and pkg fragments)
 		info.setNonJavaResources(null);
 		info.setChildren(
 			computePackageFragmentRoots(classpath, false, null /*no reverse map*/));		
@@ -2899,6 +2898,7 @@ public class JavaProject
 				try {
 					JavaProjectElementInfo info = getJavaProjectElementInfo();
 					computeChildren(info);
+					info.resetCaches(); // discard caches (hold onto roots and pkg fragments)
 				} catch(JavaModelException e){
 					try {
 						close(); // could not do better
