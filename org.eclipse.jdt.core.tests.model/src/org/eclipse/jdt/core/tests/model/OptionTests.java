@@ -508,13 +508,18 @@ public class OptionTests extends ModifyingResourceTests {
 	 */
 	public void testBug72214() throws CoreException, BackingStoreException {
 
-		// Remove JavaCore instance prefs
-		IEclipsePreferences javacorePreferences = JavaCore.getInstancePreferences();
-		javacorePreferences.removeNode();
-
-		// verify that JavaCore preferences have been reset
-		assertFalse("JavaCore preferences should have been reset", javacorePreferences == JavaCore.getInstancePreferences());
-		assertFalse("JavaCore preferences should be accessible!", JavaCore.getOptions().isEmpty());
+		try {
+			// Remove JavaCore instance prefs
+			IEclipsePreferences javacorePreferences = JavaCore.getInstancePreferences();
+			javacorePreferences.removeNode();
+	
+			// verify that JavaCore preferences have been reset
+			assertFalse("JavaCore preferences should have been reset", javacorePreferences == JavaCore.getInstancePreferences());
+			assertFalse("JavaCore preferences should be accessible!", JavaCore.getOptions().isEmpty());
+		} finally {			
+			// Put back default options
+			JavaCore.setOptions(JavaCore.getDefaultOptions());
+		}
 	}
 	// TODO (frederic) this test was disabled as it has a side effect on subsequent tests (removing defaults)
 	public void _testBug72214b() throws CoreException, BackingStoreException {
