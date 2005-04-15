@@ -19,6 +19,7 @@
       <import plugin="org.junit"/>
       <import plugin="org.eclipse.test.performance"/>
       <import plugin="org.eclipse.jdt.core.tests.compiler"/>
+      <import plugin="org.eclipse.jdt.core.tests.builder"/>
       <import plugin="org.eclipse.team.core"/>
       <import plugin="org.eclipse.text"/>    
    </requires>
