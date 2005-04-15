@@ -103,8 +103,9 @@
 	<zip zipfile="${export-dir}/../${plugin}_${jdt_core_version}.zip"
 	    basedir="${export-dir}" 
 	    includes="${plugin}_${jdt_core_version}/**"	/>		
-
-	<delete dir="${plugin-dir}" />
+	<!--
+		<delete dir="${plugin-dir}" />
+	-->
 </target>
 
 <target name="zz_internal_export_structure">
