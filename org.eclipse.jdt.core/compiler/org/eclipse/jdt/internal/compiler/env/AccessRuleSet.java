@@ -71,12 +71,12 @@ public class AccessRuleSet {
 	
 	public String toString() {
 		StringBuffer buffer = new StringBuffer(200);
-		buffer.append("AccessRuleSet {"); //$NON-NLS-1$
+		buffer.append("AccessRuleSet {\n"); //$NON-NLS-1$
 		for (int i = 0, length = this.accessRules.length; i < length; i++) {
+			buffer.append('\t');
 			AccessRule accessRule = this.accessRules[i];
 			buffer.append(accessRule);
-			if (i < length-1)
-				buffer.append(", "); //$NON-NLS-1$
+			buffer.append('\n');
 		}
 		buffer
 			.append("} [template:\"") //$NON-NLS-1$
