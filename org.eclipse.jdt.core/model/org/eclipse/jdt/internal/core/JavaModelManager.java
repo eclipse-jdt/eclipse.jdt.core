@@ -20,7 +20,9 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -150,7 +152,11 @@ public class JavaModelManager implements ISaveParticipant {
 	
 	public final static ICompilationUnit[] NO_WORKING_COPY = new ICompilationUnit[0];
 	
+	// Preferences
 	public HashSet optionNames = new HashSet(20);
+	public final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
+	static final int PREF_INSTANCE = 0;
+	static final int PREF_DEFAULT = 1;
 
 	/**
 	 * Returns whether the given full path (for a package) conflicts with the output location
@@ -908,6 +914,20 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/**
+	 * Get workpsace eclipse preference for JavaCore plugin.
+	 */
+	public IEclipsePreferences getInstancePreferences() {
+		return preferencesLookup[PREF_INSTANCE];
+	}
+ 
+	/**
+	 * Get default eclipse preference for JavaCore plugin.
+	 */
+	public IEclipsePreferences getDefaultPreferences() {
+		return preferencesLookup[PREF_DEFAULT];
+	}
+
+	/**
 	 * Returns the handle to the active Java Model.
 	 */
 	public final JavaModel getJavaModel() {
@@ -1379,7 +1399,45 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		return container;
 	}
-	
+
+	/**
+	 * Initialize preferences lookups for JavaCore plugin.
+	 */
+	public void initializePreferences() {
+		
+		// Create lookups
+		preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+		preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
+
+		// Listen to instance preferences node removal from parent in order to refresh stored one
+		IEclipsePreferences.INodeChangeListener listener = new IEclipsePreferences.INodeChangeListener() {
+			public void added(IEclipsePreferences.NodeChangeEvent event) {
+				// do nothing
+			}
+			public void removed(IEclipsePreferences.NodeChangeEvent event) {
+				if (event.getChild() == preferencesLookup[PREF_INSTANCE]) {
+					preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+					preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
+				}
+			}
+		};
+		((IEclipsePreferences) preferencesLookup[PREF_INSTANCE].parent()).addNodeChangeListener(listener);
+		preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
+
+		// Listen to default preferences node removal from parent in order to refresh stored one
+		listener = new IEclipsePreferences.INodeChangeListener() {
+			public void added(IEclipsePreferences.NodeChangeEvent event) {
+				// do nothing
+			}
+			public void removed(IEclipsePreferences.NodeChangeEvent event) {
+				if (event.getChild() == preferencesLookup[PREF_DEFAULT]) {
+					preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
+				}
+			}
+		};
+		((IEclipsePreferences) preferencesLookup[PREF_DEFAULT].parent()).addNodeChangeListener(listener);
+	}
+
 	public synchronized char[] intern(char[] array) {
 		return this.charArraySymbols.add(array);
 	}
@@ -1473,7 +1531,7 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		
 		// load variables and containers from preferences into cache
-		IEclipsePreferences preferences = JavaCore.getInstancePreferences();
+		IEclipsePreferences preferences = getInstancePreferences();
 
 		// only get variable from preferences not set to their default
 		try {
@@ -1802,6 +1860,7 @@ public class JavaModelManager implements ISaveParticipant {
 		
 	    // save container values on snapshot/full save
 		IJavaProject[] projects = getJavaModel().getJavaProjects();
+		IEclipsePreferences preferences = getInstancePreferences();
 		for (int i = 0, length = projects.length; i < length; i++) {
 		    IJavaProject project = projects[i];
 			// clone while iterating (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59638)
@@ -1822,16 +1881,14 @@ public class JavaModelManager implements ISaveParticipant {
 				} catch(JavaModelException e){
 					// could not encode entry: leave it as CP_ENTRY_IGNORE
 				}
-				JavaCore.getDefaultPreferences().put(containerKey, CP_ENTRY_IGNORE); // TODO (frederic) verify if this is really necessary...
-				JavaCore.getInstancePreferences().put(containerKey, containerString);
+				preferences.put(containerKey, containerString);
 			}
 		}
 		try {
-			JavaCore.getInstancePreferences().flush();
+			preferences.flush();
 		} catch (BackingStoreException e) {
-			// TODO (frederic) see if it's necessary to report this exception
-			// IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving context", e); //$NON-NLS-1$
-			// throw new CoreException(status);
+			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving context", e); //$NON-NLS-1$
+			throw new CoreException(status);
 		}
 		
 		if (context.getKind() == ISaveContext.FULL_SAVE) {
@@ -2166,14 +2223,11 @@ public class JavaModelManager implements ISaveParticipant {
 
 		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
 		String variableString = variablePath == null ? CP_ENTRY_IGNORE : variablePath.toString();
-		JavaCore.getDefaultPreferences().put(variableKey, CP_ENTRY_IGNORE); // TODO (frederic) verify if this is really necessary...
-		JavaCore.getInstancePreferences().put(variableKey, variableString);
+		getInstancePreferences().put(variableKey, variableString);
 		try {
-			JavaCore.getInstancePreferences().flush();
+			getInstancePreferences().flush();
 		} catch (BackingStoreException e) {
-			// TODO (frederic) see if it's necessary to report this exception
-//			IStatus status = new Status(IStatus.ERROR, Platform.PI_RUNTIME, IStatus.ERROR, "Problems while saving context", e); //$NON-NLS-1$
-//			throw new CoreException(status);
+			// ignore exception
 		}
 	}
 }

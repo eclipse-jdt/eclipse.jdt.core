@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -507,29 +508,18 @@ public class OptionTests extends ModifyingResourceTests {
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=72214">72214</a>
 	 */
 	public void testBug72214() throws CoreException, BackingStoreException {
-
-		try {
-			// Remove JavaCore instance prefs
-			IEclipsePreferences javacorePreferences = JavaCore.getInstancePreferences();
-			javacorePreferences.removeNode();
 	
-			// verify that JavaCore preferences have been reset
-			assertFalse("JavaCore preferences should have been reset", javacorePreferences == JavaCore.getInstancePreferences());
-			assertFalse("JavaCore preferences should be accessible!", JavaCore.getOptions().isEmpty());
-		} finally {			
-			// Put back default options
-			JavaCore.setOptions(JavaCore.getDefaultOptions());
-		}
-	}
-	// TODO (frederic) this test was disabled as it has a side effect on subsequent tests (removing defaults)
-	public void _testBug72214b() throws CoreException, BackingStoreException {
-
-		// Remove JavaCore default prefs
-		IEclipsePreferences defaultPreferences = JavaCore.getDefaultPreferences();
-		defaultPreferences.removeNode();
-
+		// Remove JavaCore instance prefs
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IEclipsePreferences preferences = manager.getInstancePreferences();
+		int size = JavaCore.getOptions().size();
+		preferences.removeNode();
+	
 		// verify that JavaCore preferences have been reset
-		assertFalse("JavaCore default preferences should have been reset", defaultPreferences == JavaCore.getDefaultPreferences());
-		assertFalse("JavaCore default preferences should be accessible!", JavaCore.getDefaultOptions().isEmpty());
+		assertFalse("JavaCore preferences should have been reset", preferences == manager.getInstancePreferences());
+		assertEquals("JavaCore preferences should have been resotred!", size, JavaCore.getOptions().size());
+		
+		// Put back default options
+		JavaCore.setOptions(JavaCore.getDefaultOptions());
 	}
 }

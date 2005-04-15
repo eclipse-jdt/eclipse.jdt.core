@@ -64,10 +64,8 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -992,14 +990,6 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String PRIVATE = "private"; //$NON-NLS-1$
-	
-	/**
-	 * New Preferences API
-	 * @since 3.1
-	 */
-	public static final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
-	static final int PREF_INSTANCE = 0;
-	static final int PREF_DEFAULT = 1;
 
 	/**
 	 * Creates the Java core plug-in.
@@ -2301,8 +2291,9 @@ public final class JavaCore extends Plugin {
 		Hashtable defaultOptions = new Hashtable(10);
 
 		// see JavaCorePreferenceInitializer#initializeDefaultPluginPreferences() for changing default settings
-		IEclipsePreferences defaultPreferences = getDefaultPreferences();
-		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IEclipsePreferences defaultPreferences = manager.getDefaultPreferences();
+		HashSet optionNames = manager.optionNames;
 		
 		// initialize preferences to their default
 		Iterator iterator = optionNames.iterator();
@@ -2318,26 +2309,6 @@ public final class JavaCore extends Plugin {
 		defaultOptions.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
 		
 		return defaultOptions;
-	}
- 
-	/**
-	 * @since 3.1
-	 */
-	public static IEclipsePreferences getInstancePreferences() {
-		if (preferencesLookup[PREF_INSTANCE] == null) {
-			preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(PLUGIN_ID);
-		}
-		return preferencesLookup[PREF_INSTANCE];
-	}
- 
-	/**
-	 * @since 3.1
-	 */
-	public static IEclipsePreferences getDefaultPreferences() {
-		if (preferencesLookup[PREF_DEFAULT] == null) {
-			preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(PLUGIN_ID);
-		}
-		return preferencesLookup[PREF_DEFAULT];
 	}
 
 	/**
@@ -2395,9 +2366,10 @@ public final class JavaCore extends Plugin {
 			return ERROR;
 		}
 		String propertyName = optionName;
-		if (JavaModelManager.getJavaModelManager().optionNames.contains(propertyName)){
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		if (manager.optionNames.contains(propertyName)){
 			IPreferencesService service = Platform.getPreferencesService();
-			String value =  service.get(optionName, null, preferencesLookup);
+			String value =  service.get(optionName, null, manager.preferencesLookup);
 			return value==null ? null : value.trim();
 		}
 		return null;
@@ -2419,14 +2391,15 @@ public final class JavaCore extends Plugin {
 
 		// init
 		Hashtable options = new Hashtable(10);
-		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		HashSet optionNames = manager.optionNames;
 		IPreferencesService service = Platform.getPreferencesService();
 
 		// set options using preferences service lookup
 		Iterator iterator = optionNames.iterator();
 		while (iterator.hasNext()) {
 		    String propertyName = (String) iterator.next();
-		    String propertyValue = service.get(propertyName, null, preferencesLookup);
+		    String propertyValue = service.get(propertyName, null, manager.preferencesLookup);
 		    if (propertyValue != null) {
 			    options.put(propertyName, propertyValue);
 		    }
@@ -3987,8 +3960,9 @@ public final class JavaCore extends Plugin {
 	public static void setOptions(Hashtable newOptions) {
 		
 		try {
-			IEclipsePreferences defaultPreferences = getDefaultPreferences();
-			IEclipsePreferences instancePreferences = getInstancePreferences();
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			IEclipsePreferences defaultPreferences = manager.getDefaultPreferences();
+			IEclipsePreferences instancePreferences = manager.getInstancePreferences();
 
 			if (newOptions == null){
 				instancePreferences.clear();
@@ -4011,7 +3985,7 @@ public final class JavaCore extends Plugin {
 			// persist options
 			instancePreferences.flush();
 		} catch (BackingStoreException e) {
-			// fails silently
+			// ignore
 		}
 	}
 
@@ -4064,34 +4038,10 @@ public final class JavaCore extends Plugin {
 			// request state folder creation (workaround 19885)
 			JavaCore.getPlugin().getStateLocation();
 
-			// Listen to instance preferences node removal from parent in order to refresh stored one
-			IEclipsePreferences.INodeChangeListener listener = new IEclipsePreferences.INodeChangeListener() {
-				public void added(IEclipsePreferences.NodeChangeEvent event) {
-					// do nothing
-				}
-				public void removed(IEclipsePreferences.NodeChangeEvent event) {
-					if (event.getChild() == preferencesLookup[PREF_INSTANCE]) {
-						preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(PLUGIN_ID);
-					}
-				}
-			};
-			((IEclipsePreferences) getInstancePreferences().parent()).addNodeChangeListener(listener);
-
-			// Listen to default preferences node removal from parent in order to refresh stored one
-			listener = new IEclipsePreferences.INodeChangeListener() {
-				public void added(IEclipsePreferences.NodeChangeEvent event) {
-					// do nothing
-				}
-				public void removed(IEclipsePreferences.NodeChangeEvent event) {
-					if (event.getChild() == preferencesLookup[PREF_DEFAULT]) {
-						preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(PLUGIN_ID);
-					}
-				}
-			};
-			((IEclipsePreferences) getDefaultPreferences().parent()).addNodeChangeListener(listener);
+			// Initialize eclipse preferences
+			manager.initializePreferences();
 
 			// retrieve variable values
-			getInstancePreferences().addPreferenceChangeListener(new JavaModelManager.EclipsePreferencesListener());
 			manager.loadVariablesAndContainers();
 
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
