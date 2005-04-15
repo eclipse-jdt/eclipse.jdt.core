@@ -269,7 +269,7 @@ public void testAccessRestriction4() throws CoreException {
 		assertProblems(
 			"Unexpected problems", 
 			"----------\n" + 
-			"1. WARNING in /P3/src/Y.java (at line 1)\n" + 
+			"1. ERROR in /P3/src/Y.java (at line 1)\n" + 
 			"	public class Y extends p.X {}\n" + 
 			"	                       ^^^\n" + 
 			"Access restriction: The type X is not accessible due to restriction on required project P1\n" + 

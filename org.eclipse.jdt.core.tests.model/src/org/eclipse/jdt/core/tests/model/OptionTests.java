@@ -516,7 +516,8 @@ public class OptionTests extends ModifyingResourceTests {
 		assertFalse("JavaCore preferences should have been reset", javacorePreferences == JavaCore.getInstancePreferences());
 		assertFalse("JavaCore preferences should be accessible!", JavaCore.getOptions().isEmpty());
 	}
-	public void testBug72214b() throws CoreException, BackingStoreException {
+	// TODO (frederic) this test was disabled as it has a side effect on subsequent tests (removing defaults)
+	public void _testBug72214b() throws CoreException, BackingStoreException {
 
 		// Remove JavaCore default prefs
 		IEclipsePreferences defaultPreferences = JavaCore.getDefaultPreferences();
