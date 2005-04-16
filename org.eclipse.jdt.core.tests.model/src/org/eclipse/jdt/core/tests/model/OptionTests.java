@@ -509,17 +509,19 @@ public class OptionTests extends ModifyingResourceTests {
 	 */
 	public void testBug72214() throws CoreException, BackingStoreException {
 	
-		// Remove JavaCore instance prefs
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		IEclipsePreferences preferences = manager.getInstancePreferences();
-		int size = JavaCore.getOptions().size();
-		preferences.removeNode();
-	
-		// verify that JavaCore preferences have been reset
-		assertFalse("JavaCore preferences should have been reset", preferences == manager.getInstancePreferences());
-		assertEquals("JavaCore preferences should have been resotred!", size, JavaCore.getOptions().size());
+		try {
+			// Remove JavaCore instance prefs
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			IEclipsePreferences preferences = manager.getInstancePreferences();
+			int size = JavaCore.getOptions().size();
+			preferences.removeNode();
 		
-		// Put back default options
-		JavaCore.setOptions(JavaCore.getDefaultOptions());
+			// verify that JavaCore preferences have been reset
+			assertFalse("JavaCore preferences should have been reset", preferences == manager.getInstancePreferences());
+			assertEquals("JavaCore preferences should have been resotred!", size, JavaCore.getOptions().size());
+		} finally {
+			// Put back default options
+			JavaCore.setOptions(JavaCore.getDefaultOptions());
+		}
 	}
 }
