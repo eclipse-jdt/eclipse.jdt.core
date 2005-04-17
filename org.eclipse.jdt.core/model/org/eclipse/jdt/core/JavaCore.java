@@ -3729,8 +3729,12 @@ public final class JavaCore extends Plugin {
 				"\n	}\n	invocation stack trace:"); //$NON-NLS-1$
 				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 		}
+		
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		if (manager.containerPutIfInitializingWithSameEntries(containerPath, affectedProjects, respectiveContainers))
+			return;
 
-		final int projectLength = affectedProjects.length;
+		final int projectLength = affectedProjects.length;	
 		final IJavaProject[] modifiedProjects;
 		System.arraycopy(affectedProjects, 0, modifiedProjects = new IJavaProject[projectLength], 0, projectLength);
 		final IClasspathEntry[][] oldResolvedPaths = new IClasspathEntry[projectLength][];
@@ -3757,10 +3761,10 @@ public final class JavaCore extends Plugin {
 			}
 			if (!found){
 				modifiedProjects[i] = null; // filter out this project - does not reference the container path, or isnt't yet Java project
-				JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, newContainer);
+				manager.containerPut(affectedProject, containerPath, newContainer);
 				continue;
 			}
-			IClasspathContainer oldContainer = JavaModelManager.getJavaModelManager().containerGet(affectedProject, containerPath);
+			IClasspathContainer oldContainer = manager.containerGet(affectedProject, containerPath);
 			if (oldContainer == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
 //				Map previousContainerValues = (Map)JavaModelManager.getJavaModelManager().previousSessionContainers.get(affectedProject);
 //				if (previousContainerValues != null){
@@ -3798,7 +3802,7 @@ public final class JavaCore extends Plugin {
 			}
 			remaining++; 
 			oldResolvedPaths[i] = affectedProject.getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
-			JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, newContainer);
+			manager.containerPut(affectedProject, containerPath, newContainer);
 		}
 		
 		if (remaining == 0) return;
@@ -3852,7 +3856,7 @@ public final class JavaCore extends Plugin {
 		} finally {
 			for (int i = 0; i < projectLength; i++) {
 				if (respectiveContainers[i] == null) {
-					JavaModelManager.getJavaModelManager().containerPut(affectedProjects[i], containerPath, null); // reset init in progress marker
+					manager.containerPut(affectedProjects[i], containerPath, null); // reset init in progress marker
 				}
 			}
 		}

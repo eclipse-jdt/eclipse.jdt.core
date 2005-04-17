@@ -270,6 +270,86 @@ public class JavaModelManager implements ISaveParticipant {
 		// container values are persisted in preferences during save operations, see #saving(ISaveContext)
 	}
 	
+	public boolean containerPutIfInitializingWithSameEntries(IPath containerPath, IJavaProject[] projects, IClasspathContainer[] respectiveContainers) {
+		int projectLength = projects.length;
+		if (projectLength != 1) 
+			return false;
+		final IClasspathContainer container = respectiveContainers[0];
+		if (container == null)
+			return false;
+		IJavaProject project = projects[0];
+		if (!containerInitializationInProgress(project).contains(containerPath))
+			return false;
+		IClasspathContainer previousSessionContainer = getPreviousSessionContainer(containerPath, project);
+		if (previousSessionContainer == null) 
+			return false;
+		final IClasspathEntry[] oldEntries = previousSessionContainer.getClasspathEntries();
+		final IClasspathEntry[] newEntries = container.getClasspathEntries();
+		if (oldEntries.length != newEntries.length) 
+			return false;
+		for (int i = 0, length = newEntries.length; i < length; i++) {
+			if (!newEntries[i].equals(oldEntries[i])) {
+				if (CP_RESOLVE_VERBOSE) {
+					Util.verbose(
+						"CPContainer SET  - missbehaving container\n" + //$NON-NLS-1$
+						"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+						"	projects: {" +//$NON-NLS-1$
+						org.eclipse.jdt.internal.compiler.util.Util.toString(
+							projects, 
+							new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+								public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
+							}) +
+						"}\n	values on previous session: {\n"  +//$NON-NLS-1$
+						org.eclipse.jdt.internal.compiler.util.Util.toString(
+							respectiveContainers, 
+							new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+								public String displayString(Object o) { 
+									StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+									if (o == null) {
+										buffer.append("<null>"); //$NON-NLS-1$
+										return buffer.toString();
+									}
+									buffer.append(container.getDescription());
+									buffer.append(" {\n"); //$NON-NLS-1$
+									for (int j = 0; j < oldEntries.length; j++){
+										buffer.append(" 			"); //$NON-NLS-1$
+										buffer.append(oldEntries[j]); 
+										buffer.append('\n'); 
+									}
+									buffer.append(" 		}"); //$NON-NLS-1$
+									return buffer.toString();
+								}
+							}) +
+						"}\n	new values: {\n"  +//$NON-NLS-1$
+						org.eclipse.jdt.internal.compiler.util.Util.toString(
+							respectiveContainers, 
+							new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+								public String displayString(Object o) { 
+									StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+									if (o == null) {
+										buffer.append("<null>"); //$NON-NLS-1$
+										return buffer.toString();
+									}
+									buffer.append(container.getDescription());
+									buffer.append(" {\n"); //$NON-NLS-1$
+									for (int j = 0; j < newEntries.length; j++){
+										buffer.append(" 			"); //$NON-NLS-1$
+										buffer.append(newEntries[j]); 
+										buffer.append('\n'); 
+									}
+									buffer.append(" 		}"); //$NON-NLS-1$
+									return buffer.toString();
+								}
+							}) +
+						"\n	}"); //$NON-NLS-1$
+				}
+				return false;
+			}
+		}
+		containerPut(project, containerPath, container);
+		return true;
+	}
+	
 	private synchronized void containersReset(String[] containerIDs) {
 		for (int i = 0; i < containerIDs.length; i++) {
 			String containerID = containerIDs[i];
@@ -1873,8 +1953,9 @@ public class JavaModelManager implements ISaveParticipant {
 				String containerString = CP_ENTRY_IGNORE;
 				try {
 					if (container != null) {
+						IClasspathEntry[] entries = container.getClasspathEntries();
 						containerString = ((JavaProject)project).encodeClasspath(
-								container.getClasspathEntries(), 
+								entries, 
 								null, 
 								false);
 					}
