@@ -70,13 +70,23 @@ public class AccessRuleSet {
 	}
 	
 	public String toString() {
+		return toString(true/*wrap lines*/);
+	}
+	
+	public String toString(boolean wrap) {
 		StringBuffer buffer = new StringBuffer(200);
-		buffer.append("AccessRuleSet {\n"); //$NON-NLS-1$
+		buffer.append("AccessRuleSet {"); //$NON-NLS-1$
+		if (wrap)
+			buffer.append('\n');
 		for (int i = 0, length = this.accessRules.length; i < length; i++) {
-			buffer.append('\t');
+			if (wrap)
+				buffer.append('\t');
 			AccessRule accessRule = this.accessRules[i];
 			buffer.append(accessRule);
-			buffer.append('\n');
+			if (wrap)
+				buffer.append('\n');
+			else if (i < length-1)
+				buffer.append(", "); //$NON-NLS-1$
 		}
 		buffer
 			.append("} [template:\"") //$NON-NLS-1$

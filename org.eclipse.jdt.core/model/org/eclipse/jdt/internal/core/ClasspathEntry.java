@@ -978,7 +978,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		if (this.accessRuleSet != null) {
 			buffer.append('[');
-			buffer.append(this.accessRuleSet);
+			buffer.append(this.accessRuleSet.toString(false/*on one line*/));
 			buffer.append(']');
 		}
 		if (this.entryKind == CPE_PROJECT) {
