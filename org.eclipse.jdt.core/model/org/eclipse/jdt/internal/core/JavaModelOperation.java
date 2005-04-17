@@ -199,6 +199,12 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			progressMonitor.beginTask(name, totalWork);
 		}
 	}
+	/*
+	 * Returns whether this operation can modify the package fragment roots.
+	 */
+	protected boolean canModifyRoots() {
+		return false;
+	}
 	/**
 	 * Checks with the progress monitor to see whether this operation
 	 * should be canceled. An operation should regularly call this method
@@ -703,9 +709,11 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			progressMonitor = monitor;
 			pushOperation(this);
 			try {
-				// computes the root infos before executing the operation
-				// noop if aready initialized
-				JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
+				if (canModifyRoots()) {
+					// computes the root infos before executing the operation
+					// noop if aready initialized
+					JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
+				}
 				
 				executeOperation();
 			} finally {

@@ -110,7 +110,10 @@ public class SetClasspathOperation extends JavaModelOperation {
 		}
 	}
 
-
+	protected boolean canModifyRoots() {
+		// setting classpath can modify roots
+		return true;
+	}
 
 	/**
 	 * Returns the index of the item in the list if the given list contains the specified entry. If the list does
