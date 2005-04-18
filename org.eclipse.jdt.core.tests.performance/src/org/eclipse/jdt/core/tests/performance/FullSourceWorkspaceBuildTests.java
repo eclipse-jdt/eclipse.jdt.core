@@ -65,7 +65,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	static {
 //		TESTS_PREFIX = "testPerfBatch";
-//		TESTS_NAMES = new String[] { "testPerfParserFiles" };
+//		TESTS_NAMES = new String[] { "testFullBuildAllWarning" };
 	}
 
 	public static Test suite() {
@@ -299,7 +299,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testFullBuildNoWarning() throws CoreException, IOException {
 		tagAsSummary("Compile>Build>Clean>Full>No warning", false); // do NOT put in fingerprint
-		startBuild(warningOptions(false/*no warning*/), false);
+		startBuild(warningOptions(-1/*no warning*/), false);
 	}
 
 	/**
@@ -308,9 +308,9 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws CoreException
 	 * @throws IOException
 	 */
-	public void testFullBuild() throws CoreException, IOException {
+	public void testFullBuildDefault() throws CoreException, IOException {
 		tagAsGlobalSummary("Compile>Build>Clean>Full>Default warnings", true); // put in fingerprint
-		startBuild(JavaCore.getDefaultOptions(), false);
+		startBuild(warningOptions(0/*default warnings*/), false);
 	}
 
 	/**
@@ -325,7 +325,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testFullBuildAllWarnings() throws CoreException, IOException {
 		tagAsSummary("Compile>Build>Clean>Full>All warnings", false); // do NOT put in fingerprint
-		startBuild(warningOptions(true/*all warnings*/), false);
+		startBuild(warningOptions(1/*all warnings*/), false);
 	}
 
 	/**
@@ -349,7 +349,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * 
 	 * @throws IOException
 	 */
-	public void testBatchCompiler() throws IOException {
+	public void testBatchCompilerDefault() throws IOException {
 		tagAsSummary("Compile>Batch>Compiler>Default warnings", false); // do NOT put in fingerprint
 
 		buildUsingBatchCompiler("");
@@ -389,7 +389,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * 
 	 * @throws IOException
 	 */
-	public void testBatchCompilerAllWarning() throws IOException {
+	public void testBatchCompilerAllWarnings() throws IOException {
 		tagAsSummary("Compile>Batch>Compiler>All warnings", false); // do NOT put in fingerprint
 
 		String allOptions = "-warn:" +
@@ -422,8 +422,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			"specialParamHiding," +
 			"staticReceiver," +
 			"syntheticAccess," +
-			"tasks(TODO|FIX|XXX)," +
-			"typeHiding,";
+			"tasks(TODO|FIX|XXX)";
 		buildUsingBatchCompiler(allOptions);
 	}
 
