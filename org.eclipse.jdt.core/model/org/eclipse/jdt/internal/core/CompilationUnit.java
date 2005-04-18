@@ -1023,18 +1023,11 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	
 	return buffer;
 }
-/*
- * @see Openable#openParent
- */
 protected void openParent(Object childInfo, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	try {
+	if (!isWorkingCopy())
 		super.openParent(childInfo, newElements, pm);
-	} catch(JavaModelException e){
-		// allow parent to not exist for working copies defined outside classpath
-		if (!isWorkingCopy() && !e.isDoesNotExist()){ 
-			throw e;
-		}
-	}
+	// don't open parent for a working copy to speed up the first becomeWorkingCopy
+	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89411)
 }
 /**
  * @see ICompilationUnit#reconcile()

@@ -143,13 +143,17 @@ public ClasspathInitializerTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	if (false) {
-		System.err.println("WARNING: "+ClasspathInitializerTests.class.getName()+" is currently running subset of test cases!!!");
-		Suite suite = new Suite(ClasspathInitializerTests.class.getName());
-		suite.addTest(new ClasspathInitializerTests("testContainerInitializer10"));
-		return suite;
-	}
-	return new Suite(ClasspathInitializerTests.class);
+	return buildTestSuite(ClasspathInitializerTests.class);
+}
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		TESTS_NAMES = new String[] { "testContainerInitializer6" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		TESTS_NUMBERS = new int[] { 2, 12 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		TESTS_RANGE = new int[] { 16, -1 };
 }
 /*
  * Simulate state on startup (flush container, preserve their previous values, and close project)
@@ -402,7 +406,10 @@ public void testContainerInitializer6() throws CoreException {
 		
 		assertDeltas(
 			"Unexpected delta on startup", 
-			""
+			"P2[*]: {CHILDREN}\n" + 
+			"	src[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
+			"			[Working copy] X.java[+]: {PRIMARY WORKING COPY}"
 		);
 	} finally {
 		stopDeltas();

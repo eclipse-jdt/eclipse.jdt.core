@@ -723,6 +723,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			}
 		} finally {
 			try {
+				// reacquire delta processor as it can have been reset during executeOperation()
+				deltaProcessor = manager.getDeltaProcessor();
+				
 				// update JavaModel using deltas that were recorded during this operation
 				for (int i = previousDeltaCount, size = deltaProcessor.javaModelDeltas.size(); i < size; i++) {
 					deltaProcessor.updateJavaModel((IJavaElementDelta)deltaProcessor.javaModelDeltas.get(i));
