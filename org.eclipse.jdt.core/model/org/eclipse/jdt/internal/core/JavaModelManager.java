@@ -74,7 +74,7 @@ public class JavaModelManager implements ISaveParticipant {
 	public HashMap containers = new HashMap(5);
 	public HashMap previousSessionContainers = new HashMap(5);
 	private ThreadLocal containerInitializationInProgress = new ThreadLocal();
-	public boolean batchContainerInitializations = true;
+	public boolean batchContainerInitializations = false;
 	
 	/*
 	 * A HashSet that contains the IJavaProject whose classpath is being resolved.
