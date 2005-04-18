@@ -211,97 +211,97 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 */
 	protected void logPerfResult(PrintStream[] logStreams, int count) {
 
-			// Perfs comment buffers
-			String[] comments = new String[2];
+		// Perfs comment buffers
+		String[] comments = new String[2];
 
-			// Log perf result
-			boolean haveTimes  = JdtCorePerformanceMeter.CPU_TIMES != null && JdtCorePerformanceMeter.ELAPSED_TIMES != null;
-			if (haveTimes) {
-				NumberFormat pFormat = NumberFormat.getPercentInstance();
-				pFormat.setMaximumFractionDigits(1);
-				NumberFormat dFormat = NumberFormat.getNumberInstance();
-				dFormat.setMaximumFractionDigits(2);
-				try {
-					// Store CPU Time
-					JdtCorePerformanceMeter.Statistics cpuStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.CPU_TIMES.get(this.scenarioReadableName);
-					if (cpuStats != null) {
-						double percent = cpuStats.stddev/cpuStats.average;
-						if (percent > STDDEV_THRESHOLD) {
-							if (logStreams[0] != null) logStreams[0].print("'");
-							System.out.println("	WARNING: CPU time standard deviation is over 2%: "+dFormat.format(cpuStats.stddev)+"/"+cpuStats.average+"="+ pFormat.format(percent));
-							comments[0] = "stddev=" + pFormat.format(percent);
-						}
-						if (logStreams[0] != null) {
-							logStreams[0].print(""+cpuStats.sum+"\t");
-						}
-					} else {
-						Thread.sleep(1000);
-						System.err.println(this.scenarioShortName+": we should have stored CPU time!");
-						Thread.sleep(1000);
+		// Log perf result
+		boolean haveTimes  = JdtCorePerformanceMeter.CPU_TIMES != null && JdtCorePerformanceMeter.ELAPSED_TIMES != null;
+		if (haveTimes) {
+			NumberFormat pFormat = NumberFormat.getPercentInstance();
+			pFormat.setMaximumFractionDigits(1);
+			NumberFormat dFormat = NumberFormat.getNumberInstance();
+			dFormat.setMaximumFractionDigits(2);
+			try {
+				// Store CPU Time
+				JdtCorePerformanceMeter.Statistics cpuStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.CPU_TIMES.get(this.scenarioReadableName);
+				if (cpuStats != null) {
+					double percent = cpuStats.stddev/cpuStats.average;
+					if (percent > STDDEV_THRESHOLD) {
+						if (logStreams[0] != null) logStreams[0].print("'");
+						System.out.println("	WARNING: CPU time standard deviation is over 2%: "+dFormat.format(cpuStats.stddev)+"/"+cpuStats.average+"="+ pFormat.format(percent));
+						comments[0] = "stddev=" + pFormat.format(percent);
 					}
-					// Store Elapsed time
-					JdtCorePerformanceMeter.Statistics elapsedStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.ELAPSED_TIMES.get(this.scenarioReadableName);
-					if (elapsedStats != null) {
-						double percent = elapsedStats.stddev/elapsedStats.average;
-						if (percent > STDDEV_THRESHOLD) {
-							if (logStreams[1] != null) logStreams[1].print("'");
-							System.out.println("	WARNING: Elapsed time standard deviation is over 2%: "+dFormat.format(elapsedStats.stddev)+"/"+elapsedStats.average+"="+ pFormat.format(percent));
-							comments[1] = "stddev=" + pFormat.format(percent);
-						}
-						if (logStreams[1] != null) {
-							logStreams[1].print(""+elapsedStats.sum+"\t");
-						}
-					} else {
-						Thread.sleep(1000);
-						System.err.println(this.scenarioShortName+": we should have stored Elapsed time");
-						Thread.sleep(1000);
+					if (logStreams[0] != null) {
+						logStreams[0].print(""+cpuStats.sum+"\t");
 					}
-				} catch (InterruptedException e) {
-					// do nothing
+				} else {
+					Thread.sleep(1000);
+					System.err.println(this.scenarioShortName+": we should have stored CPU time!");
+					Thread.sleep(1000);
 				}
-			}
-
-			// Update comment buffers
-			StringBuffer[] scenarioComments = (StringBuffer[]) SCENARII_COMMENT.get(getClass());
-			if (scenarioComments == null) {
-				scenarioComments = new StringBuffer[LOG_TYPES.length];
-				SCENARII_COMMENT.put(getClass(), scenarioComments);
-			}
-			for (int i=0, ln=LOG_TYPES.length; i<ln; i++) {
-				if (this.scenarioComment != null || comments[i] != null) {
-					if (scenarioComments[i] == null) {
-						scenarioComments[i] = new StringBuffer();
-					} else {
-						scenarioComments[i].append(' ');
+				// Store Elapsed time
+				JdtCorePerformanceMeter.Statistics elapsedStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.ELAPSED_TIMES.get(this.scenarioReadableName);
+				if (elapsedStats != null) {
+					double percent = elapsedStats.stddev/elapsedStats.average;
+					if (percent > STDDEV_THRESHOLD) {
+						if (logStreams[1] != null) logStreams[1].print("'");
+						System.out.println("	WARNING: Elapsed time standard deviation is over 2%: "+dFormat.format(elapsedStats.stddev)+"/"+elapsedStats.average+"="+ pFormat.format(percent));
+						comments[1] = "stddev=" + pFormat.format(percent);
 					}
-					if (this.scenarioComment == null) {
-						scenarioComments[i].append("["+TEST_POSITION+"]");
-					} else {
-						scenarioComments[i].append(this.scenarioComment);
+					if (logStreams[1] != null) {
+						logStreams[1].print(""+elapsedStats.sum+"\t");
 					}
-					if (comments[i] != null) {
-						if (this.scenarioComment != null) scenarioComments[i].append(',');
-						scenarioComments[i].append(comments[i]);
-					}
+				} else {
+					Thread.sleep(1000);
+					System.err.println(this.scenarioShortName+": we should have stored Elapsed time");
+					Thread.sleep(1000);
 				}
-			}
-
-			// Close log
-			if (count == 0) {
-				for (int i=0, ln=logStreams.length; i<ln; i++) {
-					if (logStreams[i] != null) {
-						if (haveTimes) {
-							if (scenarioComments[i] != null) {
-								logStreams[i].print(scenarioComments[i].toString());
-							}	
-							logStreams[i].println();
-						}
-						logStreams[i].close();
-					}
-				}
-				TEST_POSITION = 0;
+			} catch (InterruptedException e) {
+				// do nothing
 			}
 		}
+
+		// Update comment buffers
+		StringBuffer[] scenarioComments = (StringBuffer[]) SCENARII_COMMENT.get(getClass());
+		if (scenarioComments == null) {
+			scenarioComments = new StringBuffer[LOG_TYPES.length];
+			SCENARII_COMMENT.put(getClass(), scenarioComments);
+		}
+		for (int i=0, ln=LOG_TYPES.length; i<ln; i++) {
+			if (this.scenarioComment != null || comments[i] != null) {
+				if (scenarioComments[i] == null) {
+					scenarioComments[i] = new StringBuffer();
+				} else {
+					scenarioComments[i].append(' ');
+				}
+				if (this.scenarioComment == null) {
+					scenarioComments[i].append("["+TEST_POSITION+"]");
+				} else {
+					scenarioComments[i].append(this.scenarioComment);
+				}
+				if (comments[i] != null) {
+					if (this.scenarioComment != null) scenarioComments[i].append(',');
+					scenarioComments[i].append(comments[i]);
+				}
+			}
+		}
+
+		// Close log
+		if (count == 0) {
+			for (int i=0, ln=logStreams.length; i<ln; i++) {
+				if (logStreams[i] != null) {
+					if (haveTimes) {
+						if (scenarioComments[i] != null) {
+							logStreams[i].print(scenarioComments[i].toString());
+						}	
+						logStreams[i].println();
+					}
+					logStreams[i].close();
+				}
+			}
+			TEST_POSITION = 0;
+		}
+	}
 
 	protected void setUp() throws Exception {
 		super.setUp();
