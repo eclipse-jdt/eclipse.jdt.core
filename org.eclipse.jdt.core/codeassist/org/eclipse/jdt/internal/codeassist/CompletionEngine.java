@@ -480,7 +480,11 @@ public final class CompletionEngine
 							// can be the start of a qualified type name
 							findTypesAndPackages(this.completionToken, scope);
 							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-								findKeywords(this.completionToken, singleNameReference.possibleKeywords);
+								if(this.completionToken != null && this.completionToken.length != 0) {
+									findKeywords(this.completionToken, singleNameReference.possibleKeywords);
+								} else {
+									findTrueOrFalseKeywords(singleNameReference.possibleKeywords);
+								}
 							}
 							if(singleNameReference.canBeExplicitConstructor && !this.requestor.isIgnored(CompletionProposal.METHOD_REF)){
 								if(CharOperation.prefixEquals(this.completionToken, Keywords.THIS, false)) {
@@ -2234,6 +2238,10 @@ public final class CompletionEngine
 					relevance += computeRelevanceForCaseMatching(keyword, choices[i]);
 					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
 					
+					if(CharOperation.equals(choices[i], Keywords.TRUE) || CharOperation.equals(choices[i], Keywords.FALSE)) {
+						relevance += computeRelevanceForExpectingType(BaseTypes.BooleanBinding);
+						relevance += computeRelevanceForQualification(false);
+					}
 					this.noProposal = false;
 					if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 						CompletionProposal proposal = this.createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
@@ -2247,6 +2255,38 @@ public final class CompletionEngine
 						}
 					}
 				}
+	}
+	private void findTrueOrFalseKeywords(char[][] choices) {
+		if(choices == null || choices.length == 0) return;
+		
+		if(this.expectedTypesPtr != 0 || this.expectedTypes[0] != BaseTypes.BooleanBinding) return;
+		
+		for (int i = 0; i < choices.length; i++) {
+			if (CharOperation.equals(choices[i], Keywords.TRUE) ||
+					CharOperation.equals(choices[i], Keywords.FALSE)
+			){
+				int relevance = computeBaseRelevance();
+				relevance += computeRelevanceForInterestingProposal();
+				relevance += computeRelevanceForCaseMatching(CharOperation.NO_CHAR, choices[i]);
+				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+				relevance += computeRelevanceForExpectingType(BaseTypes.BooleanBinding);
+				relevance += computeRelevanceForQualification(false);
+				relevance += R_TRUE_OR_FALSE;
+
+				this.noProposal = false;
+				if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+					CompletionProposal proposal = this.createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
+					proposal.setName(choices[i]);
+					proposal.setCompletion(choices[i]);
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setRelevance(relevance);
+					this.requestor.accept(proposal);
+					if(DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
+			}
+		}
 	}
 	
 	private void findKeywordsForMember(char[] token, int modifiers) {

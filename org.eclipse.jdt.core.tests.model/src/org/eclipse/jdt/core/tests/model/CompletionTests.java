@@ -2655,7 +2655,7 @@ public void testCompletionKeywordTry2() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordTry3() throws JavaModelException {
@@ -4928,7 +4928,7 @@ public void testCompletionKeywordTrue2() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFalse1() throws JavaModelException {
@@ -4954,7 +4954,7 @@ public void testCompletionKeywordFalse2() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:false    completion:false    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+			"element:false    completion:false    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordNull1() throws JavaModelException {
@@ -5244,7 +5244,7 @@ public void testCompletionKeywordTry5() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordTry6() throws JavaModelException {
@@ -7517,7 +7517,68 @@ public void testCompletionKeywordTrue4() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+			"element:true    completion:true    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90615
+public void testCompletionKeywordTrue5() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionKeywordTrue5.java",
+			"package test;\n" +
+			"public class CompletionKeywordTrue5 {\n" +
+			"  public void foo() {" +
+			"    boolean var;" +
+			"    var = tr" +
+			"  }" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "tr";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"true[KEYWORD]{true, null, null, true, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90615
+public void testCompletionKeywordTrue6() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionKeywordTrue6.java",
+			"package test;\n" +
+			"public class CompletionKeywordTrue6 {\n" +
+			"  public void foo() {" +
+			"    boolean var;" +
+			"    var = " +
+			"  }" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "var = ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
+
+	assertResults(
+			"CompletionKeywordTrue6[TYPE_REF]{CompletionKeywordTrue6, test, Ltest.CompletionKeywordTrue6;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"foo[METHOD_REF]{foo(), Ltest.CompletionKeywordTrue6;, ()V, foo, null, " +(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n"+
+			"var[LOCAL_VARIABLE_REF]{var, null, Z, var, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}\n"+
+			"false[KEYWORD]{false, null, null, false, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_TRUE_OR_FALSE + R_NON_RESTRICTED)+"}\n"+
+			"true[KEYWORD]{true, null, null, true, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_TRUE_OR_FALSE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordFalse3() throws JavaModelException {
@@ -7543,7 +7604,7 @@ public void testCompletionKeywordFalse4() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:false    completion:false    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+			"element:false    completion:false    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordNull3() throws JavaModelException {
@@ -8252,7 +8313,7 @@ public void testCompletionBasicMethodDeclaration1() throws JavaModelException {
 
 	assertResults(
 			"equals[POTENTIAL_METHOD_DECLARATION]{equals, LCompletionBasicMethodDeclaration1;, ()V, equals, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicAnonymousDeclaration1() throws JavaModelException {
