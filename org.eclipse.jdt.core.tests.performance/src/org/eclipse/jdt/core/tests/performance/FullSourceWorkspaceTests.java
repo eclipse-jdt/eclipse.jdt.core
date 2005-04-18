@@ -278,9 +278,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 						scenarioComments[i].append("["+TEST_POSITION+"]");
 					} else {
 						scenarioComments[i].append(this.scenarioComment);
-						scenarioComments[i].append(',');
 					}
 					if (comments[i] != null) {
+						if (this.scenarioComment != null) scenarioComments[i].append(',');
 						scenarioComments[i].append(comments[i]);
 					}
 				}
