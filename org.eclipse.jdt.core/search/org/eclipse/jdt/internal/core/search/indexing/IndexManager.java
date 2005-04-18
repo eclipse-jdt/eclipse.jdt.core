@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.index.Index;
-import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.PatternSearchJob;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
@@ -97,7 +97,7 @@ public void addSource(IFile resource, IPath containerPath) {
  */
 public void cleanUpIndexes() {
 	SimpleLookupTable knownPaths = new SimpleLookupTable();
-	IJavaSearchScope scope = new JavaWorkspaceScope();
+	IJavaSearchScope scope = BasicSearchEngine.createWorkspaceScope();
 	PatternSearchJob job = new PatternSearchJob(null, SearchEngine.getDefaultSearchParticipant(), scope, null);
 	Index[] selectedIndexes = job.getIndexes(null);
 	for (int j = 0, max = selectedIndexes.length; j < max; j++) {

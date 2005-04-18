@@ -27,9 +27,19 @@ import org.eclipse.jdt.core.IJavaProject;
  * are included.
  */
 public class JavaWorkspaceScope extends JavaSearchScope {
-	protected boolean needsInitialize;
+
+protected boolean needsInitialize;
+
+private static JavaWorkspaceScope TheWorkspaceScope = null;
 	
-public JavaWorkspaceScope() {
+public static JavaWorkspaceScope createScope() {
+	if (TheWorkspaceScope == null)
+		TheWorkspaceScope = new JavaWorkspaceScope();
+
+	return TheWorkspaceScope;
+}
+
+private JavaWorkspaceScope() {
 	JavaModelManager.getJavaModelManager().rememberScope(this);
 }
 public boolean encloses(IJavaElement element) {
