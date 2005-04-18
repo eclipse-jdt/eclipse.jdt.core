@@ -1382,7 +1382,7 @@ public class JavaProject
 	 * Returns the project custom preference pool.
 	 * Project preferences may include custom encoding.
 	 * @return IEclipsePreferences
-	 */	
+	 */
 	public IEclipsePreferences getEclipsePreferences(){
 		if (!JavaProject.hasJavaNature(this.project)) return null;
 		// Get cached preferences if exist
@@ -1393,8 +1393,9 @@ public class JavaProject
 		final IEclipsePreferences eclipsePreferences = context.getNode(JavaCore.PLUGIN_ID);
 		updatePreferences(eclipsePreferences);
 		perProjectInfo.preferences = eclipsePreferences;
+
 		// Listen to node removal from parent in order to reset cache (see bug 68993)
-		IEclipsePreferences.INodeChangeListener listener = new IEclipsePreferences.INodeChangeListener() {
+		IEclipsePreferences.INodeChangeListener nodeListener = new IEclipsePreferences.INodeChangeListener() {
 			public void added(IEclipsePreferences.NodeChangeEvent event) {
 				// do nothing
 			}
@@ -1404,7 +1405,21 @@ public class JavaProject
 				}
 			}
 		};
-		((IEclipsePreferences) eclipsePreferences.parent()).addNodeChangeListener(listener);
+		((IEclipsePreferences) eclipsePreferences.parent()).addNodeChangeListener(nodeListener);
+
+		// Listen to preference changes
+		IEclipsePreferences.IPreferenceChangeListener preferenceListener = new IEclipsePreferences.IPreferenceChangeListener() {
+			public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
+				JavaModelManager.getJavaModelManager().resetProjectOptions(JavaProject.this);
+			}
+		};
+		eclipsePreferences.addPreferenceChangeListener(preferenceListener);
+		Preferences.IPropertyChangeListener propertyListener = new Preferences.IPropertyChangeListener() {
+			public void propertyChange(Preferences.PropertyChangeEvent event) {
+				JavaModelManager.getJavaModelManager().resetProjectOptions(JavaProject.this);
+			}
+		};
+		JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(propertyListener);
 		return eclipsePreferences;
 	}
 
@@ -1544,10 +1559,10 @@ public class JavaProject
 		
 		String propertyName = optionName;
 		if (JavaModelManager.getJavaModelManager().optionNames.contains(propertyName)){
-			IEclipsePreferences preferences = getEclipsePreferences();
+			IEclipsePreferences projectPreferences = getEclipsePreferences();
 			String javaCoreDefault = inheritJavaCoreOptions ? JavaCore.getOption(propertyName) : null;
-			if (preferences == null) return javaCoreDefault;
-			String value = preferences.get(propertyName, javaCoreDefault);
+			if (projectPreferences == null) return javaCoreDefault;
+			String value = projectPreferences.get(propertyName, javaCoreDefault);
 			return value == null ? null : value.trim();
 		}
 		return null;
@@ -1558,21 +1573,34 @@ public class JavaProject
 	 */
 	public Map getOptions(boolean inheritJavaCoreOptions) {
 		
+		// Get cached preferences if exist
+		JavaModelManager.PerProjectInfo perProjectInfo = null;
+		if (inheritJavaCoreOptions) {
+			try {
+				perProjectInfo = getPerProjectInfo();
+				if (perProjectInfo.options != null) {
+					return new Hashtable(perProjectInfo.options);
+				}
+			} catch (JavaModelException jme) {
+				// skip
+			}
+		}
+
 		// initialize to the defaults from JavaCore options pool
 		Map options = inheritJavaCoreOptions ? JavaCore.getOptions() : new Hashtable(5);
 
-		IEclipsePreferences preferences = getEclipsePreferences();
-		if (preferences == null) return options; // cannot do better (non-Java project)
+		IEclipsePreferences projectPreferences= getEclipsePreferences();
+		if (projectPreferences == null) return options; // cannot do better (non-Java project)
 		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
 		
 		// project cannot hold custom preferences set to their default, as it uses CUSTOM_DEFAULT_OPTION_VALUE
 
 		// get custom preferences not set to their default
 		try {
-			String[] propertyNames = preferences.keys();
+			String[] propertyNames = projectPreferences.keys();
 			for (int i = 0; i < propertyNames.length; i++){
 				String propertyName = propertyNames[i];
-				String value = preferences.get(propertyName, null);
+				String value = projectPreferences.get(propertyName, null);
 				if (value != null && optionNames.contains(propertyName)){
 					options.put(propertyName, value.trim());
 				}
@@ -1581,6 +1609,10 @@ public class JavaProject
 			// nothing to do
 		}
 
+		// Cache computed map
+		if (perProjectInfo != null) {
+			perProjectInfo.options = options;
+		}
 		return options;
 	}
 

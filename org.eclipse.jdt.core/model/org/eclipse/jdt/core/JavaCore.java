@@ -3988,6 +3988,9 @@ public final class JavaCore extends Plugin {
 
 			// persist options
 			instancePreferences.flush();
+			
+			// reset stored projects options
+			JavaModelManager.getJavaModelManager().resetAllProjectOptions();
 		} catch (BackingStoreException e) {
 			// ignore
 		}
