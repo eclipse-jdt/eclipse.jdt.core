@@ -270,6 +270,9 @@ public class JavaModelManager implements ISaveParticipant {
 		// container values are persisted in preferences during save operations, see #saving(ISaveContext)
 	}
 	
+	/*
+	 * Optimize startup case where a container for 1 project is initialized at a time with the same entries as on shutdown.
+	 */
 	public boolean containerPutIfInitializingWithSameEntries(IPath containerPath, IJavaProject[] projects, IClasspathContainer[] respectiveContainers) {
 		int projectLength = projects.length;
 		if (projectLength != 1) 
@@ -281,10 +284,15 @@ public class JavaModelManager implements ISaveParticipant {
 		if (!containerInitializationInProgress(project).contains(containerPath))
 			return false;
 		IClasspathContainer previousSessionContainer = getPreviousSessionContainer(containerPath, project);
-		if (previousSessionContainer == null) 
-			return false;
-		final IClasspathEntry[] oldEntries = previousSessionContainer.getClasspathEntries();
 		final IClasspathEntry[] newEntries = container.getClasspathEntries();
+		if (previousSessionContainer == null) 
+			if (newEntries.length == 0) {
+				containerPut(project, containerPath, container);
+				return true;
+			} else {
+				return false;
+			}
+		final IClasspathEntry[] oldEntries = previousSessionContainer.getClasspathEntries();
 		if (oldEntries.length != newEntries.length) 
 			return false;
 		for (int i = 0, length = newEntries.length; i < length; i++) {
@@ -2118,6 +2126,9 @@ public class JavaModelManager implements ISaveParticipant {
 				"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(variableNames) + '\n' +//$NON-NLS-1$
 				"	values: " + org.eclipse.jdt.internal.compiler.util.Util.toString(variablePaths)); //$NON-NLS-1$
 		}
+		
+		if (variablePutIfInitializingWithSameValue(variableNames, variablePaths))
+			return;
 
 		int varLength = variableNames.length;
 		
@@ -2310,5 +2321,22 @@ public class JavaModelManager implements ISaveParticipant {
 		} catch (BackingStoreException e) {
 			// ignore exception
 		}
+	}
+	
+	/*
+	 * Optimize startup case where 1 variable is initialized at a time with the same value as on shutdown.
+	 */
+	public boolean variablePutIfInitializingWithSameValue(String[] variableNames, IPath[] variablePaths) {
+		if (variableNames.length != 1)
+			return false;
+		String variableName = variableNames[0];
+		IPath oldPath = getPreviousSessionVariable(variableName);
+		if (oldPath == null)
+			return false;
+		IPath newPath = variablePaths[0];
+		if (!oldPath.equals(newPath))
+			return false;
+		variablePut(variableName, newPath);
+		return true;
 	}
 }
