@@ -389,7 +389,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * 
 	 * @throws IOException
 	 */
-	public void testBatchCompilerAllWarning() throws IOException {
+	public void testBatchCompilerAllWarnings() throws IOException {
 		tagAsSummary("Compile>Batch>Compiler>All warnings", false); // do NOT put in fingerprint
 
 		String allOptions = "-warn:" +

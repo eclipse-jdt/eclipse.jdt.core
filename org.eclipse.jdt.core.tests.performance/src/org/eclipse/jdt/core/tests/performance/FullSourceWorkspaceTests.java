@@ -232,7 +232,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 							comments[0] = "stddev=" + pFormat.format(percent);
 						}
 						if (logStreams[0] != null) {
-							logStreams[0].print(""+cpuStats.average+"\t");
+							logStreams[0].print(""+cpuStats.sum+"\t");
 						}
 					} else {
 						Thread.sleep(1000);
@@ -249,7 +249,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 							comments[1] = "stddev=" + pFormat.format(percent);
 						}
 						if (logStreams[1] != null) {
-							logStreams[1].print(""+elapsedStats.average+"\t");
+							logStreams[1].print(""+elapsedStats.sum+"\t");
 						}
 					} else {
 						Thread.sleep(1000);
@@ -310,6 +310,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		String scenario = Performance.getDefault().getDefaultScenarioId(this);
 		this.scenarioReadableName = scenario.substring(scenario.lastIndexOf('.')+1, scenario.length()-2);
 		this.scenarioShortName = this.scenarioReadableName.substring(this.scenarioReadableName.lastIndexOf('#')+5/*1+"test".length()*/, this.scenarioReadableName.length());
+		this.scenarioComment = null;
 
 		// Set testing environment if null
 		if (ENV == null) {
@@ -445,15 +446,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		StringWriter errStrWriter = new StringWriter();
 		PrintWriter err = new PrintWriter(errStrWriter);
 		String cmdLine = sources + " -1.4 -g -preserveAllLocals "+(options==null?"":options)+" -d " + bins + " -log " + logs; //$NON-NLS-1$ //$NON-NLS-2$
-		String errStr = null;
+		int errorsCount = 0;
 		for (int i=0; i<2; i++) {
 			Main main = new Main(out, err, false);
 			main.compile(Main.tokenize(cmdLine));
-			if (errStr == null) errStr = errStrWriter.toString();
-		}
-		if (DEBUG && errStr != null && errStr.length() > 0) {
-			System.out.println(this.scenarioShortName+": Unexpected compile ERROR:\n" + errStr);
-			System.out.println("--------------------");
+			if (main.globalErrorsCount > 0 && main.globalErrorsCount != errorsCount) {
+				System.out.println(this.scenarioShortName+": "+errorsCount+" Unexpected compile ERROR!");
+				if (DEBUG) {
+					System.out.println(errStrWriter.toString());
+					System.out.println("--------------------");
+				}
+				errorsCount = main.globalErrorsCount;
+			}
 		}
 
 		// Clear memory
@@ -467,6 +471,14 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			Main main = new Main(out, err, false);
 			main.compile(Main.tokenize(cmdLine));
 			stopMeasuring();
+			if (main.globalErrorsCount > 0 && main.globalErrorsCount != errorsCount) {
+				System.out.println(this.scenarioShortName+": "+errorsCount+" Unexpected compile ERROR!");
+				if (DEBUG) {
+					System.out.println(errStrWriter.toString());
+					System.out.println("--------------------");
+				}
+				errorsCount = main.globalErrorsCount;
+			}
 			cleanupDirectory(new File(bins));
 			warnings = main.globalWarningsCount;
 		}
@@ -477,7 +489,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 		// Store warning
 		if (warnings>0) {
-			System.out.println("\t"+warnings+" warnings found while performing batch compilation.");
+			System.out.println("\t- "+warnings+" warnings found while performing batch compilation.");
 		}
 		if (this.scenarioComment == null) {
 			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
