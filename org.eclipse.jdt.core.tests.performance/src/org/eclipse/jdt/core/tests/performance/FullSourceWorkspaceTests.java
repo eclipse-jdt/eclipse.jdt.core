@@ -268,7 +268,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				SCENARII_COMMENT.put(getClass(), scenarioComments);
 			}
 			for (int i=0, ln=LOG_TYPES.length; i<ln; i++) {
-				if (comments[i] != null) {
+				if (this.scenarioComment != null || comments[i] != null) {
 					if (scenarioComments[i] == null) {
 						scenarioComments[i] = new StringBuffer();
 					} else {
@@ -278,10 +278,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 						scenarioComments[i].append("["+TEST_POSITION+"]");
 					} else {
 						scenarioComments[i].append(this.scenarioComment);
+						scenarioComments[i].append(',');
 					}
-					scenarioComments[i].append(' ');
-					scenarioComments[i].append(comments[i]);
-				}	
+					if (comments[i] != null) {
+						scenarioComments[i].append(comments[i]);
+					}
+				}
 			}
 
 			// Close log
@@ -289,7 +291,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				for (int i=0, ln=logStreams.length; i<ln; i++) {
 					if (logStreams[i] != null) {
 						if (haveTimes) {
-							if (comments[i] != null) {
+							if (scenarioComments[i] != null) {
 								logStreams[i].print(scenarioComments[i].toString());
 							}	
 							logStreams[i].println();
@@ -440,18 +442,27 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 		// Warm up
 		PrintWriter out = new PrintWriter(new StringWriter());
-		PrintWriter err = new PrintWriter(new StringWriter());
+		StringWriter errStrWriter = new StringWriter();
+		PrintWriter err = new PrintWriter(errStrWriter);
 		String cmdLine = sources + " -1.4 -g -preserveAllLocals "+(options==null?"":options)+" -d " + bins + " -log " + logs; //$NON-NLS-1$ //$NON-NLS-2$
+		String errStr = null;
 		for (int i=0; i<2; i++) {
 			Main main = new Main(out, err, false);
 			main.compile(Main.tokenize(cmdLine));
+			if (errStr == null) errStr = errStrWriter.toString();
 		}
+		if (errStr != null && errStr.length() > 0) {
+				System.out.println(this.scenarioShortName+": Unexpected compile ERROR:\n" + errStr);
+				System.out.println("--------------------");
+		}
+
+		// Clear memory
+		runGc();
 
 		// Measures
 		int max = MEASURES_COUNT * 2;
 		int warnings = 0;
 		for (int i = 0; i < max; i++) {
-			runGc();
 			startMeasuring();
 			Main main = new Main(out, err, false);
 			main.compile(Main.tokenize(cmdLine));
@@ -673,31 +684,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		// Assert result
 		int size = messages.size();
 		if (size > 0) {
-			/*
-			if (LOG_DIR == null) {
-				StringBuffer buffer = new StringBuffer();
-				int max = size > 10 ? 10 : size;
-				for (int i=0; i<max; i++) {
-					buffer.append(resources.get(i));
-					buffer.append(":\n\t");
-					buffer.append(messages.get(i));
-					buffer.append('\n');
-				}
-				if (size > max)
-					buffer.append("...\n");
-				assertTrue("Unexpected marker(s):\n" + buffer.toString(), size==0);
+			StringBuffer debugBuffer = new StringBuffer();
+			for (int i=0; i<size; i++) {
+				debugBuffer.append(resources.get(i));
+				debugBuffer.append(":\n\t");
+				debugBuffer.append(messages.get(i));
+				debugBuffer.append('\n');
 			}
-			*/
-//			if (LOG_DIR != null || DEBUG) {
-				StringBuffer debugBuffer = new StringBuffer();
-				for (int i=0; i<size; i++) {
-					debugBuffer.append(resources.get(i));
-					debugBuffer.append(":\n\t");
-					debugBuffer.append(messages.get(i));
-					debugBuffer.append('\n');
-				}
-				System.out.println("ERROR: Unexpected marker(s):\n" + debugBuffer.toString());
-//			}
+			System.out.println(this.scenarioShortName+": Unexpected ERROR marker(s):\n" + debugBuffer.toString());
+			System.out.println("--------------------");
 		}
 		if (DEBUG) System.out.println("done");
 		
@@ -759,65 +754,83 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	/*
 	 * Create hashtable of none or all warning options.
+	 * Possible kind:
+	 * 	-1: no options
+	 *  0: default options
+	 *  1: all options
 	 */
-	protected Hashtable warningOptions(boolean all) {
+	protected Hashtable warningOptions(int kind) {
 
 		// Values
-		Hashtable optionsMap = new Hashtable(30);
-		String generate = all ? CompilerOptions.GENERATE : CompilerOptions.DO_NOT_GENERATE;
-		String warning = all ? CompilerOptions.WARNING : CompilerOptions.IGNORE;
-		String enabled = all ? CompilerOptions.ENABLED : CompilerOptions.DISABLED;
-		String preserve = all ? CompilerOptions.OPTIMIZE_OUT : CompilerOptions.PRESERVE;
+		Hashtable optionsMap = null;
+		switch (kind) {
+			case 0:
+				optionsMap = JavaCore.getDefaultOptions();
+				break;
+			default:
+				optionsMap = new Hashtable(350);
+				break;
+		}
+		if (kind == 0) {
+			// Default set since 3.1
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE); 
+		} else {
+			boolean all = kind == 1;
+			String generate = all ? CompilerOptions.GENERATE : CompilerOptions.DO_NOT_GENERATE;
+			String warning = all ? CompilerOptions.WARNING : CompilerOptions.IGNORE;
+			String enabled = all ? CompilerOptions.ENABLED : CompilerOptions.DISABLED;
+			String preserve = all ? CompilerOptions.OPTIMIZE_OUT : CompilerOptions.PRESERVE;
+			
+			// Set options values
+			optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, generate); 
+			optionsMap.put(CompilerOptions.OPTION_LineNumberAttribute, generate);
+			optionsMap.put(CompilerOptions.OPTION_SourceFileAttribute, generate);
+			optionsMap.put(CompilerOptions.OPTION_PreserveUnusedLocal, preserve);
+			optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportDeprecation, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedLocal, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameter, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportNoEffectAssignment, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportLocalVariableHiding, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryElse, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadoc, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTags, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocComments, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, warning); 
+			optionsMap.put(CompilerOptions.OPTION_TaskTags, all ? JavaCore.DEFAULT_TASK_TAGS : "");
+			optionsMap.put(CompilerOptions.OPTION_TaskPriorities, all ? JavaCore.DEFAULT_TASK_PRIORITIES : "");
+			optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
+		}
 		
-		// Set options values
-		optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, generate); 
-		optionsMap.put(CompilerOptions.OPTION_LineNumberAttribute, generate);
-		optionsMap.put(CompilerOptions.OPTION_SourceFileAttribute, generate);
-		optionsMap.put(CompilerOptions.OPTION_PreserveUnusedLocal, preserve);
-		optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportDeprecation, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedLocal, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameter, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportNoEffectAssignment, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportLocalVariableHiding, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryElse, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadoc, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTags, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocComments, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, warning); 
-		optionsMap.put(CompilerOptions.OPTION_TaskTags, all ? JavaCore.DEFAULT_TASK_TAGS : "");
-		optionsMap.put(CompilerOptions.OPTION_TaskPriorities, all ? JavaCore.DEFAULT_TASK_PRIORITIES : "");
-		optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
-		
-		// Since 3.1 options
-//		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, warning); 
+		// Ignore 3.1 options
+//		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE); 
+//		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE); 
 
 		// Return created options map
 		return optionsMap;
