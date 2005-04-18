@@ -451,9 +451,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			main.compile(Main.tokenize(cmdLine));
 			if (errStr == null) errStr = errStrWriter.toString();
 		}
-		if (errStr != null && errStr.length() > 0) {
-				System.out.println(this.scenarioShortName+": Unexpected compile ERROR:\n" + errStr);
-				System.out.println("--------------------");
+		if (DEBUG && errStr != null && errStr.length() > 0) {
+			System.out.println(this.scenarioShortName+": Unexpected compile ERROR:\n" + errStr);
+			System.out.println("--------------------");
 		}
 
 		// Clear memory
