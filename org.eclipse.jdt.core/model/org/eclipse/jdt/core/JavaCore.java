@@ -991,6 +991,11 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String PRIVATE = "private"; //$NON-NLS-1$
 
+	/*
+	 * Cache for options.
+	 */
+	static Hashtable optionsCache;
+
 	/**
 	 * Creates the Java core plug-in.
 	 * <p>
@@ -2389,6 +2394,9 @@ public final class JavaCore extends Plugin {
 	 */
 	public static Hashtable getOptions() {
 
+		// return cached options if already computed
+		if (optionsCache != null) return new Hashtable(optionsCache);
+
 		// init
 		Hashtable options = new Hashtable(10);
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
@@ -2411,6 +2419,9 @@ public final class JavaCore extends Plugin {
 		// backward compatibility
 		options.put(COMPILER_PB_INVALID_IMPORT, ERROR);
 		options.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
+
+		// store built map in cache
+		optionsCache = new Hashtable(options);
 
 		// return built map
 		return options;
@@ -3989,8 +4000,8 @@ public final class JavaCore extends Plugin {
 			// persist options
 			instancePreferences.flush();
 			
-			// reset stored projects options
-			JavaModelManager.getJavaModelManager().resetAllProjectOptions();
+			// update cache
+			optionsCache = newOptions==null ? null : new Hashtable(newOptions);
 		} catch (BackingStoreException e) {
 			// ignore
 		}
@@ -4047,6 +4058,14 @@ public final class JavaCore extends Plugin {
 
 			// Initialize eclipse preferences
 			manager.initializePreferences();
+
+			// Listen to preference changes
+			Preferences.IPropertyChangeListener propertyListener = new Preferences.IPropertyChangeListener() {
+				public void propertyChange(Preferences.PropertyChangeEvent event) {
+					JavaCore.optionsCache = null;
+				}
+			};
+			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(propertyListener);
 
 			// retrieve variable values
 			manager.loadVariablesAndContainers();

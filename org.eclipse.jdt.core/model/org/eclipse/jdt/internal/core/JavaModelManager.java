@@ -660,7 +660,7 @@ public class JavaModelManager implements ISaveParticipant {
 		public IPath outputLocation;
 		
 		public IEclipsePreferences preferences;
-		public Map options;
+		public Hashtable options;
 		
 		public PerProjectInfo(IProject project) {
 
@@ -1854,19 +1854,6 @@ public class JavaModelManager implements ISaveParticipant {
 			PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(project);
 			if (info != null) {
 				this.perProjectInfos.remove(project);
-			}
-		}
-	}
-
-	/*
-	 * Reset all projects options stored in info cache.
-	 */
-	public void resetAllProjectOptions() {
-		synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
-			Iterator projects = this.perProjectInfos.keySet().iterator();
-			while (projects.hasNext()) {
-				PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(projects.next());
-				info.options = null;
 			}
 		}
 	}

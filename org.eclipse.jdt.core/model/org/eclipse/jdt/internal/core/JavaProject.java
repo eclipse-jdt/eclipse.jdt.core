@@ -1415,12 +1415,6 @@ public class JavaProject
 			}
 		};
 		eclipsePreferences.addPreferenceChangeListener(preferenceListener);
-		Preferences.IPropertyChangeListener propertyListener = new Preferences.IPropertyChangeListener() {
-			public void propertyChange(Preferences.PropertyChangeEvent event) {
-				JavaModelManager.getJavaModelManager().resetProjectOptions(JavaProject.this);
-			}
-		};
-		JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(propertyListener);
 		return eclipsePreferences;
 	}
 
@@ -1573,48 +1567,53 @@ public class JavaProject
 	 * @see org.eclipse.jdt.core.IJavaProject#getOptions(boolean)
 	 */
 	public Map getOptions(boolean inheritJavaCoreOptions) {
-		
-		// Get cached preferences if exist
-		JavaModelManager.PerProjectInfo perProjectInfo = null;
-		if (inheritJavaCoreOptions) {
-			try {
-				perProjectInfo = getPerProjectInfo();
-				if (perProjectInfo.options != null) {
-					return new Hashtable(perProjectInfo.options);
-				}
-			} catch (JavaModelException jme) {
-				// skip
-			}
-		}
 
 		// initialize to the defaults from JavaCore options pool
 		Map options = inheritJavaCoreOptions ? JavaCore.getOptions() : new Hashtable(5);
 
-		IEclipsePreferences projectPreferences= getEclipsePreferences();
-		if (projectPreferences == null) return options; // cannot do better (non-Java project)
+		// Get project specific options
+		JavaModelManager.PerProjectInfo perProjectInfo = null;
+		Hashtable projectOptions = null;
 		HashSet optionNames = JavaModelManager.getJavaModelManager().optionNames;
-		
-		// project cannot hold custom preferences set to their default, as it uses CUSTOM_DEFAULT_OPTION_VALUE
-
-		// get custom preferences not set to their default
 		try {
-			String[] propertyNames = projectPreferences.keys();
-			for (int i = 0; i < propertyNames.length; i++){
-				String propertyName = propertyNames[i];
-				String value = projectPreferences.get(propertyName, null);
-				if (value != null && optionNames.contains(propertyName)){
-					options.put(propertyName, value.trim());
-				}
-			}		
+			perProjectInfo = getPerProjectInfo();
+			projectOptions = perProjectInfo.options;
+			if (projectOptions == null) {
+				// get eclipse preferences
+				IEclipsePreferences projectPreferences= getEclipsePreferences();
+				if (projectPreferences == null) return options; // cannot do better (non-Java project)
+				// create project options
+				String[] propertyNames = projectPreferences.keys();
+				projectOptions = new Hashtable(propertyNames.length);
+				for (int i = 0; i < propertyNames.length; i++){
+					String propertyName = propertyNames[i];
+					String value = projectPreferences.get(propertyName, null);
+					if (value != null && optionNames.contains(propertyName)){
+						projectOptions.put(propertyName, value.trim());
+					}
+				}		
+				// cache project options
+				perProjectInfo.options = projectOptions;
+			}
+		} catch (JavaModelException jme) {
+			projectOptions = new Hashtable();
 		} catch (BackingStoreException e) {
-			// nothing to do
+			projectOptions = new Hashtable();
 		}
 
-		// Cache computed map
-		if (perProjectInfo != null) {
-			perProjectInfo.options = options;
+		// Inherit from JavaCore options if specified
+		if (inheritJavaCoreOptions) {
+			Iterator propertyNames = projectOptions.keySet().iterator();
+			while (propertyNames.hasNext()) {
+				String propertyName = (String) propertyNames.next();
+				String propertyValue = (String) perProjectInfo.options.get(propertyName);
+				if (propertyValue != null && optionNames.contains(propertyName)){
+					options.put(propertyName, propertyValue.trim());
+				}
+			}
+			return options;
 		}
-		return options;
+		return projectOptions;
 	}
 
 	/**
@@ -2692,6 +2691,13 @@ public class JavaProject
 
 			// persist options
 			projectPreferences.flush();
+			
+			// flush cache immediately
+			try {
+				getPerProjectInfo().options = null;
+			} catch (JavaModelException e) {
+				// do nothing
+			}
 		} catch (BackingStoreException e) {
 			// problem with pref store - quietly ignore
 		}
