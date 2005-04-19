@@ -37,23 +37,33 @@ import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 /* package */
 class JavaProjectElementInfo extends OpenableElementInfo {
 
+	static class ProjectCache {
+		ProjectCache(IPackageFragmentRoot[] allPkgFragmentRootsCache, HashtableOfArrayToObject allPkgFragmentsCache, Map pathToResolvedEntries) {
+			this.allPkgFragmentRootsCache = allPkgFragmentRootsCache;
+			this.allPkgFragmentsCache = allPkgFragmentsCache;
+			this.pathToResolvedEntries = pathToResolvedEntries;
+		}
+		
+		/*
+		 * A cache of all package fragment roots of this project.
+		 */
+		public IPackageFragmentRoot[] allPkgFragmentRootsCache;
+		
+		/*
+		 * A cache of all package fragments in this project.
+		 * (a map from String[] (the package name) to IPackageFragmentRoot[] (the package fragment roots that contain a package fragment with this name)
+		 */
+		public HashtableOfArrayToObject allPkgFragmentsCache;
+	
+		public Map pathToResolvedEntries;		
+	}
+	
 	/**
 	 * A array with all the non-java resources contained by this PackageFragment
 	 */
 	private Object[] nonJavaResources;
 	
-	/*
-	 * A cache of all package fragment roots of this project.
-	 */
-	public IPackageFragmentRoot[] allPkgFragmentRootsCache;
-	
-	/*
-	 * A cache of all package fragments in this project.
-	 * (a map from String[] (the package name) to IPackageFragmentRoot[] (the package fragment roots that contain a package fragment with this name)
-	 */
-	private HashtableOfArrayToObject allPkgFragmentsCache;
-
-	public Map pathToResolvedEntries;
+	ProjectCache projectCache;
 	
 	/**
 	 * Create and initialize a new instance of the receiver
@@ -164,24 +174,20 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		}
 		return resources;
 	}
-
-	IPackageFragmentRoot[] getAllPackageFragmentRoots(JavaProject project) {
-		if (this.allPkgFragmentRootsCache == null) {
-			try {
-				Map reverseMap = new HashMap(3);
-				this.allPkgFragmentRootsCache = project.getAllPackageFragmentRoots(reverseMap);
-				this.pathToResolvedEntries = reverseMap;
-			} catch (JavaModelException e) {
-				// project does not exist: cannot happend since this is the info of the project
-			}
-		}
-		return this.allPkgFragmentRootsCache;
-	}
 	
-	HashtableOfArrayToObject getAllPackageFragments(JavaProject project) {
-		if (this.allPkgFragmentsCache == null) {
-			HashtableOfArrayToObject cache = new HashtableOfArrayToObject();
-			IPackageFragmentRoot[] roots = getAllPackageFragmentRoots(project);
+	ProjectCache getProjectCache(JavaProject project) {
+		ProjectCache cache = this.projectCache;
+		if (cache == null) {
+			IPackageFragmentRoot[] roots;
+			Map reverseMap = new HashMap(3);
+			try {
+				roots = project.getAllPackageFragmentRoots(reverseMap);
+			} catch (JavaModelException e) {
+				// project does not exist: cannot happen since this is the info of the project
+				roots = new IPackageFragmentRoot[0];
+				reverseMap.clear();
+			}
+			HashtableOfArrayToObject fragmentsCache = new HashtableOfArrayToObject();
 			for (int i = 0, length = roots.length; i < length; i++) {
 				IPackageFragmentRoot root = roots[i];
 				IJavaElement[] frags = null;
@@ -194,25 +200,26 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 				for (int j = 0, length2 = frags.length; j < length2; j++) {
 					PackageFragment fragment= (PackageFragment) frags[j];
 					String[] pkgName = fragment.names;
-					Object existing = cache.get(pkgName);
+					Object existing = fragmentsCache.get(pkgName);
 					if (existing == null) {
-						cache.put(pkgName, root);
+						fragmentsCache.put(pkgName, root);
 					} else {
 						if (existing instanceof PackageFragmentRoot) {
-							cache.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
+							fragmentsCache.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
 						} else {
 							IPackageFragmentRoot[] entry= (IPackageFragmentRoot[]) existing;
 							IPackageFragmentRoot[] copy= new IPackageFragmentRoot[entry.length + 1];
 							System.arraycopy(entry, 0, copy, 0, entry.length);
 							copy[entry.length]= root;
-							cache.put(pkgName, copy);
+							fragmentsCache.put(pkgName, copy);
 						}
 					}
 				}
 			}
-			this.allPkgFragmentsCache = cache;
+			cache = new ProjectCache(roots, fragmentsCache, reverseMap);
+			this.projectCache = cache;
 		}
-		return this.allPkgFragmentsCache;
+		return cache;
 	}
 	
 	/**
@@ -249,21 +256,16 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 * The given project is assumed to be the handle of this info.
 	 * This name lookup first looks in the given working copies.
 	 */
-	synchronized NameLookup newNameLookup(JavaProject project, ICompilationUnit[] workingCopies) {
-		// note that this method has to be synchronized so that the field pathToResolvedEntries is not reset while computing the roots and package fragments
-		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=79766)
-		return new NameLookup(getAllPackageFragmentRoots(project), getAllPackageFragments(project), workingCopies, this.pathToResolvedEntries);
+	NameLookup newNameLookup(JavaProject project, ICompilationUnit[] workingCopies) {
+		ProjectCache cache = getProjectCache(project);
+		return new NameLookup(cache.allPkgFragmentRootsCache, cache.allPkgFragmentsCache, workingCopies, cache.pathToResolvedEntries);
 	}
 	
 	/*
 	 * Reset the package fragment roots and package fragment caches
 	 */
-	synchronized void resetCaches() {
-		// note that this method has to be synchronized so that the field pathToResolvedEntries is not reset while computing the roots and package fragments
-		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=79766)
-		this.allPkgFragmentRootsCache = null;
-		this.allPkgFragmentsCache = null;
-		this.pathToResolvedEntries = null;
+	void resetCaches() {
+		this.projectCache = null;
 	}
 	
 	/**

@@ -384,10 +384,11 @@ public class JavaProject
 	 */
 	public void computeChildren(JavaProjectElementInfo info) throws JavaModelException {
 		IClasspathEntry[] classpath = getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
-		IPackageFragmentRoot[] oldRoots = info.allPkgFragmentRootsCache;
-		if (oldRoots != null) {
+		JavaProjectElementInfo.ProjectCache projectCache = info.projectCache;
+		if (projectCache != null) {
 			IPackageFragmentRoot[] newRoots = computePackageFragmentRoots(classpath, true, null /*no reverse map*/);
 			checkIdentical: { // compare all pkg fragment root lists
+				IPackageFragmentRoot[] oldRoots = projectCache.allPkgFragmentRootsCache;
 				if (oldRoots.length == newRoots.length){
 					for (int i = 0, length = oldRoots.length; i < length; i++){
 						if (!oldRoots[i].equals(newRoots[i])){
