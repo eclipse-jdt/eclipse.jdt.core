@@ -40,7 +40,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	}
 
 	static {
-		TESTS_PREFIX = "testPerfDom";
+//		TESTS_PREFIX = "testPerfDom";
 	}
 
 	public static Test suite() {
