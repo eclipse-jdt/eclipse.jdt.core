@@ -111,6 +111,28 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method coming from a class file is correct.
+	 * (regression test for bug 91445 IMethodBinding.getJavaElement() returns an "unopen" IMethod)
+	 */
+	public void testBinaryMethod() throws JavaModelException {
+		IClassFile classFile = getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "Enum.class");
+		String source = classFile.getSource();
+		MarkerInfo markerInfo = new MarkerInfo(source);
+		markerInfo.astStart = source.indexOf("protected Enum");
+		markerInfo.astEnd = source.indexOf('}', markerInfo.astStart) + 1;
+		ASTNode node = buildAST(markerInfo, classFile);
+		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Enum(java.lang.String, int) [in Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+	
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing a type coming from a class file is correct.
 	 */
 	public void testBinaryType() throws JavaModelException {

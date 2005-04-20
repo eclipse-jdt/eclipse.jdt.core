@@ -160,7 +160,7 @@ class MethodBinding implements IMethodBinding {
 		if (declaringType == null) return null;
 		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
 		ASTNode node = (ASTNode) ((DefaultBindingResolver) this.resolver).bindingsToAstNodes.get(this);
-		if (node != null) {
+		if (node != null && declaringType.getParent().getElementType() != IJavaElement.CLASS_FILE) {
 			if (node instanceof MethodDeclaration) {
 				MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 				ArrayList parameterSignatures = new ArrayList();
@@ -180,7 +180,7 @@ class MethodBinding implements IMethodBinding {
 				return declaringType.getMethod(typeMemberDeclaration.getName().getIdentifier(), new String[0]); // annotation type members don't have parameters
 			}
 		} else {
-			// case of method not in the created AST
+			// case of method not in the created AST, or a binary method
 			String selector = getName();
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding original = this.binding.original();
 			char[] methodSignature = original.genericSignature();
