@@ -94,11 +94,8 @@ public void checkComment() {
 		if (scanner.commentStops[lastCommentIndex] < 0) {
 			continue nextComment;
 		}
-		int commentSourceEnd = scanner.commentStops[lastCommentIndex] - 1; //stop is one over
 		deprecated =
-			this.javadocParser.checkDeprecation(
-				commentSourceStart,
-				commentSourceEnd);
+			this.javadocParser.checkDeprecation(lastCommentIndex);
 		break nextComment;
 	}
 	if (deprecated) {

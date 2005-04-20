@@ -34,14 +34,16 @@ public class SelectionJavadocParser extends JavadocParser {
 	/*
 	 * Do not parse comment if selection is not included.
 	 */
-	public boolean checkDeprecation(int javadocStart, int javadocEnd) {
+	public boolean checkDeprecation(int commentPtr) {
 		this.selectionStart = ((SelectionParser)sourceParser).selectionStart;
 		this.selectionEnd = ((SelectionParser)sourceParser).selectionEnd;
-		if (javadocStart <= this.selectionStart && this.selectionEnd <= javadocEnd) {
+		this.javadocStart = this.sourceParser.scanner.commentStarts[commentPtr];
+		this.javadocEnd = this.sourceParser.scanner.commentStops[commentPtr];
+		if (this.javadocStart <= this.selectionStart && this.selectionEnd <= this.javadocEnd) {
 			if (SelectionEngine.DEBUG) {
 				System.out.println("SELECTION in Javadoc:"); //$NON-NLS-1$
 			}
-			super.checkDeprecation(javadocStart, javadocEnd);
+			super.checkDeprecation(commentPtr);
 		} else {
 			this.docComment = null;
 		}
@@ -51,9 +53,9 @@ public class SelectionJavadocParser extends JavadocParser {
 	/*
 	 * Replace stored Javadoc node with specific selection one.
 	 */
-	protected boolean commentParse(int javadocStart, int javadocEnd) {
-		this.docComment = new SelectionJavadoc(javadocStart, javadocEnd);
-		return super.commentParse(javadocStart, javadocEnd);
+	protected boolean commentParse() {
+		this.docComment = new SelectionJavadoc(this.javadocStart, this.javadocEnd);
+		return super.commentParse();
 	}
 
 	/*

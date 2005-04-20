@@ -59,7 +59,10 @@ class DocCommentParser extends AbstractCommentParser {
 		
 		// Parse
 		if (this.checkDocComment) {
-			commentParse(start, start+length-1);
+			this.javadocStart = start;
+			this.javadocEnd = start+length-1;
+			this.firstTagPosition = this.javadocStart;
+			commentParse();
 		}
 		this.docComment.setSourceRange(start, length);
 		if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
@@ -350,12 +353,10 @@ class DocCommentParser extends AbstractCommentParser {
 		int token = readTokenAndConsume();
 		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
 		this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
-		char[] tag = this.scanner.getCurrentIdentifierSource(); // first token is either an identifier or a keyword
 
 		// Try to get tag name other than java identifier
 		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
 		int tk = token;
-		int le = this.lineEnd;
 		char pc = peekChar();
 		tagNameToken: while (tk != TerminalTokens.TokenNameEOF) {
 			this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
@@ -382,12 +383,11 @@ class DocCommentParser extends AbstractCommentParser {
 			pc = peekChar();
 		}
 		int length = this.tagSourceEnd-this.tagSourceStart+1;
-		tag = new char[length];
+		char[] tag = new char[length];
 		System.arraycopy(this.source, this.tagSourceStart, tag, 0, length);
 		this.index = this.tagSourceEnd+1;
 		this.scanner.currentPosition = this.tagSourceEnd+1;
 		this.tagSourceStart = previousPosition;
-		this.lineEnd = le;
 
 		// Decide which parse to perform depending on tag name
 		this.tagValue = NO_TAG_VALUE;

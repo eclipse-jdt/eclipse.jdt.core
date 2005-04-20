@@ -35,7 +35,7 @@ public class JavadocBugsTest extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug83127";
-//		TESTS_NAMES = new String[] { "testBug47339" };
+//		TESTS_NAMES = new String[] { "testBug68017javadocWarning2" };
 //		TESTS_NUMBERS = new int[] { 83285 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
@@ -2081,11 +2081,26 @@ public class JavadocBugsTest extends JavadocTest {
 					"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in Test.java (at line 11)\n" + 
-				"	int foo() { // should warn on missing tag for return type\n" + 
-				"	^^^\n" + 
-				"Javadoc: Missing tag for return type\n" + 
-				"----------\n"
+			"1. ERROR in Test.java (at line 3)\n" + 
+			"	* @@@@see Unknown Should not complain on ref\n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 8)\n" + 
+			"	* @@@param xxx Should not complain on param\n" + 
+			"	   ^^^^^^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 9)\n" + 
+			"	* @@return int\n" + 
+			"	   ^^^^^^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 11)\n" + 
+			"	int foo() { // should warn on missing tag for return type\n" + 
+			"	^^^\n" + 
+			"Javadoc: Missing tag for return type\n" + 
+			"----------\n"
 		);
 	}
 
@@ -2272,22 +2287,45 @@ public class JavadocBugsTest extends JavadocTest {
 		);
 	}
 	public void testBug68017javadocWarning2() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 *	@return #\n" + 
+				"	 */\n" + 
+				"	public int foo1() {return 0; }\n" + 
+				"	/**\n" + 
+				"	 *	@return @\n" + 
+				"	 */\n" + 
+				"	public int foo2() {return 0; }\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug68017javadocWarning3() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
 					"	/**\n" + 
 					"	 *	@return#\n" + 
+					"	 *	@return#text\n" + 
 					"	 */\n" + 
 					"	public int foo() {return 0; }\n" + 
 					"}\n",
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	*	@return#\n" + 
-				"	 	 ^^^^^^\n" + 
-				"Javadoc: Missing return type description\n" + 
-				"----------\n"
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	*	@return#\n" + 
+			"	 	 ^^^^^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	*	@return#text\n" + 
+			"	 	 ^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n"
 		);
 	}
 

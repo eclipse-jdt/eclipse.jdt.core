@@ -135,7 +135,7 @@ public void checkComment() {
 			int commentEnd = this.scanner.commentStops[lastComment] - 1; //stop is one over,
 			// do not report problem before last parsed comment while recovering code...
 			this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
-			if (this.javadocParser.checkDeprecation(this.scanner.commentStarts[lastComment], commentEnd)) {
+			if (this.javadocParser.checkDeprecation(lastComment)) {
 				checkAndSetModifiers(AccDeprecated);
 			}
 			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated

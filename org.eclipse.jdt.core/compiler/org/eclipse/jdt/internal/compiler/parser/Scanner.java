@@ -70,8 +70,10 @@ public class Scanner implements TerminalTokens {
 	public boolean scanningFloatLiteral = false;
 
 	//support for /** comments
-	public int[] commentStops = new int[10];
-	public int[] commentStarts = new int[10];
+	public static int COMMENT_ARRAYS_SIZE = 30;
+	public int[] commentStops = new int[COMMENT_ARRAYS_SIZE];
+	public int[] commentStarts = new int[COMMENT_ARRAYS_SIZE];
+	public int[] commentTagStarts = new int[COMMENT_ARRAYS_SIZE];
 	public int commentPtr = -1; // no comment test with commentPtr value -1
 	protected int lastCommentLinePosition = -1;
 	
@@ -1381,6 +1383,7 @@ public int getNextToken() throws InvalidInputException {
 							try { //get the next char
 								boolean isJavadoc = false, star = false;
 								boolean isUnicode = false;
+								int previous;
 								// consume next character
 								this.unicodeAsBackSlash = false;
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
@@ -1393,7 +1396,7 @@ public int getNextToken() throws InvalidInputException {
 										unicodeStore();
 									}
 								}
-	
+
 								if (this.currentCharacter == '*') {
 									isJavadoc = true;
 									star = true;
@@ -1411,6 +1414,7 @@ public int getNextToken() throws InvalidInputException {
 									}
 								}
 								isUnicode = false;
+								previous = this.currentPosition;
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 									&& (this.source[this.currentPosition] == 'u')) {
 									//-------------unicode traitement ------------
@@ -1429,6 +1433,7 @@ public int getNextToken() throws InvalidInputException {
 									isJavadoc = false;
 								}
 								//loop until end of comment */
+								int firstTag = 0;
 								while ((this.currentCharacter != '/') || (!star)) {
 									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 										checkNonExternalizedString();
@@ -1442,8 +1447,20 @@ public int getNextToken() throws InvalidInputException {
 											this.currentLine = null;
 										}
 									}
-									star = this.currentCharacter == '*';
+									switch (this.currentCharacter) {
+										case '*':
+											star = true;
+											break;
+										case '@':
+											if (firstTag == 0) {
+												firstTag = previous;
+											}
+											// fall through default case to set star to false
+										default:
+											star = false;
+									}
 									//get next char
+									previous = this.currentPosition;
 									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 										&& (this.source[this.currentPosition] == 'u')) {
 										//-------------unicode traitement ------------
@@ -1460,6 +1477,7 @@ public int getNextToken() throws InvalidInputException {
 								}
 								int token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
 								recordComment(token);
+								this.commentTagStarts[this.commentPtr] = firstTag;
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if (this.tokenizeComments) {
 									/*
@@ -1804,6 +1822,7 @@ public final void jumpOverMethodBody() {
 							boolean isJavadoc = false;
 							try { //get the next char
 								boolean star = false;
+								int previous;
 								boolean isUnicode = false;
 								// consume next character
 								this.unicodeAsBackSlash = false;
@@ -1834,6 +1853,7 @@ public final void jumpOverMethodBody() {
 									}
 								}
 								isUnicode = false;
+								previous = this.currentPosition;
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 										&& (this.source[this.currentPosition] == 'u')) {
 									getNextUnicodeChar();
@@ -1851,6 +1871,7 @@ public final void jumpOverMethodBody() {
 									isJavadoc = false;
 								}
 								//loop until end of comment */
+								int firstTag = 0;
 								while ((this.currentCharacter != '/') || (!star)) {
 									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 										if (this.recordLineSeparator) {
@@ -1863,8 +1884,20 @@ public final void jumpOverMethodBody() {
 											this.currentLine = null;
 										}
 									}
-									star = this.currentCharacter == '*';
+									switch (this.currentCharacter) {
+										case '*':
+											star = true;
+											break;
+										case '@':
+											if (firstTag == 0) {
+												firstTag = previous;
+											}
+											// fall through default case to set star to false
+										default:
+											star = false;
+									}
 									//get next char
+									previous = this.currentPosition;
 									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 											&& (this.source[this.currentPosition] == 'u')) {
 										getNextUnicodeChar();
@@ -1879,6 +1912,7 @@ public final void jumpOverMethodBody() {
 									} //jump over the \\
 								}
 								recordComment(isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK);
+								this.commentTagStarts[this.commentPtr] = firstTag;
 							} catch (IndexOutOfBoundsException e) {
 								return;
 							}
@@ -2326,9 +2360,10 @@ public void recordComment(int token) {
 	// a new comment is recorded
 	int length = this.commentStops.length;
 	if (++this.commentPtr >=  length) {
-		System.arraycopy(this.commentStops, 0, this.commentStops = new int[length + 30], 0, length);
-		//grows the positions buffers too
-		System.arraycopy(this.commentStarts, 0, this.commentStarts = new int[length + 30], 0, length);
+		int newLength = length + COMMENT_ARRAYS_SIZE*10;
+		System.arraycopy(this.commentStops, 0, this.commentStops = new int[newLength], 0, length);
+		System.arraycopy(this.commentStarts, 0, this.commentStarts = new int[newLength], 0, length);
+		System.arraycopy(this.commentTagStarts, 0, this.commentTagStarts = new int[newLength], 0, length);
 	}
 	this.commentStops[this.commentPtr] = stopPosition;
 	this.commentStarts[this.commentPtr] = this.startPosition;

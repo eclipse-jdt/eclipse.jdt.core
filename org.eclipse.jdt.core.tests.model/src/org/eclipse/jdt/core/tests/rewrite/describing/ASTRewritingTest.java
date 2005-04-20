@@ -49,7 +49,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	protected IPackageFragmentRoot sourceFolder;
 	
 	public static Test suite() {
-		TestSuite suite= new TestSuite();
+		TestSuite suite= new TestSuite(ASTRewritingTest.class.getName());
 		suite.addTest(ASTRewritingExpressionsTest.allTests());
 		suite.addTest(ASTRewritingInsertBoundTest.allTests());
 		suite.addTest(ASTRewritingMethodDeclTest.allTests());

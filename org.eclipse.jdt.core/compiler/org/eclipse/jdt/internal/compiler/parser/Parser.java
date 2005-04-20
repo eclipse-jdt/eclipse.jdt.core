@@ -881,7 +881,7 @@ public void checkComment() {
 			int commentEnd = this.scanner.commentStops[lastComment] - 1; //stop is one over,
 			// do not report problem before last parsed comment while recovering code...
 			this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
-			if (this.javadocParser.checkDeprecation(this.scanner.commentStarts[lastComment], commentEnd)) {
+			if (this.javadocParser.checkDeprecation(lastComment)) {
 				checkAndSetModifiers(AccDeprecated);
 			}
 			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated
@@ -7634,9 +7634,28 @@ public int flushCommentsDefinedPriorTo(int position) {
 
 	if (index < 0) return position; // no obsolete comment
 
-	if (validCount > 0){ // move valid comment infos, overriding obsolete comment infos
-		System.arraycopy(this.scanner.commentStarts, index + 1, this.scanner.commentStarts, 0, validCount);
-		System.arraycopy(this.scanner.commentStops, index + 1, this.scanner.commentStops, 0, validCount);		
+	switch (validCount) {
+		case 0:
+			// do nothing
+			break;
+		// move valid comment infos, overriding obsolete comment infos
+		case 2:
+			this.scanner.commentStarts[0] = this.scanner.commentStarts[index+1];
+			this.scanner.commentStops[0] = this.scanner.commentStops[index+1];
+			this.scanner.commentTagStarts[0] = this.scanner.commentTagStarts[index+1];
+			this.scanner.commentStarts[1] = this.scanner.commentStarts[index+2];
+			this.scanner.commentStops[1] = this.scanner.commentStops[index+2];
+			this.scanner.commentTagStarts[1] = this.scanner.commentTagStarts[index+2];
+			break;
+		case 1:
+			this.scanner.commentStarts[0] = this.scanner.commentStarts[index+1];
+			this.scanner.commentStops[0] = this.scanner.commentStops[index+1];
+			this.scanner.commentTagStarts[0] = this.scanner.commentTagStarts[index+1];
+			break;
+		default:
+			System.arraycopy(this.scanner.commentStarts, index + 1, this.scanner.commentStarts, 0, validCount);
+			System.arraycopy(this.scanner.commentStops, index + 1, this.scanner.commentStops, 0, validCount);		
+			System.arraycopy(this.scanner.commentTagStarts, index + 1, this.scanner.commentTagStarts, 0, validCount);
 	}
 	this.scanner.commentPtr = validCount - 1;
 	return position;
