@@ -666,6 +666,7 @@ public class SetClasspathOperation extends JavaModelOperation {
 				try {
 					final JavaProject affectedProject = (JavaProject) projects[i];
 					if (affectedProject.equals(initialProject)) continue; // skip itself
+					if (!affectedProject.isOpen()) continue; // skip project as its namelookup caches do not exist
 					
 					// consider ALL dependents (even indirect ones), since they may need to
 					// flush their respective namelookup caches (all pkg fragment roots).
