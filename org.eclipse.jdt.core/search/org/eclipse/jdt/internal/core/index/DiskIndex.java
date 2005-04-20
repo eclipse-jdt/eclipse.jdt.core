@@ -534,8 +534,15 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		this.categoryTables = new HashtableOfObject(3);
 	} else {
 		HashtableOfObject cachedTable = (HashtableOfObject) this.categoryTables.get(categoryName);
-		if (cachedTable != null)
+		if (cachedTable != null) {
+			if (readDocNumbers) { // must cache remaining document number arrays
+				Object[] arrayOffsets = cachedTable.valueTable;
+				for (int i = 0, l = arrayOffsets.length; i < l; i++)
+					if (arrayOffsets[i] instanceof Integer)
+						arrayOffsets[i] = readDocumentNumbers(arrayOffsets[i]);
+			}
 			return cachedTable;
+		}
 	}
 
 	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
@@ -547,8 +554,6 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		stream.skip(offset);
 		int size = stream.readInt();
 		categoryTable = new HashtableOfObject(size);
-		if (readDocNumbers)
-			matchingWords = new char[size][];
 		int largeArraySize = 256;
 		for (int i = 0; i < size; i++) {
 			char[] word = Util.readUTF(stream);
@@ -563,7 +568,9 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 				categoryTable.put(word, readDocumentArray(stream, arrayOffset)); // read in-lined array providing size
 			} else {
 				arrayOffset = stream.readInt(); // read actual offset
-				if (matchingWords != null) {
+				if (readDocNumbers) {
+					if (matchingWords == null)
+						matchingWords = new char[size][];
 					if (count == 0)
 						firstOffset = arrayOffset;
 					matchingWords[count++] = word;
