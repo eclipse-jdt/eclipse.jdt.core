@@ -11,43 +11,21 @@
 
 package org.eclipse.jdt.core.tests.performance;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URL;
 import java.security.CodeSource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.util.*;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import junit.framework.*;
+import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.tests.builder.TestingEnvironment;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.performance.util.JdtCorePerformanceMeter;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -62,23 +40,53 @@ import org.eclipse.test.performance.Performance;
 
 public abstract class FullSourceWorkspaceTests extends TestCase {
 
-	protected static TestingEnvironment env = null;
-	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
+	// Final static variables
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
-	static IJavaProject[] ALL_PROJECTS;
-	
-	// Tests counters
-	static int TESTS_COUNT = 0;
-	protected final static int MEASURES_COUNT = 10;
-	protected static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
+	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
 	
 	// Garbage collect constants
 	final static int MAX_GC = 10; // Max gc iterations
 	final static int TIME_GC = 500; // Sleep to wait gc to run (in ms)
 	final static int DELTA_GC = 100; // Threshold to leave gc loop
 
+	// Workspace variables
+	protected static TestingEnvironment ENV = null;
+	protected static IJavaProject[] ALL_PROJECTS;
+	
+	// Index variables
+	protected static IndexManager INDEX_MANAGER = JavaModelManager.getJavaModelManager().getIndexManager();
+	
+	// Tests infos
+	protected static int ALL_TESTS_COUNT = 0;
+	protected static int TEST_POSITION = 0;
+	protected static List TESTS_NAME_LIST;
+
+	// Tests counters
+	protected final static int MEASURES_COUNT = 10;
+
 	// Scenario information
 	String scenarioReadableName, scenarioShortName;
+	StringBuffer scenarioComment;
+	static Map SCENARII_COMMENT = new HashMap();
+	
+	/**
+	 * Variable used for log files.
+	 * Log files are used in conjonction with {@link JdtCorePerformanceMeter} class.
+	 * These are file where CPU times of each test of subclasses are stored.
+	 * This specific way to run performance tests is activated by specifying
+	 * following options:
+	 *		-DPerformanceMeterFactory=org.eclipse.jdt.core.tests.performance:org.eclipse.jdt.core.tests.performance.util.JdtCorePerformanceMeterFactory
+	 *		-DlogDir=directory where you want to write log files (for example d:/usr/OTI/tests/perfs/stats)
+	 * 
+	 */
+	// Store directory where to put files
+	protected static File LOG_DIR;
+	// Types of statistic which can be stored.
+	protected final static String[] LOG_TYPES = { "cpu" /*, "elapsed"*/ };
+	// Main version which is logged
+	protected final static String LOG_VERSION = "_v213_"; // TODO (frederic) see whether this could be computed automatically
+	// Standard deviation threshold. Statistic should not be take into account when it's reached
+	protected final static double STDDEV_THRESHOLD = 0.02; // default is 2%
 
 	/**
 	 * @param name
@@ -88,13 +96,87 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	}
 
 	protected static Test buildSuite(Class testClass) {
+
+		// Create tests
 		TestSuite suite = new TestSuite(testClass.getName());
 		List tests = buildTestsList(testClass);
-		for (int i=0, size= tests.size(); i<size; i++) {
-			suite.addTest((Test)tests.get(i));
+		int size = tests.size();
+		TESTS_NAME_LIST = new ArrayList(size);
+		for (int i=0; i<size; i++) {
+			FullSourceWorkspaceTests test = (FullSourceWorkspaceTests)tests.get(i);
+			suite.addTest(test);
+			TESTS_NAME_LIST.add(test.getName());
 		}
-		TESTS_COUNT += suite.testCount();
+		ALL_TESTS_COUNT += suite.testCount();
+
+		// Init log dir
+		initLogDir();
+
+		// Return created tests
 		return suite;
+	}
+
+	/**
+	 * Initialize log directory.
+	 * 
+	 * Directory where log files must be put is specified by System property <code>logDir</code>.
+	 * For example, if user want to store log files in d:/usr/OTI/tests/perfs/stats,
+	 * then he has to specify: -DlogDir=d:/usr/OTI/tests/perfs/stats in VM Arguments of his
+	 * performance test launch configuration.
+	 * 
+	 * CAUTION: Directory *must* exist before running test otherwise it won't be created
+	 * and CPU times won't be logged. This was intentional to avoid unexpected log files creation
+	 * (especially during bightly/integration builds).
+	 */
+	protected static void initLogDir() {
+		String logDir = System.getProperty("logDir");
+		if (logDir != null) {
+			File dir = new File(logDir);
+			if (dir.exists() && dir.isDirectory()) {
+				LOG_DIR = dir;
+			} else {
+				System.err.println(logDir+" is not a valid directory or does not exist. Log files will NOT be written!");
+			}
+		}
+	}
+
+	/**
+	 * Create print streams (one for each type of statistic).
+	 * Log file names have all same prefix (see {@link getLogFilePrefix(String)}),
+	 * include type of statistic stored in it and always have extension ".log".
+	 * 
+	 * If log file does not exist, then add column headers at the beginning of the file.
+	 * 
+	 * This method does nothing if log files directory has not been initialized
+	 * (which should be the case most of times and especially while running nightly/integration build performance tests).
+	 */
+	protected static void createPrintStream(String className, PrintStream[] logStreams, int count, String prefix) {
+		if (LOG_DIR != null) {
+			String testTypeName = className.substring(className.indexOf("FullSourceWorkspace")+"FullSourceWorkspace".length(), className.lastIndexOf("Test"));
+			for (int i=0, ln=LOG_TYPES.length; i<ln; i++) {
+				File logFile = new File(LOG_DIR, "Perfs"+testTypeName+LOG_VERSION+LOG_TYPES[i]+".log");
+				try {
+					boolean fileExist = logFile.exists();
+					logStreams[i] = new PrintStream(new FileOutputStream(logFile, true));
+					if (!fileExist && logStreams[i] != null) {
+						logStreams[i].print("Date  \tTime  \t");
+						for (int j=0; j<count; j++) {
+							String testName = ((String) TESTS_NAME_LIST.get(j)).substring(4+(prefix==null?0:prefix.length())); // 4="test".length()
+							logStreams[i].print(testName+'\t');
+						}
+						logStreams[i].println("Comment");
+						
+					}
+					// Log date and time
+					Date date = new Date(System.currentTimeMillis());
+					logStreams[i].print(DateFormat.getDateInstance(3).format(date)+'\t');
+					logStreams[i].print(DateFormat.getTimeInstance(3).format(date)+'\t');
+					System.out.println("Log file "+logFile.getPath()+" opened.");
+				} catch (FileNotFoundException e) {
+					// no log available for this statistic
+				}
+			}
+		}
 	}
 
 	/*
@@ -125,11 +207,103 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#setUp()
+	/**
+	 * Log test performance result and close stream if it was last one.
 	 */
+	protected void logPerfResult(PrintStream[] logStreams, int count) {
+
+		// Perfs comment buffers
+		String[] comments = new String[2];
+
+		// Log perf result
+		boolean haveTimes  = JdtCorePerformanceMeter.CPU_TIMES != null && JdtCorePerformanceMeter.ELAPSED_TIMES != null;
+		if (haveTimes) {
+			NumberFormat pFormat = NumberFormat.getPercentInstance();
+			pFormat.setMaximumFractionDigits(1);
+			NumberFormat dFormat = NumberFormat.getNumberInstance();
+			dFormat.setMaximumFractionDigits(2);
+			try {
+				// Store CPU Time
+				JdtCorePerformanceMeter.Statistics cpuStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.CPU_TIMES.get(this.scenarioReadableName);
+				if (cpuStats != null) {
+					double percent = cpuStats.stddev/cpuStats.average;
+					if (percent > STDDEV_THRESHOLD) {
+						if (logStreams[0] != null) logStreams[0].print("'");
+						System.out.println("	WARNING: CPU time standard deviation is over 2%: "+dFormat.format(cpuStats.stddev)+"/"+cpuStats.average+"="+ pFormat.format(percent));
+						comments[0] = "stddev=" + pFormat.format(percent);
+					}
+					if (logStreams[0] != null) {
+						logStreams[0].print(""+cpuStats.sum+"\t");
+					}
+				} else {
+					Thread.sleep(1000);
+					System.err.println(this.scenarioShortName+": we should have stored CPU time!");
+					Thread.sleep(1000);
+				}
+				// Store Elapsed time
+				JdtCorePerformanceMeter.Statistics elapsedStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.ELAPSED_TIMES.get(this.scenarioReadableName);
+				if (elapsedStats != null) {
+					double percent = elapsedStats.stddev/elapsedStats.average;
+					if (percent > STDDEV_THRESHOLD) {
+						if (logStreams[1] != null) logStreams[1].print("'");
+						System.out.println("	WARNING: Elapsed time standard deviation is over 2%: "+dFormat.format(elapsedStats.stddev)+"/"+elapsedStats.average+"="+ pFormat.format(percent));
+						comments[1] = "stddev=" + pFormat.format(percent);
+					}
+					if (logStreams[1] != null) {
+						logStreams[1].print(""+elapsedStats.sum+"\t");
+					}
+				} else {
+					Thread.sleep(1000);
+					System.err.println(this.scenarioShortName+": we should have stored Elapsed time");
+					Thread.sleep(1000);
+				}
+			} catch (InterruptedException e) {
+				// do nothing
+			}
+		}
+
+		// Update comment buffers
+		StringBuffer[] scenarioComments = (StringBuffer[]) SCENARII_COMMENT.get(getClass());
+		if (scenarioComments == null) {
+			scenarioComments = new StringBuffer[LOG_TYPES.length];
+			SCENARII_COMMENT.put(getClass(), scenarioComments);
+		}
+		for (int i=0, ln=LOG_TYPES.length; i<ln; i++) {
+			if (this.scenarioComment != null || comments[i] != null) {
+				if (scenarioComments[i] == null) {
+					scenarioComments[i] = new StringBuffer();
+				} else {
+					scenarioComments[i].append(' ');
+				}
+				if (this.scenarioComment == null) {
+					scenarioComments[i].append("["+TEST_POSITION+"]");
+				} else {
+					scenarioComments[i].append(this.scenarioComment);
+				}
+				if (comments[i] != null) {
+					if (this.scenarioComment != null) scenarioComments[i].append(',');
+					scenarioComments[i].append(comments[i]);
+				}
+			}
+		}
+
+		// Close log
+		if (count == 0) {
+			for (int i=0, ln=logStreams.length; i<ln; i++) {
+				if (logStreams[i] != null) {
+					if (haveTimes) {
+						if (scenarioComments[i] != null) {
+							logStreams[i].print(scenarioComments[i].toString());
+						}	
+						logStreams[i].println();
+					}
+					logStreams[i].close();
+				}
+			}
+			TEST_POSITION = 0;
+		}
+	}
+
 	protected void setUp() throws Exception {
 		super.setUp();
 
@@ -138,12 +312,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		this.scenarioReadableName = scenario.substring(scenario.lastIndexOf('.')+1, scenario.length()-2);
 		this.scenarioShortName = this.scenarioReadableName.substring(this.scenarioReadableName.lastIndexOf('#')+5/*1+"test".length()*/, this.scenarioReadableName.length());
 
-		// Init workspace at first test run
-		if (env == null) {
-			env = new TestingEnvironment();
-			env.openEmptyWorkspace();
+		// Set testing environment if null
+		if (ENV == null) {
+			ENV = new TestingEnvironment();
+			ENV.openEmptyWorkspace();
 			setUpFullSourceWorkspace();
 		}
+		
+		// Increment test position
+		TEST_POSITION++;
 	}
 	/**
 	 * @deprecated Use {@link #tagAsGlobalSummary(String,Dimension,boolean)} instead
@@ -191,17 +368,14 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		super.tearDown();
-		TESTS_COUNT--;
-		if (TESTS_COUNT == 0) {
-			env.resetWorkspace();
+		ALL_TESTS_COUNT--;
+		if (ALL_TESTS_COUNT == 0) {
+			ENV.resetWorkspace();
 			JavaCore.setOptions(INITIAL_OPTIONS);
 		}
+		super.tearDown();
 	}
 
-	/*
-	 * Returns the OS path to the directory that contains this plugin.
-	 */
 	protected static String getPluginDirectoryPath() {
 		CodeSource javaCoreCodeSource = JavaCore.class.getProtectionDomain().getCodeSource();
 		if (javaCoreCodeSource != null) {
@@ -224,19 +398,16 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		return null;
 	}
 
-	/*
-	 * Set up full source workpsace from zip file.
-	 */
 	private static void setUpFullSourceWorkspace() throws IOException, CoreException {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		final IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		if (workspaceRoot.getProjects().length == 0) {
 			String fullSourceZipPath = getPluginDirectoryPath() + File.separator + "full-source-R3_0.zip";
 			final String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
-
+	
 			if (DEBUG) System.out.print("Unzipping "+fullSourceZipPath+"...");
 			Util.unzip(fullSourceZipPath, targetWorkspacePath);
-
+	
 			workspace.run(new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
 					File targetWorkspaceDir = new File(targetWorkspacePath);
@@ -279,26 +450,47 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 		// Warm up
 		PrintWriter out = new PrintWriter(new StringWriter());
-		PrintWriter err = new PrintWriter(new StringWriter());
+		StringWriter errStrWriter = new StringWriter();
+		PrintWriter err = new PrintWriter(errStrWriter);
 		String cmdLine = sources + " -1.4 -g -preserveAllLocals "+(options==null?"":options)+" -d " + bins + " -log " + logs; //$NON-NLS-1$ //$NON-NLS-2$
+		int errorsCount = 0;
 		for (int i=0; i<2; i++) {
 			Main main = new Main(out, err, false);
-			main.compile(Main.tokenize(cmdLine));
+			boolean result = main.compile(Main.tokenize(cmdLine));
+			assertFalse("Invalid cmd line:\n"+errStrWriter.toString(), !result && main.globalErrorsCount==0);
+			if (main.globalErrorsCount > 0 && main.globalErrorsCount != errorsCount) {
+				System.out.println(this.scenarioShortName+": "+errorsCount+" Unexpected compile ERROR!");
+				if (DEBUG) {
+					System.out.println(errStrWriter.toString());
+					System.out.println("--------------------");
+				}
+				errorsCount = main.globalErrorsCount;
+			}
 		}
+
+		// Clear memory
+		runGc();
 
 		// Measures
 		int max = MEASURES_COUNT * 2;
 		int warnings = 0;
 		for (int i = 0; i < max; i++) {
-			runGc();
 			startMeasuring();
 			Main main = new Main(out, err, false);
 			main.compile(Main.tokenize(cmdLine));
 			stopMeasuring();
+			if (main.globalErrorsCount > 0 && main.globalErrorsCount != errorsCount) {
+				System.out.println(this.scenarioShortName+": "+errorsCount+" Unexpected compile ERROR!");
+				if (DEBUG) {
+					System.out.println(errStrWriter.toString());
+					System.out.println("--------------------");
+				}
+				errorsCount = main.globalErrorsCount;
+			}
 			cleanupDirectory(new File(bins));
 			warnings = main.globalWarningsCount;
 		}
-		
+
 		// Commit measures
 		commitMeasurements();
 		assertPerformance();
@@ -307,6 +499,13 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		if (warnings>0) {
 			System.out.println("\t"+warnings+" warnings found while performing batch compilation.");
 		}
+		if (this.scenarioComment == null) {
+			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
+		} else {
+			this.scenarioComment.append(' ');
+		}
+		this.scenarioComment.append("warn=");
+		this.scenarioComment.append(warnings);
 	}
 
 	/**
@@ -467,23 +666,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * @param options
 	 * @throws IOException
 	 * @throws CoreException
-	 *
-	protected void startBuild(Hashtable options) throws IOException, CoreException {
-		if (DEBUG) System.out.print("\tstart build...");
-		JavaCore.setOptions(options);
-		startMeasuring();
-		env.fullBuild();
-		stopMeasuring();
-		commitMeasurements();
-		assertPerformance();
-	}
-	*/
-
-	/**
-	 * Start a build on workspace using given options.
-	 * @param options
-	 * @throws IOException
-	 * @throws CoreException
 	 */
 	protected void startBuild(Hashtable options, boolean noWarning) throws IOException, CoreException {
 		if (DEBUG) System.out.print("\tstart build...");
@@ -494,18 +676,19 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		
 		// Measure
 		startMeasuring();
-		env.fullBuild();
+		ENV.fullBuild();
 		stopMeasuring();
 		
 		// Verify markers
 		IMarker[] markers = ResourcesPlugin.getWorkspace().getRoot().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 		List resources = new ArrayList();
 		List messages = new ArrayList();
-		int warnings = 0;
+		int errors=0,warnings = 0;
 		for (int i = 0, length = markers.length; i < length; i++) {
 			IMarker marker = markers[i];
 			switch (((Integer) marker.getAttribute(IMarker.SEVERITY)).intValue()) {
 				case IMarker.SEVERITY_ERROR:
+					errors++;
 					resources.add(marker.getResource().getName());
 					messages.add(marker.getAttribute(IMarker.MESSAGE));
 					break;
@@ -520,24 +703,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 		
 		// Assert result
-		int size = messages.size();
-		if (size > 0) {
-			/*
-			if (LOG_DIR == null) {
-				StringBuffer buffer = new StringBuffer();
-				int max = size > 10 ? 10 : size;
-				for (int i=0; i<max; i++) {
-					buffer.append(resources.get(i));
-					buffer.append(":\n\t");
-					buffer.append(messages.get(i));
-					buffer.append('\n');
-				}
-				if (size > max)
-					buffer.append("...\n");
-				assertTrue("Unexpected marker(s):\n" + buffer.toString(), size==0);
-			}
-			*/
-//			if (LOG_DIR != null || DEBUG) {
+		if (DEBUG) {
+			int size = messages.size();
+			if (size > 0) {
 				StringBuffer debugBuffer = new StringBuffer();
 				for (int i=0; i<size; i++) {
 					debugBuffer.append(resources.get(i));
@@ -545,19 +713,39 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 					debugBuffer.append(messages.get(i));
 					debugBuffer.append('\n');
 				}
-				System.out.println("ERROR: Unexpected marker(s):\n" + debugBuffer.toString());
-//			}
+				System.out.println(this.scenarioShortName+": Unexpected ERROR marker(s):\n" + debugBuffer.toString());
+				System.out.println("--------------------");
+			}
+			System.out.println("done");
 		}
-		if (DEBUG) System.out.println("done");
 		
 		// Commit measure
 		commitMeasurements();
 		assertPerformance();
 
+		// Store errors
+		if (errors>0) {
+			System.out.println("\t"+errors+" errors found while performing build.");
+		}
+		if (this.scenarioComment == null) {
+			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
+		} else {
+			this.scenarioComment.append(',');
+		}
+		this.scenarioComment.append("err=");
+		this.scenarioComment.append(errors);
+
 		// Store warning
 		if (warnings>0) {
 			System.out.println("\t"+warnings+" warnings found while performing build.");
 		}
+		if (this.scenarioComment == null) {
+			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
+		} else {
+			this.scenarioComment.append(',');
+		}
+		this.scenarioComment.append("warn=");
+		this.scenarioComment.append(warnings);
 	}
 
 	protected void waitUntilIndexesReady() {
@@ -598,67 +786,85 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	/*
 	 * Create hashtable of none or all warning options.
+	 * Possible kind:
+	 * 	-1: no options
+	 *  0: default options
+	 *  1: all options
 	 */
-	protected Hashtable warningOptions(boolean all) {
+	protected Hashtable warningOptions(int kind) {
 
 		// Values
-		Hashtable optionsMap = new Hashtable(30);
-		String generate = all ? CompilerOptions.GENERATE : CompilerOptions.DO_NOT_GENERATE;
-		String warning = all ? CompilerOptions.WARNING : CompilerOptions.IGNORE;
-		String enabled = all ? CompilerOptions.ENABLED : CompilerOptions.DISABLED;
-		String preserve = all ? CompilerOptions.OPTIMIZE_OUT : CompilerOptions.PRESERVE;
-		
-		// Set options values
-		optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, generate); 
-		optionsMap.put(CompilerOptions.OPTION_LineNumberAttribute, generate);
-		optionsMap.put(CompilerOptions.OPTION_SourceFileAttribute, generate);
-		optionsMap.put(CompilerOptions.OPTION_PreserveUnusedLocal, preserve);
-		optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportDeprecation, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedLocal, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameter, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportNoEffectAssignment, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, warning); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, warning); 
-		optionsMap.put(CompilerOptions.OPTION_TaskTags, all ? JavaCore.DEFAULT_TASK_TAG : "");
-		optionsMap.put(CompilerOptions.OPTION_TaskPriorities, all ? JavaCore.DEFAULT_TASK_PRIORITY : "");
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled); 
-		optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, warning); 
-		
-		// Since 3.0 options
-//		optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, enabled); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, enabled); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportLocalVariableHiding, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryElse, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadoc, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, enabled); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTags, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocComments, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, enabled); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled); 
-//		optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
-		
-		// Since 3.1 options
-//		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, warning); 
-//		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, warning); 
+		Hashtable optionsMap = null;
+		switch (kind) {
+			case 0:
+				optionsMap = JavaCore.getDefaultOptions();
+				break;
+			default:
+				optionsMap = new Hashtable(350);
+				break;
+		}
+		if (kind == 0) {
+			// Default set since 3.1
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE); 
+		} else {
+			boolean all = kind == 1;
+			String generate = all ? CompilerOptions.GENERATE : CompilerOptions.DO_NOT_GENERATE;
+			String warning = all ? CompilerOptions.WARNING : CompilerOptions.IGNORE;
+			String enabled = all ? CompilerOptions.ENABLED : CompilerOptions.DISABLED;
+			String preserve = all ? CompilerOptions.OPTIMIZE_OUT : CompilerOptions.PRESERVE;
+			
+			// Set options values
+			optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, generate); 
+			optionsMap.put(CompilerOptions.OPTION_LineNumberAttribute, generate);
+			optionsMap.put(CompilerOptions.OPTION_SourceFileAttribute, generate);
+			optionsMap.put(CompilerOptions.OPTION_PreserveUnusedLocal, preserve);
+			optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportDeprecation, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedLocal, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameter, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportNoEffectAssignment, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, warning); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, warning); 
+			optionsMap.put(CompilerOptions.OPTION_TaskTags, all ? JavaCore.DEFAULT_TASK_TAG : "");
+			optionsMap.put(CompilerOptions.OPTION_TaskPriorities, all ? JavaCore.DEFAULT_TASK_PRIORITY : "");
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled); 
+			optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, warning); 
+			
+			// Since 3.0 options
+//			optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, enabled); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, enabled); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportLocalVariableHiding, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryElse, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadoc, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, enabled); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTags, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocComments, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, enabled); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled); 
+//			optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
+			
+			// Since 3.1 options
+//			optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, warning); 
+//			optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, warning); 
+		}
 
 		// Return created options map
 		return optionsMap;

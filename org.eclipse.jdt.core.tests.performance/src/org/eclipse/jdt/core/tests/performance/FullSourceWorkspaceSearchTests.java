@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
+import java.io.PrintStream;
 import java.text.NumberFormat;
 
 import junit.framework.*;
@@ -27,7 +28,6 @@ import org.eclipse.jdt.internal.core.search.processing.IJob;
 /**
  */
 public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
-	
 
 	// Tests counters
 	private static int TESTS_COUNT = 0;
@@ -36,6 +36,9 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	// Search stats
 	private static int[] REFERENCES = new int[4];
 	private static int ALL_TYPES_NAMES = 0;
+
+	// Log file streams
+	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
 	// Scopes
 	IJavaSearchScope workspaceScope;
@@ -47,14 +50,28 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		super(name);
 	}
 
-//	static {
-//		TESTS_NAMES = new String[] { "testPerfSearchType" };
-//	}
+	static {
+//		org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = true;
+//		TESTS_NAMES = new String[] { "testPerfIndexing", "testPerfSearchAllTypeNames" };
+	}
+	/*
+	 * Specific way to build test suite.
+	 * We need to know whether test perf indexing is in list to allow
+	 * index manager disabling.
+	 * CAUTION: If test perf indexing is not included in test suite,
+	 * then time for other tests may include time spent to index files!
+	 */
 	public static Test suite() {
-		Test suite = buildSuite(FullSourceWorkspaceSearchTests.class);
+		Test suite = buildSuite(testClass());
 		TESTS_COUNT = suite.countTestCases();
+		createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, null);
 		return suite;
 	}
+
+	private static Class testClass() {
+		return FullSourceWorkspaceSearchTests.class;
+	}
+
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.resultCollector = new JavaSearchResultCollector();
@@ -64,10 +81,17 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * @see junit.framework.TestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
-		super.tearDown();
+
+		// End of execution => one test less
 		TESTS_COUNT--;
+
+		// Log perf result
+		if (LOG_DIR != null) {
+			logPerfResult(LOG_STREAMS, TESTS_COUNT);
+		}
+		
+		// Print statistics
 		if (TESTS_COUNT == 0) {
-			// Print statistics
 			System.out.println("-------------------------------------");
 			System.out.println("Search performance test statistics:");
 			NumberFormat intFormat = NumberFormat.getIntegerInstance();
@@ -78,6 +102,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			System.out.println("  - "+intFormat.format(ALL_TYPES_NAMES)+" all types names.");
 			System.out.println("-------------------------------------\n");
 		}
+		super.tearDown();
 	}
 	/**
 	 * Simple search result collector: only count matches.

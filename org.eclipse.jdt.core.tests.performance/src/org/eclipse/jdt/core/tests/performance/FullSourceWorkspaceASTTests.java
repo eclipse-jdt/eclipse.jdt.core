@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.performance;
 
+import java.io.PrintStream;
 import java.text.NumberFormat;
 import java.util.List;
 import junit.framework.*;
@@ -22,8 +23,12 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 
     // Tests counter
+    private static int TESTS_COUNT = 0;
 	private final static int ITERATIONS_COUNT = 10;
 	int nodesCount = 0;
+
+    // Log files
+    private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
 	/**
 	 * @param name
@@ -32,8 +37,50 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		super(name);
 	}
 
+	static {
+//		TESTS_PREFIX = "testPerfDom";
+	}
+
 	public static Test suite() {
-		return buildSuite(FullSourceWorkspaceASTTests.class);
+        Test suite = buildSuite(testClass());
+        TESTS_COUNT = suite.countTestCases();
+        createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, null);
+        return suite;
+    }
+
+    private static Class testClass() {
+        return FullSourceWorkspaceASTTests.class;
+    }
+
+    protected void setUp() throws Exception {
+		waitUntilIndexesReady();
+		super.setUp();
+	}
+
+	/* (non-Javadoc)
+     * @see junit.framework.TestCase#tearDown()
+     */
+    protected void tearDown() throws Exception {
+
+		// End of execution => one test less
+        TESTS_COUNT--;
+
+        // Log perf result
+        if (LOG_DIR != null) {
+            logPerfResult(LOG_STREAMS, TESTS_COUNT);
+        }
+		
+		// Print statistics
+        if (TESTS_COUNT == 0) {
+			System.out.println("-------------------------------------");
+			System.out.println("DOM/AST creation performance test statistics:");
+			NumberFormat intFormat = NumberFormat.getIntegerInstance();
+			System.out.println("  - "+intFormat.format(this.nodesCount)+" nodes have been parsed.");
+			System.out.println("-------------------------------------\n");
+        }
+
+		// Call super at the end as it close print streams
+        super.tearDown();
 	}
 
 	/**

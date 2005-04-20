@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.performance;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import junit.framework.Test;
 
@@ -37,14 +38,16 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	
 	// Tests counters
 	private static int TESTS_COUNT = 0;
-	private final static int WARMUP_COUNT = 2;
 	private final static int ITERATIONS_COUNT = 10;
 	private final static int SCAN_REPEAT = 800; // 800 is default
 
 	// Tests thresholds
-	private final static long FILE_SIZE_THRESHOLD = 100000L; 	//100,000 characters
 	private final static int TIME_THRESHOLD = 150;
+	
+	// Log files
+	private static PrintStream[] LOG_STREAMS = new PrintStream[LOG_TYPES.length];
 
+	
 	/**
 	 * @param name
 	 */
@@ -52,8 +55,37 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		super(name);
 	}
 
+	static {
+//		TESTS_PREFIX = "testPerfBatch";
+		TESTS_NAMES = new String[] { "testFullBuildNoWarning" };
+	}
+
 	public static Test suite() {
-		return buildSuite(FullSourceWorkspaceBuildTests.class);
+		Test suite = buildSuite(testClass());
+		TESTS_COUNT = suite.countTestCases();
+		createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, null);
+		return suite;
+	}
+
+	private static Class testClass() {
+		return FullSourceWorkspaceBuildTests.class;
+	}
+
+	/* (non-Javadoc)
+	 * @see junit.framework.TestCase#tearDown()
+	 */
+	protected void tearDown() throws Exception {
+
+		// End of execution => one test less
+		TESTS_COUNT--;
+
+		// Log perf result
+		if (LOG_DIR != null) {
+			logPerfResult(LOG_STREAMS, TESTS_COUNT);
+		}
+		
+		// Call super at the end as it close print streams
+		super.tearDown();
 	}
 
 	/*
@@ -161,7 +193,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
         SourceElementParser parser = new SourceElementParser(new SourceElementRequestorAdapter(), new DefaultProblemFactory(), options);
 
 		// Warm-up
-		for (int i = 0; i < WARMUP_COUNT; i++) {
+		for (int i = 0; i < 2; i++) {
 			ICompilationUnit unit = new CompilationUnit(content, file.getName(), null);
 			parser.parseCompilationUnit(unit, false);
 		}
@@ -193,7 +225,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testFullBuildNoWarning() throws CoreException, IOException {
 		tagAsSummary("Compile>Build>Clean>Full>No warning", false); // do NOT put in fingerprint
-		startBuild(warningOptions(false/*no warning*/), false);
+		startBuild(warningOptions(-1/*no warning*/), false);
 	}
 
 	/**
@@ -202,9 +234,9 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * @throws CoreException
 	 * @throws IOException
 	 */
-	public void testFullBuild() throws CoreException, IOException {
+	public void testFullBuildDefault() throws CoreException, IOException {
 		tagAsGlobalSummary("Compile>Build>Clean>Full>Default warnings", true); // put in fingerprint
-		startBuild(JavaCore.getDefaultOptions(), false);
+		startBuild(warningOptions(0/*default warning*/), false);
 	}
 
 	/**
@@ -219,7 +251,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testFullBuildAllWarnings() throws CoreException, IOException {
 		tagAsSummary("Compile>Build>Clean>Full>All warnings", false); // do NOT put in fingerprint
-		startBuild(warningOptions(true/*all warnings*/), false);
+		startBuild(warningOptions(1/*all warnings*/), false);
 	}
 
 	/**
@@ -243,36 +275,10 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * 
 	 * @throws IOException
 	 */
-	public void testBatchCompiler() throws IOException {
+	public void testBatchCompilerDefault() throws IOException {
 		tagAsSummary("Compile>Batch>Compiler>Default warnings", false); // do NOT put in fingerprint
 
 		buildUsingBatchCompiler("");
-	}
-
-	/**
-	 * Batch compiler build with default javadoc warnings
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws IOException
-	 */
-	public void testBatchCompilerJavadoc() throws IOException {
-		tagAsSummary("Compile>Batch>Compiler>Javadoc warnings", false); // do NOT put in fingerprint
-		buildUsingBatchCompiler("-warn:javadoc");
-	}
-
-	/**
-	 * Batch compiler build with invalid javadoc warnings
-	 * 
-	 * Not calling tagAsSummary means that this test is currently evaluated
-	 * before put it in builds performance results.
-	 * 
-	 * @throws IOException
-	 */
-	public void testBatchCompilerAllJavadoc() throws IOException {
-		tagAsSummary("Compile>Batch>Compiler>All Javadoc warnings", false); // do NOT put in fingerprint
-		buildUsingBatchCompiler("-warn:allJavadoc");
 	}
 
 	/**
@@ -283,41 +289,26 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * 
 	 * @throws IOException
 	 */
-	public void testBatchCompilerAllWarning() throws IOException {
+	public void testBatchCompilerAllWarnings() throws IOException {
 		tagAsSummary("Compile>Batch>Compiler>All warnings", false); // do NOT put in fingerprint
 
 		String allOptions = "-warn:" +
 			"allDeprecation," +
-			"allJavadoc," +
 			"assertIdentifier," +
-			"charConcat," +
-			"conditionAssign," +
 			"constructorName," +
 			"deprecation," +
-			"emptyBlock," +
-			"fieldHiding," +
-			"finally," +
-			"indirectStatic," +
-			"intfNonInherited," +
-			"localHiding," +
+			"interfaceNonInherited," +
 			"maskedCatchBlock," +
 			"nls," +
 			"noEffectAssign," +
-			"pkgDefaultMethod," +
-			"semicolon," +
-			"unqualifiedField," +
+			"packageDefaultMethod," +
 			"unusedArgument," +
 			"unusedImport," +
 			"unusedLocal," +
 			"unusedPrivate," +
-			"unusedThrown," +
-			"unnecessaryElse," +
-			"uselessTypeCheck," +
-			"specialParamHiding," +
 			"staticReceiver," +
 			"syntheticAccess," +
-			"tasks(TODO|FIX|XXX)," +
-			"typeHiding,";
+			"tasks(TODO|FIX|XXX)";
 		buildUsingBatchCompiler(allOptions);
 	}
 
