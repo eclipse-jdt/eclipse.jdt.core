@@ -1983,6 +1983,7 @@ public class JavaModelManager implements ISaveParticipant {
 					}
 				} catch(JavaModelException e){
 					// could not encode entry: leave it as CP_ENTRY_IGNORE
+					Util.log(e, "Could not persist container " + containerPath + " for project " + project.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				preferences.put(containerKey, containerString);
 			}

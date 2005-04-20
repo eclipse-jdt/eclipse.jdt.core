@@ -885,15 +885,12 @@ public class JavaProject
 			}
 			return INVALID_CLASSPATH;
 		}
+		// return an empty classpath is it size is 0, to differenciate from a null classpath
 		int pathSize = paths.size();
-		if (pathSize > 0 || defaultOutput != null) {
-			IClasspathEntry[] entries = new IClasspathEntry[pathSize + (defaultOutput == null ? 0 : 1)];
-			paths.toArray(entries);
-			if (defaultOutput != null) entries[pathSize] = defaultOutput; // ensure output is last item
-			return entries;
-		} else {
-			return null;
-		}
+		IClasspathEntry[] entries = new IClasspathEntry[pathSize + (defaultOutput == null ? 0 : 1)];
+		paths.toArray(entries);
+		if (defaultOutput != null) entries[pathSize] = defaultOutput; // ensure output is last item
+		return entries;
 	}
 
 	/**

@@ -240,6 +240,10 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=47213
 				if (!this.initializingThreads.add(currentThread)) return;
 				addedCurrentThread = true;
+				
+				// all classpaths in the workspace are going to be resolved
+				// ensure that containers are initialized in one batch
+				JavaModelManager.getJavaModelManager().batchContainerInitializations = true;
 
 				newRoots = new HashMap();
 				newOtherRoots = new HashMap();
