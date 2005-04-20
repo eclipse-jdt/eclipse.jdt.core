@@ -219,8 +219,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, boolean exported) throws JavaModelException{
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
-		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 1, length);
-		entries[0] = JavaCore.newLibraryEntry(
+		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 0, length);
+		entries[length] = JavaCore.newLibraryEntry(
 			path, 
 			srcAttachmentPath, 
 			srcAttachmentPathRoot, 

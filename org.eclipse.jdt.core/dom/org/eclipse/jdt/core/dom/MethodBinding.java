@@ -18,7 +18,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -26,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -181,15 +181,15 @@ class MethodBinding implements IMethodBinding {
 			}
 		} else {
 			// case of method not in the created AST, or a binary method
-			String selector = getName();
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding original = this.binding.original();
-			char[] methodSignature = original.genericSignature();
-			if (methodSignature == null)
-				methodSignature = original.signature();
-			methodSignature = CharOperation.replaceOnCopy(methodSignature, '/', '.');
-			char[][] parameterSignatures = Signature.getParameterTypes(methodSignature);
-			String[] parameters = CharOperation.toStrings(parameterSignatures);
-			IMethod result = declaringType.getMethod(selector, parameters);
+			String selector = original.isConstructor() ? declaringType.getElementName() : new String(original.selector);
+			TypeBinding[] parameters = original.parameters;
+			int length = parameters == null ? 0 : parameters.length;
+			String[] parameterSignatures = new String[length];
+			for (int i = 0;  i < length; i++) {
+				parameterSignatures[i] = new String(parameters[i].genericTypeSignature()).replace('/', '.');
+			}
+			IMethod result = declaringType.getMethod(selector, parameterSignatures);
 			if (declaringType.isBinary())
 				return result;
 			IMethod[] methods = null;

@@ -64,7 +64,20 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB,JCL15_SRC", "/P/lib"}, "bin", "1.5");
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB,JCL15_SRC", "/P/lib"}, "bin", "1.5");
+		addLibrary(
+			project, 
+			"lib.jar",
+			"libsrc.zip", 
+			new String[] {
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y<T> {\n" +
+				"  public Y(T t) {\n" +
+				"  }\n" +
+				"}"
+			}, 
+			"1.5");
 		this.workingCopy = getCompilationUnit("/P/src/X.java").getWorkingCopy(
 			new WorkingCopyOwner() {}, 
 			new IProblemRequestor() {
@@ -836,6 +849,29 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertElementEquals(
 			"Unexpected Java element",
 			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a parameterized binary method is correct.
+	 * (regression test for bug 88892 [1.5] IMethodBinding#getJavaElement() returns nonexistent IMethods (wrong parameter types))
+	 */
+	public void testParameterizedBinaryMethod() throws CoreException {
+		ASTNode node = buildAST(
+			"public class X extends p.Y<String> {\n" +
+			"  public X(String s) {\n" +
+			"    /*start*/super(s);/*end*/\n" +
+			"  }\n" +
+			"}"		
+		);
+		IBinding binding = ((SuperConstructorInvocation) node).resolveConstructorBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Y(T) [in Y [in Y.class [in p [in lib.jar [in P]]]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
