@@ -107,18 +107,30 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	
 	protected JavaSearchResultCollector resultCollector;
 
-	// Do NOT forget that tests must start with "testPerf"
 	public void testPerfAllTypes() throws CoreException {
-		tagAsSummary("Type Hierarchy all types", true); // put in fingerprint
+		tagAsSummary("Type Hierarchy>All Types", true); // put in fingerprint
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.ast", "ASTNode.java");
 		assertNotNull("ASTNode not found!", unit);
-		startMeasuring();
-		ITypeHierarchy hierarchy = unit.getType("ASTNode").newTypeHierarchy(null);
-		IType[] types = hierarchy.getAllClasses();
-		stopMeasuring();
+
+		// Warm up
+		IType[] types = unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses();
+		int length = types.length;
+
+		// Clean memory
+		runGc();
+
+		// Measures
+		for (int i=0; i<MEASURES_COUNT; i++) {
+			startMeasuring();
+			assertEquals("Unexpected classes number in hierarchy!", length, unit.getType("ASTNode").newTypeHierarchy(null).getAllClasses().length);
+			stopMeasuring();
+		}
+		
+		// Commit
 		commitMeasurements();
 		assertPerformance();
-		// store counter
-		COUNTERS[0] = types.length;
+
+		// Store counter
+		COUNTERS[0] = length;
 	}
 }
