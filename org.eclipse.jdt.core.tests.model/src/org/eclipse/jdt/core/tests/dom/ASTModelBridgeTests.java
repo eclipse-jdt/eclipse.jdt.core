@@ -791,6 +791,74 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
+	
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method with array parameters is correct.
+	 * (regression test for bug 88769 IMethodBinding#getJavaElement() drops extra array dimensions and varargs
+	 */
+	public void testMethod7() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/public int[] bar(int a[]) {\n" +
+			"    return a;\n" +
+			"  }/*end*/\n" +
+			"}"
+		);
+		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"bar(int[]) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method with array parameters is correct.
+	 * (regression test for bug 88769 IMethodBinding#getJavaElement() drops extra array dimensions and varargs
+	 */
+	public void testMethod8() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/public Object[] bar2(Object[] o[][]) [][] {\n" +
+			"    return o;\n" +
+			"  }/*end*/\n" +
+			"}"
+		);
+		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"bar2(Object[][][]) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method with varargs parameters is correct.
+	 * (regression test for bug 88769 IMethodBinding#getJavaElement() drops extra array dimensions and varargs
+	 */
+	public void testMethod9() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/public void bar3(Object... objs) {\n" +
+			"  }/*end*/\n" +
+			"}"
+		);
+		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"bar3(Object[]) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
 
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a package is correct.

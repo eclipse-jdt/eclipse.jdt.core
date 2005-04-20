@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -168,7 +169,13 @@ class MethodBinding implements IMethodBinding {
 				while (iterator.hasNext()) {
 					SingleVariableDeclaration parameter = (SingleVariableDeclaration) iterator.next();
 					Type type = parameter.getType();
-					parameterSignatures.add(Util.getSignature(type));
+					String typeSig = Util.getSignature(type);
+					int arrayDim = parameter.getExtraDimensions();
+					if (parameter.isVarargs())
+						arrayDim++;
+					if (arrayDim > 0)
+						typeSig = Signature.createArraySignature(typeSig, arrayDim);
+					parameterSignatures.add(typeSig);
 				}
 				int parameterCount = parameterSignatures.size();
 				String[] parameters = new String[parameterCount];
