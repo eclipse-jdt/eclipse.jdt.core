@@ -26,7 +26,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * Denote the first explicit (binding) bound amongst the supertypes (from declaration in source)
 	 * If no superclass was specified, then it denotes the first superinterface, or null if none was specified.
 	 */
-	public ReferenceBinding firstBound; 
+	public TypeBinding firstBound; 
 
 	// actual resolved variable supertypes (if no superclass bound, then associated to Object)
 	public ReferenceBinding superclass;
@@ -48,57 +48,59 @@ public class TypeVariableBinding extends ReferenceBinding {
 	/**
 	 * Returns true if the argument type satisfies all bounds of the type parameter
 	 */
-	public boolean boundCheck(Substitution substitution, TypeBinding argumentType) {
+	public int boundCheck(Substitution substitution, TypeBinding argumentType) {
 
-		if (argumentType == NullBinding || this == argumentType) 
-			return true;
+		if (argumentType == NullBinding || argumentType == this)
+			return TypeConstants.OK;
+		boolean hasSubstitution = substitution != null;
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
-			return false;	
+			return TypeConstants.MISMATCH;	
 		
 	    if (argumentType.isWildcard()) {
 	        WildcardBinding wildcard = (WildcardBinding) argumentType;
-	        switch (wildcard.kind) {
+	        switch (wildcard.boundKind) {
 	        	case Wildcard.SUPER :
-		            if (!boundCheck(substitution, wildcard.bound)) return false;
-		            break;
+//		            if (boundCheck(substitution, wildcard.bound) != TypeConstants.OK) return TypeConstants.MISMATCH;
+//		            break;
+		            return boundCheck(substitution, wildcard.bound); // only check the lower bound
 				case Wildcard.UNBOUND :
 					if (this == wildcard.typeVariable()) 
-						return true;
+						return TypeConstants.OK;
 					break;	        		
 	        }
 	    }
-		boolean hasSubstitution = substitution != null;
+		boolean unchecked = false;
 		if (this.superclass.id != T_JavaLangObject) {
 			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superclass) : this.superclass;
+			if (!argumentType.isCompatibleWith(substitutedSuperType)) {
+			    return TypeConstants.MISMATCH;
+			}
 			if (argumentType instanceof ReferenceBinding) {
 				ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
 				TypeBinding match = referenceArgument.findSuperTypeErasingTo((ReferenceBinding)substitutedSuperType.erasure());
 				if (match != null){
 					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
-					if (match.isRawType() && !substitutedSuperType.isRawType())
-						return false;
+					if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
+						unchecked = true;
 				}
-			}
-			if (!argumentType.isCompatibleWith(substitutedSuperType)) {
-			    return false;
 			}
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
 			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces[i]) : this.superInterfaces[i];
+			if (!argumentType.isCompatibleWith(substitutedSuperType)) {
+			    return TypeConstants.MISMATCH;
+			}
 			if (argumentType instanceof ReferenceBinding) {
 				ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
 				TypeBinding match = referenceArgument.findSuperTypeErasingTo((ReferenceBinding)substitutedSuperType.erasure());
 				if (match != null){
 					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
-					if (match.isRawType() && !substitutedSuperType.isRawType())
-						return false;
+					if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
+						unchecked = true;
 				}
 			}
-			if (!argumentType.isCompatibleWith(substitutedSuperType)) {
-			    return false;
-			}
 	    }
-	    return true;
+	    return unchecked ? TypeConstants.UNCHECKED : TypeConstants.OK;
 	}
 	
 	/**
@@ -362,23 +364,34 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 	ReferenceBinding resolve(LookupEnvironment environment) {
 		if ((this.modifiers & AccUnresolved) == 0)
 			return this;
-	
+
+		TypeBinding oldSuperclass = this.superclass, oldFirstInterface = null;
 		if (this.superclass != null)
 			this.superclass = BinaryTypeBinding.resolveUnresolvedType(this.superclass, environment, true);
-		if (this.firstBound != null)
-			this.firstBound = BinaryTypeBinding.resolveUnresolvedType(this.firstBound, environment, true);
 		ReferenceBinding[] interfaces = this.superInterfaces;
-		for (int i = interfaces.length; --i >= 0;)
-			interfaces[i] = BinaryTypeBinding.resolveUnresolvedType(interfaces[i], environment, true);
+		int length;
+		if ((length = interfaces.length) != 0) {
+			oldFirstInterface = interfaces[0];
+			for (int i = length; --i >= 0;) {
+				interfaces[i] = BinaryTypeBinding.resolveUnresolvedType(interfaces[i], environment, true);
+			}
+		}
 		this.modifiers &= ~AccUnresolved;
 	
 		// finish resolving the types
 		if (this.superclass != null)
 			this.superclass = BinaryTypeBinding.resolveType(this.superclass, environment, true);
-		if (this.firstBound != null)
-			this.firstBound = BinaryTypeBinding.resolveType(this.firstBound, environment, true);
 		for (int i = interfaces.length; --i >= 0;)
 			interfaces[i] = BinaryTypeBinding.resolveType(interfaces[i], environment, true);
+
+		// refresh the firstBound in case it changed
+		if (this.firstBound != null) {
+			if (this.firstBound == oldSuperclass) {
+				this.firstBound = this.superclass;
+			} else if (this.firstBound == oldFirstInterface) {
+				this.firstBound = interfaces[0];
+			}
+		}
 		return this;
 	}
 	

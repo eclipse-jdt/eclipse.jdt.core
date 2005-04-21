@@ -402,7 +402,7 @@ public char[] computeUniqueKey(boolean withAccessFlags) {
 */
 
 public char[] constantPoolName() /* java/lang/Object */ {
-	if (constantPoolName != null) 	return constantPoolName;
+	if (constantPoolName != null) return constantPoolName;
 	return constantPoolName = CharOperation.concatWith(compoundName, '/');
 }
 public String debugName() {
@@ -680,24 +680,37 @@ public boolean isHierarchyBeingConnected() {
 */
 public boolean isCompatibleWith(TypeBinding otherType) {
     
-	if (otherType == this) {
-		if (isWildcard()) return false;
+	if (otherType == this) 
 		return true;
-	}
-	if (otherType.id == T_JavaLangObject)
+	if (otherType.id == T_JavaLangObject) 
 		return true;
-	if (!(otherType instanceof ReferenceBinding))
-		return false;
-	ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
-	if (this.isEquivalentTo(otherReferenceType)) return true;
-	if (otherReferenceType.isWildcard()) {
-		return false; // should have passed equivalence check above if wildcard
+	// equivalence may allow compatibility with array type through wildcard bound
+	if (this.isEquivalentTo(otherType)) 
+		return true;
+	switch (otherType.kind()) {
+		case Binding.WILDCARD_TYPE :
+			return false; // should have passed equivalence check above if wildcard
+		case Binding.TYPE_PARAMETER :
+			// check compatibility with capture of ? super X
+			if (otherType.isCapture()) {
+				CaptureBinding otherCapture = (CaptureBinding) otherType;
+				if (otherCapture.lowerBound != null) {
+					return this.isCompatibleWith(otherCapture.lowerBound);
+				}
+			}
+		case Binding.GENERIC_TYPE :
+		case Binding.TYPE :
+		case Binding.PARAMETERIZED_TYPE :
+		case Binding.RAW_TYPE :
+			ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
+			if (otherReferenceType.isInterface()) // could be annotation type
+				return implementsInterface(otherReferenceType, true);
+			if (this.isInterface())  // Explicit conversion from an interface to a class is not allowed
+				return false;
+			return otherReferenceType.isSuperclassOf(this);
+		default :
+			return false;
 	}
-	if (otherReferenceType.isInterface())
-		return implementsInterface(otherReferenceType, true);
-	if (this.isInterface())  // Explicit conversion from an interface to a class is not allowed
-		return false;
-	return otherReferenceType.isSuperclassOf(this);
 }
 
 /* Answer true if the receiver has default visibility
@@ -722,6 +735,18 @@ public final boolean isFinal() {
 public boolean isInterface() {
 	// consider strict interfaces and annotation types
 	return (modifiers & AccInterface) != 0;
+}
+	
+public final boolean isPartOfRawType() {
+	ReferenceBinding current = this;
+	do {
+		if (current.isRawType())
+			return true;
+		// no static type
+		if (isStatic()) 
+			break;
+	} while ((current = current.enclosingType()) != null);
+    return false;
 }
 
 /* Answer true if the receiver has private visibility
@@ -751,8 +776,7 @@ public final boolean isPublic() {
  */
 
 public final boolean isStatic() {
-	return (modifiers & (AccStatic | AccInterface)) != 0 ||
-		    (tagBits & IsNestedType) == 0;
+	return (modifiers & (AccStatic | AccInterface)) != 0 || (tagBits & IsNestedType) == 0;
 }
 /* Answer true if all float operations must adher to IEEE 754 float/double rules
 */
@@ -784,6 +808,14 @@ public ReferenceBinding[] memberTypes() {
 
 public MethodBinding[] methods() {
 	return NoMethods;
+}
+public final ReferenceBinding outermostEnclosingType() {
+	ReferenceBinding current = this;
+	while (true) {
+		ReferenceBinding last = current;
+		if ((current = current.enclosingType()) == null) 
+			return last;
+	}
 }
 /**
 * Answer the source name for the type.

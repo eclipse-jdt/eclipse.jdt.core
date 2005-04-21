@@ -19,7 +19,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	
 	static {
 //		TESTS_PREFIX = "testInvalidCompilerOptions";
-//		TESTS_NAMES = new String[] { "test010"};
+//		TESTS_NAMES = new String[] { "test028"};
 	}
 
 	public BindingKeyTests(String name) {
@@ -312,6 +312,66 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		assertBindingKeySignatureEquals(
 			"Lp1.X<Ljava.lang.String;>.Member;",
 			"Lp1/X<Ljava/lang/String;>.Member;"
+		);
+	}
+
+	/*
+	 * Wildcard binding (no bounds)
+	 */
+	public void test028() {
+		assertBindingKeySignatureEquals(
+			"*",
+			"*"
+		);
+	}
+
+	/*
+	 * Wildcard binding (super bounds)
+	 */
+	public void test029() {
+		assertBindingKeySignatureEquals(
+			"-Ljava.util.List<TE;>;",
+			"-Ljava/util/List<TE;>;"
+		);
+	}
+
+	/*
+	 * Wildcard binding (extends bounds)
+	 */
+	public void test030() {
+		assertBindingKeySignatureEquals(
+			"+Ljava.util.ArrayList;",
+			"+Ljava/util/ArrayList;"
+		);
+	}
+
+	/*
+	 * Capture binding (no bounds)
+	 */
+	public void test031() {
+		assertBindingKeySignatureEquals(
+			"!*",
+			"!*"
+		);
+	}
+
+	/*
+	 * Capture binding (super bounds)
+	 */
+	public void test032() {
+		assertBindingKeySignatureEquals(
+			"!-Ljava.util.List<TE;>;",
+			"!-Ljava/util/List<TE;>;"
+		);
+	}
+
+	/*
+	 * Capture binding (extends bounds)
+	 */
+	public void test033() {
+		assertBindingKeySignatureEquals(
+			"!+Ljava.util.ArrayList;",
+			"!+Ljava/util/ArrayList;"
 		);
 	}
 

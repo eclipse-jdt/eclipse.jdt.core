@@ -2297,6 +2297,8 @@ public class Util {
 			case Signature.C_SHORT :
 			case Signature.C_VOID :
 				return scanBaseTypeSignature(string, start);
+			case Signature.C_CAPTURE :
+				return scanCaptureTypeSignature(string, start);
 			case Signature.C_EXTENDS:
 			case Signature.C_SUPER:
 			case Signature.C_STAR:
@@ -2360,6 +2362,31 @@ public class Util {
 		}
 		return scanTypeSignature(string, start + 1);
 	}
+	
+	/**
+	 * Scans the given string for a capture of a wildcard type signature starting at the given
+	 * index and returns the index of the last character.
+	 * <pre>
+	 * CaptureTypeSignature:
+	 *     <b>!</b> TypeBoundSignature
+	 * </pre>
+	 * 
+	 * @param string the signature string
+	 * @param start the 0-based character index of the first character
+	 * @return the 0-based character index of the last character
+	 * @exception IllegalArgumentException if this is not a capture type signature
+	 */
+	public static int scanCaptureTypeSignature(char[] string, int start) {
+		// need a minimum 2 char
+		if (start >= string.length - 1) {
+			throw new IllegalArgumentException();
+		}
+		char c = string[start];
+		if (c != Signature.C_CAPTURE) { //$NON-NLS-1$
+			throw new IllegalArgumentException();
+		}
+		return scanTypeBoundSignature(string, start + 1);
+	}	
 
 	/**
 	 * Scans the given string for a type variable signature starting at the given
@@ -2489,30 +2516,35 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c == Signature.C_STAR) { //$NON-NLS-1$
-			return start;
-		}
-	
-		// need a minimum 4 chars "+Lx;"
-		if (start >= string.length - 3) { 
-			throw new IllegalArgumentException();
-		}
-		// must start in "+/-"
-		if (c != Signature.C_SUPER && c != Signature.C_EXTENDS) {
-			throw new IllegalArgumentException();
-		}
-		c = string[start + 1];
 		switch (c) {
+			case Signature.C_STAR :
+				return start;
 			case Signature.C_SUPER :
 			case Signature.C_EXTENDS :
-				return scanTypeBoundSignature(string, start + 1);
+				// need a minimum 4 chars "+Lx;"
+				if (start >= string.length - 3) {
+					throw new IllegalArgumentException();
+				}
+				break;
+			default :
+				// must start in "+/-"
+					throw new IllegalArgumentException();
+				
+		}
+		c = string[++start];
+		switch (c) {
+			case Signature.C_CAPTURE :
+				return scanCaptureTypeSignature(string, start);
+			case Signature.C_SUPER :
+			case Signature.C_EXTENDS :
+				return scanTypeBoundSignature(string, start);
 			case Signature.C_RESOLVED :
 			case Signature.C_UNRESOLVED :
-				return scanClassTypeSignature(string, start + 1);
+				return scanClassTypeSignature(string, start);
 			case Signature.C_TYPE_VARIABLE :
-				return scanTypeVariableSignature(string, start + 1);
+				return scanTypeVariableSignature(string, start);
 			case Signature.C_ARRAY :
-				return scanArrayTypeSignature(string, start + 1);
+				return scanArrayTypeSignature(string, start);
 			default:
 				throw new IllegalArgumentException();
 		}
@@ -2582,13 +2614,14 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c == Signature.C_STAR) {
-			return start;
-		}
-		if (c == Signature.C_EXTENDS || c == Signature.C_SUPER) {
-			return scanTypeBoundSignature(string, start);
-		} else {
-			return scanTypeSignature(string, start);
+		switch (c) {
+			case Signature.C_STAR :
+				return start;
+			case Signature.C_EXTENDS :
+			case Signature.C_SUPER :
+				return scanTypeBoundSignature(string, start);
+			default :
+				return scanTypeSignature(string, start);
 		}
 	}	
 
@@ -2627,7 +2660,6 @@ public class Util {
 		}
 		return typeArguments;
 	}
-
 	/**
 	 * Split signatures of all levels  from a type unique key.
 	 * 
@@ -2645,7 +2677,8 @@ public class Util {
 	 */
 	public final static char[][] splitTypeLevelsSignature(String typeSignature) {
 		// In case of IJavaElement signature, replace '$' by '.'
-		char[] source = typeSignature.replace('$','.').toCharArray();
+		char[] source = Signature.removeCaptureFromMethod(typeSignature.toCharArray());
+		CharOperation.replace(source, '$', '.');
 
 		// Init counters and arrays
 		char[][] signatures = new char[10][];

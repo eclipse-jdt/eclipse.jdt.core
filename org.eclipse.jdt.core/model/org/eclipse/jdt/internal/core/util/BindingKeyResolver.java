@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -32,11 +33,11 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
 public class BindingKeyResolver extends BindingKeyParser {
 	Compiler compiler;
 	Binding compilerBinding;
-	
 	
 	char[][] compoundName;
 	int dimension;
@@ -49,6 +50,9 @@ public class BindingKeyResolver extends BindingKeyParser {
 	TypeBinding typeBinding;
 	TypeDeclaration typeDeclaration;
 	ArrayList types = new ArrayList();
+	
+	boolean isCapture;
+	int wildcardKind = -1;
 	
 	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment) {
 		super(parser);
@@ -78,6 +82,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 
 	public void consumeArrayDimension(char[] brakets) {
 		this.dimension = brakets.length;
+	}
+	
+	public void consumeCapture() {
+		this.isCapture = true;
 	}
 	
 	public void consumeField(char[] fieldName) {
@@ -168,9 +176,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 
 	public void consumeParser(BindingKeyParser parser) {
-		Binding binding = ((BindingKeyResolver) parser).compilerBinding;
-		if (binding != null)
-			this.types.add(binding);
+		this.types.add(parser);
 	}
 	
 	public void consumeScope(int scopeNumber) {
@@ -237,13 +243,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 		}
 	}
 	
-	public void consumeWildCard(int kind, int rank) {
-		TypeBinding bound = 
-			kind != Wildcard.UNBOUND ? 
-					(TypeBinding) this.types.remove(this.types.size()-1) : 
-					null;
-		TypeBinding wildCardBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, rank, bound, null /*no extra bound*/, kind);
-		this.types.add(wildCardBinding);
+	public void consumeWildCard(int kind) {
+		this.wildcardKind = kind;
 	}
 	
 	/*
@@ -342,7 +343,26 @@ public class BindingKeyResolver extends BindingKeyParser {
 	private TypeBinding[] getTypeBindingArguments() {
 		int size = this.types.size();
 		TypeBinding[] arguments = new TypeBinding[size];
-		this.types.toArray(arguments);
+		int rank = 0;
+		for (int i = 0; i < size; i++) {
+			BindingKeyResolver resolver = (BindingKeyResolver) this.types.get(i);
+			TypeBinding binding;
+			int kind = resolver.wildcardKind;
+			switch (kind) {
+				case Wildcard.EXTENDS:
+				case Wildcard.SUPER:
+					binding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, rank++, (TypeBinding) resolver.compilerBinding, null /*no extra bound*/, kind);
+					break;
+				case Wildcard.UNBOUND:
+					binding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, rank++, null/*no bound*/, null /*no extra bound*/, kind);
+					break;
+				default:
+					binding = (TypeBinding) resolver.compilerBinding;
+			}
+			if (resolver.isCapture)
+				binding = new CaptureBinding((WildcardBinding) binding);
+			arguments[i] = binding;
+		}
 		this.types = new ArrayList();
 		return arguments;
 	}

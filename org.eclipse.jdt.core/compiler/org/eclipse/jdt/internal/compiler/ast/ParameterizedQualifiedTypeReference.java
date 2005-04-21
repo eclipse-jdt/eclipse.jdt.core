@@ -52,7 +52,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			TypeBinding[] argTypes = parameterizedType.arguments;
 			if (argTypes != null && typeVariables != null) { // argTypes may be null in error cases
 				for (int i = 0, argLength = typeVariables.length; i < argLength; i++)
-				    if (!typeVariables[i].boundCheck(parameterizedType, argTypes[i]))
+				    if (typeVariables[i].boundCheck(parameterizedType, argTypes[i])  != TypeConstants.OK)
 						scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[index][i]);
 			}
 		}
@@ -205,7 +205,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					// check argument type compatibility
 					if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 						for (int j = 0; j < argLength; j++)
-						    if (!typeVariables[j].boundCheck(parameterizedType, argTypes[j]))
+						    if (typeVariables[j].boundCheck(parameterizedType, argTypes[j]) != TypeConstants.OK)
 								scope.problemReporter().typeMismatchError(argTypes[j], typeVariables[j], currentType, args[j]);
 					qualifiedType = parameterizedType;
 			    }

@@ -391,7 +391,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			&& CharOperation.equals(this.binding.selector, CLONE)) {
 		this.resolvedType = actualReceiverType;
 	} else {
-		this.resolvedType = this.binding.returnType;
+		TypeBinding returnType = this.binding.returnType;
+		if (returnType != null) returnType = returnType.capture();
+		this.resolvedType = returnType;
 	}
 	return this.resolvedType;
 }

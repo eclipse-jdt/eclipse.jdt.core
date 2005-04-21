@@ -759,7 +759,7 @@ public class ClassScope extends Scope {
 		ParameterizedTypeBinding  superType = createParameterizedType(rootEnumType, new TypeBinding[]{ sourceType } , null);
 		sourceType.superclass = superType;
 		// bound check
-		if (!refTypeVariables[0].boundCheck(superType, sourceType)) {
+		if (refTypeVariables[0].boundCheck(superType, sourceType) != TypeConstants.OK) {
 			problemReporter().typeMismatchError(rootEnumType, refTypeVariables[0], sourceType, null);
 		}
 		return !foundCycle;

@@ -41,6 +41,8 @@ public interface TypeConstants {
     char[] WILDCARD_MINUS = { '-' };
     char[] WILDCARD_STAR = { '*' };
     char[] WILDCARD_PLUS = { '+' };
+    char[] WILDCARD_CAPTURE_NAME = "capture-of ".toCharArray(); //$NON-NLS-1$
+	char[] WILDCARD_CAPTURE = { '!' };
 	char[] BYTE = "byte".toCharArray(); //$NON-NLS-1$
 	char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
 	char[] INT = "int".toCharArray(); //$NON-NLS-1$
@@ -122,6 +124,11 @@ public interface TypeConstants {
     int CONSTRAINT_EQUAL = 0;		// Actual = Formal
     int CONSTRAINT_EXTENDS = 1;	// Actual << Formal
     int CONSTRAINT_SUPER = 2;		// Actual >> Formal
+	
+	// Constants used to perform bound checks
+	int OK = 0;
+	int UNCHECKED = 1;
+	int MISMATCH = 2;
 
 	// Shared binding collections
 	TypeBinding[] NoTypes = new TypeBinding[0];

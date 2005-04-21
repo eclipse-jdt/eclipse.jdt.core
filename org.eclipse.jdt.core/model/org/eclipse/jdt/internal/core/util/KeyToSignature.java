@@ -44,6 +44,10 @@ public class KeyToSignature extends BindingKeyParser {
 	public void consumeArrayDimension(char[] brakets) {
 		this.signature.append(brakets);
 	}
+	
+	public void consumeCapture() {
+		this.signature.append('!');
+	}
 		
 	public void consumeLocalType(char[] uniqueKey) {
 		this.signature = new StringBuffer();
@@ -137,17 +141,20 @@ public class KeyToSignature extends BindingKeyParser {
 		this.signature.append(';');
 	}
 	
-	public void consumeWildCard(int wildCardKind, int rank) {
+	public void consumeWildCard(int wildCardKind) {
 		switch (wildCardKind) {
 			case Wildcard.UNBOUND:
-				this.arguments.add(new StringBuffer("*")); //$NON-NLS-1$
+				this.signature.append('*');
 				break;
 			case Wildcard.EXTENDS:
-				((StringBuffer) this.arguments.get(this.arguments.size()-1)).insert(0, '+');
+				this.signature.append('+');
 				break;
 			case Wildcard.SUPER:
-				((StringBuffer) this.arguments.get(this.arguments.size()-1)).insert(0, '-');
+				this.signature.append('-');
 				break;
+			default:
+				// malformed
+				return;
 		}
 	}
 	

@@ -196,7 +196,8 @@ public class ArrayReference extends Reference {
 		if (arrayType != null) {
 			receiver.computeConversion(scope, arrayType, arrayType);
 			if (arrayType.isArrayType()) {
-				this.resolvedType = ((ArrayBinding) arrayType).elementsType();
+				TypeBinding elementType = ((ArrayBinding) arrayType).elementsType();
+				this.resolvedType = ((this.bits & IsStrictlyAssignedMASK) == 0) ? elementType.capture() : elementType;
 			} else {
 				scope.problemReporter().referenceMustBeArrayTypeAt(arrayType, this);
 			}

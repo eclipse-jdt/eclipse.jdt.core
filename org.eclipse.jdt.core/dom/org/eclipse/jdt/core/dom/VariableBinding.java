@@ -127,6 +127,8 @@ class VariableBinding implements IVariableBinding {
 	public IJavaElement getJavaElement() {
 		if (isField()) {
 			// field
+			FieldBinding fieldBinding = (FieldBinding) this.binding;
+			if (fieldBinding.declaringClass == null) return null; // arraylength
 			IType declaringType = (IType) getDeclaringClass().getJavaElement();
 			if (declaringType == null) return null;
 			return declaringType.getField(getName());

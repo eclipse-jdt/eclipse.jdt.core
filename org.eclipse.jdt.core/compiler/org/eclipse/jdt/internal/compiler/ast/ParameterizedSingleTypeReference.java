@@ -38,7 +38,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			TypeBinding[] argTypes = parameterizedType.arguments;
 			if (argTypes != null && typeVariables != null) { // may be null in error cases
 				for (int i = 0, argLength = typeVariables.length; i < argLength; i++)
-					if (!typeVariables[i].boundCheck(parameterizedType, argTypes[i]))
+					if (typeVariables[i].boundCheck(parameterizedType, argTypes[i]) != TypeConstants.OK)
 						scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
 			}
 		}
@@ -106,8 +106,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			enclosingType = this.resolvedType.enclosingType(); // if member type
 			if (enclosingType != null) {
 				ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
-				if (currentType.isStatic() && (enclosingType.isGenericType() || enclosingType.isParameterizedType())) {
-					enclosingType = scope.environment().createRawType((ReferenceBinding)enclosingType.erasure(), enclosingType.enclosingType());
+				if (currentType.isStatic() 
+						|| (enclosingType.isGenericType() 
+								&& enclosingType.outermostEnclosingType() != scope.outerMostClassScope().referenceContext.binding)) {
+					enclosingType = (ReferenceBinding) scope.convertToRawType(enclosingType);
 				}
 			}
 		} else { // resolving member type (relatively to enclosingType)
@@ -150,6 +152,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		} else if (argLength != typeVariables.length) { // check arity
 			scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
 			return null;
+		} else if (!currentType.isStatic() && enclosingType != null && enclosingType.isRawType()){
+			scope.problemReporter().rawMemberTypeCannotBeParameterized(
+					this, scope.environment().createRawType((ReferenceBinding)currentType.erasure(), enclosingType), argTypes);
+			return null;
 		}
 
 		// if generic type X<T> is referred to as parameterized X<T>, then answer itself
@@ -161,7 +167,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			// check argument type compatibility
 			if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 				for (int i = 0; i < argLength; i++)
-				    if (!typeVariables[i].boundCheck(parameterizedType, argTypes[i]))
+				    if (typeVariables[i].boundCheck(parameterizedType, argTypes[i]) != TypeConstants.OK)
 						scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
 	
 			this.resolvedType = parameterizedType;

@@ -335,7 +335,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 	ParameterizedGenericMethodBinding substitute =
 		new ParameterizedGenericMethodBinding(inheritedMethod, arguments, this.environment);
 	for (int i = 0; i < inheritedLength; i++)
-	    if (!inheritedTypeVariables[i].boundCheck(substitute, arguments[i]))
+	    if (inheritedTypeVariables[i].boundCheck(substitute, arguments[i]) != TypeConstants.OK)
 	    	return inheritedMethod; // incompatible due to bound check
    return substitute;
 }

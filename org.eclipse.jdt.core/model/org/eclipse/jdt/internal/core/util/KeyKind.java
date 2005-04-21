@@ -23,6 +23,7 @@ public class KeyKind extends BindingKeyParser {
 	public static final int F_RAW_TYPE = 0x1001;
 	public static final int F_WILDCARD_TYPE = 0x1010;
 	public static final int F_PARAMETERIZED_METHOD = 0x1011;
+	public static final int F_CAPTURE = 0x1111;
 	
 	public int flags = 0;
 	
@@ -34,6 +35,10 @@ public class KeyKind extends BindingKeyParser {
 		super(key);
 	}
 
+	public void consumeCapture() {
+		this.flags |= F_CAPTURE;
+	}
+	
 	public void consumeField(char[] fieldName) {
 		this.flags |= F_FIELD;
 	}
@@ -74,7 +79,7 @@ public class KeyKind extends BindingKeyParser {
 		this.flags |= F_TYPE_PARAMETER;
 	}
 
-	public void consumeWildCard(int kind, int rank) {
+	public void consumeWildCard(int kind) {
 		this.flags |= F_WILDCARD_TYPE;
 	}
 

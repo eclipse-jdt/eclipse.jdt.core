@@ -113,7 +113,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 			if ((mainTypeName = referenceContext.getMainTypeName()) != null // mainTypeName == null means that implementor of ICompilationUnit decided to return null
 					&& !CharOperation.equals(mainTypeName, typeDecl.name)) {
 				problemReporter().publicClassMustMatchFileName(referenceContext, typeDecl);
-				continue nextType;
+				// tolerate faulty main type name (91091), allow to proceed into type construction
 			}
 		}
 
@@ -680,6 +680,7 @@ private ReferenceBinding typeToRecord(TypeBinding type) {
 		type = ((ArrayBinding) type).leafComponentType;
 
 	switch (type.kind()) {
+		case Binding.BASE_TYPE :
 		case Binding.TYPE_PARAMETER :
 		case Binding.WILDCARD_TYPE :
 			return null;
@@ -687,12 +688,9 @@ private ReferenceBinding typeToRecord(TypeBinding type) {
 		case Binding.RAW_TYPE :
 			type = type.erasure();
 	}
-
-	if (type instanceof ReferenceBinding) {
-		ReferenceBinding refType = (ReferenceBinding) type;
-		if (!refType.isLocalType()) return refType;
-	}
-	return null;
+	ReferenceBinding refType = (ReferenceBinding) type;
+	if (refType.isLocalType()) return null;
+	return refType;
 }
 public void verifyMethods(MethodVerifier verifier) {
 	for (int i = 0, length = topLevelTypes.length; i < length; i++)

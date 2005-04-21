@@ -3045,4 +3045,66 @@ public class EnumTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}			
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89274
+	public void test099() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class A<T> {\n" + 
+				"	enum E {\n" + 
+				"		v1, v2;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X extends A<Integer> {\n" + 
+				"	void a(A.E e) {\n" + 
+				"		b(e); // no unchecked warning\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void b(E e) {\n" + 
+				"		A<Integer>.E e1 = e;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	A<Integer>.E e1 = e;\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"The member type A<Integer>.E cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type A<Integer>\n" + 
+			"----------\n");
+	}				
+	/* from JLS
+"It is a compile-time error to reference a static field of an enum type
+that is not a compile-time constant (15.28) from constructors, instance
+initializer blocks, or instance variable initializer expressions of that
+type.  It is a compile-time error for the constructors, instance initializer
+blocks, or instance variable initializer expressions of an enum constant e1
+to refer to itself or an enum constant of the same type that is declared to
+the right of e1."
+	*/
+	public void _test100() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"\n" + 
+				"	anEnumValue {\n" + 
+				"		private final X thisOne = anEnumValue;\n" + 
+				"\n" + 
+				"		String getMessage() {\n" + 
+				"			return \"Here is what thisOne gets assigned: \" + thisOne;\n" + 
+				"		}\n" + 
+				"	};\n" + 
+				"\n" + 
+				"	abstract String getMessage();\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(anEnumValue.getMessage());\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n",
+			},
+			"should reject as invalid ref to non-constant");
+	}		
 }

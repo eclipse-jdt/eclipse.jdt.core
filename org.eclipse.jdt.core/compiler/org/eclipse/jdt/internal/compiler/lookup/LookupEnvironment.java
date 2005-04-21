@@ -516,7 +516,7 @@ public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBindi
 	
 }
 
-public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int kind) {
+public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind) {
 	
 	// cached info is array of already created wildcard  types for this type
 	if (genericType == null) // pseudo wildcard denoting composite bounds for lub computation
@@ -530,7 +530,7 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
 			    WildcardBinding cachedType = cachedInfo[i];
 			    if (cachedType.genericType != genericType) continue nextCachedType; // remain of unresolved type
 			    if (cachedType.rank != rank) continue nextCachedType;
-			    if (cachedType.kind != kind) continue nextCachedType;
+			    if (cachedType.boundKind != boundKind) continue nextCachedType;
 			    if (cachedType.bound != bound) continue nextCachedType;
 			    if (cachedType.otherBounds != otherBounds) {
 			    	int cachedLength = cachedType.otherBounds == null ? 0 : cachedType.otherBounds.length;
@@ -555,7 +555,7 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
 		this.uniqueWildcardBindings.put(genericType, cachedInfo);
 	}
 	// add new binding
-	WildcardBinding wildcard = new WildcardBinding(genericType, rank, bound, otherBounds, kind, this);
+	WildcardBinding wildcard = new WildcardBinding(genericType, rank, bound, otherBounds, boundKind, this);
 	cachedInfo[cachedInfo.length-1] = wildcard;
 	return wildcard;
 }

@@ -75,7 +75,7 @@ public class Assignment extends Expression {
 	void checkAssignment(BlockScope scope, TypeBinding lhsType, TypeBinding rhsType) {
 		
 		FieldBinding leftField = getLastField(this.lhs);
-		if (leftField != null &&  rhsType != NullBinding && lhsType.isWildcard() && ((WildcardBinding)lhsType).kind != Wildcard.SUPER) {
+		if (leftField != null &&  rhsType != NullBinding && lhsType.isWildcard() && ((WildcardBinding)lhsType).boundKind != Wildcard.SUPER) {
 		    scope.problemReporter().wildcardAssignment(lhsType, rhsType, this.expression);
 		} else if (leftField != null && leftField.declaringClass != null /*length pseudo field*/&& leftField.declaringClass.isRawType()) {
 		    scope.problemReporter().unsafeRawFieldAssignment(leftField, rhsType, this.lhs);
@@ -174,8 +174,10 @@ public class Assignment extends Expression {
 			scope.problemReporter().expressionShouldBeAVariable(this.lhs);
 			return null;
 		}
-		TypeBinding lhsType = this.resolvedType = lhs.resolveType(scope);
+		TypeBinding lhsType = lhs.resolveType(scope);
 		expression.setExpectedType(lhsType); // needed in case of generic method invocation
+		if (lhsType != null) 
+			this.resolvedType = lhsType.capture();
 		TypeBinding rhsType = expression.resolveType(scope);
 		if (lhsType == null || rhsType == null) {
 			return null;

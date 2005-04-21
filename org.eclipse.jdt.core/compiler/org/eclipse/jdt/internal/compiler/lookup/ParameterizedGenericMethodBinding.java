@@ -28,6 +28,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     public boolean wasInferred; // only set to true for instances resulting from method invocation inferrence
     public boolean isRaw; // set to true for method behaving as raw for substitution purpose
     public MethodBinding tiebreakMethod;
+	public boolean isUnchecked; // indicates whether inferred arguments used unchecked conversion during bound check or was raw
 	
 	/**
 	 * Perform inference of generic method type parameters and/or expected type
@@ -96,9 +97,15 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			for (int i = 0, length = typeVariables.length; i < length; i++) {
 			    TypeVariableBinding typeVariable = typeVariables[i];
 			    TypeBinding substitute = methodSubstitute.typeArguments[i];
-			    if (!typeVariable.boundCheck(methodSubstitute, substitute))
-			        // incompatible due to bound check
-			        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, new TypeBinding[]{substitute, typeVariables[i] }, ParameterBoundMismatch);
+				switch (typeVariable.boundCheck(methodSubstitute, substitute)) {
+					case TypeConstants.MISMATCH :
+				        // incompatible due to bound check
+				        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, new TypeBinding[]{substitute, typeVariables[i] }, ParameterBoundMismatch);
+					case TypeConstants.UNCHECKED :
+						// tolerate unchecked bounds
+						methodSubstitute.isUnchecked = true;
+						break;
+				}
 			}
 		}
 
@@ -235,7 +242,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					TypeBinding[][] variableSubstitutes = (TypeBinding[][]) collectedSubstitutes.get(current);
 					TypeBinding [] bounds = variableSubstitutes[CONSTRAINT_EXTENDS];
 					if (bounds == null) continue nextTypeParameter;
-					TypeBinding[] glb = scope.greaterLowerBound(bounds);
+					TypeBinding[] glb = Scope.greaterLowerBound(bounds);
 					TypeBinding mostSpecificSubstitute = null;
 					if (glb != null) mostSpecificSubstitute = glb[0]; // TODO (philippe) need to improve
 						//TypeBinding mostSpecificSubstitute = scope.greaterLowerBound(bounds);
@@ -260,6 +267,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			rawArguments[i] = originalVariables[i].erasure();
 		}		
 	    this.isRaw = true;
+		this.isUnchecked = false;
 	    this.environment = environment;
 		this.modifiers = originalMethod.modifiers;
 		this.selector = originalMethod.selector;
@@ -292,6 +300,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.typeVariables = NoTypeVariables;
 	    this.typeArguments = typeArguments;
 	    this.isRaw = false;
+		this.isUnchecked = false;
 	    this.originalMethod = originalMethod;
 	    this.parameters = Scope.substitute(this, originalMethod.parameters);
 	    this.thrownExceptions = Scope.substitute(this, originalMethod.thrownExceptions);
@@ -380,6 +389,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (substitutes.length == 0) {
 		    	// raw generic method inferred
 		    	this.isRaw = true;
+				this.isUnchecked = false;
 		    	for (int i = 0; i < varLength; i++) {
 		    		this.typeArguments[i] = originalVariables[i].erasure();
 		    	}

@@ -675,22 +675,30 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						if (binding instanceof LocalVariableBinding) {
 							bits &= ~RestrictiveFlagMASK;  // clear bits
 							bits |= Binding.LOCAL;
-							if ((this.bits & IsStrictlyAssignedMASK) == 0) {
-								constant = variable.constant();
-							} else {
-								constant = NotAConstant;
-							}
 							if (!variable.isFinal() && (bits & DepthMASK) != 0) {
 								scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)variable, this);
 							}
-							return this.resolvedType = variable.type;
+							TypeBinding fieldType = variable.type;
+							if ((this.bits & IsStrictlyAssignedMASK) == 0) {
+								constant = variable.constant();
+								if (fieldType != null) 
+									fieldType = fieldType.capture(); // perform capture conversion if read access
+							} else {
+								constant = NotAConstant;
+							}
+							return this.resolvedType = fieldType;
 						}
 						// a field
 						FieldBinding field = (FieldBinding) this.binding;
 						if (!field.isStatic() && scope.environment().options.getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 							scope.problemReporter().unqualifiedFieldAccess(this, field);
 						}
-						return this.resolvedType = checkFieldAccess(scope);
+						// perform capture conversion if read access
+						TypeBinding fieldType = checkFieldAccess(scope);
+						return this.resolvedType = 
+							(((this.bits & IsStrictlyAssignedMASK) == 0) 
+								? fieldType.capture()
+								: fieldType);
 					}
 	
 					// thus it was a type

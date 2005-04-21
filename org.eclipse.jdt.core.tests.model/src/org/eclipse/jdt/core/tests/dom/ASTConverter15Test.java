@@ -2669,7 +2669,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
 		assertBindingKeyEquals(
-			"Lp/X<*>;.foo()V",
+			"Lp/X<!*>;.foo()V",
 			binding.getKey());
 	}
 
@@ -5088,4 +5088,108 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong part 1", "java.lang", typesNames[0]);
 		assertEquals("Wrong part 2", "Object", typesNames[1]);
     }
+
+	public void test0168() throws CoreException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String contents =
+				"import java.util.List;\n" +
+				"public class X {\n" + 
+				"	void f() {\n" +
+				"		List<?> list = null;\n" +
+				"		System.out.println(list);\n" +
+				"    }\n" + 
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 1);
+		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+		ExpressionStatement statement = (ExpressionStatement) node;
+		Expression expression = statement.getExpression();
+		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
+		MethodInvocation methodInvocation = (MethodInvocation) expression;
+		List arguments = methodInvocation.arguments();
+		assertEquals("Wrong size", 1, arguments.size());
+		Expression argument = (Expression) arguments.get(0);
+		ITypeBinding typeBinding = argument.resolveTypeBinding();
+		assertNotNull("No type binding", typeBinding);
+		assertTrue("Not a parameterized binding", typeBinding.isParameterizedType());
+		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
+		assertEquals("Wrong size", 1, typeArguments.length);
+		assertTrue("Not a capture binding", typeArguments[0].isCapture());
+		assertNotNull("No wildcard", typeArguments[0].getWildcard());
+	}
+
+	public void test0169() throws CoreException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+				"public class X {\n" + 
+				"    static class BB<T, S> { }\n" + 
+				"    static class BD<T> extends BB<T, T> { }\n" + 
+				"    void f() {\n" + 
+				"        BB<? extends Number, ? super Integer> bb = null;\n" + 
+				"        Object o = (BD<Number>) bb;\n" + 
+				"    }\n" + 
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 1, "Type safety: The cast from X.BB<capture-of ? extends Number,capture-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD");
+		node = getASTNode(compilationUnit, 0, 2, 1);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression expression = fragment.getInitializer();
+	   	assertEquals("Not a cast expression", ASTNode.CAST_EXPRESSION, expression.getNodeType());
+		CastExpression castExpression = (CastExpression) expression;
+		Expression expression2 = castExpression.getExpression();
+		ITypeBinding typeBinding = expression2.resolveTypeBinding();
+		assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
+		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
+		assertEquals("Wrong size", 2, typeArguments.length);
+		ITypeBinding typeBinding2 = typeArguments[0];
+		assertTrue("Not a capture binding", typeBinding2.isCapture());
+		ITypeBinding wildcardBinding = typeBinding2.getWildcard();
+		assertNotNull("No wildcard binding", wildcardBinding);
+		assertTrue("Not a wildcard", wildcardBinding.isWildcardType());
+	}
+
+	public void test0170() throws CoreException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		String contents =
+				"public class X {\n" + 
+				"    static class BB<T, S> { }\n" + 
+				"    static class BD<T> extends BB<T, T> { }\n" + 
+				"    static BB<? extends Number, ? super Integer> bb = null;\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(/*start*/X.bb/*end*/);\n" + 
+				"    }\n" + 
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertNotNull("No node", node);
+	   	assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, node.getNodeType());
+		QualifiedName qualifiedName = (QualifiedName) node;
+		ITypeBinding typeBinding = qualifiedName.resolveTypeBinding();
+		assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
+		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
+		assertEquals("Wrong size", 2, typeArguments.length);
+		ITypeBinding typeBinding2 = typeArguments[0];
+		assertTrue("Not a capture binding", typeBinding2.isCapture());
+		ITypeBinding wildcardBinding = typeBinding2.getWildcard();
+		assertNotNull("No wildcard binding", wildcardBinding);
+		assertTrue("Not a wildcard", wildcardBinding.isWildcardType());
+	}
 }

@@ -655,7 +655,10 @@ public class QualifiedNameReference extends NameReference {
 		int index = indexOfFirstFieldBinding;
 		if (index == length) { //	restrictiveFlag == FIELD
 			this.constant = FieldReference.getConstantFor((FieldBinding) binding, this, false, scope);
-			return type;
+			// perform capture conversion if read access
+			return (type != null && (this.bits & IsStrictlyAssignedMASK) == 0)
+					? type.capture()
+					: type;
 		}
 		// allocation of the fieldBindings array	and its respective constants
 		int otherBindingsLength = length - index;
@@ -676,7 +679,7 @@ public class QualifiedNameReference extends NameReference {
 
 			bits &= ~DepthMASK; // flush previous depth if any		
 			FieldBinding previousField = field;
-			field = scope.getField(type, token, this);
+			field = scope.getField(type.capture(), token, this);
 			int place = index - indexOfFirstFieldBinding;
 			otherBindings[place] = field;
 			otherDepths[place] = (bits & DepthMASK) >> DepthSHIFT;
@@ -724,7 +727,11 @@ public class QualifiedNameReference extends NameReference {
 			}
 		}
 		setDepth(firstDepth);
-		return (otherBindings[otherBindingsLength - 1]).type;
+		type = (otherBindings[otherBindingsLength - 1]).type;
+		// perform capture conversion if read access
+		return (type != null && (this.bits & IsStrictlyAssignedMASK) == 0)
+				? type.capture()
+				: type;		
 	}
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 		if (!flowInfo.isReachable()) return;

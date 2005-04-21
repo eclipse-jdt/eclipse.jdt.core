@@ -418,7 +418,7 @@ public class ConditionalExpression extends OperatorExpression {
 			if (commonType != null) {
 				valueIfTrue.computeConversion(scope, commonType, valueIfTrueType);
 				valueIfFalse.computeConversion(scope, commonType, valueIfFalseType);
-				return this.resolvedType = commonType;
+				return this.resolvedType = commonType.capture();
 			}
 		}
 		scope.problemReporter().conditionalArgumentsIncompatibleTypes(

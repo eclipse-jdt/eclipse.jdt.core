@@ -23,16 +23,16 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	public static final int PACKAGE = ASTNode.Bit5;
 	public static final int IMPORT = ASTNode.Bit6;
 	public static final int ARRAY_TYPE = TYPE | ASTNode.Bit7;
-	public static final int PARAMETERIZED_TYPE = TYPE | ASTNode.Bit8;
-	public static final int WILDCARD_TYPE = TYPE | ASTNode.Bit9;
-	public static final int RAW_TYPE = TYPE | ASTNode.Bit10;
-	public static final int GENERIC_TYPE = TYPE | ASTNode.Bit11;
-	public static final int TYPE_PARAMETER = TYPE | ASTNode.Bit12;
-	public static final int ANNOTATION_BINDING = TYPE | ASTNode.Bit13; // for annotation refs
+	public static final int BASE_TYPE = TYPE | ASTNode.Bit8;
+	public static final int PARAMETERIZED_TYPE = TYPE | ASTNode.Bit9;
+	public static final int WILDCARD_TYPE = TYPE | ASTNode.Bit10;
+	public static final int RAW_TYPE = TYPE | ASTNode.Bit11;
+	public static final int GENERIC_TYPE = TYPE | ASTNode.Bit12;
+	public static final int TYPE_PARAMETER = TYPE | ASTNode.Bit13;
 	
 	// TODO (jerome) change to true to fix https://bugs.eclipse.org/bugs/show_bug.cgi?id=90392
 	public static boolean USE_ACCESS_FLAGS_IN_BINDING_KEY = false;
-
+	
 	/* API
 	* Answer the receiver's binding type from Binding.BindingID.
 	*
@@ -54,6 +54,7 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	public char[] computeUniqueKey(boolean withAccessFlags) {
 		return null;
 	}
+	
 	/**
 	 * Compute the tagbits for standard annotations. For source types, these could require
 	 * lazily resolving corresponding annotation nodes, in case of forward references.

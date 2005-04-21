@@ -259,6 +259,11 @@ void matchReportReference(MessageSend messageSend, MatchLocator locator, MethodB
 
 		// Update match regarding method return type
 		// TODO ? (frederic)
+
+		// Special case for errors
+		if (match.getRule() != 0 && messageSend.resolvedType == null) {
+			match.setRule(SearchPattern.R_ERASURE_MATCH);
+		}
 	} else if (methodBinding instanceof ParameterizedMethodBinding) {
 		isParameterized = true;
 		if (methodBinding.declaringClass.isParameterizedType() || methodBinding.declaringClass.isRawType()) {
@@ -273,6 +278,11 @@ void matchReportReference(MessageSend messageSend, MatchLocator locator, MethodB
 
 		// Update match regarding method return type
 		// TODO ? (frederic)
+
+		// Special case for errors
+		if (match.getRule() != 0 && messageSend.resolvedType == null) {
+			match.setRule(SearchPattern.R_ERASURE_MATCH);
+		}
 	} else if (this.pattern.hasMethodArguments()) { // binding has no type params, compatible erasure if pattern does
 		match.setRule(SearchPattern.R_ERASURE_MATCH);
 	}

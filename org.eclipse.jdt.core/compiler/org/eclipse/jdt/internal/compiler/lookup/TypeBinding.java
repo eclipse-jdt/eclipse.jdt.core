@@ -68,6 +68,14 @@ public int kind() {
 public boolean canBeInstantiated() {
 	return !isBaseType();
 }
+
+/**
+ * Perform capture conversion on a given type (only effective on parameterized type with wildcards)
+ */
+public TypeBinding capture() {
+	return this;
+}
+
 /**
  * Collect the substitutes into a map for certain type variables inside the receiver type
  * e.g.   Collection<T>.findSubstitute(T, Collection<List<X>>):   T --> List<X>
@@ -140,6 +148,14 @@ public final boolean isBaseType() {
 public boolean isBoundParameterizedType() {
 	return (this.tagBits & TagBits.IsBoundParameterizedType) != 0;
 }
+
+/**
+ * Returns true if the type is the capture of some wildcard
+ */
+public boolean isCapture() {
+    return false;
+}
+
 public boolean isClass() {
 	return false;
 }
@@ -204,15 +220,6 @@ public final boolean isNumericType() {
  * Returns true if the type is parameterized, e.g. List<String>
  */
 public boolean isParameterizedType() {
-    return false;
-}
-	
-public boolean isPartOfRawType() {
-	TypeBinding current = this;
-	do {
-		if (current.isRawType())
-			return true;
-	} while ((current = current.enclosingType()) != null);
     return false;
 }
 
@@ -307,7 +314,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherArgument) {
 	TypeBinding upperBound = this;
 	if (isWildcard()) {
 		WildcardBinding wildcard = (WildcardBinding) this;
-		switch(wildcard.kind) {
+		switch(wildcard.boundKind) {
 			case Wildcard.EXTENDS :
 				upperBound = wildcard.bound;
 				lowerBound = null;
@@ -324,7 +331,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherArgument) {
 	if (otherArgument.isWildcard()) {
 		WildcardBinding otherWildcard = (WildcardBinding) otherArgument;
 		if (otherWildcard.otherBounds != null) return false; // not a true wildcard (intersection type)
-		switch(otherWildcard.kind) {
+		switch(otherWildcard.boundKind) {
 			case Wildcard.EXTENDS:
 				return upperBound != null && upperBound.isCompatibleWith(otherWildcard.bound);
 

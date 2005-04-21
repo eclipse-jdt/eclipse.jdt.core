@@ -170,7 +170,12 @@ public final class BaseTypeBinding extends TypeBinding {
 				return false;
 		}
 	}
-
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#kind()
+	 */
+	public int kind() {
+		return Binding.BASE_TYPE;
+	}
 	public char[] qualifiedSourceName() {
 		return simpleName;
 	}

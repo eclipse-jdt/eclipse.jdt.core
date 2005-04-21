@@ -128,25 +128,25 @@ public interface IBinding {
 	/**
 	 * Returns the Java element that corresponds to this binding.
 	 * Returns <code>null</code> if this binding has no corresponding
-     * Java element.
-     * <p>
-     * For array types, this method returns the Java element that corresponds
-     * to the array's element type. For raw and parameterized types, this method
-     * returns the Java element of the erasure.
-     * </p>
-     * <p>
-     * Here are the cases where a <code>null</code> should be expected:
-     * <ul>
-     * <li>primitive types, including void</li>
-     * <li>null type</li>
-     * <li>wildcard types</li>
-     * <li>capture types</li>
-     * <li>the "length" field of an array type</li>
-     * <li>array types of any of the above</li>
-     * </ul>
-     * For all other kind of type, method, variable, and package bindings,
-     * this method returns non-<code>null</code>.
-     * </p>
+	 * Java element.
+	 * <p>
+	 * For array types, this method returns the Java element that corresponds
+	 * to the array's element type. For raw and parameterized types, this method
+	 * returns the Java element of the erasure.
+	 * </p>
+	 * <p>
+	 * Here are the cases where a <code>null</code> should be expected:
+	 * <ul>
+	 * <li>primitive types, including void</li>
+	 * <li>null type</li>
+	 * <li>wildcard types</li>
+	 * <li>capture types</li>
+	 * <li>the "length" field of an array type</li>
+	 * <li>array types of any of the above</li>
+	 * </ul>
+	 * For all other kind of type, method, variable, and package bindings,
+	 * this method returns non-<code>null</code>.
+	 * </p>
 	 * 
 	 * @return the Java element that corresponds to this binding, 
 	 * 		or <code>null</code> if none

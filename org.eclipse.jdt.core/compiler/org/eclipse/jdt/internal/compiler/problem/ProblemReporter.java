@@ -5618,7 +5618,7 @@ public void wildcardInvocation(ASTNode location, TypeBinding receiverType, Metho
 	TypeBinding offendingParameter = null;
 	for (int i = 0, length = method.parameters.length; i < length; i++) {
 		TypeBinding parameter = method.parameters[i];
-		if (parameter.isWildcard() && (((WildcardBinding) parameter).kind != Wildcard.SUPER)) {
+		if (parameter.isWildcard() && (((WildcardBinding) parameter).boundKind != Wildcard.SUPER)) {
 			offendingParameter = parameter;
 			offendingArgument = arguments[i];
 			break;

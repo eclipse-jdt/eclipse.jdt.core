@@ -416,7 +416,10 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 		for (int i=0; i<typeArgumentsLength; i++) {
 			// Get parameterized type argument binding
 			TypeBinding argumentBinding = argumentsBinding[i];
-
+			if (argumentBinding instanceof CaptureBinding) {
+				WildcardBinding capturedWildcard = ((CaptureBinding)argumentBinding).wildcard;
+				if (capturedWildcard != null) argumentBinding = capturedWildcard;
+			}
 			// Get binding for pattern argument
 			char[] patternTypeArgument = patternArguments[i];
 			char patternWildcard = patternTypeArgument[0];
@@ -426,7 +429,7 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 				case Signature.C_STAR:
 					if (argumentBinding.isWildcard()) {
 						WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
-						if (wildcardBinding.kind == Wildcard.UNBOUND) continue;
+						if (wildcardBinding.boundKind == Wildcard.UNBOUND) continue;
 					}
 					matchRule &= ~SearchPattern.R_FULL_MATCH;
 					continue; // unbound parameter always match
@@ -447,7 +450,7 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 			if (patternBinding == null) {
 				if (argumentBinding.isWildcard()) {
 					WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
-					if (wildcardBinding.kind == Wildcard.UNBOUND) {
+					if (wildcardBinding.boundKind == Wildcard.UNBOUND) {
 						matchRule &= ~SearchPattern.R_FULL_MATCH;
 					} else {
 						match.setRule(SearchPattern.R_ERASURE_MATCH);
@@ -467,11 +470,11 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 					if (argumentBinding.isWildcard()) { // argument is a wildcard
 						WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
 						// It's ok if wildcards are identical
-						if (wildcardBinding.kind == patternWildcardKind && wildcardBinding.bound == patternBinding) {
+						if (wildcardBinding.boundKind == patternWildcardKind && wildcardBinding.bound == patternBinding) {
 							continue;
 						}
 						// Look for wildcard compatibility
-						switch (wildcardBinding.kind) {
+						switch (wildcardBinding.boundKind) {
 							case Wildcard.EXTENDS:
 								if (wildcardBinding.bound== null || wildcardBinding.bound.isCompatibleWith(patternBinding)) {
 									// valid when arg extends a subclass of pattern
@@ -495,11 +498,11 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 					if (argumentBinding.isWildcard()) { // argument is a wildcard
 						WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
 						// It's ok if wildcards are identical
-						if (wildcardBinding.kind == patternWildcardKind && wildcardBinding.bound == patternBinding) {
+						if (wildcardBinding.boundKind == patternWildcardKind && wildcardBinding.bound == patternBinding) {
 							continue;
 						}
 						// Look for wildcard compatibility
-						switch (wildcardBinding.kind) {
+						switch (wildcardBinding.boundKind) {
 							case Wildcard.EXTENDS:
 								break;
 							case Wildcard.SUPER:
@@ -522,7 +525,7 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 				default:
 					if (argumentBinding.isWildcard()) {
 						WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
-						switch (wildcardBinding.kind) {
+						switch (wildcardBinding.boundKind) {
 							case Wildcard.EXTENDS:
 								if (wildcardBinding.bound== null || patternBinding.isCompatibleWith(wildcardBinding.bound)) {
 									// valid only when arg extends a superclass of pattern
@@ -698,9 +701,13 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 	
 				// Verify that names match...
 				// ...special case for wildcard
+				if (argTypeBinding instanceof CaptureBinding) {
+					WildcardBinding capturedWildcard = ((CaptureBinding)argTypeBinding).wildcard;
+					if (capturedWildcard != null) argTypeBinding = capturedWildcard;
+				}
 				if (argTypeBinding.isWildcard()) {
 					WildcardBinding wildcardBinding = (WildcardBinding) argTypeBinding;
-					switch (wildcardBinding.kind) {
+					switch (wildcardBinding.boundKind) {
 						case Wildcard.EXTENDS:
 							// Invalid if type argument is not exact
 							if (patternTypeArgHasAnyChars) return impossible;

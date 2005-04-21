@@ -144,7 +144,7 @@ public class ArrayInitializer extends Expression {
 		}
 			
 		if (expectedTb.isArrayType()) {
-			binding = (ArrayBinding) expectedTb;
+			this.resolvedType = this.binding = (ArrayBinding) expectedTb;
 			if (expressions == null)
 				return binding;
 			TypeBinding expectedElementsTb = binding.elementsType();

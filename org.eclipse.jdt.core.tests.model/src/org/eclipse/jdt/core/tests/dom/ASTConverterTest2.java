@@ -1032,7 +1032,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertProblemsSize(unit, 1, "The type A.CInner is not visible"); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1041,13 +1041,13 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		SimpleType simpleType = (SimpleType) type;
 		Name name = simpleType.getName();
 		IBinding binding = name.resolveBinding();
-		assertNull("Got a binding", binding);
+		assertNotNull("No binding", binding);
 		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name.getNodeType());
 		QualifiedName qualifiedName = (QualifiedName) name;
 		SimpleName simpleName = qualifiedName.getName();
 		assertEquals("wrong name", "CInner", simpleName.getIdentifier());
 		IBinding binding2 = simpleName.resolveBinding();
-		assertNull("Got a binding", binding2);
+		assertNotNull("No binding", binding2);
 	}	
 
 	/**
@@ -1058,7 +1058,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertProblemsSize(unit, 1, "The type CInner is not visible"); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1069,7 +1069,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
 		SimpleName simpleName = (SimpleName) name;
 		IBinding binding = simpleName.resolveBinding();
-		assertNull("No binding", binding);
+		assertNotNull("No binding", binding);
 	}
 
 	/**

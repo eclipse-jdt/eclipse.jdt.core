@@ -716,13 +716,16 @@ public class TypeDeclaration
 	}
 
 	public int kind() {
-		if ((modifiers & AccInterface) != 0) {
-			if ((modifiers & AccAnnotation) != 0) 
+		switch (modifiers & (AccInterface|AccAnnotation|AccEnum)) {
+			case AccInterface :
+				return IGenericType.INTERFACE_DECL;
+			case AccInterface|AccAnnotation :
 				return IGenericType.ANNOTATION_TYPE_DECL;
-			return IGenericType.INTERFACE_DECL;
-		} else if ((modifiers & AccEnum) != 0) 
-			return IGenericType.ENUM_DECL;
-		return IGenericType.CLASS_DECL;
+			case AccEnum :
+				return IGenericType.ENUM_DECL;
+			default : 
+				return IGenericType.CLASS_DECL;
+		}
 	}
 	
 	/* 

@@ -341,7 +341,6 @@ public void testGetTypeParameters2() {
 			"Y::Ljava.lang.Cloneable;\n",
 			Signature.getTypeParameters(sig));
 }
-
 /**
  * @see Signature
  */

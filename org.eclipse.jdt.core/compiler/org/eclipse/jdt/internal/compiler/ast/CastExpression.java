@@ -377,6 +377,7 @@ public class CastExpression extends Expression {
 						if (!isIndirectlyUsed()) // used for generic type inference or boxing ?
 							scope.problemReporter().unnecessaryCast(this);
 					}
+					this.resolvedType = this.resolvedType.capture();
 				} else { // illegal cast
 					scope.problemReporter().typeCastError(this,  this.resolvedType, expressionType);
 				}

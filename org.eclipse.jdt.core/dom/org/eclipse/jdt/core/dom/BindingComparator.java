@@ -11,7 +11,9 @@
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
@@ -167,77 +169,65 @@ class BindingComparator {
 			return true;
 		}
 	}
+	// TODO (olivier) should optimize to use switch(binding.kind()) & modifier bitmask comparisons
 	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding2, boolean checkTypeVariables) {
-		if (typeBinding == null) {
-			return typeBinding2 == null;
-		} else if (typeBinding2 == null) {
+		if (typeBinding == typeBinding2)
+			return true;
+		if (typeBinding == null || typeBinding2 == null)
 			return false;
-		} else if (typeBinding.isBaseType()) {
-			// base type
-			if (!typeBinding2.isBaseType()) {
-				return false;
-			}
-			return typeBinding.id == typeBinding2.id;
-		} else if (typeBinding.isArrayType()) {
-			// array case
-			if (!typeBinding2.isArrayType()) {
-				return false;
-			}
-			return typeBinding.dimensions() == typeBinding2.dimensions()
-					&& isEqual(typeBinding.leafComponentType(), typeBinding2.leafComponentType(), checkTypeVariables);
-		} else {
-			// reference type
-			ReferenceBinding referenceBinding = (ReferenceBinding) typeBinding;
-			if (!(typeBinding2 instanceof ReferenceBinding)) {
-				return false;
-			}
-			ReferenceBinding referenceBinding2 = (ReferenceBinding) typeBinding2;
-			if (referenceBinding.isParameterizedType()) {
-				if (!referenceBinding2.isParameterizedType()) {
+		
+		switch (typeBinding.kind()) {
+			case Binding.BASE_TYPE :
+				if (!typeBinding2.isBaseType()) {
 					return false;
 				}
-				ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) referenceBinding;
-				ParameterizedTypeBinding parameterizedTypeBinding2 = (ParameterizedTypeBinding) referenceBinding2;
+				return typeBinding.id == typeBinding2.id;
+				
+			case Binding.ARRAY_TYPE :
+				if (!typeBinding2.isArrayType()) {
+					return false;
+				}
+				return typeBinding.dimensions() == typeBinding2.dimensions()
+						&& isEqual(typeBinding.leafComponentType(), typeBinding2.leafComponentType(), checkTypeVariables);
+				
+			case Binding.PARAMETERIZED_TYPE :
+				if (!typeBinding2.isParameterizedType()) {
+					return false;
+				}
+				ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) typeBinding;
+				ParameterizedTypeBinding parameterizedTypeBinding2 = (ParameterizedTypeBinding) typeBinding2;
 				if (checkTypeVariables) {
 					if (!isEqual(parameterizedTypeBinding.arguments, parameterizedTypeBinding2.arguments, false)) {
 						return false;
 					}
 				}
-				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
-					&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
-					&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
-					&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
-					&& ((referenceBinding.modifiers & CompilerModifiers.AccJustFlag) == (referenceBinding2.modifiers & CompilerModifiers.AccJustFlag));
-			} else if (referenceBinding.isWildcard()) {
-				if (!referenceBinding2.isWildcard()) {
+				return CharOperation.equals(parameterizedTypeBinding.compoundName, parameterizedTypeBinding2.compoundName)
+					&& (parameterizedTypeBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
+							== (parameterizedTypeBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation));
+							
+			case Binding.WILDCARD_TYPE :
+				if (!typeBinding2.isWildcard()) {
 					return false;
 				}
-				WildcardBinding wildcardBinding = (WildcardBinding) referenceBinding;
-				WildcardBinding wildcardBinding2 = (WildcardBinding) referenceBinding2;
+				WildcardBinding wildcardBinding = (WildcardBinding) typeBinding;
+				WildcardBinding wildcardBinding2 = (WildcardBinding) typeBinding2;
 				return isEqual(wildcardBinding.bound, wildcardBinding2.bound, checkTypeVariables)
-					&& wildcardBinding.kind == wildcardBinding2.kind;
-			} else if (referenceBinding.isGenericType()) {
-				if (!referenceBinding2.isGenericType()) {
+					&& wildcardBinding.boundKind == wildcardBinding2.boundKind;
+				
+			case Binding.TYPE_PARAMETER :
+				if (!(typeBinding2.isTypeVariable())) {
 					return false;
 				}
-				if (checkTypeVariables) {
-					if (!isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables(), true)) {
+				if (typeBinding.isCapture()) {
+					if (!(typeBinding2.isCapture())) {
 						return false;
 					}
+					CaptureBinding captureBinding = (CaptureBinding) typeBinding;
+					CaptureBinding captureBinding2 = (CaptureBinding) typeBinding2;
+					return isEqual(captureBinding.wildcard, captureBinding2.wildcard, checkTypeVariables);
 				}
-				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
-					&& (referenceBinding.isGenericType() == referenceBinding2.isGenericType())
-					&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
-					&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
-					&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
-					&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
-					&& ((referenceBinding.modifiers & CompilerModifiers.AccJustFlag) == (referenceBinding2.modifiers & CompilerModifiers.AccJustFlag));
-			} else if (referenceBinding instanceof TypeVariableBinding) {
-				if (!(referenceBinding2 instanceof TypeVariableBinding)) {
-					return false;
-				}
-				TypeVariableBinding typeVariableBinding = (TypeVariableBinding) referenceBinding;
-				TypeVariableBinding typeVariableBinding2 = (TypeVariableBinding) referenceBinding2;
+				TypeVariableBinding typeVariableBinding = (TypeVariableBinding) typeBinding;
+				TypeVariableBinding typeVariableBinding2 = (TypeVariableBinding) typeBinding2;
 				if (checkTypeVariables) {
 					return CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName)
 						&& isEqual(typeVariableBinding.declaringElement, typeVariableBinding2.declaringElement, false)
@@ -246,15 +236,36 @@ class BindingComparator {
 				} else {
 					return CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName);
 				}
-			} else {
+			
+			case Binding.GENERIC_TYPE :
+				if (!typeBinding2.isGenericType()) {
+					return false;
+				}
+				ReferenceBinding referenceBinding = (ReferenceBinding) typeBinding;
+				ReferenceBinding referenceBinding2 = (ReferenceBinding) typeBinding2;
+				if (checkTypeVariables) {
+					if (!isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables(), true)) {
+						return false;
+					}
+				}
+				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
+					&& (referenceBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
+							== (referenceBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation));
+		
+			case Binding.RAW_TYPE :
+			default :
+				if (!(typeBinding2 instanceof ReferenceBinding)) {
+					return false;
+				}				
+				referenceBinding = (ReferenceBinding) typeBinding;
+				referenceBinding2 = (ReferenceBinding) typeBinding2;
 				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
 					&& CharOperation.equals(referenceBinding.constantPoolName(), referenceBinding2.constantPoolName())
+					&& (!referenceBinding2.isGenericType())
 					&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
-					&& (referenceBinding.isInterface() == referenceBinding2.isInterface())
-					&& (referenceBinding.isEnum() == referenceBinding2.isEnum())
-					&& (referenceBinding.isAnnotationType() == referenceBinding2.isAnnotationType())
-					&& ((referenceBinding.modifiers & CompilerModifiers.AccJustFlag) == (referenceBinding2.modifiers & CompilerModifiers.AccJustFlag));
-			}
+					&& (referenceBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
+							== (referenceBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation));
+				
 		}
 	}
 	/**

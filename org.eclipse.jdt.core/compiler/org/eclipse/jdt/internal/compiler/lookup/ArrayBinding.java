@@ -143,20 +143,20 @@ public boolean isCompatibleWith(TypeBinding right) {
 	if (this == right)
 		return true;
 
-	if (right.isArrayType()) {
-		ArrayBinding rightArray = (ArrayBinding) right;
-		if (rightArray.leafComponentType.isBaseType())
-			return false; // relying on the fact that all equal arrays are identical
-		if (dimensions == rightArray.dimensions)
-			return leafComponentType.isCompatibleWith(rightArray.leafComponentType);
-		if (dimensions < rightArray.dimensions)
-			return false; // cannot assign 'String[]' into 'Object[][]' but can assign 'byte[][]' into 'Object[]'
-	} else {
-		if (right.isBaseType())
+	switch (right.kind()) {
+		case Binding.ARRAY_TYPE :
+			ArrayBinding rightArray = (ArrayBinding) right;
+			if (rightArray.leafComponentType.isBaseType())
+				return false; // relying on the fact that all equal arrays are identical
+			if (dimensions == rightArray.dimensions)
+				return leafComponentType.isCompatibleWith(rightArray.leafComponentType);
+			if (dimensions < rightArray.dimensions)
+				return false; // cannot assign 'String[]' into 'Object[][]' but can assign 'byte[][]' into 'Object[]'
+			break;
+		case Binding.BASE_TYPE :
 			return false;
-		if (right.isWildcard()) {
+		case Binding.WILDCARD_TYPE :
 		    return ((WildcardBinding) right).boundCheck(this);
-		}
 	}
 	//Check dimensions - Java does not support explicitly sized dimensions for types.
 	//However, if it did, the type checking support would go here.

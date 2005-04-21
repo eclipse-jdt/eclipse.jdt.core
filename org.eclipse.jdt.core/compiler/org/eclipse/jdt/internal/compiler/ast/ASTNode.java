@@ -166,7 +166,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		if (argumentType != NullBinding && parameterType.isWildcard()) {
 			WildcardBinding wildcard = (WildcardBinding) parameterType;
-			if (wildcard.kind != Wildcard.SUPER && wildcard.otherBounds == null) // lub wildcards are tolerated
+			if (wildcard.boundKind != Wildcard.SUPER && wildcard.otherBounds == null) // lub wildcards are tolerated
 		    	return true; // unsafeWildcardInvocation
 		}
 		TypeBinding checkedParameterType = originalParameterType == null ? parameterType : originalParameterType;
@@ -181,11 +181,16 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		boolean unsafeWildcardInvocation = false;
 		TypeBinding[] params = method.parameters;
 		int paramLength = params.length;
-		boolean isRawMemberInvocation = !method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType());
+		boolean isRawMemberInvocation = !method.isStatic() 
+				&& !receiverType.isUnboundWildcard() 
+				&& method.declaringClass.isRawType() 
+				&& (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType());
+		
 		MethodBinding rawOriginalGenericMethod = null;
 		if (!isRawMemberInvocation) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
-				if (((ParameterizedGenericMethodBinding)method).isRaw && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType())) {
+				ParameterizedGenericMethodBinding paramMethod = (ParameterizedGenericMethodBinding) method;
+				if (paramMethod.isUnchecked || (paramMethod.isRaw && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType()))) {
 					rawOriginalGenericMethod = method.original();
 				}
 			}

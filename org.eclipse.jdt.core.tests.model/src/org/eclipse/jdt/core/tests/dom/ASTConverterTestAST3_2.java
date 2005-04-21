@@ -1085,7 +1085,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertProblemsSize(unit, 1, "The type A.CInner is not visible"); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1094,13 +1094,13 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		SimpleType simpleType = (SimpleType) type;
 		Name name = simpleType.getName();
 		IBinding binding = name.resolveBinding();
-		assertNull("Got a binding", binding);
+		assertNotNull("No binding", binding);
 		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name.getNodeType());
 		QualifiedName qualifiedName = (QualifiedName) name;
 		SimpleName simpleName = qualifiedName.getName();
 		assertEquals("wrong name", "CInner", simpleName.getIdentifier());
 		IBinding binding2 = simpleName.resolveBinding();
-		assertNull("Got a binding", binding2);
+		assertNotNull("No binding", binding2);
 	}	
 
 	/**
@@ -1111,7 +1111,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertProblemsSize(unit, 1, "The type CInner is not visible"); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1122,7 +1122,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
 		SimpleName simpleName = (SimpleName) name;
 		IBinding binding = simpleName.resolveBinding();
-		assertNull("No binding", binding);
+		assertNotNull("No binding", binding);
 	}
 
 	/**
@@ -6253,4 +6253,66 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			}
 		});
 	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92059
+	 * check resolvedType binding from variable ref (of array type)
+	 */
+	public void test0605() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0605", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 1);
+		assertEquals("Not a variable declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement varDecl = (VariableDeclarationStatement) node;
+		List fragments = varDecl.fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);		
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, expression.getNodeType());
+		IBinding arraylength = ((QualifiedName)expression).resolveBinding();
+		IJavaElement element = arraylength.getJavaElement();		
+		assertNull("Shouldn't be binding for arraylength", element);
+		Name name = ((QualifiedName) expression).getQualifier();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+		ITypeBinding binding = name.resolveTypeBinding();
+		assertNotNull("No binding", binding);
+		assertTrue("No array", binding.isArray());
+
+		node = getASTNode(compilationUnit, 0, 0, 4);
+		assertEquals("Not a variable declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		varDecl = (VariableDeclarationStatement) node;
+		fragments = varDecl.fragments();
+		fragment = (VariableDeclarationFragment) fragments.get(0);		
+		expression = fragment.getInitializer();
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, expression.getNodeType());
+		name = ((QualifiedName) expression).getQualifier();
+		assertEquals("Not a simple name", ASTNode.QUALIFIED_NAME, name.getNodeType());
+		name = ((QualifiedName) name).getName();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+		ITypeBinding binding2 = name.resolveTypeBinding();
+		assertNotNull("No binding", binding2);
+		assertTrue("No array", binding2.isArray());
+		
+		assertEquals("Not same binding", binding, binding2);
+
+		node = getASTNode(compilationUnit, 0, 0, 2);
+		assertEquals("Not a variable declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		varDecl = (VariableDeclarationStatement) node;
+		fragments = varDecl.fragments();
+		fragment = (VariableDeclarationFragment) fragments.get(0);		
+		expression = fragment.getInitializer();
+		assertEquals("Not a qualified name", ASTNode.FIELD_ACCESS, expression.getNodeType());
+		expression = ((FieldAccess) expression).getExpression();
+		assertEquals("Not a simple name", ASTNode.FIELD_ACCESS, expression.getNodeType());
+		name = ((FieldAccess) expression).getName();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+		ITypeBinding binding3 = name.resolveTypeBinding();
+		assertNotNull("No binding", binding3);
+		assertTrue("No array", binding3.isArray());
+
+		assertEquals("Not same binding", binding, binding3);
+	}	
 }

@@ -3975,4 +3975,41 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
     }	
+    public void test125() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.*;\n" + 
+				"\n" + 
+				"public class X implements Ann {\n" + 
+				"	\n" + 
+				"	Ann ann = new X();\n" + 
+				"	public Class<? extends Annotation>  annotationType() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"@interface Ann {}\n" + 
+				"\n",
+            },
+			"");
+    }		
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=90484 - check no missing @Override warning
+    public void test126() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public interface X {\n" + 
+				"   Zork z;\n" +
+				"	@Override\n" + 
+				"   X clone();\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }		    
 }

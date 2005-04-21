@@ -207,7 +207,7 @@ class CompilationUnitResolver extends Compiler {
 				} 
 					
 			} else {
-				if (resolver.isPackage()) {
+				if (!resolver.hasTypeName()) {
 					// package binding key
 					char[] pkgName = CharOperation.concatWith(resolver.compoundName(), '.');
 					this.requestedKeys.put(pkgName, resolver);

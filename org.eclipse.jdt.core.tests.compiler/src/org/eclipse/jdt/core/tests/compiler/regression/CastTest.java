@@ -1374,6 +1374,73 @@ public void test035() {
 		"Cannot cast from new Object(){} to Test231i\n" + 
 		"----------\n");
 }
+// javac incorrectly accepts it
+public void test036() {
+	this.runNegativeTest(
+		new String[] {
+			"Test231.java",
+			"public class Test231 implements Test231i\n" + 
+			"{\n" + 
+			"	void	foo()\n" + 
+			"	{\n" + 
+			"		new Object()\n" + 
+			"		{\n" + 
+			"			Test231i	bar()\n" + 
+			"			{\n" + 
+			"				return	(Test231i)this;\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"\n" + 
+			"interface Test231i\n" + 
+			"{\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in Test231.java (at line 9)\n" + 
+		"	return	(Test231i)this;\n" + 
+		"	      	^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from new Object(){} to Test231i\n" + 
+		"----------\n");
+}
+public void test037() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public final class X {\n" + 
+			"	private static final boolean DO_BUG = true;\n" + 
+			"\n" + 
+			"	// Workaround: cast null to Base\n" + 
+			"	private static Base base = DO_BUG ?\n" + 
+			"	// (Base)null\n" + 
+			"			null : new Base() {\n" + 
+			"				public final String test() {\n" + 
+			"					return (\"anonymous\");\n" + 
+			"				}\n" + 
+			"			};\n" + 
+			"\n" + 
+			"	private X() {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] argv) {\n" + 
+			"		if (base == null)\n" + 
+			"			System.out.println(\"no base\");\n" + 
+			"		else\n" + 
+			"			System.out.println(base.test());\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static abstract class Base {\n" + 
+			"		public Base() {\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		public abstract String test();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"no base");
+}
 public static Class testClass() {
 	return CastTest.class;
 }

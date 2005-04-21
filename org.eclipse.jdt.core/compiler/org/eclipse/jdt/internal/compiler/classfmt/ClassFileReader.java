@@ -583,13 +583,17 @@ public char[][] getInterfaceNames() {
  * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
  */
 public int getKind() {
-	int modifiers = getModifiers();
-	if ((modifiers & AccInterface) != 0) {
-		if ((modifiers & AccAnnotation) != 0) return IGenericType.ANNOTATION_TYPE_DECL;
-		return IGenericType.INTERFACE_DECL;
-	}
-	if ((modifiers & AccEnum) != 0)	return IGenericType.ENUM_DECL;
-	return IGenericType.CLASS_DECL;
+	
+		switch (getModifiers() & (AccInterface|AccAnnotation|AccEnum)) {
+			case AccInterface :
+				return IGenericType.INTERFACE_DECL;
+			case AccInterface|AccAnnotation :
+				return IGenericType.ANNOTATION_TYPE_DECL;
+			case AccEnum :
+				return IGenericType.ENUM_DECL;
+			default : 
+				return IGenericType.CLASS_DECL;
+		}
 }
 /**
  * Answer the receiver's nested types or null if the array is empty.

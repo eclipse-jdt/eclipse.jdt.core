@@ -200,13 +200,13 @@ public abstract class Scope
 
 			case Binding.WILDCARD_TYPE:
 		        WildcardBinding wildcard = (WildcardBinding) originalType;
-		        if (wildcard.kind != Wildcard.UNBOUND) {
+		        if (wildcard.boundKind != Wildcard.UNBOUND) {
 			        TypeBinding originalBound = wildcard.bound;
 			        TypeBinding substitutedBound = substitute(substitution, originalBound);
 			        TypeBinding[] originalOtherBounds = wildcard.otherBounds;
 			        TypeBinding[] substitutedOtherBounds = substitute(substitution, originalOtherBounds);
 			        if (substitutedBound != originalBound || originalOtherBounds != substitutedOtherBounds) {
-		        		return wildcard.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, substitutedOtherBounds, wildcard.kind);
+		        		return wildcard.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, substitutedOtherBounds, wildcard.boundKind);
 			        }
 		        }
 				break;
@@ -476,8 +476,10 @@ public abstract class Scope
 		int dimension;
 		TypeBinding originalType;
 		switch(type.kind()) {
+			case Binding.BASE_TYPE :
 			case Binding.TYPE_PARAMETER:
 			case Binding.WILDCARD_TYPE:
+			case Binding.RAW_TYPE:
 				return type;
 			case Binding.ARRAY_TYPE:
 				dimension = type.dimensions();
@@ -487,26 +489,50 @@ public abstract class Scope
 				dimension = 0;
 				originalType = type;
 		}
-		if (originalType instanceof ReferenceBinding) {
-			boolean needToConvert = originalType.isGenericType() 
-					|| (originalType.erasure().isGenericType() 
-							&& originalType.isParameterizedType() 
-							&& ((ParameterizedTypeBinding)originalType).arguments == null);
-			
-			ReferenceBinding convertedType = (ReferenceBinding) originalType;
-			ReferenceBinding originalEnclosing = originalType.enclosingType();
-			ReferenceBinding convertedEnclosing = originalEnclosing;
-			if (originalEnclosing != null && (needToConvert || convertedType.isStatic() && originalEnclosing.isGenericType())) {
-				convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing);
+		boolean needToConvert;
+		switch (originalType.kind()) {
+			case Binding.BASE_TYPE :
+				return type;
+			case Binding.GENERIC_TYPE :
+				needToConvert = true;
+				break;
+			case Binding.PARAMETERIZED_TYPE :
+				ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) originalType;
+				needToConvert = paramType.type.isGenericType(); // only recursive call to enclosing type can find parameterizedType with arguments
+				break;
+			default :
+				needToConvert = false;
+				break;
+		}
+		ReferenceBinding originalEnclosing = originalType.enclosingType();
+		TypeBinding convertedType;
+		if (originalEnclosing == null) {
+			convertedType = needToConvert ? environment().createRawType((ReferenceBinding)originalType.erasure(), null) : originalType;
+		} else {
+			ReferenceBinding convertedEnclosing;
+			switch (originalEnclosing.kind()) {
+				case Binding.GENERIC_TYPE :
+				case Binding.PARAMETERIZED_TYPE :
+					if (needToConvert || ((ReferenceBinding)originalType).isStatic()) {
+						convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing);
+					} else {
+						convertedEnclosing = originalEnclosing;
+					}
+					break;
+				default :
+					convertedEnclosing = originalEnclosing;
+					break;
 			}
 			if (needToConvert) {
-				convertedType = environment().createRawType(convertedType, convertedEnclosing);
+				convertedType = environment().createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
 			} else if (originalEnclosing != convertedEnclosing) {
-				convertedType = createParameterizedType(convertedType, null, convertedEnclosing);
+				convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
+			} else {
+				convertedType = originalType;
 			}
-			if (originalType != convertedType) {
-				return dimension > 0 ? (TypeBinding)createArrayType(convertedType, dimension) : convertedType;
-			}
+		}
+		if (originalType != convertedType) {
+			return dimension > 0 ? (TypeBinding)createArrayType(convertedType, dimension) : convertedType;
 		}
 		return type;
 	}
@@ -757,18 +783,21 @@ public abstract class Scope
 		If no visible field is discovered, null is answered.
 	*/
 	public FieldBinding findField(TypeBinding receiverType, char[] fieldName, InvocationSite invocationSite, boolean needResolve) {
-		if (receiverType.isBaseType()) return null;
 
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReference(receiverType);
+		
 		checkArrayField: {
 			TypeBinding leafType;
 			switch (receiverType.kind()) {
+				case Binding.BASE_TYPE :
+					return null;
 				case Binding.WILDCARD_TYPE :
+				case Binding.TYPE_PARAMETER : // capture
 					TypeBinding receiverErasure = receiverType.erasure();
 					if (!receiverErasure.isArrayType())
 						break checkArrayField;
-					leafType =receiverErasure.leafComponentType();
+					leafType = receiverErasure.leafComponentType();
 					break;
 				case Binding.ARRAY_TYPE :
 					leafType = receiverType.leafComponentType();
@@ -2088,12 +2117,14 @@ public abstract class Scope
 
 	public MethodBinding getMethod(TypeBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
 		try {
-			if (receiverType.isBaseType())
-				return new ProblemMethodBinding(selector, argumentTypes, NotFound);
-
+			switch (receiverType.kind()) {
+				case Binding.BASE_TYPE :
+					return new ProblemMethodBinding(selector, argumentTypes, NotFound);
+				case Binding.ARRAY_TYPE :
+					compilationUnitScope().recordTypeReference(receiverType);
+					return findMethodForArray((ArrayBinding) receiverType, selector, argumentTypes, invocationSite);
+			}
 			compilationUnitScope().recordTypeReference(receiverType);
-			if (receiverType.isArrayType())
-				return findMethodForArray((ArrayBinding) receiverType, selector, argumentTypes, invocationSite);
 
 			ReferenceBinding currentType = (ReferenceBinding) receiverType;
 			if (!currentType.canBeSeenBy(this))
@@ -2322,6 +2353,7 @@ public abstract class Scope
 								return typeVariable;
 							if (CharOperation.equals(name, sourceType.sourceName))
 								return sourceType;
+							insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
 							break;
 						}
 						// type variables take precedence over member types
@@ -2346,6 +2378,8 @@ public abstract class Scope
 								if (memberType.isValidBinding()) {
 									if (sourceType == memberType.enclosingType()
 											|| environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+										if (insideStaticContext && !memberType.isStatic() && sourceType.isGenericType())
+											return new ProblemReferenceBinding(name, NonStaticReferenceInStaticContext);
 										// found a valid type in the 'immediate' scope (ie. not inherited)
 										// OR in 1.4 mode (inherited shadows enclosing)
 										if (foundType == null)
@@ -2534,7 +2568,7 @@ public abstract class Scope
 	}
 	
 	// 5.1.10
-	public TypeBinding[] greaterLowerBound(TypeBinding[] types) {
+	public static TypeBinding[] greaterLowerBound(TypeBinding[] types) {
 		if (types == null) return null;
 		int length = types.length;
 		if (length == 0) return null;
@@ -2568,6 +2602,40 @@ public abstract class Scope
 		return trimmedResult;
 	}
 	
+	// 5.1.10
+	public static ReferenceBinding[] greaterLowerBound(ReferenceBinding[] types) {
+		if (types == null) return null;
+		int length = types.length;
+		if (length == 0) return null;
+		ReferenceBinding[] result = types;
+		int removed = 0;
+		for (int i = 0; i < length; i++) {
+			ReferenceBinding iType = result[i];
+			if (iType == null) continue;
+			for (int j = 0; j < length; j++) {
+				if (i == j) continue;
+				ReferenceBinding jType = result[j];
+				if (jType == null) continue;
+				if (iType.isCompatibleWith(jType)) { // if Vi <: Vj, Vj is removed
+					if (result == types) { // defensive copy
+						System.arraycopy(result, 0, result = new ReferenceBinding[length], 0, length);
+					}
+					result[j] = null;
+					removed ++;
+				}
+			}
+		}
+		if (removed == 0) return result;
+		if (length == removed) return null;
+		ReferenceBinding[] trimmedResult = new ReferenceBinding[length - removed];
+		for (int i = 0, index = 0; i < length; i++) {
+			ReferenceBinding iType = result[i];
+			if (iType != null) {
+				trimmedResult[index++] = iType;
+			}
+		}
+		return trimmedResult;
+	}	
 	/**
 	 * Returns the immediately enclosing switchCase statement (carried by closest blockScope),
 	 */
@@ -2737,10 +2805,10 @@ public abstract class Scope
 			WildcardBinding wildV = (WildcardBinding) v;
 			if (u.isWildcard()) {
 				WildcardBinding wildU = (WildcardBinding) u;
-				switch (wildU.kind) {
+				switch (wildU.boundKind) {
 					// ? extends U
 					case Wildcard.EXTENDS :
-						switch(wildV.kind) {
+						switch(wildV.boundKind) {
 							// ? extends U, ? extends V
 							case Wildcard.EXTENDS :  
 								TypeBinding lub = lowerUpperBound(new TypeBinding[]{wildU.bound,wildV.bound}, lubStack);
@@ -2757,14 +2825,14 @@ public abstract class Scope
 						// ? super U
 					case Wildcard.SUPER : 
 						// ? super U, ? super V
-						if (wildU.kind == Wildcard.SUPER) {
+						if (wildU.boundKind == Wildcard.SUPER) {
 							TypeBinding[] glb = greaterLowerBound(new TypeBinding[]{wildU.bound,wildV.bound});
 							if (glb == null) return null;
 							return environment().createWildcard(genericType, rank, glb[0], null /*no extra bound*/, Wildcard.SUPER);	// TODO (philippe) need to capture entire bounds
 						}
 				}				
 			} else {
-				switch (wildV.kind) {
+				switch (wildV.boundKind) {
 					// U, ? extends V
 					case Wildcard.EXTENDS :
 						TypeBinding lub = lowerUpperBound(new TypeBinding[]{u,wildV.bound}, lubStack);
@@ -2782,7 +2850,7 @@ public abstract class Scope
 			}
 		} else if (u.isWildcard()) {
 			WildcardBinding wildU = (WildcardBinding) u;
-			switch (wildU.kind) {
+			switch (wildU.boundKind) {
 				// U, ? extends V
 				case Wildcard.EXTENDS :
 					TypeBinding lub = lowerUpperBound(new TypeBinding[]{wildU.bound, v}, lubStack);

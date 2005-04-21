@@ -140,8 +140,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				// claims to override, and doesn't actually do so
 				scope.problemReporter().methodMustOverride(this);
 			} else	if ((this.binding.tagBits & TagBits.AnnotationOverride) == 0 
-						&& (bindingModifiers & AccStatic) == 0
-						&& (bindingModifiers & AccOverriding) != 0
+						&& (this.binding.declaringClass.modifiers & AccInterface) == 0
+						&& (bindingModifiers & (AccStatic|AccOverriding)) == AccOverriding
 						&& scope.environment().options.sourceLevel >= JDK1_5) {
 				// actually overrides, but did not claim to do so
 				scope.problemReporter().missingOverrideAnnotation(this);

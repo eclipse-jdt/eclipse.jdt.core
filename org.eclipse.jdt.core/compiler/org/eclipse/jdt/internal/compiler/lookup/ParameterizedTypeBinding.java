@@ -55,7 +55,29 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public int kind() {
 		return PARAMETERIZED_TYPE;
 	}	
-	
+	/**
+	 * Perform capture conversion for a parameterized type with wildcard arguments
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#capture()
+	 */
+	public TypeBinding capture() {
+		TypeBinding[] originalArguments = arguments, capturedArguments = originalArguments;
+		if ((this.tagBits & TagBits.HasDirectWildcard) != 0) {
+			int length = originalArguments.length;
+			capturedArguments = new TypeBinding[length];
+			for (int i = 0; i < length; i++) {
+				TypeBinding argument = originalArguments[i];
+				if (argument.kind() == Binding.WILDCARD_TYPE) {
+					capturedArguments[i] = new CaptureBinding((WildcardBinding) argument);
+				} else {
+					capturedArguments[i] = argument;
+				}
+			}
+		}
+		if (capturedArguments != originalArguments) {
+			return this.environment.createParameterizedType(this.type, capturedArguments, enclosingType());
+		}
+		return this;
+	}
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
@@ -489,7 +511,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				if (isWildcardArgument) {
 					this.tagBits |= HasDirectWildcard;
 				}
-				if (!isWildcardArgument || ((WildcardBinding) someArgument).kind != Wildcard.UNBOUND) {
+				if (!isWildcardArgument || ((WildcardBinding) someArgument).boundKind != Wildcard.UNBOUND) {
 					this.tagBits |= IsBoundParameterizedType;
 				}
 			    this.tagBits |= someArgument.tagBits & HasTypeVariable;
@@ -655,7 +677,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			// check argument type compatibility
 			for (int i = 0; i < argLength; i++) {
 			    TypeBinding resolvedArgument = this.arguments[i];
-				if (!refTypeVariables[i].boundCheck(this, resolvedArgument)) {
+				if (refTypeVariables[i].boundCheck(this, resolvedArgument) != TypeConstants.OK) {
 					this.environment.problemReporter.typeMismatchError(resolvedArgument, refTypeVariables[i], resolvedType, null);
 			    }
 			}
