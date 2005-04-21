@@ -380,14 +380,19 @@ public class CompilationUnit extends ASTNode {
 	 *    a <code>VariableDeclarationFragment</code> in a 
 	 *    <code>VariableDeclarationStatement</code> or 
 	 *    <code>VariableDeclarationExpression</code></li>
-	 * <li>method - a <code>MethodDeclaration</code> </li>
+	 * <li>methods - a <code>MethodDeclaration</code> </li>
 	 * <li>constructor - a <code>MethodDeclaration</code> </li>
      * <li>annotation type - an <code>AnnotationTypeDeclaration</code></li>
      * <li>annotation type member - an <code>AnnotationTypeMemberDeclaration</code></li>
      * <li>enum type - an <code>EnumDeclaration</code></li>
      * <li>enum constant - an <code>EnumConstantDeclaration</code></li>
-	 * <li>type variable - a <code>TypeParameter</code></li>
+     * <li>type variable - a <code>TypeParameter</code></li>
+     * <li>capture binding - none</li>
 	 * </ul>
+     * For parameterized or raw type bindings, the declaring node is
+     * that of the corresponding generic type. And for parameterized or raw
+     * method bindings, the declaring node is that of the corresponding
+     * generic method.
 	 * </p>
 	 * <p>
 	 * Each call to {@link ASTParser#createAST(org.eclipse.core.runtime.IProgressMonitor)} with a request for bindings
@@ -436,12 +441,12 @@ public class CompilationUnit extends ASTNode {
      * <li>enum type - an <code>EnumDeclaration</code></li>
      * <li>enum constant - an <code>EnumConstantDeclaration</code></li>
 	 * <li>type variable - a <code>TypeParameter</code></li>
+     * <li>capture binding - none</li>
 	 * </ul>
-	 * </p>
-	 * <p>
-	 * Note that as explained in {@link IBinding#getKey() IBinding.getkey}
-	 * there may be no keys for finding the declaring node for local variables,
-	 * local or anonymous classes, etc.
+     * For parameterized or raw type bindings, the declaring node is
+     * that of the corresponding generic type. And for parameterized or raw
+     * method bindings, the declaring node is that of the corresponding
+     * generic method.
 	 * </p>
 	 * 
 	 * @param key the binding key, or <code>null</code>
