@@ -428,6 +428,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		for (int i = 0; i < length; i++) {
 			Annotation annotation = annotations[i];
 			annotation.recipient = recipient;
+			annotation.compilerAnnotation = new SourceAnnotation(annotation);
 			annotationTypes[i] = annotation.resolveType(scope);
 		}
 		// check duplicate annotations

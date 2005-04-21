@@ -383,7 +383,49 @@ class MethodBinding implements IMethodBinding {
 		MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
 		return methodVerifier.doesMethodOverride(this.binding, otherCompilerBinding);
 	}
+	
+	public IResolvedAnnotation[] getAnnotations(){ 
+		final org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance[] internalAnnotations =
+			this.binding.getAnnotations();				
+		final int len = internalAnnotations == null ?  0 : internalAnnotations.length;
+		IResolvedAnnotation[] domInstances = ResolvedAnnotation.NoAnnotations;
+		if( len > 0 ){
+			domInstances = new ResolvedAnnotation[len];
+			for( int i=0; i<len; i++ ){
+				domInstances[i] = this.resolver.getAnnotationInstance(internalAnnotations[i]);
+			}
+		}
+		return domInstances; 
+	}
+	
+	public IResolvedAnnotation[] getParameterAnnotations(int index){
+		// this line may through <code>ArrayIndexOutOfBoundException()</code> if 
+		// <code>index</code> is invalid
+		final org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance[] internalAnnotations =
+			this.binding.getParameterAnnotations(index);
+		final int len = internalAnnotations == null ?  0 : internalAnnotations.length;
+		IResolvedAnnotation[] domInstances = ResolvedAnnotation.NoAnnotations;
+		if( len > 0 ){
+			domInstances = new ResolvedAnnotation[len];
+			for( int i=0; i<len; i++ ){
+				domInstances[i] = this.resolver.getAnnotationInstance(internalAnnotations[i]); 
+			}
+		}
+		return domInstances; 
+	}
+	
+	public boolean isAnnotationMember()
+	{ return this.binding instanceof org.eclipse.jdt.internal.compiler.lookup.AnnotationMethodBinding; }
 
+	public Object getDefaultValue()
+	{ 
+		if( isAnnotationMember() ){
+			final Object internalObject = 
+				((org.eclipse.jdt.internal.compiler.lookup.AnnotationMethodBinding)this.binding).getDefaultValue();
+			return ResolvedMemberValuePair.buildDOMValue(internalObject, this.binding.returnType, this.resolver);
+		}
+		return null;
+	}
 	/* 
 	 * For debugging purpose only.
 	 * @see java.lang.Object#toString()

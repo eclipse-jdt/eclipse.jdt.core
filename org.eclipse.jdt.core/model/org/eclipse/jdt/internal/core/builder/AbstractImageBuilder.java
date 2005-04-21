@@ -51,6 +51,12 @@ protected boolean compiledAllAtOnce;
 
 private boolean inCompiler;
 
+/** 
+ * this is a Map<IFile, Set<String>> where each String is a fully-qualified name
+ * of an extra dependency introduced by a compilation participant.
+ */
+private Map extraDependencyMap;
+
 public static int MAX_AT_ONCE = 1000;
 public final static String[] JAVA_PROBLEM_MARKER_ATTRIBUTE_NAMES = {
 					IMarker.MESSAGE, 
@@ -227,6 +233,8 @@ private Set notifyCompilationParticipants(ICompilationUnit[] sourceUnits) {
 		return Collections.EMPTY_SET;
 	}
 
+	extraDependencyMap = new HashMap();
+	
 	IFile[] files = new IFile[sourceUnits.length];
 	for ( int i = 0; i < files.length; i++ ) {
 		if ( sourceUnits[i] instanceof SourceFile ) {
@@ -253,10 +261,37 @@ private Set notifyCompilationParticipants(ICompilationUnit[] sourceUnits) {
 				for ( int i = 0; i < f.length; i++ )
 					newFiles.add( f[i] );
 			}
+			
+			mergeMaps( pbcr.getNewDependencies(), extraDependencyMap );
 		}
 	}
 	return newFiles;
 }	
+
+/** 
+ *   Given a Map which maps from a key to a value, where key is an arbitrary 
+ *   type, and where value is a Collection, mergeMaps will ensure that for a key 
+ *   k with value v in source, all of the elements in the Collection v will be 
+ *   moved into the Collection v' corresponding to key k in the destination Map. 
+ * 
+ * @param source - The source map from some key to a Collection.
+ * @param destination - The destination map from some key to a Collection
+ */
+private static void mergeMaps( Map source, Map destination ) {
+	Iterator keys = source.keySet().iterator();
+	while( keys.hasNext() ) {
+		Object key = keys.next();
+		Object val = destination.get( key );
+		if ( val != null ) {
+			Collection c = (Collection) val;
+			c.addAll( (Collection)source.get( key ) );
+		}
+		else {
+			destination.put( key, source.get( key ) );
+		}
+	}
+}
+
 
 
 /** 
@@ -325,6 +360,10 @@ void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 		}
 		
 		compiler.compile(units);
+		
+		// we should be done with this map here, so null it out for GC
+		extraDependencyMap = null;
+		
 	} catch (AbortCompilation ignored) {
 		// ignore the AbortCompilcation coming from BuildNotifier.checkCancelWithinCompiler()
 		// the Compiler failed after the user has chose to cancel... likely due to an OutOfMemory error
@@ -353,13 +392,95 @@ protected void createProblemFor(IResource resource, IMember javaElement, String 
 }
 
 protected void finishedWith(String sourceLocator, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) {
-	if (duplicateTypeNames == null) {
-		newState.record(sourceLocator, result.qualifiedReferences, result.simpleNameReferences, mainTypeName, definedTypeNames);
-		return;
-	}
-
+		
 	char[][][] qualifiedRefs = result.qualifiedReferences;
 	char[][] simpleRefs = result.simpleNameReferences;
+	
+	if ( extraDependencyMap != null && extraDependencyMap.size() > 0 ) {
+		//IFile f = javaBuilder.currentProject.getFile( new String( result.fileName ));
+		IFile f = ResourcesPlugin.getWorkspace().getRoot().getFile( new Path( new String( result.fileName ) ));
+		Set s  = (Set)extraDependencyMap.get( f );
+		if ( s != null && s.size() > 0 ) {
+			// Set<String>
+			Set simpleNameSet = new HashSet();
+			Set qualifiedNameSet = new HashSet();
+
+			//
+			// add in all of the existing refs to the sets to filter out duplicates
+			//
+			for ( int i = 0; i< simpleRefs.length; i++ ) {
+				simpleNameSet.add( new String( simpleRefs[i] ) );
+			}
+			
+			for ( int i = 0; i< qualifiedRefs.length; i++ ) {
+				
+				StringBuffer sb = new StringBuffer();
+				int len = qualifiedRefs[i].length - 1;
+				for ( int j = 0; j < len; j++ ) {
+					sb.append( qualifiedRefs[i][j] );
+					sb.append( "." );  //$NON-NLS-1$
+				}
+				sb.append( qualifiedRefs[i][len] );
+				qualifiedNameSet.add( sb.toString() );
+			}
+			
+			//
+			// get all of the the parts of the new dependencies into sets
+			// for  a dependency "a.b.c.d", we want the qualifiedNameSet to include
+			// "a.b.c.d", "a.b.c" & "a.b" and we want the simple name set to include
+			// "a", "b", "c" & "d".
+			//
+			Iterator it = s.iterator();
+			while ( it.hasNext() ) {
+				String rpart = (String) it.next();
+				int idx = rpart.indexOf( '.', 0 );
+				while ( idx > -1 ) {
+					qualifiedNameSet.add( rpart );
+					String lpart = rpart.substring( 0, idx );
+					rpart = rpart.substring( idx + 1, rpart.length() );
+					simpleNameSet.add( lpart );
+					idx = rpart.indexOf( '.', idx + 1 );
+				}
+				simpleNameSet.add( rpart );
+			}
+
+			//
+			// now turn the set of simple names into a char[][]
+			//
+			char[][] newSimpleNameArray = new char[ simpleNameSet.size() ][];
+			it = simpleNameSet.iterator(); 
+			int i = 0;
+			while ( it.hasNext() ) {
+				String str = (String) it.next();
+				newSimpleNameArray[i] = str.toCharArray();
+				i++;
+			}
+			
+			//
+			//  turn the set of qnames into a char[][][]
+			//
+			char[][][] newQualifiedNameArray = new char[ qualifiedNameSet.size() ][][];
+			it = qualifiedNameSet.iterator();
+			i = 0;
+			while ( it.hasNext() ) {
+				String str = (String) it.next();
+				String[] parts = str.split( "\\." ); //$NON-NLS-1$
+				newQualifiedNameArray[i] = new char[ parts.length ][];
+				for ( int j = 0; j < parts.length; j++ ) {
+					newQualifiedNameArray[i][j] = parts[j].toCharArray();	
+				}
+				i++;
+			}
+			qualifiedRefs = newQualifiedNameArray;
+			simpleRefs = newSimpleNameArray;
+		}
+	}
+		
+	if (duplicateTypeNames == null) {
+		newState.record(sourceLocator, qualifiedRefs, simpleRefs, mainTypeName, definedTypeNames);
+		return;
+	}
+	
 	// for each duplicate type p1.p2.A, add the type name A (package was already added)
 	next : for (int i = 0, l = duplicateTypeNames.size(); i < l; i++) {
 		char[][] compoundName = (char[][]) duplicateTypeNames.get(i);

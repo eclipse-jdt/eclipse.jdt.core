@@ -55,6 +55,11 @@ public class ParameterizedFieldBinding extends FieldBinding {
 	 */
 	public void setConstant(Constant constant) {
 		this.originalField.setConstant(constant);
-	}	
+	}
+	
+	public IAnnotationInstance[] getAnnotations()
+	{
+		return original().getAnnotations();
+	}
 }
 

@@ -13,6 +13,12 @@ package org.eclipse.jdt.internal.compiler.env;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 public interface IBinaryField extends IGenericField {
+	
+/**
+ * @return the both runtime visible and invisible annoations that annotated this field.
+ */
+IBinaryAnnotation[] getAnnotations();
+
 /**
  * 
  * @return org.eclipse.jdt.internal.compiler.Constant

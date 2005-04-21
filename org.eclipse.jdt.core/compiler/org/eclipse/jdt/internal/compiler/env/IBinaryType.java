@@ -57,6 +57,12 @@ IBinaryNestedType[] getMemberTypes();
  */
 
 IBinaryMethod[] getMethods();
+
+/**
+ * @return the both runtime visible and invisible annoations that annotated this type.
+ */
+IBinaryAnnotation[] getAnnotations();
+
 /**
  * Answer the resolved name of the type in the
  * class file format as specified in section 4.2 of the Java 2 VM spec.

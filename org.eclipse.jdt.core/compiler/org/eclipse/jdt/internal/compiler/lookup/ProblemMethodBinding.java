@@ -39,4 +39,8 @@ public ProblemMethodBinding(MethodBinding closestMatch, char[] selector, TypeBin
 public final int problemId() {
 	return this.problemReason;
 }
+
+public IAnnotationInstance[] getAnnotations(){ return NoAnnotations; }
+public IAnnotationInstance[] getParameterAnnotations(int index){ return NoAnnotations; }
+public Object getDefaultValue(){ return null; }
 }

@@ -33,7 +33,6 @@ abstract public class ReferenceBinding extends TypeBinding implements IDependent
 	public char[] sourceName;
 	public int modifiers;
 	public PackageBinding fPackage;
-
 	char[] fileName;
 	char[] constantPoolName;
 	char[] signature;
@@ -856,5 +855,12 @@ public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	return methods();
+}
+/**
+ * @return the JSR 175 annotations that annotate this type.
+ */
+public IAnnotationInstance[] getAnnotations()
+{
+	return NoAnnotations;
 }
 }

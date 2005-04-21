@@ -406,6 +406,24 @@ public class CompilationUnit extends ASTNode {
 	public ASTNode findDeclaringNode(IBinding binding) {
 		return this.ast.getBindingResolver().findDeclaringNode(binding);
 	}
+	
+	/**
+	 * Finds the corresponding AST node in the given compilation unit from 
+	 * which the given resolved annotation originated. Returns <code>null</code>
+	 * if the resolved annotation does not correspond to any node in this compilation unit.
+	 *
+	 * This method always returns <code>null</code> when the resolved annotation
+	 * comes from a different AST.
+	 * 
+	 * @param resolvedAnnotation the resolved annotation
+	 * @return the corresponding node where the given resolved annotation is declared,
+	 * or <code>null</code> if the resolved annotation does not correspond to a node in this
+	 * compilation unit or if bindings were not requested when this AST was built
+	 * @since 3.2
+	 */
+	public ASTNode findDeclaringNode(IResolvedAnnotation resolvedAnnotation) {
+		return this.ast.getBindingResolver().findDeclaringNode(resolvedAnnotation);
+	}
 
 	/**
 	 * Finds the corresponding AST node in the given compilation unit from 

@@ -1892,6 +1892,7 @@ class ASTConverter {
 		markerAnnotation.setSourceRange(start, end - start + 1);
 		if (this.resolveBindings) {
 			recordNodes(markerAnnotation, annotation);
+			markerAnnotation.resolveAnnotation();
 		}
 		return markerAnnotation;
 	}
@@ -1953,6 +1954,7 @@ class ASTConverter {
 		normalAnnotation.setSourceRange(start, end - start + 1);
 		if (this.resolveBindings) {
 			recordNodes(normalAnnotation, annotation);
+			normalAnnotation.resolveAnnotation();
 		}
 		return normalAnnotation;
 	}
@@ -2129,6 +2131,7 @@ class ASTConverter {
 		singleMemberAnnotation.setSourceRange(start, end - start + 1);
 		if (this.resolveBindings) {
 			recordNodes(singleMemberAnnotation, annotation);
+			singleMemberAnnotation.resolveAnnotation();
 		}
 		return singleMemberAnnotation;
 	}

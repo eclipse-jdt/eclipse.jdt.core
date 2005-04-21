@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.eval;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
@@ -85,7 +86,16 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 		}
 		public long getTagBits() {
 			return 0;
+		}	
+		public IBinaryAnnotation[] getAnnotations() {
+			return null;
 		}
+		
+		public IBinaryAnnotation[] getParameterAnnotations(int index) {
+			return null;
+		}
+		
+		public Object getDefaultValue(){ return null; }
 }
 	
 /**
@@ -146,6 +156,10 @@ public boolean isMember() {
 	return false;
 }
 public char[] sourceFileName() {
+	return null;
+}
+
+public IBinaryAnnotation[] getAnnotations() {
 	return null;
 }
 public long getTagBits() {

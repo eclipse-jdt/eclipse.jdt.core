@@ -90,8 +90,11 @@ class DefaultBindingResolver extends BindingResolver {
 		Map bindingKeysToBindings;
 		/**
 		 * This map is used to keep the correspondance between new bindings and the 
-		 * compiler bindings. This is an identity map. We should only create one object
-		 * for one binding.
+		 * compiler bindings as well as new annotation instances to their 
+		 * internal counterpart. 
+		 * This is an identity map. We should only create one object
+		 * for one binding or annotation.
+		 * 
 		 */
 		Map compilerBindingsToASTBindings;
 		
@@ -107,7 +110,7 @@ class DefaultBindingResolver extends BindingResolver {
 	Map astNodesToBlockScope;
 	
 	/**
-	 * This map is used to get an ast node from its binding (new binding)
+	 * This map is used to get an ast node from its binding (new binding) or DOM
 	 */
 	Map bindingsToAstNodes;
 	
@@ -181,6 +184,13 @@ class DefaultBindingResolver extends BindingResolver {
 		if (binding == null) 
 			return null;
 		return (ASTNode) this.bindingsToAstNodes.get(binding);
+	}
+	
+	synchronized ASTNode findDeclaringNode(IResolvedAnnotation instance)
+	{
+		if( instance == null ) 
+			return null;
+		return (ASTNode)this.bindingsToAstNodes.get(instance);
 	}
 	
 	IBinding getBinding(org.eclipse.jdt.internal.compiler.lookup.Binding binding) {
@@ -349,6 +359,17 @@ class DefaultBindingResolver extends BindingResolver {
 	 		}
  		}
 		return null;
+	}
+	
+	synchronized IResolvedAnnotation getAnnotationInstance(org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance internalInstance){
+		IResolvedAnnotation domInstance = 
+			(IResolvedAnnotation) this.bindingTables.compilerBindingsToASTBindings.get(internalInstance);
+		if (domInstance != null) {
+			return domInstance;
+		}
+		domInstance = new ResolvedAnnotation(internalInstance, this);
+		this.bindingTables.compilerBindingsToASTBindings.put(internalInstance, domInstance);
+		return domInstance;
 	}
 	
 	/*
@@ -1394,6 +1415,23 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		} catch (AbortCompilation e) {
 			// ignore missing types
+		}
+		return null;
+	}
+	
+	synchronized IResolvedAnnotation resolveAnnotation(final Annotation domASTNode)
+	{
+		Object oldNode = this.newAstToOldAst.get(domASTNode);
+		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.Annotation) {
+			org.eclipse.jdt.internal.compiler.ast.Annotation internalAstNode = 
+				(org.eclipse.jdt.internal.compiler.ast.Annotation) oldNode;
+			
+			IResolvedAnnotation domAnnotation = this.getAnnotationInstance(internalAstNode.compilerAnnotation);
+			if (domAnnotation == null) {
+				return null;
+			}
+			this.bindingsToAstNodes.put(domAnnotation, domASTNode);			
+			return domAnnotation;
 		}
 		return null;
 	}

@@ -136,6 +136,27 @@ public interface IBinding {
 	public IJavaElement getJavaElement();
 	
 	/**
+	 * Return the resolved annotations associated with this binding.
+	 * <ul>
+	 * <li>Package bindings - these are annotations on a package declaration.
+	 * </li>
+	 * <li>Type bindings - these are annotations on a class, interface, enum,
+	 * or annotation type declaration. The result is the same regardless of
+	 * whether the type is parameterized.</li>
+	 * <li>Method bindings - these are annotations on a method or constructor
+	 * declaration. The result is the same regardless of whether the method is
+	 * parameterized.</li>
+	 * <li>Variable bindings - these are annotations on a field, enum constant,
+	 * or formal parameter declaration.</li>
+	 * </ul>
+	 * 
+	 * @return the list of resolved annotations, or the empty list if there are no
+	 * annotations associated with the object for which this is the binding
+	 * @since 3.2
+	 */
+	public IResolvedAnnotation[] getAnnotations();
+	
+	/**
 	 * Returns the key for this binding.
 	 * <p>
 	 * Within a connected cluster of bindings (for example, all bindings 

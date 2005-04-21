@@ -1029,6 +1029,27 @@ class TypeBinding implements ITypeBinding {
 		return methodBinding.isDefaultAbstract() || methodBinding.isSynthetic() || (methodBinding.isConstructor() && isInterface());
 	}
 	
+	public IResolvedAnnotation[] getAnnotations(){ 
+		if( this.binding.isAnnotationType() || this.binding.isClass() ||
+		    this.binding.isEnum() || this.binding.isInterface() ){
+			final org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding refType = 
+				(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)this.binding;
+			final org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance[] 
+				internalAnnotations = refType.getAnnotations();
+			
+			final int len = internalAnnotations == null ? 0 : internalAnnotations.length;
+			IResolvedAnnotation[] domInstances = ResolvedAnnotation.NoAnnotations;
+			if( len > 0 ){
+				domInstances = new ResolvedAnnotation[len];
+				for( int i=0; i<len; i++ ){
+					domInstances[i] = this.resolver.getAnnotationInstance(internalAnnotations[i]);					
+				}
+			}
+			return domInstances;
+		}
+		return null;
+	}
+	
 	/* 
 	 * For debugging purpose only.
 	 * @see java.lang.Object#toString()

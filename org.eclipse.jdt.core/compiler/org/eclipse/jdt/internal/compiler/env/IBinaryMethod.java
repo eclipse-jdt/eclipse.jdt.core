@@ -16,7 +16,18 @@ package org.eclipse.jdt.internal.compiler.env;
 // member type) is also ignored by the compiler, BUT in this case it must be included
 // in the constructor's signature.
 
-public interface IBinaryMethod extends IGenericMethod {
+public interface IBinaryMethod extends IGenericMethod, IBinaryAnnotationMethod {
+	
+/**
+ * @return the both runtime visible and invisible annoations that annotated this method.
+ */
+IBinaryAnnotation[] getAnnotations();
+
+/**
+ * @param index the index of the parameter of interest
+ * @return the annotations on the <code>index</code>th parameter or null if none exists.
+ */
+IBinaryAnnotation[] getParameterAnnotations(int index);
 
 /**
  * Answer the resolved names of the exception types in the

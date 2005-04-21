@@ -335,4 +335,8 @@ public class SyntheticMethodBinding extends MethodBinding {
 	protected boolean isConstructorRelated() {
 		return kind == ConstructorAccess;
 	}
+	
+	public IAnnotationInstance[] getAnnotations(){ return NoAnnotations; }
+	public IAnnotationInstance[] getParameterAnnotations(int paramIndex){ return NoAnnotations; }
+	public Object getDefaultValue(){ return null; }
 }

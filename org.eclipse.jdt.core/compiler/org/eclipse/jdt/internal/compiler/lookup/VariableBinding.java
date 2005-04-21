@@ -51,10 +51,16 @@ public abstract class VariableBinding extends Binding {
 	public void setConstant(Constant constant) {
 		this.constant = constant;
 	}
+	/**
+	 * @return the annotations iff this is a field, enum constant or parameter.
+	 * Return null otherwise.
+	 */
+	public abstract IAnnotationInstance[] getAnnotations();
+	
 	public String toString() {
 		String s = (type != null) ? type.debugName() : "UNDEFINED TYPE"; //$NON-NLS-1$
 		s += " "; //$NON-NLS-1$
 		s += (name != null) ? new String(name) : "UNNAMED FIELD"; //$NON-NLS-1$
 		return s;
-	}
+	}	
 }

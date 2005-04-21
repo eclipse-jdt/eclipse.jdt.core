@@ -10,13 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 
-public class LocalVariableBinding extends VariableBinding {
+public class LocalVariableBinding extends VariableBinding implements TypeConstants {
 
 	public boolean isArgument;
 	public int resolvedPosition; // for code generation (position in method context)
@@ -127,6 +129,24 @@ public class LocalVariableBinding extends VariableBinding {
 			initializationPCs[index + 1] = -1;
 			initializationCount++;
 		}
+	}
+	
+	public IAnnotationInstance[] getAnnotations()
+	{		
+		if( this.isArgument && this.declaration != null){
+			final Annotation[] argAnnos = declaration.annotations;
+			final int numAnnotations = argAnnos == null ? 0 : argAnnos.length;
+			IAnnotationInstance[] result = NoAnnotations;
+			if( numAnnotations > 0 ){
+				result = new SourceAnnotation[numAnnotations];
+				// check for errors
+				ASTNode.resolveAnnotations(declaringScope, argAnnos, this);
+				for( int j=0; j<numAnnotations; j++ ){
+					result[j] = new SourceAnnotation(argAnnos[j]);
+				}
+			}		
+		}
+		return null;
 	}
 
 	public String toString() {

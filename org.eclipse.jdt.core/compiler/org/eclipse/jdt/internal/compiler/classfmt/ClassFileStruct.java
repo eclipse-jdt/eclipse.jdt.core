@@ -163,6 +163,7 @@ public char[] utf8At(int relativeOffset, int bytesAvailable, boolean testValidit
 	}
 	return outputBuf;
 }
+
 public static void verifyMethodNameAndSignature(char[] name, char[] signature) throws ClassFormatException {
 
 	// ensure name is not empty 

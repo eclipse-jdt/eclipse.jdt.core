@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
-import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.ByteConstant;
@@ -24,7 +24,6 @@ import org.eclipse.jdt.internal.compiler.impl.IntConstant;
 import org.eclipse.jdt.internal.compiler.impl.LongConstant;
 import org.eclipse.jdt.internal.compiler.impl.ShortConstant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -39,6 +38,7 @@ public class FieldInfo extends ClassFileStruct implements AttributeNamesConstant
 	private int signatureUtf8Offset;
 	private long tagBits;	
 	private Object wrappedConstantValue;
+	private AnnotationInfo[] annotations;
 /**
  * @param classFileBytes byte[]
  * @param offsets int[]
@@ -64,7 +64,10 @@ public FieldInfo (byte classFileBytes[], int offsets[], int offset) {
 					break;
 				case 'R' :
 					if (CharOperation.equals(attributeName, RuntimeVisibleAnnotationsName)) {
-						decodeStandardAnnotations(readOffset);
+						decodeAnnotations(readOffset, true);
+					}
+					else if(CharOperation.equals(attributeName, RuntimeInvisibleAnnotationsName)) {
+						decodeAnnotations(readOffset, false);
 					}
 			}
 		}
@@ -79,66 +82,40 @@ public int compareTo(Object o) {
 	}
 	return new String(this.getName()).compareTo(new String(((FieldInfo) o).getName()));
 }
-private int decodeAnnotation(int offset) {
-	int readOffset = offset;
-	int utf8Offset = this.constantPoolOffsets[u2At(offset)] - structOffset;
-	char[] typeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-	int numberOfPairs = u2At(offset + 2);
-	readOffset += 4;
-	if (typeName.length == 22 && CharOperation.equals(typeName, ConstantPool.JAVA_LANG_DEPRECATED)) {
-		this.tagBits |= TagBits.AnnotationDeprecated;
-		return readOffset;		
-	}
-	for (int i = 0; i < numberOfPairs; i++) {
-		readOffset += 2;
-		readOffset = decodeElementValue(readOffset);
-	}
-	return readOffset;
-}
-private int decodeElementValue(int offset) {
-	int readOffset = offset;
-	int tag = u1At(readOffset);
-	readOffset++;
-	switch(tag) {
-		case 'B' :
-		case 'C' :
-		case 'D' :
-		case 'F' :
-		case 'I' :
-		case 'J' :
-		case 'S' :
-		case 'Z' :
-		case 's' :
-			readOffset += 2;
-			break;
-		case 'e' :
-			readOffset += 4;
-			break;
-		case 'c' :
-			readOffset += 2;
-			break;
-		case '@' :
-			readOffset += decodeAnnotation(readOffset);
-			break;
-		case '[' :
-			int numberOfValues = u2At(readOffset);
-			readOffset += 2;
-			for (int i = 0; i < numberOfValues; i++) {
-				readOffset = decodeElementValue(readOffset);
-			}
-			break;
-	}
-	return readOffset;
-}
+
 /**
- * @param offset the offset is located at the beginning of the runtime visible 
+ * @param offset the offset is located at the beginning of the  
  * annotation attribute.
  */
-private void decodeStandardAnnotations(int offset) {
+private void decodeAnnotations(int offset, boolean runtimeVisible) {
+/*
+int actualOffset = offset + structOffset;
+String text = runtimeVisible ?  " runtime visible " : " runtime invisible ";
+System.err.println("decoding field_info" + text + "annotation at " + actualOffset);
+*/
 	int numberOfAnnotations = u2At(offset + 6);
 	int readOffset = offset + 8;
-	for (int i = 0; i < numberOfAnnotations; i++) {
-		readOffset = decodeAnnotation(readOffset);
+	int index=0;
+	if( numberOfAnnotations > 0 ){		
+		if( this.annotations == null )
+			this.annotations = new AnnotationInfo[numberOfAnnotations];
+		else{
+			int curlen = this.annotations.length;
+			index = curlen;
+			int newTotal = curlen + numberOfAnnotations;
+			final AnnotationInfo[] newAnnos = new AnnotationInfo[newTotal];
+			System.arraycopy(this.annotations, 0, newAnnos, 0, curlen);
+			this.annotations = newAnnos;
+		}
+	}	
+	for (int i = 0; i < numberOfAnnotations; i++, index++) {		
+		this.annotations[index] = new AnnotationInfo(reference, 
+											           readOffset + structOffset, 
+													   this.constantPoolOffsets, 
+													   runtimeVisible, 
+													   false);
+		readOffset = this.annotations[index].getLength() + readOffset;		
+		this.tagBits |= this.annotations[index].getStandardAnnotationTagBits();
 	}
 }
 /**
@@ -211,6 +188,14 @@ public char[] getTypeName() {
 	}
 	return descriptor;
 }
+
+/**
+ * @return the annotations or null if there is none.
+ */
+public IBinaryAnnotation[] getAnnotations(){
+	return this.annotations;
+}
+
 /**
  * Return a wrapper that contains the constant of the field.
  * @return java.lang.Object
@@ -269,6 +254,11 @@ void initialize() {
 	getConstant();
 	getTypeName();
 	getGenericSignature();
+	if( annotations != null ){
+		for( int i=0, max = annotations.length; i<max; i++ ){
+			annotations[i].initialize();
+		}
+	}
 	reset();
 }
 /**
@@ -365,6 +355,11 @@ private void readModifierRelatedAttributes() {
 }
 protected void reset() {
 	this.constantPoolOffsets = null;
+	if( annotations != null ){
+		for( int i=0, max = annotations.length; i<max; i++ ){
+			annotations[i].reset();
+		}
+	}
 	super.reset();
 }
 /**
@@ -380,6 +375,15 @@ public void throwFormatException() throws ClassFormatException {
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer(this.getClass().getName());
+	
+	if(this.annotations != null){
+		buffer.append('\n');
+		for( int i=0; i<this.annotations.length; i++ ){			
+			buffer.append(annotations[i]);
+			buffer.append('\n');
+		}
+	}	
+	
 	int modifiers = getModifiers();
 	return buffer
 		.append("{") //$NON-NLS-1$

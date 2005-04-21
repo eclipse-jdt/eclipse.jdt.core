@@ -148,6 +148,11 @@ class PackageBinding implements IPackageBinding {
 		}
 	}
 	
+	public IResolvedAnnotation[] getAnnotations() {
+		// TODO Auto-generated method stub
+		throw new RuntimeException("Not implemented yet"); //$NON-NLS-1$
+	}
+
 	/* 
 	 * For debugging purpose only.
 	 * @see java.lang.Object#toString()

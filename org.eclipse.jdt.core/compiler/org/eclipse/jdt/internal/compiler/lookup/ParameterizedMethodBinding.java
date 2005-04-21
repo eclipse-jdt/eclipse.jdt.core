@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * their signature did involve generics or not, so as to get the proper declaringClass for
  * these methods.
  */
+
 public class ParameterizedMethodBinding extends MethodBinding {
 
 	protected MethodBinding originalMethod;
@@ -142,5 +143,20 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	 */
 	public MethodBinding original() {
 		return this.originalMethod.original();
+	}
+	
+	public IAnnotationInstance[] getAnnotations()
+	{
+		return original().getAnnotations();
+	}
+	
+	public IAnnotationInstance[] getParameterAnnotations(int index)
+	{
+		return original().getParameterAnnotations(index);
+	}
+	
+	public Object getDefaultValue()
+	{
+		return original().getDefaultValue();
 	}
 }

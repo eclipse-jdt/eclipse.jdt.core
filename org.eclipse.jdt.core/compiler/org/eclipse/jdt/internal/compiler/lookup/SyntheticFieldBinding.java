@@ -21,4 +21,6 @@ public class SyntheticFieldBinding extends FieldBinding {
 		this.index = index;
 		this.tagBits |= TagBits.AnnotationResolved;
 	}
+	
+	public IAnnotationInstance[] getAnnotations(){ return NoAnnotations; }
 }

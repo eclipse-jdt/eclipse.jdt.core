@@ -633,6 +633,23 @@ public long getAnnotationTagBits() {
 	}
 	return this.tagBits;
 }
+
+public IAnnotationInstance[] getAnnotations() {
+	// make sure we first go resolve the annoations and report any problems found.
+	getAnnotationTagBits();
+	final TypeDeclaration typeDecl = this.scope.referenceContext;
+	final int numAnnotations = typeDecl.annotations == null ? 0 : typeDecl.annotations.length;
+	if( numAnnotations == 0 )
+		return NoAnnotations;
+	else{
+		final IAnnotationInstance[] instances = new IAnnotationInstance[numAnnotations];
+		for( int i=0; i<numAnnotations; i++ ){
+			instances[i] = new SourceAnnotation(typeDecl.annotations[i]);
+		}
+		return instances;
+	}
+}
+
 public MethodBinding[] getDefaultAbstractMethods() {
 	int count = 0;
 	for (int i = methods.length; --i >= 0;)
@@ -894,7 +911,11 @@ public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBi
 	}
 	FieldBinding updatedField = (FieldBinding) fieldMap.get(newDeclaringClass);
 	if (updatedField == null){
-		updatedField = new FieldBinding(targetField, newDeclaringClass);
+		if( targetField instanceof BinaryFieldBinding )
+			updatedField = new BinaryFieldBinding((BinaryFieldBinding)targetField, newDeclaringClass);
+		else
+			updatedField = new FieldBinding(targetField, newDeclaringClass);
+			
 		fieldMap.put(newDeclaringClass, updatedField);
 	}
 	return updatedField;
@@ -912,7 +933,11 @@ public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, Referen
 	}
 	MethodBinding updatedMethod = (MethodBinding) methodMap.get(newDeclaringClass);
 	if (updatedMethod == null){
-		updatedMethod = new MethodBinding(targetMethod, newDeclaringClass);
+		if( targetMethod instanceof BinaryMethodBinding )
+			updatedMethod = new BinaryMethodBinding((BinaryMethodBinding)targetMethod, newDeclaringClass);
+		else
+			updatedMethod = new MethodBinding(targetMethod, newDeclaringClass);	
+			
 		methodMap.put(newDeclaringClass, updatedMethod);
 	}
 	return updatedMethod;

@@ -55,4 +55,8 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 			AccFinal,
 			true);
 	}
+	
+	public IAnnotationInstance[] getAnnotations(){ 
+		return isArgument ? NoAnnotations : null; 
+	}
 }

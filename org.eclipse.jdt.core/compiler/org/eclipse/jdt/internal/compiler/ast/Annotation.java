@@ -21,9 +21,12 @@ public abstract class Annotation extends Expression {
 	
 	final static MemberValuePair[] NoValuePairs = new MemberValuePair[0];
 	public int declarationSourceEnd;
-	public Binding recipient;
-	
+	public Binding recipient;	
 	public TypeReference type;
+	/** 
+	 *  The representation of this annotation in the type system. 
+	 */
+	public SourceAnnotation compilerAnnotation;
 	
 	public static long getRetentionPolicy(char[] policyName) {
 		if (policyName == null || policyName.length == 0)
@@ -297,8 +300,8 @@ public abstract class Annotation extends Expression {
 			}
 		}
 		return this.resolvedType;
-	}
-	
+	}	
+		
 	public abstract void traverse(ASTVisitor visitor, BlockScope scope);
 	public abstract void traverse(ASTVisitor visitor, CompilationUnitScope scope);
 }

@@ -17,7 +17,8 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 
 /**
  * A binding resolver is an internal mechanism for figuring out the binding
- * for a major declaration, type, or name reference.
+ * for a major declaration, type, or name reference. This also handles
+ * the creation and mapping between annotations and the ast nodes that defines them
  * <p>
  * The default implementation serves as the default binding resolver
  * that does no resolving whatsoever. Internal subclasses do all the real work.
@@ -91,6 +92,21 @@ class BindingResolver {
 	ASTNode findDeclaringNode(String bindingKey) {
 		return null;
 	}
+	
+	/**
+	 * Finds the corresponding AST node from which the given annotation instance originated.
+	 * 
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param instance the dom annotation
+	 * @return the corresponding node where the bindings is declared, 
+	 *    or <code>null</code> if none
+	 */
+	ASTNode findDeclaringNode(IResolvedAnnotation instance){
+		return null;
+	}
 
 	/**
 	 * Allows the user to get information about the given old/new pair of
@@ -160,6 +176,20 @@ class BindingResolver {
 	 * @return the new variable binding
 	 */
 	IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding binding) {
+		return null;
+	}
+	
+	/**
+	 * Return the new annotation corresponding to the given old annotation
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param instance the old annotation 
+	 * @return the new DOM annotation
+	 */
+	IResolvedAnnotation getAnnotationInstance(org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance instance){
 		return null;
 	}
 	
@@ -783,6 +813,25 @@ class BindingResolver {
 	ITypeBinding resolveWellKnownType(String name) {
 		return null;
 	}
+	
+	/**
+	 * Resolves the given annotation instance and returns the DOM representation for it.
+	 * <p>
+	 * The implementation of {@link Annotation#resolveAnnotation()}
+	 * forwards to this method. 
+	 * </p>
+	 * <p>
+	 * The default implementation of this method returns <code>null</code>.
+	 * Subclasses may reimplement.
+	 * </p>
+	 * 
+	 * @param annotation the annotation ast node of interest
+	 * @return the DOM annotation representation for the given ast node, or 
+	 *    <code>null</code> if none is available
+	 */
+	IResolvedAnnotation resolveAnnotation(Annotation annotation){
+		return null;
+	}	
 	
 	/**
 	 * Returns the compilation unit scope used by this binding resolver.

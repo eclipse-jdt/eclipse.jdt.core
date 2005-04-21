@@ -289,6 +289,23 @@ class VariableBinding implements IVariableBinding {
 		}
 		return false;
 	}
+	
+	public IResolvedAnnotation[] getAnnotations()
+	{ 
+		final org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance[] internalAnnotations =
+			this.binding.getAnnotations();
+		// the variable is not an enum constant nor a field nor an argument.
+		if( internalAnnotations == null ) return null;
+		final int len = internalAnnotations.length;
+		IResolvedAnnotation[] domInstances = ResolvedAnnotation.NoAnnotations;
+		if( len > 0 ){
+			domInstances = new ResolvedAnnotation[len];
+			for( int i=0; i<len; i++ ){
+				domInstances[i] = this.resolver.getAnnotationInstance(internalAnnotations[i]);
+			}
+		}
+		return domInstances;                                                                  
+	}
 
 	/* 
 	 * For debugging purpose only.

@@ -12,12 +12,14 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
-public class FieldBinding extends VariableBinding {
-	public ReferenceBinding declaringClass;
+public class FieldBinding extends VariableBinding implements TypeConstants {
+	public ReferenceBinding declaringClass;	
+	
 protected FieldBinding() {
 	super(null, null, 0, null);
 	// for creating problem field
@@ -278,5 +280,29 @@ public FieldDeclaration sourceField() {
 				return fields[i];
 	}
 	return null;		
+}
+
+public IAnnotationInstance[] getAnnotations() { 	
+	// make sure we check the annotations for problems
+	getAnnotationTagBits();				
+	IAnnotationInstance[] result = NoAnnotations;
+	// length field of an array don't have a declaring class.
+	if( this.declaringClass != null && !this.declaringClass.isBinaryBinding() ){				
+		TypeDeclaration typeDecl = ((SourceTypeBinding)this.declaringClass).scope.referenceContext;
+		FieldDeclaration fieldDecl = typeDecl.declarationOf(this);
+		
+		if (fieldDecl != null){
+			final Annotation[] fieldAnnos = fieldDecl.annotations;
+			final int len = fieldAnnos == null ? 0 : fieldAnnos.length;
+			if( len > 0 )
+			{
+				result = new IAnnotationInstance[len];
+				for( int i = 0; i < len; i++ ){
+					result[i] = fieldAnnos[i].compilerAnnotation;
+				}
+			}
+		}
+	}
+	return result;
 }
 }

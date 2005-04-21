@@ -22,4 +22,7 @@ public class UpdatedMethodBinding extends MethodBinding {
 	public TypeBinding constantPoolDeclaringClass() {
 		return this.updatedDeclaringClass;
 	}
+	public IAnnotationInstance[] getAnnotations(){ return NoAnnotations; }
+	public IAnnotationInstance[] getParameterAnnotations(int index){ return NoAnnotations; }
+	public Object getDefaultValue(){ return null; }
 }

@@ -13,6 +13,9 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 
@@ -378,6 +381,88 @@ public long getAnnotationTagBits() {
 			ASTNode.resolveAnnotations(methodDecl.scope, methodDecl.annotations, originalMethod);
 	}
 	return originalMethod.tagBits;
+}
+
+/**
+ * @return the annotations annotating this method.
+ *         Return a zero-length array if none is found.
+ */
+public IAnnotationInstance[] getAnnotations() 
+{	
+	// make sure they are checked for problems/
+	// this call will also initialize the 'compilerAnnotation' field.
+	getAnnotationTagBits();
+	IAnnotationInstance[] methodAnno = NoAnnotations;	
+	if(this.declaringClass != null && this.declaringClass instanceof SourceTypeBinding )
+	{
+		TypeDeclaration typeDecl = ((SourceTypeBinding)declaringClass).scope.referenceContext;		
+		AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(this);
+					
+		if (methodDecl != null){
+			final int len = methodDecl.annotations == null ? 0 : methodDecl.annotations.length;
+			if( len > 0 ){
+				methodAnno = new IAnnotationInstance[len];
+				for( int i=0; i<len; i++ ){
+					methodAnno[i] = methodDecl.annotations[i].compilerAnnotation;
+				}
+			}			
+		}		
+	}
+	return methodAnno;
+}
+
+/**
+ * @param index the index of the parameter of interest
+ * @return the annotations on the <code>index</code>th parameter
+ * @throws ArrayIndexOutOfBoundsException when <code>index</code> is not valid 
+ */
+public IAnnotationInstance[] getParameterAnnotations(final int index)
+{	
+	IAnnotationInstance[] result = NoAnnotations;
+	if(this.declaringClass != null && this.declaringClass instanceof SourceTypeBinding )
+	{
+		TypeDeclaration typeDecl = ((SourceTypeBinding)this.declaringClass).scope.referenceContext;
+		AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(this);
+		if(methodDecl != null ){
+			final Argument[] args = methodDecl.arguments;
+			final int numArgs = args == null ? 0 : args.length;
+			if( numArgs == 0 || index < 0 || index >= numArgs )
+				throw new IllegalArgumentException("number of parameters = " + numArgs + //$NON-NLS-1$ 
+						   						   " index = " + index ); //$NON-NLS-1$	
+			final Argument arg = args[index];
+			final Annotation[] argAnnos = arg.annotations;
+			final int numAnnotations = argAnnos == null ? 0 : argAnnos.length;
+			
+			if( numAnnotations > 0 ){
+				result = new SourceAnnotation[numAnnotations];
+				// check for errors
+				ASTNode.resolveAnnotations(methodDecl.scope, argAnnos, this);
+				for( int j=0; j<numAnnotations; j++ ){
+					result[j] = argAnnos[j].compilerAnnotation;
+				}
+			}	
+		}
+	}
+	
+	return result;
+}
+
+/**
+ * @return the default value iff this is an annotation method.
+ *         Return <code>null</code> if there is no default value or 
+ *         if this is not an annotaion method. 
+ */
+public Object getDefaultValue()
+{
+	if(this.declaringClass != null && this.declaringClass instanceof SourceTypeBinding )
+	{
+		TypeDeclaration typeDecl = ((SourceTypeBinding)this.declaringClass).scope.referenceContext;
+		final AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(this);
+		if( methodDecl instanceof AnnotationMethodDeclaration){
+			return SourceElementValuePair.getValue(((AnnotationMethodDeclaration)methodDecl).defaultValue);
+		}
+	}
+	return null;
 }
 
 public TypeVariableBinding getTypeVariable(char[] variableName) {

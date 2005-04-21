@@ -42,8 +42,8 @@ public interface IMethodBinding extends IBinding {
 	 * @return <code>true</code> if this is the binding for a constructor,
 	 *    and <code>false</code> if this is the binding for a method
 	 */ 
-	public boolean isConstructor();
-
+	public boolean isConstructor();	
+	
 	/**
 	 * Returns whether this binding is known to be a compiler-generated 
 	 * default constructor. 
@@ -237,7 +237,7 @@ public interface IMethodBinding extends IBinding {
 	 *
 	 * @return <code>true</code> if this method binding represents a 
 	 * an instance of a generic method corresponding to a raw
-	 * method reference, and <code>false</code> otherwise
+	 * method reference, ad <code>false</code> otherwise
 	 * @see #getMethodDeclaration()
 	 * @see #getTypeArguments()
 	 * @since 3.1
@@ -266,6 +266,38 @@ public interface IMethodBinding extends IBinding {
 	public boolean isVarargs();
 	
 	/**
+	 * Return whether this is the binding for an annotation type member.
+	 * 
+	 * @return <code>true</code> iff this is the binding for an annotation type member
+	 *         and <code>false</code> otherwise
+	 * @since 3.2
+	 */
+	public boolean isAnnotationMember();
+
+	/**
+	 * Return the resolved default value of an annotation type member, 
+	 * or <code>null</code> if the member has no default value, or if this
+	 * is not the binding for an annotation type member.
+	 * <p>
+	 * Resolved values are represented as follows (same as for
+	 * {@link IResolvedMemberValuePair#getValue()}):
+	 * <ul>
+	 * <li>Primitive type - the equivalent boxed object</li>
+	 * <li>java.lang.Class - the <code>ITypeBinding</code> for the class object</li>
+	 * <li>java.lang.String - the string value itself</li>
+	 * <li>enum type - the <code>IVariableBinding</code> for the enum constant</li>
+	 * <li>annotation type - an <code>IResolvedAnnotation</code></li>
+	 * <li>array type - an <code>Object[]</code> whose elements are as per above
+	 * (the language only allows single dimensional arrays in annotations)</li>
+	 * </ul>
+	 * 
+	 * @return the default value of this annotation type member, or <code>null</code>
+	 * if none or not applicable
+	 * @since 3.2
+	 */
+	public Object getDefaultValue();
+	
+	/**
 	 * Returns whether this method overrides the given method,
 	 * as specified in section 6.4.2 of <em>The Java Language 
 	 * Specification, Second Edition</em> (JLS2).
@@ -276,4 +308,18 @@ public interface IMethodBinding extends IBinding {
 	 * @since 3.1
 	 */
 	public boolean overrides(IMethodBinding method);
+		
+	/**
+	 * Return the resolved annotations of a parameter of this method.
+	 * The result returned is the same regardless of whether 
+	 * this is a parameterized method.
+	 * 
+	 * @param paramIndex the index of the parameter of interest
+	 * @return the resolved annotations of the <code>paramIndex</code>th parameter,
+	 * or an empty list if there are none
+	 * @throws ArrayIndexOutOfBoundsException if <code>paramIndex</code> is 
+	 * not a valid index
+	 * @since 3.2
+	 */
+	public IResolvedAnnotation[] getParameterAnnotations(int paramIndex);
 }

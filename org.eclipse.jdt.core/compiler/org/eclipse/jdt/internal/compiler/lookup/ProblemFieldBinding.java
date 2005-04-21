@@ -38,4 +38,6 @@ public ProblemFieldBinding(FieldBinding closestMatch, ReferenceBinding declaring
 public final int problemId() {
 	return problemId;
 }
+
+public IAnnotationInstance[] getAnnotations(){ return NoAnnotations; }
 }

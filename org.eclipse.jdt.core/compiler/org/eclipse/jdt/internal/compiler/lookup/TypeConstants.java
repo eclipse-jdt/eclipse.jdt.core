@@ -133,6 +133,9 @@ public interface TypeConstants {
 	ReferenceBinding[] NoSuperInterfaces = new ReferenceBinding[0];
 	ReferenceBinding[] NoMemberTypes = new ReferenceBinding[0];
 	TypeVariableBinding[] NoTypeVariables = new TypeVariableBinding[0];
+	IAnnotationInstance[] NoAnnotations = new IAnnotationInstance[0];
+	IElementValuePair[] NoElementValuePairs = new IElementValuePair[0];
+	IAnnotationInstance[][] NoParamAnnotations = new IAnnotationInstance[0][0];
 	
 	// Synthetics
 	char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
