@@ -1,0 +1,5 @@
+Building org.eclipse.jdt.apt.core:
+
+1. Requires JDK 1.5.
+2. In Eclipse, add a JRE entry for 1.5, named exactly "JRE 1.5.0".  This name is referred to in the .classpath file.
+3. Requires tools.jar, from the 1.5 JDK lib directory, to be copied into the project root.

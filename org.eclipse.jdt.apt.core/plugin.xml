@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin
+   id="org.eclipse.jdt.apt.core"
+   name="Annotation Processing Support Plug-in"
+   version="1.0.0"
+   provider-name="">
+
+   <runtime>
+      <library name="aptcore.jar">
+         <export name="*"/>
+      </library>
+      <library name="tools.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+   <requires>
+      <import plugin="org.eclipse.jdt.core"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <!-- don't need to import 'org.eclipse.ui.editors'. 
+           This is here so I could read the source code for debugging. -->
+      <import plugin="org.eclipse.ui.editors"/>
+   </requires>
+
+<!-- =================================================================================== -->
+<!-- Extension Point: Annotation Processor Factories                                     -->
+<!-- =================================================================================== -->
+
+<extension-point 
+	id="annotationProcessorFactory" 
+	name="Annotation Processor Factories" 
+	schema="schema/annotationProcessorFactory.exsd"/>
+
+<!-- =================================================================================== -->
+<!-- Extension: Marker posted during reconcile											 -->
+<!-- =================================================================================== -->
+<extension
+    id="reconcile_marker"
+    point="org.eclipse.core.resources.markers"
+    name="APT Reconcile-time Marker">
+	<super type="org.eclipse.core.resources.problemmarker"/>
+	<super type="org.eclipse.core.resources.textmarker"/>
+	<persistent value="false"/>
+</extension>	
+<!-- =================================================================================== -->
+<!-- Extension: Marker posted during build												 -->
+<!-- =================================================================================== -->
+<extension
+    id="build_marker"
+    name="APT Build-time Marker"
+    point="org.eclipse.core.resources.markers">       
+    <super type="org.eclipse.core.resources.problemmarker"/>
+	<super type="org.eclipse.core.resources.textmarker"/>
+    <persistent value="true"/>   
+</extension>
+
+<!-- =================================================================================== -->
+<!-- Extension: Compilation Participant                                                  -->
+<!-- =================================================================================== -->
+<extension
+      id="apt"
+      name="Annotation Processing"
+      point="org.eclipse.jdt.core.compilationParticipant">
+   <compilationParticipant
+         class="org.eclipse.jdt.apt.core.internal.BuildListener"
+         eventMask="0x0f"/>
+</extension>
+
+</plugin>
