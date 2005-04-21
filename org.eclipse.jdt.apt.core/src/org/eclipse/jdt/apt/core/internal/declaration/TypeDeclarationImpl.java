@@ -11,22 +11,6 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import com.sun.mirror.declaration.AnnotationMirror;
-import com.sun.mirror.declaration.Declaration;
-import com.sun.mirror.declaration.FieldDeclaration;
-import com.sun.mirror.declaration.MethodDeclaration;
-import com.sun.mirror.declaration.Modifier;
-import com.sun.mirror.declaration.PackageDeclaration;
-import com.sun.mirror.declaration.TypeDeclaration;
-import com.sun.mirror.declaration.TypeParameterDeclaration;
-import com.sun.mirror.type.DeclaredType;
-import com.sun.mirror.type.InterfaceType;
-import com.sun.mirror.type.ReferenceType;
-import com.sun.mirror.type.TypeMirror;
-import com.sun.mirror.util.DeclarationVisitor;
-import com.sun.mirror.util.SourcePosition;
-import com.sun.mirror.util.TypeVisitor;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,15 +18,17 @@ import java.util.List;
 
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
-import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
-import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.Javadoc;
+
+import com.sun.mirror.declaration.*;
+import com.sun.mirror.type.DeclaredType;
+import com.sun.mirror.type.InterfaceType;
+import com.sun.mirror.type.ReferenceType;
+import com.sun.mirror.type.TypeMirror;
+import com.sun.mirror.util.DeclarationVisitor;
+import com.sun.mirror.util.TypeVisitor;
 
 public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implements TypeDeclaration, DeclaredType, ReferenceType
 {

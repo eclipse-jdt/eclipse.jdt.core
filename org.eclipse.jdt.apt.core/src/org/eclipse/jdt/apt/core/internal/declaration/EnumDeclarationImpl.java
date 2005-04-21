@@ -9,9 +9,9 @@
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.core.internal.declaration; 
+package org.eclipse.jdt.apt.core.internal.declaration;
 
-import com.sun.mirror.declaration.ClassDeclaration;
+
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.EnumConstantDeclaration;
 import com.sun.mirror.declaration.EnumDeclaration;
@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 

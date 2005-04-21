@@ -32,9 +32,14 @@ import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl.AnnotationVisitor;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.compiler.IScanner;
+import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorFactory;
@@ -49,12 +54,30 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
  */
 public class APTDispatch {
 
-	public static Set<IFile> runAPTDuringBuild(
+	public static APTBuildResult runAPTDuringBuild(
 			final List<AnnotationProcessorFactory> factories, IFile file,
 			IJavaProject javaProj) {
+		
+		//
+		//  bail-out early if there aren't factories.
+		// 
+		if ( factories == null || factories.size() == 0 )
+			return EMPTY_BUILD_RESULT;
+		
+		//
+		// scan file for annotation instances, and bail early if none.
+		// do this before construction ProcessorEnvImpl to avoid 
+		// unnecessary creation of AST.
+		//
+		if ( ! hasAnnotationInstance( file ) )
+			return EMPTY_BUILD_RESULT;
+					
 		ProcessorEnvImpl processorEnv = ProcessorEnvImpl
 				.newProcessorEnvironmentForBuild( file, javaProj);
-		return runAPT(factories, processorEnv);
+		Set newFiles = runAPT(factories, processorEnv);
+		Set<String> newDependencies = processorEnv.getTypeDependencies();
+		APTBuildResult result = new APTBuildResult( newFiles, newDependencies );
+		return result;
 	}
 
 	/**
@@ -65,7 +88,14 @@ public class APTDispatch {
 	public static Set<IFile> runAPTDuringReconcile(
 			final List<AnnotationProcessorFactory> factories,
 			final CompilationUnit astCompilationUnit,
-			ICompilationUnit compilationUnit, IJavaProject javaProj) {
+			ICompilationUnit compilationUnit, IJavaProject javaProj) {		
+		
+		//
+		//  bail-out early if there aren't factories.
+		// 
+		if ( factories == null || factories.size() == 0 )
+			return Collections.emptySet();
+		
 		ProcessorEnvImpl processorEnv = ProcessorEnvImpl
 				.newProcessorEnvironmentForReconcile(astCompilationUnit,
 						compilationUnit, javaProj);
@@ -233,4 +263,64 @@ public class APTDispatch {
 		}
 		return fDecls.isEmpty() ? null : fDecls;
 	}
+	
+	/**
+	 * scan the source code to see if there are any annotation tokens
+	 */
+	private static boolean hasAnnotationInstance( IFile f )
+	{
+		try
+		{
+			char[] source = ProcessorEnvImpl.getFileContents( f );
+			IScanner scanner = ToolFactory.createScanner( 
+				false, false, false, CompilerOptions.VERSION_1_5 );
+			scanner.setSource( source );
+			int token = scanner.getNextToken();
+			while ( token != ITerminalSymbols.TokenNameEOF )
+			{
+				token = scanner.getNextToken();
+				if ( token == ITerminalSymbols.TokenNameAT )
+				{
+					//
+					// found an @ sign, see if next token is "interface"
+					// @interface is an annotation decl and not an annotation
+					// instance.  
+					//
+					token = scanner.getNextToken();
+					if ( token != ITerminalSymbols.TokenNameinterface )
+						return true;
+				}
+			}
+			return false;
+		}
+		catch( InvalidInputException iie )
+		{
+			// lex error, so report false
+			return false;
+		}
+		catch( Exception e )
+		{
+			// TODO:  deal with this exception
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public static class APTBuildResult
+	{
+		APTBuildResult( Set<IFile> files, Set<String> deps )
+		{
+			_newFiles = files;
+			_newDependencies = deps;
+		}
+		
+		private Set<IFile> _newFiles;
+		private Set<String> _newDependencies;
+		
+		Set<IFile> getNewFiles() { return _newFiles; }
+		Set<String> getNewDependencies() { return _newDependencies; }
+	}
+
+	public static final APTBuildResult EMPTY_BUILD_RESULT = new APTBuildResult( (Set<IFile>)Collections.emptySet(), (Set<String>)Collections.emptySet() );
+	
 }

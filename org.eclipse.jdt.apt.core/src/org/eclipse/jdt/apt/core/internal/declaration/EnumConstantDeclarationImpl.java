@@ -13,7 +13,6 @@ package org.eclipse.jdt.apt.core.internal.declaration;
 
 import com.sun.mirror.declaration.EnumConstantDeclaration;
 import com.sun.mirror.declaration.EnumDeclaration;
-import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
 
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;

@@ -21,8 +21,8 @@ import java.util.Collections;
 
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
-import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 
 public class AnnotationElementDeclarationImpl extends MethodDeclarationImpl implements AnnotationTypeElementDeclaration
@@ -52,18 +52,19 @@ public class AnnotationElementDeclarationImpl extends MethodDeclarationImpl impl
 	 */
     public AnnotationValue getDefaultValue()
     {   
-        if( isFromSource() ){
-            final AnnotationTypeMemberDeclaration astNode = (AnnotationTypeMemberDeclaration)getAstNode();
-			if( astNode == null ) return null;
-            final Expression defaultExpr = astNode.getDefault();
-            if(defaultExpr == null ) return null;
-            return Factory.createAnnotationValue(defaultExpr, this, _env);
-        }
-        else{
-            // TODO: handle the binary case.            
-            return null;
-        }
+		final IMethodBinding binding = getDeclarationBinding();
+		final Object defaultValue = binding.getDefaultValue();
+		return Factory.createDefaultValue(defaultValue, this, _env);      
     }
+	
+	ASTNode getAstNodeForDefault()
+	{
+		final AnnotationTypeMemberDeclaration decl = (AnnotationTypeMemberDeclaration)getAstNode();
+		if( decl != null )
+			return decl.getDefault();
+		
+		return null;
+	}
 
     public Collection<ParameterDeclaration> getParameters(){ return Collections.emptyList(); }
 

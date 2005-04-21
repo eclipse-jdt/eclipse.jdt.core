@@ -15,8 +15,10 @@ package org.eclipse.jdt.apt.core.internal;
  * Thrown when the eclipse compiler encountered a non-eclipse implementation of the mirror type system.
  */
 public class NonEclipseImplementationException extends RuntimeException
-{
-    public NonEclipseImplementationException(String msg)
+{  
+	private static final long serialVersionUID = 1L;
+
+	public NonEclipseImplementationException(String msg)
     { super(msg); }
 
     public NonEclipseImplementationException(){}

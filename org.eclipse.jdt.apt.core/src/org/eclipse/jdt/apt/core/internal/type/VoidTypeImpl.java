@@ -14,7 +14,6 @@ package org.eclipse.jdt.apt.core.internal.type;
 import com.sun.mirror.type.VoidType;
 import com.sun.mirror.util.TypeVisitor;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl.MirrorKind;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 

@@ -15,12 +15,9 @@ import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.TypeVisitor;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl.MirrorKind;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.BindingKey;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl

@@ -17,11 +17,13 @@
 package org.eclipse.jdt.apt.core.internal;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.apt.core.internal.APTDispatch.APTBuildResult;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CompilationParticipantEvent;
 import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
@@ -85,16 +87,18 @@ public class BuildListener implements ICompilationParticipant
 			return EMPTY_PRE_BUILD_COMPILATION_RESULT;
 
 		HashSet<IFile> newFiles = new HashSet<IFile>();
+		HashMap<IFile, Set<String>> newDependencies = new HashMap<IFile, Set<String>>();
 		for ( int i = 0; i < buildFiles.length; i++ )
 		{
-			Set<IFile> files = APTDispatch.runAPTDuringBuild( 
+			APTBuildResult result = APTDispatch.runAPTDuringBuild( 
 					_factories, 
 					buildFiles[i], 
 					javaProject );
-			newFiles.addAll( files );
+			newFiles.addAll( result.getNewFiles() );
+			newDependencies.put( buildFiles[i], result.getNewDependencies() );
 		}
 		
-		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), Collections.emptyMap() ); 
+		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), newDependencies ); 
 	}
 	
 	private CompilationParticipantResult postReconcileNotify( PostReconcileCompilationEvent prce )

@@ -1,24 +1,14 @@
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import com.sun.mirror.declaration.AnnotationMirror;
+import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.util.Factory;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+
 import com.sun.mirror.declaration.FieldDeclaration;
-import com.sun.mirror.declaration.Modifier;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.DeclarationVisitor;
-import com.sun.mirror.util.SourcePosition;
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
-import org.eclipse.jdt.apt.core.internal.util.Factory;
-import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
 
 public class FieldDeclarationImpl extends MemberDeclarationImpl implements FieldDeclaration
 {

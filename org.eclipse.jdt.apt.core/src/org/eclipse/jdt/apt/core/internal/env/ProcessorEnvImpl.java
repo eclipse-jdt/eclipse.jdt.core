@@ -109,6 +109,13 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	private final FilerImpl _filer;
 	private boolean _isClosed = false;
 	
+	/** 
+	 * Set of strings that indicate new type dependencies introduced on the file 
+	 * each string is a fully-qualified type name.
+	 */
+	private Set<String> _typeDependencies = new HashSet<String>();
+
+	
     /**
      * Mapping model compilation unit to dom compilation unit.
      * The assumption here is that once the client examine some binding from some file, it will continue
@@ -158,7 +165,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		p.setUnitName( file.getProjectRelativePath().toString() );
 		p.setFocalPosition( 0 );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
-		ASTNode node = p.createAST( null );		
+		ASTNode node = p.createAST( null );
 		_astCompilationUnit = (org.eclipse.jdt.core.dom.CompilationUnit) node;
         _phase = phase;
         _file = file;
@@ -487,15 +494,15 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 			private ITypeBinding _result = null;
 			public void acceptBinding(String bindingKey, IBinding binding)
 			{
-				if( binding.getKind() == IBinding.TYPE );
-				_result = (ITypeBinding)binding;
+				if( binding.getKind() == IBinding.TYPE )
+					_result = (ITypeBinding)binding;
 			}
 		}
 		
 		final BindingRequestor requestor = new BindingRequestor();
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setResolveBindings(true);
-		parser.setProject(_compilationUnit.getJavaProject());
+		parser.setProject(_javaProject);
 		parser.createASTs(NO_UNIT, new String[]{key}, requestor, null);
 		return requestor._result;
 	}
@@ -519,10 +526,9 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 			return Factory.createReferenceType(typeBinding, this);		 
 	 
 		// then go search for it else where.
-		typeBinding = getTypeBinding(name);	
+		typeBinding = getTypeBinding(typeKey);	
 		if( typeBinding != null ){
-			//TODO: (theodora) record dependency on 'name'
-			// addDependency(name);
+			addTypeDependency( name );
 			return Factory.createReferenceType(typeBinding, this);
 		}	
 	
@@ -786,7 +792,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	 * @return
 	 * @throws CoreException
 	 */
-	private static char[] getFileContents( IFile file )
+	public static char[] getFileContents( IFile file )
 		throws CoreException, IOException
 	{
 		char[]              rtrn  = null;
@@ -872,8 +878,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		                    marker.setAttributes(markerInfo._markerAttrs);
 						}
 						catch(CoreException e){
-							throw new IllegalStateException(e);
-							// todo: (theodora) report the problem
+							throw new IllegalStateException(e);							
 						}
 	                }
 	            };
@@ -888,6 +893,10 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		}
     }
 
+	/**
+	 * @return - the extra type dependencies for the file under compilation
+	 */
+	public Set<String> getTypeDependencies()  { return _typeDependencies; }
 
     private static class MarkerInfo
     {
@@ -928,7 +937,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	
 	public void addTypeDependency(final String fullyQualifiedTypeName )
 	{
-		throw new UnsupportedOperationException("NYI");	
+		_typeDependencies.add( fullyQualifiedTypeName );
 	}
 	
 	// End of implementation for EclipseAnnotationProcessorEnvironment

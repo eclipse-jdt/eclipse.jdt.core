@@ -11,32 +11,19 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import com.sun.mirror.declaration.AnnotationMirror;
-import com.sun.mirror.declaration.AnnotationTypeDeclaration;
-import com.sun.mirror.declaration.ClassDeclaration;
-import com.sun.mirror.declaration.EnumDeclaration;
-import com.sun.mirror.declaration.InterfaceDeclaration;
-import com.sun.mirror.declaration.Modifier;
-import com.sun.mirror.declaration.PackageDeclaration;
-import com.sun.mirror.util.DeclarationVisitor;
-import com.sun.mirror.util.SourcePosition;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
-import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IPackageBinding;
+
+import com.sun.mirror.declaration.*;
+import com.sun.mirror.util.DeclarationVisitor;
+import com.sun.mirror.util.SourcePosition;
 
 public class PackageDeclarationImpl extends DeclarationImpl implements PackageDeclaration
 {   

@@ -10,40 +10,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.declaration; 
 
-import com.sun.mirror.declaration.AnnotationMirror;
-import com.sun.mirror.declaration.MemberDeclaration;
-import com.sun.mirror.util.DeclarationVisitor;
-import com.sun.mirror.util.SourcePosition;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.ISourceReference;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IExtendedModifier;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.Javadoc;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.*;
+
+import com.sun.mirror.declaration.AnnotationMirror;
+import com.sun.mirror.declaration.MemberDeclaration;
+import com.sun.mirror.util.DeclarationVisitor;
+import com.sun.mirror.util.SourcePosition;
 
 public abstract class MemberDeclarationImpl extends DeclarationImpl implements MemberDeclaration, EclipseMirrorImpl
 {
@@ -60,29 +41,39 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
     
     public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
-        final BodyDeclaration astNode = (BodyDeclaration)getAstNode();
-        if(astNode != null){
-            final List<org.eclipse.jdt.core.dom.Annotation> annoInstances = getAnnotations();
-            return _getAnnotation(annotationClass, annoInstances);
-        }
-        else{
-            // TODO: (theodora) handle the binary case.
-            return null;
-        }
+		final IResolvedAnnotation[] instances = getAnnotationInstances();
+		return _getAnnotation(annotationClass, instances);
     }
 
     public Collection<AnnotationMirror> getAnnotationMirrors()
     {
-        if( isFromSource() )
-        {
-            final List<org.eclipse.jdt.core.dom.Annotation> annoInstances = getAnnotations();
-            return _getAnnotationMirrors(annoInstances);
-        }
-        else{
-            // TODO: (theodora) handle the binary case.
-            return null;
-        }
+		final IResolvedAnnotation[] instances = getAnnotationInstances();
+		return _getAnnotationMirrors(instances);		
     }
+	
+	private IResolvedAnnotation[] getAnnotationInstances()
+	{
+		final IBinding binding = getDeclarationBinding();
+		final IResolvedAnnotation[] instances;
+		switch( binding.getKind() )
+		{
+		case IBinding.TYPE:
+			instances = ((ITypeBinding)binding).getAnnotations();
+			break;
+		case IBinding.METHOD:
+			instances = ((IMethodBinding)binding).getAnnotations();
+			break;
+		case IBinding.VARIABLE:
+			instances = ((IVariableBinding)binding).getAnnotations();
+			break;
+		case IBinding.PACKAGE:
+			// TODO: support package annotation
+			return null;
+		default:			
+			throw new IllegalStateException();
+		}
+		return instances;
+	}
 
     public String getDocComment()
     {

@@ -13,8 +13,6 @@
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -33,7 +31,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -402,6 +399,7 @@ public class GeneratedFileManager {
 		// create folder for generated source files
 		//
 		IFolder folder = project.getFolder( GENERATED_SOURCE_FOLDER_NAME );
+		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		if (!folder.exists())
 			folder.create(true, true, null);
 		

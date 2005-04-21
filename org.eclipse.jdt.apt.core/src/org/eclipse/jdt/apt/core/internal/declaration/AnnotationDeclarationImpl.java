@@ -19,7 +19,6 @@ import com.sun.mirror.util.TypeVisitor;
 import java.util.Collection;
 
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class AnnotationDeclarationImpl extends InterfaceDeclarationImpl implements AnnotationTypeDeclaration, AnnotationType

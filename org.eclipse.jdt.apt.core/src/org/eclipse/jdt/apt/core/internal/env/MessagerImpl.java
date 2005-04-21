@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.apt.core.internal.NonEclipseImplementationException;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;

@@ -23,7 +23,6 @@ import java.util.Collections;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
-import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
