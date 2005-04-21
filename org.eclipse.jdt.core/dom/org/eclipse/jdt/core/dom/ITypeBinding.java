@@ -236,8 +236,13 @@ public interface ITypeBinding extends IBinding {
 	
 	/**
 	 * Returns the type bounds of this type variable.
+     * <p>
+     * Note that the first type bound is always a class type. If the type
+     * variable does not explicitly declare a class type bound, the first
+     * type bound will be the binding for <code>java.lang.Object</code>.
+     * </p>
 	 *
-	 * @return the list of type bindings for this type variable, or otherwise
+	 * @return the list of type bound for this type variable, or otherwise
 	 * the empty list
 	 * @see #isTypeVariable()
 	 * @since 3.1
