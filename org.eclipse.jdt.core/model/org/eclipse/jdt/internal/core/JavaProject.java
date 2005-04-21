@@ -1247,7 +1247,7 @@ public class JavaProject
 
 			// will force an update of the classpath/output location based on the file information
 			// extract out the output location
-			IPath outputLocation = SetClasspathOperation.REUSE_PATH; 
+			IPath outputLocation = SetClasspathOperation.DO_NOT_SET_OUTPUT; 
 			if (fileEntries != null && fileEntries.length > 0) {
 				IClasspathEntry entry = fileEntries[fileEntries.length - 1];
 				if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) {
@@ -2712,7 +2712,7 @@ public class JavaProject
 		if (path.equals(getOutputLocation())) {
 			return;
 		}
-		this.setRawClasspath(SetClasspathOperation.REUSE_ENTRIES, path, monitor);
+		this.setRawClasspath(SetClasspathOperation.DO_NOT_SET_ENTRIES, path, monitor);
 	}
 
 	/**
@@ -2790,7 +2790,7 @@ public class JavaProject
 
 		setRawClasspath(
 			entries, 
-			SetClasspathOperation.REUSE_PATH, 
+			SetClasspathOperation.DO_NOT_SET_OUTPUT, 
 			monitor, 
 			true, // canChangeResource (as per API contract)
 			getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/),

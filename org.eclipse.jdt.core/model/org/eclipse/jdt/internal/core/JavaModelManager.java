@@ -2255,7 +2255,7 @@ public class JavaModelManager implements ISaveParticipant {
 								affectedProject
 									.setRawClasspath(
 										affectedProject.getRawClasspath(),
-										SetClasspathOperation.REUSE_PATH,
+										SetClasspathOperation.DO_NOT_SET_OUTPUT,
 										null, // don't call beginTask on the monitor (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=3717)
 										canChangeResources, 
 										(IClasspathEntry[]) affectedProjectClasspaths.get(affectedProject),
