@@ -221,9 +221,11 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			// (see bug 70827)
 			if (focus != null && focus.getElementType() == IJavaElement.METHOD) {
 				MethodBinding method = ((MessageSend)reference).binding;
-				boolean isPrivate = Flags.isPrivate(((IMethod) focus).getFlags());
-				if (isPrivate && !CharOperation.equals(method.declaringClass.sourceName, focus.getParent().getElementName().toCharArray())) {
-					return; // finally the match was not possible
+				if (method != null) {
+					boolean isPrivate = Flags.isPrivate(((IMethod) focus).getFlags());
+					if (isPrivate && !CharOperation.equals(method.declaringClass.sourceName, focus.getParent().getElementName().toCharArray())) {
+						return; // finally the match was not possible
+					}
 				}
 			}
 			matchReportReference((MessageSend)reference, locator, ((MessageSend)reference).binding);
