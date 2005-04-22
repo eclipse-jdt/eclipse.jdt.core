@@ -379,7 +379,11 @@ class TypeBinding implements ITypeBinding {
 		switch (this.binding.kind()) {
 			case Binding.ARRAY_TYPE :
 			case Binding.BASE_TYPE :
+			case Binding.WILDCARD_TYPE :
 				return null;
+			default :
+				if (this.binding.isCapture()) 
+					return null;
 		}
 		ReferenceBinding referenceBinding;
 		if (this.binding.isParameterizedType() || this.binding.isRawType())

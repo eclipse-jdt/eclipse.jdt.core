@@ -5192,4 +5192,22 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No wildcard binding", wildcardBinding);
 		assertTrue("Not a wildcard", wildcardBinding.isWildcardType());
 	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92361
+	 */
+	public void test0171() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"public class X {\n" + 
+				"\n" + 
+				"    java.util.List<? extends Runnable> list;\n" + 
+				"    Object o= /*start*/list/*end*/;\n" + 
+				"}\n";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, node.getNodeType());
+		ITypeBinding type = ((SimpleName)node).resolveTypeBinding();
+		assertNull("Unexpected element", type.getTypeArguments()[0].getJavaElement());
+	}		
 }
