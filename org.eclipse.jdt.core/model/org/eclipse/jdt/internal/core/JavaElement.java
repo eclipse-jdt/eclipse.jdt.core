@@ -527,7 +527,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public String toDebugString() {
 		StringBuffer buffer = new StringBuffer();
-		this.toStringInfo(0, buffer, NO_INFO);
+		this.toStringInfo(0, buffer, NO_INFO, true/*show resolved info*/);
 		return buffer.toString();
 	}
 	/**
@@ -552,8 +552,14 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 *  Debugging purposes
 	 */
 	public String toStringWithAncestors() {
+		return toStringWithAncestors(true/*show resolved info*/);
+	}
+		/**
+	 *  Debugging purposes
+	 */
+	public String toStringWithAncestors(boolean showResolvedInfo) {
 		StringBuffer buffer = new StringBuffer();
-		this.toStringInfo(0, buffer, NO_INFO);
+		this.toStringInfo(0, buffer, NO_INFO, showResolvedInfo);
 		this.toStringAncestors(buffer);
 		return buffer.toString();
 	}
@@ -564,7 +570,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		JavaElement parentElement = (JavaElement)this.getParent();
 		if (parentElement != null && parentElement.getParent() != null) {
 			buffer.append(" [in "); //$NON-NLS-1$
-			parentElement.toStringInfo(0, buffer, NO_INFO);
+			parentElement.toStringInfo(0, buffer, NO_INFO, false/*don't show resolved info*/);
 			parentElement.toStringAncestors(buffer);
 			buffer.append("]"); //$NON-NLS-1$
 		}
@@ -585,13 +591,14 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public Object toStringInfo(int tab, StringBuffer buffer) {
 		Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
-		this.toStringInfo(tab, buffer, info);
+		this.toStringInfo(tab, buffer, info, true/*show resolved info*/);
 		return info;
 	}
 	/**
 	 *  Debugging purposes
+	 * @param showResolvedInfo TODO
 	 */
-	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		buffer.append(this.tabString(tab));
 		toStringName(buffer);
 		if (info == null) {

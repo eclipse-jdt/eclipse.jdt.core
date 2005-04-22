@@ -904,7 +904,7 @@ public String sourceFileName(IBinaryType info) {
 /*
  * @private Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(this.tabString(tab));
 	if (info == null) {
 		toStringName(buffer);

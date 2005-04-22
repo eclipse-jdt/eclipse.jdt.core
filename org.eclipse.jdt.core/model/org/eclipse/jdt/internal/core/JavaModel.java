@@ -317,7 +317,7 @@ protected void runOperation(MultiOperation op, IJavaElement[] elements, IJavaEle
 /**
  * @private Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(this.tabString(tab));
 	buffer.append("Java Model"); //$NON-NLS-1$
 	if (info == null) {

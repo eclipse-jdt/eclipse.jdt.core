@@ -415,7 +415,7 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
 /**
  * Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(this.tabString(tab));
 	if (this.names.length == 0) {
 		buffer.append("<default>"); //$NON-NLS-1$

@@ -254,7 +254,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		);
 	}
 	protected void assertElementEquals(String message, String expected, IJavaElement element) {
-		String actual = element == null ? "<null>" : ((JavaElement) element).toStringWithAncestors();
+		String actual = element == null ? "<null>" : ((JavaElement) element).toStringWithAncestors(false/*don't show key*/);
 		if (!expected.equals(actual)) {
 			if (this.displayName) System.out.println(getName()+" expected result is:");
 			System.out.println(displayString(actual, this.tabs) + this.endChar);

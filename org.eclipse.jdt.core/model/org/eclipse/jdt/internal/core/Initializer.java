@@ -92,7 +92,7 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 /**
  * @private Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(this.tabString(tab));
 	if (info == null) {
 		buffer.append("<initializer #"); //$NON-NLS-1$

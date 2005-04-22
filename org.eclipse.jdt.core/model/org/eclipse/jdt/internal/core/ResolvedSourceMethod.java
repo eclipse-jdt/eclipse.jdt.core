@@ -41,10 +41,12 @@ public class ResolvedSourceMethod extends SourceMethod {
 	/**
 	 * @private Debugging purposes
 	 */
-	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
-		super.toStringInfo(tab, buffer, info);
-		buffer.append(" {key="); //$NON-NLS-1$
-		buffer.append(this.uniqueKey);
-		buffer.append("}"); //$NON-NLS-1$
+	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
+		super.toStringInfo(tab, buffer, info, showResolvedInfo);
+		if (showResolvedInfo) {
+			buffer.append(" {key="); //$NON-NLS-1$
+			buffer.append(this.uniqueKey);
+			buffer.append("}"); //$NON-NLS-1$
+		}
 	}
 }

@@ -110,7 +110,7 @@ protected void toString(int tab, StringBuffer buffer) {
 /**
  *  Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(this.tabString(tab));
 	buffer.append("<import container>"); //$NON-NLS-1$
 	if (info == null) {

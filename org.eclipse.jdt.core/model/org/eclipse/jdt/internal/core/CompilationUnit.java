@@ -1126,7 +1126,7 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
 /**
  * @private Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	if (!isPrimary()) {
 		buffer.append(this.tabString(tab));
 		buffer.append("[Working copy] "); //$NON-NLS-1$
@@ -1140,7 +1140,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 				buffer.append(" (not open)"); //$NON-NLS-1$
 			}
 		} else {
-			super.toStringInfo(tab, buffer, info);
+			super.toStringInfo(tab, buffer, info, showResolvedInfo);
 		}
 	}
 }
