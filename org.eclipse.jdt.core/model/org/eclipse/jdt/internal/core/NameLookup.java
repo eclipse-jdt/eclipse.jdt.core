@@ -124,11 +124,13 @@ public class NameLookup implements SuffixConstants {
 	public long timeSpentInSeekTypesInBinaryPackage = 0;
 
 	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies, Map rootToResolvedEntries) {
+		long start = -1;
 		if (VERBOSE) {
 			System.out.println(Thread.currentThread() + " BUILDING NameLoopkup");  //$NON-NLS-1$
 			System.out.println(Thread.currentThread() + " -> pkg roots size: " + (packageFragmentRoots == null ? 0 : packageFragmentRoots.length));  //$NON-NLS-1$
 			System.out.println(Thread.currentThread() + " -> pkgs size: " + (packageFragments == null ? 0 : packageFragments.size()));  //$NON-NLS-1$
 			System.out.println(Thread.currentThread() + " -> working copy size: " + (workingCopies == null ? 0 : workingCopies.length));  //$NON-NLS-1$
+			start = System.currentTimeMillis();
 		}
 		this.packageFragmentRoots = packageFragmentRoots;
 		try {
@@ -178,19 +180,32 @@ public class NameLookup implements SuffixConstants {
 					this.packageFragments.put(pkgName, root);
 				} else {
 					if (existing instanceof PackageFragmentRoot) {
-						this.packageFragments.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
+						if (!existing.equals(root))
+							this.packageFragments.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
 					} else {
 						IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) existing;
 						int rootLength = roots.length;
-						System.arraycopy(roots, 0, roots = new IPackageFragmentRoot[rootLength+1], 0, rootLength);
-						roots[rootLength] = root;
-						this.packageFragments.put(pkgName, roots);
+						boolean containsRoot = false;
+						for (int j = 0; j < rootLength; j++) {
+							if (roots[j].equals(root)) {
+								containsRoot = true;
+								break;
+							}
+						}
+						if (containsRoot) {
+							System.arraycopy(roots, 0, roots = new IPackageFragmentRoot[rootLength+1], 0, rootLength);
+							roots[rootLength] = root;
+							this.packageFragments.put(pkgName, roots);
+						}
 					}
 				}
 				visited.add(root);
 			}
 		}
 		this.rootToResolvedEntries = rootToResolvedEntries;
+        if (VERBOSE) {
+            System.out.println(Thread.currentThread() + " -> spent: " + (start - System.currentTimeMillis()) + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+        }
 	}
 
 	/**

@@ -188,6 +188,31 @@ public void testFindDefaultPackageFragmentInNonDefaultRoot() throws CoreExceptio
 	}
 }
 /*
+ * Ensure that finding a package fragment with a working copy opened returns one element only
+ * (regression test for bug 89624 Open on selection proposes twice the same entry)
+ */
+public void testFingPackageFragementWithWorkingCopy() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	try {
+		JavaProject project = (JavaProject)createJavaProject("P");
+		createFolder("/P/p1");
+		workingCopies[0] = getWorkingCopy(
+			"/P/p1/X.java", 
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		NameLookup nameLookup = project.newNameLookup(workingCopies);
+		IJavaElement[] pkgs = nameLookup.findPackageFragments("p1", false/*not a partial match*/);
+		assertElementsEqual(
+			"Unexpected packages",
+			"p1 [in <project root> [in P]]",
+			pkgs);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
  * Performance test for looking up package fragments
  * (see bug 72683 Slow code assist in Display view)
  */
