@@ -119,9 +119,9 @@ public class KeyToSignature extends BindingKeyParser {
 			StringBuffer typeParametersSig = new StringBuffer();
 			typeParametersSig.append('<');
 			for (int i = 0; i < length; i++) {
-				typeParametersSig.append('T');
 				typeParametersSig.append((char[]) this.typeParameters.get(i));
-				typeParametersSig.append(';');
+				typeParametersSig.append(':');
+				// TODO (jerome) add type parameter bounds in binding key
 			}
 			typeParametersSig.append('>');
 			this.signature.insert(this.typeSigStart, typeParametersSig);

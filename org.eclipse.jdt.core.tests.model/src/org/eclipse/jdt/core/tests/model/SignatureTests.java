@@ -39,7 +39,7 @@ static {
 	// Prefix for tests names to run
 //	TESTS_PREFIX =  "testGetTypeErasure";
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] { "testGetTypeErasure5", "testGetTypeErasure9", "testGetTypeErasure10" };
+//	TESTS_NAMES = new String[] { "testGetTypeParameters3" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	TESTS_NUMBERS = new int[] { 8 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -339,6 +339,16 @@ public void testGetTypeParameters2() {
 			"Unexpected type parameters", 
 			"X:TF;\n" + 
 			"Y::Ljava.lang.Cloneable;\n",
+			Signature.getTypeParameters(sig));
+}
+/**
+ * @see Signature
+ */
+public void testGetTypeParameters3() {
+	String sig = "<E:>Ljava.util.AbstractCollection;";
+	assertStringsEqual(
+			"Unexpected type parameters", 
+			"E:\n",
 			Signature.getTypeParameters(sig));
 }
 /**

@@ -1369,11 +1369,16 @@ public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws Il
 			// iterate over bounds
 			nextBound: while (methodOrTypeSignature[i] == ':') {
 				i++; // skip colon
-				if (methodOrTypeSignature[i] == ':') {
-					continue nextBound; // empty bound
+				switch (methodOrTypeSignature[i]) {
+					case ':':
+						continue nextBound; // empty bound
+					case C_GENERIC_END:
+						break;
+					default:
+						i = Util.scanTypeSignature(methodOrTypeSignature, i);
+						i++; // position at start of next param if any
+						break;
 				}
-				i = Util.scanTypeSignature(methodOrTypeSignature, i);
-				i++; // position at start of next param if any
 			}
 			paramList.add(CharOperation.subarray(methodOrTypeSignature, paramStart, i));
 			paramStart = i; // next param start from here
