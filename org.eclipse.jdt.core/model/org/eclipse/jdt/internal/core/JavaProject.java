@@ -2242,40 +2242,101 @@ public class JavaProject
 	 * @see IJavaProject
 	 */
 	public boolean isOnClasspath(IJavaElement element) {
-		IPath path = element.getPath();
-		IClasspathEntry[] classpath;
+		IClasspathEntry[] rawClasspath;
 		try {
-			classpath = getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
+			rawClasspath = getRawClasspath();
 		} catch(JavaModelException e){
 			return false; // not a Java project
 		}
+		int elementType = element.getElementType();
+		boolean isPackageFragmentRoot = false;
 		boolean isFolderPath = false;
-		switch (element.getElementType()) {
-			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-				// package fragment roots must match exactly entry pathes (no exclusion there)
-				for (int i = 0; i < classpath.length; i++) {
-					IClasspathEntry entry = classpath[i];
-					IPath entryPath = entry.getPath();
-					if (entryPath.equals(path)) {
-						return true;
-					}
-				}
+		boolean isSource = false;
+		switch (elementType) {
+			case IJavaElement.JAVA_MODEL:
 				return false;
-				
+			case IJavaElement.JAVA_PROJECT:
+				break;
+			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+				isPackageFragmentRoot = true;
+				break;
 			case IJavaElement.PACKAGE_FRAGMENT:
-				if (!((IPackageFragmentRoot)element.getParent()).isArchive()) {
-					// ensure that folders are only excluded if all of their children are excluded
-					isFolderPath = true;
-				}
+				isFolderPath = !((IPackageFragmentRoot)element.getParent()).isArchive();
+				break;
+			case IJavaElement.COMPILATION_UNIT:
+				isSource = true;
+				break;
+			default:
+				isSource = element.getAncestor(IJavaElement.COMPILATION_UNIT) != null;
 				break;
 		}
-		for (int i = 0; i < classpath.length; i++) {
-			IClasspathEntry entry = classpath[i];
-			IPath entryPath = entry.getPath();
-			if (entryPath.isPrefixOf(path) 
-					&& !Util.isExcluded(path, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars(), isFolderPath)) {
-				return true;
+		IPath elementPath = element.getPath();
+		
+		// first look at unresolved entries
+		int length = rawClasspath.length;
+		for (int i = 0; i < length; i++) {
+			IClasspathEntry entry = rawClasspath[i];
+			switch (entry.getEntryKind()) {
+				case IClasspathEntry.CPE_LIBRARY:
+				case IClasspathEntry.CPE_PROJECT:
+				case IClasspathEntry.CPE_SOURCE:
+					if (isOnClasspathEntry(elementPath, isFolderPath, isPackageFragmentRoot, entry))
+						return true;
+					break;
 			}
+		}
+		
+		// no need to go further for compilation units and elements inside a compilation unit
+		// it can only be in a source folder, thus on the raw classpath
+		if (isSource)
+			return false;
+		
+		// then look at resolved entries
+		for (int i = 0; i < length; i++) {
+			IClasspathEntry rawEntry = rawClasspath[i];
+			switch (rawEntry.getEntryKind()) {
+				case IClasspathEntry.CPE_CONTAINER:
+					IClasspathContainer container;
+					try {
+						container = JavaCore.getClasspathContainer(rawEntry.getPath(), this);
+					} catch (JavaModelException e) {
+						break;
+					}
+					if (container == null)
+						break;
+					IClasspathEntry[] containerEntries = container.getClasspathEntries();
+					if (containerEntries == null) 
+						break;
+					// container was bound
+					for (int j = 0, containerLength = containerEntries.length; j < containerLength; j++){
+						IClasspathEntry resolvedEntry = containerEntries[j];
+						if (isOnClasspathEntry(elementPath, isFolderPath, isPackageFragmentRoot, resolvedEntry))
+							return true;
+					}					
+					break;
+				case IClasspathEntry.CPE_VARIABLE:
+					IClasspathEntry resolvedEntry = JavaCore.getResolvedClasspathEntry(rawEntry);
+					if (resolvedEntry == null) 
+						break;
+					if (isOnClasspathEntry(elementPath, isFolderPath, isPackageFragmentRoot, resolvedEntry))
+						return true;
+					break;
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean isOnClasspathEntry(IPath elementPath, boolean isFolderPath, boolean isPackageFragmentRoot, IClasspathEntry entry) {
+		IPath entryPath = entry.getPath();
+		if (isPackageFragmentRoot) {
+			// package fragment roots must match exactly entry pathes (no exclusion there)
+			if (entryPath.equals(elementPath))
+				return true;
+		} else {
+			if (entryPath.isPrefixOf(elementPath) 
+					&& !Util.isExcluded(elementPath, ((ClasspathEntry)entry).fullInclusionPatternChars(), ((ClasspathEntry)entry).fullExclusionPatternChars(), isFolderPath)) 
+				return true;
 		}
 		return false;
 	}
