@@ -85,7 +85,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Main version which is logged
 	protected final static String LOG_VERSION = "_v31_"; // TODO (frederic) see whether this could be computed automatically
 	// Standard deviation threshold. Statistic should not be take into account when it's reached
-	protected final static double STDDEV_THRESHOLD = 0.02; // default is 2%
+	protected final static double STDDEV_THRESHOLD = 0.1; // default is 10%
 
 	/**
 	 * @param name
@@ -131,10 +131,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		String logDir = System.getProperty("logDir");
 		if (logDir != null) {
 			File dir = new File(logDir);
-			if (dir.exists() && dir.isDirectory()) {
-				LOG_DIR = dir;
+			if (dir.exists()) {
+				if (dir.isDirectory()) {
+					LOG_DIR = dir;
+				} else {
+					System.err.println(logDir+" is not a valid directory. Log files will NOT be written!");
+				}
 			} else {
-				System.err.println(logDir+" is not a valid directory or does not exist. Log files will NOT be written!");
+				if (dir.mkdir()) {
+					LOG_DIR = dir;
+				} else {
+					System.err.println("Cannot create "+logDir+". Log files will NOT be written!");
+				}
 			}
 		}
 	}
@@ -220,15 +228,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			NumberFormat pFormat = NumberFormat.getPercentInstance();
 			pFormat.setMaximumFractionDigits(1);
 			NumberFormat dFormat = NumberFormat.getNumberInstance();
-			dFormat.setMaximumFractionDigits(2);
+			dFormat.setMaximumFractionDigits(0);
+			String stddevThresholdStr = dFormat.format(STDDEV_THRESHOLD*100);
+			NumberFormat dFormat2 = NumberFormat.getNumberInstance();
+			dFormat2.setMaximumFractionDigits(2);
 			try {
 				// Store CPU Time
 				JdtCorePerformanceMeter.Statistics cpuStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.CPU_TIMES.get(this.scenarioReadableName);
 				if (cpuStats != null) {
 					double percent = cpuStats.stddev/cpuStats.average;
 					if (percent > STDDEV_THRESHOLD) {
-						if (logStreams[0] != null) logStreams[0].print("'");
-						System.out.println("	WARNING: CPU time standard deviation is over 2%: "+dFormat.format(cpuStats.stddev)+"/"+cpuStats.average+"="+ pFormat.format(percent));
+//						if (logStreams[0] != null) logStreams[0].print("'");
+						System.out.println("	WARNING: CPU time standard deviation is over "+stddevThresholdStr+"%: "+dFormat2.format(cpuStats.stddev)+"/"+cpuStats.average+"="+ pFormat.format(percent));
 						comments[0] = "stddev=" + pFormat.format(percent);
 					}
 					if (logStreams[0] != null) {
@@ -244,8 +255,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				if (elapsedStats != null) {
 					double percent = elapsedStats.stddev/elapsedStats.average;
 					if (percent > STDDEV_THRESHOLD) {
-						if (logStreams[1] != null) logStreams[1].print("'");
-						System.out.println("	WARNING: Elapsed time standard deviation is over 2%: "+dFormat.format(elapsedStats.stddev)+"/"+elapsedStats.average+"="+ pFormat.format(percent));
+//						if (logStreams[1] != null) logStreams[1].print("'");
+						System.out.println("	WARNING: Elapsed time standard deviation is over "+stddevThresholdStr+"%: "+dFormat.format(elapsedStats.stddev)+"/"+elapsedStats.average+"="+ pFormat.format(percent));
 						comments[1] = "stddev=" + pFormat.format(percent);
 					}
 					if (logStreams[1] != null) {
