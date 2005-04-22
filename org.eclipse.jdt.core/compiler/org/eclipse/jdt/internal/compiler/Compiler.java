@@ -108,7 +108,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		this.problemReporter =
 			new ProblemReporter(policy, this.options, problemFactory);
 		this.lookupEnvironment =
-			new LookupEnvironment(this, options, problemReporter, environment);
+			new LookupEnvironment(this, this.options, this.problemReporter, environment);
 		initializeParser();
 	}
 	
@@ -173,7 +173,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			};
 		}
 		this.problemReporter = new ProblemReporter(policy, this.options, problemFactory);
-		this.lookupEnvironment = new LookupEnvironment(this, options, problemReporter, environment);
+		this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, environment);
 		initializeParser();
 	}
 	
@@ -181,7 +181,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 * Add an additional binary type
 	 */
 	public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
-		if (options.verbose) {
+		if (this.options.verbose) {
 			System.out.println(
 				Messages.bind(Messages.compilation_loadBinary, new String(binaryType.getName())));
 //			new Exception("TRACE BINARY").printStackTrace(System.out);
