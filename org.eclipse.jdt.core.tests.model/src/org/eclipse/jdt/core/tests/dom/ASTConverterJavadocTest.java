@@ -21,6 +21,7 @@ import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -112,7 +113,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug87845"));
+		suite.addTest(new ASTConverterJavadocTest("testBug83804"));
+		suite.addTest(new ASTConverterJavadocTest("testBug83804a"));
 		return suite;
 	}
 
@@ -2406,6 +2408,25 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertFalse(linkRef.toString()+" should NOT have a parameterized type binding", typeBinding.isParameterizedType());
 			assertFalse(linkRef.toString()+" should NOT have a raw type binding", typeBinding.isRawType());
 		}
+	}
+
+	/**
+	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
+	 */
+	public void testBug83804() throws CoreException, JavaModelException {
+		astLevel = AST.JLS3;
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getCompilationUnit("Converter15", "src", "javadoc.b83804", "package-info.java");
+		workingCopies[1] = getCompilationUnit("Converter15", "src", "javadoc.b83804", "Test.java");
+		verifyWorkingCopiesComments();
+	}
+	public void testBug83804a() throws CoreException, JavaModelException {
+		astLevel = AST.JLS3;
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getCompilationUnit("Converter15", "src", "javadoc.b83804a", "package-info.java");
+		workingCopies[1] = getCompilationUnit("Converter15", "src", "javadoc.b83804a", "Test.java");
+		verifyWorkingCopiesComments();
 	}
 
 	/**

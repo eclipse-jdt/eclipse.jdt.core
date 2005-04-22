@@ -51,7 +51,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug83230";
+//		TESTS_PREFIX =  "testBug86380";
 //		TESTS_NAMES = new String[] { "testBug89848" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -89,6 +89,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
+		resultCollector.showInsideDoc = false;
 		resultCollector.showAccuracy = true;
 	}
 
@@ -2051,6 +2052,73 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b83693/A.java [b83693.A.m] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
 			"src/b83693/A.java b83693.A [m(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
 			"src/b83693/A.java void b83693.A.m(int) [m(i)] EXACT_MATCH OUTSIDE_JAVADOC"
+		);
+	}
+
+	/**
+	 * Bug 86380: [1.5][search][annot] Add support to find references inside annotations on a package declaration
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86380"
+	 */
+	public void testBug86380_Type() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86380/package-info.java",
+			"/**\n" + 
+			" * Valid javadoc.\n" + 
+			" * @see Test\n" + 
+			" * @see Unknown\n" + 
+			" * @see Test#foo()\n" + 
+			" * @see Test#unknown()\n" + 
+			" * @see Test#field\n" + 
+			" * @see Test#unknown\n" + 
+			" * @param unexpected\n" + 
+			" * @throws unexpected\n" + 
+			" * @return unexpected \n" + 
+			" */\n" + 
+			"package b86380;\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86380/Test.java",
+			"/**\n" + 
+			" * Invalid javadoc\n" + 
+			" */\n" + 
+			"package b86380;\n" + 
+			"public class Test {\n" + 
+			"	public int field;\n" + 
+			"	public void foo() {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[1].getType("Test");
+		this.discard = false;
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b86380/package-info.java b86380.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [Test] EXACT_MATCH INSIDE_JAVADOC"
+		);
+	}
+	public void testBug86380_Method() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IMethod[] methods = workingCopies[1].getType("Test").getMethods();
+		assertEquals("Invalid number of methods", 1, methods.length);
+		this.discard = false;
+		search(methods[0], REFERENCES);
+		assertSearchResults(
+			"src/b86380/package-info.java b86380.package-info [foo()] EXACT_MATCH INSIDE_JAVADOC"
+		);
+	}
+	public void testBug86380_Field() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IField[] fields = workingCopies[1].getType("Test").getFields();
+		assertEquals("Invalid number of fields", 1, fields.length);
+		search(fields[0], REFERENCES);
+		assertSearchResults(
+			"src/b86380/package-info.java b86380.package-info [field] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
 

@@ -76,18 +76,29 @@ public class Javadoc extends ASTNode {
 	 * Resolve type javadoc while a class scope
 	 */
 	public void resolve(ClassScope classScope) {
+		internalResolve(classScope);
+	}
+
+	/*
+	 * Resolve type javadoc while a compilation unit scope
+	 */
+	public void resolve(CompilationUnitScope unitScope) {
+		internalResolve(unitScope);
+	}
+
+	private void internalResolve(Scope scope) {
 
 		// @param tags
 		int paramTagsSize = this.paramReferences == null ? 0 : this.paramReferences.length;
 		for (int i = 0; i < paramTagsSize; i++) {
 			JavadocSingleNameReference param = this.paramReferences[i];
-			classScope.problemReporter().javadocUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
+			scope.problemReporter().javadocUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
 		}
-		resolveTypeParameterTags(classScope, true);
+		resolveTypeParameterTags(scope, true);
 
 		// @return tags
 		if (this.returnStatement != null) {
-			classScope.problemReporter().javadocUnexpectedTag(this.returnStatement.sourceStart, this.returnStatement.sourceEnd);
+			scope.problemReporter().javadocUnexpectedTag(this.returnStatement.sourceStart, this.returnStatement.sourceEnd);
 		}
 
 		// @throws/@exception tags
@@ -107,13 +118,13 @@ public class Javadoc extends ASTNode {
 				start = typeRef.sourceStart;
 				end = typeRef.sourceEnd;
 			}
-			classScope.problemReporter().javadocUnexpectedTag(start, end);
+			scope.problemReporter().javadocUnexpectedTag(start, end);
 		}
 
 		// @see tags
 		int seeTagsLength = this.seeReferences == null ? 0 : this.seeReferences.length;
 		for (int i = 0; i < seeTagsLength; i++) {
-			resolveReference(this.seeReferences[i], classScope);
+			resolveReference(this.seeReferences[i], scope);
 		}
 	}
 	
@@ -217,10 +228,13 @@ public class Javadoc extends ASTNode {
 		switch (scope.kind) {
 			case Scope.METHOD_SCOPE:
 				reference.resolveType((MethodScope)scope);
-			break;
+				break;
 			case Scope.CLASS_SCOPE:
 				reference.resolveType((ClassScope)scope);
-			break;
+				break;
+			case Scope.COMPILATION_UNIT_SCOPE:
+				reference.resolveType((CompilationUnitScope)scope);
+				break;
 		}
 
 		// Verify field references

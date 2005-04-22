@@ -637,7 +637,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						}
 					}
 				}
-				if (parsedUnit.types != null) {
+				if (parsedUnit.types != null || parsedUnit.isPackageInfo()) {
 					if(selectDeclaration(parsedUnit))
 						return;
 					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
@@ -645,7 +645,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						try {
 							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
-							ASTNode node = parseBlockStatements(parsedUnit, selectionSourceStart);
+							ASTNode node = null;
+							if (parsedUnit.types != null)
+								node = parseBlockStatements(parsedUnit, selectionSourceStart);
 							if(DEBUG) {
 								System.out.println("SELECTION - AST :"); //$NON-NLS-1$
 								System.out.println(parsedUnit.toString());

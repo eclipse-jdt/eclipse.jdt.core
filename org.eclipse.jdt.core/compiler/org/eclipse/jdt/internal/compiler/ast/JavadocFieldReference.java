@@ -42,10 +42,18 @@ public class JavadocFieldReference extends FieldReference {
 		this.constant = NotAConstant;
 		if (this.receiver == null) {
 			this.receiverType = scope.enclosingSourceType();
-		} else if (scope.kind == Scope.CLASS_SCOPE) {
-			this.receiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
-			this.receiverType = this.receiver.resolveType((BlockScope)scope);
+			switch (scope.kind) {
+				case Scope.COMPILATION_UNIT_SCOPE:
+					this.receiverType = this.receiver.resolveType((CompilationUnitScope) scope);
+					break;
+				case Scope.CLASS_SCOPE:
+					this.receiverType = this.receiver.resolveType((ClassScope) scope);
+					break;
+				default:
+					this.receiverType = this.receiver.resolveType((BlockScope)scope);
+					break;
+			}
 		}
 		if (this.receiverType == null) {
 			return null;
@@ -97,9 +105,6 @@ public class JavadocFieldReference extends FieldReference {
 		return this.resolvedType = this.binding.type;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
-	 */
 	public boolean isSuperAccess() {
 		return this.superAccess;
 	}
@@ -113,17 +118,15 @@ public class JavadocFieldReference extends FieldReference {
 		return output;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
 	public TypeBinding resolveType(BlockScope scope) {
 		return internalResolveType(scope);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
 	public TypeBinding resolveType(ClassScope scope) {
+		return internalResolveType(scope);
+	}
+
+	public TypeBinding resolveType(CompilationUnitScope scope) {
 		return internalResolveType(scope);
 	}
 

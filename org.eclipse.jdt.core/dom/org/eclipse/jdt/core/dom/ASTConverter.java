@@ -1124,6 +1124,13 @@ class ASTConverter {
 		this.compilationUnitSource = source;
 		this.scanner.setSource(unit.compilationResult);
 		CompilationUnit compilationUnit = new CompilationUnit(this.ast);
+
+		// Parse comments
+		int[][] comments = unit.comments;
+		if (comments != null) {
+			buildCommentsTable(compilationUnit, comments);
+		}
+
 		// handle the package declaration immediately
 		// There is no node corresponding to the package declaration
 		if (this.resolveBindings) {
@@ -1139,12 +1146,6 @@ class ASTConverter {
 			for (int i = 0; i < importLength; i++) {
 				compilationUnit.imports().add(convertImport(imports[i]));
 			}
-		}
-
-		// Parse comments
-		int[][] comments = unit.comments;
-		if (comments != null) {
-			buildCommentsTable(compilationUnit, comments);
 		}
 
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit.types;
@@ -1740,6 +1741,29 @@ class ASTConverter {
 						}
 					}
 					bodyDeclaration.setJavadoc(docComment);
+				}
+			}
+		}
+	}
+
+	public void convert(org.eclipse.jdt.internal.compiler.ast.Javadoc javadoc, PackageDeclaration packageDeclaration) {
+		if (ast.apiLevel == AST.JLS3 && packageDeclaration.getJavadoc() == null) {
+			if (javadoc != null) {
+				if (this.commentMapper == null || !this.commentMapper.hasSameTable(this.commentsTable)) {
+					this.commentMapper = new DefaultCommentMapper(this.commentsTable);
+				}
+				Comment comment = this.commentMapper.getComment(javadoc.sourceStart);
+				if (comment != null && comment.isDocComment() && comment.getParent() == null) {
+					Javadoc docComment = (Javadoc) comment;
+					if (this.resolveBindings) {
+						recordNodes(docComment, javadoc);
+						// resolve member and method references binding
+						Iterator tags = docComment.tags().listIterator();
+						while (tags.hasNext()) {
+							recordNodes(javadoc, (TagElement) tags.next());
+						}
+					}
+					packageDeclaration.setJavadoc(docComment);
 				}
 			}
 		}
@@ -2621,6 +2645,8 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(packageDeclaration, importReference);
 		}
+		// Set javadoc
+		convert(compilationUnitDeclaration.javadoc, packageDeclaration);
 		return packageDeclaration;
 	}
 	

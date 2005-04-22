@@ -69,9 +69,19 @@ public class SelectionJavadoc extends Javadoc {
 	 * 
 	 * @throws SelectionNodeFound
 	 */
-	public void resolve(ClassScope scope) {
+	private void internalResolve(Scope scope) {
 		if (this.selectedNode != null) {
-			this.selectedNode.resolveType(scope);
+			switch (scope.kind) {
+				case Scope.COMPILATION_UNIT_SCOPE:
+					this.selectedNode.resolveType((CompilationUnitScope)scope);
+					break;
+				case Scope.CLASS_SCOPE:
+					this.selectedNode.resolveType((ClassScope)scope);
+					break;
+				case Scope.METHOD_SCOPE:
+					this.selectedNode.resolveType((MethodScope)scope);
+					break;
+			}
 			Binding binding = null;
 			if (this.selectedNode instanceof JavadocFieldReference) {
 				JavadocFieldReference fieldRef = (JavadocFieldReference) this.selectedNode;
@@ -108,37 +118,28 @@ public class SelectionJavadoc extends Javadoc {
 	 * 
 	 * @throws SelectionNodeFound
 	 */
+	public void resolve(ClassScope scope) {
+		internalResolve(scope);
+	}
+
+	/**
+	 * Resolve selected node if not null and throw exception to let clients know
+	 * that it has been found.
+	 * 
+	 * @throws SelectionNodeFound
+	 */
+	public void resolve(CompilationUnitScope scope) {
+		internalResolve(scope);
+	}
+
+	/**
+	 * Resolve selected node if not null and throw exception to let clients know
+	 * that it has been found.
+	 * 
+	 * @throws SelectionNodeFound
+	 */
 	public void resolve(MethodScope scope) {
-		if (this.selectedNode != null) {
-			this.selectedNode.resolveType(scope);
-			Binding binding = null;
-			if (this.selectedNode instanceof JavadocFieldReference) {
-				JavadocFieldReference fieldRef = (JavadocFieldReference) this.selectedNode;
-				binding = fieldRef.binding;
-				if (binding == null && fieldRef.methodBinding != null) {
-					binding = fieldRef.methodBinding;
-				}
-			} else if (this.selectedNode instanceof JavadocMessageSend) {
-				binding = ((JavadocMessageSend) this.selectedNode).binding;
-			} else if (this.selectedNode instanceof JavadocAllocationExpression) {
-				binding = ((JavadocAllocationExpression) this.selectedNode).binding;
-			} else if (this.selectedNode instanceof JavadocSingleNameReference) {
-				binding = ((JavadocSingleNameReference) this.selectedNode).binding;
-			} else if (this.selectedNode instanceof JavadocSingleTypeReference) {
-				JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) this.selectedNode;
-				if (typeRef.packageBinding == null) {
-					binding = typeRef.resolvedType;
-				}
-			} else if (this.selectedNode instanceof JavadocQualifiedTypeReference) {
-				JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) this.selectedNode;
-				if (typeRef.packageBinding == null) {
-					binding = typeRef.resolvedType;
-				}
-			} else {
-				binding = this.selectedNode.resolvedType;
-			}
-			throw new SelectionNodeFound(binding);
-		}
+		internalResolve(scope);
 	}
 
 }

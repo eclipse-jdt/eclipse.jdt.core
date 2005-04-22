@@ -82,7 +82,11 @@ public class JavadocArgumentExpression extends Expression {
 	public TypeBinding resolveType(ClassScope scope) {
 		return internalResolveType(scope);
 	}
-	
+
+	public TypeBinding resolveType(CompilationUnitScope scope) {
+		return internalResolveType(scope);
+	}
+
 	/* (non-Javadoc)
 	 * Redefine to capture javadoc specific signatures
 	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)

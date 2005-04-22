@@ -782,12 +782,16 @@ public abstract class Expression extends Statement {
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
-		// by default... subclasses should implement a better TC if required.
-
+		// by default... subclasses should implement a better TB if required.
 		return null;
 	}
 
-	public TypeBinding resolveType(ClassScope classScope) {
+	public TypeBinding resolveType(ClassScope scope) {
+		// by default... subclasses should implement a better TB if required.
+		return null;
+	}
+
+	public TypeBinding resolveType(CompilationUnitScope scope) {
 		// by default... subclasses should implement a better TB if required.
 		return null;
 	}

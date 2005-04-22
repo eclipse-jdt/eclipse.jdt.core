@@ -50,10 +50,19 @@ What's new in this drop</h2>
 <li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83230">bug 83230</a> required the index version to be incremented. 
      Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
 </li>
+<li>Added support for Javadoc in package-info.java. Compiler now verifies package comment tags
+syntax and references for this compilation unit. See bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804">83804</a> for 
+further details.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83501">83501</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=92315">92315</a>
+[search] NPE in MethodLocator.matchReportReference
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86380">86380</a>
+[1.5][search][annot] Add support to find references inside annotations on a package declaration
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804">83804</a>
+[1.5][javadoc] Missing Javadoc node for package declaration
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83501">83501</a>
 IBinding#getJavaElement needs better specification
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83230">83230</a>
 [1.5][search][annot] search for annotation elements does not seem to be implemented yet

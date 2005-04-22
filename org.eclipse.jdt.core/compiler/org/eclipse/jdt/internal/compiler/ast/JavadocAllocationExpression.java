@@ -35,10 +35,18 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		this.constant = NotAConstant;
 		if (this.type == null) {
 			this.resolvedType = scope.enclosingSourceType();
-		} else if (scope.kind == Scope.CLASS_SCOPE) {
-			this.resolvedType = this.type.resolveType((ClassScope)scope);
 		} else {
-			this.resolvedType = this.type.resolveType((BlockScope)scope, true /* check bounds*/);
+			switch (scope.kind) {
+				case Scope.COMPILATION_UNIT_SCOPE:
+					this.resolvedType = this.type.resolveType((CompilationUnitScope)scope);
+					break;
+				case Scope.CLASS_SCOPE:
+					this.resolvedType = this.type.resolveType((ClassScope)scope);
+					break;
+				default:
+					this.resolvedType = this.type.resolveType((BlockScope)scope, true /* check bounds*/);
+					break;
+			}
 		}
 	
 		// buffering the arguments' types
@@ -71,7 +79,8 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			return null;
 		}
 		this.resolvedType = scope.convertToRawType(this.type.resolvedType);
-		this.superAccess = scope.enclosingSourceType().isCompatibleWith(this.resolvedType);
+		SourceTypeBinding enclosingType = scope.enclosingSourceType();
+		this.superAccess = enclosingType==null ? false : enclosingType.isCompatibleWith(this.resolvedType);
 	
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 		this.binding = scope.getConstructor(allocationType, argumentTypes, this);
@@ -124,28 +133,22 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		if (isMethodUseDeprecated(this.binding, scope)) {
 			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());
 		}
-		// TODO (frederic) add support for unsafe type operation warning
 		return allocationType;
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
-	 */
+
 	public boolean isSuperAccess() {
 		return this.superAccess;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
 	public TypeBinding resolveType(BlockScope scope) {
 		return internalResolveType(scope);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
 	public TypeBinding resolveType(ClassScope scope) {
+		return internalResolveType(scope);
+	}
+
+	public TypeBinding resolveType(CompilationUnitScope scope) {
 		return internalResolveType(scope);
 	}
 }

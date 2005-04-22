@@ -35,8 +35,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug83127";
-//		TESTS_NAMES = new String[] { "testBug83127g" };
-//		TESTS_NUMBERS = new int[] { 83393 };
+//		TESTS_NAMES = new String[] { "testBug83127a" };
+//		TESTS_NUMBERS = new int[] { 83804 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
@@ -1692,6 +1692,73 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* @see Test#foo(Exception, boolean, boolean)\n" + 
 			"	            ^^^\n" + 
 			"Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
+	 */
+	public void testBug83804() {
+		runNegativeTest(
+			new String[] {
+				"pack/package-info.java",
+				"/**\n" + 
+				" * Valid javadoc.\n" + 
+				" * @see Test\n" + 
+				" * @see Unknown\n" + 
+				" * @see Test#foo()\n" + 
+				" * @see Test#unknown()\n" + 
+				" * @see Test#field\n" + 
+				" * @see Test#unknown\n" + 
+				" * @param unexpected\n" + 
+				" * @throws unexpected\n" + 
+				" * @return unexpected \n" + 
+				" * @deprecated accepted by javadoc.exe although javadoc 1.5 spec does not say that's a valid tag\n" + 
+				" * @other-tags are valid\n" + 
+				" */\n" + 
+				"package pack;\n",
+				"pack/Test.java",
+				"/**\n" + 
+				" * Invalid javadoc\n" + 
+				" */\n" + 
+				"package pack;\n" + 
+				"public class Test {\n" + 
+				"	public int field;\n" + 
+				"	public void foo() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in pack\\package-info.java (at line 4)\n" + 
+			"	* @see Unknown\n" + 
+			"	       ^^^^^^^\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in pack\\package-info.java (at line 6)\n" + 
+			"	* @see Test#unknown()\n" + 
+			"	            ^^^^^^^\n" + 
+			"Javadoc: The method unknown() is undefined for the type Test\n" + 
+			"----------\n" + 
+			"3. ERROR in pack\\package-info.java (at line 8)\n" + 
+			"	* @see Test#unknown\n" + 
+			"	            ^^^^^^^\n" + 
+			"Javadoc: unknown cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"4. ERROR in pack\\package-info.java (at line 9)\n" + 
+			"	* @param unexpected\n" + 
+			"	   ^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"5. ERROR in pack\\package-info.java (at line 10)\n" + 
+			"	* @throws unexpected\n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"6. ERROR in pack\\package-info.java (at line 11)\n" + 
+			"	* @return unexpected \n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
 			"----------\n"
 		);
 	}

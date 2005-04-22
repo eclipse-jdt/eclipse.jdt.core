@@ -40,6 +40,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	// working copies usage
 	protected ICompilationUnit[] workingCopies;
+	protected WorkingCopyOwner wcOwner;
 	protected boolean discard;
 	
 	// infos for invalid results
@@ -1720,7 +1721,12 @@ protected void assertDeltas(String message, String expected) {
 	 */
 	IJavaElement selectJavaElement(ICompilationUnit unit, String selection, int occurences, int elementType) throws JavaModelException {
 		int[] selectionPositions = selectionInfo(unit, selection, occurences);
-		IJavaElement[] elements = unit.codeSelect(selectionPositions[0], selectionPositions[1]);
+		IJavaElement[] elements = null;
+		if (wcOwner == null) {
+			elements = unit.codeSelect(selectionPositions[0], selectionPositions[1]);
+		} else {
+			elements = unit.codeSelect(selectionPositions[0], selectionPositions[1], wcOwner);
+		}
 		assertEquals("Invalid selection number", 1, elements.length);
 		assertEquals("Invalid java element type: "+elements[0].getElementName(), elements[0].getElementType(), elementType);
 		return elements[0];
@@ -1861,7 +1867,9 @@ protected void assertDeltas(String message, String expected) {
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
-		if (discard) workingCopies = null;
+		if (discard) {
+			workingCopies = null;
+		}
 		discard = true;
 	}
 	protected void sortElements(IJavaElement[] elements) {
@@ -1930,6 +1938,7 @@ protected void assertDeltas(String message, String expected) {
 		super.tearDown();
 		if (discard && workingCopies != null) {
 			discardWorkingCopies(workingCopies);
+			wcOwner = null;
 		}
 	}
 	/**

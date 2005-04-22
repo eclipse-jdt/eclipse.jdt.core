@@ -38,7 +38,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 //		TESTS_NAMES = new String[] {
 //			"testBug70892conform1", "testBug70892conform2"
 //		};
-//		TESTS_NUMBERS = new int[] { 83393 };
+//		TESTS_NUMBERS = new int[] { 83804 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -2494,6 +2494,43 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"	            ^^^\n" + 
 			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
 			"----------\n"
+		);
+	}
+
+	/**
+	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
+	 */
+	public void testBug83804() {
+		runNegativeTest(
+			new String[] {
+				"pack/package-info.java",
+				"/**\n" + 
+				" * Valid javadoc.\n" + 
+				" * @see Test\n" + 
+				" * @see Unknown\n" + 
+				" * @see Test#foo()\n" + 
+				" * @see Test#unknown()\n" + 
+				" * @see Test#field\n" + 
+				" * @see Test#unknown\n" + 
+				" * @param unexpected\n" + 
+				" * @throws unexpected\n" + 
+				" * @return unexpected \n" + 
+				" * @deprecated accepted by javadoc.exe although javadoc 1.5 spec does not say that's a valid tag\n" + 
+				" * @other-tags are valid\n" + 
+				" */\n" + 
+				"package pack;\n",
+				"pack/Test.java",
+				"/**\n" + 
+				" * Invalid javadoc\n" + 
+				" */\n" + 
+				"package pack;\n" + 
+				"public class Test {\n" + 
+				"	public int field;\n" + 
+				"	public void foo() {}\n" + 
+				"}\n"
+			},
+			""
 		);
 	}
 }

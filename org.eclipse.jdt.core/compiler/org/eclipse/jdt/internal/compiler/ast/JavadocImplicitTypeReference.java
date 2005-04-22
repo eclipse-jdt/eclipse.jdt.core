@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -56,7 +57,8 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	}
 
 	/*
-	 * Resolves type on a Block or Class scope.
+	 * Resolves type on a Block, Class or CompilationUnit scope.
+	 * We need to modify resoling behavior to avoid raw type creation.
 	 */
 	private TypeBinding internalResolveType(Scope scope) {
 		// handle the error here
@@ -76,39 +78,26 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		return this.resolvedType;
 	}
 
-	/* (non-Javadoc)
-	 * Override super implementation to avoid raw type creation.
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope, boolean)
-	 */
 	public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {
 		return internalResolveType(blockScope);
 	}
 
-	/* (non-Javadoc)
-	 * Override super implementation to avoid raw type creation.
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.ClassScope)
-	 */
 	public TypeBinding resolveType(ClassScope classScope) {
 		return internalResolveType(classScope);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
+	public TypeBinding resolveType(CompilationUnitScope scope) {
+		return internalResolveType(scope);
+	}
+
 	public void traverse(ASTVisitor visitor, BlockScope classScope) {
 		// Do nothing
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
-	 */
 	public void traverse(ASTVisitor visitor, ClassScope classScope) {
 		// Do nothing
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#printExpression(int, java.lang.StringBuffer)
-	 */
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		return new StringBuffer();
 	}

@@ -4230,7 +4230,11 @@ protected void consumeOpenBlock() {
 	this.realBlockStack[this.realBlockPtr] = 0;
 }
 protected void consumePackageComment() {
-	// do nothing
+	// get possible comment for syntax since 1.5
+	if(options.sourceLevel >= ClassFileConstants.JDK1_5) {
+		checkComment();
+		resetModifiers();
+	}
 }
 protected void consumePackageDeclaration() {
 	// PackageDeclaration ::= 'package' Name ';'
@@ -4238,6 +4242,8 @@ protected void consumePackageDeclaration() {
 	stored in the identifier stack. */
 
 	ImportReference impt = this.compilationUnit.currentPackage;
+	this.compilationUnit.javadoc = this.javadoc;
+	this.javadoc = null;
 	// flush comments defined prior to import statements
 	impt.declarationEnd = this.endStatementPosition;
 	impt.declarationSourceEnd = this.flushCommentsDefinedPriorTo(impt.declarationSourceEnd);

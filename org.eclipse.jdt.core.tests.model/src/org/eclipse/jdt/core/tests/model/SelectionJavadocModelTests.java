@@ -12,9 +12,11 @@ package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 
 public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	
@@ -27,7 +29,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 90266 };
+//		TESTS_PREFIX = "testBug";
+//		TESTS_NUMBERS = new int[] { 86380 };
 //		TESTS_RANGE = new int[] { 13, 16 };
 	}
 
@@ -46,7 +49,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 
 	void setUnit(String name, String source) throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Tests/src/"+name, source);
+		this.workingCopies[0] = getWorkingCopy("/Tests/"+name, source);
 	}
 
 	void assertElementEquals(String message, String expected) {
@@ -75,7 +78,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectMethod(this.workingCopies[0], "foo");
 		assertElementEquals("Invalid selected method",
-		"foo() {key=LTest;.foo()V} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]"
+		"foo() {key=LTest;.foo()V} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
 		);
 	}
 
@@ -91,7 +94,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectMethod(this.workingCopies[0], "foo");
 		assertElementEquals("Invalid selected method",
-			"foo() {key=LTest;.foo()V} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]"
+			"foo() {key=LTest;.foo()V} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
 		);
 	}
 
@@ -104,7 +107,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectType(this.workingCopies[0], "Test", 2);
 		assertElementEquals("Invalid selected type",
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]"
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]"
 		);
 	}
 
@@ -117,7 +120,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectType(this.workingCopies[0], "Test", 2);
 		assertElementEquals("Invalid selected type",
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]"
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]"
 		);
 	}
 
@@ -131,7 +134,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectField(this.workingCopies[0], "field", 2);
 		assertElementEquals("Invalid selected field",
-			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]"
+			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
 		);
 	}
 
@@ -145,7 +148,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectField(this.workingCopies[0], "field", 2);
 		assertElementEquals("Invalid selected field",
-			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]"
+			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
 		);
 	}
 
@@ -173,12 +176,12 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[5] = selectMethod(this.workingCopies[0], "foo", 2);
 		elements[6] = selectType(this.workingCopies[0], "String", 2);
 		assertElementsEqual("Invalid selection(s)",
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo(int, String) {key=LTest;.foo(ILjava/lang/String;)V} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo(int, String) {key=LTest;.foo(ILjava/lang/String;)V} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
 			"String {key=Ljava/lang/String;} [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]\n" + 
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"foo(int, String) {key=LTest;.foo(ILjava/lang/String;)V} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"foo(int, String) {key=LTest;.foo(ILjava/lang/String;)V} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
 			"String {key=Ljava/lang/String;} [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
 			elements
 		);
@@ -208,12 +211,12 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[5] = selectMethod(this.workingCopies[0], "foo", 2);
 		elements[6] = selectType(this.workingCopies[0], "String", 2);
 		assertElementsEqual("Invalid selection(s)",
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo(int, String) {key=LTest;.foo(ILjava/lang/String;)V} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo(int, String) {key=LTest;.foo(ILjava/lang/String;)V} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
 			"String {key=Ljava/lang/String;} [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]\n" + 
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"foo(int, String) {key=LTest;.foo(ILjava/lang/String;)V} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"foo(int, String) {key=LTest;.foo(ILjava/lang/String;)V} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
 			"String {key=Ljava/lang/String;} [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
 			elements
 		);
@@ -250,11 +253,11 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[5] = selectType(this.workingCopies[0], "Object");
 		assertSelectionIsEmpty(this.workingCopies[0], "array");
 		assertElementsEqual("Invalid selection(s)",
-			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in src [in Tests]]]]\n" + 
-			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in src [in Tests]]]]\n" + 
-			"field {key=Ltest/junit/Test;.field} [in Test [in [Working copy] Test.java [in test.junit [in src [in Tests]]]]]\n" + 
-			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in src [in Tests]]]]\n" + 
-			"foo(Object[]) {key=Ltest/junit/Test;.foo([Ljava/lang/Object;)V} [in Test [in [Working copy] Test.java [in test.junit [in src [in Tests]]]]]\n" + 
+			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]\n" + 
+			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]\n" + 
+			"field {key=Ltest/junit/Test;.field} [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" + 
+			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]\n" + 
+			"foo(Object[]) {key=Ltest/junit/Test;.foo([Ljava/lang/Object;)V} [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" + 
 			"Object {key=Ljava/lang/Object;} [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
 			elements
 		);
@@ -290,11 +293,11 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[5] = selectType(this.workingCopies[0], "Object");
 		assertSelectionIsEmpty(this.workingCopies[0], "array");
 		assertElementsEqual("Invalid selection(s)",
-			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in src [in Tests]]]]\n" + 
-			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in src [in Tests]]]]\n" + 
-			"field {key=Ltest/junit/Test;.field} [in Test [in [Working copy] Test.java [in test.junit [in src [in Tests]]]]]\n" + 
-			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in src [in Tests]]]]\n" + 
-			"foo(Object[]) {key=Ltest/junit/Test;.foo([Ljava/lang/Object;)V} [in Test [in [Working copy] Test.java [in test.junit [in src [in Tests]]]]]\n" + 
+			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]\n" + 
+			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]\n" + 
+			"field {key=Ltest/junit/Test;.field} [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" + 
+			"Test {key=Ltest/junit/Test;} [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]\n" + 
+			"foo(Object[]) {key=Ltest/junit/Test;.foo([Ljava/lang/Object;)V} [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" + 
 			"Object {key=Ljava/lang/Object;} [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
 			elements
 		);
@@ -354,8 +357,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[0] = selectLocalVariable(this.workingCopies[0], "xxx");
 		elements[1] = selectLocalVariable(this.workingCopies[0], "str");
 		assertElementsEqual("Invalid selection(s)",
-			"xxx [in foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"str [in foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]",
+			"xxx [in foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"str [in foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]",
 			elements
 		);
 	}
@@ -391,15 +394,15 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[7] = selectType(this.workingCopies[0], "Field", 4);
 		elements[8] = selectField(this.workingCopies[0], "foo", 5);
 		assertElementsEqual("Invalid selection(s)",
-			"Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Field {key=LTest~Field;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"foo {key=LTest~Field;.foo} [in Field [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"Field {key=LTest~Field;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"foo {key=LTest~Field;.foo} [in Field [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo {key=LTest~Field;.foo} [in Field [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo {key=LTest~Field;.foo} [in Field [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"Field {key=LTest~Field;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"foo {key=LTest~Field;.foo} [in Field [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]",
+			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Field {key=LTest~Field;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"foo {key=LTest~Field;.foo} [in Field [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"Field {key=LTest~Field;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"foo {key=LTest~Field;.foo} [in Field [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo {key=LTest~Field;.foo} [in Field [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo {key=LTest~Field;.foo} [in Field [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"Field {key=LTest~Field;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"foo {key=LTest~Field;.foo} [in Field [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]",
 			elements
 		);
 	}
@@ -447,17 +450,17 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[11] = selectType(this.workingCopies[0], "RuntimeException");
 		elements[12] = selectType(this.workingCopies[0], "InterruptedException");
 		assertElementsEqual("Invalid selection(s)",
-			"Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Method {key=LTest~Method;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"foo(int, String) {key=LTest~Method;.foo(ILjava/lang/String;)V} [in Method [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"Method {key=LTest~Method;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"foo(int, String) {key=LTest~Method;.foo(ILjava/lang/String;)V} [in Method [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo(int, String) {key=LTest~Method;.foo(ILjava/lang/String;)V} [in Method [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo(int, String) {key=LTest~Method;.foo(ILjava/lang/String;)V} [in Method [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"Method {key=LTest~Method;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"foo(int, String) {key=LTest~Method;.foo(ILjava/lang/String;)V} [in Method [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"xxx [in foo(int, String) [in Method [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"str [in foo(int, String) [in Method [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
+			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Method {key=LTest~Method;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"foo(int, String) {key=LTest~Method;.foo(ILjava/lang/String;)V} [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"Method {key=LTest~Method;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"foo(int, String) {key=LTest~Method;.foo(ILjava/lang/String;)V} [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo(int, String) {key=LTest~Method;.foo(ILjava/lang/String;)V} [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo(int, String) {key=LTest~Method;.foo(ILjava/lang/String;)V} [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"Method {key=LTest~Method;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"foo(int, String) {key=LTest~Method;.foo(ILjava/lang/String;)V} [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"xxx [in foo(int, String) [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"str [in foo(int, String) [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
 			"RuntimeException {key=Ljava/lang/RuntimeException;} [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]\n" + 
 			"InterruptedException {key=Ljava/lang/InterruptedException;} [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in Tests]]]]",
 			elements
@@ -483,10 +486,10 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[2] = selectType(this.workingCopies[0], "Test", 3);
 		elements[3] = selectType(this.workingCopies[0], "Other", 2);
 		assertElementsEqual("Invalid selection(s)",
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Other {key=LTest~Other;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Other {key=LTest~Other;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]",
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Other {key=LTest~Other;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Other {key=LTest~Other;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]",
 			elements
 		);
 	}
@@ -523,17 +526,17 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[9] = selectType(this.workingCopies[0], "Field", 5);
 		elements[10] = selectField(this.workingCopies[0], "foo", 5);
 		assertElementsEqual("Invalid selection(s)",
-			"Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Field {key=LTest$Field;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo {key=LTest$Field;.foo} [in Field [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"Field {key=LTest$Field;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo {key=LTest$Field;.foo} [in Field [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"foo {key=LTest$Field;.foo} [in Field [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"Field {key=LTest$Field;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo {key=LTest$Field;.foo} [in Field [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Field {key=LTest$Field;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo {key=LTest$Field;.foo} [in Field [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]",
+			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Field {key=LTest$Field;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo {key=LTest$Field;.foo} [in Field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"Field {key=LTest$Field;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo {key=LTest$Field;.foo} [in Field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"foo {key=LTest$Field;.foo} [in Field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"Field {key=LTest$Field;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo {key=LTest$Field;.foo} [in Field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Field {key=LTest$Field;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo {key=LTest$Field;.foo} [in Field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]",
 			elements
 		);
 	}
@@ -570,17 +573,17 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[9] = selectType(this.workingCopies[0], "Method", 5);
 		elements[10] = selectMethod(this.workingCopies[0], "foo", 5);
 		assertElementsEqual("Invalid selection(s)",
-			"Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Method {key=LTest$Method;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo() {key=LTest$Method;.foo()V} [in Method [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"Method {key=LTest$Method;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo() {key=LTest$Method;.foo()V} [in Method [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"foo() {key=LTest$Method;.foo()V} [in Method [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"Method {key=LTest$Method;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo() {key=LTest$Method;.foo()V} [in Method [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Method {key=LTest$Method;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"foo() {key=LTest$Method;.foo()V} [in Method [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]",
+			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Method {key=LTest$Method;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo() {key=LTest$Method;.foo()V} [in Method [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"Method {key=LTest$Method;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo() {key=LTest$Method;.foo()V} [in Method [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"foo() {key=LTest$Method;.foo()V} [in Method [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"Method {key=LTest$Method;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo() {key=LTest$Method;.foo()V} [in Method [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Method {key=LTest$Method;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"foo() {key=LTest$Method;.foo()V} [in Method [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]",
 			elements
 		);
 	}
@@ -607,12 +610,12 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[4] = selectType(this.workingCopies[0], "Test", 4);
 		elements[5] = selectType(this.workingCopies[0], "Other", 3);
 		assertElementsEqual("Invalid selection(s)",
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Other {key=LTest$Other;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Other {key=LTest$Other;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Other {key=LTest$Other;} [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]",
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Other {key=LTest$Other;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Other {key=LTest$Other;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Other {key=LTest$Other;} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]",
 			elements
 		);
 	}
@@ -642,11 +645,11 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[4] = selectField(this.workingCopies[0], "foo", 3);
 		// Running test with Unix/Windows do not matter even if result includes positions as we use working copies
 		assertElementsEqual("Invalid selection(s)",
-			"Field {key=LTest$74;} [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"foo {key=LTest$74;.foo} [in Field [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]\n" + 
-			"foo {key=LTest$74;.foo} [in Field [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]\n" + 
-			"Field {key=LTest$74;} [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"foo {key=LTest$74;.foo} [in Field [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]",
+			"Field {key=LTest$74;} [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"foo {key=LTest$74;.foo} [in Field [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]\n" + 
+			"foo {key=LTest$74;.foo} [in Field [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]\n" + 
+			"Field {key=LTest$74;} [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"foo {key=LTest$74;.foo} [in Field [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]",
 			elements
 		);
 	}
@@ -676,11 +679,11 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[4] = selectMethod(this.workingCopies[0], "foo", 3);
 		// Running test with Unix/Windows do not matter even if result includes positions as we use working copies
 		assertElementsEqual("Invalid selection(s)",
-			"Method {key=LTest$77;} [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"foo() {key=LTest$77;.foo()V} [in Method [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]\n" + 
-			"foo() {key=LTest$77;.foo()V} [in Method [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]\n" + 
-			"Method {key=LTest$77;} [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]\n" + 
-			"foo() {key=LTest$77;.foo()V} [in Method [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]",
+			"Method {key=LTest$77;} [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"foo() {key=LTest$77;.foo()V} [in Method [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]\n" + 
+			"foo() {key=LTest$77;.foo()V} [in Method [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]\n" + 
+			"Method {key=LTest$77;} [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" + 
+			"foo() {key=LTest$77;.foo()V} [in Method [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]",
 			elements
 		);
 	}
@@ -702,8 +705,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[1] = selectType(this.workingCopies[0], "Other");
 		// Running test with Unix/Windows do not matter even if result includes positions as we use working copies
 		assertElementsEqual("Invalid selection(s)",
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Other {key=LTest$85;} [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]",
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Other {key=LTest$85;} [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]",
 			elements
 		);
 	}
@@ -735,11 +738,11 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[4] = selectField(this.workingCopies[0], "foo", 3);
 		// Running test with Unix/Windows do not matter even if result includes positions as we use working copies
 		assertElementsEqual("Invalid selection(s)",
-			"Field {key=LTest$95;} [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]\n" + 
-			"foo {key=LTest$95;.foo} [in Field [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]]\n" + 
-			"foo {key=LTest$95;.foo} [in Field [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]]\n" + 
-			"Field {key=LTest$95;} [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]\n" + 
-			"foo {key=LTest$95;.foo} [in Field [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]]",
+			"Field {key=LTest$95;} [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]\n" + 
+			"foo {key=LTest$95;.foo} [in Field [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]]\n" + 
+			"foo {key=LTest$95;.foo} [in Field [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]]\n" + 
+			"Field {key=LTest$95;} [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]\n" + 
+			"foo {key=LTest$95;.foo} [in Field [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]]",
 			elements
 		);
 	}
@@ -771,11 +774,11 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[4] = selectMethod(this.workingCopies[0], "foo", 3);
 		// Running test with Unix/Windows do not matter even if result includes positions as we use working copies
 		assertElementsEqual("Invalid selection(s)",
-			"Method {key=LTest$98;} [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]\n" + 
-			"foo() {key=LTest$98;.foo()V} [in Method [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]]\n" + 
-			"foo() {key=LTest$98;.foo()V} [in Method [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]]\n" + 
-			"Method {key=LTest$98;} [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]\n" + 
-			"foo() {key=LTest$98;.foo()V} [in Method [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]]",
+			"Method {key=LTest$98;} [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]\n" + 
+			"foo() {key=LTest$98;.foo()V} [in Method [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]]\n" + 
+			"foo() {key=LTest$98;.foo()V} [in Method [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]]\n" + 
+			"Method {key=LTest$98;} [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]\n" + 
+			"foo() {key=LTest$98;.foo()V} [in Method [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]]",
 			elements
 		);
 	}
@@ -799,8 +802,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[1] = selectType(this.workingCopies[0], "Other");
 		// Running test with Unix/Windows do not matter even if result includes positions as we use working copies
 		assertElementsEqual("Invalid selection(s)",
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"Other {key=LTest$107;} [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]]]",
+			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"Other {key=LTest$107;} [in <anonymous #1> [in bar() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]]",
 			elements
 		);
 	}
@@ -821,9 +824,57 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[1] = selectType(this.workingCopies[0], "Test");
 		elements[2] = selectField(this.workingCopies[0], "field");
 		assertElementsEqual("Invalid selection(s)",
-			"field [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]\n" + 
-			"Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]\n" + 
-			"field [in Test [in [Working copy] Test.java [in <default> [in src [in Tests]]]]]",
+			"field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" + 
+			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" + 
+			"field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]",
+			elements
+		);
+	}
+
+	/**
+	 * Bug 86380: [1.5][search][annot] Add support to find references inside annotations on a package declaration
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86380"
+	 */
+	public void testBug86380() throws CoreException {
+		this.wcOwner = new WorkingCopyOwner() {};
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/Tests/b86380/package-info.java",
+			"/**\n" + 
+			" * Valid javadoc.\n" + 
+			" * @see Test\n" + 
+			" * @see Unknown\n" + 
+			" * @see Test#foo()\n" + 
+			" * @see Test#unknown()\n" + 
+			" * @see Test#field\n" + 
+			" * @see Test#unknown\n" + 
+			" * @param unexpected\n" + 
+			" * @throws unexpected\n" + 
+			" * @return unexpected \n" + 
+			" */\n" + 
+			"package b86380;\n",
+			wcOwner,
+			null/*don't compute problems*/
+		);
+		workingCopies[1] = getWorkingCopy("/Tests/b86380/Test.java",
+			"/**\n" + 
+			" * Invalid javadoc\n" + 
+			" */\n" + 
+			"package b86380;\n" + 
+			"public class Test {\n" + 
+			"	public int field;\n" + 
+			"	public void foo() {}\n" + 
+			"}\n",
+			wcOwner,
+			null/*don't compute problems*/
+		);
+		IJavaElement[] elements = new IJavaElement[3];
+		elements[0] = selectType(this.workingCopies[0], "Test");
+		elements[1] = selectMethod(this.workingCopies[0], "foo");
+		elements[2] = selectField(this.workingCopies[0], "field");
+		assertElementsEqual("Invalid selection(s)",
+			"Test {key=Lb86380/Test;} [in [Working copy] Test.java [in b86380 [in <project root> [in Tests]]]]\n" + 
+			"foo() {key=Lb86380/Test;.foo()V} [in Test [in [Working copy] Test.java [in b86380 [in <project root> [in Tests]]]]]\n" + 
+			"field {key=Lb86380/Test;.field} [in Test [in [Working copy] Test.java [in b86380 [in <project root> [in Tests]]]]]",
 			elements
 		);
 	}
@@ -833,8 +884,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=90266"
 	 */
 	public void testBug90266_String() throws JavaModelException {
-		workingCopies = new ICompilationUnit[1];
-		workingCopies[0] = getWorkingCopy("/Tests/b90266/Test.java",
+		setUnit("b90266/Test.java",
 			"package b90266;\n" + 
 			"public class Test {\n" + 
 			"	public int field;\n" + 
@@ -847,13 +897,12 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		int[] selectionPositions = selectionInfo(workingCopies[0], "field", 2);
 		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
 		assertElementsEqual("Invalid selection(s)",
-			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in b90266 [in Tests]]]]]",
+			"field {key=Lb90266/Test;.field} [in Test [in [Working copy] Test.java [in b90266 [in <project root> [in Tests]]]]]",
 			elements
 		);
 	}
 	public void testBug90266_Char() throws JavaModelException {
-		workingCopies = new ICompilationUnit[1];
-		workingCopies[0] = getWorkingCopy("/Tests/b90266/Test.java",
+		setUnit("b90266/Test.java",
 			"package b90266;\n" + 
 			"public class Test {\n" + 
 			"	public int field;\n" + 
@@ -866,7 +915,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		int[] selectionPositions = selectionInfo(workingCopies[0], "field", 2);
 		IJavaElement[] elements = workingCopies[0].codeSelect(selectionPositions[0], 0);
 		assertElementsEqual("Invalid selection(s)",
-			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in b90266 [in Tests]]]]]",
+			"field {key=Lb90266/Test;.field} [in Test [in [Working copy] Test.java [in b90266 [in <project root> [in Tests]]]]]",
 			elements
 		);
 	}

@@ -1380,24 +1380,28 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 
 		getMethodBodies(unit);
 
-		if (bindingsWereCreated && ((InternalSearchPattern)this.pattern).mustResolve && unit.types != null) {
-			if (BasicSearchEngine.VERBOSE)
-				System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
-
-			reduceParseTree(unit);
-
-			if (unit.scope != null) {
-				// fault in fields & methods
-				unit.scope.faultInTypes();
+		boolean mustResolve = ((InternalSearchPattern)this.pattern).mustResolve;
+		if (bindingsWereCreated &&  mustResolve) {
+			if (unit.types != null) {
+				if (BasicSearchEngine.VERBOSE)
+					System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
+	
+				reduceParseTree(unit);
+	
+				if (unit.scope != null) {
+					// fault in fields & methods
+					unit.scope.faultInTypes();
+				}
+				unit.resolve();
+			} else if (unit.isPackageInfo()) {
+				if (BasicSearchEngine.VERBOSE)
+					System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
+				unit.resolve();
 			}
-			unit.resolve();
-
-			reportMatching(unit, true);
-		} else {
-			reportMatching(unit, ((InternalSearchPattern)this.pattern).mustResolve);
 		}
+		reportMatching(unit, mustResolve);
 	} catch (AbortCompilation e) {
-		// could not resolve: report innacurate matches
+		// could not resolve: report inaccurate matches
 		reportMatching(unit, true); // was partially resolved
 		if (!(e instanceof AbortCompilationUnit)) {
 			// problem with class path
@@ -1853,6 +1857,26 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	if (nodeSet.matchingNodes.elementSize == 0) return; // no matching nodes were found
 
 	boolean matchedUnitContainer = (this.matchContainer & PatternLocator.COMPILATION_UNIT_CONTAINER) != 0;
+
+	// report references in javadoc
+	if (unit.javadoc != null) {
+		ASTNode[] nodes = nodeSet.matchingNodes(unit.javadoc.sourceStart, unit.javadoc.sourceEnd);
+		if (nodes != null) {
+			if (!matchedUnitContainer) {
+				for (int i = 0, l = nodes.length; i < l; i++)
+					nodeSet.matchingNodes.removeKey(nodes[i]);
+			} else {
+				IJavaElement element = createTypeHandle(new String(unit.getMainTypeName()));
+				for (int i = 0, l = nodes.length; i < l; i++) {
+					ASTNode node = nodes[i];
+					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+					if (encloses(element))
+						this.patternLocator.matchReportReference(node, element, null/*no binding*/, level.intValue(), this);
+				}
+			}
+		}
+	}
+
 	if (matchedUnitContainer) {
 // Currently a no-op
 //	ImportReference pkg = unit.currentPackage;
