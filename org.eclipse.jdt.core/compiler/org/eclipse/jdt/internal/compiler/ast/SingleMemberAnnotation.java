@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 public class SingleMemberAnnotation extends Annotation {
 	
 	public Expression memberValue;
-	public MemberValuePair singlePair; // fake pair, only value has accurate positions
+	private MemberValuePair[] singlePairs; // fake pair set, only value has accurate positions
 
 	public SingleMemberAnnotation(TypeReference type, int sourceStart) {
 		this.type = type;
@@ -32,8 +32,13 @@ public class SingleMemberAnnotation extends Annotation {
 	 * @see org.eclipse.jdt.internal.compiler.ast.Annotation#memberValuePairs()
 	 */
 	public MemberValuePair[] memberValuePairs() {
-		this.singlePair =  new MemberValuePair(VALUE, this.memberValue.sourceStart, this.memberValue.sourceEnd, this.memberValue);
-		return new MemberValuePair[] { singlePair };
+		if (this.singlePairs == null) {
+			this.singlePairs =  
+				new MemberValuePair[]{ 
+					new MemberValuePair(VALUE, this.memberValue.sourceStart, this.memberValue.sourceEnd, this.memberValue)
+				};
+		}
+		return this.singlePairs;
 	}
 	
 	public StringBuffer printExpression(int indent, StringBuffer output) {

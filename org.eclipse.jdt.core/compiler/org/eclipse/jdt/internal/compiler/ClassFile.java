@@ -2844,7 +2844,7 @@ public class ClassFile
 			final int elementNameIndex = constantPool.literalIndex(VALUE);
 			contents[contentsOffset++] = (byte) (elementNameIndex >> 8);
 			contents[contentsOffset++] = (byte) elementNameIndex;
-			MethodBinding methodBinding = singleMemberAnnotation.singlePair.binding;
+			MethodBinding methodBinding = singleMemberAnnotation.memberValuePairs()[0].binding;
 			if (methodBinding == null) {
 				contentsOffset = attributeOffset;
 			} else {
