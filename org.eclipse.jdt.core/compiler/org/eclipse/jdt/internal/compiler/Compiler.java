@@ -315,7 +315,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			beginToCompile(sourceUnits);
 
 			// process all units (some more could be injected in the loop by the lookup environment)
-			for (; i < totalUnits; i++) {
+			for (; i < this.totalUnits; i++) {
 				unit = unitsToProcess[i];
 				try {
 					if (options.verbose)
@@ -323,7 +323,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 							Messages.bind(Messages.compilation_process,
 							new String[] {
 								String.valueOf(i + 1),
-								String.valueOf(totalUnits),
+								String.valueOf(this.totalUnits),
 								new String(unitsToProcess[i].getFileName())
 							}));
 					process(unit, i);
@@ -338,7 +338,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 						Messages.bind(Messages.compilation_done,
 						new String[] {
 							String.valueOf(i + 1),
-							String.valueOf(totalUnits),
+							String.valueOf(this.totalUnits),
 							new String(unit.getFileName())
 						}));
 			}
@@ -354,12 +354,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			this.reset();
 		}
 		if (options.verbose) {
-			if (totalUnits > 1) {
+			if (this.totalUnits > 1) {
 				System.out.println(
-					Messages.bind(Messages.compilation_units, String.valueOf(totalUnits))); 
+					Messages.bind(Messages.compilation_units, String.valueOf(this.totalUnits))); 
 			} else {
 				System.out.println(
-					Messages.bind(Messages.compilation_unit, String.valueOf(totalUnits))); 
+					Messages.bind(Messages.compilation_unit, String.valueOf(this.totalUnits))); 
 			}
 		}
 	}
