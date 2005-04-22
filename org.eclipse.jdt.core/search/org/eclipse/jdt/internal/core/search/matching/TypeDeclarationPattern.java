@@ -34,6 +34,51 @@ public int modifiers;
 
 protected static char[][] CATEGORIES = { TYPE_DECL };
 
+// want to save space by interning the package names for each match
+static PackageNameSet internedPackageNames = new PackageNameSet(1001);
+static class PackageNameSet {
+
+public char[][] names;
+public int elementSize; // number of elements in the table
+public int threshold;
+
+PackageNameSet(int size) {
+	this.elementSize = 0;
+	this.threshold = size; // size represents the expected number of elements
+	int extraRoom = (int) (size * 1.5f);
+	if (this.threshold == extraRoom)
+		extraRoom++;
+	this.names = new char[extraRoom][];
+}
+
+char[] add(char[] name) {
+	int length = names.length;
+	int index = CharOperation.hashCode(name) % length;
+	char[] current;
+	while ((current = names[index]) != null) {
+		if (CharOperation.equals(current, name)) return current;
+		if (++index == length) index = 0;
+	}
+	names[index] = name;
+
+	// assumes the threshold is never equal to the size of the table
+	if (++elementSize > threshold) rehash();
+	return name;
+}
+
+void rehash() {
+	PackageNameSet newSet = new PackageNameSet(elementSize * 2); // double the number of expected elements
+	char[] current;
+	for (int i = names.length; --i >= 0;)
+		if ((current = names[i]) != null)
+			newSet.add(current);
+
+	this.names = newSet.names;
+	this.elementSize = newSet.elementSize;
+	this.threshold = newSet.threshold;
+}
+}
+
 /*
  * Create index key for type declaration pattern:
  *		key = typeName / packageName / enclosingTypeName / typeSuffix modifiers
@@ -115,7 +160,7 @@ public void decodeIndexKey(char[] key) {
 
 	int start = slash + 1;
 	slash = CharOperation.indexOf(SEPARATOR, key, start);
-	this.pkg = slash == start ? CharOperation.NO_CHAR : CharOperation.subarray(key, start, slash);
+	this.pkg = slash == start ? CharOperation.NO_CHAR : internedPackageNames.add(CharOperation.subarray(key, start, slash));
 
 	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
 	if (slash == start) {

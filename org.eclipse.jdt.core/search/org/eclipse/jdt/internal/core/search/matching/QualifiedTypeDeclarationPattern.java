@@ -60,7 +60,7 @@ public SearchPattern getBlankPattern() {
 public char[] getPackageName() {
 	if (this.packageIndex == -1)
 		return this.qualification;
-	return CharOperation.subarray(this.qualification, 0, this.packageIndex);
+	return internedPackageNames.add(CharOperation.subarray(this.qualification, 0, this.packageIndex));
 }
 public char[][] getEnclosingTypeNames() {
 	if (this.packageIndex == -1)
