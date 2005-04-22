@@ -31,6 +31,7 @@ public class KeyToSignature extends BindingKeyParser {
 	private ArrayList typeParameters = new ArrayList();
 	private int mainTypeStart = -1;
 	private int mainTypeEnd;
+	private int typeSigStart = -1;
 	
 	public KeyToSignature(BindingKeyParser parser) {
 		super(parser);
@@ -98,6 +99,7 @@ public class KeyToSignature extends BindingKeyParser {
 	}
 	
 	public void consumeFullyQualifiedName(char[] fullyQualifiedName) {
+		this.typeSigStart = this.signature.length();
 		this.signature.append('L');
 		this.signature.append(CharOperation.replaceOnCopy(fullyQualifiedName, '/', '.'));
 	}
@@ -114,13 +116,15 @@ public class KeyToSignature extends BindingKeyParser {
 	public void consumeType() {
 		int length = this.typeParameters.size();
 		if (length > 0) {
-			this.signature.append('<');
+			StringBuffer typeParametersSig = new StringBuffer();
+			typeParametersSig.append('<');
 			for (int i = 0; i < length; i++) {
-				this.signature.append('T');
-				this.signature.append((char[]) this.typeParameters.get(i));
-				this.signature.append(';');
+				typeParametersSig.append('T');
+				typeParametersSig.append((char[]) this.typeParameters.get(i));
+				typeParametersSig.append(';');
 			}
-			this.signature.append('>');
+			typeParametersSig.append('>');
+			this.signature.insert(this.typeSigStart, typeParametersSig);
 			this.typeParameters = new ArrayList();
 		}
 		// remove main type if needed

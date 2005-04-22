@@ -129,7 +129,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test009() {
 		assertBindingKeySignatureEquals(
-			"Lp1.X<TT;>;",
+			"<TT;>Lp1.X;",
 			"Lp1/X<TT;>;"
 		);
 	}
@@ -139,7 +139,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test010() {
 		assertBindingKeySignatureEquals(
-			"Lp1.X<TT;TU;>;",
+			"<TT;TU;>Lp1.X;",
 			"Lp1/X<TT;TU;>;"
 		);
 	}
@@ -330,7 +330,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test029() {
 		assertBindingKeySignatureEquals(
-			"-Ljava.util.List<TE;>;",
+			"-<TE;>Ljava.util.List;",
 			"-Ljava/util/List<TE;>;"
 		);
 	}
@@ -360,7 +360,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test032() {
 		assertBindingKeySignatureEquals(
-			"!-Ljava.util.List<TE;>;",
+			"!-<TE;>Ljava.util.List;",
 			"!-Ljava/util/List<TE;>;"
 		);
 	}
