@@ -63,12 +63,8 @@ public void addInnerEmulationDependent(BlockScope dependentScope, boolean wasEnc
 	//  System.out.println("Adding dependency: "+ new String(scope.enclosingType().readableName()) + " --> " + new String(this.readableName()));
 }
 public char[] computeUniqueKey(boolean withAccessFlags) {
-	ReferenceBinding enclosing = enclosingType();
-	ReferenceBinding temp;
-	while ((temp = enclosing.enclosingType()) != null)
-		enclosing = temp;
 	StringBuffer buffer = new StringBuffer();
-	buffer.append(enclosing.computeUniqueKey(withAccessFlags));
+	buffer.append(outermostEnclosingType().computeUniqueKey(withAccessFlags));
 	int semicolon = buffer.lastIndexOf(";"); //$NON-NLS-1$
 	buffer.insert(semicolon, '$');
 	semicolon = buffer.lastIndexOf(";"); //$NON-NLS-1$
