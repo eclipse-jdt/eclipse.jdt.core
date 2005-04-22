@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.ClassFile;
+import org.eclipse.jdt.internal.core.JavaElement;
 
 /**
  * Internal implementation of type bindings.
@@ -366,6 +367,13 @@ class TypeBinding implements ITypeBinding {
 	}
 	
 	public IJavaElement getJavaElement() {
+		JavaElement element = getUnresolvedJavaElement();
+		if (element == null)
+			return null;
+		return element.resolved(this.binding);
+	}
+	
+	private JavaElement getUnresolvedJavaElement() {
 		if (this.binding == null) 
 			return null;
 		switch (this.binding.kind()) {
@@ -382,7 +390,7 @@ class TypeBinding implements ITypeBinding {
 		if (Util.isClassFileName(fileName)) {
 			ClassFile classFile = (ClassFile) getClassFile(fileName);
 			if (classFile == null) return null;
-			return classFile.getType();
+			return (JavaElement) classFile.getType();
 		}
 		if (referenceBinding.isLocalType() || referenceBinding.isAnonymousType()) {
 			// local or anonymous type
@@ -393,7 +401,7 @@ class TypeBinding implements ITypeBinding {
 			ASTNode node = (ASTNode) bindingResolver.bindingsToAstNodes.get(this);
 			// must use getElementAt(...) as there is no back pointer to the defining method (scope is null after resolution has ended)
 			try {
-				return cu.getElementAt(node.getStartPosition());
+				return (JavaElement) cu.getElementAt(node.getStartPosition());
 			} catch (JavaModelException e) {
 				// does not exist
 				return null;
@@ -406,11 +414,11 @@ class TypeBinding implements ITypeBinding {
 			if (declaringElement instanceof MethodBinding) {
 				declaringTypeBinding = this.resolver.getMethodBinding((MethodBinding) declaringElement);
 				IMethod declaringMethod = (IMethod) declaringTypeBinding.getJavaElement();
-				return declaringMethod.getTypeParameter(typeVariableName);
+				return (JavaElement) declaringMethod.getTypeParameter(typeVariableName);
 			} else {
 				declaringTypeBinding = this.resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement);
 				IType declaringType = (IType) declaringTypeBinding.getJavaElement();
-				return declaringType.getTypeParameter(typeVariableName);
+				return (JavaElement) declaringType.getTypeParameter(typeVariableName);
 			}
 		} else {
 			if (fileName == null) return null; // case of a WilCardBinding that doesn't have a corresponding Java element
@@ -420,12 +428,12 @@ class TypeBinding implements ITypeBinding {
 				// top level type
 				ICompilationUnit cu = getCompilationUnit(fileName);
 				if (cu == null) return null;
-				return cu.getType(new String(referenceBinding.sourceName()));
+				return (JavaElement) cu.getType(new String(referenceBinding.sourceName()));
 			} else {
 				// member type
 				IType declaringType = (IType) declaringTypeBinding.getJavaElement();
 				if (declaringType == null) return null;
-				return declaringType.getType(new String(referenceBinding.sourceName()));
+				return (JavaElement) declaringType.getType(new String(referenceBinding.sourceName()));
 			}
 		}
 	}

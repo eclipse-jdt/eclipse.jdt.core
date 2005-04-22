@@ -125,13 +125,20 @@ class VariableBinding implements IVariableBinding {
 	 * @see IBinding#getJavaElement()
 	 */
 	public IJavaElement getJavaElement() {
+		JavaElement element = getUnresolvedJavaElement();
+		if (element == null)
+			return null;
+		return element.resolved(this.binding);
+	}
+	
+	private JavaElement getUnresolvedJavaElement() {
 		if (isField()) {
 			// field
 			FieldBinding fieldBinding = (FieldBinding) this.binding;
 			if (fieldBinding.declaringClass == null) return null; // arraylength
 			IType declaringType = (IType) getDeclaringClass().getJavaElement();
 			if (declaringType == null) return null;
-			return declaringType.getField(getName());
+			return (JavaElement) declaringType.getField(getName());
 		}
 		// local variable
 		IMethodBinding declaringMethod = getDeclaringMethod();

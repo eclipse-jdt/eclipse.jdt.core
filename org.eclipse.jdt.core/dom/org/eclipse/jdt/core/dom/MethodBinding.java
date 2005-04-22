@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -155,8 +156,15 @@ class MethodBinding implements IMethodBinding {
 		}
 		return this.exceptionTypes;
 	}
-
+	
 	public IJavaElement getJavaElement() {
+		JavaElement element = getUnresolvedJavaElement();
+		if (element == null)
+			return null;
+		return element.resolved(this.binding);
+	}
+
+	private JavaElement getUnresolvedJavaElement() {
 		IType declaringType = (IType) getDeclaringClass().getJavaElement();
 		if (declaringType == null) return null;
 		if (!(this.resolver instanceof DefaultBindingResolver)) return null;
@@ -180,11 +188,11 @@ class MethodBinding implements IMethodBinding {
 				int parameterCount = parameterSignatures.size();
 				String[] parameters = new String[parameterCount];
 				parameterSignatures.toArray(parameters);
-				return declaringType.getMethod(getName(), parameters);
+				return (JavaElement) declaringType.getMethod(getName(), parameters);
 			} else {
 				// annotation type member declaration
 				AnnotationTypeMemberDeclaration typeMemberDeclaration = (AnnotationTypeMemberDeclaration) node;
-				return declaringType.getMethod(typeMemberDeclaration.getName().getIdentifier(), new String[0]); // annotation type members don't have parameters
+				return (JavaElement) declaringType.getMethod(typeMemberDeclaration.getName().getIdentifier(), new String[0]); // annotation type members don't have parameters
 			}
 		} else {
 			// case of method not in the created AST, or a binary method
@@ -198,7 +206,7 @@ class MethodBinding implements IMethodBinding {
 			}
 			IMethod result = declaringType.getMethod(selector, parameterSignatures);
 			if (declaringType.isBinary())
-				return result;
+				return (JavaElement) result;
 			IMethod[] methods = null;
 			try {
 				methods = declaringType.getMethods();
@@ -209,7 +217,7 @@ class MethodBinding implements IMethodBinding {
 			IMethod[] candidates = Member.findMethods(result, methods);
 			if (candidates == null || candidates.length == 0)
 				return null;
-			return candidates[0];
+			return (JavaElement) candidates[0];
 		}
 	}
 	
