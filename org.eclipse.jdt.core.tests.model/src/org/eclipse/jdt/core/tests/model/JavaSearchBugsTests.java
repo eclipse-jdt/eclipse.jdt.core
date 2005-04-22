@@ -41,6 +41,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	
 	public JavaSearchBugsTests(String name) {
 		super(name);
+		this.endChar = "";
 	}
 	public static Test suite() {
 		return buildTestSuite(JavaSearchBugsTests.class);
@@ -50,9 +51,9 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug88300";
+//		TESTS_PREFIX =  "testBug83230";
 //		TESTS_NAMES = new String[] { "testBug89848" };
-//		TESTS_NUMBERS = new int[] { 90779 };
+//		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -1322,6 +1323,142 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b82088/c/Test.java b82088.c.Test [A] EXACT_MATCH\n" + 
 			"src/b82088/c/Test.java b82088.c.Test.a [A] EXACT_MATCH\n" + 
 			"src/b82088/c/Test.java b82088.c.Test(A) [A] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 83230: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83230"
+	 */
+	public void testBug83230_Explicit() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
+			"package b83230;\n" + 
+			"@interface Author {\n" + 
+			"	String[] authorName() default \"FREDERIC\";\n" + 
+			"	int[] age();\n" + 
+			"	int ageMin = 20;\n" + 
+			"	@interface Surname {}\n" + 
+			"	class Address {\n" + 
+			"		String city;\n" + 
+			"		public void foo(Object obj) {}\n" + 
+			"	}\n" + 
+			"}\n" +
+			"\n" +
+			"@Author(authorName=\"FREDERIC\", age=41)\n" + 
+			"public class Test {\n" + 
+			"	@Author(authorName={\"FREDERIC\", \"JEROME\"}, age={41, 35} )\n" + 
+			"	Test() {}\n" + 
+			"	@Author(authorName=\"PHILIPPE\", age=37)\n" + 
+			"	void foo() {\n" + 
+			"		@Author(authorName=\"FREDERIC\", age=41)\n" + 
+			"		final Object obj = new Object() {};\n" + 
+			"		@Author(authorName=\"FREDERIC\", age=41)\n" + 
+			"		class Local {\n" + 
+			"			@Author(authorName=\"FREDERIC\", age=41)\n" + 
+			"			String foo() {\n" + 
+			"				Author.Address address = new Author.Address();\n" + 
+			"				address.foo(obj);\n" + 
+			"				return address.city;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	@Author(authorName=\"DAVID\", age=28)\n" + 
+			"	int min = Author.ageMin;\n" + 
+			"}\n"
+		);
+		IMethod method = selectMethod(workingCopies[0], "authorName");
+		search(method, REFERENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b83230/Test.java b83230.Test [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test.min [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test() [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java void b83230.Test.foo():Local#1 [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java void b83230.Test.foo() [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java void b83230.Test.foo() [authorName] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Explicit01() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "authorName");
+		search(method, DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b83230/Test.java String[] b83230.Author.authorName() [authorName] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Explicit02() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IType type = selectType(workingCopies[0], "Address");
+		search(type, REFERENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [Author.Address] EXACT_MATCH\n" + 
+			"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [Author.Address] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Explicit03() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "foo");
+		search(method, REFERENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [foo(obj)] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Explicit04() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IField field = selectField(workingCopies[0], "city");
+		search(field, REFERENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [city] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Explicit05() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		IField field = selectField(workingCopies[0], "ageMin");
+		search(field, REFERENCES);
+		assertSearchResults(
+			"src/b83230/Test.java b83230.Test.min [ageMin] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Implicit() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
+			"package b83230;\n" + 
+			"@interface Annot {\n" + 
+			"	int value();\n" +
+			"}\n" +
+			"@Annot(41)\n" + 
+			"public class Test {\n" + 
+			"	@Annot(10)\n" + 
+			"	public void foo() {}\n" + 
+			"	@Annot(21)\n" + 
+			"	int bar;\n" + 
+			"}\n"
+		);
+		IType type = selectType(workingCopies[0], "Annot");
+		IMethod method = type.getMethod("value", new String[0]);
+		search(method, REFERENCES);
+		assertSearchResults(
+			"src/b83230/Test.java b83230.Test [] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test.bar [] EXACT_MATCH\n" + 
+			"src/b83230/Test.java void b83230.Test.foo() [] EXACT_MATCH"
 		);
 	}
 

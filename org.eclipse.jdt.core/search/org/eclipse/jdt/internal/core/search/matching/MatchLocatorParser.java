@@ -75,6 +75,10 @@ public class ClassButNoMethodDeclarationVisitor extends ASTVisitor {
 		patternLocator.match(methodDeclaration, nodeSet);
 		return (methodDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
 	}
+	public boolean visit(AnnotationMethodDeclaration methodDeclaration, ClassScope scope) {
+		patternLocator.match(methodDeclaration, nodeSet);
+		return false; // no local type for annotation type members
+	}
 }
 public class ClassAndMethodDeclarationVisitor extends ClassButNoMethodDeclarationVisitor {
 	public boolean visit(TypeDeclaration localTypeDeclaration, BlockScope scope) {
@@ -232,6 +236,12 @@ protected void consumeLocalVariableDeclaration() {
 	// this is always a LocalDeclaration
 	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
 }
+protected void consumeMemberValuePair() {
+	super.consumeMemberValuePair();
+
+	// this is always a MemberValuePair
+	this.patternLocator.match((MemberValuePair) this.astStack[this.astPtr], this.nodeSet);
+}
 protected void consumeMethodInvocationName() {
 	super.consumeMethodInvocationName();
 
@@ -282,6 +292,13 @@ protected void consumePrimaryNoNewArrayWithName() {
 	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
 	intPtr--;
 	intPtr--;
+}
+protected void consumeSingleMemberAnnotation() {
+	super.consumeSingleMemberAnnotation();
+	MemberValuePair[] pairs = ((SingleMemberAnnotation) expressionStack[expressionPtr]).memberValuePairs();
+	if (pairs != null && pairs.length==1) {
+		this.patternLocator.match(pairs[0], nodeSet);
+	}
 }
 protected void consumeTypeArgument() {
 	super.consumeTypeArgument();

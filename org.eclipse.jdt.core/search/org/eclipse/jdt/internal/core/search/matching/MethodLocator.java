@@ -104,6 +104,13 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	// Method declaration may match pattern
 	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
+public int match(MemberValuePair node, MatchingNodeSet nodeSet) {
+	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
+
+	if (!matchesName(this.pattern.selector, node.name)) return IMPOSSIBLE_MATCH;
+
+	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+}
 public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 
@@ -223,7 +230,8 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		} else {
 			int offset = reference.sourceStart;
 			match.setOffset(offset);
-			match.setLength(reference.sourceEnd-offset+1);
+			int length = (reference instanceof SingleMemberAnnotation) ? 0 : reference.sourceEnd - offset + 1;
+			match.setLength(length);
 			locator.report(match);
 		}
 	}
@@ -354,10 +362,20 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 	}
 }
 public int resolveLevel(ASTNode possibleMatchingNode) {
-	if (this.pattern.findReferences && possibleMatchingNode instanceof MessageSend)
-		return resolveLevel((MessageSend) possibleMatchingNode);
-	if (this.pattern.findDeclarations && possibleMatchingNode instanceof MethodDeclaration)
-		return resolveLevel(((MethodDeclaration) possibleMatchingNode).binding);
+	if (this.pattern.findReferences) {
+		if (possibleMatchingNode instanceof MessageSend) {
+			return resolveLevel((MessageSend) possibleMatchingNode);
+		}
+		if (possibleMatchingNode instanceof MemberValuePair) {
+			MemberValuePair memberValuePair = (MemberValuePair) possibleMatchingNode;
+			return resolveLevel(memberValuePair.binding);
+		}
+	}
+	if (this.pattern.findDeclarations) {
+		if (possibleMatchingNode instanceof MethodDeclaration) {
+			return resolveLevel(((MethodDeclaration) possibleMatchingNode).binding);
+		}
+	}
 	return IMPOSSIBLE_MATCH;
 }
 public int resolveLevel(Binding binding) {

@@ -1767,15 +1767,10 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 
 	// report annotations
 	if (method.annotations != null) {
-		for (int i=0, al=method.annotations.length; i<al; i++) {
-			TypeReference typeRef = method.annotations[i].type;
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
-			if (level != null) {
-				if (enclosingElement == null)
-					enclosingElement = createHandle(method, parent);
-				this.patternLocator.matchReportReference(typeRef, enclosingElement, method.binding, level.intValue(), this);
-			}
+		if (enclosingElement == null) {
+			enclosingElement = createHandle(method, parent);
 		}
+		reportMatching(method.annotations, enclosingElement, method.binding, nodeSet, true, true);
 	}
 
 	// references in this method
@@ -1796,6 +1791,32 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 			}
 			for (int i = 0, l = nodes.length; i < l; i++)
 				nodeSet.matchingNodes.removeKey(nodes[i]);
+		}
+	}
+}
+/**
+ * Report matching in annotations.
+ */
+protected void reportMatching(Annotation[] annotations, IJavaElement enclosingElement, Binding elementBinding, MatchingNodeSet nodeSet, boolean matchedContainer, boolean enclosesElement) throws CoreException {
+	for (int i=0, al=annotations.length; i<al; i++) {
+		Annotation annotationType = annotations[i];
+
+		// Look for annotation type ref
+		TypeReference typeRef = annotationType.type;
+		Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
+		if (level != null && matchedContainer) {
+			this.patternLocator.matchReportReference(typeRef, enclosingElement, elementBinding, level.intValue(), this);
+		}
+		
+		// Look for attribute ref
+		MemberValuePair[] pairs = annotationType.memberValuePairs();
+		for (int j = 0, pl = pairs.length; j < pl; j++) {
+			MemberValuePair pair = pairs[j];
+			level = (Integer) nodeSet.matchingNodes.removeKey(pair);
+			if (level != null && enclosesElement) {
+				ASTNode reference = (annotationType instanceof SingleMemberAnnotation) ? (ASTNode) annotationType: pair;
+				this.patternLocator.matchReportReference(reference, enclosingElement, pair.binding, level.intValue(), this);
+			}
 		}
 	}
 }
@@ -1889,15 +1910,10 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 
 	// report annotations
 	if (field.annotations != null) {
-		for (int i=0, al=field.annotations.length; i<al; i++) {
-			TypeReference typeRef = field.annotations[i].type;
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
-			if (level != null) {
-				if (enclosingElement == null)
-					enclosingElement = createHandle(field, type, parent);
-				this.patternLocator.matchReportReference(typeRef, enclosingElement, field.binding, level.intValue(), this);
-			}
+		if (enclosingElement == null) {
+			enclosingElement = createHandle(field, type, parent);
 		}
+		reportMatching(field.annotations, enclosingElement, field.binding, nodeSet, true, true);
 	}
 
 	if (typeInHierarchy) {
@@ -1940,9 +1956,10 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			enclosingElement = member.getType(new String(type.name), occurrenceCount);
 	}
 	if (enclosingElement == null) return;
+	boolean enclosesElement = encloses(enclosingElement);
 
 	// report the type declaration
-	if (accuracy > -1 && encloses(enclosingElement)) {
+	if (accuracy > -1 && enclosesElement) {
 		int offset = type.sourceStart;
 		SearchMatch match = this.patternLocator.newDeclarationMatch(type, enclosingElement, type.binding, accuracy, type.sourceEnd-offset+1, this);
 		report(match);
@@ -1957,7 +1974,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			if (typeParameter != null) {
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter);
 				if (level != null && matchedClassContainer) {
-					if (level.intValue() > -1 && encloses(enclosingElement)) {
+					if (level.intValue() > -1 && enclosesElement) {
 						int offset = typeParameter.sourceStart;
 						SearchMatch match = this.patternLocator.newDeclarationMatch(typeParameter, enclosingElement, type.binding, level.intValue(), typeParameter.sourceEnd-offset+1, this);
 						report(match);
@@ -1983,13 +2000,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 
 	// report annotations
 	if (type.annotations != null) {
-		for (int i=0, al=type.annotations.length; i<al; i++) {
-			TypeReference typeRef = type.annotations[i].type;
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
-			if (level != null && matchedClassContainer) {
-				this.patternLocator.matchReportReference(typeRef, enclosingElement, type.binding, level.intValue(), this);
-			}
-		}
+		reportMatching(type.annotations, enclosingElement, type.binding, nodeSet, matchedClassContainer, enclosesElement);
 	}
 
 	// report references in javadoc
@@ -2003,8 +2014,9 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 				for (int i = 0, l = nodes.length; i < l; i++) {
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
-					if (encloses(enclosingElement))
+					if (enclosesElement) {
 						this.patternLocator.matchReportReference(node, enclosingElement, type.binding, level.intValue(), this);
+					}
 				}
 			}
 		}

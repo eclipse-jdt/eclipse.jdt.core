@@ -180,6 +180,10 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;
 }
+public int match(MemberValuePair node, MatchingNodeSet nodeSet) {
+	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
+}
 public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;

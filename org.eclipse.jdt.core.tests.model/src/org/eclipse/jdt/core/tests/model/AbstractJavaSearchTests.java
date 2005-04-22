@@ -372,7 +372,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 			}
 			if (!displayName || collector.count>0) {
 				System.out.print(displayString(actual, this.tabs));
-				System.out.println(",");
+				System.out.println(this.endChar);
 			}
 		}
 		assertEquals(
