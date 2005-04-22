@@ -563,7 +563,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		// perform capture conversion if read access
 		return this.resolvedType = 
 			(((this.bits & IsStrictlyAssignedMASK) == 0) 
-				? fieldBinding.type.capture()
+				? fieldBinding.type.capture(scope, this.sourceEnd)
 				: fieldBinding.type);
 	}
 

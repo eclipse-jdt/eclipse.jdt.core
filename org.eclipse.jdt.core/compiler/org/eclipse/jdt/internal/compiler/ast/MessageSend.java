@@ -392,7 +392,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.resolvedType = actualReceiverType;
 	} else {
 		TypeBinding returnType = this.binding.returnType;
-		if (returnType != null) returnType = returnType.capture();
+		if (returnType != null) returnType = returnType.capture(scope, this.sourceEnd);
 		this.resolvedType = returnType;
 	}
 	return this.resolvedType;

@@ -72,7 +72,7 @@ public boolean canBeInstantiated() {
 /**
  * Perform capture conversion on a given type (only effective on parameterized type with wildcards)
  */
-public TypeBinding capture() {
+public TypeBinding capture(Scope scope, int position) {
 	return this;
 }
 

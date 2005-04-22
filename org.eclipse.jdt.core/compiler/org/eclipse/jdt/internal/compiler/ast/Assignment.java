@@ -177,7 +177,7 @@ public class Assignment extends Expression {
 		TypeBinding lhsType = lhs.resolveType(scope);
 		expression.setExpectedType(lhsType); // needed in case of generic method invocation
 		if (lhsType != null) 
-			this.resolvedType = lhsType.capture();
+			this.resolvedType = lhsType.capture(scope, this.sourceEnd);
 		TypeBinding rhsType = expression.resolveType(scope);
 		if (lhsType == null || rhsType == null) {
 			return null;

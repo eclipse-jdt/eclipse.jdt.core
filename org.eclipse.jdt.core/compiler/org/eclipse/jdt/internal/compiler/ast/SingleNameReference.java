@@ -682,7 +682,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							if ((this.bits & IsStrictlyAssignedMASK) == 0) {
 								constant = variable.constant();
 								if (fieldType != null) 
-									fieldType = fieldType.capture(); // perform capture conversion if read access
+									fieldType = fieldType.capture(scope, this.sourceEnd); // perform capture conversion if read access
 							} else {
 								constant = NotAConstant;
 							}
@@ -697,7 +697,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						TypeBinding fieldType = checkFieldAccess(scope);
 						return this.resolvedType = 
 							(((this.bits & IsStrictlyAssignedMASK) == 0) 
-								? fieldType.capture()
+								? fieldType.capture(scope, this.sourceEnd)
 								: fieldType);
 					}
 	

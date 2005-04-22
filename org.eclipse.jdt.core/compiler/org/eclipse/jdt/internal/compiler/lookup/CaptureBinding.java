@@ -18,12 +18,17 @@ public class CaptureBinding extends TypeVariableBinding {
 	public TypeBinding lowerBound;
 	public WildcardBinding wildcard;
 	
-	public CaptureBinding(WildcardBinding wildcard) {
+	/* information to compute unique binding key */
+	public ReferenceBinding sourceType;
+	public int position;
+	
+	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position) {
 		super(WILDCARD_CAPTURE_NAME, null, 0);
 		this.wildcard = wildcard;
 		this.modifiers = AccPublic | AccGenericSignature; // treat capture as public
 		this.fPackage = wildcard.fPackage;
-		
+		this.sourceType = sourceType;
+		this.position = position;
 		TypeVariableBinding wildcardVariable = wildcard.typeVariable();
 		switch (wildcard.boundKind) {
 			case Wildcard.EXTENDS :

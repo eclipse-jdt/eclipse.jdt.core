@@ -360,7 +360,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 					binding = (TypeBinding) resolver.compilerBinding;
 			}
 			if (resolver.isCapture)
-				binding = new CaptureBinding((WildcardBinding) binding);
+				binding = new CaptureBinding((WildcardBinding) binding, null, 0); // TODO (jerome) decode binding key
 			arguments[i] = binding;
 		}
 		this.types = new ArrayList();

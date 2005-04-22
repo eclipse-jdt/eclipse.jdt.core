@@ -57,9 +57,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}	
 	/**
 	 * Perform capture conversion for a parameterized type with wildcard arguments
-	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#capture()
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#capture(Scope,int)
 	 */
-	public TypeBinding capture() {
+	public TypeBinding capture(Scope scope, int position) {
 		TypeBinding[] originalArguments = arguments, capturedArguments = originalArguments;
 		if ((this.tagBits & TagBits.HasDirectWildcard) != 0) {
 			int length = originalArguments.length;
@@ -67,7 +67,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			for (int i = 0; i < length; i++) {
 				TypeBinding argument = originalArguments[i];
 				if (argument.kind() == Binding.WILDCARD_TYPE) {
-					capturedArguments[i] = new CaptureBinding((WildcardBinding) argument);
+					capturedArguments[i] = 
+						new CaptureBinding(
+								(WildcardBinding) argument, 
+								scope.enclosingSourceType().outermostEnclosingType(),
+								position);
 				} else {
 					capturedArguments[i] = argument;
 				}
