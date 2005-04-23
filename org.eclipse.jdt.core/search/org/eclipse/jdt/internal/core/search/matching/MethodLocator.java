@@ -202,7 +202,9 @@ protected int matchMethod(MethodBinding method) {
  * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchReportReference(org.eclipse.jdt.internal.compiler.ast.ASTNode, org.eclipse.jdt.core.IJavaElement, Binding, int, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
  */
 protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
+	MethodBinding methodBinding = (reference instanceof MessageSend) ? ((MessageSend)reference).binding: ((elementBinding instanceof MethodBinding) ? (MethodBinding) elementBinding : null);
 	if (this.isDeclarationOfReferencedMethodsPattern) {
+		if (methodBinding == null) return;
 		// need exact match to be able to open on type ref
 		if (accuracy != SearchMatch.A_ACCURATE) return;
 
@@ -211,7 +213,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		while (element != null && !declPattern.enclosingElement.equals(element))
 			element = element.getParent();
 		if (element != null) {
-			reportDeclaration(((MessageSend) reference).binding, locator, declPattern.knownMethods);
+			reportDeclaration(methodBinding, locator, declPattern.knownMethods);
 		}
 	} else {
 		match = locator.newMethodReferenceMatch(element, elementBinding, accuracy, -1, -1, false /*not constructor*/, false/*not synthetic*/, reference);
@@ -220,10 +222,9 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			// verify closest match if pattern was bound
 			// (see bug 70827)
 			if (focus != null && focus.getElementType() == IJavaElement.METHOD) {
-				MethodBinding method = ((MessageSend)reference).binding;
-				if (method != null) {
+				if (methodBinding != null) {
 					boolean isPrivate = Flags.isPrivate(((IMethod) focus).getFlags());
-					if (isPrivate && !CharOperation.equals(method.declaringClass.sourceName, focus.getParent().getElementName().toCharArray())) {
+					if (isPrivate && !CharOperation.equals(methodBinding.declaringClass.sourceName, focus.getParent().getElementName().toCharArray())) {
 						return; // finally the match was not possible
 					}
 				}
