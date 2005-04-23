@@ -1124,7 +1124,7 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
 	}
 }
 /**
- * @private Debugging purposes
+ * Debugging purposes
  */
 protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	if (!isPrimary()) {
