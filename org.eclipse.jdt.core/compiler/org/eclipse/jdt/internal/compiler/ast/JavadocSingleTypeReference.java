@@ -86,8 +86,4 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 	public TypeBinding resolveType(ClassScope classScope) {
 		return internalResolveType(classScope);
 	}
-
-	public TypeBinding resolveType(CompilationUnitScope scope) {
-		return internalResolveType(scope);
-	}
 }

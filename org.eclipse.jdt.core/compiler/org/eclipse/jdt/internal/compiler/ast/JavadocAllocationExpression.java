@@ -11,8 +11,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class JavadocAllocationExpression extends AllocationExpression {
 
@@ -35,18 +33,10 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		this.constant = NotAConstant;
 		if (this.type == null) {
 			this.resolvedType = scope.enclosingSourceType();
+		} else if (scope.kind == Scope.CLASS_SCOPE) {
+			this.resolvedType = this.type.resolveType((ClassScope)scope);
 		} else {
-			switch (scope.kind) {
-				case Scope.COMPILATION_UNIT_SCOPE:
-					this.resolvedType = this.type.resolveType((CompilationUnitScope)scope);
-					break;
-				case Scope.CLASS_SCOPE:
-					this.resolvedType = this.type.resolveType((ClassScope)scope);
-					break;
-				default:
-					this.resolvedType = this.type.resolveType((BlockScope)scope, true /* check bounds*/);
-					break;
-			}
+			this.resolvedType = this.type.resolveType((BlockScope)scope, true /* check bounds*/);
 		}
 	
 		// buffering the arguments' types
@@ -145,10 +135,6 @@ public class JavadocAllocationExpression extends AllocationExpression {
 	}
 
 	public TypeBinding resolveType(ClassScope scope) {
-		return internalResolveType(scope);
-	}
-
-	public TypeBinding resolveType(CompilationUnitScope scope) {
 		return internalResolveType(scope);
 	}
 }

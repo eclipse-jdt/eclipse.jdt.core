@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -113,24 +112,6 @@ public class CommentRecorderParser extends Parser {
 		super.consumeInterfaceHeader();
 	}
 
-	protected void consumeInternalCompilationUnit() {
-		// InternalCompilationUnit ::= PackageDeclaration
-		// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports
-		// InternalCompilationUnit ::= ImportDeclarations ReduceImports
-	}
-	protected void consumeInternalCompilationUnitWithTypes() {
-		// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports TypeDeclarations
-		// InternalCompilationUnit ::= PackageDeclaration TypeDeclarations
-		// InternalCompilationUnit ::= TypeDeclarations
-		// InternalCompilationUnit ::= ImportDeclarations ReduceImports TypeDeclarations
-		// consume type declarations
-		int length;
-		if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-			this.compilationUnit.types = new TypeDeclaration[length];
-			this.astPtr -= length;
-			System.arraycopy(this.astStack, this.astPtr + 1, this.compilationUnit.types, 0, length);
-		}
-	}
 	/**
 	 * Insure that start position is always positive.
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#containsComment(int, int)

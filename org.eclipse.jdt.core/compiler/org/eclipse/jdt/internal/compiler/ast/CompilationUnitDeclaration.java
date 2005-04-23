@@ -219,8 +219,8 @@ public class CompilationUnitDeclaration
 
 	public boolean isPackageInfo() {
 		return CharOperation.equals(this.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME)
-			&& this.currentPackage != null;
-//			&& this.currentPackage.annotations != null;
+			&& this.currentPackage != null
+			&& (this.currentPackage.annotations != null || this.javadoc != null);
 	}
 	
 	public boolean hasErrors() {
@@ -279,29 +279,25 @@ public class CompilationUnitDeclaration
 
 	public void resolve() {
 		int startingTypeIndex = 0;
-		if (this.currentPackage != null) {
-			boolean packageInfo = CharOperation.equals(this.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME);
+		boolean isPackageInfo = isPackageInfo();
+		if (this.types != null && isPackageInfo) {
+            // resolve synthetic type declaration
+			final TypeDeclaration syntheticTypeDeclaration = types[0];
+			syntheticTypeDeclaration.resolve(this.scope);
+			// resolve annotations if any
 			if (this.currentPackage.annotations != null) {
-				if (packageInfo) {
-                    if (this.types != null) {
-                        // resolve annotations
-    					final TypeDeclaration syntheticTypeDeclaration = types[0];
-    					syntheticTypeDeclaration.resolve(this.scope);
-    					resolveAnnotations(syntheticTypeDeclaration.staticInitializerScope, this.currentPackage.annotations, this.scope.fPackage);
-    					// set the synthetic bit
-    					syntheticTypeDeclaration.binding.modifiers |= AccSynthetic;
-    					startingTypeIndex = 1;
-                    }
-				} else {
-					scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
-				}
+				resolveAnnotations(syntheticTypeDeclaration.staticInitializerScope, this.currentPackage.annotations, this.scope.fPackage);
 			}
 			// resolve javadoc package if any
 			if (this.javadoc != null) {
-				if (packageInfo) {
-					this.javadoc.resolve(this.scope);
-				}
-			}
+				this.javadoc.resolve(syntheticTypeDeclaration.staticInitializerScope);
+    		}
+			// set the synthetic bit
+			syntheticTypeDeclaration.binding.modifiers |= AccSynthetic;
+			startingTypeIndex = 1;
+		}
+		if (this.currentPackage != null && this.currentPackage.annotations != null && !isPackageInfo) {
+			scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
 		}
 		try {
 			if (types != null) {

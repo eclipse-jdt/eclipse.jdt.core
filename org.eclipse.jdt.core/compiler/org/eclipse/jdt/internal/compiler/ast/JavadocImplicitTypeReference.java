@@ -11,11 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class JavadocImplicitTypeReference extends TypeReference {
 	
@@ -84,10 +80,6 @@ public class JavadocImplicitTypeReference extends TypeReference {
 
 	public TypeBinding resolveType(ClassScope classScope) {
 		return internalResolveType(classScope);
-	}
-
-	public TypeBinding resolveType(CompilationUnitScope scope) {
-		return internalResolveType(scope);
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope classScope) {

@@ -13,9 +13,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-
 
 public class JavadocArgumentExpression extends Expression {
 	public char[] token;
@@ -80,10 +77,6 @@ public class JavadocArgumentExpression extends Expression {
 	}
 
 	public TypeBinding resolveType(ClassScope scope) {
-		return internalResolveType(scope);
-	}
-
-	public TypeBinding resolveType(CompilationUnitScope scope) {
 		return internalResolveType(scope);
 	}
 

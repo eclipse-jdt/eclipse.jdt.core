@@ -212,24 +212,6 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	// this is always a Reference
 	this.patternLocator.match((Reference) this.expressionStack[this.expressionPtr], this.nodeSet);
 }
-protected void consumeInternalCompilationUnit() {
-	// InternalCompilationUnit ::= PackageDeclaration
-	// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports
-	// InternalCompilationUnit ::= ImportDeclarations ReduceImports
-}
-protected void consumeInternalCompilationUnitWithTypes() {
-	// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports TypeDeclarations
-	// InternalCompilationUnit ::= PackageDeclaration TypeDeclarations
-	// InternalCompilationUnit ::= TypeDeclarations
-	// InternalCompilationUnit ::= ImportDeclarations ReduceImports TypeDeclarations
-	// consume type declarations
-	int length;
-	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		this.compilationUnit.types = new TypeDeclaration[length];
-		this.astPtr -= length;
-		System.arraycopy(this.astStack, this.astPtr + 1, this.compilationUnit.types, 0, length);
-	}
-}
 protected void consumeLocalVariableDeclaration() {
 	super.consumeLocalVariableDeclaration();
 

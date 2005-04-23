@@ -80,8 +80,4 @@ public class JavadocQualifiedTypeReference extends QualifiedTypeReference {
 	public TypeBinding resolveType(ClassScope classScope) {
 		return internalResolveType(classScope, false);
 	}
-
-	public TypeBinding resolveType(CompilationUnitScope scope) {
-		return internalResolveType(scope, false);
-	}
 }

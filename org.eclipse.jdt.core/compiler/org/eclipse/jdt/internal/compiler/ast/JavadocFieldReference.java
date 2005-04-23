@@ -42,18 +42,10 @@ public class JavadocFieldReference extends FieldReference {
 		this.constant = NotAConstant;
 		if (this.receiver == null) {
 			this.receiverType = scope.enclosingSourceType();
+		} else if (scope.kind == Scope.CLASS_SCOPE) {
+			this.receiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
-			switch (scope.kind) {
-				case Scope.COMPILATION_UNIT_SCOPE:
-					this.receiverType = this.receiver.resolveType((CompilationUnitScope) scope);
-					break;
-				case Scope.CLASS_SCOPE:
-					this.receiverType = this.receiver.resolveType((ClassScope) scope);
-					break;
-				default:
-					this.receiverType = this.receiver.resolveType((BlockScope)scope);
-					break;
-			}
+			this.receiverType = this.receiver.resolveType((BlockScope)scope);
 		}
 		if (this.receiverType == null) {
 			return null;
@@ -123,10 +115,6 @@ public class JavadocFieldReference extends FieldReference {
 	}
 
 	public TypeBinding resolveType(ClassScope scope) {
-		return internalResolveType(scope);
-	}
-
-	public TypeBinding resolveType(CompilationUnitScope scope) {
 		return internalResolveType(scope);
 	}
 

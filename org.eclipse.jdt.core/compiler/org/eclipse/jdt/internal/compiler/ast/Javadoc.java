@@ -75,18 +75,7 @@ public class Javadoc extends ASTNode {
 	/*
 	 * Resolve type javadoc while a class scope
 	 */
-	public void resolve(ClassScope classScope) {
-		internalResolve(classScope);
-	}
-
-	/*
-	 * Resolve type javadoc while a compilation unit scope
-	 */
-	public void resolve(CompilationUnitScope unitScope) {
-		internalResolve(unitScope);
-	}
-
-	private void internalResolve(Scope scope) {
+	public void resolve(ClassScope scope) {
 
 		// @param tags
 		int paramTagsSize = this.paramReferences == null ? 0 : this.paramReferences.length;
@@ -231,9 +220,6 @@ public class Javadoc extends ASTNode {
 				break;
 			case Scope.CLASS_SCOPE:
 				reference.resolveType((ClassScope)scope);
-				break;
-			case Scope.COMPILATION_UNIT_SCOPE:
-				reference.resolveType((CompilationUnitScope)scope);
 				break;
 		}
 

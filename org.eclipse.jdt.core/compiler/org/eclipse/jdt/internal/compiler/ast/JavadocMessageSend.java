@@ -42,18 +42,10 @@ public class JavadocMessageSend extends MessageSend {
 		this.constant = NotAConstant;
 		if (this.receiver == null) {
 			this.actualReceiverType = scope.enclosingSourceType();
+		} else if (scope.kind == Scope.CLASS_SCOPE) {
+			this.actualReceiverType = this.receiver.resolveType((ClassScope) scope);
 		} else {
-			switch (scope.kind) {
-				case Scope.COMPILATION_UNIT_SCOPE:
-					this.actualReceiverType = this.receiver.resolveType((CompilationUnitScope) scope);
-					break;
-				case Scope.CLASS_SCOPE:
-					this.actualReceiverType = this.receiver.resolveType((ClassScope) scope);
-					break;
-				default:
-					this.actualReceiverType = this.receiver.resolveType((BlockScope) scope);
-					break;
-			}
+			this.actualReceiverType = this.receiver.resolveType((BlockScope) scope);
 		}
 
 		// will check for null after args are resolved
@@ -206,10 +198,6 @@ public class JavadocMessageSend extends MessageSend {
 	}
 
 	public TypeBinding resolveType(ClassScope scope) {
-		return internalResolveType(scope);
-	}
-
-	public TypeBinding resolveType(CompilationUnitScope scope) {
 		return internalResolveType(scope);
 	}
 

@@ -72,9 +72,6 @@ public class SelectionJavadoc extends Javadoc {
 	private void internalResolve(Scope scope) {
 		if (this.selectedNode != null) {
 			switch (scope.kind) {
-				case Scope.COMPILATION_UNIT_SCOPE:
-					this.selectedNode.resolveType((CompilationUnitScope)scope);
-					break;
 				case Scope.CLASS_SCOPE:
 					this.selectedNode.resolveType((ClassScope)scope);
 					break;

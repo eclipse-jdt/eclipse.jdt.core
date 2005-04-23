@@ -78,7 +78,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectMethod(this.workingCopies[0], "foo");
 		assertElementEquals("Invalid selected method",
-		"foo() {key=LTest;.foo()V} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
+		"foo() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
 		);
 	}
 
@@ -94,7 +94,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectMethod(this.workingCopies[0], "foo");
 		assertElementEquals("Invalid selected method",
-			"foo() {key=LTest;.foo()V} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
+			"foo() [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
 		);
 	}
 
@@ -107,7 +107,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectType(this.workingCopies[0], "Test", 2);
 		assertElementEquals("Invalid selected type",
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]"
+			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]"
 		);
 	}
 
@@ -120,7 +120,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectType(this.workingCopies[0], "Test", 2);
 		assertElementEquals("Invalid selected type",
-			"Test {key=LTest;} [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]"
+			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]"
 		);
 	}
 
@@ -134,7 +134,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectField(this.workingCopies[0], "field", 2);
 		assertElementEquals("Invalid selected field",
-			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
+			"field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
 		);
 	}
 
@@ -148,7 +148,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		);
 		this.element = selectField(this.workingCopies[0], "field", 2);
 		assertElementEquals("Invalid selected field",
-			"field {key=LTest;.field} [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
+			"field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]"
 		);
 	}
 
