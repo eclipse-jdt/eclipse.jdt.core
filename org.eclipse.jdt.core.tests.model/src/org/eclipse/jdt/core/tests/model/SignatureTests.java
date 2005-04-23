@@ -176,75 +176,103 @@ public void testGetElementType() {
 /**
  * @see Signature
  */
-public void testGetParameterCount() {
+public void testGetParameterCount01() {
 	String methodSig = "(QString;QObject;I)I";
-	assertEquals("Signature#getParameterCount is not correct1", 3,
+	assertEquals("Signature#getParameterCount is not correct", 3,
 			Signature.getParameterCount(methodSig));
+}
+public void testGetParameterCount02() {
 	try {
 		Signature.getParameterCount("");
 		assertTrue("Signature#getParameterCount is not correct: exception", false);
 	} catch (IllegalArgumentException iae) {
 		// do nothing
 	}
+}
 
-	// tests with 1.5-specific elements
-	methodSig = "<X:Qlist<Qstring;>;>(IQlist;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
-	assertEquals("Signature#getParameterCount is not correct3", 3,
+// tests with 1.5-specific elements
+public void testGetParameterCount03() {
+	String methodSig = "<X:Qlist<Qstring;>;>(IQlist;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
+	assertEquals("Signature#getParameterCount is not correct", 3,
 			Signature.getParameterCount(methodSig));
-	methodSig = "<X:Qlist<Qstring;>;>(IQlist<Qstring;>;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
-	assertEquals("Signature#getParameterCount is not correct4", 3,
+}
+public void testGetParameterCount04() {
+	String methodSig = "<X:Qlist<Qstring;>;>(IQlist<Qstring;>;Tww;)Qlist<Qxxx;>;^Qexception;^Qerror;";
+	assertEquals("Signature#getParameterCount is not correct", 3,
 			Signature.getParameterCount(methodSig));
-	
-	methodSig= "foo(+Ljava.lang.Comparable;)";
-	assertEquals("Signature#getParameterCount is not correct5", 1,
+}
+public void testGetParameterCount05() {
+	String methodSig= "foo(+Ljava.lang.Comparable;)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
 			Signature.getParameterCount(methodSig));
-
-	methodSig= "foo(+Ljava.lang.Comparable;)";
-	assertEquals("Signature#getParameterCount is not correct6", 1,
+}
+public void testGetParameterCount06() {
+	String methodSig= "foo(+Ljava.lang.Comparable;)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
 			Signature.getParameterCount(methodSig));
-	
-	methodSig= "foo(*)";
-	assertEquals("Signature#getParameterCount is not correct7", 1,
+}
+public void testGetParameterCount07() {
+	String methodSig= "foo(*)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
 			Signature.getParameterCount(methodSig));
-	
-	methodSig= "foo(LA<+Ljava.lang.Comparable;>;)";
-	assertEquals("Signature#getParameterCount is not correct8", 1,
+}
+public void testGetParameterCount08() {
+	String methodSig= "foo(LA<+Ljava.lang.Comparable;>;)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
 			Signature.getParameterCount(methodSig));
-
-	methodSig= "foo(LA<-Ljava.lang.Comparable;>;)";
-	assertEquals("Signature#getParameterCount is not correct9", 1,
+}
+public void testGetParameterCount09() {
+	String methodSig= "foo(LA<-Ljava.lang.Comparable;>;)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
 			Signature.getParameterCount(methodSig));
-
-	methodSig= "foo(LA<*>;)";
-	assertEquals("Signature#getParameterCount is not correct10", 1,
+}
+public void testGetParameterCount10() {
+	String methodSig= "foo(LA<*>;)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
 			Signature.getParameterCount(methodSig));
-
-	methodSig= "foo(LA<+Ljava.lang.Comparable;+Ljava.lang.Comparable;>;)";
-	assertEquals("Signature#getParameterCount is not correct11", 1,
+}
+public void testGetParameterCount11() {
+	String methodSig= "foo(LA<+Ljava.lang.Comparable;+Ljava.lang.Comparable;>;)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
 			Signature.getParameterCount(methodSig));
-
-	methodSig= "foo(+Ljava.lang.Comparable;+Ljava.lang.Comparable;)";
-	assertEquals("Signature#getParameterCount is not correct12", 2,
+}
+public void testGetParameterCount12() {
+	String methodSig= "foo(+Ljava.lang.Comparable;+Ljava.lang.Comparable;)";
+	assertEquals("Signature#getParameterCount is not correct", 2,
 			Signature.getParameterCount(methodSig));
-
-	methodSig= "foo(+Ljava.lang.Comparable;-Ljava.lang.Comparable;)";
-	assertEquals("Signature#getParameterCount is not correct13", 2,
+}
+public void testGetParameterCount13() {
+	String methodSig= "foo(+Ljava.lang.Comparable;-Ljava.lang.Comparable;)";
+	assertEquals("Signature#getParameterCount is not correct", 2,
 			Signature.getParameterCount(methodSig));
-
-	methodSig= "foo(Ljava.util.List<-[Ljava.lang.Number;>;)";
-	assertEquals("Signature#getParameterCount is not correct14", 1,
+}
+public void testGetParameterCount14() {
+	String methodSig= "foo(Ljava.util.List<-[Ljava.lang.Number;>;)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
 			Signature.getParameterCount(methodSig));
-	
-	methodSig= "foo(LA<++Ljava.lang.Comparable;>;)";
-	assertEquals("Signature#getParameterCount is not correct14", 1,
+}
+public void testGetParameterCount15() {
+	String methodSig= "foo(LA<++Ljava.lang.Comparable;>;)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
 		Signature.getParameterCount(methodSig));
-
-	methodSig= "foo(LA<--Ljava.lang.Comparable;>;)";
-	assertEquals("Signature#getParameterCount is not correct14", 1,
+}
+public void testGetParameterCount16() {
+	String methodSig= "foo(LA<--Ljava.lang.Comparable;>;)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
 		Signature.getParameterCount(methodSig));
-
-	methodSig= "foo(LA<+-Ljava.lang.Comparable;>;)";
-	assertEquals("Signature#getParameterCount is not correct14", 1,
+}
+public void testGetParameterCount17() {
+	String methodSig= "foo(LA<+-Ljava.lang.Comparable;>;)";
+	assertEquals("Signature#getParameterCount is not correct", 1,
+		Signature.getParameterCount(methodSig));
+}
+/*
+ * Ensures that a signature with a '? extends ?' wildcard can be decoded.
+ * (regression test for bug 92370 [1.5] IAE in Signature.getParameterCount(..) for method proposal on capture type receiver)
+ */
+public void testGetParameterCount18() {
+	String methodSig= "(ILjava.util.Collection<+*>;)Z";
+	assertEquals("Signature#getParameterCount is not correct", 2,
 		Signature.getParameterCount(methodSig));
 }
 /**

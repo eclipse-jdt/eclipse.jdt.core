@@ -2545,6 +2545,8 @@ public class Util {
 				return scanTypeVariableSignature(string, start);
 			case Signature.C_ARRAY :
 				return scanArrayTypeSignature(string, start);
+			case Signature.C_STAR:
+				return start;
 			default:
 				throw new IllegalArgumentException();
 		}
