@@ -208,6 +208,20 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			this.resultCollector);
 	}
 
+	/**
+	 * Clean last category table cache
+	 * @param type Tells whether previous search was a type search or not
+	 */
+	protected void cleanCategoryTableCache(boolean type) throws CoreException {
+		long time = System.currentTimeMillis();
+		if (type) {
+			search("foo", FIELD, DECLARATIONS);
+		} else {
+			search("Foo", TYPE, DECLARATIONS);
+		}
+		if (DEBUG) System.out.println("Time to clean category table cache: "+(System.currentTimeMillis()-time));
+	}
+
 	// Do NOT forget that tests must start with "testPerf"
 
 	/**
@@ -291,6 +305,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 					null);
 			}
 			stopMeasuring();
+			cleanCategoryTableCache(true);
 		}
 		
 		// Commit
@@ -330,6 +345,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			startMeasuring();
 			search("JavaCore", TYPE, ALL_OCCURRENCES);
 			stopMeasuring();
+			cleanCategoryTableCache(true);
 		}
 		
 		// Commit
@@ -363,6 +379,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			startMeasuring();
 			search("FILE", FIELD, ALL_OCCURRENCES);
 			stopMeasuring();
+			cleanCategoryTableCache(false);
 		}
 		
 		// Commit
@@ -396,6 +413,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			startMeasuring();
 			search("equals", METHOD, ALL_OCCURRENCES);
 			stopMeasuring();
+			cleanCategoryTableCache(false);
 		}
 		
 		// Commit
@@ -429,6 +447,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			startMeasuring();
 			search("String", CONSTRUCTOR, ALL_OCCURRENCES);
 			stopMeasuring();
+			cleanCategoryTableCache(false);
 		}
 		
 		// Commit
