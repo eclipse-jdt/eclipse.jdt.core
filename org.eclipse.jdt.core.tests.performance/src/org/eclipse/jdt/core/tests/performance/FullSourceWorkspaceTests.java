@@ -46,7 +46,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Garbage collect constants
 	final static int MAX_GC = 10; // Max gc iterations
 	final static int TIME_GC = 500; // Sleep to wait gc to run (in ms)
-	final static int DELTA_GC = 100; // Threshold to leave gc loop
+	final static int DELTA_GC = 1000; // Threshold to remaining free memory
 
 	// Workspace variables
 	protected static TestingEnvironment ENV = null;
@@ -191,8 +191,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 */
 	protected void runGc() {
 		int iterations = 0;
-		long delta, free;
-		do {
+		long delta=0, free=0;
+		for (int i=0; i<MAX_GC; i++) {
 			free = Runtime.getRuntime().freeMemory();
 			System.gc();
 			delta = Runtime.getRuntime().freeMemory() - free;
@@ -202,10 +202,10 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			} catch (InterruptedException e) {
 				// do nothing
 			}
-		} while (iterations<MAX_GC && delta>DELTA_GC);
-		if (iterations == MAX_GC && delta > (DELTA_GC*10)) {
+		}
+		if (iterations == MAX_GC && delta > DELTA_GC) {
 			// perhaps gc was not well executed
-			System.err.println(this.scenarioShortName+": still get "+delta+" unfreeable memory (free="+free+",total="+Runtime.getRuntime().totalMemory()+") after "+MAX_GC+" gc...");
+			System.out.println("WARNING: "+this.scenarioShortName+" still get "+delta+" unfreeable memory (free="+free+",total="+Runtime.getRuntime().totalMemory()+") after "+MAX_GC+" gc...");
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
