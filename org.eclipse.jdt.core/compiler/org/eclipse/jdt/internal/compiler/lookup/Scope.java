@@ -284,18 +284,6 @@ public abstract class Scope
 		return null;
 	}	
 
-	/* Answer an int describing the relationship between the given type and unchecked exceptions.
-	*
-	* 	NotRelated 
-	* 	EqualOrMoreSpecific : type is known for sure to be an unchecked exception type
-	* 	MoreGeneric : type is a supertype of an actual unchecked exception type
-	*/
-	public int compareUncheckedException(ReferenceBinding type) {
-		int comparison = compareTypes(type, getJavaLangRuntimeException());
-		if (comparison != 0) return comparison;
-		return compareTypes(type, getJavaLangError());
-	}
-
 	public final CompilationUnitScope compilationUnitScope() {
 		Scope lastScope = null;
 		Scope scope = this;
@@ -2047,14 +2035,7 @@ public abstract class Scope
 		problemReporter().isClassPathCorrect(JAVA_LANG_ENUM, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
-	public final ReferenceBinding getJavaLangError() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ERROR);
-		ReferenceBinding type = environment().getType(JAVA_LANG_ERROR);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_LANG_ERROR, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
-	}
+
 	public final ReferenceBinding getJavaLangIterable() {
 		compilationUnitScope().recordQualifiedReference(JAVA_LANG_ITERABLE);
 		ReferenceBinding type = environment().getType(JAVA_LANG_ITERABLE);
@@ -2069,15 +2050,6 @@ public abstract class Scope
 		if (type != null) return type;
 	
 		problemReporter().isClassPathCorrect(JAVA_LANG_OBJECT, referenceCompilationUnit());
-		return null; // will not get here since the above error aborts the compilation
-	}
-
-	public final ReferenceBinding getJavaLangRuntimeException() {
-		compilationUnitScope().recordQualifiedReference(JAVA_LANG_RUNTIMEEXCEPTION);
-		ReferenceBinding type = environment().getType(JAVA_LANG_RUNTIMEEXCEPTION);
-		if (type != null) return type;
-	
-		problemReporter().isClassPathCorrect(JAVA_LANG_RUNTIMEEXCEPTION, referenceCompilationUnit());
 		return null; // will not get here since the above error aborts the compilation
 	}
 

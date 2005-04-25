@@ -17774,4 +17774,28 @@ public void test617() {
 			"Type mismatch: cannot convert from List<capture-of ? extends Object> to String\n" + 
 			"----------\n");
 	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=92556
+	public void test629() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public abstract class Context<N extends Number> {\n" + 
+				"		private Strategy<N, ? super Context<N>> strategy;\n" + 
+				"		public void setStrategy(Strategy<N, ? super Context<N>> strategy) {\n" + 
+				"			this.strategy = strategy;\n" + 
+				"		}\n" + 
+				"		// méthode qui utilise la stratégie\n" + 
+				"		public N call() throws Exception {\n" + 
+				"			return this.strategy.call(this);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public interface Strategy<N extends Number, C extends Context<N>> {\n" + 
+				"		public abstract N call(C context);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"} \n",
+            },
+			"");
+	}			
 }

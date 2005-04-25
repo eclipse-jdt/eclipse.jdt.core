@@ -530,9 +530,7 @@ public class Javadoc extends ASTNode {
 					}
 			
 					//  If not compatible only complain on unchecked exception
-					if (!compatible &&
-						 !typeRef.resolvedType.isCompatibleWith(methScope.getJavaLangRuntimeException()) &&
-						 !typeRef.resolvedType.isCompatibleWith(methScope.getJavaLangError())) {
+					if (!compatible && !typeRef.resolvedType.isUncheckedException(false)) {
 						methScope.problemReporter().javadocInvalidThrowsClassName(typeRef, md.binding.modifiers);
 					}
 				}

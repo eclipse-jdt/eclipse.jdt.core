@@ -40,7 +40,7 @@ public interface TypeIds {
 	final int T_JavaLangThrowable = 21;
 	final int T_JavaLangNoClassDefError = 22;
 	final int T_JavaLangClassNotFoundException = 23;
-	final int T_JavaIoPrintStream = 24;
+	final int T_JavaLangRuntimeException = 24;
 	final int T_JavaLangException = 25;
 
 	// wrapper types
@@ -77,7 +77,9 @@ public interface TypeIds {
 	final int T_JavaLangAnnotationTarget = 50;
 	final int T_JavaLangAnnotationRetentionPolicy = 51;
 	final int T_JavaLangAnnotationElementType = 52;
-	
+
+	final int T_JavaIoPrintStream = 53;
+
 	final int NoId = Integer.MAX_VALUE;
 
 	public static final int IMPLICIT_CONVERSION_MASK = 0xFF;

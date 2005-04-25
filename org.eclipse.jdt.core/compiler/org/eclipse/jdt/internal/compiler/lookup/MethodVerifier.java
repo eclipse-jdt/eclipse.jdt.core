@@ -176,7 +176,7 @@ void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMethod) {
 		int j = inheritedExceptions.length;
 		while (--j > -1 && !isSameClassOrSubclassOf(newException, inheritedExceptions[j])){/*empty*/}
 		if (j == -1)
-			if (!(newException.isCompatibleWith(runtimeException()) || newException.isCompatibleWith(errorException())))
+			if (!newException.isUncheckedException(false))
 				problemReporter(newMethod).incompatibleExceptionInThrowsClause(this.type, newMethod, inheritedMethod, newException);
 	}
 }
@@ -517,11 +517,6 @@ public boolean doReturnTypesCollide(MethodBinding method, MethodBinding inherite
 		&& org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector)
 		&& method.areParametersEqual(inheritedMethod);
 }
-ReferenceBinding errorException() {
-	if (errorException == null)
-		this.errorException = this.type.scope.getJavaLangError();
-	return errorException;
-}
 boolean isAsVisible(MethodBinding newMethod, MethodBinding inheritedMethod) {
 	if (inheritedMethod.modifiers == newMethod.modifiers) return true;
 
@@ -584,11 +579,6 @@ ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 	for (int i = exceptions.length; --i >= 0;)
 		exceptions[i] = BinaryTypeBinding.resolveType(exceptions[i], this.environment, true);
 	return exceptions;
-}
-ReferenceBinding runtimeException() {
-	if (runtimeException == null)
-		this.runtimeException = this.type.scope.getJavaLangRuntimeException();
-	return runtimeException;
 }
 void verify(SourceTypeBinding someType) {
 	this.type = someType;

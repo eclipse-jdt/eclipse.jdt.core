@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 import junit.framework.Assert;
@@ -73,11 +72,11 @@ public void acceptResult(CompilationResult compilationResult) {
 protected void outputClassFiles(CompilationResult unitResult) {
 
 	if ((unitResult != null) && (!unitResult.hasErrors() || generateOutput)) {
-		Enumeration classFiles = unitResult.compiledTypes.elements();
+		ClassFile[]classFiles = unitResult.getClassFiles();
 		if (outputPath != null) {
-			while (classFiles.hasMoreElements()) {
+			for (int i = 0, fileCount = classFiles.length; i < fileCount; i++) {
 				// retrieve the key and the corresponding classfile
-				ClassFile classFile = (ClassFile) classFiles.nextElement();
+				ClassFile classFile = classFiles[i];
 				String relativeName = 
 					new String(classFile.fileName()).replace('/', File.separatorChar) + ".class";
 				try {

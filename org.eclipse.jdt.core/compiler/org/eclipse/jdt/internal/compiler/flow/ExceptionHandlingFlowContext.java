@@ -59,10 +59,8 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		this.initsOnExceptions = new UnconditionalFlowInfo[count];
 		for (int i = 0; i < count; i++) {
 			this.indexes.put(handledExceptions[i], i); // key type  -> value index
-			boolean isUnchecked =
-				(scope.compareUncheckedException(handledExceptions[i]) != NotRelated);
 			int cacheIndex = i / BitCacheSize, bitMask = 1 << (i % BitCacheSize);
-			if (isUnchecked) {
+			if (handledExceptions[i].isUncheckedException(true)) {
 				isReached[cacheIndex] |= bitMask;
 				this.initsOnExceptions[i] = flowInfo.copy().unconditionalInits();
 			} else {

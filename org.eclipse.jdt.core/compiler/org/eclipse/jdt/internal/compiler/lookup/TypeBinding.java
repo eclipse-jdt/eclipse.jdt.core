@@ -359,6 +359,13 @@ public boolean isUnboundWildcard() {
 }
 
 /**
+ * Returns true if the type is a subclass of java.lang.Error or java.lang.RuntimeException
+ */
+public boolean isUncheckedException(boolean includeSupertype) {
+	return false;
+}
+
+/**
  * Returns true if the type is a wildcard
  */
 public boolean isWildcard() {

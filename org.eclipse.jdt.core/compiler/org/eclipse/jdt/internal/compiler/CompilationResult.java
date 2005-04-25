@@ -53,7 +53,7 @@ public class CompilationResult {
 	public char[][] simpleNameReferences;
 
 	public int lineSeparatorPositions[];
-	public Hashtable compiledTypes = new Hashtable(11);
+	public Map compiledTypes = new Hashtable(11);
 	public int unitIndex, totalUnitsKnown;
 	public boolean hasBeenAccepted = false;
 	public char[] fileName;
@@ -169,12 +169,8 @@ public class CompilationResult {
 	}
 	
 	public ClassFile[] getClassFiles() {
-		Enumeration files = compiledTypes.elements();
 		ClassFile[] classFiles = new ClassFile[compiledTypes.size()];
-		int index = 0;
-		while (files.hasMoreElements()){
-			classFiles[index++] = (ClassFile)files.nextElement();
-		}
+		compiledTypes.values().toArray(classFiles);
 		return classFiles;	
 	}
 
@@ -411,9 +407,9 @@ public class CompilationResult {
 		}
 		if (this.compiledTypes != null){
 			buffer.append("COMPILED type(s)	\n");  //$NON-NLS-1$
-			Enumeration typeNames = this.compiledTypes.keys();
-			while (typeNames.hasMoreElements()) {
-				char[] typeName = (char[]) typeNames.nextElement();
+			Iterator keys = this.compiledTypes.keySet().iterator();
+			while (keys.hasNext()) {
+				char[] typeName = (char[]) keys.next();
 				buffer.append("\t - ").append(typeName).append('\n');   //$NON-NLS-1$
 				
 			}

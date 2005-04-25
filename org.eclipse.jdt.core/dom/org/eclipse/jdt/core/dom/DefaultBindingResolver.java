@@ -1486,9 +1486,9 @@ class DefaultBindingResolver extends BindingResolver {
 			} else if ("java.lang.Exception".equals(name)) {//$NON-NLS-1$
 				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_EXCEPTION, 3));
 			} else if ("java.lang.RuntimeException".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getJavaLangRuntimeException());
+				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION, 3));
 			} else if ("java.lang.Error".equals(name)) {//$NON-NLS-1$
-				return this.getTypeBinding(this.scope.getJavaLangError());
+				return this.getTypeBinding(this.scope.getType(TypeConstants.JAVA_LANG_ERROR, 3));
 			} else if ("java.lang.Class".equals(name)) {//$NON-NLS-1$ 
 				return this.getTypeBinding(this.scope.getJavaLangClass());
 			} else if ("java.lang.Cloneable".equals(name)) {//$NON-NLS-1$ 

@@ -301,6 +301,10 @@ public void computeId() {
 					else if (CharOperation.equals(typeName, JAVA_LANG_OVERRIDE[2]))
 						id = T_JavaLangOverride;
 					return;
+				case 'R' :
+					if (CharOperation.equals(typeName, JAVA_LANG_RUNTIMEEXCEPTION[2]))
+						id = 	T_JavaLangRuntimeException;
+					break;
 				case 'S' :
 					if (CharOperation.equals(typeName, JAVA_LANG_STRING[2]))
 						id = T_JavaLangString;
@@ -796,9 +800,39 @@ public boolean isSuperclassOf(ReferenceBinding otherType) {
 	return false;
 }
 
+/**
+ * JLS 11.5 ensures that Throwable, Exception, RuntimeException and Error are directly connected.
+ * (Throwable<- Exception <- RumtimeException, Throwable <- Error). Thus no need to check #isCompatibleWith
+ * but rather check in type IDs so as to avoid some eager class loading for JCL writers.
+ * When 'includeSupertype' is true, answers true if the given type can be a supertype of some unchecked exception
+ * type (i.e. Throwable or Exception).
+ * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isUncheckedException(boolean)
+ */
+public boolean isUncheckedException(boolean includeSupertype) {
+	switch (this.id) {
+			case TypeIds.T_JavaLangError :
+			case TypeIds.T_JavaLangRuntimeException :
+				return true;
+			case TypeIds.T_JavaLangThrowable :
+			case TypeIds.T_JavaLangException :
+				return includeSupertype;
+	}
+	ReferenceBinding current = this;
+	while ((current = current.superclass()) != null) {
+		switch (current.id) {
+			case TypeIds.T_JavaLangError :
+			case TypeIds.T_JavaLangRuntimeException :
+				return true;
+			case TypeIds.T_JavaLangThrowable :
+			case TypeIds.T_JavaLangException :
+				return false;
+		}
+	}
+	return false;
+}
+
 /* Answer true if the receiver is deprecated (or any of its enclosing types)
 */
-
 public final boolean isViewedAsDeprecated() {
 	return (modifiers & (AccDeprecated | AccDeprecatedImplicitly)) != 0;
 }

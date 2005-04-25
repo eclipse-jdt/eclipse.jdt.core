@@ -2355,14 +2355,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	public void outputClassFiles(CompilationResult unitResult) {
 		if (!((unitResult == null) || (unitResult.hasErrors() && !this.proceedOnError))) {
-			Enumeration classFiles = unitResult.compiledTypes.elements();
+			ClassFile[] classFiles = unitResult.getClassFiles();
 			if (!this.generatePackagesStructure) {
 				this.destinationPath = extractDestinationPathFromSourceFile(unitResult);
 			}
 			if (this.destinationPath != null) {
-				while (classFiles.hasMoreElements()) {
+				for (int i = 0, fileCount = classFiles.length; i < fileCount; i++) {
 					// retrieve the key and the corresponding classfile
-					ClassFile classFile = (ClassFile) classFiles.nextElement();
+					ClassFile classFile = classFiles[i];
 					char[] filename = classFile.fileName();
 					int length = filename.length;
 					char[] relativeName = new char[length + 6];

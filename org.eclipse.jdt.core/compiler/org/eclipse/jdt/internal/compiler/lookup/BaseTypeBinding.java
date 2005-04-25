@@ -136,7 +136,13 @@ public final class BaseTypeBinding extends TypeBinding {
 				return false;
 		}
 	}
-
+	/**
+	 * T_null is acting as an unchecked exception
+	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isUncheckedException(boolean)
+	 */
+	public boolean isUncheckedException(boolean includeSupertype) {
+		return this == NullBinding;
+	}
 	public static final boolean isWidening(int left, int right) {
 
 		//can "left" store a "right" using some widening conversion
