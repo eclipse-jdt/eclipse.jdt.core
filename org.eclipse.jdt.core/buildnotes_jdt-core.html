@@ -47,6 +47,10 @@ Eclipse SDK 3.1M7 - 2?th April 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Removed the need to load <code>java.lang.RuntimeException</code> and <code>java.lang.Error</code> eagerly
+during compilation when assessing unchecked exception diagnosis. This allows Java class library developpers to be 
+more minimalistic.
+</li>
 <li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=83230">bug 83230</a> required the index version to be incremented. 
      Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
 </li>
