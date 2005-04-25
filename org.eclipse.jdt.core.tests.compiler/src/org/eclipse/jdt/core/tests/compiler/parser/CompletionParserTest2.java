@@ -8520,4 +8520,66 @@ public void test0150(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92451
+ */
+public void test0151(){
+	String str =
+		"public class X {\n" + 
+		"  public static void main(String[] args) {\n" + 
+ 		"    java.util.List elements = null;\n" + 
+ 		"    new Test(Test.toStrings((Test[])elements.toArray(new Test[0])));\n" + 
+		"     //code assist fails on this line\n" + 
+		"  }\n" + 
+		"}\n";
+
+
+	String completeBehind = "";
+	int cursorLocation = str.indexOf(" //code assis") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public static void main(String[] args) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public static void main(String[] args) {\n" + 
+		"    java.util.List elements;\n" + 
+		"    <CompleteOnName:>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

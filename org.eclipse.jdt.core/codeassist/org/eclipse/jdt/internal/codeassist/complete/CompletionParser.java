@@ -1847,9 +1847,15 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 }
 protected void consumeInsideCastExpression() {
 	int end = intStack[intPtr--];
-	if(this.identifierLengthStack[this.identifierLengthPtr] > 0) {
-		pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
-		if(this.genericsLengthPtr < 0) {
+	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST) {
+		popElement(K_PARAMETERIZED_CAST);
+		
+		if(this.identifierLengthStack[this.identifierLengthPtr] > 0) {
+			pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
+		}
+	} else {
+		if(this.identifierLengthStack[this.identifierLengthPtr] > 0) {
+			pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 			pushOnGenericsLengthStack(0);
 		}
 	}
@@ -1861,6 +1867,9 @@ protected void consumeInsideCastExpression() {
 	pushOnElementStack(K_CAST_STATEMENT);
 }
 protected void consumeInsideCastExpressionLL1() {
+	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST) {
+		popElement(K_PARAMETERIZED_CAST);
+	}
 	super.consumeInsideCastExpressionLL1();
 	pushOnElementStack(K_CAST_STATEMENT);
 }
@@ -2728,9 +2737,6 @@ protected void consumeOnlyTypeArgumentsForCastExpression() {
 }
 protected void consumeRightParen() {
 	super.consumeRightParen();
-	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST) {
-		popElement(K_PARAMETERIZED_CAST);
-	}
 }
 protected void consumeReferenceType1() {
 	super.consumeReferenceType1();
