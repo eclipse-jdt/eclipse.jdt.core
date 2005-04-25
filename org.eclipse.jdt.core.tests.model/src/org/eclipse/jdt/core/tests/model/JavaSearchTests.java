@@ -36,8 +36,9 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
+//		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		TESTS_PREFIX =  "testStaticImport";
-//		TESTS_NAMES = new String[] { "testTypeParameterConstructors05" };
+//		TESTS_NAMES = new String[] { "testTypeReference37" };
 	//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
@@ -2958,13 +2959,15 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 	 * Local type reference test.
 	 */
 	public void testTypeReference37() throws CoreException { // was testLocalTypeReference2
-		IType type = getCompilationUnit("JavaSearch/src/f2/X.java").getType("X").getMethod("foo", new String[0]).getType("Y", 1);
+		IType type = getCompilationUnit("JavaSearch/src/f2/X.java").getType("X");
+		IMethod method = type.getMethod("foo1", new String[0]);
+		IType localType = method.getType("Y", 1);
 		
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 
 		resultCollector.showContext = true;
 		search(
-			type, 
+			localType, 
 			REFERENCES,
 			scope, 
 			this.resultCollector);

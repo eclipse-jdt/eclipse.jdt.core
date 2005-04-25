@@ -407,9 +407,20 @@ void matchReportReference(Expression expr, int lastIndex, TypeBinding refBinding
 	// Report match
 	if (expr instanceof ArrayTypeReference) {
 		locator.reportAccurateTypeReference(match, expr, this.pattern.simpleName);
-	} else {
-		locator.report(match);
+		return;
 	}
+	if (refBinding.isLocalType()) {
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=84049
+		LocalTypeBinding local = (LocalTypeBinding) refBinding;
+		IJavaElement focus = ((InternalSearchPattern)pattern).focus;
+		if (focus != null && local.enclosingMethod != null && focus.getParent().getElementType() == IJavaElement.METHOD) {
+			IMethod method = (IMethod) focus.getParent();
+			if (!CharOperation.equals(local.enclosingMethod.selector, method.getElementName().toCharArray())) {
+				return;
+			}
+		}
+	}
+	locator.report(match);
 }
 protected int referenceType() {
 	return IJavaElement.TYPE;

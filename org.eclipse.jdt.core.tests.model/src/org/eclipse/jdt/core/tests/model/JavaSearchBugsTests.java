@@ -51,7 +51,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug83012";
+//		TESTS_PREFIX =  "testBug82673";
 //		TESTS_NAMES = new String[] { "testBug89848" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -1324,6 +1324,39 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b82088/c/Test.java b82088.c.Test [A] EXACT_MATCH\n" + 
 			"src/b82088/c/Test.java b82088.c.Test.a [A] EXACT_MATCH\n" + 
 			"src/b82088/c/Test.java b82088.c.Test(A) [A] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 82673: [1.5][search][annot] Search for annotations misses references in default and values constructs
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83012"
+	 */
+	public void testBug82673() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b82673/Test.java",
+			"package b82673;\n" + 
+			"public class Test {\n" + 
+			"    void test1() {\n" + 
+			"        class Dummy {};\n" + 
+			"        Dummy d = new Dummy();\n" + 
+			"		new X();\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    void test2() {\n" + 
+			"        class Dummy {};\n" + 
+			"        Dummy d = new Dummy();\n" + 
+			"		new Y();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class X {}\n" + 
+			"class Y {}\n"
+		);
+		IType type = selectType(workingCopies[0], "Test").getMethod("test1", new String[0]).getType("Dummy", 1);
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b82673/Test.java void b82673.Test.test1() [Dummy] EXACT_MATCH\n" + 
+			"src/b82673/Test.java void b82673.Test.test1() [Dummy] EXACT_MATCH"
 		);
 	}
 
