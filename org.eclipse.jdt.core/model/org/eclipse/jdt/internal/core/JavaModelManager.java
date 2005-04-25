@@ -237,18 +237,14 @@ public class JavaModelManager implements ISaveParticipant {
 	public synchronized void containerPut(IJavaProject project, IPath containerPath, IClasspathContainer container){
 
 		// set/unset the initialization in progress
-		HashSet projectInitializations = containerInitializationInProgress(project);
 		if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
+			HashSet projectInitializations = containerInitializationInProgress(project);
 			projectInitializations.add(containerPath);
 			
 			// do not write out intermediate initialization value
 			return;
 		} else {
-			projectInitializations.remove(containerPath);
-			if (projectInitializations.size() == 0) {
-				Map initializations = (Map)this.containerInitializationInProgress.get();
-				initializations.remove(project);
-			}
+			containerRemoveInitializationInProgress(project, containerPath);
 
 			Map projectContainers = (Map)this.containers.get(project);
 			if (projectContainers == null){
@@ -356,6 +352,15 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		containerPut(project, containerPath, container);
 		return true;
+	}
+	
+	private void containerRemoveInitializationInProgress(IJavaProject project, IPath containerPath) {
+		HashSet projectInitializations = containerInitializationInProgress(project);
+		projectInitializations.remove(containerPath);
+		if (projectInitializations.size() == 0) {
+			Map initializations = (Map)this.containerInitializationInProgress.get();
+			initializations.remove(project);
+		}
 	}
 	
 	private synchronized void containersReset(String[] containerIDs) {
@@ -1440,7 +1445,9 @@ public class JavaModelManager implements ISaveParticipant {
 					stats.endRun();
 				}
 				if (!ok) {
-					containerPut(project, containerPath, null); // flush cache
+					// just remove initialization in progress and keep previous session container so as to avoid a full build
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=92588
+					containerRemoveInitializationInProgress(project, containerPath); 
 					if (CP_RESOLVE_VERBOSE) {
 						if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
 							Util.verbose(
