@@ -358,7 +358,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 		if (!expected.equals(actual)) {
 			if (this.displayName) {
 				System.out.print(getName());
-				System.out.print(" expects ");
+				System.out.print(" got ");
 				if (collector.count==0)
 					System.out.println("no result!");
 				else {

@@ -171,7 +171,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertSearchResults(String message, String expected, Object collector) {
 		String actual = collector.toString();
 		if (!expected.equals(actual)) {
-			if (this.displayName) System.out.println(getName()+" expected result is:");
+			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.print(displayString(actual, this.tabs));
 			System.out.println(",");
 		}
@@ -257,7 +257,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertElementEquals(String message, String expected, IJavaElement element) {
 		String actual = element == null ? "<null>" : ((JavaElement) element).toStringWithAncestors(false/*don't show key*/);
 		if (!expected.equals(actual)) {
-			if (this.displayName) System.out.println(getName()+" expected result is:");
+			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
@@ -270,7 +270,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				if (element == null) {
 					buffer.append("<null>");
 				} else {
-					buffer.append(element.toStringWithAncestors());
+					buffer.append(element.toStringWithAncestors(false/*don't show key*/));
 				}
 				if (i != length-1) buffer.append("\n");
 			}
@@ -279,7 +279,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		String actual = buffer.toString();
 		if (!expected.equals(actual)) {
-			if (this.displayName) System.out.println(getName()+" expected result is:");
+			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
@@ -287,6 +287,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertHierarchyEquals(String expected, ITypeHierarchy hierarchy) {
 		String actual = hierarchy.toString();
 		if (!expected.equals(actual)) {
+			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals("Unexpected type hierarchy", expected, actual);

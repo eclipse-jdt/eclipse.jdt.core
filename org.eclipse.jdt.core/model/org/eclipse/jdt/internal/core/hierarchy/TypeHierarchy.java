@@ -1470,7 +1470,7 @@ boolean subtypesIncludeSupertypeOf(IType type) {
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append("Focus: "); //$NON-NLS-1$
-	buffer.append(this.focusType == null ? "<NONE>" : ((JavaElement)this.focusType).toStringWithAncestors()); //$NON-NLS-1$
+	buffer.append(this.focusType == null ? "<NONE>" : ((JavaElement)this.focusType).toStringWithAncestors(false/*don't show key*/)); //$NON-NLS-1$
 	buffer.append("\n"); //$NON-NLS-1$
 	if (exists()) {
 		if (this.focusType != null) {
@@ -1513,7 +1513,7 @@ private void toString(StringBuffer buffer, IType type, int indent, boolean ascen
 			buffer.append("  "); //$NON-NLS-1$
 		}
 		JavaElement element = (JavaElement)types[i];
-		buffer.append(element.toStringWithAncestors());
+		buffer.append(element.toStringWithAncestors(false/*don't show key*/));
 		buffer.append('\n');
 		toString(buffer, types[i], indent + 1, ascendant);
 	}
