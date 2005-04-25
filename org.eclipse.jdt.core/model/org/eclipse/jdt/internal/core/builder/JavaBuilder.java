@@ -547,6 +547,9 @@ private boolean isWorthBuilding() throws CoreException {
 		return false;
 	}
 
+	if (JavaCore.WARNING.equals(javaProject.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true)))
+		return true;
+
 	// make sure all prereq projects have valid build states... only when aborting builds since projects in cycles do not have build states
 	// except for projects involved in a 'warning' cycle (see below)
 	IProject[] requiredProjects = getRequiredProjects(false);
