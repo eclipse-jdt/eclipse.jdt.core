@@ -35,7 +35,7 @@ public class KeyKind extends BindingKeyParser {
 		super(key);
 	}
 
-	public void consumeCapture() {
+	public void consumeCapture(int position) {
 		this.flags |= F_CAPTURE;
 	}
 	

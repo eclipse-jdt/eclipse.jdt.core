@@ -46,8 +46,9 @@ public class KeyToSignature extends BindingKeyParser {
 		this.signature.append(brakets);
 	}
 	
-	public void consumeCapture() {
-		this.signature.append('!');
+	public void consumeCapture(int position) {
+		// behave as if it was a wildcard
+		this.signature = (StringBuffer) this.arguments.get(0);
 	}
 		
 	public void consumeLocalType(char[] uniqueKey) {
@@ -152,9 +153,11 @@ public class KeyToSignature extends BindingKeyParser {
 				break;
 			case Wildcard.EXTENDS:
 				this.signature.append('+');
+				this.signature.append(this.arguments.get(0));
 				break;
 			case Wildcard.SUPER:
 				this.signature.append('-');
+				this.signature.append(this.arguments.get(0));
 				break;
 			default:
 				// malformed

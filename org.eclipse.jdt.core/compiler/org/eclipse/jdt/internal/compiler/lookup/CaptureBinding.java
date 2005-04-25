@@ -61,8 +61,22 @@ public class CaptureBinding extends TypeVariableBinding {
 		}
 	}
 
+	/*
+	 * sourceTypeKey ! wildcardKey position semi-colon
+	 * p.X { capture of ? } --> Lp/X;!*123;
+	 * p.X { capture of ? extends p.Y } --> Lp/X;!+Lp/Y;123;
+	 */
 	public char[] computeUniqueKey(boolean withAccessFlags) {
-		return CharOperation.concat(WILDCARD_CAPTURE, this.wildcard.computeUniqueKey(withAccessFlags));
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(this.sourceType.computeUniqueKey(false/*without access flags*/));
+		buffer.append(WILDCARD_CAPTURE);
+		buffer.append(this.wildcard.computeUniqueKey(false/*without access flags*/));
+		buffer.append(this.position);
+		buffer.append(';');
+		int length = buffer.length();
+		char[] uniqueKey = new char[length];
+		buffer.getChars(0, length, uniqueKey, 0);
+		return uniqueKey;
 	}	
 
 	public String debugName() {

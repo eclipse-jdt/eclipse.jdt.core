@@ -46,6 +46,12 @@ public class BindingKeyParser {
 			return result;
 		}
 		
+		boolean isAtCaptureStart() {
+			return 
+				this.index < this.source.length
+				&& this.source[this.index] == '!';
+		}
+		
 		boolean isAtFieldOrMethodStart() {
 			return 
 				this.index < this.source.length
@@ -103,19 +109,13 @@ public class BindingKeyParser {
 			return this.index < this.source.length && "LIZVCDBFJS[*+-!".indexOf(this.source[this.index]) != -1; //$NON-NLS-1$
 		}
 		
-		boolean isAtMethodTypeVariableStart() {
-			return 
-				this.index < this.source.length
-				&& this.source[this.index] == ':';
-		}
-
 		boolean isAtFlagsStart() {
 			return 
 				this.index < this.source.length
 				&& this.source[this.index] == '^';
 		}
 		
-		boolean isAtTypeTypeVariableStart() {
+		boolean isAtTypeVariableStart() {
 			return 
 				this.index < this.source.length
 				&& this.source[this.index] == ':';
@@ -252,6 +252,9 @@ public class BindingKeyParser {
 								else
 									this.token = END;
 								break;
+							case WILDCARD:
+								this.token = TYPE;
+								break;
 							default:
 								this.token = END;
 								break;
@@ -343,6 +346,12 @@ public class BindingKeyParser {
 				case FLAGS:
 					buffer.append("MODIFIERS: "); //$NON-NLS-1$
 					break;
+				case WILDCARD:
+					buffer.append("WILDCARD: "); //$NON-NLS-1$
+					break;
+				case CAPTURE:
+					buffer.append("CAPTURE: "); //$NON-NLS-1$
+					break;
 				case END:
 					buffer.append("END: "); //$NON-NLS-1$
 					break;
@@ -387,7 +396,7 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 	
-	public void consumeCapture() {
+	public void consumeCapture(int position) {
 		// default is to do nothing
 	}
 	
@@ -543,7 +552,7 @@ public class BindingKeyParser {
  					parseMethod();
  					if (this.scanner.isAtLocalVariableStart()) {
  						parseLocalVariable();
- 					} else if (this.scanner.isAtMethodTypeVariableStart()) {
+ 					} else if (this.scanner.isAtTypeVariableStart()) {
 						parseTypeVariable();
 					}
 			 		break;
@@ -551,8 +560,10 @@ public class BindingKeyParser {
  					malformedKey();
  					return;
 			}
-		} else if (this.scanner.isAtTypeTypeVariableStart()) {
+		} else if (this.scanner.isAtTypeVariableStart()) {
 			parseTypeVariable();
+		} else if (this.scanner.isAtCaptureStart()) {
+			parseCapture();
 		}
 	}
 	
@@ -599,16 +610,10 @@ public class BindingKeyParser {
 			 		malformedKey();
 			 		return;
 			 	}
+			 	if (kind != Wildcard.UNBOUND)
+			 		parseWildcardBound();
 			 	consumeWildCard(kind);
-			 	if (kind == Wildcard.UNBOUND) {
-			 		this.hasTypeName = false;
-			 		return;
-			 	}
-			 	parseFullyQualifiedName();
-	 			break;
-	 		case Scanner.CAPTURE:
-	 			consumeCapture();
-	 			parseFullyQualifiedName();
+			 	this.hasTypeName = false;
 	 			break;
 			default:
 	 			malformedKey();
@@ -681,6 +686,25 @@ public class BindingKeyParser {
 			parseParameterizedMethod();
 	}
 	
+	private void parseCapture() {
+		if (this.scanner.nextToken() != Scanner.CAPTURE) return;
+	 	parseCaptureWildcard();
+		if (this.scanner.nextToken() != Scanner.TYPE) {
+	 		malformedKey();
+			return;
+	 	}
+		char[] positionChars = this.scanner.getTokenSource();
+		int position = Integer.parseInt(new String(positionChars));
+		consumeCapture(position);
+		this.scanner.skipTypeEnd();
+	}
+	
+	private void parseCaptureWildcard() {
+		BindingKeyParser parser = newParser();
+		parser.parse();
+		consumeParser(parser);
+	}
+	
 	private void parseFlags() {
 		if (!this.scanner.isAtFlagsStart() || this.scanner.nextToken() != Scanner.FLAGS) return;
 		consumeModifiers(this.scanner.getTokenSource());
@@ -730,6 +754,12 @@ public class BindingKeyParser {
 		}
 		consumeTypeVariable(this.scanner.getTokenSource());
 		this.scanner.skipTypeEnd();
+	}
+	
+	private void parseWildcardBound() {
+		BindingKeyParser parser = newParser();
+		parser.parse();
+		consumeParser(parser);
 	}
 	
 }

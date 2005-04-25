@@ -72,13 +72,27 @@ public class BatchASTCreationTests extends AbstractASTTests {
 					case ASTNode.TYPE_PARAMETER:
 						binding = ((TypeParameter) node).resolveBinding();
 						break;
+					case ASTNode.PARAMETERIZED_TYPE:
+						binding = ((ParameterizedType) node).resolveBinding();
+						break;
+					case ASTNode.WILDCARD_TYPE:
+						binding = ((WildcardType) node).resolveBinding();
+						break;
+					case ASTNode.SIMPLE_NAME:
+						binding = ((SimpleName) node).resolveBinding();
+						break;
 				}
 				this.bindingKey = binding == null ? null : binding.getKey();
+				
+				// case of a capture binding
+				if (this.bindingKey != null && this.bindingKey.indexOf('!') != -1 && binding.getKind() == IBinding.METHOD) {
+					this.bindingKey = ((IMethodBinding) binding).getReturnType().getKey();
+				}
 			}
 		}
 		public void acceptBinding(String key, IBinding binding) {
 			super.acceptBinding(key, binding);
-			this.foundKey = binding.getKey();
+			this.foundKey = binding == null ? null : binding.getKey();
 		}
 	}
 	
@@ -89,14 +103,18 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	public static Test suite() {
-		if (false) {
-			Suite suite = new Suite(BatchASTCreationTests.class.getName());
-			suite.addTest(new BatchASTCreationTests("test057"));
-			return suite;
-		}
-		return new Suite(BatchASTCreationTests.class);
+		return buildTestSuite(BatchASTCreationTests.class);
 	}
 	
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+//		TESTS_PREFIX =  "testBug86380";
+//		TESTS_NAMES = new String[] { "test059" };
+//		TESTS_NUMBERS = new int[] { 83230 };
+//		TESTS_RANGE = new int[] { 83304, -1 };
+		}
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
@@ -1244,5 +1262,24 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			}, 
 			"Lp1/X;.foo<T:Ljava/lang/Object;>(TT;)V:TT;");
 	}
+	
+	public void test059() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T> {\n" + 
+				"    Object foo(X<?> list) {\n" + 
+				"       return /*start*/list.get()/*end*/;\n" + 
+				"    }\n" + 
+				"    T get() {\n" + 
+				"    	return null;\n" + 
+				"    }\n" + 
+				"}",
+			}, 
+			"Lp1/X<TT;>;!*77;");
+	}
+
+
 
 }

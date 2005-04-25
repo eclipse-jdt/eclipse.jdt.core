@@ -2669,7 +2669,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
 		assertBindingKeyEquals(
-			"Lp/X<!*>;.foo()V",
+			"Lp/X<Lp/X<TT;>;!*75;>;.foo()V",
 			binding.getKey());
 	}
 

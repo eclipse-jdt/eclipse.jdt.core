@@ -653,7 +653,7 @@ class CompilationUnitResolver extends Compiler {
 					if (this.requestedKeys.containsKey(fileName) || this.requestedSources.containsKey(fileName)) {
 						super.process(unit, i); // this.process(...) is optimized to not process already known units
 						
-						ICompilationUnit source = (ICompilationUnit) this.requestedSources.removeKey(fileName);
+						ICompilationUnit source = (ICompilationUnit) this.requestedSources.get(fileName);
 						if (source != null) {
 							// convert AST
 							CompilationResult compilationResult = unit.compilationResult;
@@ -675,7 +675,7 @@ class CompilationUnitResolver extends Compiler {
 							astRequestor.acceptAST(source, compilationUnit);
 						} 
 						
-						Object key = this.requestedKeys.removeKey(fileName);
+						Object key = this.requestedKeys.get(fileName);
 						if (key instanceof BindingKeyResolver) {
 							reportBinding(key, astRequestor, owner, unit);
 						} else if (key instanceof ArrayList) {
@@ -684,6 +684,10 @@ class CompilationUnitResolver extends Compiler {
 								reportBinding(iterator.next(), astRequestor, owner, unit);
 							}
 						}
+						
+						// remove at the end so that we don't resolve twice if a source and a key for the same file name have been requested
+						this.requestedSources.removeKey(fileName);
+						this.requestedKeys.removeKey(fileName);
 					} else {
 						if (unit.scope != null)
 							unit.scope.faultInTypes(); // still force resolution of signatures, so clients can query DOM AST
