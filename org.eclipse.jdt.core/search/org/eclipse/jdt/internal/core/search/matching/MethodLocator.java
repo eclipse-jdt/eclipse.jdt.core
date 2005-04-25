@@ -125,6 +125,22 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 	return nodeSet.addMatch(node, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
 //public int match(Reference node, MatchingNodeSet nodeSet) - SKIP IT
+public int match(Annotation node, MatchingNodeSet nodeSet) {
+	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
+	MemberValuePair[] pairs = node.memberValuePairs();
+	if (pairs == null || pairs.length == 0) return IMPOSSIBLE_MATCH;
+
+	int length = pairs.length;
+	MemberValuePair pair = null;
+	for (int i=0; i<length; i++) {
+		pair = node.memberValuePairs()[i];
+		if (matchesName(this.pattern.selector, pair.name)) {
+			ASTNode possibleNode = (node instanceof SingleMemberAnnotation) ? (ASTNode) node : pair;
+			return nodeSet.addMatch(possibleNode, ((InternalSearchPattern)this.pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		}
+	}
+	return IMPOSSIBLE_MATCH;
+}
 //public int match(TypeDeclaration node, MatchingNodeSet nodeSet) - SKIP IT
 //public int match(TypeReference node, MatchingNodeSet nodeSet) - SKIP IT
 
@@ -368,6 +384,10 @@ public int resolveLevel(ASTNode possibleMatchingNode) {
 	if (this.pattern.findReferences) {
 		if (possibleMatchingNode instanceof MessageSend) {
 			return resolveLevel((MessageSend) possibleMatchingNode);
+		}
+		if (possibleMatchingNode instanceof SingleMemberAnnotation) {
+			SingleMemberAnnotation annotation = (SingleMemberAnnotation) possibleMatchingNode;
+			return resolveLevel(annotation.memberValuePairs()[0].binding);
 		}
 		if (possibleMatchingNode instanceof MemberValuePair) {
 			MemberValuePair memberValuePair = (MemberValuePair) possibleMatchingNode;

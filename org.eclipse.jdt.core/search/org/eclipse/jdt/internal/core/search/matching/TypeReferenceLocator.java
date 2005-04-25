@@ -43,6 +43,9 @@ protected IJavaElement findElement(IJavaElement element, int accuracy) {
 		element = element.getParent();
 	return element;
 }
+public int match(Annotation node, MatchingNodeSet nodeSet) {
+	return match(node.type, nodeSet);
+}
 public int match(ASTNode node, MatchingNodeSet nodeSet) { // interested in ImportReference
 	if (!(node instanceof ImportReference)) return IMPOSSIBLE_MATCH;
 

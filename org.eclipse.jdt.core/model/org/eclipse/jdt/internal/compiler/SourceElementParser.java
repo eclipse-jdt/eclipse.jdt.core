@@ -228,13 +228,6 @@ private long[] collectAnnotationPositions(Annotation[] annotations) {
 	}
 	return result;
 }
-protected void consumeAnnotationAsModifier() {
-	super.consumeAnnotationAsModifier();
-	Annotation annotation = (Annotation)expressionStack[expressionPtr];
-	if (reportReferenceInfo) { // accept annotation type reference
-		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
-	}
-}
 protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
 	boolean previousFlag = reportReferenceInfo;
 	reportReferenceInfo = false; // not to see the type reference reported in super call to getTypeReference(...)
@@ -334,6 +327,13 @@ protected void consumeMemberValuePair() {
 	MemberValuePair memberValuepair = (MemberValuePair) this.astStack[this.astPtr];
 	if (reportReferenceInfo) {
 		requestor.acceptMethodReference(memberValuepair.name, 0, memberValuepair.sourceStart);
+	}
+}
+protected void consumeMarkerAnnotation() {
+	super.consumeMarkerAnnotation();
+	Annotation annotation = (Annotation)expressionStack[expressionPtr];
+	if (reportReferenceInfo) { // accept annotation type reference
+		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
 	}
 }
 protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
@@ -440,6 +440,13 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 			messageSend.selector, 
 			args == null ? 0 : args.length, 
 			(int)(messageSend.nameSourcePosition >>> 32));
+	}
+}
+protected void consumeNormalAnnotation() {
+	super.consumeNormalAnnotation();
+	Annotation annotation = (Annotation)expressionStack[expressionPtr];
+	if (reportReferenceInfo) { // accept annotation type reference
+		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
 	}
 }
 protected void consumeSingleMemberAnnotation() {

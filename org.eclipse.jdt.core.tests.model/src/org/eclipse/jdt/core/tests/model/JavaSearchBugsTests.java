@@ -51,7 +51,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug86380";
+//		TESTS_PREFIX =  "testBug83012";
 //		TESTS_NAMES = new String[] { "testBug89848" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -1328,6 +1328,38 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
+	 * Bug 83012: [1.5][search][annot] Search for annotations misses references in default and values constructs
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83012"
+	 */
+	public void testBug83012() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83012/Test.java",
+			"package b83012;\n" + 
+			"@interface A {\n" + 
+			"    String value() default \"\";\n" + 
+			"}\n" + 
+			"@interface Main {\n" + 
+			"	A first() default @A(\"Void\");\n" + 
+			"	A second();\n" + 
+			"}\n" + 
+			"\n" + 
+			"@Main(first=@A(\"\"), second=@A(\"2\"))\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		IType type = selectType(workingCopies[0], "A");
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b83012/Test.java A b83012.Main.first() [A] EXACT_MATCH\n" + 
+			"src/b83012/Test.java A b83012.Main.first() [A] EXACT_MATCH\n" + 
+			"src/b83012/Test.java A b83012.Main.second() [A] EXACT_MATCH\n" + 
+			"src/b83012/Test.java b83012.Test [A] EXACT_MATCH\n" + 
+			"src/b83012/Test.java b83012.Test [A] EXACT_MATCH"
+		);
+	}
+
+	/**
 	 * Bug 83230: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83230"
 	 */
@@ -1437,7 +1469,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b83230/Test.java b83230.Test.min [ageMin] EXACT_MATCH"
 		);
 	}
-	public void testBug83230_Implicit() throws CoreException {
+	public void testBug83230_Implicit01() throws CoreException {
 		resultCollector.showRule = true;
 		workingCopies = new ICompilationUnit[1];
 		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
@@ -1460,6 +1492,32 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b83230/Test.java b83230.Test [] EXACT_MATCH\n" + 
 			"src/b83230/Test.java b83230.Test.bar [] EXACT_MATCH\n" + 
 			"src/b83230/Test.java void b83230.Test.foo() [] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Implicit02() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
+			"package b83230;\n" + 
+			"@interface A {\n" + 
+			"    String value() default \"\";\n" + 
+			"}\n" + 
+			"@interface Main {\n" + 
+			"	A first() default @A(\"Void\");\n" + 
+			"	A second();\n" + 
+			"}\n" + 
+			"\n" + 
+			"@Main(first=@A(\"\"), second=@A(\"2\"))\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		IType type = selectType(workingCopies[0], "A");
+		IMethod method = type.getMethod("value", new String[0]);
+		search(method, REFERENCES);
+		assertSearchResults(
+			"src/b83230/Test.java A b83230.Main.first() [] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test [] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test [] EXACT_MATCH"
 		);
 	}
 

@@ -151,6 +151,10 @@ protected TypeBinding getTypeNameBinding(int index) {
 public void initializePolymorphicSearch(MatchLocator locator) {
 	// default is to do nothing
 }
+public int match(Annotation node, MatchingNodeSet nodeSet) {
+	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
+}
 /**
  * Check if the given ast node syntactically matches this pattern.
  * If it does, add it to the match set.

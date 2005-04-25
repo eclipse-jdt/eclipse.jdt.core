@@ -1822,6 +1822,24 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 				this.patternLocator.matchReportReference(reference, enclosingElement, pair.binding, level.intValue(), this);
 			}
 		}
+		
+		// Look for reference inside annotation
+		ASTNode[] nodes = nodeSet.matchingNodes(annotationType.sourceStart, annotationType.declarationSourceEnd);
+		if (nodes != null) {
+			if (!matchedContainer) {
+				for (int j = 0, nl = nodes.length; j < nl; j++) {
+					nodeSet.matchingNodes.removeKey(nodes[j]);
+				}
+			} else {
+				for (int j = 0, nl = nodes.length; j < nl; j++) {
+					ASTNode node = nodes[j];
+					level = (Integer) nodeSet.matchingNodes.removeKey(node);
+					if (enclosesElement) {
+						this.patternLocator.matchReportReference(node, enclosingElement, elementBinding, level.intValue(), this);
+					}
+				}
+			}
+		}
 	}
 }
 /**

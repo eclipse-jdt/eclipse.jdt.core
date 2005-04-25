@@ -179,13 +179,6 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 	super.classInstanceCreation(alwaysQualified);
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
 }
-protected void consumeAnnotationAsModifier() {
-	super.consumeAnnotationAsModifier();
-	Expression expression = this.expressionStack[this.expressionPtr];
-	if (expression instanceof Annotation) {
-		this.patternLocator.match(((Annotation)expression).type, this.nodeSet);
-	}
-}
 protected void consumeAssignment() {
 	super.consumeAssignment();
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
@@ -217,6 +210,12 @@ protected void consumeLocalVariableDeclaration() {
 
 	// this is always a LocalDeclaration
 	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
+}
+protected void consumeMarkerAnnotation() {
+	super.consumeMarkerAnnotation();
+	// this is always an Annotation
+	Annotation annotation = (Annotation) expressionStack[expressionPtr];
+	this.patternLocator.match(annotation, nodeSet);
 }
 protected void consumeMemberValuePair() {
 	super.consumeMemberValuePair();
@@ -260,6 +259,12 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 	// this is always a MessageSend
 	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
 }
+protected void consumeNormalAnnotation() {
+	super.consumeNormalAnnotation();
+	// this is always an Annotation
+	Annotation annotation = (Annotation) expressionStack[expressionPtr];
+	this.patternLocator.match(annotation, nodeSet);
+}
 protected void consumePrimaryNoNewArray() {
 	// pop parenthesis positions (and don't update expression positions
 	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
@@ -277,10 +282,9 @@ protected void consumePrimaryNoNewArrayWithName() {
 }
 protected void consumeSingleMemberAnnotation() {
 	super.consumeSingleMemberAnnotation();
-	MemberValuePair[] pairs = ((SingleMemberAnnotation) expressionStack[expressionPtr]).memberValuePairs();
-	if (pairs != null && pairs.length==1) {
-		this.patternLocator.match(pairs[0], nodeSet);
-	}
+	// this is always an Annotation
+	Annotation annotation = (Annotation) expressionStack[expressionPtr];
+	this.patternLocator.match(annotation, nodeSet);
 }
 protected void consumeTypeArgument() {
 	super.consumeTypeArgument();
