@@ -580,7 +580,12 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
 		createAST(unit, AST.JLS2);
 	}
-	public void testDomAstCreationJLS3() throws JavaModelException {
+
+	/**
+	 * Removed as there's no reference to compare with
+	 * TODO (frederic) put back post 3.1
+	 */
+	public void _testDomAstCreationJLS3() throws JavaModelException {
 		tagAsSummary("DOM>Creation>Src>JLS3", true); // put in fingerprint
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
@@ -641,7 +646,11 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		runAstCreation(AST.JLS2);
 	}
 
-	public void testWkspDomAstCreationJLS3() throws JavaModelException {
+	/**
+	 * Removed as there's no reference to compare with
+	 * TODO (frederic) put back post 3.1
+	 */
+	public void _testWkspDomAstCreationJLS3() throws JavaModelException {
 		tagAsSummary("DOM>Creation>Wksp>JLS3", true); // put in fingerprint
 		runAstCreation(AST.JLS3);
 	}
