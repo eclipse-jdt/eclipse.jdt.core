@@ -251,6 +251,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
+			cleanCategoryTableCache(true);
 			startMeasuring();
 			for (int j=0; j<ITERATIONS_COUNT; j++) {
 				new SearchEngine().searchAllTypeNames(
@@ -264,7 +265,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 					null);
 			}
 			stopMeasuring();
-			cleanCategoryTableCache(true);
 		}
 		
 		// Commit
@@ -301,10 +301,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
+			cleanCategoryTableCache(true);
 			startMeasuring();
 			search("JavaCore", TYPE, ALL_OCCURRENCES);
 			stopMeasuring();
-			cleanCategoryTableCache(true);
 		}
 		
 		// Commit
@@ -335,10 +335,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
+			cleanCategoryTableCache(false);
 			startMeasuring();
 			search("FILE", FIELD, ALL_OCCURRENCES);
 			stopMeasuring();
-			cleanCategoryTableCache(false);
 		}
 		
 		// Commit
@@ -369,10 +369,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
+			cleanCategoryTableCache(false);
 			startMeasuring();
 			search("equals", METHOD, ALL_OCCURRENCES);
 			stopMeasuring();
-			cleanCategoryTableCache(false);
 		}
 		
 		// Commit
@@ -403,10 +403,10 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
+			cleanCategoryTableCache(false);
 			startMeasuring();
 			search("String", CONSTRUCTOR, ALL_OCCURRENCES);
 			stopMeasuring();
-			cleanCategoryTableCache(false);
 		}
 		
 		// Commit
