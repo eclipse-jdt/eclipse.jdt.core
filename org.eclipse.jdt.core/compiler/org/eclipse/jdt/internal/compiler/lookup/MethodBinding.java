@@ -425,6 +425,9 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 			return this.typeVariables[i];
 	return null;
 }
+public int hashCode() {
+	return this.selector == null ? super.hashCode() : CharOperation.hashCode(this.selector);
+}
 /**
  * Returns true if method got substituted parameter types
  * (see ParameterizedMethodBinding)

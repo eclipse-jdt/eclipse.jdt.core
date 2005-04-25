@@ -36,6 +36,12 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
     	this.tagBits |= type.tagBits & (HasTypeVariable | HasDirectWildcard);
 }
 
+public int hashCode() {
+	return this.leafComponentType == null 
+					? super.hashCode()
+					: this.leafComponentType.hashCode() + this.dimensions;
+}
+
 public int kind() {
 	return ARRAY_TYPE;
 }
@@ -133,9 +139,6 @@ public char[] genericTypeSignature() {
 
 public PackageBinding getPackage() {
 	return leafComponentType.getPackage();
-}
-public int hashCode() {
-	return this.leafComponentType == null ? super.hashCode() : this.leafComponentType.hashCode();
 }
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */

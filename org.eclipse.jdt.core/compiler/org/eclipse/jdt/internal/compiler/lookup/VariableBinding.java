@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 public abstract class VariableBinding extends Binding {
@@ -30,6 +31,10 @@ public abstract class VariableBinding extends Binding {
 	
 	public Constant constant() {
 		return this.constant;
+	}
+	
+	public int hashCode() {
+		return this.name == null ? super.hashCode() : CharOperation.hashCode(this.name);
 	}
 	
 	public final boolean isBlankFinal(){

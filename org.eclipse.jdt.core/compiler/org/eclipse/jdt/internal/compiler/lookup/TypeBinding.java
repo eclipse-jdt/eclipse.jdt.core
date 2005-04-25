@@ -127,6 +127,7 @@ public char[] genericTypeSignature() {
     return signature();
 }
 public abstract PackageBinding getPackage();
+
 public boolean isAnnotationType() {
 	return false;
 }
