@@ -46,7 +46,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Garbage collect constants
 	final static int MAX_GC = 10; // Max gc iterations
 	final static int TIME_GC = 500; // Sleep to wait gc to run (in ms)
-	final static int DELTA_GC = 100; // Threshold to leave gc loop
+	final static int DELTA_GC = 1000; // Threshold to remaining free memory
 
 	// Workspace variables
 	protected static TestingEnvironment ENV = null;
@@ -83,10 +83,10 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	// Types of statistic which can be stored.
 	protected final static String[] LOG_TYPES = { "cpu", "elapsed" };
 	// Main version which is logged
-	protected final static String LOG_VERSION = "_v301_"; // TODO (frederic) see whether this could be computed automatically
+	protected final static String LOG_VERSION = "_v30_"; // TODO (frederic) see whether this could be computed automatically
 	// Standard deviation threshold. Statistic should not be take into account when it's reached
-	protected final static double STDDEV_THRESHOLD = 0.02; // default is 2%
-
+	protected final static double STDDEV_THRESHOLD = 0.1; // default is 10%
+	
 	/**
 	 * @param name
 	 */
@@ -131,10 +131,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		String logDir = System.getProperty("logDir");
 		if (logDir != null) {
 			File dir = new File(logDir);
-			if (dir.exists() && dir.isDirectory()) {
-				LOG_DIR = dir;
+			if (dir.exists()) {
+				if (dir.isDirectory()) {
+					LOG_DIR = dir;
+				} else {
+					System.err.println(logDir+" is not a valid directory. Log files will NOT be written!");
+				}
 			} else {
-				System.err.println(logDir+" is not a valid directory or does not exist. Log files will NOT be written!");
+				if (dir.mkdir()) {
+					LOG_DIR = dir;
+				} else {
+					System.err.println("Cannot create "+logDir+". Log files will NOT be written!");
+				}
 			}
 		}
 	}
@@ -183,8 +191,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 */
 	protected void runGc() {
 		int iterations = 0;
-		long delta, free;
-		do {
+		long delta=0, free=0;
+		for (int i=0; i<MAX_GC; i++) {
 			free = Runtime.getRuntime().freeMemory();
 			System.gc();
 			delta = Runtime.getRuntime().freeMemory() - free;
@@ -194,10 +202,10 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			} catch (InterruptedException e) {
 				// do nothing
 			}
-		} while (iterations<MAX_GC && delta>DELTA_GC);
-		if (iterations == MAX_GC && delta > (DELTA_GC*10)) {
+		}
+		if (iterations == MAX_GC && delta > DELTA_GC) {
 			// perhaps gc was not well executed
-			System.err.println(this.scenarioShortName+": still get "+delta+" unfreeable memory (free="+free+",total="+Runtime.getRuntime().totalMemory()+") after "+MAX_GC+" gc...");
+			System.out.println("WARNING: "+this.scenarioShortName+" still get "+delta+" unfreeable memory (free="+free+",total="+Runtime.getRuntime().totalMemory()+") after "+MAX_GC+" gc...");
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
@@ -220,15 +228,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			NumberFormat pFormat = NumberFormat.getPercentInstance();
 			pFormat.setMaximumFractionDigits(1);
 			NumberFormat dFormat = NumberFormat.getNumberInstance();
-			dFormat.setMaximumFractionDigits(2);
+			dFormat.setMaximumFractionDigits(0);
+			String stddevThresholdStr = dFormat.format(STDDEV_THRESHOLD*100);
+			NumberFormat dFormat2 = NumberFormat.getNumberInstance();
+			dFormat2.setMaximumFractionDigits(2);
 			try {
 				// Store CPU Time
 				JdtCorePerformanceMeter.Statistics cpuStats = (JdtCorePerformanceMeter.Statistics) JdtCorePerformanceMeter.CPU_TIMES.get(this.scenarioReadableName);
 				if (cpuStats != null) {
 					double percent = cpuStats.stddev/cpuStats.average;
 					if (percent > STDDEV_THRESHOLD) {
-						if (logStreams[0] != null) logStreams[0].print("'");
-						System.out.println("	WARNING: CPU time standard deviation is over 2%: "+dFormat.format(cpuStats.stddev)+"/"+cpuStats.average+"="+ pFormat.format(percent));
+//						if (logStreams[0] != null) logStreams[0].print("'");
+						System.out.println("	WARNING: CPU time standard deviation is over "+stddevThresholdStr+"%: "+dFormat2.format(cpuStats.stddev)+"/"+cpuStats.average+"="+ pFormat.format(percent));
 						comments[0] = "stddev=" + pFormat.format(percent);
 					}
 					if (logStreams[0] != null) {
@@ -244,8 +255,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				if (elapsedStats != null) {
 					double percent = elapsedStats.stddev/elapsedStats.average;
 					if (percent > STDDEV_THRESHOLD) {
-						if (logStreams[1] != null) logStreams[1].print("'");
-						System.out.println("	WARNING: Elapsed time standard deviation is over 2%: "+dFormat.format(elapsedStats.stddev)+"/"+elapsedStats.average+"="+ pFormat.format(percent));
+//						if (logStreams[1] != null) logStreams[1].print("'");
+						System.out.println("	WARNING: Elapsed time standard deviation is over "+stddevThresholdStr+"%: "+dFormat.format(elapsedStats.stddev)+"/"+elapsedStats.average+"="+ pFormat.format(percent));
 						comments[1] = "stddev=" + pFormat.format(percent);
 					}
 					if (logStreams[1] != null) {
@@ -714,7 +725,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 		// Store warning
 		if (warnings>0) {
-			System.out.println("\t"+warnings+" warnings found while performing build.");
+			System.out.println("\t- "+warnings+" warnings found while performing build.");
 		}
 		if (this.scenarioComment == null) {
 			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");

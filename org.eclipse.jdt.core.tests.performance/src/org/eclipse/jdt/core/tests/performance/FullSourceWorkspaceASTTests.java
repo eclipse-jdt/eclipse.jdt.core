@@ -580,12 +580,6 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
 		createAST(unit, AST.JLS2);
 	}
-	public void _testDomAstCreationJLS3() throws JavaModelException {
-		tagAsSummary("DOM>Creation>JLS3", true); // put in fingerprint
-
-		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
-		createAST(unit, AST.JLS3);
-	}
 
 	private int runAstCreation(int astLevel) throws JavaModelException {
 		int unitsCount = 0;
@@ -639,10 +633,5 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	public void testWkspDomAstCreationJLS2() throws JavaModelException {
 		tagAsSummary("DOM>Creation>JLS2", true); // put in fingerprint
 		runAstCreation(AST.JLS2);
-	}
-
-	public void _testWkspDomAstCreationJLS3() throws JavaModelException {
-		tagAsSummary("DOM>Creation>JLS3", true); // put in fingerprint
-		runAstCreation(AST.JLS3);
 	}
 }
