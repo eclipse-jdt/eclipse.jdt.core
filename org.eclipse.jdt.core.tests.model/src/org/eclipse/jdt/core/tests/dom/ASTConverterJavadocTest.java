@@ -113,8 +113,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug83804"));
-		suite.addTest(new ASTConverterJavadocTest("testBug83804a"));
+		suite.addTest(new ASTConverterJavadocTest("testBug84049"));
 		return suite;
 	}
 
@@ -2427,6 +2426,32 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		workingCopies[0] = getCompilationUnit("Converter15", "src", "javadoc.b83804a", "package-info.java");
 		workingCopies[1] = getCompilationUnit("Converter15", "src", "javadoc.b83804a", "Test.java");
 		verifyWorkingCopiesComments();
+	}
+
+	/**
+	 * Bug 84049: [1.5][javadoc][dom] Type references in javadocs should have generic binding, not raw
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84049"
+	 */
+	public void testBug84049() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b84049/Test.java",
+			"package javadoc.b84049;\n" + 
+			"public class Test {\n" + 
+			"	/**\n" + 
+			"	 * @see Object\n" + 
+			"	 */\n" + 
+			"	foo() {\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(workingCopies[0], true);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			ASTNode node = getASTNode(compilUnit, 0, 0);
+			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			assertNull("MethodDeclaration should not have any javadoc comment", methodDeclaration.getJavadoc());
+		}
 	}
 
 	/**

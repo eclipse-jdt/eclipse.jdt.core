@@ -550,11 +550,14 @@ class ASTConverter {
 		}
 		
 		// The javadoc comment is now got from list store in compilation unit declaration
-		convert(methodDeclaration.javadoc, methodDecl);
 		if (this.resolveBindings) {
 			recordNodes(methodDecl, methodDeclaration);
 			recordNodes(methodName, methodDeclaration);
-			methodDecl.resolveBinding();
+			if (methodDecl.resolveBinding() != null) {
+				convert(methodDeclaration.javadoc, methodDecl);
+			}
+		} else {
+			convert(methodDeclaration.javadoc, methodDecl);
 		}
 		return methodDecl;
 	}	
@@ -2686,15 +2689,18 @@ class ASTConverter {
 		VariableDeclarationFragment variableDeclarationFragment = convertToVariableDeclarationFragment(fieldDecl);
 		final FieldDeclaration fieldDeclaration = new FieldDeclaration(this.ast);
 		fieldDeclaration.fragments().add(variableDeclarationFragment);
+		IVariableBinding binding = null;
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, fieldDecl);
-			variableDeclarationFragment.resolveBinding();
+			binding = variableDeclarationFragment.resolveBinding();
 		}
 		fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
 		Type type = convertType(fieldDecl.type);
 		setTypeForField(fieldDeclaration, type, variableDeclarationFragment.getExtraDimensions());
 		setModifiers(fieldDeclaration, fieldDecl);
-		convert(fieldDecl.javadoc, fieldDeclaration);
+		if (!(this.resolveBindings && binding == null)) {
+			convert(fieldDecl.javadoc, fieldDeclaration);
+		}
 		return fieldDeclaration;
 	}
 
