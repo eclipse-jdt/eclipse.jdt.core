@@ -42,10 +42,6 @@ public final class BaseTypeBinding extends TypeBinding {
 		return null;
 	}
 
-	public int hashCode() {
-		return this.id;
-	}
-	
 	/* Answer true if the receiver type can be assigned to the argument type (right)
 	*/
 	public final boolean isCompatibleWith(TypeBinding right) {

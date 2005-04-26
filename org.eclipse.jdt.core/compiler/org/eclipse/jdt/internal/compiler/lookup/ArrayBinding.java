@@ -36,16 +36,6 @@ public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environm
     	this.tagBits |= type.tagBits & (HasTypeVariable | HasDirectWildcard);
 }
 
-public int hashCode() {
-	return this.leafComponentType == null 
-					? super.hashCode()
-					: this.leafComponentType.hashCode() + this.dimensions;
-}
-
-public int kind() {
-	return ARRAY_TYPE;
-}
-
 /**
  * Collect the substitutes into a map for certain type variables inside the receiver type
  * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
@@ -140,6 +130,11 @@ public char[] genericTypeSignature() {
 public PackageBinding getPackage() {
 	return leafComponentType.getPackage();
 }
+
+public int hashCode() {
+	return this.leafComponentType == null ? super.hashCode() : this.leafComponentType.hashCode();
+}
+
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
 public boolean isCompatibleWith(TypeBinding right) {
@@ -172,6 +167,10 @@ public boolean isCompatibleWith(TypeBinding right) {
 	return false;
 }
 
+public int kind() {
+	return ARRAY_TYPE;
+}
+
 public TypeBinding leafComponentType(){
 	return leafComponentType;
 }
@@ -180,7 +179,6 @@ public TypeBinding leafComponentType(){
 * Answer the problem id associated with the receiver.
 * NoError if the receiver is a valid binding.
 */
-
 public int problemId() {
 	return leafComponentType.problemId();
 }

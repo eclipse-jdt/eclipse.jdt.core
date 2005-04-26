@@ -26,14 +26,10 @@ public ImportBinding(char[][] compoundName, boolean isOnDemand, Binding binding,
 	this.resolvedImport = binding;
 	this.reference = reference;
 }
-public int hashCode() {
-	int length = this.compoundName.length;
-	return CharOperation.hashCode(this.compoundName[length-1]) + length;
-}
-
 /* API
 * Answer the receiver's binding type from Binding.BindingID.
 */
+
 public final int kind() {
 	return IMPORT;
 }
