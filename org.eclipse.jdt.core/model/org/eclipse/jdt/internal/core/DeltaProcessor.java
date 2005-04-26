@@ -2196,6 +2196,9 @@ public class DeltaProcessor {
 				if (deltaRes.getType() == IResource.PROJECT){			
 					// reset the corresponding project built state, since cannot reuse if added back
 					this.manager.setLastBuiltState((IProject)deltaRes, null /*no state*/);
+					
+					// clean up previous session containers (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89850)
+					this.manager.previousSessionContainers.remove(element);
 				}
 				return elementType == IJavaElement.PACKAGE_FRAGMENT;
 			case IResourceDelta.CHANGED :
