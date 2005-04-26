@@ -146,21 +146,11 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 				occurrenceCount = occurrenceCount + 1;
 			}
 			occurrencesCounts.put(simpleName, occurrenceCount);
-			if (typeDeclaration.allocation == null || typeDeclaration.allocation.enumConstant == null) {
-				if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
-					reportMatching(typeDeclaration, this.enclosingElement, -1, nodeSet, occurrenceCount);
-				} else {
-					Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
-					reportMatching(typeDeclaration, this.enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount);
-				}
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
+				reportMatching(typeDeclaration, this.enclosingElement, -1, nodeSet, occurrenceCount);
 			} else {
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
-				if (level != null) {
-					FieldDeclaration enumConstant = typeDeclaration.allocation.enumConstant;
-					int offset = enumConstant.sourceStart;
-					SearchMatch match = newDeclarationMatch(this.enclosingElement, this.enclosingElementBinding, level.intValue(), offset, enumConstant.sourceEnd-offset+1);
-					report(match);
-				}
+				reportMatching(typeDeclaration, this.enclosingElement, level != null ? level.intValue() : -1, nodeSet, occurrenceCount);
 			}
 			return false; // don't visit members as this was done during reportMatching(...)
 		} catch (CoreException e) {
@@ -1973,6 +1963,13 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 					for (int i = 0, l = nodes.length; i < l; i++) {
 						ASTNode node = nodes[i];
 						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+						if (node instanceof TypeDeclaration) {
+							// use field declaration to report match (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174)
+							AllocationExpression allocation = ((TypeDeclaration)node).allocation;
+							if (allocation != null && allocation.enumConstant != null) {
+								node = field;
+							}
+						}
 						this.patternLocator.matchReportReference(node, enclosingElement, field.binding, level.intValue(), this);
 					}
 			}

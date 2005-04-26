@@ -52,7 +52,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug82673";
-//		TESTS_NAMES = new String[] { "testBug89848" };
+//		TESTS_NAMES = new String[] { "testBug88174" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -2210,6 +2210,45 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(fields[0], REFERENCES);
 		assertSearchResults(
 			"src/b86380/package-info.java b86380.package-info [field] EXACT_MATCH INSIDE_JAVADOC"
+		);
+	}
+
+	/**
+	 * Bug 88174: [1.5][search][annot] Search for annotations misses references in default and values constructs
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174"
+	 */
+	public void testBug88174() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88174/Test.java",
+			"package b88174;\n" + 
+			"public enum Test {\n" + 
+			"  a {\n" + 
+			"    int getTheValue() { // not found\n" + 
+			"      return 0;\n" + 
+			"    }\n" + 
+			"  };\n" + 
+			"  abstract int getTheValue();\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b88174/X.java",
+			"package b88174;\n" + 
+			"public class X {\n" + 
+			"  X x = new X() {\n" + 
+			"    int getTheValue() {\n" + 
+			"      return 0;\n" + 
+			"    }\n" + 
+			"  };\n" + 
+			"  int getTheValue() { return 0; }\n" + 
+			"}\n"
+		);
+		IMethod method = workingCopies[0].getType("Test").getMethod("getTheValue", new String[0]);
+		search(method, DECLARATIONS | IGNORE_DECLARING_TYPE);
+		assertSearchResults(
+			"src/b88174/Test.java int b88174.Test.a:<anonymous>#1.getTheValue() [getTheValue] EXACT_MATCH\n" + 
+			"src/b88174/Test.java int b88174.Test.getTheValue() [getTheValue] EXACT_MATCH\n" + 
+			"src/b88174/X.java int b88174.X.x:<anonymous>#1.getTheValue() [getTheValue] EXACT_MATCH\n" + 
+			"src/b88174/X.java int b88174.X.getTheValue() [getTheValue] EXACT_MATCH"
 		);
 	}
 

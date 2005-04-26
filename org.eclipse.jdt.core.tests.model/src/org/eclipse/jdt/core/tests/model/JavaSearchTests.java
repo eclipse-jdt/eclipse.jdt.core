@@ -38,7 +38,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		TESTS_PREFIX =  "testStaticImport";
-//		TESTS_NAMES = new String[] { "testTypeReference37" };
+//		TESTS_NAMES = new String[] { "testEnum" };
 	//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
@@ -3039,7 +3039,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 		IMethod method = type.getMethod("isManager", new String[0]);
 		search(method, ALL_OCCURRENCES, getJavaSearchScope15("e1", false), this.resultCollector);
 		assertSearchResults(
-			"src/e1/Team.java e1.Team.PHILIPPE [isManager()]\n" + 
+			"src/e1/Team.java boolean e1.Team.PHILIPPE:<anonymous>#1.isManager() [isManager]\n" + 
 			"src/e1/Team.java boolean e1.Team.isManager() [isManager]\n" + 
 			"src/e1/Test.java void e1.Test.main(String[]) [isManager()]",
 			this.resultCollector);
