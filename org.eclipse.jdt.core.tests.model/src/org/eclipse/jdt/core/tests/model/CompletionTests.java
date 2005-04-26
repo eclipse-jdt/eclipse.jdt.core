@@ -8344,7 +8344,7 @@ public void testCompletionBasicCompletionContext() throws JavaModelException {
 	
 	assertResults(
 			"expectedTypesSignatures={Ljava.lang.String;}\n" +
-			"expectedTypesKeys={Ljava/lang/String;}",
+			"expectedTypesKeys={Ljava/lang/String;^33}",
 			result.context);
 	
 	assertResults(

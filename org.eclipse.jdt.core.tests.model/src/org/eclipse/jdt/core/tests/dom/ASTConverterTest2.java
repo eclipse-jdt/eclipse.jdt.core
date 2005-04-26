@@ -2832,7 +2832,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 0, 0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A;#0#i", localBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A;#0#i^0", localBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2848,7 +2848,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A;#0#0#j", localBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A;#0#0#j^0", localBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2862,7 +2862,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 1, 0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#i", localBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#i^0", localBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2878,7 +2878,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#0#j", localBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#0#j^0", localBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2894,7 +2894,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) block.statements().get(0);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 		IVariableBinding localBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#1#j", localBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A;.foo()V#1#j^0", localBinding.getKey()); //$NON-NLS-1$
 	}
 	
 	/**
@@ -2909,7 +2909,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A$182;", typeBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A$182;^1", typeBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2924,7 +2924,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A$206;", typeBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A$206;^1", typeBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2939,7 +2939,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A$255;", typeBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A$255;^1", typeBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2956,7 +2956,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		FieldDeclaration fieldDeclaration = typeDeclaration.getFields()[0];
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fieldDeclaration.fragments().get(0);
 		IVariableBinding fieldBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A$206;.field", fieldBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A$206;.field^0", fieldBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -2972,7 +2972,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
 		MethodDeclaration methodDeclaration = typeDeclaration.getMethods()[0];
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A$206;.bar()V", methodBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A$206;.bar()V^0", methodBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -4621,7 +4621,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Wrong key", "Ltest0545/First$Test;", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0545/First$Test;^10", typeBinding.getKey());
 		
 		sourceUnit = getCompilationUnit("Converter", "src", "test0545", "Second.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		result = runConversion(sourceUnit, true);
@@ -4631,7 +4631,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("not a method declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
 		typeDeclaration = (TypeDeclaration) node;
 		typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Wrong key", "Ltest0545/Second$Test;", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0545/Second$Test;^10", typeBinding.getKey());
 		
 		sourceUnit = getCompilationUnit("Converter", "src", "test0545", "Third.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		result = runConversion(sourceUnit, true);
@@ -4641,7 +4641,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
 		typeDeclaration = (TypeDeclaration) node;
 		typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Wrong key", "Ltest0545/Third$Test;", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0545/Third$Test;^10", typeBinding.getKey());
 
 	
 		sourceUnit = getCompilationUnit("Converter", "src", "test0545", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4652,7 +4652,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType()); //$NON-NLS-1$
 		typeDeclaration = (TypeDeclaration) node;
 		typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Wrong key", "Ltest0545/Test;", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0545/Test;^1", typeBinding.getKey());
 	}
 	
 	/**
@@ -4713,7 +4713,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Wrong key", "Ltest0547/A$74;", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0547/A$74;^1", typeBinding.getKey());
 		
 		List bodyDeclarations = typeDeclaration.bodyDeclarations();
 		assertEquals("wrong size", 3, bodyDeclarations.size());
@@ -4722,7 +4722,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclaration typeDeclaration2 = (TypeDeclaration) bodyDeclaration;
 		
 		typeBinding = typeDeclaration2.resolveBinding();
-		assertEquals("Wrong key", "Ltest0547/A$100;", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0547/A$100;^1", typeBinding.getKey());
 	}
 	
 	/**
@@ -5270,8 +5270,8 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				workingCopy);
 			ITypeBinding typeBinding = type.resolveBinding();
 			assertBindingsEqual(
-				"LX$40;.(LX;)V\n" + 
-				"LX$40;.bar()V",
+				"LX$40;.(LX;)V^0\n" + 
+				"LX$40;.bar()V^0",
 				typeBinding.getDeclaredMethods());
 		} finally {
 			if (workingCopy != null)

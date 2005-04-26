@@ -60,7 +60,7 @@ protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_FIELD;
 }
 public String getKey(boolean forceOpen) throws JavaModelException {
-	return getKey(this, org.eclipse.jdt.internal.compiler.lookup.Binding.USE_ACCESS_FLAGS_IN_BINDING_KEY/*with access flags*/, forceOpen);
+	return getKey(this, true/*with access flags*/, forceOpen);
 }
 /*
  * @see IField

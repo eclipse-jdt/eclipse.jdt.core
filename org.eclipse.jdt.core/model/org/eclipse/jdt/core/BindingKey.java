@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import org.eclipse.jdt.internal.core.util.BindingKeyParser;
 import org.eclipse.jdt.internal.core.util.KeyKind;
 import org.eclipse.jdt.internal.core.util.KeyToSignature;
 
@@ -187,6 +188,32 @@ public final class BindingKey {
 	}
 	
 	/**
+	 * Returns the modifier flags for this binding key, or <code>Flags.AccDefault</code> if it has no flags. 
+	 * The flags can be examined using class <code>Flags</code>.
+	 * <p>
+	 * Note that flags represent resolved information. Thus if an interface
+	 * defines a method <code>void myMethod();</code> the flags include the
+	 * 'public' flag even if it is not defined in the source.
+	 *
+	 * @return the modifier flags for this binding key, or <code>Flags.AccDefault</code> if it has no flags.
+	 * @see Flags
+	 */
+	public int getFlags() {
+		class FlagsDecoder extends BindingKeyParser {
+			int flags = Flags.AccDefault;
+			FlagsDecoder(String key) {
+				super(key);
+			}
+			public void consumeModifiers(char[] modifiers) {
+				this.flags = Integer.parseInt(new String(modifiers));
+			}
+		}
+		FlagsDecoder decoder = new FlagsDecoder(this.key);
+		decoder.parse();
+		return decoder.flags;
+	}
+	
+	/**
 	 * Returns the type argument signatures of the element represented by this binding key.
 	 * If this binding key doesn't represent a parameterized type or a parameterized method,
 	 * returns an empty array.
@@ -230,6 +257,18 @@ public final class BindingKey {
 		KeyKind kind = new KeyKind(this.key);
 		kind.parse();
 		return (kind.flags & KeyKind.F_PARAMETERIZED_METHOD) != 0;
+	}
+	
+	/**
+	 * Returns whether this binding key represents a constructor.
+	 * Returns <code>false</code> if this is not a method's binding key.
+	 * 
+	 * @return whether this binding key represents a constructor.
+	 */
+	public boolean isConstructor() {
+		KeyKind kind = new KeyKind(this.key);
+		kind.parse();
+		return (kind.flags & KeyKind.F_CONSTRUCTOR) != 0;
 	}
 	
 	/**

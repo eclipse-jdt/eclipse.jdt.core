@@ -12,18 +12,19 @@ package org.eclipse.jdt.internal.core.util;
 
 public class KeyKind extends BindingKeyParser {
 
-	public static final int F_TYPE = 0x0001;
-	public static final int F_METHOD = 0x0010;
-	public static final int F_FIELD = 0x0011;
-	public static final int F_TYPE_PARAMETER = 0x0100;
-	public static final int F_LOCAL_VAR = 0x0101;
-	public static final int F_MEMBER = 0x0110;
-	public static final int F_LOCAL = 0x0111;
-	public static final int F_PARAMETERIZED_TYPE = 0x1000;
-	public static final int F_RAW_TYPE = 0x1001;
-	public static final int F_WILDCARD_TYPE = 0x1010;
-	public static final int F_PARAMETERIZED_METHOD = 0x1011;
-	public static final int F_CAPTURE = 0x1111;
+	public static final int F_TYPE = 0x00001;
+	public static final int F_METHOD = 0x00010;
+	public static final int F_FIELD = 0x00011;
+	public static final int F_TYPE_PARAMETER = 0x00100;
+	public static final int F_LOCAL_VAR = 0x00101;
+	public static final int F_MEMBER = 0x00110;
+	public static final int F_LOCAL = 0x00111;
+	public static final int F_PARAMETERIZED_TYPE = 0x01000;
+	public static final int F_RAW_TYPE = 0x01001;
+	public static final int F_WILDCARD_TYPE = 0x01010;
+	public static final int F_PARAMETERIZED_METHOD = 0x01011;
+	public static final int F_CAPTURE = 0x01111;
+	public static final int F_CONSTRUCTOR = 0x10000;
 	
 	public int flags = 0;
 	
@@ -57,6 +58,8 @@ public class KeyKind extends BindingKeyParser {
 
 	public void consumeMethod(char[] selector, char[] signature) {
 		this.flags |= F_METHOD;
+		if (selector.length == 0)
+			this.flags |= F_CONSTRUCTOR;
 	}
 
 	public void consumeParameterizedMethod() {

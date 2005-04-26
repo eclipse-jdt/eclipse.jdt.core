@@ -3123,7 +3123,7 @@ public void test0146() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -3261,7 +3261,7 @@ public void test0149() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -3448,7 +3448,7 @@ public void test0153() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -3592,7 +3592,7 @@ public void test0156() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -3784,7 +3784,7 @@ public void test0160() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -3928,7 +3928,7 @@ public void test0163() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -4124,7 +4124,7 @@ public void test0167() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -4274,7 +4274,7 @@ public void test0170() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -4470,7 +4470,7 @@ public void test0174() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -4614,7 +4614,7 @@ public void test0177() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -4806,7 +4806,7 @@ public void test0181() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
@@ -4950,7 +4950,7 @@ public void test0184() throws JavaModelException {
 		
 		assertResults(
 				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;^33}",
 				result.context);
 		
 		assertResults(
