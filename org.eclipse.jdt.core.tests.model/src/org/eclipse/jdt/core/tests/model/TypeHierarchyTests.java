@@ -318,9 +318,9 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB", externalJar1, externalJar2}, "");
 		IType focus = project.getPackageFragmentRoot(externalJar2).getPackageFragment("p").getClassFile("Y.class").getType();
 		assertHierarchyEquals(
-			"Focus: Y [in Y.class [in p [in C:\\Documents and Settings\\jerome\\comptest\\test2.jar [in P]]]]\n" + 
+			"Focus: Y [in Y.class [in p [in " + externalJar2 + " [in P]]]]\n" + 
 			"Super types:\n" + 
-			"  X [in X.class [in p [in C:\\Documents and Settings\\jerome\\comptest\\test1.jar [in P]]]]\n" + 
+			"  X [in X.class [in p [in " + externalJar1 + " [in P]]]]\n" + 
 			"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
 			"Sub types:\n",
 			focus.newTypeHierarchy(null)
