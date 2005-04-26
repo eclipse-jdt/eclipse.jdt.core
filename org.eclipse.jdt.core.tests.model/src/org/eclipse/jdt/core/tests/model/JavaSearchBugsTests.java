@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
@@ -51,7 +52,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug82673";
+//		TESTS_PREFIX =  "testBug82208";
 //		TESTS_NAMES = new String[] { "testBug88174" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -1325,6 +1326,244 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b82088/c/Test.java b82088.c.Test.a [A] EXACT_MATCH\n" + 
 			"src/b82088/c/Test.java b82088.c.Test(A) [A] EXACT_MATCH"
 		);
+	}
+
+	/**
+	 * Bug 82208: [1.5][search][annot] Search for annotations misses references in default and values constructs
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=82208"
+	 */
+	public void testBug82208_TYPE() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b82208/Test.java",
+			"package b82208;\n" + 
+			"interface B82208_I {}\n" + 
+			"enum B82208_E {}\n" + 
+			"@interface B82208_A {}\n" + 
+			"public class B82208 {}\n"
+		);
+		search("B82208*", TYPE, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH\n" + 
+			"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" + 
+			"src/b82208/Test.java b82208.B82208_A [B82208_A] EXACT_MATCH\n" + 
+			"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_CLASS() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		search("B82208*", CLASS, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_INTERFACE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		search("B82208*", INTERFACE, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_ENUM() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		search("B82208*", ENUM, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_ANNOTATION_TYPE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		search("B82208*", ANNOTATION_TYPE, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_A [B82208_A] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_CLASS_AND_INTERFACE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		search("B82208*", CLASS_AND_INTERFACE, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH\n" + 
+			"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_CLASS_AND_ENUMERATION() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		search("B82208*", CLASS_AND_ENUM, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" + 
+			"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_SearchAllTypeNames_TYPE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			TYPE,
+			getJavaSearchScopeBugs("b82208", false),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b82208.B82208\n" + 
+			"b82208.B82208_A\n" + 
+			"b82208.B82208_E\n" + 
+			"b82208.B82208_I",
+			requestor);
+	}
+	public void testBug82208_SearchAllTypeNames_CLASS() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			CLASS,
+			getJavaSearchScopeBugs("b82208", false),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b82208.B82208",
+			requestor);
+	}
+	public void testBug82208_SearchAllTypeNames_CLASS_AND_INTERFACE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			CLASS_AND_INTERFACE,
+			getJavaSearchScopeBugs("b82208", false),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b82208.B82208\n" + 
+			"b82208.B82208_I",
+			requestor);
+	}
+	public void testBug82208_SearchAllTypeNames_CLASS_AND_ENUM() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			CLASS_AND_ENUM,
+			getJavaSearchScopeBugs("b82208", false),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b82208.B82208\n" + 
+			"b82208.B82208_E",
+			requestor);
+	}
+	public void testBug82208_SearchAllTypeNames_INTERFACE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			INTERFACE,
+			getJavaSearchScopeBugs("b82208", false),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b82208.B82208_I",
+			requestor);
+	}
+	public void testBug82208_SearchAllTypeNames_ENUM() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			ENUM,
+			getJavaSearchScopeBugs("b82208", false),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b82208.B82208_E",
+			requestor);
+	}
+	public void testBug82208_SearchAllTypeNames_ANNOTATION_TYPE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			ANNOTATION_TYPE,
+			getJavaSearchScopeBugs("b82208", false),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b82208.B82208_A",
+			requestor);
 	}
 
 	/**

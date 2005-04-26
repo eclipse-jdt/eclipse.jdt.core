@@ -343,6 +343,12 @@ public class BasicSearchEngine {
 			case IIndexConstants.CLASS_SUFFIX :
 				if (typeKind != IGenericType.CLASS_DECL) return false;
 				break;
+			case IIndexConstants.CLASS_AND_INTERFACE_SUFFIX:
+				if (typeKind != IGenericType.CLASS_DECL && typeKind != IGenericType.INTERFACE_DECL) return false;
+				break;
+			case IIndexConstants.CLASS_AND_ENUM_SUFFIX:
+				if (typeKind != IGenericType.CLASS_DECL && typeKind != IGenericType.ENUM_DECL) return false;
+				break;
 			case IIndexConstants.INTERFACE_SUFFIX :
 				if (typeKind != IGenericType.INTERFACE_DECL) return false;
 				break;
@@ -415,12 +421,16 @@ public class BasicSearchEngine {
 	 * combined with <code>SearchPattern.R_CASE_SENSITIVE</code>,
 	 *   e.g. <code>R_EXACT_MATCH | R_CASE_SENSITIVE</code> if an exact and case sensitive match is requested, 
 	 *   or <code>R_PREFIX_MATCH</code> if a prefix non case sensitive match is requested.
-	 * @param searchFor one of
-	 * <ul>
-	 * 		<li><code>IJavaSearchConstants.CLASS</code> if searching for classes only</li>
-	 * 		<li><code>IJavaSearchConstants.INTERFACE</code> if searching for interfaces only</li>
-	 * 		<li><code>IJavaSearchConstants.TYPE</code> if searching for both classes and interfaces</li>
-	 * </ul>
+	 * @param searchFor determines the nature of the searched elements
+	 *	<ul>
+	 * 	<li>{@link IJavaSearchConstants#CLASS}: only look for classes</li>
+	 *		<li>{@link IJavaSearchConstants#INTERFACE}: only look for interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#ENUM}: only look for enumeration</li>
+	 *		<li>{@link IJavaSearchConstants#ANNOTATION_TYPE}: only look for annotation type</li>
+	 * 	<li>{@link IJavaSearchConstants#CLASS_AND_ENUM}: only look for classes and enumerations</li>
+	 *		<li>{@link IJavaSearchConstants#CLASS_AND_INTERFACE}: only look for classes and interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#TYPE}: look for all types (ie. classes, interfaces, enum and annotation types)</li>
+	 *	</ul>
 	 * @param scope the scope to search in
 	 * @param nameRequestor the requestor that collects the results of the search
 	 * @param waitingPolicy one of
@@ -455,6 +465,12 @@ public class BasicSearchEngine {
 		switch(searchFor){
 			case IJavaSearchConstants.CLASS :
 				typeSuffix = IIndexConstants.CLASS_SUFFIX;
+				break;
+			case IJavaSearchConstants.CLASS_AND_INTERFACE :
+				typeSuffix = IIndexConstants.CLASS_AND_INTERFACE_SUFFIX;
+				break;
+			case IJavaSearchConstants.CLASS_AND_ENUM :
+				typeSuffix = IIndexConstants.CLASS_AND_ENUM_SUFFIX;
 				break;
 			case IJavaSearchConstants.INTERFACE :
 				typeSuffix = IIndexConstants.INTERFACE_SUFFIX;
@@ -677,6 +693,12 @@ public class BasicSearchEngine {
 		switch(searchFor){
 			case IJavaSearchConstants.CLASS :
 				typeSuffix = IIndexConstants.CLASS_SUFFIX;
+				break;
+			case IJavaSearchConstants.CLASS_AND_INTERFACE :
+				typeSuffix = IIndexConstants.CLASS_AND_INTERFACE_SUFFIX;
+				break;
+			case IJavaSearchConstants.CLASS_AND_ENUM :
+				typeSuffix = IIndexConstants.CLASS_AND_ENUM_SUFFIX;
 				break;
 			case IJavaSearchConstants.INTERFACE :
 				typeSuffix = IIndexConstants.INTERFACE_SUFFIX;

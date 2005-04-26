@@ -26,7 +26,7 @@ public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, 
 	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.typeSuffix = typeSuffix;
 
-	((InternalSearchPattern)this).mustResolve = this.qualification != null;
+	((InternalSearchPattern)this).mustResolve = this.qualification != null || typeSuffix != TYPE_SUFFIX;
 }
 QualifiedTypeDeclarationPattern(int matchRule) {
 	super(matchRule);
@@ -75,6 +75,8 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	QualifiedTypeDeclarationPattern pattern = (QualifiedTypeDeclarationPattern) decodedPattern;
 	switch(this.typeSuffix) {
 		case CLASS_SUFFIX :
+		case CLASS_AND_INTERFACE_SUFFIX :
+		case CLASS_AND_ENUM_SUFFIX :
 		case INTERFACE_SUFFIX :
 		case ENUM_SUFFIX :
 		case ANNOTATION_TYPE_SUFFIX :
@@ -87,6 +89,12 @@ protected StringBuffer print(StringBuffer output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
 			output.append("ClassDeclarationPattern: qualification<"); //$NON-NLS-1$
+			break;
+		case CLASS_AND_INTERFACE_SUFFIX:
+			output.append("ClassAndInterfaceDeclarationPattern: qualification<"); //$NON-NLS-1$
+			break;
+		case CLASS_AND_ENUM_SUFFIX :
+			output.append("ClassAndEnumDeclarationPattern: qualification<"); //$NON-NLS-1$
 			break;
 		case INTERFACE_SUFFIX :
 			output.append("InterfaceDeclarationPattern: qualification<"); //$NON-NLS-1$

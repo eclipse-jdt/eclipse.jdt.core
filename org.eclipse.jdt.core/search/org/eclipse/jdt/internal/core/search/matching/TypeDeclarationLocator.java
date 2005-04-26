@@ -52,10 +52,22 @@ public int resolveLevel(Binding binding) {
 
 	switch (this.pattern.typeSuffix) {
 		case CLASS_SUFFIX:
-			if (type.isInterface()) return IMPOSSIBLE_MATCH;
+			if (!type.isClass()) return IMPOSSIBLE_MATCH;
+			break;
+		case CLASS_AND_INTERFACE_SUFFIX:
+			if (!(type.isClass() || (type.isInterface() && !type.isAnnotationType()))) return IMPOSSIBLE_MATCH;
+			break;
+		case CLASS_AND_ENUM_SUFFIX:
+			if (!(type.isClass() || type.isEnum())) return IMPOSSIBLE_MATCH;
 			break;
 		case INTERFACE_SUFFIX:
-			if (!type.isInterface()) return IMPOSSIBLE_MATCH;
+			if (!type.isInterface() || type.isAnnotationType()) return IMPOSSIBLE_MATCH;
+			break;
+		case ENUM_SUFFIX:
+			if (!type.isEnum()) return IMPOSSIBLE_MATCH;
+			break;
+		case ANNOTATION_TYPE_SUFFIX:
+			if (!type.isAnnotationType()) return IMPOSSIBLE_MATCH;
 			break;
 		case TYPE_SUFFIX : // nothing
 	}

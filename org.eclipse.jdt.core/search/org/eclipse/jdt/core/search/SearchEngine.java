@@ -19,12 +19,12 @@ import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.matching.*;
 
 /**
- * A <code>SearchEngine</code> searches for Java elements following a search pattern.
+ * A {@link SearchEngine} searches for Java elements following a search pattern.
  * The search can be limited to a search scope.
  * <p>
  * Various search patterns can be created using the factory methods 
- * <code>createSearchPattern(String, int, int, boolean)</code>, <code>createSearchPattern(IJavaElement, int)</code>,
- * <code>createOrSearchPattern(ISearchPattern, ISearchPattern)</code>.
+ * {@link SearchPattern#createPattern(String, int, int, int)}, {@link SearchPattern#createPattern(IJavaElement, int)},
+ * {@link SearchPattern#createOrPattern(SearchPattern, SearchPattern)}.
  * </p>
  * <p>For example, one can search for references to a method in the hierarchy of a type, 
  * or one can search for the declarations of types starting with "Abstract" in a project.
@@ -324,26 +324,26 @@ public class SearchEngine {
 	 * @param stringPattern the given pattern
 	 * @param searchFor determines the nature of the searched elements
 	 *	<ul>
-	 * 	<li><code>IJavaSearchConstants.CLASS</code>: only look for classes</li>
-	 *		<li><code>IJavaSearchConstants.INTERFACE</code>: only look for interfaces</li>
-	 * 	<li><code>IJavaSearchConstants.TYPE</code>: look for both classes and interfaces</li>
-	 *		<li><code>IJavaSearchConstants.FIELD</code>: look for fields</li>
-	 *		<li><code>IJavaSearchConstants.METHOD</code>: look for methods</li>
-	 *		<li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors</li>
-	 *		<li><code>IJavaSearchConstants.PACKAGE</code>: look for packages</li>
+	 * 	<li>{@link IJavaSearchConstants#CLASS}: only look for classes</li>
+	 *		<li>{@link IJavaSearchConstants#INTERFACE}: only look for interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#TYPE}: look for both classes and interfaces</li>
+	 *		<li>{@link IJavaSearchConstants#FIELD}: look for fields</li>
+	 *		<li>{@link IJavaSearchConstants#METHOD}: look for methods</li>
+	 *		<li>{@link IJavaSearchConstants#CONSTRUCTOR}: look for constructors</li>
+	 *		<li>{@link IJavaSearchConstants#PACKAGE}: look for packages</li>
 	 *	</ul>
 	 * @param limitTo determines the nature of the expected matches
 	 *	<ul>
-	 * 		<li><code>IJavaSearchConstants.DECLARATIONS</code>: will search declarations matching with the corresponding
+	 * 		<li>{@link IJavaSearchConstants#DECLARATIONS}: will search declarations matching with the corresponding
 	 * 			element. In case the element is a method, declarations of matching methods in subtypes will also
 	 *  		be found, allowing to find declarations of abstract methods, etc.</li>
 	 *
-	 *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.</li>
+	 *		 <li>{@link IJavaSearchConstants#REFERENCES}: will search references to the given element.</li>
 	 *
-	 *		 <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will search for either declarations or references as specified
+	 *		 <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: will search for either declarations or references as specified
 	 *  		above.</li>
 	 *
-	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
+	 *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types which implements a given interface.</li>
 	 *	</ul>
 	 *
 	 * @param isCaseSensitive indicates whether the search is case sensitive or not.
@@ -365,16 +365,16 @@ public class SearchEngine {
 	 * @param element the Java element the search pattern is based on
 	 * @param limitTo determines the nature of the expected matches
 	 * 	<ul>
-	 * 		<li><code>IJavaSearchConstants.DECLARATIONS</code>: will search declarations matching with the corresponding
+	 * 		<li>{@link IJavaSearchConstants#DECLARATIONS}: will search declarations matching with the corresponding
 	 * 			element. In case the element is a method, declarations of matching methods in subtypes will also
 	 *  		be found, allowing to find declarations of abstract methods, etc.</li>
 	 *
-	 *		 <li><code>IJavaSearchConstants.REFERENCES</code>: will search references to the given element.</li>
+	 *		 <li>{@link IJavaSearchConstants#REFERENCES}: will search references to the given element.</li>
 	 *
-	 *		 <li><code>IJavaSearchConstants.ALL_OCCURRENCES</code>: will search for either declarations or references as specified
+	 *		 <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: will search for either declarations or references as specified
 	 *  		above.</li>
 	 *
-	 *		 <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: for interface, will find all types which implements a given interface.</li>
+	 *		 <li>{@link IJavaSearchConstants#IMPLEMENTORS}: for interface, will find all types which implements a given interface.</li>
 	 *	</ul>
 	 * @return a search pattern for a Java element or <code>null</code> if the given element is ill-formed
 	 * @deprecated Use {@link SearchPattern#createPattern(IJavaElement, int)} instead.
@@ -413,16 +413,16 @@ public class SearchEngine {
 	 * @param workspace the workspace
 	 * @param patternString the pattern to be searched for
 	 * @param searchFor a hint what kind of Java element the string pattern represents.
-	 *  Look into <code>IJavaSearchConstants</code> for valid values
+	 *  Look into {@link IJavaSearchConstants} for valid values
 	 * @param limitTo one of the following values:
 	 *	<ul>
-	 *	  <li><code>IJavaSearchConstants.DECLARATIONS</code>: search 
+	 *	  <li>{@link IJavaSearchConstants#DECLARATIONS}: search 
 	 *		  for declarations only </li>
-	 *	  <li><code>IJavaSearchConstants.REFERENCES</code>: search 
+	 *	  <li>{@link IJavaSearchConstants#REFERENCES}: search 
 	 *		  for all references </li>
-	 *	  <li><code>IJavaSearchConstants.ALL_OCCURENCES</code>: search 
+	 *	  <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: search 
 	 *		  for both declarations and all references </li>
-	 *	  <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: search for
+	 *	  <li>{@link IJavaSearchConstants#IMPLEMENTORS}: search for
 	 *		  all implementors of an interface; the value is only valid if
 	 *		  the Java element represents an interface</li>
 	 * 	</ul>
@@ -459,13 +459,13 @@ public class SearchEngine {
 	 * @param element the Java element to be searched for
 	 * @param limitTo one of the following values:
 	 *	<ul>
-	 *	  <li><code>IJavaSearchConstants.DECLARATIONS</code>: search 
+	 *	  <li>{@link IJavaSearchConstants#DECLARATIONS}: search 
 	 *		  for declarations only </li>
-	 *	  <li><code>IJavaSearchConstants.REFERENCES</code>: search 
+	 *	  <li>{@link IJavaSearchConstants#REFERENCES}: search 
 	 *		  for all references </li>
-	 *	  <li><code>IJavaSearchConstants.ALL_OCCURENCES</code>: search 
+	 *	  <li>{@link IJavaSearchConstants#ALL_OCCURRENCES}: search 
 	 *		  for both declarations and all references </li>
-	 *	  <li><code>IJavaSearchConstants.IMPLEMENTORS</code>: search for
+	 *	  <li>{@link IJavaSearchConstants#IMPLEMENTORS}: search for
 	 *		  all implementors of an interface; the value is only valid if
 	 *		  the Java element represents an interface</li>
 	 * 	</ul>
@@ -544,29 +544,33 @@ public class SearchEngine {
 	 *					for this type, or a wild-carded string for this type.
 	 * @param matchRule one of
 	 * <ul>
-	 *		<li><code>SearchPattern.R_EXACT_MATCH</code> if the package name and type name are the full names
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
 	 *			of the searched types.</li>
-	 *		<li><code>SearchPattern.R_PREFIX_MATCH</code> if the package name and type name are prefixes of the names
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
 	 *			of the searched types.</li>
-	 *		<li><code>SearchPattern.R_PATTERN_MATCH</code> if the package name and type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
 	 * </ul>
-	 * combined with <code>SearchPattern.R_CASE_SENSITIVE</code>,
-	 *   e.g. <code>R_EXACT_MATCH | R_CASE_SENSITIVE</code> if an exact and case sensitive match is requested, 
-	 *   or <code>R_PREFIX_MATCH</code> if a prefix non case sensitive match is requested.
-	 * @param searchFor one of
-	 * <ul>
-	 * 		<li><code>IJavaSearchConstants.CLASS</code> if searching for classes only</li>
-	 * 		<li><code>IJavaSearchConstants.INTERFACE</code> if searching for interfaces only</li>
-	 * 		<li><code>IJavaSearchConstants.TYPE</code> if searching for both classes and interfaces</li>
-	 * </ul>
+	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
+	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
+	 *   or {@link SearchPattern#R_PREFIX_MATCH} if a prefix non case sensitive match is requested.
+	 * @param searchFor determines the nature of the searched elements
+	 *	<ul>
+	 * 	<li>{@link IJavaSearchConstants#CLASS}: only look for classes</li>
+	 *		<li>{@link IJavaSearchConstants#INTERFACE}: only look for interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#ENUM}: only look for enumeration</li>
+	 *		<li>{@link IJavaSearchConstants#ANNOTATION_TYPE}: only look for annotation type</li>
+	 * 	<li>{@link IJavaSearchConstants#CLASS_AND_ENUM}: only look for classes and enumerations</li>
+	 *		<li>{@link IJavaSearchConstants#CLASS_AND_INTERFACE}: only look for classes and interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#TYPE}: look for all types (ie. classes, interfaces, enum and annotation types)</li>
+	 *	</ul>
 	 * @param scope the scope to search in
 	 * @param nameRequestor the requestor that collects the results of the search
 	 * @param waitingPolicy one of
 	 * <ul>
-	 *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately</li>
-	 *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be cancelled if the
+	 *		<li>{@link IJavaSearchConstants#FORCE_IMMEDIATE_SEARCH} if the search should start immediately</li>
+	 *		<li>{@link IJavaSearchConstants#CANCEL_IF_NOT_READY_TO_SEARCH} if the search should be cancelled if the
 	 *			underlying indexer has not finished indexing the workspace</li>
-	 *		<li><code>IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH</code> if the search should wait for the
+	 *		<li>{@link IJavaSearchConstants#WAIT_UNTIL_READY_TO_SEARCH} if the search should wait for the
 	 *			underlying indexer to finish indexing the workspace</li>
 	 * </ul>
 	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
@@ -601,10 +605,10 @@ public class SearchEngine {
 	 * @param nameRequestor the requestor that collects the results of the search
 	 * @param waitingPolicy one of
 	 * <ul>
-	 *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately</li>
-	 *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be cancelled if the
+	 *		<li>{@link IJavaSearchConstants#FORCE_IMMEDIATE_SEARCH} if the search should start immediately</li>
+	 *		<li>{@link IJavaSearchConstants#CANCEL_IF_NOT_READY_TO_SEARCH} if the search should be cancelled if the
 	 *			underlying indexer has not finished indexing the workspace</li>
-	 *		<li><code>IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH</code> if the search should wait for the
+	 *		<li>{@link IJavaSearchConstants#WAIT_UNTIL_READY_TO_SEARCH} if the search should wait for the
 	 *			underlying indexer to finish indexing the workspace</li>
 	 * </ul>
 	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
@@ -647,29 +651,29 @@ public class SearchEngine {
 	 *					for this type, or a wild-carded string for this type.
 	 * @param matchRule one of
 	 * <ul>
-	 *		<li><code>SearchPattern.R_EXACT_MATCH</code> if the package name and type name are the full names
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type name are the full names
 	 *			of the searched types.</li>
-	 *		<li><code>SearchPattern.R_PREFIX_MATCH</code> if the package name and type name are prefixes of the names
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type name are prefixes of the names
 	 *			of the searched types.</li>
-	 *		<li><code>SearchPattern.R_PATTERN_MATCH</code> if the package name and type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
 	 * </ul>
-	 * combined with <code>SearchPattern.R_CASE_SENSITIVE</code>,
-	 *   e.g. <code>R_EXACT_MATCH | R_CASE_SENSITIVE</code> if an exact and case sensitive match is requested, 
-	 *   or <code>R_PREFIX_MATCH</code> if a prefix non case sensitive match is requested.
+	 * combined with {@link SearchPattern#R_CASE_SENSITIVE},
+	 *   e.g. {@link SearchPattern#R_EXACT_MATCH} | {@link SearchPattern#R_CASE_SENSITIVE} if an exact and case sensitive match is requested, 
+	 *   or {@link SearchPattern#R_PREFIX_MATCH} if a prefix non case sensitive match is requested.
 	 * @param searchFor one of
 	 * <ul>
-	 * 		<li><code>IJavaSearchConstants.CLASS</code> if searching for classes only</li>
-	 * 		<li><code>IJavaSearchConstants.INTERFACE</code> if searching for interfaces only</li>
-	 * 		<li><code>IJavaSearchConstants.TYPE</code> if searching for both classes and interfaces</li>
+	 * 		<li>{@link IJavaSearchConstants#CLASS} if searching for classes only</li>
+	 * 		<li>{@link IJavaSearchConstants#INTERFACE} if searching for interfaces only</li>
+	 * 		<li>{@link IJavaSearchConstants#TYPE} if searching for both classes and interfaces</li>
 	 * </ul>
 	 * @param scope the scope to search in
 	 * @param nameRequestor the requestor that collects the results of the search
 	 * @param waitingPolicy one of
 	 * <ul>
-	 *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately</li>
-	 *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be cancelled if the
+	 *		<li>{@link IJavaSearchConstants#FORCE_IMMEDIATE_SEARCH} if the search should start immediately</li>
+	 *		<li>{@link IJavaSearchConstants#CANCEL_IF_NOT_READY_TO_SEARCH} if the search should be cancelled if the
 	 *			underlying indexer has not finished indexing the workspace</li>
-	 *		<li><code>IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH</code> if the search should wait for the
+	 *		<li>{@link IJavaSearchConstants#WAIT_UNTIL_READY_TO_SEARCH} if the search should wait for the
 	 *			underlying indexer to finish indexing the workspace</li>
 	 * </ul>
 	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
@@ -707,27 +711,27 @@ public class SearchEngine {
 	 *					for this type, or a wild-carded string for this type.
 	 * @param matchMode one of
 	 * <ul>
-	 *		<li><code>IJavaSearchConstants.EXACT_MATCH</code> if the package name and type name are the full names
+	 *		<li>{@link IJavaSearchConstants#EXACT_MATCH} if the package name and type name are the full names
 	 *			of the searched types.</li>
-	 *		<li><code>IJavaSearchConstants.PREFIX_MATCH</code> if the package name and type name are prefixes of the names
+	 *		<li>{@link IJavaSearchConstants#PREFIX_MATCH} if the package name and type name are prefixes of the names
 	 *			of the searched types.</li>
-	 *		<li><code>IJavaSearchConstants.PATTERN_MATCH</code> if the package name and type name contain wild-cards.</li>
+	 *		<li>{@link IJavaSearchConstants#PATTERN_MATCH} if the package name and type name contain wild-cards.</li>
 	 * </ul>
 	 * @param isCaseSensitive whether the search should be case sensitive
 	 * @param searchFor one of
 	 * <ul>
-	 * 		<li><code>IJavaSearchConstants.CLASS</code> if searching for classes only</li>
-	 * 		<li><code>IJavaSearchConstants.INTERFACE</code> if searching for interfaces only</li>
-	 * 		<li><code>IJavaSearchConstants.TYPE</code> if searching for both classes and interfaces</li>
+	 * 		<li>{@link IJavaSearchConstants#CLASS} if searching for classes only</li>
+	 * 		<li>{@link IJavaSearchConstants#INTERFACE} if searching for interfaces only</li>
+	 * 		<li>{@link IJavaSearchConstants#TYPE} if searching for both classes and interfaces</li>
 	 * </ul>
 	 * @param scope the scope to search in
 	 * @param nameRequestor the requestor that collects the results of the search
 	 * @param waitingPolicy one of
 	 * <ul>
-	 *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately</li>
-	 *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be cancelled if the
+	 *		<li>{@link IJavaSearchConstants#FORCE_IMMEDIATE_SEARCH} if the search should start immediately</li>
+	 *		<li>{@link IJavaSearchConstants#CANCEL_IF_NOT_READY_TO_SEARCH} if the search should be cancelled if the
 	 *			underlying indexer has not finished indexing the workspace</li>
-	 *		<li><code>IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH</code> if the search should wait for the
+	 *		<li>{@link IJavaSearchConstants#WAIT_UNTIL_READY_TO_SEARCH} if the search should wait for the
 	 *			underlying indexer to finish indexing the workspace</li>
 	 * </ul>
 	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress

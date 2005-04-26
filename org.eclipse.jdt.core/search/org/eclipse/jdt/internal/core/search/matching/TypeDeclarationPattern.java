@@ -143,7 +143,7 @@ public TypeDeclarationPattern(
 	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.typeSuffix = typeSuffix;
 
-	((InternalSearchPattern)this).mustResolve = this.pkg != null && this.enclosingTypeNames != null;
+	((InternalSearchPattern)this).mustResolve = (this.pkg != null && this.enclosingTypeNames != null) || typeSuffix != TYPE_SUFFIX;
 }
 TypeDeclarationPattern(int matchRule) {
 	super(TYPE_DECL_PATTERN, matchRule);
@@ -203,6 +203,8 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	TypeDeclarationPattern pattern = (TypeDeclarationPattern) decodedPattern;
 	switch(this.typeSuffix) {
 		case CLASS_SUFFIX :
+		case CLASS_AND_INTERFACE_SUFFIX :
+		case CLASS_AND_ENUM_SUFFIX :
 		case INTERFACE_SUFFIX :
 		case ENUM_SUFFIX :
 		case ANNOTATION_TYPE_SUFFIX :
@@ -251,6 +253,8 @@ EntryResult[] queryIn(Index index) throws IOException {
 				if (this.simpleName == null) {
 					switch(this.typeSuffix) {
 						case CLASS_SUFFIX :
+						case CLASS_AND_INTERFACE_SUFFIX :
+						case CLASS_AND_ENUM_SUFFIX :
 						case INTERFACE_SUFFIX :
 						case ENUM_SUFFIX :
 						case ANNOTATION_TYPE_SUFFIX :
@@ -275,6 +279,12 @@ protected StringBuffer print(StringBuffer output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
 			output.append("ClassDeclarationPattern: pkg<"); //$NON-NLS-1$
+			break;
+		case CLASS_AND_INTERFACE_SUFFIX:
+			output.append("ClassAndInterfaceDeclarationPattern: pkg<"); //$NON-NLS-1$
+			break;
+		case CLASS_AND_ENUM_SUFFIX :
+			output.append("ClassAndEnumDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case INTERFACE_SUFFIX :
 			output.append("InterfaceDeclarationPattern: pkg<"); //$NON-NLS-1$

@@ -339,7 +339,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 *			<li>&lt;Exception&gt;Sample(Exception)</li>
 	 *		</ul>
 	 * Type arguments have the same pattern that for type patterns
-	 * @see #createTypePattern(String,int,int)
+	 * @see #createTypePattern(String,int,int,char)
 	 */
 	private static SearchPattern createMethodOrConstructorPattern(String patternString, int limitTo, int matchRule, boolean isConstructor) {
 		
@@ -767,7 +767,11 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 *	<ul>
 	 * 	<li>{@link IJavaSearchConstants#CLASS}: only look for classes</li>
 	 *		<li>{@link IJavaSearchConstants#INTERFACE}: only look for interfaces</li>
-	 * 	<li>{@link IJavaSearchConstants#TYPE}: look for both classes and interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#ENUM}: only look for enumeration</li>
+	 *		<li>{@link IJavaSearchConstants#ANNOTATION_TYPE}: only look for annotation type</li>
+	 * 	<li>{@link IJavaSearchConstants#CLASS_AND_ENUM}: only look for classes and enumerations</li>
+	 *		<li>{@link IJavaSearchConstants#CLASS_AND_INTERFACE}: only look for classes and interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#TYPE}: look for all types (ie. classes, interfaces, enum and annotation types)</li>
 	 *		<li>{@link IJavaSearchConstants#FIELD}: look for fields</li>
 	 *		<li>{@link IJavaSearchConstants#METHOD}: look for methods</li>
 	 *		<li>{@link IJavaSearchConstants#CONSTRUCTOR}: look for constructors</li>
@@ -808,8 +812,20 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		limitTo &= ~(IJavaSearchConstants.IGNORE_DECLARING_TYPE+IJavaSearchConstants.IGNORE_RETURN_TYPE);
 	
 		switch (searchFor) {
+			case IJavaSearchConstants.CLASS:
+				return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.CLASS_SUFFIX);
+			case IJavaSearchConstants.CLASS_AND_INTERFACE:
+				return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.CLASS_AND_INTERFACE_SUFFIX);
+			case IJavaSearchConstants.CLASS_AND_ENUM:
+				return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.CLASS_AND_ENUM_SUFFIX);
+			case IJavaSearchConstants.INTERFACE:
+				return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.INTERFACE_SUFFIX);
+			case IJavaSearchConstants.ENUM:
+				return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.ENUM_SUFFIX);
+			case IJavaSearchConstants.ANNOTATION_TYPE:
+				return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.ANNOTATION_TYPE_SUFFIX);
 			case IJavaSearchConstants.TYPE:
-				return createTypePattern(stringPattern, limitTo, matchRule);
+				return createTypePattern(stringPattern, limitTo, matchRule, IIndexConstants.TYPE_SUFFIX);
 			case IJavaSearchConstants.METHOD:
 				return createMethodOrConstructorPattern(stringPattern, limitTo, matchRule, false/*not a constructor*/);
 			case IJavaSearchConstants.CONSTRUCTOR:
@@ -1274,7 +1290,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * 		- '*' is not valid inside type arguments definition <>
 	 * 		- '?' is treated as a wildcard when it is inside <> (ie. it must be put on first position of the type argument)
 	 */
-	private static SearchPattern createTypePattern(String patternString, int limitTo, int matchRule) {
+	private static SearchPattern createTypePattern(String patternString, int limitTo, int matchRule, char indexSuffix) {
 		
 		Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/); 
 		scanner.setSource(patternString.toCharArray());
@@ -1356,14 +1372,14 @@ public abstract class SearchPattern extends InternalSearchPattern {
 		}
 		switch (limitTo) {
 			case IJavaSearchConstants.DECLARATIONS : // cannot search for explicit member types
-				return new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, IIndexConstants.TYPE_SUFFIX, matchRule);
+				return new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, indexSuffix, matchRule);
 			case IJavaSearchConstants.REFERENCES :
 				return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, matchRule);
 			case IJavaSearchConstants.IMPLEMENTORS : 
 				return new SuperTypeReferencePattern(qualificationChars, typeChars, true, matchRule);
 			case IJavaSearchConstants.ALL_OCCURRENCES :
 				return new OrPattern(
-					new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, IIndexConstants.TYPE_SUFFIX, matchRule),// cannot search for explicit member types
+					new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, indexSuffix, matchRule),// cannot search for explicit member types
 					new TypeReferencePattern(qualificationChars, typeChars, matchRule));
 		}
 		return null;

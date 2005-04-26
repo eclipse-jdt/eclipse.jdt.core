@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+
 public interface IIndexConstants {
 
 	/* index encoding */
@@ -31,6 +33,8 @@ public interface IIndexConstants {
 	char ENUM_SUFFIX = 'E';
 	char ANNOTATION_TYPE_SUFFIX = 'A';
 	char TYPE_SUFFIX = 0;
+	char CLASS_AND_ENUM_SUFFIX = IJavaSearchConstants.CLASS_AND_ENUM;
+	char CLASS_AND_INTERFACE_SUFFIX = IJavaSearchConstants.CLASS_AND_INTERFACE;
 	char SEPARATOR= '/';
 
 	char[] ONE_STAR = new char[] {'*'};
