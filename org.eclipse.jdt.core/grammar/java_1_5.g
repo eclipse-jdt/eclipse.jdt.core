@@ -1582,7 +1582,7 @@ EnumConstantHeaderName ::= Modifiersopt Identifier
 /.$putCase consumeEnumConstantHeaderName(); $break ./
 /:$readableName EnumConstantHeaderName:/
 
-EnumConstantHeader ::= EnumConstantHeaderName Argumentsopt
+EnumConstantHeader ::= EnumConstantHeaderName ForceNoDiet Argumentsopt RestoreDiet
 /.$putCase consumeEnumConstantHeader(); $break ./
 /:$readableName EnumConstantHeader:/
 

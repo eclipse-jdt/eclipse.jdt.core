@@ -16,12 +16,12 @@ public interface ParserBasicInformation {
 
 	int ERROR_SYMBOL = 110,
 		MAX_NAME_LENGTH = 41,
-		NUM_STATES = 953,
+		NUM_STATES = 955,
 
 		NT_OFFSET = 110,
 		SCOPE_UBOUND = 131,
 		SCOPE_SIZE = 132,
-		LA_STATE_OFFSET = 12568,
+		LA_STATE_OFFSET = 12621,
 		MAX_LA = 1,
 		NUM_RULES = 691,
 		NUM_TERMINALS = 110,
@@ -30,6 +30,6 @@ public interface ParserBasicInformation {
 		START_STATE = 1045,
 		EOFT_SYMBOL = 66,
 		EOLT_SYMBOL = 66,
-		ACCEPT_ACTION = 12567,
-		ERROR_ACTION = 12568;
+		ACCEPT_ACTION = 12620,
+		ERROR_ACTION = 12621;
 }

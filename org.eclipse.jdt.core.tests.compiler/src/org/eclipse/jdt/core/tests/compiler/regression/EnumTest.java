@@ -3106,5 +3106,31 @@ the right of e1."
 				"}\n",
 			},
 			"should reject as invalid ref to non-constant");
-	}		
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91761
+	public void test101() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface Foo {\n" + 
+				"  public boolean bar();\n" + 
+				"}\n" + 
+				"enum BugDemo {\n" + 
+				"  CONSTANT(new Foo() {\n" + 
+				"    public boolean bar() {\n" + 
+				"      Zork z;\n" + 
+				"      return true;\n" + 
+				"    }\n" + 
+				"  });\n" + 
+				"  BugDemo(Foo foo) {\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
 }
