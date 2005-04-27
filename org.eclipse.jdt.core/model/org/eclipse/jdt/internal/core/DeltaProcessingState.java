@@ -70,6 +70,9 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	
 	/* A table from IPath (a source attachment path from a classpath entry) to IPath (a root path) */
 	public HashMap sourceAttachments = new HashMap();
+	
+	/* A table from IJavaProject to IJavaProject[] (the list of direct dependent of the key) */
+	public HashMap projectDependencies = new HashMap();
 
 	/* Whether the roots tables should be recomputed */
 	public boolean rootsAreStale = true;
@@ -232,6 +235,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		HashMap newRoots = null;
 		HashMap newOtherRoots = null;
 		HashMap newSourceAttachments = null;
+		HashMap newProjectDependencies = null;
 		if (this.rootsAreStale) {
 			Thread currentThread = Thread.currentThread();
 			boolean addedCurrentThread = false;			
@@ -248,6 +252,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				newRoots = new HashMap();
 				newOtherRoots = new HashMap();
 				newSourceAttachments = new HashMap();
+				newProjectDependencies = new HashMap();
 		
 				IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 				IJavaProject[] projects;
@@ -268,7 +273,19 @@ public class DeltaProcessingState implements IResourceChangeListener {
 					}
 					for (int j= 0, classpathLength = classpath.length; j < classpathLength; j++) {
 						IClasspathEntry entry = classpath[j];
-						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
+						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+							IJavaProject key = model.getJavaProject(entry.getPath().segment(0)); // TODO (jerome) reuse handle
+							IJavaProject[] dependents = (IJavaProject[]) newProjectDependencies.get(key);
+							if (dependents == null) {
+								dependents = new IJavaProject[] {project};
+							} else {
+								int dependentsLength = dependents.length;
+								System.arraycopy(dependents, 0, dependents = new IJavaProject[dependentsLength+1], 0, dependentsLength);
+								dependents[dependentsLength] = project;
+							}
+							newProjectDependencies.put(key, dependents);
+							continue;
+						}
 						
 						// root path
 						IPath path = entry.getPath();
@@ -317,6 +334,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				this.roots = newRoots;
 				this.otherRoots = newOtherRoots;
 				this.sourceAttachments = newSourceAttachments;
+				this.projectDependencies = newProjectDependencies;
 				this.rootsAreStale = false;
 			}
 		}

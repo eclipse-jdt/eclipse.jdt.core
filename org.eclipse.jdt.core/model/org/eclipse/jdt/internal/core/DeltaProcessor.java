@@ -263,31 +263,16 @@ public class DeltaProcessor {
 	 * Adds the dependents of the given project to the list of the projects
 	 * to update.
 	 */
-	private void addDependentProjects(IPath projectPath, HashSet result) {
-		IJavaProject[] projects = null;
-		try {
-			projects = this.manager.getJavaModel().getJavaProjects();
-		} catch (JavaModelException e) {
-			// java model doesn't exist
-			return;
+	private void addDependentProjects(IJavaProject project, HashMap projectDependencies, HashSet result) {
+		IJavaProject[] dependents = (IJavaProject[]) projectDependencies.get(project);
+		if (dependents == null) return;
+		for (int i = 0, length = dependents.length; i < length; i++) {
+			IJavaProject dependent = dependents[i];
+			if (result.contains(dependent))
+				continue; // no need to go further as the project is already known
+			result.add(dependent);
+			addDependentProjects(dependent, projectDependencies, result);
 		}
-		for (int i = 0, length = projects.length; i < length; i++) {
-			IJavaProject project = projects[i];
-			IClasspathEntry[] classpath = null;
-			try {
-				classpath = ((JavaProject)project).getExpandedClasspath(true);
-			} catch (JavaModelException e) {
-				// project doesn't exist: continue with next project
-				continue;
-			}
-			for (int j = 0, length2 = classpath.length; j < length2; j++) {
-				IClasspathEntry entry = classpath[j];
-					if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT
-							&& entry.getPath().equals(projectPath)) {
-						result.add(project);
-					}
-				}
-			}
 	}
 	/*
 	 * Adds the given element to the list of elements used as a scope for external jars refresh.
@@ -317,7 +302,7 @@ public class DeltaProcessor {
 	 */
 	private void addToRootsToRefreshWithDependents(IJavaProject javaProject) {
 		this.rootsToRefresh.add(javaProject);
-		this.addDependentProjects(javaProject.getPath(), this.rootsToRefresh);
+		this.addDependentProjects(javaProject, this.state.projectDependencies, this.rootsToRefresh);
 	}
 	/*
 	 * Check all external archive (referenced by given roots, projects or model) status and issue a corresponding root delta.
@@ -1193,6 +1178,17 @@ public class DeltaProcessor {
 	public void flush() {
 		this.javaModelDeltas = new ArrayList();
 	}
+	/* Returns the list of Java projects in the workspace.
+	 * 
+	 */
+	IJavaProject[] getJavaProjects() {
+		try {
+			return this.manager.getJavaModel().getJavaProjects();
+		} catch (JavaModelException e) {
+			// java model doesn't exist
+			return new IJavaProject[0];
+		}
+	}
 	/*
 	 * Finds the root info this path is included in.
 	 * Returns null if not found.
@@ -1705,11 +1701,12 @@ public class DeltaProcessor {
 	 */
 	private void resetProjectCaches() {
 		Iterator iterator = this.projectCachesToReset.iterator();
+		HashMap projectDepencies = this.state.projectDependencies;
 		HashSet affectedDependents = new HashSet();
 		while (iterator.hasNext()) {
 			JavaProject project = (JavaProject)iterator.next();
 			project.resetCaches();
-			addDependentProjects(project.getPath(), affectedDependents);
+			addDependentProjects(project, projectDepencies, affectedDependents);
 		}
 		// reset caches of dependent projects
 		iterator = affectedDependents.iterator();
