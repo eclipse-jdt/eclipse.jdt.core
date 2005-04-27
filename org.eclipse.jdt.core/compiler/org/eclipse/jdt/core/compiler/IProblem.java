@@ -835,10 +835,10 @@ public interface IProblem {
 	int JavadocAmbiguousMethodReference = Javadoc + Internal + 511;
 	/** @since 3.0 */
 	int JavadocUnterminatedInlineTag = Javadoc + Internal + 512;
-	/** @since 3.0 */
-	int JavadocMalformedSeeReference = Javadoc + Internal + 513;
 	/** @since 3.1 */
-	int JavadocMissingHashCharacter = Javadoc + Internal + 514;
+	int JavadocMissingHashCharacter = Javadoc + Internal + 513;
+	/** @since 3.0 */
+	int JavadocMalformedSeeReference = Javadoc + Internal + 514;
 	/** @since 3.1 */
 	int JavadocEmptyReturnTag = Javadoc + Internal + 515;
 	/** @since 3.1 */
