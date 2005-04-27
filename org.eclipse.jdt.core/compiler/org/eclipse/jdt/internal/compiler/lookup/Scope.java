@@ -2393,11 +2393,13 @@ public abstract class Scope
 			if (imports != null) {
 				HashtableOfObject typeImports = unitScope.resolvedSingeTypeImports;
 				if (typeImports != null) {
-					ImportBinding typeImport = (ImportBinding) typeImports.get(name);
+					Object typeImport = typeImports.get(name);
 					if (typeImport != null) {
-						ImportReference importReference = typeImport.reference;
+						if (typeImport instanceof ReferenceBinding)
+							return (ReferenceBinding) typeImport; // cached from on-demand search below
+						ImportReference importReference = ((ImportBinding) typeImport).reference;
 						if (importReference != null) importReference.used = true;
-						return typeImport.resolvedImport; // already know its visible
+						return ((ImportBinding) typeImport).resolvedImport; // already know its visible
 					}
 				} else {
 					// walk all the imports since resolvedSingleTypeImports is not yet initialized
@@ -2450,7 +2452,12 @@ public abstract class Scope
 						}
 					}
 				}
-				if (type != null) return type;
+				if (type != null) {
+					// put in single import cache so we can avoid doing on demand walk again
+					if (unitScope.resolvedSingeTypeImports != null)
+						unitScope.resolvedSingeTypeImports.put(type.compoundName[type.compoundName.length - 1], type);
+					return type;
+				}
 			}
 		}
 
