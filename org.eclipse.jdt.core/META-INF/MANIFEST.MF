@@ -55,6 +55,5 @@ Export-Package: org.eclipse.jdt.core,
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,
  org.eclipse.text,
- org.apache.ant;resolution:=optional,
  org.eclipse.team.core;resolution:=optional
 Eclipse-AutoStart: true
