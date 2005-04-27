@@ -17798,4 +17798,54 @@ public void test617() {
             },
 			"");
 	}			
+	public void test630() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	void test0() {\n" + 
+				"		List<? super Number[]> arrays= new ArrayList<Number[]>();\n" + 
+				"		Number[] a= null;\n" + 
+				"		arrays.add(null);\n" + 
+				"		arrays.add(a); // Error: The method add(capture-of ? super Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void test1() {\n" + 
+				"		List<? extends Number[]> arrays= new ArrayList<Number[]>();\n" + 
+				"		Number[] a= null;\n" + 
+				"		arrays.add(null);\n" + 
+				"		arrays.add(a); // Error: The method add(capture-of ? extends Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	void test2() {\n" + 
+				"		List<? super Number> nums= null;\n" + 
+				"		Number n= null;\n" + 
+				"		nums.add(null);\n" + 
+				"		nums.add(n);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void test3() {\n" + 
+				"		List<? super List<Number>> nums= null;\n" + 
+				"		List<Number> n= null;\n" + 
+				"		nums.add(null);\n" + 
+				"		nums.add(n);\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\r\n" + 
+			"	arrays.add(a); // Error: The method add(capture-of ? super Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\r\n" + 
+			"	       ^^^\n" + 
+			"The method add(capture-of ? super Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 17)\r\n" + 
+			"	arrays.add(a); // Error: The method add(capture-of ? extends Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\r\n" + 
+			"	       ^^^\n" + 
+			"The method add(capture-of ? extends Number[]) in the type List<capture-of ? extends Number[]> is not applicable for the arguments (Number[])\n" + 
+			"----------\n");
+	}				
 }
