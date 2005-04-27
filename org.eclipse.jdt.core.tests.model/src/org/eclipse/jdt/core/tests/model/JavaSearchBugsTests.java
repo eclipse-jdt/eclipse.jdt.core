@@ -1408,292 +1408,10 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		assertNotNull("Problem in tests processing", workingCopies);
 		assertEquals("Problem in tests processing", 1, workingCopies.length);
 		search("B82208*", CLASS_AND_ENUM, ALL_OCCURRENCES);
-		this.discard = false;
 		assertSearchResults(
 			"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" + 
 			"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
 		);
-	}
-	public void testBug82208_SearchAllTypeNames_TYPE() throws CoreException {
-		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
-		this.discard = false;
-		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-		new SearchEngine(this.workingCopies).searchAllTypeNames(
-			null,
-			null,
-			SearchPattern.R_PATTERN_MATCH, // case insensitive
-			TYPE,
-			getJavaSearchScopeBugs(),
-			requestor,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null
-		);
-		assertSearchResults(
-			"Unexpected all type names",
-			"b81556.a.A81556\n" + 
-			"b81556.a.B81556\n" + 
-			"b81556.a.X81556\n" + 
-			"b81556.b.XX81556\n" + 
-			"b82208.B82208\n" + 
-			"b82208.B82208_A\n" + 
-			"b82208.B82208_E\n" + 
-			"b82208.B82208_I\n" + 
-			"b89848.Test\n" + 
-			"b89848.X\n" + 
-			"g1.t.s.def.Generic\n" + 
-			"g1.t.s.def.Generic$Member\n" + 
-			"g1.t.s.def.Generic$MemberGeneric\n" + 
-			"g1.t.s.def.NonGeneric\n" + 
-			"g1.t.s.def.NonGeneric$GenericMember\n" + 
-			"g5.c.def.Multiple\n" + 
-			"g5.c.def.Single\n" + 
-			"g5.m.def.Multiple\n" + 
-			"g5.m.def.Single\n" + 
-			"java.io.Serializable\n" + 
-			"java.lang.Class\n" + 
-			"java.lang.CloneNotSupportedException\n" + 
-			"java.lang.Comparable\n" + 
-			"java.lang.Enum\n" + 
-			"java.lang.Error\n" + 
-			"java.lang.Exception\n" + 
-			"java.lang.IllegalMonitorStateException\n" + 
-			"java.lang.InterruptedException\n" + 
-			"java.lang.Object\n" + 
-			"java.lang.RuntimeException\n" + 
-			"java.lang.String\n" + 
-			"java.lang.Throwable\n" + 
-			"java.lang.annotation.Annotation",
-			requestor);
-	}
-	public void testBug82208_SearchAllTypeNames_CLASS() throws CoreException {
-		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
-		this.discard = false;
-		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-		new SearchEngine(this.workingCopies).searchAllTypeNames(
-			null,
-			IIndexConstants.ONE_STAR,
-			SearchPattern.R_PATTERN_MATCH, // case insensitive
-			CLASS,
-			getJavaSearchScopeBugs(),
-			requestor,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null
-		);
-		// Remove interface, enum and annotation
-		assertSearchResults(
-			"Unexpected all type names",
-			"b81556.a.A81556\n" + 
-			"b81556.a.B81556\n" + 
-			"b81556.a.X81556\n" + 
-			"b81556.b.XX81556\n" + 
-			"b82208.B82208\n" + 
-			//"b82208.B82208_A\n" + 
-			//"b82208.B82208_E\n" + 
-			//"b82208.B82208_I\n" + 
-			"b89848.Test\n" + 
-			"b89848.X\n" + 
-			"g1.t.s.def.Generic\n" + 
-			"g1.t.s.def.Generic$Member\n" + 
-			"g1.t.s.def.Generic$MemberGeneric\n" + 
-			"g1.t.s.def.NonGeneric\n" + 
-			"g1.t.s.def.NonGeneric$GenericMember\n" + 
-			"g5.c.def.Multiple\n" + 
-			"g5.c.def.Single\n" + 
-			"g5.m.def.Multiple\n" + 
-			"g5.m.def.Single\n" + 
-			//"java.io.Serializable\n" + 
-			"java.lang.Class\n" + 
-			"java.lang.CloneNotSupportedException\n" + 
-			//"java.lang.Comparable\n" + 
-			"java.lang.Enum\n" +  // Enum is not an enum in java.lang
-			"java.lang.Error\n" + 
-			"java.lang.Exception\n" + 
-			"java.lang.IllegalMonitorStateException\n" + 
-			"java.lang.InterruptedException\n" + 
-			"java.lang.Object\n" + 
-			"java.lang.RuntimeException\n" + 
-			"java.lang.String\n" + 
-			"java.lang.Throwable",
-			//"java.lang.annotation.Annotation",
-			requestor);
-	}
-	public void testBug82208_SearchAllTypeNames_CLASS_AND_INTERFACE() throws CoreException {
-		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
-		this.discard = false;
-		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-		new SearchEngine(this.workingCopies).searchAllTypeNames(
-			null,
-			null,
-			SearchPattern.R_PATTERN_MATCH, // case insensitive
-			CLASS_AND_INTERFACE,
-			getJavaSearchScopeBugs(),
-			requestor,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null
-		);
-		// Remove enum and annotation
-		assertSearchResults(
-			"Unexpected all type names",
-			"b81556.a.A81556\n" + 
-			"b81556.a.B81556\n" + 
-			"b81556.a.X81556\n" + 
-			"b81556.b.XX81556\n" + 
-			"b82208.B82208\n" + 
-			//"b82208.B82208_A\n" + 
-			//"b82208.B82208_E\n" + 
-			"b82208.B82208_I\n" + 
-			"b89848.Test\n" + 
-			"b89848.X\n" + 
-			"g1.t.s.def.Generic\n" + 
-			"g1.t.s.def.Generic$Member\n" + 
-			"g1.t.s.def.Generic$MemberGeneric\n" + 
-			"g1.t.s.def.NonGeneric\n" + 
-			"g1.t.s.def.NonGeneric$GenericMember\n" + 
-			"g5.c.def.Multiple\n" + 
-			"g5.c.def.Single\n" + 
-			"g5.m.def.Multiple\n" + 
-			"g5.m.def.Single\n" + 
-			"java.io.Serializable\n" + 
-			"java.lang.Class\n" + 
-			"java.lang.CloneNotSupportedException\n" + 
-			"java.lang.Comparable\n" + 
-			"java.lang.Enum\n" +  // Enum is not an enum in java.lang
-			"java.lang.Error\n" + 
-			"java.lang.Exception\n" + 
-			"java.lang.IllegalMonitorStateException\n" + 
-			"java.lang.InterruptedException\n" + 
-			"java.lang.Object\n" + 
-			"java.lang.RuntimeException\n" + 
-			"java.lang.String\n" + 
-			"java.lang.Throwable\n" +
-			"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
-			requestor);
-	}
-	public void testBug82208_SearchAllTypeNames_CLASS_AND_ENUM() throws CoreException {
-		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
-		this.discard = false;
-		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-		new SearchEngine(this.workingCopies).searchAllTypeNames(
-			null,
-			null,
-			SearchPattern.R_PATTERN_MATCH, // case insensitive
-			CLASS_AND_ENUM,
-			getJavaSearchScopeBugs(),
-			requestor,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null
-		);
-		// Remove interface and annotation
-		assertSearchResults(
-			"Unexpected all type names",
-			"b81556.a.A81556\n" + 
-			"b81556.a.B81556\n" + 
-			"b81556.a.X81556\n" + 
-			"b81556.b.XX81556\n" + 
-			"b82208.B82208\n" + 
-			//"b82208.B82208_A\n" + 
-			"b82208.B82208_E\n" + 
-			//"b82208.B82208_I\n" + 
-			"b89848.Test\n" + 
-			"b89848.X\n" + 
-			"g1.t.s.def.Generic\n" + 
-			"g1.t.s.def.Generic$Member\n" + 
-			"g1.t.s.def.Generic$MemberGeneric\n" + 
-			"g1.t.s.def.NonGeneric\n" + 
-			"g1.t.s.def.NonGeneric$GenericMember\n" + 
-			"g5.c.def.Multiple\n" + 
-			"g5.c.def.Single\n" + 
-			"g5.m.def.Multiple\n" + 
-			"g5.m.def.Single\n" + 
-			//"java.io.Serializable\n" + 
-			"java.lang.Class\n" + 
-			"java.lang.CloneNotSupportedException\n" + 
-			//"java.lang.Comparable\n" + 
-			"java.lang.Enum\n" + 
-			"java.lang.Error\n" + 
-			"java.lang.Exception\n" + 
-			"java.lang.IllegalMonitorStateException\n" + 
-			"java.lang.InterruptedException\n" + 
-			"java.lang.Object\n" + 
-			"java.lang.RuntimeException\n" + 
-			"java.lang.String\n" + 
-			"java.lang.Throwable",
-			//"java.lang.annotation.Annotation",
-			requestor);
-	}
-	public void testBug82208_SearchAllTypeNames_INTERFACE() throws CoreException {
-		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
-		this.discard = false;
-		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-		new SearchEngine(this.workingCopies).searchAllTypeNames(
-			null,
-			null,
-			SearchPattern.R_PATTERN_MATCH, // case insensitive
-			INTERFACE,
-			getJavaSearchScopeBugs(),
-			requestor,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null
-		);
-		assertSearchResults(
-			"Unexpected all type names",
-			"b82208.B82208_I\n" + 
-			"java.io.Serializable\n" + 
-			"java.lang.Comparable\n" +
-			"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
-			requestor);
-	}
-	public void testBug82208_SearchAllTypeNames_ENUM() throws CoreException {
-		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
-		this.discard = false;
-		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-		new SearchEngine(this.workingCopies).searchAllTypeNames(
-			null,
-			null,
-			SearchPattern.R_PATTERN_MATCH, // case insensitive
-			ENUM,
-			getJavaSearchScopeBugs(),
-			requestor,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null
-		);
-		assertSearchResults(
-			"Unexpected all type names",
-			"b82208.B82208_E",
-			requestor);
-	}
-	public void testBug82208_SearchAllTypeNames_ANNOTATION_TYPE() throws CoreException {
-		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
-		this.discard = false;
-		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
-		new SearchEngine(this.workingCopies).searchAllTypeNames(
-			null,
-			null,
-			SearchPattern.R_PATTERN_MATCH, // case insensitive
-			ANNOTATION_TYPE,
-			getJavaSearchScopeBugs(),
-			requestor,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			null
-		);
-		assertSearchResults(
-			"Unexpected all type names",
-			"b82208.B82208_A",
-			requestor);
 	}
 
 	/**
@@ -2848,5 +2566,297 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b91078/test/Example.java Map.Entry b91078.test.Example.logAll(Object) [b91078.util] EXACT_MATCH\n" + 
 			"src/b91078/test/Example.java Map.Entry b91078.test.Example.logAll(Object) [b91078.util] EXACT_MATCH"
 		);
+	}
+
+	/**
+	 * Bug 92944: [1.5][search] SearchEngine#searchAllTypeNames doesn't honor enum or annotation element kind
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=92944"
+	 */
+	public void testBug92944_TYPE() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b92944/Test.java",
+			"package b92944;\n" + 
+			"interface B92944_I {}\n" + 
+			"enum B92944_E {}\n" + 
+			"@interface B92944_A {}\n" + 
+			"public class B92944 {}\n"
+		);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			TYPE,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"b92944.B92944\n" + 
+			"b92944.B92944_A\n" + 
+			"b92944.B92944_E\n" + 
+			"b92944.B92944_I\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" + 
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable\n" + 
+			"java.lang.annotation.Annotation",
+			requestor);
+	}
+	public void testBug92944_CLASS() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			IIndexConstants.ONE_STAR,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			CLASS,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		// Remove interface, enum and annotation
+		assertSearchResults(
+			"Unexpected all type names",
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"b92944.B92944\n" + 
+			//"b92944.B92944_A\n" + 
+			//"b92944.B92944_E\n" + 
+			//"b92944.B92944_I\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			//"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			//"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" +  // Enum is not an enum in java.lang
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable",
+			//"java.lang.annotation.Annotation",
+			requestor);
+	}
+	public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			CLASS_AND_INTERFACE,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		// Remove enum and annotation
+		assertSearchResults(
+			"Unexpected all type names",
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"b92944.B92944\n" + 
+			//"b92944.B92944_A\n" + 
+			//"b92944.B92944_E\n" + 
+			"b92944.B92944_I\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" +  // Enum is not an enum in java.lang
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable\n" +
+			"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
+			requestor);
+	}
+	public void testBug92944_CLASS_AND_ENUM() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			CLASS_AND_ENUM,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		// Remove interface and annotation
+		assertSearchResults(
+			"Unexpected all type names",
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"b92944.B92944\n" + 
+			//"b92944.B92944_A\n" + 
+			"b92944.B92944_E\n" + 
+			//"b92944.B92944_I\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			//"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			//"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" + 
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable",
+			//"java.lang.annotation.Annotation",
+			requestor);
+	}
+	public void testBug92944_INTERFACE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			INTERFACE,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b92944.B92944_I\n" + 
+			"java.io.Serializable\n" + 
+			"java.lang.Comparable\n" +
+			"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
+			requestor);
+	}
+	public void testBug92944_ENUM() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			ENUM,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b92944.B92944_E",
+			requestor);
+	}
+	public void testBug92944_ANNOTATION_TYPE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			ANNOTATION_TYPE,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b92944.B92944_A",
+			requestor);
 	}
 }
