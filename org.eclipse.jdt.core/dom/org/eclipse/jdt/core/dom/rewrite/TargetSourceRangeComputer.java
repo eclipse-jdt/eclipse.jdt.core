@@ -125,9 +125,11 @@ public class TargetSourceRangeComputer {
 	 * that should be replaced (or deleted)
 	 */
 	public SourceRange computeSourceRange(ASTNode node) {
-		CompilationUnit cu = (CompilationUnit) node.getRoot();
-		return new SourceRange(
-				cu.getExtendedStartPosition(node),
-				cu.getExtendedLength(node));
+		ASTNode root= node.getRoot();
+		if (root instanceof CompilationUnit) {
+			CompilationUnit cu= (CompilationUnit) root;
+			return new SourceRange(cu.getExtendedStartPosition(node), cu.getExtendedLength(node));
+		}
+		return new SourceRange(node.getStartPosition(), node.getLength());
 	}
 }

@@ -114,41 +114,33 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 	
 	/**
-	 * Returns the extended source range computer for this AST rewriter.
+	 * Returns the extended source range for a node.
 	 * 
-	 * @return an extended source range computer (never null)
+	 * @return an extended source range (never null)
 	 * @since 3.1
 	 */
-	private TargetSourceRangeComputer getExtendedSourceRangeComputer() {
-		return this.extendedSourceRangeComputer;
-	}
-	
 	final SourceRange getExtendedRange(ASTNode node) {
-		return getExtendedSourceRangeComputer().computeSourceRange(node);
+		if (this.eventStore.isRangeCopyPlaceholder(node)) {
+			return new SourceRange(node.getStartPosition(), node.getLength());
+		}
+		return this.extendedSourceRangeComputer.computeSourceRange(node);
 	}
 	
 	final int getExtendedOffset(ASTNode node) {
-		return getExtendedSourceRangeComputer().computeSourceRange(node).getStartPosition();
+		return getExtendedRange(node).getStartPosition();
 	}
 	
 	final int getExtendedEnd(ASTNode node) {
-		TargetSourceRangeComputer.SourceRange range =
-			getExtendedSourceRangeComputer().computeSourceRange(node);
+		TargetSourceRangeComputer.SourceRange range= getExtendedRange(node);
 		return range.getStartPosition() + range.getLength();
 	}
 	
 	final TextEdit getCopySourceEdit(CopySourceInfo info) {
 		TextEdit edit= (TextEdit) this.sourceCopyInfoToEdit.get(info);
 		if (edit == null) {
-			int start, end;
-			if (info.getStartNode() == info.getEndNode()) {
-				SourceRange range= getExtendedRange(info.getStartNode());
-				start= range.getStartPosition();
-				end= start + range.getLength();
-			} else {
-				start= getExtendedOffset(info.getStartNode());
-				end= getExtendedEnd(info.getEndNode());
-			}
+			SourceRange range= getExtendedRange(info.getNode());
+			int start= range.getStartPosition();
+			int end= start + range.getLength();
 			if (info.isMove) {
 				MoveSourceEdit moveSourceEdit= new MoveSourceEdit(start, end - start);
 				moveSourceEdit.setTargetEdit(new MoveTargetEdit(0));
@@ -284,32 +276,18 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (property.isChildProperty() && node != null) {
 			return doVisit((ASTNode) node);
 		} else if (property.isChildListProperty()) {
-			boolean hasRangeCopySources= this.eventStore.hasRangeCopySources(parent, property);
-			return doVisitList((List) node, offset, hasRangeCopySources);
+			return doVisitList((List) node, offset);
 		}
 		return offset;
 	}
 	
-	private int doVisitList(List list, int offset, boolean hasRangeCopySources) {
-		if (hasRangeCopySources) {
-			// list with copy source ranges
-			Stack nodeRangeEndStack= new Stack();
-			int endPos= offset;
-			for (Iterator iter= list.iterator(); iter.hasNext();) {
-				ASTNode curr= ((ASTNode) iter.next());
-				doCopySourcePreVisit(this.eventStore.getRangeCopySources(curr), nodeRangeEndStack);
-				endPos= doVisit(curr);
-				doCopySourcePostVisit(curr, nodeRangeEndStack);
-			}
-			return endPos;
-		} else {
-			int endPos= offset;
-			for (Iterator iter= list.iterator(); iter.hasNext();) {
-				ASTNode curr= ((ASTNode) iter.next());
-				endPos= doVisit(curr);
-			}
-			return endPos;
+	private int doVisitList(List list, int offset) {
+		int endPos= offset;
+		for (Iterator iter= list.iterator(); iter.hasNext();) {
+			ASTNode curr= ((ASTNode) iter.next());
+			endPos= doVisit(curr);
 		}
+		return endPos;
 	}
 	
 	final void voidVisit(ASTNode node) {
@@ -321,42 +299,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (property.isChildProperty() && node != null) {
 			voidVisit((ASTNode) node);
 		} else if (property.isChildListProperty()) {
-			boolean hasRangeCopySources= this.eventStore.hasRangeCopySources(parent, property);
-			voidVisitList((List) node, hasRangeCopySources);
+			voidVisitList((List) node);
 		}
 	}
 	
-	private void voidVisitList(List list, boolean hasRangeCopySources) {
-		if (hasRangeCopySources) {
-			// list with copy source ranges
-			Stack nodeRangeEndStack= new Stack();
-			for (Iterator iter= list.iterator(); iter.hasNext();) {
-				ASTNode curr= ((ASTNode) iter.next());
-				doCopySourcePreVisit(this.eventStore.getRangeCopySources(curr), nodeRangeEndStack);
-				doVisit(curr);
-				doCopySourcePostVisit(curr, nodeRangeEndStack);
-			}
-		} else {
-			for (Iterator iter= list.iterator(); iter.hasNext();) {
-				doVisit(((ASTNode) iter.next()));
-			}
+	private void voidVisitList(List list) {
+		for (Iterator iter= list.iterator(); iter.hasNext();) {
+			doVisit(((ASTNode) iter.next()));
 		}
 	}
 	
 	private final boolean doVisitUnchangedChildren(ASTNode parent) {
 		List properties= parent.structuralPropertiesForType();
 		for (int i= 0; i < properties.size(); i++) {
-			StructuralPropertyDescriptor property= (StructuralPropertyDescriptor) properties.get(i);
-			if (property.isChildProperty()) {
-				ASTNode child= (ASTNode) parent.getStructuralProperty(property);
-				if (child != null) {
-					voidVisit(child);
-				}
-			} else if (property.isChildListProperty()) {
-				List list= (List) parent.getStructuralProperty(property);
-				boolean hasRangeCopySources= this.eventStore.hasRangeCopySources(parent, property);
-				voidVisitList(list, hasRangeCopySources);
-			}
+			voidVisit(parent, (StructuralPropertyDescriptor) properties.get(i));
 		}
 		return false;
 	}
@@ -408,8 +364,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		protected int startPos;
 		
 		protected RewriteEvent[] list;
-		
-		private Stack copyRangeEndStack;
 		
 		protected final ASTNode getOriginalNode(int index) {
 			return (ASTNode) this.list[index].getOriginalValue();
@@ -464,8 +418,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		public final int rewriteList(ASTNode parent, StructuralPropertyDescriptor property, int offset, String keyword) {
 			this.startPos= offset;
 			this.list= getEvent(parent, property).getChildren();
-			
-			initCopyRangeChecks(parent, property);
 			
 			int total= this.list.length;
 			if (total == 0) {
@@ -543,17 +495,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					if (i > lastNonDelete && separatorState == EXISTING) {
 						// is last, remove previous separator: split delete to allow range copies
 						doTextRemove(prevEnd, currPos - prevEnd, editGroup); // remove separator
-						checkForRangeStart(node);
 						doTextRemoveAndVisit(currPos, currEnd - currPos, node, editGroup); // remove node
-						checkForRangeEnd(node);
 						currPos= currEnd;
 						prevEnd= currEnd;
 					} else {
 						// remove element and next separator
 						int end= getStartOfNextNode(nextIndex, currEnd); // start of next
-						checkForRangeStart(node);
 						doTextRemoveAndVisit(currPos, currEnd - currPos, node, getEditGroup(currEvent)); // remove node
-						checkForRangeEnd(node);
 						doTextRemove(currEnd, end - currEnd, editGroup); // remove separator
 						currPos= end;
 						prevEnd= currEnd;
@@ -566,17 +514,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						
 						TextEditGroup editGroup= getEditGroup(currEvent);
 						ASTNode changed= (ASTNode) currEvent.getNewValue();
-						checkForRangeStart(node);
 						doTextRemoveAndVisit(currPos, currEnd - currPos, node, editGroup);
 						doTextInsert(currPos, changed, getNodeIndent(i), true, editGroup);
-						checkForRangeEnd(node);
 						
 						prevEnd= currEnd;
 					} else { // is unchanged
 						ASTNode node= (ASTNode) currEvent.getOriginalValue();
-						checkForRangeStart(node);
 						voidVisit(node);
-						checkForRangeEnd(node);
 					}
 					if (i == lastNonInsert) { // last node or next nodes are all inserts
 						separatorState= NONE;
@@ -600,23 +544,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return currPos;
 		}
 		
-		private void initCopyRangeChecks(ASTNode parent, StructuralPropertyDescriptor property) {
-			if (ASTRewriteAnalyzer.this.eventStore.hasRangeCopySources(parent, property)) {
-				this.copyRangeEndStack= new Stack();
-			}
-		}
-
-		private void checkForRangeStart(ASTNode node) {
-			if (this.copyRangeEndStack != null) {
-				doCopySourcePreVisit(ASTRewriteAnalyzer.this.eventStore.getRangeCopySources(node), this.copyRangeEndStack);
-			}
-		}
-		
-		private void checkForRangeEnd(ASTNode node) {
-			if (this.copyRangeEndStack != null) {
-				doCopySourcePostVisit(node, this.copyRangeEndStack);
-			}
-		}
 	}
 				
 	private int rewriteRequiredNode(ASTNode parent, StructuralPropertyDescriptor property) {
@@ -1109,7 +1036,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				String destIndentString=  this.formatter.getIndentString(getCurrentLine(formatted, offset));
 				if (data instanceof CopyPlaceholderData) { // replace with a copy/move target
 					CopySourceInfo copySource= ((CopyPlaceholderData) data).copySource;
-					int srcIndentLevel= getIndent(copySource.getStartNode().getStartPosition());
+					int srcIndentLevel= getIndent(copySource.getNode().getStartPosition());
 					TextEdit sourceEdit= getCopySourceEdit(copySource);
 					doTextCopy(sourceEdit, insertOffset, srcIndentLevel, destIndentString, editGroup);
 					currPos= offset + curr.length; // continue to insert after the replaced string
@@ -1297,7 +1224,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				TextEdit edit= getCopySourceEdit(curr);
 				addEdit(edit);
 				this.currentEdit= edit;
-				nodeEndStack.push(curr.getEndNode());
+				nodeEndStack.push(curr.getNode());
 			}
 		}
 	}

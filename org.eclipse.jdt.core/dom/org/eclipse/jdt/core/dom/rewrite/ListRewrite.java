@@ -13,19 +13,18 @@ package org.eclipse.jdt.core.dom.rewrite;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.text.edits.TextEditGroup;
-
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-
 import org.eclipse.jdt.internal.core.dom.rewrite.ListRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
+import org.eclipse.text.edits.TextEditGroup;
 
 /**
  * For describing manipulations to a child list property of an AST node.
@@ -290,18 +289,19 @@ public final class ListRewrite {
 	}
 	
 	
-	private ASTNode createTargetNode(ASTNode first, ASTNode last, boolean isMove) {
+	private ASTNode createTargetNode(ASTNode first, ASTNode last, boolean isMove, ASTNode replacingNode, TextEditGroup editGroup) {
 		if (first == null || last == null) {
 			throw new IllegalArgumentException();
 		}
-		//validateIsInsideAST(node);
-		CopySourceInfo info= getRewriteStore().markAsRangeCopySource(this.parent, this.childProperty, first, last, isMove);
-	
+
 		NodeInfoStore nodeStore= this.rewriter.getNodeStore();
 		ASTNode placeholder= nodeStore.newPlaceholderNode(first.getNodeType()); // revisit: could use list type
 		if (placeholder == null) {
 			throw new IllegalArgumentException("Creating a target node is not supported for nodes of type" + first.getClass().getName()); //$NON-NLS-1$
 		}
+		
+		Block internalPlaceHolder= nodeStore.createCollapsePlaceholder();
+		CopySourceInfo info= getRewriteStore().createRangeCopy(this.parent, this.childProperty, first, last, isMove, internalPlaceHolder, replacingNode, editGroup);
 		nodeStore.markAsCopyTarget(placeholder, info);
 		
 		return placeholder;		
@@ -318,14 +318,16 @@ public final class ListRewrite {
 	 * @param first the node that starts the range
 	 * @param last the node that ends the range
 	 * @return the new placeholder node
-	 * @throws IllegalArgumentException if the node is null, or if the node
-	 * is not part of this rewriter's AST
+	 * @throws IllegalArgumentException An exception is thrown if the first or last node
+	 * are <code>null</code>, if a node is not a child of the current list or if the first node
+	 * is not before the last node. An <code>IllegalArgumentException</code> is
+	 * also thrown if the copied range is overlapping with an other moved or copied range. 
 	 */
 	public final ASTNode createCopyTarget(ASTNode first, ASTNode last) {
 		if (first == last) {
 			return this.rewriter.createCopyTarget(first);
 		} else {
-			return createTargetNode(first, last, false);
+			return createTargetNode(first, last, false, null, null);
 		}
 	}
 	
@@ -340,16 +342,47 @@ public final class ListRewrite {
 	 * @param first the node that starts the range
 	 * @param last the node that ends the range
 	 * @return the new placeholder node
-	 * @throws IllegalArgumentException if the node is null, or if the node
-	 * is not part of this rewriter's AST
+	 * @throws IllegalArgumentException An exception is thrown if the first or last node
+	 * are <code>null</code>, if a node is not a child of the current list or if the first node
+	 * is not before the last node. An <code>IllegalArgumentException</code> is
+	 * also thrown if the moved range is overlapping with an other moved or copied range. 
 	 * 
 	 * @since 3.1
 	 */
 	public final ASTNode createMoveTarget(ASTNode first, ASTNode last) {
+		return createMoveTarget(first, last, null, null);
+	}
+	
+	/**
+	 * Creates and returns a placeholder node for a move of a range of nodes of the
+	 * current list. The moved nodes can optionally be replaced by a specified node.
+	 * 
+	 * The placeholder node can either be inserted as new or used to replace an
+	 * existing node. When the document is rewritten, a copy of the source code 
+	 * for the given node range is inserted into the output document at the position
+	 * corresponding to the placeholder (indentation is adjusted).
+	 * 
+	 * @param first the node that starts the range
+	 * @param last the node that ends the range
+	 * @param replacingNode a node that is set at the location of the moved nodes
+	 * or <code>null</code> to remove all nodes
+	 * @param editGroup the edit group in which to collect the corresponding
+	 * text edits fro a replace, or <code>null</code> if ungrouped
+	 * @return the new placeholder node
+	 * @throws IllegalArgumentException An exception is thrown if the first or
+	 * last node are <code>null</code>, if a node is not a child of the current list or
+	 * if the first node is not before the last node. An <code>IllegalArgumentException
+	 * </code> is also thrown if the moved range is overlapping with an other moved
+	 * or copied range. 
+	 * 
+	 * @since 3.1
+	 */
+	public final ASTNode createMoveTarget(ASTNode first, ASTNode last, ASTNode replacingNode, TextEditGroup editGroup) {
 		if (first == last) {
+			replace(first, replacingNode, editGroup);
 			return this.rewriter.createMoveTarget(first);
 		} else {
-			return createTargetNode(first, last, true);
+			return createTargetNode(first, last, true, replacingNode, editGroup);
 		}
 	}
 	
