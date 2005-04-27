@@ -1166,6 +1166,8 @@ public static String[] getParameterTypes(String methodSignature) throws IllegalA
  * @return the list of thrown exception type signatures
  * @exception IllegalArgumentException if the signature is syntactically
  *   incorrect
+ *
+ * @since 3.1
  */
 public static String[] getThrownExceptionTypes(String methodSignature) throws IllegalArgumentException {
 	char[][] parameterTypes = getThrownExceptionTypes(methodSignature.toCharArray());
@@ -1180,6 +1182,8 @@ public static String[] getThrownExceptionTypes(String methodSignature) throws Il
  * @return the list of thrown exception type signatures
  * @exception IllegalArgumentException if the signature is syntactically
  *   incorrect
+ *
+ * @since 3.1
  */
 public static char[][] getThrownExceptionTypes(char[] methodSignature) throws IllegalArgumentException {
 	// skip type parameters
@@ -2004,6 +2008,7 @@ public static String[] getSimpleNames(String name) {
  * @return new signature without capture information or siganture itself
  * 	if no specific capture information was there
  * @exception NullPointerException if <code>captureSignature</code> is null
+ *
  * @since 3.1
  * TODO (frederic) Create remove(char[], char) method on CharOperation and call it from here
  */
@@ -2046,6 +2051,7 @@ public static char[] removeCaptureFromMethod(char[] captureSignature) {
  * @return new signature without capture information or siganture itself
  * 	if no specific capture information was there
  * @exception NullPointerException if <code>captureSignature</code> is null
+ *
  * @since 3.1
  */
 public static String removeCaptureFromMethod(String captureSignature) {
@@ -2679,6 +2685,8 @@ public static String toString(String methodSignature, String methodName, String[
  * variable argument, <code>false</code> otherwise
  * @see #toCharArray(char[], char[], char[][], boolean, boolean)
  * @return the string representation of the method signature
+ *
+ * @since 3.1
  */
 public static String toString(String methodSignature, String methodName, String[] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType, boolean isVarArgs) {
 	char[][] params;

@@ -290,7 +290,7 @@ public class SearchMatch {
 	}
 
 	/**
-	 * Returns the rule used while creating the match.
+	 * Set the rule used while reporting the match.
 	 * 
 	 * @param rule one of {@link SearchPattern#R_FULL_MATCH}, {@link SearchPattern#R_EQUIVALENT_MATCH}
 	 * 	or {@link SearchPattern#R_ERASURE_MATCH}
@@ -301,7 +301,7 @@ public class SearchMatch {
 	}
 
 	/**
-	 * Returns whether the associated element is a raw type/method or not.
+	 * Set whether the associated element is a raw type/method or not.
 	 * 
 	 * @param raw <code>true</code> if this search match is associated to a raw
 	 * type or method and <code>false</code> otherwise

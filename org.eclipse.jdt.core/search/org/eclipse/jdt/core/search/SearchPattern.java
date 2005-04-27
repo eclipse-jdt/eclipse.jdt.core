@@ -1281,14 +1281,14 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * Type pattern are formed by [qualification '.']type [typeArguments].
 	 * e.g. java.lang.Object
 	 *		Runnable
-	 *		List<String>
+	 *		List&lt;String&gt;
 	 *
 	 * @since 3.1
 	 *		Type arguments can be specified to search references to parameterized types.
-	 * 	and look as follow: '<' { [ '?' {'extends'|'super'} ] type ( ',' [ '?' {'extends'|'super'} ] type )* | '?' } '>'
+	 * 	and look as follow: '&lt;' { [ '?' {'extends'|'super'} ] type ( ',' [ '?' {'extends'|'super'} ] type )* | '?' } '&gt;'
 	 * 	Please note that:
-	 * 		- '*' is not valid inside type arguments definition <>
-	 * 		- '?' is treated as a wildcard when it is inside <> (ie. it must be put on first position of the type argument)
+	 * 		- '*' is not valid inside type arguments definition &lt;&gt;
+	 * 		- '?' is treated as a wildcard when it is inside &lt;&gt; (ie. it must be put on first position of the type argument)
 	 */
 	private static SearchPattern createTypePattern(String patternString, int limitTo, int matchRule, char indexSuffix) {
 		

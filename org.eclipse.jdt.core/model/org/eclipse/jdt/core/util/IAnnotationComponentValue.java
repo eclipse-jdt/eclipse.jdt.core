@@ -16,7 +16,7 @@ package org.eclipse.jdt.core.util;
  * 
  * This interface may be implemented by clients. 
  *  
- * @since 3.0
+ * @since 3.1
  */
 public interface IAnnotationComponentValue {
 	

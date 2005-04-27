@@ -178,6 +178,7 @@ public interface ITypeBinding extends IBinding {
 	 * 
 	 * @return the binding of the method that declares this type, or
 	 * <code>null</code> if none
+	 * @since 3.1
 	 */
 	public IMethodBinding getDeclaringMethod();
 

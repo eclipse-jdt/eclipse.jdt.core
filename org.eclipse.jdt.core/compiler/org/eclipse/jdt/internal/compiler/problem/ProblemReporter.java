@@ -733,7 +733,7 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocUnexpectedTag:
 		case IProblem.JavadocDuplicateReturnTag:
 		case IProblem.JavadocInvalidThrowsClass:
-		case IProblem.JavadocInvalidReference:
+		case IProblem.JavadocInvalidSeeReference:
 		case IProblem.JavadocInvalidParamTagName:
 		case IProblem.JavadocInvalidParamTagTypeParameter:
 		case IProblem.JavadocMalformedSeeReference:
@@ -759,7 +759,7 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocInvalidThrowsClassName:
 		case IProblem.JavadocDuplicateThrowsClassName:
 		case IProblem.JavadocMissingThrowsClassName:
-		case IProblem.JavadocMissingReference:
+		case IProblem.JavadocMissingSeeReference:
 		case IProblem.JavadocInvalidValueReference:
 		case IProblem.JavadocUndefinedField:
 		case IProblem.JavadocAmbiguousField:
@@ -3566,7 +3566,7 @@ public void javadocInvalidParamTypeParameter(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidParamTagTypeParameter, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocInvalidReference(int sourceStart, int sourceEnd) {
-	this.handle(IProblem.JavadocInvalidReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+	this.handle(IProblem.JavadocInvalidSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocInvalidSeeReferenceArgs(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidSeeArgs, NoArgument, NoArgument, sourceStart, sourceEnd);
@@ -3656,7 +3656,7 @@ public void javadocMissingParamTag(char[] name, int sourceStart, int sourceEnd, 
 }
 public void javadocMissingReference(int sourceStart, int sourceEnd, int modifiers){
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
-		this.handle(IProblem.JavadocMissingReference, NoArgument, NoArgument, sourceStart, sourceEnd);
+		this.handle(IProblem.JavadocMissingSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingReturnTag(int sourceStart, int sourceEnd, int modifiers){
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing|CompilerModifiers.AccOverriding)) != 0;

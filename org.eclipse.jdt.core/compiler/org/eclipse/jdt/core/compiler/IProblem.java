@@ -521,8 +521,8 @@ public interface IProblem {
 	int InvalidDigit = Syntax + Internal + 262;	
 	/** @since 3.1 */
 	int InvalidLowSurrogate = Syntax + Internal + 263;
+	/** @since 3.1 */
 	int InvalidHighSurrogate = Syntax + Internal + 264;
-	
 
 	// type related problems
 	/** @since 3.1 */
@@ -699,7 +699,7 @@ public interface IProblem {
 	int IncompatibleReturnTypeForNonInheritedInterfaceMethod = MethodRelated + 413;
 	/** @since 2.1 */
 	int IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod = MethodRelated + 414;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int IllegalVararg = MethodRelated + 415;
 
 	// code snippet support
@@ -762,9 +762,9 @@ public interface IProblem {
 	/** @since 3.0 */
 	int JavadocInvalidThrowsClassName = Javadoc + Internal + 481;
 	/** @since 3.0 */
-	int JavadocMissingReference = Javadoc + Internal + 482;
+	int JavadocMissingSeeReference = Javadoc + Internal + 482;
 	/** @since 3.0 */
-	int JavadocInvalidReference = Javadoc + Internal + 483;
+	int JavadocInvalidSeeReference = Javadoc + Internal + 483;
 	/** @since 3.0 */
 	int JavadocInvalidSeeHref = Javadoc + Internal + 484;
 	/** @since 3.0 */
@@ -836,10 +836,10 @@ public interface IProblem {
 	/** @since 3.0 */
 	int JavadocUnterminatedInlineTag = Javadoc + Internal + 512;
 	/** @since 3.0 */
-	int JavadocMissingHashCharacter = Javadoc + Internal + 513;
-	/** @since 3.0 */
-	int JavadocMalformedSeeReference = Javadoc + Internal + 514;
-	/** @since 3.0 */
+	int JavadocMalformedSeeReference = Javadoc + Internal + 513;
+	/** @since 3.1 */
+	int JavadocMissingHashCharacter = Javadoc + Internal + 514;
+	/** @since 3.1 */
 	int JavadocEmptyReturnTag = Javadoc + Internal + 515;
 	/** @since 3.1 */
 	int JavadocInvalidValueReference = Javadoc + Internal + 516;
