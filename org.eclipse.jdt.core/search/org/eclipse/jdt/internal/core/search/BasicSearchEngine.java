@@ -338,6 +338,24 @@ public class BasicSearchEngine {
 		return getWorkingCopies();
 	}
 
+	boolean match(char patternTypeSuffix, int modifiers) {
+		switch(patternTypeSuffix) {
+			case IIndexConstants.CLASS_SUFFIX :
+				return (modifiers & (Flags.AccAnnotation | Flags.AccInterface | Flags.AccEnum)) == 0;
+			case IIndexConstants.CLASS_AND_INTERFACE_SUFFIX:
+				return (modifiers & (Flags.AccAnnotation | Flags.AccEnum)) == 0;
+			case IIndexConstants.CLASS_AND_ENUM_SUFFIX:
+				return (modifiers & (Flags.AccAnnotation | Flags.AccInterface)) == 0;
+			case IIndexConstants.INTERFACE_SUFFIX :
+				return (modifiers & Flags.AccInterface) != 0;
+			case IIndexConstants.ENUM_SUFFIX :
+				return (modifiers & Flags.AccEnum) != 0;
+			case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
+				return (modifiers & Flags.AccAnnotation) != 0;
+		}
+		return true;
+	}
+
 	boolean match(char patternTypeSuffix, char[] patternPkg, char[] patternTypeName, int matchRule, int typeKind, char[] pkg, char[] typeName) {
 		switch(patternTypeSuffix) {
 			case IIndexConstants.CLASS_SUFFIX :
@@ -537,7 +555,9 @@ public class BasicSearchEngine {
 							accessRestriction = access.getViolatedRestriction(path);
 						}
 					}
-					nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
+					if (match(record.typeSuffix, record.modifiers)) {
+						nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
+					}
 				}
 				return true;
 			}

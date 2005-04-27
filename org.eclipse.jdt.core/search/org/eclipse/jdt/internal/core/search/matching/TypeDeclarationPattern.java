@@ -203,12 +203,56 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	TypeDeclarationPattern pattern = (TypeDeclarationPattern) decodedPattern;
 	switch(this.typeSuffix) {
 		case CLASS_SUFFIX :
-		case CLASS_AND_INTERFACE_SUFFIX :
-		case CLASS_AND_ENUM_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case INTERFACE_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case INTERFACE_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case ENUM_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case ENUM_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case ANNOTATION_TYPE_SUFFIX :
 			if (this.typeSuffix != pattern.typeSuffix) return false;
+			break;
+		case CLASS_AND_INTERFACE_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case INTERFACE_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
+		case CLASS_AND_ENUM_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case ENUM_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 	}
 
 	if (!matchesName(this.simpleName, pattern.simpleName))
@@ -253,13 +297,12 @@ EntryResult[] queryIn(Index index) throws IOException {
 				if (this.simpleName == null) {
 					switch(this.typeSuffix) {
 						case CLASS_SUFFIX :
-						case CLASS_AND_INTERFACE_SUFFIX :
-						case CLASS_AND_ENUM_SUFFIX :
 						case INTERFACE_SUFFIX :
 						case ENUM_SUFFIX :
 						case ANNOTATION_TYPE_SUFFIX :
-							key = new char[] {ONE_STAR[0],  SEPARATOR,
-								isCaseSensitive() ? this.typeSuffix : Character.toLowerCase(this.typeSuffix)}; // find all classes or all interfaces
+						case CLASS_AND_INTERFACE_SUFFIX :
+						case CLASS_AND_ENUM_SUFFIX :
+							key = new char[] {ONE_STAR[0],  SEPARATOR, ONE_STAR[0]};
 							break;
 					}
 				} else if (this.simpleName[this.simpleName.length - 1] != '*') {
