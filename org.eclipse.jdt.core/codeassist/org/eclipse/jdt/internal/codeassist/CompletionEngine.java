@@ -3154,8 +3154,7 @@ public final class CompletionEngine
 				if(onlyStaticMethods) continue next;
 			}
 
-			if (this.options.checkVisibility
-				&& !method.canBeSeenBy(receiverType, FakeInvocationSite , scope)) continue next;
+			if (!method.canBeSeenBy(receiverType, FakeInvocationSite , scope)) continue next;
 
 			if (exactMatch) {
 				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */

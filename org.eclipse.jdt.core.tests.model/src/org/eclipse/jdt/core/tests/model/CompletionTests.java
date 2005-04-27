@@ -966,7 +966,30 @@ public void testCompletionMethodDeclaration10() throws JavaModelException {
 		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=80063
+public void testCompletionMethodDeclaration11() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Completion/src/test/CompletionMethodDeclaration11.java",
+			"package test;\n" +
+			"public class CompletionMethodDeclaration11 {\n" +
+			"  private void foo() {" +
+			"  }" +
+			"}" +
+			"class CompletionMethodDeclaration11_2 extends CompletionMethodDeclaration11 {\n" +
+			"  fo" +
+			"}");
+	
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.wc.getSource();
+	String completeBehind = "fo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.wc.codeComplete(cursorLocation, requestor);
 
+	assertResults(
+			"fo[POTENTIAL_METHOD_DECLARATION]{fo, Ltest.CompletionMethodDeclaration11_2;, ()V, fo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
 public void testCompletionFieldName() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFieldName.java");
