@@ -37,6 +37,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	static {
 //		TESTS_NUMBERS = new int[] { 167 };
+//		TESTS_NAMES = new String[] {"test0172"};
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -5209,5 +5210,41 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, node.getNodeType());
 		ITypeBinding type = ((SimpleName)node).resolveTypeBinding();
 		assertNull("Unexpected element", type.getTypeArguments()[0].getJavaElement());
-	}		
+	}
+	
+	/*
+	 * Ensures that 2 different capture bindings are not "isEqualTo(...)".
+	 * (regression test for bug 92888 ITypeBinding#isEqualTo(..) is wrong for capture bindings)
+	 */
+	public void test0172() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"public class X<T> {\n" + 
+			"  private static X<? super Number> num() {\n" + 
+			"		return null;\n" + 
+			"	}\n" +
+			"  void add(T t) {\n" +
+			"  }\n" +
+			"  void foo() {\n" + 
+			"    Number n= null;\n" + 
+			"    num().add(null);\n" + 
+			"    num().add(n);\n" + 
+			"  }\n" +
+			"}\n";
+	   	CompilationUnit compilationUnit = (CompilationUnit) buildAST(
+			contents,
+    		this.workingCopy);
+	   	MarkerInfo info = new MarkerInfo(contents);
+	   	info.astStart = contents.indexOf("num().add(null);");
+	   	info.astEnd = info.astStart + "num().add(null)".length();
+	   	MethodInvocation invocation = (MethodInvocation) findNode(compilationUnit, info);
+	   	IMethodBinding binding1 = invocation.resolveMethodBinding();
+	   	info = new MarkerInfo(contents);
+	   	info.astStart = contents.indexOf("num().add(n);");
+	   	info.astEnd = info.astStart + "num().add(n)".length();
+	   	invocation = (MethodInvocation) findNode(compilationUnit, info);
+	   	IMethodBinding binding2 = invocation.resolveMethodBinding();
+	   	assertTrue("2 different capture bindings should not be equals", !binding1.isEqualTo(binding2));
+	}
+	
 }
