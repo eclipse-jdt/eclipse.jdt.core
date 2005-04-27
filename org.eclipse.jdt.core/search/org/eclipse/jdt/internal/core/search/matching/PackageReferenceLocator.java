@@ -217,6 +217,17 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			if (pkgBinding != null)
 				last = pkgBinding.compoundName.length;
 		}
+		// Do not report qualified references which are only enclosing type
+		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=91078)
+		ReferenceBinding enclosingType = typeBinding == null ? null: typeBinding.enclosingType();
+		if (enclosingType != null) {
+			int length = positions.length;
+			while (enclosingType != null && length > 0) {
+				length--;
+				enclosingType = enclosingType.enclosingType();
+			}
+			if (length <= 1) return;
+		}
 	}
 	if (last == -1) {
 		last = this.pattern.segments.length;

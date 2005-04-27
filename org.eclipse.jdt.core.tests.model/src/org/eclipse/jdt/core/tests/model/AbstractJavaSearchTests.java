@@ -447,6 +447,12 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope) throws CoreException {
 		search(element, limitTo, EXACT_RULE, scope, resultCollector);
 	}
+	IJavaSearchScope getJavaSearchWorkingCopiesScope(ICompilationUnit workingCopy) throws JavaModelException {
+		return SearchEngine.createJavaSearchScope(new ICompilationUnit[] { workingCopy });
+	}
+	IJavaSearchScope getJavaSearchWorkingCopiesScope() throws JavaModelException {
+		return SearchEngine.createJavaSearchScope(this.workingCopies);
+	}
 	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope) throws CoreException {
 		search(element, limitTo, matchRule, scope, resultCollector);
 	}

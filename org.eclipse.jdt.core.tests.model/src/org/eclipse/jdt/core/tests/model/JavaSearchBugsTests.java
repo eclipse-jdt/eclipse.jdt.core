@@ -53,8 +53,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug82208";
-//		TESTS_NAMES = new String[] { "testBug88174" };
-//		TESTS_NUMBERS = new int[] { 83230 };
+//		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
+//		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -784,7 +784,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			owner,
 			true);
 		IType type = workingCopies[0].getType("A");
-		search(type, REFERENCES, getJavaSearchScopeBugs("b79860", false));
+		search(type, REFERENCES);
 		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
 			"src/b79860/X.java b79860.X [A] EXACT_MATCH"
@@ -793,7 +793,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	public void testBug79860string() throws CoreException {
 		assertNotNull("Problem in tests processing", workingCopies);
 		assertEquals("Problem in tests processing", 2, workingCopies.length);
-		search("I?", TYPE, REFERENCES, getJavaSearchScopeBugs("b79860", false), resultCollector);
+		search("I?", TYPE, REFERENCES);
 		assertSearchResults(
 			"src/b79860/Y.java b79860.Y [I1] EXACT_MATCH\n" + 
 			"src/b79860/Y.java b79860.Y [I2] EXACT_MATCH\n" + 
@@ -1186,7 +1186,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	 */
 	public void testBug80918() throws CoreException {
 		IType type = getClassFile("JavaSearchBugs", getExternalJCLPathString("1.5"), "java.lang", "Exception.class").getType();
-		search(type, REFERENCES, SearchPattern.R_CASE_SENSITIVE|SearchPattern.R_ERASURE_MATCH, getJavaSearchScopeBugs("b79803", false), this.resultCollector);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")}, IJavaSearchScope.SOURCES);
+		search(type, REFERENCES, SearchPattern.R_CASE_SENSITIVE|SearchPattern.R_ERASURE_MATCH, scope);
 		assertSearchResults(
 			"" // do not expect to find anything, just verify that no CCE happens
 		);
@@ -1424,17 +1425,46 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			null,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			TYPE,
-			getJavaSearchScopeBugs("b82208", false),
+			getJavaSearchScopeBugs(),
 			requestor,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null
 		);
 		assertSearchResults(
 			"Unexpected all type names",
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
 			"b82208.B82208\n" + 
 			"b82208.B82208_A\n" + 
 			"b82208.B82208_E\n" + 
-			"b82208.B82208_I",
+			"b82208.B82208_I\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" + 
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable\n" + 
+			"java.lang.annotation.Annotation",
 			requestor);
 	}
 	public void testBug82208_SearchAllTypeNames_CLASS() throws CoreException {
@@ -1445,17 +1475,50 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 		new SearchEngine(this.workingCopies).searchAllTypeNames(
 			null,
-			null,
+			IIndexConstants.ONE_STAR,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			CLASS,
-			getJavaSearchScopeBugs("b82208", false),
+			getJavaSearchScopeBugs(),
 			requestor,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null
 		);
+		// Remove interface, enum and annotation
 		assertSearchResults(
 			"Unexpected all type names",
-			"b82208.B82208",
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
+			"b82208.B82208\n" + 
+			//"b82208.B82208_A\n" + 
+			//"b82208.B82208_E\n" + 
+			//"b82208.B82208_I\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			//"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			//"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" +  // Enum is not an enum in java.lang
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable",
+			//"java.lang.annotation.Annotation",
 			requestor);
 	}
 	public void testBug82208_SearchAllTypeNames_CLASS_AND_INTERFACE() throws CoreException {
@@ -1469,15 +1532,47 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			null,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			CLASS_AND_INTERFACE,
-			getJavaSearchScopeBugs("b82208", false),
+			getJavaSearchScopeBugs(),
 			requestor,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null
 		);
+		// Remove enum and annotation
 		assertSearchResults(
 			"Unexpected all type names",
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
 			"b82208.B82208\n" + 
-			"b82208.B82208_I",
+			//"b82208.B82208_A\n" + 
+			//"b82208.B82208_E\n" + 
+			"b82208.B82208_I\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" +  // Enum is not an enum in java.lang
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable\n" +
+			"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
 			requestor);
 	}
 	public void testBug82208_SearchAllTypeNames_CLASS_AND_ENUM() throws CoreException {
@@ -1491,15 +1586,47 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			null,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			CLASS_AND_ENUM,
-			getJavaSearchScopeBugs("b82208", false),
+			getJavaSearchScopeBugs(),
 			requestor,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null
 		);
+		// Remove interface and annotation
 		assertSearchResults(
 			"Unexpected all type names",
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
 			"b82208.B82208\n" + 
-			"b82208.B82208_E",
+			//"b82208.B82208_A\n" + 
+			"b82208.B82208_E\n" + 
+			//"b82208.B82208_I\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			//"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			//"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" + 
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable",
+			//"java.lang.annotation.Annotation",
 			requestor);
 	}
 	public void testBug82208_SearchAllTypeNames_INTERFACE() throws CoreException {
@@ -1513,14 +1640,17 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			null,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			INTERFACE,
-			getJavaSearchScopeBugs("b82208", false),
+			getJavaSearchScopeBugs(),
 			requestor,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null
 		);
 		assertSearchResults(
 			"Unexpected all type names",
-			"b82208.B82208_I",
+			"b82208.B82208_I\n" + 
+			"java.io.Serializable\n" + 
+			"java.lang.Comparable\n" +
+			"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
 			requestor);
 	}
 	public void testBug82208_SearchAllTypeNames_ENUM() throws CoreException {
@@ -1534,7 +1664,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			null,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			ENUM,
-			getJavaSearchScopeBugs("b82208", false),
+			getJavaSearchScopeBugs(),
 			requestor,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null
@@ -1555,7 +1685,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			null,
 			SearchPattern.R_PATTERN_MATCH, // case insensitive
 			ANNOTATION_TYPE,
-			getJavaSearchScopeBugs("b82208", false),
+			getJavaSearchScopeBugs(),
 			requestor,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			null
@@ -2672,6 +2802,51 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(methods[1], REFERENCES);
 		assertSearchResults(
 			"src/b90915/X.java void b90915.X.foo() [paramTypesArgs(null)] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 91078: [search] Java search for package reference wrongly identifies inner class as package
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=91078"
+	 */
+	public void testBug91078() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b91078/test/Example.java",
+			"package b91078.test;\n" + 
+			"import b91078.util.HashMap;\n" + 
+			"import b91078.util.Map;\n" + 
+			"public class Example {\n" + 
+			"    public Map.Entry logAll(Object obj) {\n" + 
+			"    	if (obj instanceof b91078.util.HashMap) {\n" + 
+			"    		HashMap map = (HashMap) obj;\n" + 
+			"            return map.entry;\n" + 
+			"    	}\n" + 
+			"    	if (obj instanceof b91078.util.HashMap.Entry) {\n" + 
+			"            Map.Entry entry = (Map.Entry) obj;\n" + 
+			"            return entry;\n" + 
+			"    	}\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b91078/util/HashMap.java",
+			"package b91078.util;\n" + 
+			"public class HashMap implements Map {\n" + 
+			"	public Entry entry;\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b91078/util/Map.java",
+			"package b91078.util;\n" + 
+			"public interface Map {\n" + 
+			"	class Entry{}\n" + 
+			"}\n"
+		);
+		search("*", PACKAGE, REFERENCES, getJavaSearchWorkingCopiesScope(workingCopies[0]));
+		assertSearchResults(
+			"src/b91078/test/Example.java [b91078.util] EXACT_MATCH\n" + 
+			"src/b91078/test/Example.java [b91078.util] EXACT_MATCH\n" + 
+			"src/b91078/test/Example.java Map.Entry b91078.test.Example.logAll(Object) [b91078.util] EXACT_MATCH\n" + 
+			"src/b91078/test/Example.java Map.Entry b91078.test.Example.logAll(Object) [b91078.util] EXACT_MATCH"
 		);
 	}
 }
