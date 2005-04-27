@@ -546,7 +546,12 @@ private void buildMoreCompletionContext(Expression expression) {
 								this.identifierPtr--; 
 								this.identifierLengthStack[this.identifierLengthPtr]--;
 								// consume the receiver
-								messageSend.receiver = this.getUnspecifiedReference();
+								int identifierLength = this.identifierLengthStack[this.identifierLengthPtr];
+								if(this.identifierPtr > -1 && identifierLength > 0 && this.identifierPtr + 1 >= identifierLength) {
+									messageSend.receiver = this.getUnspecifiedReference();
+								} else {
+									messageSend = null;
+								}
 								break;
 							case SUPER_RECEIVER:
 								messageSend.receiver = new SuperReference(0, 0);
