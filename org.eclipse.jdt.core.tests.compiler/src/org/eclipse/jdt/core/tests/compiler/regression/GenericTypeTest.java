@@ -17799,7 +17799,7 @@ public void test617() {
 			"");
 	}			
 	public void test630() {
-	    this.runConformTest(
+	    this.runNegativeTest(
             new String[] {
                 "X.java",
 				"import java.util.ArrayList;\n" + 
