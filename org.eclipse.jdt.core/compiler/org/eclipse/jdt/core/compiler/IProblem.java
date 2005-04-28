@@ -835,22 +835,22 @@ public interface IProblem {
 	int JavadocAmbiguousMethodReference = Javadoc + Internal + 511;
 	/** @since 3.0 */
 	int JavadocUnterminatedInlineTag = Javadoc + Internal + 512;
-	/** @since 3.1 */
-	int JavadocMissingHashCharacter = Javadoc + Internal + 513;
 	/** @since 3.0 */
-	int JavadocMalformedSeeReference = Javadoc + Internal + 514;
+	int JavadocMalformedSeeReference = Javadoc + Internal + 513;
+	/** @since 3.0 */
+	int JavadocMessagePrefix = Internal + 514;
 	/** @since 3.1 */
-	int JavadocEmptyReturnTag = Javadoc + Internal + 515;
+	int JavadocMissingHashCharacter = Javadoc + Internal + 515;
 	/** @since 3.1 */
-	int JavadocInvalidValueReference = Javadoc + Internal + 516;
+	int JavadocEmptyReturnTag = Javadoc + Internal + 516;
 	/** @since 3.1 */
-	int JavadocUnexpectedText = Javadoc + Internal + 517;
+	int JavadocInvalidValueReference = Javadoc + Internal + 517;
 	/** @since 3.1 */
-	int JavadocInvalidParamTagName = Javadoc + Internal + 518;
+	int JavadocUnexpectedText = Javadoc + Internal + 518;
+	/** @since 3.1 */
+	int JavadocInvalidParamTagName = Javadoc + Internal + 519;
 	/** @since 3.1 */
 	int JavadocInvalidParamTagTypeParameter = Javadoc + Internal + 469;
-	/** @since 3.0 */
-	int JavadocMessagePrefix = Internal + 519;
 
 	/**
 	 * Generics
