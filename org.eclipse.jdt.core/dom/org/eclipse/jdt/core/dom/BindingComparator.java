@@ -225,7 +225,8 @@ class BindingComparator {
 					CaptureBinding captureBinding = (CaptureBinding) typeBinding;
 					CaptureBinding captureBinding2 = (CaptureBinding) typeBinding2;
 					return captureBinding.position == captureBinding2.position
-						&& isEqual(captureBinding.wildcard, captureBinding2.wildcard, checkTypeVariables);
+						&& isEqual(captureBinding.wildcard, captureBinding2.wildcard, checkTypeVariables)
+						&& isEqual(captureBinding.sourceType, captureBinding2.sourceType, true);
 				}
 				TypeVariableBinding typeVariableBinding = (TypeVariableBinding) typeBinding;
 				TypeVariableBinding typeVariableBinding2 = (TypeVariableBinding) typeBinding2;
