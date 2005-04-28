@@ -19,21 +19,21 @@ import org.eclipse.jdt.internal.compiler.util.*;
 
 public class CompilationUnitScope extends Scope {
 	
-	public LookupEnvironment environment;
-	public CompilationUnitDeclaration referenceContext;
-	public char[][] currentPackageName;
-	public PackageBinding fPackage;
-	public ImportBinding[] imports;
-	public HashtableOfObject resolvedSingeTypeImports;
-	
-	public SourceTypeBinding[] topLevelTypes;
+public LookupEnvironment environment;
+public CompilationUnitDeclaration referenceContext;
+public char[][] currentPackageName;
+public PackageBinding fPackage;
+public ImportBinding[] imports;
+public HashtableOfObject typeOrPackageCache; // used in Scope.getTypeOrPackage()
 
-	private CompoundNameVector qualifiedReferences;
-	private SimpleNameVector simpleNameReferences;
-	private ObjectVector referencedTypes;
-	private ObjectVector referencedSuperTypes;
-	
-	HashtableOfType constantPoolNameUsage;
+public SourceTypeBinding[] topLevelTypes;
+
+private CompoundNameVector qualifiedReferences;
+private SimpleNameVector simpleNameReferences;
+private ObjectVector referencedTypes;
+private ObjectVector referencedSuperTypes;
+
+HashtableOfType constantPoolNameUsage;
 
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	super(COMPILATION_UNIT_SCOPE, null);
@@ -358,11 +358,11 @@ void faultInImports() {
 	imports = resolvedImports;
 
 	int length = imports.length;
-	resolvedSingeTypeImports = new HashtableOfObject(length);
+	this.typeOrPackageCache = new HashtableOfObject(length);
 	for (int i = 0; i < length; i++) {
 		ImportBinding binding = imports[i];
 		if (!binding.onDemand && binding.resolvedImport instanceof ReferenceBinding)
-			resolvedSingeTypeImports.put(binding.compoundName[binding.compoundName.length - 1], binding);
+			this.typeOrPackageCache.put(binding.compoundName[binding.compoundName.length - 1], binding);
 	}
 }
 public void faultInTypes() {

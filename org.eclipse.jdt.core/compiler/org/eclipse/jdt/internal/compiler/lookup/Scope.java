@@ -2384,45 +2384,50 @@ public abstract class Scope
 
 		// at this point the scope is a compilation unit scope
 		CompilationUnitScope unitScope = (CompilationUnitScope) scope;
-		PackageBinding currentPackage = unitScope.fPackage; 
+		HashtableOfObject typeOrPackageCache = unitScope.typeOrPackageCache;
+		if (typeOrPackageCache != null) {
+			Binding binding = (Binding) typeOrPackageCache.get(name);
+			if (binding != null) { // can also include NotFound ProblemReferenceBindings if we already know this name is not found
+				if (binding instanceof ImportBinding) { // single type import cached in faultInImports(), replace it in the cache with the type
+					ImportReference importReference = ((ImportBinding) binding).reference;
+					if (importReference != null) importReference.used = true;
+					typeOrPackageCache.put(name, binding = ((ImportBinding) binding).resolvedImport); // already know its visible
+				}
+				if (foundType != null && binding.problemId() != Ambiguous)
+					return foundType; // problem type from above supercedes NotFound type but not Ambiguous import case
+				return binding; // cached type or package found in previous walk below
+			}
+		}
+
 		// ask for the imports + name
 		if ((mask & Binding.TYPE) != 0) {
-			// check single type imports.
-
 			ImportBinding[] imports = unitScope.imports;
-			if (imports != null) {
-				HashtableOfObject typeImports = unitScope.resolvedSingeTypeImports;
-				if (typeImports != null) {
-					Object typeImport = typeImports.get(name);
-					if (typeImport != null) {
-						if (typeImport instanceof ReferenceBinding)
-							return (ReferenceBinding) typeImport; // cached from on-demand search below
-						ImportReference importReference = ((ImportBinding) typeImport).reference;
-						if (importReference != null) importReference.used = true;
-						return ((ImportBinding) typeImport).resolvedImport; // already know its visible
-					}
-				} else {
-					// walk all the imports since resolvedSingleTypeImports is not yet initialized
-					for (int i = 0, length = imports.length; i < length; i++) {
-						ImportBinding typeImport = imports[i];
-						if (!typeImport.onDemand) {
-							if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name)) {
-								Binding resolvedImport = unitScope.resolveSingleImport(typeImport);
-								if (resolvedImport != null && resolvedImport instanceof TypeBinding) {
-									ImportReference importReference = typeImport.reference;
-									if (importReference != null)
-										importReference.used = true;
-									return resolvedImport; // already know its visible
-								}
+			if (imports != null && typeOrPackageCache == null) { // walk single type imports since faultInImports() has not run yet
+				for (int i = 0, length = imports.length; i < length; i++) {
+					ImportBinding typeImport = imports[i];
+					if (!typeImport.onDemand) {
+						if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name)) {
+							Binding resolvedImport = unitScope.resolveSingleImport(typeImport);
+							if (resolvedImport != null && resolvedImport instanceof TypeBinding) {
+								ImportReference importReference = typeImport.reference;
+								if (importReference != null)
+									importReference.used = true;
+								return resolvedImport; // already know its visible
 							}
 						}
 					}
 				}
 			}
+
 			// check if the name is in the current package, skip it if its a sub-package
+			PackageBinding currentPackage = unitScope.fPackage; 
 			unitScope.recordReference(currentPackage.compoundName, name);
 			Binding binding = currentPackage.getTypeOrPackage(name);
-			if (binding instanceof ReferenceBinding) return binding; // type is always visible to its own package
+			if (binding instanceof ReferenceBinding) {
+				if (typeOrPackageCache != null)
+					typeOrPackageCache.put(name, binding);
+				return binding; // type is always visible to its own package
+			}
 
 			// check on demand imports
 			if (imports != null) {
@@ -2441,9 +2446,13 @@ public abstract class Scope
 							if (temp.isValidBinding()) {
 								ImportReference importReference = someImport.reference;
 								if (importReference != null) importReference.used = true;
-								if (foundInImport)
+								if (foundInImport) {
 									// Answer error binding -- import on demand conflict; name found in two import on demand packages.
-									return new ProblemReferenceBinding(name, Ambiguous);
+									temp = new ProblemReferenceBinding(name, Ambiguous);
+									if (typeOrPackageCache != null)
+										typeOrPackageCache.put(name, temp);
+									return temp;
+								}
 								type = temp;
 								foundInImport = true;
 							} else if (foundType == null) {
@@ -2453,9 +2462,8 @@ public abstract class Scope
 					}
 				}
 				if (type != null) {
-					// put in single import cache so we can avoid doing on demand walk again
-					if (unitScope.resolvedSingeTypeImports != null)
-						unitScope.resolvedSingeTypeImports.put(name, type);
+					if (typeOrPackageCache != null)
+						typeOrPackageCache.put(name, type);
 					return type;
 				}
 			}
@@ -2464,12 +2472,20 @@ public abstract class Scope
 		unitScope.recordSimpleReference(name);
 		if ((mask & Binding.PACKAGE) != 0) {
 			PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
-			if (packageBinding != null) return packageBinding;
+			if (packageBinding != null) {
+				if (typeOrPackageCache != null)
+					typeOrPackageCache.put(name, packageBinding);
+				return packageBinding;
+			}
 		}
 
 		// Answer error binding -- could not find name
-		if (foundType != null) return foundType; // problem type from above
-		return new ProblemReferenceBinding(name, NotFound);
+		if (foundType == null) {
+			foundType = new ProblemReferenceBinding(name, NotFound);
+			if (typeOrPackageCache != null)
+				typeOrPackageCache.put(name, foundType);
+		}
+		return foundType;
 	}
 
 	// Added for code assist... NOT Public API
