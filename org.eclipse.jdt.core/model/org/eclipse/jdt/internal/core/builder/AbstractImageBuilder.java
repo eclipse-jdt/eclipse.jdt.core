@@ -313,8 +313,12 @@ protected Compiler newCompiler() {
 		option = (String) projectOptions.get(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS);
 		if (option == null || option.equals(JavaCore.IGNORE)) {
 			option = (String) projectOptions.get(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS);
-			if (option == null || option.equals(JavaCore.IGNORE))
-				projectOptions.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
+			if (option == null || option.equals(JavaCore.IGNORE)) {
+				option = (String) projectOptions.get(JavaCore.COMPILER_PB_UNUSED_IMPORT);
+				if (option == null || option.equals(JavaCore.IGNORE)) { // Unused import need also to look inside javadoc comment
+					projectOptions.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.DISABLED);
+				}
+			}
 		}
 	}
 	
