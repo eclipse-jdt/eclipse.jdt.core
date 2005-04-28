@@ -17870,5 +17870,82 @@ public void test617() {
 			"	                        ^^^^^^^\n" + 
 			"Bound mismatch: The generic method valueOf(Class<T>, String) of type Enum<E> is not applicable for the arguments (Class<capture-of ? extends Enum<?>>, String) since the type capture-of ? extends Enum<?> is not a valid substitute for the bounded parameter <T extends Enum<T>>\n" + 
 			"----------\n");
-	}					
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982
+	public void test632() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.Vector;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void test1() {\n" + 
+				"		Vector<? super java.lang.Object[]> lhs = null;\n" + 
+				"		Vector<? extends java.lang.Object[]> rhs = null;\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"	void test2() {\n" + 
+				"		Vector<? extends java.lang.Object[]> lhs = null;\n" + 
+				"		Vector<? extends java.lang.Object[]> rhs = null;\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"	void test3() {\n" + 
+				"		Vector<? super java.lang.Object[]> lhs = null;\n" + 
+				"		Vector<? super java.lang.Object[]> rhs = null;\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"	void test4() {\n" + 
+				"		Vector<?  extends java.lang.Object[]> lhs = null;\n" + 
+				"		Vector<? super java.lang.Object[]> rhs = null;\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (capture-of ? extends Object[])\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(capture-of ? extends Object[]) in the type Vector<capture-of ? extends Object[]> is not applicable for the arguments (capture-of ? extends Object[])\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 17)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (capture-of ? super Object[])\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 22)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(capture-of ? extends Object[]) in the type Vector<capture-of ? extends Object[]> is not applicable for the arguments (capture-of ? super Object[])\n" + 
+			"----------\n");
+	}				
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982 - variation
+	public void test633() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.Vector;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void test1() {\n" + 
+				"		Vector<? super Object[]> lhs = null;\n" + 
+				"		Vector<Object[]> rhs = null;\n" + 
+				"		lhs.add(rhs.get(0)); \n" + 
+				"		foo(rhs.get(0)); // ok #foo(Object[])\n" + 
+				"	}\n" + 
+				"	void foo(Object[] objs) {\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	lhs.add(rhs.get(0)); \n" + 
+			"	    ^^^\n" + 
+			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (Object[])\n" + 
+			"----------\n");
+	}				
 }

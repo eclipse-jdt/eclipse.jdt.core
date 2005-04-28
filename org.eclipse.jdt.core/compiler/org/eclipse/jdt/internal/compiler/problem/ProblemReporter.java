@@ -2632,10 +2632,6 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method) {
 					String parameterTypeNames = typesAsString(method.isVarargs(), method.parameters, false);
 					String closestParameterTypeShortNames = typesAsString(shownMethod.isVarargs(), shownMethod.parameters, true);
 					String parameterTypeShortNames = typesAsString(method.isVarargs(), method.parameters, true);
-					if (closestParameterTypeShortNames.equals(parameterTypeShortNames)){
-						closestParameterTypeShortNames = closestParameterTypeNames;
-						parameterTypeShortNames = parameterTypeNames;
-					}
 					this.handle(
 						IProblem.ParameterMismatch,
 						new String[] {

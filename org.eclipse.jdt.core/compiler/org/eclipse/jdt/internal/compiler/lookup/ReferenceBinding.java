@@ -698,7 +698,9 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 			// check compatibility with capture of ? super X
 			if (otherType.isCapture()) {
 				CaptureBinding otherCapture = (CaptureBinding) otherType;
-				if (otherCapture.lowerBound != null) {
+				TypeBinding otherLowerBound;
+				if ((otherLowerBound = otherCapture.lowerBound) != null) {
+					if (otherLowerBound.isArrayType()) return false;
 					return this.isCompatibleWith(otherCapture.lowerBound);
 				}
 			}
