@@ -46,7 +46,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests_1_5("test0184"));			
+	suite.addTest(new CompletionTests_1_5("test0187"));			
 	return suite;
 }
 
@@ -5051,8 +5051,8 @@ public void test0186() throws JavaModelException {
 		
 		assertResults(
 				"zzint[FIELD_REF]{zzint, Ltest0186.Test;, I, zzint, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0186, Ltest0186.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0186, Ltest0186.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0186, Ltest0186.ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"ZZClass[TYPE_REF]{ZZClass, test0186, Ltest0186.ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5062,5 +5062,151 @@ public void test0186() throws JavaModelException {
 			aClass.discardWorkingCopy();
 		}
 	}
+}
+// completion test with capture
+public void test0187() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0187/Test.java",
+            "package test0187;\n" +
+            "public class Test<U> {\n" +
+            "  void bar(ZZClass1<? extends U> var) {\n" +
+            "    var.zzz\n" +
+            "  }\n" +
+            "}\n" +
+            "abstract class ZZClass1<V> {\n" +
+            "  ZZClass2<V>[] zzz1;\n"+
+            "  abstract ZZClass2<V>[] zzz2();\n" +
+            "}\n" +
+            "abstract class ZZClass2<T> {\n" +
+            "}",
+            "var.zzz");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "zzz1[FIELD_REF]{zzz1, Ltest0187.ZZClass1<!+TU;>;, [Ltest0187.ZZClass2<!+TU;>;, zzz1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+            "zzz2[METHOD_REF]{zzz2(), Ltest0187.ZZClass1<!+TU;>;, ()[Ltest0187.ZZClass2<!+TU;>;, zzz2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+// completion test with capture
+public void test0188() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0188/Test.java",
+            "package test0188;\n" +
+            "public class Test<U> {\n" +
+            "  ZZClass1<? extends U> var1;\n" +
+            "  void bar(ZZClass1<? extends U> var2) {\n" +
+            "    var\n" +
+            "  }\n" +
+            "}\n" +
+            "abstract class ZZClass1<V> {\n" +
+            "  ZZClass2<V>[] zzz1;\n"+
+            "  abstract ZZClass2<V>[] zzz2();\n" +
+            "}\n" +
+            "abstract class ZZClass2<T> {\n" +
+            "}",
+            "var");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "var1[FIELD_REF]{var1, Ltest0188.Test<TU;>;, Ltest0188.ZZClass1<+TU;>;, var1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}\n" +
+            "var2[LOCAL_VARIABLE_REF]{var2, null, Ltest0188.ZZClass1<+TU;>;, var2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+// completion test with capture
+public void test0189() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0189/Test.java",
+            "package test0189;\n" +
+            "public class Test<U> {\n" +
+            "  void bar(ZZClass3 var) {\n" +
+            "    var.zzz\n" +
+            "  }\n" +
+            "}\n" +
+            "abstract class ZZClass2<T> {\n" +
+            "}\n" +
+            "class ZZClass3 {\n" +
+             "  ZZClass2<? extends Object> zzz1;\n"+
+            "}",
+            "var.zzz");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "zzz1[FIELD_REF]{zzz1, Ltest0189.ZZClass3;, Ltest0189.ZZClass2<+Ljava.lang.Object;>;, zzz1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+// completion test with capture
+public void test0190() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0190/Test.java",
+            "package test0190;\n" +
+            "public class Test<U> {\n" +
+            "  ZZClass1<? extends U> var1\n" +
+            "  void bar(ZZClass3<Object> var2) {\n" +
+            "    var2.toto().zzz\n" +
+            "  }\n" +
+            "}\n" +
+            "abstract class ZZClass1<V> {\n" +
+            "  ZZClass2<V>[] zzz1;\n"+
+            "  abstract ZZClass2<V>[] zzz2();\n" +
+            "}\n" +
+            "abstract class ZZClass2<T> {\n" +
+            "}\n" +
+            "abstract class ZZClass3<T> {\n" +
+            "  ZZClass1<? extends T> toto() {\n" +
+            "    return null;\n" +
+            "  }\n" +
+            "}",
+            "toto().zzz");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "zzz1[FIELD_REF]{zzz1, Ltest0190.ZZClass1<!+Ljava.lang.Object;>;, [Ltest0190.ZZClass2<!+Ljava.lang.Object;>;, zzz1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED) + "}\n" +
+            "zzz2[METHOD_REF]{zzz2(), Ltest0190.ZZClass1<!+Ljava.lang.Object;>;, ()[Ltest0190.ZZClass2<!+Ljava.lang.Object;>;, zzz2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+// completion test with capture
+public void test0191() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0191/Test.java",
+            "package test0191;\n" +
+            "public class Test<U> {\n" +
+            "  ZZClass1<? extends U> var1;\n" +
+            "  void bar(ZZClass1<? extends U> zzzvar, ZZClass1<? extends U> var2) {\n" +
+            "    zzzvar = var\n" +
+            "  }\n" +
+            "}\n" +
+            "abstract class ZZClass1<V> {\n" +
+            "  ZZClass2<V>[] zzz1;\n"+
+            "  abstract ZZClass2<V>[] zzz2();\n" +
+            "}\n" +
+            "abstract class ZZClass2<T> {\n" +
+            "}",
+            "var");
+    
+    assertResults(
+            "expectedTypesSignatures={Ltest0191.ZZClass1<+TU;>;}\n" +
+            "expectedTypesKeys={Ltest0191/ZZClass1<+Ltest0191/Test<TU;>;:TU;>;^1024}",
+            result.context);
+    
+    assertResults(
+            "var1[FIELD_REF]{var1, Ltest0191.Test<TU;>;, Ltest0191.ZZClass1<+TU;>;, var1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
+            "var2[LOCAL_VARIABLE_REF]{var2, null, Ltest0191.ZZClass1<+TU;>;, var2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+            result.proposals);
 }
 }

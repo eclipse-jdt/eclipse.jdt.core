@@ -537,7 +537,7 @@ public final class CompletionEngine
 								setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
 								TypeBinding receiverType = ((VariableBinding) qualifiedBinding).type;
 								if (receiverType != null) {
-									findFieldsAndMethods(this.completionToken, receiverType, scope, ref, scope,false,false);
+									findFieldsAndMethods(this.completionToken, receiverType.capture(scope, ref.sourceEnd), scope, ref, scope,false,false);
 								}
 	
 							} else {
@@ -678,7 +678,7 @@ public final class CompletionEngine
 									
 									findFieldsAndMethods(
 										this.completionToken,
-										(TypeBinding) qualifiedBinding,
+										((TypeBinding) qualifiedBinding).capture(scope, access.receiver.sourceEnd),
 										scope,
 										access,
 										scope,
@@ -703,7 +703,7 @@ public final class CompletionEngine
 												findMethods(
 													this.completionToken,
 													argTypes,
-													(ReferenceBinding) qualifiedBinding,
+													(ReferenceBinding)((ReferenceBinding) qualifiedBinding).capture(scope, messageSend.receiver.sourceEnd),
 													scope,
 													new ObjectVector(),
 													false,
@@ -3070,17 +3070,18 @@ public final class CompletionEngine
 	private int computeRelevanceForExpectingType(TypeBinding proposalType){
 		if(this.expectedTypes != null && proposalType != null) {
 			for (int i = 0; i <= this.expectedTypesPtr; i++) {
+                int relevance = R_EXPECTED_TYPE;
 				if(CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) &&
 					CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), proposalType.qualifiedSourceName())) {
-					return R_EXACT_EXPECTED_TYPE;
+                    relevance = R_EXACT_EXPECTED_TYPE;
 				}
 				if((this.expectedTypesFilter & SUBTYPE) != 0
 					&& proposalType.isCompatibleWith(this.expectedTypes[i])) {
-						return R_EXPECTED_TYPE;
+						return relevance;
 				}
 				if((this.expectedTypesFilter & SUPERTYPE) != 0
 					&& this.expectedTypes[i].isCompatibleWith(proposalType)) {
-					return R_EXPECTED_TYPE;
+					return relevance;
 				}
 			}
 		} 
@@ -4422,7 +4423,7 @@ public final class CompletionEngine
 				}
 			}
 		} else if(parent instanceof Assignment) {
-			TypeBinding binding = ((Assignment)parent).resolvedType;
+			TypeBinding binding = ((Assignment)parent).lhs.resolvedType;
 			if(binding != null) {
 				addExpectedType(binding);
 			}
