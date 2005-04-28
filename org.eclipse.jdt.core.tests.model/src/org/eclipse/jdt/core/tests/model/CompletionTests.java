@@ -990,6 +990,33 @@ public void testCompletionMethodDeclaration11() throws JavaModelException {
 			"fo[POTENTIAL_METHOD_DECLARATION]{fo, Ltest.CompletionMethodDeclaration11_2;, ()V, fo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+public void testCompletionMethodDeclaration12() throws JavaModelException {
+    this.wc = getWorkingCopy(
+            "/Completion/src/test/CompletionMethodDeclaration12.java",
+            "package test;\n" +
+            "public class CompletionMethodDeclaration12 {\n" +
+            "  public void foo() {" +
+            "  }" +
+            "}" +
+            "class CompletionMethodDeclaration12_2 extends CompletionMethodDeclaration12{\n" +
+            "  public final void foo() {" +
+            "  }" +
+            "}" +
+            "class CompletionMethodDeclaration12_3 extends CompletionMethodDeclaration12_2 {\n" +
+            "  fo" +
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "fo";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor);
+
+    assertResults(
+            "fo[POTENTIAL_METHOD_DECLARATION]{fo, Ltest.CompletionMethodDeclaration12_3;, ()V, fo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+            requestor.getResults());
+}
 public void testCompletionFieldName() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFieldName.java");

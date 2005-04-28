@@ -3141,7 +3141,10 @@ public final class CompletionEngine
 			
 			if (method.isConstructor()) continue next;
 				
-			if (method.isFinal()) continue next;
+			if (method.isFinal()) {
+                newMethodsFound.add(method);
+                continue next;
+            }
 
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
 			if(method.isStatic()) {
