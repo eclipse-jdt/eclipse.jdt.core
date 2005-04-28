@@ -17847,5 +17847,28 @@ public void test617() {
 			"	       ^^^\n" + 
 			"The method add(capture-of ? extends Number[]) in the type List<capture-of ? extends Number[]> is not applicable for the arguments (Number[])\n" + 
 			"----------\n");
-	}				
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93044	
+	public void test631() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"\n" + 
+				"public class X\n" + 
+				"{\n" + 
+				"		 public static void main(String[] args)\n" + 
+				"		 {\n" + 
+				"		 		 Class<? extends Enum<?>> c = RetentionPolicy.class;\n" + 
+				"		 		 System.out.println(Enum.valueOf(c, \"CLASS\"));\n" + 
+				"		 }\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	System.out.println(Enum.valueOf(c, \"CLASS\"));\n" + 
+			"	                        ^^^^^^^\n" + 
+			"Bound mismatch: The generic method valueOf(Class<T>, String) of type Enum<E> is not applicable for the arguments (Class<capture-of ? extends Enum<?>>, String) since the type capture-of ? extends Enum<?> is not a valid substitute for the bounded parameter <T extends Enum<T>>\n" + 
+			"----------\n");
+	}					
 }
