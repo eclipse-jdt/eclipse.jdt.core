@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 
 import junit.framework.Test;
@@ -22,229 +25,210 @@ public class AllJavaModelTests extends junit.framework.TestCase {
 public AllJavaModelTests(String name) {
 	super(name);
 }
-static Class[] getAllTestClasses() {
-	return new Class[] {
+private static Class[] getAllTestClasses() {
+	Class[] classes = new Class[] {
+	
+		// Enter each test here, grouping the tests that are related
+
+		// creation of method
 		CreateMembersTests.class,
+		
+		// Java Naming convention tests
 		JavaConventionTests.class,
+	
+		// Project & Root API unit tests
 		JavaProjectTests.class,
+	
+		// Compilation unit tests
 		CompilationUnitTests.class,
+	
+		// Source attachment tests
 		AttachSourceTests.class,
+		
+		// Java search tests
 		RunJavaSearchTests.class,
+			
+		// Working copy tests
 		WorkingCopyTests.class,
 		WorkingCopyNotInClasspathTests.class,
 		HierarchyOnWorkingCopiesTests.class,
+		
+		// test IJavaModel
 		JavaModelTests.class,
+	
+		// tests to check the encoding
 		EncodingTests.class,
+		
+		// test class name with special names like names containing '$'
 		ClassNameTests.class,
+		
+		// IBuffer tests
 		BufferTests.class,
+	
+		// Name lookup tests
 		NameLookupTests2.class,
+	
+		// Classpath and output location tests
 		ClasspathTests.class,
+	
+		// Delta tests
 		JavaElementDeltaTests.class,
 		ExternalJarDeltaTests.class,
+	
+		// Java element existence tests
 		ExistenceTests.class,
+		
+		// Support for "open on" feature tests
 		ResolveTests.class,
 		ResolveTests_1_5.class,
-		SelectionJavadocModelTests.class,
+		
+		// Support for completion tests
 		CompletionTests.class,
 		CompletionTests2.class,
-		CompletionTests_1_5.class,
 		SnippetCompletionTests.class,
+		CompletionTests_1_5.class,
+		SelectionJavadocModelTests.class,
+		
+		// Prefix and suffix tests
 		NamingConventionTests.class,
+		
+		// Code correction tests
 		CodeCorrectionTests.class,
+		
+		// Options tests
 		OptionTests.class,
+		
+		// Type hierarchy tests
 		TypeHierarchyTests.class,
 		TypeHierarchyNotificationTests.class,
 		TypeHierarchySerializationTests.class,
+		
+		// Resolve type tests
 		TypeResolveTests.class,
+	
+		// Reconciler tests
 		ReconcilerTests.class,
+	
+		// Copy and move operation tests
 		CopyMoveElementsTests.class,
 		CopyMoveResourcesTests.class,
+	
+		// Rename tests
 		RenameTests.class,
+		
+		// Exclusion patterns tests
 		ExclusionPatternsTests.class,
+		
+		// Inclusion patterns tests
 		InclusionPatternsTests.class,
+		
+		// Signature tests
 		SignatureTests.class,
+		
+		// Variable initializers and container initializers tests
 		ClasspathInitializerTests.class,
+	
+		// Java Model Factory tests
 		FactoryTests.class,
+				
+		// Java Element persistence tests
 		MementoTests.class,
+		
+		// Java Element sorting tests
 		SortCompilationUnitElementsTests.class,
+	
+		// Package fragment root manipulation tests
 		RootManipulationsTests.class,
+		
+		// Owverflowing cache tests
 		OverflowingCacheTests.class,
+		
+		// Working copy owner tests
 		WorkingCopyOwnerTests.class,
+	
+		// Delete Java element tests
 		DeleteTests.class,
+		
+		// Local element tests
 		LocalElementTests.class,
+		
+		// Get source tests
 		GetSourceTests.class,
+			
+		// Create packages tests
 		CreatePackageTests.class,
+	
+		// Create compilation units tests
 		CreateCompilationUnitTests.class,
+		
+		// Create search participant tests
+		SearchParticipantTests.class,
+		
+		// Class file tests
 		ClassFileTests.class,
-		BindingKeyTests.class
+	
+	};
+	
+	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();
+	
+	int classesLength = classes.length;
+	int deprecatedClassesLength = deprecatedClasses.length;
+	Class[] result = new Class[classesLength + deprecatedClassesLength];
+	System.arraycopy(classes, 0, result, 0, classesLength);
+	System.arraycopy(deprecatedClasses, 0, result, classesLength, deprecatedClassesLength);
+	
+	return result;
+}
+
+/**
+ * @deprecated JDOM is obsolete
+ */
+private static Class[] getDeprecatedJDOMTestClasses() {
+	return new Class[] {
+		//Create type source tests
+		CreateTypeSourceExamplesTests.class,
+	
+		//Create method source tests
+		CreateMethodSourceExamplesTests.class,
 	};
 }
+
 public static Test suite() {
 	TestSuite suite = new TestSuite(AllJavaModelTests.class.getName());
 
-	// Enter each test here, grouping the tests that are related
-
 	// Hack to load all classes before computing their suite of test cases
 	// this allow to reset test cases subsets while running all Java Model tests...
-	getAllTestClasses();
+	Class[] classes = getAllTestClasses();
 
 	// Reset forgotten subsets of tests
 	TestCase.TESTS_PREFIX = null;
 	TestCase.TESTS_NAMES = null;
 	TestCase.TESTS_NUMBERS = null;
 	TestCase.TESTS_RANGE = null;
-
-	// creation of method
-	suite.addTest(CreateMembersTests.suite());
 	
-	// Java Naming convention tests
-	suite.addTest(JavaConventionTests.suite());
-
-	// Project & Root API unit tests
-	suite.addTest(JavaProjectTests.suite());
-
-	// Compilation unit tests
-	suite.addTest(CompilationUnitTests.suite());
-
-	// Source attachment tests
-	suite.addTest(AttachSourceTests.suite());
-	
-	// Java search tests
-	suite.addTest(RunJavaSearchTests.suite());
-		
-	// Working copy tests
-	suite.addTest(WorkingCopyTests.suite());
-	suite.addTest(WorkingCopyNotInClasspathTests.suite());
-	suite.addTest(HierarchyOnWorkingCopiesTests.suite());
-	
-	// test IJavaModel
-	suite.addTest(JavaModelTests.suite());
-
-	// tests to check the encoding
-	suite.addTest(EncodingTests.suite());
-	
-	// test class name with special names like names containing '$'
-	suite.addTest(ClassNameTests.suite());
-	
-	// IBuffer tests
-	suite.addTest(BufferTests.suite());
-
-	// Name lookup tests
-	suite.addTest(NameLookupTests2.suite());
-
-	// Classpath and output location tests
-	suite.addTest(ClasspathTests.suite());
-
-	// Delta tests
-	suite.addTest(JavaElementDeltaTests.suite());
-	suite.addTest(ExternalJarDeltaTests.suite());
-
-	// Java element existence tests
-	suite.addTest(ExistenceTests.suite());
-	
-	// Support for "open on" feature tests
-	suite.addTest(ResolveTests.suite());
-	suite.addTest(ResolveTests_1_5.suite());
-	
-	// Support for completion tests
-	suite.addTest(CompletionTests.suite());
-	suite.addTest(CompletionTests2.suite());
-	suite.addTest(SnippetCompletionTests.suite());
-	suite.addTest(CompletionTests_1_5.suite());
-	suite.addTest(SelectionJavadocModelTests.suite());
-	
-	// Prefix and suffix tests
-	suite.addTest(NamingConventionTests.suite());
-	
-	// Code correction tests
-	suite.addTest(CodeCorrectionTests.suite());
-	
-	// Options tests
-	suite.addTest(OptionTests.suite());
-	
-	// Type hierarchy tests
-	suite.addTest(TypeHierarchyTests.suite());
-	suite.addTest(TypeHierarchyNotificationTests.suite());
-	suite.addTest(TypeHierarchySerializationTests.suite());
-	
-	// Resolve type tests
-	suite.addTest(TypeResolveTests.suite());
-
-	// Reconciler tests
-	suite.addTest(ReconcilerTests.suite());
-
-	// Copy and move operation tests
-	suite.addTest(CopyMoveElementsTests.suite());
-	suite.addTest(CopyMoveResourcesTests.suite());
-
-	// Rename tests
-	suite.addTest(RenameTests.suite());
-	
-	// Exclusion patterns tests
-	suite.addTest(ExclusionPatternsTests.suite());
-	
-	// Inclusion patterns tests
-	suite.addTest(InclusionPatternsTests.suite());
-	
-	// Signature tests
-	suite.addTest(SignatureTests.suite());
-	
-	// Variable initializers and container initializers tests
-	suite.addTest(ClasspathInitializerTests.suite());
-
-	// Java Model Factory tests
-	suite.addTest(FactoryTests.suite());
-			
-	// Java Element persistence tests
-	suite.addTest(MementoTests.suite());
-	
-	// Java Element sorting tests
-	suite.addTest(SortCompilationUnitElementsTests.suite());
-
-	// Package fragment root manipulation tests
-	suite.addTest(RootManipulationsTests.suite());
-	
-	// Owverflowing cache tests
-	suite.addTest(OverflowingCacheTests.suite());
-	
-	// Working copy owner tests
-	suite.addTest(WorkingCopyOwnerTests.suite());
-
-	// Delete Java element tests
-	suite.addTest(DeleteTests.suite());
-	
-	// Local element tests
-	suite.addTest(LocalElementTests.suite());
-	
-	// Get source tests
-	suite.addTest(GetSourceTests.suite());
-		
-	// Create packages tests
-	suite.addTest(CreatePackageTests.suite());
-
-	// Create compilation units tests
-	suite.addTest(CreateCompilationUnitTests.suite());
-	
-	// Create search participant tests
-	suite.addTest(SearchParticipantTests.suite());
-	
-	// Class file tests
-	suite.addTest(ClassFileTests.suite());
-
-	includeDeprecatedJDOMTests(suite);
+	for (int i = 0, length = classes.length; i < length; i++) {
+		Class clazz = classes[i];
+		Method suiteMethod;
+		try {
+			suiteMethod = clazz.getDeclaredMethod("suite", new Class[0]);
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+			continue;
+		}
+		Object test;
+		try {
+			test = suiteMethod.invoke(null, new Object[0]);
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			continue;
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+			continue;
+		}
+		suite.addTest((Test) test);
+	}
 
 	return suite;
-}
-
-/**
- * @deprecated JDOM is obsolete
- */
-private static void includeDeprecatedJDOMTests(TestSuite suite) {
-	//Create type source tests
-	suite.addTest(CreateTypeSourceExamplesTests.suite());
-
-	//Create method source tests
-	suite.addTest(CreateMethodSourceExamplesTests.suite());
 }
 
 }
