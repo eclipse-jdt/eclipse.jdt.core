@@ -2455,7 +2455,7 @@ public abstract class Scope
 				if (type != null) {
 					// put in single import cache so we can avoid doing on demand walk again
 					if (unitScope.resolvedSingeTypeImports != null)
-						unitScope.resolvedSingeTypeImports.put(type.compoundName[type.compoundName.length - 1], type);
+						unitScope.resolvedSingeTypeImports.put(name, type);
 					return type;
 				}
 			}
