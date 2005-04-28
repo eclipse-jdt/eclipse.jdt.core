@@ -8730,4 +8730,50 @@ public void testCompletionInsideExtends12() throws JavaModelException {
 			"CompletionInsideExtends12TopLevel[TYPE_REF]{CompletionInsideExtends12TopLevel, test, Ltest.CompletionInsideExtends12TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84690
+public void testCompletionArrayLength() throws JavaModelException {
+    this.wc = getWorkingCopy(
+            "/Completion/src/test/CompletionArrayLength.java",
+            "package test;\n" +
+            "public class CompletionArrayLength {\n" +
+            "  public void foo() {" +
+            "    long[] var;" +
+            "    var.leng" +
+            "  }" +
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "leng";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor);
+
+    assertResults(
+            "length[FIELD_REF]{length, [J, I, length, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+            requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84690
+public void testCompletionArrayClone() throws JavaModelException {
+    this.wc = getWorkingCopy(
+            "/Completion/src/test/CompletionArrayClone.java",
+            "package test;\n" +
+            "public class CompletionArrayClone {\n" +
+            "  public void foo() {" +
+            "    long[] var;" +
+            "    var.clon" +
+            "  }" +
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "clon";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor);
+
+    assertResults(
+            "clone[METHOD_REF]{clone(), [J, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+            requestor.getResults());
+}
 }

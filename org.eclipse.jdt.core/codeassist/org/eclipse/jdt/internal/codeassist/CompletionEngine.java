@@ -1895,7 +1895,7 @@ public final class CompletionEngine
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
 					CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
-					//proposal.setDeclarationSignature(null);
+					proposal.setDeclarationSignature(getSignature(receiverType));
 					proposal.setSignature(INT_SIGNATURE);
 					//proposal.setDeclarationPackageName(null);
 					//proposal.setDeclarationTypeName(null);
@@ -1937,7 +1937,7 @@ public final class CompletionEngine
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 					CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
-					//proposal.setDeclarationSignature(null);
+					proposal.setDeclarationSignature(getSignature(receiverType));
 					proposal.setSignature(
 							createMethodSignature(
 									CharOperation.NO_CHAR_CHAR,
