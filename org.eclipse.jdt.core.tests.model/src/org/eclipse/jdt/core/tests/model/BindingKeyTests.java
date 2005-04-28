@@ -44,12 +44,6 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		assertEquals(expected, signature);
 	}
 	
-	protected void assertBindingKeyFlagsEquals(int expected, String key) {
-		BindingKey bindingKey = new BindingKey(key);
-		int flags = bindingKey.getFlags();
-		assertEquals(expected, flags);
-	}
-	
 	/*
 	 * Package.
 	 */
@@ -380,38 +374,5 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Ljava/util/List;!+Ljava/util/ArrayList;123;"
 		);
 	}
-	
-	/*
-	 * Flags of a top level type
-	 */
-	public void test034() {
-		assertBindingKeyFlagsEquals(
-			1,
-			"Lp/X;^1"
-		);
-	}
-	
-	/*
-	 * Ensure that isConstructor returns true for a constructor binding key.
-	 */
-	public void test035() {
-		BindingKey key = new BindingKey("Lp/X;.()V");
-		assertTrue(key + " should be a constructor key", key.isConstructor());
-	}
-
-	/*
-	 * Ensure that isConstructor returns false for a method binding key.
-	 */
-	public void test036() {
-		BindingKey key = new BindingKey("Lp/X;.foo()V");
-		assertTrue(key + " should not be a constructor key", !key.isConstructor());
-	}
-	
-	/*
-	 * Ensure that isConstructor returns false for a type binding key.
-	 */
-	public void test037() {
-		BindingKey key = new BindingKey("Lp/X;");
-		assertTrue(key + " should not be a constructor key", !key.isConstructor());
-	}
+		
 }
