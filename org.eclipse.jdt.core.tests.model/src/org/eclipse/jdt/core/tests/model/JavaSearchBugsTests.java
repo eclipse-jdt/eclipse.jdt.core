@@ -2524,6 +2524,33 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
+	 * Bug 91542: [1.5][search] JavaModelException on ResolvedSourceMethod during refactoring
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=91542"
+	 */
+	public void testBug91542() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b91542/A.java",
+			"package b91542;\n" + 
+			"\n" + 
+			"class A<T> {\n" + 
+			"	void a(A<T> a){}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class B<T> extends A<T> {\n" + 
+			"	protected void foo() { \n" + 
+			"		a(this);\n" + 
+			"	}\n" + 
+			"}"
+		);
+		IType type = workingCopies[0].getType("B");
+		IMethod method = type.getMethod("foo", new String[0]);
+		searchDeclarationsOfSentMessages(method, this.resultCollector);
+		assertSearchResults(
+			"src/b91542/A.java void b91542.A.a(A<T>) [a(A<T> a)] EXACT_MATCH"
+		);
+	}
+
+	/**
 	 * Bug 91078: [search] Java search for package reference wrongly identifies inner class as package
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=91078"
 	 */

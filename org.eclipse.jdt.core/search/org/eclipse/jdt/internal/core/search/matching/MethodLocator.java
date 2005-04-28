@@ -341,8 +341,10 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 	TypeBinding[] parameters = methodBinding.parameters;
 	int parameterLength = parameters.length;
 	String[] parameterTypes = new String[parameterLength];
-	for (int i = 0; i  < parameterLength; i++)
-		parameterTypes[i] = Signature.createTypeSignature(parameters[i].sourceName(), false);
+	for (int i = 0; i  < parameterLength; i++) {
+		char[] typeName = parameters[i].shortReadableName();
+		parameterTypes[i] = Signature.createTypeSignature(typeName, false);
+	}
 	IMethod method = type.getMethod(new String(bindingSelector), parameterTypes);
 	if (knownMethods.includes(method)) return;
 
