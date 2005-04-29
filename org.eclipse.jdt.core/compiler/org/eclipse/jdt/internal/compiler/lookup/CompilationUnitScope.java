@@ -243,8 +243,10 @@ void connectTypeHierarchy() {
 		topLevelTypes[i].scope.connectTypeHierarchy();
 }
 void faultInImports() {
-	if (referenceContext.imports == null)
+	if (referenceContext.imports == null) {
+		this.typeOrPackageCache = new HashtableOfObject(1);
 		return;
+	}
 
 	// collect the top level type names if a single type import exists
 	int numberOfStatements = referenceContext.imports.length;
