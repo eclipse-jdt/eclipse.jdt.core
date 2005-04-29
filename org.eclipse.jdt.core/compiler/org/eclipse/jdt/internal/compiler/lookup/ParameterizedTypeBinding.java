@@ -149,10 +149,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		this.id = NoId;		
 	}
 	
-	public char[] computeUniqueKey(boolean withAccessFlags) {
+	public char[] computeUniqueKey(boolean isLeaf) {
 	    StringBuffer sig = new StringBuffer(10);
 		if (this.isMemberType() && enclosingType().isParameterizedType()) {
-		    char[] typeSig = enclosingType().computeUniqueKey(false/*without access flags*/);
+		    char[] typeSig = enclosingType().computeUniqueKey(false/*not a leaf*/);
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 		    sig.append('.').append(sourceName());
 		} else if(this.type.isLocalType()){
@@ -161,23 +161,23 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			ReferenceBinding temp;
 			while ((temp = enclosing.enclosingType()) != null)
 				enclosing = temp;
-			char[] typeSig = enclosing.signature();
+			char[] typeSig = enclosing.computeUniqueKey(false/*not a leaf*/);
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 			sig.append('$');
 			sig.append(localTypeBinding.sourceStart);
 		} else {
-		    char[] typeSig = this.type.signature();
+		    char[] typeSig = this.type.computeUniqueKey(false/*not a leaf*/);
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
 		}	   	    
 		if (this.arguments != null) {
 		    sig.append('<');
 		    for (int i = 0, length = this.arguments.length; i < length; i++) {
-		        sig.append(this.arguments[i].computeUniqueKey(false/*without access flags*/));
+		        sig.append(this.arguments[i].computeUniqueKey(false/*not a leaf*/));
 		    }
 		    sig.append('>'); //$NON-NLS-1$
 		}
 		sig.append(';');
-		if (withAccessFlags) {
+		if (isLeaf) {
 			sig.append('^');
 			sig.append(getAccessFlags());
 		}

@@ -175,8 +175,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * declaringUniqueKey : genericTypeSignature
 	 * p.X<T> { ... } --> Lp/X<TT;>;:TT;
 	 */
-	public char[] computeUniqueKey(boolean withAccessFlags) {
-		char[] declaringKey = this.declaringElement.computeUniqueKey(false/*without access flags*/);
+	public char[] computeUniqueKey(boolean isLeaf) {
+		char[] declaringKey = this.declaringElement.computeUniqueKey(false/*not a leaf*/);
 		int declaringLength = declaringKey.length;
 		char[] sig = genericTypeSignature();
 		int sigLength = sig.length;

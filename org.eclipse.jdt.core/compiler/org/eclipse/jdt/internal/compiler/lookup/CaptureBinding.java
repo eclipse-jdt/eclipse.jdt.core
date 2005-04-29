@@ -66,11 +66,11 @@ public class CaptureBinding extends TypeVariableBinding {
 	 * p.X { capture of ? } --> Lp/X;!*123;
 	 * p.X { capture of ? extends p.Y } --> Lp/X;!+Lp/Y;123;
 	 */
-	public char[] computeUniqueKey(boolean withAccessFlags) {
+	public char[] computeUniqueKey(boolean isLeaf) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(this.sourceType.computeUniqueKey(false/*without access flags*/));
+		buffer.append(this.sourceType.computeUniqueKey(false/*not a leaf*/));
 		buffer.append(WILDCARD_CAPTURE);
-		buffer.append(this.wildcard.computeUniqueKey(false/*without access flags*/));
+		buffer.append(this.wildcard.computeUniqueKey(false/*not a leaf*/));
 		buffer.append(this.position);
 		buffer.append(';');
 		int length = buffer.length();

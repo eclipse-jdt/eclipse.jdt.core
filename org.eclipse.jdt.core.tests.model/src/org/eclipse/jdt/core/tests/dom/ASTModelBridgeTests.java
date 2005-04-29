@@ -430,7 +430,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getTypeParameter("T")
 		);
 		assertBindingsEqual(
-			"LX<TT;>;:TT;",
+			"LX;:TT;",
 			bindings);
 	}
 	

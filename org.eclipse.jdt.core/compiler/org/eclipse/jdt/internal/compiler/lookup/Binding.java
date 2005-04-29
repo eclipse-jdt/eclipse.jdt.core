@@ -42,13 +42,13 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	 * Returns null if binding is not a TypeBinding, a MethodBinding, a FieldBinding or a PackageBinding.
 	 */
 	public char[] computeUniqueKey() {
-		return computeUniqueKey(true/*with access flags*/);
+		return computeUniqueKey(true/*leaf*/);
 	}
 	/*
 	 * Computes a key that uniquely identifies this binding. Optinaly include access flags.
 	 * Returns null if binding is not a TypeBinding, a MethodBinding, a FieldBinding or a PackageBinding.
 	 */
-	public char[] computeUniqueKey(boolean withAccessFlags) {
+	public char[] computeUniqueKey(boolean isLeaf) {
 		return null;
 	}
 	

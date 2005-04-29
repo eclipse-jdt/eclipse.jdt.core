@@ -62,9 +62,11 @@ public void addInnerEmulationDependent(BlockScope dependentScope, boolean wasEnc
 	dependents[index] = new InnerEmulationDependency(dependentScope, wasEnclosingInstanceSupplied);
 	//  System.out.println("Adding dependency: "+ new String(scope.enclosingType().readableName()) + " --> " + new String(this.readableName()));
 }
-public char[] computeUniqueKey(boolean withAccessFlags) {
+public char[] computeUniqueKey(boolean isLeaf) {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append(outermostEnclosingType().computeUniqueKey(withAccessFlags));
+	buffer.append(outermostEnclosingType().computeUniqueKey(isLeaf));
+	
+	// innsert $sourceStart
 	int semicolon = buffer.lastIndexOf(";"); //$NON-NLS-1$
 	buffer.insert(semicolon, '$');
 	semicolon = buffer.lastIndexOf(";"); //$NON-NLS-1$

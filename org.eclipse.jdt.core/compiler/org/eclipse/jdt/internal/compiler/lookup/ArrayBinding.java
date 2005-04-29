@@ -66,10 +66,10 @@ public void collectSubstitutes(Scope scope, TypeBinding otherType, Map substitut
  * brakets leafUniqueKey
  * p.X[][] --> [[Lp/X;
  */
-public char[] computeUniqueKey(boolean withAccessFlags) {
+public char[] computeUniqueKey(boolean isLeaf) {
 	char[] brackets = new char[dimensions];
 	for (int i = dimensions - 1; i >= 0; i--) brackets[i] = '[';
-	return CharOperation.concat(brackets, this.leafComponentType.computeUniqueKey(false/*without access flags*/));
+	return CharOperation.concat(brackets, this.leafComponentType.computeUniqueKey(isLeaf));
  }
 	
 /**

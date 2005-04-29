@@ -99,8 +99,8 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	 * parameterizedDeclaringUniqueKey dot selector originalMethodGenericSignature
 	 * p.X<U> { void bar(U u) { new X<String>().bar("") } } --> Lp/X<Ljava/lang/String;>;.bar(TU;)V^123
 	 */
-	public char[] computeUniqueKey(boolean withAccessFlags) {
-		return computeUniqueKey(original(), withAccessFlags);
+	public char[] computeUniqueKey(boolean isLeaf) {
+		return computeUniqueKey(original(), isLeaf);
 	}
 
 	/**

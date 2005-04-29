@@ -26,7 +26,7 @@ public final class BaseTypeBinding extends TypeBinding {
 	/**
 	 * int -> I
 	 */
-	public char[] computeUniqueKey(boolean withAccessFlags) {
+	public char[] computeUniqueKey(boolean isLeaf) {
 		return constantPoolName();
 	}
 	

@@ -637,7 +637,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"public class X {\n" +
 				"}",
 			},
-			"[Lp1/X;");
+			"[Lp1/X;^1");
 	}
 	
 	/*
@@ -898,7 +898,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X<TT;>;*>;.foo()V^0");
+			"Lp1/X<Lp1/X;*>;.foo()V^0");
 	}
 
 	/*
@@ -917,7 +917,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X<TT;>;+Ljava/lang/Object;>;.foo()V^0");
+			"Lp1/X<Lp1/X;+Ljava/lang/Object;>;.foo()V^0");
 	}
 
 	/*
@@ -936,7 +936,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X<TT;>;-Ljava/lang/Error;>;.foo()V^0");
+			"Lp1/X<Lp1/X;-Ljava/lang/Error;>;.foo()V^0");
 	}
 
 	/*
@@ -955,7 +955,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X<TT;TU;TV;TW;>;-Ljava/lang/Error;Lp1/X<TT;TU;TV;TW;>;*Ljava/lang/String;Lp1/X<TT;TU;TV;TW;>;+Ljava/lang/Object;>;.foo()V^0");
+			"Lp1/X<Lp1/X;-Ljava/lang/Error;Lp1/X;*Ljava/lang/String;Lp1/X;+Ljava/lang/Object;>;.foo()V^0");
 	}
 	
 	/*
@@ -1005,7 +1005,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  X<? super T> field;\n" +
 				"}",
 			},
-			"Lp1/X<Lp1/X<TT;>;-Lp1/X<TT;>;:TT;>;^1");
+			"Lp1/X<Lp1/X;-Lp1/X;:TT;>;^1");
 	}
 	
 	/*
@@ -1021,7 +1021,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  Class<? extends E> field;\n" +
 				"}",
 			},
-			"Ljava/lang/Class<Lp1/X<TE;>;+Lp1/X<TE;>;:TE;>;^33");
+			"Ljava/lang/Class<Lp1/X;+Lp1/X;:TE;>;^33");
 	}
 	
 	/*
@@ -1042,12 +1042,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			new String[] {
 				"Lp1/X;^1",
-				"Lp1/Y<Lp1/Y<TE;>;+Lp1/X;>;^1"
+				"Lp1/Y<Lp1/Y;+Lp1/X;>;^1"
 			}
 		);
 		assertBindingsEqual(
 			"Lp1/X;^1\n" +
-			"Lp1/Y<Lp1/Y<TE;>;+Lp1/X;>;^1",
+			"Lp1/Y<Lp1/Y;+Lp1/X;>;^1",
 			bindings);
 	}
 
@@ -1057,7 +1057,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public void test046() throws CoreException {
 		assertBindingCreated(
 			new String[] {},
-			"[Ljava/lang/Class<Ljava/lang/Object;>;");
+			"[Ljava/lang/Class<Ljava/lang/Object;>;^33");
 	}
 	
 	/*
@@ -1080,7 +1080,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {},
 			new String[] {"[Ljava/lang/Object;"});
 		assertBindingsEqual(
-				"[Ljava/lang/Object;", 
+				"[Ljava/lang/Object;^33", 
 				bindings);
 	}
 
@@ -1092,7 +1092,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {},
 			new String[] {"Ljava/lang/Class<TT;>;:TT;"});
 		assertBindingsEqual(
-				"Ljava/lang/Class<TT;>;:TT;", 
+				"Ljava/lang/Class;:TT;", 
 				bindings);
 	}
 	
@@ -1104,7 +1104,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			new String[] {},
 			new String[] {"Ljava/lang/Class<Ljava/lang/Class<TT;>;+[Ljava/lang/Object;>;"});
 		assertBindingsEqual(
-				"Ljava/lang/Class<Ljava/lang/Class<TT;>;+[Ljava/lang/Object;>;^33", 
+				"Ljava/lang/Class<Ljava/lang/Class;+[Ljava/lang/Object;>;^33", 
 				bindings);
 	}
 	
@@ -1203,7 +1203,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Ljava/lang/String;>;.foo<U:Ljava/lang/Object;>(TU;)V^0%<Lp1/X<TT;>$101;>"
+			"Lp1/X<Ljava/lang/String;>;.foo<U:Ljava/lang/Object;>(TU;)V^0%<Lp1/X$101;>"
 		);
 	}
 
@@ -1223,10 +1223,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}"
 			}, "1.5");
 			ITypeBinding[] bindings = createTypeBindings(new String[0], new String[] {
-				"Lp/X$Y<Lp/X<TK;TV;>;:TK;Lp/X<TK;TV;>;:TV;>;^1"
+				"Lp/X$Y<Lp/X;:TK;Lp/X;:TV;>;^1"
 			}, project);
 			assertBindingsEqual(
-				"Lp/X$Y<Lp/X<TK;TV;>;:TK;Lp/X<TK;TV;>;:TV;>;^1",
+				"Lp/X$Y<Lp/X;:TK;Lp/X;:TV;>;^1",
 				bindings);
 		} finally {
 			deleteProject("BinaryProject");
@@ -1280,7 +1280,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"    }\n" + 
 				"}",
 			}, 
-			"Lp1/X<TT;>;!Lp1/X<TT;>;*77;"
+			"Lp1/X;!Lp1/X;*77;"
 		);
 	}
 
@@ -1307,7 +1307,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}"
 			}, 
-			"Lxy/Cap;!Ljava/util/Vector<TT;>;*82;"
+			"Lxy/Cap;!Ljava/util/Vector;*82;"
 		);
 	}
 }

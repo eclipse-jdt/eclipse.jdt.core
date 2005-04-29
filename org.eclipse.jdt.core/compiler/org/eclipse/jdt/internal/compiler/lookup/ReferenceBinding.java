@@ -379,12 +379,12 @@ public void computeId() {
 /*
  * p.X<T extends Y & I, U extends Y> {} -> Lp/X<TT;TU;>;^123
  */
-public char[] computeUniqueKey(boolean withAccessFlags) {
+public char[] computeUniqueKey(boolean isLeaf) {
+	if (!isLeaf) return signature();
+	
 	// generic type signature
 	char[] genericSignature = genericTypeSignature();
 	int sigLength = genericSignature.length;
-	
-	if (!withAccessFlags) return genericSignature;
 	
 	// flags
 	String flags = Integer.toString(getAccessFlags());

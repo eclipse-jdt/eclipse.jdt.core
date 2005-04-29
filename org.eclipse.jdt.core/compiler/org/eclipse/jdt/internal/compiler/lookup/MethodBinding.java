@@ -292,12 +292,12 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
  * declaringUniqueKey dot selector genericSignature
  * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V^123
  */
-public char[] computeUniqueKey(boolean withAccessFlags) {
-	return computeUniqueKey(this, withAccessFlags);
+public char[] computeUniqueKey(boolean isLeaf) {
+	return computeUniqueKey(this, isLeaf);
 }
-protected char[] computeUniqueKey(MethodBinding methodBinding, boolean withAccessFlags) {
+protected char[] computeUniqueKey(MethodBinding methodBinding, boolean isLeaf) {
 	// declaring class 
-	char[] declaringKey = this.declaringClass.computeUniqueKey(false/*without access flags*/);
+	char[] declaringKey = this.declaringClass.computeUniqueKey(false/*not a leaf*/);
 	int declaringLength = declaringKey.length;
 	
 	// selector
@@ -308,7 +308,7 @@ protected char[] computeUniqueKey(MethodBinding methodBinding, boolean withAcces
 	if (sig == null) sig = methodBinding.signature();
 	int signatureLength = sig.length;
 	
-	if (withAccessFlags) {
+	if (isLeaf) {
 		// flags
 		String flags = Integer.toString(methodBinding.getAccessFlags());
 		int flagsLength = flags.length();

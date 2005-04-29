@@ -196,7 +196,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	public void consumeLocalType(char[] uniqueKey) {
  		LocalTypeBinding[] localTypeBindings  = this.parsedUnit.localTypes;
  		for (int i = 0; i < this.parsedUnit.localTypeCount; i++)
- 			if (CharOperation.equals(uniqueKey, localTypeBindings[i].computeUniqueKey(false/*without access flags*/))) {
+ 			if (CharOperation.equals(uniqueKey, localTypeBindings[i].computeUniqueKey(false/*not a leaf*/))) {
  				this.typeBinding = localTypeBindings[i];
 				this.compilerBinding = this.typeBinding;
  				return;

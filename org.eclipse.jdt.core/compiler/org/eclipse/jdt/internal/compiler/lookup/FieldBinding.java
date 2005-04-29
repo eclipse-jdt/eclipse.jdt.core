@@ -153,18 +153,18 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
  * declaringUniqueKey dot fieldName
  * p.X { X<T> x} --> Lp/X;.x^123
  */
-public char[] computeUniqueKey(boolean withAccessFlags) {
+public char[] computeUniqueKey(boolean isLeaf) {
 	// declaring key
 	char[] declaringKey = 
 		this.declaringClass == null /*case of length field for an array*/ 
 			? CharOperation.NO_CHAR 
-			: this.declaringClass.computeUniqueKey(false/*without access flags*/);
+			: this.declaringClass.computeUniqueKey(false/*not a leaf*/);
 	int declaringLength = declaringKey.length;
 	
 	// name
 	int nameLength = this.name.length;
 	
-	if (withAccessFlags) {
+	if (isLeaf) {
 		// flags
 		String flags = Integer.toString(getAccessFlags());
 		int flagsLength = flags.length();

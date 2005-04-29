@@ -1165,7 +1165,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "T", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertEquals("Wrong key", "Ltest0037/X<TT;TU;>;:TT;", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0037/X;:TT;", typeBinding.getKey());
 		SimpleName simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "T", simpleName.getIdentifier());
 		IBinding binding2 = simpleName.resolveBinding();
@@ -1185,7 +1185,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "U", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertEquals("Wrong key", "Ltest0037/X<TT;TU;>;:TU;", typeBinding.getKey());
+		assertEquals("Wrong key", "Ltest0037/X;:TU;", typeBinding.getKey());
 		simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "U", simpleName.getIdentifier());
 		binding2 = simpleName.resolveBinding();
@@ -2670,7 +2670,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
 		assertBindingKeyEquals(
-			"Lp/X<Lp/X<TT;>;!Lp/X<TT;>;*75;>;.foo()V^0",
+			"Lp/X<Lp/X;!Lp/X;*75;>;.foo()V^0",
 			binding.getKey());
 	}
 
@@ -3481,7 +3481,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
-			"LX<TE;>;+Ljava/lang/String;",
+			"LX;+Ljava/lang/String;",
 			binding);
 	}
 
@@ -3496,7 +3496,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
-			"LX<TE;>;:TE;",
+			"LX;:TE;",
 			binding);
 	}
 
@@ -3680,7 +3680,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding();
 		assertBindingEquals(
-			"Ljava/lang/Class<Ljava/lang/Class<TT;>;+LX<TE;>;:TE;>;^33",
+			"Ljava/lang/Class<Ljava/lang/Class;+LX;:TE;>;^33",
 			binding);
 	}
     
