@@ -12781,7 +12781,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83083
-	public void _test469() {
+	public void test469() {
 		this.runConformTest(
 			new String[] {
 				"a/C.java",
@@ -12819,8 +12819,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null,
 			false, // do not flush output
 			null);			
-	}		
-	
+	}
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83225
 	public void test470() {
 		this.runNegativeTest(

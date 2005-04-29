@@ -677,14 +677,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			} else if (argLength != refTypeVariables.length) { // check arity
 				this.environment.problemReporter.incorrectArityForParameterizedType(null, resolvedType, this.arguments);
 				return this; // cannot reach here as AbortCompilation is thrown
-			}			
-			// check argument type compatibility
-			for (int i = 0; i < argLength; i++) {
-			    TypeBinding resolvedArgument = this.arguments[i];
-				if (refTypeVariables[i].boundCheck(this, resolvedArgument) != TypeConstants.OK) {
-					this.environment.problemReporter.typeMismatchError(resolvedArgument, refTypeVariables[i], resolvedType, null);
-			    }
 			}
+			// check argument type compatibility... REMOVED for now since incremental build will propagate change & detect in source
+//			for (int i = 0; i < argLength; i++) {
+//			    TypeBinding resolvedArgument = this.arguments[i];
+//				if (refTypeVariables[i].boundCheck(this, resolvedArgument) != TypeConstants.OK) {
+//					this.environment.problemReporter.typeMismatchError(resolvedArgument, refTypeVariables[i], resolvedType, null);
+//			    }
+//			}
 		}
 		return this;
 	}

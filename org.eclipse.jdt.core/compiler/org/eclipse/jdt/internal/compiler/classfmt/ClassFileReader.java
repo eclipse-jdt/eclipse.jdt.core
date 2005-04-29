@@ -801,6 +801,9 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 		if ((this.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated|TagBits.AnnotationRetentionMASK) != (newClassFile.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated|TagBits.AnnotationRetentionMASK))
 			return true;
 		
+		// generic signature
+		if (!CharOperation.equals(this.getGenericSignature(), newClassFile.getGenericSignature()))
+			return true;
 		// superclass
 		if (!CharOperation.equals(this.getSuperclassName(), newClassFile.getSuperclassName()))
 			return true;
@@ -895,6 +898,9 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 	}
 }
 private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo otherFieldInfo) {
+	// generic signature
+	if (!CharOperation.equals(currentFieldInfo.getGenericSignature(), otherFieldInfo.getGenericSignature()))
+		return true;
 	if (currentFieldInfo.getModifiers() != otherFieldInfo.getModifiers())
 		return true;
 	if ((currentFieldInfo.getTagBits() & TagBits.AnnotationDeprecated) != (otherFieldInfo.getTagBits() & TagBits.AnnotationDeprecated))
@@ -936,6 +942,9 @@ private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo 
 	return false;
 }
 private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodInfo otherMethodInfo) {
+	// generic signature
+	if (!CharOperation.equals(currentMethodInfo.getGenericSignature(), otherMethodInfo.getGenericSignature()))
+		return true;
 	if (currentMethodInfo.getModifiers() != otherMethodInfo.getModifiers())
 		return true;
 	if ((currentMethodInfo.getTagBits() & TagBits.AnnotationDeprecated) != (otherMethodInfo.getTagBits() & TagBits.AnnotationDeprecated))
