@@ -446,11 +446,14 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding[] getTypeArguments();
 	
 	/**
-	 * Returns the type bounds of this type variable or capture.
+	 * Returns the declared type bounds of this type variable or capture. If the
+	 * variable or the capture had no explicit bound, then it returns an empty list.
      * <p>
-     * Note that the first type bound is always a class type. If the type
-     * variable does not explicitly declare a class type bound, the first
-     * type bound will be the binding for <code>java.lang.Object</code>.
+     * Note that per construction, it can only contain one class or array type, 
+     * at most, and then it is located in first position.
+     * </p>
+     * Also note that array type bound may only occur in the case of a capture
+     * binding, e.g. <code>capture-of ? extends Object[]</code>
      * </p>
 	 *
 	 * @return the list of type bindings for this type variable or capture,

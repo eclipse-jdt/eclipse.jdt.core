@@ -5247,4 +5247,25 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	   	assertTrue("2 different capture bindings should not be equals", !binding1.isEqualTo(binding2));
 	}
 	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93093
+	 */
+	public void test0173() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"import java.util.Vector;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void test1() {\n" + 
+				"		Vector<? extends Number[]> v = null;\n" + 
+				"		 /*start*/v.get(0)/*end*/;\n" + 
+				"	}\n" + 
+				"}\n";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+		ITypeBinding type = ((Expression)node).resolveTypeBinding();
+		assertTrue("Should be one bound", type.getTypeBounds().length == 1);
+		assertEquals("Invalid bound", "[Ljava.lang.Number;", type.getTypeBounds()[0].getBinaryName());
+	}	
 }

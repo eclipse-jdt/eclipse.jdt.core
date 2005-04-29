@@ -781,22 +781,27 @@ class TypeBinding implements ITypeBinding {
 	public ITypeBinding[] getTypeBounds() {
 		if (this.binding instanceof TypeVariableBinding) {
 			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
-			int boundsNumber = 0;
-			ReferenceBinding superclass = typeVariableBinding.superclass();
-			if (superclass != null) {
-				boundsNumber++;
+			ReferenceBinding varSuperclass = typeVariableBinding.superclass();
+			org.eclipse.jdt.internal.compiler.lookup.TypeBinding firstBound = typeVariableBinding.firstBound;
+			int boundsLength = 0;
+			if (firstBound != null) {
+				if (firstBound == varSuperclass) {
+					boundsLength++;
+				} else if (firstBound.isArrayType()) { // capture of ? extends/super arrayType
+					boundsLength++;
+				}
 			}
 			ReferenceBinding[] superinterfaces = typeVariableBinding.superInterfaces();
 			int superinterfacesLength = 0;
 			if (superinterfaces != null) {
 				superinterfacesLength = superinterfaces.length;
-				boundsNumber += superinterfacesLength;
+				boundsLength += superinterfacesLength;
 			}
-			if (boundsNumber != 0) {
-				ITypeBinding[] typeBounds = new ITypeBinding[boundsNumber];
+			if (boundsLength != 0) {
+				ITypeBinding[] typeBounds = new ITypeBinding[boundsLength];
 				int boundsIndex = 0;
-				if (superclass != null) {
-					typeBounds[boundsIndex++] = this.resolver.getTypeBinding(superclass);
+				if (firstBound != null) {
+					typeBounds[boundsIndex++] = this.resolver.getTypeBinding(firstBound);
 				}
 				if (superinterfaces != null) {
 					for (int i = 0; i < superinterfacesLength; i++, boundsIndex++) {
