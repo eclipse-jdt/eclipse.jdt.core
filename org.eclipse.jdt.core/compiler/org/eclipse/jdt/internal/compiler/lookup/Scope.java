@@ -2393,9 +2393,14 @@ public abstract class Scope
 					if (importReference != null) importReference.used = true;
 					typeOrPackageCache.put(name, binding = ((ImportBinding) binding).resolvedImport); // already know its visible
 				}
-				if (foundType != null && binding.problemId() != Ambiguous)
-					return foundType; // problem type from above supercedes NotFound type but not Ambiguous import case
-				return binding; // cached type or package found in previous walk below
+				if ((mask & Binding.TYPE) != 0) {
+					if (foundType != null && binding.problemId() != Ambiguous)
+						return foundType; // problem type from above supercedes NotFound type but not Ambiguous import case
+					if (binding instanceof ReferenceBinding)
+						return binding; // cached type found in previous walk below
+				}
+				if ((mask & Binding.PACKAGE) != 0 && binding instanceof PackageBinding)
+					return binding; // cached package found in previous walk below
 			}
 		}
 
@@ -2482,7 +2487,7 @@ public abstract class Scope
 		// Answer error binding -- could not find name
 		if (foundType == null) {
 			foundType = new ProblemReferenceBinding(name, NotFound);
-			if (typeOrPackageCache != null && (mask & Binding.PACKAGE) != 0) // only put not found types in cache if you know its not a package
+			if (typeOrPackageCache != null && (mask & Binding.PACKAGE) != 0) // only put NotFound type in cache if you know its not a package
 				typeOrPackageCache.put(name, foundType);
 		}
 		return foundType;
