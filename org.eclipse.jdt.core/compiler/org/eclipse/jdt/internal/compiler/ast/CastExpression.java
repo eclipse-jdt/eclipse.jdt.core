@@ -238,7 +238,18 @@ public class CastExpression extends Expression {
 					: scope.getMethod(receiverType, binding.selector, alternateArgumentTypes, fakeInvocationSite); 	
 			}
 			if (bindingIfNoCast == binding) {
-				for (int i = 0, length = originalArgumentTypes.length; i < length; i++) {
+				int argumentLength = originalArgumentTypes.length;
+				if (binding.isVarargs()) {
+					int paramLength = binding.parameters.length;
+				   if (paramLength == argumentLength) {
+						int varargIndex = paramLength - 1;
+						ArrayBinding varargType = (ArrayBinding) binding.parameters[varargIndex];
+						TypeBinding lastArgType = alternateArgumentTypes[varargIndex];
+						if (varargType.dimensions == lastArgType.dimensions() && varargType.leafComponentType != lastArgType.leafComponentType())
+								return;
+				   }
+				}
+				for (int i = 0; i < argumentLength; i++) {
 					if (originalArgumentTypes[i] != alternateArgumentTypes[i]) {
 						scope.problemReporter().unnecessaryCast((CastExpression)arguments[i]);
 					}

@@ -1066,4 +1066,73 @@ public class VarargsTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	// check no offending unnecessary varargs cast gets diagnosed
+	public void test028() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Method;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void test(Method method){ \n" + 
+				"		try {\n" + 
+				"			method.invoke(this);\n" + 
+				"			method.invoke(this, new Class[0]);\n" + 
+				"			method.invoke(this, (Object[])new Class[0]);\n" + 
+				"		} catch (Exception e) {\n" + 
+				"		}		\n" + 
+				"	}\n" + 
+				"  Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	method.invoke(this, new Class[0]);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Varargs argument Class[] should be cast to Object[] when passed to the method invoke(Object, Object...) from type Method\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91467
+	public void test029() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+				" * Whatever you do, eclipse doesn\'t like it.\n" + 
+				" */\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * Passing a String vararg to a method needing an Object array makes eclipse\n" + 
+				"	 * either ask for a cast or complain that it is unnecessary. You cannot do\n" + 
+				"	 * it right.\n" + 
+				"	 * \n" + 
+				"	 * @param s\n" + 
+				"	 */\n" + 
+				"	public static void q(String... s) {\n" + 
+				"		 // OK reports: Varargs argument String[] should be cast to Object[] when passed to the method 	printf(String, Object...) from type PrintStream\n" + 
+				"		System.out.printf(\"\", s);\n" + 
+				"		// WRONG reports: Unnecessary cast from String[] to Object[]\n" + 
+				"		System.out.printf(\"\", (Object[]) s); \n" + 
+				"	}\n" + 
+				"  Zork z;\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 15)\n" + 
+			"	System.out.printf(\"\", s);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Varargs argument String[] should be cast to Object[] when passed to the method printf(String, Object...) from type PrintStream\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 19)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
 }
