@@ -2482,7 +2482,7 @@ public abstract class Scope
 		// Answer error binding -- could not find name
 		if (foundType == null) {
 			foundType = new ProblemReferenceBinding(name, NotFound);
-			if (typeOrPackageCache != null)
+			if (typeOrPackageCache != null && (mask & Binding.PACKAGE) != 0) // only put not found types in cache if you know its not a package
 				typeOrPackageCache.put(name, foundType);
 		}
 		return foundType;
