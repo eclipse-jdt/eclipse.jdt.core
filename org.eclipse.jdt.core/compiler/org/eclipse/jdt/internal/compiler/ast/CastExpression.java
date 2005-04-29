@@ -279,7 +279,7 @@ public class CastExpression extends Expression {
 					return true;
 				}
 			}
-		} else if (isNarrowing && castType.isTypeVariable()) {
+		} else if (isNarrowing && castType.leafComponentType().isTypeVariable()) {
 			this.bits |= UnsafeCastMask;
 			return true;
 		}

@@ -405,6 +405,7 @@ public abstract class Expression extends Statement {
 						case Binding.ARRAY_TYPE :
 							// ( ARRAY ) CLASS
 							if (expressionType.id == T_JavaLangObject) { // potential runtime error
+								checkUnsafeCast(scope, castType, expressionType, expressionType, true);
 								tagAsNeedCheckCast();
 								return true;
 							}

@@ -17948,4 +17948,43 @@ public void test617() {
 			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (Object[])\n" + 
 			"----------\n");
 	}				
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90775
+	public void test634() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.lang.reflect.Array;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"\n" + 
+				"	T[] theArray;\n" + 
+				"\n" + 
+				"	public X(Class<T> clazz) {\n" + 
+				"		theArray = (T[]) Array.newInstance(clazz, 10); // Compiler warning\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public T get(int i) {\n" + 
+				"		return theArray[i];\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<Integer> t = new X<Integer>(Integer.class);\n" + 
+				"		// GenericsArray1<Integer> t = new GenericsArray1<Integer>( int.class );\n" + 
+				"		Object[] o = t.theArray;\n" + 
+				"	}\n" + 
+				"  Zork z;\n" +
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	theArray = (T[]) Array.newInstance(clazz, 10); // Compiler warning\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Object to T[] is actually checking against the erased type Object[]\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 20)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}					
 }
