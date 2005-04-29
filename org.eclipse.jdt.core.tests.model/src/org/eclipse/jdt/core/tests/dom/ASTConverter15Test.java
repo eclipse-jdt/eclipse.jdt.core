@@ -2670,7 +2670,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
 		assertBindingKeyEquals(
-			"Lp/X<Lp/X<TT;>;!*75;>;.foo()V^0",
+			"Lp/X<Lp/X<TT;>;!Lp/X<TT;>;*75;>;.foo()V^0",
 			binding.getKey());
 	}
 
@@ -3481,7 +3481,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
-			"+Ljava/lang/String;",
+			"LX<TE;>;+Ljava/lang/String;",
 			binding);
 	}
 
@@ -3680,7 +3680,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding();
 		assertBindingEquals(
-			"Ljava/lang/Class<+LX<TE;>;:TE;>;^33",
+			"Ljava/lang/Class<Ljava/lang/Class<TT;>;+LX<TE;>;:TE;>;^33",
 			binding);
 	}
     

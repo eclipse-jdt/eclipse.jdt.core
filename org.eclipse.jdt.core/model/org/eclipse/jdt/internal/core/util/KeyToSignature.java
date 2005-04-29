@@ -147,6 +147,8 @@ public class KeyToSignature extends BindingKeyParser {
 	}
 	
 	public void consumeWildCard(int wildCardKind) {
+		// don't put generic type in signature
+		this.signature = new StringBuffer();
 		switch (wildCardKind) {
 			case Wildcard.UNBOUND:
 				this.signature.append('*');

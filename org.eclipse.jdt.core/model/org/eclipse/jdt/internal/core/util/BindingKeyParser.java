@@ -99,6 +99,12 @@ public class BindingKeyParser {
 				&& this.source[this.index] == '~';
 		}
 		
+		boolean isAtWildcardStart() {
+			return 
+				this.index < this.source.length
+				&& "*+-".indexOf(this.source[this.index]) != -1; //$NON-NLS-1$
+		}
+		
 		boolean isAtTypeParameterStart() {
 			return 
 				this.index < this.source.length
@@ -106,7 +112,7 @@ public class BindingKeyParser {
 		}
 	
 		boolean isAtTypeArgumentStart() {
-			return this.index < this.source.length && "LIZVCDBFJS[*+-!".indexOf(this.source[this.index]) != -1; //$NON-NLS-1$
+			return this.index < this.source.length && "LIZVCDBFJS[".indexOf(this.source[this.index]) != -1; //$NON-NLS-1$
 		}
 		
 		boolean isAtFlagsStart() {
@@ -562,6 +568,8 @@ public class BindingKeyParser {
 			}
 		} else if (this.scanner.isAtTypeVariableStart()) {
 			parseTypeVariable();
+		} else if (this.scanner.isAtWildcardStart()) {
+			parseWildcard();
 		} else if (this.scanner.isAtCaptureStart()) {
 			parseCapture();
 		}
@@ -588,33 +596,6 @@ public class BindingKeyParser {
 					return;
 				}
 				break;
-	 		case Scanner.WILDCARD:
-			 	char[] source = this.scanner.getTokenSource();
-			 	if (source.length == 0) {
-			 		malformedKey();
-			 		return;
-			 	}
-			 	int kind = -1;
-			 	switch (source[0]) {
-				 	case '*':
-				 		kind = Wildcard.UNBOUND;
-				 		break;
-				 	case '+':
-				 		kind = Wildcard.EXTENDS;
-				 		break;
-				 	case '-':
-				 		kind = Wildcard.SUPER;
-				 		break;
-			 	}
-			 	if (kind == -1) {
-			 		malformedKey();
-			 		return;
-			 	}
-			 	if (kind != Wildcard.UNBOUND)
-			 		parseWildcardBound();
-			 	consumeWildCard(kind);
-			 	this.hasTypeName = false;
-	 			break;
 			default:
 	 			malformedKey();
 				return;
@@ -754,6 +735,34 @@ public class BindingKeyParser {
 		}
 		consumeTypeVariable(this.scanner.getTokenSource());
 		this.scanner.skipTypeEnd();
+	}
+	
+	private void parseWildcard() {
+		if (this.scanner.nextToken() != Scanner.WILDCARD) return;
+	 	char[] source = this.scanner.getTokenSource();
+	 	if (source.length == 0) {
+	 		malformedKey();
+	 		return;
+	 	}
+	 	int kind = -1;
+	 	switch (source[0]) {
+		 	case '*':
+		 		kind = Wildcard.UNBOUND;
+		 		break;
+		 	case '+':
+		 		kind = Wildcard.EXTENDS;
+		 		break;
+		 	case '-':
+		 		kind = Wildcard.SUPER;
+		 		break;
+	 	}
+	 	if (kind == -1) {
+	 		malformedKey();
+	 		return;
+	 	}
+	 	if (kind != Wildcard.UNBOUND)
+	 		parseWildcardBound();
+	 	consumeWildCard(kind);
 	}
 	
 	private void parseWildcardBound() {

@@ -110,7 +110,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test059" };
+//		TESTS_NAMES = new String[] { "test060" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -898,7 +898,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<*>;.foo()V^0");
+			"Lp1/X<Lp1/X<TT;>;*>;.foo()V^0");
 	}
 
 	/*
@@ -917,7 +917,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<+Ljava/lang/Object;>;.foo()V^0");
+			"Lp1/X<Lp1/X<TT;>;+Ljava/lang/Object;>;.foo()V^0");
 	}
 
 	/*
@@ -936,7 +936,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<-Ljava/lang/Error;>;.foo()V^0");
+			"Lp1/X<Lp1/X<TT;>;-Ljava/lang/Error;>;.foo()V^0");
 	}
 
 	/*
@@ -955,7 +955,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<-Ljava/lang/Error;*Ljava/lang/String;+Ljava/lang/Object;>;.foo()V^0");
+			"Lp1/X<Lp1/X<TT;TU;TV;TW;>;-Ljava/lang/Error;Lp1/X<TT;TU;TV;TW;>;*Ljava/lang/String;Lp1/X<TT;TU;TV;TW;>;+Ljava/lang/Object;>;.foo()V^0");
 	}
 	
 	/*
@@ -1005,7 +1005,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  X<? super T> field;\n" +
 				"}",
 			},
-			"Lp1/X<-Lp1/X<TT;>;:TT;>;^1");
+			"Lp1/X<Lp1/X<TT;>;-Lp1/X<TT;>;:TT;>;^1");
 	}
 	
 	/*
@@ -1021,7 +1021,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  Class<? extends E> field;\n" +
 				"}",
 			},
-			"Ljava/lang/Class<+Lp1/X<TE;>;:TE;>;^33");
+			"Ljava/lang/Class<Lp1/X<TE;>;+Lp1/X<TE;>;:TE;>;^33");
 	}
 	
 	/*
@@ -1042,12 +1042,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			},
 			new String[] {
 				"Lp1/X;^1",
-				"Lp1/Y<+Lp1/X;>;^1"
+				"Lp1/Y<Lp1/Y<TE;>;+Lp1/X;>;^1"
 			}
 		);
 		assertBindingsEqual(
 			"Lp1/X;^1\n" +
-			"Lp1/Y<+Lp1/X;>;^1",
+			"Lp1/Y<Lp1/Y<TE;>;+Lp1/X;>;^1",
 			bindings);
 	}
 
@@ -1102,9 +1102,9 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	public void test050() throws CoreException {
 		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {},
-			new String[] {"Ljava/lang/Class<+[Ljava/lang/Object;>;"});
+			new String[] {"Ljava/lang/Class<Ljava/lang/Class<TT;>;+[Ljava/lang/Object;>;"});
 		assertBindingsEqual(
-				"Ljava/lang/Class<+[Ljava/lang/Object;>;^33", 
+				"Ljava/lang/Class<Ljava/lang/Class<TT;>;+[Ljava/lang/Object;>;^33", 
 				bindings);
 	}
 	
@@ -1263,6 +1263,9 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"Lp1/X;.foo<T:Ljava/lang/Object;>(TT;)V:TT;");
 	}
 	
+	/*
+	 * Ensures that a capture binding can be created using its key in batch creation.
+	 */
 	public void test059() throws CoreException {
 		assertRequestedBindingFound(
 			new String[] {
@@ -1277,9 +1280,34 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"    }\n" + 
 				"}",
 			}, 
-			"Lp1/X<TT;>;!*77;");
+			"Lp1/X<TT;>;!Lp1/X<TT;>;*77;"
+		);
 	}
 
-
-
+	/*
+	 * Ensures that a capture binding can be created using its key in batch creation.
+	 */
+	public void test060() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/xy/Cap.java",
+				"package xy;\n" + 
+				"import java.util.Vector;\n" + 
+				"public class Cap {\n" + 
+				"	{\n" + 
+				"		Vector<?> v= null;\n" + 
+				"		/*start*/v.get(0)/*end*/;\n" + 
+				"	}\n" + 
+				"}",
+				"/P/java/util/Vector.java",
+				"package java.util;\n" +
+				"public class Vector<T> {\n" +
+				"  public T get(int i) {\n" +
+				"    return null;\n" +
+				"  }\n" +
+				"}"
+			}, 
+			"Lxy/Cap;!Ljava/util/Vector<TT;>;*82;"
+		);
+	}
 }

@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -62,15 +63,13 @@ public class BindingKeyResolver extends BindingKeyParser {
 	ArrayList types = new ArrayList();
 	int rank = 0;
 	
-	TypeBinding wildcardGenericType;
 	int wildcardRank;
 	
-	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank, TypeBinding wildcardGenericType) {
+	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank) {
 		super(parser);
 		this.compiler = compiler;
 		this.environment = environment;
 		this.wildcardRank = wildcardRank;
-		this.wildcardGenericType = wildcardGenericType;
 	}
 	
 	public BindingKeyResolver(String key) {
@@ -99,82 +98,81 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	public void consumeCapture(final int position) {
 		if (this.parsedUnit == null) return;
+		final Binding wildcardBinding = ((BindingKeyResolver) this.types.get(0)).compilerBinding;
 		class CaptureFinder extends ASTVisitor {
-			Binding parameterizedTypeBinding;
-			public boolean visit(SingleNameReference singleNameReference, BlockScope blockScope) {
-				if (singleNameReference.sourceEnd == position) {
-					this.parameterizedTypeBinding = singleNameReference.resolvedType;
+			CaptureBinding capture;
+			boolean checkType(TypeBinding binding) {
+				if (binding == null)
 					return false;
-				} 
+				switch (binding.kind()) {
+					case Binding.PARAMETERIZED_TYPE:
+						TypeBinding[] arguments = ((ParameterizedTypeBinding) binding).arguments;
+						if (arguments == null) return false;
+						for (int i = 0, length = arguments.length; i < length; i++) {
+							if (checkType(arguments[i]))
+								return true;
+						}
+						break;
+					case Binding.WILDCARD_TYPE:
+						return checkType(((WildcardBinding) binding).bound);
+					case Binding.ARRAY_TYPE:
+						return checkType(((ArrayBinding) binding).leafComponentType);
+					case Binding.TYPE_PARAMETER:
+						if (binding.isCapture()) {
+							CaptureBinding captureBinding = (CaptureBinding) binding;
+							if (captureBinding.position == position && captureBinding.wildcard == wildcardBinding) {
+								this.capture = captureBinding;
+								return true;
+							}
+						}
+						break;
+				}
+				return false;
+			}
+			public boolean visit(SingleNameReference singleNameReference, BlockScope blockScope) {
+				if (checkType(singleNameReference.resolvedType)) 
+					return false;
 				return super.visit(singleNameReference, blockScope);
 			}
 			public boolean visit(QualifiedNameReference qualifiedNameReference, BlockScope blockScope) {
-				if (qualifiedNameReference.sourceEnd == position) {
-					this.parameterizedTypeBinding = qualifiedNameReference.resolvedType;
+				if (checkType(qualifiedNameReference.resolvedType))
 					return false;
-				} 
 				return super.visit(qualifiedNameReference, blockScope);
 			}
 			public boolean visit(MessageSend messageSend, BlockScope blockScope) {
-				if (messageSend.sourceEnd == position) {
-					this.parameterizedTypeBinding = messageSend.resolvedType;
+				if (checkType(messageSend.resolvedType))
 					return false;
-				} 
 				return super.visit(messageSend, blockScope);
 			}
 			public boolean visit(FieldReference fieldReference, BlockScope blockScope) {
-				if (fieldReference.sourceEnd == position) {
-					this.parameterizedTypeBinding = fieldReference.resolvedType;
+				if (checkType(fieldReference.resolvedType))
 					return false;
-				} 
 				return super.visit(fieldReference, blockScope);
 			}
 			public boolean visit(ConditionalExpression conditionalExpression, BlockScope blockScope) {
-				if (conditionalExpression.sourceEnd == position) {
-					this.parameterizedTypeBinding = conditionalExpression.resolvedType;
+				if (checkType(conditionalExpression.resolvedType))
 					return false;
-				} 
 				return super.visit(conditionalExpression, blockScope);
 			}
 			public boolean visit(CastExpression castExpression, BlockScope blockScope) {
-				if (castExpression.sourceEnd == position) {
-					this.parameterizedTypeBinding = castExpression.resolvedType;
+				if (checkType(castExpression.resolvedType))
 					return false;
-				} 
 				return super.visit(castExpression, blockScope);
 			}
 			public boolean visit(Assignment assignment, BlockScope blockScope) {
-				if (assignment.sourceEnd == position) {
-					this.parameterizedTypeBinding = assignment.resolvedType;
+				if (checkType(assignment.resolvedType))
 					return false;
-				} 
 				return super.visit(assignment, blockScope);
 			}
 			public boolean visit(ArrayReference arrayReference, BlockScope blockScope) {
-				if (arrayReference.sourceEnd == position) {
-					this.parameterizedTypeBinding = arrayReference.resolvedType;
+				if (checkType(arrayReference.resolvedType))
 					return false;
-				} 
 				return super.visit(arrayReference, blockScope);
 			}
 		}
 		CaptureFinder captureFinder = new CaptureFinder();
 		this.parsedUnit.traverse(captureFinder, this.parsedUnit.scope);
-		if (!(captureFinder.parameterizedTypeBinding instanceof ParameterizedTypeBinding))
-			return;
-		TypeBinding[] arguments = ((ParameterizedTypeBinding) captureFinder.parameterizedTypeBinding).arguments;
-		if (arguments == null) return;
-		Binding wildcardBinding = ((BindingKeyResolver) this.types.get(0)).compilerBinding;
-		for (int i = 0, length = arguments.length; i < length; i++) {
-			TypeBinding binding = arguments[i];
-			if (binding instanceof CaptureBinding) {
-				CaptureBinding captureBinding = (CaptureBinding) binding;
-				if (captureBinding.wildcard == wildcardBinding && captureBinding.sourceType == this.typeBinding) {
-					this.compilerBinding = binding;
-					return;
-				}
-			}
-		}
+		this.compilerBinding = captureFinder.capture;
 	}
 	
 	public void consumeField(char[] fieldName) {
@@ -339,10 +337,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 			case Wildcard.EXTENDS:
 			case Wildcard.SUPER:
 				BindingKeyResolver boundResolver = (BindingKeyResolver) this.types.get(0);
-				this.compilerBinding = this.environment.createWildcard((ReferenceBinding) this.wildcardGenericType, this.wildcardRank, (TypeBinding) boundResolver.compilerBinding, null /*no extra bound*/, kind);
+				this.compilerBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, this.wildcardRank, (TypeBinding) boundResolver.compilerBinding, null /*no extra bound*/, kind);
 				break;
 			case Wildcard.UNBOUND:
-				this.compilerBinding = this.environment.createWildcard((ReferenceBinding) this.wildcardGenericType, rank++, null/*no bound*/, null /*no extra bound*/, kind);
+				this.compilerBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, rank++, null/*no bound*/, null /*no extra bound*/, kind);
 				break;
 		}
 	}
@@ -457,7 +455,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public BindingKeyParser newParser() {
-		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank, this.typeBinding);
+		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank);
 	}
 	 
 	public String toString() {

@@ -262,15 +262,25 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 	}
 	
+	/*
+	 * genericTypeKey *|+|- [boundKey]
+	 * p.X<T> { X<?> ... } --> Lp/X<TT;>;*
+	 */
 	public char[] computeUniqueKey(boolean withAccessFlags) {
+		char[] genericTypeKey = this.genericType.computeUniqueKey(false/*without access flags*/);
+		char[] wildCardKey;
         switch (this.boundKind) {
             case Wildcard.UNBOUND : 
-                return WILDCARD_STAR;
+                wildCardKey = WILDCARD_STAR;
+                break;
             case Wildcard.EXTENDS :
-                return CharOperation.concat(WILDCARD_PLUS, this.bound.computeUniqueKey(false/*without access flags*/));
+                wildCardKey = CharOperation.concat(WILDCARD_PLUS, this.bound.computeUniqueKey(false/*without access flags*/));
+                break;
 			default: // SUPER
-			    return CharOperation.concat(WILDCARD_MINUS, this.bound.computeUniqueKey(false/*without access flags*/));
+			    wildCardKey = CharOperation.concat(WILDCARD_MINUS, this.bound.computeUniqueKey(false/*without access flags*/));
+				break;
         }
+        return CharOperation.concat(genericTypeKey, wildCardKey);
        }
 	
 	/**
