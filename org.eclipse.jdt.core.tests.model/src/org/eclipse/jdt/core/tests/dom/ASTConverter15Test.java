@@ -5313,4 +5313,25 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Should be no bound", type.getTypeBounds().length == 0);
 	}			
 
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982
+	 */
+	public void test0176() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X<T extends Collection> {\n" + 
+				"	void test1() {\n" + 
+				"		List<T> l = null;\n" + 
+				"		 /*start*/l.get(0)/*end*/;\n" + 
+				"	}\n" + 
+				"}\n";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+		ITypeBinding type = ((Expression)node).resolveTypeBinding();
+		assertTrue("Should be one bound", type.getTypeBounds().length == 1);
+		assertEquals("Invalid bound", "java.util.Collection", type.getTypeBounds()[0].getBinaryName());
+	}			
 }
