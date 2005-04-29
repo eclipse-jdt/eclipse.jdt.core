@@ -36,8 +36,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 167 };
-//		TESTS_NAMES = new String[] {"test0172"};
+//		TESTS_NUMBERS = new int[] { 174 };
+//		TESTS_NAMES = new String[] {"test0174"};
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -5268,4 +5268,49 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Should be one bound", type.getTypeBounds().length == 1);
 		assertEquals("Invalid bound", "[Ljava.lang.Number;", type.getTypeBounds()[0].getBinaryName());
 	}	
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=88202
+	 */
+	public void test0174() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void test1() {\n" + 
+				"		List<? extends Collection> l = null;\n" + 
+				"		 /*start*/l.get(0)/*end*/;\n" + 
+				"	}\n" + 
+				"}\n";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+		ITypeBinding type = ((Expression)node).resolveTypeBinding();
+		assertTrue("Should be one bound", type.getTypeBounds().length == 1);
+		assertEquals("Invalid bound", "java.util.Collection", type.getTypeBounds()[0].getBinaryName());
+	}		
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=88202
+	 */
+	public void test0175() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void test1() {\n" + 
+				"		List<?> l = null;\n" + 
+				"		 /*start*/l.get(0)/*end*/;\n" + 
+				"	}\n" + 
+				"}\n";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+		ITypeBinding type = ((Expression)node).resolveTypeBinding();
+		assertTrue("Should be no bound", type.getTypeBounds().length == 0);
+	}			
+
 }
