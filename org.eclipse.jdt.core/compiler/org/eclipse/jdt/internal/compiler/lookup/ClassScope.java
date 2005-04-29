@@ -756,12 +756,12 @@ public class ClassScope extends Scope {
 			return false; // cannot reach here as AbortCompilation is thrown
 		}			
 		// check argument type compatibility
-		ParameterizedTypeBinding  superType = createParameterizedType(rootEnumType, new TypeBinding[]{ sourceType } , null);
+		ParameterizedTypeBinding  superType = createParameterizedType(rootEnumType, new TypeBinding[]{ convertToRawType(sourceType) } , null);
 		sourceType.superclass = superType;
-		// bound check
+		// bound check (in case of bogus definition of Enum type)
 		if (refTypeVariables[0].boundCheck(superType, sourceType) != TypeConstants.OK) {
 			problemReporter().typeMismatchError(rootEnumType, refTypeVariables[0], sourceType, null);
-		}
+		}		
 		return !foundCycle;
 	}
 

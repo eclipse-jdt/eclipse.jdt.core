@@ -430,6 +430,7 @@ public class BlockScope extends Scope {
 		}
 
 		// know binding is now a ReferenceBinding
+		binding = convertToRawType((ReferenceBinding) binding);
 		while (currentIndex < length) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
 			char[] nextName = compoundName[currentIndex++];

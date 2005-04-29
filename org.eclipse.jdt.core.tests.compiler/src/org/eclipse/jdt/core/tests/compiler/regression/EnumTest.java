@@ -3133,4 +3133,37 @@ the right of e1."
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90775
+	public void test102() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X <T> {\n" + 
+				"	enum SomeEnum {\n" + 
+				"		A, B;\n" + 
+				"		static SomeEnum foo() {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Enum<SomeEnum> e = SomeEnum.A;\n" + 
+				"		\n" + 
+				"	Set<SomeEnum> set1 = EnumSet.of(SomeEnum.A);\n" + 
+				"	Set<SomeEnum> set2 = EnumSet.of(SomeEnum.foo());\n" + 
+				"	\n" + 
+				"	Foo<Bar> foo = null;\n" + 
+				"}\n" + 
+				"class Foo <U extends Foo<U>> {\n" + 
+				"}\n" + 
+				"class Bar extends Foo {\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	Foo<Bar> foo = null;\n" + 
+			"	    ^^^\n" + 
+			"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <U extends Foo<U>> of the type Foo<U>\n" + 
+			"----------\n");
+	}			
 }
