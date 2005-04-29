@@ -228,8 +228,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * 
 	 * @deprecated As we use deprecated API
 	 */
-	// TODO (frederic) Put back when 3.0 ref will be rebuilt
-	public void _testSearchAllTypeNames() throws CoreException {
+	public void testSearchAllTypeNames() throws CoreException {
 		tagAsSummary("Search>Names>Workspace", true); // put in fingerprint
 		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 
@@ -288,8 +287,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 *		- ""IResource":	5886 macthes
 	 *		- "JavaCore":		2145 matches
 	 */
-	// TODO (frederic) Put back when 3.0 ref will be rebuilt
-	public void _testSearchType() throws CoreException {
+	public void testSearchType() throws CoreException {
 		tagAsSummary("Search>Occurences>Types", true); // put in fingerprint
 
 		// Wait for indexing end
@@ -323,8 +321,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
 	 */
-	// TODO (frederic) Put back when 3.0 ref will be rebuilt
-	public void _testSearchField() throws CoreException {
+	public void testSearchField() throws CoreException {
 		tagAsSummary("Search>Occurences>Fields", true); // put in fingerprint
 
 		// Wait for indexing end
@@ -358,8 +355,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
 	 */
-	// TODO (frederic) Put back when 3.0 ref will be rebuilt
-	public void _testSearchMethod() throws CoreException {
+	public void testSearchMethod() throws CoreException {
 		tagAsSummary("Search>Occurences>Methods", true); // put in fingerprint
 
 		// Wait for indexing end
@@ -393,8 +389,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 * First wait that already started indexing jobs end before perform test.
 	 * Perform one search before measure performance for warm-up.
 	 */
-	// TODO (frederic) Put back when 3.0 ref will be rebuilt
-	public void _testSearchConstructor() throws CoreException {
+	public void testSearchConstructor() throws CoreException {
 		tagAsSummary("Search>Occurences>Constructors", true); // put in fingerprint
 
 		// Wait for indexing end
