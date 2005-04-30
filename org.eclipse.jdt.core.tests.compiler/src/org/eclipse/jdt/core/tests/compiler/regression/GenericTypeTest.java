@@ -17987,4 +17987,30 @@ public void test617() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}					
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93298
+	public void test635() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.util.Iterator;\n" + 
+				"public class X {\n" + 
+				"	public static class Indexed <U>  {\n" + 
+				"		public Iterator<U> foo() {\n" + 
+				"			return new IndexedIter();\n" + 
+				"		}\n" + 
+				"		class IndexedIter implements Iterator<U> {\n" + 
+				"			public boolean hasNext() {\n" + 
+				"				return false;\n" + 
+				"			}\n" + 
+				"			public U next() {\n" + 
+				"				return null;\n" + 
+				"			}\n" + 
+				"			public void remove() {\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"");
+	}						
 }

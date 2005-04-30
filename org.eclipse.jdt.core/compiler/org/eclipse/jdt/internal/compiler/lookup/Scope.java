@@ -2335,7 +2335,6 @@ public abstract class Scope
 								return new ProblemReferenceBinding(name, NonStaticReferenceInStaticContext);
 							return typeVariable;
 						}
-						insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
 						if (!insideTypeAnnotation) {
 							// 6.5.5.1 - member types have precedence over top-level type in same unit
 							ReferenceBinding memberType = findMemberType(name, sourceType);
@@ -2367,6 +2366,7 @@ public abstract class Scope
 							}
 						}
 						insideTypeAnnotation = false;
+						insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
 						if (CharOperation.equals(sourceType.sourceName, name)) {
 							if (foundType != null && foundType != sourceType && foundType.problemId() != NotVisible)
 								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
