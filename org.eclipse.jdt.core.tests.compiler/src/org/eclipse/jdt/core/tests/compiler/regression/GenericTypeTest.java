@@ -18012,5 +18012,31 @@ public void test617() {
 				"}\n",
 	        },
 			"");
-	}						
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78084	
+	public void test636() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+			"public abstract class X<T> {\n" + 
+			"  public final T element() {\n" + 
+			"    T result = (T) customElement(); // reports unnecessary cast\n" + 
+			"    return result;\n" + 
+			"  }\n" + 
+			"  protected abstract Object customElement();\n" + 
+			"  Zork z;\n" +
+			"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	T result = (T) customElement(); // reports unnecessary cast\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
 }
