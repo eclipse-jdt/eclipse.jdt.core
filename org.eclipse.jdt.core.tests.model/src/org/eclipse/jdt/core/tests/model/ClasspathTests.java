@@ -1998,10 +1998,7 @@ public void testExtraAttributes1() throws CoreException {
 			"Unexpected content", 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<classpath>\n" + 
-			"	<classpathentry kind=\"src\" path=\"\">\n" + 
-			"		<attributes>\n" + 
-			"		</attributes>\n" + 
-			"	</classpathentry>\n" + 
+			"	<classpathentry kind=\"src\" path=\"\"/>\n" + 
 			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
 			"</classpath>\n",
 			contents);
@@ -2464,10 +2461,7 @@ public void testCombineAccessRules1() throws CoreException {
 			"Unexpected content", 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<classpath>\n" + 
-			"	<classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/P1\">\n" + 
-			"		<attributes>\n" + 
-			"		</attributes>\n" + 
-			"	</classpathentry>\n" + 
+			"	<classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/P1\"/>\n" + 
 			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
 			"</classpath>\n",
 			contents);
@@ -2491,10 +2485,7 @@ public void testCombineAccessRules2() throws CoreException {
 			"Unexpected content", 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<classpath>\n" + 
-			"	<classpathentry kind=\"src\" path=\"/P1\">\n" + 
-			"		<attributes>\n" + 
-			"		</attributes>\n" + 
-			"	</classpathentry>\n" + 
+			"	<classpathentry kind=\"src\" path=\"/P1\"/>\n" + 
 			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
 			"</classpath>\n",
 			contents);

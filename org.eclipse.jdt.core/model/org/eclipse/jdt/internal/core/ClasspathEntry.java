@@ -435,8 +435,8 @@ public class ClasspathEntry implements IClasspathEntry {
 			parameters.put(TAG_OUTPUT, String.valueOf(outputLocation));
 		}
 
-		boolean hasExtraAttributes = this.extraAttributes != NO_EXTRA_ATTRIBUTES;
-		boolean hasRestrictions = getAccessRuleSet() != null;
+		boolean hasExtraAttributes = this.extraAttributes.length != 0;
+		boolean hasRestrictions = getAccessRuleSet() != null; // access rule set is null if no access rules
 		writer.printTag(TAG_CLASSPATHENTRY, parameters, indent, newLine, !hasExtraAttributes && !hasRestrictions /*close tag if no extra attributes and no restriction*/);
 		
 		if (hasExtraAttributes)
@@ -614,7 +614,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						null, // source attachment root
 						null, // custom output location
 						false,
-						null,
+						null, // no access rules
 						false, // no accessible files to combine
 						NO_EXTRA_ATTRIBUTES);
 			default :
