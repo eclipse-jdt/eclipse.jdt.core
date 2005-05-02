@@ -79,8 +79,13 @@ public void addIndexEntry(char[] category, char[] key, String containerRelativeP
 	this.memoryIndex.addIndexEntry(category, key, containerRelativePath);
 }
 public String containerRelativePath(String documentPath) {
-	int jarSeparator = documentPath.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
-	return documentPath.substring((jarSeparator == -1 ? this.containerPath.length() : jarSeparator) + 1);
+	int index = documentPath.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
+	if (index == -1) {
+		index = this.containerPath.length();
+		if (documentPath.length() <= index)
+			throw new IllegalArgumentException("Document path " + documentPath + " must be relative to " + this.containerPath); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	return documentPath.substring(index + 1);
 }
 public File getIndexFile() {
 	if (this.diskIndex == null) return null;
