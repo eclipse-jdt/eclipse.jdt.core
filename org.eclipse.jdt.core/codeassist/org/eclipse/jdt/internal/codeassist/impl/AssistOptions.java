@@ -38,17 +38,21 @@ public class AssistOptions {
 		"org.eclipse.jdt.core.codeComplete.localSuffixes"; 	//$NON-NLS-1$
 	public static final String OPTION_ArgumentSuffixes =
 		"org.eclipse.jdt.core.codeComplete.argumentSuffixes"; 	//$NON-NLS-1$
-	public static final String OPTION_PerformForbiddenReferenceCheck =
+	public static final String OPTION_HideRestrictedReferences =
 		"org.eclipse.jdt.core.codeComplete.restrictionsCheck"; 	//$NON-NLS-1$
-	public static final String OPTION_PerformDiscouragedReferenceCheck =
-		"org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"; 	//$NON-NLS-1$
 	
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
+	public static final String ERROR = "error"; //$NON-NLS-1$
+	public static final String WARNING = "warning"; //$NON-NLS-1$
+	public static final String NEVER = "never"; //$NON-NLS-1$
 
+	public static final int FILTER_NEVER = 0;
+	public static final int FILTER_ERROR = 1;
+	public static final int FILTER_WARNING = 2;
+	
 	public boolean checkVisibility = false;
-	public boolean checkForbiddenReference = false;
-	public boolean checkDiscouragedReference = false;
+	public int restrictedReferenceFilter;
 	public boolean forceImplicitQualification = false;
 	public char[][] fieldPrefixes = null;
 	public char[][] staticFieldPrefixes = null;
@@ -172,18 +176,13 @@ public class AssistOptions {
 				}
 			}
 		}
-		if ((optionValue = optionsMap.get(OPTION_PerformForbiddenReferenceCheck)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.checkForbiddenReference = true;
-			} else if (DISABLED.equals(optionValue)) {
-				this.checkForbiddenReference = false;
-			}
-		}
-		if ((optionValue = optionsMap.get(OPTION_PerformDiscouragedReferenceCheck)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.checkDiscouragedReference = true;
-			} else if (DISABLED.equals(optionValue)) {
-				this.checkDiscouragedReference = false;
+		if ((optionValue = optionsMap.get(OPTION_HideRestrictedReferences)) != null) {
+			if (NEVER.equals(optionValue)) {
+				this.restrictedReferenceFilter = FILTER_NEVER;
+			} else if (ERROR.equals(optionValue)) {
+				this.restrictedReferenceFilter = FILTER_ERROR;
+			} else if (WARNING.equals(optionValue)) {
+				this.restrictedReferenceFilter = FILTER_WARNING;
 			}
 		}
 	}

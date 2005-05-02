@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
@@ -31,10 +32,16 @@ public abstract class Engine implements ITypeRequestor {
 
 	public AssistOptions options;
 	public CompilerOptions compilerOptions; 
+	public boolean forbiddenReferenceIsError;
+	public boolean discouragedReferenceIsError;
 	
 	public Engine(Map settings){
 		this.options = new AssistOptions(settings);
 		this.compilerOptions = new CompilerOptions(settings);
+		this.forbiddenReferenceIsError =
+			this.compilerOptions.getSeverity(CompilerOptions.ForbiddenReference) == ProblemSeverities.Error;
+		this.discouragedReferenceIsError =
+			this.compilerOptions.getSeverity(CompilerOptions.DiscouragedReference) == ProblemSeverities.Error;
 	}
 	
 	/**

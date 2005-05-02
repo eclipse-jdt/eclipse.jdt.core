@@ -150,6 +150,8 @@ public static Test suite() {
 	suite.addTest(new CompletionTests2("testAccessRestriction10"));
 	suite.addTest(new CompletionTests2("testAccessRestriction11"));
 	suite.addTest(new CompletionTests2("testAccessRestriction12"));
+	suite.addTest(new CompletionTests2("testAccessRestriction13"));
+	suite.addTest(new CompletionTests2("testAccessRestriction14"));
 	return suite;
 }
 
@@ -564,7 +566,7 @@ public void testAccessRestriction1() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.NEVER);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -637,7 +639,7 @@ public void testAccessRestriction2() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.NEVER);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -717,7 +719,7 @@ public void testAccessRestriction3() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.NEVER);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -798,7 +800,7 @@ public void testAccessRestriction4() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -878,7 +880,7 @@ public void testAccessRestriction5() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -957,7 +959,7 @@ public void testAccessRestriction6() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1062,7 +1064,7 @@ public void testAccessRestriction7() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1159,7 +1161,7 @@ public void testAccessRestriction8() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1257,7 +1259,7 @@ public void testAccessRestriction9() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1404,7 +1406,7 @@ public void testAccessRestriction10() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.NEVER);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1553,7 +1555,7 @@ public void testAccessRestriction11() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1700,7 +1702,7 @@ public void testAccessRestriction12() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.NEVER);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1841,6 +1843,165 @@ public void testAccessRestriction12() throws Exception {
 		this.deleteProject("P2");
 		this.deleteProject("P3");
 		this.deleteProject("PX");
+		JavaCore.setOptions(oldOptions);
+	}
+}
+public void testAccessRestriction13() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		JavaCore.setOptions(options);
+		
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
+
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			Util.getJavaClassLibs(),
+			 "bin");
+		
+		this.createFolder("/P1/src/a");
+		this.createFile(
+				"/P1/src/a/XX1.java",
+				"package a;\n"+
+				"public class XX1 {\n"+
+				"}");
+
+		this.createFolder("/P1/src/b");
+		this.createFile(
+				"/P1/src/b/XX2.java",
+				"package b;\n"+
+				"public class XX2 {\n"+
+				"}");
+		
+		// create P2
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			Util.getJavaClassLibs(),
+			null,
+			null,
+			new String[]{"/P1"},
+			new String[][]{{}},
+			new String[][]{{"a/*"}},
+			new boolean[]{false},
+			"bin",
+			null,
+			null,
+			null,
+			"1.4");
+		this.createFile(
+			"/P2/src/YY.java",
+			"public class YY {\n"+
+			"  void foo() {\n"+
+			"    XX\n"+
+			"  }\n"+
+			"}");
+		
+		waitUntilIndexesReady();
+		
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "XX";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+			"XX1[TYPE_REF]{a.XX1, a, La.XX1;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE) + "}\n" +
+ 			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+		JavaCore.setOptions(oldOptions);
+	}
+}
+public void testAccessRestriction14() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.WARNING);
+		JavaCore.setOptions(options);
+		
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
+
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			Util.getJavaClassLibs(),
+			 "bin");
+		
+		this.createFolder("/P1/src/a");
+		this.createFile(
+				"/P1/src/a/XX1.java",
+				"package a;\n"+
+				"public class XX1 {\n"+
+				"}");
+
+		this.createFolder("/P1/src/b");
+		this.createFile(
+				"/P1/src/b/XX2.java",
+				"package b;\n"+
+				"public class XX2 {\n"+
+				"}");
+		
+		// create P2
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			Util.getJavaClassLibs(),
+			null,
+			null,
+			new String[]{"/P1"},
+			new String[][]{{}},
+			new String[][]{{"a/*"}},
+			new boolean[]{false},
+			"bin",
+			null,
+			null,
+			null,
+			"1.4");
+		this.createFile(
+			"/P2/src/YY.java",
+			"public class YY {\n"+
+			"  void foo() {\n"+
+			"    XX\n"+
+			"  }\n"+
+			"}");
+		
+		waitUntilIndexesReady();
+		
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "XX";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
 		JavaCore.setOptions(oldOptions);
 	}
 }

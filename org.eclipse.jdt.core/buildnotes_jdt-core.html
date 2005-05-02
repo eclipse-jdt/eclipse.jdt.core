@@ -47,6 +47,23 @@ Eclipse SDK 3.1M7 - ?th May 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Changed Code Assist options.<br>
+    CODEASSIST_FORBIDDEN_REFERENCE_CHECK and CODEASSIST_DISCOURAGED_REFERENCE_CHECK are replaced by CODEASSIST_HIDE_RESTRICTED_REFERENCES.<br>
+    <pre>
+/*
+ *  CODEASSIST / Hide Proposals for Restricted Completions
+ *    When value is "never", never hide proposals for restricted completions.
+ *    When value is "error", hide proposals for restricted completions if insertion of these completions would create a compile error.
+ *    When value is "warning", hide proposals for restricted completions if insertion of these completions would create a compile error or warning.
+ *    To configure the severity of restrictions, "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
+ *    option must be used for forbidden reference and "org.eclipse.jdt.core.compiler.problem.discouragedReference"
+ *    option must be used for discouraged reference.
+ *     - option id:         "org.eclipse.jdt.core.codeComplete.restrictionsCheck"
+ *     - possible values:   { "never", "error", "warning" }
+ *     - default:           "error"
+ */
+ public static final String CODEASSIST_HIDE_RESTRICTED_REFERENCES;
+    </pre></li>
 <li>Removed 3.1 APIs <code>BindingKey#getDeclaringTypeSignature()</code> and
     <code>BindingKey#toSignature()</code> as they were found error prone. See <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=93105">bug 93105</a>
     for details.</li>
@@ -56,7 +73,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=93105">93105</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=90612">90612</a>
+Forbidden types must not be available in Code Assist
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=93105">93105</a>
 Remove unnecessary APIs on BindingKey
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=93396">93396</a>
 [1.5] problem with recovery and enum constant body

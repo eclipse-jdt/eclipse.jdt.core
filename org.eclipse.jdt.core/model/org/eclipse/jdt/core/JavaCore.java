@@ -816,14 +816,7 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @since 3.1
 	 */
-	public static final String CODEASSIST_FORBIDDEN_REFERENCE_CHECK = PLUGIN_ID + ".codeComplete.restrictionsCheck"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions()
-	 * @since 3.1
-	 */
-	public static final String CODEASSIST_DISCOURAGED_REFERENCE_CHECK = PLUGIN_ID + ".codeComplete.discouragedReferenceCheck"; //$NON-NLS-1$
-	
+	public static final String CODEASSIST_HIDE_RESTRICTED_REFERENCES= PLUGIN_ID + ".codeComplete.restrictionsCheck"; //$NON-NLS-1$
 	// *************** Possible values for configurable options. ********************
 	
 	/**
@@ -990,6 +983,12 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static final String PRIVATE = "private"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String NEVER = "never"; //$NON-NLS-1$
 
 	/*
 	 * Cache for options.
@@ -2273,24 +2272,29 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "&lt;suffix&gt;[,&lt;suffix&gt;]*" } where &lt;suffix&gt; is a String without any wild-card 
 	 *     - default:           ""
 	 *     
-	 *  CODEASSIST / Activate Forbidden Reference Sensitive Completion
-	 *    When active, completion doesn't show that have forbidden reference.
+	 *  CODEASSIST / Hide Proposals for Restricted Completions
+	 *    When value is "never", never hide proposals for restricted completions.
+	 *    When value is "error", hide proposals for restricted completions if insertion of these completions would create a compile error.
+	 *    When value is "warning", hide proposals for restricted completions if insertion of these completions would create a compile error or warning.
+	 *    To configure the severity of restrictions, "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
+	 *    option must be used for forbidden reference and "org.eclipse.jdt.core.compiler.problem.discouragedReference"
+	 *    option must be used for discouraged reference.
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.restrictionsCheck"
-	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "disabled"
-	 * 
-	 *  CODEASSIST / Activate Discouraged Reference Sensitive Completion
-	 *    When active, completion doesn't show that have discouraged reference.
-	 *     - option id:         "org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"
-	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "disabled"
-	 * 
+	 *     - possible values:   { "never", "error", "warning" }
+	 *     - default:           "error"
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options
 	 *   (key type: <code>String</code>; value type: <code>String</code>)
 	 * @see #setOptions(Hashtable)
 	 */
+	
+	/* COMPILER / Reporting Forbidden Reference to Type with Restricted Access
+	 *    When enabled, the compiler will issue an error or a warning when referring to a type that is non accessible, as defined according
+	 *    to the access rule specifications.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.forbiddenReference"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"*/
  	public static Hashtable getDefaultOptions(){
 	
 		Hashtable defaultOptions = new Hashtable(10);
