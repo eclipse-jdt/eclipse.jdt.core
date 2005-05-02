@@ -209,10 +209,7 @@ public class BindingKeyParser {
 						this.token = ARRAY;
 						return this.token;
 					case '<':
-						if (this.index == previousTokenEnd) {
-							this.start = this.index+1;
-							previousTokenEnd = this.start;
-						} else if (this.start > 0) {
+						if (this.start > 0) {
 							switch (this.source[this.start-1]) {
 								case '.':
 									if (this.source[this.start-2] == '>')
@@ -222,8 +219,13 @@ public class BindingKeyParser {
 										this.token = METHOD;
 									return this.token;
 								default:
-									this.token = TYPE;
-									return this.token;
+									if (this.index == previousTokenEnd) {
+										this.start = this.index+1;
+										previousTokenEnd = this.start;
+									} else {
+										this.token = TYPE;
+										return this.token;
+									}
 							}
 						} 
 						break;

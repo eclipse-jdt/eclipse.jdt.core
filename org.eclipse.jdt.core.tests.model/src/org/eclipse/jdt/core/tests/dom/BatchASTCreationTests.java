@@ -110,7 +110,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test060" };
+//		TESTS_NAMES = new String[] { "test061" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1310,4 +1310,22 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"Lxy/Cap;!Ljava/util/Vector;*82;"
 		);
 	}
+
+	/*
+	 * Ensures that a generic constructor binding can be created using its key in batch creation.
+	 */
+	public void test061() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" + 
+				"    /*start*/<T> X() {\n" + 
+				"    }/*end*/\n" + 
+				"}",
+			}, 
+			"Lp1/X;.<T:Ljava/lang/Object;>()V^0"
+		);
+	}
+	
 }
