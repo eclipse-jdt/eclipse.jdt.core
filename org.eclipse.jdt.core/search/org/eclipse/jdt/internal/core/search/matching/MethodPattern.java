@@ -143,9 +143,9 @@ public MethodPattern(
 	// Get unique key for parameterized constructors
 	String genericDeclaringTypeSignature = null;
 //	String genericSignature = null;
-	BindingKey key;
-	if (method.isResolved() && (key = new BindingKey(method.getKey())).isParameterizedType()) {
-		genericDeclaringTypeSignature = key.getDeclaringTypeSignature();
+	String key;
+	if (method.isResolved() && (new BindingKey(key = method.getKey())).isParameterizedType()) {
+		genericDeclaringTypeSignature = Util.getDeclaringTypeSignature(key);
 	} else {
 		methodParameters = true;
 	}

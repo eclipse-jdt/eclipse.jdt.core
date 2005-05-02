@@ -175,18 +175,6 @@ public final class BindingKey {
 	}
 	
 	/**
-	 * Returns the declaring type signature of the element represented by this binding key.
-	 * Returns the signature of the element if it is a type.
-	 * 
-	 * @return the declaring type signature
-	 */
-	public String getDeclaringTypeSignature() {
-		KeyToSignature keyToSignature = new KeyToSignature(this.key, KeyToSignature.DECLARING_TYPE);
-		keyToSignature.parse();
-		return keyToSignature.signature.toString();
-	}
-	
-	/**
 	 * Returns the type argument signatures of the element represented by this binding key.
 	 * If this binding key doesn't represent a parameterized type or a parameterized method,
 	 * returns an empty array.
@@ -233,14 +221,25 @@ public final class BindingKey {
 	}
 	
 	/**
-	 * Transforms this binding key into a signature.
+	 * Internal method.
+	 * <p>
+	 * This method transforms this binding key into a signature. 
+	 * This method is not intended to be called by clients.
+	 * </p>
 	 * 
 	 * @return the signature for this binding key
 	 */
-	public String toSignature() {
+	public String internalToSignature() {
 		KeyToSignature keyToSignature = new KeyToSignature(this.key, KeyToSignature.SIGNATURE);
 		keyToSignature.parse();
 		return keyToSignature.signature.toString();
+	}
+	
+	/**
+	 * @deprecated
+	 */
+	public String toSignature() {
+		return internalToSignature();
 	}
 	
 	/* (non-Javadoc)

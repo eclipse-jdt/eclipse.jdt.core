@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
@@ -96,13 +95,12 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		super(name);
 	}
 
+	static {
+//		TESTS_NAMES = new String[] {"test0602"};
+//		TESTS_NUMBERS =  new int[] { 536 };
+	}
 	public static Test suite() {
-		if (true) {
-			return new Suite(ASTConverterTestAST3_2.class);		
-		}
-		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0604"));
-		return suite;
+		return buildTestSuite(ASTConverterTestAST3_2.class);
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22560

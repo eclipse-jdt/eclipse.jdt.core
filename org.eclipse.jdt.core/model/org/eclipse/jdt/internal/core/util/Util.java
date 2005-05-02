@@ -1017,6 +1017,18 @@ public class Util {
 	}
 	
 	/*
+	 * Returns the declaring type signature of the element represented by the given binding key.
+	 * Returns the signature of the element if it is a type.
+	 * 
+	 * @return the declaring type signature
+	 */
+	public static String getDeclaringTypeSignature(String key) {
+		KeyToSignature keyToSignature = new KeyToSignature(key, KeyToSignature.DECLARING_TYPE);
+		keyToSignature.parse();
+		return keyToSignature.signature.toString();
+	}
+	
+	/*
 	 * Appends to the given buffer the fully qualified name (as it appears in the source) of the given type
 	 */
 	private static void getFullyQualifiedName(Type type, StringBuffer buffer) {
