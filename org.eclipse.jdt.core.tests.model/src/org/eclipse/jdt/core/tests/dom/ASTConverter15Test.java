@@ -37,7 +37,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	static {
 //		TESTS_NUMBERS = new int[] { 174 };
-//		TESTS_NAMES = new String[] {"test0174"};
+//		TESTS_NAMES = new String[] {"test0177"};
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -5334,4 +5334,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Should be one bound", type.getTypeBounds().length == 1);
 		assertEquals("Invalid bound", "java.util.Collection", type.getTypeBounds()[0].getBinaryName());
 	}			
+	
+	/*
+	 * Ensure that the declaring class of a capture binding is correct
+	 * (https://bugs.eclipse.org/bugs/show_bug.cgi?id=93275)
+	 */
+    public void test0177() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+   		String contents =
+				"public class X<T> {\n" + 
+				"    Object foo(X<?> list) {\n" + 
+				"       return /*start*/list.get()/*end*/;\n" + 
+				"    }\n" + 
+				"    T get() {\n" + 
+				"    	return null;\n" + 
+				"    }\n" + 
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+		MethodInvocation methodInvocation = (MethodInvocation) node;
+		ITypeBinding capture = methodInvocation.resolveTypeBinding();
+		ITypeBinding declaringClass = capture.getDeclaringClass();
+		assertBindingEquals("LX<TT;>;^1", declaringClass);
+    }
+	
 }

@@ -278,7 +278,7 @@ class TypeBinding implements ITypeBinding {
 			}
 		} else if (this.binding.isTypeVariable()) {
 			TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
-			Binding declaringElement = typeVariableBinding.declaringElement;
+			Binding declaringElement = typeVariableBinding.isCapture() ? ((CaptureBinding) typeVariableBinding).sourceType : typeVariableBinding.declaringElement;
 			if (declaringElement instanceof ReferenceBinding) {
 				try {
 					return this.resolver.getTypeBinding((ReferenceBinding)declaringElement);

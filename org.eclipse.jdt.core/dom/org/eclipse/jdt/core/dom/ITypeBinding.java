@@ -146,11 +146,16 @@ public interface ITypeBinding extends IBinding {
 	 * classes) is the innermost class or interface containing the expression
 	 * or statement in which this type is declared.
 	 * </p>
-	 * <p>The declaring class of a type variable is the class in which the type variable
-	 * is declared if it is declared on a type. It returns <code>null</code> otherwise.
+	 * <p>The declaring class of a type variable is the class in which the type 
+	 * variable is declared if it is declared on a type. It returns 
+	 * <code>null</code> otherwise.
+	 * </p>
+	 * <p>The declaring class of a capture binding is the innermost class or
+	 * interface containing the expression or statement in which this capture is 
+	 * declared.
 	 * </p>
 	 * <p>Array types, primitive types, the null type, top-level types,
-	 * wildcard types, and capture bindings have no declaring class.
+	 * wildcard types have no declaring class.
 	 * </p>
 	 * 
 	 * @return the binding of the type that declares this type, or
