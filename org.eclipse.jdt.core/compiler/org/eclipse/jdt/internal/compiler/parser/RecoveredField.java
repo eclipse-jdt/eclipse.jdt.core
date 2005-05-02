@@ -133,9 +133,7 @@ public FieldDeclaration updatedFieldDeclaration(){
 					typeDeclaration.declarationSourceEnd = this.fieldDeclaration.declarationSourceEnd;
 					typeDeclaration.bodyEnd = this.fieldDeclaration.declarationSourceEnd;
 				}
-				if (recoveredType.preserveContent){
-					recoveredType.updatedTypeDeclaration();
-				}
+				recoveredType.updatedTypeDeclaration();
 			}
 		}
 	}

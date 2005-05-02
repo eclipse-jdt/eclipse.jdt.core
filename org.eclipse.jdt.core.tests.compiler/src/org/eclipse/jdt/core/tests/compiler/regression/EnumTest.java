@@ -3165,5 +3165,28 @@ the right of e1."
 			"	    ^^^\n" + 
 			"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <U extends Foo<U>> of the type Foo<U>\n" + 
 			"----------\n");
-	}			
+	}		
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93396
+    public void test103() {
+        this.runNegativeTest(
+            new String[] {
+                "BadEnum.java",
+                "public class BadEnum {\n" + 
+                "  public interface EnumInterface<T extends Object> {\n" + 
+                "    public T getMethod();\n" + 
+                "  }\n" + 
+                "  public enum EnumClass implements EnumInterface<String> {\n" + 
+                "    ENUM1 { public String getMethod() { return \"ENUM1\";} },\n" + 
+                "    ENUM2 { public String getMethod() { return \"ENUM2\";} };\n" + 
+                "  }\n" + 
+                "}\n" + 
+                "}\n",
+            },
+            "----------\n" + 
+            "1. ERROR in BadEnum.java (at line 10)\n" + 
+            "	}\n" + 
+            "	^\n" + 
+            "Syntax error on token \"}\", delete this token\n" + 
+            "----------\n");
+    }
 }
