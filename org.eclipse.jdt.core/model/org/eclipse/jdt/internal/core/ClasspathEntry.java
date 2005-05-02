@@ -261,7 +261,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	private IAccessRule[] combine(IAccessRule[] referringRules, IAccessRule[] rules, boolean combine) {
 		if (!combine) return rules;
-		if (rules == null) return referringRules;
+		if (rules == null || rules.length == 0) return referringRules;
 		
 		// concat access rules
 		int referringRulesLength = referringRules.length;
