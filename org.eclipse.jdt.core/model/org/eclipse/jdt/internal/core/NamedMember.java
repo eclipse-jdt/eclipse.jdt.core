@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.BindingKey;
-import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
@@ -64,34 +63,25 @@ public abstract class NamedMember extends Member {
 		return this.name;
 	}
 	
-	protected String getKey(IField field, boolean withAccessFlags, boolean forceOpen) throws JavaModelException {
+	protected String getKey(IField field, boolean forceOpen) throws JavaModelException {
 		StringBuffer key = new StringBuffer();
 		
 		// declaring class 
-		String declaringKey = getKey((IType) field.getParent(), false/*without access flags*/, forceOpen);
+		String declaringKey = getKey((IType) field.getParent(), forceOpen);
 		key.append(declaringKey);
 		
 		// field name
 		key.append('.');
 		key.append(field.getElementName());
-		
-		// flags
-		if (withAccessFlags) {
-			key.append('^');
-			if (forceOpen) 
-				key.append(field.getFlags());
-			else
-				key.append(Flags.AccDefault);
-		}
 
 		return key.toString();
 	}
 	
-	protected String getKey(IMethod method, boolean withAccessFlags, boolean forceOpen) throws JavaModelException {
+	protected String getKey(IMethod method, boolean forceOpen) throws JavaModelException {
 		StringBuffer key = new StringBuffer();
 		
 		// declaring class 
-		String declaringKey = getKey((IType) method.getParent(), false/*without access flags*/, forceOpen);
+		String declaringKey = getKey((IType) method.getParent(), forceOpen);
 		key.append(declaringKey);
 		
 		// selector
@@ -112,19 +102,10 @@ public abstract class NamedMember extends Member {
 		else
 			key.append('V');
 		
-		// flags
-		if (withAccessFlags) {
-			key.append('^');
-			if (forceOpen)
-				key.append(method.getFlags());
-			else
-				key.append(Flags.AccDefault); // cannot get the flags without opening the element		
-		}
-		
 		return key.toString();
 	}
 	
-	protected String getKey(IType type, boolean withAccessFlags, boolean forceOpen) throws JavaModelException {
+	protected String getKey(IType type, boolean forceOpen) throws JavaModelException {
 		StringBuffer key = new StringBuffer();
 		key.append('L');
 		String packageName = type.getPackageFragment().getElementName();
@@ -147,13 +128,6 @@ public abstract class NamedMember extends Member {
 		}
 		key.append(typeQualifiedName);
 		key.append(';');
-		if (withAccessFlags) {
-			key.append('^');
-			if (forceOpen)
-				key.append(type.getFlags());
-			else
-				key.append(Flags.AccDefault);
-		}
 		return key.toString();
 	}
 

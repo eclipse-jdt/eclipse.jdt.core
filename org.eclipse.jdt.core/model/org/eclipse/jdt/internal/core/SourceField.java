@@ -98,7 +98,7 @@ public int getElementType() {
  */
 public String getKey() {
 	try {
-		return getKey(this, true/*with access flags*/, false/*don't open*/);
+		return getKey(this, false/*don't open*/);
 	} catch (JavaModelException e) {
 		// happen only if force open is true
 		return null;

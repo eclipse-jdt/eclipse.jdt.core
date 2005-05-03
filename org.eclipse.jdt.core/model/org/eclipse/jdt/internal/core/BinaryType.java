@@ -395,7 +395,7 @@ public IInitializer[] getInitializers() {
 	return NO_INITIALIZERS;
 }
 public String getKey(boolean forceOpen) throws JavaModelException {
-	return getKey(this, true/*with access flags*/, forceOpen);
+	return getKey(this, forceOpen);
 }
 /*
  * @see IType#getMethod(String name, String[] parameterTypeSignatures)

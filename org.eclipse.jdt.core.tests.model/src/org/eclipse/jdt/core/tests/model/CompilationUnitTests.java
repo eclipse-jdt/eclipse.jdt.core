@@ -307,28 +307,28 @@ public void testGetInnerTypes() throws JavaModelException {
  */
 public void testGetKey1() {
 	IType type = this.cu.getType("X");
-	assertEquals("Lp/X;^0", type.getKey());
+	assertEquals("Lp/X;", type.getKey());
 }
 /*
  * Ensures that the key for a member type is correct
  */
 public void testGetKey2() {
 	IType type = this.cu.getType("X").getType("Inner");
-	assertEquals("Lp/X$Inner;^0", type.getKey());
+	assertEquals("Lp/X$Inner;", type.getKey());
 }
 /*
  * Ensures that the key for a secondary type is correct
  */
 public void testGetKey3() {
 	IType type = this.cu.getType("I");
-	assertEquals("Lp/X~I;^0", type.getKey());
+	assertEquals("Lp/X~I;", type.getKey());
 }
 /*
  * Ensures that the key for an anonymous type is correct
  */
 public void testGetKey4() {
 	IType type = this.cu.getType("X").getMethod("foo", new String[0]).getType("", 1);
-	assertEquals("Lp/X$1;^0", type.getKey());
+	assertEquals("Lp/X$1;", type.getKey());
 }
 /**
  * Ensures that a method has the correct return type, parameters and exceptions.

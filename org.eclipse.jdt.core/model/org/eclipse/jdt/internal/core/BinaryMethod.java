@@ -155,7 +155,7 @@ protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_METHOD;
 }
 public String getKey(boolean forceOpen) throws JavaModelException {
-	return getKey(this, true/*with access flags*/, forceOpen);
+	return getKey(this, forceOpen);
 }
 /*
  * @see IMethod
