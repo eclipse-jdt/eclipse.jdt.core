@@ -453,12 +453,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		final String logs = targetWorkspacePath + File.separator + "log.txt"; //$NON-NLS-1$
 
 		// Warm up
-		PrintWriter out = new PrintWriter(new StringWriter());
-		StringWriter errStrWriter = new StringWriter();
-		PrintWriter err = new PrintWriter(errStrWriter);
 		String cmdLine = sources + " -1.4 -g -preserveAllLocals "+(options==null?"":options)+" -d " + bins + " -log " + logs; //$NON-NLS-1$ //$NON-NLS-2$
 		int errorsCount = 0;
 		for (int i=0; i<2; i++) {
+			StringWriter errStrWriter = new StringWriter();
+			PrintWriter err = new PrintWriter(errStrWriter);
+			PrintWriter out = new PrintWriter(new StringWriter());
 			Main main = new Main(out, err, false);
 			main.compile(Main.tokenize(cmdLine));
 			if (main.globalErrorsCount > 0 && main.globalErrorsCount != errorsCount) {
@@ -478,6 +478,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		int max = MEASURES_COUNT * 2;
 		int warnings = 0;
 		for (int i = 0; i < max; i++) {
+			StringWriter errStrWriter = new StringWriter();
+			PrintWriter err = new PrintWriter(errStrWriter);
+			PrintWriter out = new PrintWriter(new StringWriter());
 			startMeasuring();
 			Main main = new Main(out, err, false);
 			main.compile(Main.tokenize(cmdLine));
