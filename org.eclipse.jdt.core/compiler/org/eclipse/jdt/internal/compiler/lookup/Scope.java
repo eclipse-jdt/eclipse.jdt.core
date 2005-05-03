@@ -2394,7 +2394,7 @@ public abstract class Scope
 					typeOrPackageCache.put(name, binding = ((ImportBinding) binding).resolvedImport); // already know its visible
 				}
 				if ((mask & Binding.TYPE) != 0) {
-					if (foundType != null && binding.problemId() != Ambiguous)
+					if (foundType != null && foundType.problemId() != NotVisible && binding.problemId() != Ambiguous)
 						return foundType; // problem type from above supercedes NotFound type but not Ambiguous import case
 					if (binding instanceof ReferenceBinding)
 						return binding; // cached type found in previous walk below
