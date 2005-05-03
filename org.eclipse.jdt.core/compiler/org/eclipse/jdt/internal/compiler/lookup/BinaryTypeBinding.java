@@ -361,6 +361,8 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 			wrapper.start++; // skip '<'
 			typeVars = createTypeVariables(wrapper, this);
 			wrapper.start++; // skip '>'
+			
+			methodModifiers |= AccGenericSignature;
 		}
 
 		if (wrapper.signature[wrapper.start] == '(') {
@@ -738,6 +740,10 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 		return field;
 
 	field.type = resolveType(field.type, this.environment, null, 0);
+	TypeBinding leafType = field.type.leafComponentType();
+	if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0) {
+		field.modifiers |= AccGenericSignature;
+	}	
 	field.modifiers &= ~AccUnresolved;
 	return field;
 }
@@ -745,12 +751,29 @@ MethodBinding resolveTypesFor(MethodBinding method) {
 	if ((method.modifiers & AccUnresolved) == 0)
 		return method;
 
-	if (!method.isConstructor())
-		method.returnType = resolveType(method.returnType, this.environment, null, 0);
-	for (int i = method.parameters.length; --i >= 0;)
-		method.parameters[i] = resolveType(method.parameters[i], this.environment, null, 0);
-	for (int i = method.thrownExceptions.length; --i >= 0;)
-		method.thrownExceptions[i] = resolveType(method.thrownExceptions[i], this.environment, true);
+	if (!method.isConstructor()) {
+		TypeBinding returnType = resolveType(method.returnType, this.environment, null, 0);
+		TypeBinding leafType = returnType.leafComponentType();
+		if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0) {
+			method.modifiers |= AccGenericSignature;
+		}
+		method.returnType = returnType;
+	}
+	for (int i = method.parameters.length; --i >= 0;) {
+		TypeBinding parameterType = resolveType(method.parameters[i], this.environment, null, 0);
+		TypeBinding leafType = parameterType.leafComponentType();
+		if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0) {
+			method.modifiers |= AccGenericSignature;
+		}
+		method.parameters[i] = parameterType;
+	}
+	for (int i = method.thrownExceptions.length; --i >= 0;) {
+		ReferenceBinding thrownException = resolveType(method.thrownExceptions[i], this.environment, true);
+		if ((thrownException.modifiers & AccGenericSignature) != 0) {
+			method.modifiers |= AccGenericSignature;
+		}
+		method.thrownExceptions[i] = thrownException;
+	}
 	for (int i = method.typeVariables.length; --i >= 0;)
 		method.typeVariables[i].resolve(this.environment);
 	method.modifiers &= ~AccUnresolved;

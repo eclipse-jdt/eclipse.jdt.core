@@ -263,6 +263,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertEquals(message, expected, actual);
 	}
 	protected void assertElementsEqual(String message, String expected, IJavaElement[] elements) {
+		assertElementsEqual(message, expected, elements, false/*don't show key*/);
+	}
+	protected void assertElementsEqual(String message, String expected, IJavaElement[] elements, boolean showResolvedInfo) {
 		StringBuffer buffer = new StringBuffer();
 		if (elements != null) {
 			for (int i = 0, length = elements.length; i < length; i++){
@@ -270,7 +273,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				if (element == null) {
 					buffer.append("<null>");
 				} else {
-					buffer.append(element.toStringWithAncestors(false/*don't show key*/));
+					buffer.append(element.toStringWithAncestors(showResolvedInfo));
 				}
 				if (i != length-1) buffer.append("\n");
 			}

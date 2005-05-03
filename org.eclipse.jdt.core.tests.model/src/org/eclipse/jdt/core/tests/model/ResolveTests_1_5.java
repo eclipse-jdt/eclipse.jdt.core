@@ -2076,4 +2076,23 @@ public void test0093() throws JavaModelException {
 		}
 	}
 }
+public void test0094() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0094/Test.java",
+			"package test0094;\n" +
+			"package import;\n" +
+			"public class Test {\n" + 
+			"  public void goo(ZZArrayList<String> a) {\n" + 
+			"    a.get(0);\n" + 
+			"  }\n" + 
+			"}\n",
+			"get");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"get(int) {key=Ltest0094/ZZArrayList<Ljava/lang/String;>;.get(I)TE;^1} [in ZZArrayList [in ZZArrayList.class [in test0094 [in class-folder [in Resolve]]]]]",
+		elements,
+		true/*show key*/
+	);
+}
 }
