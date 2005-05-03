@@ -310,7 +310,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 
 	/*
 	 * parameterizedDeclaringUniqueKey dot selector originalMethodGenericSignature percent typeArguments
-	 * p.X<U> { <T> void bar(T t, U u) { new X<String>().bar(this, "") } } --> Lp/X<Ljava/lang/String;>;.bar<T:Ljava/lang/Object;>(TT;TU;)V^123%<Lp/X;>
+	 * p.X<U> { <T> void bar(T t, U u) { new X<String>().bar(this, "") } } --> Lp/X<Ljava/lang/String;>;.bar<T:Ljava/lang/Object;>(TT;TU;)V%<Lp/X;>
 	 */
 	public char[] computeUniqueKey(boolean isLeaf) {
 		if (this.isRaw)

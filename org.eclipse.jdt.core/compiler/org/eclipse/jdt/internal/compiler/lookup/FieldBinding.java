@@ -151,7 +151,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 }
 /*
  * declaringUniqueKey dot fieldName
- * p.X { X<T> x} --> Lp/X;.x^123
+ * p.X { X<T> x} --> Lp/X;.x
  */
 public char[] computeUniqueKey(boolean isLeaf) {
 	// declaring key
@@ -164,30 +164,13 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	// name
 	int nameLength = this.name.length;
 	
-	if (isLeaf) {
-		// flags
-		String flags = Integer.toString(getAccessFlags());
-		int flagsLength = flags.length();
-	
-		char[] uniqueKey = new char[declaringLength + 1 + nameLength + 1 + flagsLength];
-		int index = 0;
-		System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
-		index += declaringLength;
-		uniqueKey[index++] = '.';
-		System.arraycopy(this.name, 0, uniqueKey, index, nameLength);
-		index += nameLength;
-		uniqueKey[index++] = '^';
-		flags.getChars(0, flagsLength, uniqueKey, index);
-		return uniqueKey;
-	} else {
-		char[] uniqueKey = new char[declaringLength + 1 + nameLength];
-		int index = 0;
-		System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
-		index += declaringLength;
-		uniqueKey[index++] = '.';
-		System.arraycopy(this.name, 0, uniqueKey, index, nameLength);
-		return uniqueKey;
-	}
+	char[] uniqueKey = new char[declaringLength + 1 + nameLength];
+	int index = 0;
+	System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
+	index += declaringLength;
+	uniqueKey[index++] = '.';
+	System.arraycopy(this.name, 0, uniqueKey, index, nameLength);
+	return uniqueKey;
 }
 /**
  * X<T> t   -->  LX<TT;>;

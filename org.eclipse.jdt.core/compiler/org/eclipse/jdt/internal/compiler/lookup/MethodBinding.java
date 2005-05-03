@@ -290,7 +290,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 }
 /*
  * declaringUniqueKey dot selector genericSignature
- * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V^123
+ * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V
  */
 public char[] computeUniqueKey(boolean isLeaf) {
 	return computeUniqueKey(this, isLeaf);
@@ -308,36 +308,16 @@ protected char[] computeUniqueKey(MethodBinding methodBinding, boolean isLeaf) {
 	if (sig == null) sig = methodBinding.signature();
 	int signatureLength = sig.length;
 	
-	if (isLeaf) {
-		// flags
-		String flags = Integer.toString(methodBinding.getAccessFlags());
-		int flagsLength = flags.length();
-		
-		char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength + 1 + flagsLength];
-		int index = 0;
-		System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
-		index = declaringLength;
-		uniqueKey[index++] = '.';
-		System.arraycopy(this.selector, 0, uniqueKey, index, selectorLength);
-		index += selectorLength;
-		System.arraycopy(sig, 0, uniqueKey, index, signatureLength);
-		index += signatureLength;
-		uniqueKey[index++] = '^';
-		flags.getChars(0, flagsLength, uniqueKey, index);
-		// index += modifiersLength
-		return uniqueKey;
-	} else {
-		char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength];
-		int index = 0;
-		System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
-		index = declaringLength;
-		uniqueKey[index++] = '.';
-		System.arraycopy(this.selector, 0, uniqueKey, index, selectorLength);
-		index += selectorLength;
-		System.arraycopy(sig, 0, uniqueKey, index, signatureLength);
-		//index += signatureLength;
-		return uniqueKey;
-	}
+	char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength];
+	int index = 0;
+	System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
+	index = declaringLength;
+	uniqueKey[index++] = '.';
+	System.arraycopy(this.selector, 0, uniqueKey, index, selectorLength);
+	index += selectorLength;
+	System.arraycopy(sig, 0, uniqueKey, index, signatureLength);
+	//index += signatureLength;
+	return uniqueKey;
 }
 /* 
  * Answer the declaring class to use in the constant pool

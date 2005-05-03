@@ -177,10 +177,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    sig.append('>'); //$NON-NLS-1$
 		}
 		sig.append(';');
-		if (isLeaf) {
-			sig.append('^');
-			sig.append(getAccessFlags());
-		}
+
 		int sigLength = sig.length();
 		char[] uniqueKey = new char[sigLength];
 		sig.getChars(0, sigLength, uniqueKey, 0);			

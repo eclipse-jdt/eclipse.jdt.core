@@ -213,11 +213,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		};
 		IBinding[] bindings = parser.createBindings(elements, null);
 		assertBindingsEqual(
-			"LX;^1\n" + 
-			"Ljava/lang/Object;^33\n" + 
-			"LX;.foo(ILjava/lang/String;)V^1\n" + 
-			"LI;.BAR^25\n" + 
-			"LY$50;^1",
+			"LX;\n" + 
+			"Ljava/lang/Object;\n" + 
+			"LX;.foo(ILjava/lang/String;)V\n" + 
+			"LI;.BAR\n" + 
+			"LY$50;",
 			bindings);
 	}
 	
@@ -232,7 +232,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X")
 		);
 		assertBindingsEqual(
-			"LX;^1",
+			"LX;",
 			bindings);
 	}
 	
@@ -249,7 +249,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getType("Member")
 		);
 		assertBindingsEqual(
-			"LX$Member;^1",
+			"LX$Member;",
 			bindings);
 	}
 	
@@ -268,7 +268,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getMethod("foo", new String[0]).getType("", 1)
 		);
 		assertBindingsEqual(
-			"LX$40;^1",
+			"LX$40;",
 			bindings);
 	}
 	
@@ -287,7 +287,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getMethod("foo", new String[0]).getType("Y", 1)
 		);
 		assertBindingsEqual(
-			"LX$42;^1",
+			"LX$42;",
 			bindings);
 	}
 	
@@ -303,7 +303,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getField("field")
 		);
 		assertBindingsEqual(
-			"LX;.field^0",
+			"LX;.field",
 			bindings);
 	}
 	
@@ -319,7 +319,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getMethod("foo", new String[0])
 		);
 		assertBindingsEqual(
-			"LX;.foo()V^0",
+			"LX;.foo()V",
 			bindings);
 	}
 	
@@ -334,7 +334,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X")
 		);
 		assertBindingsEqual(
-			"LX;^9728",
+			"LX;",
 			bindings);
 	}
 	
@@ -349,7 +349,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X")
 		);
 		assertBindingsEqual(
-			"LX;^16385",
+			"LX;",
 			bindings);
 	}
 	
@@ -365,7 +365,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getMethod("foo", new String[0])
 		);
 		assertBindingsEqual(
-			"LX;.foo()I^1025",
+			"LX;.foo()I",
 			bindings);
 	}
 	
@@ -381,7 +381,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getField("FOO")
 		);
 		assertBindingsEqual(
-			"LX;.FOO^16409",
+			"LX;.FOO",
 			bindings);
 	}
 	
@@ -415,7 +415,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getImport("java.io.Serializable")
 		);
 		assertBindingsEqual(
-			"Ljava/io/Serializable;^1537",
+			"Ljava/io/Serializable;",
 			bindings);
 	}
 	
@@ -445,7 +445,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			getClassFile("/P/lib/A.class").getType()
 		);
 		assertBindingsEqual(
-			"LA;^33",
+			"LA;",
 			bindings);
 	}
 	
@@ -461,7 +461,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			getClassFile("/P/lib/A.class").getType().getField("field")
 		);
 		assertBindingsEqual(
-			"LA;.field^0",
+			"LA;.field",
 			bindings);
 	}
 	
@@ -479,7 +479,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;", "Z"})
 		);
 		assertBindingsEqual(
-			"LA;.foo(Ljava/lang/String;Z)I^0",
+			"LA;.foo(Ljava/lang/String;Z)I",
 			bindings);
 	}
 	

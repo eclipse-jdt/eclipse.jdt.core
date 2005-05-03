@@ -1732,10 +1732,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		for (int i = 0; i < length; i++)
 			keys[i] = methods[i].resolveBinding().getKey();
 		assertBindingKeysEqual(
-			"Lp/X;.foo<T:Ljava/lang/Object;>(TT;)V^0\n" + 
-			"Lp/X;.foo<T:Lp/X;>(TT;)V^0\n" + 
-			"Lp/X;.foo<T:Ljava/lang/Class;>(TT;)V^0\n" + 
-			"Lp/X;.foo<T:Ljava/lang/Exception;:Ljava/lang/Runnable;>(TT;)V^0",
+			"Lp/X;.foo<T:Ljava/lang/Object;>(TT;)V\n" + 
+			"Lp/X;.foo<T:Lp/X;>(TT;)V\n" + 
+			"Lp/X;.foo<T:Ljava/lang/Class;>(TT;)V\n" + 
+			"Lp/X;.foo<T:Ljava/lang/Exception;:Ljava/lang/Runnable;>(TT;)V",
 			keys);
 	}
 
@@ -1752,7 +1752,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
 		assertBindingKeyEquals(
-			"Lp/X<TT;>;^1",
+			"Lp/X<TT;>;",
 			binding.getKey());
 	}
 
@@ -1769,7 +1769,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((Type) node).resolveBinding();
 		assertBindingKeyEquals(
-			"Lp/X<Ljava/lang/Class<>;>;^1",
+			"Lp/X<Ljava/lang/Class<>;>;",
 			binding.getKey());
 	}
 	/**
@@ -1890,7 +1890,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((Type) node).resolveBinding();
 		assertBindingKeyEquals(
-			"Lp/X<>;^1",
+			"Lp/X<>;",
 			binding.getKey());
 	}
 
@@ -2670,7 +2670,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IBinding binding = ((MethodInvocation) node).resolveMethodBinding();
 		assertBindingKeyEquals(
-			"Lp/X<Lp/X;!Lp/X;*75;>;.foo()V^0",
+			"Lp/X<Lp/X;!Lp/X;*75;>;.foo()V",
 			binding.getKey());
 	}
 
@@ -3418,7 +3418,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
-			"LX;^1",
+			"LX;",
 			binding);
 	}
 
@@ -3433,7 +3433,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
-			"LX<TE;>;^1",
+			"LX<TE;>;",
 			binding);
 	}
 
@@ -3449,7 +3449,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
-			"LX<TE;>;^1",
+			"LX<TE;>;",
 			binding);
 	}
 
@@ -3465,7 +3465,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getTypeDeclaration();
 		assertBindingEquals(
-			"LX<TE;>;^1",
+			"LX<TE;>;",
 			binding);
 	}
 
@@ -3511,7 +3511,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getErasure();
 		assertBindingEquals(
-			"LX;^1",
+			"LX;",
 			binding);
 	}
 
@@ -3526,7 +3526,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getErasure();
 		assertBindingEquals(
-			"LX<TE;>;^1",
+			"LX<TE;>;",
 			binding);
 	}
 
@@ -3542,7 +3542,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getErasure();
 		assertBindingEquals(
-			"LX<TE;>;^1",
+			"LX<TE;>;",
 			binding);
 	}
 
@@ -3558,7 +3558,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getErasure();
 		assertBindingEquals(
-			"LX<TE;>;^1",
+			"LX<TE;>;",
 			binding);
 	}
 
@@ -3574,7 +3574,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getErasure();
 		assertBindingEquals(
-			"Ljava/lang/String;^33",
+			"Ljava/lang/String;",
 			binding);
 	}
 
@@ -3589,7 +3589,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding().getErasure();
 		assertBindingEquals(
-			"Ljava/lang/Object;^33",
+			"Ljava/lang/Object;",
 			binding);
 	}
 
@@ -3606,7 +3606,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IMethodBinding binding = method.resolveBinding().getMethodDeclaration();
 		assertBindingEquals(
-			"LX;.foo()V^0",
+			"LX;.foo()V",
 			binding);
 	}
 
@@ -3623,7 +3623,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IMethodBinding binding = method.resolveBinding().getMethodDeclaration();
 		assertBindingEquals(
-			"LX;.foo<E:Ljava/lang/Object;>()V^0",
+			"LX;.foo<E:Ljava/lang/Object;>()V",
 			binding);
 	}
 
@@ -3643,7 +3643,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IMethodBinding binding = method.resolveMethodBinding().getMethodDeclaration();
 		assertBindingEquals(
-			"LX;.foo<E:Ljava/lang/Object;>()V^0",
+			"LX;.foo<E:Ljava/lang/Object;>()V",
 			binding);
 	}
 
@@ -3663,7 +3663,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		IMethodBinding binding = method.resolveMethodBinding().getMethodDeclaration();
 		assertBindingEquals(
-			"LX;.foo<E:Ljava/lang/Object;>()V^0",
+			"LX;.foo<E:Ljava/lang/Object;>()V",
 			binding);
 	}
 
@@ -3680,7 +3680,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy);
 		ITypeBinding binding = type.resolveBinding();
 		assertBindingEquals(
-			"Ljava/lang/Class<Ljava/lang/Class;+LX;:TE;>;^33",
+			"Ljava/lang/Class<Ljava/lang/Class;+LX;:TE;>;",
 			binding);
 	}
     
@@ -5356,7 +5356,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MethodInvocation methodInvocation = (MethodInvocation) node;
 		ITypeBinding capture = methodInvocation.resolveTypeBinding();
 		ITypeBinding declaringClass = capture.getDeclaringClass();
-		assertBindingEquals("LX<TT;>;^1", declaringClass);
+		assertBindingEquals("LX<TT;>;", declaringClass);
     }
 	
 }

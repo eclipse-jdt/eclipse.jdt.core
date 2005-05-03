@@ -57,7 +57,7 @@ public class LocalVariableBinding extends VariableBinding {
 	
 	/*
 	 * declaringUniqueKey # scopeIndex / varName
-	 * p.X { void foo() { int local; } } --> Lp/X;.foo()V#1/local^123
+	 * p.X { void foo() { int local; } } --> Lp/X;.foo()V#1/local
 	 */
 	public char[] computeUniqueKey(boolean isLeaf) {
 		StringBuffer buffer = new StringBuffer();
@@ -84,12 +84,6 @@ public class LocalVariableBinding extends VariableBinding {
 		// variable name
 		buffer.append('#');
 		buffer.append(this.name);
-		
-		// flags
-		if (isLeaf) {
-			buffer.append('^');
-			buffer.append(this.modifiers & AccJustFlag);
-		}
 		
 		int length = buffer.length();
 		char[] uniqueKey = new char[length];

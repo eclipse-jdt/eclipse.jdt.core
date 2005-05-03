@@ -377,28 +377,11 @@ public void computeId() {
 	}
 }
 /*
- * p.X<T extends Y & I, U extends Y> {} -> Lp/X<TT;TU;>;^123
+ * p.X<T extends Y & I, U extends Y> {} -> Lp/X<TT;TU;>;
  */
 public char[] computeUniqueKey(boolean isLeaf) {
 	if (!isLeaf) return signature();
-	
-	// generic type signature
-	char[] genericSignature = genericTypeSignature();
-	int sigLength = genericSignature.length;
-	
-	// flags
-	String flags = Integer.toString(getAccessFlags());
-	int flagsLength = flags.length();
-	
-	// unique key
-	char[] uniqueKey = new char[sigLength + 1 + flagsLength];
-	int index = 0;
-	System.arraycopy(genericSignature, 0, uniqueKey, index, sigLength);
-	index += sigLength;
-	uniqueKey[index++] = '^';
-	flags.getChars(0, flagsLength, uniqueKey, index);
-	
-	return uniqueKey;
+	return genericTypeSignature();
 }
 /* Answer the receiver's constant pool name.
 *

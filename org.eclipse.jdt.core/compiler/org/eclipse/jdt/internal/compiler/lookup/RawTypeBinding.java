@@ -40,10 +40,7 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		     sig.append(this.type.computeUniqueKey(false/*not a leaf*/));
 		     sig.insert(sig.length()-1, "<>"); //$NON-NLS-1$
 		}
-		if (isLeaf) {
-			sig.append('^');
-			sig.append(getAccessFlags());
-		}
+
 		int sigLength = sig.length();
 		char[] uniqueKey = new char[sigLength];
 		sig.getChars(0, sigLength, uniqueKey, 0);						    
