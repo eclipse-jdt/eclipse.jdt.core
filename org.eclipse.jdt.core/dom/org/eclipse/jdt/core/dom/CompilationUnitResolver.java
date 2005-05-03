@@ -187,6 +187,7 @@ class CompilationUnitResolver extends Compiler {
 				this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 				addCompilationUnit(sourceUnit, parsedUnit);
 				this.requestedSources.put(unitResult.getFileName(), sourceUnit);
+				worked(1);
 			} finally {
 				sourceUnits[i] = null; // no longer hold onto the unit
 			}
@@ -223,6 +224,7 @@ class CompilationUnitResolver extends Compiler {
 					this.requestedKeys.put(key, resolver);
 				}
 			}
+			worked(1);
 		}
 		
 		// binding resolution
@@ -325,7 +327,6 @@ class CompilationUnitResolver extends Compiler {
 	}	
 	
 	public static void parse(ICompilationUnit[] compilationUnits, ASTRequestor astRequestor, int apiLevel, Map options, IProgressMonitor monitor) {
-		SubProgressMonitor subProgressMonitor = monitor == null ? null : new SubProgressMonitor(monitor, 100); // 100% of the work is done in this method
 		try {
 			CompilerOptions compilerOptions = new CompilerOptions(options);
 			Parser parser = new CommentRecorderParser(
@@ -335,7 +336,7 @@ class CompilationUnitResolver extends Compiler {
 						new DefaultProblemFactory()),
 				false);
 			int length = compilationUnits.length;
-			if (subProgressMonitor != null) subProgressMonitor.beginTask("", length); //$NON-NLS-1$
+			if (monitor != null) monitor.beginTask("", length); //$NON-NLS-1$
 			for (int i = 0; i < length; i++) {
 				org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) compilationUnits[i];
 				CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
@@ -363,10 +364,10 @@ class CompilationUnitResolver extends Compiler {
 				// accept AST
 				astRequestor.acceptAST(compilationUnits[i], node);
 				
-				if (subProgressMonitor != null) subProgressMonitor.worked(1);
+				if (monitor != null) monitor.worked(1);
 			}
 		} finally {
-			if (subProgressMonitor != null) subProgressMonitor.done();
+			if (monitor != null) monitor.done();
 		}
 	}
 	
@@ -441,11 +442,13 @@ class CompilationUnitResolver extends Compiler {
 	
 		CancelableNameEnvironment environment = null;
 		CancelableProblemFactory problemFactory = null;
-		SubProgressMonitor subProgressMonitor = monitor == null ? null : new SubProgressMonitor(monitor, 100); // 100% of the work is done in this method
 		try {
-			if (subProgressMonitor != null) subProgressMonitor.beginTask("", compilationUnits.length + bindingKeys.length); //$NON-NLS-1$
-			environment = new CancelableNameEnvironment(((JavaProject) javaProject), owner, subProgressMonitor);
-			problemFactory = new CancelableProblemFactory(subProgressMonitor);
+			if (monitor != null) {
+				int amountOfWork = (compilationUnits.length + bindingKeys.length) * 2; // 1 for beginToCompile, 1 for resolve
+				monitor.beginTask("", amountOfWork); //$NON-NLS-1$
+			}
+			environment = new CancelableNameEnvironment(((JavaProject) javaProject), owner, monitor);
+			problemFactory = new CancelableProblemFactory(monitor);
 			CompilationUnitResolver resolver =
 				new CompilationUnitResolver(
 					environment,
@@ -453,7 +456,7 @@ class CompilationUnitResolver extends Compiler {
 					options,
 					getRequestor(),
 					problemFactory, 
-					subProgressMonitor);
+					monitor);
 
 			resolver.resolve(compilationUnits, bindingKeys, requestor, apiLevel, options, owner);
 			if (NameLookup.VERBOSE) {
@@ -464,7 +467,7 @@ class CompilationUnitResolver extends Compiler {
 			// project doesn't exist -> simple parse without resolving
 			parse(compilationUnits, requestor, apiLevel, options, monitor);
 		} finally {
-			if (subProgressMonitor != null) subProgressMonitor.done();
+			if (monitor != null) monitor.done();
 			if (environment != null) {
 				environment.monitor = null; // don't hold a reference to this external object
 			}
@@ -735,6 +738,8 @@ class CompilationUnitResolver extends Compiler {
 				astRequestor.acceptBinding(((BindingKeyResolver) this.requestedKeys.valueTable[j]).getKey(), binding);
 				worked(1);
 			}
+		} catch (OperationCanceledException e) {
+			throw e;
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
 		} catch (Error e) {
