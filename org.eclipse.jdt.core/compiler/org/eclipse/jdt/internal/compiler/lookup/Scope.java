@@ -2387,18 +2387,14 @@ public abstract class Scope
 		HashtableOfObject typeOrPackageCache = unitScope.typeOrPackageCache;
 		if (typeOrPackageCache != null) {
 			Binding binding = (Binding) typeOrPackageCache.get(name);
-			if (binding != null) { // can also include NotFound ProblemReferenceBindings if we already know this name is not found
+			if (binding != null) {
 				if (binding instanceof ImportBinding) { // single type import cached in faultInImports(), replace it in the cache with the type
 					ImportReference importReference = ((ImportBinding) binding).reference;
 					if (importReference != null) importReference.used = true;
 					typeOrPackageCache.put(name, binding = ((ImportBinding) binding).resolvedImport); // already know its visible
 				}
-				if ((mask & Binding.TYPE) != 0) {
-					if (foundType != null && foundType.problemId() != NotVisible && binding.problemId() != Ambiguous)
-						return foundType; // problem type from above supercedes NotFound type but not Ambiguous import case
-					if (binding instanceof ReferenceBinding)
-						return binding; // cached type found in previous walk below
-				}
+				if ((mask & Binding.TYPE) != 0 && binding instanceof ReferenceBinding)
+					return binding; // cached type found in previous walk below
 				if ((mask & Binding.PACKAGE) != 0 && binding instanceof PackageBinding)
 					return binding; // cached package found in previous walk below
 			}
@@ -2451,13 +2447,9 @@ public abstract class Scope
 							if (temp.isValidBinding()) {
 								ImportReference importReference = someImport.reference;
 								if (importReference != null) importReference.used = true;
-								if (foundInImport) {
+								if (foundInImport)
 									// Answer error binding -- import on demand conflict; name found in two import on demand packages.
-									temp = new ProblemReferenceBinding(name, Ambiguous);
-									if (typeOrPackageCache != null)
-										typeOrPackageCache.put(name, temp);
-									return temp;
-								}
+									return new ProblemReferenceBinding(name, Ambiguous);
 								type = temp;
 								foundInImport = true;
 							} else if (foundType == null) {
@@ -2485,12 +2477,8 @@ public abstract class Scope
 		}
 
 		// Answer error binding -- could not find name
-		if (foundType == null) {
-			foundType = new ProblemReferenceBinding(name, NotFound);
-			if (typeOrPackageCache != null && (mask & Binding.PACKAGE) != 0) // only put NotFound type in cache if you know its not a package
-				typeOrPackageCache.put(name, foundType);
-		}
-		return foundType;
+		if (foundType != null) return foundType; // problem type from above
+		return new ProblemReferenceBinding(name, NotFound);
 	}
 
 	// Added for code assist... NOT Public API
