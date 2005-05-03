@@ -28,8 +28,17 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		super(name);
 	}
 
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		TESTS_PREFIX = "testCombineAccessRestrictions";
+//		TESTS_NAMES = new String[] {"test004"};
+//		TESTS_NUMBERS = new int[] { 23, 28, 38 };
+//		TESTS_RANGE = new int[] { 21, 38 };
+	}
 	public static Test suite() {
-		return new Suite(CreateMembersTests.class);
+		return buildTestSuite(CreateMembersTests.class);
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
@@ -115,4 +124,29 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 			JavaCore.setOptions(oldOptions);
 		}
 	}
+	
+	/*
+	 * Ensures that the handle for a created method that has varargs type arguments is correct.
+	 * (regression test for bug 93487 IType#findMethods fails on vararg methods)
+	 */
+	public void test004() throws JavaModelException {
+		Hashtable oldOptions = JavaCore.getOptions();
+		try {
+			Hashtable options = new Hashtable(oldOptions);
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			JavaCore.setOptions(options);
+			IType type = getCompilationUnit("/CreateMembers/src/A.java").getType("A");
+			IMethod method = type.createMethod(
+				"void bar(String... args) {}",
+				null, // no siblings
+				false, // don't force
+				null // no progress monitor
+			);
+			assertTrue("Method should exist", method.exists());
+		} finally {
+			JavaCore.setOptions(oldOptions);
+		}
+	}
+
 }

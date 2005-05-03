@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -55,14 +56,19 @@ public CreateMethodOperation(IType parentElement, String source, boolean force) 
 protected String[] convertASTMethodTypesToSignatures() {
 	if (this.parameterTypes == null) {
 		if (this.createdNode != null) {
-			List parameters = ((MethodDeclaration) this.createdNode).parameters();
+			MethodDeclaration methodDeclaration = (MethodDeclaration) this.createdNode;
+			List parameters = methodDeclaration.parameters();
 			int size = parameters.size();
 			this.parameterTypes = new String[size];
 			Iterator iterator = parameters.iterator();
 			// convert the AST types to signatures
 			for (int i = 0; i < size; i++) {
 				SingleVariableDeclaration parameter = (SingleVariableDeclaration) iterator.next();
-				this.parameterTypes[i] = Util.getSignature(parameter.getType());
+				String typeSig = Util.getSignature(parameter.getType());
+				int extraDimensions = parameter.getExtraDimensions();
+				if (methodDeclaration.isVarargs() && i == size-1)
+					extraDimensions++;
+				this.parameterTypes[i] = Signature.createArraySignature(typeSig, extraDimensions);
 			}
 		}
 	}
