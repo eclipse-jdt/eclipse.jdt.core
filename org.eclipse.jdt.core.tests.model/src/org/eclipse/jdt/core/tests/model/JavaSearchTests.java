@@ -302,6 +302,7 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testSimplePackageDeclaration"));
 	suite.addTest(new JavaSearchTests("testVariousPackageDeclarations"));
 	suite.addTest(new JavaSearchTests("testPackageDeclaration"));
+	suite.addTest(new JavaSearchTests("testPackageDeclarationBug73551"));
 	
 	// package reference
 	suite.addTest(new JavaSearchTests("testSimplePackageReference"));
@@ -435,6 +436,8 @@ public static Test suite() {
 	suite.addTest(new JavaSearchTests("testFieldReference5"));
 	suite.addTest(new JavaSearchTests("testFieldReference6"));
 	suite.addTest(new JavaSearchTests("testFieldReference7"));
+	suite.addTest(new JavaSearchTests("testFieldReferenceBug73112a"));
+	suite.addTest(new JavaSearchTests("testFieldReferenceBug73112b"));
 	suite.addTest(new JavaSearchTests("testFieldReferenceInInnerClass"));
 	suite.addTest(new JavaSearchTests("testFieldReferenceInAnonymousClass"));
 	suite.addTest(new JavaSearchTests("testFieldReferenceThroughSubclass"));
@@ -1183,6 +1186,47 @@ public void testFieldReference7() throws CoreException {
 		resultCollector);
 	assertSearchResults(
 		"src/s5/A.java void s5.A.method() [b]",
+		resultCollector);
+}
+/**
+ * Field reference test.
+ * (regression test for bug 73112: [Search] SearchEngine doesn't find all fields multiple field declarations
+ */
+public void testFieldReferenceBug73112a() throws CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		"fieldA73112*",
+		FIELD,
+		ALL_OCCURRENCES,
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/bug73112/A.java bug73112.A.fieldA73112a [fieldA73112a]\n" + 
+		"src/bug73112/A.java bug73112.A.fieldA73112b [fieldA73112b]\n" + 
+		"src/bug73112/A.java bug73112.A.fieldA73112c [fieldA73112c]\n" + 
+		"src/bug73112/A.java bug73112.A.fieldA73112c [fieldA73112a]\n" + 
+		"src/bug73112/A.java bug73112.A.fieldA73112c [fieldA73112b]\n" + 
+		"src/bug73112/A.java bug73112.A.fieldA73112d [fieldA73112d]",
+		resultCollector);
+}
+public void testFieldReferenceBug73112b() throws CoreException {
+	JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+	search(
+		"fieldB73112*",
+		FIELD,
+		ALL_OCCURRENCES,
+		getJavaSearchScope(), 
+		resultCollector);
+	assertSearchResults(
+		"src/bug73112/B.java bug73112.B.fieldB73112a [fieldB73112a]\n" + 
+		"src/bug73112/B.java bug73112.B.fieldB73112b [fieldB73112b]\n" + 
+		"src/bug73112/B.java bug73112.B.fieldB73112c [fieldB73112c]\n" + 
+		"src/bug73112/B.java bug73112.B.fieldB73112c [fieldB73112a]\n" + 
+		"src/bug73112/B.java bug73112.B.fieldB73112c [fieldB73112b]\n" + 
+		"src/bug73112/B.java bug73112.B.fieldB73112d [fieldB73112d]\n" + 
+		"src/bug73112/B.java bug73112.B.fieldB73112d [fieldB73112c]\n" + 
+		"src/bug73112/B.java bug73112.B.fieldB73112d [fieldB73112a]\n" + 
+		"src/bug73112/B.java bug73112.B.fieldB73112e [fieldB73112e]",
 		resultCollector);
 }
 /**
@@ -2120,6 +2164,21 @@ public void testPackageDeclaration() throws CoreException {
 	assertSearchResults(
 		getExternalJCLPath() + " java.lang",
 		resultCollector);
+}
+
+/**
+ * Test fix for bug 73551: NPE while searching package declaration
+ * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73551">73551</a>
+ * @throws CoreException
+ */
+public void testPackageDeclarationBug73551() throws CoreException {
+	JavaSearchResultCollector result = new JavaSearchResultCollector();
+	result.showAccuracy = true;
+	IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "p71267", "Test.java").getPackageDeclaration("p71267");
+	search(packDecl, DECLARATIONS, getJavaSearchScope(),  result);
+	assertSearchResults(
+		"src/p71267/Test.java [No source] EXACT_MATCH",
+		result);
 }
 /**
  * Package reference test.

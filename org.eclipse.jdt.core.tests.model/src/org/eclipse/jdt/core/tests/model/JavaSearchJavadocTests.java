@@ -88,6 +88,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		System.err.println("WARNING: only subset of tests will be executed!!!");
 		suite.addTest(new JavaSearchJavadocTests("testBug54962"));
 		suite.addTest(new JavaSearchJavadocTests("testBug54962qualified"));
+		suite.addTest(new JavaSearchJavadocTests("testBug71267"));
+		suite.addTest(new JavaSearchJavadocTests("testBug71267qualified"));
 		return suite;
 	}
 
@@ -153,6 +155,8 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		suite.addTest(new JavaSearchJavadocTests("testBug49994constructor", support));
 		suite.addTest(new JavaSearchJavadocTests("testBug54962", support));
 		suite.addTest(new JavaSearchJavadocTests("testBug54962qualified", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug71267", support));
+		suite.addTest(new JavaSearchJavadocTests("testBug71267qualified", support));
 	}
 
 	/* (non-Javadoc)
@@ -1005,10 +1009,10 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j6", "Bug54962.java").getPackageDeclaration("j6");
 		search(packDecl, REFERENCES, getJavaSearchScope(),  result);
 		assertSearchResults(
-			"src/j6/Bug54962.java [j6] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j6/Bug54962.java j6.Bug54962 [j6] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
-				"src/j6/Bug54962.java j6.Bug54962 [j6] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j7/qua/li/fied/Bug54962a.java [j6] EXACT_MATCH OUTSIDE_JAVADOC",
+			"src/j6/Bug54962.java j6.Bug54962 [j6] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j6/Bug54962.java j6.Bug54962 [j6] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+			"src/j6/Bug54962.java j6.Bug54962 [j6] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j7/qua/li/fied/Bug54962a.java [j6] EXACT_MATCH OUTSIDE_JAVADOC",
 			result);
 	}
 	public void testBug54962qualified() throws CoreException {
@@ -1019,9 +1023,44 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "j7.qua.li.fied", "Bug54962a.java").getPackageDeclaration("j7.qua.li.fied");
 		search(packDecl, REFERENCES, getJavaSearchScope(),  result);
 		assertSearchResults(
-			"src/j7/qua/li/fied/Bug54962a.java [j7.qua.li.fied] EXACT_MATCH INSIDE_JAVADOC\n" + 
-				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [j7.qua.li.fied] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
-				"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [j7.qua.li.fied] EXACT_MATCH INSIDE_JAVADOC",
+			"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [j7.qua.li.fied] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [j7.qua.li.fied] POTENTIAL_MATCH INSIDE_JAVADOC\n" + 
+			"src/j7/qua/li/fied/Bug54962a.java j7.qua.li.fied.Bug54962a [j7.qua.li.fied] EXACT_MATCH INSIDE_JAVADOC",
+			result);
+	}
+
+	/**
+	 * Test fix for bug 71267: [Search][Javadoc] SearchMatch in class javadoc reported with element of type IImportDeclaration
+	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=71267">71267</a>
+	 * @throws CoreException
+	 */
+	public void testBug71267() throws CoreException {
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		result.showInsideDoc = true;
+		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "p71267", "Test.java").getPackageDeclaration("p71267");
+		search(packDecl, REFERENCES, getJavaSearchScope(),  result);
+		assertSearchResults(
+			"src/p71267/Test.java p71267.Test [p71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/p71267/Test.java p71267.Test [p71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/p71267/q71267/Test.java p71267.q71267.Test [p71267] EXACT_MATCH INSIDE_JAVADOC",
+			result);
+	}
+	public void testBug71267qualified() throws CoreException {
+		setJavadocOptions();
+		JavaSearchResultCollector result = new JavaSearchResultCollector();
+		result.showAccuracy = true;
+		result.showInsideDoc = true;
+		IPackageDeclaration packDecl = getCompilationUnit("JavaSearch", "src", "p71267.q71267", "Test.java").getPackageDeclaration("p71267.q71267");
+		search(packDecl, REFERENCES, getJavaSearchScope(),  result);
+		assertSearchResults(
+			"src/p71267/q71267/Test.java p71267.q71267.Test [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/p71267/q71267/Test.java p71267.q71267.Test [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/p71267/q71267/Test.java p71267.q71267.Test.field [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/p71267/q71267/Test.java p71267.q71267.Test.field [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/p71267/q71267/Test.java void p71267.q71267.Test.method() [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/p71267/q71267/Test.java void p71267.q71267.Test.method() [p71267.q71267] EXACT_MATCH INSIDE_JAVADOC",
 			result);
 	}
 }
