@@ -45,11 +45,10 @@ public class AbstractCompilerTest extends TestCase {
 		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
 			return COMPLIANCE_1_5;
 		}
-		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-			return COMPLIANCE_1_3;
+		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
+			return COMPLIANCE_1_4;
 		}
-		// default
-		return COMPLIANCE_1_4;
+		return COMPLIANCE_1_3;
 	}
 
 	/*
