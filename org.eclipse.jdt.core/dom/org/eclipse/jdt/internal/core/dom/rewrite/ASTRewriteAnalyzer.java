@@ -369,6 +369,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return (ASTNode) this.list[index].getOriginalValue();
 		}
 		
+		protected final ASTNode getNewNode(int index) {
+			return (ASTNode) this.list[index].getNewValue();
+		}
+		
 		protected String getSeparatorString(int nodeIndex) {
 			return this.contantSeparator;
 		}
@@ -376,7 +380,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		protected int getInitialIndent() {
 			return getIndent(this.startPos);
 		}
-		
+				
 		protected int getNodeIndent(int nodeIndex) {
 			ASTNode node= getOriginalNode(nodeIndex);
 			if (node == null) {
@@ -1128,6 +1132,27 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 	
+	private class ModifierRewriter extends ListRewriter {
+		
+		private final Prefix annotationSeparation;
+
+		public ModifierRewriter(Prefix annotationSeparation) {
+			this.annotationSeparation= annotationSeparation;
+		}
+		
+		/* (non-Javadoc)
+		 * @see org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer.ListRewriter#getSeparatorString(int)
+		 */
+		protected String getSeparatorString(int nodeIndex) {
+			ASTNode curr= getNewNode(nodeIndex);
+			if (curr instanceof Annotation) {
+				return this.annotationSeparation.getPrefix(getNodeIndent(nodeIndex + 1));
+			}
+			return super.getSeparatorString(nodeIndex);
+		}
+	}
+	
+	
 	private int rewriteModifiers2(ASTNode node, ChildListPropertyDescriptor property, int pos) {
 		RewriteEvent event= getEvent(node, property);
 		if (event == null || event.getChangeKind() == RewriteEvent.UNCHANGED) {
@@ -1144,7 +1169,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				handleException(e);
 			}
 		}
-		int endPos= rewriteNodeList(node, property, pos, "", " "); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		int endPos= new ModifierRewriter(this.formatter.ANNOTATION_SEPARATION).rewriteList(node, property, pos, "", " "); //$NON-NLS-1$ //$NON-NLS-2$
 
 		if (isAllInsert) {
 			doTextInsert(endPos, " ", getEditGroup(children[children.length - 1])); //$NON-NLS-1$

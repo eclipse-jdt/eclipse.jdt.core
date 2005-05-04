@@ -334,8 +334,7 @@ import org.eclipse.jdt.core.dom.Statement;
 					code= CodeFormatter.K_COMPILATION_UNIT;
 					break;
 				case ASTNode.JAVADOC:
-					suffix= "void foo();"; //$NON-NLS-1$
-					code= CodeFormatter.K_CLASS_BODY_DECLARATIONS;
+					code= CodeFormatter.K_JAVA_DOC;
 					break;
 				case ASTNode.CATCH_CLAUSE:
 					prefix= "try {}"; //$NON-NLS-1$
@@ -365,8 +364,27 @@ import org.eclipse.jdt.core.dom.Statement;
 				case ASTNode.METHOD_REF_PARAMETER:
 				case ASTNode.TAG_ELEMENT:
 				case ASTNode.TEXT_ELEMENT:
-					// Javadoc formatting not yet supported:
-				    return null;
+					// javadoc formatting disabled due to bug 93644
+					return null; 
+
+//				wiat for bug 93644 
+//				case ASTNode.MEMBER_REF:
+//				case ASTNode.METHOD_REF:
+//					prefix= "/**\n * @see "; //$NON-NLS-1$
+//					suffix= "\n*/"; //$NON-NLS-1$
+//					code= CodeFormatter.K_JAVA_DOC;
+//					break;
+//				case ASTNode.METHOD_REF_PARAMETER:
+//					prefix= "/**\n * @see A#foo("; //$NON-NLS-1$
+//					suffix= ")\n*/"; //$NON-NLS-1$
+//					code= CodeFormatter.K_JAVA_DOC;
+//					break;
+//				case ASTNode.TAG_ELEMENT:
+//				case ASTNode.TEXT_ELEMENT:
+//					prefix= "/**\n * "; //$NON-NLS-1$
+//					suffix= "\n*/"; //$NON-NLS-1$
+//					code= CodeFormatter.K_JAVA_DOC;
+//					break;
 				default:
 					//Assert.isTrue(false, "Node type not covered: " + node.getClass().getName()); //$NON-NLS-1$
 					return null;
@@ -375,6 +393,7 @@ import org.eclipse.jdt.core.dom.Statement;
 		
 		String concatStr= prefix + str + suffix;
 		TextEdit edit= ToolFactory.createCodeFormatter(options).format(code, concatStr, prefix.length(), str.length(), indentationLevel, lineSeparator);
+		
 		if (prefix.length() > 0) {
 			edit= shifEdit(edit, prefix.length());
 		}		
@@ -554,7 +573,8 @@ import org.eclipse.jdt.core.dom.Statement;
 	public final Prefix WILDCARD_SUPER= new FormattingPrefix("A<? super B> a;", "? super B" , CodeFormatter.K_CLASS_BODY_DECLARATIONS); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public final Prefix FIRST_ENUM_CONST= new FormattingPrefix("enum E { X;}", "{ X" , CodeFormatter.K_COMPILATION_UNIT); //$NON-NLS-1$ //$NON-NLS-2$
-	
+	public final Prefix ANNOTATION_SEPARATION= new FormattingPrefix("@A @B class C {}", "A @" , CodeFormatter.K_COMPILATION_UNIT); //$NON-NLS-1$ //$NON-NLS-2$
+
 	public final BlockContext IF_BLOCK_WITH_ELSE= new BlockFormattingPrefixSuffix("if (true)", "else{}", 8); //$NON-NLS-1$ //$NON-NLS-2$
 	public final BlockContext IF_BLOCK_NO_ELSE= new BlockFormattingPrefix("if (true)", 8); //$NON-NLS-1$ //$NON-NLS-2$
 	public final BlockContext ELSE_AFTER_STATEMENT= new BlockFormattingPrefix("if (true) foo(); else ", 15); //$NON-NLS-1$ //$NON-NLS-2$

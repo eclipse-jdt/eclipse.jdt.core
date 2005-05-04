@@ -1593,6 +1593,72 @@ assertEqualString(preview, buf.toString());
 		assertEqualString(preview, buf.toString());
 	}
 	
+		public void testModifiersAST3WithAnnotations() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    public Object foo1() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    @Deprecated\n");
+		buf.append("    public Object foo2() { return null; }\n");
+		buf.append("    @ToBeRemoved\n");
+		buf.append("    public Object foo3() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    @ToBeRemoved\n");
+		buf.append("    @Deprecated\n");
+		buf.append("    public Object foo4() { return null; }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
+		
+		CompilationUnit astRoot= createAST3(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		
+		{ // insert annotation first before normal
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			MarkerAnnotation annot= ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Override"));
+			listRewrite.insertFirst(annot, null);
+		}
+		{ // insert annotation first before annotation
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo2");
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
+			MarkerAnnotation annot= ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("Override"));
+			listRewrite.insertFirst(annot, null);
+		}		
+		{ // remove annotation before normal
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo3");
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+		}
+		{ // remove annotation before annotation
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo4");
+			rewrite.remove((ASTNode) methodDecl.modifiers().get(0), null);
+		}
+		
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public abstract class E {\n");
+		buf.append("    @Override\n");
+		buf.append("    public Object foo1() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    @Override\n");
+		buf.append("    @Deprecated\n");
+		buf.append("    public Object foo2() { return null; }\n");
+		buf.append("    public Object foo3() { return null; }\n");
+		buf.append("    /** javadoc comment */\n");
+		buf.append("    @Deprecated\n");
+		buf.append("    public Object foo4() { return null; }\n");
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+	}
+
+	
 	
 	public void testFieldDeclaration() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
