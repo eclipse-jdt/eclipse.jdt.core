@@ -334,7 +334,8 @@ import org.eclipse.jdt.core.dom.Statement;
 					code= CodeFormatter.K_COMPILATION_UNIT;
 					break;
 				case ASTNode.JAVADOC:
-					code= CodeFormatter.K_JAVA_DOC;
+					suffix= "\nclass A {}"; //$NON-NLS-1$
+					code= CodeFormatter.K_COMPILATION_UNIT;
 					break;
 				case ASTNode.CATCH_CLAUSE:
 					prefix= "try {}"; //$NON-NLS-1$
