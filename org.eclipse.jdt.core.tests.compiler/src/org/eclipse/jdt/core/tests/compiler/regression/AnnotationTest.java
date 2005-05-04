@@ -4012,4 +4012,62 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
     }		    
+    // check @SuppressWarning support
+    public void _test127() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "@Deprecated\n" + 
+                "public class X {\n" + 
+                "   void foo(){}\n" +
+                "}\n",
+                "Y.java",
+                "public class Y extends X {\n" + 
+                "  @SuppressWarnings(\"all\")\n" +
+                "   void foo(){ super.foo(); }\n" +
+                "   Zork z;\n" +
+                "}\n",
+            },
+            "----------\n" + 
+            "1. WARNING in Y.java (at line 1)\n" + 
+            "   public class Y extends X {\n" + 
+            "                ^\n" + 
+            "The constructor X() is deprecated\n" + 
+            "----------\n" + 
+            "2. ERROR in Y.java (at line 4)\n" + 
+            "   Zork z;\n" + 
+            "   ^^^^\n" + 
+            "Zork cannot be resolved to a type\n" + 
+            "----------\n");
+    }       
+    // check @SuppressWarning support
+    public void _test128() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "import java.util.List;\n" + 
+                "\n" + 
+                "public class X {\n" + 
+                "    void foo(List list) {\n" + 
+                "        List<String> ls1 = list;\n" + 
+                "    }\n" + 
+                "    @SuppressWarnings(\"unchecked\")\n" + 
+                "    void bar(List list) {\n" + 
+                "        List<String> ls2 = list;\n" + 
+                "    }\n" + 
+                "   Zork z;\n" +
+                "}\n",
+            },
+            "----------\n" + 
+            "1. WARNING in X.java (at line 5)\n" + 
+            "   List<String> ls1 = list;\n" + 
+            "                      ^^^^\n" + 
+            "Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+            "----------\n" + 
+            "2. ERROR in X.java (at line 11)\n" + 
+            "   Zork z\n" + 
+            "   ^^^^\n" + 
+            "Zork cannot be resolved to a type\n" + 
+            "----------\n");
+    }       
 }
