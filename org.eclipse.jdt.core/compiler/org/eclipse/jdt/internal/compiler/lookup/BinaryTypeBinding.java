@@ -108,7 +108,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	this.fPackage = packageBinding;
 	this.fileName = binaryType.getFileName();
 
-	char[] typeSignature = environment.options.sourceLevel >= ClassFileConstants.JDK1_5 ? binaryType.getGenericSignature() : null;
+	char[] typeSignature = environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_5 ? binaryType.getGenericSignature() : null;
 	this.typeVariables = typeSignature != null && typeSignature.length > 0 && typeSignature[0] == '<'
 		? null // is initialized in cachePartsFrom (called from LookupEnvironment.createBinaryTypeFrom())... must set to null so isGenericType() answers true
 		: NoTypeVariables;
@@ -191,7 +191,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			this.modifiers |= AccDeprecatedImplicitly;
 	}
 
-	long sourceLevel = environment.options.sourceLevel;
+	long sourceLevel = environment.globalOptions.sourceLevel;
 	char[] typeSignature = null;
 	if (sourceLevel >= ClassFileConstants.JDK1_5) {
 		typeSignature = binaryType.getGenericSignature();

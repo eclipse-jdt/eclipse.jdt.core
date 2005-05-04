@@ -1809,7 +1809,7 @@ public void generateSyntheticEnclosingInstanceValues(
 	if ((syntheticArgumentTypes = targetType.syntheticEnclosingInstanceTypes()) != null) {
 
 		ReferenceBinding targetEnclosingType = checkedTargetType.enclosingType();
-		long compliance = currentScope.environment().options.complianceLevel;
+		long compliance = currentScope.compilerOptions().complianceLevel;
 
 		// deny access to enclosing instance argument for allocation and super constructor call (if 1.4)
 		// always consider it if complying to 1.5
@@ -5421,7 +5421,7 @@ public final void removeNotDefinitelyAssignedVariables(Scope scope, int initStat
 public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetClassFile) {
 	init(targetClassFile);
 	this.methodDeclaration = referenceMethod;
-	preserveUnusedLocals = referenceMethod.scope.problemReporter().options.preserveAllLocalVariables;
+	this.preserveUnusedLocals = referenceMethod.scope.compilerOptions().preserveAllLocalVariables;
 	initializeMaxLocals(referenceMethod.binding);
 }
 /**

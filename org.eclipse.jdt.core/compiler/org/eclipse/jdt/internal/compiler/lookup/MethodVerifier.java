@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
@@ -100,6 +101,7 @@ void checkAbstractMethod(MethodBinding abstractMethod) {
 }
 void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length, MethodBinding[] otherInheritedMethods) {
 	boolean isAnnotationMember = this.type.isAnnotationType();
+	CompilerOptions options = type.scope.compilerOptions();
 	nextMethod : for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
 		if (isAnnotationMember) { // annotation cannot override any method
@@ -135,8 +137,8 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
 		if (!isAsVisible(currentMethod, inheritedMethod))
 			problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
-		if (environment.options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
-			if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode) {
+		if (options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
+			if (!currentMethod.isViewedAsDeprecated() || options.reportDeprecationInsideDeprecatedCode) {
 				// check against the other inherited methods to see if they hide this inheritedMethod
 				ReferenceBinding declaringClass = inheritedMethod.declaringClass;
 				if (declaringClass.isInterface())

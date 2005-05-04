@@ -284,6 +284,44 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		// use default options
 	}
 
+	/**
+	 * Clone some given options
+	 */
+	public CompilerOptions(CompilerOptions options) {
+		this.errorThreshold = options.errorThreshold;
+		this.warningThreshold = options.warningThreshold;
+		this.produceDebugAttributes = options.produceDebugAttributes;
+		this.complianceLevel = options.complianceLevel;
+		this.sourceLevel = options.sourceLevel;
+		this.targetJDK = options.targetJDK;
+		this.isPrivateConstructorAccessChangingVisibility = options.isPrivateConstructorAccessChangingVisibility;
+		this.defaultEncoding = options.defaultEncoding;
+		this.verbose = options.verbose;
+		this.produceReferenceInfo = options.produceReferenceInfo;
+		this.preserveAllLocalVariables = options.preserveAllLocalVariables;
+		this.parseLiteralExpressionsAsConstants = options.parseLiteralExpressionsAsConstants;
+		this.maxProblemsPerUnit = options.maxProblemsPerUnit;
+		this.taskTags = options.taskTags;
+		this.taskPriorites = options.taskPriorites;
+		this.isTaskCaseSensitive = options.isTaskCaseSensitive;
+		this.reportDeprecationInsideDeprecatedCode = options.reportDeprecationInsideDeprecatedCode;
+		this.reportDeprecationWhenOverridingDeprecatedMethod = options.reportDeprecationWhenOverridingDeprecatedMethod;
+		this.reportUnusedParameterWhenImplementingAbstract = options.reportUnusedParameterWhenImplementingAbstract;
+		this.reportUnusedParameterWhenOverridingConcrete = options.reportUnusedParameterWhenOverridingConcrete;
+		this.reportUnusedDeclaredThrownExceptionWhenOverriding = options.reportUnusedDeclaredThrownExceptionWhenOverriding;
+		this.reportSpecialParameterHidingField = options.reportSpecialParameterHidingField;
+		this.reportInvalidJavadocTagsVisibility = options.reportInvalidJavadocTagsVisibility;
+		this.reportInvalidJavadocTags = options.reportInvalidJavadocTags;
+		this.reportInvalidJavadocTagsDeprecatedRef = options.reportInvalidJavadocTagsDeprecatedRef;
+		this.reportInvalidJavadocTagsNotVisibleRef = options.reportInvalidJavadocTagsNotVisibleRef;
+		this.reportMissingJavadocTagsVisibility = options.reportMissingJavadocTagsVisibility;
+		this.reportMissingJavadocTagsOverriding = options.reportMissingJavadocTagsOverriding;
+		this.reportMissingJavadocCommentsVisibility = options.reportMissingJavadocCommentsVisibility; 
+		this.reportMissingJavadocCommentsOverriding = options.reportMissingJavadocCommentsOverriding;
+		this.inlineJsrBytecode = options.inlineJsrBytecode;
+		this.docCommentSupport = options.docCommentSupport;
+	}
+	
 	/** 
 	 * Initializing the compiler options with external settings
 	 * @param settings
@@ -756,6 +794,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		return buf.toString();
 	}
 
+	void suppressWarning(long irritant) {
+		this.warningThreshold &= ~irritant;
+	}
+	
 	void updateSeverity(long irritant, Object severityString) {
 		if (ERROR.equals(severityString)) {
 			this.errorThreshold |= irritant;

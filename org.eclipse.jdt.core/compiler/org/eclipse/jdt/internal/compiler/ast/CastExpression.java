@@ -58,7 +58,7 @@ public class CastExpression extends Expression {
 	 */
 	public static void checkNeedForEnclosingInstanceCast(BlockScope scope, Expression enclosingInstance, TypeBinding enclosingInstanceType, TypeBinding memberType) {
 	
-		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 		
 		TypeBinding castedExpressionType = ((CastExpression)enclosingInstance).expression.resolvedType;
 		if (castedExpressionType == null) return; // cannot do better
@@ -81,7 +81,7 @@ public class CastExpression extends Expression {
 	 */
 	public static void checkNeedForArgumentCast(BlockScope scope, int operator, int operatorSignature, Expression expression, int expressionTypeId) {
 	
-		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 	
 		// check need for left operand cast
 		int alternateLeftTypeId = expressionTypeId;
@@ -117,7 +117,7 @@ public class CastExpression extends Expression {
 	 */
 	public static void checkNeedForArgumentCasts(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] argumentTypes, final InvocationSite invocationSite) {
 	
-		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 		
 		int length = argumentTypes.length;
 
@@ -157,7 +157,7 @@ public class CastExpression extends Expression {
 	 */
 	public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int operatorSignature, Expression left, int leftTypeId, boolean leftIsCast, Expression right, int rightTypeId, boolean rightIsCast) {
 
-		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 
 		// check need for left operand cast
 		int alternateLeftTypeId = leftTypeId;

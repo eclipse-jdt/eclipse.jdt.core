@@ -190,7 +190,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 		if (this.codegenBinding.isPrivate()
 			&& (currentScope.enclosingSourceType() != this.codegenBinding.declaringClass)) {
 
-			if (currentScope.environment().options.isPrivateConstructorAccessChangingVisibility) {
+			if (currentScope.compilerOptions().isPrivateConstructorAccessChangingVisibility) {
 				this.codegenBinding.tagForClearingPrivateModifier();
 				// constructor will not be dumped as private, no emulation required thus
 			} else {

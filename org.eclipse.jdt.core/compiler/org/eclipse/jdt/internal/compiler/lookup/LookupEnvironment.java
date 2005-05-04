@@ -44,7 +44,7 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private int lastUnitIndex = -1;
 
 	public INameEnvironment nameEnvironment;
-	public CompilerOptions options;
+	public CompilerOptions globalOptions;
 	public ProblemReporter problemReporter;
 
 	// shared byte[]'s used by ClassFile to avoid allocating MBs during a build
@@ -68,9 +68,9 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private MethodVerifier verifier;
 
-public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions options, ProblemReporter problemReporter, INameEnvironment nameEnvironment) {
+public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOptions, ProblemReporter problemReporter, INameEnvironment nameEnvironment) {
 	this.typeRequestor = typeRequestor;
-	this.options = options;
+	this.globalOptions = globalOptions;
 	this.problemReporter = problemReporter;
 	this.defaultPackage = new PackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
@@ -857,7 +857,7 @@ TypeBinding getTypeFromVariantTypeSignature(
 	}
 }
 public boolean isBoxingCompatibleWith(TypeBinding left, TypeBinding right) {
-	if (options.sourceLevel < ClassFileConstants.JDK1_5 || left.isBaseType() == right.isBaseType())
+	if (this.globalOptions.sourceLevel < ClassFileConstants.JDK1_5 || left.isBaseType() == right.isBaseType())
 		return false;
 
 	TypeBinding convertedType = computeBoxingType(left);
@@ -874,7 +874,7 @@ boolean isPackage(char[][] compoundName, char[] name) {
 
 public MethodVerifier methodVerifier() {
 	if (verifier == null)
-		verifier = this.options.complianceLevel < ClassFileConstants.JDK1_5
+		verifier = this.globalOptions.complianceLevel < ClassFileConstants.JDK1_5
 			? new MethodVerifier(this)
 			: new MethodVerifier15(this); // check for covariance even if sourceLevel is < 1.5
 	return verifier;

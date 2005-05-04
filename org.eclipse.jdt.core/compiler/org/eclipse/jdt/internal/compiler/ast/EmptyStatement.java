@@ -32,7 +32,7 @@ public class EmptyStatement extends Statement {
 	public boolean complainIfUnreachable(FlowInfo flowInfo, BlockScope scope, boolean didAlreadyComplain) {
 		
 		// before 1.4, empty statements are tolerated anywhere
-		if (scope.environment().options.complianceLevel < ClassFileConstants.JDK1_4) {
+		if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_4) {
 			return false;
 		}
 		return super.complainIfUnreachable(flowInfo, scope, didAlreadyComplain);

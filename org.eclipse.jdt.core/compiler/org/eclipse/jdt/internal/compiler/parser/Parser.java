@@ -687,7 +687,7 @@ public static int tAction(int state, int sym) {
 public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 		
 	this.problemReporter = problemReporter;
-	this.options = problemReporter.options;
+	this.options = problemReporter.globalOptions;
 	this.optimizeStringLiterals = optimizeStringLiterals;
 	this.initializeScanner();
 	this.astLengthStack = new int[50];

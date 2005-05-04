@@ -64,7 +64,7 @@ public class ThrowStatement extends Statement {
 		exceptionType = exception.resolveTypeExpecting(scope, scope.getJavaLangThrowable());
 		
 		if (exceptionType == NullBinding
-				&& scope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3){
+				&& scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3){
 			// if compliant with 1.4, this problem will not be reported
 			scope.problemReporter().cannotThrowNull(this);
 	 	}

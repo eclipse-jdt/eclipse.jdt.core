@@ -42,7 +42,7 @@ public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment e
 	unit.scope = this;
 	this.currentPackageName = unit.currentPackage == null ? CharOperation.NO_CHAR_CHAR : unit.currentPackage.tokens;
 
-	if (environment.options.produceReferenceInfo) {
+	if (compilerOptions().produceReferenceInfo) {
 		this.qualifiedReferences = new CompoundNameVector();
 		this.simpleNameReferences = new SimpleNameVector();
 		this.referencedTypes = new ObjectVector();
@@ -396,7 +396,7 @@ private Binding findImport(char[][] compoundName, int length) {
 
 	ReferenceBinding type;
 	if (binding == null) {
-		if (environment.defaultPackage == null || environment.options.complianceLevel >= ClassFileConstants.JDK1_4)
+		if (environment.defaultPackage == null || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
 			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
 		type = findType(compoundName[0], environment.defaultPackage, environment.defaultPackage);
 		if (type == null || !type.isValidBinding())
@@ -424,7 +424,7 @@ private Binding findSingleImport(char[][] compoundName, boolean findStaticImport
 	if (compoundName.length == 1) {
 		// findType records the reference
 		// the name cannot be a package
-		if (environment.defaultPackage == null || environment.options.complianceLevel >= ClassFileConstants.JDK1_4)
+		if (environment.defaultPackage == null || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
 			return new ProblemReferenceBinding(compoundName, NotFound);
 		ReferenceBinding typeBinding = findType(compoundName[0], environment.defaultPackage, fPackage);
 		if (typeBinding == null)

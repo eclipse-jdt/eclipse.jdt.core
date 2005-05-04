@@ -116,7 +116,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic);
 		if (nonStatic) receiver.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
 		
-		if (valueRequired || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+		if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 			manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 		}
 		return flowInfo;
@@ -203,7 +203,7 @@ public class FieldReference extends Reference implements InvocationSite {
 				}
 			} else {
 				receiver.generateCode(currentScope, codeStream, !isStatic);
-				if (valueRequired || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+				if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 					if (this.codegenBinding.declaringClass == null) { // array length
 						codeStream.arraylength();
 						if (valueRequired) {
@@ -483,7 +483,7 @@ public class FieldReference extends Reference implements InvocationSite {
 				&& !this.receiverType.isArrayType()
 				&& this.binding.declaringClass != null // array.length
 				&& !this.binding.isConstantValue()) {
-			CompilerOptions options = currentScope.environment().options;
+			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
 					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
 					&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object fields

@@ -584,7 +584,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		if (fieldBinding.declaringClass != this.delegateThis.type
 				&& fieldBinding.declaringClass != null // array.length
 				&& !fieldBinding.isConstantValue()) {
-			CompilerOptions options = currentScope.environment().options;
+			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
 					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !fieldBinding.isStatic())
 					&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields

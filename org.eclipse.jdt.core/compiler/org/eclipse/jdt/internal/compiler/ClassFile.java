@@ -356,7 +356,7 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 		
-		final CompilerOptions options = aType.scope.environment().options;
+		final CompilerOptions options = aType.scope.compilerOptions();
 		this.targetJDK = options.targetJDK;
 		header[headerOffset++] = (byte) (this.targetJDK >> 8); // minor high
 		header[headerOffset++] = (byte) (this.targetJDK >> 0); // minor low

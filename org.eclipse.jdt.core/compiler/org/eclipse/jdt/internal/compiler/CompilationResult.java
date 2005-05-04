@@ -36,6 +36,8 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import java.util.*;
 
@@ -397,6 +399,26 @@ public class CompilationResult {
 		this.hasBeenAccepted = true;
 		this.problemsMap = null; // flush
 		return this;
+	}
+	
+	public void suppressRecordedWarnings(int sourceStart, int sourceEnd, ProblemReporter problemReporter) {
+		int removed = 0;
+		int index = 0;
+		for (int i = 0, length = this.problemCount; i < length; i++) {
+			IProblem problem = this.problems[i];
+			if (problem.isWarning() && problem.getSourceStart() >= sourceStart && problem.getSourceEnd() <= sourceEnd) {
+				if (problemReporter.computeSeverity(problem.getID()) == ProblemSeverities.Ignore) {
+					removed++;
+					problems[i] = null;
+					problemsMap.remove(problem);
+				}
+			} else if (i > index) {
+				problems[index++] = problem;
+			} else {
+				index++;
+			}
+		}
+		this.problemCount -= removed;
 	}
 	
 	public String toString(){

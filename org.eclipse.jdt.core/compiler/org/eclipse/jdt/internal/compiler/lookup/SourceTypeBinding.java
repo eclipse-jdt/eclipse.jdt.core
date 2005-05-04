@@ -80,7 +80,7 @@ public void addDefaultAbstractMethods() {
 
 	tagBits |= KnowsDefaultAbstractMethods;
 	if (isClass() && isAbstract()) {
-		if (fPackage.environment.options.targetJDK >= ClassFileConstants.JDK1_2)
+		if (this.scope.compilerOptions().targetJDK >= ClassFileConstants.JDK1_2)
 			return; // no longer added for post 1.2 targets
 
 		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
@@ -185,7 +185,7 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 			for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
 				FieldDeclaration fieldDecl = typeDecl.fields[i];
 				if (fieldDecl.binding == existingField) {
-					if (this.scope.environment().options.complianceLevel >= ClassFileConstants.JDK1_5) {
+					if (this.scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5) {
 						synthField.name = CharOperation.concat(
 							synthField.name,
 							"$".toCharArray()); //$NON-NLS-1$
@@ -535,7 +535,7 @@ void faultInTypesForFieldsAndMethods() {
 	// check @Deprecated annotation
 	if ((this.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
 		this.modifiers |= AccDeprecated;
-	} else if ((this.modifiers & AccDeprecated) != 0 && scope != null && scope.environment().options.sourceLevel >= JDK1_5) {
+	} else if ((this.modifiers & AccDeprecated) != 0 && scope != null && scope.compilerOptions().sourceLevel >= JDK1_5) {
 		scope.problemReporter().missingDeprecatedAnnotationForType(scope.referenceContext);
 	}
 	ReferenceBinding enclosingType = this.enclosingType();
@@ -781,10 +781,11 @@ public MethodBinding[] getMethods(char[] selector) {
 	MethodBinding[] result = new MethodBinding[matchingMethods.size()];
 	matchingMethods.toArray(result);
 	if (!methodsAreResolved) {
+		boolean isSource15 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = 0, length = result.length - 1; i < length; i++) {
 			MethodBinding method = result[i];
 			for (int j = length; j > i; j--) {
-				boolean paramsMatch = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5
+				boolean paramsMatch = isSource15
 					? method.areParameterErasuresEqual(result[j])
 					: method.areParametersEqual(result[j]);
 				if (paramsMatch) {
@@ -935,7 +936,7 @@ public MethodBinding[] methods() {
 		}
 
 		// find & report collision cases
-		boolean complyTo15 = fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5;
+		boolean complyTo15 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		for (int i = 0, length = methods.length; i < length; i++) {
 			MethodBinding method = methods[i];
 			if (method != null) {
@@ -1018,11 +1019,11 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	if ((field.modifiers & AccUnresolved) == 0)
 		return field;
 
-	if (fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5) {
+	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		if ((field.getAnnotationTagBits() & AnnotationDeprecated) != 0)
 			field.modifiers |= AccDeprecated;
 		else if ((field.modifiers & AccDeprecated) != 0)
-			scope.problemReporter().missingDeprecatedAnnotationForField(field.sourceField());
+			this.scope.problemReporter().missingDeprecatedAnnotationForField(field.sourceField());
 	}
 	if (isViewedAsDeprecated() && !field.isDeprecated())
 		field.modifiers |= AccDeprecatedImplicitly;	
@@ -1032,8 +1033,8 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 			continue;
 
 			MethodScope initializationScope = field.isStatic() 
-				? scope.referenceContext.staticInitializerScope 
-				: scope.referenceContext.initializerScope;
+				? this.scope.referenceContext.staticInitializerScope 
+				: this.scope.referenceContext.initializerScope;
 			FieldBinding previousField = initializationScope.initializedField;
 			try {
 				initializationScope.initializedField = field;
@@ -1073,11 +1074,11 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	if ((method.modifiers & AccUnresolved) == 0)
 		return method;
 
-	if (fPackage.environment.options.sourceLevel >= ClassFileConstants.JDK1_5) {
+	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		if ((method.getAnnotationTagBits() & AnnotationDeprecated) != 0)
 			method.modifiers |= AccDeprecated;
 		else if ((method.modifiers & AccDeprecated) != 0)
-			scope.problemReporter().missingDeprecatedAnnotationForMethod(method.sourceMethod());
+			this.scope.problemReporter().missingDeprecatedAnnotationForMethod(method.sourceMethod());
 	}
 	if (isViewedAsDeprecated() && !method.isDeprecated())
 		method.modifiers |= AccDeprecatedImplicitly;
@@ -1096,7 +1097,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	if (exceptionTypes != null) {
 		int size = exceptionTypes.length;
 		method.thrownExceptions = new ReferenceBinding[size];
-		ReferenceBinding throwable = scope.getJavaLangThrowable();
+		ReferenceBinding throwable = this.scope.getJavaLangThrowable();
 		int count = 0;
 		ReferenceBinding resolvedExceptionType;
 		for (int i = 0; i < size; i++) {

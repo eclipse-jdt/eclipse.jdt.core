@@ -181,7 +181,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// and not from Object or implicit static method call.	
 	if (this.binding.declaringClass != this.actualReceiverType
 			&& !this.actualReceiverType.isArrayType()) {
-		CompilerOptions options = currentScope.environment().options;
+		CompilerOptions options = currentScope.compilerOptions();
 		if ((options.targetJDK >= ClassFileConstants.JDK1_2
 				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
 				&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object methods

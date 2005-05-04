@@ -143,7 +143,7 @@ public class SwitchStatement extends Statement {
 					
 					// work-around 1.3 VM bug, if max>0x7FFF0000, must use lookup bytecode
 					// see http://dev.eclipse.org/bugs/show_bug.cgi?id=21557
-					if (max > 0x7FFF0000 && currentScope.environment().options.complianceLevel < ClassFileConstants.JDK1_4) {
+					if (max > 0x7FFF0000 && currentScope.compilerOptions().complianceLevel < ClassFileConstants.JDK1_4) {
 						codeStream.lookupswitch(defaultLabel, this.constants, sortedIndexes, caseLabels);
 	
 					} else {
@@ -297,7 +297,7 @@ public class SwitchStatement extends Statement {
 			}
 			// for enum switch, check if all constants are accounted for (if no default) 
 			if (isEnumSwitch && defaultCase == null 
-					&& upperScope.environment().options.getSeverity(CompilerOptions.IncompleteEnumSwitch) != ProblemSeverities.Ignore) {
+					&& upperScope.compilerOptions().getSeverity(CompilerOptions.IncompleteEnumSwitch) != ProblemSeverities.Ignore) {
 				int constantCount = this.constants == null ? 0 : this.constants.length; // could be null if no case statement
 				if (constantCount == caseCount // ignore diagnosis if unresolved constants
 						&& caseCount != ((ReferenceBinding)expressionType).enumConstantCount()) {

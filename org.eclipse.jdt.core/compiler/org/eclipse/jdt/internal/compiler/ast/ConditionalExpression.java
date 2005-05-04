@@ -279,7 +279,7 @@ public class ConditionalExpression extends OperatorExpression {
 		// specs p.368
 		constant = NotAConstant;
 		LookupEnvironment env = scope.environment();
-		boolean use15specifics = env.options.sourceLevel >= ClassFileConstants.JDK1_5;
+		boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		TypeBinding conditionType = condition.resolveTypeExpecting(scope, BooleanBinding);
 		
 		if (valueIfTrue instanceof CastExpression) valueIfTrue.bits |= IgnoreNeedForCastCheckMASK; // will check later on

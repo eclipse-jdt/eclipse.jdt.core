@@ -524,7 +524,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				&& !lastReceiverType.isArrayType()
 				&& fieldBinding.declaringClass != null // array.length
 				&& !fieldBinding.isConstantValue()) {
-			CompilerOptions options = currentScope.environment().options;
+			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
 					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || (index < 0 ? fieldBinding != binding : index > 0) || this.indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
 					&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields

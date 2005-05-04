@@ -209,7 +209,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 						if (initializationType.needsUncheckedConversion(variableType)) {
 						    scope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, variableType);
 						}						
-					} else if (scope.environment().options.sourceLevel >= JDK1_5 // autoboxing
+					} else if (scope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
 									&& (scope.isBoxingCompatibleWith(initializationType, variableType) 
 											|| (initializationType.isBaseType()  // narrowing then boxing ?
 													&& initializationType != null 

@@ -368,7 +368,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens {
 					return;
 				}
 				
-				if(this.parser.problemReporter().options.maxProblemsPerUnit < this.parser.compilationUnit.compilationResult.problemCount) {
+				if(this.parser.problemReporter().globalOptions.maxProblemsPerUnit < this.parser.compilationUnit.compilationResult.problemCount) {
 					return;
 				}
 

@@ -21,6 +21,6 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 public interface ReferenceContext {
 	void abort(int abortLevel, IProblem problem);
 	CompilationResult compilationResult();
-	void tagAsHavingErrors();
 	boolean hasErrors();
+	void tagAsHavingErrors();
 }

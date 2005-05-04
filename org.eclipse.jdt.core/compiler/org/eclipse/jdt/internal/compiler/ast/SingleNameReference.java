@@ -308,7 +308,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							codeStream.generateConstant(fieldBinding.constant(), implicitConversion);
 						}
 					} else {
-						if (valueRequired || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+						if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 							boolean isStatic = fieldBinding.isStatic();
 							if (!isStatic) {
 								if ((bits & DepthMASK) != 0) {
@@ -624,7 +624,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					&& !this.actualReceiverType.isArrayType()
 					&& fieldBinding.declaringClass != null // array.length
 					&& !fieldBinding.isConstantValue()) {
-				CompilerOptions options = currentScope.environment().options;
+				CompilerOptions options = currentScope.compilerOptions();
 				if ((options.targetJDK >= ClassFileConstants.JDK1_2
 						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !fieldBinding.isStatic())
 						&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields
@@ -690,7 +690,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						}
 						// a field
 						FieldBinding field = (FieldBinding) this.binding;
-						if (!field.isStatic() && scope.environment().options.getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
+						if (!field.isStatic() && scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 							scope.problemReporter().unqualifiedFieldAccess(this, field);
 						}
 						// perform capture conversion if read access

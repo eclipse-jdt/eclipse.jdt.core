@@ -76,7 +76,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		} 	else if (this.actualReceiverType.isArrayType() 
 						&& runtimeTimeType.id != T_JavaLangObject
 						&& this.binding.parameters == NoParameters 
-						&& scope.environment().options.complianceLevel >= JDK1_5 
+						&& scope.compilerOptions().complianceLevel >= JDK1_5 
 						&& CharOperation.equals(this.binding.selector, CLONE)) {
 					// from 1.5 compliant mode on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
 			this.valueCast = runtimeTimeType;			
@@ -204,7 +204,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// and not from Object or implicit static method call.	
 	if (this.binding.declaringClass != this.actualReceiverType
 			&& !this.actualReceiverType.isArrayType()) {
-		CompilerOptions options = currentScope.environment().options;
+		CompilerOptions options = currentScope.compilerOptions();
 		if ((options.targetJDK >= ClassFileConstants.JDK1_2
 				&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
 				&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object methods
@@ -387,7 +387,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)
 	if (actualReceiverType.isArrayType() 
 			&& this.binding.parameters == NoParameters 
-			&& scope.environment().options.complianceLevel >= JDK1_5 
+			&& scope.compilerOptions().complianceLevel >= JDK1_5 
 			&& CharOperation.equals(this.binding.selector, CLONE)) {
 		this.resolvedType = actualReceiverType;
 	} else {

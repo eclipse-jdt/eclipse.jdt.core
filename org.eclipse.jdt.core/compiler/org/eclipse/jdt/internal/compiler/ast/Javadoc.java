@@ -224,7 +224,7 @@ public class Javadoc extends ASTNode {
 		}
 
 		// Verify field references
-		boolean verifyValues = scope.environment().options.sourceLevel >= ClassFileConstants.JDK1_5;
+		boolean verifyValues = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		if (reference instanceof JavadocFieldReference) {
 			JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
 			int modifiers = fieldRef.binding==null ? -1 : fieldRef.binding.modifiers;

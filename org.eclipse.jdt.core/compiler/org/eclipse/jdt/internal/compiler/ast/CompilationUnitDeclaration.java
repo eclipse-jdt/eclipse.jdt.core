@@ -37,7 +37,7 @@ public class CompilationUnitDeclaration
 	public boolean isPropagatingInnerClassEmulation;
 
 	public Javadoc javadoc; // 1.5 addition for package-info.java
-
+	
 	public CompilationUnitDeclaration(
 		ProblemReporter problemReporter,
 		CompilationResult compilationResult,
@@ -140,9 +140,9 @@ public class CompilationUnitDeclaration
 	}
 	
 	public CompilationResult compilationResult() {
-		return compilationResult;
+		return this.compilationResult;
 	}
-	
+
 	/*
 	 * Finds the matching type amoung this compilation unit types.
 	 * Returns null if no type with this name is found.

@@ -276,7 +276,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		if (scope.isDefinedInSameUnit(field.declaringClass)) return false;
 		
 		// if context is deprecated, may avoid reporting
-		if (!scope.environment().options.reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
 		return true;
 	}
 
@@ -301,7 +301,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		if (scope.isDefinedInSameUnit(method.declaringClass)) return false;
 		
 		// if context is deprecated, may avoid reporting
-		if (!scope.environment().options.reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
 		return true;
 	}
 
@@ -344,7 +344,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		if (scope.isDefinedInSameUnit(refType)) return false;
 		
 		// if context is deprecated, may avoid reporting
-		if (!scope.environment().options.reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
 		return true;
 	}
 
@@ -434,6 +434,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 			Annotation annotation = annotations[i];
 			annotation.recipient = recipient;
 			annotationTypes[i] = annotation.resolveType(scope);
+			
 		}
 		// check duplicate annotations
 		for (int i = 0; i < length; i++) {

@@ -21,13 +21,16 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class ClassScope extends Scope {
+	
 	public TypeDeclaration referenceContext;
 	private TypeReference superTypeReference;
+	public CompilerOptions options;
 
 	private final static char[] IncompleteHierarchy = new char[] {'h', 'a', 's', ' ', 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', ' ', 'h', 'i', 'e', 'r', 'a', 'r', 'c', 'h', 'y'};
 
@@ -334,7 +337,7 @@ public class ClassScope extends Scope {
 		TypeParameter[] typeParameters = referenceContext.typeParameters;
 		
 	    // do not construct type variables if source < 1.5
-		if (typeParameters == null || environment().options.sourceLevel < ClassFileConstants.JDK1_5) {
+		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
 		    sourceType.typeVariables = NoTypeVariables;
 		    return;
 		}
@@ -710,7 +713,7 @@ public class ClassScope extends Scope {
 			return true; // do not propagate Object's hierarchy problems down to every subtype
 		}
 		if (referenceContext.superclass == null) {
-			if (sourceType.isEnum() && environment().options.sourceLevel >= JDK1_5) // do not connect if source < 1.5 as enum already got flagged as syntax error
+			if (sourceType.isEnum() && compilerOptions().sourceLevel >= JDK1_5) // do not connect if source < 1.5 as enum already got flagged as syntax error
 				return connectEnumSuperclass();
 			sourceType.superclass = getJavaLangObject();
 			return !detectHierarchyCycle(sourceType, sourceType.superclass, null);
@@ -779,7 +782,7 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		sourceType.superInterfaces = NoSuperInterfaces;
 		if (referenceContext.superInterfaces == null) {
-			if (sourceType.isAnnotationType() && environment().options.sourceLevel >= JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
+			if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
 				ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
 				boolean foundCycle = detectHierarchyCycle(sourceType, annotationType, null);
 				sourceType.superInterfaces = new ReferenceBinding[] { annotationType };

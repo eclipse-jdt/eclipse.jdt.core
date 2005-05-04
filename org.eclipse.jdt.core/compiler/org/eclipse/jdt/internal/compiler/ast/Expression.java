@@ -222,8 +222,7 @@ public abstract class Expression extends Statement {
 	
 		// identity conversion cannot be performed upfront, due to side-effects
 		// like constant propagation
-		LookupEnvironment env = scope.environment();
-		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
+		boolean use15specifics = scope.compilerOptions().sourceLevel >= JDK1_5;
 		if (castType.isBaseType()) {
 			if (expressionType.isBaseType()) {
 				if (expressionType == castType) {
@@ -247,14 +246,14 @@ public abstract class Expression extends Statement {
 					
 				}
 			} else if (use15specifics 
-								&& env.computeBoxingType(expressionType).isCompatibleWith(castType)) { // unboxing - only widening match is allowed
+								&& scope.environment().computeBoxingType(expressionType).isCompatibleWith(castType)) { // unboxing - only widening match is allowed
 				tagAsUnnecessaryCast(scope, castType);  
 				return true;
 			}
 			return false;
 		} else if (use15specifics 
 							&& expressionType.isBaseType() 
-							&& env.computeBoxingType(expressionType).isCompatibleWith(castType)) { // boxing - only widening match is allowed
+							&& scope.environment().computeBoxingType(expressionType).isCompatibleWith(castType)) { // boxing - only widening match is allowed
 			tagAsUnnecessaryCast(scope, castType);  
 			return true;
 		}

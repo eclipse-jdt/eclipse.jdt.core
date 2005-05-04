@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
@@ -82,6 +84,84 @@ public abstract class Annotation extends Expression {
 		}
 		return 0; // unknown
 	}		
+	
+	/**
+	 * Returns the suppressed warning level (bit set when irritant is suppressed)
+	 */
+	public static long getSuppressedWarningLevel(String suppressedWarning) {
+		if (suppressedWarning.length() > 0) {
+			switch (suppressedWarning.charAt(0)) {
+				
+				case 'a' :
+					if ("all".equals(suppressedWarning)) { //$NON-NLS-1$
+						return 0xFFFFFFFFFFFFFFFFl; // suppress all warnings
+					}
+					break;
+					
+				case 'd' :
+					if ("deprecation".equals(suppressedWarning)) { // //$NON-NLS-1$
+						return CompilerOptions.UsingDeprecatedAPI;
+					}
+					break;
+					
+				case 'f' :
+//					if ("fallthrough".equals(suppressedWarning)) { // //$NON-NLS-1$
+//						return CompilerOptions.SwitchCaseFallthrough;
+//					} else 
+					if ("finally".equals(suppressedWarning)) { // //$NON-NLS-1$
+						return  CompilerOptions.FinallyBlockNotCompleting;
+					}
+					break;
+				case 's' :
+					if ("serial".equals(suppressedWarning)) { // //$NON-NLS-1$
+						return CompilerOptions.MissingSerialVersion;
+					}
+					break;
+				case 'u' :
+					if ("unchecked".equals(suppressedWarning)) { // //$NON-NLS-1$
+						return  CompilerOptions.UncheckedTypeOperation;
+					}
+					break;
+			}
+		}
+		return 0;
+	}
+	
+	public CompilerOptions getCustomCompilerOptions(Scope scope) {
+		CompilerOptions options = scope.compilerOptions();
+		long warningLevel = options.warningThreshold;
+		long originalWarningLevel = warningLevel;
+		MemberValuePair[] pairs = this.memberValuePairs();
+		pairLoop: for (int i = 0, length = pairs.length; i < length; i++) {
+			MemberValuePair pair = pairs[i];
+			if (CharOperation.equals(pair.name, TypeConstants.VALUE)) {
+				Expression value = pair.value;
+				if (value instanceof ArrayInitializer) {
+					ArrayInitializer initializer = (ArrayInitializer) value;
+					Expression[] inits = initializer.expressions;
+					for (int j = 0, initsLength = inits.length; j < initsLength; j++) {
+						Constant cst = inits[j].constant;
+						if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
+							warningLevel &= ~getSuppressedWarningLevel(cst.stringValue());
+							if (warningLevel == 0) break pairLoop;
+						}
+					}
+				} else {
+					Constant cst = value.constant;
+					if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
+						warningLevel &= ~getSuppressedWarningLevel(cst.stringValue());
+						if (warningLevel == 0) break pairLoop;
+					}
+				}
+				break pairLoop;
+			}
+		}
+		if (originalWarningLevel != warningLevel) {
+			options = new CompilerOptions(options);
+			options.warningThreshold = warningLevel;
+		}
+		return options;
+	}
 	
 	/**
 	 * Compute the bit pattern for recognized standard annotations the compiler may need to act upon
@@ -242,10 +322,40 @@ public abstract class Annotation extends Expression {
 					case Binding.TYPE :
 					case Binding.GENERIC_TYPE :
 					case Binding.TYPE_PARAMETER :
-						((ReferenceBinding)this.recipient).tagBits |= tagBits;
+						SourceTypeBinding sourceType = (SourceTypeBinding) this.recipient;
+						sourceType.tagBits |= tagBits;
+						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
+							ClassScope recipientScope = sourceType.scope;
+							// construct custom compiler options with suppressed warnings
+							CompilerOptions customOptions = getCustomCompilerOptions(recipientScope);
+							if (customOptions != null) {
+								TypeDeclaration typeDeclaration = recipientScope.referenceContext;
+								recipientScope.options = customOptions;
+								// discard already generated warnings which got suppressed
+								typeDeclaration.compilationResult().suppressRecordedWarnings(
+										typeDeclaration.declarationSourceStart, 
+										typeDeclaration.declarationSourceEnd, 
+										recipientScope.problemReporter());
+							}
+						}
 						break;
 					case Binding.METHOD :
-						((MethodBinding)this.recipient).tagBits |= tagBits;
+						MethodBinding sourceMethod = (MethodBinding) this.recipient;
+						sourceMethod.tagBits |= tagBits;
+						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
+							AbstractMethodDeclaration methodDeclaration = ((SourceTypeBinding)sourceMethod.declaringClass).scope.referenceContext.declarationOf(sourceMethod);
+							MethodScope recipientScope = methodDeclaration.scope;
+							// construct custom compiler options with suppressed warnings
+							CompilerOptions customOptions = getCustomCompilerOptions(recipientScope);
+							if (customOptions != null) {
+								recipientScope.options = customOptions;
+								// discard already generated warnings which got suppressed
+								methodDeclaration.compilationResult().suppressRecordedWarnings(
+										methodDeclaration.declarationSourceStart, 
+										methodDeclaration.declarationSourceEnd, 
+										recipientScope.problemReporter());
+							}
+						}						
 						break;
 					case Binding.FIELD :
 						((FieldBinding)this.recipient).tagBits |= tagBits;

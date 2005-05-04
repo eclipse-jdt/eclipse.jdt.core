@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -51,7 +50,7 @@ public class TypeDeclaration
 	public CompilationResult compilationResult;
 	public MethodDeclaration[] missingAbstractMethods;
 	public Javadoc javadoc;	
-
+	
 	public QualifiedAllocationExpression allocation; // for anonymous only
 	public TypeDeclaration enclosingType; // for member types only
 	
@@ -307,7 +306,7 @@ public class TypeDeclaration
 
 		return this.compilationResult;
 	}
-
+	
 	public ConstructorDeclaration createDefaultConstructor(
 		boolean needExplicitConstructorCall,
 		boolean needToInsert) {
@@ -764,7 +763,7 @@ public class TypeDeclaration
 			//		M() { this(new Object() { void baz() { foo(); }}); } // access to #foo() indirects through constructor synthetic arg: val$this$0
 			//	}
 			//}
-			if (!methodScope.isStatic && methodScope.isConstructorCall && currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_5) {
+			if (!methodScope.isStatic && methodScope.isConstructorCall && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5) {
 				ReferenceBinding enclosing = nestedType.enclosingType();
 				if (enclosing.isNestedType()) {
 					NestedTypeBinding nestedEnclosing = (NestedTypeBinding)enclosing;
@@ -974,7 +973,7 @@ public class TypeDeclaration
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
 			}
 			boolean needSerialVersion = 
-							this.scope.environment().options.getSeverity(CompilerOptions.MissingSerialVersion) != ProblemSeverities.Ignore
+							this.scope.compilerOptions().getSeverity(CompilerOptions.MissingSerialVersion) != ProblemSeverities.Ignore
 							&& sourceType.isClass() 
 							&& !sourceType.isAbstract() 
 							&& sourceType.findSuperTypeErasingTo(T_JavaIoSerializable, false /*Serializable is not a class*/) != null;

@@ -208,7 +208,7 @@ public class TryStatement extends SubRoutineStatement {
 		} else {
 			if (this.isSubRoutineEscaping) {
 				finallyMode = FINALLY_DOES_NOT_COMPLETE;
-			} else if (scope.environment().options.inlineJsrBytecode) {
+			} else if (scope.compilerOptions().inlineJsrBytecode) {
 				finallyMode = FINALLY_MUST_BE_INLINED;
 			} else {
 				finallyMode = FINALLY_SUBROUTINE;
@@ -411,7 +411,7 @@ public class TryStatement extends SubRoutineStatement {
 		if (this.isSubRoutineEscaping) {
 				codeStream.goto_(this.subRoutineStartLabel);
 		} else {
-			if (currentScope.environment().options.inlineJsrBytecode) { 
+			if (currentScope.compilerOptions().inlineJsrBytecode) { 
 				// cannot use jsr bytecode, then simply inline the subroutine
 				this.finallyBlock.generateCode(currentScope, codeStream);
 			} else {
@@ -463,7 +463,7 @@ public class TryStatement extends SubRoutineStatement {
 				MethodScope methodScope = scope.methodScope();
 	
 				// the type does not matter as long as it is not a base type
-				if (!upperScope.environment().options.inlineJsrBytecode) {
+				if (!upperScope.compilerOptions().inlineJsrBytecode) {
 					this.returnAddressVariable =
 						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
 					finallyScope.addLocalVariable(returnAddressVariable);

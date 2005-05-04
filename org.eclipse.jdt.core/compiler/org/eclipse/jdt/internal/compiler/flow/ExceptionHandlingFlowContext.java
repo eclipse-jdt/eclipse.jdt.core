@@ -75,7 +75,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 		MethodScope scope = method.scope;
 		// can optionally skip overriding methods
 		if ((method.binding.modifiers & (CompilerModifiers.AccOverriding | CompilerModifiers.AccImplementing)) != 0
-		        && !scope.environment().options.reportUnusedDeclaredThrownExceptionWhenOverriding) {
+		        && !scope.compilerOptions().reportUnusedDeclaredThrownExceptionWhenOverriding) {
 		    return;
 		}
 		    
