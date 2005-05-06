@@ -34,11 +34,11 @@ public class AnnotationTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
-//	static {
-//		TESTS_NAMES = new String[] { "test000" };
+	static {
+		TESTS_NAMES = new String[] { "test127" };
 //		TESTS_NUMBERS = new int[] { 122 };
 //		TESTS_RANGE = new int[] { 21, 50 };
-//	}
+	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
 		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
