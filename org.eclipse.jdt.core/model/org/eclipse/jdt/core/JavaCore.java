@@ -589,6 +589,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_SUPPRESS_WARNINGS = PLUGIN_ID + ".compiler.problem.suppressWarnings"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 */
 	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
 	/**
@@ -2057,6 +2063,13 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.discouragedReference"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
+	 *
+	 * COMPILER / Determine whether @SuppressWarnings is effective
+	 *    When enabled, the @SuppressWarnings annotation can be used to suppress some compiler warnings. 
+	 *    When disabled, all @SupressWarnings annotations are ignored; i.e., warnings are reported.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.suppressWarnings"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
 	 *
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.

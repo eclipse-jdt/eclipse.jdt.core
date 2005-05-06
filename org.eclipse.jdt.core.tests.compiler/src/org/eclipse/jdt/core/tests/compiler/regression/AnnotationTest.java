@@ -4354,4 +4354,87 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
     }  
+    // check @SuppressWarning support
+    public void test137() {
+    	Map customOptions = new Hashtable();
+		String[] warnings = CompilerOptions.warningOptionNames();
+		for (int i = 0, ceil = warnings.length; i < ceil; i++) {
+			customOptions.put(warnings[i], CompilerOptions.WARNING);
+		}
+		customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.DISABLED);
+        this.runNegativeTest(
+
+            new String[] {
+                "X.java",
+    			"import java.io.Serializable;\n" + 
+    			"import java.util.List;\n" + 
+    			"import java.util.Vector;\n" + 
+    			"\n" + 
+    			"public class X {\n" + 
+    			"	public static void main(String[] args) {\n" + 
+    			"		W.deprecated();\n" + 
+    			"		List<X> l = new Vector();\n" + 
+    			"		l.size();\n" + 
+    			"		try {\n" + 
+    			"			// do nothing\n" + 
+    			"		} finally {\n" + 
+    			"			throw new Error();\n" + 
+    			"		}\n" + 
+    			"		// Zork z;\n" + 
+    			"	}\n" + 
+    			"\n" + 
+    			"	class S implements Serializable {\n" + 
+    			"		String dummy;\n" + 
+    			"	}\n" + 
+    			"}",
+    			"W.java",
+    			"public class W {\n" + 
+    			"	// @deprecated\n" + 
+    			"	@Deprecated\n" + 
+    			"	static void deprecated() {\n" + 
+    			"		// do nothing\n" + 
+    			"	}\n" + 
+    			"}\n"
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public class X {\n" + 
+			"	             ^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
+			"	W.deprecated();\n" + 
+			"	^^^^^^^^^^^^^^\n" + 
+			"The method deprecated() from the type W is deprecated\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 8)\n" + 
+			"	List<X> l = new Vector();\n" + 
+			"	            ^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Vector needs unchecked conversion to conform to List<X>\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 12)\n" + 
+			"	} finally {\n" + 
+			"			throw new Error();\n" + 
+			"		}\n" + 
+			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"finally block does not complete normally\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 18)\n" + 
+			"	class S implements Serializable {\n" + 
+			"	      ^\n" + 
+			"The serializable class S does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in W.java (at line 1)\n" + 
+			"	public class W {\n" + 
+			"	             ^\n" + 
+			"Javadoc: Missing comment for public declaration\n" + 
+			"----------\n",
+			null, true, customOptions);
+    }      
 }

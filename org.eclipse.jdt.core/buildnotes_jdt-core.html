@@ -47,6 +47,47 @@ Eclipse SDK 3.1M7 - ?th May 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added compiler option to control whether @SuppressWarning annotations are active or not.
+By disabling them, one can quickly revive all hidden warnings.
+<pre>
+* COMPILER / Determine whether @SuppressWarnings is effective
+*    When enabled, the @SuppressWarnings annotation can be used to suppress some compiler warnings. 
+*    When disabled, all @SupressWarnings annotations are ignored; i.e., warnings are reported.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.suppressWarnings"
+*     - possible values:   { "enabled", "disabled" }
+*     - default:           "enabled"
+</pre>
+</li>
+<li> Added API on <code>CorrectionEngine</code> for computing the warning token corresponding to an optional warning ID.
+<pre>
+/**
+ * Returns a token which can be used to suppress a given warning using 
+ * <code>@SuppressWarnings</code> annotation, for a given problem ID 
+ * ({@link IProblem }). If a particular problem is not suppressable, 
+ * <code>null</code> will be returned. 
+ * 
+ * Note: <code>@SuppressWarnings</code> can only suppress warnings, 
+ * which means that if some problems got promoted to ERROR using custom compiler 
+ * settings ({@link IJavaProject#setOption(String, String)}), the 
+ * <code>@SuppressWarnings</code> annotation will be ineffective.
+ * 
+ * Note: <code>@SuppressWarnings</code> can be argumented with 
+ * <code>"all"</code> so as to suppress all possible warnings at once.
+ * 
+ * Note: The tokens returned are not necessarily standardized across Java 
+ * compilers. If you were to use one of these tokens in an @SuppressWarnings 
+ * annotation in the Java source code, the effects (if any) may vary from 
+ * compiler to compiler.
+ * 
+ * @param problemID
+ *         the ID of a given warning to suppress
+ * @return a String which can be used in <code>@SuppressWarnings</code> annotation, 
+ * or <code>null</code> if unable to suppress this warning.
+ * @since 3.1
+ */
+public static String getWarningToken(int problemID)
+</pre>
+</li>
 <li>More warning tokens are now recognized by <code>@SuppressWarnings</code>, see list below. Note that
 these are subject to changing in the near future.
   <ul>
