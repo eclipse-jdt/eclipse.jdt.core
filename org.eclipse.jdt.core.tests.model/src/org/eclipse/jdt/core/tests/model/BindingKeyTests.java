@@ -60,7 +60,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test002() {
 		assertBindingKeySignatureEquals(
 			"Lp.X;",
-			"Lp/X;^1"
+			"Lp/X;"
 		);
 	}
 
@@ -70,7 +70,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test003() {
 		assertBindingKeySignatureEquals(
 			"LClazz;",
-			"LClazz;^33"
+			"LClazz;"
 		);
 	}
 
@@ -80,7 +80,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test004() {
 		assertBindingKeySignatureEquals(
 			"Lp.X$Member;",
-			"Lp/X$Member;^1"
+			"Lp/X$Member;"
 		);
 	}
 
@@ -90,7 +90,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test005() {
 		assertBindingKeySignatureEquals(
 			"Lp1.X$Member1$Member2;",
-			"Lp1/X$Member1$Member2;^1"
+			"Lp1/X$Member1$Member2;"
 		);
 	}
 
@@ -100,7 +100,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test006() {
 		assertBindingKeySignatureEquals(
 			"Lp1.X$1;",
-			"Lp1/X$1;^0"
+			"Lp1/X$1;"
 		);
 	}
 
@@ -110,7 +110,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test007() {
 		assertBindingKeySignatureEquals(
 			"Lp1.X$1$Y;",
-			"Lp1/X$1$Y;^0"
+			"Lp1/X$1$Y;"
 		);
 	}
 
@@ -130,7 +130,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test009() {
 		assertBindingKeySignatureEquals(
 			"<T:>Lp1.X;",
-			"Lp1/X<TT;>;^1"
+			"Lp1/X<TT;>;"
 		);
 	}
 
@@ -140,7 +140,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test010() {
 		assertBindingKeySignatureEquals(
 			"<T:U:>Lp1.X;",
-			"Lp1/X<TT;TU;>;^1"
+			"Lp1/X<TT;TU;>;"
 		);
 	}
 
@@ -150,7 +150,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test011() {
 		assertBindingKeySignatureEquals(
 			"Lp1.X<Ljava.lang.String;>;",
-			"Lp1/X<Ljava/lang/String;>;^0"
+			"Lp1/X<Ljava/lang/String;>;"
 		);
 	}
 
@@ -160,7 +160,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test012() {
 		assertBindingKeySignatureEquals(
 			"Lp1.Secondary;",
-			"Lp1/X~Secondary;^0"
+			"Lp1/X~Secondary;"
 		);
 	}
 
@@ -170,7 +170,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test013() {
 		assertBindingKeySignatureEquals(
 			"Lp1.Secondary$1;",
-			"Lp1/X~Secondary$1;^0"
+			"Lp1/X~Secondary$1;"
 		);
 	}
 
@@ -181,7 +181,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test014() {
 		assertBindingKeySignatureEquals(
 			"(Ljava.lang.String;I)Z",
-			"Lp1/X;.foo(Ljava/lang/String;I)Z^1"
+			"Lp1/X;.foo(Ljava/lang/String;I)Z"
 		);
 	}
 	
@@ -321,7 +321,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test028() {
 		assertBindingKeySignatureEquals(
 			"*",
-			"*"
+			"Lp1/X;*"
 		);
 	}
 
@@ -331,7 +331,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test029() {
 		assertBindingKeySignatureEquals(
 			"-<E:>Ljava.util.List;",
-			"-Ljava/util/List<TE;>;"
+			"Lp1/X;-Ljava/util/List<TE;>;"
 		);
 	}
 
@@ -341,7 +341,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test030() {
 		assertBindingKeySignatureEquals(
 			"+Ljava.util.ArrayList;",
-			"+Ljava/util/ArrayList;"
+			"Lp1/X;+Ljava/util/ArrayList;"
 		);
 	}
 
@@ -351,7 +351,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test031() {
 		assertBindingKeySignatureEquals(
 			"*",
-			"Ljava/util/List;!*123;"
+			"Ljava/util/List;!Lp1/X;*123;"
 		);
 	}
 
@@ -361,7 +361,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test032() {
 		assertBindingKeySignatureEquals(
 			"-<E:>Ljava.util.List;",
-			"Ljava/util/List;!-Ljava/util/List<TE;>;123;"
+			"Ljava/util/List;!Lp1/X;-Ljava/util/List<TE;>;123;"
 		);
 	}
 
@@ -371,7 +371,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	public void test033() {
 		assertBindingKeySignatureEquals(
 			"+Ljava.util.ArrayList;",
-			"Ljava/util/List;!+Ljava/util/ArrayList;123;"
+			"Ljava/util/List;!Lp1/X;+Ljava/util/ArrayList;123;"
 		);
 	}
 		
