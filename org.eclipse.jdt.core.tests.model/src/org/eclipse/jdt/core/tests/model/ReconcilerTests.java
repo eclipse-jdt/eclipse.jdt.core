@@ -63,7 +63,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	//TESTS_NAMES = new String[] { "testIncludePartOfAnotherProject2" };
+	//TESTS_NAMES = new String[] { "testSuppressWarnings1" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 	//TESTS_NUMBERS = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -122,7 +122,7 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}"
 	);
-	IJavaProject javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
+	IJavaProject javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 	addLibrary(
 		javaProject, 
 		"lib15.jar", 
@@ -139,18 +139,37 @@ public void setUpSuite() throws Exception {
 			"java/util/Map.java",
 			"package java.util;\n" +
 			"public interface Map<K,V> {\n" +
+			"}",
+			"java/lang/annotation/Annotation.java",
+			"package java.lang.annotation;\n" +
+			"public interface Annotation {\n" +
+			"}",
+			"java/lang/Deprecated.java",
+			"package java.lang;\n" +
+			"public @interface Deprecated {\n" +
+			"}",
+			"java/lang/SuppressWarnings.java",
+			"package java.lang;\n" +
+			"public @interface SuppressWarnings {\n" +
+			"   String[] value();\n" +
 			"}"
 		}, 
 		JavaCore.VERSION_1_5
 	);
 }
 private void setUp15WorkingCopy() throws JavaModelException {
+	setUp15WorkingCopy("Reconciler15/src/p1/X.java", new WorkingCopyOwner() {});
+}
+private void setUp15WorkingCopy(String path, WorkingCopyOwner owner) throws JavaModelException {
 	String contents = this.workingCopy.getSource();
-	setUpWorkingCopy("Reconciler15/src/p1/X.java", contents);
+	setUpWorkingCopy(path, contents, owner);
 }
 private void setUpWorkingCopy(String path, String contents) throws JavaModelException {
+	setUpWorkingCopy(path, contents, new WorkingCopyOwner() {});
+}
+private void setUpWorkingCopy(String path, String contents, WorkingCopyOwner owner) throws JavaModelException {
 	this.workingCopy.discardWorkingCopy();
-	this.workingCopy = getCompilationUnit(path).getWorkingCopy(new WorkingCopyOwner() {}, this.problemRequestor, null);
+	this.workingCopy = getCompilationUnit(path).getWorkingCopy(owner, this.problemRequestor, null);
 	setWorkingCopyContents(contents);
 	this.workingCopy.makeConsistent(null);
 }
@@ -1159,10 +1178,10 @@ public void testMethodWithError07() throws CoreException {
 			"Unexpected problems",
 			"----------\n" + 
 			"1. ERROR in /Reconciler/src/p1/Y.java (at line 3)\n" + 
-		"	public.void foo() {\n" + 
-		"	      ^\n" + 
-		"Syntax error on token \".\", delete this token\n" + 
-		"----------\n"
+			"	public.void foo() {\n" + 
+			"	      ^\n" + 
+			"Syntax error on token \".\", delete this token\n" + 
+			"----------\n"
 		);
 	} finally {
 		deleteFile("/Reconciler/src/p1/Y.java");
@@ -1615,6 +1634,139 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 		"Syntax error, insert \")\" to complete MethodDeclaration\n" + 
 		"----------\n"
 	);
+}
+/*
+ * Ensure that warning are suppressed by an @SuppressWarning annotation.
+ */
+// TODO (jerome or philippe) reenable when this test is no longer failing
+public void _testSuppressWarnings1() throws JavaModelException {
+	ICompilationUnit otherCopy = null;
+	try {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		otherCopy = getWorkingCopy(
+			"/Reconciler15/src/X.java",
+	        "@Deprecated\n" + 
+	        "public class X {\n" + 
+	        "   void foo(){}\n" +
+	        "}\n",
+			owner,
+			false/*don't compute problems*/);
+		setUp15WorkingCopy("/Reconciler15/src/Y.java", owner);
+		setWorkingCopyContents(
+	        "public class Y extends X {\n" + 
+	        "  @SuppressWarnings(\"all\")\n" +
+	        "   void foo(){ super.foo(); }\n" +
+	        "   Zork z;\n" +
+	        "}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler15/src/Y.java (at line 1)\n" + 
+			"	public class Y extends X {\n" + 
+			"	             ^\n" + 
+			"The constructor X() is deprecated\n" + 
+			"----------\n" + 
+			"2. ERROR in /Reconciler15/src/Y.java (at line 4)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (otherCopy != null)
+			otherCopy.discardWorkingCopy();
+	}
+}
+/*
+ * Ensure that warning are suppressed by an @SuppressWarning annotation.
+ */
+public void testSuppressWarnings2() throws JavaModelException {
+	ICompilationUnit otherCopy = null;
+	try {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		otherCopy = getWorkingCopy(
+			"/Reconciler15/src/java/util/List.java",
+			"package java.util;\n" +
+	        "public interface List<E> {\n" + 
+	        "}\n",
+			owner,
+			false/*don't compute problems*/);
+		setUp15WorkingCopy("/Reconciler15/src/X.java", owner);
+		setWorkingCopyContents(
+            "import java.util.List;\n" + 
+            "\n" + 
+            "public class X {\n" + 
+            "    void foo(List list) {\n" + 
+            "        List<String> ls1 = list;\n" + 
+            "    }\n" + 
+            "    @SuppressWarnings(\"unchecked\")\n" + 
+            "    void bar(List list) {\n" + 
+            "        List<String> ls2 = list;\n" + 
+            "    }\n" + 
+            "   Zork z;\n" +
+            "}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler15/src/X.java (at line 5)\n" + 
+			"	List<String> ls1 = list;\n" + 
+			"	                   ^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+			"----------\n" + 
+			"2. ERROR in /Reconciler15/src/X.java (at line 11)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (otherCopy != null)
+			otherCopy.discardWorkingCopy();
+	}
+}
+/*
+ * Ensure that warning are suppressed by an @SuppressWarning annotation.
+ */
+public void testSuppressWarnings3() throws JavaModelException {
+	ICompilationUnit otherCopy = null;
+	try {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		otherCopy = getWorkingCopy(
+			"/Reconciler15/src/java/util/HashMap.java",
+			"package java.util;\n" +
+	        "public class HashMap implements Map {\n" + 
+	        "}\n",
+			owner,
+			false/*don't compute problems*/);
+		setUp15WorkingCopy("/Reconciler15/src/X.java", owner);
+		setWorkingCopyContents(
+			"import java.util.*;\n" + 
+			"@SuppressWarnings(\"unchecked\")\n" + 
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		Map<String, String>[] map = new HashMap[10];\n" + 
+			"	}\n" + 
+            "   Zork z;\n" +				
+			"}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. ERROR in /Reconciler15/src/X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (otherCopy != null)
+			otherCopy.discardWorkingCopy();
+	}
 }
 /**
  * Ensure that an unhandled exception is detected.

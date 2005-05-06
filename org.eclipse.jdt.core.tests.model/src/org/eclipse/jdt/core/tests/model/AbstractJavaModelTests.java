@@ -57,12 +57,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		public void acceptProblem(IProblem problem) {
 			org.eclipse.jdt.core.tests.util.Util.appendProblem(this.problems, problem, this.unitSource, ++this.problemCount);
+			this.problems.append("----------\n");
 		}
 		public void beginReporting() {
 			this.problems.append("----------\n");
 		}
 		public void endReporting() {
-			problems.append("----------\n");
+			if (this.problemCount == 0)
+				this.problems.append("----------\n");
 		}
 		public boolean isActive() {
 			return true;
