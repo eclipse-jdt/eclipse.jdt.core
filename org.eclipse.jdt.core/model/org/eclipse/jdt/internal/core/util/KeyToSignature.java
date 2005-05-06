@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core.util;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
@@ -120,8 +121,8 @@ public class KeyToSignature extends BindingKeyParser {
 			StringBuffer typeParametersSig = new StringBuffer();
 			typeParametersSig.append('<');
 			for (int i = 0; i < length; i++) {
-				typeParametersSig.append((char[]) this.typeParameters.get(i));
-				typeParametersSig.append(':');
+				char[] typeParameterSig = Signature.createTypeParameterSignature((char[]) this.typeParameters.get(i), CharOperation.NO_CHAR_CHAR);
+				typeParametersSig.append(typeParameterSig);
 				// TODO (jerome) add type parameter bounds in binding key
 			}
 			typeParametersSig.append('>');
