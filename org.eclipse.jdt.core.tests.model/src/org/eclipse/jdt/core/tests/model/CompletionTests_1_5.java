@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
 import junit.framework.*;
@@ -1546,10 +1546,16 @@ public void test0087() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.wc.codeComplete(cursorLocation, requestor);
 
-	assertResults(
-			"Test2[TYPE_REF]{Test2, test0087, Ltest0087.Test2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}\n" +
-			"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
-			requestor.getResults());
+	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
+		assertResults(
+				"",
+				requestor.getResults());
+	} else {
+		assertResults(
+				"Test2[TYPE_REF]{Test2, test0087, Ltest0087.Test2;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}\n" +
+				"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+				requestor.getResults());
+	}
 }
 public void test0088() throws JavaModelException {
 	this.wc = getWorkingCopy(

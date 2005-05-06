@@ -47,6 +47,10 @@ Eclipse SDK 3.1M7 - ?th May 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Code Assist doesn't propose anymore type completion when completion token is empty.<br>
+Note: the code to propose completion when token is empty is not removed.
+Change the value of Completion.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN to re-enabled this behavior.
+</li>
 <li>@SuppressWarnings is now supported. Recognized warning names are: <code>"all"</code>, <code>"deprecation"</code>,
 <code>"serial"</code>, <code>"unchecked"</code>, <code>"finally"</code>.
 </li>

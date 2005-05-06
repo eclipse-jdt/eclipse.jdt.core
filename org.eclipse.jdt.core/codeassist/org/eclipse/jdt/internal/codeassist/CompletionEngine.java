@@ -69,6 +69,8 @@ public final class CompletionEngine
 	public static boolean DEBUG = false;
 	public static boolean PERF = false;
 	
+	public final static boolean NO_TYPE_COMPLETION_ON_EMPTY_TOKEN = true;
+	
 	private final static char[] ERROR_PATTERN = "*error*".toCharArray();  //$NON-NLS-1$
 	private final static char[] EXCEPTION_PATTERN = "*exception*".toCharArray();  //$NON-NLS-1$
 	private final static char[] SEMICOLON = new char[] { ';' };
@@ -3692,6 +3694,9 @@ public final class CompletionEngine
 
 		if (token == null)
 			return;
+		
+		// do not propose type if completion token is empty
+		if (NO_TYPE_COMPLETION_ON_EMPTY_TOKEN && token.length == 0) return;
 		
 		boolean proposeType = !this.requestor.isIgnored(CompletionProposal.TYPE_REF);
 		
