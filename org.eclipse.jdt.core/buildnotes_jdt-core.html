@@ -37,6 +37,65 @@
   </tr>
 </table>
 
+<a name="v_555"></a>
+<p><hr><h1>
+Eclipse Platform Build Notes&nbsp;<br>
+Java Development Tooling Core</h1>
+Eclipse SDK 3.1M7 - ?th May 2005
+<br>Project org.eclipse.jdt.core v_555
+(<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_555">cvs</a>).
+<h2>
+What's new in this drop</h2>
+<ul>
+<li>More warning tokens are now recognized by <code>@SuppressWarnings</code>, see list below. Note that
+these are subject to changing in the near future.
+  <ul>
+     <li>all : any warning</li>
+     <li>assertIdentifier : ''assert'' used as identifier</li>
+     <li>boxing : autoboxing conversion</li>
+     <li>charConcat : char[] in String concat</li>
+     <li>conditionAssign : possible accidental boolean assignment</li>
+     <li>constructorName : method with constructor name</li>
+     <li>dep-ann : missing @Deprecated annotation</li>
+     <li>deprecation : deprecation outside deprecated code</li>
+     <li>emptyBlock : undocumented empty block</li>
+     <li>enumSwitch : incomplete enum switch</li>
+     <li>fieldHiding : field hiding another variable</li>
+     <li>finalBound : type parameter with final bound</li>
+     <li>finally : finally block not completing normally</li>
+     <li>indirectStatic : indirect reference to static member</li>
+     <li>intfAnnotation : annotation type used as super interface</li>
+     <li>intfNonInherited : interface non-inherited method compatibility</li>
+     <li>javadoc : invalid javadoc</li>
+     <li>localHiding : local variable hiding another variable</li>
+     <li>maskedCatchBlock : hidden catch block</li>
+     <li>nls : string literal lacking non-nls tag //$NON-NLS-<n>$</li>
+     <li>noEffectAssign : assignment without effect</li>
+     <li>over-ann : missing @Override annotation</li>
+     <li>pkgDefaultMethod : attempt to override package-default method</li>
+     <li>semicolon : unnecessary semicolon, empty statement</li>
+     <li>serial : missing serialVersionUID</li>
+     <li>unqualifiedField : unqualified reference to field</li>
+     <li>unchecked : unchecked type operation</li>
+     <li>unusedArgument : unread method parameter</li>
+     <li>unusedImport : unused import declaration</li>
+     <li>unusedLocal : unread local variable</li>
+     <li>unusedPrivate : unused private member declaration</li>
+     <li>unusedThrown : unused declared thrown exception</li>
+     <li>unnecessaryElse : unnecessary else clause</li>
+     <li>uselessTypeCheck : unnecessary cast/instanceof operation</li>
+     <li>specialParamHiding : constructor or setter parameter hiding another field</li>
+     <li>staticReceiver : non-static reference to static member</li>
+     <li>syntheticAccess : synthetic access for innerclass</li>
+     <li>typeHiding : type parameter hiding another type</li>
+     <li>varargsCast : varargs argument need explicit cast</li>
+  </ul>
+</li>
+</ul>
+
+<h3>Problem Reports Fixed</h3>
+
+
 <a name="v_554"></a>
 <p><hr><h1>
 Eclipse Platform Build Notes&nbsp;<br>
