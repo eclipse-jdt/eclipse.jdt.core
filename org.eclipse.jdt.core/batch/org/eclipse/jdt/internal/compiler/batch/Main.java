@@ -1771,11 +1771,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportAutoboxing,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("Override")) { //$NON-NLS-1$
+					} else if (token.equals("over-ann")) { //$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("Deprecated")) { //$NON-NLS-1$
+					} else if (token.equals("dep-ann")) { //$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						

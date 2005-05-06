@@ -32,17 +32,17 @@ public class ProblemHandler implements ProblemSeverities {
 	
 	final public IErrorHandlingPolicy policy;
 	public final IProblemFactory problemFactory;
-	public final CompilerOptions globalOptions;
+	public final CompilerOptions options;
 /*
  * Problem handler can be supplied with a policy to specify
  * its behavior in error handling. Also see static methods for
  * built-in policies.
  *
  */
-public ProblemHandler(IErrorHandlingPolicy policy, CompilerOptions globalOptions, IProblemFactory problemFactory) {
+public ProblemHandler(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
 	this.policy = policy;
 	this.problemFactory = problemFactory;
-	this.globalOptions = globalOptions;
+	this.options = options;
 }
 /*
  * Given the current configuration, answers which category the problem

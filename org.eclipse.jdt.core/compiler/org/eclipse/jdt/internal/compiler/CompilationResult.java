@@ -37,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import java.util.*;
 
@@ -49,7 +48,7 @@ public class CompilationResult {
 	public int taskCount;
 	public ICompilationUnit compilationUnit;
 	private Map problemsMap;
-	private Map firstErrorsMap;
+	private Set firstErrors;
 	private int maxProblemPerUnit;
 	public char[][][] qualifiedReferences;
 	public char[][] simpleNameReferences;
@@ -60,6 +59,10 @@ public class CompilationResult {
 	public boolean hasBeenAccepted = false;
 	public char[] fileName;
 	public boolean hasInconsistentToplevelHierarchies = false; // record the fact some toplevel types have inconsistent hierarchies
+	
+	long[] suppressWarningIrritants;  // irritant for suppressed warnings
+	long[] suppressWarningPositions; // (start << 32) + end 
+	int suppressWarningsCount;
 	
 	public CompilationResult(
 		char[] fileName,
@@ -106,17 +109,57 @@ public class CompilationResult {
 					priority += P_STATIC;
 				}
 			} else {
-			priority += P_OUTSIDE_METHOD;
+				priority += P_OUTSIDE_METHOD;
 			}
 		} else {
 			priority += P_OUTSIDE_METHOD;
 		}
-		if (firstErrorsMap.containsKey(problem)){
+		if (firstErrors.contains(problem)){
 			priority += P_FIRST_ERROR;
 		}
 		return priority;
 	}
 
+	public void discardSuppressedWarnings() {
+
+		if (this.suppressWarningsCount == 0) return;
+		int removed = 0;
+		nextProblem: for (int i = 0, length = this.problemCount; i < length; i++) {
+			IProblem problem = this.problems[i];
+			if (!problem.isWarning()) 
+				continue nextProblem;
+			int start = problem.getSourceStart();
+			int end = problem.getSourceEnd();
+			int problemID = problem.getID();
+			nextSuppress: for (int j = 0, max = this.suppressWarningsCount; j < max; j++) {
+				long position = this.suppressWarningPositions[j];
+				int startSuppress = (int) (position >>> 32);
+				int endSuppress = (int) position;
+				if (start < startSuppress) continue nextSuppress;
+				if (end > endSuppress) continue nextSuppress;
+				if ((ProblemReporter.getIrritant(problemID) & this.suppressWarningIrritants[j]) == 0)
+					continue nextSuppress;
+				// discard suppressed warning
+				removed++;
+				problems[i] = null;
+				if (problemsMap != null) problemsMap.remove(problem);
+				continue nextProblem;
+			}
+		}
+		if (removed > 0) {
+			for (int i = 0, index = 0; i < this.problemCount; i++) {
+				IProblem problem;
+				if ((problem = this.problems[i]) != null) {
+					if (i > index) {
+						this.problems[index++] = problem;
+					} else {
+						index++;
+					}
+				}
+			}
+			this.problemCount -= removed;
+		}
+	}
 	
 	public IProblem[] getAllProblems() {
 		IProblem[] onlyProblems = this.getProblems();
@@ -221,6 +264,7 @@ public class CompilationResult {
 		
 		// Re-adjust the size of the problems if necessary.
 		if (problems != null) {
+			discardSuppressedWarnings();
 	
 			if (this.problemCount != problems.length) {
 				System.arraycopy(problems, 0, (problems = new IProblem[problemCount]), 0, problemCount);
@@ -378,13 +422,25 @@ public class CompilationResult {
 		}
 		problems[problemCount++] = newProblem;
 		if (referenceContext != null){
-			if (problemsMap == null) problemsMap = new Hashtable(5);
-			if (firstErrorsMap == null) firstErrorsMap = new Hashtable(5);
-			if (newProblem.isError() && !referenceContext.hasErrors()) firstErrorsMap.put(newProblem, newProblem);
+			if (problemsMap == null) problemsMap = new HashMap(5);
+			if (firstErrors == null) firstErrors = new HashSet(5);
+			if (newProblem.isError() && !referenceContext.hasErrors()) firstErrors.add(newProblem);
 			problemsMap.put(newProblem, referenceContext);
 		}
 	}
 
+	public void recordSuppressWarnings(long irritant, int sourceStart, int sourceEnd) {
+		if (this.suppressWarningIrritants == null) {
+			this.suppressWarningIrritants = new long[3];
+			this.suppressWarningPositions = new long[3];
+		} else if (this.suppressWarningIrritants.length == this.suppressWarningsCount) {
+			System.arraycopy(this.suppressWarningIrritants, 0,this.suppressWarningIrritants = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
+			System.arraycopy(this.suppressWarningPositions, 0,this.suppressWarningPositions = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
+		}
+		this.suppressWarningIrritants[this.suppressWarningsCount] = irritant;
+		this.suppressWarningPositions[this.suppressWarningsCount++] = ((long)sourceStart<<32) + sourceEnd;
+	}
+	
 	private void recordTask(IProblem newProblem) {
 		if (this.taskCount == 0) {
 			this.tasks = new IProblem[5];
@@ -399,26 +455,6 @@ public class CompilationResult {
 		this.hasBeenAccepted = true;
 		this.problemsMap = null; // flush
 		return this;
-	}
-	
-	public void suppressRecordedWarnings(int sourceStart, int sourceEnd, ProblemReporter problemReporter) {
-		int removed = 0;
-		int index = 0;
-		for (int i = 0, length = this.problemCount; i < length; i++) {
-			IProblem problem = this.problems[i];
-			if (problem.isWarning() && problem.getSourceStart() >= sourceStart && problem.getSourceEnd() <= sourceEnd) {
-				if (problemReporter.computeSeverity(problem.getID()) == ProblemSeverities.Ignore) {
-					removed++;
-					problems[i] = null;
-					problemsMap.remove(problem);
-				}
-			} else if (i > index) {
-				problems[index++] = problem;
-			} else {
-				index++;
-			}
-		}
-		this.problemCount -= removed;
 	}
 	
 	public String toString(){

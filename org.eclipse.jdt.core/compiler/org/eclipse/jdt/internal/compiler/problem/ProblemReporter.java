@@ -559,198 +559,13 @@ public void codeSnippetMissingMethod(String className, String missingMethod, Str
  * falls into:
  *		Error | Warning | Ignore
  */
-public int computeSeverity(int problemId){
+public int computeSeverity(int problemID){
 
-// severity can have been preset on the problem
-//	if ((problem.severity & Fatal) != 0){
-//		return Error;
-//	}
-
-	// if not then check whether it is a configurable problem
-	switch(problemId){
-
-		case IProblem.MaskedCatch : 
-			return customOptions().getSeverity(CompilerOptions.MaskedCatchBlock);
-
-		case IProblem.UnusedImport :
-			return customOptions().getSeverity(CompilerOptions.UnusedImport);
-			
-		case IProblem.MethodButWithConstructorName :
-			return customOptions().getSeverity(CompilerOptions.MethodWithConstructorName);
-		
-		case IProblem.OverridingNonVisibleMethod :
-			return customOptions().getSeverity(CompilerOptions.OverriddenPackageDefaultMethod);
-
-		case IProblem.IncompatibleReturnTypeForNonInheritedInterfaceMethod :
-		case IProblem.IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod :
-			return customOptions().getSeverity(CompilerOptions.IncompatibleNonInheritedInterfaceMethod);
-
-		case IProblem.OverridingDeprecatedMethod :				
-		case IProblem.UsingDeprecatedType :				
-		case IProblem.UsingDeprecatedMethod :
-		case IProblem.UsingDeprecatedConstructor :
-		case IProblem.UsingDeprecatedField :
-			return customOptions().getSeverity(CompilerOptions.UsingDeprecatedAPI);
-		
-		case IProblem.LocalVariableIsNeverUsed :
-			return customOptions().getSeverity(CompilerOptions.UnusedLocalVariable);
-		
-		case IProblem.ArgumentIsNeverUsed :
-			return customOptions().getSeverity(CompilerOptions.UnusedArgument);
-
-		case IProblem.NoImplicitStringConversionForCharArrayExpression :
-			return customOptions().getSeverity(CompilerOptions.NoImplicitStringConversion);
-
-		case IProblem.NeedToEmulateFieldReadAccess :
-		case IProblem.NeedToEmulateFieldWriteAccess :
-		case IProblem.NeedToEmulateMethodAccess :
-		case IProblem.NeedToEmulateConstructorAccess :			
-			return customOptions().getSeverity(CompilerOptions.AccessEmulation);
-
-		case IProblem.NonExternalizedStringLiteral :
-			return customOptions().getSeverity(CompilerOptions.NonExternalizedString);
-
-		case IProblem.UseAssertAsAnIdentifier :
-			return customOptions().getSeverity(CompilerOptions.AssertUsedAsAnIdentifier);
-		case IProblem.UseEnumAsAnIdentifier :
-			return customOptions().getSeverity(CompilerOptions.EnumUsedAsAnIdentifier);
-
-		case IProblem.NonStaticAccessToStaticMethod :
-		case IProblem.NonStaticAccessToStaticField :
-			return customOptions().getSeverity(CompilerOptions.NonStaticAccessToStatic);
-
-		case IProblem.IndirectAccessToStaticMethod :
-		case IProblem.IndirectAccessToStaticField :
-		case IProblem.IndirectAccessToStaticType :
-			return customOptions().getSeverity(CompilerOptions.IndirectStaticAccess);
-
-		case IProblem.AssignmentHasNoEffect:
-			return customOptions().getSeverity(CompilerOptions.NoEffectAssignment);
-
-		case IProblem.UnusedPrivateConstructor:
-		case IProblem.UnusedPrivateMethod:
-		case IProblem.UnusedPrivateField:
-		case IProblem.UnusedPrivateType:
-			return customOptions().getSeverity(CompilerOptions.UnusedPrivateMember);
-
+	switch (problemID) {
 		case IProblem.Task :
-			return Warning;			
-
-		case IProblem.LocalVariableHidingLocalVariable:
-		case IProblem.LocalVariableHidingField:
-		case IProblem.ArgumentHidingLocalVariable:
-		case IProblem.ArgumentHidingField:
-			return customOptions().getSeverity(CompilerOptions.LocalVariableHiding);
-
-		case IProblem.FieldHidingLocalVariable:
-		case IProblem.FieldHidingField:
-			return customOptions().getSeverity(CompilerOptions.FieldHiding);
-
-		case IProblem.TypeParameterHidingType:
-			return customOptions().getSeverity(CompilerOptions.TypeParameterHiding);
+ 		case IProblem.VarargsConflict :
+			return ProblemSeverities.Warning;
 			
-		case IProblem.PossibleAccidentalBooleanAssignment:
-			return customOptions().getSeverity(CompilerOptions.AccidentalBooleanAssign);
-
-		case IProblem.SuperfluousSemicolon:
-		case IProblem.EmptyControlFlowStatement:
-			return customOptions().getSeverity(CompilerOptions.EmptyStatement);
-
-		case IProblem.UndocumentedEmptyBlock:
-			return customOptions().getSeverity(CompilerOptions.UndocumentedEmptyBlock);
-			
-		case IProblem.UnnecessaryCast:
-		case IProblem.UnnecessaryInstanceof:
-			return customOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck);
-			
-		case IProblem.FinallyMustCompleteNormally:
-			return customOptions().getSeverity(CompilerOptions.FinallyBlockNotCompleting);
-			
-		case IProblem.UnusedMethodDeclaredThrownException:
-		case IProblem.UnusedConstructorDeclaredThrownException:
-			return customOptions().getSeverity(CompilerOptions.UnusedDeclaredThrownException);
-
-		case IProblem.UnqualifiedFieldAccess:
-			return customOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess);
-		
-		case IProblem.UnnecessaryElse:
-			return customOptions().getSeverity(CompilerOptions.UnnecessaryElse);
-
-		case IProblem.UnsafeRawConstructorInvocation:
-		case IProblem.UnsafeRawMethodInvocation:
-		case IProblem.UnsafeTypeConversion:
-		case IProblem.UnsafeRawFieldAssignment:
-		case IProblem.UnsafeGenericCast:
-		case IProblem.UnsafeReturnTypeOverride:
-		case IProblem.UnsafeRawGenericMethodInvocation:
-		case IProblem.UnsafeRawGenericConstructorInvocation:
-			return customOptions().getSeverity(CompilerOptions.UncheckedTypeOperation);
-
-		case IProblem.MissingOverrideAnnotation:
-			return customOptions().getSeverity(CompilerOptions.MissingOverrideAnnotation);
-			
-		case IProblem.FieldMissingDeprecatedAnnotation:
-		case IProblem.MethodMissingDeprecatedAnnotation:
-		case IProblem.TypeMissingDeprecatedAnnotation:
-			return customOptions().getSeverity(CompilerOptions.MissingDeprecatedAnnotation);
-			
-		case IProblem.FinalBoundForTypeVariable:
-		    return customOptions().getSeverity(CompilerOptions.FinalParameterBound);
-
-		case IProblem.MissingSerialVersion:
-			return customOptions().getSeverity(CompilerOptions.MissingSerialVersion);
-		
-		case IProblem.ForbiddenReference:
-			return customOptions().getSeverity(CompilerOptions.ForbiddenReference);
-
-		case IProblem.DiscouragedReference:
-			return customOptions().getSeverity(CompilerOptions.DiscouragedReference);
-
-		case IProblem.MethodVarargsArgumentNeedCast :
-		case IProblem.ConstructorVarargsArgumentNeedCast :
-			return customOptions().getSeverity(CompilerOptions.VarargsArgumentNeedCast);
-
-		case IProblem.LocalVariableCannotBeNull :
-		case IProblem.LocalVariableCanOnlyBeNull :
-			return customOptions().getSeverity(CompilerOptions.NullReference);
-			
-		case IProblem.BoxingConversion :
-		case IProblem.UnboxingConversion :
-			return customOptions().getSeverity(CompilerOptions.Autoboxing);
-
-		case IProblem.MissingEnumConstantCase :
-			return customOptions().getSeverity(CompilerOptions.IncompleteEnumSwitch);
-			
-		case IProblem.VarargsConflict :
-			return Warning;
-			
-		case IProblem.AnnotationTypeUsedAsSuperInterface :
-			return customOptions().getSeverity(CompilerOptions.AnnotationSuperInterface);
-			
-		/*
-		 * Javadoc syntax errors
-		 */
-		case IProblem.JavadocUnexpectedTag:
-		case IProblem.JavadocDuplicateReturnTag:
-		case IProblem.JavadocInvalidThrowsClass:
-		case IProblem.JavadocInvalidSeeReference:
-		case IProblem.JavadocInvalidParamTagName:
-		case IProblem.JavadocInvalidParamTagTypeParameter:
-		case IProblem.JavadocMalformedSeeReference:
-		case IProblem.JavadocInvalidSeeHref:
-		case IProblem.JavadocInvalidSeeArgs:
-		case IProblem.JavadocInvalidTag:
-		case IProblem.JavadocUnterminatedInlineTag:
-		case IProblem.JavadocMissingHashCharacter:
-		case IProblem.JavadocEmptyReturnTag:
-		case IProblem.JavadocUnexpectedText:
-			CompilerOptions cOptions = customOptions();
-			if (cOptions.docCommentSupport) {
-				return cOptions.getSeverity(CompilerOptions.InvalidJavadoc);
-			} else {
-				return ProblemSeverities.Ignore;
-			}
-
 		/*
 		 * Javadoc tags resolved references errors
 		 */
@@ -788,12 +603,10 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocIncorrectArityForParameterizedConstructor:
 		case IProblem.JavadocParameterizedConstructorArgumentTypeMismatch:
 		case IProblem.JavadocTypeArgumentsForRawGenericConstructor:
-			cOptions = customOptions();
-			if (cOptions.docCommentSupport && cOptions.reportInvalidJavadocTags) {
-				return cOptions.getSeverity(CompilerOptions.InvalidJavadoc);
+			if (!this.options.reportInvalidJavadocTags) {
+				return ProblemSeverities.Ignore;		
 			}
-			return ProblemSeverities.Ignore;
-
+			break;
 		/*
 		 * Javadoc invalid tags due to deprecated references
 		 */
@@ -801,12 +614,10 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocUsingDeprecatedConstructor:
 		case IProblem.JavadocUsingDeprecatedMethod:
 		case IProblem.JavadocUsingDeprecatedType:
-			cOptions = customOptions();
-			if (cOptions.docCommentSupport && cOptions.reportInvalidJavadocTags && cOptions.reportInvalidJavadocTagsDeprecatedRef) {
-				return cOptions.getSeverity(CompilerOptions.InvalidJavadoc);
+			if (!(this.options.reportInvalidJavadocTags && this.options.reportInvalidJavadocTagsDeprecatedRef)) {
+				return ProblemSeverities.Ignore;
 			}
-			return ProblemSeverities.Ignore;
-
+			break;
 		/*
 		 * Javadoc invalid tags due to non-visible references
 		 */
@@ -814,40 +625,18 @@ public int computeSeverity(int problemId){
 		case IProblem.JavadocNotVisibleConstructor:
 		case IProblem.JavadocNotVisibleMethod:
 		case IProblem.JavadocNotVisibleType:
-			cOptions = customOptions();
-			if (cOptions.docCommentSupport && cOptions.reportInvalidJavadocTags && cOptions.reportInvalidJavadocTagsNotVisibleRef) {
-				return cOptions.getSeverity(CompilerOptions.InvalidJavadoc);
+			if (!(this.options.reportInvalidJavadocTags && this.options.reportInvalidJavadocTagsNotVisibleRef)) {
+				return ProblemSeverities.Ignore;			
 			}
-			return ProblemSeverities.Ignore;
-
-		/*
-		 * Javadoc missing tags errors
-		 */
-		case IProblem.JavadocMissingParamTag:
-		case IProblem.JavadocMissingReturnTag:
-		case IProblem.JavadocMissingThrowsTag:
-			cOptions = customOptions();
-			if (cOptions.docCommentSupport) {
-				return cOptions.getSeverity(CompilerOptions.MissingJavadocTags);
-			} else {
-				return ProblemSeverities.Ignore;
-			}
-
-		/*
-		 * Missing Javadoc errors
-		 */
-		case IProblem.JavadocMissing:
-			cOptions = customOptions();
-			if (cOptions.docCommentSupport) {
-				return cOptions.getSeverity(CompilerOptions.MissingJavadocComments);
-			} else {
-				return ProblemSeverities.Ignore;
-			}
-			
-		// by default problems are errors.
-		default:
-			return Error;
+			break;
 	}
+	long irritant = getIrritant(problemID);
+	if (irritant != 0) {
+		if ((problemID & IProblem.Javadoc) != 0 && !this.options.docCommentSupport) 
+			return ProblemSeverities.Ignore;
+		return this.options.getSeverity(irritant);
+	}
+	return Error;
 }
 public void conditionalArgumentsIncompatibleTypes(ConditionalExpression expression, TypeBinding trueType, TypeBinding falseType) {
 	this.handle(
@@ -928,25 +717,6 @@ public void corruptedSignature(TypeBinding enclosingType, char[] signature, int 
 		Error | Abort,
 		0,
 		0);
-}
-public CompilerOptions customOptions() {
-	CompilerOptions options =  this.globalOptions;
-	if (this.referenceContext != null) {
-		if (referenceContext instanceof AbstractMethodDeclaration) {
-			AbstractMethodDeclaration methodDecl = (AbstractMethodDeclaration) referenceContext;
-			if (methodDecl.scope != null) {
-				options = methodDecl.scope.compilerOptions();
-			}
-		} else if (referenceContext instanceof TypeDeclaration) {
-			TypeDeclaration typeDecl = (TypeDeclaration) referenceContext;
-			if (typeDecl.scope != null) {
-				options = typeDecl.scope.compilerOptions();
-			}
-		}
-	}
-	if (options != null) 
-		return options;
-	return this.globalOptions;
 }
 public void deprecatedField(FieldBinding field, ASTNode location) {
 	this.handle(
@@ -1431,6 +1201,232 @@ public void genericTypeCannotExtendThrowable(TypeDeclaration typeDecl) {
 		typeDecl.superclass.sourceStart,
 		typeDecl.superclass.sourceEnd);
 }
+public static long getIrritant(int problemID) {
+	switch(problemID){
+
+		case IProblem.MaskedCatch : 
+			return CompilerOptions.MaskedCatchBlock;
+
+		case IProblem.UnusedImport :
+			return CompilerOptions.UnusedImport;
+			
+		case IProblem.MethodButWithConstructorName :
+			return CompilerOptions.MethodWithConstructorName;
+		
+		case IProblem.OverridingNonVisibleMethod :
+			return CompilerOptions.OverriddenPackageDefaultMethod;
+
+		case IProblem.IncompatibleReturnTypeForNonInheritedInterfaceMethod :
+		case IProblem.IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod :
+			return CompilerOptions.IncompatibleNonInheritedInterfaceMethod;
+
+		case IProblem.OverridingDeprecatedMethod :				
+		case IProblem.UsingDeprecatedType :				
+		case IProblem.UsingDeprecatedMethod :
+		case IProblem.UsingDeprecatedConstructor :
+		case IProblem.UsingDeprecatedField :
+			return CompilerOptions.UsingDeprecatedAPI;
+		
+		case IProblem.LocalVariableIsNeverUsed :
+			return CompilerOptions.UnusedLocalVariable;
+		
+		case IProblem.ArgumentIsNeverUsed :
+			return CompilerOptions.UnusedArgument;
+
+		case IProblem.NoImplicitStringConversionForCharArrayExpression :
+			return CompilerOptions.NoImplicitStringConversion;
+
+		case IProblem.NeedToEmulateFieldReadAccess :
+		case IProblem.NeedToEmulateFieldWriteAccess :
+		case IProblem.NeedToEmulateMethodAccess :
+		case IProblem.NeedToEmulateConstructorAccess :			
+			return CompilerOptions.AccessEmulation;
+
+		case IProblem.NonExternalizedStringLiteral :
+			return CompilerOptions.NonExternalizedString;
+
+		case IProblem.UseAssertAsAnIdentifier :
+			return CompilerOptions.AssertUsedAsAnIdentifier;
+			
+		case IProblem.UseEnumAsAnIdentifier :
+			return CompilerOptions.EnumUsedAsAnIdentifier;
+
+		case IProblem.NonStaticAccessToStaticMethod :
+		case IProblem.NonStaticAccessToStaticField :
+			return CompilerOptions.NonStaticAccessToStatic;
+
+		case IProblem.IndirectAccessToStaticMethod :
+		case IProblem.IndirectAccessToStaticField :
+		case IProblem.IndirectAccessToStaticType :
+			return CompilerOptions.IndirectStaticAccess;
+
+		case IProblem.AssignmentHasNoEffect:
+			return CompilerOptions.NoEffectAssignment;
+
+		case IProblem.UnusedPrivateConstructor:
+		case IProblem.UnusedPrivateMethod:
+		case IProblem.UnusedPrivateField:
+		case IProblem.UnusedPrivateType:
+			return CompilerOptions.UnusedPrivateMember;
+
+		case IProblem.LocalVariableHidingLocalVariable:
+		case IProblem.LocalVariableHidingField:
+		case IProblem.ArgumentHidingLocalVariable:
+		case IProblem.ArgumentHidingField:
+			return CompilerOptions.LocalVariableHiding;
+
+		case IProblem.FieldHidingLocalVariable:
+		case IProblem.FieldHidingField:
+			return CompilerOptions.FieldHiding;
+
+		case IProblem.TypeParameterHidingType:
+			return CompilerOptions.TypeParameterHiding;
+			
+		case IProblem.PossibleAccidentalBooleanAssignment:
+			return CompilerOptions.AccidentalBooleanAssign;
+
+		case IProblem.SuperfluousSemicolon:
+		case IProblem.EmptyControlFlowStatement:
+			return CompilerOptions.EmptyStatement;
+
+		case IProblem.UndocumentedEmptyBlock:
+			return CompilerOptions.UndocumentedEmptyBlock;
+			
+		case IProblem.UnnecessaryCast:
+		case IProblem.UnnecessaryInstanceof:
+			return CompilerOptions.UnnecessaryTypeCheck;
+			
+		case IProblem.FinallyMustCompleteNormally:
+			return CompilerOptions.FinallyBlockNotCompleting;
+			
+		case IProblem.UnusedMethodDeclaredThrownException:
+		case IProblem.UnusedConstructorDeclaredThrownException:
+			return CompilerOptions.UnusedDeclaredThrownException;
+
+		case IProblem.UnqualifiedFieldAccess:
+			return CompilerOptions.UnqualifiedFieldAccess;
+		
+		case IProblem.UnnecessaryElse:
+			return CompilerOptions.UnnecessaryElse;
+
+		case IProblem.UnsafeRawConstructorInvocation:
+		case IProblem.UnsafeRawMethodInvocation:
+		case IProblem.UnsafeTypeConversion:
+		case IProblem.UnsafeRawFieldAssignment:
+		case IProblem.UnsafeGenericCast:
+		case IProblem.UnsafeReturnTypeOverride:
+		case IProblem.UnsafeRawGenericMethodInvocation:
+		case IProblem.UnsafeRawGenericConstructorInvocation:
+			return CompilerOptions.UncheckedTypeOperation;
+
+		case IProblem.MissingOverrideAnnotation:
+			return CompilerOptions.MissingOverrideAnnotation;
+			
+		case IProblem.FieldMissingDeprecatedAnnotation:
+		case IProblem.MethodMissingDeprecatedAnnotation:
+		case IProblem.TypeMissingDeprecatedAnnotation:
+			return CompilerOptions.MissingDeprecatedAnnotation;
+			
+		case IProblem.FinalBoundForTypeVariable:
+		    return CompilerOptions.FinalParameterBound;
+
+		case IProblem.MissingSerialVersion:
+			return CompilerOptions.MissingSerialVersion;
+		
+		case IProblem.ForbiddenReference:
+			return CompilerOptions.ForbiddenReference;
+
+		case IProblem.DiscouragedReference:
+			return CompilerOptions.DiscouragedReference;
+
+		case IProblem.MethodVarargsArgumentNeedCast :
+		case IProblem.ConstructorVarargsArgumentNeedCast :
+			return CompilerOptions.VarargsArgumentNeedCast;
+
+		case IProblem.LocalVariableCannotBeNull :
+		case IProblem.LocalVariableCanOnlyBeNull :
+			return CompilerOptions.NullReference;
+			
+		case IProblem.BoxingConversion :
+		case IProblem.UnboxingConversion :
+			return CompilerOptions.Autoboxing;
+
+		case IProblem.MissingEnumConstantCase :
+			return CompilerOptions.IncompleteEnumSwitch;
+			
+		case IProblem.AnnotationTypeUsedAsSuperInterface :
+			return CompilerOptions.AnnotationSuperInterface;
+			
+		case IProblem.JavadocUnexpectedTag:
+		case IProblem.JavadocDuplicateReturnTag:
+		case IProblem.JavadocInvalidThrowsClass:
+		case IProblem.JavadocInvalidSeeReference:
+		case IProblem.JavadocInvalidParamTagName:
+		case IProblem.JavadocInvalidParamTagTypeParameter:
+		case IProblem.JavadocMalformedSeeReference:
+		case IProblem.JavadocInvalidSeeHref:
+		case IProblem.JavadocInvalidSeeArgs:
+		case IProblem.JavadocInvalidTag:
+		case IProblem.JavadocUnterminatedInlineTag:
+		case IProblem.JavadocMissingHashCharacter:
+		case IProblem.JavadocEmptyReturnTag:
+		case IProblem.JavadocUnexpectedText:
+		case IProblem.JavadocInvalidParamName:
+		case IProblem.JavadocDuplicateParamName:
+		case IProblem.JavadocMissingParamName:
+		case IProblem.JavadocInvalidThrowsClassName:
+		case IProblem.JavadocDuplicateThrowsClassName:
+		case IProblem.JavadocMissingThrowsClassName:
+		case IProblem.JavadocMissingSeeReference:
+		case IProblem.JavadocInvalidValueReference:
+		case IProblem.JavadocUndefinedField:
+		case IProblem.JavadocAmbiguousField:
+		case IProblem.JavadocUndefinedConstructor:
+		case IProblem.JavadocAmbiguousConstructor:
+		case IProblem.JavadocUndefinedMethod:
+		case IProblem.JavadocAmbiguousMethod:
+		case IProblem.JavadocAmbiguousMethodReference:
+		case IProblem.JavadocParameterMismatch:
+		case IProblem.JavadocUndefinedType:
+		case IProblem.JavadocAmbiguousType:
+		case IProblem.JavadocInternalTypeNameProvided:
+		case IProblem.JavadocNoMessageSendOnArrayType:
+		case IProblem.JavadocNoMessageSendOnBaseType:
+		case IProblem.JavadocInheritedMethodHidesEnclosingName:
+		case IProblem.JavadocInheritedFieldHidesEnclosingName:
+		case IProblem.JavadocInheritedNameHidesEnclosingTypeName:
+		case IProblem.JavadocGenericMethodTypeArgumentMismatch:
+		case IProblem.JavadocNonGenericMethod:
+		case IProblem.JavadocIncorrectArityForParameterizedMethod:
+		case IProblem.JavadocParameterizedMethodArgumentTypeMismatch:
+		case IProblem.JavadocTypeArgumentsForRawGenericMethod:
+		case IProblem.JavadocGenericConstructorTypeArgumentMismatch:
+		case IProblem.JavadocNonGenericConstructor:
+		case IProblem.JavadocIncorrectArityForParameterizedConstructor:
+		case IProblem.JavadocParameterizedConstructorArgumentTypeMismatch:
+		case IProblem.JavadocTypeArgumentsForRawGenericConstructor:
+		case IProblem.JavadocUsingDeprecatedField:
+		case IProblem.JavadocUsingDeprecatedConstructor:
+		case IProblem.JavadocUsingDeprecatedMethod:
+		case IProblem.JavadocUsingDeprecatedType:
+		case IProblem.JavadocNotVisibleField:
+		case IProblem.JavadocNotVisibleConstructor:
+		case IProblem.JavadocNotVisibleMethod:
+		case IProblem.JavadocNotVisibleType:
+			return CompilerOptions.InvalidJavadoc;
+
+		case IProblem.JavadocMissingParamTag:
+		case IProblem.JavadocMissingReturnTag:
+		case IProblem.JavadocMissingThrowsTag:
+			return CompilerOptions.MissingJavadocTags;
+
+		case IProblem.JavadocMissing:
+			return CompilerOptions.MissingJavadocComments;
+	}
+	return 0;
+	
+}
+
 // use this private API when the compilation unit result can be found through the
 // reference context. Otherwise, use the other API taking a problem and a compilation result
 // as arguments
@@ -3149,13 +3145,13 @@ private boolean isLiteral(int token) {
 }
 public void javadocAmbiguousMethodReference(int sourceStart, int sourceEnd, Binding fieldBinding, int modifiers) {
 	int id = IProblem.JavadocAmbiguousMethodReference;
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] {new String(fieldBinding.readableName())};
 		handle(id, arguments, arguments, sourceStart, sourceEnd);
 	}
 }
 public void javadocDeprecatedField(FieldBinding field, ASTNode location, int modifiers) {
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		this.handle(
 			IProblem.JavadocUsingDeprecatedField,
 			new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
@@ -3165,7 +3161,7 @@ public void javadocDeprecatedField(FieldBinding field, ASTNode location, int mod
 	}
 }
 public void javadocDeprecatedMethod(MethodBinding method, ASTNode location, int modifiers) {
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		if (method.isConstructor()) {
 			this.handle(
 				IProblem.JavadocUsingDeprecatedConstructor,
@@ -3185,7 +3181,7 @@ public void javadocDeprecatedMethod(MethodBinding method, ASTNode location, int 
 }
 public void javadocDeprecatedType(TypeBinding type, ASTNode location, int modifiers) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		this.handle(
 			IProblem.JavadocUsingDeprecatedType,
 			new String[] {new String(type.readableName())},
@@ -3195,7 +3191,7 @@ public void javadocDeprecatedType(TypeBinding type, ASTNode location, int modifi
 	}
 }
 public void javadocDuplicatedParamTag(char[] token, int sourceStart, int sourceEnd, int modifiers) {
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] {String.valueOf(token)};
 		this.handle(IProblem.JavadocDuplicateParamName, arguments, arguments, sourceStart, sourceEnd);
 	}
@@ -3204,7 +3200,7 @@ public void javadocDuplicatedReturnTag(int sourceStart, int sourceEnd){
 	this.handle(IProblem.JavadocDuplicateReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocDuplicatedThrowsClassName(TypeReference typeReference, int modifiers) {
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] {String.valueOf(typeReference.resolvedType.sourceName())};
 		this.handle(IProblem.JavadocDuplicateThrowsClassName, arguments, arguments, typeReference.sourceStart, typeReference.sourceEnd);
 	}
@@ -3225,7 +3221,7 @@ public void javadocErrorNoMethodFor(MessageSend messageSend, TypeBinding recType
 	}
 
 	int id = recType.isArrayType() ? IProblem.JavadocNoMessageSendOnArrayType : IProblem.JavadocNoMessageSendOnBaseType;
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		this.handle(
 			id,
 			new String[] {new String(recType.readableName()), new String(messageSend.selector), buffer.toString()},
@@ -3236,7 +3232,7 @@ public void javadocErrorNoMethodFor(MessageSend messageSend, TypeBinding recType
 }
 public void javadocInvalidConstructor(Statement statement, MethodBinding targetConstructor, int modifiers) {
 
-	if (!javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) return;
+	if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) return;
 	int sourceStart = statement.sourceStart;
 	int sourceEnd = statement.sourceEnd;
 	if (statement instanceof AllocationExpression) {
@@ -3402,7 +3398,7 @@ public void javadocInvalidField(int sourceStart, int sourceEnd, Binding fieldBin
 			break;
 	}
 	// report issue
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] {new String(fieldBinding.readableName())};
 		handle(id, arguments, arguments, sourceStart, sourceEnd);
 	}
@@ -3415,7 +3411,7 @@ public void javadocInvalidField(int sourceStart, int sourceEnd, Binding fieldBin
  * 	- ReceiverTypeNotVisible :
  */
 public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, int modifiers) {
-	if (!javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) return;
+	if (!javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) return;
 	// set problem id
 	ProblemMethodBinding problemMethod = null;
 	MethodBinding shownMethod = null;
@@ -3602,13 +3598,13 @@ public void javadocInvalidThrowsClass(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocInvalidThrowsClass, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocInvalidThrowsClassName(TypeReference typeReference, int modifiers) {
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] {String.valueOf(typeReference.resolvedType.sourceName())};
 		this.handle(IProblem.JavadocInvalidThrowsClassName, arguments, arguments, typeReference.sourceStart, typeReference.sourceEnd);
 	}
 }
 public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers) {
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		int id = IProblem.JavadocUndefinedType; // default
 		switch (type.problemId()) {
 			case NotFound :
@@ -3640,19 +3636,18 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 	}
 }
 public void javadocInvalidValueReference(int sourceStart, int sourceEnd, int modifiers) {
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers))
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
 		this.handle(IProblem.JavadocInvalidValueReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMalformedSeeReference(int sourceStart, int sourceEnd) {
 	this.handle(IProblem.JavadocMalformedSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissing(int sourceStart, int sourceEnd, int modifiers){
-	CompilerOptions cOptions = customOptions();
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing|CompilerModifiers.AccOverriding)) != 0;
-	boolean report = (cOptions.getSeverity(CompilerOptions.MissingJavadocComments) != ProblemSeverities.Ignore)
-					&& (!overriding || cOptions.reportMissingJavadocCommentsOverriding);
+	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocComments) != ProblemSeverities.Ignore)
+					&& (!overriding || this.options.reportMissingJavadocCommentsOverriding);
 	if (report) {
-		String arg = javadocVisibilityArgument(cOptions.reportMissingJavadocCommentsVisibility, modifiers);
+		String arg = javadocVisibilityArgument(this.options.reportMissingJavadocCommentsVisibility, modifiers);
 		if (arg != null) {
 			String[] arguments = new String[] { arg };
 			this.handle(IProblem.JavadocMissing, arguments, arguments, sourceStart, sourceEnd);
@@ -3664,48 +3659,45 @@ public void javadocMissingHashCharacter(int sourceStart, int sourceEnd, String r
 	this.handle(IProblem.JavadocMissingHashCharacter, arguments, arguments, sourceStart, sourceEnd);
 }
 public void javadocMissingParamName(int sourceStart, int sourceEnd, int modifiers){
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers))
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
 		this.handle(IProblem.JavadocMissingParamName, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingParamTag(char[] name, int sourceStart, int sourceEnd, int modifiers) {
-	CompilerOptions cOptions = customOptions();
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing|CompilerModifiers.AccOverriding)) != 0;
-	boolean report = (cOptions.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
-					&& (!overriding || cOptions.reportMissingJavadocTagsOverriding);
-	if (report && javadocVisibility(cOptions.reportMissingJavadocTagsVisibility, modifiers)) {
+	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
+					&& (!overriding || this.options.reportMissingJavadocTagsOverriding);
+	if (report && javadocVisibility(this.options.reportMissingJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] { String.valueOf(name) };
 		this.handle(IProblem.JavadocMissingParamTag, arguments, arguments, sourceStart, sourceEnd);
 	}
 }
 public void javadocMissingReference(int sourceStart, int sourceEnd, int modifiers){
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers))
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
 		this.handle(IProblem.JavadocMissingSeeReference, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingReturnTag(int sourceStart, int sourceEnd, int modifiers){
-	CompilerOptions cOptions = customOptions();
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing|CompilerModifiers.AccOverriding)) != 0;
-	boolean report = (cOptions.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
-					&& (!overriding || cOptions.reportMissingJavadocTagsOverriding);
-	if (report && javadocVisibility(cOptions.reportMissingJavadocTagsVisibility, modifiers)) {
+	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
+					&& (!overriding || this.options.reportMissingJavadocTagsOverriding);
+	if (report && javadocVisibility(this.options.reportMissingJavadocTagsVisibility, modifiers)) {
 		this.handle(IProblem.JavadocMissingReturnTag, NoArgument, NoArgument, sourceStart, sourceEnd);
 	}
 }
 public void javadocMissingThrowsClassName(int sourceStart, int sourceEnd, int modifiers){
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers))
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
 		this.handle(IProblem.JavadocMissingThrowsClassName, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingThrowsTag(TypeReference typeRef, int modifiers){
-	CompilerOptions cOptions = customOptions();
 	boolean overriding = (modifiers & (CompilerModifiers.AccImplementing|CompilerModifiers.AccOverriding)) != 0;
-	boolean report = (cOptions.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
-					&& (!overriding || cOptions.reportMissingJavadocTagsOverriding);
-	if (report && javadocVisibility(cOptions.reportMissingJavadocTagsVisibility, modifiers)) {
+	boolean report = (this.options.getSeverity(CompilerOptions.MissingJavadocTags) != ProblemSeverities.Ignore)
+					&& (!overriding || this.options.reportMissingJavadocTagsOverriding);
+	if (report && javadocVisibility(this.options.reportMissingJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] { String.valueOf(typeRef.resolvedType.sourceName()) };
 		this.handle(IProblem.JavadocMissingThrowsTag, arguments, arguments, typeRef.sourceStart, typeRef.sourceEnd);
 	}
 }
 public void javadocUndeclaredParamTagName(char[] token, int sourceStart, int sourceEnd, int modifiers) {
-	if (javadocVisibility(customOptions().reportInvalidJavadocTagsVisibility, modifiers)) {
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		String[] arguments = new String[] {String.valueOf(token)};
 		this.handle(IProblem.JavadocInvalidParamName, arguments, arguments, sourceStart, sourceEnd);
 	}
@@ -3787,7 +3779,7 @@ public void localVariableHiding(LocalDeclaration local, Binding hiddenVariable, 
 			local.sourceStart,
 			local.sourceEnd);
 	} else if (hiddenVariable instanceof FieldBinding) {
-		if (isSpecialArgHidingField && !customOptions().reportSpecialParameterHidingField){
+		if (isSpecialArgHidingField && !this.options.reportSpecialParameterHidingField){
 			return;
 		}
 		FieldBinding field = (FieldBinding) hiddenVariable;
