@@ -1369,19 +1369,42 @@ public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws Il
 				return result;
 			}
 			i = CharOperation.indexOf(C_COLON, methodOrTypeSignature, i);
-			if (i < 0 || i >= length) throw new IllegalArgumentException();
+			if (i < 0 || i >= length) 
+				throw new IllegalArgumentException();
 			// iterate over bounds
 			nextBound: while (methodOrTypeSignature[i] == ':') {
 				i++; // skip colon
 				switch (methodOrTypeSignature[i]) {
 					case ':':
-						continue nextBound; // empty bound
+						// no class bound
+						break; 
 					case C_GENERIC_END:
 						break;
-					default:
-						i = Util.scanTypeSignature(methodOrTypeSignature, i);
-						i++; // position at start of next param if any
+					case C_RESOLVED:
+						try {
+							i = Util.scanClassTypeSignature(methodOrTypeSignature, i);
+							i++; // position at start of next param if any
+						} catch (IllegalArgumentException e) {
+							// not a class type signature -> it is a new type parameter
+						}
 						break;
+					case C_ARRAY:
+						try {
+							i = Util.scanArrayTypeSignature(methodOrTypeSignature, i);
+							i++; // position at start of next param if any
+						} catch (IllegalArgumentException e) {
+							// not an array type signature -> it is a new type parameter
+						}
+						break;
+					case C_TYPE_VARIABLE:
+						try {
+							i = Util.scanTypeVariableSignature(methodOrTypeSignature, i);
+							i++; // position at start of next param if any
+						} catch (IllegalArgumentException e) {
+							// not a type variable signature -> it is a new type parameter
+						}							
+						break;
+					// default: another type parameter is starting
 				}
 			}
 			paramList.add(CharOperation.subarray(methodOrTypeSignature, paramStart, i));

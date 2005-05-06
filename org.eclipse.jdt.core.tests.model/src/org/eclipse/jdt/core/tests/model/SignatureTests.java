@@ -39,7 +39,7 @@ static {
 	// Prefix for tests names to run
 //	TESTS_PREFIX =  "testGetTypeErasure";
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_NAMES = new String[] { "testGetTypeParameters3" };
+//	TESTS_NAMES = new String[] { "testGetTypeParameters4" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	TESTS_NUMBERS = new int[] { 8 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -377,6 +377,40 @@ public void testGetTypeParameters3() {
 	assertStringsEqual(
 			"Unexpected type parameters", 
 			"E:\n",
+			Signature.getTypeParameters(sig));
+}
+/**
+ * @see Signature
+ * (regression test for bug 93662 Singature#getTypeParameters returns strange signature string)
+ */
+public void testGetTypeParameters4() {
+	String sig = "<K:V:>Ljava.util.AbstractMap;";
+	assertStringsEqual(
+			"Unexpected type parameters", 
+			"K:\n" +
+			"V:\n",
+			Signature.getTypeParameters(sig));
+}
+/**
+ * @see Signature
+ * (regression test for bug 93662 Singature#getTypeParameters returns strange signature string)
+ */
+public void testGetTypeParameters5() {
+	String sig = "<L:T:>Ljava.util.AbstractMap;";
+	assertStringsEqual(
+			"Unexpected type parameters", 
+			"L:\n" +
+			"T:\n",
+			Signature.getTypeParameters(sig));
+}
+/**
+ * @see Signature
+ */
+public void testGetTypeParameters6() {
+	String sig = "<E::Lp/I;>Lp1/X;";
+	assertStringsEqual(
+			"Unexpected type parameters", 
+			"E::Lp/I;\n",
 			Signature.getTypeParameters(sig));
 }
 /**
