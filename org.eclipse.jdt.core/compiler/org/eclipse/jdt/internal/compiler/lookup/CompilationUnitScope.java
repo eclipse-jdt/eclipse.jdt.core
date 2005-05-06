@@ -316,9 +316,15 @@ void faultInImports() {
 				problemReporter().cannotImportPackage(importReference);
 				continue nextImport;
 			}
+			ReferenceBinding conflictingType = null;
+			if (importBinding instanceof MethodBinding) {
+				conflictingType = (ReferenceBinding) getType(compoundName, compoundName.length);
+				if (!conflictingType.isValidBinding())
+					conflictingType = null;
+			}
 			// collisions between an imported static field & a type should be checked according to spec... but currently not by javac
-			if (importBinding instanceof ReferenceBinding) {
-				ReferenceBinding referenceBinding = (ReferenceBinding) importBinding;
+			if (importBinding instanceof ReferenceBinding || conflictingType != null) {
+				ReferenceBinding referenceBinding = conflictingType == null ? (ReferenceBinding) importBinding : conflictingType;
 				if (importReference.isTypeUseDeprecated(referenceBinding, this))
 					problemReporter().deprecatedType(referenceBinding, importReference);
 
@@ -350,7 +356,9 @@ void faultInImports() {
 					}
 				}
 			}
-			resolvedImports[index++] = new ImportBinding(compoundName, false, importBinding, importReference);
+			resolvedImports[index++] = conflictingType == null
+				? new ImportBinding(compoundName, false, importBinding, importReference)
+				: new ImportConflictBinding(compoundName, importBinding, conflictingType, importReference);
 		}
 	}
 
@@ -363,7 +371,7 @@ void faultInImports() {
 	this.typeOrPackageCache = new HashtableOfObject(length);
 	for (int i = 0; i < length; i++) {
 		ImportBinding binding = imports[i];
-		if (!binding.onDemand && binding.resolvedImport instanceof ReferenceBinding)
+		if (!binding.onDemand && binding.resolvedImport instanceof ReferenceBinding || binding instanceof ImportConflictBinding)
 			this.typeOrPackageCache.put(binding.compoundName[binding.compoundName.length - 1], binding);
 	}
 }

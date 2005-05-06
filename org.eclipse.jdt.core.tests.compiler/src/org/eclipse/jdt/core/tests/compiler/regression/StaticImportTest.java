@@ -996,7 +996,8 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	^^^\n" + 
 			"foo cannot be resolved to a type\n" + 
 			"----------\n");
-	}	
+	}
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87490
 	public void test028() {
 		this.runConformTest(
@@ -1034,5 +1035,42 @@ public class StaticImportTest extends AbstractComparableTest {
 			null,
 			false,
 			null);
-	}		
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93913
+	public void test029() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/A.java",
+				"package p1;\n" + 
+				"import static p2.C.B;\n" + 
+				"public class A extends B {\n" + 
+				"	void test() {" +
+				"		int i = B();\n" +
+				"		B b = null;\n" +
+				"		b.fooB();\n" +
+				"		b.fooC();\n" +
+				"		fooC();\n" +
+				"	}\n" + 
+				"}\n",
+				"p1/B.java",
+				"package p1;\n" + 
+				"public class B {\n" + 
+				"	public void fooB() {}\n" + 
+				"}\n",
+				"p2/C.java",
+				"package p2;\n" + 
+				"public class C {\n" + 
+				"	public static class B { public void fooC() {} }\n" + 
+				"	public static int B() { return 0; }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in p1\\A.java (at line 6)\n" + 
+			"	b.fooB();\n" + 
+			"	  ^^^^\n" + 
+			"The method fooB() is undefined for the type C.B\n" + 
+			"----------\n"
+		);
+	}
 }

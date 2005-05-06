@@ -2436,7 +2436,10 @@ public abstract class Scope
 				if (binding instanceof ImportBinding) { // single type import cached in faultInImports(), replace it in the cache with the type
 					ImportReference importReference = ((ImportBinding) binding).reference;
 					if (importReference != null) importReference.used = true;
-					typeOrPackageCache.put(name, binding = ((ImportBinding) binding).resolvedImport); // already know its visible
+					if (binding instanceof ImportConflictBinding)
+						typeOrPackageCache.put(name, binding = ((ImportConflictBinding) binding).conflictingTypeBinding); // already know its visible
+					else
+						typeOrPackageCache.put(name, binding = ((ImportBinding) binding).resolvedImport); // already know its visible
 				}
 				if ((mask & Binding.TYPE) != 0) {
 					if (foundType != null && foundType.problemId() != NotVisible && binding.problemId() != Ambiguous)
@@ -2453,13 +2456,18 @@ public abstract class Scope
 		if ((mask & Binding.TYPE) != 0) {
 			ImportBinding[] imports = unitScope.imports;
 			if (imports != null && typeOrPackageCache == null) { // walk single type imports since faultInImports() has not run yet
-				for (int i = 0, length = imports.length; i < length; i++) {
-					ImportBinding typeImport = imports[i];
-					if (!typeImport.onDemand) {
-						if (CharOperation.equals(typeImport.compoundName[typeImport.compoundName.length - 1], name)) {
-							Binding resolvedImport = unitScope.resolveSingleImport(typeImport);
-							if (resolvedImport != null && resolvedImport instanceof TypeBinding) {
-								ImportReference importReference = typeImport.reference;
+				nextImport : for (int i = 0, length = imports.length; i < length; i++) {
+					ImportBinding importBinding = imports[i];
+					if (!importBinding.onDemand) {
+						if (CharOperation.equals(importBinding.compoundName[importBinding.compoundName.length - 1], name)) {
+							Binding resolvedImport = unitScope.resolveSingleImport(importBinding);
+							if (resolvedImport == null) continue nextImport;
+							if (resolvedImport instanceof MethodBinding) {
+								resolvedImport = (ReferenceBinding) getType(importBinding.compoundName, importBinding.compoundName.length);
+								if (!resolvedImport.isValidBinding()) continue nextImport;
+							}
+							if (resolvedImport instanceof TypeBinding) {
+								ImportReference importReference = importBinding.reference;
 								if (importReference != null)
 									importReference.used = true;
 								return resolvedImport; // already know its visible
