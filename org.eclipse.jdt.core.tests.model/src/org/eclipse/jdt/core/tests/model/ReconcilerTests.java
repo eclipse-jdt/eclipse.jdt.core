@@ -1636,9 +1636,9 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 	);
 }
 /*
- * Ensure that warning are suppressed by an @SuppressWarning annotation.
+ * Ensure that warning are suppressed by an @SuppressWarnings annotation.
  */
-// TODO (jerome or philippe) reenable when this test is no longer failing
+// TODO (philippe) reenable once fixed
 public void _testSuppressWarnings1() throws JavaModelException {
 	ICompilationUnit otherCopy = null;
 	try {

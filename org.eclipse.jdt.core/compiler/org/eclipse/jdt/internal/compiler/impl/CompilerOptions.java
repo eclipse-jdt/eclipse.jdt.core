@@ -891,8 +891,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 					return "fieldHiding"; //$NON-NLS-1$
 				case (int) AccidentalBooleanAssign :
 					return "conditionAssign"; //$NON-NLS-1$
-				case (int) EmptyStatement :								// TODO (philippe) still needed ?
-					return "emptyBlock"; //$NON-NLS-1$
+				case (int) EmptyStatement :		
+					return "semicolon"; //$NON-NLS-1$
 				case (int) MissingJavadocComments :
 				case (int) MissingJavadocTags :
 				case (int) InvalidJavadoc :
@@ -977,7 +977,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				break;
 			case 'e' :
 				if ("emptyBlock".equals(warningToken)) //$NON-NLS-1$
-					return EmptyStatement | UndocumentedEmptyBlock;
+					return UndocumentedEmptyBlock;
 				if ("enumIdentifier".equals(warningToken)) //$NON-NLS-1$
 					return EnumUsedAsAnIdentifier;
 				if ("enumSwitch".equals(warningToken)) //$NON-NLS-1$
@@ -1038,6 +1038,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 					return NonStaticAccessToStatic;
 				if ("serial".equals(warningToken)) //$NON-NLS-1$
 					return MissingSerialVersion;
+				if ("semicolon".equals(warningToken)) //$NON-NLS-1$
+					return EmptyStatement;
 				break;
 			case 't' :
 				if ("typeHiding".equals(warningToken)) //$NON-NLS-1$
