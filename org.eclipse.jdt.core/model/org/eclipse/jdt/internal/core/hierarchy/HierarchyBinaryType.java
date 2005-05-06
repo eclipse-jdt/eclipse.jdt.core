@@ -85,8 +85,6 @@ public char[] getGenericSignature() {
 		buffer.append('<');
 		for (int i = 0, length = this.typeParameterSignatures.length; i < length; i++) {
 			buffer.append(this.typeParameterSignatures[i]);
-			if (i != length-1)
-				buffer.append(',');
 		}
 		buffer.append('>');
 		if (this.superclass == null)
