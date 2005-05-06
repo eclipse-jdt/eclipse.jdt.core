@@ -29,6 +29,9 @@ private static Class[] getAllTestClasses() {
 	Class[] classes = new Class[] {
 	
 		// Enter each test here, grouping the tests that are related
+			
+		// Binding key tests
+		BindingKeyTests.class,
 
 		// creation of method
 		CreateMembersTests.class,
