@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -4090,5 +4091,267 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
+    }
+    // check @SuppressWarning support
+    public void test130() {
+    	Map customOptions = new Hashtable();
+		String[] warnings = CompilerOptions.warningOptionNames();
+		for (int i = 0, ceil = warnings.length; i < ceil; i++) {
+			customOptions.put(warnings[i], CompilerOptions.WARNING);
+		}
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"  }\n" + 
+				"}\n",
+            },
+    		"----------\n" + 
+    		"1. WARNING in X.java (at line 1)\n" + 
+    		"	public class X {\n" + 
+    		"	             ^\n" + 
+    		"Javadoc: Missing comment for public declaration\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 2)\n" + 
+    		"	public static void main(String[] args) {\n" + 
+    		"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Javadoc: Missing comment for public declaration\n" + 
+    		"----------\n" + 
+    		"3. WARNING in X.java (at line 2)\n" + 
+    		"	public static void main(String[] args) {\n" + 
+    		"  }\n" + 
+    		"	                                       ^^^^^\n" + 
+    		"Empty block should be documented\n" + 
+    		"----------\n",
+			null, true, customOptions);
     }       
+    // check @SuppressWarning support
+    public void test131() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "@SuppressWarnings(\"all\")\n" + 
+                "public class X {\n" + 
+		        "  public static void main(String[] args) {\n" + 
+		        "    Zork z;\n" + 
+		        "  }\n" + 
+		        "}\n",
+            },
+            "----------\n" + 
+            "1. ERROR in X.java (at line 4)\n" + 
+            "	Zork z;\n" + 
+            "	^^^^\n" + 
+            "Zork cannot be resolved to a type\n" + 
+            "----------\n");
+    }       
+    // check @SuppressWarning support
+    public void test132() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			"import java.io.Serializable;\n" + 
+    			"import java.util.List;\n" + 
+    			"import java.util.Vector;\n" + 
+    			"\n" + 
+    			"public class X {\n" + 
+    			"	public static void main(String[] args) {\n" + 
+    			"		W.deprecated();\n" + 
+    			"		List<X> l = new Vector();\n" + 
+    			"		l.size();\n" + 
+    			"		try {\n" + 
+    			"			// do nothing\n" + 
+    			"		} finally {\n" + 
+    			"			throw new Error();\n" + 
+    			"		}\n" + 
+    			"		// Zork z;\n" + 
+    			"	}\n" + 
+    			"\n" + 
+    			"	class S implements Serializable {\n" + 
+    			"		String dummy;\n" + 
+    			"	}\n" + 
+    			"}",
+    			"W.java",
+    			"public class W {\n" + 
+    			"	// @deprecated\n" + 
+    			"	@Deprecated\n" + 
+    			"	static void deprecated() {\n" + 
+    			"		// do nothing\n" + 
+    			"	}\n" + 
+    			"}\n"
+            },
+    		"----------\n" + 
+    		"1. WARNING in X.java (at line 7)\n" + 
+    		"	W.deprecated();\n" + 
+    		"	^^^^^^^^^^^^^^\n" + 
+    		"The method deprecated() from the type W is deprecated\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 8)\n" + 
+    		"	List<X> l = new Vector();\n" + 
+    		"	            ^^^^^^^^^^^^\n" + 
+    		"Type safety: The expression of type Vector needs unchecked conversion to conform to List<X>\n" + 
+    		"----------\n" + 
+    		"3. WARNING in X.java (at line 12)\n" + 
+    		"	} finally {\n" + 
+    		"			throw new Error();\n" + 
+    		"		}\n" + 
+    		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"finally block does not complete normally\n" + 
+    		"----------\n" + 
+    		"4. WARNING in X.java (at line 18)\n" + 
+    		"	class S implements Serializable {\n" + 
+    		"	      ^\n" + 
+    		"The serializable class S does not declare a static final serialVersionUID field of type long\n" + 
+    		"----------\n");
+    }
+    // check @SuppressWarning support
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89436
+    public void test133() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			"import java.io.Serializable;\n" + 
+    			"import java.util.List;\n" + 
+    			"import java.util.Vector;\n" + 
+    			"\n" + 
+    			"@SuppressWarnings( { \"deprecation\",//$NON-NLS-1$\n" + 
+    			"		\"finally\",//$NON-NLS-1$\n" + 
+    			"		\"serial\",//$NON-NLS-1$\n" + 
+    			"		\"unchecked\"//$NON-NLS-1$\n" + 
+    			"})\n" + 
+    			"public class X {\n" + 
+    			"	public static void main(String[] args) {\n" + 
+    			"		W.deprecated();\n" + 
+    			"		List<X> l = new Vector();\n" + 
+    			"		l.size();\n" + 
+    			"		try {\n" + 
+    			"			// do nothing\n" + 
+    			"		} finally {\n" + 
+    			"			throw new Error();\n" + 
+    			"		}\n" + 
+    			"		Zork z;\n" + 
+    			"	}\n" + 
+    			"\n" + 
+    			"	class S implements Serializable {\n" + 
+    			"		String dummy;\n" + 
+    			"	}\n" + 
+    			"}",
+    			"W.java",
+    			"public class W {\n" + 
+    			"	// @deprecated\n" + 
+    			"	@Deprecated\n" + 
+    			"	static void deprecated() {\n" + 
+    			"		// do nothing\n" + 
+    			"	}\n" + 
+    			"}\n"
+            },
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 20)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }           
+    // check @SuppressWarning support
+    public void test134() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			"import java.io.Serializable;\n" + 
+    			"import java.util.List;\n" + 
+    			"import java.util.Vector;\n" + 
+    			"\n" + 
+    			"public class X {\n" + 
+    			"	@SuppressWarnings( { \"deprecation\",//$NON-NLS-1$\n" + 
+    			"			\"finally\",//$NON-NLS-1$\n" + 
+    			"			\"unchecked\"//$NON-NLS-1$\n" + 
+    			"	})\n" + 
+    			"	public static void main(String[] args) {\n" + 
+    			"		W.deprecated();\n" + 
+    			"		List<X> l = new Vector();\n" + 
+    			"		l.size();\n" + 
+    			"		try {\n" + 
+    			"			// do nothing\n" + 
+    			"		} finally {\n" + 
+    			"			throw new Error();\n" + 
+    			"		}\n" + 
+    			"		Zork z;\n" + 
+    			"	}\n" + 
+    			"\n" + 
+    			"	@SuppressWarnings(\"unchecked\"//$NON-NLS-1$\n" + 
+    			"	)\n" + 
+    			"	List<X> l = new Vector();\n" + 
+    			"\n" + 
+    			"	@SuppressWarnings(\"serial\"//$NON-NLS-1$\n" + 
+    			"	)\n" + 
+    			"	class S implements Serializable {\n" + 
+    			"		String dummy;\n" + 
+    			"	}\n" + 
+    			"}",
+    			"W.java",
+    			"public class W {\n" + 
+    			"	// @deprecated\n" + 
+    			"	@Deprecated\n" + 
+    			"	static void deprecated() {\n" + 
+    			"		// do nothing\n" + 
+    			"	}\n" + 
+    			"}\n"
+            },
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 19)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }
+    // check @SuppressWarning support
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=69505 -- NOT READY YET: "all" only so far, no file support -- 
+    //                                                        hence no import support
+    public void _test135() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			"@SuppressWarnings(\"all\")//$NON-NLS-1$\n" + 
+    			"import java.util.List;\n" + 
+    			"\n" + 
+    			"public class X {\n" + 
+    			"	public static void main(String[] args) {\n" + 
+    			"		if (false) {\n" + 
+    			"			;\n" + 
+    			"		} else {\n" + 
+    			"		}\n" + 
+    			"		Zork z;\n" + 
+    			"	}\n" + 
+    			"}"
+            },
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 11)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
+    }  
+    // check @SuppressWarning support
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=71968
+    public void test136() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			"public class X {\n" + 
+    			"	@SuppressWarnings(\"unusedPrivate\"//$NON-NLS-1$\n" + 
+    			"	)\n" + 
+    			"	private static final String marker = \"never used mark\"; //$NON-NLS-1$\n" + 
+    			"\n" + 
+    			"	public static void main(String[] args) {\n" + 
+    			"		Zork z;\n" + 
+    			"	}\n" + 
+    			"}"
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }  
 }
