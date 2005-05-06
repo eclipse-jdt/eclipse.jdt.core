@@ -35,7 +35,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-		TESTS_NAMES = new String[] { "test127" };
+//		TESTS_NAMES = new String[] { "test127" };
 //		TESTS_NUMBERS = new int[] { 122 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
