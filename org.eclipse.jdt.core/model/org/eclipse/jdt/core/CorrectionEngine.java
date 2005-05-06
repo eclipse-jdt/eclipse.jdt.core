@@ -409,7 +409,7 @@ public class CorrectionEngine implements ProblemReasons {
 	 * <code>null</code> will be returned. 
 	 * <p>
 	 * <b>Note:</b> <code>@SuppressWarnings</code> can only suppress warnings, 
-	 * which means that if certain problems got promoted to ERROR using certain compiler 
+	 * which means that if some problems got promoted to ERROR using custom compiler 
 	 * settings ({@link IJavaProject#setOption(String, String)}), the 
 	 * <code>@SuppressWarnings</code> annotation will be ineffective.
 	 * </p>
