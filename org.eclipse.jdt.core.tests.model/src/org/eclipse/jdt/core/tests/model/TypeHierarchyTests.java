@@ -67,7 +67,11 @@ public void setUpSuite() throws Exception {
 		"util/List.java",
 		"package util;\n" + 
 		"public interface List<E> {\n" + 
-		"}"
+		"}",
+		"util/Map.java",
+		"package util;\n" + 
+		"public class Map<K,V> extends AbstractList<V> {\n" + 
+		"}",
 	}, JavaCore.VERSION_1_5);
 	createFile(
 		"/TypeHierarchy15/src/X.java", 
@@ -923,6 +927,17 @@ public void testGeneric5() throws JavaModelException {
 		"  A [in A.java [in <default> [in src [in TypeHierarchy15]]]]\n",
 		hierarchy
 	);
+}
+/*
+ * Ensure that the key of a binary type in a hierarchy is correct when this type is not part of the Java model cache.
+ * (regression test for bug 93854 IAE in Util.scanTypeSignature when scanning a signature retrieved from a binding key)
+ */
+public void testGeneric6() throws CoreException {
+	getJavaProject("TypeHierarcht15").close();
+	IType type = getClassFile("TypeHierarchy15","lib15.jar", "util", "AbstractList.class").getType();
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] subtypes = hierarchy.getSubtypes(type);
+	assertEquals("Unexpected key", "Lutil/Map<TK;TV;>;", subtypes.length < 2 ? null : subtypes[1].getKey());
 }
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.
