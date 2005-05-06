@@ -140,7 +140,6 @@ public class NameLookup implements SuffixConstants {
 		}
 		if (workingCopies != null) {
 			this.unitsToLookInside = new HashMap();
-			HashSet visited = new HashSet();
 			for (int i = 0, length = workingCopies.length; i < length; i++) {
 				ICompilationUnit workingCopy = workingCopies[i];
 				PackageFragment pkg = (PackageFragment) workingCopy.getParent();
@@ -173,7 +172,6 @@ public class NameLookup implements SuffixConstants {
 				
 				// add root of package fragment to cache
 				IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
-				if (visited.contains(root)) continue;
 				String[] pkgName = pkg.names;
 				Object existing = this.packageFragments.get(pkgName);
 				if (existing == null) {
@@ -199,7 +197,6 @@ public class NameLookup implements SuffixConstants {
 						}
 					}
 				}
-				visited.add(root);
 			}
 		}
 		this.rootToResolvedEntries = rootToResolvedEntries;
