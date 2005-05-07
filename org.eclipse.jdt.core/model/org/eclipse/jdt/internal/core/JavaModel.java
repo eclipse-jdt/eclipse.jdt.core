@@ -49,7 +49,14 @@ public class JavaModel extends Openable implements IJavaModel {
 	 * Note this cache is kept for the whole session.
 	 */ 
 	public static HashSet existingExternalFiles = new HashSet();
-		
+
+	/**
+	 * A set of external files ({@link #existingExternalFiles}) which have
+	 * been confirmed as file (ie. which returns true to {@link java.io.File#isFile()}.
+	 * Note this cache is kept for the whole session.
+	 */ 
+	public static HashSet existingExternalConfirmedFiles = new HashSet();
+
 /**
  * Constructs a new Java Model on the given workspace.
  * Note that only one instance of JavaModel handle should ever be created.
@@ -160,6 +167,7 @@ public int getElementType() {
  */
 public static void flushExternalFileCache() {
 	existingExternalFiles = new HashSet();
+	existingExternalConfirmedFiles = new HashSet();
 }
 
 /*
@@ -366,5 +374,30 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 		}
 	}
 	return null;	
+}
+
+/**
+ * Helper method - returns whether an object is afile (ie. which returns true to {@link java.io.File#isFile()}.
+ */
+public static boolean isFile(Object target) {
+	return getFile(target) != null;
+}
+
+/**
+ * Helper method - returns the file item (ie. which returns true to {@link java.io.File#isFile()},
+ * or null if unbound
+ */
+public static File getFile(Object target) {
+	if (existingExternalConfirmedFiles.contains(target))
+		return (File) target;
+	if (target instanceof File) {
+		File f = (File) target;
+		if (f.isFile()) {
+			existingExternalConfirmedFiles.add(f);
+			return f;
+		}
+	}
+	
+	return null;
 }
 }

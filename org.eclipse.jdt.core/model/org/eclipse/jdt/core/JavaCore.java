@@ -2544,8 +2544,8 @@ public final class JavaCore extends Plugin {
 		}
 		// outside the workspace
 		if (target instanceof File) {
-			File externalFile = (File) target;
-			if (externalFile.isFile()) {
+			File externalFile = JavaModel.getFile(target);
+			if (externalFile != null) {
 				String fileName = externalFile.getName().toLowerCase();
 				if (fileName.endsWith(SuffixConstants.SUFFIX_STRING_jar) || fileName.endsWith(SuffixConstants.SUFFIX_STRING_zip)) { 
 					// external binary archive

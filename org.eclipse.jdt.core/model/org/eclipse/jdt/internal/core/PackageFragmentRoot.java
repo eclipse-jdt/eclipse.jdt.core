@@ -374,8 +374,8 @@ public IClasspathEntry findSourceAttachmentRecommendation() {
 						return entry;
 					}
 				} else if (target instanceof java.io.File){
-					java.io.File file = (java.io.File) target;
-					if (file.isFile()) {
+					java.io.File file = JavaModel.getFile(target);
+					if (file != null) {
 						if (org.eclipse.jdt.internal.compiler.util.Util.isArchiveFileName(file.getName())){
 							return entry;
 						}
