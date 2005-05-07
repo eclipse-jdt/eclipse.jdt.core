@@ -1357,6 +1357,9 @@ public static long getIrritant(int problemID) {
 		case IProblem.AnnotationTypeUsedAsSuperInterface :
 			return CompilerOptions.AnnotationSuperInterface;
 			
+		case IProblem.UnhandledWarningToken :
+			return CompilerOptions.UnhandledWarningToken;
+			
 		case IProblem.JavadocUnexpectedTag:
 		case IProblem.JavadocDuplicateReturnTag:
 		case IProblem.JavadocInvalidThrowsClass:
@@ -5187,6 +5190,15 @@ public void unreachableCode(Statement statement) {
 		NoArgument,
 		statement.sourceStart,
 		statement.sourceEnd);
+}
+public void unhandledWarningToken(Expression token) {
+	String[] arguments = new String[] { token.constant.stringValue() };
+	this.handle(
+		IProblem.UnhandledWarningToken,
+		arguments,
+		arguments,
+		token.sourceStart,
+		token.sourceEnd);
 }
 public void unresolvableReference(NameReference nameRef, Binding binding) {
 	int severity = Error;

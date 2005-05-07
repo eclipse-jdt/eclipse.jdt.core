@@ -4370,6 +4370,7 @@ public class AnnotationTest extends AbstractComparableTest {
     			"import java.util.List;\n" + 
     			"import java.util.Vector;\n" + 
     			"\n" + 
+    			"@SuppressWarnings(\"all\")//$NON-NLS-1$\n" + 
     			"public class X {\n" + 
     			"	public static void main(String[] args) {\n" + 
     			"		W.deprecated();\n" + 
@@ -4380,7 +4381,7 @@ public class AnnotationTest extends AbstractComparableTest {
     			"		} finally {\n" + 
     			"			throw new Error();\n" + 
     			"		}\n" + 
-    			"		// Zork z;\n" + 
+    			"		Zork z;\n" + 
     			"	}\n" + 
     			"\n" + 
     			"	class S implements Serializable {\n" + 
@@ -4397,34 +4398,32 @@ public class AnnotationTest extends AbstractComparableTest {
     			"}\n"
             },
 			"----------\n" + 
-			"1. WARNING in X.java (at line 5)\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
 			"	public class X {\n" + 
 			"	             ^\n" + 
 			"Javadoc: Missing comment for public declaration\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 6)\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
 			"	public static void main(String[] args) {\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
 			"Javadoc: Missing comment for public declaration\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 7)\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
 			"	W.deprecated();\n" + 
 			"	^^^^^^^^^^^^^^\n" + 
 			"The method deprecated() from the type W is deprecated\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 8)\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
 			"	List<X> l = new Vector();\n" + 
 			"	            ^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Vector needs unchecked conversion to conform to List<X>\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 12)\n" + 
-			"	} finally {\n" + 
-			"			throw new Error();\n" + 
-			"		}\n" + 
-			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"finally block does not complete normally\n" + 
+			"5. ERROR in X.java (at line 16)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 18)\n" + 
+			"6. WARNING in X.java (at line 19)\n" + 
 			"	class S implements Serializable {\n" + 
 			"	      ^\n" + 
 			"The serializable class S does not declare a static final serialVersionUID field of type long\n" + 
@@ -4437,4 +4436,51 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n",
 			null, true, customOptions);
     }      
+    // check @SuppressWarning support
+    public void test138() {
+    	Map customOptions = new Hashtable();
+    	customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
+        this.runNegativeTest(
+
+            new String[] {
+                "X.java",
+    			"@SuppressWarnings(\"zork\")//$NON-NLS-1$\n" + 
+    			"public class X {\n" + 
+    			"	Zork z;\n" + 
+    			"}\n"
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	@SuppressWarnings(\"zork\")//$NON-NLS-1$\n" + 
+			"	                  ^^^^^^\n" + 
+			"Unhandled warning token zork\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n",
+			null, true, customOptions);
+    }      
+    // check @SuppressWarning support
+    public void test139() {
+    	Map customOptions = new Hashtable();
+    	customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
+        this.runNegativeTest(
+
+            new String[] {
+                "X.java",
+    			"@SuppressWarnings({\"zork\", \"warningToken\"})//$NON-NLS-1$//$NON-NLS-2$\n" + 
+    			"public class X {\n" + 
+    			"	Zork z;\n" + 
+    			"}\n"
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n",
+			null, true, customOptions);
+    }          
 }

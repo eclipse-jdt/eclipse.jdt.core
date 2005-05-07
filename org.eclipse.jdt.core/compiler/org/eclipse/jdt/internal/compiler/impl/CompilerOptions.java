@@ -100,6 +100,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportForbiddenReference =  "org.eclipse.jdt.core.compiler.problem.forbiddenReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportDiscouragedReference =  "org.eclipse.jdt.core.compiler.problem.discouragedReference"; //$NON-NLS-1$
 	public static final String OPTION_SuppressWarnings =  "org.eclipse.jdt.core.compiler.problem.suppressWarnings"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnhandledWarningToken =  "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"; //$NON-NLS-1$
 	
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -178,6 +179,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long IncompleteEnumSwitch = ASTNode.Bit42L;
 	public static final long MissingDeprecatedAnnotation = ASTNode.Bit43L;
 	public static final long DiscouragedReference = ASTNode.Bit44L;
+	public static final long UnhandledWarningToken = ASTNode.Bit45L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -374,6 +376,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_InlineJsr, this.inlineJsrBytecode ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportNullReference, getSeverityString(NullReference));
 		optionsMap.put(OPTION_SuppressWarnings, this.suppressWarnings ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_ReportUnhandledWarningToken, getSeverityString(UnhandledWarningToken));
 		return optionsMap;		
 	}
 	
@@ -604,6 +607,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingOverrideAnnotation)) != null) updateSeverity(MissingOverrideAnnotation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingDeprecatedAnnotation)) != null) updateSeverity(MissingDeprecatedAnnotation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportIncompleteEnumSwitch)) != null) updateSeverity(IncompleteEnumSwitch, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnhandledWarningToken)) != null) updateSeverity(UnhandledWarningToken, optionValue);
 		
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -765,6 +769,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$		
 		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$
 		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$
 		return buf.toString();
 	}
 
@@ -858,7 +863,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			OPTION_ReportUnusedLocal,
 			OPTION_ReportUnusedParameter,
 			OPTION_ReportUnusedPrivateMember,
-			OPTION_ReportVarargsArgumentNeedCast
+			OPTION_ReportVarargsArgumentNeedCast,
+			OPTION_ReportUnhandledWarningToken,
 		};
 		return result;
 	}
@@ -956,6 +962,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 					return "enumSwitch"; //$NON-NLS-1$
 				case (int) (MissingDeprecatedAnnotation >>> 32) :
 					return "dep-ann"; //$NON-NLS-1$
+				case (int) (UnhandledWarningToken >>> 32) :
+					return "warningToken"; //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -1080,6 +1088,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			case 'v' :
 				if ("varargs".equals(warningToken)) //$NON-NLS-1$
 					return VarargsArgumentNeedCast;
+				break;
+			case 'w' :
+				if ("warningToken".equals(warningToken)) //$NON-NLS-1$
+					return UnhandledWarningToken;
 				break;
 		}
 		return 0;

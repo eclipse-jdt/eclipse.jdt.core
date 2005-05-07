@@ -595,6 +595,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.1
+	 */
+	public static final String COMPILER_PB_UNHANDLED_WARNING_TOKEN = PLUGIN_ID + ".compiler.problem.unrhandledWarningToken"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 */
 	public static final String CORE_JAVA_BUILD_ORDER = PLUGIN_ID + ".computeJavaBuildOrder"; //$NON-NLS-1$
 	/**
@@ -2023,7 +2029,7 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:	"&lt;n&gt;" where &lt;n&gt; is zero or a positive integer (if zero then all problems are reported).
 	 *     - default:           "100"
 	 * 
-	 * COMPILER / Define the Automatic Task Tags
+	 * COMPILER / Defining the Automatic Task Tags
 	 *    When the tag list is not empty, the compiler will issue a task marker whenever it encounters
 	 *    one of the corresponding tag inside any comment in Java source code.
 	 *    Generated task messages will include the tag, and range until the next line separator or comment ending.
@@ -2036,7 +2042,7 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "&lt;tag&gt;[,&lt;tag&gt;]*" } where &lt;tag&gt; is a String without any wild-card or leading/trailing spaces 
 	 *     - default:           "TODO,FIXME,XXX"
 	 * 
-	 * COMPILER / Define the Automatic Task Priorities
+	 * COMPILER / Defining the Automatic Task Priorities
 	 *    In parallel with the Automatic Task Tags, this list defines the priorities (high, normal or low)
 	 *    of the task markers issued by the compiler.
 	 *    If the default is specified, the priority of each task marker is "NORMAL".
@@ -2044,7 +2050,7 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "&lt;priority&gt;[,&lt;priority&gt;]*" } where &lt;priority&gt; is one of "HIGH", "NORMAL" or "LOW"
 	 *     - default:           "NORMAL,HIGH,NORMAL"
 	 * 
-	 * COMPILER / Determine whether task tags are case-sensitive
+	 * COMPILER / Determining whether task tags are case-sensitive
 	 *    When enabled, task tags are considered in a case-sensitive way.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.taskCaseSensitive"
 	 *     - possible values:   { "enabled", "disabled" }
@@ -2064,12 +2070,19 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *
-	 * COMPILER / Determine whether @SuppressWarnings is effective
+	 * COMPILER / Determining Effect of @SuppressWarnings
 	 *    When enabled, the @SuppressWarnings annotation can be used to suppress some compiler warnings. 
 	 *    When disabled, all @SupressWarnings annotations are ignored; i.e., warnings are reported.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.suppressWarnings"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "enabled"
+	 *
+	 * COMPILER / Reporting Unhandled Warning Token for @SuppressWarnings
+	 *    When enabled, the compiler will issue an error or a warning when encountering a token
+	 *    it cannot handle inside a @SuppressWarnings annotation.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
 	 *
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.

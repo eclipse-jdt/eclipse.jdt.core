@@ -1053,6 +1053,8 @@ public interface IProblem {
 	int MethodMissingDeprecatedAnnotation = Internal + 629;
 	/** @since 3.1 */
 	int TypeMissingDeprecatedAnnotation = Internal + 630;
+	/** @since 3.1 */
+	int UnhandledWarningToken = Internal + 631;
 	
 	/**
 	 * Corrupted binaries

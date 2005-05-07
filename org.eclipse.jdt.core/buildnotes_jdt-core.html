@@ -47,6 +47,17 @@ Eclipse SDK 3.1M7 - ?th May 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Added optional compiler diagnosis to signal unhandled warning tokens in <code>@SuppressWarnings</code> annotations.
+Note that this warning can itself be turned off using @SuppressWarnings("warningToken").
+<pre>
+* COMPILER / Reporting Unhandled Warning Token for @SuppressWarnings
+*    When enabled, the compiler will issue an error or a warning when encountering a token
+*    it cannot handle inside a @SuppressWarnings annotation.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre>
+</li>
 <li> Added compiler option to control whether @SuppressWarning annotations are active or not.
 By disabling them, one can quickly revive all hidden warnings.
 <pre>
@@ -130,6 +141,7 @@ these are subject to changing in the near future.
      <li>syntheticAccess : synthetic access for innerclass</li>
      <li>typeHiding : type parameter hiding another type</li>
      <li>varargsCast : varargs argument need explicit cast</li>
+     <li>warningToken : unhandled warning token</li>
   </ul>
 </li>
 </ul>
