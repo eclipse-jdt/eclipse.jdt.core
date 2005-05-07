@@ -190,5 +190,9 @@
       point="org.eclipse.core.runtime.preferences">
    <initializer class="org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer"/>
 </extension>
+<extension
+      point="org.eclipse.core.runtime.preferences">
+   <modifier class="org.eclipse.jdt.internal.core.JavaCorePreferenceModifyListener"/>
+</extension>
 
 </plugin>
