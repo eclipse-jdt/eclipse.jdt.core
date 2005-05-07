@@ -38,7 +38,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		TESTS_PREFIX =  "testStaticImport";
-//		TESTS_NAMES = new String[] { "testEnum" };
+//		TESTS_NAMES = new String[] { "testMethodDeclaration11" };
 	//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 		}
@@ -1258,6 +1258,27 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 			this.resultCollector);
 		assertSearchResults(
 			"src/e8/A.java void e8.A.m() [m]",
+			this.resultCollector);
+	}
+	/**
+	 * Method declaration with source folder as java search scope.
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=92210"
+	 */
+	public void testMethodDeclaration11() throws CoreException {
+		ICompilationUnit unit = getCompilationUnit("JavaSearch", "otherSrc()", "", "X92210.java");
+		assertNotNull("Should have found an unit", unit);
+		IJavaElement root = unit.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		assertNotNull("Should have found package fragment root", root);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
+
+		search(
+			"foo", 
+			METHOD,
+			DECLARATIONS,
+			scope, 
+			this.resultCollector);
+		assertSearchResults(
+			"otherSrc()/X92210.java void X92210.foo() [foo]",
 			this.resultCollector);
 	}
 	/**

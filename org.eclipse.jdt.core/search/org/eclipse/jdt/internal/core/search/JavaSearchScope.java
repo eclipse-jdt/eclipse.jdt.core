@@ -190,7 +190,13 @@ public void add(IJavaElement element) throws JavaModelException {
 			IPackageFragmentRoot root = (IPackageFragmentRoot)element;
 			IPath rootPath = root.getPath();
 			containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : rootPath;
-			add("", containerPath.toString(), true, null); //$NON-NLS-1$
+			IResource rootResource = root.getResource();
+			if (rootResource != null && rootResource.isAccessible()) {
+				String relativePath = Util.relativePath(rootResource.getFullPath(), containerPath.segmentCount());
+				add(relativePath, containerPath.toString(), true, null);
+			} else {
+				add("", containerPath.toString(), true, null); //$NON-NLS-1$
+			}
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
 			root = (IPackageFragmentRoot)element.getParent();

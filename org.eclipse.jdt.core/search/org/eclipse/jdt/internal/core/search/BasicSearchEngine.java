@@ -415,6 +415,9 @@ public class BasicSearchEngine {
 	 *@since 3.0
 	 */
 	public void search(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor)"); //$NON-NLS-1$
+		}
 		findMatches(pattern, participants, scope, requestor, monitor);
 	}
 
@@ -476,6 +479,15 @@ public class BasicSearchEngine {
 		final IRestrictedAccessTypeRequestor nameRequestor,
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException {
+
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
+			System.out.println("	- package name: "+(packageName==null?"null":new String(packageName))); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("	- type name: "+(typeName==null?"null":new String(typeName))); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("	- match rule: "+matchRule); //$NON-NLS-1$
+			System.out.println("	- search for: "+searchFor); //$NON-NLS-1$
+			System.out.println("	- scope: "+scope); //$NON-NLS-1$
+		}
 
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 			
@@ -707,6 +719,14 @@ public class BasicSearchEngine {
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.searchAllTypeNames(char[][], char[][], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
+			System.out.println("	- package name: "+(qualifications==null?"null":new String(CharOperation.concatWith(qualifications, ',')))); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("	- type name: "+(typeNames==null?"null":new String(CharOperation.concatWith(typeNames, ',')))); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("	- match rule: "+matchRule); //$NON-NLS-1$
+			System.out.println("	- search for: "+searchFor); //$NON-NLS-1$
+			System.out.println("	- scope: "+scope); //$NON-NLS-1$
+		}
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 
 		final char typeSuffix;
@@ -903,13 +923,16 @@ public class BasicSearchEngine {
 	}
 	
 	public void searchDeclarations(IJavaElement enclosingElement, SearchRequestor requestor, SearchPattern pattern, IProgressMonitor monitor) throws JavaModelException {
+		if (VERBOSE) {
+			System.out.println("	- java element: "+enclosingElement); //$NON-NLS-1$
+		}
 		IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 		IResource resource = this.getResource(enclosingElement);
 		try {
 			if (resource instanceof IFile) {
 				try {
 					requestor.beginReporting();
-					if (BasicSearchEngine.VERBOSE) {
+					if (VERBOSE) {
 						System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 					}
 					SearchParticipant participant = getDefaultSearchParticipant();
@@ -980,6 +1003,9 @@ public class BasicSearchEngine {
 	 * @since 3.0
 	 */	
 	public void searchDeclarationsOfAccessedFields(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.searchDeclarationsOfAccessedFields(IJavaElement, SearchRequestor, SearchPattern, IProgressMonitor)"); //$NON-NLS-1$
+		}
 		SearchPattern pattern = new DeclarationOfAccessedFieldsPattern(enclosingElement);
 		searchDeclarations(enclosingElement, requestor, pattern, monitor);
 	}
@@ -1022,6 +1048,9 @@ public class BasicSearchEngine {
 	 * @since 3.0
 	 */	
 	public void searchDeclarationsOfReferencedTypes(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.searchDeclarationsOfReferencedTypes(IJavaElement, SearchRequestor, SearchPattern, IProgressMonitor)"); //$NON-NLS-1$
+		}
 		SearchPattern pattern = new DeclarationOfReferencedTypesPattern(enclosingElement);
 		searchDeclarations(enclosingElement, requestor, pattern, monitor);
 	}
@@ -1067,6 +1096,9 @@ public class BasicSearchEngine {
 	 * @since 3.0
 	 */	
 	public void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.searchDeclarationsOfSentMessages(IJavaElement, SearchRequestor, SearchPattern, IProgressMonitor)"); //$NON-NLS-1$
+		}
 		SearchPattern pattern = new DeclarationOfReferencedMethodsPattern(enclosingElement);
 		searchDeclarations(enclosingElement, requestor, pattern, monitor);
 	}
