@@ -235,13 +235,6 @@ public final class BindingKey {
 		return keyToSignature.signature.toString();
 	}
 	
-	/**
-	 * @deprecated
-	 */
-	public String toSignature() {
-		return internalToSignature();
-	}
-	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
