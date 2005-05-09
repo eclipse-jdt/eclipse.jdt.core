@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompoundAssignment extends Assignment implements OperatorIds {
 	public int operator;
-	public int assignmentImplicitConversion;
+	public int preAssignImplicitConversion;
 
 	//  var op exp is equivalent to var = (varType) var op exp
 	// assignmentImplicitConversion stores the cast needed for the assignment
@@ -47,9 +47,9 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		// just a local variable.
 	
 		int pc = codeStream.position;
-		 ((Reference) lhs).generateCompoundAssignment(currentScope, codeStream, expression, operator, assignmentImplicitConversion, valueRequired);
+		 ((Reference) lhs).generateCompoundAssignment(currentScope, codeStream, this.expression, this.operator, this.preAssignImplicitConversion, valueRequired);
 		if (valueRequired) {
-			codeStream.generateImplicitConversion(implicitConversion);
+			codeStream.generateImplicitConversion(this.implicitConversion);
 		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
@@ -162,7 +162,7 @@ public class CompoundAssignment extends Assignment implements OperatorIds {
 		this.lhs.implicitConversion = (unboxedLhs ? UNBOXING : 0) | (result >>> 12);
 		if (unboxedLhs) scope.problemReporter().autoboxing(this.lhs, originalLhsType, lhsType);
 		this.expression.computeConversion(scope, TypeBinding.wellKnownType(scope, (result >>> 8) & 0x0000F), originalExpressionType);
-		this.assignmentImplicitConversion =  (unboxedLhs ? BOXING : 0) | (lhsID << 4) | (result & 0x0000F);
+		this.preAssignImplicitConversion =  (unboxedLhs ? BOXING : 0) | (lhsID << 4) | (result & 0x0000F);
 		if (unboxedLhs) scope.problemReporter().autoboxing(this, lhsType, originalLhsType);
 		return this.resolvedType = originalLhsType;
 	}

@@ -493,7 +493,7 @@ public class QualifiedNameReference extends NameReference {
 			implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 		codeStream.generateImplicitConversion(
-			postIncrement.assignmentImplicitConversion);
+			postIncrement.preAssignImplicitConversion);
 		fieldStore(codeStream, lastFieldBinding, syntheticWriteAccessor, false);
 	}
 	/*

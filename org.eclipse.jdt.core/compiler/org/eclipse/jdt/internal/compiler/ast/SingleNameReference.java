@@ -208,21 +208,27 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		// optimizing assignment like: i = i + 1 or i = 1 + i
 		if (assignment.expression.isCompactableOperation()) {
 			BinaryExpression operation = (BinaryExpression) assignment.expression;
+			int operator = (operation.bits & OperatorMASK) >> OperatorSHIFT;
 			SingleNameReference variableReference;
 			if ((operation.left instanceof SingleNameReference) && ((variableReference = (SingleNameReference) operation.left).binding == binding)) {
 				// i = i + value, then use the variable on the right hand side, since it has the correct implicit conversion
-				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.right, (operation.bits & OperatorMASK) >> OperatorSHIFT, operation.implicitConversion, valueRequired);
+				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.right, operator, operation.implicitConversion, valueRequired);
+				if (valueRequired) {
+					codeStream.generateImplicitConversion(assignment.implicitConversion);
+				}				
 				return;
-			}
-			int operator = (operation.bits & OperatorMASK) >> OperatorSHIFT;
+			} 
 			if ((operation.right instanceof SingleNameReference)
-				&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
-				&& ((variableReference = (SingleNameReference) operation.right).binding == binding)
-				&& (operation.left.constant != NotAConstant) // exclude non constant expressions, since could have side-effect
-				&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString) // exclude string concatenation which would occur backwards
-				&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString)) { // exclude string concatenation which would occur backwards
+					&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
+					&& ((variableReference = (SingleNameReference) operation.right).binding == binding)
+					&& (operation.left.constant != NotAConstant) // exclude non constant expressions, since could have side-effect
+					&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString) // exclude string concatenation which would occur backwards
+					&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString)) { // exclude string concatenation which would occur backwards
 				// i = value + i, then use the variable on the right hand side, since it has the correct implicit conversion
 				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.left, operator, operation.implicitConversion, valueRequired);
+				if (valueRequired) {
+					codeStream.generateImplicitConversion(assignment.implicitConversion);
+				}				
 				return;
 			}
 		}
@@ -536,7 +542,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				codeStream.generateImplicitConversion(implicitConversion);		
 				codeStream.generateConstant(postIncrement.expression.constant, implicitConversion);
 				codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
-				codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 				fieldStore(codeStream, fieldBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], false);
 				// no need for generic cast 
 				return;
@@ -564,7 +570,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					codeStream.generateImplicitConversion(implicitConversion);
 					codeStream.generateConstant(postIncrement.expression.constant, implicitConversion);
 					codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
-					codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+					codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 	
 					codeStream.store(localBinding, false);
 				}

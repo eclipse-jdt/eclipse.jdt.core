@@ -237,7 +237,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		}
 		codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, lastFieldBinding.type.id);
-		codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+		codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 		
 		fieldStore(codeStream, lastFieldBinding, null, false);
 	} else {
@@ -273,7 +273,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		}
 		codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, lastFieldBinding.type.id);
-		codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+		codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 		((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(lastFieldBinding);
 	}
 }

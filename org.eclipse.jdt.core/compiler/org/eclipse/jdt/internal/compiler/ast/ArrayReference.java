@@ -175,7 +175,7 @@ public class ArrayReference extends Reference {
 			implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 		codeStream.generateImplicitConversion(
-			postIncrement.assignmentImplicitConversion);
+			postIncrement.preAssignImplicitConversion);
 		codeStream.arrayAtPut(this.resolvedType.id, false);
 	}
 

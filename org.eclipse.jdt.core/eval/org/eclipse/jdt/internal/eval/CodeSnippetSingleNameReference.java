@@ -110,13 +110,16 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 	// optimizing assignment like: i = i + 1 or i = 1 + i
 	if (assignment.expression.isCompactableOperation()) {
 		BinaryExpression operation = (BinaryExpression) assignment.expression;
+		int operator = (operation.bits & OperatorMASK) >> OperatorSHIFT;
 		SingleNameReference variableReference;
 		if ((operation.left instanceof SingleNameReference) && ((variableReference = (SingleNameReference) operation.left).binding == this.binding)) {
 			// i = i + value, then use the variable on the right hand side, since it has the correct implicit conversion
-			variableReference.generateCompoundAssignment(currentScope, codeStream, this.syntheticAccessors == null ? null : this.syntheticAccessors[WRITE], operation.right, (operation.bits & OperatorMASK) >> OperatorSHIFT, operation.left.implicitConversion /*should be equivalent to no conversion*/, valueRequired);
+			variableReference.generateCompoundAssignment(currentScope, codeStream, this.syntheticAccessors == null ? null : this.syntheticAccessors[WRITE], operation.right, operator, operation.implicitConversion, valueRequired);
+			if (valueRequired) {
+				codeStream.generateImplicitConversion(assignment.implicitConversion);
+			}
 			return;
 		}
-		int operator = (operation.bits & OperatorMASK) >> OperatorSHIFT;
 		if ((operation.right instanceof SingleNameReference)
 			&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
 			&& ((variableReference = (SingleNameReference) operation.right).binding == this.binding)
@@ -124,7 +127,10 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 			&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString) // exclude string concatenation which would occur backwards
 			&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString)) { // exclude string concatenation which would occur backwards
 			// i = value + i, then use the variable on the right hand side, since it has the correct implicit conversion
-			variableReference.generateCompoundAssignment(currentScope, codeStream, this.syntheticAccessors == null ? null : this.syntheticAccessors[WRITE], operation.left, operator, operation.right.implicitConversion /*should be equivalent to no conversion*/, valueRequired);
+			variableReference.generateCompoundAssignment(currentScope, codeStream, this.syntheticAccessors == null ? null : this.syntheticAccessors[WRITE], operation.left, operator, operation.implicitConversion, valueRequired);
+			if (valueRequired) {
+				codeStream.generateImplicitConversion(assignment.implicitConversion);
+			}
 			return;
 		}
 	}
@@ -454,7 +460,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				}
 				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 				codeStream.sendOperator(postIncrement.operator, fieldBinding.type.id);
-				codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 				fieldStore(codeStream, fieldBinding, null, false);
 			} else {
 				if (fieldBinding.isStatic()) {
@@ -500,7 +506,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				}
 				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 				codeStream.sendOperator(postIncrement.operator, fieldBinding.type.id);
-				codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 				((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(fieldBinding);
 			}
 			return;
@@ -527,7 +533,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				}
 				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 				codeStream.sendOperator(postIncrement.operator, localBinding.type.id);
-				codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 
 				codeStream.store(localBinding, false);
 			}

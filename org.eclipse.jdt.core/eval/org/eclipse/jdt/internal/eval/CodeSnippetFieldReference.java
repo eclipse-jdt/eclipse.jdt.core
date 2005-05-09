@@ -232,7 +232,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		}
 		codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, this.codegenBinding.type.id);
-		codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+		codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 		fieldStore(codeStream, this.codegenBinding, null, false);
 	} else {
 		this.receiver.generateCode(currentScope, codeStream, !(isStatic = this.codegenBinding.isStatic()));
@@ -280,7 +280,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 
 		codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, this.codegenBinding.type.id);
-		codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+		codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 		((CodeSnippetCodeStream) codeStream).generateEmulatedWriteAccessForField(this.codegenBinding);
 	}
 }
