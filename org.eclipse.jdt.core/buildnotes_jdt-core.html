@@ -47,6 +47,9 @@ Eclipse SDK 3.1M7 - ?th May 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> In 5.0 compliant mode, changed local inner type naming convention to reflect JLS 13.1 (3rd edition).
+As a consequence, instead of generating a file named <code>X$1$A.class</code>, it will simply be <code>X$1A.class"</code>.
+</li>
 <li> Added optional compiler diagnosis to signal unhandled warning tokens in <code>@SuppressWarnings</code> annotations.
 Note that this warning can itself be turned off using @SuppressWarnings("warningToken").
 <pre>
@@ -147,7 +150,11 @@ these are subject to changing in the near future.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=89426">89426</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=84968">84968</a>
+[1.5][generics] Exception type handling broken in latest milestone
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75885">75885</a>
+[1.5][compiler] Naming convention for local innerclasses
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=89426">89426</a>
 provide Java class file content type
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=93826">93826</a>
 ArrayIndexOutOfBoundsException when opening type hierarchy

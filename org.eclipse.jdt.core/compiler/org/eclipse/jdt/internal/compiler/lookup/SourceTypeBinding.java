@@ -1104,7 +1104,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].resolveType(methodDecl.scope, true /* check bounds*/);
 			if (resolvedExceptionType == null)
 				continue;
-			if (resolvedExceptionType.isGenericType() || resolvedExceptionType.isParameterizedType()) {
+			if (resolvedExceptionType.isGenericType() || resolvedExceptionType.isBoundParameterizedType()) {
 				methodDecl.scope.problemReporter().invalidParameterizedExceptionType(resolvedExceptionType, exceptionTypes[i]);
 				continue;
 			}

@@ -198,6 +198,7 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 	// ensure there is not already such a local type name defined by the user
 	int index = 0;
 	char[] candidateName;
+	boolean isCompliant15 = compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5;
 	while(true) {
 		if (localType.isMemberType()){
 			if (index == 0){
@@ -221,12 +222,22 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 					String.valueOf(index+1).toCharArray(),
 					'$');
 		} else {
+			// local type
+			if (isCompliant15) {
+				candidateName = CharOperation.concat(
+					CharOperation.concat(
+						outerMostEnclosingType.constantPoolName(),
+						String.valueOf(index+1).toCharArray(),
+						'$'),
+					localType.sourceName);
+			} else {
 				candidateName = CharOperation.concat(
 					outerMostEnclosingType.constantPoolName(),
 					'$',
 					String.valueOf(index+1).toCharArray(),
 					'$',
 					localType.sourceName);
+			}				
 		}						
 		if (constantPoolNameUsage.get(candidateName) != null) {
 			index ++;

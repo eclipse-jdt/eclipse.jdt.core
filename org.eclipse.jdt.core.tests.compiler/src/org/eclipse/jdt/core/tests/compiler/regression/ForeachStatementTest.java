@@ -1650,6 +1650,22 @@ public void test031() {
 		},
 		"SUCCESS");
 }
+public void test032() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	abstract class Member implements Iterable<String> {\n" + 
+			"	}\n" + 
+			"	void foo(Member m) {\n" + 
+			"		for(String s : m) {\n" + 
+			"			return;\n" + 
+			"		} \n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }

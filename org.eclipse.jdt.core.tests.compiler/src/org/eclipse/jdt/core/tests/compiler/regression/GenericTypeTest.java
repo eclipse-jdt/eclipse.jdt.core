@@ -18039,4 +18039,99 @@ public void test617() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84968	
+	public void test637() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X<E> {\n" + 
+				"	public static final class Ex1 extends Exception {\n" + 
+				"		private static final long serialVersionUID = 1;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private void a1() {\n" + 
+				"		try {\n" + 
+				"			a1_1();\n" + 
+				"		} catch (Ex1 si) {\n" + 
+				"			assert si != null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	protected Object a1_1() throws Ex1 {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private void a2() {\n" + 
+				"		try {\n" + 
+				"			a2_1();\n" + 
+				"		} catch (Ex2 si) {\n" + 
+				"			assert si != null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	protected Object a2_1() throws Ex2 {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public final class Ex3 extends Exception {\n" + 
+				"		private static final long serialVersionUID = 1;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private void a3() {\n" + 
+				"		try {\n" + 
+				"			a3_1();\n" + 
+				"		} catch (Ex3 si) {\n" + 
+				"			assert si != null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	protected Object a3_1() throws Ex3 {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n" + 
+				"\n" + 
+				"final class Ex2 extends Exception {\n" + 
+				"	private static final long serialVersionUID = 1;\n" + 
+				"}\n",
+	        },
+			"");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93478	
+	public void test638() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.util.concurrent.BlockingQueue;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	static interface IMX<S, L> {\n" + 
+				"		void call(L a, S b);\n" + 
+				"	}\n" + 
+				"	static interface Y<S, L> {\n" + 
+				"		void addX(final IMX<S, L> a);\n" + 
+				"		void removeX(final IMX<S, L> a);\n" + 
+				"	}\n" + 
+				"	static final class Pair<T, V> {\n" + 
+				"		T first;\n" + 
+				"\n" + 
+				"		V second;\n" + 
+				"	}\n" + 
+				"	static class Bar<P> {\n" + 
+				"		Bar(final BlockingQueue<P> a) {\n" + 
+				"\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"final class Foo<S, L> extends X.Bar<X.Pair<L[], S>> implements X.IMX<S, L> {\n" + 
+				"	Foo(final BlockingQueue<X.Pair<L[], S>> in) {\n" + 
+				"		super(in);\n" + 
+				"	}\n" + 
+				"	public void call(L a, S b) {\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"");
+	}	
 }
