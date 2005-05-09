@@ -87,7 +87,6 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	}
 
 	/**
-	 * @throws TargetException
 	 */
 	protected void cleanUp() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));

@@ -213,7 +213,7 @@ public static void createSourceZip(String[] pathsAndContents, String zipPath) th
 }
 /**
  * Generate a display string from the given String.
- * @param indent number of tabs are added at the begining of each line.
+ * @param inputString the given input string
  *
  * Example of use: [org.eclipse.jdt.core.tests.util.Util.displayString("abc\ndef\tghi")]
 */

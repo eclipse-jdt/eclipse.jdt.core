@@ -19,7 +19,7 @@ public class SourcePackage {
  * @param declarationSourceStart int
  * @param declarationSourceEnd int
  * @param name char[]
- * @param onDemand boolean
+ * @param source char[]
  */
 public SourcePackage(
 	int declarationSourceStart, 

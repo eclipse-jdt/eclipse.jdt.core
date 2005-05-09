@@ -164,7 +164,7 @@ public int getDebugPort() {
  * Returns the evaluation port for evaluation support.
  * The default is -1, indicating no evaluation support.
  *
- * @see setEvalPort
+ * @see #setEvalPort(int)
  */
 public int getEvalPort() {
 	return this.evalPort;
@@ -172,7 +172,7 @@ public int getEvalPort() {
 /**
  * Returns the evaluation target path for evaluation support.
  *
- * @see setEvalTargetPath
+ * @see #setEvalTargetPath(String)
  */
 public String getEvalTargetPath() {
 	return this.evalTargetPath;
@@ -207,7 +207,6 @@ public String getProgramClass() {
  * two calls to this method return VMs that are equal.
  * 
  * @return the list of running target VMs
- * @exception TargetException if the target VMs could not be retrieved.
  */
 public LocalVirtualMachine[] getRunningVirtualMachines() {
 	// Select the VMs that are actually running

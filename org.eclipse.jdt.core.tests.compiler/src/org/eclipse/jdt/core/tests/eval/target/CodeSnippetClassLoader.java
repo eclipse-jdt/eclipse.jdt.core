@@ -26,7 +26,7 @@ public class CodeSnippetClassLoader extends ClassLoader {
 	Hashtable loadedClasses = new Hashtable();
 /**
  * Asks the class loader that loaded this class to load the given class.
- * @throws a ClassNotFoundException if it could not be loaded.
+ * @throws ClassNotFoundException if it could not be loaded.
  */
 private Class delegateLoadClass(String name) throws ClassNotFoundException {
 	ClassLoader myLoader = getClass().getClassLoader();

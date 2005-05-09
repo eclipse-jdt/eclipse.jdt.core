@@ -24,7 +24,7 @@ import junit.framework.Test;
 /**
  * Name Lookup within Inner Classes
  * Creation date: (8/2/00 12:04:53 PM)
- * @author: Dennis Conway
+ * @author Dennis Conway
  */
 public class LookupTest extends AbstractRegressionTest {
 public LookupTest(String name) {
