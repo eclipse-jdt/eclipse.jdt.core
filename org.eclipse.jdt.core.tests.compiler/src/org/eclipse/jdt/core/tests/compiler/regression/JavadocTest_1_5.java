@@ -144,7 +144,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	* {@value \"invalid}\n" + 
-				"	         ^^^^^^^^^^\n" + 
+				"	          ^^^^^^^^^\n" + 
 				"Javadoc: Invalid reference\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 3)\n" + 

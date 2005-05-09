@@ -81,7 +81,7 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 
 	/**
 	 * Bug 75642: [1.5][search] Methods and constructor search does not work with generics
-	 * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75642
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75642"
 	 */
 	/*
 	 * REFERENCES

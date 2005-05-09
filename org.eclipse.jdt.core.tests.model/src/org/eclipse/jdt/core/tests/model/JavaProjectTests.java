@@ -729,7 +729,7 @@ public void testPackageFragmentNonJavaResources() throws JavaModelException {
 /**
  * Tests that after a package "foo" has been renamed into "bar", it is possible to recreate
  * a "foo" package.
- * @see 1FWX0HY: ITPCORE:WIN98 - Problem after renaming a Java package
+ * @see "1FWX0HY: ITPCORE:WIN98 - Problem after renaming a Java package"
  */
 public void testPackageFragmentRenameAndCreate() throws JavaModelException, CoreException {
 	IPackageFragment y = getPackageFragment("JavaProjectTests", "", "x.y");

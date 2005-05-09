@@ -561,7 +561,7 @@ public class JavadocTestMixed extends JavadocTest {
 			"----------\n"
 				+ "1. ERROR in test\\X.java (at line 5)\n"
 				+ "	* @see \"Test class X\n"
-				+ "	      ^^^^^^^^^^^^^^\n"
+				+ "	       ^^^^^^^^^^^^^\n"
 				+ "Javadoc: Invalid reference\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 10)\n"

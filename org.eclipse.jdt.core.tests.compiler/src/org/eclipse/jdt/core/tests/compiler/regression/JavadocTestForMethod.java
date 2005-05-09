@@ -222,7 +222,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" + 
 		"3. ERROR in Z.java (at line 8)\n" + 
 		"	* @see \"Invalid\n" + 
-		"	      ^^^^^^^^^\n" + 
+		"	       ^^^^^^^^\n" + 
 		"Javadoc: Invalid reference\n" + 
 		"----------\n" + 
 		"4. ERROR in Z.java (at line 9)\n" + 
@@ -327,7 +327,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" + 
 		"3. ERROR in Z.java (at line 10)\n" + 
 		"	* @see \"Invalid\n" + 
-		"	      ^^^^^^^^^\n" + 
+		"	       ^^^^^^^^\n" + 
 		"Javadoc: Invalid reference\n" + 
 		"----------\n" + 
 		"4. ERROR in Z.java (at line 11)\n" + 
@@ -431,7 +431,7 @@ public class JavadocTestForMethod extends JavadocTest {
 		"----------\n" + 
 		"3. ERROR in Z.java (at line 9)\n" + 
 		"	* @see \"Invalid\n" + 
-		"	      ^^^^^^^^^\n" + 
+		"	       ^^^^^^^^\n" + 
 		"Javadoc: Invalid reference\n" + 
 		"----------\n" + 
 		"4. ERROR in Z.java (at line 11)\n" + 
@@ -1414,8 +1414,8 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 5)\n"
 				+ "	* @exception \"IllegalArgumen Invalid exception: invalid class name\n"
-				+ "	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid class name\n"
+				+ "	   ^^^^^^^^^\n"
+				+ "Javadoc: Missing class name\n"
 				+ "----------\n"
 				+ "4. ERROR in X.java (at line 8)\n"
 				+ "	IllegalAccessException, \n"
@@ -1765,12 +1765,12 @@ public class JavadocTestForMethod extends JavadocTest {
 			"----------\n"
 				+ "1. ERROR in X.java (at line 5)\n"
 				+ "	* @see \"\n"
-				+ "	      ^^\n"
+				+ "	       ^\n"
 				+ "Javadoc: Invalid reference\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 6)\n"
 				+ "	* @see \"unterminated string\n"
-				+ "	      ^^^^^^^^^^^^^^^^^^^^^\n"
+				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Invalid reference\n"
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 7)\n"

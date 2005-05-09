@@ -2626,7 +2626,7 @@ public class JavadocBugsTest extends JavadocTest {
 
 	/**
 	 * Bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302">69302</a>
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302"
 	 */
 	public void testBug69302conform1() {
 		runConformTest(
@@ -2645,8 +2645,8 @@ public class JavadocBugsTest extends JavadocTest {
 			}
 		);
 	}
-	public void testBug69302conform2() {
-		runConformTest(
+	public void testBug69302negative1() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -2659,10 +2659,21 @@ public class JavadocBugsTest extends JavadocTest {
 					"	 */\n" + 
 					"	void foo2() {}\n" + 
 					"}\n"	
-			}
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	*	@see Unknown <a href=\"http://www.eclipse.org\">Eclipse</a>\n" + 
+			"	 	     ^^^^^^^\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	*	@see Unknown \"Valid string reference\"\n" + 
+			"	 	     ^^^^^^^\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
+			"----------\n"
 		);
 	}
-	public void testBug69302negative() {
+	public void testBug69302negative2() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2674,16 +2685,16 @@ public class JavadocBugsTest extends JavadocTest {
 					"}\n"	
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	/**@see Unknown blabla <a href=\"http://www.eclipse.org\">text</a>*/\n" + 
-				"	        ^^^^^^^\n" + 
-				"Javadoc: Unknown cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	/**@see Unknown blabla \"Valid string reference\"*/\n" + 
-				"	        ^^^^^^^\n" + 
-				"Javadoc: Unknown cannot be resolved to a type\n" + 
-				"----------\n"
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	/**@see Unknown blabla <a href=\"http://www.eclipse.org\">text</a>*/\n" + 
+			"	        ^^^^^^^\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	/**@see Unknown blabla \"Valid string reference\"*/\n" + 
+			"	        ^^^^^^^\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
+			"----------\n"
 		);
 	}
 
@@ -2989,7 +3000,7 @@ public class JavadocBugsTest extends JavadocTest {
  	}
 
 	/**
-	 * Bug 73995: [Javadoc] Wrong warning for missing return type description for @return {@inheritDoc}
+	 * Bug 73995: [Javadoc] Wrong warning for missing return type description for @return {@inheritdoc}
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73995">73995</a>
 	 */
 	public void testBug73995() {
@@ -3214,41 +3225,41 @@ public class JavadocBugsTest extends JavadocTest {
 	public void testBug76324string() {
 		runNegativeTest(
 			new String[] {
-				"X.java",
-				"public class X {\n" +
-					"	/**\n" + 
-					"	 * Inline string references \n" + 
-					"	 *\n" + 
-					"	 * {@link \"}\n" + 
-					"	 * {@link \"unterminated string}\n" + 
-					"	 * {@link \"invalid string\"\"}\n" + 
-					"	 * {@link \"valid string\"}\n" + 
-					"	 * {@link \"invalid\" no text allowed after the string}\n" + 
-					"	 */\n" + 
-					"	public void s_foo() {\n" + 
-					"	}\n" + 
-					"}\n" },
-				"----------\n" + 
-					"1. ERROR in X.java (at line 5)\n" + 
-					"	* {@link \"}\n" + 
-					"	        ^^^\n" + 
-					"Javadoc: Invalid reference\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 6)\n" + 
-					"	* {@link \"unterminated string}\n" + 
-					"	        ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Javadoc: Invalid reference\n" + 
-					"----------\n" + 
-					"3. ERROR in X.java (at line 7)\n" + 
-					"	* {@link \"invalid string\"\"}\n" + 
-					"	                         ^^\n" + 
-					"Javadoc: Unexpected text\n" + 
-					"----------\n" + 
-					"4. ERROR in X.java (at line 9)\n" + 
-					"	* {@link \"invalid\" no text allowed after the string}\n" + 
-					"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Javadoc: Unexpected text\n" + 
-					"----------\n"
+			"X.java",
+			"public class X {\n" +
+			"	/**\n" + 
+			"	 * Inline string references \n" + 
+			"	 *\n" + 
+			"	 * {@link \"}\n" + 
+			"	 * {@link \"unterminated string}\n" + 
+			"	 * {@link \"invalid string\"\"}\n" + 
+			"	 * {@link \"valid string\"}\n" + 
+			"	 * {@link \"invalid\" no text allowed after the string}\n" + 
+			"	 */\n" + 
+			"	public void s_foo() {\n" + 
+			"	}\n" + 
+			"}\n" },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	* {@link \"}\n" + 
+			"	         ^^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	* {@link \"unterminated string}\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	* {@link \"invalid string\"\"}\n" + 
+			"	                         ^^\n" + 
+			"Javadoc: Unexpected text\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	* {@link \"invalid\" no text allowed after the string}\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected text\n" + 
+			"----------\n"
 		);
 	}
 

@@ -46,7 +46,7 @@ protected void deleteBuffer(IBuffer buffer) throws CoreException {
 	}
 }
 /**
- * @see RegressionTestSuite#setUpSuite()
+ * @see AbstractJavaModelTests#setUpSuite()
  */
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -59,7 +59,7 @@ public void setUpSuite() throws Exception {
 }
 
 /**
- * @see TestCase#tearDownSuite()
+ * @see AbstractJavaModelTests#tearDownSuite()
  */
 public void tearDownSuite() throws Exception {
 	super.tearDownSuite();

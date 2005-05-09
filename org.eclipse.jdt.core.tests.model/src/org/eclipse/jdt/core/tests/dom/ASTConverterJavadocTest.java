@@ -1115,9 +1115,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 				TextElement text = (TextElement) fragment;
 				if (resolvedBinding) {
 					if (previousBinding == null) {
-						assumeTrue(prefix+"Reference '"+previousFragment+"' should be bound!", text.getText().trim().startsWith("Unknown"));
+						assumeTrue(prefix+"Reference '"+previousFragment+"' should be bound!", text.getText().trim().indexOf("Unknown")>=0);
 					} else {
-						assumeTrue(prefix+"Unknown reference '"+previousFragment+"' should NOT be bound!", !text.getText().trim().startsWith("Unknown"));
+						assumeTrue(prefix+"Unknown reference '"+previousFragment+"' should NOT be bound!", text.getText().trim().indexOf("Unknown")<0);
 					}
 				}
 				previousBinding = null;

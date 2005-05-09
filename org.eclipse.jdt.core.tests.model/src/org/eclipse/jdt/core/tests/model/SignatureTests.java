@@ -776,7 +776,7 @@ public void testToQualifiedName() {
 			Signature.toQualifiedName(new String[0]));
 }
 /**
- * @see Signature.toString(String)
+ * @see Signature#toString(String)
  */
 public void testToStringType01() {
 	assertEquals(
@@ -917,7 +917,7 @@ public void testToStringType27() {
 		Signature.toString("-QInputStream;"));
 }
 /**
- * @see Signature.toString(String, String, String[], boolean, boolean)
+ * @see Signature#toString(String, String, String[], boolean, boolean)
  */
 public void testToStringMethod01() {
 	assertEquals(
@@ -994,7 +994,7 @@ public void testToStringInnerType() {
 }
 
 /**
- * @see Signature.getTypeSignatureKind(String)
+ * @see Signature#getTypeSignatureKind(String)
  */
 public void testGetTypeSignatureKind() {
 	assertEquals(
@@ -1098,7 +1098,7 @@ public void testGetTypeSignatureKind() {
 }
 
 /**
- * @see Signature.getTypeSignatureKind(char[])
+ * @see Signature#getTypeSignatureKind(char[])
  */
 public void testGetTypeSignatureKind2() {
 	assertEquals(

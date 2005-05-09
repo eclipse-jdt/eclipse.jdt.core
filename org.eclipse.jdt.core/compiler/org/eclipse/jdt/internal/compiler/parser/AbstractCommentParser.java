@@ -883,7 +883,7 @@ public abstract class AbstractCommentParser {
 		// Scan tokens
 		int primitiveToken = -1;
 		nextToken : for (int iToken = 0; ; iToken++) {
-			int token = readToken();
+			int token = readTokenSafely();
 			switch (token) {
 				case TerminalTokens.TokenNameIdentifier :
 					if (((iToken % 2) > 0)) { // identifiers must be odd tokens
@@ -957,9 +957,10 @@ public abstract class AbstractCommentParser {
 			// Get reference tokens
 			nextToken : while (this.index < this.scanner.eofPosition) {
 				previousPosition = this.index;
-				int token = readToken();
+				int token = readTokenSafely();
 				switch (token) {
-					case TerminalTokens.TokenNameStringLiteral : // @see "string"
+				case TerminalTokens.TokenNameStringLiteral : // @see "string"
+						if (typeRef != null) break nextToken;
 						consumeToken();
 						int start = this.scanner.getCurrentTokenStartPosition();
 						if (this.tagValue == TAG_VALUE_VALUE) {
@@ -981,6 +982,7 @@ public abstract class AbstractCommentParser {
 						if (this.reportProblems) this.sourceParser.problemReporter().javadocUnexpectedText(this.scanner.currentPosition, this.lineEnd);
 						return false;
 					case TerminalTokens.TokenNameLESS : // @see "<a href="URL#Value">label</a>
+						if (typeRef != null) break nextToken;
 						consumeToken();
 						start = this.scanner.getCurrentTokenStartPosition();
 						if (parseHref()) {
@@ -1012,6 +1014,11 @@ public abstract class AbstractCommentParser {
 							if (reference != null) {
 								return pushSeeRef(reference);
 							}
+							return false;
+						}
+						char[] currentError = this.scanner.getCurrentIdentifierSource();
+						if (currentError.length>0 && currentError[0] == '"') {
+							if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidReference(this.scanner.getCurrentTokenStartPosition(), getTokenEndPosition());
 							return false;
 						}
 						break nextToken;
@@ -1268,6 +1275,21 @@ public abstract class AbstractCommentParser {
 	protected int readTokenAndConsume() throws InvalidInputException {
 		int token = readToken();
 		consumeToken();
+		return token;
+	}
+
+	/*
+	 * Read token without throwing any InvalidInputException exception.
+	 * Returns TerminalTokens.TokenNameERROR instead.
+	 */
+	protected int readTokenSafely() {
+		int token = TerminalTokens.TokenNameERROR;
+		try {
+			token = readToken();
+		}
+		catch (InvalidInputException iie) {
+			// token is already set to error
+		}
 		return token;
 	}
 	

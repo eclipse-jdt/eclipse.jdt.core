@@ -16,11 +16,17 @@ import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.model.NameLookupTests2;
 import junit.framework.Test;
 
+/**
+ * Class to run all JDT/Core performance tests.
+ */
 public class AllPerformanceTests extends junit.framework.TestCase {
 
 	static String LENGTH = System.getProperty("length", "0");
 	static String ADDITIONAL = System.getProperty("additional");
 
+	/**
+	 * Define performance tests classes to be run.
+	 */
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
 			FullSourceWorkspaceSearchTests.class, // run this test first to be sure that indexing is finished
@@ -30,11 +36,43 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 			NameLookupTests2.class
 		};
 	}
+
+	/**
+	 * Additional test class(es).
+	 * 
+	 * Classes put in this list will be run only if "additional" VM parameter is added
+	 * while running JUnit test suite.
+	 * 
+	 * This parameter is an integer to specify position where this additional classes
+	 * list has to be added in main list {@link #getAllTestClasses()}.
+	 * 
+	 * For example, set VM parameter -Dadditional=2 will result to run following list of classes:
+	 *		- FullSourceWorkspaceSearchTests
+	 *		- FullSourceWorkspaceBuildTests
+	 *		- FullSourceWorkspaceCompletionTests <-- additional class inserted at position 2
+	 *		- FullSourceWorkspaceASTTests
+	 *		- FullSourceWorkspaceTypeHierarchyTests
+	 *		- NameLookupTests2
+	 *
+	 * @see #ADDITIONAL
+	 */
 	public static Class[] getAdditionalTestClasses() {
 		return new Class[] {
 			FullSourceWorkspaceCompletionTests.class
 		};
 	}
+	
+	/**
+	 * Build test suite.
+	 * All classes suite method are called and bundle to main test suite.
+	 * 
+	 * @see FullSourceWorkspaceSearchTests
+	 * @see FullSourceWorkspaceBuildTests
+	 * @see FullSourceWorkspaceCompletionTests <-- additional class inserted at position 2
+	 * @see FullSourceWorkspaceASTTests
+	 * @see FullSourceWorkspaceTypeHierarchyTests
+	 * @see NameLookupTests2
+	 */
 	public static Test suite() {
 		PerformanceTestSuite perfSuite = new PerformanceTestSuite(AllPerformanceTests.class.getName());
 		Class[] testSuites = getAllTestClasses();

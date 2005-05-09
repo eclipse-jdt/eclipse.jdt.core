@@ -47,8 +47,6 @@ public class CommentFormatterUtil {
 	 *                format
 	 * @param length the length of the region in the source string to format
 	 * @param preferences preferences for the comment formatter
-	 * @param textMeasurement optional text measurement for font specific
-	 *                formatting, can be <code>null</code>
 	 * @return the formatted source string
 	 */
 	public static String format(int kind, String source, int offset, int length, Map preferences) {
@@ -88,7 +86,6 @@ public class CommentFormatterUtil {
 	 * 
 	 * @param reference the reference indentation
 	 * @param tabSize the tab size
-	 * @param textMeasurement the text measurement
 	 * @return the inferred indentation level
 	 * @since 3.1
 	 */

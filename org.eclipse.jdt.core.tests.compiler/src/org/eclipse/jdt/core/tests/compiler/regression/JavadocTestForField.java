@@ -271,7 +271,7 @@ public class JavadocTestForField extends JavadocTest {
 			"----------\n"
 				+ "1. ERROR in X.java (at line 5)\n"
 				+ "	* @see \"unterminated string\n"
-				+ "	      ^^^^^^^^^^^^^^^^^^^^^\n"
+				+ "	       ^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Javadoc: Invalid reference\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 6)\n"

@@ -94,6 +94,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		super(name);
 	}
 
+	/**
+	 * Create test suite for a given TestCase class.
+	 * 
+	 * Use this method for all JDT/Core performance test using full source workspace.
+	 * All test count is computed to know when tests are about to be finished.
+	 *
+	 * It also init log dir to create log file if specified
+	 * @see #initLogDir()
+	 * 
+	 * @param testClass TestCase test class
+	 * @return test suite
+	 */
 	protected static Test buildSuite(Class testClass) {
 
 		// Create tests
@@ -123,9 +135,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * then he has to specify: -DlogDir=d:/usr/OTI/tests/perfs/stats in VM Arguments of his
 	 * performance test launch configuration.
 	 * 
-	 * CAUTION: Directory *must* exist before running test otherwise it won't be created
-	 * and CPU times won't be logged. This was intentional to avoid unexpected log files creation
-	 * (especially during bightly/integration builds).
+	 * CAUTION: Parent directory at least <b>must</b> exist before running test otherwise
+	 * it won't be created and times won't be logged.
+	 * This was intentional to avoid unexpected log files creation (especially during nightly/integration builds).
 	 */
 	protected static void initLogDir() {
 		String logDir = System.getProperty("logDir");
@@ -149,7 +161,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	/**
 	 * Create print streams (one for each type of statistic).
-	 * Log file names have all same prefix (see {@link getLogFilePrefix(String)}),
+	 * Log file names have all same prefix based on test class name,
 	 * include type of statistic stored in it and always have extension ".log".
 	 * 
 	 * If log file does not exist, then add column headers at the beginning of the file.
@@ -186,7 +198,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 	}
 
-	/*
+	/**
 	 * Perform gc several times to be sure that it won't take time while executing current test.
 	 */
 	protected void runGc() {
@@ -238,7 +250,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				if (cpuStats != null) {
 					double percent = cpuStats.stddev/cpuStats.average;
 					if (percent > STDDEV_THRESHOLD) {
-//						if (logStreams[0] != null) logStreams[0].print("'");
+						//if (logStreams[0] != null) logStreams[0].print("'"); // disable over threshold result for xls table
 						System.out.println("	WARNING: CPU time standard deviation is over "+stddevThresholdStr+"%: "+dFormat2.format(cpuStats.stddev)+"/"+cpuStats.average+"="+ pFormat.format(percent));
 						comments[0] = "stddev=" + pFormat.format(percent);
 					}
@@ -255,7 +267,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				if (elapsedStats != null) {
 					double percent = elapsedStats.stddev/elapsedStats.average;
 					if (percent > STDDEV_THRESHOLD) {
-//						if (logStreams[1] != null) logStreams[1].print("'");
+						//if (logStreams[1] != null) logStreams[1].print("'"); // disable over threshold result for xls table
 						System.out.println("	WARNING: Elapsed time standard deviation is over "+stddevThresholdStr+"%: "+dFormat.format(elapsedStats.stddev)+"/"+elapsedStats.average+"="+ pFormat.format(percent));
 						comments[1] = "stddev=" + pFormat.format(percent);
 					}
@@ -314,6 +326,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 	}
 
+	/**
+	 * Override super implementation to:
+	 * <ul>
+	 *		<li>store scenario names and comment (one scenario per test)</li>
+	 *		<li>init workspace if first test run</li>
+	 *		<li>increment test position</li>
+	 *	</ul>
+	 * @see org.eclipse.test.performance.PerformanceTestCase#setUp()
+	 */
 	protected void setUp() throws Exception {
 		super.setUp();
 
@@ -375,8 +396,13 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		if (DEBUG) System.out.println(shortName);
 		if (fingerprint) super.tagAsSummary(shortName, dimensions);
 	}
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#tearDown()
+	/**
+	 * Override super implementation to:
+	 *	<ul>
+	 *		<li>decrement all test count</li>
+	 *		<li>reset workspace and back to initial options if last test run</li>
+	 *</ul>
+	 * @see org.eclipse.test.performance.PerformanceTestCase#tearDown()
 	 */
 	protected void tearDown() throws Exception {
 		ALL_TESTS_COUNT--;
