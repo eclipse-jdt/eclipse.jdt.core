@@ -175,6 +175,15 @@
 		base-type="org.eclipse.core.runtime.text"
 		priority="high"				
 		file-extensions="java"/>
+	<!-- declares a content type for Java class files -->
+    <content-type id="javaClass" name="%javaClassName" 
+        priority="high"				
+        file-extensions="class">        
+        <describer
+            class="org.eclipse.core.runtime.content.BinarySignatureDescriber">
+            <parameter name="signature" value="CA, FE, BA, BE"/>
+        </describer>
+    </content-type>        
 	<!-- declares a content type for JAR manifest files -->
     <content-type id="JARManifest" name="%jarManifestName" 
         base-type="org.eclipse.core.runtime.text"
