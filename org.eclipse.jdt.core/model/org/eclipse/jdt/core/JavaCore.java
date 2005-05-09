@@ -2082,7 +2082,7 @@ public final class JavaCore extends Plugin {
 	 *    it cannot handle inside a @SuppressWarnings annotation.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"
 	 *     - possible values:   { "error", "warning", "ignore" }
-	 *     - default:           "ignore"
+	 *     - default:           "warning"
 	 *
 	 * BUILDER / Specifying Filters for Resource Copying Control
 	 *    Allow to specify some filters to control the resource copy process.

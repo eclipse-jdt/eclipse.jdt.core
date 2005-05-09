@@ -47,6 +47,17 @@ Eclipse SDK 3.1M7 - 9th May 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Enabled by default the optional compiler diagnosis to signal unhandled warning tokens in <code>@SuppressWarnings</code> annotations.
+Note that this warning can itself be turned off using @SuppressWarnings("warningToken").
+<pre>
+* COMPILER / Reporting Unhandled Warning Token for @SuppressWarnings
+*    When enabled, the compiler will issue an error or a warning when encountering a token
+*    it cannot handle inside a @SuppressWarnings annotation.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "warning"
+</pre>
+</li>
 <li> Code Assist provide the enclosing type reference when cursor is inside a type argument
 and the completion token is empty (in the same way as method calls).
 <pre>
@@ -173,7 +184,9 @@ Added new API methods to access this field:
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94053">94053</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=93588">93588</a>
+[compiler] java.lang.VerifyError: Looks similar to 60040 but is happening on current release
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94053">94053</a>
 [javadoc] Unknown references are not warned for string or href in @see/@link tags
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94111">94111</a>
 [assist] provide parameter hints for template instantiations

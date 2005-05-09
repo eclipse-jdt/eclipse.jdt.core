@@ -205,6 +205,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| AnnotationSuperInterface
 		| TypeParameterHiding
 		| FinalParameterBound
+		| UnhandledWarningToken
 		/*| NullReference*/;
 
 	// Debug attributes
