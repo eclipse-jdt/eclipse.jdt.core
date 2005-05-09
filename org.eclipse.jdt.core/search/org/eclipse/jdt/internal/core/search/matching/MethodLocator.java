@@ -247,9 +247,13 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			}
 			matchReportReference((MessageSend)reference, locator, ((MessageSend)reference).binding);
 		} else {
+			if (reference instanceof SingleMemberAnnotation) {
+				reference = ((SingleMemberAnnotation)reference).memberValuePairs()[0];
+				match.setImplicit(true);
+			}
 			int offset = reference.sourceStart;
+			int length =  reference.sourceEnd - offset + 1;
 			match.setOffset(offset);
-			int length = (reference instanceof SingleMemberAnnotation) ? 0 : reference.sourceEnd - offset + 1;
 			match.setLength(length);
 			locator.report(match);
 		}

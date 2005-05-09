@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
@@ -27,6 +30,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
@@ -52,7 +56,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug82208";
+//		TESTS_PREFIX =  "testBug93392";
 //		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
 //		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -1609,9 +1613,9 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		IMethod method = type.getMethod("value", new String[0]);
 		search(method, REFERENCES);
 		assertSearchResults(
-			"src/b83230/Test.java b83230.Test [] EXACT_MATCH\n" + 
-			"src/b83230/Test.java b83230.Test.bar [] EXACT_MATCH\n" + 
-			"src/b83230/Test.java void b83230.Test.foo() [] EXACT_MATCH"
+			"src/b83230/Test.java b83230.Test [41] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test.bar [21] EXACT_MATCH\n" + 
+			"src/b83230/Test.java void b83230.Test.foo() [10] EXACT_MATCH"
 		);
 	}
 	public void testBug83230_Implicit02() throws CoreException {
@@ -1635,9 +1639,9 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		IMethod method = type.getMethod("value", new String[0]);
 		search(method, REFERENCES);
 		assertSearchResults(
-			"src/b83230/Test.java A b83230.Main.first() [] EXACT_MATCH\n" + 
-			"src/b83230/Test.java b83230.Test [] EXACT_MATCH\n" + 
-			"src/b83230/Test.java b83230.Test [] EXACT_MATCH"
+			"src/b83230/Test.java A b83230.Main.first() [\"Void\"] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test [\"\"] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test [\"2\"] EXACT_MATCH"
 		);
 	}
 
@@ -2885,5 +2889,64 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"Unexpected all type names",
 			"b92944.B92944_A",
 			requestor);
+	}
+
+	/**
+	 * Bug 93392: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=93392"
+	 * 
+	 * Note that this test valid also:
+	 * Bug 94062: [1.5][search][annot] search for annotation elements incorrect match range
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94062"
+	 */
+	public void testBug93392() throws CoreException {
+		class TestCollector extends JavaSearchResultCollector {
+			public List matches = new ArrayList();
+			public void acceptSearchMatch(SearchMatch match) throws CoreException {
+				super.acceptSearchMatch(match);
+				matches.add(match);
+			}
+		}
+		TestCollector collector = new TestCollector();
+		collector.showAccuracy = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b93392/Test.java",
+			"package b93392;\n" + 
+			"@interface Annot {\n" + 
+			"	int value();\n" +
+			"}\n" +
+			"@Annot(41)\n" + 
+			"public class Test {\n" + 
+			"	@Annot(21)\n" + 
+			"	int bar;\n" + 
+			"	@Annot(10)\n" + 
+			"	public void foo() {}\n" + 
+			"}\n"
+		);
+		IType type = selectType(workingCopies[0], "Annot");
+		IMethod method = type.getMethod("value", new String[0]);
+		search(method, REFERENCES, getJavaSearchScopeBugs(), collector);
+		assertSearchResults(
+			"src/b93392/Test.java b93392.Test [41] EXACT_MATCH\n" + 
+			"src/b93392/Test.java b93392.Test.bar [21] EXACT_MATCH\n" + 
+			"src/b93392/Test.java void b93392.Test.foo() [10] EXACT_MATCH",
+			collector
+		);
+		// Verify matches positions
+		String source = workingCopies[0].getSource();
+		String str = "@Annot(";
+		// First match
+		assertEquals("Invalid number of matches", 3, collector.matches.size());
+		int index= source.indexOf(str)+str.length();
+		assertEquals("Invalid offset for first match", index, ((SearchMatch)collector.matches.get(0)).getOffset());
+		assertEquals("Invalid length for first match", 2, ((SearchMatch)collector.matches.get(0)).getLength());
+		// Second match
+		index= source.indexOf(str, index)+str.length();
+		assertEquals("Invalid offset for second match", index, ((SearchMatch)collector.matches.get(1)).getOffset());
+		assertEquals("Invalid length for second match", 2, ((SearchMatch)collector.matches.get(1)).getLength());
+		// Last match
+		index= source.indexOf(str, index)+str.length();
+		assertEquals("Invalid offset for last match", index, ((SearchMatch)collector.matches.get(2)).getOffset());
+		assertEquals("Invalid length for last match", 2, ((SearchMatch)collector.matches.get(2)).getLength());
 	}
 }

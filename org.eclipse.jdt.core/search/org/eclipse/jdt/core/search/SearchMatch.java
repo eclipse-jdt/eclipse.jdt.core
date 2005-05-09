@@ -63,6 +63,7 @@ public class SearchMatch {
 	
 	// store other necessary information
 	private boolean raw = false;
+	private boolean implicit = false;
 
 	/**
 	 * Creates a new search match.
@@ -201,6 +202,20 @@ public class SearchMatch {
 	}
 
 	/**
+	 * Returns whether the associated element is implicit or not.
+	 * 
+	 * Note that this piece of information is currently only implemented
+	 * for implicit member pair value in annotation.
+	 * 
+	 * @return <code>true</code> if this match is associated to an implicit
+	 * element and <code>false</code> otherwise
+	 * @since 3.1
+	 */
+	public final boolean isImplicit() {
+		return this.implicit;
+	}
+
+	/**
 	 * Returns whether the associated element is a raw type/method or not.
 	 * 
 	 * @return <code>true</code> if this match is associated to a raw
@@ -251,6 +266,19 @@ public class SearchMatch {
 	 */
 	public final void setInsideDocComment (boolean insideDoc) {
 		this.insideDocComment = insideDoc;
+	}
+
+	/**
+	 * Sets whether the associated element is implicit or not.
+	 * Typically, this is the case when match is on an implicit constructor
+	 * or an implicit member pair value in annotation.
+	 * 
+	 * @param implicit <code>true</code> if this match is associated to an implicit
+	 * element and <code>false</code> otherwise
+	 * @since 3.1
+	 */
+	public final void setImplicit(boolean implicit) {
+		this.implicit = implicit;
 	}
 
 	/**

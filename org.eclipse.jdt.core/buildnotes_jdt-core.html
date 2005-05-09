@@ -147,10 +147,23 @@ these are subject to changing in the near future.
      <li>warningToken : unhandled warning token</li>
   </ul>
 </li>
+<li>
+SearchMatch now has a implicit field which shows whether the associated element is implicit or not
+(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94062">94062</a>).<br>
+Added new API methods to access this field:
+<ul>
+<li><code>SearchMatch#isImplicit()</code><br></li>
+<li><code>SearchMatch#setImplicit(boolean)</code></li>
+</ul>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=84968">84968</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94062">94062</a>
+[1.5][search][annot] search for annotation elements incorrect match range
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=93392">93392</a>
+[1.5][search] Reference to implicit annotation element "value" has wrong offset
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=84968">84968</a>
 [1.5][generics] Exception type handling broken in latest milestone
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75885">75885</a>
 [1.5][compiler] Naming convention for local innerclasses
