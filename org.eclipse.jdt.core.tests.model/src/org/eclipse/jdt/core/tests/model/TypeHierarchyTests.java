@@ -46,9 +46,21 @@ public static Test suite() {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	setUpJavaProject("TypeHierarchy");
+	IJavaProject project = setUpJavaProject("TypeHierarchy");
+	addLibrary(project, "myLib.jar", "myLibsrc.zip", new String[] {
+		"my/pkg/X.java",
+		"package my.pkg;\n" + 
+		"public class X {\n" + 
+		"}",
+		"my/pkg/Y.java",
+		"package my.pkg;\n" + 
+		"public class Y {\n" + 
+		"  void foo() {\n" +
+		"    new X() {};" +
+		"  }\n" +
+		"}",
+	}, JavaCore.VERSION_1_4);
 	
-	IJavaProject project = this.getJavaProject("TypeHierarchy");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(project.getProject().getFile("lib.jar"));
 	IRegion region = JavaCore.newRegion();
 	region.add(root);
@@ -206,6 +218,16 @@ public void testAnonymousType6() throws JavaModelException {
 		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in TypeHierarchy]]]]\n" + 
 		"Sub types:\n",
 		hierarchy);
+}
+/*
+ * Ensure that the key of an anonymous binary type in a hierarchy is correct.
+ * (regression test for bug 93826 ArrayIndexOutOfBoundsException when opening type hierarchy)
+ */
+public void testAnonymousType7() throws CoreException {
+	IType type = getClassFile("TypeHierarchy","myLib.jar", "my.pkg", "X.class").getType();
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	IType[] subtypes = hierarchy.getSubtypes(type);
+	assertEquals("Unexpected key", "Lmy/pkg/Y$1;", subtypes.length < 1 ? null : subtypes[0].getKey());
 }
 /**
  * Ensures that the superclass can be retrieved for a binary inner type.
