@@ -527,17 +527,25 @@ public final class CompletionEngine
 	
 						// can be the start of a qualified type name
 						if (qualifiedBinding == null) {
-							findTypesAndPackages(this.completionToken, scope);
-							} else {
-								if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-									findMemberTypes(
-									this.completionToken,
-									(ReferenceBinding) qualifiedBinding,
-									scope,
-									scope.enclosingSourceType(),
-									false,
-									new ObjectVector());
-								}
+							if(this.completionToken.length == 0 &&
+									(astNodeParent instanceof ParameterizedSingleTypeReference ||
+											astNodeParent instanceof ParameterizedQualifiedTypeReference)) {
+								this.setSourceRange(astNode.sourceStart, astNode.sourceStart - 1, false);
+								
+								findParameterizedType((TypeReference)astNodeParent);
+							} else { 
+								findTypesAndPackages(this.completionToken, scope);
+							}
+						} else {
+							if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+								findMemberTypes(
+								this.completionToken,
+								(ReferenceBinding) qualifiedBinding,
+								scope,
+								scope.enclosingSourceType(),
+								false,
+								new ObjectVector());
+							}
 						}
 					} else {
 						
@@ -908,31 +916,36 @@ public final class CompletionEngine
 																		
 																		this.completionToken = memberValuePair.name;
 																		
-																		MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
-																		this.findAnnotationAttributes(this.completionToken, annotation.memberValuePairs(), (ReferenceBinding)annotation.resolvedType);
-																		if(memberValuePairs == null || memberValuePairs.length == 0) {
-																			if(annotation.resolvedType instanceof ReferenceBinding) {
-																				MethodBinding[] methodBindings =
-																					((ReferenceBinding)annotation.resolvedType).availableMethods();
-																				if(methodBindings != null &&
-																						methodBindings.length == 1 &&
-																						CharOperation.equals(methodBindings[0].selector, VALUE)) {
-																					if(this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
-																						findTypesAndPackages(this.completionToken, scope);
-																					} else {
-																						findVariablesAndMethods(
-																							this.completionToken,
-																							scope,
-																							FakeInvocationSite,
-																							scope,
-																							insideTypeAnnotation,
-																							true);
-																						// can be the start of a qualified type name
-																						findTypesAndPackages(this.completionToken, scope);
+																		if(this.completionToken.length == 0) {
+																			this.setSourceRange(astNode.sourceStart, astNode.sourceStart - 1, false);
+								
+																			findAnnotationReference(annotation.type);
+																		} else {
+																			MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
+																			this.findAnnotationAttributes(this.completionToken, annotation.memberValuePairs(), (ReferenceBinding)annotation.resolvedType);
+																			if(memberValuePairs == null || memberValuePairs.length == 0) {
+																				if(annotation.resolvedType instanceof ReferenceBinding) {
+																					MethodBinding[] methodBindings =
+																						((ReferenceBinding)annotation.resolvedType).availableMethods();
+																					if(methodBindings != null &&
+																							methodBindings.length == 1 &&
+																							CharOperation.equals(methodBindings[0].selector, VALUE)) {
+																						if(this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
+																							findTypesAndPackages(this.completionToken, scope);
+																						} else {
+																							findVariablesAndMethods(
+																								this.completionToken,
+																								scope,
+																								FakeInvocationSite,
+																								scope,
+																								insideTypeAnnotation,
+																								true);
+																							// can be the start of a qualified type name
+																							findTypesAndPackages(this.completionToken, scope);
+																						}
 																					}
 																				}
 																			}
-																			
 																		}
 																	}
 																}
@@ -1323,6 +1336,68 @@ public final class CompletionEngine
 				proposal.setFlags(method.modifiers);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 				proposal.setRelevance(relevance);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
+		}
+	}
+	private void findAnnotationReference(TypeReference ref) {
+		ReferenceBinding refBinding = (ReferenceBinding) ref.resolvedType;
+		if(refBinding != null) {
+			char[] packageName = refBinding.qualifiedPackageName();
+			char[] typeName = refBinding.qualifiedSourceName();
+			
+			int accessibility = IAccessRule.K_ACCESSIBLE;
+			if(refBinding.hasRestrictedAccess()) {
+				AccessRestriction accessRestriction = lookupEnvironment.getAccessRestriction(refBinding);
+				if(accessRestriction != null) {
+					switch (accessRestriction.getProblemId()) {
+						case IProblem.ForbiddenReference:
+							switch (this.options.restrictedReferenceFilter) {
+								case AssistOptions.FILTER_WARNING:
+									return;
+								case AssistOptions.FILTER_ERROR:
+									if(this.forbiddenReferenceIsError) return;
+									break;
+								
+							}
+							accessibility = IAccessRule.K_NON_ACCESSIBLE;
+							break;
+						case IProblem.DiscouragedReference:
+							switch (this.options.restrictedReferenceFilter) {
+								case AssistOptions.FILTER_WARNING:
+									return;
+								case AssistOptions.FILTER_ERROR:
+									if(this.discouragedReferenceIsError) return;
+									break;
+								
+							}
+							accessibility = IAccessRule.K_DISCOURAGED;
+							break;
+					}
+				}
+			}
+
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
+			relevance += computeRelevanceForCaseMatching(refBinding.sourceName, refBinding.sourceName);
+			relevance += computeRelevanceForExpectingType(refBinding);
+			relevance += computeRelevanceForQualification(false);
+			relevance += computeRelevanceForRestrictions(accessibility); // no access restriction for type in the current unit
+			
+			if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(packageName);
+				proposal.setSignature(getSignature(refBinding));
+				proposal.setPackageName(packageName);
+				proposal.setTypeName(typeName);
+				proposal.setCompletion(CharOperation.NO_CHAR);
+				proposal.setFlags(refBinding.modifiers);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				proposal.setAccessibility(accessibility);
 				this.requestor.accept(proposal);
 				if(DEBUG) {
 					this.printDebug(proposal);
@@ -3625,6 +3700,68 @@ public final class CompletionEngine
 		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this);
 	}
 
+	private void findParameterizedType(TypeReference ref) {
+		ReferenceBinding refBinding = (ReferenceBinding) ref.resolvedType;
+		if(refBinding != null) {
+			char[] packageName = refBinding.qualifiedPackageName();
+			char[] typeName = refBinding.qualifiedSourceName();
+			
+			int accessibility = IAccessRule.K_ACCESSIBLE;
+			if(refBinding.hasRestrictedAccess()) {
+				AccessRestriction accessRestriction = lookupEnvironment.getAccessRestriction(refBinding);
+				if(accessRestriction != null) {
+					switch (accessRestriction.getProblemId()) {
+						case IProblem.ForbiddenReference:
+							switch (this.options.restrictedReferenceFilter) {
+								case AssistOptions.FILTER_WARNING:
+									return;
+								case AssistOptions.FILTER_ERROR:
+									if(this.forbiddenReferenceIsError) return;
+									break;
+								
+							}
+							accessibility = IAccessRule.K_NON_ACCESSIBLE;
+							break;
+						case IProblem.DiscouragedReference:
+							switch (this.options.restrictedReferenceFilter) {
+								case AssistOptions.FILTER_WARNING:
+									return;
+								case AssistOptions.FILTER_ERROR:
+									if(this.discouragedReferenceIsError) return;
+									break;
+								
+							}
+							accessibility = IAccessRule.K_DISCOURAGED;
+							break;
+					}
+				}
+			}
+
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
+			relevance += computeRelevanceForCaseMatching(refBinding.sourceName, refBinding.sourceName);
+			relevance += computeRelevanceForExpectingType(refBinding);
+			relevance += computeRelevanceForQualification(false);
+			relevance += computeRelevanceForRestrictions(accessibility); // no access restriction for type in the current unit
+			
+			if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+				CompletionProposal proposal = this.createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+				proposal.setDeclarationSignature(packageName);
+				proposal.setSignature(getSignature(refBinding));
+				proposal.setPackageName(packageName);
+				proposal.setTypeName(typeName);
+				proposal.setCompletion(CharOperation.NO_CHAR);
+				proposal.setFlags(refBinding.modifiers);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setRelevance(relevance);
+				proposal.setAccessibility(accessibility);
+				this.requestor.accept(proposal);
+				if(DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
+		}
+	}
 	private void findTypeParameters(char[] token, Scope scope) {
 		if (this.compilerOptions.sourceLevel < ClassFileConstants.JDK1_5) return;
 		

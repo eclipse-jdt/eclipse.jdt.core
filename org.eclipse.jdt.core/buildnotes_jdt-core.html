@@ -47,6 +47,20 @@ Eclipse SDK 3.1M7 - ?th May 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Code Assist provide the enclosing type reference when cursor is inside a type argument
+and the completion token is empty (in the same way as method calls).
+<pre>
+p.q.X&lt;&lt;complete here&gt;&gt; // p.q.X<T,U> is proposed.
+p.q.X&lt;Object, &lt;complete here&gt;&gt; //p.q.X<T,U> is proposed
+</pre>
+</li>
+<li> Code Assist provide the enclosing annotation reference when completion is inside an annotation argument
+and the completion token is empty (in the same way as method calls).
+<pre>
+@Annot(&lt;complete here&gt;) // p.Annot is proposed.
+@Annot(foo1=0, &lt;complete here&gt;) // p.Annot is proposed.
+</pre>
+</li>
 <li> In 5.0 compliant mode, changed local inner type naming convention to reflect JLS 13.1 (3rd edition).
 As a consequence, instead of generating a file named <code>X$1$A.class</code>, it will simply be <code>X$1A.class"</code>.
 </li>
@@ -159,7 +173,9 @@ Added new API methods to access this field:
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94062">94062</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94111">94111</a>
+[assist] provide parameter hints for template instantiations
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94062">94062</a>
 [1.5][search][annot] search for annotation elements incorrect match range
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=93392">93392</a>
 [1.5][search] Reference to implicit annotation element "value" has wrong offset

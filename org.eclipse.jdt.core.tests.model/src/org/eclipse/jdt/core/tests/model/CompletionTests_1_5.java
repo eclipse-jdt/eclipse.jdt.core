@@ -46,7 +46,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests_1_5("test0187"));			
+	suite.addTest(new CompletionTests_1_5("test0192"));			
 	return suite;
 }
 
@@ -5213,6 +5213,228 @@ public void test0191() throws JavaModelException {
     assertResults(
             "var1[FIELD_REF]{var1, Ltest0191.Test<TU;>;, Ltest0191.ZZClass1<+TU;>;, var1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
             "var2[LOCAL_VARIABLE_REF]{var2, null, Ltest0191.ZZClass1<+TU;>;, var2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+public void test0192() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0192/Test.java",
+            "package test0192;\n" +     
+            "class ZZClass1<X,Y> {\n" +
+            "}\n" +
+            "public class Test {\n" +
+            "  ZZClass1<\n" +
+            "}",
+            "ZZClass1<");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "ZZClass1<X,Y>[TYPE_REF]{, test0192, Ltest0192.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+public void test0193() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0193/Test.java",
+            "package test0193;\n" +
+            "class ZZClass1<X,Y> {\n" +
+            "}\n" +
+            "public class Test {\n" +
+            "  void foo(){\n" +
+            "    ZZClass1<\n" +
+            "  }\n" +
+            "}",
+            "ZZClass1<");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "ZZClass1<X,Y>[TYPE_REF]{, test0193, Ltest0193.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+public void test0194() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0194/Test.java",
+            "package test0194;\n" +     
+            "class ZZClass1<X,Y> {\n" +
+            "}\n" +
+            "public class Test {\n" +
+            "  ZZClass1<Object,\n" +
+            "}",
+            "ZZClass1<Object,");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "ZZClass1<X,Y>[TYPE_REF]{, test0194, Ltest0194.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+public void test0195() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0195/Test.java",
+            "package test0195;\n" +
+            "class ZZClass1<X,Y> {\n" +
+            "}\n" +
+            "public class Test {\n" +
+            "  void foo(){\n" +
+            "    ZZClass1<Object,\n" +
+            "  }\n" +
+            "}",
+            "ZZClass1<Object,");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "ZZClass1<X,Y>[TYPE_REF]{, test0195, Ltest0195.ZZClass1<TX;TY;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+public void test0196() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0196/Test.java",
+            "package test0196;\n" +
+            "class ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            "@ZZAnnot(\n" +
+            "public class Test {\n" +
+            "}",
+            "@ZZAnnot(");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "ZZAnnot[TYPE_REF]{, test0196, Ltest0196.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+public void test0197() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0197/Test.java",
+            "package test0197;\n" +
+            "class ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            
+            "public class Test {\n" +
+            "  @ZZAnnot(\n" +
+            "  void foo(){}\n" +
+            "}",
+            "@ZZAnnot(");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "ZZAnnot[TYPE_REF]{, test0197, Ltest0197.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+public void test0198() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0198/Test.java",
+            "package test0198;\n" +
+            "class ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            
+            "public class Test {\n" +
+            "  @ZZAnnot(\n" +
+            "}",
+            "@ZZAnnot(");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "ZZAnnot[TYPE_REF]{, test0198, Ltest0198.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+public void test0199() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0199/Test.java",
+            "package test0199;\n" +
+            "class ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            "@ZZAnnot(foo1=0,\n" +
+            "public class Test {\n" +
+            "}",
+            "@ZZAnnot(foo1=0,");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "ZZAnnot[TYPE_REF]{, test0199, Ltest0199.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+public void test0200() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0200/Test.java",
+            "package test0200;\n" +
+            "class ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            
+            "public class Test {\n" +
+            "  @ZZAnnot(foo1=0,\n" +
+            "  void foo(){}\n" +
+            "}",
+            "@ZZAnnot(foo1=0,");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "ZZAnnot[TYPE_REF]{, test0200, Ltest0200.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
+            result.proposals);
+}
+public void test0201() throws JavaModelException {
+    CompletionResult result = complete(
+            "/Completion/src3/test0201/Test.java",
+            "package test0201;\n" +
+            "class ZZAnnot {\n" +
+            "  int foo1();\n" +
+            "  int foo2();\n" +
+            "}\n" +
+            
+            "public class Test {\n" +
+            "  @ZZAnnot(foo1=0,\n" +
+            "}",
+            "@ZZAnnot(foo1=0,");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "ZZAnnot[TYPE_REF]{, test0201, Ltest0201.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 }
