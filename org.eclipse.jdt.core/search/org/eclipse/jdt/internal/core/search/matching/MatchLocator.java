@@ -505,7 +505,9 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 					IBinaryMethod binaryMethod = methods[i];
 					char[] selector = binaryMethod.isConstructor() ? type.getElementName().toCharArray() : binaryMethod.getSelector();
 					if (CharOperation.equals(selector, method.selector)) {
-						char[][] parameterTypes = Signature.getParameterTypes(binaryMethod.getMethodDescriptor());
+						char[] signature = binaryMethod.getGenericSignature();
+						if (signature == null) signature = binaryMethod.getMethodDescriptor();
+						char[][] parameterTypes = Signature.getParameterTypes(signature);
 						if (argCount != parameterTypes.length) continue nextMethod;
 						for (int j = 0; j < argCount; j++) {
 							char[] typeName;
@@ -518,7 +520,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 									typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
 							}
 							char[] parameterTypeName = ClassFileMatchLocator.convertClassFileFormat(parameterTypes[j]);
-							if (!CharOperation.endsWith(Signature.toCharArray(parameterTypeName), typeName))
+							if (!CharOperation.endsWith(Signature.toCharArray(Signature.getTypeErasure(parameterTypeName)), typeName))
 								continue nextMethod;
 							parameterTypes[j] = parameterTypeName;
 						}

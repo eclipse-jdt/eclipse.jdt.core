@@ -56,7 +56,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug93392";
+//		TESTS_PREFIX =  "testBug87627";
 //		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
 //		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -1832,7 +1832,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
 			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" + 
 			"src/b83304/Constructors.java void b83304.Constructors.test() [new <String>Single<String>(\"\", \"\")] ERASURE_MATCH\n" + 
-			"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.returnParamType() ERASURE_MATCH"
+			"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.returnParamType() ERASURE_MATCH\n" + 
+			"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.complete(U, g5.m.def.Single<T>) ERASURE_MATCH"
 		);
 	}
 
@@ -2344,6 +2345,22 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
+	 * Bug 87627: [search] correct results are missing in java search
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=87627"
+	 */
+	public void testBug87627() throws CoreException {
+		IType type = getClassFile("JavaSearchBugs", "lib/b87627.jar", "b87627", "List.class").getType();
+		ITypeParameter[] parameters = type.getTypeParameters();
+		assertNotNull(type.getFullyQualifiedName()+" should have parameters", parameters);
+		assertEquals("Wrong number of parameters", 1, parameters.length);
+		search(parameters[0], REFERENCES);
+		assertSearchResults(
+			"lib/b87627.jar b87627.List EXACT_MATCH\n" + 
+			"lib/b87627.jar boolean b87627.List.addAll(b87627.Collection<? extends E>) EXACT_MATCH"
+		);
+	}
+
+	/**
 	 * Bug 88300: [search] Reference search result is changed by placement of private method
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88300"
 	 */
@@ -2631,6 +2648,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"b81556.a.B81556\n" + 
 			"b81556.a.X81556\n" + 
 			"b81556.b.XX81556\n" + 
+			"b87627.Collection\n" + 
+			"b87627.List\n" + 
 			"b89848.Test\n" + 
 			"b89848.X\n" + 
 			"b92944.B92944\n" + 
@@ -2739,6 +2758,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"b81556.a.B81556\n" + 
 			"b81556.a.X81556\n" + 
 			"b81556.b.XX81556\n" + 
+			"b87627.Collection\n" + 
+			"b87627.List\n" + 
 			"b89848.Test\n" + 
 			"b89848.X\n" + 
 			"b92944.B92944\n" + 
@@ -2842,6 +2863,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 		assertSearchResults(
 			"Unexpected all type names",
+			"b87627.Collection\n" + 
+			"b87627.List\n" + 
 			"b92944.B92944_I\n" + 
 			"java.io.Serializable\n" + 
 			"java.lang.Comparable\n" +
