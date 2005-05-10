@@ -860,7 +860,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			try {
 				this.log = new PrintWriter(new FileOutputStream(logFileName, false));
 				int index = logFileName.lastIndexOf('.');
-				if (index != 0) {
+				if (index != -1) {
 					if (logFileName.substring(index).toLowerCase().equals(".xml")) { //$NON-NLS-1$
 						this.isXml = true;
 						this.log.println(XML_HEADER);
