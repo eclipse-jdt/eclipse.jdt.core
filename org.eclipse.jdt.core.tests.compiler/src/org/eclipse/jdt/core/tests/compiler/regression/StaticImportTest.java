@@ -177,33 +177,43 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 3)\n" + 
-			"	import static p2.Z.Zint;\n" + 
+			"1. WARNING in p\\X.java (at line 2)\r\n" + 
+			"	import static p2.Y.*;\r\n" + 
+			"	              ^^^^\n" + 
+			"The import p2.Y is never used\n" + 
+			"----------\n" + 
+			"2. ERROR in p\\X.java (at line 3)\r\n" + 
+			"	import static p2.Z.Zint;\r\n" + 
 			"	              ^^^^^^^^^\n" + 
 			"The import p2.Z.Zint cannot be resolved\n" + 
 			"----------\n" + 
-			"2. ERROR in p\\X.java (at line 4)\n" + 
-			"	import static p2.Z.ZMember;\n" + 
+			"3. ERROR in p\\X.java (at line 4)\r\n" + 
+			"	import static p2.Z.ZMember;\r\n" + 
 			"	              ^^^^^^^^^^^^\n" + 
 			"The import p2.Z.ZMember cannot be resolved\n" + 
 			"----------\n" + 
-			"3. ERROR in p\\X.java (at line 6)\n" + 
-			"	int x = y(1);\n" + 
+			"4. ERROR in p\\X.java (at line 6)\r\n" + 
+			"	int x = y(1);\r\n" + 
 			"	        ^\n" + 
 			"The method y(int) is undefined for the type X\n" + 
 			"----------\n" + 
-			"4. ERROR in p\\X.java (at line 7)\n" + 
-			"	int y = Yint;\n" + 
+			"5. ERROR in p\\X.java (at line 7)\r\n" + 
+			"	int y = Yint;\r\n" + 
 			"	        ^^^^\n" + 
 			"Yint cannot be resolved\n" + 
 			"----------\n" + 
-			"5. ERROR in p\\X.java (at line 8)\n" + 
-			"	int z = Zint;\n" + 
+			"6. ERROR in p\\X.java (at line 8)\r\n" + 
+			"	int z = Zint;\r\n" + 
 			"	        ^^^^\n" + 
 			"Zint cannot be resolved\n" + 
 			"----------\n" + 
-			"6. ERROR in p\\X.java (at line 10)\n" + 
-			"	void m2(ZMember m) {}\n" + 
+			"7. ERROR in p\\X.java (at line 9)\r\n" + 
+			"	void m1(YMember m) {}\r\n" + 
+			"	        ^^^^^^^\n" + 
+			"YMember cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"8. ERROR in p\\X.java (at line 10)\r\n" + 
+			"	void m2(ZMember m) {}\r\n" + 
 			"	        ^^^^^^^\n" + 
 			"ZMember cannot be resolved to a type\n" + 
 			"----------\n");
@@ -1014,7 +1024,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"import static p1.Z.I;\n" + 
 				"public class Y implements I {\n" + 
 				"}\n",
-				"X.java",//====================
+				"p/X.java",//====================
 				"package p;\n" + 
 				"public enum X {\n" + 
 				"	I, J, K\n" + 
@@ -1071,6 +1081,53 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	  ^^^^\n" + 
 			"The method fooB() is undefined for the type C.B\n" + 
 			"----------\n"
+		);
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94262
+	public void test030() {
+		this.runNegativeTest(
+			new String[] {
+				"p2/Test.java",
+				"package p2;\n" + 
+				"import static p1.A.*;\n" + 
+				"public class Test {\n" + 
+				"	Inner1 i; // not found\n" + 
+				"	Inner2 j;\n" + 
+				"}\n",
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A {\n" + 
+				"	public class Inner1 {}\n" +
+				"	public static class Inner2 {}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in p2\\Test.java (at line 4)\n" + 
+			"	Inner1 i; // not found\n" + 
+			"	^^^^^^\n" + 
+			"Inner1 cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+		this.runConformTest(
+			new String[] {
+				"p2/Test.java",
+				"package p2;\n" + 
+				"import p1.A.*;\n" + 
+				"import static p1.A.*;\n" + 
+				"import static p1.A.*;\n" + 
+				"public class Test {\n" + 
+				"	Inner1 i;\n" + 
+				"	Inner2 j;\n" + 
+				"}\n",
+				"p1/A.java",
+				"package p1;\n" + 
+				"public class A {\n" + 
+				"	public class Inner1 {}\n" +
+				"	public static class Inner2 {}\n" + 
+				"}\n",
+			},
+			""
 		);
 	}
 }

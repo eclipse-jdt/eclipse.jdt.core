@@ -2495,12 +2495,17 @@ public abstract class Scope
 					ImportBinding someImport = imports[i];
 					if (someImport.onDemand) {
 						Binding resolvedImport = someImport.resolvedImport;
-						ReferenceBinding temp = resolvedImport instanceof PackageBinding
-							? findType(name, (PackageBinding) resolvedImport, currentPackage)
-							: (someImport.isStatic()
-								? findMemberType(name, (ReferenceBinding) resolvedImport) // static imports are allowed to see inherited member types
-								: findDirectMemberType(name, (ReferenceBinding) resolvedImport));
-						if (temp != null) {
+						ReferenceBinding temp = null;
+						if (resolvedImport instanceof PackageBinding) {
+							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);
+						} else if (someImport.isStatic()) {
+							temp = findMemberType(name, (ReferenceBinding) resolvedImport); // static imports are allowed to see inherited member types
+							if (temp != null && !temp.isStatic())
+								temp = null;
+						} else {
+							temp = findDirectMemberType(name, (ReferenceBinding) resolvedImport);
+						}
+						if (temp != type && temp != null) {
 							if (temp.isValidBinding()) {
 								ImportReference importReference = someImport.reference;
 								if (importReference != null) importReference.used = true;
