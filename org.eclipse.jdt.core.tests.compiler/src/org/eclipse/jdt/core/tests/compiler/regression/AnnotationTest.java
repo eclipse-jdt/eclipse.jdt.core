@@ -4483,4 +4483,20 @@ public class AnnotationTest extends AbstractComparableTest {
 			"----------\n",
 			null, true, customOptions);
     }          
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90111 - variation
+    public void test140() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"  static void foo(){}\n" + 
+				"}\n" + 
+				"class Bar extends X {\n" + 
+				"  @Override\n" + 
+				"  static void foo(){}	\n" + 
+				"}\n" + 
+				"\n"
+            },
+			"");
+    }              
 }
