@@ -1603,7 +1603,7 @@ public class JavaProject
 			Iterator propertyNames = projectOptions.keySet().iterator();
 			while (propertyNames.hasNext()) {
 				String propertyName = (String) propertyNames.next();
-				String propertyValue = (String) perProjectInfo.options.get(propertyName);
+				String propertyValue = (String) projectOptions.get(propertyName);
 				if (propertyValue != null && optionNames.contains(propertyName)){
 					options.put(propertyName, propertyValue.trim());
 				}
