@@ -28,4 +28,6 @@ public interface ICompilationParticipant {
 	public static final int PRE_BUILD_EVENT      = 4;
 	/** a flag indicating an event fired after a build */
 	public static final int POST_BUILD_EVENT     = 8;
+	/** a flag indicating an event fired before a clean operation */
+	public static final int CLEAN_EVENT          = 16;
 }

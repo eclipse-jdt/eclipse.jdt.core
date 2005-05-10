@@ -28,16 +28,17 @@ public class PreBuildCompilationResult extends CompilationParticipantResult {
 	/**
 	 * Construct a new PreBuildCompilationResult.  
 	 * 
-	 * @param files  - array of newly generated files that need to be inserted into
+	 * @param newFiles  - array of newly generated files that need to be inserted into
 	 *                 the compilation loop
 	 * @param newDependencyInfo - Map<IFile, Set<String>> where each entry in the map
 	 *        is the set of fully-qualified type names which are new dependencies 
 	 *        for the IFile.  The JDT will record these new dependencies in its depdency
 	 *        matrix. 
 	 */
-	public PreBuildCompilationResult( IFile[] files, Map newDependencyInfo )
+	public PreBuildCompilationResult( IFile[] newFiles, IFile[] deletedFiles, Map newDependencyInfo )
 	{
-		_files = files;
+		_newFiles = newFiles;
+		_deletedFiles = deletedFiles;
 		_newDependencyInfo = newDependencyInfo;
 	}
 	
@@ -46,8 +47,14 @@ public class PreBuildCompilationResult extends CompilationParticipantResult {
 	 * @return IFile[] that is the set of new files to be added into the compilation
 	 * set.
 	 */
-	public IFile[] getNewFiles() { return _files; }
+	public IFile[] getNewFiles() { return _newFiles; }
 	
+	/** 
+	 * 
+	 * @return IFile[] that is the set of files to be deleted from the compilation set
+	 */
+	public IFile[] getDeletedFiles() { return _deletedFiles; }
+		
 	/**
 	 * 
 	 * @return Map<IFile, Set<String>> that maps IFile to the fully-qualified type
@@ -63,7 +70,8 @@ public class PreBuildCompilationResult extends CompilationParticipantResult {
 	 */
 	public final int getKind() { return ICompilationParticipant.PRE_BUILD_EVENT; }
 	
-	private IFile[] _files;
+	private IFile[] _newFiles;
+	private IFile[] _deletedFiles;
 	private Map     _newDependencyInfo;
 
 }
