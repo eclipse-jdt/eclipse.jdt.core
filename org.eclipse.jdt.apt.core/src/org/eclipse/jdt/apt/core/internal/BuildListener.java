@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.APTDispatch.APTBuildResult;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CompilationParticipantEvent;
 import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
@@ -32,7 +34,6 @@ import org.eclipse.jdt.core.compiler.PostReconcileCompilationEvent;
 import org.eclipse.jdt.core.compiler.PostReconcileCompilationResult;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationEvent;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationResult;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
@@ -65,12 +66,13 @@ public class BuildListener implements ICompilationParticipant
 		if ( cpe == null )
 			return GENERIC_COMPILATION_RESULT;
 
-		else if ( cpe instanceof PreBuildCompilationEvent )
+		else if ( cpe.getKind() == ICompilationParticipant.PRE_BUILD_EVENT )
 			return preBuildNotify( (PreBuildCompilationEvent) cpe );
 		
-		else if ( cpe instanceof PostReconcileCompilationEvent )
+		else if ( cpe.getKind() == ICompilationParticipant.POST_RECONCILE_EVENT )
 			return postReconcileNotify( (PostReconcileCompilationEvent) cpe );
-
+		else if ( cpe.getKind() == ICompilationParticipant.CLEAN_EVENT )
+			return cleanNotify( cpe );
 		else 
 			return GENERIC_COMPILATION_RESULT;		
 	}
@@ -87,18 +89,25 @@ public class BuildListener implements ICompilationParticipant
 			return EMPTY_PRE_BUILD_COMPILATION_RESULT;
 
 		HashSet<IFile> newFiles = new HashSet<IFile>();
+		HashSet<IFile> deletedFiles = new HashSet<IFile>();
 		HashMap<IFile, Set<String>> newDependencies = new HashMap<IFile, Set<String>>();
 		for ( int i = 0; i < buildFiles.length; i++ )
 		{
-			APTBuildResult result = APTDispatch.runAPTDuringBuild( 
+			APTResult result = APTDispatch.runAPTDuringBuild( 
 					_factories, 
 					buildFiles[i], 
 					javaProject );
-			newFiles.addAll( result.getNewFiles() );
+			newFiles.addAll( result.getNewFiles() );			
+			deletedFiles.addAll( result.getDeletedFiles() );
 			newDependencies.put( buildFiles[i], result.getNewDependencies() );
 		}
 		
-		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), newDependencies ); 
+		// for apt, new files will always trump deleted files
+		for ( IFile df : deletedFiles )
+			if ( newFiles.contains( df ) )
+				deletedFiles.remove( df );
+
+		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), newDependencies ); 
 	}
 	
 	private CompilationParticipantResult postReconcileNotify( PostReconcileCompilationEvent prce )
@@ -106,14 +115,13 @@ public class BuildListener implements ICompilationParticipant
 		try
 		{
 			org.eclipse.jdt.core.ICompilationUnit cu = prce.getCompilationUnit();
-			CompilationUnit ast = prce.getAst();	
 			IJavaProject javaProject = prce.getJavaProject();
 			
 			// these are null sometimes.  Not sure why...
-			if ( ast == null || cu == null || javaProject == null  )
+			if ( cu == null || javaProject == null  )
 				return GENERIC_COMPILATION_RESULT;
 			
-			APTDispatch.runAPTDuringReconcile( _factories, ast, cu, javaProject );
+			APTDispatch.runAPTDuringReconcile( _factories, cu, javaProject );
 		}
 		catch ( Throwable t )
 		{
@@ -122,12 +130,20 @@ public class BuildListener implements ICompilationParticipant
 		return new PostReconcileCompilationResult();
 	}
 
+	private CompilationParticipantResult cleanNotify( CompilationParticipantEvent cpe )
+	{
+		IProject p = cpe.getJavaProject().getProject();
+		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
+		gfm.projectClean( true );
+		return GENERIC_COMPILATION_RESULT;
+	}
+	
     private List<AnnotationProcessorFactory> _factories;
     private AnnotationProcessorFactoryLoader _factoryLoader;
     private final static String DOT_JAVA = ".java";
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 
-		new PreBuildCompilationResult( new IFile[0], Collections.emptyMap() );
+		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap() );
 
 	private final static CompilationParticipantResult GENERIC_COMPILATION_RESULT = 
 		new CompilationParticipantResult();

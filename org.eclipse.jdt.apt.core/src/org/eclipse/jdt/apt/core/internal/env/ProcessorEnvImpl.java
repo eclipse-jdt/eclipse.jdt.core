@@ -36,15 +36,24 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
+import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImplNoBinding;
+import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.type.PrimitiveTypeImpl;
+import org.eclipse.jdt.apt.core.internal.type.VoidTypeImpl;
 import org.eclipse.jdt.apt.core.internal.util.DeclarationsUtil;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
+import org.eclipse.jdt.apt.core.internal.util.PackageUtil;
 import org.eclipse.jdt.apt.core.internal.util.TypesUtil;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -88,7 +97,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 {	
 	public static final String RECONCILE_MARKER = "org.eclipse.jdt.apt.core.reconcile_marker";
 	public static final String BUILD_MARKER		= "org.eclipse.jdt.apt.core.build_marker";
-	private static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
+	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
 	
     public enum Phase { RECONCILE, BUILD };
 	
@@ -104,18 +113,24 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	private final char[] _source;
 
 	private final IJavaProject _javaProject;
-    private final Set<IFile> _generatedFiles = new HashSet<IFile>();
+	// Stores the generated files and whether or not they were modified. In this case,
+	// new files will be considered "modified".
+    private final Map<IFile, Boolean> _generatedFiles = new HashMap<IFile, Boolean>();
 	private Set<AnnotationProcessorListener> _listeners = null;	
 	private final FilerImpl _filer;
-	private boolean _isClosed = false;
-	
+	private boolean _isClosed = false;	
+
 	/** 
 	 * Set of strings that indicate new type dependencies introduced on the file 
 	 * each string is a fully-qualified type name.
 	 */
 	private Set<String> _typeDependencies = new HashSet<String>();
 
-	
+	// void type and the primitive types will be null if the '_file'
+	// is outside of the workspace.
+	private VoidTypeImpl _voidType;	
+	private PrimitiveTypeImpl[] _primitives;
+
     /**
      * Mapping model compilation unit to dom compilation unit.
      * The assumption here is that once the client examine some binding from some file, it will continue
@@ -127,9 +142,9 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	 */
 	private final Map<ITypeBinding, ICompilationUnit> _typeBinding2ModelCompUnit;
 
-    public static ProcessorEnvImpl newProcessorEnvironmentForReconcile(CompilationUnit astCompilationUnit, ICompilationUnit compilationUnit, IJavaProject javaProj)
+    public static ProcessorEnvImpl newProcessorEnvironmentForReconcile(ICompilationUnit compilationUnit, IJavaProject javaProj)
     {
-       	return new ProcessorEnvImpl( astCompilationUnit, compilationUnit, javaProj, Phase.RECONCILE );   	
+       	return new ProcessorEnvImpl( compilationUnit, javaProj, Phase.RECONCILE );   	
     }
 
     public static ProcessorEnvImpl newProcessorEnvironmentForBuild( IFile file, IJavaProject javaProj )
@@ -158,14 +173,8 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		_source = source;
 		assert _source != null : "missing source";
 	
-		ASTParser p = ASTParser.newParser( AST.JLS3 );
-		p.setSource( _source );
-		p.setResolveBindings( true );
-		p.setProject( javaProj );
-		p.setUnitName( file.getProjectRelativePath().toString() );
-		p.setFocalPosition( 0 );
-		p.setKind( ASTParser.K_COMPILATION_UNIT );
-		ASTNode node = p.createAST( null );
+		String unitName = file.getProjectRelativePath().toString();
+		ASTNode node = createDietAST( unitName, javaProj, null, _source );
 		_astCompilationUnit = (org.eclipse.jdt.core.dom.CompilationUnit) node;
         _phase = phase;
         _file = file;
@@ -174,14 +183,19 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
         _markerInfos = new ArrayList<MarkerInfo>(4);
 		_filer = new FilerImpl(this);
+		initPrimitives(_javaProject);
     }
     
-    private ProcessorEnvImpl(CompilationUnit astCompilationUnit, ICompilationUnit compilationUnit, IJavaProject javaProj, Phase phase)
+    private ProcessorEnvImpl(ICompilationUnit compilationUnit, IJavaProject javaProj, Phase phase)
     {
         assert phase == Phase.RECONCILE : "Unexpected phase value.  Use Phase.RECONCILE instead of " + phase;       
-    	
-		_source = null;
-        _astCompilationUnit = astCompilationUnit;
+   
+		_source = null;	
+		String unitName =  compilationUnit.getResource().getProjectRelativePath().toString();
+		ASTNode node = createDietAST( unitName, javaProj, compilationUnit, null );
+			
+		_astCompilationUnit = (org.eclipse.jdt.core.dom.CompilationUnit) node; 
+								
         _compilationUnit = compilationUnit;	
         _phase = phase;
         _file = (IFile)compilationUnit.getResource();
@@ -190,9 +204,30 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
         _markerInfos = new ArrayList<MarkerInfo>(4);
 		_filer = new FilerImpl(this);
+		initPrimitives(_javaProject);
     }
 
-    
+	
+	/**
+	 *  This should create an AST without imports or method-body statements 
+	 */
+	private static ASTNode createDietAST( String unitName, IJavaProject javaProject, ICompilationUnit compilationUnit, char[] source )
+	{
+		ASTParser p = ASTParser.newParser( AST.JLS3 );
+		if ( compilationUnit != null )
+			p.setSource( compilationUnit );
+		else
+			p.setSource( source );
+		p.setResolveBindings( true );
+		p.setProject( javaProject );
+		p.setUnitName( unitName );
+		p.setFocalPosition( 0 );
+		p.setKind( ASTParser.K_COMPILATION_UNIT );
+		ASTNode node = p.createAST( null );
+		return node;
+	}
+	
+	
     public Collection<Declaration> getDeclarationsAnnotatedWith(AnnotationTypeDeclaration a)
     {
         final ITypeBinding annotationType = TypesUtil.getTypeBinding(a);
@@ -474,8 +509,85 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 
     public PackageDeclaration getPackage(String name)
     {
+		if (name == null)
+			throw new IllegalArgumentException("name cannot be null");
+		
 		checkValid();
-        throw new UnsupportedOperationException("NYI");       
+        IPackageFragment[] pkgFrags = PackageUtil.getPackageFragments(name, this);
+		
+		// No packages found, null expected
+		if (pkgFrags.length == 0)
+			return null;
+		
+		// If there are no source or class files, we'll need to return
+		// a special implementation of the package decl that expects
+		// no declarations inside it
+		boolean containsNoJavaResources = true;
+		for (IPackageFragment pkg : pkgFrags) {
+			try {
+				if (pkg.containsJavaResources()) {
+					containsNoJavaResources = false;
+					break;
+				}
+			}
+			catch (JavaModelException e) {}
+		}
+		if (containsNoJavaResources)
+			return new PackageDeclarationImplNoBinding(pkgFrags, this);
+		
+		// We should be able to create a class or 
+		// source file from one of the packages.
+		ICompilationUnit compUnit = null;
+		IClassFile classFile = null;
+		
+		OUTER:
+		for (IPackageFragment pkg : pkgFrags) {
+			try {
+				ICompilationUnit[] compUnits = pkg.getCompilationUnits();
+				if (compUnits.length > 0) {
+					compUnit = compUnits[0];
+					break;
+				}
+				IClassFile[] classFiles = pkg.getClassFiles();
+				if (classFiles.length > 0) {
+					// Need to grab the first one that's not an inner class,
+					// as eclipse has trouble parsing inner class files
+					for (IClassFile tempClassFile : classFiles) {
+						if (tempClassFile.getElementName().indexOf("$") < 0) {
+							classFile = tempClassFile;
+							break OUTER;
+						}
+					}
+				}
+			}
+			catch (JavaModelException e) {}
+		}
+		
+		IType type = null;
+		if (compUnit != null) {
+			try {
+				IType[] types = compUnit.getAllTypes();
+			}
+			catch (JavaModelException e) {}
+		}
+		else if (classFile != null) {
+			try {
+				type = classFile.getType();
+			}
+			catch (JavaModelException e) {}
+		}
+		
+		// Given a type, we can construct a package declaration impl from it,
+		// but we must hide the fact that it came from a real declaration,
+		// as the client requested it without that context
+		if (type != null) {
+			TypeDeclarationImpl typeDecl = (TypeDeclarationImpl)getTypeDeclaration(type);
+			ITypeBinding binding = typeDecl.getDeclarationBinding();
+			return new PackageDeclarationImpl(binding.getPackage(), typeDecl, this, true);
+		}
+		
+		// No classes or source files found
+		return new PackageDeclarationImplNoBinding(pkgFrags, this);
     }
 
     public Collection<TypeDeclaration> getSpecifiedTypeDeclarations()
@@ -494,7 +606,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 			private ITypeBinding _result = null;
 			public void acceptBinding(String bindingKey, IBinding binding)
 			{
-				if( binding.getKind() == IBinding.TYPE )
+				if( binding != null && binding.getKind() == IBinding.TYPE )
 					_result = (ITypeBinding)binding;
 			}
 		}
@@ -534,6 +646,12 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	
 		return null;		
     }
+	
+	public TypeDeclaration getTypeDeclaration(final IType type) {
+		if (type == null) return null;
+		String name = type.getFullyQualifiedName();
+		return getTypeDeclaration(name);
+	}
 
     /**
      * @return the list of all named type declarations in compilation unit associated with
@@ -614,7 +732,9 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		return Collections.unmodifiableSet(_listeners);
 	}
 
-	public void addGeneratedFile( IFile f )            { _generatedFiles.add( f ); }
+	public void addGeneratedFile( IFile f, boolean contentsChanged ) { 
+		_generatedFiles.put( f, contentsChanged );
+	}
 	
     public CompilationUnit  getAstCompilationUnit()    { return _astCompilationUnit; }
     public ICompilationUnit getCompilationUnit()       { return _compilationUnit; }
@@ -622,7 +742,8 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 
     public IFile            getFile()                  { return _file; }    
     public IProject         getProject()               { return _javaProject.getProject(); }
-    public Set<IFile>       getGeneratedFiles()        { return _generatedFiles; }
+	public IJavaProject		getJavaProject()		   { return _javaProject; }
+    public Map<IFile, Boolean>       getGeneratedFiles()        { return _generatedFiles; }
 	
 	/**	 
 	 * @return true iff source files has been generated. 
@@ -939,6 +1060,68 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	{
 		_typeDependencies.add( fullyQualifiedTypeName );
 	}
+	
+	private void initPrimitives(final IJavaProject project)
+	{
+		if(_primitives != null ) return;
+		_primitives = new PrimitiveTypeImpl[8];
+		class PrimitiveBindingRequestor extends ASTRequestor
+		{	
+			public void acceptBinding(String bindingKey, IBinding binding)
+			{
+				if( binding.getKind() == IBinding.TYPE ){
+					if( "boolean".equals(binding.getName()) )
+						_primitives[0] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( "byte".equals(binding.getName()) )
+						_primitives[1] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( "char".equals(binding.getName()) )
+						_primitives[2] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( "double".equals(binding.getName()) )
+						_primitives[3] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( "float".equals(binding.getName()) )
+						_primitives[4] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( "int".equals(binding.getName()) )
+						_primitives[5] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( "long".equals(binding.getName()) )
+						_primitives[6] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( "short".equals(binding.getName()) )
+						_primitives[7] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( "void".equals(binding.getName()) )
+						_voidType = new VoidTypeImpl( (ITypeBinding)binding );
+					else
+						System.err.println("got unexpected type " + binding.getName());
+				}
+				else
+					System.err.println("got unexpected binding " + binding.getClass().getName() + binding );
+			}
+		}
+		
+		final String[] keys = { BindingKey.createTypeBindingKey("boolean"),
+				BindingKey.createTypeBindingKey("byte"),
+				BindingKey.createTypeBindingKey("char"),
+				BindingKey.createTypeBindingKey("double"),
+				BindingKey.createTypeBindingKey("float"),
+				BindingKey.createTypeBindingKey("int"),
+				BindingKey.createTypeBindingKey("long"),
+				BindingKey.createTypeBindingKey("short"), 
+				BindingKey.createTypeBindingKey("void")};
+		
+		final PrimitiveBindingRequestor requestor = new PrimitiveBindingRequestor();
+		final ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setProject(project);
+		parser.setResolveBindings(true);
+		parser.createASTs(ProcessorEnvImpl.NO_UNIT, keys, requestor, null);		
+	}
+	
+	public PrimitiveTypeImpl getBooleanType(){ return _primitives[0]; }		
+	public PrimitiveTypeImpl getByteType(){ return _primitives[1]; }		
+	public PrimitiveTypeImpl getCharType(){ return _primitives[2]; }		
+	public PrimitiveTypeImpl getDoubleType(){ return _primitives[3]; }
+	public PrimitiveTypeImpl getFloatType(){ return _primitives[4]; }		
+	public PrimitiveTypeImpl getIntType(){ return _primitives[5]; }		
+	public PrimitiveTypeImpl getLongType(){ return _primitives[6]; }		
+	public PrimitiveTypeImpl getShortType(){ return _primitives[7]; }
+	public VoidTypeImpl getVoidType(){ return _voidType; }
 	
 	// End of implementation for EclipseAnnotationProcessorEnvironment
 }

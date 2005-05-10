@@ -64,7 +64,7 @@
       point="org.eclipse.jdt.core.compilationParticipant">
    <compilationParticipant
          class="org.eclipse.jdt.apt.core.internal.BuildListener"
-         eventMask="0x0f"/>
+         eventMask="0xff"/>
 </extension>
 
 </plugin>

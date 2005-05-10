@@ -6,11 +6,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    mkaufman@bea.com - initial API and implementation
+ *    jgarms@bea.com - initial API and implementation
  *    
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.tests.annotations.helloworld;
+
+package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,28 +23,24 @@ import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
-public class HelloWorldAnnotationProcessorFactory implements
-AnnotationProcessorFactory 
-{
+public class MirrorTestAnnotationProcessorFactory implements AnnotationProcessorFactory {
 
 	public Collection<String> supportedOptions() {
 		return Collections.emptyList();
 	}
 
 	public Collection<String> supportedAnnotationTypes() {
-		return annotations;
+		return ANNOTATIONS;
 	}
 
-	public AnnotationProcessor getProcessorFor(
-			Set<AnnotationTypeDeclaration> atds,
-			AnnotationProcessorEnvironment env) 
-	{
-		return new HelloWorldAnnotationProcessor( env );
+	public AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> typeDecls, AnnotationProcessorEnvironment env) {
+		return new MirrorTestAnnotationProcessor(env);
 	}
 	
-	private static ArrayList<String> annotations = new ArrayList<String>();
+	private static ArrayList<String> ANNOTATIONS = new ArrayList<String>();
 	
-	{
-		annotations.add( HelloWorldAnnotation.class.getName() );
+	static {
+		ANNOTATIONS.add( MirrorTestAnnotation.class.getName() );
 	}
+
 }

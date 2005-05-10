@@ -10,23 +10,9 @@
  *    
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.tests.annotations.extradependency;
+package org.eclipse.jdt.apt.tests.annotations.nestedhelloworld;
 
-import com.sun.mirror.apt.AnnotationProcessor;
-import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-
-public class ExtraDependencyAnnotationProcessor implements AnnotationProcessor
+public @interface NestedHelloWorldAnnotation
 {
-
-	public ExtraDependencyAnnotationProcessor(AnnotationProcessorEnvironment env)
-	{
-		_env = env;
-	}
-
-	public void process()
-	{
-		_env.getTypeDeclaration( "p1.p2.p3.p4.C" );
-	}
-
-	AnnotationProcessorEnvironment	_env;
+	String value() default "";
 }

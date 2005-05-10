@@ -41,25 +41,65 @@ public class AptReconcileTests extends ModifyingResourceTests
 		String fname = TEST_FOLDER + "/A.java";
 		try
 		{
-			String code = "package generatedfilepackage;"
-				+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" + 
+			
+			//
+			//  first make sure errors are present when the annotation
+			// is commented out
+			//
+			String codeWithErrors = "package test;" + "\n" +
+				"//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" + 
 				"public class A " +  "\n" +
 				"{" +  "\n" +
-				"    @HelloWorldAnnotation" + "\n" + 
+				"    //@HelloWorldAnnotation" + "\n" + 
 				"    public static void main( String[] argv )" + "\n" +
 				"    {" + "\n" +
-				"        GeneratedFileTest.helloWorld();" + "\n" +
+				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
 				"    }" + "\n" +
 				"}";
 
-			createFile( fname, code );
-
-			setUpWorkingCopy( fname, code );
+			createFile( fname, codeWithErrors );
 			this._problemRequestor = new ProblemRequestor();
 			
+			setUpWorkingCopy( fname, codeWithErrors );
 			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
 				null );
-			assertProblems( "Unexpected problems", "" );
+			
+			String expectedProblems = "----------\n" + 
+				"1. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^\n" + 
+				"generatedfilepackage cannot be resolved\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"2. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^\n" + 
+				"generatedfilepackage cannot be resolved\n" + 
+				"----------\n";
+			
+			assertProblems( "Unexpected problems", expectedProblems );
+			
+			
+			//
+			// now make sure errors go away when annotations are present
+			//
+			String codeWithOutErrors = "package test;" + "\n" +
+			    "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" + 
+			    "public class A " +  "\n" +
+			    "{" +  "\n" +
+			    "    @HelloWorldAnnotation" + "\n" + 
+				"    public static void main( String[] argv )" + "\n" +
+				"    {" + "\n" +
+				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
+				"    }" + "\n" +
+				"}";
+
+			setWorkingCopyContents( codeWithOutErrors );
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+					null );
+			
+			assertProblems( "UnexpectedProblems", "----------\n----------\n" );
+			
 		}
 		catch( Throwable e )
 		{
@@ -72,6 +112,91 @@ public class AptReconcileTests extends ModifyingResourceTests
 		}
 	}
 
+	
+	/**
+	 *   This tests an annotation that generates a file with an annotation that
+	 *   generates a file that should fix an error in the parent file.
+	 * @throws Throwable
+	 */
+	public void testNestedGeneratedFile() throws Throwable
+	{
+		String fname = TEST_FOLDER + "/A.java";
+		try
+		{
+			
+			//
+			//  first make sure errors are present when the annotation
+			// is commented out
+			//
+			String codeWithErrors = "package test;" + "\n" +
+				"//import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;" + "\n" + 
+				"public class A " +  "\n" +
+				"{" +  "\n" +
+				"    //@NestedHelloWorldAnnotation" + "\n" + 
+				"    public static void main( String[] argv )" + "\n" +
+				"    {" + "\n" +
+				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
+				"    }" + "\n" +
+				"}";
+
+			createFile( fname, codeWithErrors );
+			this._problemRequestor = new ProblemRequestor();
+			
+			setUpWorkingCopy( fname, codeWithErrors );
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+				null );
+			
+			String expectedProblems = "----------\n" + 
+				"1. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^\n" + 
+				"generatedfilepackage cannot be resolved\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"2. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^\n" + 
+				"generatedfilepackage cannot be resolved\n" + 
+				"----------\n";
+			
+			assertProblems( "Unexpected problems", expectedProblems );
+			
+			
+			//
+			// now make sure errors go away when annotations are present
+			//
+			String codeWithOutErrors = "package test;" + "\n" +
+			    "import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;" + "\n" + 
+			    "public class A " +  "\n" +
+			    "{" +  "\n" +
+			    "    @NestedHelloWorldAnnotation" + "\n" + 
+				"    public static void main( String[] argv )" + "\n" +
+				"    {" + "\n" +
+				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
+				"    }" + "\n" +
+				"}";
+
+			setWorkingCopyContents( codeWithOutErrors );
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+					null );
+			
+			assertProblems( "UnexpectedProblems", "----------\n----------\n" );
+			
+		}
+		catch( Throwable e )
+		{
+			e.printStackTrace();
+			throw e;
+		}
+		finally
+		{
+			deleteFile( fname );
+		}
+	}
+
+	
+	
+	
 	public void setUp() throws Exception 
 	{
 		try 
@@ -152,7 +277,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 
 	protected ProblemRequestor	_problemRequestor;
 
-	public static final String	TEST_PROJECT	= "AptTestProject";
+	public static final String	TEST_PROJECT	= AptReconcileTests.class.getName() + "Project";
 
 	public static final String	TEST_FOLDER		= "/" + TEST_PROJECT
 													+ "/src/test";

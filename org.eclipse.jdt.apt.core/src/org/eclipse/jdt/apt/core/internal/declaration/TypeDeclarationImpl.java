@@ -53,7 +53,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
     public PackageDeclaration getPackage()
     {
         ITypeBinding binding = getDeclarationBinding();
-		return new PackageDeclarationImpl(binding.getPackage(), this, _env);        
+		return new PackageDeclarationImpl(binding.getPackage(), this, _env, false);        
     }
 
     public void accept(DeclarationVisitor visitor)
@@ -189,7 +189,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
     }
     
     public String toString()
-    {
+    {		
     	final ITypeBinding binding = getTypeBinding();
     	if( binding.isRawType() || !binding.isParameterizedType() )
     		return getQualifiedName();
@@ -207,7 +207,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
 	    	buffer.append('>');
     	}
     	
-        return buffer.toString();
+        return buffer.toString();		
     }
 
     boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }

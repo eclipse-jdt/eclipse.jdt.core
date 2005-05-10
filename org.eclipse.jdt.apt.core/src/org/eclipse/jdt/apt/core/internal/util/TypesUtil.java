@@ -180,7 +180,7 @@ public class TypesUtil implements Types
     }
 
     public TypeMirror getErasure(TypeMirror t)
-    {
+    {	
         if( t == null ) return null;
         
         if(t instanceof EclipseMirrorImpl){
@@ -210,22 +210,23 @@ public class TypesUtil implements Types
         }
 
         throw new NonEclipseImplementationException("only applicable to eclipse type system objects." +
-                                                    " Found " + t.getClass().getName());
-    }
+                                                    " Found " + t.getClass().getName());	
+	}
 
     public PrimitiveType getPrimitiveType(PrimitiveType.Kind kind)
     {
         if( kind == null ) return null;
         switch(kind)
         {
-            case BOOLEAN: return PrimitiveTypeImpl.PRIMITIVE_BOOLEAN;
-            case BYTE:    return PrimitiveTypeImpl.PRIMITIVE_BYTE;
-            case CHAR:    return PrimitiveTypeImpl.PRIMITIVE_CHAR;
-            case DOUBLE:  return PrimitiveTypeImpl.PRIMITIVE_DOUBLE;
-            case FLOAT:   return PrimitiveTypeImpl.PRIMITIVE_FLOAT;
-            case INT:     return PrimitiveTypeImpl.PRIMITIVE_INT;
-            case LONG:    return PrimitiveTypeImpl.PRIMITIVE_LONG;
-            case SHORT:   return PrimitiveTypeImpl.PRIMITIVE_SHORT;
+            case BOOLEAN: return _env.getBooleanType();
+            case BYTE:    return _env.getByteType();
+            case CHAR:    return _env.getCharType();
+            case DOUBLE:  return _env.getDoubleType();
+            case FLOAT:   return _env.getFloatType();
+            case INT:     return _env.getIntType();
+            case LONG:    return _env.getLongType();
+            case SHORT:   return _env.getShortType();
+          
             default: throw new IllegalStateException("unknown primitive kind : " + kind);
         }
     }
@@ -242,7 +243,7 @@ public class TypesUtil implements Types
 
     public VoidType getVoidType()
     {
-        return VoidTypeImpl.TYPE_VOID;
+        return _env.getVoidType();
     }
 
     public WildcardType getWildcardType(Collection<ReferenceType> upperBounds, Collection<ReferenceType> lowerBounds)
@@ -310,7 +311,7 @@ public class TypesUtil implements Types
             switch(impl.kind() )
             {
                 case TYPE_PRIMITIVE: return ((PrimitiveTypeImpl)type).getTypeBinding();
-                case TYPE_VOID:  	 return VoidTypeImpl.VOID_TYPE_BINDING;
+                case TYPE_VOID:  	 return ((VoidTypeImpl)type).getTypeBinding();
                 case TYPE_ERROR: 	 return null;
                 case TYPE_ARRAY: 	 return ((ArrayTypeImpl)type).getArrayBinding();
                 case TYPE_WILDCARD:  return ((WildcardTypeImpl)type).getWildcardBinding();

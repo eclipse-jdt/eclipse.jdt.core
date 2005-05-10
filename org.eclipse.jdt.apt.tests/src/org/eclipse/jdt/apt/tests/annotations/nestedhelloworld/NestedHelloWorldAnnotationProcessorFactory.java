@@ -10,7 +10,8 @@
  *    
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.tests.annotations.helloworld;
+
+package org.eclipse.jdt.apt.tests.annotations.nestedhelloworld;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,8 +23,8 @@ import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
-public class HelloWorldAnnotationProcessorFactory implements
-AnnotationProcessorFactory 
+public class NestedHelloWorldAnnotationProcessorFactory implements
+ 	AnnotationProcessorFactory  
 {
 
 	public Collection<String> supportedOptions() {
@@ -38,12 +39,13 @@ AnnotationProcessorFactory
 			Set<AnnotationTypeDeclaration> atds,
 			AnnotationProcessorEnvironment env) 
 	{
-		return new HelloWorldAnnotationProcessor( env );
+		return new NestedHelloWorldAnnotationProcessor( env );
 	}
 	
 	private static ArrayList<String> annotations = new ArrayList<String>();
 	
 	{
-		annotations.add( HelloWorldAnnotation.class.getName() );
+		annotations.add( NestedHelloWorldAnnotation.class.getName() );
 	}
+	
 }

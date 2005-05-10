@@ -15,8 +15,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.apt.core.internal.generatedfile.FileGenerationResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
@@ -40,20 +40,20 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
         {
             String contents = _sw.toString();
             super.close();
-            GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager();
+            GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager(_env.getProject());
             ProcessorEnvImpl.Phase phase = _env.getPhase();
 		
             if ( phase == ProcessorEnvImpl.Phase.RECONCILE )
             {
             	ICompilationUnit parentCompilationUnit = _env.getCompilationUnit();
-                ICompilationUnit cu  = gfm.generateFileDuringReconcile( 
+                FileGenerationResult result  = gfm.generateFileDuringReconcile( 
                     parentCompilationUnit, _typeName, contents, DefaultWorkingCopyOwner.PRIMARY, null, null );
-				_env.addGeneratedFile( (IFile)cu.getResource() );
+				_env.addGeneratedFile(result.getFile(), result.isModified());
             }
             else if ( phase == ProcessorEnvImpl.Phase.BUILD)	
             {
-				IFile f = gfm.generateFileDuringBuild( _env.getFile(), _env.getProject(), _typeName, contents, null /* progress monitor */, _charsetName );
-				_env.addGeneratedFile( f );
+				FileGenerationResult result = gfm.generateFileDuringBuild( _env.getFile(), _env.getJavaProject(), _typeName, contents, null /* progress monitor */, _charsetName );
+				_env.addGeneratedFile( result.getFile(), result.isModified());
             }
             else
             {

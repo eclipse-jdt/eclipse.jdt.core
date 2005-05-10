@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.util.PackageUtil;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -27,14 +28,23 @@ import com.sun.mirror.util.SourcePosition;
 
 public class PackageDeclarationImpl extends DeclarationImpl implements PackageDeclaration
 {   
+	// If this package came from directly requesting it via the environment,
+	// need to hide the source position, as this is an artifact of our implementation
+	private final boolean _hideSourcePosition;
+	
 	/** The back-pointer to the type declaration that created this package declaration
 	 * @see TypeDeclarationImpl#getPackage()
 	 */
-	private final TypeDeclarationImpl _typeDecl;	
-    public PackageDeclarationImpl(final IPackageBinding binding, final TypeDeclarationImpl typeDecl, ProcessorEnvImpl env)
+	private final TypeDeclarationImpl _typeDecl;
+    public PackageDeclarationImpl(
+			final IPackageBinding binding, 
+			final TypeDeclarationImpl typeDecl, 
+			final ProcessorEnvImpl env,
+			final boolean hideSourcePosition)
     {
         super(binding, env);   
 		_typeDecl = typeDecl;
+		_hideSourcePosition = hideSourcePosition;
     }
 
     public IPackageBinding getPackageBinding(){ return (IPackageBinding)_binding; }
@@ -47,14 +57,12 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     
     public <A extends Annotation> A getAnnotation(Class<A> anno)
     {
-        // currently no support for package level anntotation
-        return null;
+		return _getAnnotation(anno, getPackageBinding().getAnnotations());
     }
 
     public Collection<AnnotationMirror> getAnnotationMirrors()
-    {
-        // currently no support for package level anntoation
-        return Collections.emptyList();
+    {	
+		return _getAnnotationMirrors(getPackageBinding().getAnnotations());
     }
 
     public Collection<AnnotationTypeDeclaration> getAnnotationTypes()
@@ -63,19 +71,16 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 		return Collections.emptyList();	
     }
 
-    public Collection<ClassDeclaration> getClasses()
-    {
-		throw new UnsupportedOperationException("NYI");
+    public Collection<ClassDeclaration> getClasses() {
+		return PackageUtil.getClasses(this, _env);
     }
 
-    public Collection<EnumDeclaration> getEnums()
-    {
-		throw new UnsupportedOperationException("NYI");
+    public Collection<EnumDeclaration> getEnums() {
+		return PackageUtil.getEnums(this, _env);
     }
 
-    public Collection<InterfaceDeclaration> getInterfaces()
-    {
-		throw new UnsupportedOperationException("NYI");
+    public Collection<InterfaceDeclaration> getInterfaces() {
+		return PackageUtil.getInterfaces(this, _env);
     }
 
     public String getDocComment()
@@ -91,6 +96,8 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 
     public SourcePosition getPosition()
     {
+		if (_hideSourcePosition)
+			return null;
 		if(_typeDecl.isFromSource()){
 			final CompilationUnit unit = _typeDecl.getCompilationUnit();
 			final ASTNode node = unit.findDeclaringNode(getDeclarationBinding());

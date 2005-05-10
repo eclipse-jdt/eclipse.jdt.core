@@ -29,17 +29,14 @@ import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl.AnnotationVisitor;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
+import org.eclipse.jdt.apt.core.util.AptUtil;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.compiler.IScanner;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorFactory;
@@ -54,29 +51,26 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
  */
 public class APTDispatch {
 
-	public static APTBuildResult runAPTDuringBuild(
+	public static APTResult runAPTDuringBuild(
 			final List<AnnotationProcessorFactory> factories, IFile file,
 			IJavaProject javaProj) {
 		
 		//
-		//  bail-out early if there aren't factories.
+		//  bail-out early if there aren't factories, or if there aren't any annotation instances
 		// 
-		if ( factories == null || factories.size() == 0 )
-			return EMPTY_BUILD_RESULT;
-		
-		//
-		// scan file for annotation instances, and bail early if none.
-		// do this before construction ProcessorEnvImpl to avoid 
-		// unnecessary creation of AST.
-		//
-		if ( ! hasAnnotationInstance( file ) )
-			return EMPTY_BUILD_RESULT;
+		if ( factories == null || factories.size() == 0  || ! AptUtil.hasAnnotationInstance( file ) )
+		{
+			if ( DEBUG ) trace( "runAPTDuringBuild: leaving early because there are no factories or annotation instances");
+			Set<IFile> deletedFiles = cleanupAllGeneratedFilesForParent( file );
+			if ( deletedFiles.size() == 0 )
+				return EMPTY_APT_RESULT;
+			else
+				return new APTResult( (Set<IFile>)Collections.emptySet(), deletedFiles, (Set<String>)Collections.emptySet() );
+		}
 					
 		ProcessorEnvImpl processorEnv = ProcessorEnvImpl
 				.newProcessorEnvironmentForBuild( file, javaProj);
-		Set newFiles = runAPT(factories, processorEnv);
-		Set<String> newDependencies = processorEnv.getTypeDependencies();
-		APTBuildResult result = new APTBuildResult( newFiles, newDependencies );
+		APTResult result = runAPT(factories, processorEnv);
 		return result;
 	}
 
@@ -85,33 +79,42 @@ public class APTDispatch {
 	 * @param factories the list of annotation processor factories to be run.
 	 * @return the set of files that need to be compiled.
 	 */
-	public static Set<IFile> runAPTDuringReconcile(
+	public static APTResult runAPTDuringReconcile(
 			final List<AnnotationProcessorFactory> factories,
-			final CompilationUnit astCompilationUnit,
 			ICompilationUnit compilationUnit, IJavaProject javaProj) {		
 		
 		//
-		//  bail-out early if there aren't factories.
+		//  bail-out early if there aren't factories or if there arent any annotation instances
 		// 
-		if ( factories == null || factories.size() == 0 )
-			return Collections.emptySet();
-		
+		if ( factories == null || factories.size() == 0 || ! AptUtil.hasAnnotationInstance( compilationUnit ))
+		{
+			if ( DEBUG ) trace( "runAPTDuringReconcile: leaving early because there are no factories or annotation instances");
+			cleanupAllGeneratedFilesForParent( (IFile)compilationUnit.getResource() );
+			return EMPTY_APT_RESULT;
+		}
+
 		ProcessorEnvImpl processorEnv = ProcessorEnvImpl
-				.newProcessorEnvironmentForReconcile(astCompilationUnit,
-						compilationUnit, javaProj);
+				.newProcessorEnvironmentForReconcile(compilationUnit, javaProj);
 		return runAPT(factories, processorEnv);
 	}
 
-	private static Set<IFile> runAPT(
+	private static APTResult runAPT(
 			final List<AnnotationProcessorFactory> factories,
-			final ProcessorEnvImpl processorEnv) {
+			final ProcessorEnvImpl processorEnv) 
+	{
 		try {
 			if (factories.size() == 0)
-				return Collections.emptySet();
-
+			{
+				if ( DEBUG ) trace( "runAPT: leaving early because there are no factories");
+				return EMPTY_APT_RESULT;
+			}
+				
 			if ( ! processorEnv.getFile().exists() )
-				return Collections.emptySet();
-			
+			{
+				if ( DEBUG ) trace( "runAPT: leaving early because file doesn't exist");
+				return EMPTY_APT_RESULT;
+			}
+				
 			// clear out all the markers from the previous round.
 			final String markerType = processorEnv.getPhase() == ProcessorEnvImpl.Phase.RECONCILE ? ProcessorEnvImpl.RECONCILE_MARKER
 					: ProcessorEnvImpl.BUILD_MARKER;
@@ -124,9 +127,16 @@ public class APTDispatch {
 			}
 			final Map<String, AnnotationTypeDeclaration> annotationDecls = getAnnotationTypeDeclarations(
 					processorEnv.getAstCompilationUnit(), processorEnv);
+			
 			if (annotationDecls.isEmpty())
-				return Collections.emptySet();
+			{
+				if ( DEBUG ) trace ( "runAPT:  leaving early because annotationDecls is empty" );
+				return EMPTY_APT_RESULT;
+			}
 
+			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( processorEnv.getJavaProject().getProject() );
+			Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( processorEnv.getFile() );
+			
 			for (int i = 0, size = factories.size(); i < size; i++) {
 				final AnnotationProcessorFactory factory = (AnnotationProcessorFactory) factories
 						.get(i);
@@ -137,7 +147,10 @@ public class APTDispatch {
 					final AnnotationProcessor processor = factory
 							.getProcessorFor(factoryDecls, processorEnv);
 					if (processor != null)
+					{
+						if ( DEBUG ) trace( "runAPT: invoking processor " + processor.getClass().getName() );
 						processor.process();
+					}
 				}
 
 				if (annotationDecls.isEmpty())
@@ -158,18 +171,63 @@ public class APTDispatch {
 				}
 			}
 
-			final Set<IFile> generatedFiles = new HashSet<IFile>();
-			generatedFiles.addAll( processorEnv.getGeneratedFiles() );
+			final Set<IFile> allGeneratedFiles = new HashSet<IFile>();
+			Set<IFile> modifiedFiles = new HashSet<IFile>();
+			Map<IFile, Boolean> filesMap = processorEnv.getGeneratedFiles();
+			for (Map.Entry<IFile, Boolean> entry : filesMap.entrySet()) {
+				allGeneratedFiles.add(entry.getKey());
+				if (entry.getValue()) {
+					modifiedFiles.add(entry.getKey());
+				}
+			}
+			
+			// any files that were generated for this parent on the last
+			// run, but are no longer generated should be removed
+			Set<IFile> deletedFiles = cleanupNoLongerGeneratedFiles( processorEnv.getFile(), lastGeneratedFiles, allGeneratedFiles, gfm );
+
+			APTResult result = new APTResult( modifiedFiles, deletedFiles, processorEnv.getTypeDependencies() );
 			processorEnv.close();
-			return generatedFiles;
+			return result;
 
 			// log unclaimed annotations.
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
-		return Collections.emptySet();
+		return EMPTY_APT_RESULT;
 	}
 
+	private static Set<IFile> cleanupAllGeneratedFilesForParent( IFile parent )
+	{
+		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( parent.getProject() );
+		Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( parent );
+		return cleanupNoLongerGeneratedFiles( parent, lastGeneratedFiles, (Set<IFile>)Collections.emptySet(), gfm );
+	}
+	
+	private static Set<IFile> cleanupNoLongerGeneratedFiles( 
+		IFile parent, Set<IFile> lastGeneratedFiles, Set<IFile> newGeneratedFiles,
+		GeneratedFileManager gfm )
+	{
+		HashSet<IFile> deletedFiles = new HashSet<IFile>();
+		for ( IFile f : lastGeneratedFiles )
+		{
+			if ( ! newGeneratedFiles.contains( f ) )
+			{
+				if ( DEBUG ) trace ( "runAPT:  File " + f + " is no longer a generated file for " + parent );
+				try
+				{
+					if ( gfm.deleteGeneratedFile( f, parent, null ) )
+						deletedFiles.add( f );
+				}
+				catch ( CoreException ce )
+				{
+					// TODO - handle this exception nicely
+					ce.printStackTrace();
+				}
+			}
+		}
+		return deletedFiles;
+	}
+	
 	/**
 	 * invoking annotation processors respecting apt semantics.
 	 */
@@ -264,63 +322,35 @@ public class APTDispatch {
 		return fDecls.isEmpty() ? null : fDecls;
 	}
 	
-	/**
-	 * scan the source code to see if there are any annotation tokens
-	 */
-	private static boolean hasAnnotationInstance( IFile f )
+	public static class APTResult
 	{
-		try
+		APTResult( Set<IFile> newFiles, Set<IFile> deletedFiles, Set<String> deps )
 		{
-			char[] source = ProcessorEnvImpl.getFileContents( f );
-			IScanner scanner = ToolFactory.createScanner( 
-				false, false, false, CompilerOptions.VERSION_1_5 );
-			scanner.setSource( source );
-			int token = scanner.getNextToken();
-			while ( token != ITerminalSymbols.TokenNameEOF )
-			{
-				token = scanner.getNextToken();
-				if ( token == ITerminalSymbols.TokenNameAT )
-				{
-					//
-					// found an @ sign, see if next token is "interface"
-					// @interface is an annotation decl and not an annotation
-					// instance.  
-					//
-					token = scanner.getNextToken();
-					if ( token != ITerminalSymbols.TokenNameinterface )
-						return true;
-				}
-			}
-			return false;
-		}
-		catch( InvalidInputException iie )
-		{
-			// lex error, so report false
-			return false;
-		}
-		catch( Exception e )
-		{
-			// TODO:  deal with this exception
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
-	public static class APTBuildResult
-	{
-		APTBuildResult( Set<IFile> files, Set<String> deps )
-		{
-			_newFiles = files;
+			_newFiles = newFiles;
 			_newDependencies = deps;
+			_deletedFiles = deletedFiles;
 		}
 		
 		private Set<IFile> _newFiles;
+		private Set<IFile> _deletedFiles;
 		private Set<String> _newDependencies;
 		
 		Set<IFile> getNewFiles() { return _newFiles; }
+		Set<IFile> getDeletedFiles() { return _deletedFiles; }
 		Set<String> getNewDependencies() { return _newDependencies; }
 	}
 
-	public static final APTBuildResult EMPTY_BUILD_RESULT = new APTBuildResult( (Set<IFile>)Collections.emptySet(), (Set<String>)Collections.emptySet() );
+	public static void trace( String s )
+	{
+		if (DEBUG)
+		{
+			System.out.println( "[" + Thread.currentThread().getName() + "][" + APTDispatch.class.getName() + "] " + s );
+			System.out.flush();
+		}
+	}
+	
+	public static final APTResult EMPTY_APT_RESULT = new APTResult( (Set<IFile>)Collections.emptySet(), (Set<IFile>)Collections.emptySet(), (Set<String>)Collections.emptySet() );
+	
+	public static final boolean DEBUG = false;
 	
 }

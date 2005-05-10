@@ -33,8 +33,8 @@ public class HelloWorldAnnotationProcessor implements AnnotationProcessor
 		{
 			Filer f = getEnvironment().getFiler();
 			PrintWriter pw = f
-				.createSourceFile( PACKAGE_NAME + "." + TYPE_NAME );
-			pw.print( CODE );
+				.createSourceFile( getPackageName() + "." + getTypeName() );
+			pw.print( getCode() );
 			pw.close();
 		}
 		catch( IOException ioe )
@@ -48,18 +48,22 @@ public class HelloWorldAnnotationProcessor implements AnnotationProcessor
 		return _env;
 	}
 
+	public String getCode() { return CODE; }
+	public String getPackageName() { return "generatedfilepackage"; }
+	public String getTypeName() { return "GeneratedFileTest"; }
+
 	AnnotationProcessorEnvironment	_env;
 
-	protected final static String	PACKAGE_NAME	= "generatedfilepackage";
+	protected final static String	PACKAGE_NAME	= "";
 
-	protected final static String	TYPE_NAME		= "GeneratedFileTest";
+	protected final static String	TYPE_NAME		= "";
 
-	protected final static String	CODE			= "package "
-														+ PACKAGE_NAME
+	protected String	CODE			= "package "
+														+ getPackageName()
 														+ ";"
 														+ "\n"
 														+ "public class "
-														+ TYPE_NAME
+														+ getTypeName()
 														+ "\n"
 														+ "{"
 														+ "\n"

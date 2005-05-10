@@ -62,9 +62,13 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
     public Map<AnnotationTypeElementDeclaration, AnnotationValue> getElementValues()
     {
 		final IResolvedMemberValuePair[] pairs = _domAnnotation.getDeclaredMemberValuePairs();
+		if (pairs.length == 0) {
+			return Collections.emptyMap();
+		}
+		
+		final Map<AnnotationTypeElementDeclaration, AnnotationValue> result =
+			new LinkedHashMap<AnnotationTypeElementDeclaration, AnnotationValue>(pairs.length * 4 / 3 + 1 );
 		for( IResolvedMemberValuePair pair : pairs ){
-			 final Map<AnnotationTypeElementDeclaration, AnnotationValue> result =
-                 new LinkedHashMap<AnnotationTypeElementDeclaration, AnnotationValue>(pairs.length * 4 / 3 + 1 );
 			 final String name = pair.getName();
              if( name == null ) continue;
              IMethodBinding elementMethod = pair.getMemberBinding();            
@@ -76,9 +80,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
                      annoValue != null )
                      result.put( (AnnotationTypeElementDeclaration)mirrorDecl, annoValue);
              }
-			 return result;
 		}
-        return Collections.emptyMap();
+        return result;
     }
 
     public SourcePosition getPosition()
@@ -101,8 +104,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 
     public String toString()
     {
-		final ITypeBinding annoType = _domAnnotation.getAnnotationType();		
-        return annoType == null ? "@" : ("@" +_domAnnotation.getAnnotationType().getName());
+		return _domAnnotation.toString();			
     }
 
     /**
@@ -228,8 +230,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
     {
         if(memberName == null || memberName.length() == 0 ) return null;
         final Class targetType = method.getReturnType();
-        final Object value = getValue(memberName);
-
+        final Object value = getValue(memberName);	
         return getReflectionValue(value, targetType);
     }
 

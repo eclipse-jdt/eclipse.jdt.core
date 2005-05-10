@@ -17,6 +17,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
+
 
 import com.sun.mirror.apt.Filer;
 
@@ -84,7 +86,20 @@ public class FilerImpl implements Filer {
     public PrintWriter createTextFile(Filer.Location loc, String pkg, File relPath, String charsetName) 
         throws IOException 
     {
-        throw new UnsupportedOperationException( "Not Yet Implemented");
+		// TODO: figure out what to do with the loc 
+		// Filer.Location.CLASS_TREE vs Filer.Location.SOURCE_TREE       
+		File f = new File(".");
+
+        if( pkg != null )
+            f = new File( f, pkg.replace('.', File.separatorChar) );
+
+        f = new File( f, relPath.getPath() );
+
+        // REVIEW: for no apparent reason it is sometimes necessary to create the
+        // parent dir, else an IOException occurs creating f..
+        File p = f.getParentFile();
+        FileSystemUtil.mkdirs( p );
+        return charsetName == null ? new PrintWriter( f ) : new PrintWriter( f, charsetName );
     }
 
     /**

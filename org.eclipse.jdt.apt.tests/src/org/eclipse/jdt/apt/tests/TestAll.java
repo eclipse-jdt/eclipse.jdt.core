@@ -35,6 +35,7 @@ public class TestAll extends TestCase {
 		
 		suite.addTest(AptReconcileTests.suite());
 		suite.addTest(AptBuilderTests.suite() );
+		suite.addTest(MirrorTests.suite());
 	
 		return suite;
 		

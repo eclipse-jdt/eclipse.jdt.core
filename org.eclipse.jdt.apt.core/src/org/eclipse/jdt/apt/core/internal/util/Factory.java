@@ -38,8 +38,6 @@ import org.eclipse.jdt.apt.core.internal.declaration.TypeParameterDeclarationImp
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.type.ArrayTypeImpl;
 import org.eclipse.jdt.apt.core.internal.type.ErrorType;
-import org.eclipse.jdt.apt.core.internal.type.PrimitiveTypeImpl;
-import org.eclipse.jdt.apt.core.internal.type.VoidTypeImpl;
 import org.eclipse.jdt.apt.core.internal.type.WildcardTypeImpl;
 import org.eclipse.jdt.core.dom.IResolvedAnnotation;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -106,25 +104,25 @@ public class Factory
     {		
         if( binding == null ) return null;        
 
-        if( binding.isPrimitive() ){
+		if( binding.isPrimitive() ){
 			if( "int".equals(binding.getName()) )
-				return PrimitiveTypeImpl.PRIMITIVE_INT; 
+				return env.getIntType(); 
 			else if( "byte".equals(binding.getName()) )
-				return PrimitiveTypeImpl.PRIMITIVE_BYTE;
+				return env.getByteType();
 			else if( "short".equals(binding.getName()) )
-				return PrimitiveTypeImpl.PRIMITIVE_SHORT;
+				return env.getShortType();
 			else if( "char".equals(binding.getName()) )
-				return PrimitiveTypeImpl.PRIMITIVE_CHAR;
+				return env.getCharType();
 			else if( "long".equals(binding.getName()) )
-				return PrimitiveTypeImpl.PRIMITIVE_LONG;
+				return env.getLongType();
 			else if( "float".equals(binding.getName()) )
-				return PrimitiveTypeImpl.PRIMITIVE_FLOAT;
+				return env.getFloatType();
 			else if( "double".equals(binding.getName()) )
-				return PrimitiveTypeImpl.PRIMITIVE_DOUBLE;
+				return env.getDoubleType();
 			else if( "boolean".equals(binding.getName()))
-				return PrimitiveTypeImpl.PRIMITIVE_BOOLEAN;
+				return env.getBooleanType();
 			else if( "void".equals(binding.getName()) )
-				return VoidTypeImpl.TYPE_VOID;
+				return env.getVoidType();
 			else
 				throw new IllegalStateException("unrecognized primitive type: " + binding);
         }

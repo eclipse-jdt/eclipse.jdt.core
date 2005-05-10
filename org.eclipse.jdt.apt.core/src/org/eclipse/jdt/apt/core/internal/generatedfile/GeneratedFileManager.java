@@ -12,19 +12,27 @@
 
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -34,6 +42,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -43,39 +52,67 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.core.JavaProject;
 
+
 /**
  * Class for managing generated files
  */
 public class GeneratedFileManager {
+	
+	private final IProject _project;
+	
+	// Use a weak hash map to allow file managers to get GC'ed if a project
+	// goes away
+	private static final Map<IProject, GeneratedFileManager> MANAGERS_MAP = 
+		new WeakHashMap<IProject, GeneratedFileManager>();
+	
+	/**
+	 * Construction can only take place from within 
+	 * the factory method, getGeneratedFileManager().
+	 */
+	private GeneratedFileManager(final IProject project) {
+		_project = project;
+	}
 
 	private static void init()
 	{
 		_initialized = true;
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		workspace.addResourceChangeListener( new ResourceChangedListener() );
+		int mask = IResourceChangeEvent.PRE_BUILD | IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE;
+		workspace.addResourceChangeListener( new ResourceChangedListener(), mask );
 	}
 	
-	public static GeneratedFileManager getGeneratedFileManager() 
+	public static synchronized List<GeneratedFileManager> getGeneratedFileManagers() {
+		return new ArrayList(MANAGERS_MAP.values());
+	}
+	
+	public static synchronized GeneratedFileManager getGeneratedFileManager(final IProject project) 
 	{
 		if ( ! _initialized ) 
 			init();
-		return _generatedFileManagerInstance;
+		GeneratedFileManager gfm = MANAGERS_MAP.get(project);
+		if (gfm != null)
+			return gfm;
+
+		gfm = new GeneratedFileManager(project);
+		MANAGERS_MAP.put(project, gfm);
+		return gfm;
 	}
 
 	/**
+	 * Return the file and a flag indicating if the content was modified.
 	 * 
 	 * @param parentFile
 	 * @param typeName
 	 * @param contents
 	 * @param progressMonitor
 	 * @param charsetName
-	 * @return - the newly created IFile
+	 * @return - the newly created IFile along with whether it was modified
 	 * @throws CoreException
 	 * @throws UnsupportedEncodingException
 	 */
-	public IFile generateFileDuringBuild(
+	public synchronized FileGenerationResult generateFileDuringBuild(
 			IFile parentFile,
-			IProject project,
+			IJavaProject javaProject,
 			String typeName, 
 			String contents, 
 			IProgressMonitor progressMonitor,
@@ -84,50 +121,78 @@ public class GeneratedFileManager {
 	{
 		try
 		{		
+			IProject project = javaProject.getProject();
+			// create folder for generated source files
+			IFolder folder = project.getFolder( GENERATED_SOURCE_FOLDER_NAME );
+			if (!folder.exists())
+				folder.create(true, false, null);
 
-		// create folder for generated source files
-		IFolder folder = project.getFolder( GENERATED_SOURCE_FOLDER_NAME );
-		if (!folder.exists())
-			folder.create(true, false, null);
-
-		// split the type name into its parts
-		String[] parts = typeName.split( "\\.");
-
-		//  create folders for the package parts
-		int i = 0;
-		for ( ;i < parts.length - 1; i++ )
-		{
-			folder = folder.getFolder( parts[i] );
-			if ( !folder.exists() )
-				folder.create( true, false, null );
-		}
-		
-		String fileName = parts[i] + ".java";		
-		IFile file = folder.getFile( fileName );
-
-		byte[] bytes;
-		if ( charsetName == null || charsetName == "" )
-			bytes = contents.getBytes();
-		else
-			bytes = contents.getBytes( charsetName );
-		InputStream is = new ByteArrayInputStream( bytes );
-		
-		if ( !file.exists() )
-		{
-			file.create( is, true, progressMonitor );
-		}
-		else
-		{
-			makeReadOnly( file, false );
-			file.setContents( is, true, true, progressMonitor );
-		}
-		
-		file.setDerived( true );
-		
-		makeReadOnly( file, true );
-		
-		updateFileMaps( typeName, parentFile, file );
-		return file;
+			//
+			// make sure __generated_src dir is on the cp if not already
+			//
+			updateProjectClasspath( (JavaProject)javaProject, folder, progressMonitor );
+			
+			// split the type name into its parts
+			String[] parts = typeName.split( "\\.");
+	
+			//  create folders for the package parts
+			int i = 0;
+			for ( ;i < parts.length - 1; i++ )
+			{
+				folder = folder.getFolder( parts[i] );
+				if ( !folder.exists() )
+					folder.create( true, false, null );
+			}
+			
+			String fileName = parts[i] + ".java";		
+			IFile file = folder.getFile( fileName );
+	
+			byte[] bytes;
+			if ( charsetName == null || charsetName == "" )
+				bytes = contents.getBytes();
+			else
+				bytes = contents.getBytes( charsetName );
+			InputStream is = new ByteArrayInputStream( bytes );
+			
+			boolean contentsDiffer = true;
+			
+			if ( !file.exists() )
+			{
+				file.create( is, true, progressMonitor );
+			}
+			else
+			{
+				// Check if the content has changed
+				InputStream oldData = null;
+				try {
+					oldData = new BufferedInputStream(file.getContents());
+					contentsDiffer = !compareStreams(oldData, is);
+				}
+				catch (CoreException ce) {
+					// Do nothing. Assume the new content is different
+				}
+				finally {
+					is.reset();
+					if (oldData != null) {
+						try {
+							oldData.close();
+						} 
+						catch (IOException ioe) 
+						{}
+					}
+				}
+				if (contentsDiffer) {
+					makeReadOnly( file, false );
+					file.setContents( is, true, true, progressMonitor );
+				}
+			}
+			
+			file.setDerived( true );
+			
+			makeReadOnly( file, true );
+			
+			updateFileMaps( typeName, parentFile, file );
+			return new FileGenerationResult(file, contentsDiffer);
 		}
 		catch ( Throwable t )
 		{
@@ -135,6 +200,32 @@ public class GeneratedFileManager {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Return true if the content of the streams is identical, 
+	 * false if not.
+	 */
+	private static boolean compareStreams(InputStream is1, InputStream is2) {
+		try {
+			int b1 = is1.read();
+	        while(b1 != -1) {
+	            int b2 = is2.read();
+	            if(b1 != b2) {
+	                return false;
+	            }
+	            b1 = is1.read();
+	        }
+
+	        int b2 = is2.read();
+	        if(-1 != b2) {
+	            return false;
+	        }
+	        return true;
+		}
+		catch (IOException ioe) {
+			return false;
+		}
 	}
 		
 	/**
@@ -149,28 +240,41 @@ public class GeneratedFileManager {
 	 * @param progressMonitor
 	 * @return
 	 */
-	public ICompilationUnit generateFileDuringReconcile(
+	public synchronized FileGenerationResult generateFileDuringReconcile(
 			ICompilationUnit parentCompilationUnit, String typeName,
 			String contents, WorkingCopyOwner workingCopyOwner,
 			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor ) 
 	{
 		ICompilationUnit workingCopy = null;
+		FileGenerationResult result = null;
 		try 
 		{
 			//
 			// get working copy (either from cache or create a new one)
 			//
-			workingCopy = getWorkingCopy( 
-				parentCompilationUnit,  typeName, contents,  
-				workingCopyOwner, problemRequestor,  progressMonitor);
+			workingCopy = getCachedWorkingCopy( parentCompilationUnit, typeName );
 			
-			//
-			//  Update working copy's buffer with the contents of the type 
-			// 
-			updateWorkingCopy( contents, workingCopy, workingCopyOwner, progressMonitor );
+			if ( workingCopy == null )
+			{
+				// create a new working copy
+				workingCopy = createNewWorkingCopy(  
+						parentCompilationUnit,  typeName, contents,  
+						workingCopyOwner, problemRequestor,  progressMonitor);
+				workingCopy.reconcile(AST.JLS3, true, workingCopyOwner,
+						progressMonitor);
+				result = new FileGenerationResult((IFile)workingCopy.getResource(), true);
+			}
+			else
+			{
+
+				//
+				//  Update working copy's buffer with the contents of the type 
+				// 
+				boolean modified = updateWorkingCopy( contents, workingCopy, workingCopyOwner, progressMonitor );
+				result = new FileGenerationResult((IFile)workingCopy.getResource(), modified);
+			}
 			
-			return workingCopy;
-		
+			return result;
 		} 
 		catch (JavaModelException jme) 
 		{
@@ -180,22 +284,22 @@ public class GeneratedFileManager {
 		{
 			ce.printStackTrace();
 		}
-		return workingCopy;
+		return new FileGenerationResult((IFile)workingCopy.getResource(), true);
 	}
 
 	
-	public boolean isGeneratedFile( IFile f )
+	public synchronized boolean isGeneratedFile( IFile f )
 	{
-		Set s = (Set)_derivedFile2Parents.get( f ); 
+		Set<IFile> s = _derivedFile2Parents.get( f ); 
 		if ( s == null || s.isEmpty() )
 			return false;
 		else
 			return true;
 	}
 	
-	public boolean isParentFile( IFile f )
+	public synchronized boolean isParentFile( IFile f )
 	{
-		Set s = (Set)_parent2DerivedFiles.get( f );
+		Set<IFile> s = _parent2DerivedFiles.get( f );
 		if ( s == null || s.isEmpty() )
 			return false;
 		else
@@ -208,9 +312,12 @@ public class GeneratedFileManager {
 	 * @return set of Strings which are the type names known to be generated 
 	 * by the specified parent.
 	 */
-	public Set getGeneratedTypesForParent( IFile parent )
+	public synchronized Set<String> getGeneratedTypesForParent( IFile parent )
 	{
-		return (Set)_parent2TypeNames.get( parent );
+		Set<String> s = _parent2TypeNames.get( parent );
+		if ( s == null )
+			s = Collections.emptySet();
+		return s;
 	}
 	
 	/**
@@ -219,12 +326,15 @@ public class GeneratedFileManager {
 	 * @return Set of IFile instances that are the files known to be generated
 	 * by this parent
 	 */
-	public Set getGeneratedFilesForParent( IFile parent )
+	public synchronized Set<IFile> getGeneratedFilesForParent( IFile parent )
 	{
-		return (Set)_parent2DerivedFiles.get( parent );
+		Set<IFile> s = _parent2DerivedFiles.get( parent ); 
+		if (s == null )
+			s = Collections.emptySet();
+		return s;
 	}
 	
-	public void discardGeneratedWorkingCopy( String typeName, ICompilationUnit parentCompilationUnit )
+	public synchronized void discardGeneratedWorkingCopy( String typeName, ICompilationUnit parentCompilationUnit )
 		throws JavaModelException
 	{
 		discardGeneratedWorkingCopy(  typeName,  parentCompilationUnit, true );
@@ -235,7 +345,7 @@ public class GeneratedFileManager {
 	{
 		if ( deleteFromParent2TypeNames )
 		{
-			Set typeNames = (Set)_parent2TypeNames.get( parentCompilationUnit.getResource() );
+			Set<String> typeNames = _parent2TypeNames.get( parentCompilationUnit.getResource() );
 			
 			if ( typeNames == null ) throw new RuntimeException( "Unexpected null entry in _parent2TypeNames map.");
 			if ( ! typeNames.contains( typeName )) throw new RuntimeException ("type names set didn't contain expected value");
@@ -243,7 +353,7 @@ public class GeneratedFileManager {
 			typeNames.remove( typeName );
 		}
 	
-		Set parents = (Set) _typeName2Parents.get( typeName );
+		Set<ICompilationUnit> parents = _typeName2Parents.get( typeName );
 
 		// TODO:  change these to assertions
 		if ( parents == null ) throw new RuntimeException( "parents == null and it shouldnt");
@@ -252,7 +362,7 @@ public class GeneratedFileManager {
 		
 		if ( parents.size() == 0 )
 		{
-			ICompilationUnit cu = (ICompilationUnit)_typeName2WorkingCopy.get( typeName );
+			ICompilationUnit cu = _typeName2WorkingCopy.get( typeName );
 
 			if ( cu == null ) throw new RuntimeException( "compilation unit is null and it shouldn't be");
 			
@@ -261,49 +371,49 @@ public class GeneratedFileManager {
 		}
 	}
 	
-	public void parentWorkingCopyDiscarded( ICompilationUnit parentCompilationUnit )
+	public synchronized void parentWorkingCopyDiscarded( ICompilationUnit parentCompilationUnit )
 		throws JavaModelException
 	{
-		Set typeNames = (Set)_parent2TypeNames.get( parentCompilationUnit.getResource() );
+		Set<String> typeNames = _parent2TypeNames.get( parentCompilationUnit.getResource() );
 		if ( typeNames == null || typeNames.size() == 0 )
 			return;
 		
-		Iterator it = typeNames.iterator();
+		Iterator<String> it = typeNames.iterator();
 		while ( it.hasNext() )
 		{
-			String typeName = (String) it.next();
+			String typeName = it.next();
 			it.remove();
 			discardGeneratedWorkingCopy( typeName, parentCompilationUnit, false );
 		}
 	}
 	
-	public void parentFileDeleted( IFile parent, IProgressMonitor monitor ) 
+	public synchronized void parentFileDeleted( IFile parent, IProgressMonitor monitor ) 
 		throws CoreException
 	{
-		Set derivedFiles = (Set) _parent2DerivedFiles.get( parent );
+		Set<IFile> derivedFiles = _parent2DerivedFiles.get( parent );
 		
-		Iterator it = derivedFiles.iterator(); 
+		Iterator<IFile> it = derivedFiles.iterator(); 
 		while ( it.hasNext() )
 		{
-			IFile generatedFile = (IFile) it.next();
+			IFile generatedFile = it.next();
 			it.remove();
 			deleteGeneratedFile( generatedFile, parent, monitor, false );
 		}
 	}
 
-	public void deleteGeneratedFile(IFile fileToDelete, IFile parent, IProgressMonitor progressMonitor )
+	public synchronized boolean deleteGeneratedFile(IFile fileToDelete, IFile parent, IProgressMonitor progressMonitor )
 		throws CoreException
 	{
-		deleteGeneratedFile( fileToDelete, parent, progressMonitor, true );
+		return deleteGeneratedFile( fileToDelete, parent, progressMonitor, true );
 	}
 	
-	private void deleteGeneratedFile(IFile fileToDelete, IFile parent, IProgressMonitor progressMonitor, boolean deleteFromParent2DerivedFiles ) 
+	private boolean deleteGeneratedFile(IFile fileToDelete, IFile parent, IProgressMonitor progressMonitor, boolean deleteFromParent2DerivedFiles ) 
 		throws CoreException
 	{
 		// update _parents2DerivedFiles map
 		if ( deleteFromParent2DerivedFiles )
 		{
-			Set derivedFiles = (Set)_parent2DerivedFiles.get( parent );
+			Set<IFile> derivedFiles = _parent2DerivedFiles.get( parent );
 
 			// assertions
 			if ( derivedFiles == null ) throw new RuntimeException( "derivedFiles is null and it shouldn't be");
@@ -313,39 +423,40 @@ public class GeneratedFileManager {
 		}
 		
 		// update _derivedFile2Parents map and delete file if it has no other parents
-		Set parents = (Set) _derivedFile2Parents.get( fileToDelete );
+		Set<IFile> parents = _derivedFile2Parents.get( fileToDelete );
 		
 		// assertions
 		if( parents == null ) throw new RuntimeException( " parents is null and it shouldn't be" );
 		if( ! parents.contains( parent )) throw new RuntimeException( "parents set does not contain parent" );
 		
 		parents.remove( parent );
+		
+		boolean deleted = false;
 		if ( parents.size() == 0 )
 		{
-			// MRK TODO - uncomment this!!!
-			/*
 			fileToDelete.delete( true, true, progressMonitor );
-			*/
+			deleted = true;
 		}
+		return deleted;
 	}
 
-	public void generatedFileDeleted( IFile deletedFile,  IProgressMonitor progressMonitor )
+	public synchronized void generatedFileDeleted( IFile deletedFile,  IProgressMonitor progressMonitor )
 	{
-		Set parents = (Set) _derivedFile2Parents.get( deletedFile );
+		Set<IFile> parents = _derivedFile2Parents.get( deletedFile );
 		if ( parents == null || parents.isEmpty() )
 			return;
 		
 		String typeName = getTypeNameForDerivedFile( deletedFile );
 		
-		Iterator it = parents.iterator();
+		Iterator<IFile> it = parents.iterator();
 		while ( it.hasNext() )
 		{
-			IFile parent = (IFile) it.next();
-			Set s = (Set)_parent2DerivedFiles.get( parent );
+			IFile parent = it.next();
+			Set<IFile> s = _parent2DerivedFiles.get( parent );
 			s.remove( deletedFile );
 			
-			s = (Set)_parent2TypeNames.get( parent );
-			s.remove( typeName );
+			Set<String> types = _parent2TypeNames.get( parent );
+			types.remove( typeName );
 		}
 		
 		_derivedFile2Parents.remove( deletedFile );
@@ -377,21 +488,23 @@ public class GeneratedFileManager {
 		return s.substring( 0, idx );
 	}
 	
-	private ICompilationUnit getWorkingCopy(ICompilationUnit parentCompilationUnit, String typeName,
+	//
+	//  check cache to see if we already have a working copy
+	//
+	private ICompilationUnit getCachedWorkingCopy( ICompilationUnit parentCompilationUnit, String typeName )
+	{
+		ICompilationUnit workingCopy = (ICompilationUnit) _typeName2WorkingCopy.get( typeName );
+		if ( workingCopy != null )
+			updateMaps( typeName, parentCompilationUnit, workingCopy );
+
+		return workingCopy;
+	}
+	
+	private ICompilationUnit createNewWorkingCopy(ICompilationUnit parentCompilationUnit, String typeName,
 			String contents, WorkingCopyOwner workingCopyOwner,
 			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor)
 		throws CoreException, JavaModelException
-	{
-		//
-		//  check cache to see if we already have a working copy
-		//
-		ICompilationUnit workingCopy = (ICompilationUnit) _typeName2WorkingCopy.get( typeName );
-		if ( workingCopy != null )
-		{
-			updateMaps( typeName, parentCompilationUnit, workingCopy );
-			return workingCopy;
-		}
-		
+	{	
 		IProject project = parentCompilationUnit.getResource().getProject();
 		JavaProject jp = (JavaProject) parentCompilationUnit.getJavaProject();
 
@@ -448,7 +561,7 @@ public class GeneratedFileManager {
 		//  TODO:  can we call getWorkingCopy here?
 		//
 		cu.becomeWorkingCopy(problemRequestor, progressMonitor);
-		workingCopy = cu;
+		ICompilationUnit workingCopy = cu;
 		
 		//
 		// update maps
@@ -505,20 +618,35 @@ public class GeneratedFileManager {
 
 	}
 	
-	private void updateWorkingCopy( 
+	/**
+	 * Returns true if the file was modified
+	 */
+	private static boolean updateWorkingCopy( 
 			String contents, ICompilationUnit workingCopy, 
 			WorkingCopyOwner workingCopyOwner, IProgressMonitor progressMonitor )
 		throws JavaModelException
 	{
-		//
-		// TODO - reuse existing char[] if there is one?
-		//
 		IBuffer b = workingCopy.getBuffer();
-		char[] buf = new char[contents.length()];
-		contents.getChars(0, contents.length(), buf, 0);
-		b.setContents(buf);
+		char[] oldBuf = b.getCharacters();
+		// Diff the contents, and only set if they differ
+		if (oldBuf.length == contents.length()) {
+			boolean contentsMatch = true;
+			for (int i=0; i<oldBuf.length; i++) {
+				if (oldBuf[i] != contents.charAt(i)) {
+					contentsMatch = false;
+					break;
+				}
+			}
+			if (contentsMatch) {
+				// No change, no need to update buffer
+				return false;
+			}
+		}
+		
+		b.setContents(contents);
 		workingCopy.reconcile(AST.JLS3, true, workingCopyOwner,
 				progressMonitor);
+		return true;
 	}
 	
 	private void updateMaps( String typeName, ICompilationUnit parentCompilationUnit, ICompilationUnit workingCopy )
@@ -528,7 +656,7 @@ public class GeneratedFileManager {
 		updateFileMaps( typeName, parentFile, generatedFile );
 
 		// type name -> set of parent compilation unit
-		Set s = (Set)_typeName2Parents.get( typeName );
+		Set<ICompilationUnit> s = _typeName2Parents.get( typeName );
 		if ( s == null )
 		{
 			s = new HashSet();
@@ -550,33 +678,33 @@ public class GeneratedFileManager {
 	private void updateFileMaps( String typeName, IFile parentFile, IFile generatedFile )
 	{
 		// parent IFile -> set of generated type name
-		Set s = (Set) _parent2TypeNames.get( parentFile );
-		if ( s == null )
+		Set<String> stringSet = _parent2TypeNames.get( parentFile );
+		if ( stringSet == null )
 		{
-			s = new HashSet();
-			_parent2TypeNames.put( parentFile, s );
+			stringSet = new HashSet<String>();
+			_parent2TypeNames.put( parentFile, stringSet );
 		}
-		s.add( typeName );
+		stringSet.add( typeName );
 		
 		
 		// add parent file -> set of derived files
-		s = (Set)_parent2DerivedFiles.get( parentFile );
-		if ( s == null )
+		Set<IFile> fileSet = _parent2DerivedFiles.get( parentFile );
+		if ( fileSet == null )
 		{
-		 	s = new HashSet();
-		 	_parent2DerivedFiles.put( parentFile, s );
+			fileSet = new HashSet();
+		 	_parent2DerivedFiles.put( parentFile, fileSet );
 		}
-		s.add( generatedFile );
+		fileSet.add( generatedFile );
 
 
 		// add derived file -> set of parent files
-		s = (Set) _derivedFile2Parents.get( generatedFile );
-		if ( s == null )
+		fileSet = _derivedFile2Parents.get( generatedFile );
+		if ( fileSet == null )
 		{ 
-			s = new HashSet();
-			_derivedFile2Parents.put( generatedFile, s );
+			fileSet = new HashSet();
+			_derivedFile2Parents.put( generatedFile, fileSet );
 		}
-		s.add( parentFile );
+		fileSet.add( parentFile );
 	}
 	
 	private void updateProjectClasspath( JavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
@@ -603,24 +731,94 @@ public class GeneratedFileManager {
 		}
 	}
 	
+	public synchronized void projectClosed()
+	{
+		// discard all working copies
+		Collection<ICompilationUnit> workingCopies = _typeName2WorkingCopy.values();
+		for ( ICompilationUnit wc : workingCopies )
+		{
+			try 
+			{
+				wc.discardWorkingCopy();
+			}
+			catch ( JavaModelException jme )
+			{
+				jme.printStackTrace();
+			}
+		}
+
+		// clear out the working copy maps
+		_typeName2Parents.clear();
+		_typeName2WorkingCopy.clear();
+	}
+	
+	public synchronized void projectClean( boolean deleteFiles )
+	{
+		projectClosed();
+		
+		// delete the generated source dir
+		if ( deleteFiles )
+		{
+			IFolder f = _project.getFolder( GENERATED_SOURCE_FOLDER_NAME );
+			if ( f != null && f.exists() )
+			{
+				// delete the contents of the generated source folder, but don't delete
+				// the generated source folder because that will cause a classpath change,
+				// which will force the next build to be a full build.
+				try
+				{
+					IResource[] members = f.members();
+					for ( int i = 0; i<members.length; i++ )
+						members[i].delete( true, null );
+				}
+				catch ( CoreException ce )
+				{
+					ce.printStackTrace();
+				}
+			}
+		}
+	
+		// clear out all the file maps
+		_parent2DerivedFiles.clear();
+		_derivedFile2Parents.clear();
+		_parent2TypeNames.clear();
+	}
+	
+	public synchronized void projectDeleted()
+	{
+		//
+		// remove this project from the managers map.  Some other clients may still
+		// have a reference to this, but that should be fine since the project is being
+		// deleted.  We'll just empty out member fields rather than
+		// setting them to null to avoid NPEs.
+		//
+		synchronized( this.getClass() )
+		{
+			MANAGERS_MAP.remove( _project );
+		}
+		
+		// TODO:  eventually make this true.  Right now, the resource tree is locked 
+		// when we get the project-deleted event, so we can't delete any files.
+		projectClean( false );
+	}
 	
 	/**
 	 * map from IFile of parent file to Set <IFile>of derived files
 	 */
-	private Map _parent2DerivedFiles = new HashMap();
+	private Map<IFile, Set<IFile>> _parent2DerivedFiles = new HashMap();
 
 	/**
 	 * map from IFile of dervied file to Set <IFile>of parent files
 	 */
-	private Map _derivedFile2Parents = new HashMap();
+	private Map<IFile, Set<IFile>> _derivedFile2Parents = new HashMap();
 
 	/**
-	 * map from ICompilationUnit of parent working copy to Set
+	 * map from IFile of parent working copy to Set
 	 * <String> of type names generated by that file
 	 * 
-	 * Map<ICompilationUnit, Set<String>>
+	 * Map<IFile, Set<String>>
 	 */
-	private Map _parent2TypeNames = new HashMap();
+	private Map<IFile, Set<String>> _parent2TypeNames = new HashMap();
 
 	/**
 	 * map from typename of generated file to Set<ICompilationUnit>of parent 
@@ -628,21 +826,15 @@ public class GeneratedFileManager {
 	 * 
 	 * Map<String, Set<ICompilationUnit>>
 	 */
-	private Map _typeName2Parents = new HashMap();
+	private Map<String, Set<ICompilationUnit>> _typeName2Parents = new HashMap();
 	
 	/**
 	 * Map from type name to the working copy in memory of that type name
 	 * 
 	 * Map<String, ICompilationUnit>
 	 */
-	private Map _typeName2WorkingCopy = new HashMap();
-	
+	private Map<String, ICompilationUnit> _typeName2WorkingCopy = new HashMap();	
 
-	
-	/**
-	 * TODO:  need to deal with synchronization on this instance.  Also, may need to break this up per project basis...
-	 */
-	private static GeneratedFileManager _generatedFileManagerInstance = new GeneratedFileManager();
 	
 	private static boolean _initialized = false;
 	

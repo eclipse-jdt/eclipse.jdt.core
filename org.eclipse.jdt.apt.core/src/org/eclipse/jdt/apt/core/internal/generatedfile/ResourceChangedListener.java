@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -23,13 +24,17 @@ import org.eclipse.core.runtime.CoreException;
 
 public class ResourceChangedListener implements IResourceChangeListener 
 {
+	/* package */ ResourceChangedListener()
+	{
+	}
+	
 	public void resourceChanged(IResourceChangeEvent event) 
 	{
-		if ( event.getType() == IResourceChangeEvent.POST_CHANGE )
+		if ( event.getType() == IResourceChangeEvent.PRE_BUILD )
 		{
 			try
-			{
-				event.getDelta().accept( new Visitor() );
+			{ 
+				event.getDelta().accept( new PreBuildVisitor() );
 			}
 			catch ( CoreException ce )
 			{
@@ -37,28 +42,41 @@ public class ResourceChangedListener implements IResourceChangeListener
 				ce.printStackTrace();
 			}
 		}
+		else if ( event.getType() == IResourceChangeEvent.PRE_CLOSE )
+		{
+			IProject p = (IProject)event.getResource();
+			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
+			gfm.projectClosed();
+		}
+		else if ( event.getType() == IResourceChangeEvent.PRE_DELETE )
+		{
+			// TODO:  need to update projectDeleted() to delete the generated_src folder
+			// in an async thread.  The resource tree is locked here.
+			IProject p = (IProject)event.getResource();
+			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
+			gfm.projectDeleted();
+		}
 	}
 
-	public static class Visitor implements IResourceDeltaVisitor
+	public class PreBuildVisitor implements IResourceDeltaVisitor
 	{
 
 		public boolean visit(IResourceDelta delta) throws CoreException 
 		{
 			IResource r = delta.getResource();
-			//printDeltaInfo( delta );
 			
 			if ( delta.getKind() == IResourceDelta.REMOVED && r instanceof IFile)
 			{
-			
-				GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager();
-				IFile f = (IFile)r;
-				if ( gfm.isParentFile( f ) )
-				{
-					gfm.parentFileDeleted( (IFile) r, null /* progress monitor */ );
-				}
-				else if ( gfm.isGeneratedFile( f ) )
-				{
-					gfm.generatedFileDeleted( f, null /*progress monitor */ );
+				for (GeneratedFileManager gfm : GeneratedFileManager.getGeneratedFileManagers()) {
+					IFile f = (IFile)r;
+					if ( gfm.isParentFile( f ) )
+					{
+						gfm.parentFileDeleted( (IFile) r, null /* progress monitor */ );
+					}
+					else if ( gfm.isGeneratedFile( f ) )
+					{
+						gfm.generatedFileDeleted( f, null /*progress monitor */ );
+					}
 				}
 			}
 				
@@ -71,62 +89,8 @@ public class ResourceChangedListener implements IResourceChangeListener
 		}		
 	}
 	
-	private static void printDeltaInfo( IResourceDelta delta )
-	{
-		System.out.println("\n\n-------------------------");
-		switch( delta.getKind() )
-		{	             
-	    case IResourceDelta.ADDED:
-	        System.out.println("delta.getKind() is IResourceDelta.ADDED" );
-	        break;
-	    case IResourceDelta.REMOVED:
-	        System.out.println("delta.getKind() is IResourceDelta.REMOVED" );
-	        break;
-	    case IResourceDelta.CHANGED:
-	        System.out.println("delta.getKind() is IResourceDelta.CHANGED" );
-	        break;
-	    case IResourceDelta.ADDED_PHANTOM:
-	        System.out.println("delta.getKind() is IResourceDelta.ADDED_PHANTOM" );
-	        break;
-	    case IResourceDelta.REMOVED_PHANTOM:
-	        System.out.println("delta.getKind() is IResourceDelta.REMOVED_PHANTOM" );
-	        break;
+	
+	
 
-		}
-
-		System.out.println("event has flags...");
-		int eventFlags = delta.getFlags();
-        if ( (eventFlags & IResourceDelta.CONTENT )!= 0 )
-            System.out.println("\teventFlags has IResourceDelta.CONTENT" );
-        
-        if ( ( eventFlags & IResourceDelta.DESCRIPTION)!= 0 )
-            System.out.println("\teventFlags has IResourceDelta.DESCRIPTION" );
-
-        if ( (eventFlags & IResourceDelta.ENCODING )!= 0)
-            System.out.println("\teventFlags has IResourceDelta.ENCODING" );
-
-        if ( (eventFlags & IResourceDelta.OPEN )!= 0)
-            System.out.println("\teventFlags has IResourceDelta.OPEN" );
-
-        if ( (eventFlags & IResourceDelta.MOVED_TO )!= 0)
-            System.out.println("\teventFlags has IResourceDelta.MOVED_TO" );
-
-        if ( (eventFlags & IResourceDelta.MOVED_FROM )!= 0)
-            System.out.println("\teventFlags has IResourceDelta.MOVED_FROM" );
-
-        if ( (eventFlags & IResourceDelta.TYPE )!= 0)
-            System.out.println("\teventFlags has IResourceDelta.TYPE" );
-
-        if ( (eventFlags & IResourceDelta.SYNC )!= 0)
-            System.out.println("\teventFlags has IResourceDelta.SYNC" );
-
-        if ( (eventFlags & IResourceDelta.MARKERS )!= 0)
-            System.out.println("\teventFlags has IResourceDelta.MARKERS" );
-
-        if ( (eventFlags & IResourceDelta.REPLACED )!= 0)
-            System.out.println("\teventFlags has IResourceDelta.REPLACED" );
-		
-		System.out.println("\n---------------------------------------\n\n\n");
-	}
 	
 }

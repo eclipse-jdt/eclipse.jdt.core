@@ -89,7 +89,6 @@ public class AnnotationInvocationHandler implements InvocationHandler
                 throw new MirroredTypesException(mirrorTypes);
             }
         }
-
         return _instance.getReflectionValue(c_methodName, method);
     }
 

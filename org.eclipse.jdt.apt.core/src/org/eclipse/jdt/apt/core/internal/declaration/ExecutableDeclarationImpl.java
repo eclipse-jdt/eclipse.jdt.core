@@ -75,14 +75,14 @@ public abstract class ExecutableDeclarationImpl extends MemberDeclarationImpl im
 
             for( int i=0; i<paramTypes.length; i++ ){
                 final ITypeBinding type = paramTypes[i];
-                final ParameterDeclaration param = new ParameterDeclarationImpl(this, type, i, _env);
+                final ParameterDeclaration param = new SourceParameterDeclarationImpl(this, type, i, _env);
                 result.add(param);
             }
         }
         else{
             for( int i=0; i<paramTypes.length; i++ ){
                 final ITypeBinding type = paramTypes[i];
-                final ParameterDeclaration param = new BinaryParameterDeclarationImpl(type, methodBinding, i, _env);
+                final ParameterDeclaration param = new BinaryParameterDeclarationImpl(this, type, i, _env);
                 result.add(param);
             }
         }

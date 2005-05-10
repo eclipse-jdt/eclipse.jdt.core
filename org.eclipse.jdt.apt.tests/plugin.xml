@@ -48,5 +48,21 @@
          enableDefault="true">
       </factory>
    </extension>
+   
+   <extension
+         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
+      <factory
+         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorTestAnnotationProcessorFactory"
+         enableDefault="true">
+      </factory>
+   </extension>
+
+   <extension
+         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
+      <factory
+         class="org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotationProcessorFactory"
+         enableDefault="true">
+      </factory>
+   </extension>
 
 </plugin>

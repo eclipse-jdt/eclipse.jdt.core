@@ -15,20 +15,17 @@ import com.sun.mirror.type.VoidType;
 import com.sun.mirror.util.TypeVisitor;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class VoidTypeImpl implements VoidType, EclipseMirrorImpl
-{
-    public static final VoidType TYPE_VOID = new VoidTypeImpl();
-    public static final ITypeBinding VOID_TYPE_BINDING;
+{   
+	private final ITypeBinding _binding;
 
-    static{
-        final org.eclipse.jdt.core.dom.PrimitiveType astVoid =
-            PrimitiveTypeImpl.STATIC_AST.newPrimitiveType(org.eclipse.jdt.core.dom.PrimitiveType.VOID);
-        VOID_TYPE_BINDING = astVoid.resolveBinding();        
-    }
-
-    private VoidTypeImpl(){}
+    public VoidTypeImpl(final ITypeBinding  binding){
+		assert binding != null : "missing binding";
+		_binding = binding;
+	}
     
     public void accept(TypeVisitor visitor)
     {
@@ -37,6 +34,8 @@ public class VoidTypeImpl implements VoidType, EclipseMirrorImpl
     }
 
     public String toString(){ return "void"; }
+	
+	public ITypeBinding getTypeBinding(){return _binding;}
 
     public MirrorKind kind(){ return MirrorKind.TYPE_VOID; }
 	
