@@ -12223,12 +12223,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	     ^^\n" + 
 			"Type safety: The expression of type X.Inner needs unchecked conversion to conform to X<String>.Inner<Integer>\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 10)\n" + 
+			"5. ERROR in X.java (at line 10)\n" + 
 			"	d1 = d3;\n" + 
 			"	     ^^\n" + 
-			"Type safety: The expression of type X.Inner<Integer> needs unchecked conversion to conform to X<String>.Inner<Integer>\n" + 
+			"Type mismatch: cannot convert from X.Inner<Integer> to X<String>.Inner<Integer>\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 13)\n" + 
+			"6. ERROR in X.java (at line 11)\n" + 
+			"	d3 = d1;\n" + 
+			"	     ^^\n" + 
+			"Type mismatch: cannot convert from X<String>.Inner<Integer> to X.Inner<Integer>\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 13)\n" + 
 			"	d3 = d2;\n" + 
 			"	     ^^\n" + 
 			"Type safety: The expression of type X.Inner needs unchecked conversion to conform to X.Inner<Integer>\n" + 
@@ -12265,17 +12270,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"  }\n" + 
 				"}\n" ,
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
-			"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
-			"	                              ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type X.Inner<Integer> needs unchecked conversion to conform to X<String>.Inner<Integer>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
-			"	                                  ^^^^^^^\n" + 
-			"The member type X.Inner<Integer> must be qualified with a parameterized type, since it is not static\n" + 
-			"----------\n");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
+		"	                         ^^\n" + 
+		"Type mismatch: cannot convert from X.Inner<Integer> to X<String>.Inner<Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
+		"	                                  ^^^^^^^\n" + 
+		"The member type X.Inner<Integer> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n");
 	}			
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
@@ -18337,4 +18342,143 @@ public void test617() {
 	        },
 			"should complain about bound check failure on #getAnnotation(XClass<String>)");
 	}			
+	public void test646() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Outer.Inner inner = new Outer().new Inner();\n" + 
+				"		X x = inner.setOuterT(new X());\n" + 
+				"		\n" + 
+				"		Outer<String>.Inner innerS = inner;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Outer<T> {\n" + 
+				"	T t;\n" + 
+				"	class Inner {\n" + 
+				"		T setOuterT(T t1) {\n" + 
+				"			t = t1;\n" + 
+				"			return t;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	X x = inner.setOuterT(new X());\n" + 
+			"	  ^\n" + 
+			"Type mismatch: cannot convert from Object to X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	X x = inner.setOuterT(new X());\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method setOuterT(Object) belongs to the raw type Outer.Inner. References to generic type Outer<T>.Inner should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	Outer<String>.Inner innerS = inner;\n" + 
+			"	                             ^^^^^\n" + 
+			"Type safety: The expression of type Outer.Inner needs unchecked conversion to conform to Outer<String>.Inner\n" + 
+			"----------\n");
+	}				
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644
+	public void test647() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Outer.Inner inner = new Outer().new Inner();\n" + 
+				"		X x = inner.set(new X());\n" + 
+				"		\n" + 
+				"		Outer<String>.Inner innerS = inner;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Outer<T> {\n" + 
+				"	T t;\n" + 
+				"	static class Inner<U> {\n" + 
+				"		U set(U u) {\n" + 
+				"			return u;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	X x = inner.set(new X());\n" + 
+			"	  ^\n" + 
+			"Type mismatch: cannot convert from Object to X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	X x = inner.set(new X());\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method set(Object) belongs to the raw type Outer.Inner. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	Outer<String>.Inner innerS = inner;\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"The member type Outer<String>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<String>\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644 - variation	
+	public void test648() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		@SuppressWarnings(\"unusedLocal\")\n" + 
+				"		Outer.Inner inner = new Sub().get();\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n" + 
+				"class Outer<T> {\n" + 
+				"	class Inner<U> {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Sub extends Outer {\n" + 
+				"	Inner get() { return null; }\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644 - variation	
+	public void test649() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		@SuppressWarnings(\"unusedLocal\")\n" + 
+				"		Outer<String>.Inner inner = new Sub().get();\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n" + 
+				"class Outer<T> {\n" + 
+				"	class Inner {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Sub extends Outer {\n" + 
+				"	Inner get() { return null; }\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	Outer<String>.Inner inner = new Sub().get();\n" + 
+			"	                            ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Outer.Inner needs unchecked conversion to conform to Outer<String>.Inner\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}				
 }

@@ -390,12 +390,15 @@ public boolean needsUncheckedConversion(TypeBinding targetType) {
 	ReferenceBinding compatible = ((ReferenceBinding)currentType).findSuperTypeErasingTo((ReferenceBinding)targetType.erasure());
 	if (compatible == null) 
 		return false;
-	if (!compatible.isPartOfRawType()) return false;
-	do {
-		if (compatible.isRawType() && (targetType.isBoundParameterizedType() || targetType.isGenericType())) {
+
+	while (compatible.isRawType()) {
+		if (targetType.isBoundParameterizedType() || targetType.isGenericType()) {
 			return true;
 		}
-	} while ((compatible = compatible.enclosingType()) != null && (targetType = targetType.enclosingType()) != null);
+		if (compatible.isStatic()) break;
+		if ((compatible = compatible.enclosingType()) == null) break;
+		if ((targetType = targetType.enclosingType()) == null) break;
+	}
 	return false;
 }
 

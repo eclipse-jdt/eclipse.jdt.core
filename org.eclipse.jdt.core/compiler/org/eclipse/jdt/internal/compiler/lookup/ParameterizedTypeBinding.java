@@ -543,9 +543,16 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	            if (this.type != otherParamType.type) 
 	                return false;
 	            if (!isStatic()) { // static member types do not compare their enclosing
-		            ReferenceBinding enclosing = enclosingType();
-		            if (enclosing != null && !enclosing.isEquivalentTo(otherParamType.enclosingType()))
-		                return false;
+	            	ReferenceBinding enclosing = enclosingType();
+	            	if (enclosing != null) {
+	            		ReferenceBinding otherEnclosing = otherParamType.enclosingType();
+	            		if (otherEnclosing == null) return false;
+	            		if ((otherEnclosing.tagBits & HasDirectWildcard) == 0) {
+							if (enclosing != otherEnclosing) return false;
+	            		} else {
+	            			if (!enclosing.isEquivalentTo(otherParamType.enclosingType())) return false;
+	            		}
+	            	}
 	            }
 	            int length = this.arguments == null ? 0 : this.arguments.length;
 	            TypeBinding[] otherArguments = otherParamType.arguments;

@@ -533,14 +533,20 @@ public abstract class Scope
 						convertedEnclosing = originalEnclosing;
 					}
 					break;
+				case Binding.RAW_TYPE :
+					needToConvert = !((ReferenceBinding)originalType).isStatic();
 				default :
 					convertedEnclosing = originalEnclosing;
 					break;
 			}
+			ReferenceBinding originalGeneric = (ReferenceBinding) originalType.erasure();
 			if (needToConvert) {
-				convertedType = environment().createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
+				convertedType = environment().createRawType(originalGeneric, convertedEnclosing);
 			} else if (originalEnclosing != convertedEnclosing) {
-				convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
+				if (originalGeneric.isStatic())
+					convertedType = createParameterizedType(originalGeneric, null, convertedEnclosing);
+				else 
+					convertedType = environment().createRawType(originalGeneric, convertedEnclosing);
 			} else {
 				convertedType = originalType;
 			}
@@ -2592,10 +2598,17 @@ public abstract class Scope
 		ReferenceBinding typeBinding = (ReferenceBinding) binding;
 		if (typeBinding.isGenericType()) {
 			qualifiedType = this.environment().createRawType(typeBinding, qualifiedType);
+		} else if (qualifiedType != null) {
+			boolean rawQualified;
+			if ((rawQualified = qualifiedType.isRawType()) && !typeBinding.isStatic()) {
+				qualifiedType = this.environment().createRawType((ReferenceBinding)typeBinding.erasure(), qualifiedType);
+			} else if (rawQualified || qualifiedType.isParameterizedType()) {
+				qualifiedType = this.createParameterizedType((ReferenceBinding)typeBinding.erasure(), null, qualifiedType);
+			} else {
+				qualifiedType = typeBinding;
+			}
 		} else {
-			qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-				? this.createParameterizedType(typeBinding, null, qualifiedType)
-				: typeBinding;
+			qualifiedType = typeBinding;
 		}
 
 		if (checkVisibility) // handles the fall through case

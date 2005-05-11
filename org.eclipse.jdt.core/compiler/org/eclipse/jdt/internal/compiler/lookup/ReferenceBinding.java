@@ -726,18 +726,6 @@ public boolean isInterface() {
 	return (modifiers & AccInterface) != 0;
 }
 	
-public final boolean isPartOfRawType() {
-	ReferenceBinding current = this;
-	do {
-		if (current.isRawType())
-			return true;
-		// no static type
-		if (isStatic()) 
-			break;
-	} while ((current = current.enclosingType()) != null);
-    return false;
-}
-
 /* Answer true if the receiver has private visibility
 */
 public final boolean isPrivate() {
