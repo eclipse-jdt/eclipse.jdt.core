@@ -18133,5 +18133,208 @@ public void test617() {
 				"}\n",
 	        },
 			"");
-	}	
+	}
+	public void test639() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.Annotation;\n" + 
+				"import java.lang.reflect.*;\n" + 
+				"\n" + 
+				"@interface MyAnnotation {\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	void test() throws Exception {\n" + 
+				"		Class type = X.class;\n" + 
+				"		Method method = type.getMethod(\"test\");\n" + 
+				"		Constructor constructor = type.getConstructor();\n" + 
+				"		Field field = type.getField(\"field\");\n" + 
+				"		Package packge = type.getPackage();\n" + 
+				"		MyAnnotation typeAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation methodAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation constrAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation fieldAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation packgeAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	int field;\n" + 
+				"	\n" + 
+				"	<U extends Annotation> U getAnnotation(Class<U> annotatedType) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"");
+	}		
+	public void test640() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.Annotation;\n" + 
+				"import java.lang.reflect.*;\n" + 
+				"\n" + 
+				"@interface MyAnnotation {\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	void test() throws Exception {\n" + 
+				"		Class<?> type = X.class;\n" + 
+				"		Method method = type.getMethod(\"test\");\n" + 
+				"		Constructor constructor = type.getConstructor();\n" + 
+				"		Field field = type.getField(\"field\");\n" + 
+				"		Package packge = type.getPackage();\n" + 
+				"		MyAnnotation typeAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation methodAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation constrAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation fieldAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation packgeAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	int field;\n" + 
+				"	\n" + 
+				"	<U extends Annotation> U getAnnotation(Class<U> annotatedType) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"");
+	}			
+	public void test641() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.lang.reflect.*;\n" + 
+				"\n" + 
+				"@interface MyAnnotation {\n" + 
+				"}\n" + 
+				"@SuppressWarnings(\"all\")\n" +
+				"public class X {\n" + 
+				"	void test() throws Exception {\n" + 
+				"		Class type = X.class;\n" + 
+				"		Method method = type.getMethod(\"test\");\n" + 
+				"		Constructor constructor = type.getConstructor();\n" + 
+				"		Field field = type.getField(\"field\");\n" + 
+				"		Package packge = type.getPackage();\n" + 
+				"		MyAnnotation typeAnnot = type.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation methodAnnot = method.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation constrAnnot = constructor.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation fieldAnnot = field.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation packgeAnnot = packge.getAnnotation(MyAnnotation.class);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	int field;\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	MyAnnotation typeAnnot = type.getAnnotation(MyAnnotation.class);\n" + 
+			"	             ^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Annotation to MyAnnotation\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	MyAnnotation constrAnnot = constructor.getAnnotation(MyAnnotation.class);\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Annotation to MyAnnotation\n" + 
+			"----------\n");
+	}			
+	public void test642() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.lang.reflect.*;\n" + 
+				"\n" + 
+				"@interface MyAnnotation {\n" + 
+				"}\n" + 
+				"@SuppressWarnings(\"all\")\n" +
+				"public class X {\n" + 
+				"	void test() throws Exception {\n" + 
+				"		Class<?> type = X.class;\n" + 
+				"		Method method = type.getMethod(\"test\");\n" + 
+				"		Constructor<?> constructor = type.getConstructor();\n" + 
+				"		Field field = type.getField(\"field\");\n" + 
+				"		Package packge = type.getPackage();\n" + 
+				"		MyAnnotation typeAnnot = type.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation methodAnnot = method.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation constrAnnot = constructor.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation fieldAnnot = field.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation packgeAnnot = packge.getAnnotation(MyAnnotation.class);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	int field;\n" + 
+				"}\n",
+	        },
+			"");
+	}		
+	public void test643() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X<T> {\n" + 
+				"	\n" + 
+				"	static <U> U foo(U u) {\n" + 
+				"		return u;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	void bar(X x) {\n" + 
+				"		String str = x.foo(\"hello\");\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"");
+	}		
+	public void test644() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X<T> {\n" + 
+				"	\n" + 
+				"	<U> U foo(U u) {\n" + 
+				"		return u;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	void bar(X x) {\n" + 
+				"		String str = x.foo(\"hello\");\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\r\n" + 
+			"	String str = x.foo(\"hello\");\r\n" + 
+			"	       ^^^\n" + 
+			"Type mismatch: cannot convert from Object to String\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\r\n" + 
+			"	String str = x.foo(\"hello\");\r\n" + 
+			"	             ^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method foo(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+			"----------\n");
+	}			
+	public void _test645() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.Annotation;\n" + 
+				"\n" + 
+				"@interface MyAnnotation {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class X {\n" + 
+				"	void bar(XClass<String> arg) {\n" + 
+				"		XClass xc = new XClass();\n" + 
+				"		String str = xc.getConstructor().getAnnotation(arg);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XClass<U> {\n" + 
+				"	XConstructor<U> getConstructor() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class XConstructor<V> {\n" + 
+				"	<W extends Annotation> W getAnnotation(XClass<W> cl) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"should complain about bound check failure on #getAnnotation(XClass<String>)");
+	}			
 }
