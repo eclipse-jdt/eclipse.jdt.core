@@ -56,7 +56,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug87627";
+//		TESTS_PREFIX =  "testBug94718";
 //		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
 //		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -1838,6 +1838,73 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
+	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
+	 */
+	public void testBug83804_Type() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83804/package-info.java",
+			"/**\n" + 
+			" * Valid javadoc.\n" + 
+			" * @see Test\n" + 
+			" * @see Unknown\n" + 
+			" * @see Test#foo()\n" + 
+			" * @see Test#unknown()\n" + 
+			" * @see Test#field\n" + 
+			" * @see Test#unknown\n" + 
+			" * @param unexpected\n" + 
+			" * @throws unexpected\n" + 
+			" * @return unexpected \n" + 
+			" */\n" + 
+			"package b83804;\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b83804/Test.java",
+			"/**\n" + 
+			" * Invalid javadoc\n" + 
+			" */\n" + 
+			"package b83804;\n" + 
+			"public class Test {\n" + 
+			"	public int field;\n" + 
+			"	public void foo() {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[1].getType("Test");
+		this.discard = false;
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC"
+		);
+	}
+	public void testBug83804_Method() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IMethod[] methods = workingCopies[1].getType("Test").getMethods();
+		assertEquals("Invalid number of methods", 1, methods.length);
+		this.discard = false;
+		search(methods[0], REFERENCES);
+		assertSearchResults(
+			"src/b83804/package-info.java b83804.package-info [foo()] EXACT_MATCH INSIDE_JAVADOC"
+		);
+	}
+	public void testBug83804_Field() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IField[] fields = workingCopies[1].getType("Test").getFields();
+		assertEquals("Invalid number of fields", 1, fields.length);
+		search(fields[0], REFERENCES);
+		assertSearchResults(
+			"src/b83804/package-info.java b83804.package-info [field] EXACT_MATCH INSIDE_JAVADOC"
+		);
+	}
+
+	/**
 	 * Bug 83388: [1.5][search] Search for varargs method not finding match
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83388"
 	 */
@@ -2247,60 +2314,53 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		workingCopies = new ICompilationUnit[2];
 		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86380/package-info.java",
 			"/**\n" + 
-			" * Valid javadoc.\n" + 
-			" * @see Test\n" + 
-			" * @see Unknown\n" + 
-			" * @see Test#foo()\n" + 
-			" * @see Test#unknown()\n" + 
-			" * @see Test#field\n" + 
-			" * @see Test#unknown\n" + 
-			" * @param unexpected\n" + 
-			" * @throws unexpected\n" + 
-			" * @return unexpected \n" + 
+			" * @see Annot#field\n" + 
 			" */\n" + 
+			"@Annot(value=11)\n" + 
 			"package b86380;\n"
 		);
 		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86380/Test.java",
-			"/**\n" + 
-			" * Invalid javadoc\n" + 
-			" */\n" + 
 			"package b86380;\n" + 
-			"public class Test {\n" + 
-			"	public int field;\n" + 
+			"@Annot(12) public class Test {\n" + 
+			"	public int field = Annot.field;\n" + 
 			"	public void foo() {}\n" + 
 			"}\n"
 		);
-		IType type = workingCopies[1].getType("Test");
+		ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
+		IType type = unit.getType("Annot");
 		this.discard = false;
 		search(type, REFERENCES);
 		assertSearchResults(
-			"src/b86380/package-info.java b86380.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/b86380/package-info.java b86380.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/b86380/package-info.java b86380.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/b86380/package-info.java b86380.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/b86380/package-info.java b86380.package-info [Test] EXACT_MATCH INSIDE_JAVADOC"
+			"src/b86380/Test.java b86380.Test [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+			"src/b86380/Test.java b86380.Test.field [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [Annot] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [Annot] EXACT_MATCH OUTSIDE_JAVADOC"
 		);
 	}
 	public void testBug86380_Method() throws CoreException {
 		resultCollector.showInsideDoc = true;
 		assertNotNull("Problem in tests processing", workingCopies);
 		assertEquals("Problem in tests processing", 2, workingCopies.length);
-		IMethod[] methods = workingCopies[1].getType("Test").getMethods();
+		ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
+		IMethod[] methods = unit.getType("Annot").getMethods();
 		assertEquals("Invalid number of methods", 1, methods.length);
 		this.discard = false;
 		search(methods[0], REFERENCES);
 		assertSearchResults(
-			"src/b86380/package-info.java b86380.package-info [foo()] EXACT_MATCH INSIDE_JAVADOC"
+			"src/b86380/Test.java b86380.Test [12] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [value] EXACT_MATCH OUTSIDE_JAVADOC"
 		);
 	}
 	public void testBug86380_Field() throws CoreException {
 		resultCollector.showInsideDoc = true;
 		assertNotNull("Problem in tests processing", workingCopies);
 		assertEquals("Problem in tests processing", 2, workingCopies.length);
-		IField[] fields = workingCopies[1].getType("Test").getFields();
+		ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
+		IField[] fields = unit.getType("Annot").getFields();
 		assertEquals("Invalid number of fields", 1, fields.length);
 		search(fields[0], REFERENCES);
 		assertSearchResults(
+			"src/b86380/Test.java b86380.Test.field [field] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
 			"src/b86380/package-info.java b86380.package-info [field] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
@@ -2648,6 +2708,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"b81556.a.B81556\n" + 
 			"b81556.a.X81556\n" + 
 			"b81556.b.XX81556\n" + 
+			"b86380.Annot\n" + 
 			"b87627.Collection\n" + 
 			"b87627.List\n" + 
 			"b89848.Test\n" + 
@@ -2910,6 +2971,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 		assertSearchResults(
 			"Unexpected all type names",
+			"b86380.Annot\n" + 
 			"b92944.B92944_A",
 			requestor);
 	}
@@ -2971,5 +3033,31 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		index= source.indexOf(str, index)+str.length();
 		assertEquals("Invalid offset for last match", index, ((SearchMatch)collector.matches.get(2)).getOffset());
 		assertEquals("Invalid length for last match", 2, ((SearchMatch)collector.matches.get(2)).getLength());
+	}
+
+	/**
+	 * Bug 94718: [1.5][search][annot] Find references in workspace breaks on an annotation
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94718"
+	 */
+	public void testBug94718() throws CoreException {
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b94718/SetUp.java",
+			"package b94718;\n" + 
+			"public @interface SetUp {\n" + 
+			"	String value() {}\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b94718/Test.java",
+			"package b94718;\n" + 
+			"@SetUp(\"howdy\")\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[1].getType("SetUp");
+		this.discard = false;
+		search(type, REFERENCES, SearchEngine.createWorkspaceScope());
+		assertSearchResults(
+			"src/b94718/Test.java b94718.Test [SetUp] EXACT_MATCH"
+		);
 	}
 }

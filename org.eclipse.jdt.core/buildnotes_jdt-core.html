@@ -58,10 +58,15 @@ Note that this warning can itself be turned off using @SuppressWarnings("warning
 *     - default:           "warning"
 </pre>
 </li>
+<li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94718">bug 94718</a> required the index version to be incremented. 
+     Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94644">94644</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94718">94718</a>
+[1.5][search][annot] Find references in workspace breaks on an annotation
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94644">94644</a>
 [1.5][compiler] Non-static member type of raw type should be raw
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94206">94206</a>
 CCE in BindingKeyResolver when restoring array type of method type parameter
