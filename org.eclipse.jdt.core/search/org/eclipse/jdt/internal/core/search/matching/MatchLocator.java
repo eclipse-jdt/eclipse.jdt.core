@@ -1888,10 +1888,13 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	}
 
 	if (matchedUnitContainer) {
-// Currently a no-op
-//	ImportReference pkg = unit.currentPackage;
-//	if (pkg != null && nodeSet.matchingNodes.removeKey(pkg) != null)
-//		reportPackageDeclaration(pkg);
+		ImportReference pkg = unit.currentPackage;
+		if (pkg != null && pkg.annotations != null) {
+			IJavaElement element = createTypeHandle(new String(unit.getMainTypeName()));
+			if (element != null) {
+				reportMatching(pkg.annotations, element, null, nodeSet, true, encloses(element));
+			}
+		}
 
 		ImportReference[] imports = unit.imports;
 		if (imports != null) {
