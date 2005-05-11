@@ -2912,7 +2912,7 @@ public void invalidType(ASTNode location, TypeBinding type) {
 			id = IProblem.InheritedTypeHidesEnclosingName;
 			break;
 		case NonStaticReferenceInStaticContext :
-			id = IProblem.TypeVariableReferenceFromStaticContext;
+			id = IProblem.NonStaticTypeFromStaticInvocation;
 		    break;
 		case IllegalSuperTypeVariable : 
 		    id = IProblem.IllegalTypeVariableSuperReference;

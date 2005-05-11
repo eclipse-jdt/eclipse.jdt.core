@@ -860,7 +860,7 @@ public interface IProblem {
 	/** @since 3.1 */
 	int IllegalTypeVariableSuperReference = Internal + 521;
 	/** @since 3.1 */
-	int TypeVariableReferenceFromStaticContext = Internal + 522;
+	int NonStaticTypeFromStaticInvocation = Internal + 522;
 	/** @since 3.1 */
 	int ObjectCannotBeGeneric = Internal + 523;
 	/** @since 3.1 */

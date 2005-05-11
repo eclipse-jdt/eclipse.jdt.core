@@ -4499,4 +4499,39 @@ public class AnnotationTest extends AbstractComparableTest {
             },
 			"");
     }              
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=94867
+    public void test141() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@interface X1 {\n" + 
+				"	Class<? extends Throwable>[] expected1() default {};\n" + 
+				"	Class<? super Throwable>[] expected2() default {};\n" + 
+				"	Class<?>[] expected3() default {};\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	@X1(expected1=Throwable.class, expected2={})\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		\n" + 
+				"	}\n" + 
+				"	void foo() {\n" + 
+				"		Class<? extends Throwable>[] c1 = {};\n" + 
+				"		Class<? super Throwable>[] c2 = {};\n" + 
+				"		Class<?>[] c3 = {};\n" + 
+				"	}\n" + 
+				"}\n"
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	Class<? extends Throwable>[] c1 = {};\n" + 
+			"	                                  ^^\n" + 
+			"Cannot create a generic array of Class<? extends Throwable>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	Class<? super Throwable>[] c2 = {};\n" + 
+			"	                                ^^\n" + 
+			"Cannot create a generic array of Class<? super Throwable>\n" + 
+			"----------\n");
+    }        
 }

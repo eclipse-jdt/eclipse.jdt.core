@@ -149,7 +149,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	T s;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n");
 	}
 				
@@ -179,17 +179,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	T wrong1;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	static void foo(T wrong2) {\n" + 
 			"	                ^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	T wrong3;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 10)\n" + 
 			"	class MX extends T {\n" + 
@@ -199,12 +199,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. ERROR in X.java (at line 13)\n" + 
 			"	static class SMX extends T {\n" + 
 			"	                         ^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 14)\n" + 
 			"	T wrong4;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n");
 	}
 	
@@ -225,7 +225,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	T wrong4;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n");
 	}
 	
@@ -244,7 +244,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	static T wrong;\n" + 
 			"	       ^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n");
 	}
 	
@@ -17363,12 +17363,12 @@ public void test500(){
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	private static class Bucket extends LinkedList<MPair<K,V>> {}\n" + 
 			"	                                                     ^\n" + 
-			"Cannot make a static reference to the type parameter K\n" + 
+			"Cannot make a static reference to the non-static type K\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	private static class Bucket extends LinkedList<MPair<K,V>> {}\n" + 
 			"	                                                       ^\n" + 
-			"Cannot make a static reference to the type parameter V\n" + 
+			"Cannot make a static reference to the non-static type V\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	private Bucket[] buckets = new X.Bucket[100];\n" + 
@@ -17540,12 +17540,12 @@ public void test617() {
 			"2. ERROR in Map.java (at line 5)\n" + 
 			"	static void foo(Entry<String> e) { } // invalid static ref\n" + 
 			"	                ^^^^^\n" + 
-			"Cannot make a static reference to the type parameter Entry\n" + 
+			"Cannot make a static reference to the non-static type Entry\n" + 
 			"----------\n" + 
 			"3. ERROR in Map.java (at line 8)\n" + 
 			"	Entry<String> entry; // invalid static ref\n" + 
 			"	^^^^^\n" + 
-			"Cannot make a static reference to the type parameter Entry\n" + 
+			"Cannot make a static reference to the non-static type Entry\n" + 
 			"----------\n" + 
 			"4. ERROR in Map.java (at line 11)\n" + 
 			"	void c(Map.Entry<String> e) { } // illegal \n" + 
@@ -17594,7 +17594,7 @@ public void test617() {
 			"1. ERROR in Outer.java (at line 4)\n" + 
 			"	static void test(Inner i) { }\n" + 
 			"	                 ^^^^^\n" + 
-			"Cannot make a static reference to the type parameter Inner\n" + 
+			"Cannot make a static reference to the non-static type Inner\n" + 
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84551- variation
@@ -18532,4 +18532,35 @@ public void test617() {
 			false,
 			null);
 	}
+	public void test651() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X<U> {\n" + 
+				"\n" + 
+				"	int field;\n" + 
+				"	static int FIELD;\n" + 
+				"\n" + 
+				"	{\n" + 
+				"		field = 1;\n" + 
+				"	}\n" + 
+				"	static {\n" + 
+				"		FIELD = 1;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public Values<U> foo(Box<? extends U> box) {\n" + 
+				"		return select(box.getValues()); // 1\n" + 
+				"	}\n" + 
+				"	public static <G> Values<G> select(Values<? extends G> v) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"abstract class Box<V extends java.io.Serializable> { // Added bound for V\n" + 
+				"	abstract Values<V> getValues();\n" + 
+				"}\n" + 
+				"abstract class Values<T> {\n" + 
+				"}\n",
+	        },
+			"");
+	}	
 }

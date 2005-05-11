@@ -138,9 +138,11 @@ public class ArrayInitializer extends Expression {
 		this.constant = NotAConstant;
 		
 		// allow new List<?>[5]
-		TypeBinding leafComponentType = expectedTb.leafComponentType();
-		if (leafComponentType.isBoundParameterizedType() || leafComponentType.isGenericType() || leafComponentType.isTypeVariable()) {
-		    scope.problemReporter().illegalGenericArray(leafComponentType, this);
+		if ((this.bits & IsAnnotationDefaultValue) == 0) { // annotation default value need only to be commensurate JLS9.7
+			TypeBinding leafComponentType = expectedTb.leafComponentType();
+			if (leafComponentType.isBoundParameterizedType() || leafComponentType.isGenericType() || leafComponentType.isTypeVariable()) {
+			    scope.problemReporter().illegalGenericArray(leafComponentType, this);
+			}
 		}
 			
 		if (expectedTb.isArrayType()) {

@@ -157,6 +157,9 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	// for variable argument
 	public static final int IsVarArgs = Bit15;
 	
+	// for array initializer
+	public static final int IsAnnotationDefaultValue = Bit1;
+	
 	public ASTNode() {
 
 		super();
