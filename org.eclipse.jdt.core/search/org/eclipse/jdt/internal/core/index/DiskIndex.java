@@ -35,7 +35,7 @@ private String[][] cachedChunks; // decompressed chunks of document names
 private HashtableOfObject categoryTables; // category name -> HashtableOfObject(words -> int[] of document #'s) or offset if not read yet
 private char[] cachedCategoryName;
 
-public static final String SIGNATURE= "INDEX VERSION 1.102"; //$NON-NLS-1$
+public static final String SIGNATURE= "INDEX VERSION 1.103"; //$NON-NLS-1$
 public static boolean DEBUG = false;
 
 private static final int RE_INDEXED = -1;

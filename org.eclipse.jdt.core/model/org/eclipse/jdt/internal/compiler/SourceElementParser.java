@@ -228,6 +228,13 @@ private long[] collectAnnotationPositions(Annotation[] annotations) {
 	}
 	return result;
 }
+protected void consumeAnnotationAsModifier() {
+	super.consumeAnnotationAsModifier();
+	Annotation annotation = (Annotation)expressionStack[expressionPtr];
+	if (reportReferenceInfo) { // accept annotation type reference
+		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
+	}
+}
 protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments() {
 	boolean previousFlag = reportReferenceInfo;
 	reportReferenceInfo = false; // not to see the type reference reported in super call to getTypeReference(...)
