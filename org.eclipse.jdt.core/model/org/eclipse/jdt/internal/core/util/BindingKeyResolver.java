@@ -172,7 +172,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 		}
 		CaptureFinder captureFinder = new CaptureFinder();
 		this.parsedUnit.traverse(captureFinder, this.parsedUnit.scope);
-		this.compilerBinding = captureFinder.capture;
+		this.typeBinding = captureFinder.capture;
 	}
 	
 	public void consumeField(char[] fieldName) {
@@ -180,6 +180,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 	for (int i = 0, length = fields.length; i < length; i++) {
 			FieldBinding field = fields[i];
 			if (CharOperation.equals(fieldName, field.name)) {
+				this.typeBinding = null;
 				this.compilerBinding = field;
 				return;
 			}
@@ -198,7 +199,6 @@ public class BindingKeyResolver extends BindingKeyParser {
  		for (int i = 0; i < this.parsedUnit.localTypeCount; i++)
  			if (CharOperation.equals(uniqueKey, localTypeBindings[i].computeUniqueKey(false/*not a leaf*/))) {
  				this.typeBinding = localTypeBindings[i];
-				this.compilerBinding = this.typeBinding;
  				return;
  			}
 	}
@@ -210,6 +210,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 	for (int i = 0; i < this.scope.localIndex; i++) {
 			LocalVariableBinding local = this.scope.locals[i];
 			if (CharOperation.equals(varName, local.name)) {
+				this.methodBinding = null;
 				this.compilerBinding = local;
 				return;
 			}
@@ -225,6 +226,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 				if (methodSignature == null)
 					methodSignature = method.signature();
 				if (CharOperation.equals(signature, methodSignature)) {
+					this.typeBinding = null;
 					this.methodBinding = method;
 					this.compilerBinding = this.methodBinding;
 					return;
@@ -235,7 +237,6 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	public void consumeMemberType(char[] simpleTypeName) {
 		this.typeBinding = getTypeBinding(simpleTypeName);
-		this.compilerBinding = this.typeBinding;
 	}
 
 	public void consumePackage(char[] pkgName) {
@@ -258,7 +259,6 @@ public class BindingKeyResolver extends BindingKeyParser {
 			this.genericType = (ReferenceBinding) this.typeBinding;
 			this.typeBinding = this.environment.createParameterizedType(this.genericType, arguments, null);
 		}
-		this.compilerBinding = this.typeBinding;
 	}
 	
 
@@ -285,7 +285,6 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (this.parsedUnit == null) return;
 		this.typeDeclaration = null; // start from the parsed unit
 		this.typeBinding = getTypeBinding(simpleTypeName);
-		this.compilerBinding = this.typeBinding;
 	}
 	
 	public void consumeFullyQualifiedName(char[] fullyQualifiedName) {
@@ -298,7 +297,6 @@ public class BindingKeyResolver extends BindingKeyParser {
  			TypeBinding baseTypeBinding = getBaseTypeBinding(this.compoundName[0]);
  			if (baseTypeBinding != null) {
 				this.typeBinding = baseTypeBinding;
-				this.compilerBinding = this.typeBinding;
 				return;
  			}
 		}
@@ -308,17 +306,17 @@ public class BindingKeyResolver extends BindingKeyParser {
 		}
 		if (this.parsedUnit == null) {
 			this.typeBinding = getBinaryBinding();
-			this.compilerBinding = this.typeBinding;
 		} else {
 			char[] typeName = this.compoundName[this.compoundName.length-1];
 			this.typeBinding = getTypeBinding(typeName);
-			this.compilerBinding = this.typeBinding;
 		}
 	}
 	
-	public void consumeType() {
-		this.typeBinding = getArrayBinding(this.dimension, this.typeBinding);
-		this.compilerBinding = this.typeBinding;
+	public void consumeKey() {
+		if (this.typeBinding != null) {
+			this.typeBinding = getArrayBinding(this.dimension, this.typeBinding);
+			this.compilerBinding = this.typeBinding;
+		}
 	}
 	
 	public void consumeTypeVariable(char[] typeVariableName) {
@@ -326,7 +324,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 	for (int i = 0, length = typeVariableBindings.length; i < length; i++) {
 			TypeVariableBinding typeVariableBinding = typeVariableBindings[i];
 			if (CharOperation.equals(typeVariableName, typeVariableBinding.sourceName())) {
-				this.compilerBinding = typeVariableBinding;
+				this.typeBinding = typeVariableBinding;
 				return;
 			}
 		}
@@ -337,10 +335,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 			case Wildcard.EXTENDS:
 			case Wildcard.SUPER:
 				BindingKeyResolver boundResolver = (BindingKeyResolver) this.types.get(0);
-				this.compilerBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, this.wildcardRank, (TypeBinding) boundResolver.compilerBinding, null /*no extra bound*/, kind);
+				this.typeBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, this.wildcardRank, (TypeBinding) boundResolver.compilerBinding, null /*no extra bound*/, kind);
 				break;
 			case Wildcard.UNBOUND:
-				this.compilerBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, rank++, null/*no bound*/, null /*no extra bound*/, kind);
+				this.typeBinding = this.environment.createWildcard((ReferenceBinding) this.typeBinding, rank++, null/*no bound*/, null /*no extra bound*/, kind);
 				break;
 		}
 	}

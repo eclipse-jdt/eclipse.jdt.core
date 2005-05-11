@@ -468,6 +468,10 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 
+	public void consumeKey() {
+		// default is to do nothing
+	}
+
 	public void consumeTopLevelType() {
 		// default is to do nothing
 	}
@@ -575,6 +579,8 @@ public class BindingKeyParser {
 		} else if (this.scanner.isAtCaptureStart()) {
 			parseCapture();
 		}
+		
+		consumeKey();
 	}
 	
 	private void parseFullyQualifiedName() {

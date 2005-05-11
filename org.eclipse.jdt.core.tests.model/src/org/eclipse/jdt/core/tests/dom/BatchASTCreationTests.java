@@ -81,6 +81,9 @@ public class BatchASTCreationTests extends AbstractASTTests {
 					case ASTNode.SIMPLE_NAME:
 						binding = ((SimpleName) node).resolveBinding();
 						break;
+					case ASTNode.ARRAY_TYPE:
+						binding = ((ArrayType) node).resolveBinding();
+						break;
 				}
 				this.bindingKey = binding == null ? null : binding.getKey();
 				
@@ -110,7 +113,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test061" };
+//		TESTS_NAMES = new String[] { "test062" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1325,6 +1328,25 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}",
 			}, 
 			"Lp1/X;.<T:Ljava/lang/Object;>()V"
+		);
+	}
+	
+	/*
+	 * Ensures that an array binding whose leaf type is a type variable binding can be created using its key in batch creation.
+	 * (regression test for bug 94206 CCE in BindingKeyResolver when restoring array type of method type parameter)
+	 */
+	public void test062() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" + 
+				"  <T> /*start*/T[]/*end*/ foo(T[] a) {\n" + 
+				"    return null;\n" +
+				"  }\n" + 
+				"}",
+			}, 
+			"[Lp1/X;.foo<T:Ljava/lang/Object;>([TT;)[TT;:TT;"
 		);
 	}
 	
