@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 520 };
+//		TESTS_NUMBERS = new int[] { 650 };
 //		TESTS_RANGE = new int[] { 514, -1 };
 	}
 	public static Test suite() {
@@ -18480,5 +18480,56 @@ public void test617() {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
-	}				
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89440	
+	public void test650() {
+	    this.runConformTest(
+            new String[] {
+				"p/A.java",
+				"package p;\n" +
+				"\n" +
+				"public interface A<V> {\n" +
+				"	public static enum Stuff {\n" +
+				"		FIRST, SECOND, THIRD\n" +
+				"	};\n" +
+				"}",
+            },
+            "");
+	    this.runConformTest(
+	    	new String[] {
+				"q/SampleClass2.java",
+				"package q;\n" +
+				"\n" +
+				"import p.A.Stuff;\n" +
+				"\n" +
+				"public class SampleClass2 {\n" +
+				"  public void doSomething(Stuff thing) {\n" +
+				"    \n" +
+				"  }\n" +
+				"}"
+            },
+			"",
+			null,
+			false,
+			null);
+		this.runConformTest(
+			new String[] {
+				"q/SampleClass3.java",
+				"package q;\n" +
+				"\n" +
+				"import p.A;\n" +
+				"\n" +
+				"public class SampleClass3 {\n" +
+				"	public void doSomething() {\n" +
+				"		SampleClass2 sample = new SampleClass2();\n" +
+				"		sample.doSomething(A.Stuff.FIRST);\n" +
+				"	}\n" +
+				"}",
+			},
+			"",
+			null,
+			false,
+			null);
+	}
 }

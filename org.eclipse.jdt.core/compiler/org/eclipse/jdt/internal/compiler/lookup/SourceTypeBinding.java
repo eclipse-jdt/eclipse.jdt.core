@@ -1302,7 +1302,10 @@ public String toString() {
 	if (isStatic() && isNestedType()) buffer.append("static "); //$NON-NLS-1$
 	if (isFinal()) buffer.append("final "); //$NON-NLS-1$
 
-	buffer.append(isInterface() ? "interface " : "class "); //$NON-NLS-1$ //$NON-NLS-2$
+	if (isEnum()) buffer.append("enum "); //$NON-NLS-1$
+	else if (isAnnotationType()) buffer.append("@interface "); //$NON-NLS-1$
+	else if (isClass()) buffer.append("class "); //$NON-NLS-1$
+	else buffer.append("interface "); //$NON-NLS-1$
 	buffer.append((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE"); //$NON-NLS-1$
 
 	if (this.typeVariables == null) {

@@ -25,7 +25,11 @@ public class ParameterizedFieldBinding extends FieldBinding {
 	public ParameterizedFieldBinding(ParameterizedTypeBinding parameterizedDeclaringClass, FieldBinding originalField) {
 	    super (
 	            originalField.name, 
-	            originalField.isStatic() ? originalField.type : Scope.substitute(parameterizedDeclaringClass, originalField.type), 
+	            (originalField.modifiers & AccEnum) != 0
+	            	? parameterizedDeclaringClass // enum constant get paramType as its type
+           			: (originalField.modifiers & AccStatic) != 0 
+           					? originalField.type // no subst for static field
+           					: Scope.substitute(parameterizedDeclaringClass, originalField.type), 
 	            originalField.modifiers, 
 	            parameterizedDeclaringClass, 
 	            null);
