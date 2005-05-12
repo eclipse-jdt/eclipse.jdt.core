@@ -1410,6 +1410,24 @@ public void test036() {
 		},
 		"no base");
 }
+public void test037() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Integer[] integers = {};\n" + 
+			"		int[] ints = (int[]) integers;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	int[] ints = (int[]) integers;\n" + 
+		"	             ^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Integer[] to int[]\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return CastTest.class;
 }

@@ -18684,16 +18684,167 @@ public void test655() {
 			"    Zork z;\n" + 
 			"}\n",
 		},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
-			"	Object o = (BD<Number>) bb;\n" + 
-			"	           ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X.BB<capture-of ? extends Number,capture-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	Object o = (BD<Number>) bb;\n" + 
+		"	           ^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from X.BB<capture-of ? extends Number,capture-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+public void test656() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	protected Vector<String> v = null;\n" + 
+			"\n" + 
+			"	public void f() {\n" + 
+			"		((String) (v.elementAt(0))).charAt(0);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}	
+public void test657() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X{\n" + 
+			"	\n" + 
+			"	private static class GenericWrapper<Elem>  {\n" + 
+			"		private Elem theObject;\n" + 
+			"		public GenericWrapper(Elem arg) {\n" + 
+			"			theObject = arg;\n" + 
+			"		}\n" + 
+			"		public <T extends Elem> GenericWrapper (GenericWrapper<T> other) {\n" + 
+			"			this.theObject = other.theObject;\n" + 
+			"		}\n" + 
+			"		public String toString() {\n" + 
+			"			return theObject.toString();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	private static GenericWrapper<String> method (Object wrappedString) {\n" + 
+			"		return (GenericWrapper<String>) wrappedString;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.print(method(new GenericWrapper<String>(\"abc\")));\n" + 
+			"		System.out.println(method(new GenericWrapper<Exception>(new Exception())));\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"abcjava.lang.Exception");
+}	
+public void test658() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X{\n" + 
+			"	\n" + 
+			"	private static class GenericWrapper<Elem>  {\n" + 
+			"		Zork z;\n" +
+			"		private Elem theObject;\n" + 
+			"		public GenericWrapper(Elem arg) {\n" + 
+			"			theObject = arg;\n" + 
+			"		}\n" + 
+			"		public <T extends Elem> GenericWrapper (GenericWrapper<T> other) {\n" + 
+			"			this.theObject = other.theObject;\n" + 
+			"		}\n" + 
+			"		public String toString() {\n" + 
+			"			return theObject.toString();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	private static GenericWrapper<String> method (Object wrappedString) {\n" + 
+			"		return (GenericWrapper<String>) wrappedString;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.print(method(new GenericWrapper<String>(\"abc\")));\n" + 
+			"		System.out.println(method(new GenericWrapper<Exception>(new Exception())));\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	public String toString() {\n" + 
+		"	              ^^^^^^^^^^\n" + 
+		"The method toString() of type X.GenericWrapper<Elem> should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 17)\n" + 
+		"	return (GenericWrapper<String>) wrappedString;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to X.GenericWrapper<String> is actually checking against the erased type X.GenericWrapper\n" + 
+		"----------\n");
+}	
+public void test659() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.*;\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unusedLocal\")\n" + 
+			"public class X<K, V> extends WeakReference<V> {\n" + 
 			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n");
+			"	static ReferenceQueue<Integer> queue = new ReferenceQueue<Integer>();\n" + 
+			"\n" + 
+			"	private K key;\n" + 
+			"\n" + 
+			"	public X(K key, V value, ReferenceQueue<V> queue) {\n" + 
+			"		super(value, queue);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public K getKey() {\n" + 
+			"		return key;\n" + 
+			"	}\n" + 
+			"	@Override\n" + 
+			"	public String toString() {\n" + 
+			"		return \"key:\" + key;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] arg) throws Exception {\n" + 
+			"		X<String, Integer> ref = new X<String, Integer>(\"Dummy Key\", new Integer(5), queue);\n" + 
+			"		new Thread() {\n" + 
+			"			@Override\n" + 
+			"			public void run() {\n" + 
+			"				for (;;) {\n" + 
+			"					// force ref to be cleared\n" + 
+			"					System.gc();\n" + 
+			"				}\n" + 
+			"			}\n" + 
+			"		}.start();\n" + 
+			"\n" + 
+			"		X<String, Integer> fromQueue = (X<String, Integer>) queue.remove();\n" + 
+			"		System.out.println(fromQueue);\n" + 
+			"		System.exit(0);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 34)\n" + 
+		"	X<String, Integer> fromQueue = (X<String, Integer>) queue.remove();\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Reference<capture-of ? extends Integer> to X<String,Integer> is actually checking against the erased type X\n" + 
+		"----------\n");
 }	
 }
