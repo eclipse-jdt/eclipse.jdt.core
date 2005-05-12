@@ -30,7 +30,7 @@ class PackageBinding implements IPackageBinding {
 	private String name;
 	private String[] components;
 		
-	PackageBinding(org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding) {
+	PackageBinding(org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding, BindingResolver resolver) {
 		this.binding = binding;
 	}
 	
@@ -149,8 +149,7 @@ class PackageBinding implements IPackageBinding {
 	}
 	
 	public IResolvedAnnotation[] getAnnotations() {
-		// TODO Auto-generated method stub
-		throw new RuntimeException("Not implemented yet"); //$NON-NLS-1$
+		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
 	}
 
 	/* 

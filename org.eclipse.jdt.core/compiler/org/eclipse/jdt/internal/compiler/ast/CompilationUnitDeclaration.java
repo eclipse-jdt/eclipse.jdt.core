@@ -119,6 +119,7 @@ public class CompilationUnitDeclaration
 			}
 		}
 		if (type.binding != null) {
+			type.binding.finish();
 			// null out the type's scope backpointers
 			type.binding.scope = null;
 		}

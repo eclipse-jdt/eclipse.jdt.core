@@ -12,7 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
-public abstract class VariableBinding extends Binding {
+public abstract class VariableBinding extends Binding implements TypeConstants {
     
 	public int modifiers;
 	public TypeBinding type;
@@ -20,6 +20,7 @@ public abstract class VariableBinding extends Binding {
 	private Constant constant;
 	public int id; // for flow-analysis (position in flowInfo bit vector)
 	public long tagBits;
+	protected IAnnotationInstance[] annotations;
 
 	public VariableBinding(char[] name, TypeBinding type, int modifiers, Constant constant) {
 		this.name = name;
@@ -55,7 +56,10 @@ public abstract class VariableBinding extends Binding {
 	 * @return the annotations iff this is a field, enum constant or parameter.
 	 * Return null otherwise.
 	 */
-	public abstract IAnnotationInstance[] getAnnotations();
+	public IAnnotationInstance[] getAnnotations()
+	{		
+		return this.annotations; 
+	}
 	
 	public String toString() {
 		String s = (type != null) ? type.debugName() : "UNDEFINED TYPE"; //$NON-NLS-1$

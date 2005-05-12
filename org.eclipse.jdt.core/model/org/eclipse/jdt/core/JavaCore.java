@@ -1019,6 +1019,7 @@ public final class JavaCore extends Plugin {
 	 * Add a compilation participant listener dynamically.  It is not necessary
 	 * to call this for listeners registered with the compilationParticipants
 	 * extension point.
+	 * 
 	 * @param icp the listener
 	 * @param eventMask the set of events for which the listener will be notified,
 	 * built by ORing together values from CompilationParticipantEvent.
@@ -1534,15 +1535,20 @@ public final class JavaCore extends Plugin {
 	 * listeners that have requested notification of at least one of
 	 * the events in the flags mask.
 	 * The first time this is called, it loads listeners from plugins,
-	 * which may cause plugins to be loaded.  If this is called on
-	 * multiple threads simultaneously, or if loading a plugin causes
-	 * this to be reentered, it may return an incomplete list of listeners,
-	 * but it is guaranteed not to crash or deadlock.
+	 * which may cause plugins to be loaded.  
+	 * 
+	 * <p>
+	 * Note that a deadlock situation can occur if a plugin's <code>start()</code> 
+	 * method blocks on a thread that calls <code>getCompilationParticipants()</code>.  
+	 * See <code>JavaModelManager.CompilationParticipants.getCompilationParticipants()</code>
+	 * for a complete description of the circumstances under which this deadlock can occur.
+	 * 
 	 * @param eventMask an ORed combination of values from ICompilationParticipant.
 	 * @return an immutable list of ICompilationParticipant.
+	 * @see JavaModelManager.CompilationParticipants#getCompilationParticipants
 	 */
 	public static List getCompilationParticipants(int eventMask) {
-		return JavaModelManager.getJavaModelManager().getCompilationParticipants().get(eventMask);
+		return JavaModelManager.getJavaModelManager().getCompilationParticipants().getCompilationParticipants(eventMask);
 	}
 	
 	/**

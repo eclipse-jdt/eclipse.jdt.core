@@ -88,35 +88,55 @@ public int compareTo(Object o) {
  * annotation attribute.
  */
 private void decodeAnnotations(int offset, boolean runtimeVisible) {
-/*
-int actualOffset = offset + structOffset;
-String text = runtimeVisible ?  " runtime visible " : " runtime invisible ";
-System.err.println("decoding field_info" + text + "annotation at " + actualOffset);
-*/
 	int numberOfAnnotations = u2At(offset + 6);
-	int readOffset = offset + 8;
-	int index=0;
+	int readOffset = offset + 8;	
 	if( numberOfAnnotations > 0 ){		
+		int numStandardAnnotations = 0;
+		AnnotationInfo[] annos = new AnnotationInfo[numberOfAnnotations];
+		for (int i = 0; i < numberOfAnnotations; i++) {		
+			annos[i] = new AnnotationInfo(reference, 
+								          readOffset + structOffset, 
+										  this.constantPoolOffsets, 
+										  runtimeVisible, 
+										  false);
+			readOffset = annos[i].getLength() + readOffset;		
+			final long stdAnnotationTagBits = 
+				annos[i].getStandardAnnotationTagBits();
+			this.tagBits |= stdAnnotationTagBits;
+			// the tag bits represents the annotation, don't need a separate 
+			// data structure for that.
+			if(stdAnnotationTagBits != 0){
+				annos[i] = null;
+				numStandardAnnotations ++;
+			}
+		}
+		if( numStandardAnnotations != 0 ){ 
+			// all of them are standard annotations
+			if( numStandardAnnotations == numberOfAnnotations )
+				return;
+			else{ // need to resize	
+				AnnotationInfo[] temp = new AnnotationInfo[numberOfAnnotations - numStandardAnnotations ];
+				int tmpIndex = 0;
+				for( int i=0; i<numberOfAnnotations; i++ ){
+					if( annos[i] != null )
+						temp[tmpIndex ++] = annos[i];
+				}
+				annos = temp;
+				numberOfAnnotations = numberOfAnnotations - numStandardAnnotations;
+			}
+		}	
 		if( this.annotations == null )
-			this.annotations = new AnnotationInfo[numberOfAnnotations];
+			this.annotations = annos;
 		else{
-			int curlen = this.annotations.length;
-			index = curlen;
+			int curlen = this.annotations.length;			
 			int newTotal = curlen + numberOfAnnotations;
 			final AnnotationInfo[] newAnnos = new AnnotationInfo[newTotal];
 			System.arraycopy(this.annotations, 0, newAnnos, 0, curlen);
+			System.arraycopy(annos, 0, newAnnos, curlen, numberOfAnnotations);
 			this.annotations = newAnnos;
 		}
 	}	
-	for (int i = 0; i < numberOfAnnotations; i++, index++) {		
-		this.annotations[index] = new AnnotationInfo(reference, 
-											           readOffset + structOffset, 
-													   this.constantPoolOffsets, 
-													   runtimeVisible, 
-													   false);
-		readOffset = this.annotations[index].getLength() + readOffset;		
-		this.tagBits |= this.annotations[index].getStandardAnnotationTagBits();
-	}
+	
 }
 /**
  * Return the constant of the field.

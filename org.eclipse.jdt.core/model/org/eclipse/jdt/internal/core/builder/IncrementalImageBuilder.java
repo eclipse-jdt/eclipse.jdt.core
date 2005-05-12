@@ -241,6 +241,51 @@ protected boolean findAffectedSourceFiles(IResourceDelta delta, ClasspathLocatio
 	return true;
 }
 
+protected void handleFileDeletedByCompilationParticipant( IFile f )
+{
+	try
+	{
+	ClasspathMultiDirectory md = getSourceLocationForFile( f );
+	int segmentCount = md.sourceFolder.getFullPath().segmentCount();
+	IPath typePath = f.getFullPath().removeFirstSegments(segmentCount).removeFileExtension();
+	String typeLocator = f.getProjectRelativePath().toString();
+	char[][] definedTypeNames = newState.getDefinedTypeNamesFor(typeLocator);
+	if (definedTypeNames == null) { // defined a single type matching typePath
+		removeClassFile(typePath, md.binaryFolder);
+		/*
+		if ((sourceDelta.getFlags() & IResourceDelta.MOVED_TO) != 0) {
+			// remove problems and tasks for a compilation unit that is being moved (to another package or renamed)
+			// if the target file is a compilation unit, the new cu will be recompiled
+			// if the target file is a non-java resource, then markers are removed
+			// see bug 2857
+			IResource movedFile = javaBuilder.workspaceRoot.getFile(sourceDelta.getMovedToPath());
+			JavaBuilder.removeProblemsAndTasksFor(movedFile); 
+		}
+		*/
+	} else {
+		if (JavaBuilder.DEBUG)
+			System.out.println("Found removed source file " + typePath.toString()); //$NON-NLS-1$
+		addDependentsOf(typePath, true); // add dependents of the source file since it may be involved in a name collision
+		if (definedTypeNames.length > 0) { // skip it if it failed to successfully define a type
+			IPath packagePath = typePath.removeLastSegments(1);
+			for (int i = 0, l = definedTypeNames.length; i < l; i++)
+				removeClassFile(packagePath.append(new String(definedTypeNames[i])), md.binaryFolder);
+		}
+	}
+	newState.removeLocator(typeLocator);
+	}
+	catch ( CoreException ce )
+	{
+		// TODO:  handle this exception
+		ce.printStackTrace();
+	}
+	catch( Exception e )
+	{
+		e.printStackTrace();
+	}
+}
+
+
 protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCount, StringSet structurallyChangedTypes) {
 	// When a package becomes a type or vice versa, expect 2 deltas,
 	// one on the folder & one on the class file

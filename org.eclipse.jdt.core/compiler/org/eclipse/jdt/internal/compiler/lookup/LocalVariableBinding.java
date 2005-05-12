@@ -40,6 +40,7 @@ public class LocalVariableBinding extends VariableBinding implements TypeConstan
 	public LocalVariableBinding(char[] name, TypeBinding type, int modifiers, boolean isArgument) {
 		super(name, type, modifiers, isArgument ? Constant.NotAConstant : null);
 		this.isArgument = isArgument;
+		this.annotations = null;
 	}
 	
 	// regular local variable or argument
@@ -47,6 +48,7 @@ public class LocalVariableBinding extends VariableBinding implements TypeConstan
 
 		this(declaration.name, type, modifiers, isArgument);
 		this.declaration = declaration;
+		this.annotations = null;
 	}
 
 	/* API
@@ -132,21 +134,29 @@ public class LocalVariableBinding extends VariableBinding implements TypeConstan
 	}
 	
 	public IAnnotationInstance[] getAnnotations()
-	{		
+	{
+		if(this.annotations != null) 
+			return this.annotations;
+		buildAnnotations();
+		return this.annotations;
+	}
+	
+	private void buildAnnotations()
+	{
+		this.annotations = NoAnnotations;
 		if( this.isArgument && this.declaration != null){
 			final Annotation[] argAnnos = declaration.annotations;
 			final int numAnnotations = argAnnos == null ? 0 : argAnnos.length;
-			IAnnotationInstance[] result = NoAnnotations;
+			
 			if( numAnnotations > 0 ){
-				result = new SourceAnnotation[numAnnotations];
+				this.annotations = new SourceAnnotation[numAnnotations];
 				// check for errors
 				ASTNode.resolveAnnotations(declaringScope, argAnnos, this);
 				for( int j=0; j<numAnnotations; j++ ){
-					result[j] = new SourceAnnotation(argAnnos[j]);
+					this.annotations[j] = new SourceAnnotation(argAnnos[j]);
 				}
 			}		
 		}
-		return null;
 	}
 
 	public String toString() {

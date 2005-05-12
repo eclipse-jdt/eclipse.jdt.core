@@ -47,10 +47,9 @@ private FieldBinding[] fields;
 private MethodBinding[] methods;
 private ReferenceBinding[] memberTypes;
 protected TypeVariableBinding[] typeVariables;
-private IAnnotationInstance[] annotations;
 
 // For the link with the principle structure
-private LookupEnvironment environment;
+LookupEnvironment environment;
 
 public static ReferenceBinding resolveType(ReferenceBinding type, LookupEnvironment environment, boolean convertGenericToRawType) {
 	if (type instanceof UnresolvedReferenceBinding)
@@ -179,8 +178,6 @@ public MethodBinding[] availableMethods() {
 	return availableMethods;
 }
 
-public IAnnotationInstance[] getAnnotations(){ return this.annotations; }
-
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	// default initialization for super-interfaces early, in case some aborting compilation error occurs,
 	// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
@@ -308,7 +305,7 @@ private void createElementValuePairs(final IBinaryElementValuePair[] pairs,
 {	
 	final int len = pairs == null ? 0 : pairs.length; 
 	anno.pairs = NoElementValuePairs;
-	if( len > 1 ){
+	if( len > 0 ){
 		anno.pairs = new IElementValuePair[len]; 
 		for( int i = 0; i < len; i++ ){
 			anno.pairs[i] = new BinaryElementValuePair(anno, 
@@ -331,7 +328,8 @@ private Object getMemberValue(final Object binaryValue)
 	
 	else if( binaryValue instanceof IEnumConstantReference ){
 		final IEnumConstantReference ref = (IEnumConstantReference)binaryValue;
-		final ReferenceBinding enumType = environment.getTypeFromConstantPoolName(ref.getTypeName(), 0, -1, false);
+		ReferenceBinding enumType = (ReferenceBinding)environment.getTypeFromSignature(ref.getTypeName(), 0, -1, false, null);
+		enumType = BinaryTypeBinding.resolveType(enumType, this.environment, false);
 		return enumType.getField(ref.getEnumConstantName(), false);
 	}
 	else if( binaryValue instanceof Object[] ){
@@ -367,13 +365,9 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), NoTypeVariables, this);
 				IAnnotationInstance[] fieldAnnos = createAnnotations(binaryField.getAnnotations());
 				FieldBinding field = 
-					new BinaryFieldBinding(
-						binaryField.getName(), 
-						type, 
-						binaryField.getModifiers() | AccUnresolved, 
-						this, 
-						binaryField.getConstant(),
-						fieldAnnos);
+					new FieldBinding( binaryField.getName(), type, binaryField.getModifiers() | AccUnresolved, 
+						  			  this, binaryField.getConstant() );				
+				field.setAnnotations(fieldAnnos);
 				field.id = i; // ordinal
 				if (use15specifics)
 					field.tagBits |= binaryField.getTagBits();
@@ -503,31 +497,18 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	
 	final MethodBinding result;
 	if( method.isConstructor() )
-		result = new BinaryMethodBinding(methodModifiers, 
-				 						 parameters, 
-										 exceptions, 
-										 this, 
-										 methodAnnos,
-										 paramAnnotations);
+		result = new MethodBinding(methodModifiers, parameters, exceptions, this); 
+		
 	else{
-		if( isAnnotationType() ){			
-			result = new AnnotationMethodBinding(methodModifiers, 
-												 method.getSelector(), 
-												 returnType,
-												 this,
-												 methodAnnos,
-												 paramAnnotations,
-												 getMemberValue(method.getDefaultValue()));
+		if( isAnnotationType() ){	
+			if( method instanceof org.eclipse.jdt.internal.compiler.classfmt.MethodInfo )
+				result = new AnnotationMethodBinding(methodModifiers, method.getSelector(), returnType, this, getMemberValue(method.getDefaultValue()));
+			else
+				throw new IllegalStateException(method.getClass().getName());
 		}
-		else result = new BinaryMethodBinding(methodModifiers, 
-											  method.getSelector(), 
-											  returnType, 
-											  parameters, 
-											  exceptions, 
-											  this,
-											  methodAnnos,
-											  paramAnnotations); 
+		else result = new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
 	}
+	result.setExtendedModifiers(methodAnnos, paramAnnotations);
 	
 	if (use15specifics)
 		result.tagBits |= method.getTagBits();
@@ -918,6 +899,24 @@ public TypeVariableBinding[] typeVariables() {
 	this.tagBits &= ~HasUnresolvedTypeVariables;
 	return this.typeVariables;
 }
+
+public IAnnotationInstance[] getAnnotations()
+{	
+	final long annotationTagBits = getAnnotationTagBits();
+	// TODO: add a flag so we don't repeat this process.
+	final int numStdAnnotations = AnnotationUtils.getNumberOfStandardAnnotations(annotationTagBits);
+	if( numStdAnnotations == 0 ) return this.annotations;	
+	
+	final int nonStandard = this.annotations == null ? 0 : this.annotations.length;
+	final int total = numStdAnnotations + nonStandard;
+	final IAnnotationInstance[] result = new BinaryAnnotation[total];
+	final int index = AnnotationUtils.buildStandardAnnotations(annotationTagBits, result, this.environment);
+	if( nonStandard != 0 ){
+		System.arraycopy(this.annotations, 0, result, index, this.annotations.length);
+	}
+	return result;
+}
+
 public String toString() {
 	String s = ""; //$NON-NLS-1$
 

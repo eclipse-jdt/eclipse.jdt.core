@@ -226,15 +226,13 @@ protected void compile(SourceFile[] units) {
 /**
  *  notify the ICompilationParticipants of the pre-build event 
  */
-private Set notifyCompilationParticipants(ICompilationUnit[] sourceUnits) {
+private  void notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set newFiles, Set deletedFiles, Map extraDependencies ) {
 	List cps = JavaCore
 			.getCompilationParticipants( ICompilationParticipant.PRE_BUILD_EVENT );
 	if ( cps.isEmpty() ) {
-		return Collections.EMPTY_SET;
+		return;
 	}
 
-	extraDependencyMap = new HashMap();
-	
 	IFile[] files = new IFile[sourceUnits.length];
 	for ( int i = 0; i < files.length; i++ ) {
 		if ( sourceUnits[i] instanceof SourceFile ) {
@@ -247,7 +245,6 @@ private Set notifyCompilationParticipants(ICompilationUnit[] sourceUnits) {
 	PreBuildCompilationEvent pbce = new PreBuildCompilationEvent( files,
 			javaBuilder.javaProject );
 
-	Set newFiles = new HashSet();
 	java.util.Iterator it = cps.iterator();
 	while ( it.hasNext() ) {
 		ICompilationParticipant p = ( ICompilationParticipant ) it.next();
@@ -262,10 +259,25 @@ private Set notifyCompilationParticipants(ICompilationUnit[] sourceUnits) {
 					newFiles.add( f[i] );
 			}
 			
-			mergeMaps( pbcr.getNewDependencies(), extraDependencyMap );
+			f = pbcr.getDeletedFiles();
+			if ( f != null ) { 
+				for ( int i = 0; i < f.length; i++ ) 
+					deletedFiles.add( f[i] );
+			}
+			
+			mergeMaps( pbcr.getNewDependencies(), extraDependencies );
 		}
 	}
-	return newFiles;
+	
+	if ( newFiles.size() > 0 ) {
+		Set newFiles_2 = new HashSet();
+		Set deletedFiles_2 = new HashSet();
+		ICompilationUnit[] newFileArray = ifileSet2SourceFileArray( newFiles );
+		notifyCompilationParticipants( newFileArray, newFiles_2, deletedFiles_2, extraDependencies );
+		newFiles.addAll( newFiles_2 );
+		deletedFiles.addAll( deletedFiles_2 );
+	}
+	
 }	
 
 /** 
@@ -299,27 +311,80 @@ private static void mergeMaps( Map source, Map destination ) {
  */
 protected ClasspathMultiDirectory getSourceLocationForFile(IFile file) {
 	ClasspathMultiDirectory md = null;
-	if ( file.exists() ) {
-		md = sourceLocations[0];
-		if ( sourceLocations.length > 1 ) {
-			IPath sourceFileFullPath = file.getFullPath();
-			for ( int j = 0, m = sourceLocations.length; j < m; j++ ) {
-				if ( sourceLocations[j].sourceFolder.getFullPath()
-						.isPrefixOf( sourceFileFullPath ) ) {
-					md = sourceLocations[j];
-					if ( md.exclusionPatterns == null
-							&& md.inclusionPatterns == null )
-						break;
-					if ( !Util.isExcluded( file, md.inclusionPatterns,
-							md.exclusionPatterns ) )
-						break;
-				}
+	md = sourceLocations[0];
+	if ( sourceLocations.length > 1 ) {
+		IPath sourceFileFullPath = file.getFullPath();
+		for ( int j = 0, m = sourceLocations.length; j < m; j++ ) {
+			if ( sourceLocations[j].sourceFolder.getFullPath()
+					.isPrefixOf( sourceFileFullPath ) ) {
+				md = sourceLocations[j];
+				if ( md.exclusionPatterns == null
+						&& md.inclusionPatterns == null )
+					break;
+				if ( !Util.isExcluded( file, md.inclusionPatterns,
+						md.exclusionPatterns ) )
+					break;
 			}
 		}
 	}
 	return md;
 }
 
+/**
+ * copies IFile entries in a Set<IFile> into SourceFile entries into a SourceFile[]. 
+ * Copying starts at the specified start position.
+ */
+private void ifileSet2SourceFileArray( Set ifiles, SourceFile[] sourceFiles, int start ) {
+	Iterator it = ifiles.iterator();
+	while ( it.hasNext() ) {
+		IFile f = ( IFile ) it.next();
+		sourceFiles[start++] = new SourceFile( f, getSourceLocationForFile( f ) );
+	}	
+}
+
+/**
+ *  Given a Set<IFile>, this method returns a SourceFile[] where each entry 
+ *  in the array corresponds to an entry in the set.
+ */
+private SourceFile[] ifileSet2SourceFileArray( Set ifiles ) {
+	SourceFile[] sf = new SourceFile[ ifiles.size() ];
+	ifileSet2SourceFileArray( ifiles, sf, 0 );
+	return sf;
+}
+
+private SourceFile[] updateSourceUnits( SourceFile[] units, Set newFiles, Set deletedFiles ) {
+	if ( newFiles.size() == 0 && deletedFiles.size() == 0 )
+		return units;
+	else if ( deletedFiles.size() == 0 ) {
+		// files have only been added
+		SourceFile[] newUnits = new SourceFile[ units.length + newFiles.size() ];
+		System.arraycopy( units, 0, newUnits, 0, units.length );
+		ifileSet2SourceFileArray( newFiles, newUnits, units.length );
+		return newUnits;
+	}
+	else {
+		// files have been added & deleted.  Deal with deleted files first.  If 
+		// someone reports that a file has been added and deleted, then it will be 
+		// added.
+		HashSet unitSet = new HashSet();
+		for ( int i=0; i<units.length; i++ )
+			unitSet.add( units[i].getFile() );
+		Iterator it = deletedFiles.iterator();
+		while ( it.hasNext() )	{
+			IFile f = (IFile) it.next();
+			if ( unitSet.contains( f ) )
+				unitSet.remove( f );
+			handleFileDeletedByCompilationParticipant( f );
+		}
+		unitSet.addAll( newFiles );
+		return ifileSet2SourceFileArray( unitSet );
+	}
+}
+
+protected void handleFileDeletedByCompilationParticipant( IFile f )
+{
+	// noop
+}
 
 void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 	if (units.length == 0) return;
@@ -344,20 +409,14 @@ void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 	try {
 		inCompiler = true;
 		
-		// notify compilation participants, and add any new files created
-		// by the participants into the set of files being compiled. 
-		Set newFiles = notifyCompilationParticipants( units );
-		if ( newFiles != null && newFiles.size() > 0 ) {
-				SourceFile[] newUnits = new SourceFile[units.length + newFiles.size()];
-				System.arraycopy( units, 0, newUnits, 0, units.length );
-				Iterator it = newFiles.iterator();
-				int idx = units.length;
-				while ( it.hasNext() ) {
-					IFile f = ( IFile ) it.next();
-					newUnits[idx++] = new SourceFile( f, getSourceLocationForFile( f ) );
-				}
-				units = newUnits;
-		}
+		// notify compilation participants, 
+		Set newFiles = new HashSet();
+		Set deletedFiles = new HashSet();
+		extraDependencyMap = new HashMap();
+		notifyCompilationParticipants( units, newFiles, deletedFiles, extraDependencyMap );
+
+		// update units array with the new & deleted files
+		units = updateSourceUnits( units, newFiles, deletedFiles );
 		
 		compiler.compile(units);
 		
@@ -397,33 +456,21 @@ protected void finishedWith(String sourceLocator, CompilationResult result, char
 	char[][] simpleRefs = result.simpleNameReferences;
 	
 	if ( extraDependencyMap != null && extraDependencyMap.size() > 0 ) {
-		//IFile f = javaBuilder.currentProject.getFile( new String( result.fileName ));
 		IFile f = ResourcesPlugin.getWorkspace().getRoot().getFile( new Path( new String( result.fileName ) ));
 		Set s  = (Set)extraDependencyMap.get( f );
 		if ( s != null && s.size() > 0 ) {
-			// Set<String>
-			Set simpleNameSet = new HashSet();
-			Set qualifiedNameSet = new HashSet();
+			NameSet simpleNameSet = new NameSet( simpleRefs.length + s.size() );
+			QualifiedNameSet qualifiedNameSet = new QualifiedNameSet( qualifiedRefs.length + s.size() );
 
 			//
 			// add in all of the existing refs to the sets to filter out duplicates
 			//
-			for ( int i = 0; i< simpleRefs.length; i++ ) {
-				simpleNameSet.add( new String( simpleRefs[i] ) );
-			}
-			
-			for ( int i = 0; i< qualifiedRefs.length; i++ ) {
-				
-				StringBuffer sb = new StringBuffer();
-				int len = qualifiedRefs[i].length - 1;
-				for ( int j = 0; j < len; j++ ) {
-					sb.append( qualifiedRefs[i][j] );
-					sb.append( "." );  //$NON-NLS-1$
-				}
-				sb.append( qualifiedRefs[i][len] );
-				qualifiedNameSet.add( sb.toString() );
-			}
-			
+			for ( int i = 0; i< simpleRefs.length; i++ ) 
+				simpleNameSet.add( simpleRefs[i] );
+
+			for ( int i = 0; i< qualifiedRefs.length; i++ ) 
+				qualifiedNameSet.add( qualifiedRefs[i] );
+
 			//
 			// get all of the the parts of the new dependencies into sets
 			// for  a dependency "a.b.c.d", we want the qualifiedNameSet to include
@@ -432,47 +479,34 @@ protected void finishedWith(String sourceLocator, CompilationResult result, char
 			//
 			Iterator it = s.iterator();
 			while ( it.hasNext() ) {
-				String rpart = (String) it.next();
-				int idx = rpart.indexOf( '.', 0 );
-				while ( idx > -1 ) {
-					qualifiedNameSet.add( rpart );
-					String lpart = rpart.substring( 0, idx );
-					rpart = rpart.substring( idx + 1, rpart.length() );
-					simpleNameSet.add( lpart );
-					idx = rpart.indexOf( '.', idx + 1 );
+				char[] array = ((String) it.next() ).toCharArray();
+				char[][] parts = CharOperation.splitOn('.', array );
+				for ( int i = 0; i<parts.length; i++ )
+					simpleNameSet.add( parts[i] );
+				
+				for( int i = parts.length - 1; i > 0; --i ) {
+					qualifiedNameSet.add( parts );
+					parts = CharOperation.subarray( parts, 0, i );
 				}
-				simpleNameSet.add( rpart );
 			}
-
+	
 			//
-			// now turn the set of simple names into a char[][]
+			// strip out any null entries in the arrays retrieved from the sets.
 			//
-			char[][] newSimpleNameArray = new char[ simpleNameSet.size() ][];
-			it = simpleNameSet.iterator(); 
-			int i = 0;
-			while ( it.hasNext() ) {
-				String str = (String) it.next();
-				newSimpleNameArray[i] = str.toCharArray();
-				i++;
-			}
+			simpleRefs = new char[ simpleNameSet.elementSize][];
+			char[][] names = simpleNameSet.names;
+			int j = 0;
+			for ( int i = 0; i<names.length; i++ )
+				if ( names[i] != null)
+					simpleRefs[j++] = names[i];
 			
-			//
-			//  turn the set of qnames into a char[][][]
-			//
-			char[][][] newQualifiedNameArray = new char[ qualifiedNameSet.size() ][][];
-			it = qualifiedNameSet.iterator();
-			i = 0;
-			while ( it.hasNext() ) {
-				String str = (String) it.next();
-				String[] parts = str.split( "\\." ); //$NON-NLS-1$
-				newQualifiedNameArray[i] = new char[ parts.length ][];
-				for ( int j = 0; j < parts.length; j++ ) {
-					newQualifiedNameArray[i][j] = parts[j].toCharArray();	
-				}
-				i++;
-			}
-			qualifiedRefs = newQualifiedNameArray;
-			simpleRefs = newSimpleNameArray;
+			qualifiedRefs = new char[ qualifiedNameSet.elementSize ][][];
+			j = 0;
+			char[][][] qnames = qualifiedNameSet.qualifiedNames;
+			for ( int i = 0; i< qnames.length; i++ )
+				if ( qnames[i] != null )
+					qualifiedRefs[j++] = qnames[i];
+			
 		}
 	}
 		

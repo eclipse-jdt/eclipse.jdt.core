@@ -174,14 +174,24 @@ public class JavaModelManager implements ISaveParticipant {
 		 * listeners that have requested notification of at least one of
 		 * the events in the flags mask.
 		 * The first time this is called, it loads listeners from plugins,
-		 * which may cause plugins to be loaded.  If this is called on
-		 * multiple threads simultaneously, or if loading a plugin causes
-		 * this to be reentered, it may return an incomplete list of listeners,
-		 * but it is guaranteed not to crash or deadlock.
+		 * which may cause plugins to be loaded.  
+		 * 
+		 * <p>
+		 * The initialization of ICompilationParticipants  is synchronized.  A deadlock may 
+		 * occur if all of the following conditions are true:  
+		 *  
+		 *  <li>A plugin defines <code>ICompilationParticipants</code></li>
+		 *  <li>That plugin's <code>start()</code> method spawns a thread which causes 
+		 *  <code>getCompilationParticipants()</code> to be invoked</li>
+		 *  <li>The <code>start()</code> method blocks waiting for the spawned thread to complete.</li> 
+		 *  
+		 *  Note that a build and reconcile operations will cause <code>getCompilationParticipants()</code> to 
+		 *  be called.
+		 *  
 		 * @param eventMask an ORed combination of values from ICompilationParticipant.
 		 * @return an immutable list of ICompilationParticipant.
 		 */
-		public List get(int eventMask) {
+		public List getCompilationParticipants(int eventMask) {
 			initPlugins();
 			List filteredICPs = new ArrayList();
 			Iterator it;
@@ -204,16 +214,15 @@ public class JavaModelManager implements ISaveParticipant {
 			return Collections.unmodifiableList(filteredICPs);
 		}
 		
-		private void initPlugins() {
-			synchronized (this) {
-				if (null != pluginCPs) {
-					return;
-				}
-				pluginCPs = new HashMap();
+		private synchronized void initPlugins() {
+			if (null != pluginCPs) {
+				return;
 			}
+			pluginCPs = new HashMap();
+
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
 					JavaCore.PLUGIN_ID, COMPILATION_PARTICIPANT_EXTPOINT_ID);
-			if (extension == null)
+			if (extension == null) 
 				return;
 			IExtension[] extensions = extension.getExtensions();
 			for(int iExtension = 0; iExtension < extensions.length; iExtension++){

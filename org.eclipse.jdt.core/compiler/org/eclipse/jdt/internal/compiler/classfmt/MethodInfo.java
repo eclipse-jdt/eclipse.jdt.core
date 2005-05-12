@@ -150,12 +150,33 @@ private void decodeParamAnnotations(int offset, boolean runtimeVisible)
  */
 private void decodeMethodAnnotations(int offset, boolean runtimeVisible){
 	int numberOfAnnotations = u2At(offset + 6);
-	final AnnotationInfo[] annos = decodeAnnotations(offset + 8, runtimeVisible, numberOfAnnotations);
+	AnnotationInfo[] annos = decodeAnnotations(offset + 8, runtimeVisible, numberOfAnnotations);
 	
 	if( numberOfAnnotations > 0 ){
 		if( runtimeVisible ){
+			int numStandardAnnotations = 0;			
 			for( int i=0; i<numberOfAnnotations; i++ ){
-				this.tagBits |= annos[i].getStandardAnnotationTagBits();
+				final long standardAnnoTagBits = annos[i].getStandardAnnotationTagBits();
+				this.tagBits |= standardAnnoTagBits;
+				if(standardAnnoTagBits != 0){
+					annos[i] = null;
+					numStandardAnnotations ++;
+				}
+			}
+			
+			if( numStandardAnnotations != 0 ){
+				if( numStandardAnnotations == numberOfAnnotations )
+					return;
+				
+				// need to resize			
+				AnnotationInfo[] temp = new AnnotationInfo[numberOfAnnotations - numStandardAnnotations ];
+				int tmpIndex = 0;
+				for( int i=0; i<numberOfAnnotations; i++ ){
+					if( annos[i] != null )
+						temp[tmpIndex ++] = annos[i];
+				}
+				annos = temp;
+				numberOfAnnotations = numberOfAnnotations - numStandardAnnotations;				
 			}
 		}
 		

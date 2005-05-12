@@ -634,19 +634,25 @@ public long getAnnotationTagBits() {
 	return this.tagBits;
 }
 
-public IAnnotationInstance[] getAnnotations() {
-	// make sure we first go resolve the annoations and report any problems found.
-	getAnnotationTagBits();
+public IAnnotationInstance[] getAnnotations()
+{
+	if( this.annotations == null )
+		buildAnnotations();
+	return this.annotations;
+}
+
+private void buildAnnotations()
+{
+	if( this.annotations != null ) return;
+	this.annotations = NoAnnotations;
 	final TypeDeclaration typeDecl = this.scope.referenceContext;
 	final int numAnnotations = typeDecl.annotations == null ? 0 : typeDecl.annotations.length;
-	if( numAnnotations == 0 )
-		return NoAnnotations;
-	else{
-		final IAnnotationInstance[] instances = new IAnnotationInstance[numAnnotations];
-		for( int i=0; i<numAnnotations; i++ ){
-			instances[i] = new SourceAnnotation(typeDecl.annotations[i]);
+	if( numAnnotations > 0 ){
+		this.annotations = new IAnnotationInstance[numAnnotations];
+		for( int i=0; i<numAnnotations; i++ ){		
+			typeDecl.annotations[i].resolveType(typeDecl.staticInitializerScope);			
+			this.annotations[i] = typeDecl.annotations[i].getCompilerAnnotation();			
 		}
-		return instances;
 	}
 }
 
@@ -910,12 +916,8 @@ public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBi
 		this.synthetics[RECEIVER_TYPE_EMUL].put(targetField, fieldMap);
 	}
 	FieldBinding updatedField = (FieldBinding) fieldMap.get(newDeclaringClass);
-	if (updatedField == null){
-		if( targetField instanceof BinaryFieldBinding )
-			updatedField = new BinaryFieldBinding((BinaryFieldBinding)targetField, newDeclaringClass);
-		else
-			updatedField = new FieldBinding(targetField, newDeclaringClass);
-			
+	if (updatedField == null){		
+		updatedField = new FieldBinding( targetField, newDeclaringClass);
 		fieldMap.put(newDeclaringClass, updatedField);
 	}
 	return updatedField;
@@ -933,11 +935,7 @@ public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, Referen
 	}
 	MethodBinding updatedMethod = (MethodBinding) methodMap.get(newDeclaringClass);
 	if (updatedMethod == null){
-		if( targetMethod instanceof BinaryMethodBinding )
-			updatedMethod = new BinaryMethodBinding((BinaryMethodBinding)targetMethod, newDeclaringClass);
-		else
-			updatedMethod = new MethodBinding(targetMethod, newDeclaringClass);	
-			
+		updatedMethod = new MethodBinding(targetMethod, newDeclaringClass);	
 		methodMap.put(newDeclaringClass, updatedMethod);
 	}
 	return updatedMethod;
@@ -1384,5 +1382,20 @@ void verifyMethods(MethodVerifier verifier) {
 
 	for (int i = memberTypes.length; --i >= 0;)
 		 ((SourceTypeBinding) memberTypes[i]).verifyMethods(verifier);
+}
+/*
+ * Called when the ast information is about to be null-ed out.
+ */
+public void finish()
+{
+	buildAnnotations();
+	if(this.methods != null){
+		for( int i=0, len=this.methods.length; i<len; i++ )
+			this.methods[i].buildAnnotations();
+	}
+	if(this.fields != null){
+		for( int i=0, len=this.fields.length; i<len; i++)
+			this.fields[i].buildAnnotations();
+	}
 }
 }

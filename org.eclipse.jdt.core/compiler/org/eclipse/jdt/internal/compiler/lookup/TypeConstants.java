@@ -33,6 +33,15 @@ public interface TypeConstants {
 	char[] CharArray_JAVA_IO_OBJECTINPUTSTREAM = "java.io.ObjectInputStream".toCharArray(); //$NON-NLS-1$
 	char[] CharArray_JAVA_IO_OBJECTOUTPUTSTREAM = "java.io.ObjectOutputStream".toCharArray(); //$NON-NLS-1$
 	char[] CharArray_JAVA_IO_OBJECTSTREAMFIELD = "java.io.ObjectStreamField".toCharArray(); //$NON-NLS-1$
+	char[] CharArray_JAVA_LANG_DEPRECATED_SIG = "Ljava/lang/Deprecated;".toCharArray();  //$NON-NLS-1$	
+	char[] CharArray_JAVA_LANG_OVERRIDE_SIG = "Ljava/lang/Override;".toCharArray();  //$NON-NLS-1$
+	char[] CharArray_JAVA_LANG_SUPRESSWARNING_SIG = "Ljava/lang/SupressWarning;".toCharArray();  //$NON-NLS-1$
+	char[] CharArray_JAVA_LANG_ANNOTATION_DOCUMENTED_SIG = "Ljava/lang/annotation/Documented;".toCharArray();  //$NON-NLS-1$
+	char[] CharArray_JAVA_LANG_ANNOTATION_INHERITED_SIG = "Ljava/lang/annotation/Inherited;".toCharArray();  //$NON-NLS-1$
+	char[] CharArray_JAVA_LANG_ANNOTATION_RETENTION_SIG = "Ljava/lang/annotation/Retention;".toCharArray();  //$NON-NLS-1$
+	char[] CharArray_JAVA_LANG_ANNOTATION_TARGET_SIG = "Ljava/lang/annotation/Target;".toCharArray();  //$NON-NLS-1$
+	char[] CharArray_JAVA_LANG_ANNOTATION_RETENTIONPOLICY_SIG = "Ljava/lang/annotation/RetentionPolicy;".toCharArray();  //$NON-NLS-1$
+	char[] CharArray_JAVA_LANG_ANNOTATION_ELEMENTTYPE_SIG = "Ljava/lang/annotation/ElementType;".toCharArray();  //$NON-NLS-1$
 	char[] ANONYM_PREFIX = "new ".toCharArray(); //$NON-NLS-1$
 	char[] ANONYM_SUFFIX = "(){}".toCharArray(); //$NON-NLS-1$
     char[] WILDCARD_NAME = { '?' };

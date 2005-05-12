@@ -81,6 +81,10 @@ public class AnnotationInfo extends ClassFileStruct implements IBinaryAnnotation
 	 * of this annotation. The data structure will not be flushed out.
 	 * 
 	 * The tag bits are derived from the following (supported) standard annotation. 
+	 * java.lang.annotation.Documented,
+	 * java.lang.annotation.Retention,
+	 * java.lang.annotation.Target, and
+	 * java.lang.Deprecated
 	 * 
 	 * @param expectRuntimeVisibleAnno <code>true</cod> to indicate that this is a runtime-visible annotation
 	 * @param toplevel <code>false</code> to indicate that an nested annotation is read. <code>true</code>

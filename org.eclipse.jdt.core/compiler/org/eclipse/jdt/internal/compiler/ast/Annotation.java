@@ -19,14 +19,14 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
  */
 public abstract class Annotation extends Expression {
 	
-	final static MemberValuePair[] NoValuePairs = new MemberValuePair[0];
+	final static MemberValuePair[] NoValuePairs = new MemberValuePair[0];	
 	public int declarationSourceEnd;
 	public Binding recipient;	
 	public TypeReference type;
 	/** 
 	 *  The representation of this annotation in the type system. 
 	 */
-	public SourceAnnotation compilerAnnotation;
+	private SourceAnnotation compilerAnnotation = null;
 	
 	public static long getRetentionPolicy(char[] policyName) {
 		if (policyName == null || policyName.length == 0)
@@ -166,15 +166,21 @@ public abstract class Annotation extends Expression {
 	
 	public TypeBinding resolveType(BlockScope scope) {
 		
+		if(this.compilerAnnotation != null)
+			return this.resolvedType;		
+		
 		this.constant = NotAConstant;
 		
 		TypeBinding typeBinding = this.type.resolveType(scope);
-		if (typeBinding == null)
+		if (typeBinding == null){	
+			this.compilerAnnotation = new SourceAnnotation(this);
 			return null;
+		}
 		this.resolvedType = typeBinding;
 		// ensure type refers to an annotation type
 		if (!typeBinding.isAnnotationType()) {
 			scope.problemReporter().typeMismatchError(typeBinding, scope.getJavaLangAnnotationAnnotation(), this.type);
+			this.compilerAnnotation = new SourceAnnotation(this);
 			return null;
 		}
 
@@ -226,7 +232,8 @@ public abstract class Annotation extends Expression {
 			if (!foundValue && (method.modifiers & AccAnnotationDefault) == 0) {
 				scope.problemReporter().missingValueForAnnotationMember(this, selector);
 			}
-		}
+		}		
+		
 		// check unused pairs
 		for (int i = 0; i < pairsLength; i++) {
 			if (pairs[i] != null) {
@@ -299,8 +306,14 @@ public abstract class Annotation extends Expression {
 				scope.problemReporter().disallowedTargetForAnnotation(this);
 			}
 		}
+		this.compilerAnnotation = new SourceAnnotation(this);
 		return this.resolvedType;
 	}	
+	
+	public SourceAnnotation getCompilerAnnotation()
+	{	
+		return this.compilerAnnotation;
+	}
 		
 	public abstract void traverse(ASTVisitor visitor, BlockScope scope);
 	public abstract void traverse(ASTVisitor visitor, CompilationUnitScope scope);

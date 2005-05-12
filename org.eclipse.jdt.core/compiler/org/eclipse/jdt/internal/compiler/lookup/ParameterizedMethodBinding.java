@@ -154,9 +154,4 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	{
 		return original().getParameterAnnotations(index);
 	}
-	
-	public Object getDefaultValue()
-	{
-		return original().getDefaultValue();
-	}
 }

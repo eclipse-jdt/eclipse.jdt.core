@@ -24,20 +24,27 @@ protected FieldBinding() {
 	super(null, null, 0, null);
 	// for creating problem field
 }
-public FieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBinding declaringClass, Constant constant) {
+
+public FieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBinding declaringClass, Constant constant)
+{
 	super(name, type, modifiers, constant);
 	this.declaringClass = declaringClass;
 }
+
 public FieldBinding(FieldDeclaration field, TypeBinding type, int modifiers, ReferenceBinding declaringClass) {
 	this(field.name, type, modifiers, declaringClass, null);
 	field.binding = this; // record binding in declaration
 }
+
 // special API used to change field declaring class for runtime visibility check
 public FieldBinding(FieldBinding initialFieldBinding, ReferenceBinding declaringClass) {
-	super(initialFieldBinding.name, initialFieldBinding.type, initialFieldBinding.modifiers, initialFieldBinding.constant());
+	super(initialFieldBinding.name, initialFieldBinding.type, initialFieldBinding.modifiers, 
+		  initialFieldBinding.constant());
 	this.declaringClass = declaringClass;
 	this.id = initialFieldBinding.id;
+	this.annotations = initialFieldBinding.annotations;
 }
+
 /* API
 * Answer the receiver's binding type from Binding.BindingID.
 */
@@ -188,11 +195,78 @@ public long getAnnotationTagBits() {
 		TypeDeclaration typeDecl = ((SourceTypeBinding)originalField.declaringClass).scope.referenceContext;
 		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
 		if (fieldDecl != null)
-			ASTNode.resolveAnnotations(isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope, fieldDecl.annotations, originalField);
+			ASTNode.resolveAnnotations(isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope, fieldDecl.annotations, originalField);		
 	}
 	return originalField.tagBits;
 }
 
+private boolean isBinary()
+{
+	return this.declaringClass != null && this.declaringClass.isBinaryBinding();
+}
+
+public IAnnotationInstance[] getAnnotations()
+{
+	if(this.annotations == null )
+		buildAnnotations();
+	// binary annotations can be encoded in tag bits.
+	if( isBinary() ){
+		final int current = this.annotations.length;		
+		final long annotationTagBits = getAnnotationTagBits();
+		final int numStandardAnnos = AnnotationUtils.getNumberOfStandardAnnotations(annotationTagBits);		
+		if( numStandardAnnos == 0 )
+			return this.annotations;
+		else{
+			final LookupEnvironment env = ((BinaryTypeBinding)this.declaringClass).environment;
+			final int total = current + numStandardAnnos;
+			final BinaryAnnotation[] result = new BinaryAnnotation[total];
+			final int index = AnnotationUtils.buildStandardAnnotations(annotationTagBits, result, env);
+			if( current == 0 )
+				return result;
+			else{
+				System.arraycopy(this.annotations, 0, result, index, current);
+				return result;
+			}
+		}
+	}
+	else
+		return this.annotations;
+}
+
+void buildAnnotations()
+{
+	if( this.annotations != null ) return;
+	this.annotations = NoAnnotations;
+	FieldBinding originalField = this.original();
+	// length field of an array don't have a declaring class.
+	if( originalField.declaringClass != null && originalField.declaringClass instanceof SourceTypeBinding){				
+		TypeDeclaration typeDecl = ((SourceTypeBinding)originalField.declaringClass).scope.referenceContext;
+		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
+		
+		if (fieldDecl != null){
+			final Annotation[] fieldAnnos = fieldDecl.annotations;
+			final int len = fieldAnnos == null ? 0 : fieldAnnos.length;
+			if( len > 0 )
+			{
+				this.annotations = new IAnnotationInstance[len];
+				for( int i = 0; i < len; i++ ){
+					final BlockScope scope = isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope;
+					fieldAnnos[i].resolveType(scope);
+					this.annotations[i] = fieldAnnos[i].getCompilerAnnotation();
+				}
+			}
+		}
+	}	
+}
+
+protected void setAnnotations(final IAnnotationInstance[] annos )
+{
+	if( annos == null )
+		this.annotations = NoAnnotations;
+	else
+		this.annotations = annos;
+}
+	
 /* Answer true if the receiver has default visibility
 */
 
@@ -280,29 +354,5 @@ public FieldDeclaration sourceField() {
 				return fields[i];
 	}
 	return null;		
-}
-
-public IAnnotationInstance[] getAnnotations() { 	
-	// make sure we check the annotations for problems
-	getAnnotationTagBits();				
-	IAnnotationInstance[] result = NoAnnotations;
-	// length field of an array don't have a declaring class.
-	if( this.declaringClass != null && !this.declaringClass.isBinaryBinding() ){				
-		TypeDeclaration typeDecl = ((SourceTypeBinding)this.declaringClass).scope.referenceContext;
-		FieldDeclaration fieldDecl = typeDecl.declarationOf(this);
-		
-		if (fieldDecl != null){
-			final Annotation[] fieldAnnos = fieldDecl.annotations;
-			final int len = fieldAnnos == null ? 0 : fieldAnnos.length;
-			if( len > 0 )
-			{
-				result = new IAnnotationInstance[len];
-				for( int i = 0; i < len; i++ ){
-					result[i] = fieldAnnos[i].compilerAnnotation;
-				}
-			}
-		}
-	}
-	return result;
 }
 }

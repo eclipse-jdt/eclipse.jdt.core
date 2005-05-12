@@ -293,12 +293,10 @@ public class MethodScope extends BlockScope {
 			if (declaringClass.isInterface()) // interface or annotation type
 				modifiers |= AccPublic | AccAbstract;		
 			
-			method.binding = new MethodBinding(modifiers, 
-											   method.selector, 
-											   null, 
-											   null, 
-											   null, 
-											   declaringClass);
+			if( declaringClass.isAnnotationType() )
+				method.binding = new AnnotationMethodBinding(modifiers, method.selector, null, declaringClass, null);
+			else
+				method.binding = new MethodBinding(modifiers, method.selector, null, null, null, declaringClass);
 			checkAndSetModifiersForMethod(method.binding);
 		}
 		this.isStatic = method.binding.isStatic();

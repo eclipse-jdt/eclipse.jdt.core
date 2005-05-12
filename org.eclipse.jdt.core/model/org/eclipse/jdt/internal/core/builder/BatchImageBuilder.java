@@ -14,6 +14,8 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.CleanCompilationEvent;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import java.util.*;
@@ -97,10 +99,30 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 	}
 }
 
+private void notifyCompilationParticipantsOfClean()
+{
+	List cps = JavaCore.getCompilationParticipants( 
+			ICompilationParticipant.CLEAN_EVENT );
+		
+	if ( cps.isEmpty() ) 
+		return;
+
+	CleanCompilationEvent pbce = new CleanCompilationEvent(	javaBuilder.javaProject );
+
+	java.util.Iterator it = cps.iterator();
+	while ( it.hasNext() ) {
+		ICompilationParticipant p = ( ICompilationParticipant ) it.next();
+		p.notify( pbce );
+	}
+}
+	
 protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 	boolean deleteAll = JavaCore.CLEAN.equals(
 		javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
 	if (deleteAll) {
+		
+		notifyCompilationParticipantsOfClean();
+		
 		ArrayList visited = new ArrayList(sourceLocations.length);
 		for (int i = 0, l = sourceLocations.length; i < l; i++) {
 			notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$

@@ -323,27 +323,54 @@ public int accessFlags() {
  */
 private void decodeAnnotations(int offset, boolean runtimeVisible) {
 	int numberOfAnnotations = u2At(offset + 6);
-	int readOffset = offset + 8;
-	int index = 0;
-	if( numberOfAnnotations > 0 ){		
-		if( this.annotations == null )
-			this.annotations = new AnnotationInfo[numberOfAnnotations];
-		else{
-			index = this.annotations.length;
-			int newTotal = this.annotations.length + numberOfAnnotations;
-			final AnnotationInfo[] newAnnos = new AnnotationInfo[newTotal];
-			System.arraycopy(this.annotations, 0, newAnnos, 0, this.annotations.length);
-			this.annotations = newAnnos;
+	int readOffset = offset + 8;	
+	
+	if( numberOfAnnotations >  0 ){
+		int numStandardAnnotations = 0;
+		AnnotationInfo[] annos = new AnnotationInfo[numberOfAnnotations];
+		for( int i=0; i<numberOfAnnotations; i++ ){
+			// With the last parameter being 'false', the data structure 
+			// will not be flushed out. 
+			annos[i] = new AnnotationInfo( reference, readOffset, 
+										   this.constantPoolOffsets,
+										   runtimeVisible, false );
+			readOffset = annos[i].getLength() + readOffset;
+			final long standardTagBits = annos[i].getStandardAnnotationTagBits();
+			this.tagBits |= standardTagBits;
+			// annotation that can be represented by the tag bits
+			// will drop the data structure completely for memory sake.
+			if( standardTagBits != 0 ){	
+				annos[i] = null;
+				numStandardAnnotations ++;
+			}
 		}
+		
+		if( numStandardAnnotations != 0 ){ 	
+			if( numStandardAnnotations == numberOfAnnotations )
+				return;
+			
+			// need to resize
+			AnnotationInfo[] temp = new AnnotationInfo[numberOfAnnotations - numStandardAnnotations ];
+			int tmpIndex = 0;
+			for( int i=0; i<numberOfAnnotations; i++ ){
+				if( annos[i] != null )
+					temp[tmpIndex ++] = annos[i];
+			}
+			annos = temp;
+			numberOfAnnotations = numberOfAnnotations - numStandardAnnotations;
+		}		
+		
+		if( this.annotations == null )
+			this.annotations = annos;
+		else{	
+			
+			final int newTotal = this.annotations.length + numberOfAnnotations;
+			final AnnotationInfo[] newAnnos = new AnnotationInfo[newTotal];
+			System.arraycopy(this.annotations, 0, newAnnos, 0, this.annotations.length );
+			System.arraycopy(annos, 0, newAnnos, this.annotations.length, numberOfAnnotations);
+			this.annotations = newAnnos;
+		}		
 	}	
-	for (int i = 0; i < numberOfAnnotations; i++, index++) {
-		this.annotations[index] = new AnnotationInfo(reference, 
-											    	 readOffset, 
-													 this.constantPoolOffsets, 
-													 runtimeVisible, false);
-		readOffset = this.annotations[index].getLength() + readOffset;		
-		this.tagBits |= this.annotations[index].getStandardAnnotationTagBits();		
-	}
 }
 /**
  * Answer the char array that corresponds to the class name of the constant class.

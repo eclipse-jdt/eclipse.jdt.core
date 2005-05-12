@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.PostReconcileCompilationEvent;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -49,6 +53,8 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			this.progressMonitor.beginTask(Util.bind("element.reconciling"), 2); //$NON-NLS-1$
 		}
 	
+		notifyCompilationParticipants();
+		
 		CompilationUnit workingCopy = getWorkingCopy();
 		boolean wasConsistent = workingCopy.isConsistent();
 		try {
@@ -119,5 +125,22 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		return status;
 	}
 
+	private void notifyCompilationParticipants() {
+		
+		List l = JavaCore.getCompilationParticipants(ICompilationParticipant.POST_RECONCILE_EVENT);	
 
+		CompilationUnit workingCopy = getWorkingCopy();
+		
+		// we want to go through ICompilationParticipant only if there are participants
+		// and the compilation unit is not consistent or we are forcing problem detection
+		if ( ( l != null && l.size() > 0 ) && ( !workingCopy.isConsistent() || forceProblemDetection )) {	
+			PostReconcileCompilationEvent prce = new PostReconcileCompilationEvent( workingCopy, workingCopy.getJavaProject() );
+			Iterator it = l.iterator();
+			while ( it.hasNext() ) {
+				ICompilationParticipant p = (ICompilationParticipant)it.next(); 
+				p.notify( prce );
+				// TODO: do something with the result of notify...
+			}
+		}
+	}
 }

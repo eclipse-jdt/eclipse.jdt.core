@@ -269,7 +269,7 @@ class DefaultBindingResolver extends BindingResolver {
 		if (binding != null) {
 			return binding;
 		}
-		binding = new PackageBinding(packageBinding);
+		binding = new PackageBinding(packageBinding, this);
 		this.bindingTables.compilerBindingsToASTBindings.put(packageBinding, binding);
 		return binding;
 	}
@@ -362,6 +362,7 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 	
 	synchronized IResolvedAnnotation getAnnotationInstance(org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance internalInstance){
+		if( internalInstance == null ) return null;
 		IResolvedAnnotation domInstance = 
 			(IResolvedAnnotation) this.bindingTables.compilerBindingsToASTBindings.get(internalInstance);
 		if (domInstance != null) {
@@ -1426,7 +1427,7 @@ class DefaultBindingResolver extends BindingResolver {
 			org.eclipse.jdt.internal.compiler.ast.Annotation internalAstNode = 
 				(org.eclipse.jdt.internal.compiler.ast.Annotation) oldNode;
 			
-			IResolvedAnnotation domAnnotation = this.getAnnotationInstance(internalAstNode.compilerAnnotation);
+			IResolvedAnnotation domAnnotation = this.getAnnotationInstance(internalAstNode.getCompilerAnnotation());
 			if (domAnnotation == null) {
 				return null;
 			}

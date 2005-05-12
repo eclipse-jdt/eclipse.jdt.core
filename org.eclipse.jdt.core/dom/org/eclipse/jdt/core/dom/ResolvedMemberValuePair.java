@@ -18,78 +18,79 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
  */
 class ResolvedMemberValuePair implements IResolvedMemberValuePair
 {	
-	static final ResolvedMemberValuePair[] NoPair = new ResolvedMemberValuePair[0]; 
+	static final ResolvedMemberValuePair[] NoPair = new ResolvedMemberValuePair[0]; 	
 	private static final Object NoValue = new Object();
+	private static final Object[] EmptyArray = new Object[0];
+	
 	private final org.eclipse.jdt.internal.compiler.lookup.IElementValuePair internalPair;
 	private Object value = null; 
 	private final BindingResolver bindingResolver;
 	
 	ResolvedMemberValuePair(final org.eclipse.jdt.internal.compiler.lookup.IElementValuePair pair, 
-					 BindingResolver resolver)
-	{	
+					 		BindingResolver resolver) {	
 		this.internalPair = pair;
 		this.bindingResolver = resolver;		
 	}
 	
-	private void init()
-	{
-		final org.eclipse.jdt.internal.compiler.lookup.TypeBinding type = this.internalPair.getType();
-		this.value =  buildDOMValue(this.internalPair.getValue(), type, this.bindingResolver);
+	private void init() {		
+		this.value =  buildDOMValue(this.internalPair.getValue(), this.bindingResolver);
 		if( this.value == null )
 			this.value = NoValue;
 	}
 	
 	static Object buildDOMValue(final Object internalObject, 
-			  				    org.eclipse.jdt.internal.compiler.lookup.TypeBinding type,
-			  				    BindingResolver resolver)
-	{
-		if( internalObject == null || type == null ) return null;
-		switch(type.id)
-		{
-		case TypeIds.T_boolean:
-			return new Boolean( ((Constant)internalObject).booleanValue() );			
-		case TypeIds.T_byte:
-			return new Byte( ((Constant)internalObject).byteValue() );			
-		case TypeIds.T_char:
-			return new Character( ((Constant)internalObject).charValue() );
-		case TypeIds.T_double:
-			return new Double( ((Constant)internalObject).doubleValue() );			
-		case TypeIds.T_float:
-			return new Float( ((Constant)internalObject).floatValue() );
-		case TypeIds.T_int:
-			return new Integer( ((Constant)internalObject).intValue() );			
-		case TypeIds.T_long:
-			return new Long( ((Constant)internalObject).longValue() );			
-		case TypeIds.T_short:
-			return new Short( ((Constant)internalObject).shortValue() );
-		case TypeIds.T_JavaLangString:
-			return internalObject;
-		case TypeIds.T_JavaLangClass:
-			return resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)internalObject);
-		}	
+			  				    BindingResolver resolver) {
+		if( internalObject == null ) return null;
 		
-		if( type.isAnnotationType() ){
+		if( internalObject instanceof Constant )
+		{
+			final Constant constant = (Constant)internalObject;
+			switch( constant.typeID() )
+			{
+			case TypeIds.T_boolean:
+				return new Boolean( constant.booleanValue() );			
+			case TypeIds.T_byte:
+				return new Byte( constant.byteValue() );			
+			case TypeIds.T_char:
+				return new Character( constant.charValue() );
+			case TypeIds.T_double:
+				return new Double( constant.doubleValue() );			
+			case TypeIds.T_float:
+				return new Float( constant.floatValue() );
+			case TypeIds.T_int:
+				return new Integer( constant.intValue() );			
+			case TypeIds.T_long:
+				return new Long( constant.longValue() );			
+			case TypeIds.T_short:
+				return new Short( constant.shortValue() );
+			case TypeIds.T_JavaLangString:
+				return constant.stringValue();
+			}
+		}
+		else if( internalObject instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding){
+			return resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)internalObject);
+		}
+		if( internalObject instanceof org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance ) {
 			return new ResolvedAnnotation(
 					(org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance)internalObject, 
 					resolver);
 		}
-		else if( type.isEnum() ){
+		else if( internalObject instanceof org.eclipse.jdt.internal.compiler.lookup.FieldBinding ) {
 			return resolver.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.FieldBinding)internalObject);
 		}
-		else if( type.isArrayType() ){
+		else if( internalObject instanceof Object[] ) {
 			final Object[] iElements = (Object[])internalObject;
 			final int len = iElements.length;
-			Object[] values = null;
-			if( len > 0){
-				final org.eclipse.jdt.internal.compiler.lookup.TypeBinding elementType =
-					((org.eclipse.jdt.internal.compiler.lookup.ArrayBinding)type).leafComponentType;
+			Object[] values = EmptyArray;
+			if( len > 0){			
 				values = new Object[len];
 				for( int i=0; i<len; i++ ){
-					values[i] = buildDOMValue(iElements[i], elementType, resolver);
+					values[i] = buildDOMValue(iElements[i], resolver);
 				}
 			}
-		}
-		throw new IllegalStateException(); // should never get here.		
+			return values;
+		}		
+		throw new IllegalStateException(internalObject.toString()); // should never get here.		
 	}
 	
 	public String getName() {
@@ -106,4 +107,17 @@ class ResolvedMemberValuePair implements IResolvedMemberValuePair
 			init();
 		return value == NoValue ? null : this.value;
 	}	
+	
+	public void toString(StringBuffer buffer) {
+		buffer.append(getName());
+		buffer.append(" = "); //$NON-NLS-1$		
+		ResolvedDefaultValuePair.appendValue(getValue(), buffer);		
+	}
+	
+	public String toString() {
+		final StringBuffer buffer = new StringBuffer();
+		toString(buffer);
+		return buffer.toString();
+	}
 }
+

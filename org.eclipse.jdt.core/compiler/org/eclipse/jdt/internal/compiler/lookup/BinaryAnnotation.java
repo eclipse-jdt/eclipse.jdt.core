@@ -24,7 +24,7 @@ public class BinaryAnnotation implements IAnnotationInstance
 	BinaryAnnotation(ReferenceBinding binding, LookupEnvironment env)
 	{ 
 		this.typeBinding = binding;
-		this.pairs = null;
+		this.pairs = TypeConstants.NoElementValuePairs;
 		this.env = env;		
 	}
 	

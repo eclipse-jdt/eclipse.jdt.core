@@ -422,7 +422,7 @@ class MethodBinding implements IMethodBinding {
 		if( isAnnotationMember() ){
 			final Object internalObject = 
 				((org.eclipse.jdt.internal.compiler.lookup.AnnotationMethodBinding)this.binding).getDefaultValue();
-			return ResolvedMemberValuePair.buildDOMValue(internalObject, this.binding.returnType, this.resolver);
+			return ResolvedMemberValuePair.buildDOMValue(internalObject, this.resolver);
 		}
 		return null;
 	}

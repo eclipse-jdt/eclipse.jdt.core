@@ -802,7 +802,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 * @return a search pattern on the given string pattern, or <code>null</code> if the string pattern is ill-formed
 	 */
 	public static SearchPattern createPattern(String stringPattern, int searchFor, int limitTo, int matchRule) {
-		if (stringPattern == null || stringPattern.length() == 0) return null;
+		// Null string not allowed, empty string only allowed for Package seach (default package)
+		if (stringPattern == null || stringPattern.length() == 0 && searchFor != IJavaSearchConstants.PACKAGE) 
+			return null;
 
 		// Ignore additional nature flags
 		limitTo &= ~(IJavaSearchConstants.IGNORE_DECLARING_TYPE+IJavaSearchConstants.IGNORE_RETURN_TYPE);

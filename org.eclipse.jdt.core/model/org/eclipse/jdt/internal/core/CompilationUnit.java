@@ -16,9 +16,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.ICompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.compiler.PostReconcileCompilationEvent;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
@@ -27,10 +25,8 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.JavaModelManager.PerWorkingCopyInfo;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
-
 /**
  * @see ICompilationUnit
  */
@@ -44,19 +40,7 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
 	
 	protected String name;
 	public WorkingCopyOwner owner;
-	
-	/** 
-	 * indicates if a NoOpProblemRequestor should be used when 
-	 *  calling getPerWorkingCopyInfo
-	 */
-	private boolean useNoOpProblemRequestor = false;
 
-	/**
-	 * indicates if we should treat this working copy as inconsistent
-	 * even if there wasn't a change in the underlying buffer.
-	 */
-	private boolean forceInconsistent = false;
-	
 	
 /**
  * Constructs a handle to a compilation unit with the given name in the
@@ -773,12 +757,8 @@ public IPath getPath() {
  * Returns the per working copy info for the receiver, or null if none exist.
  * Note: the use count of the per working copy info is NOT incremented.
  */
-public JavaModelManager.PerWorkingCopyInfo getPerWorkingCopyInfo() {
-	
-	if ( useNoOpProblemRequestor )
-		return new PerWorkingCopyInfo( this, NO_OP_PROBLEM_REQUESTOR );
-	else
-		return JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(this, false/*don't create*/, false/*don't record usage*/, null/*no problem requestor needed*/);
+public JavaModelManager.PerWorkingCopyInfo getPerWorkingCopyInfo() {	
+	return JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(this, false/*don't create*/, false/*don't record usage*/, null/*no problem requestor needed*/);
 }
 
 /*
@@ -921,10 +901,7 @@ public boolean isBasedOn(IResource resource) {
  * @see IOpenable#isConsistent()
  */
 public boolean isConsistent() {
-	if ( forceInconsistent )
-		return false;
-	else	
-		return JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().get(this) == null;
+	return JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().get(this) == null;
 }
 /**
  * 
@@ -1111,54 +1088,8 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	
 	
 	ReconcileWorkingCopyOperation op = null;
-	List l = JavaCore.getCompilationParticipants(ICompilationParticipant.POST_RECONCILE_EVENT);	
-	if ( l != null && l.size() > 0 ) {	
-		// we always need an AST to pass into compilation participants
-		op = new ReconcileWorkingCopyOperation(this, true /*createAST*/, AST.JLS3, forceProblemDetection, workingCopyOwner);	
-
-		// TODO:  try not to use these two try-catch blocks here...
-		try {
-		    try {
-				useNoOpProblemRequestor = true;
-				forceInconsistent = ! this.isConsistent();
-				op.runOperation(monitor);
-			}
-			finally {
-				useNoOpProblemRequestor = false;
-			}
-						
-			Iterator it = l.iterator();
-			while ( it.hasNext() ) {
-				ICompilationParticipant p = (ICompilationParticipant)it.next();
-				PostReconcileCompilationEvent prce = new PostReconcileCompilationEvent( this, op.ast, getJavaProject() ); 
-				p.notify( prce );
-				// TODO: do something with the result of notify...
-			}
-
-			// save off the original AST
-			org.eclipse.jdt.core.dom.CompilationUnit originalAst = op.ast;
-
-			// if there were ICompilationParticipants, we will reconcile again and return the ast from the second reconcile
-			// this causes the client to receive an AST that is correct with respect to any changes that occurred in the 
-			// ast as a result of files being added by compilation participants.  This second reconcile also causes any 
-			// problems to be reported to the correct problemRequestor, instead of the no-op problemRequestor. 
-			op = new ReconcileWorkingCopyOperation(this, createAST, astLevel, forceProblemDetection, workingCopyOwner);
-			op.runOperation(monitor);
-			
-			// if the original AST was null, assume that the working copy was consistent.
-			// and return null. 
-			if ( originalAst == null )
-				return null;	
-		}
-		finally {
-			forceInconsistent = false;
-		}
-	}
-	else 
-	{
-		op = new ReconcileWorkingCopyOperation(this, createAST, astLevel, forceProblemDetection, workingCopyOwner);
-		op.runOperation(monitor);
-	}
+	op = new ReconcileWorkingCopyOperation(this, createAST, astLevel, forceProblemDetection, workingCopyOwner);
+	op.runOperation(monitor);
 
 	return op.ast;
 }
@@ -1234,16 +1165,6 @@ protected void updateTimeStamp(CompilationUnit original) throws JavaModelExcepti
 			new JavaModelStatus(IJavaModelStatusConstants.INVALID_RESOURCE));
 	}
 	((CompilationUnitElementInfo) getElementInfo()).timestamp = timeStamp;
-}
-
-
-
-private final static NoOpProblemRequestor  NO_OP_PROBLEM_REQUESTOR = new NoOpProblemRequestor();
-private final static class NoOpProblemRequestor implements IProblemRequestor {
-	public void    acceptProblem(IProblem problem) { /* no-op */ }
-	public void    beginReporting()                { /* no-op */ }
-	public void    endReporting()                  { /* no-op */ }
-	public boolean isActive()                      { return true; } 
 }
 
 }
