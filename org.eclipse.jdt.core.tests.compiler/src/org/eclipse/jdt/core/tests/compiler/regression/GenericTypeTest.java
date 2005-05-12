@@ -18669,4 +18669,31 @@ public void test617() {
 			"Type safety: The method getValue() belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
 			"----------\n");
 	}			
+// javac incorrectly rejects the cast
+public void test655() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static class BB<T, S> { }\n" + 
+			"    static class BD<T> extends BB<T, T> { }\n" + 
+			"    void f() {\n" + 
+			"        BB<? extends Number, ? super Integer> bb = null;\n" + 
+			"        Object o = (BD<Number>) bb;\n" + 
+			"    }\n" + 
+			"    Zork z;\n" + 
+			"}\n",
+		},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	Object o = (BD<Number>) bb;\n" + 
+			"	           ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from X.BB<capture-of ? extends Number,capture-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+}	
 }
