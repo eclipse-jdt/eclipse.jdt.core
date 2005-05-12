@@ -1486,7 +1486,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	private void formatLocalDeclaration(LocalDeclaration localDeclaration, BlockScope scope, boolean insertSpaceBeforeComma, boolean insertSpaceAfterComma) {
 
 		if (!isMultipleLocalDeclaration(localDeclaration)) {
-			if (localDeclaration.modifiers != NO_MODIFIERS) {
+			if (localDeclaration.modifiers != NO_MODIFIERS || localDeclaration.annotations != null) {
 		        this.scribe.printComment();
 				this.scribe.printModifiers(localDeclaration.annotations, this);
 				this.scribe.space();
@@ -2268,7 +2268,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 	 */
 	public boolean visit(Argument argument, BlockScope scope) {
 
-		if (argument.modifiers != NO_MODIFIERS) {
+		if (argument.modifiers != NO_MODIFIERS || argument.annotations != null) {
 	        this.scribe.printComment();
 			this.scribe.printModifiers(argument.annotations, this);
 			this.scribe.space();
