@@ -18563,4 +18563,110 @@ public void test617() {
 	        },
 			"");
 	}	
+	public void test652() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Collection<?> c = new HashSet<String>();\n" + 
+				"        Set<?> s = (Set<?>)c;\n" + 
+				"    }\n" + 
+				"}\n",
+	        },
+			"");
+	}	
+	public void test653() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	static public <T extends Collection> void workaround(T a, T b) {\n" + 
+				"		a.addAll(b);\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	a.addAll(b);\n" + 
+			"	^^^^^^^^^^^\n" + 
+			"Type safety: The method addAll(Collection) belongs to the raw type Collection. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
+	public void test654() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Map myMap = new HashMap();\n" + 
+				"		myMap.put(\"key1\", \"1\");\n" + 
+				"\n" + 
+				"		for (Map.Entry e : myMap.entrySet())\n" + 
+				"			System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+				"		Set<Map.Entry> set = myMap.entrySet();\n" + 
+				"		for (Map.Entry e : set)\n" + 
+				"			System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	myMap.put(\"key1\", \"1\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method put(Object, Object) belongs to the raw type Map. References to generic type Map<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	for (Map.Entry e : myMap.entrySet())\n" + 
+			"	                   ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method entrySet() belongs to the raw type Map. References to generic type Map<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	for (Map.Entry e : myMap.entrySet())\n" + 
+			"	                   ^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from element type Object to Map.Entry\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+			"	                              ^^^^^^^^^^\n" + 
+			"Type safety: The method getKey() belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 9)\n" + 
+			"	System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+			"	                                                         ^^^^^^^^^^^^\n" + 
+			"Type safety: The method getValue() belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 10)\n" + 
+			"	Set<Map.Entry> set = myMap.entrySet();\n" + 
+			"	                     ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method entrySet() belongs to the raw type Map. References to generic type Map<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 10)\n" + 
+			"	Set<Map.Entry> set = myMap.entrySet();\n" + 
+			"	                     ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Set needs unchecked conversion to conform to Set<Map.Entry>\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 12)\n" + 
+			"	System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+			"	                              ^^^^^^^^^^\n" + 
+			"Type safety: The method getKey() belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 12)\n" + 
+			"	System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+			"	                                                         ^^^^^^^^^^^^\n" + 
+			"Type safety: The method getValue() belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"----------\n");
+	}			
 }
