@@ -382,10 +382,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	}
 	
 	public int getSeverity(long irritant) {
-		if((this.warningThreshold & irritant) != 0)
-			return Warning;
 		if((this.errorThreshold & irritant) != 0)
 			return Error;
+		if((this.warningThreshold & irritant) != 0)
+			return Warning;
 		return Ignore;
 	}
 
