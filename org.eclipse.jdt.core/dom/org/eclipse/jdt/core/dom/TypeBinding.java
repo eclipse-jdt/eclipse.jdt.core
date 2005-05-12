@@ -920,7 +920,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isClass()
 	 */
 	public boolean isClass() {
-		return this.binding.isClass() && !this.binding.isTypeVariable();
+		return this.binding.isClass() && !this.binding.isTypeVariable() && !this.binding.isWildcard();
 	}
 
 	/*
