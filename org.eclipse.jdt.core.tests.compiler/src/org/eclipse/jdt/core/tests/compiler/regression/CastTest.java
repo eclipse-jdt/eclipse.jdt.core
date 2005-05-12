@@ -1374,38 +1374,7 @@ public void test035() {
 		"Cannot cast from new Object(){} to Test231i\n" + 
 		"----------\n");
 }
-// javac incorrectly accepts it
 public void test036() {
-	this.runNegativeTest(
-		new String[] {
-			"Test231.java",
-			"public class Test231 implements Test231i\n" + 
-			"{\n" + 
-			"	void	foo()\n" + 
-			"	{\n" + 
-			"		new Object()\n" + 
-			"		{\n" + 
-			"			Test231i	bar()\n" + 
-			"			{\n" + 
-			"				return	(Test231i)this;\n" + 
-			"			}\n" + 
-			"		};\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"\n" + 
-			"\n" + 
-			"interface Test231i\n" + 
-			"{\n" + 
-			"}\n",
-		},
-		"----------\n" + 
-		"1. ERROR in Test231.java (at line 9)\n" + 
-		"	return	(Test231i)this;\n" + 
-		"	      	^^^^^^^^^^^^^^\n" + 
-		"Cannot cast from new Object(){} to Test231i\n" + 
-		"----------\n");
-}
-public void test037() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1440,6 +1409,33 @@ public void test037() {
 			"}\n",
 		},
 		"no base");
+}
+// javac incorrectly rejects the cast
+public void test037() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static class BB<T, S> { }\n" + 
+			"    static class BD<T> extends BB<T, T> { }\n" + 
+			"    void f() {\n" + 
+			"        BB<? extends Number, ? super Integer> bb = null;\n" + 
+			"        Object o = (BD<Number>) bb;\n" + 
+			"    }\n" + 
+			"    Zork z;\n" + 
+			"}\n",
+		},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	Object o = (BD<Number>) bb;\n" + 
+			"	           ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from X.BB<capture-of ? extends Number,capture-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
 }
 public static Class testClass() {
 	return CastTest.class;
