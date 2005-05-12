@@ -2429,7 +2429,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * Bug 84049: [1.5][javadoc][dom] Type references in javadocs should have generic binding, not raw
+	 * Bug 84049: [javadoc][dom] Extended ranges wrong for method name without return type
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=84049"
 	 */
 	public void testBug84049() throws JavaModelException {
