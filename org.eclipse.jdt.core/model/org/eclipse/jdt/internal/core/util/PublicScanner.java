@@ -3357,19 +3357,29 @@ public final void setSource(char[] sourceString){
 	this.containsAssertKeyword = false;
 	this.linePtr = -1;	
 }
-
 /*
  * Should be used if a parse (usually a diet parse) has already been performed on the unit, 
  * so as to get the already computed line end positions.
  */
-public final void setSource(CompilationResult compilationResult) {
-	char[] contents = compilationResult.compilationUnit.getContents();
-	setSource(contents);
+public final void setSource(char[] contents, CompilationResult compilationResult) {
+	if (contents == null) {
+		char[] cuContents = compilationResult.compilationUnit.getContents();
+		setSource(cuContents);
+	} else {
+		setSource(contents);
+	}
 	int[] lineSeparatorPositions = compilationResult.lineSeparatorPositions;
 	if (lineSeparatorPositions != null) {
 		this.lineEnds = lineSeparatorPositions;
 		this.linePtr = lineSeparatorPositions.length - 1;
 	}
+}
+/*
+ * Should be used if a parse (usually a diet parse) has already been performed on the unit, 
+ * so as to get the already computed line end positions.
+ */
+public final void setSource(CompilationResult compilationResult) {
+	setSource(null, compilationResult);
 }
 public String toString() {
 	if (this.startPosition == this.source.length)

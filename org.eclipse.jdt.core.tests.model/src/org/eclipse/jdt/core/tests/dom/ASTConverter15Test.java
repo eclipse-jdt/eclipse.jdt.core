@@ -36,7 +36,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 174 };
+//		TESTS_NUMBERS = new int[] { 178 };
 //		TESTS_NAMES = new String[] {"test0177"};
 	}
 	public static Test suite() {
@@ -5358,5 +5358,89 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding declaringClass = capture.getDeclaringClass();
 		assertBindingEquals("LX<TT;>;", declaringClass);
     }
-	
+
+   	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93075
+	 */
+    public void test0178() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+   		String contents =
+				"import java.util.Vector;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	void foo() {\n" +
+				"		Vector< ? super java.util.Collection<? super java.lang.Number> > lhs= null;		\n" +
+				"	}\n" +
+				"}";
+	   	ASTNode node = buildAST(
+				contents,
+    			this.workingCopy);
+	   	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+	   	CompilationUnit unit = (CompilationUnit) node;
+	   	node = getASTNode(unit, 0, 0, 0);
+	   	assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+	   	VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+	   	Type type = statement.getType();
+	   	checkSourceRange(type, "Vector< ? super java.util.Collection<? super java.lang.Number> >", contents);
+	   	assertEquals("Not a parameterized type", ASTNode.PARAMETERIZED_TYPE, type.getNodeType());
+	   	ParameterizedType parameterizedType = (ParameterizedType) type;
+	   	List typeArguments = parameterizedType.typeArguments();
+	   	assertEquals("Wrong size", 1, typeArguments.size());
+	   	Type typeArgument = (Type) typeArguments.get(0);
+	   	assertEquals("Not a wildcard type", ASTNode.WILDCARD_TYPE, typeArgument.getNodeType());
+	   	WildcardType wildcardType = (WildcardType) typeArgument;
+	   	checkSourceRange(wildcardType, "? super java.util.Collection<? super java.lang.Number>", contents);
+	   	Type bound = wildcardType.getBound();
+	   	assertEquals("Not a parameterized type", ASTNode.PARAMETERIZED_TYPE, bound.getNodeType());
+	   	ParameterizedType parameterizedType2 = (ParameterizedType) bound;
+	   	checkSourceRange(bound, "java.util.Collection<? super java.lang.Number>", contents);
+	   	typeArguments = parameterizedType2.typeArguments();
+	   	assertEquals("Wrong size", 1, typeArguments.size());
+	   	typeArgument = (Type) typeArguments.get(0);
+	   	assertEquals("Not a wildcard type", ASTNode.WILDCARD_TYPE, typeArgument.getNodeType());
+	   	wildcardType = (WildcardType) typeArgument;
+	   	checkSourceRange(wildcardType, "? super java.lang.Number", contents);
+    }
+    
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93075
+	 */
+    public void test0179() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+   		String contents =
+				"@interface Test {}\n" +
+				"public enum X\n" +
+				"{\n" +
+				"     /*start*/@Test HISTORY/*end*/\n" +
+				"}";
+	   	ASTNode node = buildAST(
+			contents,
+    		this.workingCopy);
+	   	assertEquals("Not an enum constant declaration", ASTNode.ENUM_CONSTANT_DECLARATION, node.getNodeType());
+		EnumConstantDeclaration constantDeclaration = (EnumConstantDeclaration) node;
+		List modifiers = constantDeclaration.modifiers();
+		assertEquals("Wrong size", 1, modifiers.size());
+		IExtendedModifier modifier = (IExtendedModifier) modifiers.get(0);
+	   	assertTrue("Not a marker annotation", modifier instanceof MarkerAnnotation);
+    }
+    
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92360
+	 */
+    public void test0180() throws CoreException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+   		String contents =
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"    List</*start*/? extends Runnable/*end*/> list;\n" +
+				"}";
+	   	ASTNode node = buildAST(
+			contents,
+    		this.workingCopy);
+	   	assertEquals("Not a wildcard type", ASTNode.WILDCARD_TYPE, node.getNodeType());
+		WildcardType wildcardType = (WildcardType) node;
+		ITypeBinding typeBinding = wildcardType.resolveBinding();
+		assertTrue("Not a wildcard type", typeBinding.isWildcardType());
+		assertFalse("Not an class", typeBinding.isClass());
+    }
 }
