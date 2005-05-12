@@ -109,8 +109,8 @@ What's new in this drop</h2>
 <li> Code Assist provide the enclosing type reference when cursor is inside a type argument
 and the completion token is empty (in the same way as method calls).
 <pre>
-p.q.X&lt;&lt;complete here&gt;&gt; // p.q.X<T,U> is proposed.
-p.q.X&lt;Object, &lt;complete here&gt;&gt; //p.q.X<T,U> is proposed
+p.q.X&lt;&lt;complete here&gt;&gt; // p.q.X&lt;T,U&gt; is proposed.
+p.q.X&lt;Object, &lt;complete here&gt;&gt; //p.q.X&lt;T,U&gt; is proposed
 </pre>
 </li>
 <li> Code Assist provide the enclosing annotation reference when completion is inside an annotation argument
@@ -197,7 +197,7 @@ these are subject to changing in the near future.
      <li>javadoc : invalid javadoc</li>
      <li>localHiding : local variable hiding another variable</li>
      <li>maskedCatchBlock : hidden catch block</li>
-     <li>nls : string literal lacking non-nls tag //$NON-NLS-<n>$</li>
+     <li>nls : string literal lacking non-nls tag //$NON-NLS-&lt;n&gt;$</li>
      <li>noEffectAssign : assignment without effect</li>
      <li>over-ann : missing @Override annotation</li>
      <li>pkgDefaultMethod : attempt to override package-default method</li>
