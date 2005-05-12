@@ -37,7 +37,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 122 };
+		TESTS_NUMBERS = new int[] { 143 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -4534,4 +4534,61 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Cannot create a generic array of Class<? super Throwable>\n" + 
 			"----------\n");
     }        
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=94308
+    public void test142() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings(\"deprecation\")\n" + 
+				"public class X extends p.OldStuff {\n" + 
+				"	/**\n" + 
+				"	 * @see p.OldStuff#foo()\n" + 
+				"	 */\n" + 
+				"	@Override\n" + 
+				"	public void foo() {\n" + 
+				"		super.foo();\n" + 
+				"	}\n" + 
+				"}\n",
+                "p/OldStuff.java",
+                "package p;\n" +
+                "@Deprecated\n" +
+				"public class OldStuff {\n" + 
+				"	public void foo() {\n" + 
+				"	}	\n" + 
+				"  Zork z;\n" +
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in p\\OldStuff.java (at line 6)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }        
+    public void _test143() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X extends p.OldStuff {\n" + 
+				"	@SuppressWarnings(\"all\")\n" + 
+				"	public void foo() {\n" + 
+				"		super.foo();\n" + 
+				"	}\n" + 
+				"}\n",
+                "p/OldStuff.java",
+                "package p;\n" +
+                "@Deprecated\n" +
+				"public class OldStuff {\n" + 
+				"	public void foo() {\n" + 
+				"	}	\n" + 
+				"  Zork z;\n" +
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERR OR in p\\OldStuff.java (at line 6)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+    }            
 }
