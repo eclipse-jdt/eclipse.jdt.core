@@ -63,7 +63,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	//TESTS_NAMES = new String[] { "testSuppressWarnings1" };
+	// TESTS_NAMES = new String[] { "testSuppressWarnings1" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 	//TESTS_NUMBERS = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -1638,14 +1638,13 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 /*
  * Ensure that warning are suppressed by an @SuppressWarnings annotation.
  */
-// TODO (philippe) reenable once fixed
-public void _testSuppressWarnings1() throws JavaModelException {
+public void testSuppressWarnings1() throws JavaModelException {
 	ICompilationUnit otherCopy = null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		otherCopy = getWorkingCopy(
 			"/Reconciler15/src/X.java",
-	        "@Deprecated\n" + 
+	        "/** @deprecated */\n" + 
 	        "public class X {\n" + 
 	        "   void foo(){}\n" +
 	        "}\n",
@@ -1668,12 +1667,16 @@ public void _testSuppressWarnings1() throws JavaModelException {
 			"	             ^\n" + 
 			"The constructor X() is deprecated\n" + 
 			"----------\n" + 
-			"2. ERROR in /Reconciler15/src/Y.java (at line 4)\n" + 
+			"2. WARNING in /Reconciler15/src/Y.java (at line 1)\n" + 
+			"	public class Y extends X {\n" + 
+			"	                       ^\n" + 
+			"The type X is deprecated\n" + 
+			"----------\n" + 
+			"3. ERROR in /Reconciler15/src/Y.java (at line 4)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	} finally {
 		if (otherCopy != null)
 			otherCopy.discardWorkingCopy();
