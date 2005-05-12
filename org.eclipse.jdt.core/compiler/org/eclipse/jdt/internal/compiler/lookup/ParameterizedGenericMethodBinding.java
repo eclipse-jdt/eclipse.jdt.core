@@ -73,17 +73,25 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					MessageSend message = (MessageSend) invocationSite;
 					expectedType = message.expectedType;
 				}
-				TypeBinding upperBound = null;
-				if (methodSubstitute.returnType.isTypeVariable()) {
-					// should be: if no expected type, then assume Object
-					// actually it rather seems to handle the returned variable case by expecting its erasure instead
-					upperBound = methodSubstitute.returnType.erasure();
-				} else {
-					if (methodSubstitute.returnType.id != TypeIds.T_void)
+				TypeBinding upperBound;
+				TypeBinding substitutedReturnType = methodSubstitute.returnType;
+				switch (substitutedReturnType.kind()) {
+					case Binding.TYPE_PARAMETER :
+						// should be: if no expected type, then assume Object
+						// actually it rather seems to handle the returned variable case by expecting its erasure instead
+						upperBound = substitutedReturnType.erasure();
+						break;
+					case Binding.BASE_TYPE :
+						if (substitutedReturnType == VoidBinding) {
+							upperBound = null;
+							break;
+						}
+						// fallthrough
+					default:
 						upperBound = scope.getJavaLangObject(); 
 				}
 				// Object o = foo(); // where <T extends Serializable> T foo();
-				if (expectedType == null || upperBound.isCompatibleWith(expectedType)) {
+				if (expectedType == null || (upperBound != null && upperBound.isCompatibleWith(expectedType))) {
 					expectedType = upperBound;
 				}
 				methodSubstitute = methodSubstitute.inferFromExpectedType(scope, expectedType, collectedSubstitutes, substitutes);

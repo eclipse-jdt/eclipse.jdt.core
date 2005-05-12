@@ -18847,4 +18847,24 @@ public void test659() {
 		"Type safety: The cast from Reference<capture-of ? extends Integer> to X<String,Integer> is actually checking against the erased type X\n" + 
 		"----------\n");
 }	
+public void test660() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"	boolean run(X x) {\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"	<T> void run(Class<T> ct) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		boolean b = new X().run(new X(){});\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}	
 }
