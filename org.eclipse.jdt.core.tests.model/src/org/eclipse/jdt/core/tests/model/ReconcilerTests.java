@@ -1638,13 +1638,15 @@ public void testRenameWithSyntaxError() throws JavaModelException {
 /*
  * Ensure that warning are suppressed by an @SuppressWarnings annotation.
  */
-public void testSuppressWarnings1() throws JavaModelException {
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95056
+//TODO (kent) reenable once addressed
+public void _testSuppressWarnings1() throws JavaModelException {
 	ICompilationUnit otherCopy = null;
 	try {
 		WorkingCopyOwner owner = new WorkingCopyOwner() {};
 		otherCopy = getWorkingCopy(
 			"/Reconciler15/src/X.java",
-	        "/** @deprecated */\n" + 
+	        "@Deprecated\n" + 
 	        "public class X {\n" + 
 	        "   void foo(){}\n" +
 	        "}\n",
@@ -1766,6 +1768,53 @@ public void testSuppressWarnings3() throws JavaModelException {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n"
 		);
+	} finally {
+		if (otherCopy != null)
+			otherCopy.discardWorkingCopy();
+	}
+}
+/*
+ * Ensure that warning are suppressed by an @SuppressWarnings annotation.
+ */
+public void testSuppressWarnings4() throws JavaModelException {
+	ICompilationUnit otherCopy = null;
+	try {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		otherCopy = getWorkingCopy(
+			"/Reconciler15/src/X.java",
+	        "/** @deprecated */\n" + 
+	        "public class X {\n" + 
+	        "   void foo(){}\n" +
+	        "}\n",
+			owner,
+			false/*don't compute problems*/);
+		setUp15WorkingCopy("/Reconciler15/src/Y.java", owner);
+		setWorkingCopyContents(
+	        "public class Y extends X {\n" + 
+	        "  @SuppressWarnings(\"all\")\n" +
+	        "   void foo(){ super.foo(); }\n" +
+	        "   Zork z;\n" +
+	        "}\n"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler15/src/Y.java (at line 1)\n" + 
+			"	public class Y extends X {\n" + 
+			"	             ^\n" + 
+			"The constructor X() is deprecated\n" + 
+			"----------\n" + 
+			"2. WARNING in /Reconciler15/src/Y.java (at line 1)\n" + 
+			"	public class Y extends X {\n" + 
+			"	                       ^\n" + 
+			"The type X is deprecated\n" + 
+			"----------\n" + 
+			"3. ERROR in /Reconciler15/src/Y.java (at line 4)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
 	} finally {
 		if (otherCopy != null)
 			otherCopy.discardWorkingCopy();
