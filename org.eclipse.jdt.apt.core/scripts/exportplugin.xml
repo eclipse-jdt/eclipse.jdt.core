@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+ Build script to create the apt.core plugin. 
+ This script assumes that the classes have already been compiled,
+ and exist in the 'bin' subdirectory of the plugin project.
+ The directory structure assumed by this script is as follows:
+    [dev root]/
+        [workspace]/
+            org.eclipse.jdt.apt.core/
+                bin/
+                src/
+                scripts/          // contains this script
+        plugin-export/            // will be created if necessary
+            org.eclipse.jdt.apt.core_[version]/
+        org.eclipse.jdt.apt.core_[version].zip
+        
+-->
+
+<project name="${plugin}" default="export plug-in [_1.0.0]" basedir="..">
+
+<target name="export plug-in [_1.0.0]">
+	<antcall target="zz_internal_export">
+		<param name="plugin_version" value="1.0.0"/>
+	</antcall>
+</target>
+
+<target name="zz_internal_export">
+
+	<tstamp/>
+	<property name="export-dir" value="../../plugin-export" />
+	<property name="plugin" value="org.eclipse.jdt.apt.core" />
+	<property name="plugin-dir" value="${export-dir}/${plugin}_${plugin_version}"/>
+
+	<echo message="TARGET: ${export-dir}" />
+	<mkdir dir="${export-dir}" />
+	<delete dir="${plugin-dir}" />
+	<mkdir dir="${plugin-dir}" />
+
+	<echo message="UPDATE aptcore.jar" />
+	<jar 
+		jarfile="${plugin-dir}/aptcore.jar"
+		basedir="bin"
+		/>
+		
+	<echo message="UPDATE plugin.xml" />
+	<copy file="plugin.xml" todir="${plugin-dir}" />
+	<!-- echo message="UPDATE plugin.properties" / -->
+	<!-- copy file="plugin.properties" todir="${plugin-dir}" / -->
+
+	<!-- echo message="UPDATE about.html" / -->
+	<!-- copy file="about.html" todir="${plugin-dir}" / -->
+
+	<echo message="UPDATE aptcoresrc.zip" />
+	<zip zipfile="${plugin-dir}/aptcoresrc.zip">
+	    <fileset dir="src" />
+	</zip>		
+
+	<echo message="UPDATE ${export-dir}/../${plugin}_${plugin_version}.zip" />
+	<zip zipfile="${export-dir}/../${plugin}_${plugin_version}.zip"
+	    basedir="${export-dir}" 
+	    includes="${plugin}_${plugin_version}/**"	/>		
+</target>
+
+</project>
