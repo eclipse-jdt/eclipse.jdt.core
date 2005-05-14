@@ -36,6 +36,7 @@ public char[][] parameterQualifications;
 public char[][] parameterSimpleNames;
 public int parameterCount;
 public int flags = 0;
+public boolean mustResolveGeneric = false;
 
 // extra reference info
 protected IType declaringType;
@@ -180,6 +181,28 @@ public MethodPattern(
 	// Store type signatures and arguments for method
 	methodArguments = extractMethodArguments(method);
 	if (hasMethodArguments())  ((InternalSearchPattern)this).mustResolve = true;
+	
+	// See if we must resolve specifically for generics
+	if (parameterSimpleNames != null && parameterSimpleNames.length > 0) {
+		int psLength = parameterSimpleNames.length;
+		try {
+			// Currently, we need to resolve for generic if one of method type argument
+			// equals to one of declaring type type parameter
+			ITypeParameter[] typeParameters = this.declaringType.getTypeParameters();
+			if (typeParameters != null && typeParameters.length > 0) {
+				int tpLength = typeParameters.length;
+				for (int i=0; i<psLength && !this.mustResolveGeneric; i++) {
+					for (int j=0; j<tpLength && !this.mustResolveGeneric; j++) {
+						if (CharOperation.equals(parameterSimpleNames[i], typeParameters[j].getElementName().toCharArray())) {
+							this.mustResolveGeneric = true;
+						}
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			// ignore
+		}
+	}
 }
 /*
  * Instanciate a method pattern with signatures for generics search

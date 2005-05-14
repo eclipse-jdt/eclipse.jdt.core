@@ -1449,11 +1449,19 @@ protected void report(SearchMatch match) throws CoreException {
 		System.out.println("Reporting match"); //$NON-NLS-1$
 		System.out.println("\tResource: " + match.getResource()); //$NON-NLS-2$//$NON-NLS-1$
 		System.out.println("\tPositions: [offset=" + match.getOffset() + ", length=" + match.getLength() + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		if (this.parser != null && match.getOffset() > 0 && match.getLength() > 0 && !(match.getElement() instanceof BinaryMember)) {
-			String selection = new String(this.parser.scanner.source, match.getOffset(), match.getLength());
-			System.out.println("\tSelection: -->" + selection + "<--"); //$NON-NLS-1$ //$NON-NLS-2$
+		try {
+			if (this.parser != null && match.getOffset() > 0 && match.getLength() > 0 && !(match.getElement() instanceof BinaryMember)) {
+				String selection = new String(this.parser.scanner.source, match.getOffset(), match.getLength());
+				System.out.println("\tSelection: -->" + selection + "<--"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		} catch (Exception e) {
+			// it's just for debug purposes... ignore all exceptions in this area
 		}
-		System.out.println("\tJava element: " + ((JavaElement)match.getElement()).toStringWithAncestors()); //$NON-NLS-1$
+		try {
+			System.out.println("\tJava element: " + ((JavaElement)match.getElement()).toStringWithAncestors()); //$NON-NLS-1$
+		} catch (Exception e) {
+			// it's just for debug purposes... ignore all exceptions in this area
+		}
 		System.out.println(match.getAccuracy() == SearchMatch.A_ACCURATE
 			? "\tAccuracy: EXACT_MATCH" //$NON-NLS-1$
 			: "\tAccuracy: POTENTIAL_MATCH"); //$NON-NLS-1$

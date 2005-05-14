@@ -91,8 +91,12 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 		ASTNode[] args = node.arguments;
 		int argsLength = args == null ? 0 : args.length;
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
-		for (int i = 0; i < argsLength; i++) {
-			if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) return IMPOSSIBLE_MATCH;
+		// Disable filter on argument syntax to allow generic type search.
+		// (see  bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=79990)
+		if (!this.pattern.mustResolveGeneric) {
+			for (int i = 0; i < argsLength; i++) {
+				if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) return IMPOSSIBLE_MATCH;
+			}
 		}
 	}
 
@@ -213,6 +217,54 @@ protected int matchMethod(MethodBinding method) {
 	}
 
 	return level;
+}
+/**
+ * Return if pattern method may override a method in super classes
+ * or or implement one in super interfaces of given type.
+ * @param type
+ * @return level
+ */
+int matchOverriddenMethod(ReferenceBinding type) {
+	if (type == null) return INACCURATE_MATCH;
+	int level = IMPOSSIBLE_MATCH;
+
+	// matches superclass
+	if (!type.isInterface() && !CharOperation.equals(type.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
+		if (type.superclass().isParameterizedType()) {
+			TypeBinding erasure = ((ParameterizedTypeBinding)type.superclass()).erasure();
+			if (erasure instanceof ReferenceBinding) {
+				MethodBinding[] methods = ((ReferenceBinding)erasure).getMethods(this.pattern.selector);
+				int length = methods.length;
+				for (int i = 0; i<length && level == IMPOSSIBLE_MATCH; i++) {
+					level = matchMethod(methods[i]);
+				}
+				if (level != IMPOSSIBLE_MATCH) return level;
+			}
+		}
+		level = matchOverriddenMethod(type.superclass());
+		if (level != IMPOSSIBLE_MATCH) return level;
+	}
+
+	// matches interfaces
+	ReferenceBinding[] interfaces = type.superInterfaces();
+	if (interfaces == null) return INACCURATE_MATCH;
+	int iLength = interfaces.length;
+	for (int i = 0; i<iLength; i++) {
+		if (interfaces[i].isParameterizedType()) {
+			TypeBinding erasure = ((ParameterizedTypeBinding)interfaces[i]).erasure();
+			if (erasure instanceof ReferenceBinding) {
+				MethodBinding[] methods = ((ReferenceBinding)erasure).getMethods(this.pattern.selector);
+				int mLength = methods.length;
+				for (int j = 0; j<mLength && level == IMPOSSIBLE_MATCH; j++) {
+					level = matchMethod(methods[j]);
+				}
+				if (level != IMPOSSIBLE_MATCH) return level;
+			}
+		}
+		level = matchOverriddenMethod(interfaces[i]);
+		if (level != IMPOSSIBLE_MATCH) return level;
+	}
+	return IMPOSSIBLE_MATCH;
 }
 /**
  * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchReportReference(org.eclipse.jdt.internal.compiler.ast.ASTNode, org.eclipse.jdt.core.IJavaElement, Binding, int, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
@@ -415,8 +467,14 @@ public int resolveLevel(Binding binding) {
 	int methodLevel = matchMethod(method);
 	if (methodLevel == IMPOSSIBLE_MATCH) {
 		if (method != method.original()) methodLevel = matchMethod(method.original());
-		if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
-		method = method.original();
+		if (methodLevel == IMPOSSIBLE_MATCH) {
+			if (this.pattern.findDeclarations && this.pattern.mustResolveGeneric) {
+				methodLevel = matchOverriddenMethod(method.declaringClass);
+			}
+			if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
+		} else {
+			method = method.original();
+		}
 	}
 
 	// declaring type
