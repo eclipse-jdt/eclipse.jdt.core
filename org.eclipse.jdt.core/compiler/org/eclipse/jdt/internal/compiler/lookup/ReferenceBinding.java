@@ -691,6 +691,13 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 		case Binding.TYPE :
 		case Binding.PARAMETERIZED_TYPE :
 		case Binding.RAW_TYPE :
+			switch (this.kind()) {
+				case Binding.GENERIC_TYPE :
+				case Binding.PARAMETERIZED_TYPE :
+				case Binding.RAW_TYPE :
+					if (this.erasure() == otherType.erasure())
+						return false; // should have passed equivalence check above if same erasure
+			}
 			ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
 			if (otherReferenceType.isInterface()) // could be annotation type
 				return implementsInterface(otherReferenceType, true);

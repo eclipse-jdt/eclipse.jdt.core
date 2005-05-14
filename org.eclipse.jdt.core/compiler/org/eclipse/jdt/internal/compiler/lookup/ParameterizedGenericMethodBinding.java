@@ -79,7 +79,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					case Binding.TYPE_PARAMETER :
 						// should be: if no expected type, then assume Object
 						// actually it rather seems to handle the returned variable case by expecting its erasure instead
-						upperBound = substitutedReturnType.erasure();
+						upperBound = ((TypeVariableBinding)substitutedReturnType).upperBound();
 						break;
 					case Binding.BASE_TYPE :
 						if (substitutedReturnType == VoidBinding) {
@@ -272,7 +272,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		int length = originalVariables.length;
 		TypeBinding[] rawArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
-			rawArguments[i] = originalVariables[i].erasure();
+			rawArguments[i] = originalVariables[i].upperBound();
 		}		
 	    this.isRaw = true;
 		this.isUnchecked = false;
@@ -399,7 +399,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		    	this.isRaw = true;
 				this.isUnchecked = false;
 		    	for (int i = 0; i < varLength; i++) {
-		    		this.typeArguments[i] = originalVariables[i].erasure();
+		    		this.typeArguments[i] = originalVariables[i].upperBound();
 		    	}
 		    	break computeSubstitutes;
 			}
@@ -410,7 +410,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    			this.typeArguments[i] = substitutes[i];
 	    		} else {
 	    			// remaining unresolved variable are considered to be Object (or their bound actually)
-		    		this.typeArguments[i] = originalVariables[i].erasure();
+		    		this.typeArguments[i] = originalVariables[i].upperBound();
 		    	}
 	    	}
 		}		

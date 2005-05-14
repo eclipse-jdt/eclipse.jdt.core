@@ -430,4 +430,13 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 		buffer.append('>');
 		return buffer.toString();
 	}	
+	/**
+	 * Upper bound doesn't perform erasure
+	 */
+	public TypeBinding upperBound() {
+	    if (this.firstBound != null) {
+			return this.firstBound;
+	    }
+	    return this.superclass; // java/lang/Object
+	}		
 }

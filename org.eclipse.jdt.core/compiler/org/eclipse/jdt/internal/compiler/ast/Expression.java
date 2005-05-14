@@ -298,7 +298,7 @@ public abstract class Expression extends Statement {
 							checkUnsafeCast(scope, castType, expressionType, null, true);
 						}
 						// recurse on the type variable upper bound
-						return checkCastTypesCompatibility(scope, castType.erasure(), expressionType, expression);
+						return checkCastTypesCompatibility(scope, ((TypeVariableBinding)castType).upperBound(), expressionType, expression);
 						
 					default:
 						// ( CLASS/INTERFACE ) ARRAY
@@ -325,7 +325,7 @@ public abstract class Expression extends Statement {
 					}
 				}
 				// recursively on the type variable upper bound
-				return checkCastTypesCompatibility(scope, castType, expressionType.erasure(), expression);
+				return checkCastTypesCompatibility(scope, castType, ((TypeVariableBinding)expressionType).upperBound(), expression);
 
 			default:
 				if (expressionType.isInterface()) {
@@ -348,7 +348,7 @@ public abstract class Expression extends Statement {
 								checkUnsafeCast(scope, castType, expressionType, match, true);
 							}
 							// recurse on the type variable upper bound
-							return checkCastTypesCompatibility(scope, castType.erasure(), expressionType, expression);
+							return checkCastTypesCompatibility(scope, ((TypeVariableBinding)castType).upperBound(), expressionType, expression);
 
 						default :
 							if (castType.isInterface()) {
@@ -417,18 +417,23 @@ public abstract class Expression extends Statement {
 								checkUnsafeCast(scope, castType, expressionType, match, true);
 							}
 							// recurse on the type variable upper bound
-							return checkCastTypesCompatibility(scope, castType.erasure(), expressionType, expression);
+							return checkCastTypesCompatibility(scope, ((TypeVariableBinding)castType).upperBound(), expressionType, expression);
 							
 						default :
 							if (castType.isInterface()) {
-								// ( INTERFACE ) CLASS		
-								match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
-								if (match != null) {
+								// ( INTERFACE ) CLASS
+								ReferenceBinding refExprType = (ReferenceBinding) expressionType;
+								match = refExprType.findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+								if (refExprType.isFinal()) {
+									// unless final a subclass may implement the interface ==> no check at compile time
+									if (match == null || !match.isCompatibleWith(castType)) {
+										return false;
+									}
 									return checkUnsafeCast(scope, castType, expressionType, match, false);
-								}
-								// unless final a subclass may implement the interface ==> no check at compile time
-								if (((ReferenceBinding) expressionType).isFinal()) {
-									return false;
+								} else {
+									if (match != null) {
+										return checkUnsafeCast(scope, castType, expressionType, match, false);
+									}
 								}
 								tagAsNeedCheckCast();
 								match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
@@ -501,7 +506,12 @@ public abstract class Expression extends Statement {
 			if (!isNarrowing) tagAsUnnecessaryCast(scope, castType);
 			return true;
 		}
-		if (match != null && (castType.isBoundParameterizedType() || castType.isGenericType() || expressionType.isBoundParameterizedType() || expressionType.isGenericType())) {
+		if (match != null && (
+				castType.isBoundParameterizedType() 
+				|| castType.isGenericType() 
+				|| 	expressionType.isBoundParameterizedType() 
+				|| expressionType.isGenericType())) {
+			
 			if (match.isProvablyDistinctFrom(isNarrowing ? expressionType : castType, 0)) {
 				return false; 
 			}
