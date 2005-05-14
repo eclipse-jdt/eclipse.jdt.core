@@ -11,10 +11,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
@@ -117,6 +114,9 @@ int progressWorked;
 // Binding resolution and cache
 CompilationUnitScope unitScope;
 SimpleLookupTable bindings;
+
+// Cache for handles
+SimpleLookupTable allHandlesOccurences;
 
 /**
  * An ast visitor that visits local type declarations.
@@ -524,7 +524,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 								continue nextMethod;
 							parameterTypes[j] = parameterTypeName;
 						}
-						return type.getMethod(new String(selector), CharOperation.toStrings(parameterTypes));
+						return createMethodHandle(type, new String(selector), CharOperation.toStrings(parameterTypes));
 					}
 				}
 			}
@@ -540,7 +540,38 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 //			typeName = CharOperation.concat(typeName, new char[] {'[', ']'});
 		parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
 	}
-	return type.getMethod(new String(method.selector), parameterTypeSignatures);
+
+	return createMethodHandle(type, new String(method.selector), parameterTypeSignatures);
+}
+
+/*
+ * Create method handle.
+ * Store occurences for create handle to retrieve possible duplicate ones.
+ */
+private IJavaElement createMethodHandle(IType type, String methodName, String[] parameterTypeSignatures) {
+	IJavaElement handle = type.getMethod(methodName, parameterTypeSignatures);
+	Integer occurenceCount = (Integer) this.allHandlesOccurences.get(handle);
+	if (occurenceCount == null) {
+		occurenceCount = new Integer(1);
+	} else {
+		// there are duplicate for this method, find right one
+		int count = occurenceCount.intValue();
+		try {
+			IMethod[] methods = type.getMethods();
+			int length = methods.length;
+			for (int i=0; i<length; i++) {
+				if (methods[i].equals(handle)) {
+					handle = methods[i+count];
+					break;
+				}
+			}
+		} catch (JavaModelException e) {
+			// ignore
+		}
+		occurenceCount = new Integer(count+1);
+	}
+	this.allHandlesOccurences.put(handle, occurenceCount);
+	return handle;
 }
 /**
  * Creates an IField from the given field declaration and type. 
@@ -1873,6 +1904,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	}
 
 	if (nodeSet.matchingNodes.elementSize == 0) return; // no matching nodes were found
+	this.allHandlesOccurences = new SimpleLookupTable(nodeSet.matchingNodes.elementSize*2);
 
 	boolean matchedUnitContainer = (this.matchContainer & PatternLocator.COMPILATION_UNIT_CONTAINER) != 0;
 
@@ -1925,6 +1957,9 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 			reportMatching(type, null, accuracy, nodeSet, 1);
 		}
 	}
+	
+	// Clear handle cache
+	this.allHandlesOccurences = null;
 }
 /**
  * Visit the given field declaration and report the nodes that match exactly the

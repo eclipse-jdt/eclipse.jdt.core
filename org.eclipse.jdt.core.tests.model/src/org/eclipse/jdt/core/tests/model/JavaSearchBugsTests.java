@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 
+import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
@@ -61,6 +62,14 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
+
+	class TestCollector extends JavaSearchResultCollector {
+		public List matches = new ArrayList();
+		public void acceptSearchMatch(SearchMatch match) throws CoreException {
+			super.acceptSearchMatch(match);
+			matches.add(match);
+		}
+	}
 
 	IJavaSearchScope getJavaSearchScopeBugs() {
 		return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
@@ -3098,6 +3107,48 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		index= source.indexOf(str, index)+str.length();
 		assertEquals("Invalid offset for last match", index, ((SearchMatch)collector.matches.get(2)).getOffset());
 		assertEquals("Invalid length for last match", 2, ((SearchMatch)collector.matches.get(2)).getLength());
+	}
+
+	/**
+	 * Bug 94389: [search] InvocationTargetException on Rename
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94389"
+	 */
+	public void testBug94389() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b94389/Test.java",
+			"package b94389;\n" + 
+			"public class Test {\n" + 
+			"	public void foo() {}\n" + 
+			"	public void foo() {}\n" + 
+			"	public void foo() {}\n" + 
+			"	public void foo() {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("Test");
+		IMethod[] methods = type.getMethods();
+		int methodsLength = methods.length;
+	
+		// Perform search on each duplicate method
+		IJavaSearchScope scope = getJavaSearchScopeBugs();
+		for (int m=0; m<methodsLength; m++) {
+			
+			// Search method declaration
+			TestCollector collector = new TestCollector();
+			search(methods[m], DECLARATIONS, scope, collector);
+			assertSearchResults(
+				"src/b94389/Test.java void b94389.Test.foo() [foo]\n" + 
+				"src/b94389/Test.java void b94389.Test.foo() [foo]\n" + 
+				"src/b94389/Test.java void b94389.Test.foo() [foo]\n" + 
+				"src/b94389/Test.java void b94389.Test.foo() [foo]",
+				collector
+			);
+		
+			// Verify that all matches have correct occurence count
+			int size = collector.matches.size();
+			for (int i=0; i<size; i++) {
+				assertEquals("Invalid foo method occurence count (m="+(m+1)+")", i+1, ((SourceMethod) methods[i]).occurrenceCount);
+			}
+		}
 	}
 
 	/**
