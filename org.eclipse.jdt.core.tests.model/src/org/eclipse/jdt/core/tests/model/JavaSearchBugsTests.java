@@ -3059,13 +3059,6 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94062"
 	 */
 	public void testBug93392() throws CoreException {
-		class TestCollector extends JavaSearchResultCollector {
-			public List matches = new ArrayList();
-			public void acceptSearchMatch(SearchMatch match) throws CoreException {
-				super.acceptSearchMatch(match);
-				matches.add(match);
-			}
-		}
 		TestCollector collector = new TestCollector();
 		collector.showAccuracy = true;
 		workingCopies = new ICompilationUnit[1];
