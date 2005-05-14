@@ -18867,4 +18867,633 @@ public void test660() {
 		},
 		"SUCCESS");
 }	
-}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066
+public void test661() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<S extends Comparable<S>> {\n" + 
+			"   public X() {\n" + 
+			"       S a = (S)(Integer)3;\n" + 
+			"   }\n" + 
+			"	Zork z;\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	S a = (S)(Integer)3;\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Integer to S\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	S a = (S)(Integer)3;\n" + 
+		"	         ^^^^^^^^^^\n" + 
+		"Unnecessary cast from int to Integer\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
+public void test662() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<S extends Comparable<String>> {\n" + 
+			"   public X() {\n" + 
+			"       S a = (S)(Integer)3; // this should fail\n" + 
+			"   }\n" +
+			"	Zork z;\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	S a = (S)(Integer)3; // this should fail\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Integer to S\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	S a = (S)(Integer)3; // this should fail\n" + 
+		"	         ^^^^^^^^^^\n" + 
+		"Unnecessary cast from int to Integer\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
+public void test663() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"   Object foo(Comparable<Integer> c) {\n" + 
+			"	   return (Comparable<S>) c;\n" + 
+			"   }\n" + 
+			"   <U extends Throwable, V extends Runnable> void foo(List<V> lv) {\n" + 
+			"	   List l = (List<U>) lv;\n" + 
+			"   }\n" + 
+			"   <U extends Throwable, V extends Runnable> void foo2(List<List<V>> lv) {\n" + 
+			"	   List l = (List<List<U>>) lv;\n" + 
+			"   }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return (Comparable<S>) c;\n" + 
+		"	                   ^\n" + 
+		"S cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	List l = (List<U>) lv;\n" + 
+		"	         ^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from List<V> to List<U> is actually checking against the erased type List\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	List l = (List<List<U>>) lv;\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<List<V>> to List<List<U>>\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
+public void test664() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<S extends Comparable<String>> {\n" + 
+			"   public X(X2 x2) {\n" + 
+			"       S a = (S)x2;\n" + 
+			"   }\n" + 
+			"}\n" + 
+			"abstract class X2 implements Comparable<X2> {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	S a = (S)x2;\n" + 
+		"	      ^^^^^\n" + 
+		"Cannot cast from X2 to S\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
+public void test665() {
+	this.runNegativeTest(
+		new String[] {
+			"Test.java",
+			"public class Test<S> {\n" + 
+			"	void foo() {\n" + 
+			"		A a = new A();\n" + 
+			"		Comparable<Object> c = (Comparable<Object>) a; // Fails as expected\n" + 
+			"		Comparable<S> c2 = (Comparable<S>) a; // Should fail?\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n" + 
+			"\n" + 
+			"final class A implements Comparable<A> {\n" + 
+			"	public int compareTo(A o) {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 4)\n" + 
+		"	Comparable<Object> c = (Comparable<Object>) a; // Fails as expected\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from A to Comparable<Object>\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 5)\n" + 
+		"	Comparable<S> c2 = (Comparable<S>) a; // Should fail?\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from A to Comparable<S>\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89940
+public void test666() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo(List<Object> objects, List raw) {\n" + 
+			"\n" + 
+			"	    List<Number> numbers;\n" + 
+			"	    List<? extends Number> ext;\n" + 
+			"	    \n" + 
+			"	    numbers= (List<Number>) objects; // correct - cast error\n" + 
+			"	    ext= (List<? extends Number>) objects; // wrong, should fail\n" + 
+			"\n" + 
+			"	    ext= raw; // correct - raw conversion warning issued\n" + 
+			"	    numbers= raw; // correct - raw conversion warning issued\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	numbers= (List<Number>) objects; // correct - cast error\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<Object> to List<Number>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	ext= (List<? extends Number>) objects; // wrong, should fail\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from List<Object> to List<? extends Number> is actually checking against the erased type List\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
+		"	ext= raw; // correct - raw conversion warning issued\n" + 
+		"	     ^^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<? extends Number>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 13)\n" + 
+		"	numbers= raw; // correct - raw conversion warning issued\n" + 
+		"	         ^^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<Number>\n" + 
+		"----------\n");
+}	
+public void _test667() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static void foo(List<? super Object[]> l) {    }\n" + 
+			" \n" + 
+			"    public static void foo2(List<Object[]> l) {    }\n" + 
+			" \n" + 
+			"    public static void foo3(List<? extends Object[]> l) {    }\n" + 
+			" \n" + 
+			"    public static void bar(List<? super Object> l) {    }\n" + 
+			" \n" + 
+			"    public static void bar2(List<Object> l) {    }\n" + 
+			" \n" + 
+			"    public static void bar3(List<? extends Object> l) {    }\n" + 
+			" \n" + 
+			"    public static void bar4(List<?> l) {    }\n" + 
+			" \n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        {   // can be { Object, Object[] }\n" + 
+			"            List<? super Object[]> l = new ArrayList<Object[]>();\n" + 
+			"            l.add(l.get(0));  // illegal [01]\n" + 
+			"            l.add((Object) null);  // illegal [02]\n" + 
+			"            l.add((Integer) null);  // illegal [03]\n" + 
+			"            l.add((Object []) null); // illegal [04]\n" + 
+			"            l.add((Integer []) null); // illegal [05]\n" + 
+			"            l.add((Integer [][]) null); // illegal [06]\n" + 
+			" \n" + 
+			"            foo(l); // List<? super Object[]> - legal [07]\n" + 
+			"            foo2(l); // List<Object[]> - illegal [08]\n" + 
+			"            foo3(l); // List<? extends Object[]> - illegal [09]\n" + 
+			"            bar(l); // List<? super Object> - illegal [10]\n" + 
+			"            bar2(l); // List<Object> - illegal [11]\n" + 
+			"            bar3(l); // List<? extends Object> - legal [12]\n" + 
+			"            bar4(l); // List<?> - legal [13]\n" + 
+			"        }\n" + 
+			"        {   // can be Object[] or (? extends Object)[]\n" + 
+			"            List<Object[]> l = new ArrayList<Object[]>();\n" + 
+			"            l.add(l.get(0));  // legal [14]\n" + 
+			"            l.add((Object) null);  // illegal [15]\n" + 
+			"            l.add((Integer) null);  // illegal [16]\n" + 
+			"            l.add((Object []) null); // legal [17]\n" + 
+			"            l.add((Integer []) null); // legal [18]\n" + 
+			"            l.add((Integer [][]) null); // legal [19]\n" + 
+			" \n" + 
+			"            foo(l); // List<? super Object[]> - legal [20]\n" + 
+			"            foo2(l); // List<Object[]> - legal [21]\n" + 
+			"            foo3(l); // List<? extends Object[]> - legal [22]\n" + 
+			"            bar(l); // List<? super Object> - illegal [23]\n" + 
+			"            bar2(l); // List<Object> - illegal [24]\n" + 
+			"            bar3(l); // List<? extends Object> - legal [25]\n" + 
+			"            bar4(l); // List<?> - legal [26]\n" + 
+			"        }\n" + 
+			"        {   // Only allows wildcards, Object is illegal.\n" + 
+			"            List<? extends Object[]> l = new ArrayList<Object[]>();\n" + 
+			"            l.add(l.get(0));  // illegal [27]\n" + 
+			"            l.add((Object) null);  // illegal [28]\n" + 
+			"            l.add((Integer) null);  // illegal [29]\n" + 
+			"            l.add((Object []) null); // illegal [30]\n" + 
+			"            l.add((Integer []) null); // illegal [31]\n" + 
+			"            l.add((Integer [][]) null); // illegal [32]\n" + 
+			" \n" + 
+			"            foo(l); // List<? super Object[]> - illegal [33]\n" + 
+			"            foo2(l); // List<Object[]> - illegal [34]\n" + 
+			"            foo3(l); // List<? extends Object[]> - legal [35]\n" + 
+			"            bar(l); // List<? super Object> - illegal [36]\n" + 
+			"            bar2(l); // List<Object> - illegal [37]\n" + 
+			"            bar3(l); // List<? extends Object> - legal [38]\n" + 
+			"            bar4(l); // List<?> - legal [39]\n" + 
+			"        }\n" + 
+			"        {   // can add non-arrays but can only match ? super Object, ? super Object[], or ? extends Object, but not Object  \n" + 
+			"            List<? super Object> l = new ArrayList<Object>();\n" + 
+			"            l.add(l.get(0));  // legal [40]\n" + 
+			"            l.add((Object) null);  // legal [41]\n" + 
+			"            l.add((Integer) null);  // legal [42]\n" + 
+			"            l.add((Object []) null); // illegal [43]\n" + 
+			"            l.add((Integer []) null); // illegal [44]\n" + 
+			"            l.add((Integer [][]) null); // illegal [45]\n" + 
+			" \n" + 
+			"            foo(l); // legal [46]\n" + 
+			"            foo2(l); // illegal [47]\n" + 
+			"            foo3(l); // illegal [48]\n" + 
+			"            bar(l); // legal [49]\n" + 
+			"            bar2(l); // illegal [50]\n" + 
+			"            bar3(l); // legal [51]\n" + 
+			"            bar4(l); // legal [52]\n" + 
+			"        }\n" + 
+			"        {   // can add array but cannot call a method which expects an array. 100% !\n" + 
+			"            List<Object> l = new ArrayList<Object>();\n" + 
+			"            l.get(0).toString();\n" + 
+			"            l.add(l.get(0));  // legal [53]\n" + 
+			"            l.add((Object) null);  // legal [54]\n" + 
+			"            l.add((Integer) null);  // legal [55]\n" + 
+			"            l.add((Object []) null); // legal [56]\n" + 
+			"            l.add((Integer []) null); // legal [57]\n" + 
+			"            l.add((Integer [][]) null); // legal [58]\n" + 
+			" \n" + 
+			"            foo(l); // legal [59]\n" + 
+			"            foo2(l); // illegal [60]\n" + 
+			"            foo3(l); // illegal [61]\n" + 
+			"            bar(l); // legal [62]\n" + 
+			"            bar2(l); // legal [63]\n" + 
+			"            bar3(l); // legal [64]\n" + 
+			"            bar4(l); // legal [65]\n" + 
+			"        }\n" + 
+			"        {   // cannot add any type but can match ? or ? extends Object.\n" + 
+			"            List<? extends Object> l = new ArrayList<Object>();\n" + 
+			"            l.add(l.get(0));  // illegal [66]\n" + 
+			"            l.add((Object) null);  // illegal [67]\n" + 
+			"            l.add((Integer) null);  // illegal [68]\n" + 
+			"            l.add((Object []) null); // illegal [69]\n" + 
+			"            l.add((Integer []) null); // illegal [70]\n" + 
+			"            l.add((Integer [][]) null); // illegal [71]\n" + 
+			" \n" + 
+			"            foo(l); // List<? super Object[]> - illegal [72]\n" + 
+			"            foo2(l); // List<Object[]> - illegal [73]\n" + 
+			"            foo3(l); // List<? extends Object[]> - illegal [74]\n" + 
+			"            bar(l); // List<? super Object> - illegal [75]\n" + 
+			"            bar2(l); // List<Object> - illegal [76]\n" + 
+			"            bar3(l); // List<? extends Object> - legal [77]\n" + 
+			"            bar4(l); // List<?> - legal [78]\n" + 
+			"        }\n" + 
+			"        {   // same as ? extends Object.\n" + 
+			"            List<?> l = new ArrayList<Object>();\n" + 
+			"            l.add(l.get(0));  // illegal [79]\n" + 
+			"            l.add((Object) null);  // illegal [80]\n" + 
+			"            l.add((Integer) null);  // illegal [81]\n" + 
+			"            l.add((Object []) null); // illegal [82]\n" + 
+			"            l.add((Integer []) null); // illegal [83]\n" + 
+			"            l.add((Integer [][]) null); // illegal [84]\n" + 
+			" \n" + 
+			"            foo(l); // List<? super Object[]> - illegal [85]\n" + 
+			"            foo2(l); // List<Object[]> - illegal [86]\n" + 
+			"            foo3(l); // List<? extends Object[]> - illegal [87]\n" + 
+			"            bar(l); // List<? super Object> - illegal [88]\n" + 
+			"            bar2(l); // List<Object> - illegal [89]\n" + 
+			"            bar3(l); // List<? extends Object> - legal [90]\n" + 
+			"            bar4(l); // List<?> - legal [91]\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 21)\n" + 
+		"	l.add(l.get(0));  // illegal [01]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (capture-of ? super Object[])\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 22)\n" + 
+		"	l.add((Object) null);  // illegal [02]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 23)\n" + 
+		"	l.add((Integer) null);  // illegal [03]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (Integer)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 24)\n" + 
+		"	l.add((Object []) null); // illegal [04]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 25)\n" + 
+		"	l.add((Integer []) null); // illegal [05]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (Integer[])\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 26)\n" + 
+		"	l.add((Integer [][]) null); // illegal [06]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (Integer[][])\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 28)\n" + 
+		"	foo(l); // List<? super Object[]> - legal [07]\n" + 
+		"	^^^\n" + 
+		"The method foo(List<? super Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object[]>)\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 29)\n" + 
+		"	foo2(l); // List<Object[]> - illegal [08]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object[]>)\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 30)\n" + 
+		"	foo3(l); // List<? extends Object[]> - illegal [09]\n" + 
+		"	^^^^\n" + 
+		"The method foo3(List<? extends Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object[]>)\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 31)\n" + 
+		"	bar(l); // List<? super Object> - illegal [10]\n" + 
+		"	^^^\n" + 
+		"The method bar(List<? super Object>) in the type X is not applicable for the arguments (List<capture-of ? super Object[]>)\n" + 
+		"----------\n" + 
+		"11. ERROR in X.java (at line 32)\n" + 
+		"	bar2(l); // List<Object> - illegal [11]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ? super Object[]>)\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 39)\n" + 
+		"	l.add((Object) null);  // illegal [15]\n" + 
+		"	  ^^^\n" + 
+		"The method add(Object[]) in the type List<Object[]> is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 40)\n" + 
+		"	l.add((Integer) null);  // illegal [16]\n" + 
+		"	  ^^^\n" + 
+		"The method add(Object[]) in the type List<Object[]> is not applicable for the arguments (Integer)\n" + 
+		"----------\n" + 
+		"14. ERROR in X.java (at line 48)\n" + 
+		"	bar(l); // List<? super Object> - illegal [23]\n" + 
+		"	^^^\n" + 
+		"The method bar(List<? super Object>) in the type X is not applicable for the arguments (List<Object[]>)\n" + 
+		"----------\n" + 
+		"15. ERROR in X.java (at line 49)\n" + 
+		"	bar2(l); // List<Object> - illegal [24]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<Object[]>)\n" + 
+		"----------\n" + 
+		"16. ERROR in X.java (at line 55)\n" + 
+		"	l.add(l.get(0));  // illegal [27]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (capture-of ? extends Object[])\n" + 
+		"----------\n" + 
+		"17. ERROR in X.java (at line 56)\n" + 
+		"	l.add((Object) null);  // illegal [28]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"18. ERROR in X.java (at line 57)\n" + 
+		"	l.add((Integer) null);  // illegal [29]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (Integer)\n" + 
+		"----------\n" + 
+		"19. ERROR in X.java (at line 58)\n" + 
+		"	l.add((Object []) null); // illegal [30]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"20. ERROR in X.java (at line 59)\n" + 
+		"	l.add((Integer []) null); // illegal [31]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (Integer[])\n" + 
+		"----------\n" + 
+		"21. ERROR in X.java (at line 60)\n" + 
+		"	l.add((Integer [][]) null); // illegal [32]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (Integer[][])\n" + 
+		"----------\n" + 
+		"22. ERROR in X.java (at line 62)\n" + 
+		"	foo(l); // List<? super Object[]> - illegal [33]\n" + 
+		"	^^^\n" + 
+		"The method foo(List<? super Object[]>) in the type X is not applicable for the arguments (List<capture-of ? extends Object[]>)\n" + 
+		"----------\n" + 
+		"23. ERROR in X.java (at line 63)\n" + 
+		"	foo2(l); // List<Object[]> - illegal [34]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<capture-of ? extends Object[]>)\n" + 
+		"----------\n" + 
+		"24. ERROR in X.java (at line 65)\n" + 
+		"	bar(l); // List<? super Object> - illegal [36]\n" + 
+		"	^^^\n" + 
+		"The method bar(List<? super Object>) in the type X is not applicable for the arguments (List<capture-of ? extends Object[]>)\n" + 
+		"----------\n" + 
+		"25. ERROR in X.java (at line 66)\n" + 
+		"	bar2(l); // List<Object> - illegal [37]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ? extends Object[]>)\n" + 
+		"----------\n" + 
+		"26. ERROR in X.java (at line 75)\n" + 
+		"	l.add((Object []) null); // illegal [43]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object) in the type List<capture-of ? super Object> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"27. ERROR in X.java (at line 76)\n" + 
+		"	l.add((Integer []) null); // illegal [44]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object) in the type List<capture-of ? super Object> is not applicable for the arguments (Integer[])\n" + 
+		"----------\n" + 
+		"28. ERROR in X.java (at line 77)\n" + 
+		"	l.add((Integer [][]) null); // illegal [45]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object) in the type List<capture-of ? super Object> is not applicable for the arguments (Integer[][])\n" + 
+		"----------\n" + 
+		"29. ERROR in X.java (at line 79)\n" + 
+		"	foo(l); // legal [46]\n" + 
+		"	^^^\n" + 
+		"The method foo(List<? super Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object>)\n" + 
+		"----------\n" + 
+		"30. ERROR in X.java (at line 80)\n" + 
+		"	foo2(l); // illegal [47]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object>)\n" + 
+		"----------\n" + 
+		"31. ERROR in X.java (at line 81)\n" + 
+		"	foo3(l); // illegal [48]\n" + 
+		"	^^^^\n" + 
+		"The method foo3(List<? extends Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object>)\n" + 
+		"----------\n" + 
+		"32. ERROR in X.java (at line 83)\n" + 
+		"	bar2(l); // illegal [50]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ? super Object>)\n" + 
+		"----------\n" + 
+		"33. ERROR in X.java (at line 98)\n" + 
+		"	foo2(l); // illegal [60]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<Object>)\n" + 
+		"----------\n" + 
+		"34. ERROR in X.java (at line 99)\n" + 
+		"	foo3(l); // illegal [61]\n" + 
+		"	^^^^\n" + 
+		"The method foo3(List<? extends Object[]>) in the type X is not applicable for the arguments (List<Object>)\n" + 
+		"----------\n" + 
+		"35. ERROR in X.java (at line 107)\n" + 
+		"	l.add(l.get(0));  // illegal [66]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (capture-of ? extends Object)\n" + 
+		"----------\n" + 
+		"36. ERROR in X.java (at line 108)\n" + 
+		"	l.add((Object) null);  // illegal [67]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"37. ERROR in X.java (at line 109)\n" + 
+		"	l.add((Integer) null);  // illegal [68]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (Integer)\n" + 
+		"----------\n" + 
+		"38. ERROR in X.java (at line 110)\n" + 
+		"	l.add((Object []) null); // illegal [69]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"39. ERROR in X.java (at line 111)\n" + 
+		"	l.add((Integer []) null); // illegal [70]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (Integer[])\n" + 
+		"----------\n" + 
+		"40. ERROR in X.java (at line 112)\n" + 
+		"	l.add((Integer [][]) null); // illegal [71]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (Integer[][])\n" + 
+		"----------\n" + 
+		"41. ERROR in X.java (at line 114)\n" + 
+		"	foo(l); // List<? super Object[]> - illegal [72]\n" + 
+		"	^^^\n" + 
+		"The method foo(List<? super Object[]>) in the type X is not applicable for the arguments (List<capture-of ? extends Object>)\n" + 
+		"----------\n" + 
+		"42. ERROR in X.java (at line 115)\n" + 
+		"	foo2(l); // List<Object[]> - illegal [73]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<capture-of ? extends Object>)\n" + 
+		"----------\n" + 
+		"43. ERROR in X.java (at line 116)\n" + 
+		"	foo3(l); // List<? extends Object[]> - illegal [74]\n" + 
+		"	^^^^\n" + 
+		"The method foo3(List<? extends Object[]>) in the type X is not applicable for the arguments (List<capture-of ? extends Object>)\n" + 
+		"----------\n" + 
+		"44. ERROR in X.java (at line 117)\n" + 
+		"	bar(l); // List<? super Object> - illegal [75]\n" + 
+		"	^^^\n" + 
+		"The method bar(List<? super Object>) in the type X is not applicable for the arguments (List<capture-of ? extends Object>)\n" + 
+		"----------\n" + 
+		"45. ERROR in X.java (at line 118)\n" + 
+		"	bar2(l); // List<Object> - illegal [76]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ? extends Object>)\n" + 
+		"----------\n" + 
+		"46. ERROR in X.java (at line 124)\n" + 
+		"	l.add(l.get(0));  // illegal [79]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (capture-of ?)\n" + 
+		"----------\n" + 
+		"47. ERROR in X.java (at line 125)\n" + 
+		"	l.add((Object) null);  // illegal [80]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"48. ERROR in X.java (at line 126)\n" + 
+		"	l.add((Integer) null);  // illegal [81]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (Integer)\n" + 
+		"----------\n" + 
+		"49. ERROR in X.java (at line 127)\n" + 
+		"	l.add((Object []) null); // illegal [82]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"50. ERROR in X.java (at line 128)\n" + 
+		"	l.add((Integer []) null); // illegal [83]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (Integer[])\n" + 
+		"----------\n" + 
+		"51. ERROR in X.java (at line 129)\n" + 
+		"	l.add((Integer [][]) null); // illegal [84]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (Integer[][])\n" + 
+		"----------\n" + 
+		"52. ERROR in X.java (at line 131)\n" + 
+		"	foo(l); // List<? super Object[]> - illegal [85]\n" + 
+		"	^^^\n" + 
+		"The method foo(List<? super Object[]>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n" + 
+		"53. ERROR in X.java (at line 132)\n" + 
+		"	foo2(l); // List<Object[]> - illegal [86]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n" + 
+		"54. ERROR in X.java (at line 133)\n" + 
+		"	foo3(l); // List<? extends Object[]> - illegal [87]\n" + 
+		"	^^^^\n" + 
+		"The method foo3(List<? extends Object[]>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n" + 
+		"55. ERROR in X.java (at line 134)\n" + 
+		"	bar(l); // List<? super Object> - illegal [88]\n" + 
+		"	^^^\n" + 
+		"The method bar(List<? super Object>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n" + 
+		"56. ERROR in X.java (at line 135)\n" + 
+		"	bar2(l); // List<Object> - illegal [89]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n");
+}	
+public void _test668() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			" \n" + 
+			"public class X {\n" + 
+			"    void foo(List<? super Object[]> l) {\n" + 
+			"        l.add(new Object[0]);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}	}
