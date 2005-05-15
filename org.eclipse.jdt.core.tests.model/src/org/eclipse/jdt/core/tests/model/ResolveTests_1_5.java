@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.lang.reflect.Method;
-
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
 
@@ -20,23 +18,18 @@ import junit.framework.*;
 public class ResolveTests_1_5 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
 	WorkingCopyOwner owner = null; 
-public static Test suite() {
-	TestSuite suite = new Suite(ResolveTests_1_5.class.getName());		
-
-	if (true) {
-		Class c = ResolveTests_1_5.class;
-		Method[] methods = c.getMethods();
-		for (int i = 0, max = methods.length; i < max; i++) {
-			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ResolveTests_1_5(methods[i].getName()));
-			}
-		}
-		return suite;
-	}
-	suite.addTest(new ResolveTests_1_5("test0093"));			
-	return suite;
+	
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+	//TESTS_NAMES = new String[] { "test0095" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+	//TESTS_NUMBERS = new int[] { 13 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+	//TESTS_RANGE = new int[] { 16, -1 };
 }
-
+public static Test suite() {
+	return buildTestSuite(ResolveTests_1_5.class);
+}
 public ResolveTests_1_5(String name) {
 	super(name);
 }
@@ -2094,5 +2087,37 @@ public void test0094() throws JavaModelException {
 		elements,
 		true/*show key*/
 	);
+}
+/*
+ * Regression test for bug 87929 Wrong decoding of type signature with wildcards
+ */
+public void test0095() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0095/X.java",
+			"package test0095;\n" +
+			"public class X {\n" + 
+			"	Y<?, ? extends Z<? super Exception>> y;\n" + 
+			"}\n" + 
+			"class Y<K, V> {\n" + 
+			"}\n" + 
+			"class Z<T> {\n" + 
+			"}",
+			"Y<?, ? extends Z<? super Exception>>");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"Y {key=Ltest0095/X~Y<Ltest0095/X~Y;*Ltest0095/X~Y;+Ltest0095/X~Z<Ltest0095/X~Z;-Ljava/lang/Exception;>;>;} [in [Working copy] X.java [in test0095 [in src2 [in Resolve]]]]",
+		elements,
+		true/*show key*/
+	);
+	
+	String key = ((IType) elements[0]).getKey();
+	String signature = new BindingKey(key).internalToSignature();
+	String[] typeArguments = Signature.getTypeArguments(signature);
+	assertStringsEqual(
+		"Unexpected type arguments", 
+		"*\n" + 
+		"+Ltest0095.Z<-Ljava.lang.Exception;>;\n",
+		typeArguments);
 }
 }
