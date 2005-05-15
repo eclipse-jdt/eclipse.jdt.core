@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,10 +27,21 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -51,13 +63,20 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		int astStart, astEnd;
 		
 		public MarkerInfo(String source) {
-			this(null, source);
+			this(null, source, -1);
+		}
+		public MarkerInfo(String source, int markerIndex) {
+			this(null, source, markerIndex);
 		}
 		public MarkerInfo(String path, String source) {
+			this(path, source, -1);
+		}
+		public MarkerInfo(String path, String source, int markerIndex) {
 			this.path = path;
 			this.source = source;
-			String markerStart = "/*start*/";
-			String markerEnd = "/*end*/";
+			String markerNumber = markerIndex == -1 ? "" : Integer.toString(markerIndex);
+			String markerStart = "/*start" + markerNumber + "*/";
+			String markerEnd = "/*end" + markerNumber + "*/";
 			this.astStart = source.indexOf(markerStart); // start of AST inclusive
 			this.source = new String(CharOperation.replace(this.source.toCharArray(), markerStart.toCharArray(), CharOperation.NO_CHAR));
 			this.astEnd = this.source.indexOf(markerEnd); // end of AST exclusive
@@ -180,6 +199,10 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		return findNode(unit, markerInfo);
 	}
 
+	protected ASTNode buildAST(String contents, ICompilationUnit cu) throws JavaModelException {
+		return buildAST(contents, cu, true);
+	}
+	
 	protected ASTNode buildAST(MarkerInfo markerInfo, IClassFile classFile) throws JavaModelException {
 		return buildAST(markerInfo, classFile, true);
 	}
@@ -190,8 +213,35 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	 * by "*start*" and "*end*".
 	 */
 	protected ASTNode buildAST(String contents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
-		MarkerInfo markerInfo = new MarkerInfo(contents);
-		contents = markerInfo.source;
+		ASTNode[] nodes = buildASTs(contents, cu, reportErrors);
+		if (nodes.length == 0) return null;
+		return nodes[0];
+	}
+
+	protected ASTNode[] buildASTs(String contents, ICompilationUnit cu) throws JavaModelException {
+		return buildASTs(contents, cu, true);
+	}
+
+	/*
+	 * Removes the marker comments "*start?*" and "*end?*" from the given contents
+	 * (where ? is either empty or a number).
+	 * Builds an AST from the resulting source.
+	 * For each of the pairs, returns the AST node that was delimited by "*start?*" and "*end?*".
+	 */
+	protected ASTNode[] buildASTs(String contents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
+		ArrayList infos = new ArrayList();
+		MarkerInfo markerInfo;
+		int markerIndex = 0;
+		while (contents.indexOf("/*start" + ++markerIndex + "*/") != -1) {
+			markerInfo = new MarkerInfo(contents, markerIndex);
+			infos.add(markerInfo);
+			contents = markerInfo.source;
+		}
+		if (contents.indexOf("/*start*/") != -1 || infos.size() == 0) {
+			markerInfo = new MarkerInfo(contents);
+			infos.add(markerInfo);
+			contents = markerInfo.source;
+		}
 
 		cu.getBuffer().setContents(contents);
 		CompilationUnit unit = cu.reconcile(AST.JLS3, false, null, null);
@@ -205,11 +255,14 @@ public class AbstractASTTests extends ModifyingResourceTests {
 				System.err.println(buffer.toString());
 		}
 
-		return findNode(unit, markerInfo);
-	}
-
-	protected ASTNode buildAST(String contents, ICompilationUnit cu) throws JavaModelException {
-		return buildAST(contents, cu, true);
+		int length = infos.size();
+		ASTNode[] nodes = new ASTNode[length];
+		for (int i = 0; i < length; i++) {
+			MarkerInfo info = (MarkerInfo) infos.get(i);
+			nodes[i] = findNode(unit, info);
+		}
+		
+		return nodes;
 	}
 
 	protected MarkerInfo[] createMarkerInfos(String[] pathAndSources) {
@@ -300,11 +353,55 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		parser.createASTs(cus, bindingKeys,  requestor, null);
 	}
 	
+	protected IBinding resolveBinding(ASTNode node) {
+		switch (node.getNodeType()) {
+			case ASTNode.PACKAGE_DECLARATION:
+				return ((PackageDeclaration) node).resolveBinding();
+			case ASTNode.TYPE_DECLARATION:
+				return ((TypeDeclaration) node).resolveBinding();
+			case ASTNode.ANONYMOUS_CLASS_DECLARATION:
+				return ((AnonymousClassDeclaration) node).resolveBinding();
+			case ASTNode.TYPE_DECLARATION_STATEMENT:
+				return ((TypeDeclarationStatement) node).resolveBinding();
+			case ASTNode.METHOD_DECLARATION:
+				return ((MethodDeclaration) node).resolveBinding();
+			case ASTNode.METHOD_INVOCATION:
+				return ((MethodInvocation) node).resolveMethodBinding();
+			case ASTNode.TYPE_PARAMETER:
+				return ((TypeParameter) node).resolveBinding();
+			case ASTNode.PARAMETERIZED_TYPE:
+				return ((ParameterizedType) node).resolveBinding();
+			case ASTNode.WILDCARD_TYPE:
+				return ((WildcardType) node).resolveBinding();
+			case ASTNode.SIMPLE_NAME:
+				return ((SimpleName) node).resolveBinding();
+			case ASTNode.ARRAY_TYPE:
+				return ((ArrayType) node).resolveBinding();
+			default:
+				throw new Error("Not yet implemented for this type of node: " + node);
+		}
+	}
+	
 	protected IBinding[] resolveBindings(String[] bindingKeys, IJavaProject project, WorkingCopyOwner owner) {
 		BindingRequestor requestor = new BindingRequestor();
 		resolveASTs(new ICompilationUnit[0], bindingKeys, requestor, project, owner);
 		return requestor.getBindings(bindingKeys);
 	}
+	
+	/*
+	 * Resolve the bindings of the nodes marked with *start?* and *end?*.
+	 */
+	protected IBinding[] resolveBindings(String contents, ICompilationUnit cu) throws JavaModelException {
+		ASTNode[] nodes = buildASTs(contents, cu);
+		if (nodes == null) return null;
+		int length = nodes.length;
+		IBinding[] result = new IBinding[length];
+		for (int i = 0; i < length; i++) {
+			result[i] = resolveBinding(nodes[i]);
+		}
+		return result;
+	}
+
 	
 //	protected void tearDown() throws Exception {
 //		discardWorkingCopies(this.workingCopies);

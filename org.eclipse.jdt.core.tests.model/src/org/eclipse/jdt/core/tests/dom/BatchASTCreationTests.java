@@ -49,42 +49,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			super.acceptAST(source, cu);
 			ASTNode node = findNode(cu, this.markerInfos[++this.index]);
 			if (node != null && !(node instanceof CompilationUnit)) {
-				IBinding binding = null;
-				switch (node.getNodeType()) {
-					case ASTNode.PACKAGE_DECLARATION:
-						binding = ((PackageDeclaration) node).resolveBinding();
-						break;
-					case ASTNode.TYPE_DECLARATION:
-						binding = ((TypeDeclaration) node).resolveBinding();
-						break;
-					case ASTNode.ANONYMOUS_CLASS_DECLARATION:
-						binding = ((AnonymousClassDeclaration) node).resolveBinding();
-						break;
-					case ASTNode.TYPE_DECLARATION_STATEMENT:
-						binding = ((TypeDeclarationStatement) node).resolveBinding();
-						break;
-					case ASTNode.METHOD_DECLARATION:
-						binding = ((MethodDeclaration) node).resolveBinding();
-						break;
-					case ASTNode.METHOD_INVOCATION:
-						binding = ((MethodInvocation) node).resolveMethodBinding();
-						break;
-					case ASTNode.TYPE_PARAMETER:
-						binding = ((TypeParameter) node).resolveBinding();
-						break;
-					case ASTNode.PARAMETERIZED_TYPE:
-						binding = ((ParameterizedType) node).resolveBinding();
-						break;
-					case ASTNode.WILDCARD_TYPE:
-						binding = ((WildcardType) node).resolveBinding();
-						break;
-					case ASTNode.SIMPLE_NAME:
-						binding = ((SimpleName) node).resolveBinding();
-						break;
-					case ASTNode.ARRAY_TYPE:
-						binding = ((ArrayType) node).resolveBinding();
-						break;
-				}
+				IBinding binding = resolveBinding(node);
 				this.bindingKey = binding == null ? null : binding.getKey();
 				
 				// case of a capture binding

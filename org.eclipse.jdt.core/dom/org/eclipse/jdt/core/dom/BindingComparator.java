@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.HashSet;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -61,21 +63,21 @@ class BindingComparator {
 	 * @param declaringElement2
 	 * @return true if both parameters are equals, false otherwise
 	 */
-	static boolean isEqual(Binding declaringElement, Binding declaringElement2, boolean checkTypeVariables) {
+	static boolean isEqual(Binding declaringElement, Binding declaringElement2, HashSet visitedTypes) {
 		if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
 			if (!(declaringElement2 instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding)){
 				return false;
 			}
 			return isEqual((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement,
 					(org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement2,
-					checkTypeVariables);
+					visitedTypes);
 		} else if (declaringElement instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
 			if (!(declaringElement2 instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding)) {
 				return false;
 			}
 			return isEqual((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement,
 					(org.eclipse.jdt.internal.compiler.lookup.MethodBinding) declaringElement2,
-					checkTypeVariables);
+					visitedTypes);
 		} else if (declaringElement instanceof VariableBinding) {
 			if (!(declaringElement2 instanceof VariableBinding)) {
 				return false;
@@ -104,23 +106,19 @@ class BindingComparator {
 	
 	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding,
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding2) {
-		return isEqual(methodBinding, methodBinding2, true);
+		return isEqual(methodBinding, methodBinding2, new HashSet());
 	}
 			
 	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding,
 			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding2,
-			boolean checkTypeVariables) {
-		if (checkTypeVariables) {
-			if (!isEqual(methodBinding.typeVariables, methodBinding2.typeVariables, true)
-					|| !isEqual(methodBinding.parameters, methodBinding2.parameters, true)) {
-				return false;
-			}
-		}
+			HashSet visitedTypes) {
 		return (methodBinding == null && methodBinding2 == null)
 			|| (CharOperation.equals(methodBinding.selector, methodBinding2.selector)
-				&& isEqual(methodBinding.returnType, methodBinding2.returnType, checkTypeVariables) 
-				&& isEqual(methodBinding.thrownExceptions, methodBinding2.thrownExceptions, checkTypeVariables)
-				&& isEqual(methodBinding.declaringClass, methodBinding2.declaringClass, true));
+				&& isEqual(methodBinding.returnType, methodBinding2.returnType, visitedTypes) 
+				&& isEqual(methodBinding.thrownExceptions, methodBinding2.thrownExceptions, visitedTypes)
+				&& isEqual(methodBinding.declaringClass, methodBinding2.declaringClass, visitedTypes)
+				&& isEqual(methodBinding.typeVariables, methodBinding2.typeVariables, visitedTypes)
+				&& isEqual(methodBinding.parameters, methodBinding2.parameters, visitedTypes));
 	}
 
 	static boolean isEqual(VariableBinding variableBinding, VariableBinding variableBinding2) {
@@ -131,10 +129,11 @@ class BindingComparator {
 	}
 
 	static boolean isEqual(FieldBinding fieldBinding, FieldBinding fieldBinding2) {
+		HashSet visitedTypes = new HashSet();
 		return (fieldBinding.modifiers & CompilerModifiers.AccJustFlag) == (fieldBinding2.modifiers & CompilerModifiers.AccJustFlag)
 				&& CharOperation.equals(fieldBinding.name, fieldBinding2.name)
-				&& isEqual(fieldBinding.type, fieldBinding2.type, true)
-				&& isEqual(fieldBinding.declaringClass, fieldBinding2.declaringClass, true);
+				&& isEqual(fieldBinding.type, fieldBinding2.type, visitedTypes)
+				&& isEqual(fieldBinding.declaringClass, fieldBinding2.declaringClass, visitedTypes);
 	}
 
 	/**
@@ -143,14 +142,14 @@ class BindingComparator {
 	 * @return true if both parameters are equals, false otherwise
 	 */
 	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] bindings, org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] otherBindings) {
-		return isEqual(bindings, otherBindings, true);
+		return isEqual(bindings, otherBindings, new HashSet());
 	}
 	/**
 	 * @param bindings
 	 * @param otherBindings
 	 * @return true if both parameters are equals, false otherwise
 	 */
-	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] bindings, org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] otherBindings, boolean checkTypeVariables) {
+	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] bindings, org.eclipse.jdt.internal.compiler.lookup.TypeBinding[] otherBindings, HashSet visitedTypes) {
 		if (bindings == null) {
 			return otherBindings == null;
 		} else if (otherBindings == null) {
@@ -162,7 +161,7 @@ class BindingComparator {
 				return false;
 			}
 			for (int i = 0; i < length; i++) {
-				if (!isEqual(bindings[i], otherBindings[i], checkTypeVariables)) {
+				if (!isEqual(bindings[i], otherBindings[i], visitedTypes)) {
 					return false;
 				}
 			}
@@ -170,11 +169,14 @@ class BindingComparator {
 		}
 	}
 	// TODO (olivier) should optimize to use switch(binding.kind()) & modifier bitmask comparisons
-	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding2, boolean checkTypeVariables) {
+	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding2, HashSet visitedTypes) {
 		if (typeBinding == typeBinding2)
 			return true;
 		if (typeBinding == null || typeBinding2 == null)
 			return false;
+
+		if (visitedTypes.contains(typeBinding)) return true;
+		visitedTypes.add(typeBinding);
 		
 		switch (typeBinding.kind()) {
 			case Binding.BASE_TYPE :
@@ -188,7 +190,7 @@ class BindingComparator {
 					return false;
 				}
 				return typeBinding.dimensions() == typeBinding2.dimensions()
-						&& isEqual(typeBinding.leafComponentType(), typeBinding2.leafComponentType(), checkTypeVariables);
+						&& isEqual(typeBinding.leafComponentType(), typeBinding2.leafComponentType(), visitedTypes);
 				
 			case Binding.PARAMETERIZED_TYPE :
 				if (!typeBinding2.isParameterizedType()) {
@@ -196,14 +198,10 @@ class BindingComparator {
 				}
 				ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) typeBinding;
 				ParameterizedTypeBinding parameterizedTypeBinding2 = (ParameterizedTypeBinding) typeBinding2;
-				if (checkTypeVariables) {
-					if (!isEqual(parameterizedTypeBinding.arguments, parameterizedTypeBinding2.arguments, false)) {
-						return false;
-					}
-				}
 				return CharOperation.equals(parameterizedTypeBinding.compoundName, parameterizedTypeBinding2.compoundName)
 					&& (parameterizedTypeBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
-							== (parameterizedTypeBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation));
+							== (parameterizedTypeBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
+					&& isEqual(parameterizedTypeBinding.arguments, parameterizedTypeBinding2.arguments, visitedTypes);
 							
 			case Binding.WILDCARD_TYPE :
 				if (!typeBinding2.isWildcard()) {
@@ -211,7 +209,7 @@ class BindingComparator {
 				}
 				WildcardBinding wildcardBinding = (WildcardBinding) typeBinding;
 				WildcardBinding wildcardBinding2 = (WildcardBinding) typeBinding2;
-				return isEqual(wildcardBinding.bound, wildcardBinding2.bound, checkTypeVariables)
+				return isEqual(wildcardBinding.bound, wildcardBinding2.bound, visitedTypes)
 					&& wildcardBinding.boundKind == wildcardBinding2.boundKind;
 				
 			case Binding.TYPE_PARAMETER :
@@ -225,19 +223,15 @@ class BindingComparator {
 					CaptureBinding captureBinding = (CaptureBinding) typeBinding;
 					CaptureBinding captureBinding2 = (CaptureBinding) typeBinding2;
 					return captureBinding.position == captureBinding2.position
-						&& isEqual(captureBinding.wildcard, captureBinding2.wildcard, checkTypeVariables)
-						&& isEqual(captureBinding.sourceType, captureBinding2.sourceType, true);
+						&& isEqual(captureBinding.wildcard, captureBinding2.wildcard, visitedTypes)
+						&& isEqual(captureBinding.sourceType, captureBinding2.sourceType, visitedTypes);
 				}
 				TypeVariableBinding typeVariableBinding = (TypeVariableBinding) typeBinding;
 				TypeVariableBinding typeVariableBinding2 = (TypeVariableBinding) typeBinding2;
-				if (checkTypeVariables) {
-					return CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName)
-						&& isEqual(typeVariableBinding.declaringElement, typeVariableBinding2.declaringElement, false)
-						&& isEqual(typeVariableBinding.superclass(), typeVariableBinding2.superclass(), true)
-						&& isEqual(typeVariableBinding.superInterfaces(), typeVariableBinding2.superInterfaces(), true);
-				} else {
-					return CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName);
-				}
+				return CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName)
+					&& isEqual(typeVariableBinding.declaringElement, typeVariableBinding2.declaringElement, visitedTypes)
+					&& isEqual(typeVariableBinding.superclass(), typeVariableBinding2.superclass(), visitedTypes)
+					&& isEqual(typeVariableBinding.superInterfaces(), typeVariableBinding2.superInterfaces(), visitedTypes);
 			
 			case Binding.GENERIC_TYPE :
 				if (!typeBinding2.isGenericType()) {
@@ -245,14 +239,10 @@ class BindingComparator {
 				}
 				ReferenceBinding referenceBinding = (ReferenceBinding) typeBinding;
 				ReferenceBinding referenceBinding2 = (ReferenceBinding) typeBinding2;
-				if (checkTypeVariables) {
-					if (!isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables(), true)) {
-						return false;
-					}
-				}
 				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
 					&& (referenceBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
-							== (referenceBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation));
+							== (referenceBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
+					&& isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables(), visitedTypes);
 		
 			case Binding.RAW_TYPE :
 			default :
@@ -276,6 +266,6 @@ class BindingComparator {
 	 * @return true if both parameters are equals, false otherwise
 	 */
 	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding2) {
-		return isEqual(typeBinding, typeBinding2, true);
+		return isEqual(typeBinding, typeBinding2, new HashSet());
 	}
 }

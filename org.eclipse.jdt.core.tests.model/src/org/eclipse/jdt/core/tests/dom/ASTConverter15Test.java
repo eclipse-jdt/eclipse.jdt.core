@@ -5227,24 +5227,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"  }\n" +
 			"  void foo() {\n" + 
 			"    Number n= null;\n" + 
-			"    num().add(null);\n" + 
-			"    num().add(n);\n" + 
+			"    /*start1*/num().add(null)/*end1*/;\n" + 
+			"    /*start2*/num().add(n)/*end2*/;\n" + 
 			"  }\n" +
 			"}\n";
-	   	CompilationUnit compilationUnit = (CompilationUnit) buildAST(
-			contents,
-    		this.workingCopy);
-	   	MarkerInfo info = new MarkerInfo(contents);
-	   	info.astStart = contents.indexOf("num().add(null);");
-	   	info.astEnd = info.astStart + "num().add(null)".length();
-	   	MethodInvocation invocation = (MethodInvocation) findNode(compilationUnit, info);
-	   	IMethodBinding binding1 = invocation.resolveMethodBinding();
-	   	info = new MarkerInfo(contents);
-	   	info.astStart = contents.indexOf("num().add(n);");
-	   	info.astEnd = info.astStart + "num().add(n)".length();
-	   	invocation = (MethodInvocation) findNode(compilationUnit, info);
-	   	IMethodBinding binding2 = invocation.resolveMethodBinding();
-	   	assertTrue("2 different capture bindings should not be equals", !binding1.isEqualTo(binding2));
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	assertTrue("2 different capture bindings should not be equals", !bindings[0].isEqualTo(bindings[1]));
 	}
 	
 	/*
@@ -5443,4 +5431,25 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a wildcard type", typeBinding.isWildcardType());
 		assertFalse("Not an class", typeBinding.isClass());
     }
+    
+	/*
+	 * Ensures that 2 different parameterized type bindings are not "isEqualTo(...)".
+	 * (regression test for bug 93408 ITypeBinding#isEqualTo(..) does not resolve type variables)
+	 */
+	public void test0181() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"public class X<E> {\n" + 
+			"	/*start1*/Y<E>/*end1*/ y;\n" + 
+			"	static class Other<E> {\n" + 
+			"		/*start2*/Y<E>/*end2*/ y;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y<E> {\n" + 
+			"}";
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	assertTrue("2 different parameterrized type bindings should not be equals", !bindings[0].isEqualTo(bindings[1]));
+	}
+	
+    
 }
