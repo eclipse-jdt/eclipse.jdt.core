@@ -145,7 +145,8 @@ public class BindingKeyParser {
 					case 'V':
 					case 'Z':
 						// base type
-						if (this.index == previousTokenEnd) {
+						if (this.index == previousTokenEnd 
+								&& (this.index == 0 || this.source[this.index-1] != '.')) { // case of field or method starting with one of the character above
 							this.index++;
 							this.token = TYPE;
 							return this.token;

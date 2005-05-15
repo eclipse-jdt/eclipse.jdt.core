@@ -374,5 +374,17 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Ljava/util/List;!Lp1/X;+Ljava/util/ArrayList;123;"
 		);
 	}
+	
+	/*
+	 * Method starting with an upper case corresponding to a primitive type
+	 * (regression test for bug 94398 Error attempting to find References)
+	 */
+	public void test034() {
+		assertBindingKeySignatureEquals(
+			"(Ljava.lang.String;I)Z",
+			"Lp1/X;.Set(Ljava/lang/String;I)Z"
+		);
+	}
+	
 		
 }
