@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -189,8 +190,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 
 	public void consumeParameterizedMethod() {
 		TypeBinding[] arguments = getTypeBindingArguments();
-		if (arguments.length != this.methodBinding.typeVariables().length) return;
-	 	this.methodBinding = new ParameterizedGenericMethodBinding(this.methodBinding, arguments, this.environment);
+		if (arguments.length != this.methodBinding.typeVariables().length)
+			this.methodBinding = new ParameterizedGenericMethodBinding(this.methodBinding, (RawTypeBinding) null, this.environment);
+		else
+	 		this.methodBinding = new ParameterizedGenericMethodBinding(this.methodBinding, arguments, this.environment);
 		this.compilerBinding = this.methodBinding;
 	}
 	

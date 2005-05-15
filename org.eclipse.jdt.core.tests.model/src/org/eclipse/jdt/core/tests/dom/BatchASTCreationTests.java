@@ -78,7 +78,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test062" };
+//		TESTS_NAMES = new String[] { "test063" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -847,7 +847,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<>;.foo<U:Ljava/lang/Object;>(TT;TU;)V");
+			"Lp1/X<>;.foo<U:Ljava/lang/Object;>(TT;TU;)V%<>");
 	}
 
 	/*
@@ -1312,6 +1312,32 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"}",
 			}, 
 			"[Lp1/X;.foo<T:Ljava/lang/Object;>([TT;)[TT;:TT;"
+		);
+	}
+	
+	public void test063() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" + 
+				"	public static <T extends Y<? super T>> void foo(Z<T> z) {\n" + 
+				"    }\n" + 
+				"    /**\n" + 
+				"     * @see #foo(Z)\n" + 
+				"     */\n" + 
+				"    void bar() {\n" + 
+				"        /*start*/foo(new W())/*end*/;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class Y<T> {\n" + 
+				"}\n" + 
+				"class Z<T> {\n" + 
+				"}\n" + 
+				"class W<T> extends Z<T> {\n" + 
+				"}",
+			}, 
+			"Lp1/X;.foo<T:Lp1/Y<-TT;>;>(Lp1/Z<TT;>;)V%<>"
 		);
 	}
 	

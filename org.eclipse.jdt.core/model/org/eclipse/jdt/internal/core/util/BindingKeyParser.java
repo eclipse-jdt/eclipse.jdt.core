@@ -313,7 +313,7 @@ public class BindingKeyParser {
 		}
 		
 		void skipParametersStart() {
-			if (this.index < this.source.length && this.source[this.index] == '<')
+			while (this.index < this.source.length && (this.source[this.index] == '<' || this.source[this.index] == '%'))
 				this.index++;
 		}
 		
@@ -612,6 +612,7 @@ public class BindingKeyParser {
 	}
 	
 	private void parseParameterizedMethod() {
+		this.scanner.skipParametersStart();
 		while (!this.scanner.isAtParametersEnd()) {
 			parseTypeArgument();
 		}
