@@ -137,28 +137,41 @@ public int hashCode() {
 
 /* Answer true if the receiver type can be assigned to the argument type (right)
 */
-public boolean isCompatibleWith(TypeBinding right) {
-	if (this == right)
+public boolean isCompatibleWith(TypeBinding otherType) {
+	if (this == otherType)
 		return true;
 
-	switch (right.kind()) {
+	switch (otherType.kind()) {
 		case Binding.ARRAY_TYPE :
-			ArrayBinding rightArray = (ArrayBinding) right;
-			if (rightArray.leafComponentType.isBaseType())
+			ArrayBinding otherArray = (ArrayBinding) otherType;
+			if (otherArray.leafComponentType.isBaseType())
 				return false; // relying on the fact that all equal arrays are identical
-			if (dimensions == rightArray.dimensions)
-				return leafComponentType.isCompatibleWith(rightArray.leafComponentType);
-			if (dimensions < rightArray.dimensions)
+			if (dimensions == otherArray.dimensions)
+				return leafComponentType.isCompatibleWith(otherArray.leafComponentType);
+			if (dimensions < otherArray.dimensions)
 				return false; // cannot assign 'String[]' into 'Object[][]' but can assign 'byte[][]' into 'Object[]'
 			break;
 		case Binding.BASE_TYPE :
 			return false;
 		case Binding.WILDCARD_TYPE :
-		    return ((WildcardBinding) right).boundCheck(this);
+		    return ((WildcardBinding) otherType).boundCheck(this);
+/*		    
+		case Binding.TYPE_PARAMETER :
+			// check compatibility with capture of ? super X
+			if (otherType.isCapture()) {
+				CaptureBinding otherCapture = (CaptureBinding) otherType;
+				TypeBinding otherLowerBound;
+				if ((otherLowerBound = otherCapture.lowerBound) != null) {
+					if (!otherLowerBound.isArrayType()) return false;					
+					return this.isCompatibleWith(otherLowerBound);
+				}
+			}
+			return false;
+*/
 	}
 	//Check dimensions - Java does not support explicitly sized dimensions for types.
 	//However, if it did, the type checking support would go here.
-	switch (right.leafComponentType().id) {
+	switch (otherType.leafComponentType().id) {
 	    case T_JavaLangObject :
 	    case T_JavaLangCloneable :
 	    case T_JavaIoSerializable :

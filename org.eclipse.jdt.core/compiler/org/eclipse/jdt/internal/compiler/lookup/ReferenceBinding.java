@@ -684,7 +684,7 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 				TypeBinding otherLowerBound;
 				if ((otherLowerBound = otherCapture.lowerBound) != null) {
 					if (otherLowerBound.isArrayType()) return false;
-					return this.isCompatibleWith(otherCapture.lowerBound);
+					return this.isCompatibleWith(otherLowerBound);
 				}
 			}
 		case Binding.GENERIC_TYPE :
