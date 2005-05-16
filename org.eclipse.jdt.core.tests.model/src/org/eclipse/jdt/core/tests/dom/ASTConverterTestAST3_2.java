@@ -97,7 +97,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 536 };
+//		TESTS_NUMBERS =  new int[] { 606 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -6312,5 +6312,53 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertTrue("No array", binding3.isArray());
 
 		assertEquals("Not same binding", binding, binding3);
-	}	
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89014
+	 */
+	public void test0606() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    int i = 0;\n" +
+				"    i += 1;\n" +
+				"    String s = \"\";\n" +
+				"    s += \"hello world\";\n" +
+				"    System.out.println(i+s);\n" +
+				"  }\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = getASTNode(compilationUnit, 0, 0, 1);
+			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+			Expression expression = ((ExpressionStatement) node).getExpression();
+			assertEquals("Not an assignment", ASTNode.ASSIGNMENT, expression.getNodeType());
+			Assignment assignment = (Assignment) expression;
+			assertEquals("Wrong operator", Assignment.Operator.PLUS_ASSIGN, assignment.getOperator());
+			ITypeBinding typeBinding = assignment.resolveTypeBinding();
+			assertNotNull("No binding", typeBinding);
+			assertEquals("Wrong type", "int", typeBinding.getQualifiedName());
+			
+			node = getASTNode(compilationUnit, 0, 0, 3);
+			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+			expression = ((ExpressionStatement) node).getExpression();
+			assertEquals("Not an assignment", ASTNode.ASSIGNMENT, expression.getNodeType());
+			assignment = (Assignment) expression;
+			assertEquals("Wrong operator", Assignment.Operator.PLUS_ASSIGN, assignment.getOperator());
+			typeBinding = assignment.resolveTypeBinding();
+			assertNotNull("No binding", typeBinding);
+			assertEquals("Wrong type", "java.lang.String", typeBinding.getQualifiedName());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }

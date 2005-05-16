@@ -1233,6 +1233,9 @@ class ASTConverter {
 				break;
 		}
 		assignment.setRightHandSide(convert(expression.expression));
+		if (this.resolveBindings) {
+			recordNodes(assignment, expression);
+		}
 		return assignment;
 	}
 
