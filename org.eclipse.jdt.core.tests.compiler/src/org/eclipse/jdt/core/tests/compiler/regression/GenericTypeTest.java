@@ -17628,28 +17628,28 @@ public void test617() {
 			"");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83034
-	public void _test624() {
+	public void test624() {
 	    this.runConformTest(
             new String[] {
-                "Foo.java",
-			" interface IFoo<U, V extends X<U, V>> {\n" + 
-			"	V bar(int i);\n" + 
-			"}\n" + 
-			"\n" + 
-			"abstract class X<E, F extends X<E, F>> {\n" + 
-			"	\n" + 
-			"	public boolean foo(X<E, ?> x) {\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
-			"	public boolean baz(IFoo<E, ?> f) {\n" + 
-			"		return foo(f.bar(0));\n" + 
-			"	}\n" + 
-			"}\n",
+                "X.java",
+				" interface IFoo<U, V extends X<U, V>> {\n" + 
+				"	V bar(int i);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<E, F extends X<E, F>> {\n" + 
+				"	\n" + 
+				"	public boolean foo(X<E, ?> x) {\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"	public boolean baz(IFoo<E, ?> f) {\n" + 
+				"		return foo(f.bar(0));\n" + 
+				"	}\n" + 
+				"}\n",
             },
 			"");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83034 - variation
-	public void _test625() {
+	public void test625() {
 	    this.runConformTest(
             new String[] {
                 "Foo.java",

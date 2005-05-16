@@ -60,25 +60,33 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#capture(Scope,int)
 	 */
 	public TypeBinding capture(Scope scope, int position) {
+		if ((this.tagBits & TagBits.HasDirectWildcard) == 0) 
+			return this;
+		
 		TypeBinding[] originalArguments = arguments, capturedArguments = originalArguments;
-		if ((this.tagBits & TagBits.HasDirectWildcard) != 0) {
-			int length = originalArguments.length;
-			capturedArguments = new TypeBinding[length];
-			for (int i = 0; i < length; i++) {
-				TypeBinding argument = originalArguments[i];
-				if (argument.kind() == Binding.WILDCARD_TYPE) {
-					capturedArguments[i] = 
-						new CaptureBinding(
-								(WildcardBinding) argument, 
-								scope.enclosingSourceType().outermostEnclosingType(),
-								position);
-				} else {
-					capturedArguments[i] = argument;
-				}
+		int length = originalArguments.length;
+		capturedArguments = new TypeBinding[length];
+		for (int i = 0; i < length; i++) {
+			TypeBinding argument = originalArguments[i];
+			if (argument.kind() == Binding.WILDCARD_TYPE) {
+				capturedArguments[i] = 
+					new CaptureBinding(
+							(WildcardBinding) argument, 
+							scope.enclosingSourceType().outermostEnclosingType(),
+							position);
+			} else {
+				capturedArguments[i] = argument;
 			}
 		}
 		if (capturedArguments != originalArguments) {
-			return this.environment.createParameterizedType(this.type, capturedArguments, enclosingType());
+			ParameterizedTypeBinding capturedParameterizedType = this.environment.createParameterizedType(this.type, capturedArguments, enclosingType());
+			for (int i = 0; i < length; i++) {
+				TypeBinding argument = capturedArguments[i];
+				if (argument.isCapture()) {
+					((CaptureBinding)argument).initializeBounds(capturedParameterizedType);
+				}
+			}
+			return capturedParameterizedType;
 		}
 		return this;
 	}
