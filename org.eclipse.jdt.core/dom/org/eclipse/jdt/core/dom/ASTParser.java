@@ -870,8 +870,9 @@ public class ASTParser {
 	 * @see ASTNode#getLength()
 	 */
 	private ASTNode internalCreateASTForKind() {
-		ASTConverter converter = new ASTConverter(this.compilerOptions, false, null);
+		final ASTConverter converter = new ASTConverter(this.compilerOptions, false, null);
 		converter.compilationUnitSource = this.rawSource;
+		converter.compilationUnitSourceLength = this.rawSource.length;
 		converter.scanner.setSource(this.rawSource);
 		
 		AST ast = AST.newAST(this.apiLevel);
