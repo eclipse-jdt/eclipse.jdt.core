@@ -2947,6 +2947,11 @@ public abstract class Scope
 
 	// 15.12.2
 	public TypeBinding lowerUpperBound(TypeBinding[] types) {
+		int typeLength = types.length;
+		if (typeLength == 1) {
+			TypeBinding type = types[0];
+			return type == null ? VoidBinding : type;
+		}		
 		return lowerUpperBound(types, new ArrayList(1));
 	}
 	

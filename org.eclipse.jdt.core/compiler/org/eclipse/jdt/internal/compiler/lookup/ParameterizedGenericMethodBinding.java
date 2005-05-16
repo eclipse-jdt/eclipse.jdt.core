@@ -208,7 +208,18 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						for (int j = 0, equalLength = equalSubstitutes.length; j < equalLength; j++) {
 							TypeBinding equalSubstitute = equalSubstitutes[j];
 							if (equalSubstitute == null) continue nextConstraint;
-//							if (equalSubstitute == current) continue nextConstraint;
+							if (equalSubstitute == current) {
+								// try to find a better different match if any in subsequent equal candidates
+								for (int k = j+1; k < equalLength; k++) {
+									equalSubstitute = equalSubstitutes[k];
+									if (equalSubstitute != current && equalSubstitute != null) {
+										substitutes[i] = equalSubstitute;
+										continue nextTypeParameter;
+									}
+								}
+								substitutes[i] = current;
+								continue nextTypeParameter;
+							}
 //							if (equalSubstitute.isTypeVariable()) {
 //								TypeVariableBinding variable = (TypeVariableBinding) equalSubstitute;
 //								// substituted by a variable of the same method, ignore

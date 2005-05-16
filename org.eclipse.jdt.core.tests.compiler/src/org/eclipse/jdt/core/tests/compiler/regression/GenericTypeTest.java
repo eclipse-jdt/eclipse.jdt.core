@@ -19496,4 +19496,180 @@ public void _test668() {
 			"}\n",
 		},
 		"");
-}	}
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95289
+public void test669() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"private static<T> int indexOf(final T[] array,final T elem) {\n" + 
+			"	return 0;\n" + 
+			"}\n" + 
+			"public static void meth(AContainer ac, AInfo[] aiArray) {\n" + 
+			"  for(AInfo ai: aiArray) {\n" + 
+			"	int index1 = indexOf(ac.getAs(),ai.a);\n" + 
+			"	int index2 = indexOf(ac.getAs(),ai); // ai.class!=ai.a.class!!!\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class AContainer {\n" + 
+			"   public A[] getAs(){ return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class AInfo {\n" + 
+			"   public A a;\n" + 
+			"}\n" + 
+			"\n" + 
+			"class A {\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 (ensure not even a warning)
+public void test670() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"interface MethodProperty<ActualType extends MethodProperty<ActualType>> {\n" + 
+			"	public void copyFrom(ActualType other);\n" + 
+			"}\n" + 
+			"\n" + 
+			"class MethodPropertyDatabase<Property extends MethodProperty<Property>> {\n" + 
+			"	Map<String, Property> propertyMap;\n" + 
+			"	\n" + 
+			"	void read(String fileName) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class FooProperty implements MethodProperty<FooProperty> {\n" + 
+			"	String value;\n" + 
+			"\n" + 
+			"	public void copyFrom(FooProperty other) {\n" + 
+			"		this.value = other.value;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class FooPropertyDatabase extends MethodPropertyDatabase<FooProperty> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	FooPropertyDatabase fooDatabase;\n" + 
+			"	\n" + 
+			"	public void readDatabase() {\n" + 
+			"		FooPropertyDatabase database = new FooPropertyDatabase();\n" + 
+			"		\n" + 
+			"		fooDatabase = readDatabase(database, \"foodatabase.db\"); // Bug reported on this line\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private<\n" + 
+			"		Property extends MethodProperty<Property>,\n" + 
+			"		DatabaseType extends MethodPropertyDatabase<Property>\n" + 
+			"		> DatabaseType readDatabase(DatabaseType database, String fileName) {\n" + 
+			"			database.read(fileName);\n" + 
+			"			return database;\n" + 
+			"		}\n" + 
+			"	\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 - variation: ensure not even a warning
+public void test671() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"interface MethodProperty<ActualType extends MethodProperty<ActualType>> {\n" + 
+			"	public void copyFrom(ActualType other);\n" + 
+			"}\n" + 
+			"\n" + 
+			"class MethodPropertyDatabase<Property extends MethodProperty<Property>> {\n" + 
+			"	Map<String, Property> propertyMap;\n" + 
+			"	\n" + 
+			"	void read(String fileName) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class FooProperty implements MethodProperty<FooProperty> {\n" + 
+			"	String value;\n" + 
+			"\n" + 
+			"	public void copyFrom(FooProperty other) {\n" + 
+			"		this.value = other.value;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class FooPropertyDatabase extends MethodPropertyDatabase<FooProperty> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  Zork z;\n" +
+			"	FooPropertyDatabase fooDatabase;\n" + 
+			"	\n" + 
+			"	public void readDatabase() {\n" + 
+			"		FooPropertyDatabase database = new FooPropertyDatabase();\n" + 
+			"		\n" + 
+			"		fooDatabase = readDatabase(database, \"foodatabase.db\"); // Bug reported on this line\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private<\n" + 
+			"		Property extends MethodProperty<Property>,\n" + 
+			"		DatabaseType extends MethodPropertyDatabase<Property>\n" + 
+			"		> DatabaseType readDatabase(DatabaseType database, String fileName) {\n" + 
+			"			database.read(fileName);\n" + 
+			"			return database;\n" + 
+			"		}\n" + 
+			"	\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 26)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 - variation: ensure not even a warning
+public void test672() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Foo<T extends Foo<T>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Bar<Q> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Zork z;\n" +
+			"	void readDatabase() {\n" + 
+			"		Bar<Foo> bar = new Bar<Foo>();\n" + 
+			"		read(bar, \"sadasd\");\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	<P extends Foo<P>, D extends Bar<P>> \n" + 
+			"	D read(D d, String s) {\n" + 
+			"			return d;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	read(bar, \"sadasd\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation read(Bar<Foo>, String) of the generic method read(D, String) of type X\n" + 
+		"----------\n");
+}	
+}
