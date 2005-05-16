@@ -1979,8 +1979,13 @@ public class JavaModelManager implements ISaveParticipant {
 			    IPath containerPath = (IPath) keys.next();
 			    IClasspathContainer container = (IClasspathContainer) projectContainers.get(containerPath);
 				String containerKey = CP_CONTAINER_PREFERENCES_PREFIX+project.getElementName() +"|"+containerPath;//$NON-NLS-1$
-				String containerString = CP_ENTRY_IGNORE;
+				String containerString = null;
 				try {
+					if (container == null) {
+						// container has not been initiliazed yet, use previous session value
+						// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=73969)
+						container = getPreviousSessionContainer(containerPath, project);
+					}
 					if (container != null) {
 						IClasspathEntry[] entries = container.getClasspathEntries();
 						containerString = ((JavaProject)project).encodeClasspath(
@@ -1989,10 +1994,11 @@ public class JavaModelManager implements ISaveParticipant {
 								false);
 					}
 				} catch(JavaModelException e){
-					// could not encode entry: leave it as CP_ENTRY_IGNORE
+					// could not encode entry: will not persist
 					Util.log(e, "Could not persist container " + containerPath + " for project " + project.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				preferences.put(containerKey, containerString);
+				if (containerString != null)
+					preferences.put(containerKey, containerString);
 			}
 		}
 		try {
@@ -2021,7 +2027,7 @@ public class JavaModelManager implements ISaveParticipant {
 			saveState(info, context);
 			return;
 		}
-
+	
 		ArrayList vStats= null; // lazy initialized
 		for (Iterator iter =  this.perProjectInfos.values().iterator(); iter.hasNext();) {
 			try {
