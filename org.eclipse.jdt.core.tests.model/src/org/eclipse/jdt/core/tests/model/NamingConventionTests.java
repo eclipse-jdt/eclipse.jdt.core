@@ -61,20 +61,6 @@ private String toString(char[][] suggestions) {
 	}
 	return buffer.toString();
 }
-private String toString(String[] suggestions) {
-	if(suggestions == null) {
-		return ""; //$NON-NLS-1$
-	}
-	
-	StringBuffer buffer = new StringBuffer();
-	for (int i = 0; i < suggestions.length; i++) {
-		if(i != 0) {
-			buffer.append('\n');
-		}
-		buffer.append(suggestions[i]);
-	}
-	return buffer.toString();
-}
 public void testSuggestFieldName001() {
 	char[][] suggestions = NamingConventions.suggestFieldNames(
 		project,

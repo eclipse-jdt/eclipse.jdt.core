@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -60,28 +61,67 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	public class MarkerInfo {
 		String path;
 		String source;
-		int astStart, astEnd;
+		int[] astStarts, astEnds;
 		
 		public MarkerInfo(String source) {
-			this(null, source, -1);
-		}
-		public MarkerInfo(String source, int markerIndex) {
-			this(null, source, markerIndex);
+			this(null, source);
 		}
 		public MarkerInfo(String path, String source) {
-			this(path, source, -1);
-		}
-		public MarkerInfo(String path, String source, int markerIndex) {
 			this.path = path;
 			this.source = source;
-			String markerNumber = markerIndex == -1 ? "" : Integer.toString(markerIndex);
+
+			int markerIndex = 1;
+			while (source.indexOf("/*start" + markerIndex + "*/") != -1) {
+				markerIndex++;
+			}
+			int astNumber = source.indexOf("/*start*/") != -1 ? markerIndex : markerIndex-1;
+			this.astStarts = new int[astNumber];
+			this.astEnds = new int[astNumber];
+			
+			for (int i = 1; i < markerIndex; i++)
+				setStartAndEnd(i);		
+			if (astNumber == markerIndex)
+				setStartAndEnd(-1);
+		}
+		
+		public int indexOfASTStart(int astStart) {
+			for (int i = 0, length = this.astStarts.length; i < length; i++)
+				if (this.astStarts[i] == astStart)
+					return i;
+			return -1;
+		}
+		
+		private void removeMarkerFromSource(String marker, int sourceIndex, int astNumber) {
+			char[] markerChars = marker.toCharArray();
+			this.source = new String(CharOperation.replace(this.source.toCharArray(), markerChars, CharOperation.NO_CHAR));
+			// shift previously recorded positions
+			int markerLength = markerChars.length;
+			for (int i = 0; i < astNumber; i++) {
+				if (this.astStarts[i] > sourceIndex)
+					this.astStarts[i] -= markerLength;
+				if (this.astEnds[i] > sourceIndex)
+					this.astEnds[i] -= markerLength;
+			}
+		}
+		
+		private void setStartAndEnd(int markerIndex) {
+			String markerNumber; 
+			if (markerIndex == -1) {
+				markerNumber = "";
+				markerIndex = this.astStarts.length; // *start* is always last
+			} else
+				markerNumber = Integer.toString(markerIndex);
+			
 			String markerStart = "/*start" + markerNumber + "*/";
 			String markerEnd = "/*end" + markerNumber + "*/";
-			this.astStart = source.indexOf(markerStart); // start of AST inclusive
-			this.source = new String(CharOperation.replace(this.source.toCharArray(), markerStart.toCharArray(), CharOperation.NO_CHAR));
-			this.astEnd = this.source.indexOf(markerEnd); // end of AST exclusive
-			this.source = new String(CharOperation.replace(this.source.toCharArray(), markerEnd.toCharArray(), CharOperation.NO_CHAR));	
+			int astStart = source.indexOf(markerStart); // start of AST inclusive
+			this.astStarts[markerIndex-1] = astStart;
+			removeMarkerFromSource(markerStart, astStart, markerIndex-1);
+			int astEnd = this.source.indexOf(markerEnd); // end of AST exclusive
+			this.astEnds[markerIndex-1] = astEnd;
+			removeMarkerFromSource(markerEnd, astEnd, markerIndex-1);
 		}
+		
 	}
 	
 	public class BindingRequestor extends ASTRequestor {
@@ -229,19 +269,8 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	 * For each of the pairs, returns the AST node that was delimited by "*start?*" and "*end?*".
 	 */
 	protected ASTNode[] buildASTs(String contents, ICompilationUnit cu, boolean reportErrors) throws JavaModelException {
-		ArrayList infos = new ArrayList();
-		MarkerInfo markerInfo;
-		int markerIndex = 0;
-		while (contents.indexOf("/*start" + ++markerIndex + "*/") != -1) {
-			markerInfo = new MarkerInfo(contents, markerIndex);
-			infos.add(markerInfo);
-			contents = markerInfo.source;
-		}
-		if (contents.indexOf("/*start*/") != -1 || infos.size() == 0) {
-			markerInfo = new MarkerInfo(contents);
-			infos.add(markerInfo);
-			contents = markerInfo.source;
-		}
+		MarkerInfo markerInfo = new MarkerInfo(contents);
+		contents = markerInfo.source;
 
 		cu.getBuffer().setContents(contents);
 		CompilationUnit unit = cu.reconcile(AST.JLS3, false, null, null);
@@ -255,13 +284,9 @@ public class AbstractASTTests extends ModifyingResourceTests {
 				System.err.println(buffer.toString());
 		}
 
-		int length = infos.size();
-		ASTNode[] nodes = new ASTNode[length];
-		for (int i = 0; i < length; i++) {
-			MarkerInfo info = (MarkerInfo) infos.get(i);
-			nodes[i] = findNode(unit, info);
-		}
-		
+		ASTNode[] nodes = findNodes(unit, markerInfo);
+		if (nodes.length == 0)
+			return new ASTNode[] {unit};
 		return nodes;
 	}
 
@@ -323,26 +348,30 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	}
 	
 	protected ASTNode findNode(CompilationUnit unit, final MarkerInfo markerInfo) {
-		class EndVisit extends RuntimeException {
-			private static final long serialVersionUID = 6009335074727417445L;
-		}
+		ASTNode[] nodes = findNodes(unit, markerInfo);
+		if (nodes.length == 0)
+			return unit;
+		return nodes[0];
+	}
+	
+	protected ASTNode[] findNodes(CompilationUnit unit, final MarkerInfo markerInfo) {
 		class Visitor extends ASTVisitor {
-			ASTNode found;
+			ArrayList found = new ArrayList();
 			public void preVisit(ASTNode node) {
 				if (node instanceof CompilationUnit) return;
-				if (node.getStartPosition() == markerInfo.astStart && node.getStartPosition() + node.getLength() == markerInfo.astEnd) {
-					this.found = node;
-					throw new EndVisit();
+				int index = markerInfo.indexOfASTStart(node.getStartPosition());
+				if (index != -1 && node.getStartPosition() + node.getLength() == markerInfo.astEnds[index]) {
+					this.found.add(node);
+					markerInfo.astStarts[index] = -1; // so that 2 nodes with the same start and end will not be found
 				}
 			}
 		}
 		Visitor visitor = new Visitor();
-		try {
-			unit.accept(visitor);
-		} catch (EndVisit e) {
-			return visitor.found;
-		}
-		return unit;
+		unit.accept(visitor);
+		int size = visitor.found.size();
+		ASTNode[] result = new ASTNode[size];
+		visitor.found.toArray(result);
+		return result;
 	}
 
 	protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, IJavaProject project, WorkingCopyOwner owner) {
@@ -377,6 +406,8 @@ public class AbstractASTTests extends ModifyingResourceTests {
 				return ((SimpleName) node).resolveBinding();
 			case ASTNode.ARRAY_TYPE:
 				return ((ArrayType) node).resolveBinding();
+			case ASTNode.ASSIGNMENT:
+				return ((Assignment) node).getRightHandSide().resolveTypeBinding();
 			default:
 				throw new Error("Not yet implemented for this type of node: " + node);
 		}

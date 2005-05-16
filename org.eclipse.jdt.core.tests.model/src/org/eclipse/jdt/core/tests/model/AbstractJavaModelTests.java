@@ -413,12 +413,15 @@ protected void assertDeltas(String message, String expected) {
 		assertEquals("Unepexeted type parameters", expected, actual);
 	}
 	protected void assertStringsEqual(String message, String expected, String[] strings) {
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < strings.length; i++){
-			buffer.append(strings[i]);
-			buffer.append("\n");
+		String actual = toString(strings, true/*add extra new lines*/);
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 3) + this.endChar);
 		}
-		String actual = buffer.toString();
+		assertEquals(message, expected, actual);
+	}
+	protected void assertStringsEqual(String message, String[] expectedStrings, String[] actualStrings) {
+		String expected = toString(expectedStrings, false/*don't add extra new lines*/);
+		String actual = toString(actualStrings, false/*don't add extra new lines*/);
 		if (!expected.equals(actual)) {
 			System.out.println(displayString(actual, 3) + this.endChar);
 		}
@@ -1939,6 +1942,18 @@ protected void assertDeltas(String message, String expected) {
 			result[i] = new Path(paths[i]);
 		}
 		return result;
+	}
+	protected String toString(String[] strings) {
+		return toString(strings, false/*don't add extra new line*/);
+	}
+	protected String toString(String[] strings, boolean addExtraNewLine) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = strings.length; i < length; i++){
+			buffer.append(strings[i]);
+			if (addExtraNewLine || i < length - 1)
+				buffer.append("\n");
+		}
+		return buffer.toString();
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();

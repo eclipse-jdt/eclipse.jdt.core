@@ -137,8 +137,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IClassFile classFile = getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "Enum.class");
 		String source = classFile.getSource();
 		MarkerInfo markerInfo = new MarkerInfo(source);
-		markerInfo.astStart = source.indexOf("protected Enum");
-		markerInfo.astEnd = source.indexOf('}', markerInfo.astStart) + 1;
+		markerInfo.astStarts = new int[] {source.indexOf("protected Enum")};
+		markerInfo.astEnds = new int[] {source.indexOf('}', markerInfo.astStarts[0]) + 1};
 		ASTNode node = buildAST(markerInfo, classFile);
 		IBinding binding = ((MethodDeclaration) node).resolveBinding();
 		assertNotNull("No binding", binding);
@@ -158,8 +158,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IClassFile classFile = getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "String.class");
 		String source = classFile.getSource();
 		MarkerInfo markerInfo = new MarkerInfo(source);
-		markerInfo.astStart = source.indexOf("public");
-		markerInfo.astEnd = source.lastIndexOf('}') + 1;
+		markerInfo.astStarts = new int[] {source.indexOf("public")};
+		markerInfo.astEnds = new int[] {source.lastIndexOf('}') + 1};
 		ASTNode node = buildAST(markerInfo, classFile);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
 		assertNotNull("No binding", binding);
