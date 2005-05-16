@@ -23,8 +23,10 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -379,7 +381,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				} catch (IOException e) {
 					this.logNoClassFileCreated(fileName);
 				}
-			}			
+			}	
 		}
 		
 		public void logCommandLineArguments(String[] commandLineArguments) {
@@ -726,7 +728,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					Main.bind("compiler.version"), //$NON-NLS-1$
 					Main.bind("compiler.copyright") //$NON-NLS-1$
 				}
-			)); //$NON-NLS-1$
+			));
 		}
 
 		/**
@@ -816,6 +818,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		private void printlnOut(String s) {
 			this.out.println(s);
+			if (!this.isXml) {
+				if (this.log != null) {
+					this.log.println(s);
+				}
+			}
 		}
 
 		/**
@@ -857,6 +864,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 
 		public void setLog(String logFileName) throws InvalidInputException {
+			final Date date = new Date();
+			final SimpleDateFormat dateFormat = new SimpleDateFormat("d MMM yyyy HH:mm:ss", Locale.getDefault());//$NON-NLS-1$
 			try {
 				this.log = new PrintWriter(new FileOutputStream(logFileName, false));
 				int index = logFileName.lastIndexOf('.');
@@ -864,6 +873,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					if (logFileName.substring(index).toLowerCase().equals(".xml")) { //$NON-NLS-1$
 						this.isXml = true;
 						this.log.println(XML_HEADER);
+						// insert time stamp as comment
+						this.log.println("<!-- " + dateFormat.format(date) + " -->");//$NON-NLS-1$//$NON-NLS-2$
 						this.log.println(XML_DTD_DECLARATION);
 						this.tab = 0;
 						parameters.clear();
@@ -871,7 +882,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						parameters.put(COMPILER_VERSION, Main.bind("compiler.version")); //$NON-NLS-1$//$NON-NLS-2$
 						parameters.put(COMPILER_COPYRIGHT, Main.bind("compiler.copyright")); //$NON-NLS-1$//$NON-NLS-2$
 						this.printTag(COMPILER, parameters, true, false);
+					} else {
+						this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$//$NON-NLS-2$
 					}
+				} else {
+					this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$//$NON-NLS-2$
 				}
 			} catch (FileNotFoundException e) {
 				throw new InvalidInputException(Main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
@@ -2004,6 +2019,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			mode = Default;
 			continue;
 		}
+		
+
+		if (this.log != null) {
+			this.logger.setLog(this.log);
+		} else {
+			this.showProgress = false;
+		}
+		
 		if (printUsageRequired || filesCount == 0) {
 			printUsage();
 			this.proceed = false;
@@ -2076,12 +2099,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 		 	 	}
 		 	 }
-		}
-
-		if (this.log != null) {
-			this.logger.setLog(this.log);
-		} else {
-			this.showProgress = false;
 		}
 
 		if (this.classpaths == null) {
