@@ -1206,7 +1206,7 @@ public class Scribe {
 						hasModifiers = true;
 						this.print(this.scanner.getRawTokenSource(), !isFirstModifier);
 						isFirstModifier = false;
-						currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
+						currentTokenStartPosition = this.scanner.currentPosition;
 						break;
 					case TerminalTokens.TokenNameAT :
 						hasModifiers = true;
