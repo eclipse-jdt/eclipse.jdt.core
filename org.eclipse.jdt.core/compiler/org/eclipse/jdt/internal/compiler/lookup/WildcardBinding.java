@@ -330,8 +330,7 @@ public class WildcardBinding extends ReferenceBinding {
 			this.fPackage = someGenericType.getPackage();
 		}
 		if (someBound != null) {
-		    if (someBound.isTypeVariable())
-		        this.tagBits |= HasTypeVariable;
+			this.tagBits |= someBound.tagBits & HasTypeVariable;
 		}
 	}
 
