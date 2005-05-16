@@ -300,7 +300,7 @@ public interface IType extends IMember {
 	 * <p>
 	 * Optionally, the new type can be positioned before the specified
 	 * sibling. If no sibling is specified, the type will be appended
-	 * to this type.
+	 * to this type.</p>
 	 *
 	 * <p>It is possible that a type with the same name already exists in this type.
 	 * The value of the <code>force</code> parameter effects the resolution of
