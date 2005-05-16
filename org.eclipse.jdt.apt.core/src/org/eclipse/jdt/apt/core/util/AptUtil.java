@@ -12,6 +12,12 @@
 
 package org.eclipse.jdt.apt.core.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.core.IBuffer;
@@ -28,47 +34,57 @@ public class AptUtil {
 	/**
 	 * scan the source code to see if there are any annotation tokens
 	 */
-	public static boolean hasAnnotationInstance( IFile f )
-	{
-		try
-		{
-			char[] source = ProcessorEnvImpl.getFileContents( f );
-			return hasAnnotationInstance( source );
+	public static boolean hasAnnotationInstance( IFile f ) {
+		
+		InputStreamReader reader = null;
+		InputStream input = null;
+		try {
+			AnnotationScanner scanner;
+			// If this is a single byte encoding, we can deal directly 
+			// with the bytes, which is *much* faster
+			if (SINGLE_BYTE_ENCODINGS.contains(f.getCharset())) {
+				input = ProcessorEnvImpl.getInputStream(f);
+				scanner = new InputStreamAnnotationScanner(input);
+			}
+			else {
+				reader = ProcessorEnvImpl.getFileReader( f );
+				scanner = new ReaderAnnotationScanner(reader);
+			}
+			return scanner.containsAnnotations();
 		}
-		catch( Exception ioe )
-		{
+		catch( Exception ioe ) {
 			return false;
+		}
+		finally {
+			if (reader != null) { try {reader.close();} catch (IOException ioe) {} }
+			if (input != null) { try {input.close();} catch (IOException ioe) {} }
 		}
 	}
 	
-	public static boolean hasAnnotationInstance( ICompilationUnit cu )
-	{
-		try
-		{
+	
+	public static boolean hasAnnotationInstance( ICompilationUnit cu ) {
+		try {
 			IBuffer b = cu.getBuffer();
 			if ( b == null )
 				return false;
 			char[] source = b.getCharacters();
 			return hasAnnotationInstance( source );
 		}
-		catch( JavaModelException jme )
-		{
+		catch( JavaModelException jme ) {
 			return false;
 		}
 	}
+
 	
-	public static boolean hasAnnotationInstance( char[] source )
-	{
-		try
-		{		
+	public static boolean hasAnnotationInstance( char[] source ) {
+		try {		
 			if ( source == null )
 				return false;
 			IScanner scanner = ToolFactory.createScanner( 
 				false, false, false, CompilerOptions.VERSION_1_5 );
 			scanner.setSource( source );
 			int token = scanner.getNextToken();
-			while ( token != ITerminalSymbols.TokenNameEOF )
-			{
+			while ( token != ITerminalSymbols.TokenNameEOF ) {
 				token = scanner.getNextToken();
 				if ( token == ITerminalSymbols.TokenNameAT )
 				{
@@ -94,6 +110,34 @@ public class AptUtil {
 			// TODO:  deal with this exception
 			e.printStackTrace();
 			return false;
+		}
+	}
+	
+	private static final String[] SINGLE_BYTE_ENCODING_ARRAY = {
+		"ASCII",
+		"Cp1250",
+		"Cp1251",
+		"Cp1252",
+		"Cp1253",
+		"Cp1254",
+		"Cp1257",
+		"ISO8859_1",
+		"ISO8859_2",
+		"ISO8859_4",
+		"ISO8859_5",
+		"ISO8859_7",
+		"ISO8859_9",
+		"ISO8859_13",
+		"ISO8859_15",
+		"UTF8"
+	};
+	
+	private static final Set<String> SINGLE_BYTE_ENCODINGS = 
+		new HashSet<String>(SINGLE_BYTE_ENCODING_ARRAY.length);
+		
+	static {
+		for (String encoding : SINGLE_BYTE_ENCODING_ARRAY) {
+			SINGLE_BYTE_ENCODINGS.add(encoding);
 		}
 	}
 	

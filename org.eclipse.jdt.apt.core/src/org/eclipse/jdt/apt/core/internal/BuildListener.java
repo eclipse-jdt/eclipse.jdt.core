@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CompilationParticipantEvent;
 import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
@@ -63,6 +64,9 @@ public class BuildListener implements ICompilationParticipant
 
 	public CompilationParticipantResult notify( CompilationParticipantEvent cpe )
 	{	
+		if (!AptConfig.isEnabled())
+			return GENERIC_COMPILATION_RESULT;
+		
 		if ( cpe == null )
 			return GENERIC_COMPILATION_RESULT;
 
