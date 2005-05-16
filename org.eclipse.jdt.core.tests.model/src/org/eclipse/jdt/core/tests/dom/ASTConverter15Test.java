@@ -5448,7 +5448,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			"class Y<E> {\n" + 
 			"}";
 	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
-	   	assertTrue("2 different parameterrized type bindings should not be equals", !bindings[0].isEqualTo(bindings[1]));
+	   	assertTrue("2 different parameterized type bindings should not be equals", !bindings[0].isEqualTo(bindings[1]));
 	}
 	
     
