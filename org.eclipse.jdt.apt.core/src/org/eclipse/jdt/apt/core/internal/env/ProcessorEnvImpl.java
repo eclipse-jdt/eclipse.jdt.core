@@ -30,6 +30,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -288,6 +289,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
             break;
         case ASTNode.METHOD_DECLARATION:
             binding = ((org.eclipse.jdt.core.dom.MethodDeclaration)node).resolveBinding();
+			break;
         case ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION:
             binding = ((AnnotationTypeMemberDeclaration)node).resolveBinding();
             break;
@@ -1004,7 +1006,8 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	                }
 	            };
 	        };
-			currentResource.getWorkspace().run(runnable, null);
+			currentResource.getWorkspace().run(runnable, currentResource, IWorkspace.AVOID_UPDATE, null );
+			
 		}
 		catch(CoreException e){
 			throw new IllegalStateException(e);

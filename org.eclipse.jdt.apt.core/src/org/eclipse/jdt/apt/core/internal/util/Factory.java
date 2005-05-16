@@ -244,8 +244,12 @@ public class Factory
                 // can't have multi-dimensional array.
                 // there should be already a java compile time error
                 else if( elements[i] instanceof Object[] )
-                    return null;				
-				final AnnotationValue annoValue = createAnnotationValue(elements[i], name, i, parent, env);
+                    return null;
+
+				Object o = convertDOMValueToMirrorValue( elements[i], name, parent, decl, env );
+				assert( !( o instanceof IResolvedAnnotation ) ) : "Unexpected return value from convertDomValueToMirrorValue! o.getClass().getName() = " + o.getClass().getName();
+				
+				final AnnotationValue annoValue = createAnnotationValue(o, name, i, parent, env);
                 if( annoValue != null )
                     annoValues.add(annoValue);
             }

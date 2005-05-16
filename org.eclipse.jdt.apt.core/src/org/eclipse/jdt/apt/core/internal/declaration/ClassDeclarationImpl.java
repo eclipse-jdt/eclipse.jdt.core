@@ -74,7 +74,9 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
     public ClassType getSuperclass()
     {
         final ITypeBinding superClass = getDeclarationBinding().getSuperclass();
-        if( superClass.isClass() )
+		if ( superClass == null )
+			return null;
+		else if( superClass.isClass() )
             return (ClassType)Factory.createReferenceType(superClass, _env);
         else // catch error case where user extends some interface instead of a class.
             return Factory.createErrorClassType(superClass);
