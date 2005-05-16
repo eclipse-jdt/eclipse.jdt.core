@@ -62,6 +62,7 @@ import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceMapper;
+import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.*;
@@ -115,8 +116,8 @@ int progressWorked;
 CompilationUnitScope unitScope;
 SimpleLookupTable bindings;
 
-// Cache for handles
-SimpleLookupTable allHandlesOccurences;
+// Cache for method handles
+HashSet methodHandles;
 
 /**
  * An ast visitor that visits local type declarations.
@@ -549,29 +550,14 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
  * Store occurences for create handle to retrieve possible duplicate ones.
  */
 private IJavaElement createMethodHandle(IType type, String methodName, String[] parameterTypeSignatures) {
-	IJavaElement handle = type.getMethod(methodName, parameterTypeSignatures);
-	Integer occurenceCount = (Integer) this.allHandlesOccurences.get(handle);
-	if (occurenceCount == null) {
-		occurenceCount = new Integer(1);
-	} else {
-		// there are duplicate for this method, find right one
-		int count = occurenceCount.intValue();
-		try {
-			IMethod[] methods = type.getMethods();
-			int length = methods.length;
-			for (int i=0; i<length; i++) {
-				if (methods[i].equals(handle)) {
-					handle = methods[i+count];
-					break;
-				}
-			}
-		} catch (JavaModelException e) {
-			// ignore
+	IMethod methodHandle = type.getMethod(methodName, parameterTypeSignatures);
+	if (methodHandle instanceof SourceMethod) {
+		while (this.methodHandles.contains(methodHandle)) {
+			((SourceMethod) methodHandle).occurrenceCount++;
 		}
-		occurenceCount = new Integer(count+1);
 	}
-	this.allHandlesOccurences.put(handle, occurenceCount);
-	return handle;
+	this.methodHandles.add(methodHandle);
+	return methodHandle;
 }
 /**
  * Creates an IField from the given field declaration and type. 
@@ -1904,7 +1890,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	}
 
 	if (nodeSet.matchingNodes.elementSize == 0) return; // no matching nodes were found
-	this.allHandlesOccurences = new SimpleLookupTable(nodeSet.matchingNodes.elementSize*2);
+	this.methodHandles = new HashSet();
 
 	boolean matchedUnitContainer = (this.matchContainer & PatternLocator.COMPILATION_UNIT_CONTAINER) != 0;
 
@@ -1959,7 +1945,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	}
 	
 	// Clear handle cache
-	this.allHandlesOccurences = null;
+	this.methodHandles = null;
 }
 /**
  * Visit the given field declaration and report the nodes that match exactly the
