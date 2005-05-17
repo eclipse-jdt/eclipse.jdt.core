@@ -283,6 +283,8 @@ public class CompilationUnitDeclaration
 		if (this.types != null && isPackageInfo) {
             // resolve synthetic type declaration
 			final TypeDeclaration syntheticTypeDeclaration = types[0];
+			// set empty javadoc to avoid missing warning (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=95286)
+			syntheticTypeDeclaration.javadoc = new Javadoc(syntheticTypeDeclaration.declarationSourceStart, syntheticTypeDeclaration.declarationSourceStart);
 			syntheticTypeDeclaration.resolve(this.scope);
 			// resolve annotations if any
 			if (this.currentPackage.annotations != null) {

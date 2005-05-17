@@ -30,11 +30,13 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
+	public final static String PACKAGE_INFO_NAME = new String(TypeConstants.PACKAGE_INFO_NAME);
 	public static String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
 	public static int INDENT = 2;
 	public static boolean SHIFT = false;
@@ -229,6 +231,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 
 			// Compute class name by removing ".java" and replacing slashes with dots
 			String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
+			if (className.endsWith(PACKAGE_INFO_NAME)) return;
 
 			if (vmArguments != null) {
 				if (this.verifier != null) {

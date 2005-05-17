@@ -22,6 +22,7 @@ public class JavadocTest_1_4 extends JavadocTest {
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
+	String reportMissingJavadocCommentsVisibility = null;
 
 	public JavadocTest_1_4(String name) {
 		super(name);
@@ -53,6 +54,8 @@ public class JavadocTest_1_4 extends JavadocTest {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
 		else
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportInvalidJavadoc);
+		if (reportMissingJavadocCommentsVisibility != null) 
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsVisibility, reportMissingJavadocCommentsVisibility);
 		if (reportMissingJavadocTags != null) 
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportMissingJavadocTags);
 		else
@@ -2531,6 +2534,37 @@ public class JavadocTest_1_4 extends JavadocTest {
 				"}\n"
 			},
 			""
+		);
+	}
+
+	/**
+	 * Bug 95286: [1.5][javadoc] package-info.java incorrectly flags "Missing comment for public declaration"
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95286"
+	 */
+	public void testBug95286_Default() {
+		this.reportMissingJavadocComments = CompilerOptions.ERROR;
+		this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
+		runConformTest(
+			new String[] {
+				"test/package-info.java",
+				"/**\n" + 
+				" * Javadoc for all package \n" + 
+				" */\n" + 
+				"package test;\n"
+			}
+		);
+	}
+	public void testBug95286_Private() {
+		this.reportMissingJavadocComments = CompilerOptions.ERROR;
+		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
+		runConformTest(
+			new String[] {
+				"test/package-info.java",
+				"/**\n" + 
+				" * Javadoc for all package \n" + 
+				" */\n" + 
+				"package test;\n"
+			}
 		);
 	}
 }
