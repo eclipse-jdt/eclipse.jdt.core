@@ -176,15 +176,24 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		} else {
 		    char[] typeSig = this.type.computeUniqueKey(false/*not a leaf*/);
 		    for (int i = 0; i < typeSig.length-1; i++) sig.append(typeSig[i]); // copy all but trailing semicolon
-		}	   	    
+		}
+		ReferenceBinding captureSourceType = null;
 		if (this.arguments != null) {
 		    sig.append('<');
 		    for (int i = 0, length = this.arguments.length; i < length; i++) {
-		        sig.append(this.arguments[i].computeUniqueKey(false/*not a leaf*/));
+		    	TypeBinding typeBinding = this.arguments[i];
+		        sig.append(typeBinding.computeUniqueKey(false/*not a leaf*/));
+		        if (typeBinding instanceof CaptureBinding)
+		        	captureSourceType = ((CaptureBinding) typeBinding).sourceType;
 		    }
 		    sig.append('>'); //$NON-NLS-1$
 		}
 		sig.append(';');
+		if (captureSourceType != null && captureSourceType != this.type) {
+			// contains a capture binding
+			sig.insert(0, "&"); //$NON-NLS-1$
+			sig.insert(0, captureSourceType.computeUniqueKey(false/*not a leaf*/));
+		}
 
 		int sigLength = sig.length();
 		char[] uniqueKey = new char[sigLength];

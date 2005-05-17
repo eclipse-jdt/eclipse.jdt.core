@@ -36,6 +36,7 @@ public class KeyToSignature extends BindingKeyParser {
 	
 	public KeyToSignature(BindingKeyParser parser) {
 		super(parser);
+		this.kind = ((KeyToSignature) parser).kind;
 	}
 	
 	public KeyToSignature(String key, int kind) {
@@ -49,7 +50,7 @@ public class KeyToSignature extends BindingKeyParser {
 	
 	public void consumeCapture(int position) {
 		// behave as if it was a wildcard
-		this.signature = (StringBuffer) this.arguments.get(0);
+		this.signature = ((KeyToSignature) this.arguments.get(0)).signature;
 	}
 		
 	public void consumeLocalType(char[] uniqueKey) {
@@ -88,7 +89,7 @@ public class KeyToSignature extends BindingKeyParser {
 			this.signature.append('<');
 			int length = this.arguments.size();
 			for (int i = 0; i < length; i++) {
-				this.signature.append(this.arguments.get(i));
+				this.signature.append(((KeyToSignature) this.arguments.get(i)).signature);
 			}
 			this.signature.append('>');
 			if (this.kind != TYPE_ARGUMENTS)
@@ -97,7 +98,7 @@ public class KeyToSignature extends BindingKeyParser {
 	}
 	
 	public void consumeParser(BindingKeyParser parser) {
-		this.arguments.add(((KeyToSignature) parser).signature);
+		this.arguments.add(parser);
 	}
 	
 	public void consumeFullyQualifiedName(char[] fullyQualifiedName) {
@@ -147,6 +148,12 @@ public class KeyToSignature extends BindingKeyParser {
 		this.signature.append(';');
 	}
 	
+	public void consumeTypeWithCapture() {
+		KeyToSignature keyToSignature = (KeyToSignature) this.arguments.get(0);
+		this.signature = keyToSignature.signature;
+		this.arguments = keyToSignature.arguments;
+	}
+	
 	public void consumeWildCard(int wildCardKind) {
 		// don't put generic type in signature
 		this.signature = new StringBuffer();
@@ -156,11 +163,11 @@ public class KeyToSignature extends BindingKeyParser {
 				break;
 			case Wildcard.EXTENDS:
 				this.signature.append('+');
-				this.signature.append(this.arguments.get(0));
+				this.signature.append(((KeyToSignature) this.arguments.get(0)).signature);
 				break;
 			case Wildcard.SUPER:
 				this.signature.append('-');
-				this.signature.append(this.arguments.get(0));
+				this.signature.append(((KeyToSignature) this.arguments.get(0)).signature);
 				break;
 			default:
 				// malformed
@@ -172,7 +179,7 @@ public class KeyToSignature extends BindingKeyParser {
 		int length = this.arguments.size();
 		String[] result = new String[length];
 		for (int i = 0; i < length; i++) {
-			result[i] = ((StringBuffer) this.arguments.get(i)).toString();
+			result[i] = ((KeyToSignature) this.arguments.get(i)).signature.toString();
 		}
 		return result;
 	}

@@ -91,7 +91,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test010" };
+//		TESTS_NAMES = new String[] { "test059" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1279,7 +1279,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"    }\n" + 
 				"}",
 			}, 
-			"Lp1/X;!Lp1/X;*77;"
+			"Lp1/X;&!Lp1/X;*77;"
 		);
 	}
 
@@ -1306,7 +1306,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}"
 			}, 
-			"Lxy/Cap;!Ljava/util/Vector;*82;"
+			"Lxy/Cap;&!Ljava/util/Vector;*82;"
 		);
 	}
 
@@ -1380,7 +1380,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	 * Ensures that a parameterized type binding with a capture binding in its arguments can be created using its key in batch creation.
 	 * (regression test for bug 94092 ASTParser#createASTs(..) restores wrong bindings from capture keys)
 	 */
-	public void _test064() throws CoreException {
+	public void test064() throws CoreException {
 		assertRequestedBindingsFound(
 			new String[] {
 				"/P/p1/X.java",
@@ -1399,8 +1399,9 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			}, 
 			new String[] {
 				"Lp1/X;",
-				"Lp1/Y<Lp1/X;!Lp1/Y;*83;>;",
+				"Lp1/X;&Lp1/Y<!Lp1/Y;*83;>;",
 			}
 		);
 	}
+
 }

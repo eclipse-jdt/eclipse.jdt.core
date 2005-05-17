@@ -112,7 +112,7 @@ public class BindingKeyParser {
 		}
 	
 		boolean isAtTypeArgumentStart() {
-			return this.index < this.source.length && "LIZVCDBFJS[".indexOf(this.source[this.index]) != -1; //$NON-NLS-1$
+			return this.index < this.source.length && "LIZVCDBFJS[!".indexOf(this.source[this.index]) != -1; //$NON-NLS-1$
 		}
 		
 		boolean isAtFlagsStart() {
@@ -125,6 +125,12 @@ public class BindingKeyParser {
 			return 
 				this.index < this.source.length
 				&& this.source[this.index] == ':';
+		}
+		
+		boolean isAtTypeWithCaptureStart() {
+			return 
+				this.index < this.source.length
+				&& this.source[this.index] == '&';
 		}
 		
 		int nextToken() {
@@ -276,6 +282,7 @@ public class BindingKeyParser {
 						this.token = WILDCARD;
 						return this.token;
 					case '!':
+					case '&':
 						this.index++;
 						this.token = CAPTURE;
 						return this.token;
@@ -489,6 +496,10 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 	
+	public void consumeTypeWithCapture() {
+		// default is to do nothing
+	}
+
 	public void consumeWildCard(int kind) {
 		// default is to do nothing
 	}
@@ -525,8 +536,10 @@ public class BindingKeyParser {
 				return;
 			}
 		}
-		if (!hasTypeName())
+		if (!hasTypeName()) {
+			consumeKey();
 			return;
+		}
 		consumeTopLevelType();
 		parseSecondaryType();
 		parseInnerType();
@@ -577,14 +590,19 @@ public class BindingKeyParser {
 			parseTypeVariable();
 		} else if (this.scanner.isAtWildcardStart()) {
 			parseWildcard();
-		} else if (this.scanner.isAtCaptureStart()) {
-			parseCapture();
+		} else if (this.scanner.isAtTypeWithCaptureStart()) {
+			parseTypeWithCapture();
 		}
 		
 		consumeKey();
 	}
 	
 	private void parseFullyQualifiedName() {
+		if (this.scanner.isAtCaptureStart()) {
+			parseCapture();
+			this.hasTypeName = false;
+			return;
+		}
 		switch(this.scanner.nextToken()) {
 			case Scanner.PACKAGE:
 				this.keyStart = 0;
@@ -736,6 +754,14 @@ public class BindingKeyParser {
 		BindingKeyParser parser = newParser();
 		parser.parse();
 		consumeParser(parser);
+	}
+	
+	private void parseTypeWithCapture() {
+		if (this.scanner.nextToken() != Scanner.CAPTURE) return;
+		BindingKeyParser parser = newParser();
+		parser.parse();
+		consumeParser(parser);
+		consumeTypeWithCapture();
 	}
 	
 	private void parseTypeVariable() {

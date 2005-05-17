@@ -33,12 +33,15 @@ public class CaptureBinding extends TypeVariableBinding {
 
 	/*
 	 * sourceTypeKey ! wildcardKey position semi-colon
-	 * p.X { capture of ? } --> Lp/X;!*123;
-	 * p.X { capture of ? extends p.Y } --> Lp/X;!+Lp/Y;123;
+	 * p.X { capture of ? } --> !*123; (Lp/X; in declaring type except if leaf)
+	 * p.X { capture of ? extends p.Y } --> !+Lp/Y;123; (Lp/X; in declaring type except if leaf)
 	 */
 	public char[] computeUniqueKey(boolean isLeaf) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(this.sourceType.computeUniqueKey(false/*not a leaf*/));
+		if (isLeaf) {
+			buffer.append(this.sourceType.computeUniqueKey(false/*not a leaf*/));
+			buffer.append('&');
+		}
 		buffer.append(WILDCARD_CAPTURE);
 		buffer.append(this.wildcard.computeUniqueKey(false/*not a leaf*/));
 		buffer.append(this.position);

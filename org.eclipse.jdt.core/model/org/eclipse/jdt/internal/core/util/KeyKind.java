@@ -27,6 +27,7 @@ public class KeyKind extends BindingKeyParser {
 	public static final int F_CONSTRUCTOR = 0x10000;
 	
 	public int flags = 0;
+	private KeyKind innerKeyKind;
 	
 	public KeyKind(BindingKeyParser parser) {
 		super(parser);
@@ -69,6 +70,10 @@ public class KeyKind extends BindingKeyParser {
 	public void consumeParameterizedType(char[] simpleTypeName, boolean isRaw) {
 		this.flags |= isRaw ? F_RAW_TYPE : F_PARAMETERIZED_TYPE;
 	}
+	
+	public void consumeParser(BindingKeyParser parser) {
+		this.innerKeyKind = (KeyKind) parser;
+	}
 
 	public void consumeRawType() {
 		this.flags |= F_RAW_TYPE;
@@ -81,12 +86,16 @@ public class KeyKind extends BindingKeyParser {
 	public void consumeTypeParameter(char[] typeParameterName) {
 		this.flags |= F_TYPE_PARAMETER;
 	}
+	
+	public void consumeTypeWithCapture() {
+		this.flags = this.innerKeyKind.flags;
+	}
 
 	public void consumeWildCard(int kind) {
 		this.flags |= F_WILDCARD_TYPE;
 	}
 
 	public BindingKeyParser newParser() {
-		return new BindingKeyParser(this);
+		return new KeyKind(this);
 	}
 }

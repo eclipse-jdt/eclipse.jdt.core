@@ -66,11 +66,14 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	int wildcardRank;
 	
-	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank) {
+	BindingKeyResolver outerMostResolver;
+	
+	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank, BindingKeyResolver outerMostResolver) {
 		super(parser);
 		this.compiler = compiler;
 		this.environment = environment;
 		this.wildcardRank = wildcardRank;
+		this.outerMostResolver = outerMostResolver;
 	}
 	
 	public BindingKeyResolver(String key) {
@@ -98,7 +101,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public void consumeCapture(final int position) {
-		if (this.parsedUnit == null) return;
+		CompilationUnitDeclaration outerParsedUnit = this.outerMostResolver == null ? this.parsedUnit : this.outerMostResolver.parsedUnit;
+		if (outerParsedUnit == null) return;
 		final Binding wildcardBinding = ((BindingKeyResolver) this.types.get(0)).compilerBinding;
 		class CaptureFinder extends ASTVisitor {
 			CaptureBinding capture;
@@ -172,7 +176,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 			}
 		}
 		CaptureFinder captureFinder = new CaptureFinder();
-		this.parsedUnit.traverse(captureFinder, this.parsedUnit.scope);
+		outerParsedUnit.traverse(captureFinder, outerParsedUnit.scope);
 		this.typeBinding = captureFinder.capture;
 	}
 	
@@ -333,6 +337,11 @@ public class BindingKeyResolver extends BindingKeyParser {
 		}
 	}
 	
+	public void consumeTypeWithCapture() {
+		BindingKeyResolver resolver = (BindingKeyResolver) this.types.get(0);
+		this.typeBinding =(TypeBinding) resolver.compilerBinding;
+	}
+	
 	public void consumeWildCard(int kind) {
 		switch (kind) {
 			case Wildcard.EXTENDS:
@@ -456,7 +465,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public BindingKeyParser newParser() {
-		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank);
+		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank, this.outerMostResolver == null ? this : this.outerMostResolver);
 	}
 	 
 	public String toString() {
