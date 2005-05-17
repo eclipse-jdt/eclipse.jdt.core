@@ -15,8 +15,6 @@ import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SelectionOnParameterizedQualifiedTypeReference extends ParameterizedQualifiedTypeReference {
@@ -33,19 +31,21 @@ public class SelectionOnParameterizedQualifiedTypeReference extends Parameterize
 	
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 		super.resolveType(scope, checkBounds);
-		if(this.resolvedType != null && this.resolvedType.isRawType()) {
-			ParameterizedTypeBinding parameterizedTypeBinding = scope.createParameterizedType(((RawTypeBinding)this.resolvedType).type, new TypeBinding[0], this.resolvedType.enclosingType());
-			throw new SelectionNodeFound(parameterizedTypeBinding);
-		}
+		//// removed unnecessary code to solve bug 94653
+		//if(this.resolvedType != null && this.resolvedType.isRawType()) {
+		//	ParameterizedTypeBinding parameterizedTypeBinding = scope.createParameterizedType(((RawTypeBinding)this.resolvedType).type, new TypeBinding[0], this.resolvedType.enclosingType());
+		//	throw new SelectionNodeFound(parameterizedTypeBinding);
+		//}
 		throw new SelectionNodeFound(this.resolvedType);
 	}
 	
 	public TypeBinding resolveType(ClassScope scope) {
 		super.resolveType(scope);
-		if(this.resolvedType != null && this.resolvedType.isRawType()) {
-			ParameterizedTypeBinding parameterizedTypeBinding = scope.createParameterizedType(((RawTypeBinding)this.resolvedType).type, new TypeBinding[0], this.resolvedType.enclosingType());
-			throw new SelectionNodeFound(parameterizedTypeBinding);
-		}
+		//// removed unnecessary code to solve bug 94653
+		//if(this.resolvedType != null && this.resolvedType.isRawType()) {
+		//	ParameterizedTypeBinding parameterizedTypeBinding = scope.createParameterizedType(((RawTypeBinding)this.resolvedType).type, new TypeBinding[0], this.resolvedType.enclosingType());
+		//	throw new SelectionNodeFound(parameterizedTypeBinding);
+		//}
 		throw new SelectionNodeFound(this.resolvedType);
 	}
 	

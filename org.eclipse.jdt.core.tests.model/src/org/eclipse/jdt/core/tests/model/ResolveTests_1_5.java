@@ -2120,4 +2120,23 @@ public void test0095() throws JavaModelException {
 		"+Ltest0095.Z<-Ljava.lang.Exception;>;\n",
 		typeArguments);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94653
+public void test0096() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0096/X.java",
+			"package test0095;\n" +
+			"public class X<T> {\n" + 
+			"  class Inner<U> {\n" + 
+			"  }\n" + 
+			"  X<String>.Inner var;\n" + 
+			"}",
+			"Inner");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"Inner {key=Ltest0096/X<Ljava/lang/String;>.Inner<>;} [in X [in [Working copy] X.java [in test0096 [in src2 [in Resolve]]]]]",
+		elements,
+		true/*show key*/
+	);
+}
 }
