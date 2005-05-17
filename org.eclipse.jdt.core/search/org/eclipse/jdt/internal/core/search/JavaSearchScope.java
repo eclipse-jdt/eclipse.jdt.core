@@ -110,13 +110,8 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 	JavaModelManager.PerProjectInfo perProjectInfo = javaProject.getPerProjectInfo();
 	for (int i = 0, length = entries.length; i < length; i++) {
 		IClasspathEntry entry = entries[i];
-		IClasspathEntry rawEntry = null;
-		if (perProjectInfo != null && perProjectInfo.resolvedPathToRawEntries != null) {
-			rawEntry = (IClasspathEntry) perProjectInfo.resolvedPathToRawEntries.get(entry.getPath());
-		}
-		if (rawEntry == null) continue;
 		AccessRuleSet access = null;
-		ClasspathEntry cpEntry = (ClasspathEntry) rawEntry;
+		ClasspathEntry cpEntry = (ClasspathEntry) entry;
 		if (referringEntry != null) {
 			// Add only exported entries.
 			// Source folder are implicitly exported.
@@ -127,6 +122,11 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 		access = cpEntry.getAccessRuleSet();
 		switch (entry.getEntryKind()) {
 			case IClasspathEntry.CPE_LIBRARY:
+				IClasspathEntry rawEntry = null;
+				if (perProjectInfo != null && perProjectInfo.resolvedPathToRawEntries != null) {
+					rawEntry = (IClasspathEntry) perProjectInfo.resolvedPathToRawEntries.get(entry.getPath());
+				}
+				if (rawEntry == null) break;
 				switch (rawEntry.getEntryKind()) {
 					case IClasspathEntry.CPE_LIBRARY:
 					case IClasspathEntry.CPE_VARIABLE:

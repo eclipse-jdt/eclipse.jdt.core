@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -24,6 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -42,9 +44,11 @@ public class CompletionTests2 extends ModifyingResourceTests implements Relevanc
 		public static class DefaultContainer implements IClasspathContainer {
 			char[][] libPaths;
 			boolean[] areExported;
-			public DefaultContainer(char[][] libPaths, boolean[] areExported) {
+			String[] forbiddenReferences;
+			public DefaultContainer(char[][] libPaths, boolean[] areExported, String[] forbiddenReferences) {
 				this.libPaths = libPaths;
 				this.areExported = areExported;
+				this.forbiddenReferences = forbiddenReferences;
 			}
 			public IClasspathEntry[] getClasspathEntries() {
 				int length = this.libPaths.length;
@@ -52,10 +56,24 @@ public class CompletionTests2 extends ModifyingResourceTests implements Relevanc
 				for (int j = 0; j < length; j++) {
 				    IPath path = new Path(new String(this.libPaths[j]));
 				    boolean isExported = this.areExported[j];
+		
+				    IAccessRule[] accessRules;
+				    if(forbiddenReferences != null && forbiddenReferences[j]!= null && forbiddenReferences[j].length() != 0) {
+					    StringTokenizer tokenizer = new StringTokenizer(forbiddenReferences[j], ";");
+					    int count = tokenizer.countTokens();
+					    accessRules = new IAccessRule[count];
+					    String token = null;
+					    for (int i = 0; i < count; i++) {
+					    	token = tokenizer.nextToken();
+							accessRules[i] = JavaCore.newAccessRule(new Path(token), IAccessRule.K_NON_ACCESSIBLE);
+						}
+					} else {
+						accessRules = new IAccessRule[0];
+					}
 				    if (path.segmentCount() == 1) {
-				        entries[j] = JavaCore.newProjectEntry(path, isExported);
+				        entries[j] = JavaCore.newProjectEntry(path, accessRules, true, null, isExported);
 				    } else {
-						entries[j] = JavaCore.newLibraryEntry(path, null, null, isExported);
+						entries[j] = JavaCore.newLibraryEntry(path, null, null, accessRules, null, isExported);
 				    }
 				}
 				return entries;
@@ -74,10 +92,10 @@ public class CompletionTests2 extends ModifyingResourceTests implements Relevanc
 		Map containerValues;
 		CoreException exception;
 		
-		/*
-		 * values is [<project name>, <lib path>[,<lib path>]* ]*
-		 */
 		public CompletionContainerInitializer(String projectName, String[] libPaths, boolean[] areExported) {
+			this(projectName, libPaths, areExported, null);
+		}
+		public CompletionContainerInitializer(String projectName, String[] libPaths, boolean[] areExported, String[] forbiddenRefrences) {
 			containerValues = new HashMap();
 			
 			int libPathsLength = libPaths.length;
@@ -87,11 +105,11 @@ public class CompletionTests2 extends ModifyingResourceTests implements Relevanc
 			}
 			containerValues.put(
 				projectName, 
-				newContainer(charLibPaths, areExported)
+				newContainer(charLibPaths, areExported, forbiddenRefrences)
 			);
 		}
-		protected DefaultContainer newContainer(final char[][] libPaths, final boolean[] areExperted) {
-			return new DefaultContainer(libPaths, areExperted);
+		protected DefaultContainer newContainer(final char[][] libPaths, final boolean[] areExperted, final String[] forbiddenRefrences) {
+			return new DefaultContainer(libPaths, areExperted, forbiddenRefrences);
 		}
 		public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 			if (containerValues == null) return;
@@ -138,6 +156,7 @@ public static Test suite() {
 	suite.addTest(new CompletionTests2("testBug33560"));
 	suite.addTest(new CompletionTests2("testBug79288"));
 	suite.addTest(new CompletionTests2("testBug91772"));
+	suite.addTest(new CompletionTests2("testBug93891"));
 	suite.addTest(new CompletionTests2("testAccessRestriction1"));
 	suite.addTest(new CompletionTests2("testAccessRestriction2"));
 	suite.addTest(new CompletionTests2("testAccessRestriction3"));
@@ -558,6 +577,89 @@ public void testBug91772() throws Exception {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		manager.containers = new HashMap(5);
 		manager.variables = new HashMap(5);
+	}
+}
+public void testBug93891() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		JavaCore.setOptions(options);
+		
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
+
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			Util.getJavaClassLibs(),
+			 "bin");
+		
+		this.createFolder("/P1/src/a");
+		this.createFile(
+				"/P1/src/a/XX1.java",
+				"package a;\n"+
+				"public class XX1 {\n"+
+				"}");
+		
+		this.createFolder("/P1/src/b");
+		this.createFile(
+				"/P1/src/b/XX2.java",
+				"package b;\n"+
+				"public class XX2 {\n"+
+				"}");
+		
+		// create P2
+		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}, new String[]{"a/*"}));
+		String[] classLib = Util.getJavaClassLibs();
+		int classLibLength = classLib.length;
+		String[] lib = new String[classLibLength + 1];
+		System.arraycopy(classLib, 0, lib, 0, classLibLength);
+		lib[classLibLength] = "org.eclipse.jdt.core.tests.model.TEST_CONTAINER";
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			lib,
+			"bin");
+		
+		this.createFolder("/P2/src/b");
+		this.createFile(
+				"/P2/src/YY.java",
+				"public class YY {\n"+
+				"  void foo() {\n"+
+				"    XX\n"+
+				"  }\n"+
+				"}");
+		
+		waitUntilIndexesReady();
+		
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "XX";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+		
+		// Cleanup caches
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.containers = new HashMap(5);
+		manager.variables = new HashMap(5);
+		
+		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testAccessRestriction1() throws Exception {
