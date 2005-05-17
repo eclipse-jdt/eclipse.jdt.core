@@ -16,9 +16,14 @@ package org.eclipse.jdt.apt.tests;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.util.Enumeration;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.eclipse.core.internal.localstore.FileSystemResourceManager;
@@ -28,6 +33,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -169,6 +175,67 @@ public class TestUtil
 			}
 		}
 	}
+	
+	public static void unzip (File srcZip, File destDir) throws IOException {
+		ZipFile zf = new ZipFile(srcZip);
+		for (Enumeration<? extends ZipEntry> entries = zf.entries(); entries.hasMoreElements();) {
+			ZipEntry entry = entries.nextElement();
+			String name = entry.getName();
+			File dest = new File(destDir, name);
+			if (entry.isDirectory()) {
+				FileSystemUtil.mkdirs(dest);
+			}
+			else {
+				File parent = dest.getParentFile();
+				FileSystemUtil.mkdirs(parent);
+				InputStream from = null;
+	            OutputStream to = null;
+	            try {
+	                from = zf.getInputStream(entry);
+	                to = new FileOutputStream(dest);
+	                byte[] buffer = new byte[4096];
+	                int bytesRead;
+	                while ((bytesRead = from.read(buffer)) != -1) {
+	                    to.write(buffer, 0, bytesRead);
+	                }
+	            }
+	            finally {
+	                if (from != null) try {from.close();} catch (IOException ioe){}
+	                if (to != null) try {to.close();} catch (IOException ioe) {}
+	            }
+			}
+		}
+	}
+	
+	public static void unzip (ZipInputStream srcZip, File destDir) throws IOException {
+		ZipEntry entry;
+		while ((entry = srcZip.getNextEntry()) != null) {
+			String name = entry.getName();
+			File dest = new File(destDir, name);
+			if (entry.isDirectory()) {
+				FileSystemUtil.mkdirs(dest);
+			}
+			else {
+				File parent = dest.getParentFile();
+				FileSystemUtil.mkdirs(parent);
+	            OutputStream to = null;
+	            try {
+	                to = new FileOutputStream(dest);
+	                byte[] buffer = new byte[4096];
+	                int bytesRead;
+	                while ((bytesRead = srcZip.read(buffer)) != -1) {
+	                    to.write(buffer, 0, bytesRead);
+	                }
+	            }
+	            finally {
+                    srcZip.closeEntry();
+	                if (to != null) try {to.close();} catch (IOException ioe) {}
+	            }
+			}
+		}
+	}
+	
+	
 
 	public static void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, boolean exported) throws JavaModelException{
 		IClasspathEntry[] entries = project.getRawClasspath();
