@@ -143,12 +143,12 @@ public class Javadoc extends ASTNode {
 						if (messageSend.binding != null && messageSend.binding.isValidBinding()) {
 							if (methDecl.binding.declaringClass.isCompatibleWith(messageSend.actualReceiverType) &&
 								CharOperation.equals(messageSend.selector, methDecl.selector) &&
-								(messageSend.binding.returnType == methDecl.binding.returnType)) {
+								(methDecl.binding.returnType.isCompatibleWith(messageSend.binding.returnType))) {
 								if (messageSend.arguments == null && methDecl.arguments == null) {
 									superRef = true;
 								}
 								else if (messageSend.arguments != null && methDecl.arguments != null) {
-									superRef = methDecl.binding.areParametersEqual(messageSend.binding);
+									superRef = methDecl.binding.areParametersCompatibleWith(messageSend.binding.parameters);
 								}
 							}
 						}
@@ -162,7 +162,7 @@ public class Javadoc extends ASTNode {
 									superRef = true;
 								}
 								else if (allocationExpr.arguments != null && methDecl.arguments != null) {
-									superRef = methDecl.binding.areParametersEqual(allocationExpr.binding);
+									superRef = methDecl.binding.areParametersCompatibleWith(allocationExpr.binding.parameters);
 								}
 							}
 						}

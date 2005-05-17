@@ -2566,4 +2566,239 @@ public class JavadocTest_1_3 extends JavadocTest {
 			}
 		);
 	}
+
+	/**
+	 * Bug 95521: [1.5][javadoc] validation with @see tag not working for generic method
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95521"
+	 */
+	public void testBug95521() {
+		runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" + 
+				"\n" + 
+				"/** Test */\n" + 
+				"public class X implements I {\n" + 
+				"	/**\n" + 
+				"	 * @see test.I#foo(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"	public <T> G<T> foo(Class<T> stuffClass) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/** Interface */\n" + 
+				"interface I {\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param stuffClass \n" + 
+				"     * @return stuff\n" + 
+				"     */\n" + 
+				"    public <T extends Object> G<T> foo(Class<T> stuffClass);\n" + 
+				"}\n" + 
+				"/** \n" + 
+				" * @param <T>\n" + 
+				" */\n" + 
+				"class G<T> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 8)\r\n" + 
+			"	public <T> G<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	        ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 8)\r\n" + 
+			"	public <T> G<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	             ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X.java (at line 8)\r\n" + 
+			"	public <T> G<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	             ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\X.java (at line 8)\r\n" + 
+			"	public <T> G<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                          ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"5. ERROR in test\\X.java (at line 8)\r\n" + 
+			"	public <T> G<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                          ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. ERROR in test\\X.java (at line 15)\r\n" + 
+			"	* @param <T>\r\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"7. ERROR in test\\X.java (at line 19)\r\n" + 
+			"	public <T extends Object> G<T> foo(Class<T> stuffClass);\r\n" + 
+			"	        ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"8. ERROR in test\\X.java (at line 19)\r\n" + 
+			"	public <T extends Object> G<T> foo(Class<T> stuffClass);\r\n" + 
+			"	                            ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in test\\X.java (at line 19)\r\n" + 
+			"	public <T extends Object> G<T> foo(Class<T> stuffClass);\r\n" + 
+			"	                            ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"10. ERROR in test\\X.java (at line 19)\r\n" + 
+			"	public <T extends Object> G<T> foo(Class<T> stuffClass);\r\n" + 
+			"	                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"11. ERROR in test\\X.java (at line 19)\r\n" + 
+			"	public <T extends Object> G<T> foo(Class<T> stuffClass);\r\n" + 
+			"	                                         ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"12. ERROR in test\\X.java (at line 22)\r\n" + 
+			"	* @param <T>\r\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"13. ERROR in test\\X.java (at line 24)\r\n" + 
+			"	class G<T> {}\r\n" + 
+			"	        ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug95521b() {
+		runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" + 
+				"\n" + 
+				"/** Test */\n" + 
+				"public class X {\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param classT \n" + 
+				"     */\n" + 
+				"	public <T> X(Class<T> classT) {\n" + 
+				"	}\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param classT\n" + 
+				"     * @return classT\n" + 
+				"     */\n" + 
+				"	public <T> Class<T> foo(Class<T> classT) {\n" + 
+				"		return classT;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/** Super class */\n" + 
+				"class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * @see X#X(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"	public <T> Y(Class<T> classT) {\n" + 
+				"		super(classT);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @see X#foo(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"    public <T extends Object> Class<T> foo(Class<T> stuffClass) {\n" + 
+				"    	return null;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 6)\r\n" + 
+			"	* @param <T>\r\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 9)\r\n" + 
+			"	public <T> X(Class<T> classT) {\r\n" + 
+			"	        ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X.java (at line 9)\r\n" + 
+			"	public <T> X(Class<T> classT) {\r\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\X.java (at line 9)\r\n" + 
+			"	public <T> X(Class<T> classT) {\r\n" + 
+			"	                   ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"5. ERROR in test\\X.java (at line 12)\r\n" + 
+			"	* @param <T>\r\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"6. ERROR in test\\X.java (at line 16)\r\n" + 
+			"	public <T> Class<T> foo(Class<T> classT) {\r\n" + 
+			"	        ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"7. ERROR in test\\X.java (at line 16)\r\n" + 
+			"	public <T> Class<T> foo(Class<T> classT) {\r\n" + 
+			"	                 ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"8. ERROR in test\\X.java (at line 16)\r\n" + 
+			"	public <T> Class<T> foo(Class<T> classT) {\r\n" + 
+			"	                 ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"9. ERROR in test\\X.java (at line 16)\r\n" + 
+			"	public <T> Class<T> foo(Class<T> classT) {\r\n" + 
+			"	                              ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. ERROR in test\\X.java (at line 16)\r\n" + 
+			"	public <T> Class<T> foo(Class<T> classT) {\r\n" + 
+			"	                              ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"11. ERROR in test\\X.java (at line 25)\r\n" + 
+			"	public <T> Y(Class<T> classT) {\r\n" + 
+			"	        ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"12. ERROR in test\\X.java (at line 25)\r\n" + 
+			"	public <T> Y(Class<T> classT) {\r\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"13. ERROR in test\\X.java (at line 25)\r\n" + 
+			"	public <T> Y(Class<T> classT) {\r\n" + 
+			"	                   ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"14. ERROR in test\\X.java (at line 32)\r\n" + 
+			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	        ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"15. ERROR in test\\X.java (at line 32)\r\n" + 
+			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                                ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"16. ERROR in test\\X.java (at line 32)\r\n" + 
+			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                                ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"17. ERROR in test\\X.java (at line 32)\r\n" + 
+			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                                             ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"18. ERROR in test\\X.java (at line 32)\r\n" + 
+			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                                             ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n"
+		);
+	}
 }

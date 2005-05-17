@@ -35,7 +35,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_PREFIX = "testBug95286";
+//		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
 //		TESTS_NUMBERS = new int[] { 83804 };
 //		TESTS_RANGE = new int[] { 23, -1 };
@@ -1793,6 +1793,84 @@ public class JavadocTest_1_5 extends JavadocTest {
 				" * Javadoc for all package \n" + 
 				" */\n" + 
 				"package test;\n"
+			}
+		);
+	}
+
+	/**
+	 * Bug 95521: [1.5][javadoc] validation with @see tag not working for generic method
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95521"
+	 */
+	public void testBug95521() {
+		runConformTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" + 
+				"\n" + 
+				"/** Test */\n" + 
+				"public class X implements I {\n" + 
+				"	/**\n" + 
+				"	 * @see test.I#foo(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"	public <T> G<T> foo(Class<T> stuffClass) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/** Interface */\n" + 
+				"interface I {\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param stuffClass \n" + 
+				"     * @return stuff\n" + 
+				"     */\n" + 
+				"    public <T extends Object> G<T> foo(Class<T> stuffClass);\n" + 
+				"}\n" + 
+				"/** \n" + 
+				" * @param <T>\n" + 
+				" */\n" + 
+				"class G<T> {}\n"
+			}
+		);
+	}
+	public void testBug95521b() {
+		runConformTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" + 
+				"\n" + 
+				"/** Test */\n" + 
+				"public class X {\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param classT \n" + 
+				"     */\n" + 
+				"	public <T> X(Class<T> classT) {\n" + 
+				"	}\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param classT\n" + 
+				"     * @return classT\n" + 
+				"     */\n" + 
+				"	public <T> Class<T> foo(Class<T> classT) {\n" + 
+				"		return classT;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/** Super class */\n" + 
+				"class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * @see X#X(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"	public <T> Y(Class<T> classT) {\n" + 
+				"		super(classT);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @see X#foo(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"    public <T extends Object> Class<T> foo(Class<T> stuffClass) {\n" + 
+				"    	return null;\n" + 
+				"    }\n" + 
+				"}\n"
 			}
 		);
 	}
