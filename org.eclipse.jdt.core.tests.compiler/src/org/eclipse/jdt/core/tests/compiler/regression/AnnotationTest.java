@@ -37,7 +37,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-		TESTS_NUMBERS = new int[] { 143 };
+//		TESTS_NUMBERS = new int[] { 143 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -4590,5 +4590,79 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
-    }            
+    }         
+    public void test144() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	Zork z;\n" +
+				"	@SuppressWarnings(\"all\")  \n" + 
+				"	public static class EverythingWrong {\n" + 
+				"		private EverythingWrong() {}\n" + 
+				"		@BeforeClass public void notStaticBC() {}\n" + 
+				"		@BeforeClass static void notPublicBC() {}\n" + 
+				"		@BeforeClass public static int nonVoidBC() { return 0; }\n" + 
+				"		@BeforeClass public static void argumentsBC(int i) {}\n" + 
+				"		@BeforeClass public static void fineBC() {}\n" + 
+				"		@AfterClass public void notStaticAC() {}\n" + 
+				"		@AfterClass static void notPublicAC() {}\n" + 
+				"		@AfterClass public static int nonVoidAC() { return 0; }\n" + 
+				"		@AfterClass public static void argumentsAC(int i) {}\n" + 
+				"		@AfterClass public static void fineAC() {}\n" + 
+				"		@After public static void staticA() {}\n" + 
+				"		@After void notPublicA() {}\n" + 
+				"		@After public int nonVoidA() { return 0; }\n" + 
+				"		@After public void argumentsA(int i) {}\n" + 
+				"		@After public void fineA() {}\n" + 
+				"		@Before public static void staticB() {}\n" + 
+				"		@Before void notPublicB() {}\n" + 
+				"		@Before public int nonVoidB() { return 0; }\n" + 
+				"		@Before public void argumentsB(int i) {}\n" + 
+				"		@Before public void fineB() {}\n" + 
+				"		@Test public static void staticT() {}\n" + 
+				"		@Test void notPublicT() {}\n" + 
+				"		@Test public int nonVoidT() { return 0; }\n" + 
+				"		@Test public void argumentsT(int i) {}\n" + 
+				"		@Test public void fineT() {}\n" + 
+				"	}\n" + 
+				"	@Test public void testFailures() throws Exception {\n" + 
+				"		List<Exception> problems= new TestIntrospector(EverythingWrong.class).validateTestMethods();\n" + 
+				"		int errorCount= 1 + 4 * 5; // missing constructor plus four invalid methods for each annotation */\n" + 
+				"		assertEquals(errorCount, problems.size());\n" + 
+				"	}\n" + 
+				"	public static junit.framework.Test suite() {\n" + 
+				"		return null; // new JUnit4TestAdapter(TestMethodTest.class);\n" + 
+				"	}\n" + 
+				"	void assertEquals(int i, int j) {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"@interface BeforeClass {}\n" + 
+				"@interface AfterClass {}\n" + 
+				"@interface Test {}\n" + 
+				"@interface After {}\n" + 
+				"@interface Before {}\n" + 
+				"class TestIntrospector {\n" + 
+				"	TestIntrospector(Class c) {}\n" + 
+				"	List validateTestMethods() { return null; }\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 34)\n" + 
+			"	List<Exception> problems= new TestIntrospector(EverythingWrong.class).validateTestMethods();\n" + 
+			"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<Exception>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 38)\n" + 
+			"	public static junit.framework.Test suite() {\n" + 
+			"	              ^^^^^\n" + 
+			"junit cannot be resolved to a type\n" + 
+			"----------\n");
+    }      
 }
