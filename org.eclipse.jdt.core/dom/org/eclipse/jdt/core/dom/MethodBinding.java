@@ -179,10 +179,12 @@ class MethodBinding implements IMethodBinding {
 					Type type = parameter.getType();
 					String typeSig = Util.getSignature(type);
 					int arrayDim = parameter.getExtraDimensions();
-					if (parameter.isVarargs())
+					if (parameter.getAST().apiLevel() >= AST.JLS3 && parameter.isVarargs()) {
 						arrayDim++;
-					if (arrayDim > 0)
+					}
+					if (arrayDim > 0) {
 						typeSig = Signature.createArraySignature(typeSig, arrayDim);
+					}
 					parameterSignatures.add(typeSig);
 				}
 				int parameterCount = parameterSignatures.size();

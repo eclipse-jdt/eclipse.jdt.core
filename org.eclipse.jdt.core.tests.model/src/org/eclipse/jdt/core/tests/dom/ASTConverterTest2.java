@@ -43,7 +43,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0573"};
-//		TESTS_NUMBERS =  new int[] { 536 };
+//		TESTS_NUMBERS =  new int[] { 606 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTest2.class);
@@ -5315,5 +5315,20 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
-
+	
+	public void test0606() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0606", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertProblemsSize(unit, 0);
+		unit.accept(new ASTVisitor() {
+			public boolean visit(MethodDeclaration methodDeclaration) {
+				IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+				IJavaElement javaElement = methodBinding.getJavaElement();
+				assertNotNull("No java element", javaElement);
+				return false;
+			}
+		});
+	}
 }
