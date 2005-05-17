@@ -60,7 +60,7 @@ public class PackageDeclarationImplNoBinding implements PackageDeclaration {
 		return Collections.emptyList();
 	}
 
-	public <A extends Object & Annotation> A getAnnotation(Class<A> arg0) {
+	public <A extends Annotation> A getAnnotation(Class<A> arg0) {
 		return null;
 	}
 
