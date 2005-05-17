@@ -4664,5 +4664,29 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	              ^^^^^\n" + 
 			"junit cannot be resolved to a type\n" + 
 			"----------\n");
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89937
+    public void test145() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@interface Annot {\n" + 
+				"  int foo();\n" + 
+				"  int bar();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"  static final int yyy = 0;\n" + 
+				"  @Annot(foo=zzz, bar = yyy)\n" + 
+				"  static final int zzz = 0;\n" + 
+				"}\n" + 
+				"\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	@Annot(foo=zzz, bar = yyy)\n" + 
+			"	           ^^^\n" + 
+			"Cannot reference a field before it is defined\n" + 
+			"----------\n");
     }      
 }

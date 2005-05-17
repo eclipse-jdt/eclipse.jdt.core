@@ -194,8 +194,19 @@ public long getAnnotationTagBits() {
 	if ((originalField.tagBits & TagBits.AnnotationResolved) == 0 && originalField.declaringClass instanceof SourceTypeBinding) {
 		TypeDeclaration typeDecl = ((SourceTypeBinding)originalField.declaringClass).scope.referenceContext;
 		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
-		if (fieldDecl != null)
-			ASTNode.resolveAnnotations(isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope, fieldDecl.annotations, originalField);
+		if (fieldDecl != null) {
+			MethodScope initializationScope = isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope;
+			FieldBinding previousField = initializationScope.initializedField;
+			int previousFieldID = initializationScope.lastVisibleFieldID;			
+			try {
+				initializationScope.initializedField = originalField;
+				initializationScope.lastVisibleFieldID = originalField.id;
+				ASTNode.resolveAnnotations(initializationScope, fieldDecl.annotations, originalField);
+			} finally {
+				initializationScope.initializedField = previousField;
+				initializationScope.lastVisibleFieldID = previousFieldID;
+			}
+		}
 	}
 	return originalField.tagBits;
 }
