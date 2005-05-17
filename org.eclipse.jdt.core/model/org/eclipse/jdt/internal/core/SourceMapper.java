@@ -424,7 +424,14 @@ public class SourceMapper
 			}
 		}
 		if (VERBOSE) {
-			System.out.println("Found " + this.rootPaths.size() + " root paths");	//$NON-NLS-1$ //$NON-NLS-2$
+			final int size = this.rootPaths.size();
+			System.out.println("Found " + size + " root paths");	//$NON-NLS-1$ //$NON-NLS-2$
+			int i = 0;
+			for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext();) {
+				String rootpath = (String) iterator.next();
+				System.out.println("root[" + i + "]=" + rootpath);//$NON-NLS-1$ //$NON-NLS-2$
+				i++;
+			}
 			System.out.println("Spent " + (System.currentTimeMillis() - time) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		this.areRootPathsComputed = true;
