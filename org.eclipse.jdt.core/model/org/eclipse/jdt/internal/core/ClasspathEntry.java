@@ -246,10 +246,14 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (referringEntry.isExported() || referringEntry.getAccessRuleSet() != null ) {
 			boolean combine = this.entryKind == CPE_SOURCE || referringEntry.combineAccessRules();
 			return new ClasspathEntry(
-								this.getContentKind(), this.getEntryKind(), this.getPath(),
+								getContentKind(), 
+								getEntryKind(), 
+								getPath(),
 								this.inclusionPatterns, 
 								this.exclusionPatterns, 
-								this.getSourceAttachmentPath(), this.getSourceAttachmentRootPath(), this.getOutputLocation(), 
+								getSourceAttachmentPath(), 
+								getSourceAttachmentRootPath(), 
+								getOutputLocation(), 
 								referringEntry.isExported() || this.isExported, // duplicate container entry for tagging it as exported
 								combine(referringEntry.getAccessRules(), getAccessRules(), combine),
 								this.combineAccessRules,
