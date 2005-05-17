@@ -179,7 +179,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	/*
 	 * The extra attributes
 	 */
-	private IClasspathAttribute[] extraAttributes;
+	IClasspathAttribute[] extraAttributes;
 
 	/**
 	 * Creates a class path entry of the specified kind with the given path.
@@ -274,7 +274,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		return result;
 	}
 
-	private static IClasspathAttribute[] decodeExtraAttributes(Element element) {
+	static IClasspathAttribute[] decodeExtraAttributes(Element element) {
 		Node extra = element.getElementsByTagName(TAG_ATTRIBUTES).item(0);
 		if (extra == null) return NO_EXTRA_ATTRIBUTES;
 		NodeList attributes = element.getElementsByTagName(TAG_ATTRIBUTE);
@@ -299,7 +299,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		return result;
 	}
 	
-	private static IAccessRule[] decodeAccessRules(Element element) {
+	static IAccessRule[] decodeAccessRules(Element element) {
 		Node accessRules = element.getElementsByTagName(TAG_ACCESS_RULES).item(0);
 		if (accessRules == null || accessRules.getNodeType() != Node.ELEMENT_NODE) return null;
 		NodeList list = ((Element) accessRules).getElementsByTagName(TAG_ACCESS_RULE);
@@ -449,7 +449,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			writer.endTag(TAG_CLASSPATHENTRY, indent);
 	}
 	
-	private void encodeExtraAttributes(XMLWriter writer, boolean indent, boolean newLine) {
+	void encodeExtraAttributes(XMLWriter writer, boolean indent, boolean newLine) {
 		writer.startTag(TAG_ATTRIBUTES, indent);
 		for (int i = 0; i < this.extraAttributes.length; i++) {
 			IClasspathAttribute attribute = this.extraAttributes[i];
@@ -461,7 +461,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		writer.endTag(TAG_ATTRIBUTES, indent);
 	}
 	
-	private void encodeAccessRules(XMLWriter writer, boolean indent, boolean newLine) {
+	void encodeAccessRules(XMLWriter writer, boolean indent, boolean newLine) {
 
 		writer.startTag(TAG_ACCESS_RULES, indent);
 		AccessRule[] rules = getAccessRuleSet().getAccessRules();

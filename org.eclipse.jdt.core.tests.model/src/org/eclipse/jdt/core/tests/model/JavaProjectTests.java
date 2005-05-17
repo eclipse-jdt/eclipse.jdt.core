@@ -20,8 +20,12 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.UserLibrary;
+import org.eclipse.jdt.internal.core.UserLibraryManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class JavaProjectTests extends ModifyingResourceTests {
@@ -57,8 +61,10 @@ protected void assertResources(String message, String expected, IResource[] reso
 public static Test suite() {
 	
 	if (false) {
-		TestSuite suite = new Suite(JavaProjectTests.class.getName());
-		suite.addTest(new JavaProjectTests("testPackageFragmentRootRawEntryWhenDuplicate"));
+		String className = JavaProjectTests.class.getName();
+		System.err.println("WARNING: only a subset of "+className+" tests will be run...");
+		TestSuite suite = new Suite(className);
+		suite.addTest(new JavaProjectTests("testUserLibrary"));
 		return suite;
 	}
 	TestSuite suite = new Suite(JavaProjectTests.class.getName());
@@ -1059,5 +1065,71 @@ public void testJdkLevelRoot() throws JavaModelException {
 	IPackageFragmentRoot root= getPackageFragmentRoot("JavaProjectLibTests", "lib/");
 	assertEquals("wrong type", IPackageFragmentRoot.K_BINARY, root.getKind());
 	assertEquals("wrong jdk level", ClassFileConstants.JDK1_1, Util.getJdkLevel(root.getResource()));
+}
+/**
+ * Test User Library
+ */
+public void testUserLibrary() throws JavaModelException {
+
+	IClasspathEntry[] userEntries = new IClasspathEntry[2];
+
+	// Set first classpath entry
+	IPath path = new Path("d:/tmp/test.jar");
+	IAccessRule[] pathRules = new IAccessRule[3];
+	pathRules[0] = JavaCore.newAccessRule(new Path("**/forbidden/**"), IAccessRule.K_NON_ACCESSIBLE);
+	pathRules[1] = JavaCore.newAccessRule(new Path("**/discouraged/**"), IAccessRule.K_DISCOURAGED);
+	pathRules[2] = JavaCore.newAccessRule(new Path("**/accessible/**"), IAccessRule.K_ACCESSIBLE);
+	IClasspathAttribute[] extraAttributes = new IClasspathAttribute[2];
+	extraAttributes[0] = JavaCore.newClasspathAttribute("javadoc_location", "http://www.sample-url.org/doc/");
+	extraAttributes[1] = JavaCore.newClasspathAttribute("org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY", "d:/tmp");
+	userEntries[0] = JavaCore.newLibraryEntry(path, null, null, pathRules, extraAttributes, false);
+
+	// Set second classpath entry
+	path = new Path("d:/tmp/test.jar");
+	pathRules = new IAccessRule[3];
+	pathRules[0] = JavaCore.newAccessRule(new Path("/org/eclipse/forbidden/**"), IAccessRule.K_NON_ACCESSIBLE);
+	pathRules[1] = JavaCore.newAccessRule(new Path("/org/eclipse/discouraged/**"), IAccessRule.K_DISCOURAGED);
+	pathRules[2] = JavaCore.newAccessRule(new Path("/org/eclipse/accessible/**"), IAccessRule.K_ACCESSIBLE);
+	extraAttributes = new IClasspathAttribute[2];
+	extraAttributes[0] = JavaCore.newClasspathAttribute("javadoc_location", "http://www.sample-url.org/doc/");
+	extraAttributes[1] = JavaCore.newClasspathAttribute("org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY", "d:/tmp");
+	userEntries[1] = JavaCore.newLibraryEntry(path, null, null, pathRules, extraAttributes, false);
+	
+	// Create user library
+	UserLibrary library = new UserLibrary(userEntries, false);
+	UserLibraryManager.setUserLibrary("TEST", library, null);
+	
+	// Verify it has been written in preferences
+	IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
+	String containerKey = UserLibraryManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"TEST";
+	String libraryPreference = instancePreferences.get(containerKey, null);
+	assertNotNull("Should get a preference for TEST user library", libraryPreference);
+	StringBuffer expected = new StringBuffer();
+	expected.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
+	expected.append("<userlibrary systemlibrary=\"false\" version=\"1\">\r\n");
+	expected.append("	<archive path=\"D:/tmp/test.jar\">\r\n");
+	expected.append("		<attributes>\r\n");
+	expected.append("			<attribute value=\"http://www.sample-url.org/doc/\" name=\"javadoc_location\"/>\r\n");
+	expected.append("			<attribute value=\"d:/tmp\" name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\"/>\r\n");
+	expected.append("		</attributes>\r\n");
+	expected.append("		<accessrules>\r\n");
+	expected.append("			<accessrule kind=\"nonaccessible\" pattern=\"**/forbidden/**\"/>\r\n");
+	expected.append("			<accessrule kind=\"discouraged\" pattern=\"**/discouraged/**\"/>\r\n");
+	expected.append("			<accessrule kind=\"accessible\" pattern=\"**/accessible/**\"/>\r\n");
+	expected.append("		</accessrules>\r\n");
+	expected.append("	</archive>\r\n");
+	expected.append("	<archive path=\"D:/tmp/test.jar\">\r\n");
+	expected.append("		<attributes>\r\n");
+	expected.append("			<attribute value=\"http://www.sample-url.org/doc/\" name=\"javadoc_location\"/>\r\n");
+	expected.append("			<attribute value=\"d:/tmp\" name=\"org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY\"/>\r\n");
+	expected.append("		</attributes>\r\n");
+	expected.append("		<accessrules>\r\n");
+	expected.append("			<accessrule kind=\"nonaccessible\" pattern=\"/org/eclipse/forbidden/**\"/>\r\n");
+	expected.append("			<accessrule kind=\"discouraged\" pattern=\"/org/eclipse/discouraged/**\"/>\r\n");
+	expected.append("			<accessrule kind=\"accessible\" pattern=\"/org/eclipse/accessible/**\"/>\r\n");
+	expected.append("		</accessrules>\r\n");
+	expected.append("	</archive>\r\n");
+	expected.append("</userlibrary>\r\n");
+	assertEquals("Invalid library contents", expected.toString(), libraryPreference);
 }
 }
