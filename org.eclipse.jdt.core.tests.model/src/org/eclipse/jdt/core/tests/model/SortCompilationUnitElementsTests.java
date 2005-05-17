@@ -1704,4 +1704,40 @@ public void test025() throws CoreException {
 		this.deleteFile("/P/src/X.java");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95388
+public void test026() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"	void z() {\n" +
+			"	}\n" +
+			"	void b() {\n" +
+			"		System.out.println(\"b1\");\n" +
+			"	}\n" +
+			"	void b() {\n" +
+			"		System.out.println(\"b2\");\n" +
+			"	}\n" +
+			"	void a() {\n" +
+			"	}\n" +
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" +
+			"	void a() {\n" +
+			"	}\n" +
+			"	void b() {\n" +
+			"		System.out.println(\"b1\");\n" +
+			"	}\n" +
+			"	void b() {\n" +
+			"		System.out.println(\"b2\");\n" +
+			"	}\n" +
+			"	void z() {\n" +
+			"	}\n" +
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
 }
