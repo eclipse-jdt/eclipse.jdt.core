@@ -10,23 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Map;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -80,7 +76,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	/* Threads that are currently running initializeRoots() */
 	private Set initializingThreads = Collections.synchronizedSet(new HashSet());	
 	
-	public Hashtable externalTimeStamps = new Hashtable();
+	public Hashtable externalTimeStamps;
 	
 	public HashMap projectUpdates = new HashMap();
 
@@ -441,6 +437,68 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			}
 		}
 
+	}
+	
+	public Hashtable getExternalLibTimeStamps() {
+		if (this.externalTimeStamps == null) {
+			this.externalTimeStamps = new Hashtable();
+			File timestamps = getTimeStampsFile();
+			DataInputStream in = null;
+			try {
+				in = new DataInputStream(new BufferedInputStream(new FileInputStream(timestamps)));
+				int size = in.readInt();
+				while (size-- > 0) {
+					String key = in.readUTF();
+					long timestamp = in.readLong();
+					this.externalTimeStamps.put(Path.fromPortableString(key), new Long(timestamp));
+				}
+			} catch (IOException e) {
+				if (timestamps.exists())
+					Util.log(e, "Unable to read external time stamps"); //$NON-NLS-1$
+			} finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						// nothing we can do: ignore
+					}
+				}
+		}
+			
+		}
+		return this.externalTimeStamps;
+	}
+	
+	private File getTimeStampsFile() {
+		return JavaCore.getPlugin().getStateLocation().append("externalLibsTimeStamps").toFile(); //$NON-NLS-1$
+	}
+	
+	public void saveExternalLibTimeStamps() throws CoreException {
+		if (this.externalTimeStamps == null) return;
+		File timestamps = getTimeStampsFile();
+		DataOutputStream out = null;
+		try {
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(timestamps)));
+			out.writeInt(this.externalTimeStamps.size());
+			Iterator keys = this.externalTimeStamps.keySet().iterator();
+			while (keys.hasNext()) {
+				IPath key = (IPath) keys.next();
+				out.writeUTF(key.toPortableString());
+				Long timestamp = (Long) this.externalTimeStamps.get(key);
+				out.writeLong(timestamp.longValue());
+			}
+		} catch (IOException e) {
+			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving timestamps", e); //$NON-NLS-1$
+			throw new CoreException(status);
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					// nothing we can do: ignore
+				}
+			}
+		}
 	}
 
 	/*

@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -34,27 +33,17 @@ public class ExternalJarDeltaTests extends ModifyingResourceTests {
 public ExternalJarDeltaTests(String name) {
 	super(name);
 }
-
 public static Test suite() {
-	TestSuite suite = new Suite(ExternalJarDeltaTests.class.getName());
-	
-	suite.addTest(new ExternalJarDeltaTests("testExternalJar0"));
-
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarChanged1"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarChanged2"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarChanged3"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarAdded1"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarAdded2"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarAdded3"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarRemoved1"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarRemoved2"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarRemoved3"));
-	
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarInternalExternalJar"));
-	
-	return suite;
+	return buildTestSuite(ExternalJarDeltaTests.class);
 }
-
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+//		TESTS_PREFIX =  "testBug79990";
+//		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
+//		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
+//		TESTS_RANGE = new int[] { 83304, -1 };
+}
 private void touch(File f) {
 	f.setLastModified(f.lastModified() + 10000);
 }
@@ -172,6 +161,41 @@ public void testExternalJarChanged3() throws CoreException, IOException {
 		touch(f);
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(pPath);
 		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
+		
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n"+
+			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		if(f != null) {
+			deleteFile(f);
+		}
+		this.deleteProject("P");
+		this.stopDeltas();
+	}
+}
+/**
+ * Refresh the JavaModel after a modification of an external jar after shutdown.
+ */
+public void testExternalJarChanged4() throws CoreException, IOException {
+	File f = null;
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
+		
+		String pPath = getExternalPath() + "p.jar";
+		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		
+		f = new File(pPath);
+		f.createNewFile();
+		this.getJavaModel().refreshExternalArchives(null,null);
+		
+		// exist/restart and change the jar
+		simulateExitRestart();
+		touch(f);
+
+		this.startDeltas();
+		this.getJavaModel().refreshExternalArchives(null,null);
 		
 		assertDeltas(
 			"Unexpected delta", 

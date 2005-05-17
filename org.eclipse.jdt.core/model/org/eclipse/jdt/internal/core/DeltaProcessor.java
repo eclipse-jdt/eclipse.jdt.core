@@ -784,7 +784,7 @@ public class DeltaProcessor {
 						Object targetLibrary = JavaModel.getTarget(wksRoot, entryPath, true);
 		
 						if (targetLibrary == null){ // missing JAR
-							if (this.state.externalTimeStamps.remove(entryPath) != null){
+							if (this.state.getExternalLibTimeStamps().remove(entryPath) != null){
 								externalArchivesStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
 								// the jar was physically removed: remove the index
 								this.manager.indexManager.removeIndex(entryPath);
@@ -795,19 +795,19 @@ public class DeltaProcessor {
 							File externalFile = (File)targetLibrary;
 							
 							// check timestamp to figure if JAR has changed in some way
-							Long oldTimestamp =(Long) this.state.externalTimeStamps.get(entryPath);
+							Long oldTimestamp =(Long) this.state.getExternalLibTimeStamps().get(entryPath);
 							long newTimeStamp = getTimeStamp(externalFile);
 							if (oldTimestamp != null){
 		
 								if (newTimeStamp == 0){ // file doesn't exist
 									externalArchivesStatus.put(entryPath, EXTERNAL_JAR_REMOVED);
-									this.state.externalTimeStamps.remove(entryPath);
+									this.state.getExternalLibTimeStamps().remove(entryPath);
 									// remove the index
 									this.manager.indexManager.removeIndex(entryPath);
 		
 								} else if (oldTimestamp.longValue() != newTimeStamp){
 									externalArchivesStatus.put(entryPath, EXTERNAL_JAR_CHANGED);
-									this.state.externalTimeStamps.put(entryPath, new Long(newTimeStamp));
+									this.state.getExternalLibTimeStamps().put(entryPath, new Long(newTimeStamp));
 									// first remove the index so that it is forced to be re-indexed
 									this.manager.indexManager.removeIndex(entryPath);
 									// then index the jar
@@ -820,7 +820,7 @@ public class DeltaProcessor {
 									externalArchivesStatus.put(entryPath, EXTERNAL_JAR_UNCHANGED);
 								} else {
 									externalArchivesStatus.put(entryPath, EXTERNAL_JAR_ADDED);
-									this.state.externalTimeStamps.put(entryPath, new Long(newTimeStamp));
+									this.state.getExternalLibTimeStamps().put(entryPath, new Long(newTimeStamp));
 									// index the new jar
 									this.manager.indexManager.indexLibrary(entryPath, project.getProject());
 								}

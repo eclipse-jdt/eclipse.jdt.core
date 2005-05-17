@@ -684,6 +684,26 @@ public class JavaModelManager implements ISaveParticipant {
 			this.project = project;
 		}
 		
+		public void rememberExternalLibTimestamps() {
+			IClasspathEntry[] classpath = this.resolvedClasspath;
+			if (classpath == null) return;
+			IWorkspaceRoot wRoot = ResourcesPlugin.getWorkspace().getRoot();
+			Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaState.getExternalLibTimeStamps();
+			for (int i = 0, length = classpath.length; i < length; i++) {
+				IClasspathEntry entry = classpath[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+					IPath path = entry.getPath();
+					if (externalTimeStamps.get(path) == null) {
+						Object target = JavaModel.getTarget(wRoot, path, true);
+						if (target instanceof java.io.File) {
+							long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
+							externalTimeStamps.put(path, new Long(timestamp));							
+						}
+					}
+				}
+			}
+		}
+		
 		// updating raw classpath need to flush obsoleted cached information about resolved entries
 		public synchronized void updateClasspathInformation(IClasspathEntry[] newRawClasspath) {
 
@@ -2093,7 +2113,7 @@ public class JavaModelManager implements ISaveParticipant {
 				String containerString = null;
 				try {
 					if (container == null) {
-						// container has not been initiliazed yet, use previous session value
+						// container has not been initialized yet, use previous session value
 						// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=73969)
 						container = getPreviousSessionContainer(containerPath, project);
 					}
@@ -2136,6 +2156,7 @@ public class JavaModelManager implements ISaveParticipant {
 			if (!JavaProject.hasJavaNature(savedProject)) return; // ignore
 			PerProjectInfo info = getPerProjectInfo(savedProject, true /* create info */);
 			saveState(info, context);
+			info.rememberExternalLibTimestamps();
 			return;
 		}
 	
@@ -2144,6 +2165,7 @@ public class JavaModelManager implements ISaveParticipant {
 			try {
 				PerProjectInfo info = (PerProjectInfo) iter.next();
 				saveState(info, context);
+				info.rememberExternalLibTimestamps();
 			} catch (CoreException e) {
 				if (vStats == null)
 					vStats= new ArrayList();
@@ -2155,6 +2177,9 @@ public class JavaModelManager implements ISaveParticipant {
 			vStats.toArray(stats);
 			throw new CoreException(new MultiStatus(JavaCore.PLUGIN_ID, IStatus.ERROR, stats, Messages.build_cannotSaveStates, null)); 
 		}
+		
+		// save external libs timestamps
+		this.deltaState.saveExternalLibTimeStamps();
 	}
 
 	/**

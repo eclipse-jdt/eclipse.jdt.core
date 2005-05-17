@@ -337,8 +337,6 @@ public class JavaProject
 			throw newNotPresentException();
 		}
 		
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IWorkspaceRoot wRoot = workspace.getRoot();
 		// cannot refresh cp markers on opening (emulate cp check on startup) since can create deadlocks (see bug 37274)
 		IClasspathEntry[] resolvedClasspath = getResolvedClasspath(true/*ignoreUnresolvedEntry*/, false/*don't generateMarkerOnError*/, false/*don't returnResolutionInProgress*/);
 
@@ -346,23 +344,11 @@ public class JavaProject
 		info.setChildren(computePackageFragmentRoots(resolvedClasspath, false, null /*no reverse map*/));	
 		
 		// remember the timestamps of external libraries the first time they are looked up
-		for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
-			IClasspathEntry entry = resolvedClasspath[i];
-			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-				IPath path = entry.getPath();
-				Object target = JavaModel.getTarget(wRoot, path, true);
-				if (target instanceof java.io.File) {
-					Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaState.externalTimeStamps;
-					if (externalTimeStamps.get(path) == null) {
-						long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
-						externalTimeStamps.put(path, new Long(timestamp));							
-					}
-				}
-			}
-		}			
+		getPerProjectInfo().rememberExternalLibTimestamps();			
 
 		return true;
 	}
+
 	protected void closing(Object info) {
 		
 		// forget source attachment recommendations
