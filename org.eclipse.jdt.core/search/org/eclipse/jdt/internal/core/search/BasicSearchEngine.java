@@ -154,7 +154,7 @@ public class BasicSearchEngine {
 	 * @return a new workspace scope
 	 */
 	public static IJavaSearchScope createWorkspaceScope() {
-		return JavaWorkspaceScope.createScope();
+		return JavaModelManager.getJavaModelManager().getWorkspaceScope();
 	}
 	
 	/**

@@ -30,18 +30,6 @@ public class JavaWorkspaceScope extends JavaSearchScope {
 
 protected boolean needsInitialize;
 
-private static JavaWorkspaceScope TheWorkspaceScope = null;
-	
-public static JavaWorkspaceScope createScope() {
-	if (TheWorkspaceScope == null)
-		TheWorkspaceScope = new JavaWorkspaceScope();
-
-	return TheWorkspaceScope;
-}
-
-private JavaWorkspaceScope() {
-	JavaModelManager.getJavaModelManager().rememberScope(this);
-}
 public boolean encloses(IJavaElement element) {
 	/*
 	if (this.needsInitialize) {

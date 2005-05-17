@@ -20,8 +20,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -35,6 +37,7 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
+import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -80,6 +83,11 @@ public class JavaModelManager implements ISaveParticipant {
 	 * A HashSet that contains the IJavaProject whose classpath is being resolved.
 	 */
 	private ThreadLocal classpathsBeingResolved = new ThreadLocal();
+	
+	/*
+	 * The unique workspace scope
+	 */
+	private JavaWorkspaceScope workspaceScope;
 	
 	/*
 	 * Pools of symbols used in the Java model.
@@ -153,7 +161,9 @@ public class JavaModelManager implements ISaveParticipant {
 	public final static ICompilationUnit[] NO_WORKING_COPY = new ICompilationUnit[0];
 	
 	// Preferences
-	public HashSet optionNames = new HashSet(20);
+	HashSet optionNames = new HashSet(20);
+	Hashtable optionsCache;
+
 	public final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
 	static final int PREF_INSTANCE = 0;
 	static final int PREF_DEFAULT = 1;
@@ -613,7 +623,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * The singleton manager
 	 */
-	private final static JavaModelManager MANAGER= new JavaModelManager();
+	private static JavaModelManager MANAGER= new JavaModelManager();
 
 	/**
 	 * Infos cache.
@@ -794,6 +804,14 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	private JavaModelManager() {
 		// singleton: prevent others from creating a new instance
+	}
+
+	/**
+	 * @deprecated
+	 */
+	private void addDeprecatedOptions(Hashtable options) {
+		options.put(JavaCore.COMPILER_PB_INVALID_IMPORT, JavaCore.ERROR);		
+		options.put(JavaCore.COMPILER_PB_UNREACHABLE_CODE, JavaCore.ERROR);
 	}
 
 	/**
@@ -1014,6 +1032,28 @@ public class JavaModelManager implements ISaveParticipant {
 		return preferencesLookup[PREF_INSTANCE];
 	}
  
+	public Hashtable getDefaultOptions(){
+	
+		Hashtable defaultOptions = new Hashtable(10);
+
+		// see JavaCorePreferenceInitializer#initializeDefaultPluginPreferences() for changing default settings
+		IEclipsePreferences defaultPreferences = getDefaultPreferences();
+		
+		// initialize preferences to their default
+		Iterator iterator = this.optionNames.iterator();
+		while (iterator.hasNext()) {
+		    String propertyName = (String) iterator.next();
+		    String value = defaultPreferences.get(propertyName, null);
+		    if (value != null) defaultOptions.put(propertyName, value);
+		}
+		// get encoding through resource plugin
+		defaultOptions.put(JavaCore.CORE_ENCODING, JavaCore.getEncoding());
+		// backward compatibility
+		addDeprecatedOptions(defaultOptions);
+		
+		return defaultOptions;
+	}
+	
 	/**
 	 * Get default eclipse preference for JavaCore plugin.
 	 */
@@ -1057,6 +1097,56 @@ public class JavaModelManager implements ISaveParticipant {
 		return info.savedState;
 	}
 
+	public String getOption(String optionName) {
+		
+		if (JavaCore.CORE_ENCODING.equals(optionName)){
+			return JavaCore.getEncoding();
+		}
+		// backward compatibility
+		if (isDeprecatedOption(optionName)) {
+			return JavaCore.ERROR;
+		}
+		String propertyName = optionName;
+		if (this.optionNames.contains(propertyName)){
+			IPreferencesService service = Platform.getPreferencesService();
+			String value =  service.get(optionName, null, this.preferencesLookup);
+			return value==null ? null : value.trim();
+		}
+		return null;
+	}
+	
+	public Hashtable getOptions() {
+
+		// return cached options if already computed
+		if (this.optionsCache != null) return new Hashtable(this.optionsCache);
+
+		// init
+		Hashtable options = new Hashtable(10);
+		IPreferencesService service = Platform.getPreferencesService();
+
+		// set options using preferences service lookup
+		Iterator iterator = optionNames.iterator();
+		while (iterator.hasNext()) {
+		    String propertyName = (String) iterator.next();
+		    String propertyValue = service.get(propertyName, null, this.preferencesLookup);
+		    if (propertyValue != null) {
+			    options.put(propertyName, propertyValue);
+		    }
+		}
+
+		// get encoding through resource plugin
+		options.put(JavaCore.CORE_ENCODING, JavaCore.getEncoding()); 
+
+		// backward compatibility
+		addDeprecatedOptions(options);
+
+		// store built map in cache
+		this.optionsCache = new Hashtable(options);
+
+		// return built map
+		return options;
+	}
+	
 	/*
 	 * Returns the per-project info for the given project. If specified, create the info if the info doesn't exist.
 	 */
@@ -1263,6 +1353,14 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			return result;
 		}		
+	}
+	
+	public JavaWorkspaceScope getWorkspaceScope() {
+		if (this.workspaceScope == null) {
+			this.workspaceScope = new JavaWorkspaceScope();
+			rememberScope(this.workspaceScope);
+		}
+		return this.workspaceScope;
 	}
 	
 	/**
@@ -1567,6 +1665,14 @@ public class JavaModelManager implements ISaveParticipant {
 	
 	public boolean isClasspathBeingResolved(IJavaProject project) {
 	    return getClasspathBeingResolved().contains(project);
+	}
+	
+	/**
+	 * @deprecated
+	 */
+	private boolean isDeprecatedOption(String optionName) {
+		return JavaCore.COMPILER_PB_INVALID_IMPORT.equals(optionName)
+				|| JavaCore.COMPILER_PB_UNREACHABLE_CODE.equals(optionName);
 	}
 	
 	public void setClasspathBeingResolved(IJavaProject project, boolean classpathIsResolved) {
@@ -1891,6 +1997,11 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	}
 	
+	public static final void doNotUse() {
+		// used by tests to simulate a startup
+		MANAGER = new JavaModelManager();
+	}
+	
 	/*
 	 * Resets the temporary cache for newly created elements to null.
 	 */
@@ -2121,8 +2232,123 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 	}
+	
+	public void setOptions(Hashtable newOptions) {
+		
+		try {
+			IEclipsePreferences defaultPreferences = getDefaultPreferences();
+			IEclipsePreferences instancePreferences = getInstancePreferences();
+
+			if (newOptions == null){
+				instancePreferences.clear();
+			} else {
+				Enumeration keys = newOptions.keys();
+				while (keys.hasMoreElements()){
+					String key = (String)keys.nextElement();
+					if (!this.optionNames.contains(key)) continue; // unrecognized option
+					if (key.equals(JavaCore.CORE_ENCODING)) continue; // skipped, contributed by resource prefs
+					String value = (String)newOptions.get(key);
+					String defaultValue = defaultPreferences.get(key, null);
+					if (defaultValue != null && defaultValue.equals(value)) {
+						instancePreferences.remove(key);
+					} else {
+						instancePreferences.put(key, value);
+					}
+				}
+			}
+
+			// persist options
+			instancePreferences.flush();
+			
+			// update cache
+			this.optionsCache = newOptions==null ? null : new Hashtable(newOptions);
+		} catch (BackingStoreException e) {
+			// ignore
+		}
+	}
+		
+	public void startup() throws CoreException {
+		try {
+			configurePluginDebugOptions();
+
+			// request state folder creation (workaround 19885)
+			JavaCore.getPlugin().getStateLocation();
+
+			// Initialize eclipse preferences
+			initializePreferences();
+
+			// Listen to preference changes
+			Preferences.IPropertyChangeListener propertyListener = new Preferences.IPropertyChangeListener() {
+				public void propertyChange(Preferences.PropertyChangeEvent event) {
+					JavaModelManager.this.optionsCache = null;
+				}
+			};
+			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(propertyListener);
+
+			// retrieve variable values
+			loadVariablesAndContainers();
+
+			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			workspace.addResourceChangeListener(
+				this.deltaState,
+				IResourceChangeEvent.PRE_BUILD
+					| IResourceChangeEvent.POST_BUILD
+					| IResourceChangeEvent.POST_CHANGE
+					| IResourceChangeEvent.PRE_DELETE
+					| IResourceChangeEvent.PRE_CLOSE);
+
+			startIndexing();
+			
+			// process deltas since last activated in indexer thread so that indexes are up-to-date.
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658
+			Job processSavedState = new Job(Messages.savedState_jobName) { 
+				protected IStatus run(IProgressMonitor monitor) {
+					try {
+						// add save participant and process delta atomically
+						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59937
+						workspace.run(
+							new IWorkspaceRunnable() {
+								public void run(IProgressMonitor progress) throws CoreException {
+									ISavedState savedState = workspace.addSaveParticipant(JavaCore.getJavaCore(), JavaModelManager.this);
+									if (savedState != null) {
+										// the event type coming from the saved state is always POST_AUTO_BUILD
+										// force it to be POST_CHANGE so that the delta processor can handle it
+										JavaModelManager.this.deltaState.getDeltaProcessor().overridenEventType = IResourceChangeEvent.POST_CHANGE;
+										savedState.processResourceChangeEvents(JavaModelManager.this.deltaState);
+									}
+								}
+							},
+							monitor);
+					} catch (CoreException e) {
+						return e.getStatus();
+					}
+					return Status.OK_STATUS;
+				}
+			};
+			processSavedState.setSystem(true);
+			processSavedState.setPriority(Job.SHORT); // process asap
+			processSavedState.schedule();
+		} catch (RuntimeException e) {
+			shutdown();
+			throw e;
+		}
+	}
+
+	/**
+	 * Initiate the background indexing process.
+	 * This should be deferred after the plugin activation.
+	 */
+	private void startIndexing() {
+		getIndexManager().reset();
+	}
 
 	public void shutdown () {
+		JavaCore javaCore = JavaCore.getJavaCore();
+		javaCore.savePluginPreferences();
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		workspace.removeResourceChangeListener(this.deltaState);
+		workspace.removeSaveParticipant(javaCore);
+	
 		if (this.indexManager != null){ // no more indexing
 			this.indexManager.shutdown();
 		}

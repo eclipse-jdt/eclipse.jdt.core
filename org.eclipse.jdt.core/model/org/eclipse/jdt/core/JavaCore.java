@@ -63,16 +63,12 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * The plug-in runtime class for the Java model plug-in containing the core
@@ -1001,11 +997,6 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static final String NEVER = "never"; //$NON-NLS-1$
-
-	/*
-	 * Cache for options.
-	 */
-	static Hashtable optionsCache;
 
 	/**
 	 * Creates the Java core plug-in.
@@ -2322,28 +2313,7 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"*/
  	public static Hashtable getDefaultOptions(){
-	
-		Hashtable defaultOptions = new Hashtable(10);
-
-		// see JavaCorePreferenceInitializer#initializeDefaultPluginPreferences() for changing default settings
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		IEclipsePreferences defaultPreferences = manager.getDefaultPreferences();
-		HashSet optionNames = manager.optionNames;
-		
-		// initialize preferences to their default
-		Iterator iterator = optionNames.iterator();
-		while (iterator.hasNext()) {
-		    String propertyName = (String) iterator.next();
-		    String value = defaultPreferences.get(propertyName, null);
-		    if (value != null) defaultOptions.put(propertyName, value);
-		}
-		// get encoding through resource plugin
-		defaultOptions.put(CORE_ENCODING, getEncoding());
-		// backward compatibility
-		defaultOptions.put(COMPILER_PB_INVALID_IMPORT, ERROR);		
-		defaultOptions.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
-		
-		return defaultOptions;
+ 		return JavaModelManager.getJavaModelManager().getDefaultOptions();
 	}
 
 	/**
@@ -2391,23 +2361,7 @@ public final class JavaCore extends Plugin {
 	 * @since 2.0
 	 */
 	public static String getOption(String optionName) {
-		
-		if (CORE_ENCODING.equals(optionName)){
-			return getEncoding();
-		}
-		// backward compatibility
-		if (COMPILER_PB_INVALID_IMPORT.equals(optionName)
-				|| COMPILER_PB_UNREACHABLE_CODE.equals(optionName)) {
-			return ERROR;
-		}
-		String propertyName = optionName;
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		if (manager.optionNames.contains(propertyName)){
-			IPreferencesService service = Platform.getPreferencesService();
-			String value =  service.get(optionName, null, manager.preferencesLookup);
-			return value==null ? null : value.trim();
-		}
-		return null;
+		return JavaModelManager.getJavaModelManager().getOption(optionName);
 	}
 	
 	/**
@@ -2423,40 +2377,8 @@ public final class JavaCore extends Plugin {
 	 * @see JavaCorePreferenceInitializer for changing default settings
 	 */
 	public static Hashtable getOptions() {
-
-		// return cached options if already computed
-		if (optionsCache != null) return new Hashtable(optionsCache);
-
-		// init
-		Hashtable options = new Hashtable(10);
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		HashSet optionNames = manager.optionNames;
-		IPreferencesService service = Platform.getPreferencesService();
-
-		// set options using preferences service lookup
-		Iterator iterator = optionNames.iterator();
-		while (iterator.hasNext()) {
-		    String propertyName = (String) iterator.next();
-		    String propertyValue = service.get(propertyName, null, manager.preferencesLookup);
-		    if (propertyValue != null) {
-			    options.put(propertyName, propertyValue);
-		    }
-		}
-
-		// get encoding through resource plugin
-		options.put(CORE_ENCODING, getEncoding()); 
-
-		// backward compatibility
-		options.put(COMPILER_PB_INVALID_IMPORT, ERROR);
-		options.put(COMPILER_PB_UNREACHABLE_CODE, ERROR);
-
-		// store built map in cache
-		optionsCache = new Hashtable(options);
-
-		// return built map
-		return options;
+		return JavaModelManager.getJavaModelManager().getOptions();
 	}
-
 
 	/**
 	 * Returns the single instance of the Java core plug-in runtime class.
@@ -4003,38 +3925,7 @@ public final class JavaCore extends Plugin {
 	 * @see JavaCorePreferenceInitializer for changing default settings
 	 */
 	public static void setOptions(Hashtable newOptions) {
-		
-		try {
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			IEclipsePreferences defaultPreferences = manager.getDefaultPreferences();
-			IEclipsePreferences instancePreferences = manager.getInstancePreferences();
-
-			if (newOptions == null){
-				instancePreferences.clear();
-			} else {
-				Enumeration keys = newOptions.keys();
-				while (keys.hasMoreElements()){
-					String key = (String)keys.nextElement();
-					if (!JavaModelManager.getJavaModelManager().optionNames.contains(key)) continue; // unrecognized option
-					if (key.equals(CORE_ENCODING)) continue; // skipped, contributed by resource prefs
-					String value = (String)newOptions.get(key);
-					String defaultValue = defaultPreferences.get(key, null);
-					if (defaultValue != null && defaultValue.equals(value)) {
-						instancePreferences.remove(key);
-					} else {
-						instancePreferences.put(key, value);
-					}
-				}
-			}
-
-			// persist options
-			instancePreferences.flush();
-			
-			// update cache
-			optionsCache = newOptions==null ? null : new Hashtable(newOptions);
-		} catch (BackingStoreException e) {
-			// ignore
-		}
+		JavaModelManager.getJavaModelManager().setOptions(newOptions);
 	}
 
 	/* (non-Javadoc)
@@ -4046,25 +3937,11 @@ public final class JavaCore extends Plugin {
 	 */
 	public void stop(BundleContext context) throws Exception {
 		try {
-			savePluginPreferences();
-			IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			workspace.removeResourceChangeListener(JavaModelManager.getJavaModelManager().deltaState);
-			workspace.removeSaveParticipant(this);
-	
 			JavaModelManager.getJavaModelManager().shutdown();
 		} finally {
 			// ensure we call super.stop as the last thing
 			super.stop(context);
 		}
-	}
-
-	/**
-	 * Initiate the background indexing process.
-	 * This should be deferred after the plugin activation.
-	 */
-	private void startIndexing() {
-
-		JavaModelManager.getJavaModelManager().getIndexManager().reset();
 	}
 
 	/* (non-Javadoc)
@@ -4078,71 +3955,6 @@ public final class JavaCore extends Plugin {
 	 */
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
-		
-		final JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		try {
-			manager.configurePluginDebugOptions();
-
-			// request state folder creation (workaround 19885)
-			JavaCore.getPlugin().getStateLocation();
-
-			// Initialize eclipse preferences
-			manager.initializePreferences();
-
-			// Listen to preference changes
-			Preferences.IPropertyChangeListener propertyListener = new Preferences.IPropertyChangeListener() {
-				public void propertyChange(Preferences.PropertyChangeEvent event) {
-					JavaCore.optionsCache = null;
-				}
-			};
-			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(propertyListener);
-
-			// retrieve variable values
-			manager.loadVariablesAndContainers();
-
-			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-			workspace.addResourceChangeListener(
-				manager.deltaState,
-				IResourceChangeEvent.PRE_BUILD
-					| IResourceChangeEvent.POST_BUILD
-					| IResourceChangeEvent.POST_CHANGE
-					| IResourceChangeEvent.PRE_DELETE
-					| IResourceChangeEvent.PRE_CLOSE);
-
-			startIndexing();
-			
-			// process deltas since last activated in indexer thread so that indexes are up-to-date.
-			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658
-			Job processSavedState = new Job(Messages.savedState_jobName) { 
-				protected IStatus run(IProgressMonitor monitor) {
-					try {
-						// add save participant and process delta atomically
-						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59937
-						workspace.run(
-							new IWorkspaceRunnable() {
-								public void run(IProgressMonitor progress) throws CoreException {
-									ISavedState savedState = workspace.addSaveParticipant(JavaCore.this, manager);
-									if (savedState != null) {
-										// the event type coming from the saved state is always POST_AUTO_BUILD
-										// force it to be POST_CHANGE so that the delta processor can handle it
-										manager.deltaState.getDeltaProcessor().overridenEventType = IResourceChangeEvent.POST_CHANGE;
-										savedState.processResourceChangeEvents(manager.deltaState);
-									}
-								}
-							},
-							monitor);
-					} catch (CoreException e) {
-						return e.getStatus();
-					}
-					return Status.OK_STATUS;
-				}
-			};
-			processSavedState.setSystem(true);
-			processSavedState.setPriority(Job.SHORT); // process asap
-			processSavedState.schedule();
-		} catch (RuntimeException e) {
-			manager.shutdown();
-			throw e;
-		}
+		JavaModelManager.getJavaModelManager().startup();
 	}
 }

@@ -13,7 +13,6 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
-import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -26,7 +25,9 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -1919,6 +1920,18 @@ protected void assertDeltas(String message, String expected) {
 			}
 		};
 		Util.sort(types, comparer);
+	}
+	/*
+	 * Simulate a save/exit/restart of the workspace
+	 */
+	protected void simulateExitRestart() throws CoreException {
+		waitUntilIndexesReady();
+		waitForAutoBuild();
+		getWorkspace().save(true/*full save*/, null/*no progress*/);
+		JavaModelManager.getJavaModelManager().shutdown();
+		JavaModelManager.doNotUse(); // reset the MANAGER singleton
+		JavaModelManager.getJavaModelManager().startup();
+		new JavaCorePreferenceInitializer().initializeDefaultPreferences();
 	}
 	/**
 	 * Starts listening to element deltas, and queues them in fgDeltas.
