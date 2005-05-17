@@ -361,8 +361,6 @@ class ASTConverter {
 			setModifiers(initializer, oldInitializer);
 			initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
 			// The javadoc comment is now got from list store in compilation unit declaration
-//			setJavaDocComment(initializer);
-//			initializer.setJavadoc(convert(oldInitializer.javadoc));
 			convert(oldInitializer.javadoc, initializer);
 			bodyDeclarations.add(initializer);
 			return;
@@ -1338,6 +1336,7 @@ class ASTConverter {
 			recordNodes(typeName, enumConstant);
 			enumConstantDeclaration.resolveVariable();
 		}
+		convert(enumConstant.javadoc, enumConstantDeclaration);
 		return enumConstantDeclaration;
 	}
 

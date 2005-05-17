@@ -113,7 +113,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug84049"));
+		suite.addTest(new ASTConverterJavadocTest("testBug94150"));
 		return suite;
 	}
 
@@ -2491,7 +2491,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			"	public void invalid() {}\n" + 
 			"}\n"
 		);
-		verifyComments(workingCopies[0]);
 		CompilationUnit compilUnit = verifyComments(workingCopies[0]);
 		if (docCommentSupport.equals(JavaCore.ENABLED)) {
 			// Do not need to verify following statement as we know it's ok as verifyComments did not fail
@@ -2526,6 +2525,47 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						assertFalse("Method parameter \""+parameter+"\" should not be varargs!", parameter.isVarargs());
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Bug 94150: [javadoc][dom] Extended ranges wrong for method name without return type
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94150"
+	 */
+	public void testBug94150() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b94150/Category.java",
+			"package javadoc.b94150;\n" + 
+			"public enum Category {\n" + 
+			"    /**\n" + 
+			"     * history style\n" + 
+			"     * @see Object\n" + 
+			"     */ \n" + 
+			"     HISTORY,\n" + 
+			"\n" + 
+			"    /**\n" + 
+			"     * war style\n" + 
+			"     */ \n" + 
+			"     WAR;\n" + 
+			"}\n"
+		);
+		CompilationUnit compilUnit = verifyComments(workingCopies[0]);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Get enum declaration
+			ASTNode node = getASTNode(compilUnit, 0);
+			assertEquals("Expected enum declaration.", ASTNode.ENUM_DECLARATION, node.getNodeType());
+			EnumDeclaration enum = (EnumDeclaration) node;
+
+			// Verify each enum constant javadoc
+			List constants = enum.enumConstants();
+			int size = constants.size();
+			assertEquals("Wrong number of constants", 2, size);
+			for (int i=0; i<size; i++) {
+				EnumConstantDeclaration constant  = (EnumConstantDeclaration) constants.get(i);
+				Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(i); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
+				assertTrue("Javadoc should be set on first enum constant", docComment == constant.getJavadoc());
 			}
 		}
 	}
