@@ -2556,10 +2556,10 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			// Get enum declaration
 			ASTNode node = getASTNode(compilUnit, 0);
 			assertEquals("Expected enum declaration.", ASTNode.ENUM_DECLARATION, node.getNodeType());
-			EnumDeclaration enum = (EnumDeclaration) node;
+			EnumDeclaration enumDeclaration = (EnumDeclaration) node;
 
 			// Verify each enum constant javadoc
-			List constants = enum.enumConstants();
+			List constants = enumDeclaration.enumConstants();
 			int size = constants.size();
 			assertEquals("Wrong number of constants", 2, size);
 			for (int i=0; i<size; i++) {
