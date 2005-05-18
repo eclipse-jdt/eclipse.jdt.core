@@ -16,6 +16,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 
 
 public class CodeCorrectionTests extends AbstractJavaModelTests {
@@ -458,21 +459,36 @@ public void testCorrectSuperInterface2() throws JavaModelException {
 	int start = src.indexOf(error);
 	int end = start + error.length();
 	
-	assertEquals(
-		"should have two suggestions", 
-		"AListener\n"+
-		"AListenerEvent",
-		requestor.getSuggestions());
-	assertEquals(
-		"a start of a suggestion is not correct", 
-		start+"\n"+
-		start,
-		requestor.getStarts());
-	assertEquals(
-		"a end of a suggestion is not correct", 
-		end+"\n"+
-		end,
-		requestor.getEnds());
+	if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+		assertEquals(
+			"should have two suggestions", 
+			"AListener",
+			requestor.getSuggestions());
+		assertEquals(
+			"a start of a suggestion is not correct", 
+			""+start,
+			requestor.getStarts());
+		assertEquals(
+			"a end of a suggestion is not correct", 
+			""+end,
+			requestor.getEnds());
+	} else {
+		assertEquals(
+			"should have two suggestions", 
+			"AListener\n"+
+			"AListenerEvent",
+			requestor.getSuggestions());
+		assertEquals(
+			"a start of a suggestion is not correct", 
+			start+"\n"+
+			start,
+			requestor.getStarts());
+		assertEquals(
+			"a end of a suggestion is not correct", 
+			end+"\n"+
+			end,
+			requestor.getEnds());
+	}
 }
 public void testCorrectException1() throws JavaModelException {
 	CorrectionEngine engine = new CorrectionEngine(JavaCore.getOptions());

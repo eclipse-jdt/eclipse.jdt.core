@@ -47,13 +47,29 @@ Eclipse SDK 3.1RC1 - ?th May 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li> Code Assist suggest all member types when completion token is a single name.
+<pre>
+Y&lt;complete here&gt; // p.q.X.Y is proposed.
+</pre>
+As all member types are proposed, code assist does not propose types of the wrong kind.
+Only classes are proposed inside an extends clause, only interfaces inside an implements clause
+and only annotations in annotation reference (It was necessary before to be able to propose
+a top level type which contains these types).<br>
+Note: To re-enabled quickly the old behaviors, change the value of Completion.PROPOSE_MEMBER_TYPES.
+</li>
 <li>Added API <code>JavaCore#initializeAfterLoad(IProgressMonitor)</code> to allow
 	 a client to force the initialization of internal structures.
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=92937">92937</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=92555">92555</a>
+Code assist in Annotations suggests non-annotations
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=92733">92733</a>
+[assist] Classes suggested in implements clause
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94965">94965</a>
+[assist] code assist should suggest inner types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=92937">92937</a>
 	  	Need API: JavaCore#initializeAfterLoad()
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=90215">90215</a>
 [1.5] Enums implementing generic interfaces can compile incorrectly.

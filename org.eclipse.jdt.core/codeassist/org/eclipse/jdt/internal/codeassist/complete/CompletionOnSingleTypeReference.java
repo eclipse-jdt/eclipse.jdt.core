@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnSingleTypeReference extends SingleTypeReference {
 public boolean isCompletionNode;
+public boolean isConstructorType;
 public CompletionOnFieldType fieldTypeCompletionNode;
 
 public CompletionOnSingleTypeReference(char[] source, long pos) {

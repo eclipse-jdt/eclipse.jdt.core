@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
 public abstract class Engine implements ITypeRequestor {
@@ -34,6 +35,13 @@ public abstract class Engine implements ITypeRequestor {
 	public CompilerOptions compilerOptions; 
 	public boolean forbiddenReferenceIsError;
 	public boolean discouragedReferenceIsError;
+	
+	public boolean importCachesInitialized = false;
+	public char[][][] importsCache;
+	public ImportBinding[] onDemandImportsCache;
+	public int importCacheCount = 0;
+	public int onDemandImportCacheCount = 0;
+	public char[] currentPackageName = null;
 	
 	public Engine(Map settings){
 		this.options = new AssistOptions(settings);
@@ -87,47 +95,144 @@ public abstract class Engine implements ITypeRequestor {
 
 	public abstract AssistParser getParser();
 	
+	public void initializeImportCaches() {
+		ImportBinding[] importBindings = this.unitScope.imports;
+		int length = importBindings == null ? 0 : importBindings.length;
+		
+		this.currentPackageName = CharOperation.concatWith(unitScope.fPackage.compoundName, '.');
+		
+		for (int i = 0; i < length; i++) {
+			ImportBinding importBinding = importBindings[i];
+			if(importBinding.onDemand) {
+				if(this.onDemandImportsCache == null) {
+					this.onDemandImportsCache = new ImportBinding[length - i];
+				}
+				this.onDemandImportsCache[this.onDemandImportCacheCount++] = 
+					importBinding;
+			} else {
+				if(!(importBinding.resolvedImport instanceof MethodBinding) ||
+						importBinding instanceof ImportConflictBinding) {
+					if(this.importsCache == null) {
+						this.importsCache = new char[length - i][][];
+					}
+					this.importsCache[this.importCacheCount++] = new char[][]{
+							importBinding.compoundName[importBinding.compoundName.length - 1],
+							CharOperation.concatWith(importBinding.compoundName, '.')
+						};
+				}
+			}
+		}
+		
+		this.importCachesInitialized = true;
+	}
+	
 	protected boolean mustQualifyType(
 		char[] packageName,
-		char[] typeName) {
+		char[] typeName,
+		char[] enclosingTypeNames,
+		int modifiers) {
 
 		// If there are no types defined into the current CU yet.
 		if (unitScope == null)
 			return true;
-			
-		char[][] compoundPackageName = CharOperation.splitOn('.', packageName);
-		char[] readableTypeName = CharOperation.concat(packageName, typeName, '.');
-
-		if (CharOperation.equals(unitScope.fPackage.compoundName, compoundPackageName))
+		
+		if(!this.importCachesInitialized) {
+			this.initializeImportCaches();
+		}
+		
+		char[] fullyQualifiedTypeName = null;
+		
+		for (int i = 0; i < this.importCacheCount; i++) {
+			char[][] importName = this.importsCache[i];
+			if(CharOperation.equals(typeName, importName[0])) {
+				if (fullyQualifiedTypeName == null) {
+					fullyQualifiedTypeName =
+						enclosingTypeNames == null || enclosingTypeNames.length == 0
+								? CharOperation.concat(
+										packageName,
+										typeName,
+										'.')
+								: CharOperation.concat(
+										CharOperation.concat(
+											packageName,
+											enclosingTypeNames,
+											'.'),
+										typeName,
+										'.');
+				}
+				return !CharOperation.equals(fullyQualifiedTypeName, importName[1]);
+			}
+		}
+		
+		if ((enclosingTypeNames == null || enclosingTypeNames.length == 0 ) && CharOperation.equals(this.currentPackageName, packageName))
 			return false;
-
-		ImportBinding[] imports = unitScope.imports;
-		if (imports != null){
-			for (int i = 0, length = imports.length; i < length; i++) {
-				if (imports[i].onDemand) {
-					if (CharOperation.equals(imports[i].compoundName, compoundPackageName)) {
-						for (int j = 0; j < imports.length; j++) {
-							if(i != j){
-								if(imports[j].onDemand) {
-									if(nameEnvironment.findType(typeName, imports[j].compoundName) != null){
-										return true;
-									}
-								} else {
-									if(CharOperation.equals(CharOperation.lastSegment(imports[j].readableName(), '.'), typeName)
-										&& !CharOperation.equals(imports[j].compoundName, CharOperation.splitOn('.', readableTypeName))) {
-										return true;	
-									}
-								}
+		
+		char[] fullyQualifiedEnclosingTypeName = null;
+		
+		for (int i = 0; i < this.onDemandImportCacheCount; i++) {
+			ImportBinding importBinding = this.onDemandImportsCache[i];
+			Binding resolvedImport = importBinding.resolvedImport;
+			
+			char[][] importName = importBinding.compoundName;
+			char[] importFlatName = CharOperation.concatWith(importName, '.');
+			
+			boolean isFound = false;
+			// resolvedImport is a ReferenceBindng or a PackageBinding
+			if(resolvedImport instanceof ReferenceBinding) {
+				if(enclosingTypeNames != null && enclosingTypeNames.length != 0) {
+					if(fullyQualifiedEnclosingTypeName == null) {
+						fullyQualifiedEnclosingTypeName =
+							CharOperation.concat(
+									packageName,
+									enclosingTypeNames,
+									'.');
+					}
+					if(CharOperation.equals(fullyQualifiedEnclosingTypeName, importFlatName)) {
+						if(importBinding.isStatic()) {
+							isFound = (modifiers & IConstants.AccStatic) != 0;
+						} else {
+							isFound = true;
+						}
+					}
+				}
+			} else {
+				if(enclosingTypeNames == null || enclosingTypeNames.length == 0) {
+					if(CharOperation.equals(packageName, importFlatName)) {
+						if(importBinding.isStatic()) {
+							isFound = (modifiers & IConstants.AccStatic) != 0;
+						} else {
+							isFound = true;
+						}
+					}
+				}
+			}
+			
+			// find potential conflict with another import
+			if(isFound) {
+				for (int j = 0; j < this.onDemandImportCacheCount; j++) {
+					if(i != j) {
+						ImportBinding conflictingImportBinding = this.onDemandImportsCache[j];
+						if(conflictingImportBinding.resolvedImport instanceof ReferenceBinding) {
+							ReferenceBinding refBinding =
+								(ReferenceBinding) conflictingImportBinding.resolvedImport;
+							if (refBinding.getMemberType(typeName) != null) {
+								return true;
+							}
+						} else {
+							char[] conflictingImportName =
+								CharOperation.concatWith(conflictingImportBinding.compoundName, '.');
+							
+							if (this.nameEnvironment.nameLookup.findType(
+									String.valueOf(typeName),
+									String.valueOf(conflictingImportName),
+									false,
+									NameLookup.ACCEPT_ALL) != null) {
+								return true;
 							}
 						}
-						return false; // how do you match p1.p2.A.* ?
 					}
-	
-				} else
-	
-					if (CharOperation.equals(imports[i].readableName(), readableTypeName)) {
-						return false;
-					}
+				}
+				return false;
 			}
 		}
 		return true;

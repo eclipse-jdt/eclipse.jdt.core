@@ -905,6 +905,9 @@ private boolean checkClassInstanceCreation() {
 			} else {
 				type = getTypeReference(0);
 			}
+			if(type instanceof CompletionOnSingleTypeReference) {
+				((CompletionOnSingleTypeReference)type).isConstructorType = true;
+			}
 			allocExpr.type = type;
 			allocExpr.sourceStart = type.sourceStart;
 			allocExpr.sourceEnd = type.sourceEnd;

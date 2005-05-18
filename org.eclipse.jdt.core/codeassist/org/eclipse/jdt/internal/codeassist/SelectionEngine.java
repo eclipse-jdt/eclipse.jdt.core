@@ -131,9 +131,20 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		this.parser = new SelectionParser(problemReporter);
 	}
 
-	public void acceptType(char[] packageName, char[] typeName, int modifiers, AccessRestriction accessRestriction) {
-		if (CharOperation.equals(typeName, this.selectedIdentifier)) {
-			if(mustQualifyType(packageName, typeName)) {
+	public void acceptType(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, int modifiers, AccessRestriction accessRestriction) {
+		char[] typeName = enclosingTypeNames == null ?
+				simpleTypeName :
+					CharOperation.concat(
+						CharOperation.concatWith(enclosingTypeNames, '.'),
+						simpleTypeName,
+						'.');
+		
+		if (CharOperation.equals(simpleTypeName, this.selectedIdentifier)) {
+			char[] flatEnclosingTypeNames =
+				enclosingTypeNames == null || enclosingTypeNames.length == 0 ?
+						null :
+							CharOperation.concatWith(enclosingTypeNames, '.');
+			if(mustQualifyType(packageName, simpleTypeName, flatEnclosingTypeNames, modifiers)) {
 				int length = 0;
 				int kind = modifiers & (IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation);
 				switch (kind) {
@@ -601,7 +612,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							char[][] tokens = ((SelectionOnImportReference) importReference).tokens;
 							this.noProposal = false;
 							this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
-							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), this);
+							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), false, this);
 							
 							if(importReference.isStatic()) {
 								this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
@@ -623,7 +634,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							if(!this.acceptedAnswer) {
 								acceptQualifiedTypes();
 								if (!this.acceptedAnswer) {
-									this.nameEnvironment.findTypes(this.selectedIdentifier, this);
+									this.nameEnvironment.findTypes(this.selectedIdentifier, false, this);
 									// try with simple type name
 									if(!this.acceptedAnswer) {
 										acceptQualifiedTypes();
@@ -672,7 +683,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// only reaches here if no selection could be derived from the parsed tree
 			// thus use the selected source and perform a textual type search
 			if (!this.acceptedAnswer) {
-				this.nameEnvironment.findTypes(this.selectedIdentifier, this);
+				this.nameEnvironment.findTypes(this.selectedIdentifier, false, this);
 				
 				// accept qualified types only if no unqualified type was accepted
 				if(!this.acceptedAnswer) {
@@ -1047,7 +1058,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// thus use the selected source and perform a textual type search
 			if (!this.acceptedAnswer && searchInEnvironment) {
 				if (this.selectedIdentifier != null) {
-					this.nameEnvironment.findTypes(typeName, this);
+					this.nameEnvironment.findTypes(typeName, false, this);
 					
 					// accept qualified types only if no unqualified type was accepted
 					if(!this.acceptedAnswer) {

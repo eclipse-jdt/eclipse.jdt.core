@@ -46,10 +46,83 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests_1_5("test0192"));			
+	suite.addTest(new CompletionTests_1_5("test0204"));			
 	return suite;
 }
-
+private ICompilationUnit[] getExternalQQTypes() throws JavaModelException {
+	ICompilationUnit[] units = new ICompilationUnit[6];
+	
+	units[0] = getWorkingCopy(
+		"/Completion/src3/pkgstaticimport/QQType1.java",
+		"package pkgstaticimport;\n"+
+		"\n"+
+		"public class QQType1 {\n"+
+		"	public class Inner1 {}\n"+
+		"	public static class Inner2 {}\n"+
+		"	protected class Inner3 {}\n"+
+		"	protected static class Inner4 {}\n"+
+		"	private class Inner5 {}\n"+
+		"	private static class Inner6 {}\n"+
+		"	class Inner7 {}\n"+
+		"	static class Inner8 {}\n"+
+		"}");
+	
+	units[1] = getWorkingCopy(
+		"/Completion/src3/pkgstaticimport/QQType3.java",
+		"package pkgstaticimport;\n"+
+		"\n"+
+		"public class QQType3 extends QQType1 {\n"+
+		"	\n"+
+		"}");
+	
+	units[2] = getWorkingCopy(
+		"/Completion/src3/pkgstaticimport/QQType4.java",
+		"package pkgstaticimport;\n"+
+		"\n"+
+		"public class QQType4 {\n"+
+		"	public int zzvarzz1;\n"+
+		"	public static int zzvarzz2;\n"+
+		"	protected int zzvarzz3;\n"+
+		"	protected static int zzvarzz4;\n"+
+		"	private int zzvarzz5;\n"+
+		"	private static int zzvarzz6;\n"+
+		"	int zzvarzz7;\n"+
+		"	static int zzvarzz8;\n"+
+		"}");
+	
+	units[3] = getWorkingCopy(
+		"/Completion/src3/pkgstaticimport/QQType6.java",
+		"package pkgstaticimport;\n"+
+		"\n"+
+		"public class QQType6 extends QQType4 {\n"+
+		"	\n"+
+		"}");
+	
+	units[4] = getWorkingCopy(
+		"/Completion/src3/pkgstaticimport/QQType7.java",
+		"package pkgstaticimport;\n"+
+		"\n"+
+		"public class QQType7 {\n"+
+		"	public void zzfoozz1(){};\n"+
+		"	public static void zzfoozz2(){};\n"+
+		"	protected void zzfoozz3(){};\n"+
+		"	protected static void zzfoozz4(){};\n"+
+		"	private void zzfoozz5(){};\n"+
+		"	private static void zzfoozz6(){};\n"+
+		"	void zzfoozz7(){};\n"+
+		"	static void zzfoozz8(){};\n"+
+		"}");
+	
+	units[5] = getWorkingCopy(
+		"/Completion/src3/pkgstaticimport/QQType9.java",
+		"package pkgstaticimport;\n"+
+		"\n"+
+		"public class QQType9 extends QQType7 {\n"+
+		"	\n"+
+		"}");
+	
+	return units;
+}
 public void test0001() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0001", "Test.java");
@@ -104,57 +177,115 @@ public void test0004() throws JavaModelException {
 		requestor.getResults());
 }
 public void test0005() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0005", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Y<St";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0005/Test.java",
+            "package test0005;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "	void foo() {\n" +
+            "		X<Object>.Y<St\n" +
+            "	}\n" +
+            "}\n" +
+            "\n" +
+            "class X<T> {\n" +
+            "	public class Y<U> {\n" +
+            "	}\n" +
+            "}",
+            "Y<St");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+            result.proposals);
 }
 public void test0006() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0006", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Y<Ob";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0006/Test.java",
+            "package test0006;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "	void foo() {\n" +
+            "		X<String>.Y<Ob\n" +
+            "	}\n" +
+            "}\n" +
+            "\n" +
+            "class X<T> {\n" +
+            "	public class Y<U> {\n" +
+            "	}\n" +
+            "}",
+            "Y<Ob");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0007() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0007", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Y<St";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0007/Test.java",
+            "package test0007;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "	void foo() {\n" +
+            "		X<Object>.Y<St\n" +
+            "	}\n" +
+            "}\n" +
+            "\n" +
+            "class X<T> {\n" +
+            "	public class Y<U extends String> {\n" +
+            "	}\n" +
+            "}",
+            "Y<St");
+    
+    assertResults(
+            "expectedTypesSignatures={Ljava.lang.String;}\n" +
+            "expectedTypesKeys={Ljava/lang/String;}",
+            result.context);
+    
+    assertResults(
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0008() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0008", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Y<XY";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:XYX    completion:XYX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:XYXSuper    completion:XYXSuper    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0008/Test.java",
+            "package test0008;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "	void foo() {\n" +
+            "		X<Object>.Y<XY\n" +
+            "	}\n" +
+            "}\n" +
+            "\n" +
+            "class X<T> {\n" +
+            "	public class Y<U extends XYXSuper> {\n" +
+            "	}\n" +
+            "}\n" +
+            "class XYX {\n" +
+            "	\n" +
+            "}\n" +
+            "class XYXSuper {\n" +
+            "	\n" +
+            "}",
+            "Y<XY");
+    
+    assertResults(
+            "expectedTypesSignatures={Ltest0008.XYXSuper;}\n" +
+            "expectedTypesKeys={Ltest0008/Test~XYXSuper;}",
+            result.context);
+    
+    assertResults(
+            "XYX[TYPE_REF]{XYX, test0008, Ltest0008.XYX;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
+			"XYXSuper[TYPE_REF]{XYXSuper, test0008, Ltest0008.XYXSuper;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"}",
+			result.proposals);
 }
 public void test0009() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -187,135 +318,243 @@ public void test0010() throws JavaModelException {
 		requestor.getResults());
 }
 public void test0011() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0011", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = ".Y001";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Z0011<java.lang.Object>.Y0011    completion:Y0011    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0011/Test.java",
+            "package test0011;\n"+
+            "\n"+
+            "public class Test <T extends Z0011<Object>.Y001> {\n"+
+            "\n"+
+            "}\n"+
+            "class Z0011<T0011> {\n"+
+            "	public class Y0011 {\n"+
+            "	}\n"+
+            "}",
+            ".Y001");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Z0011<java.lang.Object>.Y0011[TYPE_REF]{Y0011, test0011, Ltest0011.Z0011<Ljava.lang.Object;>.Y0011;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+            result.proposals);
 }
 public void test0012() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0012", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = ".Y001";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Z0012<java.lang.Object>.Y0012    completion:Y0012    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0012/Test.java",
+            "package test0012;\n"+
+            "\n"+
+            "public class Test {\n"+
+            "	public Z0012<Object>.Y001\n"+
+            "}\n"+
+            "class Z0012<T0012> {\n"+
+            "	public class Y0012 {\n"+
+            "	}\n"+
+            "}",
+            ".Y001");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Z0012<java.lang.Object>.Y0012[TYPE_REF]{Y0012, test0012, Ltest0012.Z0012<Ljava.lang.Object;>.Y0012;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0013() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0013", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = ".Y001";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Z0013<java.lang.Object>.Y0013    completion:Y0013    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0013/Test.java",
+            "package test0013;\n"+
+            "\n"+
+            "public class Test {\n"+
+            "	public Z0013<Object>.Y001 foo() {}\n"+
+            "}\n"+
+            "class Z0013<T0013> {\n"+
+            "	public class Y0013 {\n"+
+            "	}\n"+
+            "}",
+            ".Y001");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Z0013<java.lang.Object>.Y0013[TYPE_REF]{Y0013, test0013, Ltest0013.Z0013<Ljava.lang.Object;>.Y0013;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0014() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0014", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = ".Y001";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Z0014<java.lang.Object>.Y0014    completion:Y0014    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0014/Test.java",
+            "package test0014;\n" +
+            "\n" +
+            "public class Test extends Z0014<Object>.Y001 {\n" +
+            "}\n" +
+            "class Z0014<T0014> {\n" +
+            "	public class Y0014 {\n" +
+            "	}\n" +
+            "}",
+            ".Y001");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Z0014<java.lang.Object>.Y0014[TYPE_REF]{Y0014, test0014, Ltest0014.Z0014<Ljava.lang.Object;>.Y0014;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0015() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0015", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = ".Y001";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Z0015<java.lang.Object>.Y0015    completion:Y0015    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "\n" +
-		"element:Z0015<java.lang.Object>.Y0015I    completion:Y0015I    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0015/Test.java",
+            "package test0015;\n" +
+            "\n" +
+            "public class Test implements Z0015<Object>.Y001 {\n" +
+            "}\n" +
+            "class Z0015<T0015> {\n" +
+            "	public class Y0015 {\n" +
+            "	}\n" +
+            "	public interface Y0015I {\n" +
+            "	}\n" +
+            "}",
+            ".Y001");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Z0015<java.lang.Object>.Y0015[TYPE_REF]{Y0015, test0015, Ltest0015.Z0015<Ljava.lang.Object;>.Y0015;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) +"}\n" +
+            "Z0015<java.lang.Object>.Y0015I[TYPE_REF]{Y0015I, test0015, Ltest0015.Z0015<Ljava.lang.Object;>.Y0015I;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE+ R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0016() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0016", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = ".Y001";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Z0016<java.lang.Object>.Y0016    completion:Y0016    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0016/Test.java",
+            "package test0016;\n" +
+            "\n" +
+            "public class Test implements  {\n" +
+            "	void foo(Z0016<Object>.Y001) {\n" +
+            "		\n" +
+            "	}\n" +
+            "}\n" +
+            "class Z0016<T0016> {\n" +
+            "	public class Y0016 {\n" +
+            "	}\n" +
+            "}",
+            ".Y001");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Z0016<java.lang.Object>.Y0016[TYPE_REF]{Y0016, test0016, Ltest0016.Z0016<Ljava.lang.Object;>.Y0016;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0017() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0017", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = ".Y001";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Z0017<java.lang.Object>.Y0017    completion:Y0017    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0017/Test.java",
+            "package test0017;\n" +
+            "\n" +
+            "public class Test implements  {\n" +
+            "	void foo() throws Z0017<Object>.Y001{\n" +
+            "		\n" +
+            "	}\n" +
+            "}\n" +
+            "class Z0017<T0017> {\n" +
+            "	public class Y0017 {\n" +
+            "	}\n" +
+            "}",
+            ".Y001");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Z0017<java.lang.Object>.Y0017[TYPE_REF]{Y0017, test0017, Ltest0017.Z0017<Ljava.lang.Object;>.Y0017;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0018() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0018", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = ".Y001";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Z0018<java.lang.Object>.Y0018    completion:Y0018    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0018/Test.java",
+            "package test0018;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "	<T extends Z0018<Object>.Y001> void foo() {\n" +
+            "		\n" +
+            "	}\n" +
+            "}\n" +
+            "class Z0018<T0018> {\n" +
+            "	public class Y0018 {\n" +
+            "	}\n" +
+            "}",
+            ".Y001");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Z0018<java.lang.Object>.Y0018[TYPE_REF]{Y0018, test0018, Ltest0018.Z0018<Ljava.lang.Object;>.Y0018;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0019() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0019", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = ".Y001";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Z0019<java.lang.Object>.Y0019    completion:Y0019    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0019/Test.java",
+            "package test0019;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "	<T extends Z0019<Object>.Y001\n" +
+            "}\n" +
+            "class Z0019<T0019> {\n" +
+            "	public class Y0019 {\n" +
+            "	}\n" +
+            "}",
+            ".Y001");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Z0019<java.lang.Object>.Y0019[TYPE_REF]{Y0019, test0019, Ltest0019.Z0019<Ljava.lang.Object;>.Y0019;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0020() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0020", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = ".Y002";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Z0020<java.lang.Object>.Y0020    completion:Y0020    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0020/Test.java",
+            "package test0020;\n"+
+            "\n"+
+            "public class Test {\n"+
+            "	void foo() {\n"+
+            "		Z0020<Object>.Y002\n"+
+            "	}\n"+
+            "}\n"+
+            "class Z0020<T0020> {\n"+
+            "	public class Y0020 {\n"+
+            "	}\n"+
+            "}",
+            ".Y002");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "Z0020<java.lang.Object>.Y0020[TYPE_REF]{Y0020, test0020, Ltest0020.Z0020<Ljava.lang.Object;>.Y0020;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 public void test0021() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -424,17 +663,23 @@ public void test0028() throws JavaModelException {
 		requestor.getResults());
 }
 public void test0029() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0029", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Inner2";
-	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("should have one class",
-		"element:Test.Inner2<T>    completion:Inner2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0029/Test.java",
+            "package test0029;\n"+
+            "\n"+
+            "public class Test {\n"+
+            "	public class Inner {\n"+
+            "		/**/Inner2<Inner2<Object>> stack= new Inner2<Inner2<Object>>();\n"+
+            "	}\n"+
+            "	class Inner2<T>{\n"+
+            "	}\n"+
+            "}",
+            "/**/Inner2");
+    
+    assertResults(
+            "Inner2[POTENTIAL_METHOD_DECLARATION]{Inner2, Ltest0029.Test$Inner;, ()V, Inner2, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n"+
+            "Test.Inner2<T>[TYPE_REF]{Inner2, test0029, Ltest0029.Test$Inner2<TT;>;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+            result.proposals);
 }
 public void test0030() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -454,17 +699,27 @@ public void test0030() throws JavaModelException {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72501
  */
 public void test0031() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0031", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Stri";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("unexpected result",
-		"",
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0031/Test.java",
+            "package test0031;\n" +
+            "\n" +
+            "public class Test <T> {\n" +
+            "	class Y {}\n" +
+            "		void foo(){\n" +
+            "			Test<T>.Y<Stri\n" +
+            "		}\n" +
+            "	}\n" +
+            "}",
+            "Stri");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "",
+            result.proposals);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
@@ -598,129 +853,226 @@ public void test0039() throws JavaModelException {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
  */
 public void test0040() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0040", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Stri";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("unexpected result",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0040/Test.java",
+            "package test0040;\n" +
+            "\n" +
+            "public class Test <T> {\n" +
+            "	public class Y {\n" +
+            "		public class Z <U>{\n" +
+            "			\n" +
+            "		}\n" +
+            "	}\n" +
+            "	Test<Object>.Y.Z<Stri\n" +
+            "}",
+            "Stri");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
  */
 public void test0041() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0041", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Stri";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("unexpected result",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0041/Test.java",
+            "package test0041;\n" +
+            "\n" +
+            "public class Test <T> {\n" +
+            "	public class Y {\n" +
+            "		public class Z <U> {\n" +
+            "			\n" +
+            "		}\n" +
+            "	}\n" +
+            "	void foo() {\n" +
+            "		Test<Object>.Y.Z<Stri\n" +
+            "	}\n" +
+            "}",
+            "Stri");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED  + R_NON_RESTRICTED) +"}",
+            result.proposals);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
  */
 public void test0042() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0042", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Stri";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("unexpected result",
-		"",
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0042/Test.java",
+            "package test0042;\n" +
+            "\n" +
+            "public class Test <T> {\n" +
+            "	public class Y {\n" +
+            "		public class Z {\n" +
+            "			\n" +
+            "		}\n" +
+            "	}\n" +
+            "	Test<Object>.Y.Z<Stri\n" +
+            "}",
+            "Stri");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "",
+            result.proposals);
+
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
  */
 public void test0043() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0043", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Stri";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("unexpected result",
-		"",
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0043/Test.java",
+            "package test0043;\n" +
+            "\n" +
+            "public class Test <T> {\n" +
+            "	public class Y {\n" +
+            "		public class Z {\n" +
+            "			\n" +
+            "		}\n" +
+            "	}\n" +
+            "	void foo() {\n" +
+            "		Test<Object>.Y.Z<Stri\n" +
+            "	}\n" +
+            "}",
+            "Stri");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "",
+            result.proposals);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
  */
 public void test0044() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0044", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Stri";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("unexpected result",
-		"",
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0044/Test.java",
+            "package test0044;\n" +
+            "\n" +
+            "public class Test <T> {\n" +
+            "	public class Y {\n" +
+            "		public class Z <U>{\n" +
+            "			\n" +
+            "		}\n" +
+            "	}\n" +
+            "	Test<Object>.Y.Z<Object, Stri\n" +
+            "}",
+            "Stri");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "",
+            result.proposals);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
  */
 public void test0045() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0045", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Stri";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("unexpected result",
-		"",
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0045/Test.java",
+            "package test0045;\n" +
+            "\n" +
+            "public class Test <T> {\n" +
+            "	public class Y {\n" +
+            "		public class Z <U>{\n" +
+            "			\n" +
+            "		}\n" +
+            "	}\n" +
+            "	void foo() {\n" +
+            "		Test<Object>.Y.Z<Object, Stri\n" +
+            "	}\n" +
+            "}",
+            "Stri");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "",
+            result.proposals);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
  */
 public void test0046() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0046", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Stri";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("unexpected result",
-		"",
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0046/Test.java",
+            "package test0046;\n" +
+            "\n" +
+            "public class Test <T> {\n" +
+            "	public class Y {\n" +
+            "		public class Z <U>{\n" +
+            "			\n" +
+            "		}\n" +
+            "	}\n" +
+            "	Test<Object>.Y.Z<Object, Stri, Object> x;\n" +
+            "}",
+            "Stri");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "",
+            result.proposals);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=59082
  */
 public void test0047() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0047", "Test.java");
-	
-	String str = cu.getSource();
-	String completeBehind = "Stri";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	
-	assertEquals("unexpected result",
-		"",
-		requestor.getResults());
+	CompletionResult result = complete(
+            "/Completion/src3/test0047/Test.java",
+            "package test0047;\n" +
+            "\n" +
+            "public class Test <T> {\n" +
+            "	public class Y {\n" +
+            "		public class Z <U>{\n" +
+            "			\n" +
+            "		}\n" +
+            "	}\n" +
+            "	void foo() {\n" +
+            "		Test<Object>.Y.Z<Object, Stri, Object> x;\n" +
+            "	}\n" +
+            "}",
+            "Stri");
+    
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+    
+    assertResults(
+            "",
+            result.proposals);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=75455
@@ -770,171 +1122,348 @@ public void test0050() throws JavaModelException {
 		"element:T_0050    completion:T_0050    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED),
 		requestor.getResults());
 }
+
 public void test0051() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
+		qqTypes = this.getExternalQQTypes();
+		
+		this.wc = getWorkingCopy(
+				"/Completion/src3/test0051/Test.java",
+				"package test0051;\n"+
+				"import static pkgstaticimport.QQType1.*;\n"+
+				"public class Test {\n"+
+				"	void foo() {\n"+
+				"		Inner\n"+
+				"	}\n"+
+				"}");
+		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0051", "Test.java");
 	
-		String str = cu.getSource();
+		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		this.wc.codeComplete(cursorLocation, requestor, this.owner);
 	
-		assertResults(
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
+		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+			assertResults(
+					"QQType1.Inner1[TYPE_REF]{pkgstaticimport.QQType1.Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		} else {
+			assertResults(
+					"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		}
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0052() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
+	ICompilationUnit qqType2 = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
+		qqTypes = this.getExternalQQTypes();
+		
+		qqType2 = getWorkingCopy(
+				"/Completion/src3/test0052/QQType2.java",
+				"package test0052;\n"+
+				"public class QQType2 {\n"+
+				"	public class Inner1 {}\n"+
+				"	public static class Inner2 {}\n"+
+				"	protected class Inner3 {}\n"+
+				"	protected static class Inner4 {}\n"+
+				"	private class Inner5 {}\n"+
+				"	private static class Inner6 {}\n"+
+				"	class Inner7 {}\n"+
+				"	static class Inner8 {}\n"+
+				"}");
+		
+		this.wc = getWorkingCopy(
+				"/Completion/src3/test0052/Test.java",
+				"package test0052;\n"+
+				"import static test0052.QQType2.*;\n"+
+				"public class Test {\n"+
+				"	void foo() {\n"+
+				"		Inner\n"+
+				"	}\n"+
+				"}");
+		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0052", "Test.java");
 	
-		String str = cu.getSource();
+		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		this.wc.codeComplete(cursorLocation, requestor, this.owner);
 	
-		assertResults(
-				"QQType2.Inner2[TYPE_REF]{Inner2, test0052, Ltest0052.QQType2$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"QQType2.Inner4[TYPE_REF]{Inner4, test0052, Ltest0052.QQType2$Inner4;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"QQType2.Inner8[TYPE_REF]{Inner8, test0052, Ltest0052.QQType2$Inner8;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
+		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+			assertResults(
+					"QQType1.Inner1[TYPE_REF]{pkgstaticimport.QQType1.Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"QQType1.Inner2[TYPE_REF]{pkgstaticimport.QQType1.Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"QQType2.Inner1[TYPE_REF]{test0052.QQType2.Inner1, test0052, Ltest0052.QQType2$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"QQType2.Inner3[TYPE_REF]{test0052.QQType2.Inner3, test0052, Ltest0052.QQType2$Inner3;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"QQType2.Inner7[TYPE_REF]{test0052.QQType2.Inner7, test0052, Ltest0052.QQType2$Inner7;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"QQType2.Inner2[TYPE_REF]{Inner2, test0052, Ltest0052.QQType2$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+					"QQType2.Inner4[TYPE_REF]{Inner4, test0052, Ltest0052.QQType2$Inner4;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+					"QQType2.Inner8[TYPE_REF]{Inner8, test0052, Ltest0052.QQType2$Inner8;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		} else {assertResults(
+					"QQType2.Inner2[TYPE_REF]{Inner2, test0052, Ltest0052.QQType2$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+					"QQType2.Inner4[TYPE_REF]{Inner4, test0052, Ltest0052.QQType2$Inner4;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+					"QQType2.Inner8[TYPE_REF]{Inner8, test0052, Ltest0052.QQType2$Inner8;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		}
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		if(qqType2 != null) {
+			qqType2.discardWorkingCopy();
+		}
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0053() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
+		qqTypes = this.getExternalQQTypes();
+		
+		this.wc = getWorkingCopy(
+				"/Completion/src3/test0053/Test.java",
+				"package test0053;\n"+
+				"import static pkgstaticimport.QQType1.*;\n"+
+				"public class Test extends pkgstaticimport.QQType1 {\n"+
+				"	void foo() {\n"+
+				"		Inner\n"+
+				"	}\n"+
+				"}");
+		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0053", "Test.java");
 	
-		String str = cu.getSource();
+		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		this.wc.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
-				"QQType1.Inner1[TYPE_REF]{Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"QQType1.Inner3[TYPE_REF]{Inner3, pkgstaticimport, Lpkgstaticimport.QQType1$Inner3;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"QQType1.Inner4[TYPE_REF]{Inner4, pkgstaticimport, Lpkgstaticimport.QQType1$Inner4;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				"QQType1.Inner1[TYPE_REF]{Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"QQType1.Inner3[TYPE_REF]{Inner3, pkgstaticimport, Lpkgstaticimport.QQType1$Inner3;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"QQType1.Inner4[TYPE_REF]{Inner4, pkgstaticimport, Lpkgstaticimport.QQType1$Inner4;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0054() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
+		qqTypes = this.getExternalQQTypes();
+		
+		this.wc = getWorkingCopy(
+				"/Completion/src3/test0054/Test.java",
+				"package test0054;\n"+
+				"import static pkgstaticimport.QQType1.Inner2;\n"+
+				"public class Test {\n"+
+				"	void foo() {\n"+
+				"		Inner\n"+
+				"	}\n"+
+				"}");
+		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0054", "Test.java");
 	
-		String str = cu.getSource();
+		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		this.wc.codeComplete(cursorLocation, requestor, this.owner);
 	
-		assertResults(
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
+		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+			assertResults(
+					"QQType1.Inner1[TYPE_REF]{pkgstaticimport.QQType1.Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		} else {
+			assertResults(
+					"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		}
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0055() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
+		qqTypes = this.getExternalQQTypes();
+		
+		this.wc = getWorkingCopy(
+				"/Completion/src3/test0055/Test.java",
+				"package test0055;\n"+
+				"import static pkgstaticimport.QQType1.*;\n"+
+				"import static pkgstaticimport.QQType1.Inner2;\n"+
+				"public class Test {\n"+
+				"	void foo() {\n"+
+				"		Inner\n"+
+				"	}\n"+
+				"}");
+		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0055", "Test.java");
 	
-		String str = cu.getSource();
+		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		this.wc.codeComplete(cursorLocation, requestor, this.owner);
 	
-		assertResults(
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
+		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+			assertResults(
+					"QQType1.Inner1[TYPE_REF]{pkgstaticimport.QQType1.Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		} else {
+			assertResults(
+					"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		}
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0056() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
+		qqTypes = this.getExternalQQTypes();
+		
+		this.wc = getWorkingCopy(
+				"/Completion/src3/test0056/Test.java",
+				"package test0056;\n"+
+				"import static pkgstaticimport.QQType1.Inner2;\n"+
+				"import static pkgstaticimport.QQType1.*;\n"+
+				"public class Test {\n"+
+				"	void foo() {\n"+
+				"		Inner\n"+
+				"	}\n"+
+				"}");
+		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0056", "Test.java");
 	
-		String str = cu.getSource();
+		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		this.wc.codeComplete(cursorLocation, requestor, this.owner);
 	
-		assertResults(
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
+		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+			assertResults(
+					"QQType1.Inner1[TYPE_REF]{pkgstaticimport.QQType1.Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		} else {
+			assertResults(
+					"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		}
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0057() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
+		qqTypes = this.getExternalQQTypes();
+		
+		this.wc = getWorkingCopy(
+				"/Completion/src3/test0056/Test.java",
+				"package test0057;\n"+
+				"import static pkgstaticimport.QQType3.*;\n"+
+				"public class Test {\n"+
+				"	void foo() {\n"+
+				"		Inner\n"+
+				"	}\n"+
+				"}");
+		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0057", "Test.java");
 	
-		String str = cu.getSource();
+		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		this.wc.codeComplete(cursorLocation, requestor, this.owner);
 	
-		assertResults(
-				"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
+		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+			assertResults(
+					"QQType1.Inner1[TYPE_REF]{pkgstaticimport.QQType1.Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		} else {
+			assertResults(
+					"QQType1.Inner2[TYPE_REF]{Inner2, pkgstaticimport, Lpkgstaticimport.QQType1$Inner2;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+					requestor.getResults());
+		}
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0058() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0058", "Test.java");
@@ -942,21 +1471,43 @@ public void test0058() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0059() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
+	ICompilationUnit qqType5 = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
+		
+		qqType5 = getWorkingCopy(
+				"/Completion/src3/test0059/QQType5.java",
+				"package test0059;\n"+
+				"\n"+
+				"public class QQType5 {\n"+
+				"	public int zzvarzz1;\n"+
+				"	public static int zzvarzz2;\n"+
+				"	protected int zzvarzz3;\n"+
+				"	protected static int zzvarzz4;\n"+
+				"	private int zzvarzz5;\n"+
+				"	private static int zzvarzz6;\n"+
+				"	int zzvarzz7;\n"+
+				"	static int zzvarzz8;\n"+
+				"}");
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0059", "Test.java");
@@ -964,7 +1515,7 @@ public void test0059() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Ltest0059.QQType5;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -972,15 +1523,23 @@ public void test0059() throws JavaModelException {
 				"zzvarzz8[FIELD_REF]{zzvarzz8, Ltest0059.QQType5;, I, zzvarzz8, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		if(qqType5 != null) {
+			qqType5.discardWorkingCopy();
+		}
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0060() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0060", "Test.java");
@@ -988,7 +1547,7 @@ public void test0060() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzvarzz1[FIELD_REF]{zzvarzz1, Lpkgstaticimport.QQType4;, I, zzvarzz1, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -997,15 +1556,21 @@ public void test0060() throws JavaModelException {
 				"zzvarzz4[FIELD_REF]{zzvarzz4, Lpkgstaticimport.QQType4;, I, zzvarzz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0061() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0061", "Test.java");
@@ -1013,21 +1578,27 @@ public void test0061() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0062() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0062", "Test.java");
@@ -1035,21 +1606,27 @@ public void test0062() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0063() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0063", "Test.java");
@@ -1057,21 +1634,27 @@ public void test0063() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0064() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0064", "Test.java");
@@ -1079,21 +1662,27 @@ public void test0064() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0065() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0065", "Test.java");
@@ -1101,21 +1690,43 @@ public void test0065() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzfoozz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0066() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
+	ICompilationUnit qqType8 = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
+		
+		qqType8 = getWorkingCopy(
+				"/Completion/src3/test0066/QQType8.java",
+				"package test0066;\n"+
+				"\n"+
+				"public class QQType8 {\n"+
+				"	public void zzfoozz1(){};\n"+
+				"	public static void zzfoozz2(){};\n"+
+				"	protected void zzfoozz3(){};\n"+
+				"	protected static void zzfoozz4(){};\n"+
+				"	private void zzfoozz5(){};\n"+
+				"	private static void zzfoozz6(){};\n"+
+				"	void zzfoozz7(){};\n"+
+				"	static void zzfoozz8(){};\n"+
+				"}");
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0066", "Test.java");
@@ -1123,7 +1734,7 @@ public void test0066() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzfoozz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzfoozz2[METHOD_REF]{zzfoozz2(), Ltest0066.QQType8;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -1131,15 +1742,23 @@ public void test0066() throws JavaModelException {
 				"zzfoozz8[METHOD_REF]{zzfoozz8(), Ltest0066.QQType8;, ()V, zzfoozz8, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		if(qqType8 != null) {
+			qqType8.discardWorkingCopy();
+		}
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0067() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0067", "Test.java");
@@ -1147,7 +1766,7 @@ public void test0067() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzfoozz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzfoozz1[METHOD_REF]{zzfoozz1(), Lpkgstaticimport.QQType7;, ()V, zzfoozz1, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -1156,15 +1775,21 @@ public void test0067() throws JavaModelException {
 				"zzfoozz4[METHOD_REF]{zzfoozz4(), Lpkgstaticimport.QQType7;, ()V, zzfoozz4, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
 public void test0068() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
+	
+	ICompilationUnit[] qqTypes = null;
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
+		
+		qqTypes = this.getExternalQQTypes();
 		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0068", "Test.java");
@@ -1172,12 +1797,14 @@ public void test0068() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzfoozz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
+		cu.codeComplete(cursorLocation, requestor, this.owner);
 	
 		assertResults(
 				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
+		this.discardWorkingCopies(qqTypes);
+		
 		JavaCore.setOptions(oldOptions);
 	}
 }
@@ -1201,88 +1828,173 @@ public void test0069() throws JavaModelException {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
  */
 public void test0070() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0070", "Test.java");
-
-	String str = cu.getSource();
-	String completeBehind = "test0070";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertResults(
-			"test0070.p[PACKAGE_REF]{test0070.p.*;, test0070.p, null, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"test0070[PACKAGE_REF]{test0070.*;, test0070, null, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	ICompilationUnit importedClass = null;
+	try {
+		importedClass = getWorkingCopy(
+				"/Completion/src3/test0070/p/ImportedClass.java",
+				"package test0070.p;\n"+
+				"\n"+
+				"public class ImportedClass {\n"+
+				"	\n"+
+				"}");
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0070", "Test.java");
+	
+		String str = cu.getSource();
+		String completeBehind = "test0070";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"test0070.p[PACKAGE_REF]{test0070.p.*;, test0070.p, null, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"test0070[PACKAGE_REF]{test0070.*;, test0070, null, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(importedClass != null) {
+			importedClass.discardWorkingCopy();
+		}
+	}
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
  */
 public void test0071() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0071", "Test.java");
-
-	String str = cu.getSource();
-	String completeBehind = "test0071.p.Im";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertResults(
-			"ImportedClass[TYPE_REF]{test0071.p.ImportedClass;, test0071.p, Ltest0071.p.ImportedClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	ICompilationUnit importedClass = null;
+	try {
+		importedClass = getWorkingCopy(
+				"/Completion/src3/test0071/p/ImportedClass.java",
+				"package test0071.p;\n"+
+				"\n"+
+				"public class ImportedClass {\n"+
+				"	\n"+
+				"}");
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0071", "Test.java");
+	
+		String str = cu.getSource();
+		String completeBehind = "test0071.p.Im";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"ImportedClass[TYPE_REF]{test0071.p.ImportedClass;, test0071.p, Ltest0071.p.ImportedClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(importedClass != null) {
+			importedClass.discardWorkingCopy();
+		}
+	}
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
  */
 public void test0072() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0072", "Test.java");
-
-	String str = cu.getSource();
-	String completeBehind = "test0072.p.ImportedClass.ZZ";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertResults(
-			"ZZZ1[FIELD_REF]{test0072.p.ImportedClass.ZZZ1;, Ltest0072.p.ImportedClass;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"ZZZ2[METHOD_IMPORT]{test0072.p.ImportedClass.ZZZ2;, Ltest0072.p.ImportedClass;, ()V, ZZZ2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"ZZZ2[METHOD_IMPORT]{test0072.p.ImportedClass.ZZZ2;, Ltest0072.p.ImportedClass;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	ICompilationUnit importedClass = null;
+	try {
+		importedClass = getWorkingCopy(
+				"/Completion/src3/test0072/p/ImportedClass.java",
+				"package test0072.p;\n"+
+				"\n"+
+				"public class ImportedClass {\n"+
+				"	public static int ZZZ1;\n"+
+				"	public static void ZZZ2() {}\n"+
+				"	public static void ZZZ2(int i) {}\n"+
+				"}");
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0072", "Test.java");
+	
+		String str = cu.getSource();
+		String completeBehind = "test0072.p.ImportedClass.ZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"ZZZ1[FIELD_REF]{test0072.p.ImportedClass.ZZZ1;, Ltest0072.p.ImportedClass;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0072.p.ImportedClass.ZZZ2;, Ltest0072.p.ImportedClass;, ()V, ZZZ2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0072.p.ImportedClass.ZZZ2;, Ltest0072.p.ImportedClass;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(importedClass != null) {
+			importedClass.discardWorkingCopy();
+		}
+	}
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
  */
 public void test0073() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0073", "Test.java");
-
-	String str = cu.getSource();
-	String completeBehind = "test0073.p.ImportedClass.Inner.ZZ";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertResults(
-			"ZZZ1[FIELD_REF]{test0073.p.ImportedClass.Inner.ZZZ1;, Ltest0073.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"ZZZ2[METHOD_IMPORT]{test0073.p.ImportedClass.Inner.ZZZ2;, Ltest0073.p.ImportedClass$Inner;, ()V, ZZZ2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"ZZZ2[METHOD_IMPORT]{test0073.p.ImportedClass.Inner.ZZZ2;, Ltest0073.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	ICompilationUnit importedClass = null;
+	try {
+		importedClass = getWorkingCopy(
+				"/Completion/src3/test0073/p/ImportedClass.java",
+				"package test0073.p;\n"+
+				"\n"+
+				"public class ImportedClass {\n"+
+				"	public static class Inner {\n"+
+				"		public static int ZZZ1;\n"+
+				"		public static void ZZZ2() {}\n"+
+				"		public static void ZZZ2(int i) {}\n"+
+				"	}\n"+
+				"}");
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0073", "Test.java");
+	
+		String str = cu.getSource();
+		String completeBehind = "test0073.p.ImportedClass.Inner.ZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"ZZZ1[FIELD_REF]{test0073.p.ImportedClass.Inner.ZZZ1;, Ltest0073.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0073.p.ImportedClass.Inner.ZZZ2;, Ltest0073.p.ImportedClass$Inner;, ()V, ZZZ2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0073.p.ImportedClass.Inner.ZZZ2;, Ltest0073.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(importedClass != null) {
+			importedClass.discardWorkingCopy();
+		}
+	}
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
  */
 public void test0074() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0074", "Test.java");
-
-	String str = cu.getSource();
-	String completeBehind = "test0074.p.ImportedClass.Inner.ZZ";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertResults(
-			"ZZZ1[FIELD_REF]{test0074.p.ImportedClass.Inner.ZZZ1;, Ltest0074.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, ()V, ZZZ2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	ICompilationUnit importedClass = null;
+	try {
+		importedClass = getWorkingCopy(
+				"/Completion/src3/test0074/p/ImportedClass.java",
+				"package test0074.p;\n"+
+				"\n"+
+				"public class ImportedClass {\n"+
+				"	public class Inner {\n"+
+				"		public static int ZZZ1;\n"+
+				"		public static void ZZZ2() {}\n"+
+				"		public static void ZZZ2(int i) {}\n"+
+				"	}\n"+
+				"}");
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0074", "Test.java");
+	
+		String str = cu.getSource();
+		String completeBehind = "test0074.p.ImportedClass.Inner.ZZ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"ZZZ1[FIELD_REF]{test0074.p.ImportedClass.Inner.ZZZ1;, Ltest0074.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, ()V, ZZZ2, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_IMPORT]{test0074.p.ImportedClass.Inner.ZZZ2;, Ltest0074.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(importedClass != null) {
+			importedClass.discardWorkingCopy();
+		}
+	}
 }
 public void test0075() throws JavaModelException {
 	this.wc = getWorkingCopy(
@@ -5436,5 +6148,241 @@ public void test0201() throws JavaModelException {
     assertResults(
             "ZZAnnot[TYPE_REF]{, test0201, Ltest0201.ZZAnnot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + + R_NON_RESTRICTED) + "}",
             result.proposals);
+}
+public void test0202() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src3/p/ZZType.java",
+	            "package p;\n" +
+	            "public class ZZType {\n" +
+	            "  public class ZZClass {" +
+	            "  }" +
+	            "  public interface ZZInterface {" +
+	            "  }" +
+	            "  public enum ZZEnum {" +
+	            "  }" +
+	            "  public @interface ZZAnnotation {" +
+	            "  }" +
+	            "}");
+		
+	    CompletionResult result = complete(
+	            "/Completion/src3/test0202/Test.java",
+	            "package test0202;\n" +
+	            "public class Test {\n" +
+	            "  public void foo() {" +
+	            "    ZZ" +
+	            "  }" +
+	            "}",
+            	"ZZ");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	    
+	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+		    assertResults(
+		            "ZZType[TYPE_REF]{p.ZZType, p, Lp.ZZType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"ZZType.ZZAnnotation[TYPE_REF]{p.ZZType.ZZAnnotation, p, Lp.ZZType$ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"ZZType.ZZClass[TYPE_REF]{p.ZZType.ZZClass, p, Lp.ZZType$ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"ZZType.ZZEnum[TYPE_REF]{p.ZZType.ZZEnum, p, Lp.ZZType$ZZEnum;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+					"ZZType.ZZInterface[TYPE_REF]{p.ZZType.ZZInterface, p, Lp.ZZType$ZZInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+		            result.proposals);
+	    } else {
+	    	assertResults(
+		            "ZZType[TYPE_REF]{p.ZZType, p, Lp.ZZType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+		            result.proposals);
+	    }
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
+public void test0203() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src3/p/ZZType.java",
+	            "package p;\n" +
+	            "public class ZZType {\n" +
+	            "  public class ZZClass {" +
+	            "  }" +
+	            "  public interface ZZInterface {" +
+	            "  }" +
+	            "  public enum ZZEnum {" +
+	            "  }" +
+	            "  public @interface ZZAnnotation {" +
+	            "  }" +
+	            "}");
+		
+	    CompletionResult result = complete(
+	            "/Completion/src3/test0203/Test.java",
+	            "package test0203;\n" +
+	            "public class Test extends ZZ{\n" +
+	            "}",
+            	"ZZ");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	    
+	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+		    assertResults(
+		            "ZZType[TYPE_REF]{p.ZZType, p, Lp.ZZType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_NON_RESTRICTED) + "}\n" +
+					"ZZType.ZZClass[TYPE_REF]{p.ZZType.ZZClass, p, Lp.ZZType$ZZClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_NON_RESTRICTED) + "}",
+		            result.proposals);
+	    } else {
+	    	assertResults(
+		            "ZZType[TYPE_REF]{p.ZZType, p, Lp.ZZType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_CLASS + R_NON_RESTRICTED) + "}",
+		            result.proposals);
+	    }
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
+public void test0204() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src3/p/ZZType.java",
+	            "package p;\n" +
+	            "public class ZZType {\n" +
+	            "  public class ZZClass {" +
+	            "  }" +
+	            "  public interface ZZInterface {" +
+	            "  }" +
+	            "  public enum ZZEnum {" +
+	            "  }" +
+	            "  public @interface ZZAnnotation {" +
+	            "  }" +
+	            "}");
+		
+	    CompletionResult result = complete(
+	            "/Completion/src3/test0204/Test.java",
+	            "package test0204;\n" +
+	            "public interface Test extends ZZ{\n" +
+	            "}",
+            	"ZZ");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	    
+	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+		    assertResults(
+		            "ZZType.ZZAnnotation[TYPE_REF]{p.ZZType.ZZAnnotation, p, Lp.ZZType$ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_NON_RESTRICTED) + "}\n" +
+					"ZZType.ZZInterface[TYPE_REF]{p.ZZType.ZZInterface, p, Lp.ZZType$ZZInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_NON_RESTRICTED) + "}",
+		            result.proposals);
+	    } else {
+	    	assertResults(
+		            "ZZType[TYPE_REF]{p.ZZType, p, Lp.ZZType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+		            result.proposals);
+	    }
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
+public void test0205() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src3/p/ZZType.java",
+	            "package p;\n" +
+	            "public class ZZType {\n" +
+	            "  public class ZZClass {" +
+	            "  }" +
+	            "  public interface ZZInterface {" +
+	            "  }" +
+	            "  public enum ZZEnum {" +
+	            "  }" +
+	            "  public @interface ZZAnnotation {" +
+	            "  }" +
+	            "}");
+		
+	    CompletionResult result = complete(
+	            "/Completion/src3/test0205/Test.java",
+	            "package test0205;\n" +
+	            "public class Test implements ZZ {\n" +
+	            "}",
+            	"ZZ");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	    
+	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+		    assertResults(
+		            "ZZType.ZZAnnotation[TYPE_REF]{p.ZZType.ZZAnnotation, p, Lp.ZZType$ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_NON_RESTRICTED) + "}\n" +
+					"ZZType.ZZInterface[TYPE_REF]{p.ZZType.ZZInterface, p, Lp.ZZType$ZZInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_INTERFACE + R_NON_RESTRICTED) + "}",
+		            result.proposals);
+	    } else {
+	    	assertResults(
+		            "ZZType[TYPE_REF]{p.ZZType, p, Lp.ZZType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+		            result.proposals);
+	    }
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
+public void test0206() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src3/p/ZZType.java",
+	            "package p;\n" +
+	            "public class ZZType {\n" +
+	            "  public class ZZClass {" +
+	            "  }" +
+	            "  public interface ZZInterface {" +
+	            "  }" +
+	            "  public enum ZZEnum {" +
+	            "  }" +
+	            "  public @interface ZZAnnotation {" +
+	            "  }" +
+	            "}");
+		
+	    CompletionResult result = complete(
+	            "/Completion/src3/test0206/Test.java",
+	            "package test0206;\n" +
+	            "@ZZ\n" +
+	            "public class Test {\n" +
+	            "}",
+            	"ZZ");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	    
+	    if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
+		    assertResults(
+		            "ZZType.ZZAnnotation[TYPE_REF]{p.ZZType.ZZAnnotation, p, Lp.ZZType$ZZAnnotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}",
+		            result.proposals);
+	    } else {
+	    	assertResults(
+		            "ZZType[TYPE_REF]{p.ZZType, p, Lp.ZZType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+		            result.proposals);
+	    }
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 }
