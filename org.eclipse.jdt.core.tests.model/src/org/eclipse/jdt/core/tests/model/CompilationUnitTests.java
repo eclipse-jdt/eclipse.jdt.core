@@ -29,6 +29,8 @@ public void setUpSuite() throws Exception {
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/X.java",
+		"\n\n" + 	// package now includes comment (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=93880)
+						// => need some empty line at beginning to be able to have cu without any other element (see testGetElementAt())
 		"/* some comment */" +
 		"package p;\n" +
 		"import p2.*;\n" +

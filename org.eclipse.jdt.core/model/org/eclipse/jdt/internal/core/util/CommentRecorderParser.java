@@ -49,8 +49,6 @@ public class CommentRecorderParser extends Parser {
 		boolean checkDeprecated = false;
 		int lastCommentIndex = -1;
 		
-		// 
-		
 		//since jdk1.2 look only in the last java doc comment...
 		nextComment : for (lastCommentIndex = this.scanner.commentPtr; lastCommentIndex >= 0; lastCommentIndex--){
 			//look for @deprecated into the first javadoc comment preceeding the declaration

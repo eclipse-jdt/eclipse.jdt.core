@@ -113,7 +113,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug94150"));
+		suite.addTest(new ASTConverterJavadocTest("testBug93880_15a"));
+		suite.addTest(new ASTConverterJavadocTest("testBug93880_15b"));
+		suite.addTest(new ASTConverterJavadocTest("testBug93880_15c"));
 		return suite;
 	}
 
@@ -2526,6 +2528,81 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Bug 93880: [1.5][javadoc] Source range of PackageDeclaration does not include Javadoc child
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=93880"
+	 */
+	public void testBug93880_15a() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/Test.java",
+			"/**\n" + 
+			" * Javadoc\n" + 
+			" */\n" + 
+			"package javadoc.b93880;\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		CompilationUnit compilUnit = verifyComments(workingCopies[0]);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Get package declaration declaration and javadoc
+			PackageDeclaration packDecl = compilUnit.getPackage();
+			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
+
+			// Verify package declaration javadoc
+			assertTrue("Javadoc should be set on package declaration", docComment == packDecl.getJavadoc());
+
+			// Verify package declaration declaration source start
+			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
+		}
+	}
+	public void testBug93880_15b() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
+			"/**\n" + 
+			" * Javadoc for all package\n" + 
+			" */\n" + 
+			"package javadoc.b93880;"
+		);
+		CompilationUnit compilUnit = verifyComments(workingCopies[0]);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Get package declaration declaration and javadoc
+			PackageDeclaration packDecl = compilUnit.getPackage();
+			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0); // Do not need to verify following statement as we know it's ok as verifyComments did not fail
+
+			// Verify package declaration javadoc
+			assertTrue("Javadoc should be set on package declaration", docComment == packDecl.getJavadoc());
+
+			// Verify package declaration declaration source start
+			assertEquals("Source range of PackageDeclaration should include Javadoc child", docComment.getStartPosition(), packDecl.getStartPosition());
+		}
+	}
+	public void testBug93880_15c() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b93880/package-info.java",
+			"/* (non-javadoc)\n" + 
+			" * No comment\n" + 
+			" */\n" + 
+			"package javadoc.b93880;"
+		);
+		CompilationUnit compilUnit = verifyComments(workingCopies[0]);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Get package declaration declaration and javadoc
+			PackageDeclaration packDecl = compilUnit.getPackage();
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+			Comment comment = (Comment) unitComments.get(0);
+
+			// Verify package declaration javadoc
+			assertNull("Package declaration should not have any javadoc", packDecl.getJavadoc());
+
+			// Verify package declaration declaration source start
+			assertTrue("Source range of PackageDeclaration should include Javadoc child", packDecl.getStartPosition() > comment.getStartPosition()+comment.getLength());
 		}
 	}
 

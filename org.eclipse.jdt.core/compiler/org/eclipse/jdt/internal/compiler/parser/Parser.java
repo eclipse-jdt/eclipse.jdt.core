@@ -4233,6 +4233,8 @@ protected void consumePackageComment() {
 	// get possible comment for syntax since 1.5
 	if(options.sourceLevel >= ClassFileConstants.JDK1_5) {
 		checkComment();
+		if (this.modifiersSourceStart >= 0)
+			pushOnIntStack(this.modifiersSourceStart); // push the start position of a javadoc comment if there is one
 		resetModifiers();
 	}
 }
@@ -4278,6 +4280,11 @@ protected void consumePackageDeclarationName() {
 	impt.declarationEnd = impt.declarationSourceEnd;
 	//this.endPosition is just before the ;
 	impt.declarationSourceStart = this.intStack[this.intPtr--];
+
+	// get possible comment source start for syntax since 1.5
+	if(options.sourceLevel >= ClassFileConstants.JDK1_5 && this.intPtr>=0) {
+		impt.declarationSourceStart = this.intStack[this.intPtr--];
+	}
 
 	// recovery
 	if (this.currentElement != null){
