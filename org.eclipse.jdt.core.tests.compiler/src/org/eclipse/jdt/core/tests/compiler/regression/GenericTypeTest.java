@@ -19662,4 +19662,121 @@ public void test672() {
 		"Type safety: Unchecked invocation read(Bar<Foo>, String) of the generic method read(D, String) of type X\n" + 
 		"----------\n");
 }	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 
+public void test673() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"class Key<E, F extends Type<E, F>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class State<S extends State> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Type<T, U extends Type<T, U>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Store<A, B extends Type<A, B>, C extends Key<A, B>, D extends State<D>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X<K> {\n" + 
+			"	List<Store<K, ?, ? extends Key<K, ?>, ? extends State<?>>> stores;\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
+public void test674() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Key<E extends Key<E>> {}\n" + 
+			"class Store<F extends Key<F>> {}\n" + 
+			"\n" + 
+			"public class X<T extends Key<T>> {\n" + 
+			"	Store<? extends Key<T>> store;\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
+public void test675() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Key<E extends Key<E>> {}\n" + 
+			"class Store<F extends Key<F>> {}\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"	Store<? extends Key<T>> store;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Store<? extends Key<T>> store;\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends Key<T> is not a valid substitute for the bounded parameter <F extends Key<F>> of the type Store<F>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	Store<? extends Key<T>> store;\n" + 
+		"	                    ^\n" + 
+		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
+		"----------\n");
+}	
+//check fault tolerance, in spite of bound mismatch, still pass param type for further resolving message send
+public void test676() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Throwable> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	\n" + 
+			"	void foo(X<String> xs) {\n" + 
+			"		xs.get().printStackTrace();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	void foo(X<String> xs) {\n" + 
+		"	           ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends Throwable> of the type X<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	xs.get().printStackTrace();\n" + 
+		"	         ^^^^^^^^^^^^^^^\n" + 
+		"The method printStackTrace() is undefined for the type String\n" + 
+		"----------\n");
+}	
+public void test677() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		{\n" + 
+			"			ArrayList<Number> arrayList = new ArrayList<Integer>(); // compile error\n" + 
+			"			Number number = arrayList.get(0);\n" + 
+			"		}\n" + 
+			"		{\n" + 
+			"			ArrayList<? extends Number> arrayList = new ArrayList<Integer>(); //correct\n" + 
+			"			Number number = arrayList.get(0);\n" + 
+			"		}\n" + 
+			"		{\n" + 
+			"			ArrayList<? super Integer> arrayList = new ArrayList<Number>();\n" + 
+			"			Object number = arrayList.get(0); //returns java.lang.Object\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	ArrayList<Number> arrayList = new ArrayList<Integer>(); // compile error\n" + 
+		"	                  ^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from ArrayList<Integer> to ArrayList<Number>\n" + 
+		"----------\n");
+}	
 }
