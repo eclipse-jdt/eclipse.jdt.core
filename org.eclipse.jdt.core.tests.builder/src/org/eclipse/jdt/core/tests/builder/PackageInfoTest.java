@@ -80,6 +80,53 @@ public void test001() throws JavaModelException {
     	"The declared package does not match the expected package pack"; 
     assertSourceEquals("Different messages", expectedOutput, stringWriter.toString());
 }
+public void test002() throws JavaModelException {
+    IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
+    env.addExternalJars(projectPath, Util.getJavaClassLibs());
+    fullBuild(projectPath);
+    
+    // remove old package fragment root so that names don't collide
+    env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+    
+    IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+    env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+    
+    env.addClass(root, "testcase", "Main", //$NON-NLS-1$ //$NON-NLS-2$
+		"package testcase;\n" +
+		"\n" +
+		"public class Main {\n" +
+		"    public static void main(String[] argv) throws Exception {\n" +
+        "		Package pkg = Package.getPackage(\"testcase\");\n" +
+        "		System.out.print(pkg.getAnnotation(TestAnnotation.class));\n" +
+		"		pkg = Class.forName(\"testcase.package-info\").getPackage();\n" +
+		"		System.out.print(pkg.getAnnotation(TestAnnotation.class));\n" +
+		"    }\n" +
+		"}"
+    );
+
+    env.addClass(root, "testcase", "TestAnnotation", //$NON-NLS-1$ //$NON-NLS-2$
+		"package testcase;\n" +
+		"\n" +
+		"import static java.lang.annotation.ElementType.PACKAGE;\n" +
+		"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" +
+		"\n" +
+		"import java.lang.annotation.Retention;\n" +
+		"import java.lang.annotation.Target;\n" +
+		"\n" +
+		"@Target(PACKAGE)\n" +
+		"@Retention(RUNTIME)\n" +
+		"public @interface TestAnnotation {\n" +
+		"}"
+        );
+   
+    env.addFile(root, "testcase/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+        "@TestAnnotation package testcase;" //$NON-NLS-1$
+    );
+        
+    incrementalBuild(projectPath);
+	expectingNoProblems();
+	executeClass(projectPath, "testcase.Main", "@testcase.TestAnnotation()@testcase.TestAnnotation()", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+}
 protected void assertSourceEquals(String message, String expected, String actual) {
     if (actual == null) {
         assertEquals(message, expected, null);
