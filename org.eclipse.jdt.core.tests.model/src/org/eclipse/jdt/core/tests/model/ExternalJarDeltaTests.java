@@ -16,6 +16,7 @@ import java.io.IOException;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -202,6 +203,80 @@ public void testExternalJarChanged4() throws CoreException, IOException {
 
 		startDeltas();
 		getJavaModel().refreshExternalArchives(null,null);
+		
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n"+
+			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		if(f != null) {
+			deleteFile(f);
+		}
+		this.deleteProject("P");
+		this.stopDeltas();
+	}
+}
+/**
+ * Ensure that the external jars are refreshed by a call to JavaCore#initializeAfterLoad()
+ * (regression test for bug 93668 Search indexes not rebuild)
+ */
+public void testExternalJarChanged5() throws CoreException, IOException {
+	File f = null;
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
+		
+		String pPath = getExternalPath() + "p.jar";
+		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		
+		f = new File(pPath);
+		f.createNewFile();
+		getJavaModel().refreshExternalArchives(null,null);
+		
+		// exit, change the jar, and restart
+		simulateExit();
+		touch(f);
+		simulateRestart();
+
+		startDeltas();
+		JavaCore.initializeAfterLoad(null);
+		
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n"+
+			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		if(f != null) {
+			deleteFile(f);
+		}
+		this.deleteProject("P");
+		this.stopDeltas();
+	}
+}
+/**
+ * Ensure that the external jars are refreshed by full build
+ * (regression test for bug 93668 Search indexes not rebuild)
+ */
+public void testExternalJarChanged6() throws CoreException, IOException {
+	File f = null;
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
+		
+		String pPath = getExternalPath() + "p.jar";
+		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		
+		f = new File(pPath);
+		f.createNewFile();
+		getJavaModel().refreshExternalArchives(null,null);
+		
+		// exit, change the jar, and restart
+		simulateExit();
+		touch(f);
+		simulateRestart();
+
+		startDeltas();
+		getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		
 		assertDeltas(
 			"Unexpected delta", 

@@ -2621,6 +2621,9 @@ public final class JavaCore extends Plugin {
 			},
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 			monitor);
+		
+		// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
+		JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(null/*refresh all projects*/, monitor);
 	}
 	
 	/**

@@ -133,6 +133,9 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 
 		if (isWorthBuilding()) {
 			if (kind == FULL_BUILD) {
+				// ensure external jars are consistent (a full build is a way users will try to have the external jars change noticed)
+				// see also https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
+				this.javaProject.getJavaModel().refreshExternalArchives(new IJavaElement[] {this.javaProject}, monitor);
 				buildAll();
 			} else {
 				if ((this.lastState = getLastState(currentProject)) == null) {
