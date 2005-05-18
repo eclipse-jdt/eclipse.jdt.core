@@ -10,12 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
-import java.util.Map;
-
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.IRequestor;
@@ -674,13 +671,6 @@ public void testRunMethodInAnonymous() {
 		"x.i"}), 
 		"10".toCharArray());
 }
-public Map getCompilerOptions15() {
-	Map defaultOptions = this.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-	return defaultOptions;
-}
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89632
  */
@@ -688,7 +678,7 @@ public void testFor89632() {
 	if (!COMPLIANCE_1_5.equals(this.complianceLevel)) return;
 	try {
 		context.setImports(new char[][] {"java.util.*".toCharArray()});
-		evaluateWithExpectedDisplayString(getCompilerOptions15(),
+		evaluateWithExpectedDisplayString(
 				buildCharArray(new String[] {
 					"Collection<String> c = new ArrayList<String>();\n" +
 					"c.add(\"a\");\n" +
