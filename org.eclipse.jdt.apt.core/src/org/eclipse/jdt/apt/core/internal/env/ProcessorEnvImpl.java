@@ -626,6 +626,11 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
     {
 		checkValid();
 		if( name == null ) return null;
+		// get rid of the generics parts.
+		final int index = name.indexOf('<');
+		if( index != -1 )
+			name = name.substring(0, index);
+
 		// first look into the current compilation unit
 		final String typeKey = BindingKey.createTypeBindingKey(name);
 		final ASTNode node = _astCompilationUnit.findDeclaringNode(typeKey);

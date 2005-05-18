@@ -133,10 +133,10 @@ public class MessagerImpl implements Messager, EclipseMessager
     }
 
     private void addMarker(final IResource resource, final int start, final int end,
-                            final int severity, final String msg, final int line)
+                            final int severity, String msg, final int line)
     {         
 		if( msg == null )
-			throw new IllegalArgumentException("missing message");		
+			msg = "<no message>";		
         Map<String, Object> map = new HashMap<String, Object>(8); // entries = 6, loadFactory = 0.75 thus, capacity = 8
         map.put( IMarker.CHAR_START, start );
         map.put( IMarker.CHAR_END, end );

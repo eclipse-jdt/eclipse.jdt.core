@@ -191,23 +191,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
     public String toString()
     {		
     	final ITypeBinding binding = getTypeBinding();
-    	if( binding.isRawType() || !binding.isParameterizedType() )
-    		return getQualifiedName();
-    	
-    	final StringBuilder buffer = new StringBuilder();
-    	buffer.append(getQualifiedName());
-    	final ITypeBinding[] typeArgs = binding.getTypeArguments();
-    	if(typeArgs != null){
-    		buffer.append('<');    	
-	    	for( int i=0; i<typeArgs.length; i++ ){
-	    		if( i != 0 )
-	    			buffer.append(',');
-	    		buffer.append(typeArgs[i].getName());
-	    	}
-	    	buffer.append('>');
-    	}
-    	
-        return buffer.toString();		
+		return binding.getQualifiedName();    
     }
 
     boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }

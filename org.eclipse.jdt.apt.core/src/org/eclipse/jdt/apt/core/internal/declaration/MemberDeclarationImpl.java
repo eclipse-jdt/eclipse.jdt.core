@@ -78,9 +78,13 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
     public String getDocComment()
     {
         if( isFromSource()){
-            final Javadoc javaDoc = ((BodyDeclaration)getAstNode()).getJavadoc();
-            if( javaDoc == null ) return "";
-            return javaDoc.toString();
+			final BodyDeclaration bodyDecl = (BodyDeclaration)getAstNode();
+			if( bodyDecl != null ){
+				final Javadoc javaDoc = bodyDecl.getJavadoc();
+	            if( javaDoc == null ) return "";
+	            return javaDoc.toString();
+			}
+			return "";
         }
         return null;
 
