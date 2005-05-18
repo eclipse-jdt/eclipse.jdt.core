@@ -1133,15 +1133,22 @@ public final class CompletionEngine
 																		CompletionOnQualifiedTypeReference type = (CompletionOnQualifiedTypeReference) annot.type;
 																		this.completionToken = type.completionIdentifier;
 																		long completionPosition = type.sourcePositions[type.tokens.length];
-																		setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
-										
-																		findMemberTypes(
-																			this.completionToken,
-																			(ReferenceBinding) qualifiedBinding,
-																			scope,
-																			scope.enclosingSourceType(),
-																			false,
-																			new ObjectVector());
+																		if (qualifiedBinding instanceof PackageBinding) {
+	
+																			setSourceRange(astNode.sourceStart, (int) completionPosition);
+																			// replace to the end of the completion identifier
+																			findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding);
+																		} else {
+																			setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
+											
+																			findMemberTypes(
+																				this.completionToken,
+																				(ReferenceBinding) qualifiedBinding,
+																				scope,
+																				scope.enclosingSourceType(),
+																				false,
+																				new ObjectVector());
+																		}
 																	}
 																} else if (astNode instanceof CompletionOnMemberValueName) {
 																	if(!this.requestor.isIgnored(CompletionProposal.ANNOTATION_ATTRIBUTE_REF)) {

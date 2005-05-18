@@ -6385,4 +6385,35 @@ public void test0206() throws JavaModelException {
 		}
 	}
 }
+// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=93254
+public void test0207() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src3/p/Annot.java",
+	            "package p;\n" +
+	            "public @interface Annot {\n" +
+	            "}");
+		
+	    CompletionResult result = complete(
+	            "/Completion/src3/test0207/Test.java",
+	            "package test0206;\n" +
+	            "@p.Annot\n",
+            	"@p.Annot");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	    
+	    assertResults(
+	            "Annot[TYPE_REF]{p.Annot, p, Lp.Annot;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_ANNOTATION + R_QUALIFIED + R_NON_RESTRICTED) + "}",
+	            result.proposals);
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
 }
