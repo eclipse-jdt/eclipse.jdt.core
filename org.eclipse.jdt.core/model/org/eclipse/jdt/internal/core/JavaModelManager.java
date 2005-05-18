@@ -147,6 +147,7 @@ public class JavaModelManager implements ISaveParticipant {
 	private static final String RESOLUTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/resolution" ; //$NON-NLS-1$
 	private static final String SELECTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
+	private static final String SOURCE_MAPPER_DEBUG_VERBOSE = JavaCore.PLUGIN_ID + "/debug/sourcemapper" ; //$NON-NLS-1$
 
 	public static final String COMPLETION_PERF = JavaCore.PLUGIN_ID + "/perf/completion" ; //$NON-NLS-1$
 	public static final String SELECTION_PERF = JavaCore.PLUGIN_ID + "/perf/selection" ; //$NON-NLS-1$
@@ -906,6 +907,9 @@ public class JavaModelManager implements ISaveParticipant {
 
 			option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
 			if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			
+			option = Platform.getDebugOption(SOURCE_MAPPER_DEBUG_VERBOSE);
+			if(option != null) SourceMapper.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 		}
 		
 		// configure performance options

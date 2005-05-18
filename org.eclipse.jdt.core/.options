@@ -38,6 +38,9 @@ org.eclipse.jdt.core/debug/resolution=false
 # Reports java search activity
 org.eclipse.jdt.core/debug/search=false
 
+# Reports source mapper activity
+org.eclipse.jdt.core/debug/sourcemapper=false
+
 # Reports open on selection activity : recovered unit, inferred selection
 org.eclipse.jdt.core/debug/selection=false
 

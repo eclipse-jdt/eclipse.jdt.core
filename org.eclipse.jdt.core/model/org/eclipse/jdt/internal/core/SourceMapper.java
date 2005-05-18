@@ -68,7 +68,7 @@ public class SourceMapper
 	extends ReferenceInfoAdapter
 	implements ISourceElementRequestor, SuffixConstants {
 		
-	public static boolean VERBOSE = true;
+	public static boolean VERBOSE = false;
 	/**
 	 * Specifies the file name filter use to compute the root paths.
 	 */
