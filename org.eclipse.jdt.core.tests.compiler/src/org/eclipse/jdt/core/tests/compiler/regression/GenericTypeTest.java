@@ -19807,4 +19807,46 @@ public void test678() {
 		"The serializable class Y does not declare a static final serialVersionUID field of type long\n" + 
 		"----------\n");
 }	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
+public void test679() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Key<E, F extends Key<E, F>> {}\n" + 
+			"class Store<A, B extends Key<A, B>> {}\n" + 
+			"\n" + 
+			"public class X<K extends Key<?, K>> {\n" + 
+			"	Store<K, ? extends Key<K, ?>> store;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Store<K, ? extends Key<K, ?>> store;\n" + 
+		"	         ^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends Key<K,?> is not a valid substitute for the bounded parameter <B extends Key<A,B>> of the type Store<A,B>\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
+public void test680() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"class Key<E, F extends Type<E, F, G, H>, G extends Key<E, F, G, H>, H extends State<H>> {}\n" + 
+			"class State<S extends State> {}\n" + 
+			"class Type<T, U extends Type<T, U, V, W>, V extends Key<T, U, V, W>, W extends State<W>> {}\n" + 
+			"class Store<A, B extends Type<A, B, C, D>, C extends Key<A, B, C, D>, D extends State<D>> {}\n" + 
+			"\n" + 
+			"public class X<K extends Key<K, ?,?,?>> {\n" + 
+			"	List<Store<K, ?, ? extends Key<K, ?, ?, ?>, ? extends State<?>>> stores;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	List<Store<K, ?, ? extends Key<K, ?, ?, ?>, ? extends State<?>>> stores;\n" + 
+		"	                 ^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends Key<K,?,?,?> is not a valid substitute for the bounded parameter <C extends Key<A,B,C,D>> of the type Store<A,B,C,D>\n" + 
+		"----------\n");
+}	
 }
