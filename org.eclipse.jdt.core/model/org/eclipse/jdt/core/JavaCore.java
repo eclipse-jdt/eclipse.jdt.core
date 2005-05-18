@@ -63,6 +63,11 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -2567,6 +2572,47 @@ public final class JavaCore extends Plugin {
 		ICompilationUnit[] result = manager.getWorkingCopies(owner, false/*don't add primary WCs*/);
 		if (result == null) return JavaModelManager.NO_WORKING_COPY;
 		return result;
+	}
+	
+/**
+ * Initializes JavaCore internal structures to allow subsequent operations (such 
+ * as the ones that need a resolved classpath) to run full speed. A client may 
+ * choose to call this method in a background thread early after the workspace 
+ * has started so that the initialization is transparent to the user.
+ * <p>
+ * This initialization runs accross all Java projects in the workspace. 
+ * </p><p>
+ * This method doesn't return until the initialization is complete.
+ * </p>
+ * 
+ * @param monitor a progress monitor, or <code>null</code> if progress
+ *    reporting and cancellation are not desired
+ * @exception CoreException if the initialization fails, 
+ * 		the status of the exception indicates the reason of the failure
+ * @since 3.1
+ */
+public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
+		// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
+		SearchEngine engine = new SearchEngine();
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
+		engine.searchAllTypeNames(
+			null,
+			"!@$#!@".toCharArray(), //$NON-NLS-1$
+			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+			IJavaSearchConstants.CLASS,
+			scope, 
+			new TypeNameRequestor() {
+				public void acceptType(
+					int modifiers,
+					char[] packageName,
+					char[] simpleTypeName,
+					char[][] enclosingTypeNames,
+					String path) {
+					// no type to accept
+				}
+			},
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			monitor);
 	}
 	
 	/**

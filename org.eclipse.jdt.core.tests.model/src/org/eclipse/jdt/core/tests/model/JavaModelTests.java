@@ -404,5 +404,12 @@ public void testGetSchedulingRule4() {
 		pkg.getResource(),
 		pkg.getSchedulingRule());
 }
+/*
+ * Ensures that JavaCore#initializeAfterLoad() can be called on startup
+ */
+public void testInitializeAfterLoad() throws CoreException {
+	simulateExitRestart();
+	JavaCore.initializeAfterLoad(null);
+}
 }
 
