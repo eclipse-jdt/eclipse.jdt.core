@@ -31,11 +31,11 @@ public class EnumTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
-//	static {
+	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_NUMBERS = new int[] { 106 };
 //		TESTS_RANGE = new int[] { 21, 50 };
-//	}
+	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
 		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
@@ -3189,4 +3189,148 @@ the right of e1."
             "Syntax error on token \"}\", delete this token\n" + 
             "----------\n");
     }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=90215
+    public void test104() {
+        this.runConformTest(
+            new String[] {
+                "p/Placeholder.java",
+				"package p;\n" + 
+				"\n" + 
+				"public class Placeholder {\n" + 
+				"    public static void main(String... argv) {\n" + 
+				"        ClassWithBadEnum.main(argv);\n" + 
+				"	}\n" + 
+				"}    \n" + 
+				"\n",
+                "p/ClassWithBadEnum.java",
+				"package p;\n" + 
+				"\n" + 
+				"public class ClassWithBadEnum {\n" + 
+				"	public interface EnumInterface<T extends Object> {\n" + 
+				"	    public T getMethod();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public enum EnumClass implements EnumInterface<String> {\n" + 
+				"		ENUM1 { public String getMethod() { return \"ENUM1\";} },\n" + 
+				"		ENUM2 { public String getMethod() { return \"ENUM2\";} };\n" + 
+				"	}\n" + 
+				"	private EnumClass enumVar; \n" + 
+				"	public EnumClass getEnumVar() {\n" + 
+				"		return enumVar;\n" + 
+				"	}\n" + 
+				"	public void setEnumVar(EnumClass enumVar) {\n" + 
+				"		this.enumVar = enumVar;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String... argv) {\n" + 
+				"		int a = 1;\n" + 
+				"		ClassWithBadEnum badEnum = new ClassWithBadEnum();\n" + 
+				"		badEnum.setEnumVar(ClassWithBadEnum.EnumClass.ENUM1);\n" + 
+				"		// Should fail if bug manifests itself because there will be two getInternalValue() methods\n" + 
+				"		// one returning an Object instead of a String\n" + 
+				"		String s3 = badEnum.getEnumVar().getMethod();\n" + 
+				"		System.out.println(s3);\n" + 
+				"	}\n" + 
+				"}  \n",
+            },
+            "ENUM1");
+    }    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=90215 - variation
+    public void test105() {
+        this.runConformTest(
+            new String[] {
+                "p/ClassWithBadEnum.java",
+				"package p;\n" + 
+				"\n" + 
+				"public class ClassWithBadEnum {\n" + 
+				"	public interface EnumInterface<T extends Object> {\n" + 
+				"	    public T getMethod();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public enum EnumClass implements EnumInterface<String> {\n" + 
+				"		ENUM1 { public String getMethod() { return \"ENUM1\";} },\n" + 
+				"		ENUM2 { public String getMethod() { return \"ENUM2\";} };\n" + 
+				"	}\n" + 
+				"	private EnumClass enumVar; \n" + 
+				"	public EnumClass getEnumVar() {\n" + 
+				"		return enumVar;\n" + 
+				"	}\n" + 
+				"	public void setEnumVar(EnumClass enumVar) {\n" + 
+				"		this.enumVar = enumVar;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String... argv) {\n" + 
+				"		int a = 1;\n" + 
+				"		ClassWithBadEnum badEnum = new ClassWithBadEnum();\n" + 
+				"		badEnum.setEnumVar(ClassWithBadEnum.EnumClass.ENUM1);\n" + 
+				"		// Should fail if bug manifests itself because there will be two getInternalValue() methods\n" + 
+				"		// one returning an Object instead of a String\n" + 
+				"		String s3 = badEnum.getEnumVar().getMethod();\n" + 
+				"		System.out.println(s3);\n" + 
+				"	}\n" + 
+				"}  \n",
+                "p/Placeholder.java",
+				"package p;\n" + 
+				"\n" + 
+				"public class Placeholder {\n" + 
+				"    public static void main(String... argv) {\n" + 
+				"        ClassWithBadEnum badEnum = new ClassWithBadEnum();\n" + 
+				"		 badEnum.setEnumVar(ClassWithBadEnum.EnumClass.ENUM1);\n" + 
+				"	}\n" + 
+				"}    \n" + 
+				"\n",
+            },
+            "ENUM1");
+    }        
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=90215 - variation
+    public void test106() {
+        this.runConformTest(
+            new String[] {
+                "p/ClassWithBadEnum.java",
+				"package p;\n" + 
+				"\n" + 
+				"public class ClassWithBadEnum {\n" + 
+				"	public interface EnumInterface<T extends Object> {\n" + 
+				"	    public T getMethod();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public enum EnumClass implements EnumInterface<String> {\n" + 
+				"		ENUM1 { public String getMethod() { return \"ENUM1\";} },\n" + 
+				"		ENUM2 { public String getMethod() { return \"ENUM2\";} };\n" + 
+				"	}\n" + 
+				"	private EnumClass enumVar; \n" + 
+				"	public EnumClass getEnumVar() {\n" + 
+				"		return enumVar;\n" + 
+				"	}\n" + 
+				"	public void setEnumVar(EnumClass enumVar) {\n" + 
+				"		this.enumVar = enumVar;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String... argv) {\n" + 
+				"		int a = 1;\n" + 
+				"		ClassWithBadEnum badEnum = new ClassWithBadEnum();\n" + 
+				"		badEnum.setEnumVar(ClassWithBadEnum.EnumClass.ENUM1);\n" + 
+				"		// Should fail if bug manifests itself because there will be two getInternalValue() methods\n" + 
+				"		// one returning an Object instead of a String\n" + 
+				"		String s3 = badEnum.getEnumVar().getMethod();\n" + 
+				"		System.out.println(s3);\n" + 
+				"	}\n" + 
+				"}  \n",
+            },
+            "ENUM1");
+        this.runConformTest(
+            new String[] {
+                "p/Placeholder.java",
+				"package p;\n" + 
+				"\n" + 
+				"public class Placeholder {\n" + 
+				"    public static void main(String... argv) {\n" + 
+				"        ClassWithBadEnum.main(argv);\n" + 
+				"	}\n" + 
+				"}    \n" + 
+				"\n",
+            },
+            "ENUM1",
+            null, false, null);
+    }      
 }

@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -469,9 +470,27 @@ public class ClassScope extends Scope {
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
 
-// what about inherited interface methods?
+			// what about inherited interface methods?
 			if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0)
 				modifiers |= AccAbstract;
+			else if (!sourceType.isAnonymousType()){ // body of enum constant must implement any inherited abstract methods
+				// enum type needs to implement abstract methods if one of its constants does not supply a body
+				TypeDeclaration typeDeclaration = this.referenceContext;
+				FieldDeclaration[] fields = typeDeclaration.fields;
+				int length = typeDeclaration.fields == null ? 0 : typeDeclaration.fields.length;
+				checkAbstractEnum: {
+					if (length == 0) break checkAbstractEnum; // has no constants so must implement the method itself
+					for (int i = 0; i < length; i++) {
+						FieldDeclaration fieldDecl = fields[i];
+						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
+							if (!(fieldDecl.initialization instanceof QualifiedAllocationExpression))
+								break checkAbstractEnum;
+					}
+					// tag this enum as abstract since an abstract method must be implemented AND all enum constants define an anonymous body
+					// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method					
+					modifiers |= AccAbstract;
+				}
+			}
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
