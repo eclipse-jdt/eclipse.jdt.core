@@ -11,7 +11,11 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
