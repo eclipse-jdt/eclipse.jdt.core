@@ -2574,24 +2574,32 @@ public final class JavaCore extends Plugin {
 		return result;
 	}
 	
-/**
- * Initializes JavaCore internal structures to allow subsequent operations (such 
- * as the ones that need a resolved classpath) to run full speed. A client may 
- * choose to call this method in a background thread early after the workspace 
- * has started so that the initialization is transparent to the user.
- * <p>
- * This initialization runs accross all Java projects in the workspace. 
- * </p><p>
- * This method doesn't return until the initialization is complete.
- * </p>
- * 
- * @param monitor a progress monitor, or <code>null</code> if progress
- *    reporting and cancellation are not desired
- * @exception CoreException if the initialization fails, 
- * 		the status of the exception indicates the reason of the failure
- * @since 3.1
- */
-public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
+	/**
+	 * Initializes JavaCore internal structures to allow subsequent operations (such 
+	 * as the ones that need a resolved classpath) to run full speed. A client may 
+	 * choose to call this method in a background thread early after the workspace 
+	 * has started so that the initialization is transparent to the user.
+	 * <p>
+	 * However calling this method is optional. Services will lazily perform 
+	 * initialization when invoked. This is only a way to reduce initialization 
+	 * overhead on user actions, if it can be performed before at some 
+	 * appropriate moment.
+	 * </p><p>
+	 * This initialization runs accross all Java projects in the workspace. Thus the
+	 * workspace root scheduling rule is used during this operation.
+	 * </p><p>
+	 * This method doesn't return until the initialization is complete.
+	 * </p><p>
+	 * This method can be called concurrently.
+	 * </p>
+	 * 
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting and cancellation are not desired
+	 * @exception CoreException if the initialization fails, 
+	 * 		the status of the exception indicates the reason of the failure
+	 * @since 3.1
+	 */
+	public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
 		// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
 		SearchEngine engine = new SearchEngine();
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
