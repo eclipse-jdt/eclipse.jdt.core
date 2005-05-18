@@ -1922,13 +1922,25 @@ protected void assertDeltas(String message, String expected) {
 		Util.sort(types, comparer);
 	}
 	/*
-	 * Simulate a save/exit/restart of the workspace
+	 * Simulate a save/exit of the workspace
 	 */
-	protected void simulateExitRestart() throws CoreException {
+	protected void simulateExit() throws CoreException {
 		waitUntilIndexesReady();
 		waitForAutoBuild();
 		getWorkspace().save(true/*full save*/, null/*no progress*/);
 		JavaModelManager.getJavaModelManager().shutdown();
+	}
+	/*
+	 * Simulate a save/exit/restart of the workspace
+	 */
+	protected void simulateExitRestart() throws CoreException {
+		simulateExit();
+		simulateRestart();
+	}
+	/*
+	 * Simulate a restart of the workspace
+	 */
+	protected void simulateRestart() throws CoreException {
 		JavaModelManager.doNotUse(); // reset the MANAGER singleton
 		JavaModelManager.getJavaModelManager().startup();
 		new JavaCorePreferenceInitializer().initializeDefaultPreferences();
