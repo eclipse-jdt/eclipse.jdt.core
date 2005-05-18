@@ -13,11 +13,15 @@ package org.eclipse.jdt.internal.core;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -64,7 +68,7 @@ public class SourceMapper
 	extends ReferenceInfoAdapter
 	implements ISourceElementRequestor, SuffixConstants {
 		
-	public static boolean VERBOSE = false;
+	public static boolean VERBOSE = true;
 	/**
 	 * Specifies the file name filter use to compute the root paths.
 	 */
@@ -78,7 +82,7 @@ public class SourceMapper
 	 * the zip (empty specifies the default root). <code>null</code> is
 	 * not a valid root path.
 	 */
-	protected HashSet rootPaths;
+	protected ArrayList rootPaths;
 
 	/**
 	 * The binary type source is being mapped for
@@ -94,7 +98,7 @@ public class SourceMapper
 	 * the zip (empty specifies the default root). <code>null</code> is
 	 * not a valid root path.
 	 */
-	protected String rootPath;
+	protected String rootPath = ""; //$NON-NLS-1$
 
 	/**
 	 * Used for efficiency
@@ -199,8 +203,8 @@ public class SourceMapper
 			// use no encoding
 		}
 		if (rootPath != null) {
-			this.rootPaths = new HashSet();
-			this.rootPaths.add(rootPath);
+			this.rootPaths = new ArrayList();
+			this.rootPaths.add(new Path(rootPath));
 		}
 		this.sourcePath = sourcePath;
 		this.fSourceRanges = new HashMap();
@@ -306,9 +310,7 @@ public class SourceMapper
 	}
 	
 	private void computeAllRootPaths(IPackageFragmentRoot root) {
-		if (this.rootPaths == null) {
-			this.rootPaths = new HashSet();
-		}
+		final HashSet tempRoots = new HashSet();
 		long time = 0;
 		if (VERBOSE) {
 			System.out.println("compute all root paths for " + root.getElementName()); //$NON-NLS-1$
@@ -330,9 +332,11 @@ public class SourceMapper
 						int index = entryName.indexOf('/');
 						if (index != -1 && Util.isClassFileName(entryName)) {
 							String firstLevelPackageName = entryName.substring(0, index);
-							IStatus status = JavaConventions.validatePackageName(firstLevelPackageName);
-							if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
-								firstLevelPackageNames.add(firstLevelPackageName);
+							if (!firstLevelPackageNames.contains(firstLevelPackageName)) {
+								IStatus status = JavaConventions.validatePackageName(firstLevelPackageName);
+								if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
+									firstLevelPackageNames.add(firstLevelPackageName);
+								}
 							}
 						} else if (Util.isClassFileName(entryName)) {
 							containsADefaultPackage = true;
@@ -393,15 +397,15 @@ public class SourceMapper
 						if (segmentCount > 1) {
 							loop: for (int i = 0, max = path.segmentCount() - 1; i < max; i++) {
 								if (firstLevelPackageNames.contains(path.segment(i))) {
-									this.rootPaths.add(path.uptoSegment(i).toString());
+									tempRoots.add(path.uptoSegment(i));
 									// don't break here as this path could contain other first level package names (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=74014)
 								}
 								if (i == max - 1 && containsADefaultPackage) {
-									this.rootPaths.add(path.uptoSegment(max).toString());
+									tempRoots.add(path.uptoSegment(max));
 								}
 							}
 						} else if (containsADefaultPackage) {
-							this.rootPaths.add(""); //$NON-NLS-1$
+							tempRoots.add(new Path("")); //$NON-NLS-1$
 						}
 					}
 				}
@@ -414,30 +418,52 @@ public class SourceMapper
 			Object target = JavaModel.getTarget(ResourcesPlugin.getWorkspace().getRoot(), this.sourcePath, true);
 			if (target instanceof IResource) {
 				if (target instanceof IContainer) {
-					computeRootPath((IContainer)target, firstLevelPackageNames, containsADefaultPackage);
+					computeRootPath((IContainer)target, firstLevelPackageNames, containsADefaultPackage, tempRoots);
 				}
 			} else if (target instanceof File) {
 				File file = (File)target;
 				if (file.isDirectory()) {
-					computeRootPath(file, firstLevelPackageNames, containsADefaultPackage);
+					computeRootPath(file, firstLevelPackageNames, containsADefaultPackage, tempRoots);
 				}
 			}
 		}
+		int size = tempRoots.size();
+		if (this.rootPaths != null) {
+			for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext(); ) {
+				tempRoots.add(iterator.next());
+				size++;
+			}
+			this.rootPaths.clear();
+		} else {
+			this.rootPaths = new ArrayList(size);
+		}
+		if (size != 0) {
+			ArrayList sortedRoots = new ArrayList(tempRoots);
+			Collections.sort(sortedRoots, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					IPath path1 = (IPath) o1;
+					IPath path2 = (IPath) o2;
+					return path1.segmentCount() - path2.segmentCount();
+				}
+			});
+			for (Iterator iter = sortedRoots.iterator(); iter.hasNext();) {
+				IPath path = (IPath) iter.next();
+				this.rootPaths.add(path.toString());
+			}
+		}
+		this.areRootPathsComputed = true;
 		if (VERBOSE) {
-			final int size = this.rootPaths.size();
+			System.out.println("Spent " + (System.currentTimeMillis() - time) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 			System.out.println("Found " + size + " root paths");	//$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
 			for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext();) {
-				String rootpath = (String) iterator.next();
-				System.out.println("root[" + i + "]=" + rootpath);//$NON-NLS-1$ //$NON-NLS-2$
+				System.out.println("root[" + i + "]=" + ((String) iterator.next()));//$NON-NLS-1$ //$NON-NLS-2$
 				i++;
 			}
-			System.out.println("Spent " + (System.currentTimeMillis() - time) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		this.areRootPathsComputed = true;
 	}
 	
-	private void computeRootPath(File directory, HashSet firstLevelPackageNames, boolean hasDefaultPackage) {
+	private void computeRootPath(File directory, HashSet firstLevelPackageNames, boolean hasDefaultPackage, Set set) {
 		File[] files = directory.listFiles();
 		boolean hasSubDirectories = false;
 		loop: for (int i = 0, max = files.length; i < max; i++) {
@@ -447,23 +473,23 @@ public class SourceMapper
 				if (firstLevelPackageNames.contains(file.getName())) {
 					IPath fullPath = new Path(file.getParentFile().getPath());
 					IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
-					this.rootPaths.add(rootPathEntry.toString());
+					set.add(rootPathEntry);
 					break loop;
 				} else {
-					computeRootPath(file, firstLevelPackageNames, hasDefaultPackage);
+					computeRootPath(file, firstLevelPackageNames, hasDefaultPackage, set);
 				}
 			} else if (i == max - 1 && !hasSubDirectories && hasDefaultPackage) {
 				File parentDir = file.getParentFile();
 				if (parentDir.list(FILENAME_FILTER).length != 0) {
 					IPath fullPath = new Path(parentDir.getPath());
 					IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
-					this.rootPaths.add(rootPathEntry.toString());
+					set.add(rootPathEntry);
 				}
 			}
 		}
 	}	
 
-	private void computeRootPath(IContainer container, HashSet firstLevelPackageNames, boolean hasDefaultPackage) {
+	private void computeRootPath(IContainer container, HashSet firstLevelPackageNames, boolean hasDefaultPackage, Set set) {
 		try {
 			IResource[] resources = container.members();
 			boolean hasSubDirectories = false;
@@ -474,10 +500,10 @@ public class SourceMapper
 					if (firstLevelPackageNames.contains(resource.getName())) {
 						IPath fullPath = container.getFullPath();
 						IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
-						this.rootPaths.add(rootPathEntry.toString());
+						set.add(rootPathEntry);
 						break loop;
 					} else {
-						computeRootPath((IFolder) resource, firstLevelPackageNames, hasDefaultPackage);
+						computeRootPath((IFolder) resource, firstLevelPackageNames, hasDefaultPackage, set);
 					}
 				}
 				if (i == max - 1 && !hasSubDirectories && hasDefaultPackage) {
@@ -492,7 +518,7 @@ public class SourceMapper
 					if (hasJavaSourceFile) {
 						IPath fullPath = container.getFullPath();
 						IPath rootPathEntry = fullPath.removeFirstSegments(this.sourcePath.segmentCount()).setDevice(null);
-						this.rootPaths.add(rootPathEntry.toString());
+						set.add(rootPathEntry);
 					}
 				}
 			}
@@ -747,15 +773,14 @@ public class SourceMapper
 	
 		char[] source = null;
 		
-		if (!areRootPathsComputed) {
-			computeAllRootPaths((IPackageFragmentRoot) type.getPackageFragment().getParent());
-		}
-		
 		if (this.rootPath != null) {
 			source = getSourceForRootPath(this.rootPath, name);
 		}
 
 		if (source == null) {
+			if (!areRootPathsComputed) {
+				computeAllRootPaths((IPackageFragmentRoot) type.getPackageFragment().getParent());
+			}
 			/*
 			 * We should try all existing root paths. If none works, try to recompute it.
 			 * If it still doesn't work, then return null
