@@ -294,8 +294,6 @@ public class CompilationUnitDeclaration
 			if (this.javadoc != null) {
 				this.javadoc.resolve(syntheticTypeDeclaration.staticInitializerScope);
     		}
-			// set the synthetic bit
-			syntheticTypeDeclaration.binding.modifiers |= AccSynthetic;
 			startingTypeIndex = 1;
 		}
 		if (this.currentPackage != null && this.currentPackage.annotations != null && !isPackageInfo) {
