@@ -19779,4 +19779,32 @@ public void test677() {
 		"Type mismatch: cannot convert from ArrayList<Integer> to ArrayList<Number>\n" + 
 		"----------\n");
 }	
+public void test678() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"public class X<T, T2 extends T & Serializable > {\n" + 
+			"	\n" + 
+			"	X<Object, Serializable> right1;\n" + 
+			"	X<String, Serializable> wrong1;\n" + 
+			"	X<Y, Y> right2;\n" + 
+			"	\n" + 
+			"	static class Y implements Serializable {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<String, Serializable> wrong1;\n" + 
+		"	          ^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type Serializable is not a valid substitute for the bounded parameter <T2 extends T & Serializable> of the type X<T,T2>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	static class Y implements Serializable {\n" + 
+		"	             ^\n" + 
+		"The serializable class Y does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}	
 }
