@@ -3198,7 +3198,7 @@ the right of e1."
 				"\n" + 
 				"public class Placeholder {\n" + 
 				"    public static void main(String... argv) {\n" + 
-				"        ClassWithBadEnum.EnumClass constant = ClassWithBadEnum.EnumClass.ENUM1;\n" +
+				"        ClassWithBadEnum.EnumClass constant = ClassWithBadEnum.EnumClass.ENUM1;\n" + // forward ref
 				"        ClassWithBadEnum.main(argv);\n" + 
 				"	}\n" + 
 				"}    \n" + 
