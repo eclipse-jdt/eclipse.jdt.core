@@ -181,6 +181,7 @@ public void testExternalJarChanged3() throws CoreException, IOException {
 }
 /**
  * Refresh the JavaModel after a modification of an external jar after shutdown.
+ * (regression test for bug 39856 External jar's timestamps should be persisted accross sessions)
  */
 public void testExternalJarChanged4() throws CoreException, IOException {
 	File f = null;
