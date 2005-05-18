@@ -2620,10 +2620,14 @@ public final class JavaCore extends Plugin {
 				}
 			},
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			monitor);
+			monitor == null ? null : new SubProgressMonitor(monitor, 99) // 99% of the time is spent in the dummy search
+		); 
 		
 		// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
-		JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(null/*refresh all projects*/, monitor);
+		JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(
+			null/*refresh all projects*/, 
+			monitor == null ? null : new SubProgressMonitor(monitor, 1) // 1% of the time is spent in jar refresh
+		);
 	}
 	
 	/**
