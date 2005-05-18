@@ -685,6 +685,7 @@ public Map getCompilerOptions15() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89632
  */
 public void testFor89632() {
+	if (!COMPLIANCE_1_5.equals(this.complianceLevel)) return;
 	try {
 		context.setImports(new char[][] {"java.util.*".toCharArray()});
 		evaluateWithExpectedDisplayString(getCompilerOptions15(),
