@@ -335,6 +335,7 @@ public void testExternalJarAdded2() throws CoreException, IOException {
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
 		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
 		startDeltas();
 		
 		f = new File(pPath);
