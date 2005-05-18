@@ -6416,4 +6416,44 @@ public void test0207() throws JavaModelException {
 		}
 	}
 }
+public void test0208() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src3/p/Colors.java",
+	            "package p;\n" +
+	            "public enum Colors { BLACK, BLUE, WHITE, RED }\n");
+		
+	    CompletionResult result = complete(
+	            "/Completion/src3/test0208/Test.java",
+	            "package test0208;\n" +
+	            "public class Test {\n" +
+	            "  static final String BLANK = \"    \";\n" +
+	            "  void foo(p.Colors color) {\n" +
+	            "    switch (color) {\n" +
+	            "      case BLUE:\n" +
+	            "      case RED:\n" +
+	            "        break;\n" +
+	            "      case \n" +
+	            "    }\n" +
+	            "  }\n" +
+	            "}",
+            	"case ");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	    
+	    assertResults(
+	            "BLACK[FIELD_REF]{BLACK, Lp.Colors;, Lp.Colors;, BLACK, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ENUM + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"WHITE[FIELD_REF]{WHITE, Lp.Colors;, Lp.Colors;, WHITE, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_ENUM + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+	            result.proposals);
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
 }

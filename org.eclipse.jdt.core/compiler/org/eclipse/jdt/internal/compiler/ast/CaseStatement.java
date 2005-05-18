@@ -20,7 +20,7 @@ public class CaseStatement extends Statement {
 	
 	public Expression constantExpression;
 	public CaseLabel targetLabel;
-	boolean isEnumConstant;
+	public boolean isEnumConstant;
 	
 	public CaseStatement(Expression constantExpression, int sourceEnd, int sourceStart) {
 		this.constantExpression = constantExpression;

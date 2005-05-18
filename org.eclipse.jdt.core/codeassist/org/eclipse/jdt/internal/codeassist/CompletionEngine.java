@@ -1744,6 +1744,16 @@ public final class CompletionEngine
 		if(expressionType != null && expressionType.isEnum()) {
 			ReferenceBinding enumType = (ReferenceBinding) expressionType;
 			
+			CaseStatement[] cases = switchStatement.cases;
+			
+			char[][] alreadyUsedConstants = new char[switchStatement.caseCount][];
+			int alreadyUsedConstantCount = 0;
+			for (int i = 0; i < switchStatement.caseCount; i++) {
+				if(cases[i].isEnumConstant) {
+					alreadyUsedConstants[alreadyUsedConstantCount++] = ((SingleNameReference)cases[i].constantExpression).token;
+				}
+			}
+			
 			FieldBinding[] fields = enumType.fields();
 			
 			int enumConstantLength = enumConstantName.length;
@@ -1759,6 +1769,10 @@ public final class CompletionEngine
 				if (!CharOperation.prefixEquals(enumConstantName, field.name, false /* ignore case */))	continue next;
 				
 				char[] completion = field.name;
+				
+				for (int i = 0; i < alreadyUsedConstantCount; i++) {
+					if(CharOperation.equals(alreadyUsedConstants[i], completion)) continue next;
+				}
 
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForInterestingProposal(field);
