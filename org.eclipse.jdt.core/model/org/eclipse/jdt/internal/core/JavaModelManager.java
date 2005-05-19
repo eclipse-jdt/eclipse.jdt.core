@@ -2150,7 +2150,10 @@ public class JavaModelManager implements ISaveParticipant {
 			// clean up indexes on workspace full save
 			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=52347)
 			IndexManager manager = this.indexManager;
-			if (manager != null) {
+			if (manager != null 
+					// don't force initialization of workspace scope as we could be shutting down
+					// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93941)
+					&& this.workspaceScope != null) { 
 				manager.cleanUpIndexes();
 			}
 		}

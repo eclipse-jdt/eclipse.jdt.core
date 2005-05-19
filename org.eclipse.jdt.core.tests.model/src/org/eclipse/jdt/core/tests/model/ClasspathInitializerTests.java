@@ -136,7 +136,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testContainerInitializer6" };
+//		TESTS_NAMES = new String[] { "testContainerInitializer11" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -150,7 +150,7 @@ protected void tearDown() throws Exception {
 
 	super.tearDown();
 }
-public void testContainerInitializer1() throws CoreException {
+public void testContainerInitializer01() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
@@ -168,7 +168,7 @@ public void testContainerInitializer1() throws CoreException {
 		deleteProject("P2");
 	}
 }
-public void testContainerInitializer2() throws CoreException {
+public void testContainerInitializer02() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
@@ -195,7 +195,7 @@ public void testContainerInitializer2() throws CoreException {
 		deleteProject("P2");
 	}
 }
-public void testContainerInitializer3() throws CoreException {
+public void testContainerInitializer03() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
@@ -231,7 +231,7 @@ public void testContainerInitializer3() throws CoreException {
 /* Ensure that initializer is not callled when resource tree is locked.
  * (regression test for bug 29585 Core Exception as resource tree is locked initializing classpath container)
  */
-public void testContainerInitializer4() throws CoreException {
+public void testContainerInitializer04() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
@@ -267,7 +267,7 @@ public void testContainerInitializer4() throws CoreException {
 /* 
  * 30920 - Stack overflow when container resolved to null
  */
-public void testContainerInitializer5() throws CoreException {
+public void testContainerInitializer05() throws CoreException {
 	try {
 		NullContainerInitializer nullInitializer = new NullContainerInitializer();
 		ContainerInitializer.setInitializer(nullInitializer);
@@ -328,7 +328,7 @@ public void testContainerInitializer5() throws CoreException {
  * doesn't throw a NPE
  * (regression test for bug 48818 NPE in delta processor)
   */
-public void testContainerInitializer6() throws CoreException {
+public void testContainerInitializer06() throws CoreException {
     ICompilationUnit workingCopy = null;
 	try {
 		createProject("P1");
@@ -372,7 +372,7 @@ public void testContainerInitializer6() throws CoreException {
  * Ensure that an OperationCanceledException goes through
  * (regression test for bug 59363 Should surface cancellation exceptions)
  */
-public void testContainerInitializer7() throws CoreException {
+public void testContainerInitializer07() throws CoreException {
 	try {
 		boolean gotException = false;
 		try {
@@ -399,7 +399,7 @@ public void testContainerInitializer7() throws CoreException {
  * Ensure that the stack doesn't blow up if initializer is missbehaving
  * (regression test for bug 61052 Flatten cp container initialization)
  */
-public void testContainerInitializer8() throws CoreException {
+public void testContainerInitializer08() throws CoreException {
 	final int projectLength = 10;
 	final String[] projects = new String[projectLength];
 	for (int i = 0; i < projectLength; i++) {
@@ -479,7 +479,7 @@ public void testContainerInitializer8() throws CoreException {
  * that is being resolved.
  * (regression test for bug 61040 Should add protect for reentrance to #getResolvedClasspath)
  */
-public void testContainerInitializer9() throws CoreException {
+public void testContainerInitializer09() throws CoreException {
 	try {
 		ClasspathInitializerTests.DefaultContainerInitializer initializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}) {
 			protected DefaultContainer newContainer(char[][] libPaths) {
@@ -602,6 +602,35 @@ public void testContainerInitializer10() throws CoreException {
 		deleteProject("P1");
 		deleteProject("P2");
 		deleteProject("P3");
+	}
+}
+/*
+ * Ensure that a classpath initializer is not run on shutdown
+ * (regression test for bug 93941 Classpath initialization on shutdown)
+ */
+public void testContainerInitializer11() throws CoreException {
+	boolean hasExited = false;
+	try {
+		ContainerInitializer.setInitializer(null);
+		createJavaProject(
+			"P", 
+			new String[] {}, 
+			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+			"");
+		simulateExitRestart();
+		ClasspathInitializerTests.DefaultContainerInitializer initializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {}) {
+			public void initialize(IPath containerPath,IJavaProject project) throws CoreException {
+				assertTrue("Should not initialize container on shutdown", false);
+			}
+		};
+		ContainerInitializer.setInitializer(initializer);
+		simulateExit();
+		hasExited = true;
+	} finally {
+		ContainerInitializer.setInitializer(null);
+		if (hasExited)
+			simulateRestart();
+		deleteProject("P");
 	}
 }
 public void testVariableInitializer1() throws CoreException {
