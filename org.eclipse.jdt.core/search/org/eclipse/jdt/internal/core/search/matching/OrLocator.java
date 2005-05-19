@@ -12,9 +12,23 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Reference;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MemberTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 
 public class OrLocator extends PatternLocator {
 
@@ -150,19 +164,40 @@ protected int matchContainer() {
 	return result;
 }
 protected void matchLevelAndReportImportRef(ImportReference importRef, Binding binding, MatchLocator locator) throws CoreException {
+	
+	// for static import, binding can be a field binding or a member type binding
+	// verify that in this case binding is static and use declaring class for fields
+	Binding refBinding = binding;
+	if (importRef.isStatic()) {
+		if (binding instanceof FieldBinding) {
+			FieldBinding fieldBinding = (FieldBinding) binding;
+			if (!fieldBinding.isStatic()) return;
+			refBinding = fieldBinding.declaringClass;
+		} else if (binding instanceof MethodBinding) {
+			MethodBinding methodBinding = (MethodBinding) binding;
+			if (!methodBinding.isStatic()) return;
+			refBinding = methodBinding.declaringClass;
+		} else if (binding instanceof MemberTypeBinding) {
+			MemberTypeBinding memberBinding = (MemberTypeBinding) binding;
+			if (!memberBinding.isStatic()) return;
+		}
+	}
+	
+	// Look for closest pattern
 	PatternLocator closestPattern = null;
 	int level = IMPOSSIBLE_MATCH;
 	for (int i = 0, length = this.patternLocators.length; i < length; i++) {
 		PatternLocator patternLocator = this.patternLocators[i];
-		int newLevel = patternLocator.referenceType() == 0 ? IMPOSSIBLE_MATCH : patternLocator.resolveLevel(binding);
+		int newLevel = patternLocator.referenceType() == 0 ? IMPOSSIBLE_MATCH : patternLocator.resolveLevel(refBinding);
 		if (newLevel > level) {
 			closestPattern = patternLocator;
 			if (newLevel == ACCURATE_MATCH) break;
 			level = newLevel;
 		}
 	}
-	if (closestPattern != null)
+	if (closestPattern != null) {
 		closestPattern.matchLevelAndReportImportRef(importRef, binding, locator);
+	}
 }
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	PatternLocator closestPattern = null;

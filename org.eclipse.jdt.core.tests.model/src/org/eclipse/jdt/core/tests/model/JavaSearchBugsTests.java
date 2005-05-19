@@ -57,7 +57,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug79990";
+//		TESTS_PREFIX =  "testBug95794";
 //		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
 //		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -103,6 +103,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
+		this.resultCollector = new TestCollector();
 		resultCollector.showInsideDoc = false;
 		resultCollector.showAccuracy = true;
 	}
@@ -2791,6 +2792,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"b92944.B92944_A\n" + 
 			"b92944.B92944_E\n" + 
 			"b92944.B92944_I\n" + 
+			"b95794.Test\n" + 
+			"b95794.Test$Color\n" + 
 			"g1.t.s.def.Generic\n" + 
 			"g1.t.s.def.Generic$Member\n" + 
 			"g1.t.s.def.Generic$MemberGeneric\n" + 
@@ -2845,6 +2848,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			//"b92944.B92944_A\n" + 
 			//"b92944.B92944_E\n" + 
 			//"b92944.B92944_I\n" + 
+			"b95794.Test\n" + 
 			"g1.t.s.def.Generic\n" + 
 			"g1.t.s.def.Generic$Member\n" + 
 			"g1.t.s.def.Generic$MemberGeneric\n" + 
@@ -2901,6 +2905,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			//"b92944.B92944_A\n" + 
 			//"b92944.B92944_E\n" + 
 			"b92944.B92944_I\n" + 
+			"b95794.Test\n" + 
 			"g1.t.s.def.Generic\n" + 
 			"g1.t.s.def.Generic$Member\n" + 
 			"g1.t.s.def.Generic$MemberGeneric\n" + 
@@ -2955,6 +2960,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			//"b92944.B92944_A\n" + 
 			"b92944.B92944_E\n" + 
 			//"b92944.B92944_I\n" + 
+			"b95794.Test\n" + 
+			"b95794.Test$Color\n" + 
 			"g1.t.s.def.Generic\n" + 
 			"g1.t.s.def.Generic$Member\n" + 
 			"g1.t.s.def.Generic$MemberGeneric\n" + 
@@ -3024,7 +3031,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 		assertSearchResults(
 			"Unexpected all type names",
-			"b92944.B92944_E",
+			"b92944.B92944_E\n" + 
+			"b95794.Test$Color",
 			requestor);
 	}
 	public void testBug92944_ANNOTATION_TYPE() throws CoreException {
@@ -3163,10 +3171,85 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"}\n"
 		);
 		IType type = workingCopies[1].getType("SetUp");
-		this.discard = false;
 		search(type, REFERENCES, SearchEngine.createWorkspaceScope());
 		assertSearchResults(
 			"src/b94718/Test.java b94718.Test [SetUp] EXACT_MATCH"
 		);
+	}
+
+	/**
+	 * Bug 95794: [1.5][search][annot] Find references in workspace breaks on an annotation
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=95794"
+	 */
+	public void testBug95794() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
+		IType type = workingCopies[0].getType("Test");
+		this.discard = false;
+		
+		// Verify matches
+		TestCollector occurencesCollector = new TestCollector();
+		occurencesCollector.showAccuracy = true;
+		search(type, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
+		assertSearchResults(
+			"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" + 
+			"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" + 
+			"src/b95794/Test.java b95794.Test [Test] EXACT_MATCH\n" + 
+			"src/b95794/Test.java b95794.Test.there [Test] EXACT_MATCH",
+			occurencesCollector
+		);
+		
+		// Verify with references matches
+		TestCollector referencesCollector = new TestCollector();
+		search(type, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
+		assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
+	}
+	public void testBug95794b() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		this.discard = false;
+		IType type = workingCopies[0].getType("Test").getType("Color");
+		this.discard = false;
+		
+		// Verify matches
+		TestCollector occurencesCollector = new TestCollector();
+		occurencesCollector.showAccuracy = true;
+		search(type, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
+		assertSearchResults(
+			"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" + 
+			"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" + 
+			"src/b95794/Test.java void b95794.Test.main(String[]) [Color] EXACT_MATCH\n" + 
+			"src/b95794/Test.java b95794.Test$Color [Color] EXACT_MATCH",
+			occurencesCollector
+		);
+		
+		// Verify with references matches
+		TestCollector referencesCollector = new TestCollector();
+		search(type, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
+		assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
+	}
+	public void testBug95794c() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		this.discard = false;
+		IField field = workingCopies[0].getType("Test").getType("Color").getField("WHITE");
+		
+		// Verify matches
+		TestCollector occurencesCollector = new TestCollector();
+		occurencesCollector.showAccuracy = true;
+		search(field, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
+		assertSearchResults(
+			"src/b95794/Test.java [WHITE] EXACT_MATCH\n" + 
+			"src/b95794/Test.java void b95794.Test.main(String[]) [WHITE] EXACT_MATCH\n" + 
+			"src/b95794/Test.java b95794.Test$Color.WHITE [WHITE] EXACT_MATCH",
+			occurencesCollector
+		);
+		
+		// Verify with references matches
+		TestCollector referencesCollector = new TestCollector();
+		search(field, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
+		assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
 	}
 }
