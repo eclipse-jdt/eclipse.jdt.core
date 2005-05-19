@@ -2604,27 +2604,31 @@ public final class JavaCore extends Plugin {
 		// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
 		SearchEngine engine = new SearchEngine();
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
-		engine.searchAllTypeNames(
-			null,
-			"!@$#!@".toCharArray(), //$NON-NLS-1$
-			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-			IJavaSearchConstants.CLASS,
-			scope, 
-			new TypeNameRequestor() {
-				public void acceptType(
-					int modifiers,
-					char[] packageName,
-					char[] simpleTypeName,
-					char[][] enclosingTypeNames,
-					String path) {
-					// no type to accept
-				}
-			},
-			// will not activate index query caches if indexes are not ready, since it would take to long
-			// to wait until indexes are fully rebuild
-			IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
-			monitor == null ? null : new SubProgressMonitor(monitor, 99) // 99% of the time is spent in the dummy search
-		); 
+		try {
+			engine.searchAllTypeNames(
+				null,
+				"!@$#!@".toCharArray(), //$NON-NLS-1$
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				IJavaSearchConstants.CLASS,
+				scope, 
+				new TypeNameRequestor() {
+					public void acceptType(
+						int modifiers,
+						char[] packageName,
+						char[] simpleTypeName,
+						char[][] enclosingTypeNames,
+						String path) {
+						// no type to accept
+					}
+				},
+				// will not activate index query caches if indexes are not ready, since it would take to long
+				// to wait until indexes are fully rebuild
+				IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
+				monitor == null ? null : new SubProgressMonitor(monitor, 99) // 99% of the time is spent in the dummy search
+			); 
+		} catch (OperationCanceledException e) {
+			// indexes were not ready
+		}
 		
 		// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
 		JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(
