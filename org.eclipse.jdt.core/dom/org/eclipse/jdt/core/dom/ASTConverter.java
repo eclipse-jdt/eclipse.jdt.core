@@ -2814,7 +2814,13 @@ class ASTConverter {
 		name.internalSetIdentifier(new String(localDeclaration.name));
 		name.setSourceRange(localDeclaration.sourceStart, localDeclaration.sourceEnd - localDeclaration.sourceStart + 1);
 		variableDeclarationFragment.setName(name);
-		int end = retrievePositionBeforeNextCommaOrSemiColon(localDeclaration.sourceEnd, this.compilationUnitSourceLength);
+		int start = localDeclaration.sourceEnd;
+		if (localDeclaration.initialization != null) {
+			final Expression expression = convert(localDeclaration.initialization);
+			variableDeclarationFragment.setInitializer(expression);
+			start = expression.getStartPosition() + expression.getLength();
+		}
+		int end = retrievePositionBeforeNextCommaOrSemiColon(start, localDeclaration.declarationSourceEnd);
 		if (end == -1) {
 			if (localDeclaration.initialization != null) {
 				variableDeclarationFragment.setSourceRange(localDeclaration.sourceStart, localDeclaration.initialization.sourceEnd - localDeclaration.sourceStart + 1);
@@ -2823,9 +2829,6 @@ class ASTConverter {
 			}
 		} else {
 			variableDeclarationFragment.setSourceRange(localDeclaration.sourceStart, end - localDeclaration.sourceStart + 1);
-		}
-		if (localDeclaration.initialization != null) {
-			variableDeclarationFragment.setInitializer(convert(localDeclaration.initialization));
 		}
 		variableDeclarationFragment.setExtraDimensions(retrieveExtraDimension(localDeclaration.sourceEnd + 1, this.compilationUnitSourceLength));
 		if (this.resolveBindings) {

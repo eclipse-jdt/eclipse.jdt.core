@@ -36,7 +36,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 178 };
+//		TESTS_NUMBERS = new int[] { 182, 183 };
 //		TESTS_NAMES = new String[] {"test0177"};
 	}
 	public static Test suite() {
@@ -5451,5 +5451,63 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	   	assertTrue("2 different parameterized type bindings should not be equals", !bindings[0].isEqualTo(bindings[1]));
 	}
 	
-    
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=95911
+	 */
+	public void test0182() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"import java.util.Map;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		Map<String, Number> map= new Map<String, Number>() {\n" +
+			"		};\n" +
+			"	}\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy,
+    			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	node = getASTNode(compilationUnit, 0, 0, 0);
+    	assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+    	VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+    	List fragments = statement.fragments();
+    	assertEquals("Wrong size", 1, fragments.size());
+    	VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+    	String expectedSource = "map= new Map<String, Number>() {\n" +
+			"		}";
+    	checkSourceRange(fragment, expectedSource, contents);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=95911
+	 */
+	public void test0183() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"import java.util.Map;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	Map<String, Number> map= new Map<String, Number>() {\n" +
+			"	};\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy,
+    			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+    	FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+    	List fragments = fieldDeclaration.fragments();
+    	assertEquals("Wrong size", 1, fragments.size());
+    	VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+    	String expectedSource = "map= new Map<String, Number>() {\n" +
+			"	}";
+    	checkSourceRange(fragment, expectedSource, contents);
+	}
 }
