@@ -2588,7 +2588,8 @@ public final class JavaCore extends Plugin {
 	 * This initialization runs accross all Java projects in the workspace. Thus the
 	 * workspace root scheduling rule is used during this operation.
 	 * </p><p>
-	 * This method doesn't return until the initialization is complete.
+	 * This method may return before the initialization is complete. The 
+	 * initialization will then continue in a background thread.
 	 * </p><p>
 	 * This method can be called concurrently.
 	 * </p>
