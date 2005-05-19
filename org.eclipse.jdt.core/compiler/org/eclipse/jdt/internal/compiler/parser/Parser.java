@@ -4328,6 +4328,9 @@ protected void consumePackageDeclarationNameWithModifiers() {
 		intPtr--; // we don't need the position of the 'package keyword
 	} else {
 		impt.declarationSourceStart = this.intStack[this.intPtr--];
+		if (this.javadoc != null) {
+			impt.declarationSourceStart = this.javadoc.sourceStart;
+		}
 	}
 		
 	if (this.currentToken == TokenNameSEMICOLON){
