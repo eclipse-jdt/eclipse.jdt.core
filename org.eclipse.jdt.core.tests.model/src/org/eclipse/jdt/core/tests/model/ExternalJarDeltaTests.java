@@ -195,6 +195,7 @@ public void testExternalJarChanged4() throws CoreException, IOException {
 		f = new File(pPath);
 		f.createNewFile();
 		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
 		
 		// exit, change the jar, and restart
 		simulateExit();
@@ -232,6 +233,7 @@ public void testExternalJarChanged5() throws CoreException, IOException {
 		f = new File(pPath);
 		f.createNewFile();
 		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
 		
 		// exit, change the jar, and restart
 		simulateExit();
@@ -269,6 +271,7 @@ public void testExternalJarChanged6() throws CoreException, IOException {
 		f = new File(pPath);
 		f.createNewFile();
 		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
 		
 		// exit, change the jar, and restart
 		simulateExit();

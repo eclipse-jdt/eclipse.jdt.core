@@ -1925,7 +1925,6 @@ protected void assertDeltas(String message, String expected) {
 	 * Simulate a save/exit of the workspace
 	 */
 	protected void simulateExit() throws CoreException {
-		waitUntilIndexesReady();
 		waitForAutoBuild();
 		getWorkspace().save(true/*full save*/, null/*no progress*/);
 		JavaModelManager.getJavaModelManager().shutdown();
