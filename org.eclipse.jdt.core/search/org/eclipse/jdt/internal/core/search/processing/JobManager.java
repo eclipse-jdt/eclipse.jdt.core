@@ -28,6 +28,7 @@ public abstract class JobManager implements Runnable {
 
 	/* background processing */
 	protected Thread processingThread;
+	protected Job progressJob;
 
 	/* counter indicating whether job execution is enabled or not, disabled if <= 0 
 	    it cannot go beyond 1 */
@@ -317,7 +318,7 @@ public abstract class JobManager implements Runnable {
 				}
 				protected IStatus run(IProgressMonitor monitor) {
 					int awaitingJobsCount;
-					while ((awaitingJobsCount = awaitingJobsCount()) > 0) {
+					while (!monitor.isCanceled() && (awaitingJobsCount = awaitingJobsCount()) > 0) {
 						monitor.subTask(Messages.bind(Messages.manager_filesToIndex, Integer.toString(awaitingJobsCount))); 
 						try {
 							Thread.sleep(500);
@@ -328,7 +329,7 @@ public abstract class JobManager implements Runnable {
 					return Status.OK_STATUS;
 				}
 			}
-			ProgressJob progressJob = null;
+			this.progressJob = null;
 			while (this.processingThread != null) {
 				try {
 					IJob job;
@@ -338,7 +339,10 @@ public abstract class JobManager implements Runnable {
 
 						// must check for new job inside this sync block to avoid timing hole
 						if ((job = currentJob()) == null) {
-							if (progressJob != null) progressJob = null;
+							if (this.progressJob != null) {
+								this.progressJob.cancel();
+								this.progressJob = null;
+							}
 							if (idlingStart < 0)
 								idlingStart = System.currentTimeMillis();
 							else
@@ -360,11 +364,11 @@ public abstract class JobManager implements Runnable {
 					}
 					try {
 						this.executing = true;
-						if (progressJob == null) {
-							progressJob = new ProgressJob(Messages.manager_indexingInProgress); 
-							progressJob.setPriority(Job.LONG);
-							progressJob.setSystem(true);
-							progressJob.schedule();
+						if (this.progressJob == null) {
+							this.progressJob = new ProgressJob(Messages.manager_indexingInProgress); 
+							this.progressJob.setPriority(Job.LONG);
+							this.progressJob.setSystem(true);
+							this.progressJob.schedule();
 						}
 						/*boolean status = */job.execute(null);
 						//if (status == FAILED) request(job);
@@ -422,6 +426,11 @@ public abstract class JobManager implements Runnable {
 				}
 				// in case processing thread is handling a job
 				thread.join();
+			}
+			Job job = this.progressJob;
+			if (job != null) {
+				job.cancel();
+				job.join();
 			}
 		} catch (InterruptedException e) {
 			// ignore
