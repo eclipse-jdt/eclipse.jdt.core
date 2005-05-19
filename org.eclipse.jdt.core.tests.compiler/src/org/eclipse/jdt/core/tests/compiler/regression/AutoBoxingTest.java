@@ -3133,4 +3133,25 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"The expression of type long is boxed into Long\n" + 
 			"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95868
+	public void test104() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.HashMap;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			String x = \"\";\n" + 
+				"			HashMap<String, Integer> y = new HashMap<String, Integer>();\n" + 
+				"			Integer w = (x.equals(\"X\") ? 0 : y.get(\"yKey\"));\n" + 
+				"		} catch(NullPointerException e) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"SUCCESS");
+	}
 }

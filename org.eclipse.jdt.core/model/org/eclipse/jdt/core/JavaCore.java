@@ -2619,7 +2619,9 @@ public final class JavaCore extends Plugin {
 					// no type to accept
 				}
 			},
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			// will not activate index query caches if indexes are not ready, since it would take to long
+			// to wait until indexes are fully rebuild
+			IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
 			monitor == null ? null : new SubProgressMonitor(monitor, 99) // 99% of the time is spent in the dummy search
 		); 
 		

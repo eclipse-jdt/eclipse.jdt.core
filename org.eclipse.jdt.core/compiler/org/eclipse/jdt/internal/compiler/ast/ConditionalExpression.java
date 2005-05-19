@@ -276,7 +276,7 @@ public class ConditionalExpression extends OperatorExpression {
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
-		// specs p.368
+		// JLS3 15.25
 		constant = NotAConstant;
 		LookupEnvironment env = scope.environment();
 		boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
