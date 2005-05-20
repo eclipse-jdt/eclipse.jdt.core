@@ -1070,6 +1070,8 @@ protected void consumeAnnotationTypeDeclarationHeader() {
 	if (this.currentElement != null) {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton		
 	}
+	// flush the comments related to the annotation type header
+	this.scanner.commentPtr = -1;
 }
 protected void consumeAnnotationTypeDeclarationHeaderName() {
 	// consumeAnnotationTypeDeclarationHeader ::= Modifiers '@' PushModifiers interface Identifier

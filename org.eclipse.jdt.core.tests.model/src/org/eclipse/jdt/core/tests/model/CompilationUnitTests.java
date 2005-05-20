@@ -68,6 +68,9 @@ public void setUpSuite() throws Exception {
 		"}\n" +
 		"enum Colors {\n" +
 		"  BLUE, WHITE, RED;\n" +
+		"}\n" +
+		"@interface /*c*/ Annot {\n" +
+		"  String field();\n" +
 		"}"
 	);
 	this.cu = getCompilationUnit("/P/src/p/X.java");
@@ -200,7 +203,7 @@ public void testGetElementAt5() throws JavaModelException {
 		 element);
 }
 /*
- * Ensures that the right field is returnd in a muti-declaration field.
+ * Ensures that the right field is returned in a muti-declaration field.
  */
 public void testGetElementAt6() throws JavaModelException {
 	int fieldPos = this.cu.getSource().indexOf("int f5");
@@ -208,7 +211,18 @@ public void testGetElementAt6() throws JavaModelException {
 	assertEquals(
 		"Unexpected field found",
 		this.cu.getType("X").getField("f5"),
-		 element);
+		element);
+}
+/*
+ * Ensures that the right type is returnd if an annotation type as a comment in its header.
+ */
+public void testGetElementAt7() throws JavaModelException {
+	int fieldPos = this.cu.getSource().indexOf("Annot");
+	IJavaElement element= this.cu.getElementAt(fieldPos);
+	assertEquals(
+		"Unexpected type found",
+		this.cu.getType("Annot"),
+		element);
 }
 /**
  * Ensures that correct number of fields with the correct names, modifiers, signatures
@@ -443,22 +457,22 @@ public void testGetType() {
  */
 public void testGetTypes() throws JavaModelException {
 	IType[] types = this.cu.getTypes();
-	String[] typeNames = new String[] {"X", "I", "I2", "Y", "Colors"};
-	String[] flags = new String[] {"public", "", "", "", ""};
-	boolean[] isClass = new boolean[] {true, false, false, true, false};
-	boolean[] isInterface = new boolean[] {false, true, true, false, false};
-	boolean[] isAnnotation = new boolean[] {false, false, false, false, false};
-	boolean[] isEnum = new boolean[] {false, false, false, false, true};
-	String[] superclassName = new String[] {null, null, null, null, null};
-	String[] superclassType = new String[] {null, null, null, null, null};
+	String[] typeNames = new String[] {"X", "I", "I2", "Y", "Colors", "Annot"};
+	String[] flags = new String[] {"public", "", "", "", "", ""};
+	boolean[] isClass = new boolean[] {true, false, false, true, false, false};
+	boolean[] isInterface = new boolean[] {false, true, true, false, false, true};
+	boolean[] isAnnotation = new boolean[] {false, false, false, false, false, true};
+	boolean[] isEnum = new boolean[] {false, false, false, false, true, false};
+	String[] superclassName = new String[] {null, null, null, null, null, null};
+	String[] superclassType = new String[] {null, null, null, null, null, null};
 	String[][] superInterfaceNames = new String[][] {
-			new String[] {"Runnable"}, new String[0], new String[0], new String[] {"I2<E>"}, new String[0]
+			new String[] {"Runnable"}, new String[0], new String[0], new String[] {"I2<E>"}, new String[0], new String[0]
 	};
 	String[][] superInterfaceTypes = new String[][] {
-			new String[] {"QRunnable;"}, new String[0], new String[0], new String[] {"QI2<QE;>;"}, new String[0]
+			new String[] {"QRunnable;"}, new String[0], new String[0], new String[] {"QI2<QE;>;"}, new String[0], new String[0]
 	};
 	String[][] formalTypeParameters = new String[][] {
-		new String[0], new String[0], new String[] {"E"}, new String[] {"E"}, new String[0]
+		new String[0], new String[0], new String[] {"E"}, new String[] {"E"}, new String[0], new String[0]
 	};
 	
 	assertEquals("Wrong number of types returned", typeNames.length, types.length);
