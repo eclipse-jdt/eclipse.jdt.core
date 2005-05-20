@@ -67,4 +67,15 @@
          eventMask="0xff"/>
 </extension>
 
+<!-- =================================================================================== -->
+<!-- Extension: Headless Build                                                           -->
+<!-- =================================================================================== -->
+<extension
+      id="aptBuild"
+      point="org.eclipse.core.runtime.applications">
+   <application>
+      <run class="org.eclipse.jdt.apt.core.build.AptBuilder"/>
+   </application>
+</extension>
+
 </plugin>
