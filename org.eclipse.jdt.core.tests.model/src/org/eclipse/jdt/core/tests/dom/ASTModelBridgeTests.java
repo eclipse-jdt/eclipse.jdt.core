@@ -12,12 +12,8 @@ package org.eclipse.jdt.core.tests.dom;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.ASTNode;
 
 import junit.framework.Test;
 
@@ -33,15 +29,18 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	public static Test suite() {
-		if (false) {
-			Suite suite = new Suite(ASTModelBridgeTests.class.getName());
-			suite.addTest(new ASTModelBridgeTests("testCreateBindings17"));
-			return suite;
-		}
-			
-		return new Suite(ASTModelBridgeTests.class);
+		return buildTestSuite(ASTModelBridgeTests.class);
 	}
 	
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+//		TESTS_PREFIX =  "testBug86380";
+//		TESTS_NAMES = new String[] { "testAnonymousType2" };
+//		TESTS_NUMBERS = new int[] { 83230 };
+//		TESTS_RANGE = new int[] { 83304, -1 };
+		}
+
 	/*
 	 * Removes the marker comments "*start*" and "*end*" from the given contents,
 	 * builds an AST from the resulting source, and returns the AST node that was delimited
@@ -116,6 +115,31 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"    return new Object() /*start*/{\n" +
 			"    }/*end*/;\n" +
 			"  }\n" +
+			"}"
+		);
+		IBinding binding = ((AnonymousClassDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"<anonymous #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	public void testAnonymousType2() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" + 
+			"	public void foo() {\n" + 
+			"		new Y(0/*c*/) /*start*/{\n" + 
+			"			Object field;\n" + 
+			"		}/*end*/;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"	Y(int i) {\n" + 
+			"	}\n" + 
 			"}"
 		);
 		IBinding binding = ((AnonymousClassDeclaration) node).resolveBinding();

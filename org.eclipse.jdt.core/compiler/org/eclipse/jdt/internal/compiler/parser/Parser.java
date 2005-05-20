@@ -2575,6 +2575,10 @@ protected void consumeEnterAnonymousClassBody() {
 
 	anonymousType.bodyStart = this.scanner.currentPosition;	
 	this.listLength = 0; // will be updated when reading super-interfaces
+	
+	// flush the comments related to the anonymous
+	this.scanner.commentPtr = -1;
+	
 	// recovery
 	if (this.currentElement != null){ 
 		this.lastCheckPoint = anonymousType.bodyStart;		
