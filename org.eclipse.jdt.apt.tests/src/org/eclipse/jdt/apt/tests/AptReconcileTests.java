@@ -195,6 +195,93 @@ public class AptReconcileTests extends ModifyingResourceTests
 	}
 
 	
+	public void testStopGeneratingFileInReconciler() throws Exception
+	{
+		String fname = TEST_FOLDER + "/A.java";
+		try
+		{
+				
+			//
+			//  first make sure errors are present when the annotation
+			// is commented out
+			//
+			String codeWithErrors = "package test;" + "\n" +
+				"//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" + 
+				"public class A " +  "\n" +
+				"{" +  "\n" +
+				"    //@HelloWorldAnnotation" + "\n" + 
+				"    public static void main( String[] argv )" + "\n" +
+				"    {" + "\n" +
+				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
+				"    }" + "\n" +
+				"}";
+
+			createFile( fname, codeWithErrors );
+			this._problemRequestor = new ProblemRequestor();
+				
+			setUpWorkingCopy( fname, codeWithErrors );
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+				null );
+				
+			String expectedProblems = "----------\n" + 
+				"1. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^\n" + 
+				"generatedfilepackage cannot be resolved\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"2. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^\n" + 
+				"generatedfilepackage cannot be resolved\n" + 
+				"----------\n";
+				
+			assertProblems( "Unexpected problems", expectedProblems );
+					
+			//
+			// now make sure errors go away when annotations are present
+			//
+			String codeWithOutErrors = "package test;" + "\n" +
+			    "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" + 
+			    "public class A " +  "\n" +
+			    "{" +  "\n" +
+			    "    @HelloWorldAnnotation" + "\n" + 
+				"    public static void main( String[] argv )" + "\n" +
+				"    {" + "\n" +
+				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
+				"    }" + "\n" +
+				"}";
+
+			setWorkingCopyContents( codeWithOutErrors );
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+					null );
+				
+			assertProblems( "UnexpectedProblems", "----------\n----------\n" );
+			
+			//
+			// now make sure errors come back when annotations are taken away
+			//
+			setWorkingCopyContents( codeWithErrors );
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+					null );
+				
+			// error will be different from first one because the package will
+			// exist since we only removed the file. 
+			String expectedProblems2 = 	"----------\n" + 
+				"1. ERROR in /org.eclipse.jdt.apt.tests.AptReconcileTestsProject/src/test/A.java (at line 8)\n" + 
+				"	generatedfilepackage.GeneratedFileTest.helloWorld();\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"generatedfilepackage.GeneratedFileTest cannot be resolved to a type\n" + 
+				"----------\n";
+			assertProblems( "Unexpected problems", expectedProblems2 );
+		}
+		catch (Exception e )
+		{
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
 	
 	
 	public void setUp() throws Exception 
