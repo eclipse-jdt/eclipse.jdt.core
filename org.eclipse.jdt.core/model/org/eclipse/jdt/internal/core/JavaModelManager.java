@@ -2384,6 +2384,14 @@ public class JavaModelManager implements ISaveParticipant {
 		if (this.indexManager != null){ // no more indexing
 			this.indexManager.shutdown();
 		}
+		
+		// wait for the initialization job to finish
+		try {
+			Platform.getJobManager().join(JavaCore.PLUGIN_ID, null);
+		} catch (InterruptedException e) {
+			// ignore
+		}
+		
 		// Note: no need to close the Java model as this just removes Java element infos from the Java model cache
 	}
 		
