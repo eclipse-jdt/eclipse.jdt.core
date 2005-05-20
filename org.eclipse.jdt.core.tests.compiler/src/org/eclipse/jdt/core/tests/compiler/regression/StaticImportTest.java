@@ -1082,4 +1082,28 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
+	
+		//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95909
+	public void test031() {
+		this.runNegativeTest(
+			new String[] {
+				"PointRadius.java",
+				"import static java.lang.Math.sqrt;\n" + 
+				"\n" + 
+				"public class PointRadius {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		double radius = 0;\n" + 
+				"		radius = sqrt(pondArea / Math.PI);\n" + 
+				"\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in PointRadius.java (at line 7)\n" + 
+			"	radius = sqrt(pondArea / Math.PI);\n" + 
+			"	              ^^^^^^^^\n" + 
+			"pondArea cannot be resolved\n" + 
+			"----------\n");
+	}
 }
