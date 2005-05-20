@@ -144,6 +144,7 @@ public interface TypeConstants {
 	// Synthetics
 	char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
 	char[] CLINIT = "<clinit>".toCharArray(); //$NON-NLS-1$
+	char[] SYNTHETIC_SWITCH_ENUM_TABLE = "$SWITCH_TABLE$".toCharArray(); //$NON-NLS-1$
 	char[] SYNTHETIC_ENUM_VALUES = "ENUM$VALUES".toCharArray(); //$NON-NLS-1$
 	char[] SYNTHETIC_ASSERT_DISABLED = "$assertionsDisabled".toCharArray(); //$NON-NLS-1$
 	char[] SYNTHETIC_CLASS = "class$".toCharArray(); //$NON-NLS-1$

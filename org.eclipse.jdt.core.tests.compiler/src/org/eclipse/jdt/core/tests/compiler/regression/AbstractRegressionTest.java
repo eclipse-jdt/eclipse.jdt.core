@@ -424,4 +424,43 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		}
 		super.tearDown();
 	}
+	
+	protected void executeClass(
+			String sourceFile, 
+			String expectedSuccessOutputString, 
+			String[] classLib,
+			boolean shouldFlushOutputDirectory, 
+			String[] vmArguments, 
+			Map customOptions,
+			ICompilerRequestor clientRequestor) {
+
+		// Compute class name by removing ".java" and replacing slashes with dots
+		String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
+		if (className.endsWith(PACKAGE_INFO_NAME)) return;
+
+		if (vmArguments != null) {
+			if (this.verifier != null) {
+				this.verifier.shutDown();
+			}
+			this.verifier = new TestVerifier(false);
+			this.createdVerifier = true;
+		}
+		boolean passed = 
+			this.verifier.verifyClassFiles(
+				sourceFile, 
+				className, 
+				expectedSuccessOutputString,
+				this.classpaths, 
+				null, 
+				vmArguments);
+		assertTrue(this.verifier.failureReason, // computed by verifyClassFiles(...) action
+				passed);
+		if (vmArguments != null) {
+			if (this.verifier != null) {
+				this.verifier.shutDown();
+			}
+			this.verifier = new TestVerifier(false);
+			this.createdVerifier = true;
+		}
+	}
 }

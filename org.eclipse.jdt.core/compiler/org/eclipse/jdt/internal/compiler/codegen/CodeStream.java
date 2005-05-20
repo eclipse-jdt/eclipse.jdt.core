@@ -10,11 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.*;
 
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -1997,6 +1999,52 @@ public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBin
 	this.aload_0();
 	this.invokeJavaLangIllegalArgumentExceptionStringConstructor();
 	this.athrow();
+}
+public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBinding) {
+	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
+	initializeMaxLocals(methodBinding);
+	final Label nullLabel = new Label(this);
+	FieldBinding syntheticFieldBinding = methodBinding.targetReadField;
+
+	this.getstatic(syntheticFieldBinding);
+	this.dup();
+	this.ifnonnull(nullLabel);
+	this.pop();
+	ReferenceBinding enumBinding = (ReferenceBinding) methodBinding.targetEnumType;
+	char[] signature = "()".toCharArray(); //$NON-NLS-1$
+	ArrayBinding arrayBinding = scope.createArrayType(enumBinding, 1);
+	signature = CharOperation.concat(signature, arrayBinding.constantPoolName());
+	this.invoke(OPC_invokestatic, 0, 1, enumBinding.constantPoolName(), TypeConstants.VALUES, signature);
+	this.arraylength();
+	this.newarray(INT_ARRAY);
+	this.putstatic(syntheticFieldBinding);
+	final FieldBinding[] fields = enumBinding.fields();
+	if (fields != null) {
+		for (int i = 0, max = fields.length; i < max; i++) {
+			FieldBinding fieldBinding = fields[i];
+			if ((fieldBinding.getAccessFlags() & IConstants.AccEnum) != 0) {
+				final Label endLabel = new Label(this);
+				final ExceptionLabel anyExceptionHandler = new ExceptionLabel(this, BaseTypes.LongBinding /* represents NoSuchFieldError*/);
+				this.getstatic(syntheticFieldBinding);
+				this.getstatic(fieldBinding);
+				this.invokeEnumOrdinal(enumBinding.constantPoolName());
+				this.generateInlinedValue(fieldBinding.id);
+				this.iastore();
+				anyExceptionHandler.placeEnd();
+				this.goto_(endLabel);
+				// Generate the body of the exception handler
+				final int saveStackSize = stackDepth;
+				stackDepth = 1;
+				anyExceptionHandler.place();
+				this.pop(); // we don't use it so we can pop it
+				stackDepth = saveStackSize;
+				endLabel.place();				
+			}
+		}
+	}
+	this.getstatic(syntheticFieldBinding);
+	nullLabel.place();
+	areturn();
 }
 public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessBinding) {
 	initializeMaxLocals(accessBinding);

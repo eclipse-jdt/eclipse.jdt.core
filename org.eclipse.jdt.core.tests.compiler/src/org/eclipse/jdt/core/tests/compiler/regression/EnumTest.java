@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 106 };
+//		TESTS_NUMBERS = new int[] { 110 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -1553,8 +1553,6 @@ public class EnumTest extends AbstractComparableTest {
 	// TODO (philippe) enum cannot be declared as local type
 	
 	// TODO (philippe) check one cannot redefine Enum incorrectly
-	
-	// TODO (philippe) check binary compatibility (removing referenced enum constants in switch)
 	
 	// TODO (philippe) check enum syntax recovery
 	/**
@@ -3235,5 +3233,375 @@ the right of e1."
 				"}  \n",
             },
             "ENUM1");
-    }    
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test105() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"Black"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {BLACK, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"Black",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test106() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        }\n" +
+					"		 System.out.print(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"SUCCESS"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {BLACK, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"SUCCESS",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test107() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"BlackBlack"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color { BLACK }"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"BlackBlack",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test108() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        default:\n" +
+					"            System.out.print(\"Error\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"Black"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {RED, GREEN, YELLOW, BLACK, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"Black",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test109() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"		Color c = null;\n" +
+					"		 try {\n" +
+					"        	c = BLACK;\n" +
+					"		} catch(NoSuchFieldError e) {\n" +
+					"			System.out.print(\"SUCCESS\");\n" +
+					"			return;\n" +
+					"		}\n" +
+					"      	switch(c) {\n" +
+					"       	case BLACK:\n" +
+					"          	System.out.print(\"Black\");\n" +
+					"          	break;\n" +
+					"       	case WHITE:\n" +
+					"          	System.out.print(\"White\");\n" +
+					"          	break;\n" +
+					"      	}\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"Black"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {RED, GREEN, YELLOW, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"SUCCESS",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test110() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"	public int[] $SWITCH_TABLE$pack$Color;\n" +
+					"	public int[] $SWITCH_TABLE$pack$Color() { return null; }\n" +
+					"   public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"Black"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {BLACK, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"Black",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test111() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"	public int[] $SWITCH_TABLE$pack$Color;\n" +
+					"	public int[] $SWITCH_TABLE$pack$Color() { return null; }\n" +
+					"   public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"		 foo();\n" +
+					"    }\n" +
+					"   public static void foo() {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"BlackBlack"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {BLACK, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"BlackBlack",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
 }

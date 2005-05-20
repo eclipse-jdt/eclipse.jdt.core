@@ -369,6 +369,78 @@ public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
 	}
 	return accessMethod;
 }
+/*
+ * Add a synthetic field to handle the cache of the switch translation table for the corresponding enum type 
+ */
+public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, String key) {
+	if (synthetics == null)
+		synthetics = new HashMap[4];
+	if (synthetics[FIELD_EMUL] == null)
+		synthetics[FIELD_EMUL] = new HashMap(5);
+
+	SyntheticFieldBinding synthField = (SyntheticFieldBinding) synthetics[FIELD_EMUL].get(key); //$NON-NLS-1$
+	if (synthField == null) {
+		synthField = new SyntheticFieldBinding(
+			fieldName,
+			scope.createArrayType(BaseTypes.IntBinding,1),
+			AccPrivate | AccStatic | AccSynthetic | AccFinal,
+			this,
+			Constant.NotAConstant,
+			synthetics[FIELD_EMUL].size());
+		synthetics[FIELD_EMUL].put(key, synthField);
+	}
+	// ensure there is not already such a field defined by the user
+	boolean needRecheck;
+	int index = 0;
+	do {
+		needRecheck = false;
+		FieldBinding existingField;
+		if ((existingField = this.getField(synthField.name, true /*resolve*/)) != null) {
+			TypeDeclaration typeDecl = scope.referenceContext;
+			for (int i = 0, max = typeDecl.fields.length; i < max; i++) {
+				FieldDeclaration fieldDecl = typeDecl.fields[i];
+				if (fieldDecl.binding == existingField) {
+					synthField.name = CharOperation.concat(
+						fieldName,
+						("_" + String.valueOf(index++)).toCharArray()); //$NON-NLS-1$
+					needRecheck = true;
+					break;
+				}
+			}
+		}
+	} while (needRecheck);
+	return synthField;
+}
+/* Add a new synthetic method the enum type. Selector can either be 'values' or 'valueOf'.
+ * char[] constants from TypeConstants must be used: TypeConstants.VALUES/VALUEOF
+*/
+public SyntheticMethodBinding addSyntheticMethodForSwitchEnum(TypeBinding enumBinding) {
+	if (synthetics == null)
+		synthetics = new HashMap[4];
+	if (synthetics[METHOD_EMUL] == null)
+		synthetics[METHOD_EMUL] = new HashMap(5);
+
+	SyntheticMethodBinding accessMethod = null;
+	char[] selector = CharOperation.concat(TypeConstants.SYNTHETIC_SWITCH_ENUM_TABLE, enumBinding.constantPoolName());
+	CharOperation.replace(selector, '/', '$');
+	final String key = new String(selector);
+	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) synthetics[METHOD_EMUL].get(key);
+	// first add the corresponding synthetic field
+	if (accessors == null) {
+		// then create the synthetic method
+		final SyntheticFieldBinding fieldBinding = this.addSyntheticFieldForSwitchEnum(selector, key);
+		accessMethod = new SyntheticMethodBinding(fieldBinding, this, enumBinding, selector);
+		synthetics[METHOD_EMUL].put(key, accessors = new SyntheticMethodBinding[2]);
+		accessors[0] = accessMethod;
+	} else {
+		if ((accessMethod = accessors[0]) == null) {
+			final SyntheticFieldBinding fieldBinding = this.addSyntheticFieldForSwitchEnum(selector, key);
+			accessMethod = new SyntheticMethodBinding(fieldBinding, this, enumBinding, selector);
+			accessors[0] = accessMethod;
+		}
+	}
+	return accessMethod;
+}
 /* Add a new synthetic access method for access to <targetMethod>.
  * Must distinguish access method used for super access from others (need to use invokespecial bytecode)
 	Answer the new method or the existing method if one already existed.

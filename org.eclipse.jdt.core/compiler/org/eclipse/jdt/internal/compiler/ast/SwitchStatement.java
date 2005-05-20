@@ -32,6 +32,8 @@ public class SwitchStatement extends Statement {
 	public int caseCount;
 	int[] constants;
 	
+	public SyntheticMethodBinding synthetic; // use for switch on enums types
+	
 	// for local variables table attributes
 	int preSwitchInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
@@ -75,6 +77,11 @@ public class SwitchStatement extends Statement {
 				}
 			}
 	
+			final TypeBinding resolvedTypeBinding = this.expression.resolvedType;
+			if (caseCount > 0 && resolvedTypeBinding.isEnum()) {
+				final SourceTypeBinding sourceTypeBinding = this.scope.classScope().referenceContext.binding;
+				this.synthetic = sourceTypeBinding.addSyntheticMethodForSwitchEnum(resolvedTypeBinding);
+			}
 			// if no default case, then record it may jump over the block directly to the end
 			if (defaultCase == null) {
 				// only retain the potential initializations
@@ -120,8 +127,24 @@ public class SwitchStatement extends Statement {
 			if (defaultCase != null) {
 				defaultCase.targetLabel = defaultLabel;
 			}
-			// generate expression testes
-			expression.generateCode(currentScope, codeStream, needSwitch);
+
+			final TypeBinding resolvedType = this.expression.resolvedType;
+			if (resolvedType.isEnum()) {
+				if (needSwitch) {
+					// go through the translation table
+					codeStream.invokestatic(this.synthetic);
+					expression.generateCode(currentScope, codeStream, true);
+					// get enum constant ordinal()
+					codeStream.invokeEnumOrdinal(resolvedType.constantPoolName());
+					codeStream.iaload();
+				} else {
+					// no need to go through the translation table
+					expression.generateCode(currentScope, codeStream, false);
+				}
+			} else {
+				// generate expression
+				expression.generateCode(currentScope, codeStream, needSwitch); // value required (switch without cases)
+			}
 			// generate the appropriate switch table/lookup bytecode
 			if (needSwitch) {
 				int[] sortedIndexes = new int[this.caseCount];
@@ -133,10 +156,6 @@ public class SwitchStatement extends Statement {
 				System.arraycopy(this.constants, 0, (localKeysCopy = new int[this.caseCount]), 0, this.caseCount);
 				CodeStream.sort(localKeysCopy, 0, this.caseCount - 1, sortedIndexes);
 
-				// for enum constants, actually switch on constant ordinal()
-				if (this.expression.resolvedType.isEnum()) {
-					codeStream.invokeEnumOrdinal(this.expression.resolvedType.constantPoolName());
-				}
 				int max = localKeysCopy[this.caseCount - 1];
 				int min = localKeysCopy[0];
 				if ((long) (caseCount * 2.5) > ((long) max - (long) min)) {
