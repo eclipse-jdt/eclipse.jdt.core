@@ -164,6 +164,7 @@ public final class Messages extends NLS {
 	public static String path_mustBeAbsolute;
 	public static String cache_invalidLoadFactor;
 	public static String savedState_jobName;
+	public static String javamodel_initialization;
 	public static String restrictedAccess_project;
 	public static String restrictedAccess_library;
 	public static String convention_unit_nullName;

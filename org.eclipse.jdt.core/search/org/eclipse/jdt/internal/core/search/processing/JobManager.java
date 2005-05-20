@@ -199,7 +199,6 @@ public abstract class JobManager implements Runnable {
 				case IJob.CancelIfNotReady :
 					if (VERBOSE)
 						Util.verbose("-> NOT READY - cancelling - " + searchJob); //$NON-NLS-1$
-					if (progress != null) progress.setCanceled(true);
 					if (VERBOSE)
 						Util.verbose("CANCELED concurrent job - " + searchJob); //$NON-NLS-1$
 					throw new OperationCanceledException();

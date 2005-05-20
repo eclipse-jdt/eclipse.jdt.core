@@ -19,7 +19,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -242,6 +244,13 @@ public void testExternalJarChanged5() throws CoreException, IOException {
 
 		startDeltas();
 		JavaCore.initializeAfterLoad(null);
+		try {
+			Platform.getJobManager().join(JavaCore.PLUGIN_ID, null);
+		} catch (OperationCanceledException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		
 		assertDeltas(
 			"Unexpected delta", 

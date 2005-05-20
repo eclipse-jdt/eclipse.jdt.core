@@ -63,6 +63,7 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -2601,40 +2602,60 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
-		// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
-		SearchEngine engine = new SearchEngine();
-		IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
-		try {
-			engine.searchAllTypeNames(
-				null,
-				"!@$#!@".toCharArray(), //$NON-NLS-1$
-				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-				IJavaSearchConstants.CLASS,
-				scope, 
-				new TypeNameRequestor() {
-					public void acceptType(
-						int modifiers,
-						char[] packageName,
-						char[] simpleTypeName,
-						char[][] enclosingTypeNames,
-						String path) {
-						// no type to accept
-					}
-				},
-				// will not activate index query caches if indexes are not ready, since it would take to long
-				// to wait until indexes are fully rebuild
-				IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
-				monitor == null ? null : new SubProgressMonitor(monitor, 99) // 99% of the time is spent in the dummy search
-			); 
-		} catch (OperationCanceledException e) {
-			// indexes were not ready
-		}
+		Job job = new Job(Messages.javamodel_initialization) {
+			protected IStatus run(IProgressMonitor progressMonitor) {
+				// dummy query for waiting until the indexes are ready and classpath containers/variables are initialized
+				SearchEngine engine = new SearchEngine();
+				IJavaSearchScope scope = SearchEngine.createWorkspaceScope(); // initialize all containers and variables
+				try {
+					engine.searchAllTypeNames(
+						null,
+						"!@$#!@".toCharArray(), //$NON-NLS-1$
+						SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+						IJavaSearchConstants.CLASS,
+						scope, 
+						new TypeNameRequestor() {
+							public void acceptType(
+								int modifiers,
+								char[] packageName,
+								char[] simpleTypeName,
+								char[][] enclosingTypeNames,
+								String path) {
+								// no type to accept
+							}
+						},
+						// will not activate index query caches if indexes are not ready, since it would take to long
+						// to wait until indexes are fully rebuild
+						IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
+						progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 99) // 99% of the time is spent in the dummy search
+					); 
+				} catch (JavaModelException e) {
+					// /search failed: ignore
+				} catch (OperationCanceledException e) {
+					if (progressMonitor != null && progressMonitor.isCanceled())
+						throw e;
+					// else indexes were not ready: catch the exception so that jars are still refreshed
+				}
+				
+				// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
+				try {
+					JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(
+						null/*refresh all projects*/, 
+						progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 1) // 1% of the time is spent in jar refresh
+					);
+				} catch (JavaModelException e) {
+					// refreshing failed: ignore
+				}
+				
+				return Status.OK_STATUS;
+			}
+			public boolean belongsTo(Object family) {
+				return PLUGIN_ID.equals(family);
+			}
+		};
+		job.setPriority(Job.SHORT);
+		job.schedule();		
 		
-		// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
-		JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(
-			null/*refresh all projects*/, 
-			monitor == null ? null : new SubProgressMonitor(monitor, 1) // 1% of the time is spent in jar refresh
-		);
 	}
 	
 	/**
