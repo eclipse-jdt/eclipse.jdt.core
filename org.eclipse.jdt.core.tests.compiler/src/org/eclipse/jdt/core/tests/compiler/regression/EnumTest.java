@@ -1725,7 +1725,7 @@ public class EnumTest extends AbstractComparableTest {
 				"        case Second:\n" + 
 				"            break;\n" + 
 				"        }\n" + 
-				"        Zork z;\n" +
+				"        throw new Exception();\n" + // fake error to cause dump of unused import warnings
 				"    }\n" + 
 				"}\n",
 			},
@@ -1741,9 +1741,9 @@ public class EnumTest extends AbstractComparableTest {
 			"The import com.flarion.test.a.MyEnum.Second is never used\n" + 
 			"----------\n" + 
 			"3. ERROR in com\\flarion\\test\\b\\MyClass.java (at line 15)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"	throw new Exception();\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type Exception\n" + 
 			"----------\n");
 	}
 	

@@ -8001,12 +8001,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 2)\n" + 
-			"	import java.util.Enumeration;\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The import java.util.Enumeration is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
 			"	for (Iterator<String> i= l.iterator(); i.next(); ) {\n" + 
 			"	                                       ^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from String to boolean\n" + 
@@ -14289,67 +14284,62 @@ public void test500(){
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import java.util.Collections;\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The import java.util.Collections is never used\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 7)\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
 			"	foo(list, comparator);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation foo(List, Comparator) of the generic method foo(List<T>, Comparator<? super T>) of type X<E>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 7)\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
 			"	foo(list, comparator);\n" + 
 			"	    ^^^^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 7)\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
 			"	foo(list, comparator);\n" + 
 			"	          ^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<? super T>\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 8)\n" + 
+			"4. WARNING in X.java (at line 8)\n" + 
 			"	bar(list, comparator);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation bar(List, Comparator) of the generic method bar(List<T>, Comparator<? super T>) of type X<E>\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 8)\n" + 
+			"5. WARNING in X.java (at line 8)\n" + 
 			"	bar(list, comparator);\n" + 
 			"	    ^^^^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 8)\n" + 
+			"6. WARNING in X.java (at line 8)\n" + 
 			"	bar(list, comparator);\n" + 
 			"	          ^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<? super T>\n" + 
 			"----------\n" + 
-			"8. WARNING in X.java (at line 10)\n" + 
+			"7. WARNING in X.java (at line 10)\n" + 
 			"	x.foo(list, comparator);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The method foo(List, Comparator) belongs to the raw type X. References to generic type X<E> should be parameterized\n" + 
 			"----------\n" + 
-			"9. WARNING in X.java (at line 11)\n" + 
+			"8. WARNING in X.java (at line 11)\n" + 
 			"	x.bar(list, comparator);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The static method bar(List, Comparator) from the type X should be accessed in a static way\n" + 
 			"----------\n" + 
-			"10. WARNING in X.java (at line 11)\n" + 
+			"9. WARNING in X.java (at line 11)\n" + 
 			"	x.bar(list, comparator);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation bar(List, Comparator) of the generic method bar(List<T>, Comparator<? super T>) of type X\n" + 
 			"----------\n" + 
-			"11. WARNING in X.java (at line 11)\n" + 
+			"10. WARNING in X.java (at line 11)\n" + 
 			"	x.bar(list, comparator);\n" + 
 			"	      ^^^^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
 			"----------\n" + 
-			"12. WARNING in X.java (at line 11)\n" + 
+			"11. WARNING in X.java (at line 11)\n" + 
 			"	x.bar(list, comparator);\n" + 
 			"	            ^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<? super T>\n" + 
 			"----------\n" + 
-			"13. ERROR in X.java (at line 18)\n" + 
+			"12. ERROR in X.java (at line 18)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -15735,37 +15725,32 @@ public void test500(){
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import java.util.*;\n" + 
-			"	       ^^^^^^^^^\n" + 
-			"The import java.util is never used\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 8)\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
 			"	Object o1 = (X<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^\n" + 
 			"Type safety: The cast from X<capture-of ? extends Object> to X<String> is actually checking against the erased type X\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 9)\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
 			"	Object o2 = (X<? extends Object>) xs;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from X<String> to X<? extends Object>\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 10)\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
 			"	Object o3 = (X2) xo;\n" + 
 			"	            ^^^^^^^\n" + 
 			"Type safety: The cast from X<capture-of ? extends Object> to X2 is actually checking against the erased type X2\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 11)\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
 			"	Object o4 = (X<? extends Object>) x2;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from X2 to X<? extends Object>\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 12)\n" + 
+			"5. WARNING in X.java (at line 12)\n" + 
 			"	Object o5 = (X3<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The cast from X<capture-of ? extends Object> to X3<String> is actually checking against the erased type X3\n" + 
 			"----------\n" + 
-			"7. ERROR in X.java (at line 18)\n" + 
+			"6. ERROR in X.java (at line 18)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -15787,22 +15772,17 @@ public void test500(){
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import java.util.List;\n" + 
-			"	       ^^^^^^^^^^^^^^\n" + 
-			"The import java.util.List is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
 			"	xu = xn;\n" + 
 			"	     ^^\n" + 
 			"Type mismatch: cannot convert from X<capture-of ? extends Number> to X<? extends U>\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 7)\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
 			"	xu.u = xn.u; // ko\n" + 
 			"	       ^^^^\n" + 
 			"Type mismatch: cannot convert from capture-of ? extends Number to capture-of ? extends U\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 8)\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
 			"	xn.u = xu.u; // ko\n" + 
 			"	       ^^^^\n" + 
 			"Type mismatch: cannot convert from capture-of ? extends U to capture-of ? extends Number\n" + 
@@ -16604,17 +16584,12 @@ public void test500(){
 				"class Outer {}\n",
             },
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import java.util.*;\n" + 
-			"	       ^^^^^^^^^\n" + 
-			"The import java.util is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
 			"	Outer.Comparator<String> i = new Outer.Comparator<String>() {\n" + 
 			"	^^^^^^^^^^^^^^^^\n" + 
 			"Outer.Comparator cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	Outer.Comparator<String> i = new Outer.Comparator<String>() {\n" + 
 			"	                                 ^^^^^^^^^^^^^^^^\n" + 
 			"Outer.Comparator cannot be resolved to a type\n" + 
@@ -16732,17 +16707,7 @@ public void test500(){
 				"}\n",
             },
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import java.util.ArrayList;\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
-			"The import java.util.ArrayList is never used\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 2)\n" + 
-			"	import java.util.List;\n" + 
-			"	       ^^^^^^^^^^^^^^\n" + 
-			"The import java.util.List is never used\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 9)\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
 			"	Class<? super Number> superSup2 = ext.getSuperclass();\n" + 
 			"	                      ^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Class<capture-of ? super capture-of ? extends Number> to Class<? super Number>\n" + 
@@ -17464,12 +17429,7 @@ public void test500(){
 				"}\n",
             },
 			"----------\n" + 
-			"1. WARNING in Map.java (at line 2)\n" + 
-			"	import xy.Map.Entry;\n" + 
-			"	       ^^^^^^^^^^^^\n" + 
-			"The import xy.Map.Entry is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in Map.java (at line 9)\n" + 
+			"1. ERROR in Map.java (at line 9)\n" + 
 			"	void c(Map.Entry<String> e) { } // illegal (correctly flagged)\n" + 
 			"	       ^^^^^^^^^\n" + 
 			"The member type Map.Entry<String> must be qualified with a parameterized type, since it is not static\n" + 

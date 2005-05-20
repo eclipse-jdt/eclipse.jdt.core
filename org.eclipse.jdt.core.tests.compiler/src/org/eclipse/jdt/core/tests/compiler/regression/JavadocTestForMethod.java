@@ -1003,22 +1003,17 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	public void p_foo(int x) {\n"
 					+ "	}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. WARNING in X.java (at line 1)\n"
-				+ "	import java.util.Hashtable;\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^\n"
-				+ "The import java.util.Hashtable is never used\n"
-				+ "----------\n"
-				+ "2. ERROR in X.java (at line 5)\n"
-				+ "	* @param Hashtable\n"
-				+ "	         ^^^^^^^^^\n"
-				+ "Javadoc: Parameter Hashtable is not declared\n"
-				+ "----------\n"
-				+ "3. ERROR in X.java (at line 7)\n"
-				+ "	public void p_foo(int x) {\n"
-				+ "	                      ^\n"
-				+ "Javadoc: Missing tag for parameter x\n"
-				+ "----------\n");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	* @param Hashtable\n" + 
+			"	         ^^^^^^^^^\n" + 
+			"Javadoc: Parameter Hashtable is not declared\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	public void p_foo(int x) {\n" + 
+			"	                      ^\n" + 
+			"Javadoc: Missing tag for parameter x\n" + 
+			"----------\n");
 	}
 
 	/* (non-Javadoc)
@@ -2293,57 +2288,52 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	public void s_foo() {\n"
 					+ "	}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. WARNING in test\\X.java (at line 2)\n"
-				+ "	import test.copy.*;\n"
-				+ "	       ^^^^^^^^^\n"
-				+ "The import test.copy is never used\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPackage#unknown Invalid ref: non visible class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see VisibilityPackage#vf_private Invalid ref: non visible class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see VisibilityPackage#vf_public Invalid ref: non visible class (visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see VisibilityPackage.VpPrivate#unknown Invalid ref: non visible class and non visible inner class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see VisibilityPackage.VpPrivate#vf_private Invalid ref: non visible class and non visible inner class (non visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see VisibilityPackage.VpPrivate#vf_public Invalid ref: non visible class and non visible inner class (visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "8. ERROR in test\\X.java (at line 13)\n"
-				+ "	* @see VisibilityPackage.VpPublic#unknown Invalid ref: non visible class and visible inner class (non existent field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "9. ERROR in test\\X.java (at line 14)\n"
-				+ "	* @see VisibilityPackage.VpPublic#vf_private Invalid ref: non visible class and visible inner class (non visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "10. ERROR in test\\X.java (at line 15)\n"
-				+ "	* @see VisibilityPackage.VpPublic#vf_public Invalid ref: non visible class and visible inner class (visible field)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n");
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 7)\n" + 
+			"	* @see VisibilityPackage#unknown Invalid ref: non visible class (non existent field)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 8)\n" + 
+			"	* @see VisibilityPackage#vf_private Invalid ref: non visible class (non existent field)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X.java (at line 9)\n" + 
+			"	* @see VisibilityPackage#vf_public Invalid ref: non visible class (visible field)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\X.java (at line 10)\n" + 
+			"	* @see VisibilityPackage.VpPrivate#unknown Invalid ref: non visible class and non visible inner class (non existent field)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"5. ERROR in test\\X.java (at line 11)\n" + 
+			"	* @see VisibilityPackage.VpPrivate#vf_private Invalid ref: non visible class and non visible inner class (non visible field)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"6. ERROR in test\\X.java (at line 12)\n" + 
+			"	* @see VisibilityPackage.VpPrivate#vf_public Invalid ref: non visible class and non visible inner class (visible field)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"7. ERROR in test\\X.java (at line 13)\n" + 
+			"	* @see VisibilityPackage.VpPublic#unknown Invalid ref: non visible class and visible inner class (non existent field)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"8. ERROR in test\\X.java (at line 14)\n" + 
+			"	* @see VisibilityPackage.VpPublic#vf_private Invalid ref: non visible class and visible inner class (non visible field)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"9. ERROR in test\\X.java (at line 15)\n" + 
+			"	* @see VisibilityPackage.VpPublic#vf_public Invalid ref: non visible class and visible inner class (visible field)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n");
 	}
 
 	public void test105() {
@@ -3719,32 +3709,27 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	public void smr_foo(java.util.Hashtable h, java.util.Vector v, boolean b) {\n"
 					+ "	}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. WARNING in test\\deep\\qualified\\name\\p\\X.java (at line 2)\n"
-				+ "	import java.util.Vector;\n"
-				+ "	       ^^^^^^^^^^^^^^^^\n"
-				+ "The import java.util.Vector is never used\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 7)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smr_foo(boolean,int i,byte,short s,char,long l,float,double d) Invalid reference: mixed argument declaration\n"
-				+ "	                                           ^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 8)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smr_foo(String,String y,int) Invalid reference: mixed argument declaration\n"
-				+ "	                                           ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 9)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n"
-				+ "	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 10)\n"
-				+ "	* @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n"
-				+ "	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+			"----------\n" + 
+			"1. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 7)\n" + 
+			"	* @see test.deep.qualified.name.p.X#smr_foo(boolean,int i,byte,short s,char,long l,float,double d) Invalid reference: mixed argument declaration\n" + 
+			"	                                           ^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 8)\n" + 
+			"	* @see test.deep.qualified.name.p.X#smr_foo(String,String y,int) Invalid reference: mixed argument declaration\n" + 
+			"	                                           ^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 9)\n" + 
+			"	* @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n" + 
+			"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\deep\\qualified\\name\\p\\X.java (at line 10)\n" + 
+			"	* @see test.deep.qualified.name.p.X#smr_foo(Hashtable,Vector,boolean b) Invalid reference: mixed argument declaration\n" + 
+			"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n");
 	}
 
 	public void test140() {
@@ -4154,87 +4139,82 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	public void s_foo() {\n"
 					+ "	}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. WARNING in test\\X.java (at line 2)\n"
-				+ "	import test.copy.*;\n"
-				+ "	       ^^^^^^^^^\n"
-				+ "The import test.copy is never used\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see VisibilityPackage#vm_private() Invalid ref: non visible class (non visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see VisibilityPackage#vm_private(boolean) Invalid ref: non visible class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see VisibilityPackage#vm_public() Invalid ref: non visible class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see VisibilityPackage#vm_public(long,long,long,int) Invalid ref: non visible class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see VisibilityPackage.VpPrivate#unknown() Invalid ref: non visible class and non visible inner class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "8. ERROR in test\\X.java (at line 13)\n"
-				+ "	* @see VisibilityPackage.VpPrivate#vm_private() Invalid ref: non visible class and non visible inner class (non visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "9. ERROR in test\\X.java (at line 14)\n"
-				+ "	* @see VisibilityPackage.VpPrivate#vm_private(boolean, String) Invalid ref: non visible class and non visible inner class (non applicable method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "10. ERROR in test\\X.java (at line 15)\n"
-				+ "	* @see VisibilityPackage.VpPrivate#vm_public() Invalid ref: non visible class and non visible inner class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "11. ERROR in test\\X.java (at line 16)\n"
-				+ "	* @see VisibilityPackage.VpPrivate#vm_public(Object, float) Invalid ref: non visible class and non visible inner class (non applicable visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "12. ERROR in test\\X.java (at line 17)\n"
-				+ "	* @see VisibilityPackage.VpPublic#unknown() Invalid ref: non visible class and visible inner class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "13. ERROR in test\\X.java (at line 18)\n"
-				+ "	* @see VisibilityPackage.VpPublic#vm_private() Invalid ref: non visible class and visible inner class (non visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "14. ERROR in test\\X.java (at line 19)\n"
-				+ "	* @see VisibilityPackage.VpPublic#vm_private(boolean, String) Invalid ref: non visible class and visible inner class (non applicable method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "15. ERROR in test\\X.java (at line 20)\n"
-				+ "	* @see VisibilityPackage.VpPublic#vm_public() Invalid ref: non visible class and visible inner class (visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "16. ERROR in test\\X.java (at line 21)\n"
-				+ "	* @see VisibilityPackage.VpPublic#vm_public(Object, float) Invalid ref: non visible class and visible inner class (non applicable visible method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n");
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 7)\n" + 
+			"	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 8)\n" + 
+			"	* @see VisibilityPackage#vm_private() Invalid ref: non visible class (non visible method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X.java (at line 9)\n" + 
+			"	* @see VisibilityPackage#vm_private(boolean) Invalid ref: non visible class (non existent method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\X.java (at line 10)\n" + 
+			"	* @see VisibilityPackage#vm_public() Invalid ref: non visible class (visible method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"5. ERROR in test\\X.java (at line 11)\n" + 
+			"	* @see VisibilityPackage#vm_public(long,long,long,int) Invalid ref: non visible class (visible method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"6. ERROR in test\\X.java (at line 12)\n" + 
+			"	* @see VisibilityPackage.VpPrivate#unknown() Invalid ref: non visible class and non visible inner class (non existent method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"7. ERROR in test\\X.java (at line 13)\n" + 
+			"	* @see VisibilityPackage.VpPrivate#vm_private() Invalid ref: non visible class and non visible inner class (non visible method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"8. ERROR in test\\X.java (at line 14)\n" + 
+			"	* @see VisibilityPackage.VpPrivate#vm_private(boolean, String) Invalid ref: non visible class and non visible inner class (non applicable method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"9. ERROR in test\\X.java (at line 15)\n" + 
+			"	* @see VisibilityPackage.VpPrivate#vm_public() Invalid ref: non visible class and non visible inner class (visible method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"10. ERROR in test\\X.java (at line 16)\n" + 
+			"	* @see VisibilityPackage.VpPrivate#vm_public(Object, float) Invalid ref: non visible class and non visible inner class (non applicable visible method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"11. ERROR in test\\X.java (at line 17)\n" + 
+			"	* @see VisibilityPackage.VpPublic#unknown() Invalid ref: non visible class and visible inner class (non existent method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"12. ERROR in test\\X.java (at line 18)\n" + 
+			"	* @see VisibilityPackage.VpPublic#vm_private() Invalid ref: non visible class and visible inner class (non visible method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"13. ERROR in test\\X.java (at line 19)\n" + 
+			"	* @see VisibilityPackage.VpPublic#vm_private(boolean, String) Invalid ref: non visible class and visible inner class (non applicable method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"14. ERROR in test\\X.java (at line 20)\n" + 
+			"	* @see VisibilityPackage.VpPublic#vm_public() Invalid ref: non visible class and visible inner class (visible method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"15. ERROR in test\\X.java (at line 21)\n" + 
+			"	* @see VisibilityPackage.VpPublic#vm_public(Object, float) Invalid ref: non visible class and visible inner class (non applicable visible method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n");
 	}
 
 	public void test151() {
@@ -4621,42 +4601,37 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	public void s_foo() {\n"
 					+ "	}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. WARNING in test\\X.java (at line 2)\n"
-				+ "	import test.copy.VisibilityPublic;\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "The import test.copy.VisibilityPublic is never used\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPublic#vm_private(\"boolean\") Invalid ref: invalid argument declaration\n"
-				+ "	                                  ^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see VisibilityPublic#vm_public(long, \"int) Invalid ref: invalid argument definition\n"
-				+ "	                                 ^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#vm_private(double d()) Invalid ref: invalid argument declaration\n"
-				+ "	                                            ^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see VisibilityPublic.VpPrivate#vm_public(\") Invalid ref: invalid argument declaration\n"
-				+ "	                                           ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see VisibilityPublic.VpPublic#vm_private(d()) Invalid ref: invalid argument declaration\n"
-				+ "	                                           ^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see VisibilityPublic.VpPublic#vm_public(205) Invalid ref: invalid argument declaration\n"
-				+ "	                                          ^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 7)\n" + 
+			"	* @see VisibilityPublic#vm_private(\"boolean\") Invalid ref: invalid argument declaration\n" + 
+			"	                                  ^^^^^^^^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 8)\n" + 
+			"	* @see VisibilityPublic#vm_public(long, \"int) Invalid ref: invalid argument definition\n" + 
+			"	                                 ^^^^^^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X.java (at line 9)\n" + 
+			"	* @see VisibilityPublic.VpPrivate#vm_private(double d()) Invalid ref: invalid argument declaration\n" + 
+			"	                                            ^^^^^^^^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\X.java (at line 10)\n" + 
+			"	* @see VisibilityPublic.VpPrivate#vm_public(\") Invalid ref: invalid argument declaration\n" + 
+			"	                                           ^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"5. ERROR in test\\X.java (at line 11)\n" + 
+			"	* @see VisibilityPublic.VpPublic#vm_private(d()) Invalid ref: invalid argument declaration\n" + 
+			"	                                           ^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"6. ERROR in test\\X.java (at line 12)\n" + 
+			"	* @see VisibilityPublic.VpPublic#vm_public(205) Invalid ref: invalid argument declaration\n" + 
+			"	                                          ^^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n");
 	}
 
 	public void test159() {
@@ -4823,41 +4798,36 @@ public class JavadocTestForMethod extends JavadocTest {
 					+ "	public void s_foo() {\n"
 					+ "	}\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. WARNING in test\\X.java (at line 2)\n"
-				+ "	import test.copy.VisibilityPublic;\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "The import test.copy.VisibilityPublic is never used\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see test.copy.VisibilityPublic#vm_private(\"\") Invalid ref: invalid argument declaration\n"
-				+ "	                                            ^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see test.copy.VisibilityPublic#vm_public(\"\"\") Invalid ref: invalid argument definition\n"
-				+ "	                                           ^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "4. ERROR in test\\X.java (at line 9)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate#vm_private(String d()) Invalid ref: invalid argument declaration\n"
-				+ "	                                                      ^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "5. ERROR in test\\X.java (at line 10)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPrivate#vm_public([) Invalid ref: invalid argument declaration\n"
-				+ "	                                                     ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "6. ERROR in test\\X.java (at line 11)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPublic#vm_private([]) Invalid ref: invalid argument declaration\n"
-				+ "	                                                     ^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n"
-				+ "7. ERROR in test\\X.java (at line 12)\n"
-				+ "	* @see test.copy.VisibilityPublic.VpPublic#vm_public(char[], int[],]) Invalid ref: invalid argument declaration\n"
-				+ "	                                                    ^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: Invalid parameters declaration\n"
-				+ "----------\n");
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 7)\n" + 
+			"	* @see test.copy.VisibilityPublic#vm_private(\"\") Invalid ref: invalid argument declaration\n" + 
+			"	                                            ^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 8)\n" + 
+			"	* @see test.copy.VisibilityPublic#vm_public(\"\"\") Invalid ref: invalid argument definition\n" + 
+			"	                                           ^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X.java (at line 9)\n" + 
+			"	* @see test.copy.VisibilityPublic.VpPrivate#vm_private(String d()) Invalid ref: invalid argument declaration\n" + 
+			"	                                                      ^^^^^^^^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\X.java (at line 10)\n" + 
+			"	* @see test.copy.VisibilityPublic.VpPrivate#vm_public([) Invalid ref: invalid argument declaration\n" + 
+			"	                                                     ^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"5. ERROR in test\\X.java (at line 11)\n" + 
+			"	* @see test.copy.VisibilityPublic.VpPublic#vm_private([]) Invalid ref: invalid argument declaration\n" + 
+			"	                                                     ^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n" + 
+			"6. ERROR in test\\X.java (at line 12)\n" + 
+			"	* @see test.copy.VisibilityPublic.VpPublic#vm_public(char[], int[],]) Invalid ref: invalid argument declaration\n" + 
+			"	                                                    ^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid parameters declaration\n" + 
+			"----------\n");
 	}
 }

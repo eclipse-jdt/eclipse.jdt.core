@@ -133,12 +133,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"interface I { public static int C = 1; }\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import static p.A.C;\n" + 
-			"	              ^^^^^\n" + 
-			"The import p.A.C is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 2)\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
 			"	public class X { int i = C; }\n" + 
 			"	                         ^\n" + 
 			"The type I is not visible\n" + 
@@ -177,43 +172,38 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in p\\X.java (at line 2)\r\n" + 
-			"	import static p2.Y.*;\r\n" + 
-			"	              ^^^^\n" + 
-			"The import p2.Y is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in p\\X.java (at line 3)\r\n" + 
-			"	import static p2.Z.Zint;\r\n" + 
+			"1. ERROR in p\\X.java (at line 3)\n" + 
+			"	import static p2.Z.Zint;\n" + 
 			"	              ^^^^^^^^^\n" + 
 			"The import p2.Z.Zint cannot be resolved\n" + 
 			"----------\n" + 
-			"3. ERROR in p\\X.java (at line 4)\r\n" + 
-			"	import static p2.Z.ZMember;\r\n" + 
+			"2. ERROR in p\\X.java (at line 4)\n" + 
+			"	import static p2.Z.ZMember;\n" + 
 			"	              ^^^^^^^^^^^^\n" + 
 			"The import p2.Z.ZMember cannot be resolved\n" + 
 			"----------\n" + 
-			"4. ERROR in p\\X.java (at line 6)\r\n" + 
-			"	int x = y(1);\r\n" + 
+			"3. ERROR in p\\X.java (at line 6)\n" + 
+			"	int x = y(1);\n" + 
 			"	        ^\n" + 
 			"The method y(int) is undefined for the type X\n" + 
 			"----------\n" + 
-			"5. ERROR in p\\X.java (at line 7)\r\n" + 
-			"	int y = Yint;\r\n" + 
+			"4. ERROR in p\\X.java (at line 7)\n" + 
+			"	int y = Yint;\n" + 
 			"	        ^^^^\n" + 
 			"Yint cannot be resolved\n" + 
 			"----------\n" + 
-			"6. ERROR in p\\X.java (at line 8)\r\n" + 
-			"	int z = Zint;\r\n" + 
+			"5. ERROR in p\\X.java (at line 8)\n" + 
+			"	int z = Zint;\n" + 
 			"	        ^^^^\n" + 
 			"Zint cannot be resolved\n" + 
 			"----------\n" + 
-			"7. ERROR in p\\X.java (at line 9)\r\n" + 
-			"	void m1(YMember m) {}\r\n" + 
+			"6. ERROR in p\\X.java (at line 9)\n" + 
+			"	void m1(YMember m) {}\n" + 
 			"	        ^^^^^^^\n" + 
 			"YMember cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"8. ERROR in p\\X.java (at line 10)\r\n" + 
-			"	void m2(ZMember m) {}\r\n" + 
+			"7. ERROR in p\\X.java (at line 10)\n" + 
+			"	void m2(ZMember m) {}\n" + 
 			"	        ^^^^^^^\n" + 
 			"ZMember cannot be resolved to a type\n" + 
 			"----------\n");
@@ -249,42 +239,37 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in p\\X.java (at line 2)\n" + 
-			"	import static p2.Y.*;\n" + 
-			"	              ^^^^\n" + 
-			"The import p2.Y is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in p\\X.java (at line 3)\n" + 
+			"1. ERROR in p\\X.java (at line 3)\n" + 
 			"	import static p2.Z.Zint;\n" + 
 			"	              ^^^^^^^^^\n" + 
 			"The import p2.Z.Zint cannot be resolved\n" + 
 			"----------\n" + 
-			"3. ERROR in p\\X.java (at line 4)\n" + 
+			"2. ERROR in p\\X.java (at line 4)\n" + 
 			"	import static p2.Z.ZMember;\n" + 
 			"	              ^^^^^^^^^^^^\n" + 
 			"The type p2.Z.ZMember is not visible\n" + 
 			"----------\n" + 
-			"4. ERROR in p\\X.java (at line 6)\n" + 
+			"3. ERROR in p\\X.java (at line 6)\n" + 
 			"	int x = y(1);\n" + 
 			"	        ^\n" + 
 			"The method y(int) from the type Y is not visible\n" + 
 			"----------\n" + 
-			"5. ERROR in p\\X.java (at line 7)\n" + 
+			"4. ERROR in p\\X.java (at line 7)\n" + 
 			"	int y = Yint;\n" + 
 			"	        ^^^^\n" + 
 			"The field Yint is not visible\n" + 
 			"----------\n" + 
-			"6. ERROR in p\\X.java (at line 8)\n" + 
+			"5. ERROR in p\\X.java (at line 8)\n" + 
 			"	int z = Zint;\n" + 
 			"	        ^^^^\n" + 
 			"Zint cannot be resolved\n" + 
 			"----------\n" + 
-			"7. ERROR in p\\X.java (at line 9)\n" + 
+			"6. ERROR in p\\X.java (at line 9)\n" + 
 			"	void m1(YMember m) {}\n" + 
 			"	        ^^^^^^^\n" + 
 			"The type YMember is not visible\n" + 
 			"----------\n" + 
-			"8. ERROR in p\\X.java (at line 10)\n" + 
+			"7. ERROR in p\\X.java (at line 10)\n" + 
 			"	void m2(ZMember m) {}\n" + 
 			"	        ^^^^^^^\n" + 
 			"ZMember cannot be resolved to a type\n" + 
@@ -362,12 +347,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"public class X {Method m;}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in p\\X.java (at line 2)\n" + 
-			"	import static java.lang.reflect.Method.*;\n" + 
-			"	              ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The import java.lang.reflect.Method is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in p\\X.java (at line 3)\n" + 
+			"1. ERROR in p\\X.java (at line 3)\n" + 
 			"	public class X {Method m;}\n" + 
 			"	                ^^^^^^\n" + 
 			"Method cannot be resolved to a type\n" + 
@@ -384,12 +364,7 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import static java.lang.System.*;\n" + 
-			"	              ^^^^^^^^^^^^^^^^\n" + 
-			"The import java.lang.System is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
 			"	void foo() { arraycopy(); }\n" + 
 			"	             ^^^^^^^^^\n" + 
 			"The method arraycopy(Object, int, Object, int, int) in the type System is not applicable for the arguments ()\n" + 
@@ -667,29 +642,23 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in bug\\A.java (at line 2)\r\n" + 
-			"	import static bug.C.*;\r\n" + 
-			"	              ^^^^^\n" + 
-			"The import bug.C is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in bug\\A.java (at line 4)\r\n" + 
-			"	private B b2 = b;\r\n" + 
+			"1. ERROR in bug\\A.java (at line 4)\n" + 
+			"	private B b2 = b;\n" + 
 			"	               ^\n" + 
 			"The field b is not visible\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. WARNING in bug\\B.java (at line 2)\r\n" + 
-			"	import static bug.C.*;\r\n" + 
+			"1. WARNING in bug\\B.java (at line 2)\n" + 
+			"	import static bug.C.*;\n" + 
 			"	              ^^^^^\n" + 
 			"The import bug.C is never used\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. WARNING in bug\\C.java (at line 3)\r\n" + 
-			"	private static B b;\r\n" + 
+			"1. WARNING in bug\\C.java (at line 3)\n" + 
+			"	private static B b;\n" + 
 			"	                 ^\n" + 
 			"The private field C.b is never read locally\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81718
@@ -705,17 +674,11 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import static java.lang.Math.PI;\n" + 
-			"	              ^^^^^^^^^^^^^^^^^\n" + 
-			"The import java.lang.Math.PI is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82754
@@ -729,17 +692,11 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import static java.lang.Math.round;\n" + 
-			"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The import java.lang.Math.round is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
 			"	void foo() { cos(0); }\n" + 
 			"	             ^^^\n" + 
 			"The method cos(int) is undefined for the type X\n" + 
-			"----------\n"
-		);
+			"----------\n"	);
 	}
 
 	public void test021() {
@@ -996,13 +953,8 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n"	,			
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\r\n" + 
-			"	import static p.ST.foo;\r\n" + 
-			"	              ^^^^^^^^\n" + 
-			"The import p.ST.foo is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\r\n" + 
-			"	foo bar;\r\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	foo bar;\n" + 
 			"	^^^\n" + 
 			"foo cannot be resolved to a type\n" + 
 			"----------\n");

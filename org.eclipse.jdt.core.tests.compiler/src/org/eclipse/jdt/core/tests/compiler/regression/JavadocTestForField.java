@@ -954,22 +954,17 @@ public class JavadocTestForField extends JavadocTest {
 					+ "	 */  \n"
 					+ "	public int x;\n"
 					+ "}\n" },
-			"----------\n"
-				+ "1. WARNING in test\\X.java (at line 2)\n"
-				+ "	import test.copy.*;\n"
-				+ "	       ^^^^^^^^^\n"
-				+ "The import test.copy is never used\n"
-				+ "----------\n"
-				+ "2. ERROR in test\\X.java (at line 7)\n"
-				+ "	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type VisibilityPackage is not visible\n"
-				+ "----------\n"
-				+ "3. ERROR in test\\X.java (at line 8)\n"
-				+ "	* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n"
-				+ "	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
-				+ "Javadoc: The type test.copy.VisibilityPackage is not visible\n"
-				+ "----------\n");
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 7)\n" + 
+			"	* @see VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type VisibilityPackage is not visible\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 8)\n" + 
+			"	* @see test.copy.VisibilityPackage#unknown() Invalid ref: non visible class (non existent method)\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: The type test.copy.VisibilityPackage is not visible\n" + 
+			"----------\n");
 	}
 
 	public void test052() {
