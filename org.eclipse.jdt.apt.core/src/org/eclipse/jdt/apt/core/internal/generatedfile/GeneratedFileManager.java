@@ -49,7 +49,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.internal.core.JavaProject;
 
 
 /**
@@ -136,15 +135,11 @@ public class GeneratedFileManager {
 		try
 		{		
 			IProject project = javaProject.getProject();
-			
-			IFile file = getIFileForTypeName( typeName );
 
-			//
-			// make sure GENERATED_SOURCE_FOLDER_NAME dir is on the cp if not already
-			// this dir will be created by getIFileForTypeName
-			//
-			IFolder folder = project.getFolder( GENERATED_SOURCE_FOLDER_NAME );
-			updateProjectClasspath( (JavaProject)javaProject, folder, progressMonitor );
+			IFolder folder = ensureGeneratedSourceFolder( javaProject, progressMonitor );
+			
+			IFile file = getIFileForTypeName( typeName, javaProject, progressMonitor );
+
 			
 			byte[] bytes;
 			if ( charsetName == null || charsetName == "" )
@@ -306,6 +301,19 @@ public class GeneratedFileManager {
 	}
 	
 
+	public synchronized boolean isGeneratedSourceFolder( IFolder folder )
+		throws CoreException
+	{
+		// use getGeneratedSourceFolder() here.  Bad things can happen if we try to 
+		// create the generated source folder when this is invoked from a resource 
+		// change listener
+		if ( folder != null && folder.equals( getGeneratedSourceFolder() ) )
+			return true;
+		else
+			return false;
+	}
+	
+	
 	/**
 	 * 
 	 * @param parent - the parent file that you want to get generated files for
@@ -431,15 +439,13 @@ public class GeneratedFileManager {
 	 * @param typeName
 	 * @return
 	 */
-	private IFile getIFileForTypeName( String typeName )
+	private IFile getIFileForTypeName( String typeName, IJavaProject javaProject, IProgressMonitor progressMonitor )
 	    throws CoreException
 	{
 		// split the type name into its parts
 		String[] parts = typeName.split( "\\.");
-
-		IFolder folder = _project.getFolder( GENERATED_SOURCE_FOLDER_NAME );
-		if (!folder.exists())
-			folder.create(true, false, null);
+		
+		IFolder folder = ensureGeneratedSourceFolder( javaProject, progressMonitor );
 		
 		//  create folders for the package parts
 		int i = 0;
@@ -455,13 +461,54 @@ public class GeneratedFileManager {
 		return file;
 	}
 	
+	/**
+	 *  Creates the generated source folder if it doesn't exist, and adds it as a source path
+	 *  to the project.  To access the generated source folder, but not have it be created
+	 *  or added as a source path, use getGeneratedSourceFolder()
+	 *  
+	 *  @see #getGeneratedSourceFolder()
+	 */
+	private IFolder ensureGeneratedSourceFolder( IJavaProject javaProject, IProgressMonitor progressMonitor )
+		throws CoreException
+	{
+		if ( _generatedSourceFolder == null)
+		{
+			_generatedSourceFolder = getGeneratedSourceFolder();
+			_generatedSourceFolder.refreshLocal( IResource.DEPTH_INFINITE, progressMonitor );
+			if (!_generatedSourceFolder.exists())
+				_generatedSourceFolder.create(true, false, progressMonitor );
+			
+			//
+			// make sure __generated_src dir is on the cp if not already
+			//
+			updateProjectClasspath( javaProject, _generatedSourceFolder, progressMonitor );
+		}
+		return _generatedSourceFolder;
+	}
+	
+	/**
+	 *  Will return an IFolder corresponding to the generated source folder name.  The result
+	 *  IFolder may not exist and may not necessarily be on the java project's classpath. 
+	 *  To ensure that the generated source folder is created and added to as source path
+	 *  to the project, call ensureGeneratedSourceFolder().
+	 *  
+	 *   @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
+	 */
+	private IFolder getGeneratedSourceFolder()
+	{
+		if ( _generatedSourceFolder == null)
+			return _project.getFolder( GENERATED_SOURCE_FOLDER_NAME );
+		else
+			return _generatedSourceFolder;
+	}
+	
 	//
 	//  check cache to see if we already have a working copy
 	//
 	private ICompilationUnit getCachedWorkingCopy( ICompilationUnit parentCompilationUnit, String typeName )
 		throws CoreException
 	{
-		IFile derivedFile = getIFileForTypeName( typeName );
+		IFile derivedFile = getIFileForTypeName( typeName, parentCompilationUnit.getJavaProject(), null /*progressMonitor*/ );
 		ICompilationUnit workingCopy = (ICompilationUnit) _generatedFile2WorkingCopy.get( derivedFile );
 		if ( workingCopy != null )
 			addEntryToWorkingCopyMaps( parentCompilationUnit, workingCopy );
@@ -475,20 +522,12 @@ public class GeneratedFileManager {
 		throws CoreException, JavaModelException
 	{	
 		IProject project = parentCompilationUnit.getResource().getProject();
-		JavaProject jp = (JavaProject) parentCompilationUnit.getJavaProject();
+		IJavaProject jp = parentCompilationUnit.getJavaProject();
 
 		//
 		// create folder for generated source files
 		//
-		IFolder folder = project.getFolder( GENERATED_SOURCE_FOLDER_NAME );
-		project.refreshLocal(IResource.DEPTH_INFINITE, null);
-		if (!folder.exists())
-			folder.create(true, true, null);
-		
-		//
-		// make sure __generated_src dir is on the cp if not already
-		//
-		updateProjectClasspath( jp, folder, progressMonitor );
+		IFolder folder = ensureGeneratedSourceFolder(jp, progressMonitor );
 
 		// 
 		//  figure out package part of type & file name
@@ -756,7 +795,7 @@ public class GeneratedFileManager {
 	}
 	
 	
-	private void updateProjectClasspath( JavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
+	private void updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
 		throws JavaModelException
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
@@ -778,6 +817,31 @@ public class GeneratedFileManager {
 			newCp[newCp.length - 1] = generatedSourceClasspathEntry;
 			jp.setRawClasspath(newCp, progressMonitor );
 		}
+	}
+	
+	private void removeFromProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
+		throws JavaModelException
+	{
+		IClasspathEntry[] cp = jp.getRawClasspath();
+		IClasspathEntry folderClasspathEntry = 
+			JavaCore.newSourceEntry(folder.getFullPath());		
+		
+		// remove entries that are for the specified folder.  Account for 
+		// multiple entries.
+		int j = 0;
+		for ( int i=0; i<cp.length; i++ )
+		{
+			if (! cp[i].equals(folderClasspathEntry) )
+			{
+				cp[j] = cp[i];
+				j++;
+			}
+		}
+		
+		// now copy into new array
+		IClasspathEntry[] newCp = new IClasspathEntry[ j ];
+		System.arraycopy( cp, 0, newCp, 0, j);
+		jp.setRawClasspath( newCp, progressMonitor );
 	}
 	
 	public synchronized void projectClosed()
@@ -812,6 +876,9 @@ public class GeneratedFileManager {
 		}
 	}
 	
+	/**
+	 * Inovked when a project has been deleted
+	 */
 	public synchronized void projectDeleted()
 	{
 		//
@@ -828,6 +895,18 @@ public class GeneratedFileManager {
 		// TODO:  eventually make this true.  Right now, the resource tree is locked 
 		// when we get the project-deleted event, so we can't delete any files.
 		projectClean( false );
+	}
+	
+	/**
+	 *  Invoked when the generated source folder has been deleted.
+	 */
+	public synchronized void generatedSourceFolderDeleted()
+		throws CoreException
+	{
+		// jdt-core will remove the generated source folder from the java 
+		// project's classpath, so we'll just clean out our maps. 
+		projectClean( false );
+		_generatedSourceFolder = null;
 	}
 	
 	/**
@@ -854,6 +933,10 @@ public class GeneratedFileManager {
 	 */
 	private Map<IFile, ICompilationUnit> _generatedFile2WorkingCopy = new HashMap();	
 
+	/**
+	 * The folder where generated source files are placed
+	 */
+	private IFolder _generatedSourceFolder;
 	
 	private static boolean _initialized = false;
 	

@@ -64,29 +64,30 @@ public class ResourceChangedListener implements IResourceChangeListener
 		public boolean visit(IResourceDelta delta) throws CoreException 
 		{
 			IResource r = delta.getResource();
+			IProject project = r.getProject();
+			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( project );
 			
 			if ( delta.getKind() == IResourceDelta.REMOVED && r instanceof IFile)
 			{
-				for (GeneratedFileManager gfm : GeneratedFileManager.getGeneratedFileManagers()) {
-					IFile f = (IFile)r;
-					if ( gfm.isParentFile( f ) )
-					{
-						gfm.parentFileDeleted( (IFile) r, null /* progress monitor */ );
-					}
-					else if ( gfm.isGeneratedFile( f ) )
-					{
-						gfm.generatedFileDeleted( f, null /*progress monitor */ );
-					}
+				IFile f = (IFile)r;				
+				if ( gfm.isParentFile( f ) )
+				{
+					gfm.parentFileDeleted( (IFile) r, null /* progress monitor */ );
 				}
-			}
-				
-			if ( delta.getKind() == IResourceDelta.REMOVED && r instanceof IFolder )
-			{
-				// handle delete of generated source folder
+				else if ( gfm.isGeneratedFile( f ) )
+				{
+						gfm.generatedFileDeleted( f, null /*progress monitor */ );
+				}
+			}				
+			else if ( delta.getKind() == IResourceDelta.REMOVED && r instanceof IFolder )
+			{	
+				IFolder f = (IFolder) r;
+				if ( gfm.isGeneratedSourceFolder( f ) )
+					gfm.generatedSourceFolderDeleted();
 			}
 
 			return true;
-		}		
+		}	
 	}
 	
 	
