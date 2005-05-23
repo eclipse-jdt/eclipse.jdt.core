@@ -40,13 +40,13 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 
-public class BuildListener implements ICompilationParticipant
+public class AptCompilationParticipant implements ICompilationParticipant
 {
 	/**
 	 * This class is constructed indirectly, by registering an extension to the 
 	 * org.eclipse.jdt.core.compilationParticipants extension point.
 	 */
-	public BuildListener()
+	public AptCompilationParticipant()
 	{
         _factoryLoader = new AnnotationProcessorFactoryLoader();
 		_factoryLoader.loadFactoriesFromPlugins();
@@ -142,6 +142,14 @@ public class BuildListener implements ICompilationParticipant
 		return GENERIC_COMPILATION_RESULT;
 	}
 	
+	public boolean doesParticipateInProject(IJavaProject project) {
+		if (_factories.size() == 0)
+			return false;
+		
+		//TODO: use config to decide which projects we support
+		return true;
+	}
+	
     private List<AnnotationProcessorFactory> _factories;
     private AnnotationProcessorFactoryLoader _factoryLoader;
     private final static String DOT_JAVA = ".java";
@@ -151,4 +159,5 @@ public class BuildListener implements ICompilationParticipant
 
 	private final static CompilationParticipantResult GENERIC_COMPILATION_RESULT = 
 		new CompilationParticipantResult();
+
 }

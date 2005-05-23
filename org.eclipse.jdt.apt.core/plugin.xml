@@ -63,7 +63,7 @@
       name="Annotation Processing"
       point="org.eclipse.jdt.core.compilationParticipant">
    <compilationParticipant
-         class="org.eclipse.jdt.apt.core.internal.BuildListener"
+         class="org.eclipse.jdt.apt.core.internal.AptCompilationParticipant"
          eventMask="0xff"/>
 </extension>
 
