@@ -46,7 +46,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests_1_5("test0204"));			
+	suite.addTest(new CompletionTests_1_5("test0212"));			
 	return suite;
 }
 private ICompilationUnit[] getExternalQQTypes() throws JavaModelException {
@@ -1858,6 +1858,7 @@ public void test0070() throws JavaModelException {
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=77573
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94303
  */
 public void test0071() throws JavaModelException {
 	ICompilationUnit importedClass = null;
@@ -1869,18 +1870,27 @@ public void test0071() throws JavaModelException {
 				"public class ImportedClass {\n"+
 				"	\n"+
 				"}");
-		
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		ICompilationUnit cu= getCompilationUnit("Completion", "src3", "test0071", "Test.java");
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0071/Test.java",
+	            "package test0071;\n" +
+	            "\n" +
+	            "import static test0071.p.Im\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	\n" +
+	            "}",
+            	"test0071.p.Im");
+	    
 	
-		String str = cu.getSource();
-		String completeBehind = "test0071.p.Im";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
 	
 		assertResults(
-				"ImportedClass[TYPE_REF]{test0071.p.ImportedClass;, test0071.p, Ltest0071.p.ImportedClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
+				"ImportedClass[TYPE_REF]{test0071.p.ImportedClass., test0071.p, Ltest0071.p.ImportedClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
 	} finally {
 		if(importedClass != null) {
 			importedClass.discardWorkingCopy();
@@ -6453,6 +6463,210 @@ public void test0208() throws JavaModelException {
 	} finally {
 		if(aType != null) {
 			aType.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94303
+ */
+public void test0209() throws JavaModelException {
+	ICompilationUnit importedClass = null;
+	try {
+		importedClass = getWorkingCopy(
+				"/Completion/src3/test0209/p/ImportedClass.java",
+				"package test0209.p;\n"+
+				"\n"+
+				"public class ImportedClass {\n"+
+				"	public static class ImportedMember {\n"+
+				"	}\n"+
+				"}");
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0209/Test.java",
+	            "package test0209;\n" +
+	            "\n" +
+	            "import static Imported\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	\n" +
+	            "}",
+            	"Imported");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"ImportedClass[TYPE_REF]{test0209.p.ImportedClass., test0209.p, Ltest0209.p.ImportedClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ImportedClass.ImportedMember[TYPE_REF]{test0209.p.ImportedClass.ImportedMember;, test0209.p, Ltest0209.p.ImportedClass$ImportedMember;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(importedClass != null) {
+			importedClass.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94303
+ */
+public void test0210() throws JavaModelException {
+	ICompilationUnit importedClass = null;
+	try {
+		importedClass = getWorkingCopy(
+				"/Completion/src3/test0210/p/ImportedClass.java",
+				"package test0210.p;\n"+
+				"\n"+
+				"public class ImportedClass {\n"+
+				"	public class ImportedMember {\n"+
+				"	}\n"+
+				"}");
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0210/Test.java",
+	            "package test0210;\n" +
+	            "\n" +
+	            "import static test0210.p.ImportedClass.Im\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	\n" +
+	            "}",
+            	"test0210.p.ImportedClass.Im");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"",
+				result.proposals);
+	} finally {
+		if(importedClass != null) {
+			importedClass.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94303
+ */
+public void test0211() throws JavaModelException {
+	ICompilationUnit importedClass = null;
+	try {
+		importedClass = getWorkingCopy(
+				"/Completion/src3/test0211/p/ImportedClass.java",
+				"package test0211.p;\n"+
+				"\n"+
+				"public class ImportedClass {\n"+
+				"	public static class ImportedMember {\n"+
+				"	}\n"+
+				"}");
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0211/Test.java",
+	            "package test0211;\n" +
+	            "\n" +
+	            "import static test0211.p.ImportedClass.Im\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	\n" +
+	            "}",
+            	"test0211.p.ImportedClass.Im");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"ImportedClass.ImportedMember[TYPE_REF]{test0211.p.ImportedClass.ImportedMember;, test0211.p, Ltest0211.p.ImportedClass$ImportedMember;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(importedClass != null) {
+			importedClass.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94303
+ */
+public void test0212() throws JavaModelException {
+	ICompilationUnit importedClass = null;
+	try {
+		importedClass = getWorkingCopy(
+				"/Completion/src3/test0212/p/ImportedClass.java",
+				"package test0212.p;\n"+
+				"\n"+
+				"public class ImportedClass {\n"+
+				"	public static class ImportedMember {\n"+
+				"	}\n"+
+				"}");
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0212/Test.java",
+	            "package test0212;\n" +
+	            "\n" +
+	            "import test0212.p.Im\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	\n" +
+	            "}",
+            	"test0212.p.Im");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"ImportedClass[TYPE_REF]{test0212.p.ImportedClass;, test0212.p, Ltest0212.p.ImportedClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(importedClass != null) {
+			importedClass.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94303
+ */
+public void test0213() throws JavaModelException {
+	ICompilationUnit importedClass = null;
+	try {
+		importedClass = getWorkingCopy(
+				"/Completion/src3/test0213/p/ImportedClass.java",
+				"package test0213.p;\n"+
+				"\n"+
+				"public class ImportedClass {\n"+
+				"}");
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0213/Test.java",
+	            "package test0213;\n" +
+	            "\n" +
+	            "import test0213.p.Im\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	\n" +
+	            "}",
+            	"test0213.p.Im");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"ImportedClass[TYPE_REF]{test0213.p.ImportedClass;, test0213.p, Ltest0213.p.ImportedClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(importedClass != null) {
+			importedClass.discardWorkingCopy();
 		}
 	}
 }

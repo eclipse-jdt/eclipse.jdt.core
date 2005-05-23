@@ -47,7 +47,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests("testCompletionAllMemberTypes6"));			
+	suite.addTest(new CompletionTests("testCompletionFindImport2"));			
 	return suite;
 }
 
@@ -124,9 +124,9 @@ public void testCompletionFindClass() throws JavaModelException {
     this.wc.codeComplete(cursorLocation, requestor, this.owner);
 
     assertResults(
-    		"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
     		"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"A3[TYPE_REF]{A3, , LA3;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
+    		"A3[TYPE_REF]{A3, , LA3;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
 			"A[TYPE_REF]{A, , LA;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
             requestor.getResults());
 }
@@ -342,37 +342,49 @@ public void testCompletionFindField3() throws JavaModelException {
  * Complete the import, "import pac"
  */
 public void testCompletionFindImport1() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindImport1.java");
-
-	String str = cu.getSource();
-	String completeBehind = "pac";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-		"should have three imports \"pack1\" & \"pack1\" & \"pack1.pack3\" & \"pack2\"", 
-		"element:pack    completion:pack.*;    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-		"element:pack1    completion:pack1.*;    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-		"element:pack1.pack3    completion:pack1.pack3.*;    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-		"element:pack2    completion:pack2.*;    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED),
-		requestor.getResults());
+	this.wc = getWorkingCopy(
+            "/Completion/src/CompletionFindImport1.java",
+            "import pac\n"+
+            "\n"+
+            "public class CompletionFindImport1 {\n"+
+            "\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "pac";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    
+	assertResults(
+			"pack[PACKAGE_REF]{pack.*;, pack, null, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"pack1[PACKAGE_REF]{pack1.*;, pack1, null, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"pack1.pack3[PACKAGE_REF]{pack1.pack3.*;, pack1.pack3, null, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n"+
+			"pack2[PACKAGE_REF]{pack2.*;, pack2, null, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) +"}",
+			requestor.getResults());
 }
 
 public void testCompletionFindImport2() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindImport2.java");
-
-	String str = cu.getSource();
-	String completeBehind = "pack1.P";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-		"should have six completions",
-		"element:PX    completion:pack1.PX;    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-		"element:pack1.pack3    completion:pack1.pack3.*;    relevance:"+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED),
-		requestor.getResults());
+	this.wc = getWorkingCopy(
+            "/Completion/src/CompletionFindImport2.java",
+            "import pack1.P\n"+
+            "\n"+
+            "public class CompletionFindImport2 {\n"+
+            "\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "pack1.P";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    
+	assertResults(
+			"pack1.pack3[PACKAGE_REF]{pack1.pack3.*;, pack1.pack3, null, null, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n"+
+			"PX[TYPE_REF]{pack1.PX;, pack1, Lpack1.PX;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
 }
 
 /**

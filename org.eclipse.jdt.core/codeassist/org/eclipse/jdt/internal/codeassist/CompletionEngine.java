@@ -113,6 +113,7 @@ public final class CompletionEngine
 	char[] completionToken;
 	char[] qualifiedCompletionToken;
 	boolean resolvingImports = false;
+	boolean resolvingStaticImports = false;
 	boolean insideQualifiedReference = false;
 	boolean noProposal = true;
 	IProblem problem = null;
@@ -386,12 +387,28 @@ public final class CompletionEngine
 			this.knownTypes.put(fullyQualifiedName, this);
 			
 			if (this.resolvingImports) {
-				char[] completionName = CharOperation.concat(fullyQualifiedName, new char[] { ';' });
+				char[] completionName;
+				
+				if(this.resolvingStaticImports) {
+					if(enclosingTypeNames == null || enclosingTypeNames.length == 0) {
+						completionName = CharOperation.concat(fullyQualifiedName, new char[] { '.' });
+					} else if ((modifiers & IConstants.AccStatic) == 0) {
+						continue next;
+					} else {
+						completionName = CharOperation.concat(fullyQualifiedName, new char[] { ';' });
+					}
+				} else {
+					completionName = CharOperation.concat(fullyQualifiedName, new char[] { ';' });
+				}
 				
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForRestrictions(accessibility);
-				relevance += computeRelevanceForCaseMatching(this.completionToken, fullyQualifiedName);
+				if(insideQualifiedReference) {
+					relevance += computeRelevanceForCaseMatching(this.completionToken, fullyQualifiedName);
+				} else {
+					relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
+				}
 				
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
@@ -600,7 +617,9 @@ public final class CompletionEngine
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForInterestingProposal();
 		relevance += computeRelevanceForCaseMatching(this.qualifiedCompletionToken == null ? this.completionToken : this.qualifiedCompletionToken, packageName);
-		relevance += computeRelevanceForQualification(true);
+		if(!this.resolvingImports) {
+			relevance += computeRelevanceForQualification(true);
+		}
 		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 		
 		this.noProposal = false;
@@ -1404,33 +1423,42 @@ public final class CompletionEngine
 							if ((this.unitScope = parsedUnit.scope) != null) {
 								contextAccepted = true;
 								this.requestor.acceptContext(new CompletionContext());
-								findImports((CompletionOnImportReference) importReference);
+								
+								char[][] oldTokens = importReference.tokens;
+								int tokenCount = oldTokens.length;
+								if (tokenCount == 1) {
+									findImports((CompletionOnImportReference)importReference, true);
+								} else if(tokenCount > 1){
+									this.insideQualifiedReference = true;
+									
+									char[] lastToken = oldTokens[tokenCount - 1];
+									char[][] qualifierTokens = CharOperation.subarray(oldTokens, 0, tokenCount - 1);
+									
+									Binding binding = this.unitScope.getTypeOrPackage(qualifierTokens);
+									if(binding != null) {
+										if(binding instanceof PackageBinding) {
+											findImports((CompletionOnImportReference)importReference, false);
+										} else {
+											ReferenceBinding ref = (ReferenceBinding) binding;
+											if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+												this.findImportsOfMemberTypes(lastToken, ref, importReference.isStatic());
+											}
+											if(importReference.isStatic()) {
+												if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+													this.findImportsOfStaticFields(lastToken, ref);
+												}
+												if(!this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
+													this.findImportsOfStaticMethdods(lastToken, ref);
+												}
+											}
+										}
+									}
+								}
+								
 								if(this.noProposal && this.problem != null) {
 									this.requestor.completionFailure(this.problem);
 									if(DEBUG) {
 										this.printDebug(this.problem);
-									}
-								}
-								if(importReference.isStatic()) {
-									char[][] oldTokens = importReference.tokens;
-									int tokenCount = oldTokens.length;
-									char[] lastToken = oldTokens[tokenCount - 1];
-									char[][] qualifierTokens = CharOperation.subarray(oldTokens, 0, tokenCount - 1);
-									
-									if(qualifierTokens != null && qualifierTokens.length != 0) {
-										Binding binding = this.unitScope.getTypeOrPackage(qualifierTokens);
-										if(binding != null && binding instanceof ReferenceBinding) {
-											ReferenceBinding ref = (ReferenceBinding) binding;
-											if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-												this.findImportsOfMemberTypes(lastToken, ref);
-											}
-											if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-												this.findImportsOfStaticFields(lastToken, ref);
-											}
-											if(!this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
-												this.findImportsOfStaticMethdods(lastToken, ref);
-											}
-										}
 									}
 								}
 							}
@@ -2346,7 +2374,7 @@ public final class CompletionEngine
 		}
 	}
 
-	private void findImports(CompletionOnImportReference importReference) {
+	private void findImports(CompletionOnImportReference importReference, boolean findMembers) {
 		char[][] tokens = importReference.tokens;
 			
 		char[] importName = CharOperation.concatWith(tokens, '.');
@@ -2359,6 +2387,7 @@ public final class CompletionEngine
 			importName = CharOperation.concat(importName, new char[]{'.'});
 
 		this.resolvingImports = true;
+		this.resolvingStaticImports = importReference.isStatic();
 		setSourceRange(
 			importReference.sourceStart,
 			importReference.declarationSourceEnd);
@@ -2369,12 +2398,12 @@ public final class CompletionEngine
 			this.nameEnvironment.findPackages(importName, this);
 		}
 		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-			this.nameEnvironment.findTypes(importName, PROPOSE_MEMBER_TYPES, this);
+			this.nameEnvironment.findTypes(importName, findMembers && PROPOSE_MEMBER_TYPES, this);
 			acceptTypes();
 		}
 	}
 	
-	private void findImportsOfMemberTypes(char[] typeName,	ReferenceBinding ref) {
+	private void findImportsOfMemberTypes(char[] typeName,	ReferenceBinding ref, boolean onlyStatic) {
 		ReferenceBinding[] memberTypes = ref.memberTypes();
 		
 		int typeLength = typeName.length;
@@ -2382,6 +2411,9 @@ public final class CompletionEngine
 			ReferenceBinding memberType = memberTypes[m];
 			//		if (!wantClasses && memberType.isClass()) continue next;
 			//		if (!wantInterfaces && memberType.isInterface()) continue next;
+			
+			if (onlyStatic && !memberType.isStatic())
+				continue next;
 			
 			if (typeLength > memberType.sourceName.length)
 				continue next;
