@@ -57,7 +57,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug95794";
+		TESTS_PREFIX =  "testBug83716";
 //		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
 //		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -2064,6 +2064,33 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b83693/A.java [b83693.A.m] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
 			"src/b83693/A.java b83693.A [m(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
 			"src/b83693/A.java void b83693.A.m(int) [m(i)] EXACT_MATCH OUTSIDE_JAVADOC"
+		);
+	}
+
+	/**
+	 * Bug 83716: [search] refs to 2-arg constructor on Action found unexpected matches
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83716"
+	 * 
+	 * Note that this test does verify that bug is really fixed, but only that it has no impact
+	 * on existing behavior. It was not really possible to put a test in this suite to verify that
+	 * bug is effectively fixed as it appears only to potential match found in plugin dependencies...
+	 */
+	public void testBug83716() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83716/X.java",
+			"package b83716;\n" + 
+			"public class X {\n" + 
+			"	X() {}\n" + 
+			"	X(int x) {}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	Y(int y) {\n" + 
+			"	}\n" + 
+			"}"
+		);
+		search("X", CONSTRUCTOR, REFERENCES);
+		assertSearchResults(
+			"src/b83716/X.java b83716.Y(int) [Y] EXACT_MATCH"
 		);
 	}
 

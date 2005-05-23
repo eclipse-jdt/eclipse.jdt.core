@@ -343,8 +343,14 @@ protected int resolveLevel(ConstructorDeclaration constructor, boolean checkDecl
 		ExplicitConstructorCall constructorCall = constructor.constructorCall;
 		if (constructorCall != null && constructorCall.accessMode == ExplicitConstructorCall.ImplicitSuper) {
 			// eliminate explicit super call as it will be treated with matchLevel(ExplicitConstructorCall, boolean)
-			referencesLevel = resolveLevel(constructorCall.binding);
-			if (referencesLevel == ACCURATE_MATCH) return ACCURATE_MATCH; // cannot get better
+			int callCount = (constructorCall.arguments == null) ? 0 : constructorCall.arguments.length;
+			int patternCount = (this.pattern.parameterSimpleNames == null) ? 0 : this.pattern.parameterSimpleNames.length;
+			if (patternCount != callCount) {
+				referencesLevel = IMPOSSIBLE_MATCH;
+			} else {
+				referencesLevel = resolveLevel(constructorCall.binding);
+				if (referencesLevel == ACCURATE_MATCH) return ACCURATE_MATCH; // cannot get better
+			}
 		}
 	}
 	if (!checkDeclarations) return referencesLevel;
