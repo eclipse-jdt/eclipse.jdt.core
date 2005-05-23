@@ -2654,6 +2654,7 @@ public final class JavaCore extends Plugin {
 			}
 		};
 		job.setPriority(Job.SHORT);
+		job.setSystem(true); // not triggered by the user, thus it is a system job
 		job.schedule(2000);	 // wait for the startup activity to calm down
 		
 	}
