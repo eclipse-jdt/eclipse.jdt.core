@@ -23,7 +23,6 @@ import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
@@ -103,14 +102,22 @@ protected JavaModelOperation getNestedOperation(IJavaElement element) {
 					String extension = path.getFileExtension();
 					return new RenameResourceElementsOperation(new IJavaElement[] {dest}, new IJavaElement[] {dest.getParent()}, new String[]{getNewNameFor(element) + '.' + extension}, this.force); //$NON-NLS-1$
 				} else {
-					return new CreateTypeOperation(dest, getSourceFor(element) + Util.LINE_SEPARATOR, this.force);
+					String source = getSourceFor(element);
+					String lineSeparator = org.eclipse.jdt.internal.core.util.Util.getLineSeparator(source, element.getJavaProject());
+					return new CreateTypeOperation(dest, source + lineSeparator, this.force);
 				}
 			case IJavaElement.METHOD :
-				return new CreateMethodOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR, this.force);
+				String source = getSourceFor(element);
+				String lineSeparator = org.eclipse.jdt.internal.core.util.Util.getLineSeparator(source, element.getJavaProject());
+				return new CreateMethodOperation((IType) dest, source + lineSeparator, this.force);
 			case IJavaElement.FIELD :
-				return new CreateFieldOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR, this.force);
+				source = getSourceFor(element);
+				lineSeparator = org.eclipse.jdt.internal.core.util.Util.getLineSeparator(source, element.getJavaProject());
+				return new CreateFieldOperation((IType) dest, source + lineSeparator, this.force);
 			case IJavaElement.INITIALIZER :
-				return new CreateInitializerOperation((IType) dest, getSourceFor(element) + Util.LINE_SEPARATOR);
+				source = getSourceFor(element);
+				lineSeparator = org.eclipse.jdt.internal.core.util.Util.getLineSeparator(source, element.getJavaProject());
+				return new CreateInitializerOperation((IType) dest, source + lineSeparator);
 			default :
 				return null;
 		}

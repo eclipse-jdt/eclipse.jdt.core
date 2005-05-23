@@ -14,6 +14,9 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.core.util.Util;
 /**
  * @since 3.0
  */
@@ -54,10 +57,13 @@ class XMLWriter extends PrintWriter {
 		return null;
 	}
 	private int tab;
-	public XMLWriter(Writer writer) {
+	private String lineSeparator;
+	public XMLWriter(Writer writer, IJavaProject project) {
 		super(writer);
 		this.tab= 0;
-		println(XML_VERSION);
+		this.lineSeparator = Util.getLineSeparator((String) null, project);
+		print(XML_VERSION);
+		print(this.lineSeparator);
 	}
 	public void endTag(String name, boolean insertTab) {
 		this.tab --;
@@ -89,10 +95,9 @@ class XMLWriter extends PrintWriter {
 		if (insertTab) {
 			printTabulation();
 		}
+		print(sb.toString());
 		if (insertNewLine) {
-			println(sb.toString());
-		} else {
-			print(sb.toString());
+			print(this.lineSeparator);
 		}
 		if (parameters != null && !closeTag)
 			this.tab++;

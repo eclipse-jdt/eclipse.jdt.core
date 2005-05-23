@@ -99,7 +99,7 @@ public class UserLibrary {
 	/* package */  String serialize() throws IOException {
 		ByteArrayOutputStream s = new ByteArrayOutputStream();
 		OutputStreamWriter writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
-		XMLWriter xmlWriter = new XMLWriter(writer);
+		XMLWriter xmlWriter = new XMLWriter(writer, null/*use the workspace line delimiter*/);
 		
 		HashMap library = new HashMap();
 		library.put(TAG_VERSION, String.valueOf(CURRENT_VERSION));

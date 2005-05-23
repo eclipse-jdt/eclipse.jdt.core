@@ -914,7 +914,7 @@ public class JavaProject
 		try {
 			ByteArrayOutputStream s = new ByteArrayOutputStream();
 			OutputStreamWriter writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
-			XMLWriter xmlWriter = new XMLWriter(writer);
+			XMLWriter xmlWriter = new XMLWriter(writer, this);
 			
 			xmlWriter.startTag(ClasspathEntry.TAG_CLASSPATH, indent);
 			for (int i = 0; i < classpath.length; ++i) {
@@ -2396,8 +2396,9 @@ public class JavaProject
 	 * @see IJavaProject#newEvaluationContext()
 	 */
 	public IEvaluationContext newEvaluationContext() {
-
-		return new EvaluationContextWrapper(new EvaluationContext(), this);
+		EvaluationContext context = new EvaluationContext();
+		context.setLineSeparator(Util.getLineSeparator(null/*no existing source*/, this));
+		return new EvaluationContextWrapper(context, this);
 	}
 
 	/*

@@ -30,7 +30,6 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.dom.rewrite.Indents;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextUtilities;
@@ -151,9 +150,11 @@ protected abstract SimpleName rename(ASTNode node, SimpleName newName);
 protected String generateSyntaxIncorrectAST() {
 	//create some dummy source to generate an ast node
 	StringBuffer buff = new StringBuffer();
-	buff.append(Util.LINE_SEPARATOR + " public class A {" + Util.LINE_SEPARATOR); //$NON-NLS-1$
+	IType type = getType();
+	String lineSeparator = org.eclipse.jdt.internal.core.util.Util.getLineSeparator(this.source, type == null ? null : type.getJavaProject());
+	buff.append(lineSeparator + " public class A {" + lineSeparator); //$NON-NLS-1$
 	buff.append(this.source);
-	buff.append(Util.LINE_SEPARATOR).append('}');
+	buff.append(lineSeparator).append('}');
 	ASTParser parser = ASTParser.newParser(AST.JLS3);
 	parser.setSource(buff.toString().toCharArray());
 	CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);

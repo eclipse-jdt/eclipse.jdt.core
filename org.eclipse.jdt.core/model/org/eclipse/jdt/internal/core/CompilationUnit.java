@@ -388,7 +388,8 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 		String source = ""; //$NON-NLS-1$
 		if (!pkg.isDefaultPackage()) {
 			//not the default package...add the package declaration
-			source = "package " + pkg.getElementName() + ";"  + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
+			String lineSeparator = Util.getLineSeparator(null/*no existing source*/, getJavaProject());
+			source = "package " + pkg.getElementName() + ";"  + lineSeparator + lineSeparator; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		CreateCompilationUnitOperation op = new CreateCompilationUnitOperation(pkg, this.name, source, force);
 		op.runOperation(monitor);

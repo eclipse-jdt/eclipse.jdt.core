@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * DOMPackage provides an implementation of IDOMPackage.
@@ -76,12 +77,13 @@ DOMPackage(char[] document, int[] sourceRange, String name, int[] nameRange) {
  */
 protected void appendFragmentedContents(CharArrayBuffer buffer) {
 	if (fNameRange[0] < 0) {
+		String lineSeparator = Util.getLineSeparator(buffer.toString(), null);
 		buffer
 			.append("package ") //$NON-NLS-1$
 			.append(fName)
 			.append(';')
-			.append(org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR)
-			.append(org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR);
+			.append(lineSeparator)
+			.append(lineSeparator);
 	} else {
 		buffer
 			.append(fDocument, fSourceRange[0], fNameRange[0] - fSourceRange[0])

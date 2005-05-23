@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.jdom;
 
-import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.jdom.*;
 
 /**
@@ -24,11 +23,13 @@ import org.eclipse.jdt.internal.core.jdom.*;
  * org.eclipse.jdt.core.dom package.
  */
 public class DOMFactory implements IDOMFactory {
+	String lineSeparator;
 /**
  * Creates a new DOM factory.
  */
 public DOMFactory() {
 	// constructor is explicitly API
+	this.lineSeparator = org.eclipse.jdt.internal.core.util.Util.getLineSeparator(null, null/*take the workspace line separator as no project is available*/);
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
@@ -58,7 +59,7 @@ public IDOMCompilationUnit createCompilationUnit(String sourceCode, String name)
  * Method declared on IDOMFactory.
  */
 public IDOMField createField() {
-	return createField("Object aField;"+ Util.LINE_SEPARATOR); //$NON-NLS-1$
+	return createField("Object aField;"+ this.lineSeparator); //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
@@ -88,7 +89,7 @@ public IDOMImport createImport(String sourceCode) {
  * Method declared on IDOMFactory.
  */
 public IDOMInitializer createInitializer() {
-	return createInitializer("static {}"+ Util.LINE_SEPARATOR); //$NON-NLS-1$
+	return createInitializer("static {}"+ this.lineSeparator); //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
@@ -103,7 +104,7 @@ public IDOMInitializer createInitializer(String sourceCode) {
  * Method declared on IDOMFactory.
  */
 public IDOMMethod createMethod() {
-	return createMethod("public void newMethod() {"+ Util.LINE_SEPARATOR+"}"+ Util.LINE_SEPARATOR); //$NON-NLS-2$ //$NON-NLS-1$
+	return createMethod("public void newMethod() {"+ this.lineSeparator+"}"+ this.lineSeparator); //$NON-NLS-2$ //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
@@ -133,19 +134,19 @@ public IDOMPackage createPackage(String sourceCode) {
  * Method declared on IDOMFactory.
  */
 public IDOMType createType() {
-	return createType("public class AClass {"+ Util.LINE_SEPARATOR +"}"+ Util.LINE_SEPARATOR); //$NON-NLS-2$ //$NON-NLS-1$
+	return createType("public class AClass {"+ this.lineSeparator +"}"+ this.lineSeparator); //$NON-NLS-2$ //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
 public IDOMType createClass() {
-	return createType("public class AClass {"+ Util.LINE_SEPARATOR +"}"+ Util.LINE_SEPARATOR); //$NON-NLS-2$ //$NON-NLS-1$
+	return createType("public class AClass {"+ this.lineSeparator +"}"+ this.lineSeparator); //$NON-NLS-2$ //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
 public IDOMType createInterface() {
-	return createType("public interface AnInterface {"+ Util.LINE_SEPARATOR +"}"+ Util.LINE_SEPARATOR); //$NON-NLS-2$ //$NON-NLS-1$
+	return createType("public interface AnInterface {"+ this.lineSeparator +"}"+ this.lineSeparator); //$NON-NLS-2$ //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.

@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * DOMImport provides an implementation of IDOMImport.
@@ -99,7 +100,7 @@ protected void appendFragmentedContents(CharArrayBuffer buffer) {
 			.append("import ") //$NON-NLS-1$
 			.append(fName)
 			.append(';')
-			.append(org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR);
+			.append(Util.getLineSeparator(buffer.toString(), null));
 	} else {
 		buffer.append(fDocument, fSourceRange[0], fNameRange[0] - fSourceRange[0]);
 		//buffer.append(fDocument, fNameRange[0], fNameRange[1] - fNameRange[0] + 1);

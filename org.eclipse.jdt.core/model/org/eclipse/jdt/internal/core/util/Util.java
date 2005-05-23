@@ -16,11 +16,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -841,6 +840,41 @@ public class Util {
 	}
 	
 	/**
+	 * Returns the line separator found in the given text.
+	 * If it is null, or not found return the line delimitor for the given project.
+	 * If the project is null, returns the line separator for the workspace.
+	 * If still null, return the system line separator.
+	 */
+	public static String getLineSeparator(String text, IJavaProject project) {
+		String lineSeparator = null;
+		
+		// line delimiter in given text
+		if (text != null) {
+			lineSeparator = findLineSeparator(text.toCharArray());
+			if (lineSeparator != null)
+				return lineSeparator;
+		}
+		
+		// line delimiter in project preference
+		IScopeContext[] scopeContext;
+		if (project != null) {
+			scopeContext= new IScopeContext[] { new ProjectScope(project.getProject()) };
+			lineSeparator= Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
+			if (lineSeparator != null)
+				return lineSeparator;
+		}
+		
+		// line delimiter in workspace preference
+		scopeContext= new IScopeContext[] { new InstanceScope() };
+		lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
+		if (lineSeparator != null)
+			return lineSeparator;
+		
+		// system line delimiter
+		return org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
+	}
+	
+	/**
 	 * Returns the line separator used by the given buffer.
 	 * Uses the given text if none found.
 	 *
@@ -854,7 +888,7 @@ public class Util {
 			lineSeparator = findLineSeparator(text);
 			if (lineSeparator == null) {
 				// default to system line separator
-				return org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
+				return getLineSeparator((String) null, (IJavaProject) null);
 			}
 		}
 		return lineSeparator;

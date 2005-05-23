@@ -17,7 +17,6 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
-import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
  * Maps back and forth a code snippet to a compilation unit.
@@ -59,7 +58,7 @@ class CodeSnippetToCuMapper implements EvaluationConstants {
 /**
  * Rebuild source in presence of external local variables
  */
- public CodeSnippetToCuMapper(char[] codeSnippet, char[] packageName, char[][] imports, char[] className, char[] varClassName, char[][] localVarNames, char[][] localVarTypeNames, int[] localVarModifiers, char[] declaringTypeName) {
+ public CodeSnippetToCuMapper(char[] codeSnippet, char[] packageName, char[][] imports, char[] className, char[] varClassName, char[][] localVarNames, char[][] localVarTypeNames, int[] localVarModifiers, char[] declaringTypeName, String lineSeparator) {
 	this.codeSnippet = codeSnippet;
 	this.snippetPackageName = packageName;
 	this.snippetImports = imports;
@@ -69,16 +68,16 @@ class CodeSnippetToCuMapper implements EvaluationConstants {
 	this.localVarTypeNames = localVarTypeNames;
 	this.localVarModifiers = localVarModifiers;
 	this.snippetDeclaringTypeName = declaringTypeName;
-	this.buildCUSource();
+	this.buildCUSource(lineSeparator);
 }
-private void buildCUSource() {
+private void buildCUSource(String lineSeparator) {
 	StringBuffer buffer = new StringBuffer();
 
 	// package declaration
 	if (this.snippetPackageName != null && this.snippetPackageName.length != 0) {
 		buffer.append("package "); //$NON-NLS-1$
 		buffer.append(this.snippetPackageName);
-		buffer.append(";").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
+		buffer.append(";").append(lineSeparator); //$NON-NLS-1$
 		this.lineNumberOffset++;
 	}
 
@@ -87,7 +86,7 @@ private void buildCUSource() {
 	for (int i = 0; i < imports.length; i++) {
 		buffer.append("import "); //$NON-NLS-1$
 		buffer.append(imports[i]);
-		buffer.append(';').append(Util.LINE_SEPARATOR);
+		buffer.append(';').append(lineSeparator);
 		this.lineNumberOffset++;
 	}
 
@@ -105,7 +104,7 @@ private void buildCUSource() {
 		buffer.append("."); //$NON-NLS-1$
 		buffer.append(ROOT_CLASS_NAME);
 	}
-	buffer.append(" {").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
+	buffer.append(" {").append(lineSeparator); //$NON-NLS-1$
 	this.lineNumberOffset++;
 
 	if (this.snippetDeclaringTypeName != null){
@@ -113,7 +112,7 @@ private void buildCUSource() {
 		buffer.append(this.snippetDeclaringTypeName);
 		buffer.append(" "); //$NON-NLS-1$
 		buffer.append(DELEGATE_THIS); // val$this
-		buffer.append(';').append(Util.LINE_SEPARATOR);
+		buffer.append(';').append(lineSeparator);
 		this.lineNumberOffset++;
 	}
 	// add some storage location for local variable persisted state
@@ -124,22 +123,22 @@ private void buildCUSource() {
 			buffer.append(" "); //$NON-NLS-1$
 			buffer.append(LOCAL_VAR_PREFIX); // val$...
 			buffer.append(this.localVarNames[i]);
-			buffer.append(';').append(Util.LINE_SEPARATOR);
+			buffer.append(';').append(lineSeparator);
 			this.lineNumberOffset++;
 		}
 	}
 	// run() method declaration
-	buffer.append("public void run() throws Throwable {").append(Util.LINE_SEPARATOR); //$NON-NLS-1$
+	buffer.append("public void run() throws Throwable {").append(lineSeparator); //$NON-NLS-1$
 	this.lineNumberOffset++;
 	this.startPosOffset = buffer.length();
 	buffer.append(this.codeSnippet);
 	// a line separator is required after the code snippet source code
 	// in case the code snippet source code ends with a line comment
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=14838
-	buffer.append(Util.LINE_SEPARATOR).append('}').append(Util.LINE_SEPARATOR);
+	buffer.append(lineSeparator).append('}').append(lineSeparator);
 
 	// end of class declaration
-	buffer.append('}').append(Util.LINE_SEPARATOR);
+	buffer.append('}').append(lineSeparator);
 
 	// store result
 	int length = buffer.length();
@@ -191,9 +190,9 @@ public CompletionRequestor getCompletionRequestor(final CompletionRequestor orig
 		}
 	};
 }
-public char[] getCUSource() {
+public char[] getCUSource(String lineSeparator) {
 	if (this.cuSource == null) {
-		buildCUSource();
+		buildCUSource(lineSeparator);
 	}
 	return this.cuSource;
 }

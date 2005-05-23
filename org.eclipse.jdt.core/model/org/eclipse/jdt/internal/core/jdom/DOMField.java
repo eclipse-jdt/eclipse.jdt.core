@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
+import org.eclipse.jdt.internal.core.util.Util;
 /**
  * DOMField provides an implementation of IDOMField.
  *
@@ -381,16 +382,16 @@ protected char[] getSingleVariableDeclaratorContents() {
 				.append('=')
 				.append(fInitializer)
 				.append(';')
-				.append(org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR);
+				.append(Util.getLineSeparator(buffer.toString(), null));
 		} else {
 			buffer
 				.append(fDocument, fNameRange[1] + 1, fInitializerRange[0] - fNameRange[1] - 1)
 				.append(getInitializer())
 				.append(';')
-				.append(org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR);
+				.append(Util.getLineSeparator(buffer.toString(), null));
 		}
 	} else {
-		buffer.append(';').append(org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR);
+		buffer.append(';').append(Util.getLineSeparator(buffer.toString(), null));
 	}
 	return buffer.getContents();
 }

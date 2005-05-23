@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
+import org.eclipse.jdt.internal.core.util.Util;
 /**
  * DOMInitializer provides an implementation of IDOMInitializer.
  *
@@ -107,7 +108,7 @@ protected void appendMemberBodyContents(CharArrayBuffer buffer) {
 			.append(getBody())
 			.append(fDocument, fBodyRange[1] + 1, fSourceRange[1] - fBodyRange[1]);
 	} else {
-		buffer.append("{}").append(org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR); //$NON-NLS-1$
+		buffer.append("{}").append(Util.getLineSeparator(buffer.toString(), null)); //$NON-NLS-1$
 	}
 }
 /**
