@@ -976,6 +976,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	public void selectType(ISourceType sourceType, char[] typeName, SourceTypeElementInfo[] topLevelTypes, boolean searchInEnvironment) {
 		try {
 			this.acceptedAnswer = false;
+			
+			// only the type erasure are returned by IType.resolvedType(...)
+			if (CharOperation.indexOf('<', typeName) != -1) {
+				char[] typeSig = Signature.createCharArrayTypeSignature(typeName, false/*not resolved*/);
+				typeSig = Signature.getTypeErasure(typeSig);
+				typeName = Signature.toCharArray(typeSig);
+			}
 
 			// find the outer most type
 			ISourceType outerType = sourceType;

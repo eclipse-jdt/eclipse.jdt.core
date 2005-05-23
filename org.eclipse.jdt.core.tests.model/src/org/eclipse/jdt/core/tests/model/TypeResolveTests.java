@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 
 import junit.framework.Test;
@@ -64,9 +65,13 @@ public void setUpSuite() throws Exception {
 	this.setUpJavaProject("TypeResolve");
 	this.cu = this.getCompilationUnit("TypeResolve", "src", "p", "TypeResolve.java");
 }
-public static Test suite() {
-	return new Suite(TypeResolveTests.class);
-}
+	static {
+//		TESTS_NUMBERS = new int[] { 182, 183 };
+//		TESTS_NAMES = new String[] {"test0177"};
+	}
+	public static Test suite() {
+		return buildTestSuite(TypeResolveTests.class);
+	}
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
  */
@@ -95,6 +100,29 @@ public void testResolveMemberTypeInInner() throws JavaModelException {
 		"Unexpected result", 
 		"p.TypeResolve.A.B",
 		this.resultToString(types));	
+}
+/*
+ * Resolve a parameterized type
+ * (regression test for bug 94903 Error setting method breakpoint in 1.5 project)
+ */
+public void testResolveParameterizedType() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+		createFile(
+			"/P/src/X.java",
+			"public class X<T> {\n" +
+			"  X<String> field;\n" +
+			"}"
+		);
+		IType type = getCompilationUnit("/P/src/X.java").getType("X");
+		String[][] types = type.resolveType("X<String>");
+		assertEquals(
+			"Unexpected result", 
+			"X",
+			this.resultToString(types));	
+	} finally {
+		deleteProject("P");
+	}
 }
 /**
  * Resolve the type "C" within one of its sibling classes.
