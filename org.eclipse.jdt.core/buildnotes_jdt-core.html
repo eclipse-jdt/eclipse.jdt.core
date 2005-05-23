@@ -60,10 +60,16 @@ Note: To re-enabled quickly the old behaviors, change the value of Completion.PR
 <li>Added API <code>JavaCore#initializeAfterLoad(IProgressMonitor)</code> to allow
 	 a client to force the initialization of internal structures.
 </li>
+<li>Default value for <code>COMPILER_PB_MISSING_JAVADOC_COMMENTS_OVERRIDING</code> and
+	<code>COMPILER_PB_MISSING_JAVADOC_TAGS_OVERRIDING</code> JavaCore options have been changed from "enabled" to "disabled".<br>
+	(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=96270">96270</a>).
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=96300">96300</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=96270">96270</a>
+[javadoc] Missing Javadoc comment: 'check overriding..' should be 'off' by default
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=96300">96300</a>
 Use the line separator platform preference for new files
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94303">94303</a>
 import static adds annoying semicolon

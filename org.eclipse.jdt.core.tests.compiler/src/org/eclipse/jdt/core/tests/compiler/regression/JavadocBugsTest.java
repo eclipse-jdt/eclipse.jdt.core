@@ -47,14 +47,18 @@ public class JavadocBugsTest extends JavadocTest {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_DocCommentSupport, docCommentSupport);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
-		if (reportMissingJavadocComments != null) 
+		if (reportMissingJavadocComments != null) {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
-		else
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding, CompilerOptions.ENABLED);
+		} else {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportInvalidJavadoc);
-		if (reportMissingJavadocTags != null) 
+		}
+		if (reportMissingJavadocTags != null) {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportMissingJavadocTags);
-		else
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsOverriding, CompilerOptions.ENABLED);
+		} else {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportInvalidJavadoc);
+		}
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);

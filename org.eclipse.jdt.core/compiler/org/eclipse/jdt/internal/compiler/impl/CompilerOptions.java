@@ -268,12 +268,12 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 
 	// check missing javadoc tags
 	public int reportMissingJavadocTagsVisibility = AccPrivate; 
-	public boolean reportMissingJavadocTagsOverriding = true;
+	public boolean reportMissingJavadocTagsOverriding = false;
 
 	// check missing javadoc comments
 	public int reportMissingJavadocCommentsVisibility = AccPublic; 
-	public boolean reportMissingJavadocCommentsOverriding = true; 
-	
+	public boolean reportMissingJavadocCommentsOverriding = false; 
+
 	// JSR bytecode inlining
 	public boolean inlineJsrBytecode = false;
 	

@@ -1996,7 +1996,7 @@ public final class JavaCore extends Plugin {
 	 *    Specify whether the compiler will verify overriding methods in order to report Javadoc missing tag problems.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding"
 	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "enabled"
+	 *     - default:           "disabled"
 	 * 
 	 * COMPILER / Reporting Missing Javadoc Comments
 	 *    This is the generic control for the severity of missing Javadoc comment problems.
@@ -2018,7 +2018,7 @@ public final class JavaCore extends Plugin {
 	 *    Specify whether the compiler will verify overriding methods in order to report missing Javadoc comment problems.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding"
 	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "enabled"
+	 *     - default:           "disabled"
 	 * 
 	 * COMPILER / Maximum number of problems reported per compilation unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
