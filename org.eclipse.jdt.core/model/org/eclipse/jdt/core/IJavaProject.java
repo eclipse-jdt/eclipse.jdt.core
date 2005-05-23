@@ -115,7 +115,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * 	- internal to the workbench: "/Project/src"
 	 *  - external to the workbench: "c:/jdk/classes.zip/java/lang"
 	 * @param path the given absolute path
-	 * @exception JavaModelException if this element does not exist or if an
+	 * @exception JavaModelException if this project does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 * @return the first existing package fragment on this project's classpath
 	 * whose path matches the given (absolute) path, or <code>null</code> if none
@@ -131,7 +131,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *	- internal to the workbench: "/Compiler/src"
 	 *	- external to the workbench: "c:/jdk/classes.zip"
 	 * @param path the given absolute path
-	 * @exception JavaModelException if this element does not exist or if an
+	 * @exception JavaModelException if this project does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 * @return the existing package fragment root on this project's classpath
 	 * whose path matches the given (absolute) path, or <code>null</code> if
@@ -172,7 +172,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * unit or found by the <code>SearchEngine</code>.
 	 * 
 	 * @param fullyQualifiedName the given fully qualified name
-	 * @exception JavaModelException if this element does not exist or if an
+	 * @exception JavaModelException if this project does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 * @return the first type found following this project's classpath 
 	 * with the given fully qualified name or <code>null</code> if none is found
@@ -197,7 +197,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * 
 	 * @param fullyQualifiedName the given fully qualified name
 	 * @param owner the owner of the returned type's compilation unit
-	 * @exception JavaModelException if this element does not exist or if an
+	 * @exception JavaModelException if this project does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 * @return the first type found following this project's classpath 
 	 * with the given fully qualified name or <code>null</code> if none is found
@@ -222,7 +222,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * 
 	 * @param packageName the given package name
 	 * @param typeQualifiedName the given type qualified name
-	 * @exception JavaModelException if this element does not exist or if an
+	 * @exception JavaModelException if this project does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 * @return the first type found following this project's classpath 
 	 * with the given package name and type qualified name
@@ -251,7 +251,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @param packageName the given package name
 	 * @param typeQualifiedName the given type qualified name
 	 * @param owner the owner of the returned type's compilation unit
-	 * @exception JavaModelException if this element does not exist or if an
+	 * @exception JavaModelException if this project does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 * @return the first type found following this project's classpath 
 	 * with the given package name and type qualified name
