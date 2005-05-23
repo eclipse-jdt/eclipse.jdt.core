@@ -463,8 +463,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 						// nothing we can do: ignore
 					}
 				}
-		}
-			
+			}
 		}
 		return this.externalTimeStamps;
 	}
