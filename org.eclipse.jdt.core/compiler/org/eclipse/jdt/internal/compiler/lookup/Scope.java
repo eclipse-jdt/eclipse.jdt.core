@@ -979,6 +979,8 @@ public abstract class Scope
 		while (keepLooking) {
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces == null) { // needed for statically imported types which don't know their hierarchy yet
+				if (currentType.isHierarchyBeingConnected())
+					return null; // looking for an undefined member type in its own superclass ref
 				((SourceTypeBinding) currentType).scope.connectTypeHierarchy();
 				itsInterfaces = currentType.superInterfaces();
 			}

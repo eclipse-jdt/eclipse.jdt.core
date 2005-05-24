@@ -19808,7 +19808,7 @@ public void test680() {
 		"	                 ^^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type ? extends Key<K,?,?,?> is not a valid substitute for the bounded parameter <C extends Key<A,B,C,D>> of the type Store<A,B,C,D>\n" + 
 		"----------\n");
-}	
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
 public void test681() {
 	this.runNegativeTest(
@@ -19836,5 +19836,21 @@ public void test681() {
 		"	         ^^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type ? extends Key<E,?> is not a valid substitute for the bounded parameter <K extends Key<E,K>> of the type Store<E,K>\n" + 
 		"----------\n");
-}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96134
+public void test682() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X extends A<X.M> {}\n" + 
+			"class A<T> {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	class X extends A<X.M> {}\n" + 
+		"	                  ^^^\n" + 
+		"X.M cannot be resolved to a type\n" + 
+		"----------\n"
+	);
+}
 }
