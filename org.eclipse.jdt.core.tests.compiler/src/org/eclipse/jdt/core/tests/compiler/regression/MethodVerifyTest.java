@@ -2841,10 +2841,6 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"		<T extends Y> T foo(A<Y> o) {  return null; } // ok\n" + 
 				"		<T extends Z> T foo(A<Z> o) {  return null; } // ok\n" + 
 				"	}\n" + 
-				"	class C7 {\n" + 
-				"		<T extends Y, U> T foo(Object o) {  return null; } // ok\n" + 
-				"		<T extends Z> T foo(Object o) {  return null; } // ok\n" + 
-				"	}\n" + 
 				"}\n" +
 				"class A<T> {}" +
 				"class Y {}" +
@@ -2862,6 +2858,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Duplicate method foo(A<Z>) in type X.C5\n" + 
 			"----------\n"
 			// name clash: foo(A<Y>) and foo(A<Z>) have the same erasure
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	class C7 {\n" + 
+				"		<T extends Y, U> T foo(Object o) {  return null; } // ok\n" + 
+				"		<T extends Z> T foo(Object o) {  return null; } // ok\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class A<T> {}" +
+				"class Y {}" +
+				"class Z {}"
+			},
+			""
 		);
 	}	
 
@@ -3100,6 +3111,28 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 			// X is not abstract and does not override abstract method <T>foo(T) in I
 		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(A<String> a) {}\n" + 
+				"	void foo(A<Integer> a) {}\n" +
+				"}\n" + 
+				"class A<T> {}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	void foo(A<String> a) {}\r\n" + 
+			"	     ^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(A<String>) in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\r\n" + 
+			"	void foo(A<Integer> a) {}\r\n" + 
+			"	     ^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate method foo(A<Integer>) in type X\n" + 
+			"----------\n"
+			// name clash: foo(A<java.lang.String>) and foo(A<java.lang.Integer>) have the same erasure
+		);
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -3110,6 +3143,225 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class A<T> {}\n",
 			},
 			""
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91728
+	public void _test052() {
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"public class A<T> {\n" + 
+				"	public A test() { return null; }\n" + 
+				"	public A<T> test2() { return null; }\n" + 
+				"	public A<X> test3() { return null; }\n" + 
+				"	public <U> A<U> test4() { return null; }\n" + 
+				"}\n" +
+				"class B extends A<X> {\n" + 
+				"	@Override public B test() { return null; }\n" + 
+				"	@Override public B test2() { return null; }\n" + 
+				"	@Override public B test3() { return null; }\n" + 
+				"	@Override public <U> A<U> test4() { return null; }\n" + 
+				"}\n" +
+				"class X{}\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"public class A<T> {\n" + 
+				"	public <U> A<U> test() { return null; }\n" + 
+				"	public <U> A<U> test2() { return null; }\n" + 
+				"	public <U> A<U> test3() { return null; }\n" + 
+				"}\n" +
+				"class B extends A<X> {\n" + 
+				"	@Override public B test() { return null; }\n" + 
+				"	@Override public A test2() { return null; }\n" + 
+				"	@Override public A<X> test3() { return null; }\n" + 
+				"}\n" +
+				"class X{}\n"
+			},
+			"1. WARNING in A.java (at line 7)\r\n" + 
+			"	@Override public B test() { return null; }\r\n" + 
+			"	                 ^\n" + 
+			"Type safety: The return type B for test() from the type B needs unchecked conversion to conform to A<U> from the type A<T>\n" + 
+			"----------\n" + 
+			"2. WARNING in A.java (at line 8)\n" + 
+			"	@Override public A test2() { return null; }\n" + 
+			"	                 ^\n" + 
+			"Type safety: The return type A for test2() from the type B needs unchecked conversion to conform to A<U> from the type A<T>\n" + 
+			"----------\n" + 
+			"3. WARNING in A.java (at line 9)\r\n" + 
+			"	@Override public A<X> test3() { return null; }\r\n" + 
+			"	                 ^\n" + 
+			"Type safety: The return type A<X> for test3() from the type B needs unchecked conversion to conform to A<U> from the type A<T>\n" + 
+			"----------\n"
+			// warning: test() in B overrides <U>test() in A; return type requires unchecked conversion
+			// warning: test2() in B overrides <U>test2() in A; return type requires unchecked conversion
+			// warning: test3() in B overrides <U>test3() in A; return type requires unchecked conversion
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91728
+	public void _test053() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n" + 
+				"	void test(A a) { B b = a.foo(); }\n" + 
+				"	void test2(A<X> a) { B b = a.foo(); }\n" + 
+				"	void test3(B b) { B bb = b.foo(); }\n" + 
+				"}\n" +
+				"class A<T> {\n" + 
+				"	<U> A<U> foo() { return null; }\n" + 
+				"}\n" +
+				"class B extends A<X> {\n" + 
+				"	@Override B foo() { return null; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	void test(A a) { B b = a.foo(); }\r\n" + 
+			"	                   ^\n" + 
+			"Type mismatch: cannot convert from A to B\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 2)\r\n" + 
+			"	void test(A a) { B b = a.foo(); }\r\n" + 
+			"	                       ^^^^^^^\n" + 
+			"Type safety: The method foo() belongs to the raw type A. References to generic type A<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\r\n" + 
+			"	void test2(A<X> a) { B b = a.foo(); }\r\n" + 
+			"	                       ^\n" + 
+			"Type mismatch: cannot convert from A<Object> to B\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 10)\r\n" + 
+			"	@Override B foo() { return null; }\r\n" + 
+			"	                 ^\n" + 
+			"Type safety: The return type B for foo() from the type B needs unchecked conversion to conform to A<U> from the type A<T>\n" + 
+			"----------\n"
+			// 2: incompatible types
+			// 3: incompatible types; no instance(s) of type variable(s) U exist so that A<U> conforms to B
+			// 10 warning: foo() in B overrides <U>foo() in A; return type requires unchecked conversion
+		);
+	}
+
+	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
+	public void test054() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void a(Object x) {}\n" +
+				"	<T> T a(T x) {  return null; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	void a(Object x) {}\n" + 
+			"	     ^^^^^^^^^^^\n" + 
+			"Duplicate method a(Object) in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	<T> T a(T x) {  return null; }\n" + 
+			"	      ^^^^^^\n" + 
+			"Method a(T) has the same erasure a(Object) as another method in type X\n" + 
+			"----------\n"
+			// a(X) is already defined in X
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	<T1, T2> String aaa(X x) {  return null; }\n" + 
+				"	<T extends X> T aaa(T x) {  return null; }\n" + 
+				"	<T> String aa(X x) {  return null; }\n" + 
+				"	<T extends X> T aa(T x) {  return null; }\n" + 
+				"	String a(X x) {  return null; }\n" + // dup
+				"	<T extends X> T a(T x) {  return null; }\n" + 
+
+				"	<T> String z(X x) { return null; }\n" + 
+				"	<T, S> Object z(X x) { return null; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\r\n" + 
+			"	String a(X x) {  return null; }\r\n" + 
+			"	       ^^^^^^\n" + 
+			"Duplicate method a(X) in type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\r\n" + 
+			"	<T extends X> T a(T x) {  return null; }\r\n" + 
+			"	                ^^^^^^\n" + 
+			"Method a(T) has the same erasure a(X) as another method in type X\n" + 
+			"----------\n"
+			// a(X) is already defined in X
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"		 Object foo(X<T> t) { return null; }\n" + 
+				"		 <S> String foo(X<T> s) { return null; }\n" + 
+				"}\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n" + 
+				"		<T1 extends X<T1>> void dupT() {}\n" + 
+				"		<T2 extends X<T2>> Object dupT() {return null;}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	<T1 extends X<T1>> void dupT() {}\r\n" + 
+			"	                        ^^^^^^\n" + 
+			"Duplicate method dupT() in type X<T>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\r\n" + 
+			"	<T2 extends X<T2>> Object dupT() {return null;}\r\n" + 
+			"	                          ^^^^^^\n" + 
+			"Duplicate method dupT() in type X<T>\n" + 
+			"----------\n"
+			// <T1>dupT() is already defined in X
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	<T> T a(A<T> t) {return null;}\n" + 
+				"	<T> String a(A<Object> o) {return null;}\n" +
+				"	<T> T aa(A<T> t) {return null;}\n" + 
+				"	String aa(A<Object> o) {return null;}\n" +
+				"}\n" + 
+				"class A<T> {}\n",
+			},
+			""
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95933
+	public void test055() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		A a = new C();\n" + 
+				"		try { a.f(new Object()); } catch (ClassCastException e) {\n" +
+				"			System.out.println(1);\n" +
+				"		}\n" +
+				"	}\n" + 
+				"}\n" +
+				"interface A<T> { void f(T x); }\n" + 
+				"interface B extends A<String> { void f(String x); }\n" + 
+				"class C implements B { public void f(String x) {} }\n"
+			},
+			"1"
 		);
 	}
 }
