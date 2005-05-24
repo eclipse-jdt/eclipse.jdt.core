@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -70,9 +71,9 @@ public class CompletionTests2 extends ModifyingResourceTests implements Relevanc
 						accessRules = new IAccessRule[0];
 					}
 				    if (path.segmentCount() == 1) {
-				        entries[j] = JavaCore.newProjectEntry(path, accessRules, true, null, isExported);
+				        entries[j] = JavaCore.newProjectEntry(path, accessRules, true, new IClasspathAttribute[0], isExported);
 				    } else {
-						entries[j] = JavaCore.newLibraryEntry(path, null, null, accessRules, null, isExported);
+						entries[j] = JavaCore.newLibraryEntry(path, null, null, accessRules, new IClasspathAttribute[0], isExported);
 				    }
 				}
 				return entries;
