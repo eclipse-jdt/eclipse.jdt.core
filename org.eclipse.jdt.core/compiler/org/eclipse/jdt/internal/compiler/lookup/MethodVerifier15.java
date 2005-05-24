@@ -386,6 +386,9 @@ boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
 	return one.typeVariables != NoTypeVariables && !one.areTypeVariableErasuresEqual(substituteTwo.original());
 }
 boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBinding existingMethod, ReferenceBinding superType) {
+	if (inheritedMethod.original() != inheritedMethod && existingMethod.declaringClass.isInterface())
+		return false; // must hold onto ParameterizedMethod to see if a bridge method is necessary
+
 	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
 	return inheritedMethod.returnType == existingMethod.returnType
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
