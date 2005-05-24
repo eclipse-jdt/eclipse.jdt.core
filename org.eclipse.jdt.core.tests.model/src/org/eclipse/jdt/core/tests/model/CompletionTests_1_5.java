@@ -46,7 +46,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests_1_5("test0212"));			
+	suite.addTest(new CompletionTests_1_5("test0214"));			
 	return suite;
 }
 private ICompilationUnit[] getExternalQQTypes() throws JavaModelException {
@@ -6667,6 +6667,190 @@ public void test0213() throws JavaModelException {
 	} finally {
 		if(importedClass != null) {
 			importedClass.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93249
+ */
+public void test0214() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	ICompilationUnit paramClass2 = null;
+	ICompilationUnit superClass = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0214/AClass1.java",
+				"package test0214;\n"+
+				"\n"+
+				"public class AClass1 {\n"+
+				"}");
+		
+		paramClass2 = getWorkingCopy(
+				"/Completion/src3/test0214/AClass2.java",
+				"package test0214;\n"+
+				"\n"+
+				"public class AClass2 {\n"+
+				"}");
+		
+		superClass = getWorkingCopy(
+				"/Completion/src3/test0214/SuperClass.java",
+				"package test0214;\n"+
+				"\n"+
+				"public class SuperClass<T> {\n"+
+				"  public <M extends AClass1> void foo(M p1) {\n" +
+				"  }\n" +
+				"  public <M extends AClass2> void foo(M p2) {\n" +
+				"  }\n" +
+				"}");
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0214/Test.java",
+	            "package test0214;\n" +
+	            "\n" +
+	            "public class Test<Z> extends SuperClass<Z>{\n" +
+	            "	foo\n" +
+	            "}",
+            	"foo");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, Ltest0214.Test<TZ;>;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo[METHOD_DECLARATION]{public <M extends AClass1> void foo(M p1), Ltest0214.SuperClass<TZ;>;, <M:Ltest0214.AClass1;>(TM;)V, foo, (p1), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED) + "}\n" +
+				"foo[METHOD_DECLARATION]{public <M extends AClass2> void foo(M p2), Ltest0214.SuperClass<TZ;>;, <M:Ltest0214.AClass2;>(TM;)V, foo, (p2), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+		if(paramClass2 != null) {
+			paramClass2.discardWorkingCopy();
+		}
+		if(superClass != null) {
+			superClass.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93249
+ */
+public void test0215() throws JavaModelException {
+	ICompilationUnit paramClass = null;
+	ICompilationUnit superClass = null;
+	try {
+		paramClass = getWorkingCopy(
+				"/Completion/src3/test0215/p/ParamClass.java",
+				"package test0215.p;\n"+
+				"\n"+
+				"public class ParamClass {\n"+
+				"  public class MemberParamClass<P2> {\n" +
+				"  }\n" +
+				"}");
+		
+		superClass = getWorkingCopy(
+				"/Completion/src3/test0215/SuperClass.java",
+				"package test0215;\n"+
+				"\n"+
+				"public class SuperClass<T> {\n"+
+				"  public <M extends SuperClass<T>> SuperClass<?> foo(test0215.p.ParamClass.MemberParamClass<? super T> p1, int p2) throws Exception {\n" +
+				"    return null;\n" +
+				"  }\n" +
+				"}");
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0215/Test.java",
+	            "package test0215;\n" +
+	            "\n" +
+	            "public class Test<Z> extends SuperClass<Z>{\n" +
+	            "	foo\n" +
+	            "}",
+            	"foo");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, Ltest0215.Test<TZ;>;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo[METHOD_DECLARATION]{public <M extends test0215.SuperClass<Z>> test0215.SuperClass<?> foo(test0215.p.ParamClass.MemberParamClass<? super Z> p1, int p2) throws Exception, Ltest0215.SuperClass<TZ;>;, <M:Ltest0215.SuperClass<TZ;>;>(Ltest0215.p.ParamClass$MemberParamClass<-TZ;>;I)Ltest0215.SuperClass<*>;, foo, (p1, p2), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass != null) {
+			paramClass.discardWorkingCopy();
+		}
+		if(superClass != null) {
+			superClass.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93249
+ */
+public void test0216() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	ICompilationUnit paramClass2 = null;
+	ICompilationUnit superClass = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0216/p/ParamClass.java",
+				"package test0216.p;\n"+
+				"\n"+
+				"public class ParamClass {\n"+
+				"}");
+		
+		paramClass2 = getWorkingCopy(
+				"/Completion/src3/test0216/q/ParamClass.java",
+				"package test0216.q;\n"+
+				"\n"+
+				"public class ParamClass {\n"+
+				"}");
+		
+		superClass = getWorkingCopy(
+				"/Completion/src3/test0216/SuperClass.java",
+				"package test0216;\n"+
+				"\n"+
+				"public class SuperClass<T> {\n"+
+				"  public void foo(test0216.p.ParamClass p1) {\n" +
+				"  }\n" +
+				"  public void foo(test0216.q.ParamClass p2) {\n" +
+				"  }\n" +
+				"}");
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0216/Test.java",
+	            "package test0216;\n" +
+	            "\n" +
+	            "public class Test<Z> extends SuperClass<Z>{\n" +
+	            "	foo\n" +
+	            "}",
+            	"foo");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, Ltest0216.Test<TZ;>;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo[METHOD_DECLARATION]{public void foo(test0216.p.ParamClass p1), Ltest0216.SuperClass<TZ;>;, (Ltest0216.p.ParamClass;)V, foo, (p1), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED) + "}\n" +
+				"foo[METHOD_DECLARATION]{public void foo(test0216.q.ParamClass p2), Ltest0216.SuperClass<TZ;>;, (Ltest0216.q.ParamClass;)V, foo, (p2), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+		if(paramClass2 != null) {
+			paramClass2.discardWorkingCopy();
+		}
+		if(superClass != null) {
+			superClass.discardWorkingCopy();
 		}
 	}
 }

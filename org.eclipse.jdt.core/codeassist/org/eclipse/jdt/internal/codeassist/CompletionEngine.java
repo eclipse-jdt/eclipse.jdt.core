@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -81,6 +82,8 @@ public final class CompletionEngine
 	private final static char[] INT = "int".toCharArray();  //$NON-NLS-1$
 	private final static char[] INT_SIGNATURE = new char[]{Signature.C_INT};
 	private final static char[] VALUE = "value".toCharArray();  //$NON-NLS-1$
+	private final static char[] EXTENDS = "extends".toCharArray();  //$NON-NLS-1$
+	private final static char[] SUPER = "super".toCharArray();  //$NON-NLS-1$
 	
 	private final static int SUPERTYPE = 1;
 	private final static int SUBTYPE = 2;
@@ -3722,84 +3725,11 @@ public final class CompletionEngine
 				parameterFullTypeNames[i] = type.qualifiedSourceName();
 			}
 
-			char[][] parameterNames = findMethodParameterNames(method,parameterFullTypeNames);
+			char[][] parameterNames = findMethodParameterNames(method, parameterFullTypeNames);
 			
 			StringBuffer completion = new StringBuffer(10);
-			// flush uninteresting modifiers
-			int insertedModifiers = method.modifiers & ~(IConstants.AccNative | IConstants.AccAbstract);
-
 			if (!exactMatch) {
-				if(insertedModifiers != CompilerModifiers.AccDefault){
-					ASTNode.printModifiers(insertedModifiers, completion);
-				}
-				char[] returnPackageName = method.returnType.qualifiedPackageName();
-				char[] returnFullTypeName = method.returnType.qualifiedSourceName();
-				
-				TypeBinding returnLeafType = method.returnType.leafComponentType();
-				if(!returnLeafType.isBaseType() && mustQualifyType(
-						returnPackageName,
-						returnLeafType.sourceName(),
-						returnLeafType.isMemberType() ? returnLeafType.enclosingType().qualifiedSourceName() : null,
-						((ReferenceBinding)returnLeafType).modifiers)) {
-					completion.append(CharOperation.concat(returnPackageName, returnFullTypeName,'.'));
-				} else {
-					completion.append(method.returnType.sourceName());
-				}
-				completion.append(' ');
-				completion.append(method.selector);
-				completion.append('(');
-
-				for(int i = 0; i < length ; i++){
-					TypeBinding type = method.parameters[i];
-					TypeBinding leafType = type.leafComponentType();
-					if(!leafType.isBaseType() && mustQualifyType(
-							parameterPackageNames[i],
-							leafType.sourceName(),
-							leafType.isMemberType() ? leafType.enclosingType().qualifiedSourceName() : null,
-							((ReferenceBinding)leafType).modifiers)){
-						completion.append(CharOperation.concat(parameterPackageNames[i], parameterFullTypeNames[i], '.'));
-					} else {
-						completion.append(parameterFullTypeNames[i]);
-					}
-					completion.append(' ');
-					if(parameterNames != null){
-						completion.append(parameterNames[i]);
-					} else {
-						completion.append('%');
-					}
-					if(i != (length - 1))
-						completion.append(',');	
-				}
-				completion.append(')');
-				
-				ReferenceBinding[] exceptions = method.thrownExceptions;
-				
-				if (exceptions != null && exceptions.length > 0){
-					completion.append(' ');
-					completion.append(THROWS);
-					completion.append(' ');
-					for(int i = 0; i < exceptions.length ; i++){
-						ReferenceBinding exception = exceptions[i];
-
-						char[] exceptionPackageName = exception.qualifiedPackageName();
-						char[] exceptionFullTypeName = exception.qualifiedSourceName();
-						
-						if(i != 0){
-							completion.append(',');
-							completion.append(' ');
-						}
-						
-						if(mustQualifyType(
-								exceptionPackageName,
-								exception.sourceName,
-								exception.isMemberType() ? exception.enclosingType().qualifiedSourceName() : null,
-								exception.modifiers)){
-							completion.append(CharOperation.concat(exceptionPackageName, exceptionFullTypeName, '.'));
-						} else {
-							completion.append(exception.sourceName());
-						}
-					}
-				}
+				createMethod(method, parameterPackageNames, parameterFullTypeNames, parameterNames, completion);
 			}
 
 			int relevance = computeBaseRelevance();
@@ -3835,6 +3765,170 @@ public final class CompletionEngine
 			}
 		}
 		methodsFound.addAll(newMethodsFound);
+	}
+	private void createTypeVariable(TypeVariableBinding typeVariable, StringBuffer completion) {
+		completion.append(typeVariable.sourceName);
+		
+		if (typeVariable.superclass != null && typeVariable.firstBound == typeVariable.superclass) {
+		    completion.append(' ');
+		    completion.append(EXTENDS);
+		    completion.append(' ');
+		    createType(typeVariable.superclass, completion);
+		}
+		if (typeVariable.superInterfaces != null && typeVariable.superInterfaces != NoSuperInterfaces) {
+		   if (typeVariable.firstBound != typeVariable.superclass) {
+			   completion.append(' ');
+			   completion.append(EXTENDS);
+			   completion.append(' ');
+		   }
+		   for (int i = 0, length = typeVariable.superInterfaces.length; i < length; i++) {
+			   if (i > 0 || typeVariable.firstBound == typeVariable.superclass) {
+				   completion.append(' ');
+				   completion.append(EXTENDS);
+				   completion.append(' ');
+			   }
+			   createType(typeVariable.superInterfaces[i], completion);
+		   }
+		}
+	}
+	
+	private void createType(TypeBinding type, StringBuffer completion) {
+		if (type.isBaseType()) {
+			completion.append(type.sourceName());
+		} else if (type.isTypeVariable()) {
+			completion.append(type.sourceName());
+		} else if (type.isWildcard()) {
+			WildcardBinding wildcardBinding = (WildcardBinding) type;
+			completion.append('?');
+			switch (wildcardBinding.boundKind) {
+				case Wildcard.EXTENDS:
+					completion.append(' ');
+					completion.append(EXTENDS);
+					completion.append(' ');
+					createType(wildcardBinding.bound, completion);
+					if(wildcardBinding.otherBounds != null) {
+						
+						int length = wildcardBinding.otherBounds.length;
+						for (int i = 0; i < length; i++) {
+							completion.append(' ');
+							completion.append('&');
+							completion.append(' ');
+							createType(wildcardBinding.otherBounds[i], completion);
+						}
+					}
+					break;
+				case Wildcard.SUPER:
+					completion.append(' ');
+					completion.append(SUPER);
+					completion.append(' ');
+					createType(wildcardBinding.bound, completion);
+					break;
+			}
+		} else if (type.isArrayType()) {
+			createType(type.leafComponentType(), completion);
+			int dim = type.dimensions();
+			for (int i = 0; i < dim; i++) {
+				completion.append('[');
+				completion.append(']');
+			}
+		} else if (type.isParameterizedType()) {
+			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
+			if (type.isMemberType()) {
+				createType(parameterizedType.enclosingType(), completion);
+				completion.append('.');
+				completion.append(parameterizedType.sourceName);
+			} else {
+				completion.append(CharOperation.concatWith(parameterizedType.type.compoundName, '.'));
+			}	    
+			if (parameterizedType.arguments != null) {
+				completion.append('<');
+			    for (int i = 0, length = parameterizedType.arguments.length; i < length; i++) {
+			        if (i != 0) completion.append(',');
+			        createType(parameterizedType.arguments[i], completion);
+			    }
+			    completion.append('>');
+			}
+		} else {
+			char[] packageName = type.qualifiedPackageName();
+			char[] typeName = type.qualifiedSourceName();
+			if(mustQualifyType(
+					packageName,
+					type.sourceName(),
+					type.isMemberType() ? type.enclosingType().qualifiedSourceName() : null,
+					((ReferenceBinding)type).modifiers)) {
+				completion.append(CharOperation.concat(packageName, typeName,'.'));
+			} else {
+				completion.append(type.sourceName());
+			}
+		}
+	}
+	private void createMethod(MethodBinding method, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, StringBuffer completion) {
+		//// Modifiers
+		// flush uninteresting modifiers
+		int insertedModifiers = method.modifiers & ~(IConstants.AccNative | IConstants.AccAbstract);	
+		if(insertedModifiers != CompilerModifiers.AccDefault){
+			ASTNode.printModifiers(insertedModifiers, completion);
+		}
+		
+		//// Type parameters
+		
+		TypeVariableBinding[] typeVariableBindings = method.typeVariables;
+		if(typeVariableBindings != null && typeVariableBindings.length != 0) {
+			completion.append('<');
+			for (int i = 0; i < typeVariableBindings.length; i++) {
+				if(i != 0) {
+					completion.append(',');
+					completion.append(' ');
+				}
+				createTypeVariable(typeVariableBindings[i], completion);
+			}
+			completion.append('>');
+			completion.append(' ');
+		}
+		
+		//// Return type
+		createType(method.returnType, completion);
+		completion.append(' ');
+		
+		//// Selector
+		completion.append(method.selector);
+		
+		completion.append('(');
+
+		////Parameters
+		TypeBinding[] parameterTypes = method.parameters;
+		int length = parameterTypes.length;
+		for (int i = 0; i < length; i++) {
+			if(i != 0) {
+				completion.append(',');
+				completion.append(' ');
+			}
+			createType(parameterTypes[i], completion);
+			completion.append(' ');
+			if(parameterNames != null){
+				completion.append(parameterNames[i]);
+			} else {
+				completion.append('%');
+			}
+		}
+		
+		completion.append(')');
+		
+		//// Exceptions
+		ReferenceBinding[] exceptions = method.thrownExceptions;
+		
+		if (exceptions != null && exceptions.length > 0){
+			completion.append(' ');
+			completion.append(THROWS);
+			completion.append(' ');
+			for(int i = 0; i < exceptions.length ; i++){
+				if(i != 0) {
+					completion.append(' ');
+					completion.append(',');
+				}
+				createType(exceptions[i], completion);
+			}
+		}
 	}
 	private void findMethods(
 		char[] selector,
@@ -3977,7 +4071,8 @@ public final class CompletionEngine
 		}
 	}
 	private char[][] findMethodParameterNames(MethodBinding method, char[][] parameterTypeNames){
-		ReferenceBinding bindingType = method.declaringClass;
+		TypeBinding erasure =  method.declaringClass.erasure();
+		if(!(erasure instanceof ReferenceBinding)) return null;
 
 		char[][] parameterNames = null;
 		
@@ -3987,8 +4082,8 @@ public final class CompletionEngine
 			return CharOperation.NO_CHAR_CHAR;
 		}
 		// look into the corresponding unit if it is available
-		if (bindingType instanceof SourceTypeBinding){
-			SourceTypeBinding sourceType = (SourceTypeBinding) bindingType;
+		if (erasure instanceof SourceTypeBinding){
+			SourceTypeBinding sourceType = (SourceTypeBinding) erasure;
 
 			if (sourceType.scope != null){
 				TypeDeclaration parsedType;
@@ -4009,6 +4104,9 @@ public final class CompletionEngine
 		}
 		// look into the model		
 		if(parameterNames == null){
+			
+			ReferenceBinding bindingType = (ReferenceBinding)erasure;
+			
 			char[] compoundName = CharOperation.concatWith(bindingType.compoundName, '.');
 			Object type = this.typeCache.get(compoundName);
 			
@@ -4026,18 +4124,21 @@ public final class CompletionEngine
 			}
 			
 			if(sourceType != null) {
-				SourceMethod[] sourceMethods = ((SourceTypeElementInfo) sourceType).getMethodHandles();
-				int len = sourceMethods.length;
-				for(int i = 0; i < len ; i++){
-					SourceMethod sourceMethod = sourceMethods[i];
-					String[] argTypeSignatures = sourceMethod.getParameterTypes();
-
-					if(argTypeSignatures != null &&
-						CharOperation.equals(method.selector,sourceMethod.getElementName().toCharArray()) &&
-						equalSignatures(parameterTypeNames, argTypeSignatures)){
+				IType typeHandle = ((SourceTypeElementInfo) sourceType).getHandle();
+				
+				String[] parameterTypeSignatures = new String[length];
+				for (int i = 0; i < length; i++) {
+					parameterTypeSignatures[i] = Signature.createTypeSignature(parameterTypeNames[i], false);
+				}
+				IMethod searchedMethod = typeHandle.getMethod(String.valueOf(method.selector), parameterTypeSignatures);
+				IMethod[] foundMethods = typeHandle.findMethods(searchedMethod);
+				
+				if(foundMethods != null) {
+					int len = foundMethods.length;
+					if(len == 1) {
 						try {
+							SourceMethod sourceMethod = (SourceMethod) foundMethods[0];
 							parameterNames = ((SourceMethodElementInfo) sourceMethod.getElementInfo()).getArgumentNames();
-							break;
 						} catch (JavaModelException e) {
 							// method doesn't exist: ignore
 						}
@@ -4046,18 +4147,6 @@ public final class CompletionEngine
 			}
 		}
 		return parameterNames;
-	}
-	
-	private boolean equalSignatures(char[][] typeNames, String[] typeSignatures) {
-		if (typeNames == null || typeSignatures == null)
-			return false;
-		if (typeNames.length != typeSignatures.length)
-			return false;
-
-		for (int i = typeNames.length; --i >= 0;)
-			if (!CharOperation.equals(typeNames[i], Signature.toCharArray(typeSignatures[i].toCharArray())))
-				return false;
-		return true;
 	}
 	
 	private void findNestedTypes(
