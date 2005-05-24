@@ -1348,8 +1348,19 @@ public final class JavaCore extends Plugin {
 	 * none was found.
 	 * @since 2.1
 	 */
-	public static ClasspathContainerInitializer getClasspathContainerInitializer(String containerID){
-		
+	public static ClasspathContainerInitializer getClasspathContainerInitializer(String containerID) {
+		HashMap containerInitializersCache = JavaModelManager.getJavaModelManager().containerInitializersCache;
+		ClasspathContainerInitializer initializer = (ClasspathContainerInitializer) containerInitializersCache.get(containerID);
+		if (initializer == null) {
+			initializer = computeClasspathContainerInitializer(containerID);
+			if (initializer == null)
+				return null;
+			containerInitializersCache.put(containerID, initializer);
+		}
+		return initializer;
+	}
+
+	private static ClasspathContainerInitializer computeClasspathContainerInitializer(String containerID) {
 		Plugin jdtCorePlugin = JavaCore.getPlugin();
 		if (jdtCorePlugin == null) return null;
 
