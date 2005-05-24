@@ -220,6 +220,8 @@ public void testBug29832() throws Exception {
 			"  ZZZ z;\n"+
 			"}");
 		
+		waitUntilIndexesReady();
+		
 		// do completion
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "X.java");
@@ -286,6 +288,7 @@ public void testBug29832() throws Exception {
 		getWorkspace().run(populate, null);
 		JavaCore.create(project);
 		
+		waitUntilIndexesReady();
 		
 		// do completion
 		requestor = new CompletionTestsRequestor();
@@ -341,6 +344,8 @@ public void testBug33560() throws Exception {
 			"public class X {\n"+
 			"  ZZZ z;\n"+
 			"}");
+		
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -408,6 +413,7 @@ public void testBug33560() throws Exception {
 		getWorkspace().run(populate, null);
 		JavaCore.create(project);
 		
+		waitUntilIndexesReady();
 		
 		// do completion
 		requestor = new CompletionTestsRequestor();
