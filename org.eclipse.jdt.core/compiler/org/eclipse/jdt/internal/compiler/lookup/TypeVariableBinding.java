@@ -332,7 +332,50 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 	public boolean isTypeVariable() {
 	    return true;
 	}
-	
+
+	/**
+	 * Returns true if the 2 variables are playing exact same role: they have
+	 * the same bounds, providing one is substituted with the other: <T1 extends
+	 * List<T1>> is interchangeable with <T2 extends List<T2>>.
+	 */
+	public boolean isInterchangeableWith(final LookupEnvironment environment, final TypeVariableBinding otherVariable) {
+		if (this == otherVariable)
+			return true;
+		int length = this.superInterfaces.length;
+		if (length != otherVariable.superInterfaces.length)
+			return false;
+
+		identical: {
+			if (this.superclass != otherVariable.superclass) {
+				if (this.superclass.erasure() != otherVariable.superclass.erasure())
+					return false; // no way it can match after substitution
+				break identical;
+			}
+			for (int i = 0; i < length; i++) {
+				if (this.superInterfaces[i] != otherVariable.superInterfaces[i]) {
+					if (this.superInterfaces[i].erasure() != otherVariable.superInterfaces[i])
+						return false; // no way it can match after substitution
+					break identical;
+				}
+			}
+			return true;
+		}
+		// need substitutions
+		Substitution subst = new Substitution() {
+			public LookupEnvironment environment() { return environment; }
+			public boolean isRawSubstitution() { return false; }
+			public TypeBinding substitute(TypeVariableBinding typeVariable) {
+				return typeVariable == otherVariable ? TypeVariableBinding.this : typeVariable;
+			}
+		};
+		if (this.superclass != Scope.substitute(subst, otherVariable.superclass))
+			return false;
+		for (int i = 0; i < length; i++)
+			if (this.superInterfaces[i] != Scope.substitute(subst, otherVariable.superInterfaces[i]))
+				return false;
+		return true;
+	}
+
 	/** 
 	 * Returns the original type variable for a given variable.
 	 * Only different from receiver for type variables of generic methods of parameterized types

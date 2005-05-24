@@ -1019,23 +1019,75 @@ public MethodBinding[] methods() {
 		for (int i = 0, length = methods.length; i < length; i++) {
 			MethodBinding method = methods[i];
 			if (method != null) {
-				TypeBinding returnErasure = method.returnType == null ? null : method.returnType.erasure();
 				char[] selector = method.selector;
 				AbstractMethodDeclaration methodDecl = null;
 				nextMethod : for (int j = length - 1; j > i; j--) {
 					MethodBinding method2 = methods[j];
 					if (method2 == null || !CharOperation.equals(selector, method2.selector))
 						continue nextMethod;
-					if (complyTo15) {
-						if (returnErasure != (method2.returnType == null ? null : method2.returnType.erasure())) {
-							 // colllision when parameters are identical & type variable erasures match
-							if (!method.areParametersEqual(method2))
-								continue nextMethod;
-							if (method.typeVariables != NoTypeVariables && method2.typeVariables != NoTypeVariables)
-								if (!method.areTypeVariableErasuresEqual(method2))
-									continue nextMethod;
-						} else if (!method.areParameterErasuresEqual(method2)) { // colllision when parameter & return type erasures match
+					if (complyTo15 && method.returnType != null && method2.returnType != null) {
+						// 8.4.2, for collision to be detected between m1 and m2:
+						// signature(m1) == signature(m2) i.e. same arity, same type parameter count, can be substituted
+						// signature(m1) == erasure(signature(m2)) or erasure(signature(m1)) == signature(m2)
+						TypeBinding[] params1 = method.parameters;
+						TypeBinding[] params2 = method2.parameters;
+						int pLength = params1.length;
+						if (pLength != params2.length)
 							continue nextMethod;
+
+						TypeVariableBinding[] vars = method.typeVariables;
+						TypeVariableBinding[] vars2 = method2.typeVariables;
+						boolean equalTypeVarLength = vars.length == vars2.length;
+						boolean equalTypeVars = vars == vars2;
+						MethodBinding subMethod = method2;
+						if (!equalTypeVars && equalTypeVarLength) {
+							LookupEnvironment env = this.scope.environment();
+							int varsLength = vars.length;
+							notEqual : for (int v = 0; v < varsLength; v++) {
+								if (!vars[v].isInterchangeableWith(env, vars2[v])) {
+									equalTypeVars = false;
+									break notEqual;
+								}
+								equalTypeVars = true;
+							}
+							if (equalTypeVars) {
+								// must substitute to detect cases like:
+								//   <T1 extends X<T1>> void dup() {}
+								//   <T2 extends X<T2>> Object dup() {return null;}
+								subMethod = new ParameterizedGenericMethodBinding(method2, vars, env);
+							}
+						}
+						boolean equalParams = method.areParametersEqual(subMethod);
+						if (equalParams && equalTypeVars) {
+							// duplicates regardless of return types
+						} else if (method.returnType.erasure() == subMethod.returnType.erasure() && (equalParams || method.areParameterErasuresEqual(method2))) {
+							// name clash for sure if not duplicates, report as duplicates
+						} else if (!equalTypeVars && vars != NoTypeVariables && vars2 != NoTypeVariables) {
+							// type variables are different so we can distinguish between methods
+							continue nextMethod;
+						} else if (pLength > 0) {
+							// check to see if the erasure of either method is equal to the other
+							int index = pLength;
+							for (; --index >= 0;) {
+								if (params1[index] != params2[index].erasure())
+									if (!params1[index].isRawType() || params1[index].erasure() != params2[index].erasure()) // want X#RAW to match X#RAW and X<T>
+										break;
+								if (params1[index] == params2[index]) {
+									TypeBinding type = params1[index].leafComponentType();
+									if (type instanceof SourceTypeBinding && type.typeVariables() != NoTypeVariables) {
+										index = pLength; // handle comparing identical source types like X<T>... its erasure is itself BUT we need to answer false
+										break;
+									}
+								}
+							}
+							if (index >= 0 && index < pLength) {
+								for (index = pLength; --index >= 0;)
+									if (params1[index].erasure() != params2[index])
+										if (!params2[index].isRawType() || params1[index].erasure() != params2[index].erasure()) // want X#RAW to match X#RAW and X<T>
+											break;
+							}
+							if (index >= 0)
+								continue nextMethod;
 						}
 					} else if (!method.areParametersEqual(method2)) { // prior to 1.5, parameter identity meant a collision case
 						continue nextMethod;
@@ -1067,7 +1119,7 @@ public MethodBinding[] methods() {
 						failed++;
 					}
 				}
-				if (returnErasure == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
+				if (method.returnType == null && methodDecl == null) { // forget method with invalid return type... was kept to detect possible collisions
 					method.sourceMethod().binding = null;
 					methods[i] = null;
 					failed++;
