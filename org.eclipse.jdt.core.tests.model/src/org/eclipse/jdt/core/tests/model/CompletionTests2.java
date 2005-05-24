@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
@@ -202,7 +201,7 @@ public void testBug29832() throws Exception {
 		IJavaProject p = this.createJavaProject(
 			"P1",
 			new String[]{},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "");
 		this.createFile("/P1/lib.jar", f.getContents());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
@@ -211,7 +210,7 @@ public void testBug29832() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P1"},
 			"bin");
 		this.createFile(
@@ -318,7 +317,7 @@ public void testBug33560() throws Exception {
 		IJavaProject p = this.createJavaProject(
 			"P1",
 			new String[]{},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "");
 		this.createFile("/P1/lib.jar", f.getContents());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
@@ -327,7 +326,7 @@ public void testBug33560() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P1"},
 			new boolean[]{true},
 			"bin");
@@ -336,7 +335,7 @@ public void testBug33560() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P2"},
 			"bin");
 		this.createFile(
@@ -440,7 +439,7 @@ public void testBug79288() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -454,7 +453,7 @@ public void testBug79288() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P1"},
 			"bin");
 		
@@ -469,7 +468,7 @@ public void testBug79288() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P2"},
 			"bin");
 		
@@ -513,7 +512,7 @@ public void testBug91772() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -525,7 +524,7 @@ public void testBug91772() throws Exception {
 		
 		// create P2
 		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}));
-		String[] classLib = Util.getJavaClassLibs();
+		String[] classLib = new String[]{"JCL_LIB"};
 		int classLibLength = classLib.length;
 		String[] lib = new String[classLibLength + 1];
 		System.arraycopy(classLib, 0, lib, 0, classLibLength);
@@ -547,7 +546,7 @@ public void testBug91772() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P2"},
 			"bin");
 		
@@ -579,6 +578,8 @@ public void testBug91772() throws Exception {
 		this.deleteProject("P2");
 		this.deleteProject("P3");
 		
+		
+		// TODO the following code is not the correct way to remove the container
 		// Cleanup caches
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		manager.containers = new HashMap(5);
@@ -604,7 +605,7 @@ public void testBug93891() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -623,7 +624,7 @@ public void testBug93891() throws Exception {
 		
 		// create P2
 		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}, new String[]{"a/*"}));
-		String[] classLib = Util.getJavaClassLibs();
+		String[] classLib = new String[]{"JCL_LIB"};
 		int classLibLength = classLib.length;
 		String[] lib = new String[classLibLength + 1];
 		System.arraycopy(classLib, 0, lib, 0, classLibLength);
@@ -661,6 +662,7 @@ public void testBug93891() throws Exception {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 		
+		// TODO the following code is not the correct way to remove the container
 		// Cleanup caches
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		manager.containers = new HashMap(5);
@@ -689,7 +691,7 @@ public void testAccessRestriction1() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -710,7 +712,7 @@ public void testAccessRestriction1() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P1"},
 			"bin");
 		this.createFile(
@@ -763,7 +765,7 @@ public void testAccessRestriction2() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -784,7 +786,7 @@ public void testAccessRestriction2() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -844,7 +846,7 @@ public void testAccessRestriction3() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -865,7 +867,7 @@ public void testAccessRestriction3() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -926,7 +928,7 @@ public void testAccessRestriction4() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -947,7 +949,7 @@ public void testAccessRestriction4() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1007,7 +1009,7 @@ public void testAccessRestriction5() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -1028,7 +1030,7 @@ public void testAccessRestriction5() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1087,7 +1089,7 @@ public void testAccessRestriction6() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -1115,7 +1117,7 @@ public void testAccessRestriction6() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1132,7 +1134,7 @@ public void testAccessRestriction6() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P2"},
@@ -1193,7 +1195,7 @@ public void testAccessRestriction7() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -1214,7 +1216,7 @@ public void testAccessRestriction7() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1", "/P3"},
@@ -1238,7 +1240,7 @@ public void testAccessRestriction7() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1291,7 +1293,7 @@ public void testAccessRestriction8() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -1312,7 +1314,7 @@ public void testAccessRestriction8() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P3", "/P1"},
@@ -1336,7 +1338,7 @@ public void testAccessRestriction8() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1390,7 +1392,7 @@ public void testAccessRestriction9() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/p11");
@@ -1411,7 +1413,7 @@ public void testAccessRestriction9() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1", "/P3"},
@@ -1442,7 +1444,7 @@ public void testAccessRestriction9() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1473,7 +1475,7 @@ public void testAccessRestriction9() throws Exception {
 		this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				Util.getJavaClassLibs(),
+				new String[]{"JCL_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -1538,7 +1540,7 @@ public void testAccessRestriction10() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/p11");
@@ -1559,7 +1561,7 @@ public void testAccessRestriction10() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1", "/P3"},
@@ -1590,7 +1592,7 @@ public void testAccessRestriction10() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1621,7 +1623,7 @@ public void testAccessRestriction10() throws Exception {
 		this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				Util.getJavaClassLibs(),
+				new String[]{"JCL_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -1688,7 +1690,7 @@ public void testAccessRestriction11() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/x/y/z/p11");
@@ -1709,7 +1711,7 @@ public void testAccessRestriction11() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P3", "/P1"},
@@ -1740,7 +1742,7 @@ public void testAccessRestriction11() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1771,7 +1773,7 @@ public void testAccessRestriction11() throws Exception {
 		this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				Util.getJavaClassLibs(),
+				new String[]{"JCL_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -1836,7 +1838,7 @@ public void testAccessRestriction12() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/p11");
@@ -1857,7 +1859,7 @@ public void testAccessRestriction12() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P3", "/P1"},
@@ -1888,7 +1890,7 @@ public void testAccessRestriction12() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1919,7 +1921,7 @@ public void testAccessRestriction12() throws Exception {
 		this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				Util.getJavaClassLibs(),
+				new String[]{"JCL_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -1986,7 +1988,7 @@ public void testAccessRestriction13() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -2007,7 +2009,7 @@ public void testAccessRestriction13() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -2066,7 +2068,7 @@ public void testAccessRestriction14() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -2087,7 +2089,7 @@ public void testAccessRestriction14() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -2145,7 +2147,7 @@ public void testAccessRestriction14() throws Exception {
 //		this.createJavaProject(
 //			"P1",
 //			new String[]{"src"},
-//			Util.getJavaClassLibs(),
+//			new String[]{"JCL_LIB"},
 //			 "bin");
 //		
 //		this.createFolder("/P1/src/a");
@@ -2161,7 +2163,7 @@ public void testAccessRestriction14() throws Exception {
 //		this.createJavaProject(
 //			"P2",
 //			new String[]{"src"},
-//			Util.getJavaClassLibs(),
+//			new String[]{"JCL_LIB"},
 //			null,
 //			null,
 //			new String[]{"/P1"},
