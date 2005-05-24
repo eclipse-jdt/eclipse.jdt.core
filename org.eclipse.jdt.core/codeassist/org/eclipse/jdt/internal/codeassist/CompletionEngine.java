@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 
 import org.eclipse.jdt.internal.codeassist.complete.*;
-import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
 import org.eclipse.jdt.internal.codeassist.impl.Keywords;
@@ -324,24 +323,30 @@ public final class CompletionEngine
 		if(accessRestriction != null) {
 			switch (accessRestriction.getProblemId()) {
 				case IProblem.ForbiddenReference:
-					switch (this.options.restrictedReferenceFilter) {
-						case AssistOptions.FILTER_WARNING:
-							return;
-						case AssistOptions.FILTER_ERROR:
-							if(this.forbiddenReferenceIsError) return;
-							break;
-						
+//					switch (this.options.restrictedReferenceFilter) {
+//						case AssistOptions.FILTER_WARNING:
+//							return;
+//						case AssistOptions.FILTER_ERROR:
+//							if(this.forbiddenReferenceIsError) return;
+//							break;
+//						
+//					}
+					if (this.options.checkForbiddenReference) {
+						return;
 					}
 					accessibility = IAccessRule.K_NON_ACCESSIBLE;
 					break;
 				case IProblem.DiscouragedReference:
-					switch (this.options.restrictedReferenceFilter) {
-						case AssistOptions.FILTER_WARNING:
-							return;
-						case AssistOptions.FILTER_ERROR:
-							if(this.discouragedReferenceIsError) return;
-							break;
-						
+//					switch (this.options.restrictedReferenceFilter) {
+//						case AssistOptions.FILTER_WARNING:
+//							return;
+//						case AssistOptions.FILTER_ERROR:
+//							if(this.discouragedReferenceIsError) return;
+//							break;
+//						
+//					}
+					if (this.options.checkDiscouragedReference) {
+						return;
 					}
 					accessibility = IAccessRule.K_DISCOURAGED;
 					break;
@@ -1625,24 +1630,30 @@ public final class CompletionEngine
 				if(accessRestriction != null) {
 					switch (accessRestriction.getProblemId()) {
 						case IProblem.ForbiddenReference:
-							switch (this.options.restrictedReferenceFilter) {
-								case AssistOptions.FILTER_WARNING:
-									return;
-								case AssistOptions.FILTER_ERROR:
-									if(this.forbiddenReferenceIsError) return;
-									break;
-								
+//							switch (this.options.restrictedReferenceFilter) {
+//								case AssistOptions.FILTER_WARNING:
+//									return;
+//								case AssistOptions.FILTER_ERROR:
+//									if(this.forbiddenReferenceIsError) return;
+//									break;
+//								
+//							}
+							if (this.options.checkForbiddenReference) {
+								return;
 							}
 							accessibility = IAccessRule.K_NON_ACCESSIBLE;
 							break;
 						case IProblem.DiscouragedReference:
-							switch (this.options.restrictedReferenceFilter) {
-								case AssistOptions.FILTER_WARNING:
-									return;
-								case AssistOptions.FILTER_ERROR:
-									if(this.discouragedReferenceIsError) return;
-									break;
-								
+//							switch (this.options.restrictedReferenceFilter) {
+//								case AssistOptions.FILTER_WARNING:
+//									return;
+//								case AssistOptions.FILTER_ERROR:
+//									if(this.discouragedReferenceIsError) return;
+//									break;
+//								
+//							}
+							if (this.options.checkDiscouragedReference) {
+								return;
 							}
 							accessibility = IAccessRule.K_DISCOURAGED;
 							break;
@@ -4163,24 +4174,30 @@ public final class CompletionEngine
 				if(accessRestriction != null) {
 					switch (accessRestriction.getProblemId()) {
 						case IProblem.ForbiddenReference:
-							switch (this.options.restrictedReferenceFilter) {
-								case AssistOptions.FILTER_WARNING:
-									return;
-								case AssistOptions.FILTER_ERROR:
-									if(this.forbiddenReferenceIsError) return;
-									break;
-								
+//							switch (this.options.restrictedReferenceFilter) {
+//								case AssistOptions.FILTER_WARNING:
+//									return;
+//								case AssistOptions.FILTER_ERROR:
+//									if(this.forbiddenReferenceIsError) return;
+//									break;
+//								
+//							}
+							if (this.options.checkForbiddenReference) {
+								return;
 							}
 							accessibility = IAccessRule.K_NON_ACCESSIBLE;
 							break;
 						case IProblem.DiscouragedReference:
-							switch (this.options.restrictedReferenceFilter) {
-								case AssistOptions.FILTER_WARNING:
-									return;
-								case AssistOptions.FILTER_ERROR:
-									if(this.discouragedReferenceIsError) return;
-									break;
-								
+//							switch (this.options.restrictedReferenceFilter) {
+//								case AssistOptions.FILTER_WARNING:
+//									return;
+//								case AssistOptions.FILTER_ERROR:
+//									if(this.discouragedReferenceIsError) return;
+//									break;
+//								
+//							}
+							if (this.options.checkDiscouragedReference) {
+								return;
 							}
 							accessibility = IAccessRule.K_DISCOURAGED;
 							break;
@@ -4397,24 +4414,30 @@ public final class CompletionEngine
 							if(accessRestriction != null) {
 								switch (accessRestriction.getProblemId()) {
 									case IProblem.ForbiddenReference:
-										switch (this.options.restrictedReferenceFilter) {
-											case AssistOptions.FILTER_WARNING:
-												return;
-											case AssistOptions.FILTER_ERROR:
-												if(this.forbiddenReferenceIsError) continue next;
-												break;
-											
+//										switch (this.options.restrictedReferenceFilter) {
+//											case AssistOptions.FILTER_WARNING:
+//												return;
+//											case AssistOptions.FILTER_ERROR:
+//												if(this.forbiddenReferenceIsError) continue next;
+//												break;
+//											
+//										}
+										if (this.options.checkForbiddenReference) {
+											return;
 										}
 										accessibility = IAccessRule.K_NON_ACCESSIBLE;
 										break;
 									case IProblem.DiscouragedReference:
-										switch (this.options.restrictedReferenceFilter) {
-											case AssistOptions.FILTER_WARNING:
-												return;
-											case AssistOptions.FILTER_ERROR:
-												if(this.discouragedReferenceIsError) continue next;
-												break;
-											
+//										switch (this.options.restrictedReferenceFilter) {
+//											case AssistOptions.FILTER_WARNING:
+//												return;
+//											case AssistOptions.FILTER_ERROR:
+//												if(this.discouragedReferenceIsError) continue next;
+//												break;
+//											
+//										}
+										if (this.options.checkDiscouragedReference) {
+											return;
 										}
 										accessibility = IAccessRule.K_DISCOURAGED;
 										break;
@@ -4554,24 +4577,30 @@ public final class CompletionEngine
 					if(accessRestriction != null) {
 						switch (accessRestriction.getProblemId()) {
 							case IProblem.ForbiddenReference:
-								switch (this.options.restrictedReferenceFilter) {
-									case AssistOptions.FILTER_WARNING:
-										return;
-									case AssistOptions.FILTER_ERROR:
-										if(this.forbiddenReferenceIsError) return;
-										break;
-									
+//								switch (this.options.restrictedReferenceFilter) {
+//									case AssistOptions.FILTER_WARNING:
+//										return;
+//									case AssistOptions.FILTER_ERROR:
+//										if(this.forbiddenReferenceIsError) return;
+//										break;
+//									
+//								}
+								if (this.options.checkForbiddenReference) {
+									return;
 								}
 								accessibility = IAccessRule.K_NON_ACCESSIBLE;
 								break;
 							case IProblem.DiscouragedReference:
-								switch (this.options.restrictedReferenceFilter) {
-									case AssistOptions.FILTER_WARNING:
-										return;
-									case AssistOptions.FILTER_ERROR:
-										if(this.discouragedReferenceIsError) return;
-										break;
-									
+//								switch (this.options.restrictedReferenceFilter) {
+//									case AssistOptions.FILTER_WARNING:
+//										return;
+//									case AssistOptions.FILTER_ERROR:
+//										if(this.discouragedReferenceIsError) return;
+//										break;
+//									
+//								}
+								if (this.options.checkDiscouragedReference) {
+									return;
 								}
 								accessibility = IAccessRule.K_DISCOURAGED;
 								break;

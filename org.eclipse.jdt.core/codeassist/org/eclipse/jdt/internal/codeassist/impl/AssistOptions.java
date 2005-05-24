@@ -40,6 +40,10 @@ public class AssistOptions {
 		"org.eclipse.jdt.core.codeComplete.argumentSuffixes"; 	//$NON-NLS-1$
 	public static final String OPTION_HideRestrictedReferences =
 		"org.eclipse.jdt.core.codeComplete.restrictionsCheck"; 	//$NON-NLS-1$
+	public static final String OPTION_PerformForbiddenReferenceCheck =
+		"org.eclipse.jdt.core.codeComplete.forbiddenReferenceCheck"; 	//$NON-NLS-1$
+	public static final String OPTION_PerformDiscouragedReferenceCheck =
+		"org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"; 	//$NON-NLS-1$
 	
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
@@ -53,6 +57,8 @@ public class AssistOptions {
 	
 	public boolean checkVisibility = false;
 	public int restrictedReferenceFilter;
+	public boolean checkForbiddenReference = false;
+	public boolean checkDiscouragedReference = false;
 	public boolean forceImplicitQualification = false;
 	public char[][] fieldPrefixes = null;
 	public char[][] staticFieldPrefixes = null;
@@ -183,6 +189,20 @@ public class AssistOptions {
 				this.restrictedReferenceFilter = FILTER_ERROR;
 			} else if (WARNING.equals(optionValue)) {
 				this.restrictedReferenceFilter = FILTER_WARNING;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_PerformForbiddenReferenceCheck)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.checkForbiddenReference = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.checkForbiddenReference = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_PerformForbiddenReferenceCheck)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.checkDiscouragedReference = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.checkDiscouragedReference = false;
 			}
 		}
 	}

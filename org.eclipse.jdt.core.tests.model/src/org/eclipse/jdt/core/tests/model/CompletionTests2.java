@@ -584,7 +584,8 @@ public void testBug93891() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -668,7 +669,8 @@ public void testAccessRestriction1() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.NEVER);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -741,7 +743,8 @@ public void testAccessRestriction2() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.NEVER);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -821,7 +824,8 @@ public void testAccessRestriction3() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.NEVER);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -902,7 +906,8 @@ public void testAccessRestriction4() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -982,7 +987,8 @@ public void testAccessRestriction5() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1061,7 +1067,8 @@ public void testAccessRestriction6() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1166,7 +1173,8 @@ public void testAccessRestriction7() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1263,7 +1271,8 @@ public void testAccessRestriction8() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1361,7 +1370,8 @@ public void testAccessRestriction9() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1508,7 +1518,8 @@ public void testAccessRestriction10() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.NEVER);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1657,7 +1668,8 @@ public void testAccessRestriction11() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1804,7 +1816,8 @@ public void testAccessRestriction12() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.NEVER);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1953,7 +1966,8 @@ public void testAccessRestriction13() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -2019,8 +2033,7 @@ public void testAccessRestriction13() throws Exception {
 		cu.codeComplete(cursorLocation, requestor);
 		
 		assertResults(
-			"XX1[TYPE_REF]{a.XX1, a, La.XX1;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE) + "}\n" +
- 			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 	} finally {
 		this.deleteProject("P1");
@@ -2033,7 +2046,8 @@ public void testAccessRestriction14() throws Exception {
 	try {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
-		options.put(JavaCore.CODEASSIST_HIDE_RESTRICTED_REFERENCES, JavaCore.WARNING);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
