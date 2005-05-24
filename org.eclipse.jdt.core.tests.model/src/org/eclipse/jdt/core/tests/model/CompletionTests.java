@@ -47,7 +47,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration"));			
+	suite.addTest(new CompletionTests("testBug96213"));			
 	return suite;
 }
 
@@ -9972,5 +9972,32 @@ public void testCompletionAllMemberTypes7() throws JavaModelException {
 	} finally {
 		JavaCore.setOptions(oldCurrentOptions);
 	}
+}
+public void testBug96213() throws JavaModelException {
+    this.wc = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test;\n" +
+            "public class Test{\n"+
+            "  Test toto(Object o) {\n"+
+            "    return null;\n"+
+            "  }\n"+
+            "  void titi(int removed) {\n"+
+            "  }\n"+
+            "  void foo() {\n"+
+            "    int removed = 0;\n"+
+            "    toto(Test.this).titi(removed);\n"+
+            "  }\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "removed";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+
+	assertResults(
+            "removed[LOCAL_VARIABLE_REF]{removed, null, I, removed, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+            requestor.getResults());
 }
 }

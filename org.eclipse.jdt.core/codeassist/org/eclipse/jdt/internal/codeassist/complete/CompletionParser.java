@@ -2304,6 +2304,20 @@ protected void consumePrimaryNoNewArrayName() {
 	
 	super.consumePrimaryNoNewArrayName();
 }
+protected void consumePrimaryNoNewArrayNameSuper() {
+	// this is class literal access, so reset potential receiver
+	this.invocationType = NO_RECEIVER;
+	this.qualifier = -1;
+	
+	super.consumePrimaryNoNewArrayNameSuper();
+}
+protected void consumePrimaryNoNewArrayNameThis() {
+	// this is class literal access, so reset potential receiver
+	this.invocationType = NO_RECEIVER;
+	this.qualifier = -1;
+	
+	super.consumePrimaryNoNewArrayNameThis();
+}
 protected void consumePushPosition() {
 	super.consumePushPosition();
 	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BINARY_OPERATOR) {
