@@ -2837,52 +2837,45 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		int changeKind= getChangeKind(node, TagElement.TAG_NAME_PROPERTY);
 		switch (changeKind) {
 			case RewriteEvent.INSERTED: {
-			    String newTagName= '@' + (String) getNewValue(node, TagElement.TAG_NAME_PROPERTY);
+			    String newTagName= (String) getNewValue(node, TagElement.TAG_NAME_PROPERTY);
 				doTextInsert(node.getStartPosition(), newTagName, getEditGroup(node, TagElement.TAG_NAME_PROPERTY));
 				break;
 			}
 			case RewriteEvent.REMOVED: {
-			    String oldTag= (String) getOriginalValue(node, TagElement.TAG_NAME_PROPERTY);
-			    int tagEnd= findTagNameStart(node)  + oldTag.length();
-			    doTextRemove(node.getStartPosition(), tagEnd - node.getStartPosition(), getEditGroup(node, TagElement.TAG_NAME_PROPERTY));
+			    doTextRemove(node.getStartPosition(), findTagNameEnd(node) - node.getStartPosition(), getEditGroup(node, TagElement.TAG_NAME_PROPERTY));
 			    break;
 			}
 			case RewriteEvent.REPLACED: {
 			    String newTagName= (String) getNewValue(node, TagElement.TAG_NAME_PROPERTY);
-		    	String oldTag= (String) getOriginalValue(node, TagElement.TAG_NAME_PROPERTY);
-		    	int tagStart= findTagNameStart(node);
-		    	doTextReplace(tagStart, oldTag.length(), newTagName, getEditGroup(node, TagElement.TAG_NAME_PROPERTY));
+		    	doTextReplace(node.getStartPosition(), findTagNameEnd(node) - node.getStartPosition(), newTagName, getEditGroup(node, TagElement.TAG_NAME_PROPERTY));
 			    break;
 			}
 		}
 				
 		if (isChanged(node, TagElement.FRAGMENTS_PROPERTY)) {
 			// eval position after name
-			int startOffset= node.getStartPosition();
-            String oldTag= (String) getOriginalValue(node, TagElement.TAG_NAME_PROPERTY);
-            if (oldTag != null) {
-                startOffset= findTagNameStart(node) + oldTag.length();
-            }
-            
-            rewriteNodeList(node, TagElement.FRAGMENTS_PROPERTY, startOffset, " ", " ");  //$NON-NLS-1$//$NON-NLS-2$
+			int endOffset= findTagNameEnd(node);
+            rewriteNodeList(node, TagElement.FRAGMENTS_PROPERTY, endOffset, " ", " ");  //$NON-NLS-1$//$NON-NLS-2$
 		} else {
 			voidVisit(node, TagElement.FRAGMENTS_PROPERTY);
 		}
 		return false;
 	}
 		
-	private int findTagNameStart(ASTNode tagNode) {
-	    try {
-	        IDocument doc = getDocument();
-	        int i= tagNode.getStartPosition();
-	        int end= i + tagNode.getLength();
-	        while (i < end && !Character.isJavaIdentifierStart(doc.getChar(i))) {
-	            i++;
-	        }
-	        return i;
-	    } catch (BadLocationException e) {
-	        handleException(e);
-	    }
+	private int findTagNameEnd(TagElement tagNode) {
+		if (tagNode.getTagName() != null) {
+		    try {
+		        IDocument doc = getDocument();
+		        int len= doc.getLength();
+		        int i= tagNode.getStartPosition();
+		        while (i < len && !Indents.isIndentChar(doc.getChar(i))) {
+		            i++;
+		        }
+		        return i;
+		    } catch (BadLocationException e) {
+		        handleException(e);
+		    }
+		}
 	    return tagNode.getStartPosition();
 	}
 		

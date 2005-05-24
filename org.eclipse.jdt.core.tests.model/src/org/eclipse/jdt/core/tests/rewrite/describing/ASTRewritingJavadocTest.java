@@ -982,6 +982,59 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
+	
+	public void testChangeTagElement() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    /**\n");		
+		buf.append("     * Mr X\n");
+		buf.append("     * @author Mr X\n");
+		buf.append("     * @author Mr X\n");
+		buf.append("     */\n");
+		buf.append("    static {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+		{
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			Initializer initializer= (Initializer) type.bodyDeclarations().get(0);
+			Javadoc javadoc = initializer.getJavadoc();
+			List tags= javadoc.tags();
+			TagElement elem1= (TagElement) tags.get(0);
+			rewrite.set(elem1, TagElement.TAG_NAME_PROPERTY, "@param", null);
+			
+			TagElement elem2= (TagElement) tags.get(1);
+			rewrite.set(elem2, TagElement.TAG_NAME_PROPERTY, "@param", null);
+			
+			TagElement elem3= (TagElement) tags.get(2);
+			rewrite.set(elem3, TagElement.TAG_NAME_PROPERTY, null, null);
+
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    /**\n");		
+		buf.append("     * @paramMr X\n");
+		buf.append("     * @param Mr X\n");
+		buf.append("     *  Mr X\n");
+		buf.append("     */\n");
+		buf.append("    static {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+
+	}
 
 	
 }
