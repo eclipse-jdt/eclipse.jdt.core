@@ -227,6 +227,12 @@ public class ASTParser {
      * <p>
      * The compiler options default to {@link JavaCore#getOptions()}.
      * </p>
+     * <p>
+     * Note that {@link #setSource(IClassFile)},
+     * {@link #setSource(ICompilationUnit)},
+     * and {@link #setProject(IJavaProject)} reset the compiler options
+     * based on the Java project.
+     * </p>
 	 * 
 	 * @param options the table of options (key type: <code>String</code>;
 	 * value type: <code>String</code>), or <code>null</code>
