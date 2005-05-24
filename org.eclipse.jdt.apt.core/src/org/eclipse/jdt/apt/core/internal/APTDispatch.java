@@ -138,11 +138,15 @@ public class APTDispatch {
 			Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( processorEnv.getFile() );
 			
 			for (int i = 0, size = factories.size(); i < size; i++) {
-				final AnnotationProcessorFactory factory = (AnnotationProcessorFactory) factories
-						.get(i);
-				final Set<AnnotationTypeDeclaration> factoryDecls = getAnnotations(
-						factory, annotationDecls);
-
+				final AnnotationProcessorFactory factory = (AnnotationProcessorFactory) factories.get(i);
+				Set<AnnotationTypeDeclaration> factoryDecls = getAnnotations(factory, annotationDecls);
+				boolean done = false;
+				if( factoryDecls != null ){
+					if(factoryDecls.size() == 0 ){
+						done = true;
+						factoryDecls = new HashSet(annotationDecls.values());
+					}
+				}
 				if (factoryDecls != null && factoryDecls.size() > 0) {
 					final AnnotationProcessor processor = factory
 							.getProcessorFor(factoryDecls, processorEnv);
@@ -153,7 +157,7 @@ public class APTDispatch {
 					}
 				}
 
-				if (annotationDecls.isEmpty())
+				if (annotationDecls.isEmpty() || done)
 					break;
 			}
 			// TODO: (theodora) log unclaimed annotations.
@@ -304,9 +308,7 @@ public class APTDispatch {
 							.next();
 					final String key = entry.getKey();
 					if (key.startsWith(prefix)) {
-						fDecls
-								.add((AnnotationTypeDeclaration) entry
-										.getValue());
+						fDecls.add((AnnotationTypeDeclaration) entry.getValue());
 						entries.remove();
 					}
 				}
