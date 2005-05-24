@@ -107,10 +107,16 @@ public void processDelta(IJavaElementDelta delta) {
 					this.needsInitialize = true;
 					break;
 				case IJavaElementDelta.CHANGED:
-					children = delta.getAffectedChildren();
-					for (int i = 0, length = children.length; i < length; i++) {
-						IJavaElementDelta child = children[i];
-						this.processDelta(child);
+					int flags = delta.getFlags();
+					if ((flags & IJavaElementDelta.F_CLOSED) != 0
+							|| (flags & IJavaElementDelta.F_OPENED) != 0) {
+						this.needsInitialize = true;
+					} else {
+						children = delta.getAffectedChildren();
+						for (int i = 0, length = children.length; i < length; i++) {
+							IJavaElementDelta child = children[i];
+							this.processDelta(child);
+						}
 					}
 					break;
 			}

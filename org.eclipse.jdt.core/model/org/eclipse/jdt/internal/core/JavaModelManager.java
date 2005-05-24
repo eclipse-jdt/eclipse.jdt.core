@@ -88,7 +88,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/*
 	 * The unique workspace scope
 	 */
-	private JavaWorkspaceScope workspaceScope;
+	public JavaWorkspaceScope workspaceScope;
 	
 	/*
 	 * Pools of symbols used in the Java model.
@@ -1389,7 +1389,6 @@ public class JavaModelManager implements ISaveParticipant {
 	public JavaWorkspaceScope getWorkspaceScope() {
 		if (this.workspaceScope == null) {
 			this.workspaceScope = new JavaWorkspaceScope();
-			rememberScope(this.workspaceScope);
 		}
 		return this.workspaceScope;
 	}

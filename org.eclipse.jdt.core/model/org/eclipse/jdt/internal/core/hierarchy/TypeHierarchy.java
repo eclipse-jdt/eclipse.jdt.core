@@ -880,6 +880,17 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 						return true;
 					}
 				}
+				if (this.focusType != null) {
+					// if the hierarchy's project is on the added project classpath, then the hierarchy has changed
+					classpath = ((JavaProject)element).getExpandedClasspath(true);
+					IPath hierarchyProject = javaProject().getPath();
+					for (int i = 0; i < classpath.length; i++) {
+						if (classpath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT 
+								&& classpath[i].getPath().equals(hierarchyProject)) {
+							return true;
+						}
+					}
+				}
 				return false;
 			} catch (JavaModelException e) {
 				return false;
