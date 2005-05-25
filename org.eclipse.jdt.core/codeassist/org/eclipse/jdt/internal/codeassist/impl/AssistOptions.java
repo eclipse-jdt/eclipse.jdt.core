@@ -179,7 +179,7 @@ public class AssistOptions {
 				this.checkForbiddenReference = false;
 			}
 		}
-		if ((optionValue = optionsMap.get(OPTION_PerformForbiddenReferenceCheck)) != null) {
+		if ((optionValue = optionsMap.get(OPTION_PerformDiscouragedReferenceCheck)) != null) {
 			if (ENABLED.equals(optionValue)) {
 				this.checkDiscouragedReference = true;
 			} else if (DISABLED.equals(optionValue)) {
