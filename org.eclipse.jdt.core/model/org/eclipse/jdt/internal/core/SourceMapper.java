@@ -927,7 +927,19 @@ public class SourceMapper
 				}
 				break;
 			case IJavaElement.TYPE_PARAMETER :
-				System.out.println(element);
+				IJavaElement parent = element.getParent();
+				if (parent.getElementType() == IJavaElement.METHOD) {
+					IMethod method = (IMethod) parent;
+					if (method.isBinary()) {
+						IJavaElement[] el = getUnqualifiedMethodHandle(method, false);
+						if(el[1] != null && fSourceRanges.get(el[0]) == null) {
+							method = (IMethod) getUnqualifiedMethodHandle(method, true)[0];
+						} else {
+							method = (IMethod) el[0];
+						}
+						element = method.getTypeParameter(element.getElementName());
+					}
+				}
 		}
 		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(element);
 		if (ranges == null) {
