@@ -327,28 +327,12 @@ public final class CompletionEngine
 		if(accessRestriction != null) {
 			switch (accessRestriction.getProblemId()) {
 				case IProblem.ForbiddenReference:
-//					switch (this.options.restrictedReferenceFilter) {
-//						case AssistOptions.FILTER_WARNING:
-//							return;
-//						case AssistOptions.FILTER_ERROR:
-//							if(this.forbiddenReferenceIsError) return;
-//							break;
-//						
-//					}
 					if (this.options.checkForbiddenReference) {
 						return;
 					}
 					accessibility = IAccessRule.K_NON_ACCESSIBLE;
 					break;
 				case IProblem.DiscouragedReference:
-//					switch (this.options.restrictedReferenceFilter) {
-//						case AssistOptions.FILTER_WARNING:
-//							return;
-//						case AssistOptions.FILTER_ERROR:
-//							if(this.discouragedReferenceIsError) return;
-//							break;
-//						
-//					}
 					if (this.options.checkDiscouragedReference) {
 						return;
 					}
@@ -1636,28 +1620,12 @@ public final class CompletionEngine
 				if(accessRestriction != null) {
 					switch (accessRestriction.getProblemId()) {
 						case IProblem.ForbiddenReference:
-//							switch (this.options.restrictedReferenceFilter) {
-//								case AssistOptions.FILTER_WARNING:
-//									return;
-//								case AssistOptions.FILTER_ERROR:
-//									if(this.forbiddenReferenceIsError) return;
-//									break;
-//								
-//							}
 							if (this.options.checkForbiddenReference) {
 								return;
 							}
 							accessibility = IAccessRule.K_NON_ACCESSIBLE;
 							break;
 						case IProblem.DiscouragedReference:
-//							switch (this.options.restrictedReferenceFilter) {
-//								case AssistOptions.FILTER_WARNING:
-//									return;
-//								case AssistOptions.FILTER_ERROR:
-//									if(this.discouragedReferenceIsError) return;
-//									break;
-//								
-//							}
 							if (this.options.checkDiscouragedReference) {
 								return;
 							}
@@ -4266,28 +4234,12 @@ public final class CompletionEngine
 				if(accessRestriction != null) {
 					switch (accessRestriction.getProblemId()) {
 						case IProblem.ForbiddenReference:
-//							switch (this.options.restrictedReferenceFilter) {
-//								case AssistOptions.FILTER_WARNING:
-//									return;
-//								case AssistOptions.FILTER_ERROR:
-//									if(this.forbiddenReferenceIsError) return;
-//									break;
-//								
-//							}
 							if (this.options.checkForbiddenReference) {
 								return;
 							}
 							accessibility = IAccessRule.K_NON_ACCESSIBLE;
 							break;
 						case IProblem.DiscouragedReference:
-//							switch (this.options.restrictedReferenceFilter) {
-//								case AssistOptions.FILTER_WARNING:
-//									return;
-//								case AssistOptions.FILTER_ERROR:
-//									if(this.discouragedReferenceIsError) return;
-//									break;
-//								
-//							}
 							if (this.options.checkDiscouragedReference) {
 								return;
 							}
@@ -4506,28 +4458,12 @@ public final class CompletionEngine
 							if(accessRestriction != null) {
 								switch (accessRestriction.getProblemId()) {
 									case IProblem.ForbiddenReference:
-//										switch (this.options.restrictedReferenceFilter) {
-//											case AssistOptions.FILTER_WARNING:
-//												return;
-//											case AssistOptions.FILTER_ERROR:
-//												if(this.forbiddenReferenceIsError) continue next;
-//												break;
-//											
-//										}
 										if (this.options.checkForbiddenReference) {
 											return;
 										}
 										accessibility = IAccessRule.K_NON_ACCESSIBLE;
 										break;
 									case IProblem.DiscouragedReference:
-//										switch (this.options.restrictedReferenceFilter) {
-//											case AssistOptions.FILTER_WARNING:
-//												return;
-//											case AssistOptions.FILTER_ERROR:
-//												if(this.discouragedReferenceIsError) continue next;
-//												break;
-//											
-//										}
 										if (this.options.checkDiscouragedReference) {
 											return;
 										}
@@ -4669,28 +4605,12 @@ public final class CompletionEngine
 					if(accessRestriction != null) {
 						switch (accessRestriction.getProblemId()) {
 							case IProblem.ForbiddenReference:
-//								switch (this.options.restrictedReferenceFilter) {
-//									case AssistOptions.FILTER_WARNING:
-//										return;
-//									case AssistOptions.FILTER_ERROR:
-//										if(this.forbiddenReferenceIsError) return;
-//										break;
-//									
-//								}
 								if (this.options.checkForbiddenReference) {
 									return;
 								}
 								accessibility = IAccessRule.K_NON_ACCESSIBLE;
 								break;
 							case IProblem.DiscouragedReference:
-//								switch (this.options.restrictedReferenceFilter) {
-//									case AssistOptions.FILTER_WARNING:
-//										return;
-//									case AssistOptions.FILTER_ERROR:
-//										if(this.discouragedReferenceIsError) return;
-//										break;
-//									
-//								}
 								if (this.options.checkDiscouragedReference) {
 									return;
 								}

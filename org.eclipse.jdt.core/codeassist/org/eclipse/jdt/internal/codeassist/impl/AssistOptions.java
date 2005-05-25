@@ -38,8 +38,6 @@ public class AssistOptions {
 		"org.eclipse.jdt.core.codeComplete.localSuffixes"; 	//$NON-NLS-1$
 	public static final String OPTION_ArgumentSuffixes =
 		"org.eclipse.jdt.core.codeComplete.argumentSuffixes"; 	//$NON-NLS-1$
-	public static final String OPTION_HideRestrictedReferences =
-		"org.eclipse.jdt.core.codeComplete.restrictionsCheck"; 	//$NON-NLS-1$
 	public static final String OPTION_PerformForbiddenReferenceCheck =
 		"org.eclipse.jdt.core.codeComplete.forbiddenReferenceCheck"; 	//$NON-NLS-1$
 	public static final String OPTION_PerformDiscouragedReferenceCheck =
@@ -47,16 +45,8 @@ public class AssistOptions {
 	
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
-	public static final String ERROR = "error"; //$NON-NLS-1$
-	public static final String WARNING = "warning"; //$NON-NLS-1$
-	public static final String NEVER = "never"; //$NON-NLS-1$
-
-	public static final int FILTER_NEVER = 0;
-	public static final int FILTER_ERROR = 1;
-	public static final int FILTER_WARNING = 2;
 	
 	public boolean checkVisibility = false;
-	public int restrictedReferenceFilter;
 	public boolean checkForbiddenReference = false;
 	public boolean checkDiscouragedReference = false;
 	public boolean forceImplicitQualification = false;
@@ -180,15 +170,6 @@ public class AssistOptions {
 				} else {
 					this.argumentSuffixes = null;
 				}
-			}
-		}
-		if ((optionValue = optionsMap.get(OPTION_HideRestrictedReferences)) != null) {
-			if (NEVER.equals(optionValue)) {
-				this.restrictedReferenceFilter = FILTER_NEVER;
-			} else if (ERROR.equals(optionValue)) {
-				this.restrictedReferenceFilter = FILTER_ERROR;
-			} else if (WARNING.equals(optionValue)) {
-				this.restrictedReferenceFilter = FILTER_WARNING;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_PerformForbiddenReferenceCheck)) != null) {

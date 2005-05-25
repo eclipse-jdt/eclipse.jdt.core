@@ -829,14 +829,6 @@ public final class JavaCore extends Plugin {
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
 	 * @since 3.1
-	 * @deprecated
-	 */
-	//TODO (david) remove this option when UI will be ready
-	public static final String CODEASSIST_HIDE_RESTRICTED_REFERENCES= PLUGIN_ID + ".codeComplete.restrictionsCheck"; //$NON-NLS-1$
-	/**
-	 * Possible  configurable option ID.
-	 * @see #getDefaultOptions()
-	 * @since 3.1
 	 */
 	public static final String CODEASSIST_FORBIDDEN_REFERENCE_CHECK= PLUGIN_ID + ".codeComplete.forbiddenReferenceCheck"; //$NON-NLS-1$
 	/**
