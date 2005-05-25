@@ -386,5 +386,24 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		);
 	}
 	
+	/*
+	 * Parameterized method with capture argument
+	 * (regression test for bug 96410 Incorrect information in selection resolved key)
+	 */
+	public void test035() {
+		assertBindingKeySignatureEquals(
+			"(!*)!*",
+			"LX;&LX~Store<!LX~Store;*157;>;.get(!*)!*"
+		);
+	}
 		
+	/*
+	 * Parameterized method with argument similar to a type name
+	 */
+	public void test036() {
+		assertBindingKeySignatureEquals(
+			"<U:Ljava.lang.Object;>(La.TU;La.TU;)V",
+			"La/A<La/A~TU;>;.foo<U:Ljava/lang/Object;>(TU;La/TU;)V%<La/A~TU;>"
+		);
+	}
 }

@@ -192,7 +192,9 @@ public class BindingKeyResolver extends BindingKeyParser {
 		}
 	}
 
-	public void consumeParameterizedMethod() {
+	public void consumeParameterizedGenericMethod() {
+		if (this.methodBinding == null)
+			return;
 		TypeBinding[] arguments = getTypeBindingArguments();
 		if (arguments.length != this.methodBinding.typeVariables().length)
 			this.methodBinding = new ParameterizedGenericMethodBinding(this.methodBinding, (RawTypeBinding) null, this.environment);
@@ -229,7 +231,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 	for (int i = 0, methodLength = methods.length; i < methodLength; i++) {
 			MethodBinding method = methods[i];
 			if (CharOperation.equals(selector, method.selector) || (selector.length == 0 && method.isConstructor())) {
-				char[] methodSignature = method.original().genericSignature();
+				char[] methodSignature = method.genericSignature();
 				if (methodSignature == null)
 					methodSignature = method.signature();
 				if (CharOperation.equals(signature, methodSignature)) {

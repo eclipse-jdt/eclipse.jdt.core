@@ -95,14 +95,6 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		// no init
 	}
 
-	/*
-	 * parameterizedDeclaringUniqueKey dot selector originalMethodGenericSignature
-	 * p.X<U> { void bar(U u) { new X<String>().bar("") } } --> Lp/X<Ljava/lang/String;>;.bar(TU;)V
-	 */
-	public char[] computeUniqueKey(boolean isLeaf) {
-		return computeUniqueKey(original(), isLeaf);
-	}
-
 	/**
 	 * The type of x.getClass() is substituted from 'Class<? extends Object>' into: 'Class<? extends |X|> where |X| is X's erasure.
 	 */

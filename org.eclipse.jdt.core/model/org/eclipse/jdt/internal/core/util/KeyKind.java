@@ -63,7 +63,7 @@ public class KeyKind extends BindingKeyParser {
 			this.flags |= F_CONSTRUCTOR;
 	}
 
-	public void consumeParameterizedMethod() {
+	public void consumeParameterizedGenericMethod() {
 		this.flags |= F_PARAMETERIZED_METHOD;
 	}
 

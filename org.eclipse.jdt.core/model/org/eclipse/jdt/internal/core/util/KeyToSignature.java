@@ -79,6 +79,56 @@ public class KeyToSignature extends BindingKeyParser {
 		this.signature.append(pkgName);
 	}
 	
+	public void consumeParameterizedGenericMethod() {
+		int typeParametersSize = this.arguments.size();
+		if (typeParametersSize > 0) {
+			int sigLength = this.signature.length();
+			char[] methodSignature = new char[sigLength];
+			this.signature.getChars(0, sigLength, methodSignature, 0);
+			char[][] typeParameterSigs = Signature.getTypeParameters(methodSignature);
+			if (typeParameterSigs.length != typeParametersSize)
+				return;
+			this.signature = new StringBuffer();
+			
+			// type parameters
+			for (int i = 0; i < typeParametersSize; i++)
+				typeParameterSigs[i] = CharOperation.concat(Signature.C_TYPE_VARIABLE,Signature.getTypeVariable(typeParameterSigs[i]), Signature.C_SEMICOLON);
+			int paramStart = CharOperation.indexOf(Signature.C_PARAM_START, methodSignature);
+			char[] typeParametersString = CharOperation.subarray(methodSignature, 0, paramStart);
+			this.signature.append(typeParametersString);
+			
+			// substitute parameters
+			this.signature.append(Signature.C_PARAM_START);
+			char[][] parameters = Signature.getParameterTypes(methodSignature);
+			for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++)
+				this.signature.append(substitute(parameters[i], typeParameterSigs, typeParametersSize));
+			this.signature.append(Signature.C_PARAM_END);
+			
+			// substitute return type
+			char[] returnType = Signature.getReturnType(methodSignature);
+			returnType = substitute(returnType, typeParameterSigs, typeParametersSize);
+			this.signature.append(returnType);
+
+			// substitute exceptions
+			char[][] exceptions = Signature.getThrownExceptionTypes(methodSignature);
+			for (int i = 0, exceptionsLength = exceptions.length; i < exceptionsLength; i++) {
+				this.signature.append(Signature.C_EXCEPTION_START);
+				this.signature.append(substitute(exceptions[i], typeParameterSigs, typeParametersSize));
+			}
+		
+		}
+	}
+	
+	private char[] substitute(char[] parameter, char[][] typeParameterSigs, int typeParametersLength) {
+		for (int i = 0; i < typeParametersLength; i++) {
+			if (CharOperation.equals(parameter, typeParameterSigs[i])) {
+				String typeArgument = ((KeyToSignature) this.arguments.get(i)).signature.toString();
+				return typeArgument.toCharArray();
+			}
+		}
+		return parameter;
+	}
+	
 	public void consumeParameterizedType(char[] simpleTypeName, boolean isRaw) {
 		if (simpleTypeName != null) {
 			// member type

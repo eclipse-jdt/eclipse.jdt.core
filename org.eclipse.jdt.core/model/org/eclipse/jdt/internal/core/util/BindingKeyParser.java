@@ -420,7 +420,7 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 	
-	public void consumeParameterizedMethod() {
+	public void consumeParameterizedGenericMethod() {
 		// default is to do nothing
 	}
 	
@@ -634,7 +634,7 @@ public class BindingKeyParser {
 		while (!this.scanner.isAtParametersEnd()) {
 			parseTypeArgument();
 		}
-		consumeParameterizedMethod();
+		consumeParameterizedGenericMethod();
 	}
 	
 	private void parseGenericType() {

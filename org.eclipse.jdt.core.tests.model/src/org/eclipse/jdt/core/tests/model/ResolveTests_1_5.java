@@ -2083,7 +2083,7 @@ public void test0094() throws JavaModelException {
 	
 	assertElementsEqual(
 		"Unexpected elements",
-		"get(int) {key=Ltest0094/ZZArrayList<Ljava/lang/String;>;.get(I)TE;} [in ZZArrayList [in ZZArrayList.class [in test0094 [in class-folder [in Resolve]]]]]",
+		"get(int) {key=Ltest0094/ZZArrayList<Ljava/lang/String;>;.get(I)Ljava/lang/String;} [in ZZArrayList [in ZZArrayList.class [in test0094 [in class-folder [in Resolve]]]]]",
 		elements,
 		true/*show key*/
 	);

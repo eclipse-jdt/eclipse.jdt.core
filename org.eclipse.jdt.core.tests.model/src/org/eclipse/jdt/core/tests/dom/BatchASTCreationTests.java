@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 
@@ -91,7 +90,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test059" };
+//		TESTS_NAMES = new String[] { "test036" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -180,8 +179,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			String actualKey = requestor.getCreatedKeys();
 			if (!expectedKey.equals(actualKey)) {
 				BindingResolver resolver = requestBindings(pathAndSources, null);
-				assertStringsEqual("Inconsistent expected key ", expectedKeys, resolver.getBindingKeys());
-				System.out.println(Util.displayString(actualKey, 3));
+				String[] markedKeys = resolver.getBindingKeys();
+				if (markedKeys.length > 0) {
+					assertStringsEqual("Inconsistent expected key ", expectedKeys, markedKeys);
+				}
 			}
 			assertEquals("Unexpected created binding", expectedKey, actualKey);
 		} finally {
@@ -840,7 +841,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Ljava/lang/String;>;.foo(TT;)V");
+			"Lp1/X<Ljava/lang/String;>;.foo(Ljava/lang/String;)V");
 	}
 
 	/*
@@ -855,11 +856,12 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  <U> void foo(T t, U u) {\n" +
 				"  }\n" +
 				"  void bar() {\n" +
-				"    new X<String>().foo(\"\", this);\n" +
+				"    /*start*/new X<String>().foo(\"\", this)/*end*/;\n" +
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<Ljava/lang/String;>;.foo<U:Ljava/lang/Object;>(TT;TU;)V%<Lp1/X<>;>");
+			"Lp1/X<Ljava/lang/String;>;.foo<U:Ljava/lang/Object;>(Ljava/lang/String;TU;)V%<Lp1/X;>"
+		);
 	}
 
 	/*
@@ -874,11 +876,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  <U> void foo(T t, U u) {\n" +
 				"  }\n" +
 				"  void bar() {\n" +
-				"    new X().foo(\"\", this);\n" +
+				"    /*start*/new X().foo(\"\", this)/*end*/;\n" +
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X<>;.foo<U:Ljava/lang/Object;>(TT;TU;)V%<>");
+			"Lp1/X;.foo<U:Ljava/lang/Object;>(TT;TU;)V%<>");
 	}
 
 	/*
