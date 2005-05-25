@@ -1005,8 +1005,8 @@ public static int getParameterCount(char[] methodSignature) throws IllegalArgume
  * @param typeSignature the type signature string
  * @return the kind of type signature; one of the kind constants:
  * {@link #ARRAY_TYPE_SIGNATURE}, {@link #CLASS_TYPE_SIGNATURE},
- * {@link #BASE_TYPE_SIGNATURE}, {@link #TYPE_VARIABLE_SIGNATURE}
- * or {@link #WILDCARD_TYPE_SIGNATURE}
+ * {@link #BASE_TYPE_SIGNATURE}, or {@link #TYPE_VARIABLE_SIGNATURE},
+ * or (since 3.1) {@link #WILDCARD_TYPE_SIGNATURE} or {@link #CAPTURE_TYPE_SIGNATURE}
  * @exception IllegalArgumentException if this is not a type signature
  * @since 3.0
  */
@@ -1051,7 +1051,8 @@ public static int getTypeSignatureKind(char[] typeSignature) {
  * @param typeSignature the type signature string
  * @return the kind of type signature; one of the kind constants:
  * {@link #ARRAY_TYPE_SIGNATURE}, {@link #CLASS_TYPE_SIGNATURE},
- * {@link #BASE_TYPE_SIGNATURE}, or {@link #TYPE_VARIABLE_SIGNATURE}
+ * {@link #BASE_TYPE_SIGNATURE}, or {@link #TYPE_VARIABLE_SIGNATURE},
+ * or (since 3.1) {@link #WILDCARD_TYPE_SIGNATURE} or {@link #CAPTURE_TYPE_SIGNATURE}
  * @exception IllegalArgumentException if this is not a type signature
  * @since 3.0
  */
