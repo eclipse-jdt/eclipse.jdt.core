@@ -2725,7 +2725,7 @@ public class Util {
 	 */
 	public final static char[][] splitTypeLevelsSignature(String typeSignature) {
 		// In case of IJavaElement signature, replace '$' by '.'
-		char[] source = Signature.removeCaptureFromMethod(typeSignature.toCharArray());
+		char[] source = Signature.removeCapture(typeSignature.toCharArray());
 		CharOperation.replace(source, '$', '.');
 
 		// Init counters and arrays

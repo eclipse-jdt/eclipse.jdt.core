@@ -2013,76 +2013,77 @@ public static String[] getSimpleNames(String name) {
 	return CharOperation.toStrings(getSimpleNames(name.toCharArray()));
 }
 
-	
 /**
- * Returns a method signature with any capture information removed. 
- * Returns the method signature itself if no capture information is
+ * Removes any capture information from the given type or method signature
+ * and returns the resulting signature.
+ * Returns the type or method signature itself if no capture information is
  * present.
  * <p>
  * For example (using equivalent string-based method):
  * <pre>
  * <code>
- * removeCaptureFromMethod("LTest<!+Ljava.lang.Throwable;>;")
+ * removeCapture("LTest<!+Ljava.lang.Throwable;>;")
  * will return: "LTest<+Ljava.lang.Throwable;>;"
  * </code>
  * </pre>
  * </p>
  *
- * @param captureSignature the signature which may have been captured
- * @return new signature without capture information or siganture itself
- * 	if no specific capture information was there
- * @exception NullPointerException if <code>captureSignature</code> is null
+ * @param methodOrTypeSignature the signature which may have been captured
+ * @return a new signature without capture information or the signature itself
+ * 	if no specific capture information is present
+ * @exception NullPointerException if <code>methodOrTypeSignature</code> is null
  *
  * @since 3.1
- * TODO (frederic) Create remove(char[], char) method on CharOperation and call it from here
  */
-public static char[] removeCaptureFromMethod(char[] captureSignature) {
+public static char[] removeCapture(char[] methodOrTypeSignature) {
 		
+// TODO (frederic) Create remove(char[], char) method on CharOperation and call it from here
 	char[] result = null;
 	int count = 0;
-	for (int i = 0, length = captureSignature.length; i < length; i++) {
-		char c = captureSignature[i];
+	for (int i = 0, length = methodOrTypeSignature.length; i < length; i++) {
+		char c = methodOrTypeSignature[i];
 		if (c == C_CAPTURE) {
 			if (result == null) {
 				result = new char[length];
-				System.arraycopy(captureSignature, 0, result, 0, i);
+				System.arraycopy(methodOrTypeSignature, 0, result, 0, i);
 				count = i;
 			}
 		} else if (result != null) {
 			result[count++] = c;
 		}
 	}
-	if (result == null) return captureSignature;
+	if (result == null) return methodOrTypeSignature;
 	System.arraycopy(result, 0, result = new char[count], 0, count);
 	return result;
 }
 	
 /**
- * Returns a method signature with any capture information removed. 
- * Returns the method signature itself if no capture information is
+ * Removes any capture information from the given type or method signature
+ * and returns the resulting signature.
+ * Returns the type or method signature itself if no capture information is
  * present.
  * <p>
  * For example:
  * <pre>
  * <code>
- * removeCaptureFromMethod("LTest<!+Ljava.lang.Throwable;>;")
+ * removeCapture("LTest<!+Ljava.lang.Throwable;>;")
  * will return: "LTest<+Ljava.lang.Throwable;>;"
  * </code>
  * </pre>
  * </p>
  *
- * @param captureSignature the signature which may have been captured
- * @return new signature without capture information or siganture itself
- * 	if no specific capture information was there
- * @exception NullPointerException if <code>captureSignature</code> is null
+ * @param methodOrTypeSignature the signature which may have been captured
+ * @return a new signature without capture information or the signature itself
+ * 	if no specific capture information is present
+ * @exception NullPointerException if <code>methodOrTypeSignature</code> is null
  *
  * @since 3.1
  */
-public static String removeCaptureFromMethod(String captureSignature) {
-		char[] array = captureSignature.toCharArray();
-		char[] result = removeCaptureFromMethod(array);
-		if (array == result) return captureSignature;
-		return new String(result);
+public static String removeCapture(String methodOrTypeSignature) {
+	char[] array = methodOrTypeSignature.toCharArray();
+	char[] result = removeCapture(array);
+	if (array == result) return methodOrTypeSignature;
+	return new String(result);
 }
 
 /**
