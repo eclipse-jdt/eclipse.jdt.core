@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -598,6 +599,22 @@ public class SourceMapper
 		this.typeNameRanges[typeDepth] =
 			new SourceRange(typeInfo.nameSourceStart, typeInfo.nameSourceEnd - typeInfo.nameSourceStart + 1);
 		this.typeDeclarationStarts[typeDepth] = typeInfo.declarationStart;
+
+		if (typeInfo.typeParameters != null) {
+			final IType currentType = this.types[typeDepth];
+			for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
+				final TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
+				final ITypeParameter typeParameter = currentType.getTypeParameter(new String(typeParameterInfo.name));
+				setSourceRange(
+					typeParameter,
+					new SourceRange(
+						typeParameterInfo.declarationStart,
+						typeParameterInfo.declarationEnd - typeParameterInfo.declarationStart + 1),
+					new SourceRange(
+						typeParameterInfo.nameSourceStart,
+						typeParameterInfo.nameSourceEnd - typeParameterInfo.nameSourceStart + 1));
+			}
+		}
 	}
 
 	/**
@@ -648,7 +665,28 @@ public class SourceMapper
 				new SourceRange(methodInfo.nameSourceStart, methodInfo.nameSourceEnd - methodInfo.nameSourceStart + 1);
 			fMemberDeclarationStart[typeDepth] = methodInfo.declarationStart;
 			fMethodParameterTypes[typeDepth] = methodInfo.parameterTypes;
-			fMethodParameterNames[typeDepth] =methodInfo. parameterNames;
+			fMethodParameterNames[typeDepth] = methodInfo. parameterNames;
+			
+			if (methodInfo.typeParameters != null) {
+				final IType currentType = this.types[typeDepth];
+				IMethod method = currentType.getMethod(
+						fMemberName[typeDepth],
+						convertTypeNamesToSigs(fMethodParameterTypes[typeDepth]));
+				if (method == null) return;
+				
+				for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
+					final TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
+					final ITypeParameter typeParameter = method.getTypeParameter(new String(typeParameterInfo.name));
+					setSourceRange(
+						typeParameter,
+						new SourceRange(
+							typeParameterInfo.declarationStart,
+							typeParameterInfo.declarationEnd - typeParameterInfo.declarationStart + 1),
+						new SourceRange(
+							typeParameterInfo.nameSourceStart,
+							typeParameterInfo.nameSourceEnd - typeParameterInfo.nameSourceStart + 1));
+				}
+			}	
 		}
 	}
 	
@@ -877,14 +915,19 @@ public class SourceMapper
 	 * {-1, -1} if no source range is known for the name of the element.
 	 */
 	public SourceRange getNameRange(IJavaElement element) {
-		if (element.getElementType() == IJavaElement.METHOD
-			&& ((IMember) element).isBinary()) {
-			IJavaElement[] el = getUnqualifiedMethodHandle((IMethod) element, false);
-			if(el[1] != null && fSourceRanges.get(el[0]) == null) {
-				element = getUnqualifiedMethodHandle((IMethod) element, true)[0];
-			} else {
-				element = el[0];
-			}
+		switch(element.getElementType()) {
+			case IJavaElement.METHOD :
+				if (((IMember) element).isBinary()) {
+					IJavaElement[] el = getUnqualifiedMethodHandle((IMethod) element, false);
+					if(el[1] != null && fSourceRanges.get(el[0]) == null) {
+						element = getUnqualifiedMethodHandle((IMethod) element, true)[0];
+					} else {
+						element = el[0];
+					}
+				}
+				break;
+			case IJavaElement.TYPE_PARAMETER :
+				System.out.println(element);
 		}
 		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(element);
 		if (ranges == null) {
@@ -920,14 +963,31 @@ public class SourceMapper
 	 * {-1, -1} if no source range is known for the element.
 	 */
 	public SourceRange getSourceRange(IJavaElement element) {
-		if (element.getElementType() == IJavaElement.METHOD
-			&& ((IMember) element).isBinary()) {
-			IJavaElement[] el = getUnqualifiedMethodHandle((IMethod) element, false);
-			if(el[1] != null && fSourceRanges.get(el[0]) == null) {
-				element = getUnqualifiedMethodHandle((IMethod) element, true)[0];
-			} else {
-				element = el[0];
-			}
+		switch(element.getElementType()) {
+			case IJavaElement.METHOD :
+				if (((IMember) element).isBinary()) {
+					IJavaElement[] el = getUnqualifiedMethodHandle((IMethod) element, false);
+					if(el[1] != null && fSourceRanges.get(el[0]) == null) {
+						element = getUnqualifiedMethodHandle((IMethod) element, true)[0];
+					} else {
+						element = el[0];
+					}
+				}
+				break;
+			case IJavaElement.TYPE_PARAMETER :
+				IJavaElement parent = element.getParent();
+				if (parent.getElementType() == IJavaElement.METHOD) {
+					IMethod method = (IMethod) parent;
+					if (method.isBinary()) {
+						IJavaElement[] el = getUnqualifiedMethodHandle(method, false);
+						if(el[1] != null && fSourceRanges.get(el[0]) == null) {
+							method = (IMethod) getUnqualifiedMethodHandle(method, true)[0];
+						} else {
+							method = (IMethod) el[0];
+						}
+						element = method.getTypeParameter(element.getElementName());
+					}
+				}
 		}
 		SourceRange[] ranges = (SourceRange[]) fSourceRanges.get(element);
 		if (ranges == null) {

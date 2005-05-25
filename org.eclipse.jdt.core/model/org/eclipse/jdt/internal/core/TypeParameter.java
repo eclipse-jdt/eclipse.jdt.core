@@ -58,6 +58,26 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 		return new SourceRange(info.nameStart, info.nameEnd - info.nameStart + 1);
 	}
 
+	/*
+	 * @see ISourceReference
+	 */
+	public ISourceRange getSourceRange() throws JavaModelException {
+		SourceMapper mapper= getSourceMapper();
+		if (mapper != null) {
+			// ensure the class file's buffer is open so that source ranges are computed
+			ClassFile classFile = (ClassFile)getClassFile();
+			if (classFile != null) {
+				classFile.getBuffer();
+				return mapper.getSourceRange(this);
+			}
+		}
+		return super.getSourceRange();
+	}
+
+	public IClassFile getClassFile() {
+		return ((JavaElement)getParent()).getClassFile();
+	}
+
 	protected void toStringName(StringBuffer buffer) {
 		buffer.append('<');
 		buffer.append(getElementName());
