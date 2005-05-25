@@ -15,6 +15,7 @@ import org.eclipse.text.edits.TextEditGroup;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.rewrite.ITrackedNodePosition;
+import org.eclipse.jface.text.IRegion;
 
 /**
  *
@@ -36,7 +37,11 @@ public class TrackedNodePosition implements ITrackedNodePosition {
 		if (this.group.isEmpty()) {
 			return this.node.getStartPosition();
 		}
-		return TextEdit.getCoverage(this.group.getTextEdits()).getOffset();
+		IRegion coverage= TextEdit.getCoverage(this.group.getTextEdits());
+		if (coverage == null) {
+			return this.node.getStartPosition();
+		}
+		return coverage.getOffset();
 	}
 
 	/* (non-Javadoc)
@@ -46,6 +51,10 @@ public class TrackedNodePosition implements ITrackedNodePosition {
 		if (this.group.isEmpty()) {
 			return this.node.getLength();
 		}
-		return TextEdit.getCoverage(this.group.getTextEdits()).getLength();
+		IRegion coverage= TextEdit.getCoverage(this.group.getTextEdits());
+		if (coverage == null) {
+			return this.node.getLength();
+		}
+		return coverage.getLength();
 	}
 }
