@@ -204,7 +204,7 @@ public class SourceMapper
 		}
 		if (rootPath != null) {
 			this.rootPaths = new ArrayList();
-			this.rootPaths.add(new Path(rootPath));
+			this.rootPaths.add(rootPath);
 		}
 		this.sourcePath = sourcePath;
 		this.fSourceRanges = new HashMap();
@@ -430,22 +430,24 @@ public class SourceMapper
 		int size = tempRoots.size();
 		if (this.rootPaths != null) {
 			for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext(); ) {
-				tempRoots.add(iterator.next());
-				size++;
+				tempRoots.add(new Path((String) iterator.next()));
 			}
 			this.rootPaths.clear();
 		} else {
 			this.rootPaths = new ArrayList(size);
 		}
-		if (size != 0) {
+		size = tempRoots.size();
+		if (size > 0) {
 			ArrayList sortedRoots = new ArrayList(tempRoots);
-			Collections.sort(sortedRoots, new Comparator() {
-				public int compare(Object o1, Object o2) {
-					IPath path1 = (IPath) o1;
-					IPath path2 = (IPath) o2;
-					return path1.segmentCount() - path2.segmentCount();
-				}
-			});
+			if (size > 1) {
+				Collections.sort(sortedRoots, new Comparator() {
+					public int compare(Object o1, Object o2) {
+						IPath path1 = (IPath) o1;
+						IPath path2 = (IPath) o2;
+						return path1.segmentCount() - path2.segmentCount();
+					}
+				});
+			}
 			for (Iterator iter = sortedRoots.iterator(); iter.hasNext();) {
 				IPath path = (IPath) iter.next();
 				this.rootPaths.add(path.toString());
@@ -597,7 +599,7 @@ public class SourceMapper
 			new SourceRange(typeInfo.nameSourceStart, typeInfo.nameSourceEnd - typeInfo.nameSourceStart + 1);
 		this.typeDeclarationStarts[typeDepth] = typeInfo.declarationStart;
 	}
-	
+
 	/**
 	 * @see ISourceElementRequestor
 	 */
