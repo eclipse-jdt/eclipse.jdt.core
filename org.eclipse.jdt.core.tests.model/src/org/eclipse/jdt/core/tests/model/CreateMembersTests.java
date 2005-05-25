@@ -34,7 +34,7 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //		TESTS_PREFIX = "testCombineAccessRestrictions";
 //		TESTS_NAMES = new String[] {"test004"};
-//		TESTS_NUMBERS = new int[] { 23, 28, 38 };
+//		TESTS_NUMBERS = new int[] { 5, 6 };
 //		TESTS_RANGE = new int[] { 21, 38 };
 	}
 	public static Test suite() {
@@ -148,5 +148,56 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 			JavaCore.setOptions(oldOptions);
 		}
 	}
-
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95580
+	public void test005() throws JavaModelException {
+		Hashtable oldOptions = JavaCore.getOptions();
+		try {
+			Hashtable options = new Hashtable(oldOptions);
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			JavaCore.setOptions(options);
+			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E2.java");
+			assertNotNull("No compilation unit", compilationUnit);
+			IType[] types = compilationUnit.getTypes();
+			assertNotNull("No types", types);
+			assertEquals("Wrong size", 1, types.length);
+			IType type = types[0];
+			type.createField("int i;", null, true, null);
+			String expectedSource = 
+				"public enum E2 {\n" + 
+				"	A, B, C;\n\n" +
+				"	int i;\n" + 
+				"}";
+			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
+		} finally {
+			JavaCore.setOptions(oldOptions);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95580
+	public void test006() throws JavaModelException {
+		Hashtable oldOptions = JavaCore.getOptions();
+		try {
+			Hashtable options = new Hashtable(oldOptions);
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			JavaCore.setOptions(options);
+			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E3.java");
+			assertNotNull("No compilation unit", compilationUnit);
+			IType[] types = compilationUnit.getTypes();
+			assertNotNull("No types", types);
+			assertEquals("Wrong size", 1, types.length);
+			IType type = types[0];
+			type.createType("class DD {}", null, true, null);
+			String expectedSource = 
+				"public enum E3 {\n" + 
+				"	A, B, C;\n\n" +
+				"	class DD {}\n" + 
+				"}";
+			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
+		} finally {
+			JavaCore.setOptions(oldOptions);
+		}
+	}
 }

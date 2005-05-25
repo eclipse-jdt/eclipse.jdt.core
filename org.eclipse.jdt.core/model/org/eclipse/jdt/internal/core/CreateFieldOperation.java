@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -71,11 +72,19 @@ public String getMainTaskName(){
 protected void initializeDefaultPosition() {
 	IType parentElement = getType();
 	try {
-		IJavaElement[] elements = parentElement.getFields();
-		if (elements != null && elements.length > 0) {
-			createAfter(elements[elements.length - 1]);
+		IField[] fields = parentElement.getFields();
+		if (fields != null && fields.length > 0) {
+			final IField lastField = fields[fields.length - 1];
+			if (parentElement.isEnum()) {
+				IField field = lastField;
+				if (!field.isEnumConstant()) {
+					createAfter(lastField);
+				}
+			} else {
+				createAfter(lastField);
+			}
 		} else {
-			elements = parentElement.getChildren();
+			IJavaElement[] elements = parentElement.getChildren();
 			if (elements != null && elements.length > 0) {
 				createBefore(elements[0]);
 			}
