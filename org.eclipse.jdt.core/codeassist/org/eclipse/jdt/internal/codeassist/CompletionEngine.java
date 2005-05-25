@@ -119,6 +119,7 @@ public final class CompletionEngine
 	boolean insideQualifiedReference = false;
 	boolean noProposal = true;
 	IProblem problem = null;
+	char[] fileName = null;
 	int startPosition, actualCompletionPosition, endPosition, offset;
 	HashtableOfObject knownPkgs = new HashtableOfObject(10);
 	HashtableOfObject knownTypes = new HashtableOfObject(10);
@@ -269,11 +270,11 @@ public final class CompletionEngine
 							start,
 							end,
 							lineNumber);
-						// TODO (david) problems could be detected in other units which got requested (see CompilationUnitProblemFinder)
 						if(CompletionEngine.this.actualCompletionPosition > start
 							&& this.lastErrorStart < start
 							&& pb.isError()
-							&& (pb.getID() & IProblem.Syntax) == 0) {
+							&& (pb.getID() & IProblem.Syntax) == 0
+							&& (CompletionEngine.this.fileName == null || CharOperation.equals(CompletionEngine.this.fileName, originatingFileName))) {
 								
 							CompletionEngine.this.problem = pb;
 							this.lastErrorStart = start;
@@ -1244,7 +1245,8 @@ public final class CompletionEngine
 			topLevelType = topLevelType.getDeclaringType();
 		}
 		
-		CompilationResult compilationResult = new CompilationResult(topLevelType.getParent().getElementName().toCharArray(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
+		this.fileName = topLevelType.getParent().getElementName().toCharArray();
+		CompilationResult compilationResult = new CompilationResult(this.fileName, 1, 1, this.compilerOptions.maxProblemsPerUnit);
 	
 		CompilationUnitDeclaration compilationUnit = null;
 	
@@ -1393,6 +1395,7 @@ public final class CompletionEngine
 		this.requestor.beginReporting();
 		boolean contextAccepted = false;
 		try {
+			this.fileName = sourceUnit.getFileName();
 			this.actualCompletionPosition = completionPosition - 1;
 			this.offset = pos;
 			// for now until we can change the UI.

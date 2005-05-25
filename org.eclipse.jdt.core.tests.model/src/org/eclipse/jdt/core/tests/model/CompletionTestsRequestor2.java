@@ -16,12 +16,15 @@ import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private final char[] NULL_LITERAL = "null".toCharArray();//$NON-NLS-1$
 	
 	private CompletionContext context;
 	private Vector proposals = new Vector();
+	private IProblem problem;
+	
 	private boolean showParamterNames;
 	private boolean showUniqueKeys;
 	
@@ -44,6 +47,10 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		proposals.add(proposal);
 	}
 
+	public void completionFailure(IProblem p) {
+		this.problem = p;
+	}
+	
 	public String getContext() {
 		if(this.context == null) return "";
 		
@@ -81,6 +88,9 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		
 		
 		return buffer.toString();
+	}
+	public String getProblem() {
+		return this.problem == null ? "" : this.problem.getMessage();
 	}
 	public String getResults() {
 		if(proposals.size() == 0)

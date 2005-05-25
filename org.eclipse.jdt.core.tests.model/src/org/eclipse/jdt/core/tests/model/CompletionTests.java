@@ -47,7 +47,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests("testBug96213"));			
+	suite.addTest(new CompletionTests("testCompletionWithProblem1"));			
 	return suite;
 }
 
@@ -9973,6 +9973,7 @@ public void testCompletionAllMemberTypes7() throws JavaModelException {
 		JavaCore.setOptions(oldCurrentOptions);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=96213
 public void testBug96213() throws JavaModelException {
     this.wc = getWorkingCopy(
             "/Completion/src/test/Test.java",
@@ -9999,5 +10000,49 @@ public void testBug96213() throws JavaModelException {
 	assertResults(
             "removed[LOCAL_VARIABLE_REF]{removed, null, I, removed, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95167
+public void testCompletionWithProblem1() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/test/AType.java",
+	            "package test;\n" +
+	            "public class AType{\n"+
+	            "  void foo(Unknown var) {\n"+
+	            "  }\n"+
+	            "}");
+		
+	    this.wc = getWorkingCopy(
+	            "/Completion/src/test/Test.java",
+	            "package test;\n" +
+	            "public class Test{\n"+
+	            "  void foo() {\n"+
+	            "    AType a = null;\n"+
+	            "    a.zz\n"+
+	            "  }\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "a.zz";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+	    // no completion must be found
+		assertResults(
+	            "",
+	            requestor.getResults());
+		
+		// no error must be found
+		assertResults(
+	            "",
+	            requestor.getProblem());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 }
