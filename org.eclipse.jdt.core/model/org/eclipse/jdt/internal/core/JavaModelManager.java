@@ -1924,6 +1924,8 @@ public class JavaModelManager implements ISaveParticipant {
 				e.printStackTrace();
 				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Error reading last build state for project "+ project.getName(), e)); //$NON-NLS-1$
 			}
+		} else if (JavaBuilder.DEBUG) {
+			System.out.println("Build state file " + file.getPath() + " does not exist"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
