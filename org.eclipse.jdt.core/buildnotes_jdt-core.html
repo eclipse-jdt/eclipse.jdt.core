@@ -68,10 +68,15 @@ Note: To re-enabled quickly the old behaviors, change the value of Completion.PR
 	<code>COMPILER_PB_MISSING_JAVADOC_TAGS_OVERRIDING</code> JavaCore options have been changed from "enabled" to "disabled".<br>
 	(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=96270">96270</a>).
 </li>
+<li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75816">bug 75816</a> required the index version to be incremented. 
+     Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=95167">95167</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75816">75816</a>
+[search] Call Hierarchy does not find calls to the constructor of java.util.HashMap.Entry [call hierarchy]
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=95167">95167</a>
 [content assist] Spurious "Access restriction" error during code assist
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=95580">95580</a>
 CreateField on IType doesn't work if the type is an enum type that has enum constants

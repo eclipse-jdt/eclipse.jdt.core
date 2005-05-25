@@ -57,7 +57,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-		TESTS_PREFIX =  "testBug83716";
+//		TESTS_PREFIX =  "testBug75816";
 //		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
 //		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
@@ -543,6 +543,21 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		IMethod method = type.getMethod("foo", new String[] { "QRegion;" });
 		search(method, REFERENCES);
 		assertSearchResults("");
+	}
+
+	/**
+	 * Bug 75816: [search] correct results are missing in java search
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75816"
+	 */
+	public void testBug75816() throws CoreException {
+		IType type = getClassFile("JavaSearchBugs", "lib/test75816.jar", "", "Test.class").getType();
+		IType innerType = type.getType("Inner");
+		IMethod[] methods = innerType.getMethods();
+		assertEquals("Wrong number of method.", 1, methods.length);
+		search(methods[0], REFERENCES);
+		assertSearchResults(
+			"lib/test75816.jar Test.Inner Test.newInner(java.lang.Object) EXACT_MATCH"
+		);
 	}
 
 	/**
@@ -2806,6 +2821,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 		assertSearchResults(
 			"Unexpected all type names",
+			"Test\n" + 
+			"Test$Inner\n" + 
 			"b81556.a.A81556\n" + 
 			"b81556.a.B81556\n" + 
 			"b81556.a.X81556\n" + 
@@ -2865,6 +2882,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		// Remove interface, enum and annotation
 		assertSearchResults(
 			"Unexpected all type names",
+			"Test\n" + 
+			"Test$Inner\n" + 
 			"b81556.a.A81556\n" + 
 			"b81556.a.B81556\n" + 
 			"b81556.a.X81556\n" + 
@@ -2920,6 +2939,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		// Remove enum and annotation
 		assertSearchResults(
 			"Unexpected all type names",
+			"Test\n" + 
+			"Test$Inner\n" + 
 			"b81556.a.A81556\n" + 
 			"b81556.a.B81556\n" + 
 			"b81556.a.X81556\n" + 
@@ -2977,6 +2998,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		// Remove interface and annotation
 		assertSearchResults(
 			"Unexpected all type names",
+			"Test\n" + 
+			"Test$Inner\n" + 
 			"b81556.a.A81556\n" + 
 			"b81556.a.B81556\n" + 
 			"b81556.a.X81556\n" + 
