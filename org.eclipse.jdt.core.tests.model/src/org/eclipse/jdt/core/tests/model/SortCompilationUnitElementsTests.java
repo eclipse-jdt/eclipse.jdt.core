@@ -97,7 +97,7 @@ public static Test suite() {
 		return new Suite(SortCompilationUnitElementsTests.class);
 	}
 	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
-	suite.addTest(new SortCompilationUnitElementsTests("test025")); //$NON-NLS-1$
+	suite.addTest(new SortCompilationUnitElementsTests("test027")); //$NON-NLS-1$
 	return suite;
 }
 public void tearDownSuite() throws Exception {
@@ -1733,6 +1733,50 @@ public void test026() throws CoreException {
 			"		System.out.println(\"b2\");\n" +
 			"	}\n" +
 			"	void z() {\n" +
+			"	}\n" +
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=96583
+public void test027() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public final class X\n" +
+			"{\n" +
+			"	static\n" +
+			"	{\n" +
+			"\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args)\n" +
+			"	{\n" +
+			"	}\n" +
+			"\n" +
+			"	static\n" +
+			"	{\n" +
+			"\n" +
+			"	}\n" +
+			"}"
+		);
+		String expectedResult = 
+			"public final class X\n" +
+			"{\n" +
+			"	static\n" +
+			"	{\n" +
+			"\n" +
+			"	}\n" +
+			"\n" +
+			"	static\n" +
+			"	{\n" +
+			"\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args)\n" +
+			"	{\n" +
 			"	}\n" +
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
