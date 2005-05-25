@@ -175,7 +175,7 @@ String getSignature() throws JavaModelException;
  * This is a handle-only method. The type parameter may or may not exist.
  * 
  * @param name the given simple name
- * @return the type parameter declared in this methid with the given name
+ * @return the type parameter declared in this method with the given name
  * @since 3.1
  */
 ITypeParameter getTypeParameter(String name);
