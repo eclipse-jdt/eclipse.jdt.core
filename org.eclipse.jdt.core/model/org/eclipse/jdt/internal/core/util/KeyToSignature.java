@@ -151,6 +151,12 @@ public class KeyToSignature extends BindingKeyParser {
 		this.arguments.add(parser);
 	}
 	
+	public void consumeField(char[] fieldName) {
+		if (this.kind == SIGNATURE) {
+			this.signature = ((KeyToSignature) this.arguments.get(0)).signature;
+		}
+	}
+	
 	public void consumeFullyQualifiedName(char[] fullyQualifiedName) {
 		this.typeSigStart = this.signature.length();
 		this.signature.append('L');

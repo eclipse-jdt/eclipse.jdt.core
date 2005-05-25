@@ -151,7 +151,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 }
 /*
  * declaringUniqueKey dot fieldName
- * p.X { X<T> x} --> Lp/X;.x
+ * p.X { X<T> x} --> Lp/X;.x)p/X<TT;>;
  */
 public char[] computeUniqueKey(boolean isLeaf) {
 	// declaring key
@@ -164,12 +164,19 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	// name
 	int nameLength = this.name.length;
 	
-	char[] uniqueKey = new char[declaringLength + 1 + nameLength];
+	// return type
+	char[] returnTypeKey = this.type.computeUniqueKey(false/*not a leaf*/);
+	int returnTypeLength = returnTypeKey.length;
+	
+	char[] uniqueKey = new char[declaringLength + 1 + nameLength + 1 + returnTypeLength];
 	int index = 0;
 	System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
 	index += declaringLength;
 	uniqueKey[index++] = '.';
 	System.arraycopy(this.name, 0, uniqueKey, index, nameLength);
+	index += nameLength;
+	uniqueKey[index++] = ')';
+	System.arraycopy(returnTypeKey, 0, uniqueKey, index, returnTypeLength);
 	return uniqueKey;
 }
 /**

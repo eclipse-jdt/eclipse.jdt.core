@@ -406,4 +406,16 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"La/A<La/A~TU;>;.foo<U:Ljava/lang/Object;>(TU;La/TU;)V%<La/A~TU;>"
 		);
 	}
+	
+	/*
+	 * Field
+	 * (regression test for bug  87362 BindingKey#internalToSignature() should return the field's type signature)
+	 */
+	public void test037() {
+		assertBindingKeySignatureEquals(
+			"Ljava.lang.String;",
+			"Lp/X;.foo)Ljava/lang/String;"
+		);
+	}
+
 }

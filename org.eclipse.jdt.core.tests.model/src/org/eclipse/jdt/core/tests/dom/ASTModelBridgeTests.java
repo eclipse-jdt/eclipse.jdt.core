@@ -240,7 +240,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;\n" + 
 			"Ljava/lang/Object;\n" + 
 			"LX;.foo(ILjava/lang/String;)V\n" + 
-			"LI;.BAR\n" + 
+			"LI;.BAR)I\n" + 
 			"LY$50;",
 			bindings);
 	}
@@ -327,7 +327,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getField("field")
 		);
 		assertBindingsEqual(
-			"LX;.field",
+			"LX;.field)I",
 			bindings);
 	}
 	
@@ -405,7 +405,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getField("FOO")
 		);
 		assertBindingsEqual(
-			"LX;.FOO",
+			"LX;.FOO)LX;",
 			bindings);
 	}
 	
@@ -485,7 +485,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			getClassFile("/P/lib/A.class").getType().getField("field")
 		);
 		assertBindingsEqual(
-			"LA;.field",
+			"LA;.field)I",
 			bindings);
 	}
 	

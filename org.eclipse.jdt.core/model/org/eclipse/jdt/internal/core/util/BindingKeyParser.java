@@ -240,9 +240,13 @@ public class BindingKeyParser {
 						this.token = METHOD;
 						return this.token;
 					case ')':
-						this.start = ++this.index;
-						this.token = END;
-						return this.token;
+						if (this.token == TYPE) {
+							this.token = FIELD;
+							return this.token;
+						}
+						this.start = this.index+1;
+						previousTokenEnd = this.start;
+						break;
 					case '#':
 						if (this.index == previousTokenEnd) {
 							this.start = this.index+1;
@@ -571,8 +575,7 @@ public class BindingKeyParser {
 		if (this.scanner.isAtFieldOrMethodStart()) {
 			switch (this.scanner.nextToken()) {
  				case Scanner.FIELD:
- 					consumeField(this.scanner.getTokenSource());
-					parseFlags();
+ 					parseField();
  					return;
  				case Scanner.METHOD:
  					parseMethod();
@@ -714,6 +717,12 @@ public class BindingKeyParser {
 		consumeParser(parser);
 	}
 	
+	private void parseField() {
+		char[] fieldName = this.scanner.getTokenSource();
+		parseReturnType();
+ 		consumeField(fieldName);
+	}
+	
 	private void parseFlags() {
 		if (!this.scanner.isAtFlagsStart() || this.scanner.nextToken() != Scanner.FLAGS) return;
 		consumeModifiers(this.scanner.getTokenSource());
@@ -745,6 +754,12 @@ public class BindingKeyParser {
 		consumeRawType();
 	}
 	
+	private void parseReturnType() {
+		BindingKeyParser parser = newParser();
+		parser.parse();
+		consumeParser(parser);
+	}
+
 	private void parseSecondaryType() {
 		if (!this.scanner.isAtSecondaryTypeStart() || this.scanner.nextToken() != Scanner.TYPE) return;
 		consumeSecondaryType(this.scanner.getTokenSource());
