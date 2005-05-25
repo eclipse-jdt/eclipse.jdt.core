@@ -17,8 +17,11 @@ import java.io.File;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -200,7 +203,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 		String fname = TEST_FOLDER + "/A.java";
 		try
 		{
-				
+			
 			//
 			//  first make sure errors are present when the annotation
 			// is commented out
@@ -281,9 +284,53 @@ public class AptReconcileTests extends ModifyingResourceTests
 			throw e;
 		}
 	}
-	
-	
-	
+
+	/*
+	 * Temporarily disabled until I can figure out why this is failing.
+	 * See Mike K.
+	 */
+	public void _testDiscardParentWorkingCopy()
+	 	throws Throwable
+	{
+		String fname = TEST_FOLDER + "/A.java";
+		try
+		{
+			String codeWithOutErrors = "package test;" + "\n" +
+			    "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" + 
+			    "public class A " +  "\n" +
+			    "{" +  "\n" +
+			    "    @HelloWorldAnnotation" + "\n" + 
+				"    public static void main( String[] argv )" + "\n" +
+				"    {" + "\n" +
+				"        generatedfilepackage.GeneratedFileTest.helloWorld();" + "\n" +
+				"    }" + "\n" +
+				"}";
+
+			createFile( fname, codeWithOutErrors );
+			this._problemRequestor = new ProblemRequestor();
+			setUpWorkingCopy( fname, codeWithOutErrors );
+			
+			// use new problem requestor to remove any errors that occurred in setUpWorkingCopy()
+			this._problemRequestor = new ProblemRequestor();
+			this._workingCopy.reconcile( ICompilationUnit.NO_AST, true, null,
+				null );
+			
+			assertProblems( "UnexpectedProblems", "" );
+			
+			IProject p = _workingCopy.getJavaProject().getProject();
+			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
+			
+			_workingCopy.discardWorkingCopy();
+
+			if ( gfm.containsWorkingCopyMapEntriesForParent( (IFile)_workingCopy.getResource() ) )
+				fail( "Unexpected map entries in GeneratedFileManager!");
+		}
+		finally
+		{
+			deleteFile( fname );
+		}	
+	}
+
 	public void setUp() throws Exception 
 	{
 		try 
@@ -325,8 +372,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 		deleteProject( TEST_PROJECT );
 		super.tearDown();
 	}
-
-
+ 
 	/***************************************************************************
 	 * 
 	 * copied from ReconcilerTests...

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -90,8 +92,14 @@ public class GeneratedFileManager {
 	{
 		_initialized = true;
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		
+		// register resource-changed listener
 		int mask = IResourceChangeEvent.PRE_BUILD | IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE;
 		workspace.addResourceChangeListener( new ResourceChangedListener(), mask );
+		
+		// register element-changed listener
+		mask = ElementChangedEvent.POST_CHANGE;
+		JavaCore.addElementChangedListener( new ElementChangedListener(), mask );
 	}
 	
 	public static synchronized List<GeneratedFileManager> getGeneratedFileManagers() {
@@ -907,6 +915,34 @@ public class GeneratedFileManager {
 		// project's classpath, so we'll just clean out our maps. 
 		projectClean( false );
 		_generatedSourceFolder = null;
+	}
+	
+	/**
+	 *  This method should only be used for testing purposes to ensure
+	 *  that maps contain entries when we expect them to.
+	 */
+	public synchronized boolean containsWorkingCopyMapEntriesForParent( IFile f )
+	{
+		Collection<Set<IFile>> parentSets = _generatedWorkingCopy2OpenParentFiles.values();
+		for( Set<IFile> s : parentSets )
+		{
+			if ( s.contains( f ) )
+				return true;
+		}
+
+		Set<IFile> generatedFiles = _parentFile2GeneratedFiles.get( f );
+		for ( IFile gf : generatedFiles )
+		{
+			ICompilationUnit cu = _generatedFile2WorkingCopy.get( gf );
+			if ( cu != null )
+			{
+				Set<IFile> parents = _generatedWorkingCopy2OpenParentFiles.get( cu );
+				if ( parents.contains( cu ) || parents.size() == 0 )
+					return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	/**
