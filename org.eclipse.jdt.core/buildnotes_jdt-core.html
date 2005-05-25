@@ -71,10 +71,24 @@ Note: To re-enabled quickly the old behaviors, change the value of Completion.PR
 <li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=75816">bug 75816</a> required the index version to be incremented. 
      Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
 </li>
+<li>
+Duplicate names are not allowed in classpath entry extra attributes.<br>
+Javadoc comment of each <code>JavaCore.new*Entry</code> method have been updated to clearly specify this behavior:
+<pre>
+ * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
+ * this entry. If no extra attributes are provided, an empty array must be passed in.
+ * Note that this list should not contain any duplicate name.
+</pre>
+<code>JavaConventions.validateClasspathEntry(IJavaProject,IClasspathEntry,boolean,boolean)</code> has been modified
+to verify this point. It now returns an invalid status (<code>new IJavaStatus(IJavaModelStatusConstants.NAME_COLLISION,...)</code>)
+when duplicate names are found in extra attributes.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=92398">92398</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=94404">94404</a>
+[model] Disallow classpath attributes with same key
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=92398">92398</a>
 [compiler] Leverage access rule support in batch compiler
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=96588">96588</a>
 Rename Signature#removeCaptureFromMethod(...) to removeCaptureFrom(..)

@@ -1364,6 +1364,18 @@ public class ClasspathEntry implements IClasspathEntry {
 						if (container == null){
 							return new JavaModelStatus(IJavaModelStatusConstants.CP_CONTAINER_PATH_UNBOUND, project, path);
 						} else if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
+							// Validate extra attributes
+							IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
+							if (extraAttributes != null) {
+								int length = extraAttributes.length;
+								HashSet set = new HashSet(length);
+								for (int i=0; i<length; i++) {
+									String attName = extraAttributes[i].getName();
+									if (!set.add(attName)) {
+										return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Messages.bind(Messages.classpath_duplicateEntryExtraAttribute, new String[] {attName, entryPathMsg, projectName})); 
+									}
+								}
+							}
 							// don't create a marker if initialization is in progress (case of cp initialization batching)
 							return JavaModelStatus.VERIFIED_OK;
 						}
@@ -1521,6 +1533,20 @@ public class ClasspathEntry implements IClasspathEntry {
 				}
 				break;
 		}
+
+		// Validate extra attributes
+		IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
+		if (extraAttributes != null) {
+			int length = extraAttributes.length;
+			HashSet set = new HashSet(length);
+			for (int i=0; i<length; i++) {
+				String attName = extraAttributes[i].getName();
+				if (!set.add(attName)) {
+					return new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Messages.bind(Messages.classpath_duplicateEntryExtraAttribute, new String[] {attName, entryPathMsg, projectName})); 
+				}
+			}
+		}
+
 		return JavaModelStatus.VERIFIED_OK;		
 	}
 }

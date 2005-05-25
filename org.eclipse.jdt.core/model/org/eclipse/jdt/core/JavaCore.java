@@ -2866,7 +2866,8 @@ public final class JavaCore extends Plugin {
 	 * </p>
 	 * <p>
 	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
-	 * this entry. If no extra attributes are provided, an empty array must be passed in.
+	 * this entry. If no extra attributes are provided, an empty array must be passed in.<br>
+	 * Note that this list should not contain any duplicate name.
 	 * </p>
 	 * <p>
 	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
@@ -3046,7 +3047,8 @@ public final class JavaCore extends Plugin {
 	 * </p>
 	 * <p>
 	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
-	 * this entry. If no extra attributes are provided, an empty array must be passed in.
+	 * this entry. If no extra attributes are provided, an empty array must be passed in.<br>
+	 * Note that this list should not contain any duplicate name.
 	 * </p>
 	 * <p>
 	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
@@ -3170,7 +3172,8 @@ public final class JavaCore extends Plugin {
 	 * </p>
 	 * <p>
 	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
-	 * this entry. If no extra attributes are provided, an empty array must be passed in.
+	 * this entry. If no extra attributes are provided, an empty array must be passed in.<br>
+	 * Note that this list should not contain any duplicate name.
 	 * </p>
 	 * <p>
 	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
@@ -3379,7 +3382,8 @@ public final class JavaCore extends Plugin {
 	 * </p>
 	 * <p>
 	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
-	 * this entry. If no extra attributes are provided, an empty array must be passed in.
+	 * this entry. If no extra attributes are provided, an empty array must be passed in.<br>
+	 * Note that this list should not contain any duplicate name.
 	 * </p>
 	 *
 	 * @param path the absolute workspace-relative path of a source folder
@@ -3503,7 +3507,8 @@ public final class JavaCore extends Plugin {
 	 * </p>
 	 * <p>
 	 * The <code>extraAttributes</code> list contains name/value pairs that must be persisted with
-	 * this entry. If no extra attributes are provided, an empty array must be passed in.
+	 * this entry. If no extra attributes are provided, an empty array must be passed in.<br>
+	 * Note that this list should not contain any duplicate name.
 	 * </p>
 	 * <p>
 	 * The <code>isExported</code> flag indicates whether this entry is contributed to dependent
