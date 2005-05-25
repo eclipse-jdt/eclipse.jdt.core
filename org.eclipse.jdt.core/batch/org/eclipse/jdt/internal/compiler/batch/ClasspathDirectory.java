@@ -14,10 +14,10 @@ import java.io.File;
 import java.util.Hashtable;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
-public class ClasspathDirectory implements FileSystem.Classpath, SuffixConstants {
+public class ClasspathDirectory extends ClasspathLocation {
 
 String path;
 Hashtable directoryCache;
@@ -28,8 +28,14 @@ public int mode; // ability to only consider one kind of files (source vs. binar
 public static final int SOURCE = 1;
 public static final int BINARY = 2;
 
-ClasspathDirectory(File directory, String encoding, int mode) {
-	this.mode = mode;
+ClasspathDirectory(File directory, String encoding, int mode, AccessRuleSet accessRuleSet) {
+	super(accessRuleSet);
+	if (mode == 0){
+		this.mode = SOURCE | BINARY;
+	}
+	else {
+	    this.mode = mode;
+	}
 	this.path = directory.getAbsolutePath();
 	if (!this.path.endsWith(File.separator))
 		this.path += File.separator;
@@ -38,9 +44,8 @@ ClasspathDirectory(File directory, String encoding, int mode) {
 }
 
 ClasspathDirectory(File directory, String encoding) {
-	this(directory, encoding, SOURCE | BINARY); // by default consider both sources and binaries
+	this(directory, encoding, SOURCE | BINARY, null); // by default consider both sources and binaries
 }
-
 String[] directoryList(String qualifiedPackageName) {
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
 	if (dirList == this.missingPackageHolder) return null; // package exists in another classpath directory or jar
@@ -90,19 +95,26 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	if (sourceExists) {
 		String fullSourcePath = this.path + qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java;
 		if (!binaryExists)
-			return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, this.encoding), null/* TODO no access restriction*/);
-
+			return new NameEnvironmentAnswer(new CompilationUnit(null,
+					fullSourcePath, this.encoding),
+					fetchAccessRestriction(qualifiedBinaryFileName));
 		String fullBinaryPath = this.path + qualifiedBinaryFileName;
 		long binaryModified = new File(fullBinaryPath).lastModified();
 		long sourceModified = new File(fullSourcePath).lastModified();
 		if (sourceModified > binaryModified)
-			return new NameEnvironmentAnswer(new CompilationUnit(null, fullSourcePath, this.encoding), null/* TODO no access restriction*/);
+			return new NameEnvironmentAnswer(new CompilationUnit(null,
+					fullSourcePath, this.encoding),
+					fetchAccessRestriction(qualifiedBinaryFileName));
 	}
 	if (binaryExists) {
 		try {
-			ClassFileReader reader = ClassFileReader.read(this.path + qualifiedBinaryFileName);
-			if (reader != null) return new NameEnvironmentAnswer(reader, null/* TODO no access restriction*/);
-		} catch (Exception e) { 
+			ClassFileReader reader = ClassFileReader.read(this.path
+					+ qualifiedBinaryFileName);
+			if (reader != null)
+				return new NameEnvironmentAnswer(
+						reader,
+						fetchAccessRestriction(qualifiedBinaryFileName));
+		} catch (Exception e) {
 			// treat as if file is missing
 		}
 	}
@@ -116,5 +128,8 @@ public void reset() {
 }
 public String toString() {
 	return "ClasspathDirectory " + this.path; //$NON-NLS-1$
+}
+public String normalizedPath() {
+	return this.path;
 }
 }

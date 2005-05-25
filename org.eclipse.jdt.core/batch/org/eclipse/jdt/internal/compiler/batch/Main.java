@@ -24,6 +24,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -47,6 +48,8 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.AccessRule;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -313,7 +316,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					String.valueOf(time),
 					String.valueOf(((int) (lineCount * 10000.0 / time)) / 10.0) }));
 		}
-		public void logClasspath(String[] classpaths) {
+		public void logClasspath(FileSystem.Classpath[] classpaths) {
 			if (classpaths == null) return;
 			if (this.isXml) {
 				final int length = classpaths.length;
@@ -322,7 +325,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.printTag(CLASSPATHS, null, true, false);
 					for (int i = 0; i < length; i++) {
 						this.parameters.clear();
-						String classpath = classpaths[i];
+						String classpath = classpaths[i].normalizedPath();
 						parameters.put(PATH, classpath);
 						File f = new File(classpath);
 						String id = null;
@@ -940,7 +943,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public final static String bundleName =
 		"org.eclipse.jdt.internal.compiler.batch.messages"; 	//$NON-NLS-1$
 
-	public String[] classpaths;
+	FileSystem.Classpath[] checkedClasspaths;
 	public String destinationPath;
 	public String[] encodings;
 	public Logger logger;
@@ -1200,10 +1203,11 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		final int InsideBootClasspath = 128;
 		final int InsideMaxProblems = 256;
 		final int Default = 0;
-		String[] bootclasspaths = null;
 		int DEFAULT_SIZE_CLASSPATH = 4;
-		int pathCount = 0;
-		int bootclasspathCount = 0;
+		ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		String currentClasspathName = null;
+		ArrayList currentRuleSpecs = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		int index = -1, filesCount = 0, argCount = argv.length;
 		int mode = Default;
 		this.repetitions = 0;
@@ -1279,7 +1283,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			currentArg = newCommandLineArgs[index];
 
 			customEncoding = null;
-			if (currentArg.endsWith("]")) { //$NON-NLS-1$ 
+			if (currentArg.endsWith("]") && !(mode == InsideBootClasspath || mode == InsideClasspath) ) { //$NON-NLS-1$ 
 				// look for encoding specification
 				int encodingStart = currentArg.indexOf('[') + 1;
 				int encodingEnd = currentArg.length() - 1;
@@ -1391,17 +1395,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			if (currentArg.equals("-classpath") //$NON-NLS-1$
 				|| currentArg.equals("-cp")) { //$NON-NLS-1$ //$NON-NLS-2$
-				if (pathCount == 0) {
-					this.classpaths = new String[DEFAULT_SIZE_CLASSPATH];
-				}
 				mode = InsideClasspath;
 				continue;
 			}
 			if (currentArg.equals("-bootclasspath")) {//$NON-NLS-1$
-				if (bootclasspathCount > 0)
+				if (bootclasspaths.size() > 0)
 					throw new InvalidInputException(
 						Main.bind("configure.duplicateBootClasspath", currentArg)); //$NON-NLS-1$
-				bootclasspaths = new String[DEFAULT_SIZE_CLASSPATH];
 				mode = InsideBootClasspath;
 				continue;
 			}
@@ -1936,40 +1936,138 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				mode = Default;
 				continue;
 			}
-			if (mode == InsideClasspath) {
-				StringTokenizer tokenizer = new StringTokenizer(currentArg, File.pathSeparator);
+			if (mode == InsideClasspath || mode == InsideBootClasspath) {
+				StringTokenizer tokenizer = new StringTokenizer(currentArg,
+						File.pathSeparator + "[]", true); //$NON-NLS-1$
+				// state machine
+				final int start = 0; 
+				final int readyToClose = 1;
+				// 'path' 'path1[rule];path2'
+				final int readyToCloseEndingWithRules = 2;
+				// 'path[rule]' 'path1;path2[rule]'
+				final int readyToCloseOrOtherEntry = 3;
+				// 'path[rule];' 'path;' 'path1;path2;'
+				final int rulesNeedAnotherRule = 4;
+				// 'path[rule1;'
+				final int rulesStart = 5;
+				// 'path[' 'path1;path2['
+				final int rulesReadyToClose = 6;
+				// 'path[rule' 'path[rule1;rule2'
+				final int error = 99;
+				int state = start;
+				String token = null;
 				while (tokenizer.hasMoreTokens()) {
-					int length;
-					if ((length = this.classpaths.length) <= pathCount) {
-						System.arraycopy(
-							this.classpaths,
-							0,
-							(this.classpaths = new String[length * 2]),
-							0,
-							length);
+					token = tokenizer.nextToken();
+					if (token.equals(File.pathSeparator)) {
+						switch (state) {
+						case readyToClose:
+						case readyToCloseEndingWithRules:
+						case readyToCloseOrOtherEntry:
+							state = readyToCloseOrOtherEntry;
+							break;
+						case rulesReadyToClose:
+							state = rulesNeedAnotherRule;
+							break;
+						default:
+							state = error;
+						}
+					} else if (token.equals("[")) { //$NON-NLS-1$
+						switch (state) {
+						case readyToClose:
+							state = rulesStart;
+							break;
+						default:
+							state = error;
+						}
+					} else if (token.equals("]")) { //$NON-NLS-1$
+						switch (state) {
+						case rulesReadyToClose:
+							state = readyToCloseEndingWithRules;
+							break;
+						default:
+							state = error;
+						}
+
+					} else // regular word
+					{
+						switch (state) {
+						case start:
+						case readyToCloseOrOtherEntry:
+							state = readyToClose;
+							currentClasspathName = token;
+							break;
+						case rulesNeedAnotherRule:
+						case rulesStart:
+							state = rulesReadyToClose;
+							currentRuleSpecs.add(token);
+							break;
+						default:
+							state = error;
+						}
 					}
-					this.classpaths[pathCount++] = tokenizer.nextToken();
+				}
+				if (state == readyToClose
+						|| state == readyToCloseEndingWithRules 
+						|| state == readyToCloseOrOtherEntry) {
+					AccessRule[] accessRules = new AccessRule[currentRuleSpecs
+							.size()];
+					boolean rulesOK = true;
+					Iterator i = currentRuleSpecs.iterator();
+					int j = 0;
+					while (i.hasNext()) {
+						String ruleSpec = (String) i.next();
+						char key = ruleSpec.charAt(0);
+						String pattern = ruleSpec.substring(1);
+						if (pattern.length() > 0) {
+							switch (key) {
+							case '+':
+								accessRules[j++] = new AccessRule(pattern
+										.toCharArray(), -1);
+								break;
+							case '~':
+								accessRules[j++] = new AccessRule(pattern
+										.toCharArray(),
+										IProblem.DiscouragedReference);
+								break;
+							case '-':
+								accessRules[j++] = new AccessRule(pattern
+										.toCharArray(),
+										IProblem.ForbiddenReference);
+								break;
+							default:
+								rulesOK = false;
+							}
+						} else {
+							rulesOK = false;
+						}
+					}
+					if (rulesOK) {
+						AccessRuleSet accessRuleSet = new AccessRuleSet(
+								accessRules, "{0}"); //$NON-NLS-1$
+						FileSystem.Classpath currentClasspath = FileSystem
+								.getClasspath(currentClasspathName,
+										customEncoding, 0, accessRuleSet);
+						if (currentClasspath != null) {
+							if (mode == InsideClasspath) {
+								classpaths.add(currentClasspath);
+							} else { // inside bootclasspath
+								bootclasspaths.add(currentClasspath);
+							}
+						} else {
+							this.logger.logIncorrectClasspath(currentArg);
+							// we go on anyway
+						}
+					} else {
+						this.logger.logIncorrectClasspath(currentArg);
+						// we go on anyway
+					}
+				} else {
+					this.logger.logIncorrectClasspath(currentArg);
+					// we go on anyway
 				}
 				mode = Default;
 				continue;
 			}
-			if (mode == InsideBootClasspath) {
-				StringTokenizer tokenizer = new StringTokenizer(currentArg, File.pathSeparator);
-				while (tokenizer.hasMoreTokens()) {
-					int length;
-					if ((length = bootclasspaths.length) <= bootclasspathCount) {
-						System.arraycopy(
-							bootclasspaths,
-							0,
-							(bootclasspaths = new String[length * 2]),
-							0,
-							length);
-					}
-					bootclasspaths[bootclasspathCount++] = tokenizer.nextToken();
-				}
-				mode = Default;
-				continue;
-			}			
 			//default is input directory
 			currentArg = currentArg.replace('/', File.separatorChar);
 			if (currentArg.endsWith(File.separator))
@@ -2043,22 +2141,30 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				(this.filenames = new String[filesCount]),
 				0,
 				filesCount);
-		if (pathCount == 0) {
+		if (classpaths.size() == 0) {
 			// no user classpath specified.
 			String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 			if ((classProp == null) || (classProp.length() == 0)) {
 				this.logger.logNoClasspath(); //$NON-NLS-1$
-				classProp = System.getProperty("user.dir"); //$NON-NLS-1$
 			}
-			StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
-			this.classpaths = new String[tokenizer.countTokens() + 1];
-			while (tokenizer.hasMoreTokens()) {
-				this.classpaths[pathCount++] = tokenizer.nextToken();
+			else {
+				StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
+				String token;
+				while (tokenizer.hasMoreTokens()) {
+					token = tokenizer.nextToken();
+					FileSystem.Classpath currentClasspath = FileSystem
+							.getClasspath(token, customEncoding, 0, null);
+					if (currentClasspath != null) {
+						classpaths.add(currentClasspath);
+					} else {
+						this.logger.logIncorrectClasspath(token);
+						// should not happen - we go on anyway
+					}
+				}
 			}
-			this.classpaths[pathCount++] = System.getProperty("user.dir");//$NON-NLS-1$
 		}
 		
-		if (bootclasspathCount == 0) {
+		if (bootclasspaths.size() == 0) {
 			/* no bootclasspath specified
 			 * we can try to retrieve the default librairies of the VM used to run
 			 * the batch compiler
@@ -2083,13 +2189,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						File[] directoriesToCheck = new File[] { new File(javaHomeFile, "lib"), new File(javaHomeFile, "lib/ext")};//$NON-NLS-1$//$NON-NLS-2$
 						File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
 						if (systemLibrariesJars != null) {
-							int length = getLength(systemLibrariesJars);
-							bootclasspaths = new String[length];
 							for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
 								File[] current = systemLibrariesJars[i];
 								if (current != null) {
 									for (int j = 0, max2 = current.length; j < max2; j++) {
-										bootclasspaths[bootclasspathCount++] = current[j].getAbsolutePath();
+										FileSystem.Classpath classpath = 
+											FileSystem.getClasspath(
+													current[j].getAbsolutePath(),
+													null, 0, null); 
+										if (classpath != null) {
+											bootclasspaths.add(classpath);
+										}
 									}
 								}
 							}
@@ -2101,40 +2211,13 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 	 }
 		}
 
-		if (this.classpaths == null) {
-			this.classpaths = new String[0];
-		}
 		/* 
 		 * We put the bootclasspath at the beginning of the classpath entries
 		 */
-		String[] newclasspaths = null;
-		if ((pathCount + bootclasspathCount) != this.classpaths.length) {
-			newclasspaths = new String[pathCount + bootclasspathCount];
-		} else {
-			newclasspaths = this.classpaths;
-		}
-		System.arraycopy(
-			this.classpaths,
-			0,
-			newclasspaths,
-			bootclasspathCount,
-			pathCount);
-
-		if (bootclasspathCount != 0) {
-			System.arraycopy(
-				bootclasspaths,
-				0,
-				newclasspaths,
-				0,
-				bootclasspathCount);
-		}
-		this.classpaths = newclasspaths;
-		for (int i = 0, max = this.classpaths.length; i < max; i++) {
-			File file = new File(this.classpaths[i]);
-			if (!file.exists()) { // signal missing classpath entry file
-				this.logger.logIncorrectClasspath(this.classpaths[i]); //$NON-NLS-1$
-			}
-		}
+		bootclasspaths.addAll(classpaths);
+		classpaths = bootclasspaths;
+		this.checkedClasspaths = new FileSystem.Classpath[classpaths.size()];
+		classpaths.toArray(this.checkedClasspaths);
 		if (this.destinationPath == null) {
 			this.generatePackagesStructure = false;
 		} else if ("none".equals(this.destinationPath)) { //$NON-NLS-1$
@@ -2215,7 +2298,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 		this.logger.logCommandLineArguments(newCommandLineArgs);
 		this.logger.logOptions(this.options);
-		this.logger.logClasspath(this.classpaths);
+		this.logger.logClasspath(this.checkedClasspaths);
 		if (this.repetitions == 0) {
 			this.repetitions = 1;
 		}
@@ -2336,18 +2419,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		return result;
 	}
 	
-	private int getLength(File[][] libraries) {
-		int sum = 0;
-		if (libraries != null) {
-			for (int i = 0, max = libraries.length; i < max; i++) {
-				final File[] currentFiles = libraries[i];
-				if (currentFiles != null) {
-					sum+= currentFiles.length;
-				}
-			}
-		}
-		return sum;
-	}
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
@@ -2367,8 +2438,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		String defaultEncoding = (String) this.options.get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(defaultEncoding)) //$NON-NLS-1$
-			defaultEncoding = null; //$NON-NLS-1$	
-		return new FileSystem(this.classpaths, this.filenames, defaultEncoding);
+			defaultEncoding = null;	
+		return new FileSystem(this.checkedClasspaths, this.filenames);
 	}
 	/*
 	 *  Low-level API performing the actual compilation

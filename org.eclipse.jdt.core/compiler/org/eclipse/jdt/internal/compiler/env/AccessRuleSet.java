@@ -25,6 +25,10 @@ public class AccessRuleSet {
 	public AccessRuleSet(AccessRule[] accessRules) {
 		this.accessRules = accessRules;
 	}
+	public AccessRuleSet(AccessRule[] accessRules, String messageTemplate) {
+		this.accessRules = accessRules;
+		this.messageTemplate = messageTemplate;
+	}
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
