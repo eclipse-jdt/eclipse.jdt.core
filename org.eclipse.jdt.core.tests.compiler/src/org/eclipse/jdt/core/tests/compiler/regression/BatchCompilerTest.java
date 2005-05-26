@@ -30,7 +30,7 @@ public BatchCompilerTest(String name) {
 public static Test suite() {
 	if (false) {
 		TestSuite suite = new TestSuite();
-		suite.addTest(new BatchCompilerTest("test026"));
+		suite.addTest(new BatchCompilerTest("test012"));
 		return suite;
 	}
 	if (false) {
@@ -233,10 +233,12 @@ public static Test suite() {
 			this.nextInChain = nextInChain;
 		}
 		String normalized(String originalValue) {
+			String result;
 			if (nextInChain == null)
-				return originalValue;
+				result = Util.convertToIndependantLineDelimiter(originalValue);
 			else
-				return nextInChain.normalized(originalValue);
+				result = nextInChain.normalized(originalValue);
+			return result;
 		}
 	}
 
@@ -255,12 +257,14 @@ public static Test suite() {
 			this.placeholder = placeholder;
 		}
 		String normalized(String originalValue) {
+			String result;
 			StringBuffer normalizedValueBuffer = new StringBuffer(originalValue);
 			int nextOccurrenceIndex;
 			while ((nextOccurrenceIndex = normalizedValueBuffer.indexOf(match)) != -1)
 				normalizedValueBuffer.replace(nextOccurrenceIndex,
 						nextOccurrenceIndex + matchLength, placeholder);
-			return super.normalized(normalizedValueBuffer.toString());
+			result = super.normalized(normalizedValueBuffer.toString());
+			return result;
 		}
 	}
 	
@@ -276,6 +280,7 @@ public static Test suite() {
 			super(nextInChain);
 		}
 		String normalized(String originalValue) {
+			String result;
 			StringBuffer normalizedValueBuffer = new StringBuffer(originalValue);
 			int classpathsStartTagStart = normalizedValueBuffer
 					.indexOf("<classpaths>"), classpathsEndTagStart = normalizedValueBuffer
@@ -284,7 +289,8 @@ public static Test suite() {
 					&& classpathsStartTagStart < classpathsEndTagStart)
 				normalizedValueBuffer.replace(classpathsStartTagStart + 12,
 						classpathsEndTagStart, "NORMALIZED SECTION");
-			return super.normalized(normalizedValueBuffer.toString());
+			result = super.normalized(normalizedValueBuffer.toString());
+			return result;
 		}
 	}
 
@@ -306,7 +312,7 @@ public static Test suite() {
 
 		/**
 		 * Make a new normalizer able to suppress a range of lines delimited by
-		 * "\r\n" sequences from a log file (or another string).
+		 * "\n" sequences from a log file (or another string).
 		 * 
 		 * @param nextInChain
 		 *            the next normalizer in the chain of responsibility; pass
@@ -326,80 +332,86 @@ public static Test suite() {
 		}
 
 		String normalized(String originalValue) {
+			String result;
 			if (number == 0 || originalValue.length() == 0)
-				return super.normalized(originalValue);
-			final int START = 0, KEEPING = 1, KEEPING_R = 2, SKIPING = 3, SKIPING_R = 4, END = 5, ERROR = 6;
-			int state = START, currentLineIndex = 0, currentCharIndex = 0, sourceLength;
-			char currentChar = '\0';
-			if (first <= 0)
-				state = SKIPING;
-			else
-				state = KEEPING;
-			StringBuffer normalizedValueBuffer = new StringBuffer(), source = new StringBuffer(
-					originalValue);
-			sourceLength = source.length();
-			while (state != END && state != ERROR) {
-				if (currentCharIndex < sourceLength) {
-					currentChar = source.charAt(currentCharIndex++);
-					switch (currentChar) {
-					case '\r':
-						switch (state) {
-						case KEEPING:
-							normalizedValueBuffer.append(currentChar);
-							state = KEEPING_R;
-							break;
-						case SKIPING:
-							state = SKIPING_R;
-							break;
-						default:
-							state = ERROR;
-						}
-						break;
-					case '\n':
-						currentLineIndex++;
-						switch (state) {
-						case KEEPING_R:
-							normalizedValueBuffer.append(currentChar);
-							if (currentLineIndex == first) {
-								state = SKIPING;
-							}
-							break;
-						case SKIPING_R:
-							// in effect, we tolerate too big first and number
-							// values
-							if (currentLineIndex >= first + number) {
-								if (currentCharIndex < sourceLength)
-									normalizedValueBuffer.append(source
-											.substring(currentCharIndex));
-								state = END;
-							}
-							break;
-						default:
-							state = ERROR;
-						}
-						break;
-					default:
-						switch (state) {
-						case KEEPING:
-							normalizedValueBuffer.append(currentChar);
-							break;
-						case SKIPING:
-							break;
-						default:
-							state = ERROR;
-						}
-
-					}
-				} 
-				else if (currentChar == '\n')
-					state = END;
+				result = super.normalized(originalValue);
+			else {
+				final int START = 0, KEEPING = 1, KEEPING_R = 2, SKIPING = 3, SKIPING_R = 4, END = 5, ERROR = 6;
+				int state = START, currentLineIndex = 0, currentCharIndex = 0, sourceLength;
+				char currentChar = '\0';
+				if (first <= 0)
+					state = SKIPING;
 				else
-					state = ERROR;
+					state = KEEPING;
+				StringBuffer normalizedValueBuffer = new StringBuffer(), source = new StringBuffer(
+						originalValue);
+				sourceLength = source.length();
+				while (state != END && state != ERROR) {
+					if (currentCharIndex < sourceLength) {
+						currentChar = source.charAt(currentCharIndex++);
+						switch (currentChar) {
+						case '\r':
+							switch (state) {
+							case KEEPING:
+								normalizedValueBuffer.append(currentChar);
+								state = KEEPING_R;
+								break;
+							case SKIPING:
+								state = SKIPING_R;
+								break;
+							default:
+								state = ERROR;
+							}
+							break;
+						case '\n':
+							currentLineIndex++;
+							switch (state) {
+							case KEEPING: // tolerate Linux line delimiters
+							case KEEPING_R:
+								normalizedValueBuffer.append(currentChar);
+								if (currentLineIndex == first) {
+									state = SKIPING;
+								}
+								break;
+							case SKIPING: // tolerate Linux line delimiters
+							case SKIPING_R:
+								// in effect, we tolerate too big first and number
+								// values
+								if (currentLineIndex >= first + number) {
+									if (currentCharIndex < sourceLength)
+										normalizedValueBuffer.append(source
+												.substring(currentCharIndex));
+									state = END;
+								}
+								break;
+							default:
+								state = ERROR;
+							}
+							break;
+						default:
+							switch (state) {
+							case KEEPING:
+								normalizedValueBuffer.append(currentChar);
+								break;
+							case SKIPING:
+								break;
+							default:
+								state = ERROR;
+							}
+	
+						}
+					} 
+					else if (currentChar == '\n')
+						state = END;
+					else
+						state = ERROR;
+				}
+				if (state == ERROR)
+					normalizedValueBuffer
+							.append("UNEXPECTED ERROR in LinesRangeNormalizer");
+				result = super.normalized(normalizedValueBuffer.toString());
 			}
-			if (state == ERROR)
-				normalizedValueBuffer
-						.append("UNEXPECTED ERROR in LinesRangeNormalizer");
-			return super.normalized(normalizedValueBuffer.toString());
+			return result;
 		}
 	}
 
@@ -448,8 +460,40 @@ public static Test suite() {
 			return normalize == null;
 		if (normalize == null)
 			return false;
-		return keep.equals(normalizer.normalized(normalize));
+		// return keep.equals(normalizer.normalized(normalize));
+		return equals(keep, normalizer.normalized(normalize));
 	}
+private static boolean equals(String a, String b) {
+	StringBuffer aBuffer = new StringBuffer(a), bBuffer = new StringBuffer(b);
+	int length = aBuffer.length();
+	if (length != bBuffer.length()) {
+		System.err.println("a and b lengths differ");
+		return false;
+	}
+	for (int i = 0; i < length; i++)
+		if (aBuffer.charAt(i) != bBuffer.charAt(i)) {
+			int beforeStart = i - 5, beforeEnd = i - 1, afterStart = i + 1, afterEnd = i + 5;
+			if (beforeStart < 0) {
+				beforeStart = 0;
+				if (beforeEnd < 0)
+					beforeEnd = 0;
+			}
+			if (afterEnd >= length) {
+				afterEnd = length - 1;
+				if (afterStart >= length) 
+					afterStart = length - 1;
+			}
+			System.err.println("a and b differ at rank: " + i 
+					+ " a: ..." + aBuffer.substring(beforeStart, beforeEnd) 
+						+ "<" + aBuffer.charAt(i) + ">"
+						+ aBuffer.substring(afterStart, afterEnd) + "..." 
+					+ " b: ..." + bBuffer.substring(beforeStart, beforeEnd) 
+						+ "<" + bBuffer.charAt(i) + ">"
+						+ bBuffer.substring(afterStart, afterEnd) + "..."); 
+			return false;
+		}
+	return true;
+}
 
 public void test001() {
 	
@@ -548,8 +592,7 @@ public void test006() {
 			result);
 }
 // test the tester - runConformTest
-// TODO (maxime) reenable once passing on Linux
-public void _test007(){
+public void test007(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -573,19 +616,18 @@ public void _test007(){
         + " -cp " + JRE_HOME_DIR + "/lib/jce.jar"
         + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "[1 .class file generated]\r\n", 
-        "----------\r\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-        " (at line 1)\r\n" + 
-        "	import java.util.List;\r\n" + 
-        "	       ^^^^^^^^^^^^^^\r\n" + 
-        "The import java.util.List is never used\r\n" + 
-        "----------\r\n" + 
+        "[1 .class file generated]\n", 
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        " (at line 1)\n" + 
+        "	import java.util.List;\n" + 
+        "	       ^^^^^^^^^^^^^^\n" + 
+        "The import java.util.List is never used\n" + 
+        "----------\n" + 
         "1 problem (1 warning)", true);
 }
-// test the tester - runNegativeTest; waiting decision about "errors hide warnings"
-// TODO (maxime) reenable once passing on Linux
-public void _test008(){
+// test the tester - runNegativeTest
+public void test008(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -609,20 +651,19 @@ public void _test008(){
         + " -cp " + JRE_HOME_DIR + "/lib/jce.jar"
         + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "[1 .class file generated]\r\n", 
-        "----------\r\n" + 
-        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-        " (at line 11)\r\n" + 
-        "	Zork z;\r\n" + 
-        "	^^^^\r\n" + 
-        "Zork cannot be resolved to a type\r\n" + 
-        "----------\r\n" + 
+        "[1 .class file generated]\n", 
+        "----------\n" + 
+        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        " (at line 11)\n" + 
+        "	Zork z;\n" + 
+        "	^^^^\n" + 
+        "Zork cannot be resolved to a type\n" + 
+        "----------\n" + 
         "1 problem (1 error)", true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=92398 -- a case that works, another that does not
 // revisit this test case depending on https://bugs.eclipse.org/bugs/show_bug.cgi?id=95349
-// TODO (maxime) reenable once passing on Linux
-public void _test009(){
+public void test009(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -632,7 +673,7 @@ public void _test009(){
 			"	OK2 ok2;\n" + 
 			"	Warn warn;\n" + 
 			"	KO ko;\n" + 
-	        "	Zork z;\r\n" + 
+	        "	Zork z;\n" + 
 			"}",
 			"OK1.java",
 			"/** */\n" + 
@@ -657,37 +698,37 @@ public void _test009(){
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[+OK2.java;~Warn.java;-KO.java]\""
+        + " -cp \"" + OUTPUT_DIR + "[+OK2.java" + File.pathSeparator + "~Warn.java" 
+        	+ File.pathSeparator + "-KO.java]\""
         + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "[5 .class files generated]\r\n", 
-        "----------\r\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-        " (at line 5)\r\n" + 
-        "	Warn warn;\r\n" + 
-        "	^^^^\r\n" + 
-        "Discouraged access: Warn\r\n" + 
-        "----------\r\n" + 
-        "----------\r\n" + 
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-        " (at line 6)\r\n" + 
-        "	KO ko;\r\n" + 
-        "	^^\r\n" + 
-        "Access restriction: KO\r\n" + 
-        "----------\r\n" + 
-        "----------\r\n" + 
-        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-        " (at line 7)\r\n" + 
-        "	Zork z;\r\n" + 
-        "	^^^^\r\n" + 
-        "Zork cannot be resolved to a type\r\n" + 
-        "----------\r\n" + 
+        "[5 .class files generated]\n", 
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        " (at line 5)\n" + 
+        "	Warn warn;\n" + 
+        "	^^^^\n" + 
+        "Discouraged access: Warn\n" + 
+        "----------\n" + 
+        "----------\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        " (at line 6)\n" + 
+        "	KO ko;\n" + 
+        "	^^\n" + 
+        "Access restriction: KO\n" + 
+        "----------\n" + 
+        "----------\n" + 
+        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        " (at line 7)\n" + 
+        "	Zork z;\n" + 
+        "	^^^^\n" + 
+        "Zork cannot be resolved to a type\n" + 
+        "----------\n" + 
         "3 problems (1 error, 2 warnings)",
         true);
 }
 // command line - no user classpath nor bootclasspath
-// TODO (maxime) reenable once passing on Linux
-public void _test010(){
+public void test010(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -709,14 +750,14 @@ public void _test010(){
         + " -1.5 -g -preserveAllLocals"
         + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-        "[1 .class file generated]\r\n", 
-        "----------\r\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-        " (at line 1)\r\n" + 
-        "	import java.util.List;\r\n" + 
-        "	       ^^^^^^^^^^^^^^\r\n" + 
-        "The import java.util.List is never used\r\n" + 
-        "----------\r\n" + 
+        "[1 .class file generated]\n", 
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+        " (at line 1)\n" + 
+        "	import java.util.List;\n" + 
+        "	       ^^^^^^^^^^^^^^\n" + 
+        "The import java.util.List is never used\n" + 
+        "----------\n" + 
         "1 problem (1 warning)", true);
 }
 // command line - unusual classpath (ends with ';', still OK)
@@ -738,8 +779,7 @@ public void test011(){
         true);
 }
 // command line - help
-// TODO (maxime) reenable once passing on Linux
-public void _test012(){
+public void test012(){
 	this.runConformTest(
 		new String[0],
         " -help -showversion -referenceInfo",
@@ -750,19 +790,19 @@ public void _test012(){
         " Possible options are listed below. Options enabled by default are prefixed with \'+\'\n" + 
         " \n" + 
         " Classpath options:\n" + 
-        "    -cp -classpath <directories and zip/jar files separated by ;>\n" + 
+        "    -cp -classpath <directories and zip/jar files separated by " + File.pathSeparator +">\n" + 
         "                       specify location for application classes and sources. Each\n" + 
         "                       directory or file can specify access rules for types between\n" + 
         "                       \'[\' and \']\' (e.g. [-X.java] to deny access to type X)\n" + 
-        "    -bootclasspath <directories and zip/jar files separated by ;>\n" + 
+        "    -bootclasspath <directories and zip/jar files separated by " + File.pathSeparator +">\n" + 
         "                       specify location for system classes. Each directory or file can\n" + 
         "                       specify access rules for types between \'[\' and \']\' (e.g. [-X.java]\n" + 
         "                       to deny access to type X)\n" + 
-        "    -sourcepath <directories and zip/jar files separated by ;>\n" + 
+        "    -sourcepath <directories and zip/jar files separated by " + File.pathSeparator +">\n" + 
         "                       specify location for application sources. Each directory or file can\n" + 
         "                       specify access rules for types between \'[\' and \']\' (e.g. [-X.java]\n" + 
         "                       to deny access to type X)\n" + 
-        "    -extdirs <directories separated by ;>\n" + 
+        "    -extdirs <directories separated by " + File.pathSeparator +">\n" + 
         "                       specify location for extension zip/jar files\n" + 
         "    -d <dir>           destination directory (if omitted, no directory is created)\n" + 
         "    -d none            generate no .class files\n" + 
@@ -858,13 +898,12 @@ public void _test012(){
         "    -? -help           print this help message\n" + 
         "    -v -version        print compiler version\n" + 
         "    -showversion       print compiler version and continue\n" + 
-        "\r\n", 
+        "\n", 
         "", true);
 }
 
 	// command line - xml log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
-	// TODO (maxime) reenable once passing on Linux
-	public void _test013() {
+	public void test013() {
 		String logFileName = OUTPUT_DIR + File.separator + "log.xml";
 		this.runNegativeTest(new String[] { 
 				"X.java",
@@ -876,122 +915,123 @@ public void _test012(){
 				+ " -1.5 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"", 
-				"----------\r\n" + 
-				"1. ERROR in " + OUTPUT_DIR_PLACEHOLDER + "\\X.java\r\n" + 
-				" (at line 3)\r\n" + 
-				"	Zork z;\r\n" + 
-				"	^^^^\r\n" + 
-				"Zork cannot be resolved to a type\r\n" + 
-				"----------\r\n" + 
-				"1 problem (1 error)", 
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+				" (at line 3)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"1 problem (1 error)"
+, 
 				true);
 		String logContents = Util.fileContent(logFileName);
 		String expectedLogContents = 
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" + 
-			"<!DOCTYPE compiler SYSTEM \"compiler.dtd\">\r\n" + 
-			"<compiler name=\"Eclipse Java Compiler\" copyright=\"Copyright IBM Corp 2000, 2005. All rights reserved.\" version=\"0.558, pre-3.1.0 release candidate-1\">\r\n" + 
-			"	<command_line>\r\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\\X.java\"/>\r\n" + 
-			"		<argument value=\"-1.5\"/>\r\n" + 
-			"		<argument value=\"-proceedOnError\"/>\r\n" + 
-			"		<argument value=\"-log\"/>\r\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\\log.xml\"/>\r\n" + 
-			"		<argument value=\"-d\"/>\r\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\"/>\r\n" + 
-			"	</command_line>\r\n" + 
-			"	<options>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.debug.lineNumber\" value=\"generate\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.debug.sourceFile\" value=\"generate\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.doc.comment.support\" value=\"disabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.maxProblemPerUnit\" value=\"100\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotationSuperInterface\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.assertIdentifier\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fieldHiding\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finalParameterBound\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.forbiddenReference\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.indirectStaticAccess\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadoc\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTags\" value=\"enabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef\" value=\"enabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef\" value=\"enabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility\" value=\"private\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.localVariableHiding\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocComments\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding\" value=\"disabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility\" value=\"public\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTags\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding\" value=\"disabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility\" value=\"private\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSerialVersion\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.typeParameterHiding\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unhandledWarningToken\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryElse\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding\" value=\"disabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedImport\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLocal\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameter\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract\" value=\"disabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete\" value=\"disabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember\" value=\"ignore\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\r\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.taskTags\" value=\"\"/>\r\n" + 
-			"	</options>\r\n" + 
-			"	<classpaths>NORMALIZED SECTION</classpaths>\r\n" + 
-			"	<sources>\r\n" + 
-			"		<source path=\"---OUTPUT_DIR_PLACEHOLDER---\\X.java\">\r\n" + 
-			"			<problems problems=\"1\" errors=\"1\" warnings=\"0\">\r\n" + 
-			"				<problem charEnd=\"28\" charStart=\"25\" severity=\"ERROR\" line=\"3\" id=\"UndefinedType\">\r\n" + 
-			"					<message value=\"Zork cannot be resolved to a type\"/>\r\n" + 
-			"					<source_context value=\"Zork z;\" sourceStart=\"0\" sourceEnd=\"3\"/>\r\n" + 
-			"					<arguments>\r\n" + 
-			"						<argument value=\"Zork\"/>\r\n" + 
-			"					</arguments>\r\n" + 
-			"				</problem>\r\n" + 
-			"			</problems>\r\n" + 
-			"			<classfile path=\"---OUTPUT_DIR_PLACEHOLDER---\\X.class\"/>\r\n" + 
-			"		</source>\r\n" + 
-			"	</sources>\r\n" + 
-			"	<stats>\r\n" + 
-			"		<problem_summary problems=\"1\" errors=\"1\" warnings=\"0\" tasks=\"0\"/>\r\n" + 
-			"	</stats>\r\n" + 
-			"</compiler>\r\n";
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<!DOCTYPE compiler SYSTEM \"compiler.dtd\">\n" + 
+			"<compiler name=\"Eclipse Java Compiler\" copyright=\"Copyright IBM Corp 2000, 2005. All rights reserved.\" version=\"0.558, pre-3.1.0 release candidate-1\">\n" + 
+			"	<command_line>\n" + 
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\"/>\n" + 
+			"		<argument value=\"-1.5\"/>\n" + 
+			"		<argument value=\"-proceedOnError\"/>\n" + 
+			"		<argument value=\"-log\"/>\n" + 
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "log.xml\"/>\n" + 
+			"		<argument value=\"-d\"/>\n" + 
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\"/>\n" + 
+			"	</command_line>\n" + 
+			"	<options>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.debug.lineNumber\" value=\"generate\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.debug.sourceFile\" value=\"generate\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.doc.comment.support\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.maxProblemPerUnit\" value=\"100\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotationSuperInterface\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.assertIdentifier\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fieldHiding\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finalParameterBound\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.forbiddenReference\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.indirectStaticAccess\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadoc\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTags\" value=\"enabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef\" value=\"enabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef\" value=\"enabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility\" value=\"private\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.localVariableHiding\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocComments\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility\" value=\"public\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTags\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility\" value=\"private\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSerialVersion\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.typeParameterHiding\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unhandledWarningToken\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryElse\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedImport\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLocal\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameter\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.taskTags\" value=\"\"/>\n" + 
+			"	</options>\n" + 
+			"	<classpaths>NORMALIZED SECTION</classpaths>\n" + 
+			"	<sources>\n" + 
+			"		<source path=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\">\n" + 
+			"			<problems problems=\"1\" errors=\"1\" warnings=\"0\">\n" + 
+			"				<problem charEnd=\"28\" charStart=\"25\" severity=\"ERROR\" line=\"3\" id=\"UndefinedType\">\n" + 
+			"					<message value=\"Zork cannot be resolved to a type\"/>\n" + 
+			"					<source_context value=\"Zork z;\" sourceStart=\"0\" sourceEnd=\"3\"/>\n" + 
+			"					<arguments>\n" + 
+			"						<argument value=\"Zork\"/>\n" + 
+			"					</arguments>\n" + 
+			"				</problem>\n" + 
+			"			</problems>\n" + 
+			"			<classfile path=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.class\"/>\n" + 
+			"		</source>\n" + 
+			"	</sources>\n" + 
+			"	<stats>\n" + 
+			"		<problem_summary problems=\"1\" errors=\"1\" warnings=\"0\" tasks=\"0\"/>\n" + 
+			"	</stats>\n" + 
+			"</compiler>\n";
 		boolean compareOK = semiNormalizedComparison(expectedLogContents,
 				logContents, xmlLogsNormalizer);
 		if (!compareOK) {
@@ -1010,8 +1050,7 @@ public void _test012(){
 	}
 
 	// command line - txt log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
-	// TODO (maxime) reenable once passing on Linux
-	public void _test014() {
+	public void test014() {
 		String logFileName = OUTPUT_DIR + File.separator + "log.txt";
 		this.runNegativeTest(new String[] { 
 				"X.java",
@@ -1023,24 +1062,24 @@ public void _test012(){
 				+ " -1.5 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"", 
-				"----------\r\n" + 
-				"1. ERROR in " + OUTPUT_DIR_PLACEHOLDER + "\\X.java\r\n" + 
-				" (at line 3)\r\n" + 
-				"	Zork z;\r\n" + 
-				"	^^^^\r\n" + 
-				"Zork cannot be resolved to a type\r\n" + 
-				"----------\r\n" + 
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+				" (at line 3)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
 				"1 problem (1 error)", 
 				false);
 		String logContents = Util.fileContent(logFileName);
 		String expectedLogContents = 
-			"----------\r\n" + 
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-			" (at line 3)\r\n" + 
-			"	Zork z;\r\n" + 
-			"	^^^^\r\n" + 
-			"Zork cannot be resolved to a type\r\n" + 
-			"----------\r\n" + 
+			"----------\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+			" (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
 			"1 problem (1 error)";
 		boolean compareOK = semiNormalizedComparison(expectedLogContents,
 				logContents, textLogsNormalizer);
@@ -1060,8 +1099,7 @@ public void _test012(){
 	}
 
 	// command line - no extension log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
-	// TODO (maxime) reenable once passing on Linux
-	public void _test015() {
+	public void test015() {
 		String logFileName = OUTPUT_DIR + File.separator + "log";
 		this.runNegativeTest(new String[] { 
 				"X.java",
@@ -1073,24 +1111,24 @@ public void _test012(){
 				+ " -1.5 -proceedOnError"
 				+ " -log \"" + logFileName + "\" -d \"" + OUTPUT_DIR + "\"",
 				"", 
-				"----------\r\n" + 
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-				" (at line 3)\r\n" + 
-				"	Zork z;\r\n" + 
-				"	^^^^\r\n" + 
-				"Zork cannot be resolved to a type\r\n" + 
-				"----------\r\n" + 
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+				" (at line 3)\n" + 
+				"	Zork z;\n" + 
+				"	^^^^\n" + 
+				"Zork cannot be resolved to a type\n" + 
+				"----------\n" + 
 				"1 problem (1 error)", 
 				false);
 		String logContents = Util.fileContent(logFileName);
 		String expectedLogContents = 
-			"----------\r\n" + 
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-			" (at line 3)\r\n" + 
-			"	Zork z;\r\n" + 
-			"	^^^^\r\n" + 
-			"Zork cannot be resolved to a type\r\n" + 
-			"----------\r\n" + 
+			"----------\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+			" (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
 			"1 problem (1 error)";
 		boolean compareOK = semiNormalizedComparison(expectedLogContents,
 				logContents, textLogsNormalizer);
@@ -1109,8 +1147,7 @@ public void _test012(){
 		assertTrue("unexpected log contents", compareOK);
 	}
 //	 command line - unusual classpath (contains multiple empty members, still OK)
-	// TODO (maxime) reenable once passing on Linux
-	public void _test016(){
+	public void test016(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
@@ -1129,13 +1166,12 @@ public void _test012(){
 	        + " -cp .;;;\"" + OUTPUT_DIR + "\""
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
-	        "[2 .class files generated]\r\n",
+	        "[2 .class files generated]\n",
 	        "",
 	        true);
 	}
 //	 command line - unusual classpath (contains erroneous members, still OK)
-	// TODO (maxime) reenable once passing on Linux
-	public void _test017(){
+	public void test017(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
@@ -1154,10 +1190,10 @@ public void _test012(){
 	        + " -cp dummmy_dir;dummy.jar;;\"" + OUTPUT_DIR + "\"" 
 	        + " -verbose -proceedOnError -referenceInfo" 
 	        + " -d \"" + OUTPUT_DIR + "\"",
-	        "[2 .class files generated]\r\n",
-	        "incorrect classpath: dummmy_dir\r\n" + 
-	        "incorrect classpath: dummy.jar\r\n" + 
-	        "incorrect classpath: dummy.jar\r\n",
+	        "[2 .class files generated]\n",
+	        "incorrect classpath: dummmy_dir\n" + 
+	        "incorrect classpath: dummy.jar\n" + 
+	        "incorrect classpath: dummy.jar\n",
 	        true);
 	}
 // command line - unusual classpath (empty, but using current directory, still OK provided 
@@ -1180,15 +1216,14 @@ public void _test012(){
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
-	        "[2 .class files generated]\r\n",
+	        "[2 .class files generated]\n",
 	        "",
 	        true);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=92398 -- with wildcards 
 // a case that works, another that does not
 // revisit this test case depending on https://bugs.eclipse.org/bugs/show_bug.cgi?id=95349
-// TODO (maxime) reenable once passing on Linux
-	public void _test019(){
+	public void test019(){
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1198,7 +1233,7 @@ public void _test012(){
 				"	OK2 ok2;\n" + 
 				"	Warn warn;\n" + 
 				"	KO ko;\n" + 
-		        "	Zork z;\r\n" + 
+		        "	Zork z;\n" + 
 				"}",
 				"OK1.java",
 				"/** */\n" + 
@@ -1227,34 +1262,33 @@ public void _test012(){
 	        + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
 	        + " -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"", 
-	        "[5 .class files generated]\r\n", 
-	        "----------\r\n" + 
-	        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-	        " (at line 5)\r\n" + 
-	        "	Warn warn;\r\n" + 
-	        "	^^^^\r\n" + 
-	        "Discouraged access: Warn\r\n" + 
-	        "----------\r\n" + 
-	        "----------\r\n" + 
-	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-	        " (at line 6)\r\n" + 
-	        "	KO ko;\r\n" + 
-	        "	^^\r\n" + 
-	        "Access restriction: KO\r\n" + 
-	        "----------\r\n" + 
-	        "----------\r\n" + 
-	        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-	        " (at line 7)\r\n" + 
-	        "	Zork z;\r\n" + 
-	        "	^^^^\r\n" + 
-	        "Zork cannot be resolved to a type\r\n" + 
-	        "----------\r\n" + 
+	        "[5 .class files generated]\n", 
+	        "----------\n" + 
+	        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+	        " (at line 5)\n" + 
+	        "	Warn warn;\n" + 
+	        "	^^^^\n" + 
+	        "Discouraged access: Warn\n" + 
+	        "----------\n" + 
+	        "----------\n" + 
+	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+	        " (at line 6)\n" + 
+	        "	KO ko;\n" + 
+	        "	^^\n" + 
+	        "Access restriction: KO\n" + 
+	        "----------\n" + 
+	        "----------\n" + 
+	        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+	        " (at line 7)\n" + 
+	        "	Zork z;\n" + 
+	        "	^^^^\n" + 
+	        "Zork cannot be resolved to a type\n" + 
+	        "----------\n" + 
 	        "3 problems (1 error, 2 warnings)",
 	        true);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - skip options -O -Jxxx and -Xxxx, multiple times if needed
-// TODO (maxime) reenable once passing on Linux
-	public void _test020(){
+	public void test020(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
@@ -1266,13 +1300,12 @@ public void _test012(){
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" -O -Xxxx -O -Jxyz -Xtyu -Jyu",
-	        "[1 .class file generated]\r\n",
+	        "[1 .class file generated]\n",
 	        "",
 	        true);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -sourcepath finds additional source files
-// TODO (maxime) reenable once passing on Linux
-	public void _test021(){
+	public void test021(){
 		this.runConformTest(
 			new String[] {
 					"src1/X.java",
@@ -1290,14 +1323,13 @@ public void _test012(){
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" ",
-	        "[2 .class files generated]\r\n",
+	        "[2 .class files generated]\n",
 	        "",
 	        true);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - repeated -sourcepath fails - even if the error is more
 // explicit here than what javac does
-// TODO (maxime) reenable once passing on Linux
-	public void _test022(){
+	public void test022(){
 		this.runNegativeTest(
 			new String[] {
 					"src1/X.java",
@@ -1316,12 +1348,11 @@ public void _test012(){
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\" ",
 	        "",
-	        "duplicate sourcepath specification: -sourcepath\r\n",
+	        "duplicate sourcepath specification: -sourcepath\n",
 	        true);
 	}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - repeated -extdirs fails
-// TODO (maxime) reenable once passing on Linux
-		public void _test023(){
+		public void test023(){
 			this.runNegativeTest(
 				new String[] {
 						"src1/X.java",
@@ -1340,12 +1371,11 @@ public void _test012(){
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
 		        "",
-		        "duplicate extdirs specification: -extdirs\r\n",
+		        "duplicate extdirs specification: -extdirs\n",
 		        true);
 		}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - explicit empty -extdirs removes extensions
-// TODO (maxime) reenable once passing on Linux
-		public void _test024(){
+		public void test024(){
 			this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -1359,20 +1389,19 @@ public void _test012(){
 		        + " -1.5 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
-		        "[1 .class file generated]\r\n",
-		        "----------\r\n" + 
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-		        " (at line 3)\r\n" + 
-		        "	sun.net.spi.nameservice.dns.DNSNameService dummy;\r\n" + 
-		        "	^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n" + 
-		        "sun.net.spi.nameservice.dns cannot be resolved to a type\r\n" + 
-		        "----------\r\n" + 
+		        "[1 .class file generated]\n",
+		        "----------\n" + 
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+		        " (at line 3)\n" + 
+		        "	sun.net.spi.nameservice.dns.DNSNameService dummy;\n" + 
+		        "	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		        "sun.net.spi.nameservice.dns cannot be resolved to a type\n" + 
+		        "----------\n" + 
 		        "1 problem (1 error)",
 		        true);
 		}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
-// TODO (maxime) reenable once passing on Linux
-		public void _test025(){
+		public void test025(){
 			this.runConformTest(
 				new String[] {
 						"src1/X.java",
@@ -1391,13 +1420,12 @@ public void _test012(){
 		        + " -1.5 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
-		        "[2 .class files generated]\r\n",
+		        "[2 .class files generated]\n",
 		        "",
 		        true);
 		}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -extdirs extends the classpath before -classpath
-// TODO (maxime) reenable once passing on Linux
-		public void _test026(){
+		public void test026(){
 			this.runConformTest(
 				new String[] {
 						"src1/X.java",
@@ -1421,15 +1449,14 @@ public void _test012(){
 		        + " -1.5 -g -preserveAllLocals"
 		        + " -verbose -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + "\" ",
-		        "[2 .class files generated]\r\n",
+		        "[2 .class files generated]\n",
 				"",
 		        true);
 		}
 		
 //		 https://bugs.eclipse.org/bugs/show_bug.cgi?id=92398 -- a case that works, another that does not
 //		 revisit this test case depending on https://bugs.eclipse.org/bugs/show_bug.cgi?id=95349
-// TODO (maxime) reenable once passing on Linux
-		public void _test027(){
+		public void test027(){
 			this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -1439,7 +1466,7 @@ public void _test012(){
 					"	OK2 ok2;\n" + 
 					"	Warn warn;\n" + 
 					"	KO ko;\n" + 
-			        "	Zork z;\r\n" + 
+			        "	Zork z;\n" + 
 					"}",
 					"OK1.java",
 					"/** */\n" + 
@@ -1468,30 +1495,63 @@ public void _test012(){
 		        + OUTPUT_DIR + File.separator + "p1[~Warn.java]\""
 		        + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
 		        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
-		        "[5 .class files generated]\r\n", 
-		        "----------\r\n" + 
-		        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-		        " (at line 5)\r\n" + 
-		        "	Warn warn;\r\n" + 
-		        "	^^^^\r\n" + 
-		        "Discouraged access: Warn\r\n" + 
-		        "----------\r\n" + 
-		        "----------\r\n" + 
-		        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-		        " (at line 6)\r\n" + 
-		        "	KO ko;\r\n" + 
-		        "	^^\r\n" + 
-		        "Access restriction: KO\r\n" + 
-		        "----------\r\n" + 
-		        "----------\r\n" + 
-		        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
-		        " (at line 7)\r\n" + 
-		        "	Zork z;\r\n" + 
-		        "	^^^^\r\n" + 
-		        "Zork cannot be resolved to a type\r\n" + 
-		        "----------\r\n" + 
+		        "[5 .class files generated]\n", 
+		        "----------\n" + 
+		        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+		        " (at line 5)\n" + 
+		        "	Warn warn;\n" + 
+		        "	^^^^\n" + 
+		        "Discouraged access: Warn\n" + 
+		        "----------\n" + 
+		        "----------\n" + 
+		        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+		        " (at line 6)\n" + 
+		        "	KO ko;\n" + 
+		        "	^^\n" + 
+		        "Access restriction: KO\n" + 
+		        "----------\n" + 
+		        "----------\n" + 
+		        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\n" + 
+		        " (at line 7)\n" + 
+		        "	Zork z;\n" + 
+		        "	^^^^\n" + 
+		        "Zork cannot be resolved to a type\n" + 
+		        "----------\n" + 
 		        "3 problems (1 error, 2 warnings)",
 		        true);
+		}
+// command line - classpath includes output directory
+		public void test028(){
+			this.runConformTest(
+				new String[] {
+					"src1/X.java",
+					"/** */\n" + 
+					"public class X {\n" + 
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "src1/X.java\""
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -proceedOnError -referenceInfo" 
+		        + " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
+		        "",
+		        "",
+		        true);
+			this.runConformTest(
+				new String[] {
+					"src2/Y.java",
+					"/** */\n" + 
+					"public class Y extends X {\n" + 
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -cp dummy;\"" + OUTPUT_DIR + File.separator + "bin\";dummy"
+		        + " -proceedOnError -referenceInfo"
+		        + " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
+		        "",
+		        "incorrect classpath: dummy\n" + 
+		        "incorrect classpath: dummy\n",
+		        false);
 		}
 public static Class testClass() {
 	return BatchCompilerTest.class;
