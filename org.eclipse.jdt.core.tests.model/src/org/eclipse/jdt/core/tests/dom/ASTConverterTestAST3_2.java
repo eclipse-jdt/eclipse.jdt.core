@@ -105,7 +105,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 607 };
+//		TESTS_NUMBERS =  new int[] { 608, 609 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -6380,5 +6380,64 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setSource(source);
 		ASTNode root = parser.createAST(null);
 		assertNotNull("cannot be null", root);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=96698
+	 */
+	public void test0608() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    for (int /*start*/i = 0/*end*/; i < args.length; i++) {\n" +
+				"		System.out.println(args[i]);\n" +
+				"	 }\n" +
+				"  }\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a variable declaration fragment", ASTNode.VARIABLE_DECLARATION_FRAGMENT, node.getNodeType());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) node;
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			IJavaElement javaElement = variableBinding.getJavaElement();
+			assertNotNull("No java element", javaElement);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=96698
+	 */
+	public void test0609() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    int /*start*/i = 0/*end*/;\n" +
+				"	 System.out.println(i);\n" +
+				"  }\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a variable declaration fragment", ASTNode.VARIABLE_DECLARATION_FRAGMENT, node.getNodeType());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) node;
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			IJavaElement javaElement = variableBinding.getJavaElement();
+			assertNotNull("No java element", javaElement);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }

@@ -160,9 +160,9 @@ class VariableBinding implements IVariableBinding {
 		} else {
 			nameStart =  localVar.getStartPosition();
 			nameLength = localVar.getLength();
-			VariableDeclarationStatement statement = (VariableDeclarationStatement) localVar.getParent();
-			sourceStart = statement.getStartPosition();
-			sourceLength = statement.getLength();
+			ASTNode node = localVar.getParent();
+			sourceStart = node.getStartPosition();
+			sourceLength = node.getLength();
 		}
 		char[] typeSig = this.binding.type.genericTypeSignature();
 		return new LocalVariable(method, localVar.getName().getIdentifier(), sourceStart, sourceStart+sourceLength-1, nameStart, nameStart+nameLength-1, new String(typeSig));
