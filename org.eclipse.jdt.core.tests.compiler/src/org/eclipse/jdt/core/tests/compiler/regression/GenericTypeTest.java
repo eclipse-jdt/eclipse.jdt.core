@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 650 };
+//		TESTS_NUMBERS = new int[] { 700 };
 //		TESTS_RANGE = new int[] { 514, -1 };
 	}
 	public static Test suite() {
@@ -20247,7 +20247,7 @@ public void _test700() {
 			"interface StringFactory {\n" + 
 			"	public String create() throws Exception;\n" + 
 			"}\n" + 
-			"class X extends BaseFactory<String> implements StringFactory {\n" + 
+			"public class X extends BaseFactory<String> implements StringFactory {\n" + 
 			"	@Override\n" + 
 			"	public Class<String> getType() {\n" + 
 			"		return String.class;\n" + 
@@ -20258,21 +20258,6 @@ public void _test700() {
 			"	}\n" + 
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X2.java (at line 6)\n" + 
-		"	Other2<? extends List<Throwable>> other1;\n" + 
-		"	       ^^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends List<Throwable> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
-		"----------\n" + 
-		"2. ERROR in X2.java (at line 7)\n" + 
-		"	Other2<? extends List<? super String>> other2;	\n" + 
-		"	       ^^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends List<? super String> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
-		"----------\n" + 
-		"3. ERROR in X2.java (at line 8)\n" + 
-		"	Other2<? extends List<? extends String>> other3;		\n" + 
-		"	       ^^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends List<? extends String> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
-		"----------\n");
+		"We have \'\' of type class java.lang.String");
 }
 }
