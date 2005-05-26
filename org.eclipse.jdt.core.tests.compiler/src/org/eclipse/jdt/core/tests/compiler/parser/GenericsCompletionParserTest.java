@@ -8053,4 +8053,94 @@ public void test0185(){
 			expectedReplacedSource,
 	"diet ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93119
+ */
+public void test0186(){
+	String str =
+		"public class Test {\n" + 
+		"  List<? ext\n" + 
+		"}\n";
+
+	String completeBehind = "ext";
+	int cursorLocation = str.indexOf("ext") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ext";
+	String expectedReplacedSource = "ext";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  List<? extends <CompleteOnKeyword:ext>>;\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93119
+ */
+public void test0187(){
+	String str =
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    List<? ext\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "ext";
+	int cursorLocation = str.indexOf("ext") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "ext";
+	expectedReplacedSource = "ext";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    List<? extends <CompleteOnKeyword:ext>>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

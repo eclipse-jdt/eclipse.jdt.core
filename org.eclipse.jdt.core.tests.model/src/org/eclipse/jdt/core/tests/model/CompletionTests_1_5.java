@@ -6854,4 +6854,164 @@ public void test0216() throws JavaModelException {
 		}
 	}
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93119
+ */
+public void test0217() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0217/AType.java",
+				"package test0217;\n"+
+				"\n"+
+				"public class AType<T> {\n"+
+				"}");
+		
+
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0217/Test.java",
+	            "package test0217;\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	AType<? ext\n" +
+	            "}",
+            	"ext");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93119
+ */
+public void test0218() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0218/AType.java",
+				"package test0218;\n"+
+				"\n"+
+				"public class AType<T> {\n"+
+				"}");
+		
+
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0218/Test.java",
+	            "package test0218;\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	AType<? sup\n" +
+	            "}",
+            	"sup");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"super[KEYWORD]{super, null, null, super, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93119
+ */
+public void test0219() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0219/AType.java",
+				"package test0219;\n"+
+				"\n"+
+				"public class AType<T> {\n"+
+				"}");
+		
+
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0219/Test.java",
+	            "package test0219;\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	void foo() {\n" +
+	            "	  AType<? ext\n" +
+	            "	}\n" +
+	            "}",
+            	"ext");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=93119
+ */
+public void test0220() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0220/AType.java",
+				"package test0220;\n"+
+				"\n"+
+				"public class AType<T> {\n"+
+				"}");
+		
+
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0220/Test.java",
+	            "package test0220;\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	void foo() {\n" +
+	            "	  AType<? sup\n" +
+	            "	}\n" +
+	            "}",
+            	"sup");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"super[KEYWORD]{super, null, null, super, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+	}
+}
 }

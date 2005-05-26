@@ -299,6 +299,14 @@ protected void attachOrphanCompletionNode(){
 		}
 	}
 	
+	if(this.genericsPtr > -1) {
+		ASTNode node = this.genericsStack[this.genericsPtr];
+		if(node instanceof Wildcard && ((Wildcard)node).bound == this.assistNode){
+			buildMoreGenericsCompletionContext(node);
+			return;
+		}
+	}
+	
 	if(this.currentElement instanceof RecoveredType || this.currentElement instanceof RecoveredMethod) {
 		if(this.currentElement instanceof RecoveredType) {
 			RecoveredType recoveredType = (RecoveredType)this.currentElement;
@@ -375,8 +383,7 @@ protected void attachOrphanCompletionNode(){
 					return;
 				}
 			}
-			if(node == this.assistNode ||
-					((Wildcard)node).bound == this.assistNode){
+			if(node == this.assistNode){
 				buildMoreGenericsCompletionContext(node);
 			}
 		}
@@ -846,7 +853,11 @@ private void buildMoreGenericsCompletionContext(ASTNode node) {
 						if(prevKind == K_PARAMETERIZED_CAST) {
 							ref = computeQualifiedGenericsFromRightSide(ref, 0);
 						}
-						currentElement = currentElement.add(ref, 0);
+						if(currentElement instanceof RecoveredType) {
+							currentElement = currentElement.add(new CompletionOnFieldType(ref, false), 0);
+						} else {
+							currentElement = currentElement.add(ref, 0);
+						}
 					} else if (currentElement.enclosingMethod().methodDeclaration.isConstructor()) {
 						currentElement = currentElement.add((TypeReference)node, 0);
 					}
@@ -2807,6 +2818,32 @@ protected void consumeTypeParameter1WithExtends() {
 protected void consumeTypeParameter1WithExtendsAndBounds() {
 	super.consumeTypeParameter1WithExtendsAndBounds();
 	popElement(K_EXTENDS_KEYWORD);
+}
+protected void consumeWildcard() {
+	super.consumeWildcard();
+	if (assistIdentifier() == null && this.currentToken == TokenNameIdentifier) { // Test below copied from CompletionScanner.getCurrentIdentifierSource()
+		if (cursorLocation < this.scanner.startPosition && this.scanner.currentPosition == this.scanner.startPosition){ // fake empty identifier got issued
+			this.pushIdentifier();					
+		} else if (cursorLocation+1 >= this.scanner.startPosition && cursorLocation < this.scanner.currentPosition){
+			this.pushIdentifier();
+		} else {
+			return;
+		}
+	} else {
+		return;
+	}
+	Wildcard wildcard = (Wildcard) this.genericsStack[this.genericsPtr];
+	wildcard.kind = Wildcard.EXTENDS;
+	wildcard.bound = new CompletionOnKeyword1(
+		identifierStack[this.identifierPtr],
+		identifierPositionStack[this.identifierPtr],
+		new char[][]{Keywords.EXTENDS, Keywords.SUPER} );
+	
+	this.identifierPtr--;
+	this.identifierLengthPtr--;
+	
+	this.assistNode = wildcard.bound;
+	this.lastCheckPoint = wildcard.bound.sourceEnd + 1;
 }
 protected void consumeWildcard1() {
 	super.consumeWildcard1();
