@@ -37,9 +37,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			TypeVariableBinding[] typeVariables = currentType.typeVariables();
 			TypeBinding[] argTypes = parameterizedType.arguments;
 			if (argTypes != null && typeVariables != null) { // may be null in error cases
-				for (int i = 0, argLength = typeVariables.length; i < argLength; i++)
-					if (typeVariables[i].boundCheck(parameterizedType, argTypes[i]) != TypeConstants.OK)
-						scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
+				parameterizedType.boundCheck(scope, this.typeArguments);
 			}
 		}
 	}
@@ -140,7 +138,6 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		     }
 		}
 		if (argHasError) return null;
-// TODO (philippe)	if ((this.bits & ASTNode.IsSuperType) != 0)
 		if (isClassScope)
 			if (((ClassScope) scope).detectHierarchyCycle(currentType, this, argTypes))
 				return null;
@@ -166,9 +163,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	    	ParameterizedTypeBinding parameterizedType = scope.createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, enclosingType);
 			// check argument type compatibility
 			if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
-				for (int i = 0; i < argLength; i++)
-				    if (typeVariables[i].boundCheck(parameterizedType, argTypes[i]) != TypeConstants.OK)
-						scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[i]);
+				parameterizedType.boundCheck(scope, this.typeArguments);
 	
 			this.resolvedType = parameterizedType;
 			if (isTypeUseDeprecated(this.resolvedType, scope))

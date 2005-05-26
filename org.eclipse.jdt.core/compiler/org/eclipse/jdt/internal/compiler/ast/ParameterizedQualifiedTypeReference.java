@@ -51,9 +51,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			TypeVariableBinding[] typeVariables = currentType.typeVariables();
 			TypeBinding[] argTypes = parameterizedType.arguments;
 			if (argTypes != null && typeVariables != null) { // argTypes may be null in error cases
-				for (int i = 0, argLength = typeVariables.length; i < argLength; i++)
-				    if (typeVariables[i].boundCheck(parameterizedType, argTypes[i])  != TypeConstants.OK)
-						scope.problemReporter().typeMismatchError(argTypes[i], typeVariables[i], currentType, this.typeArguments[index][i]);
+				parameterizedType.boundCheck(scope, this.typeArguments[index]);
 			}
 		}
 	}
@@ -169,7 +167,6 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				if (argHasError) {
 					return null;
 				}
-// TODO (philippe)	if ((this.bits & ASTNode.IsSuperType) != 0)
 				if (isClassScope)
 					if (((ClassScope) scope).detectHierarchyCycle(currentType, this, argTypes))
 						return null;
@@ -204,13 +201,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					ParameterizedTypeBinding parameterizedType = scope.createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, qualifiedType);
 					// check argument type compatibility
 					if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
-						for (int j = 0; j < argLength; j++)
-						    if (typeVariables[j].boundCheck(parameterizedType, argTypes[j]) != TypeConstants.OK)
-								scope.problemReporter().typeMismatchError(argTypes[j], typeVariables[j], currentType, args[j]);
+						parameterizedType.boundCheck(scope, args);
 					qualifiedType = parameterizedType;
 			    }
 		    } else {
-// TODO (philippe)	if ((this.bits & ASTNode.IsSuperType) != 0)
 				if (isClassScope)
 					if (((ClassScope) scope).detectHierarchyCycle(currentType, this, null))
 						return null;

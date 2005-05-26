@@ -56,19 +56,58 @@ public class TypeVariableBinding extends ReferenceBinding {
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
 			return TypeConstants.MISMATCH;	
 		
-	    if (argumentType.isWildcard()) {
-	        WildcardBinding wildcard = (WildcardBinding) argumentType;
-	        switch (wildcard.boundKind) {
-	        	case Wildcard.SUPER :
-//		            if (boundCheck(substitution, wildcard.bound) != TypeConstants.OK) return TypeConstants.MISMATCH;
-//		            break;
-		            return boundCheck(substitution, wildcard.bound); // only check the lower bound
+		if (argumentType.isWildcard()) {
+			WildcardBinding wildcard = (WildcardBinding) argumentType;
+			switch(wildcard.boundKind) {
+				case Wildcard.EXTENDS :
+					ReferenceBinding superclassBound = (ReferenceBinding)Scope.substitute(substitution, this.superclass());
+					TypeBinding wildcardBound = wildcard.bound;
+					boolean isArrayBound = wildcardBound.isArrayType();
+					if (!wildcardBound.isInterface()) {
+						if (isArrayBound) {
+							if (!wildcardBound.isCompatibleWith(superclassBound))
+								return TypeConstants.MISMATCH;
+						} else {
+							ReferenceBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeErasingTo((ReferenceBinding)superclassBound.erasure());
+							if (match != null) {
+								if (!match.isIntersectingWith(superclassBound)) {
+									return TypeConstants.MISMATCH;
+								}
+							} else {
+								return TypeConstants.MISMATCH;
+							}
+						}
+					}
+					ReferenceBinding[] superInterfaceBounds = Scope.substitute(substitution, this.superInterfaces());
+					int length = superInterfaceBounds.length;
+					boolean mustImplement = isArrayBound || ((ReferenceBinding)wildcardBound).isFinal();
+					for (int i = 0; i < length; i++) {
+						TypeBinding superInterfaceBound = superInterfaceBounds[i];
+						if (isArrayBound) {
+							if (!wildcardBound.isCompatibleWith(superInterfaceBound))
+									return TypeConstants.MISMATCH;
+						} else {
+							ReferenceBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeErasingTo((ReferenceBinding)superInterfaceBound.erasure());
+							if (match != null) {
+								if (!match.isIntersectingWith(superInterfaceBound)) {
+									return TypeConstants.MISMATCH;
+								}
+							} else if (mustImplement) {
+									return TypeConstants.MISMATCH; // cannot be extended further to satisfy missing bounds
+							}
+						}
+
+					}
+					break;
+					
+				case Wildcard.SUPER :
+					return boundCheck(substitution, wildcard.bound);
+					
 				case Wildcard.UNBOUND :
-					if (this == wildcard.typeVariable()) 
-						return TypeConstants.OK;
-					break;	        		
-	        }
-	    }
+					break;
+			}
+			return TypeConstants.OK;
+		}
 		boolean unchecked = false;
 		if (this.superclass.id != T_JavaLangObject) {
 			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superclass) : this.superclass;
@@ -83,7 +122,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 					if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
 						unchecked = true;
 				}
-			}
+			} 
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
 			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces[i]) : this.superInterfaces[i];
@@ -326,13 +365,7 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 		}
 		return false;
 	}
-	/**
-	 * Returns true if the type was declared as a type variable
-	 */
-	public boolean isTypeVariable() {
-	    return true;
-	}
-
+	
 	/**
 	 * Returns true if the 2 variables are playing exact same role: they have
 	 * the same bounds, providing one is substituted with the other: <T1 extends
@@ -374,6 +407,13 @@ public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
 			if (this.superInterfaces[i] != Scope.substitute(subst, otherVariable.superInterfaces[i]))
 				return false;
 		return true;
+	}
+	
+	/**
+	 * Returns true if the type was declared as a type variable
+	 */
+	public boolean isTypeVariable() {
+	    return true;
 	}
 
 	/** 

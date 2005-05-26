@@ -285,7 +285,7 @@ public abstract class Expression extends Statement {
 							return false;
 						}
 						// recurse on array type elements
-						return checkCastTypesCompatibility(scope, ((ArrayBinding) castType).elementsType(), exprElementType, expression);						
+						return checkCastTypesCompatibility(scope, castElementType, exprElementType, expression);
 						
 					case Binding.TYPE_PARAMETER : 
 						// ( TYPE_PARAMETER ) ARRAY

@@ -19670,19 +19670,20 @@ public void test675() {
 			"class Store<F extends Key<F>> {}\n" + 
 			"\n" + 
 			"public class X<T> {\n" + 
-			"	Store<? extends Key<T>> store;\n" + 
+			"	Store<? extends Key<T>> store1;\n" + 
+			"	Store<? extends Key<? extends T>> store2;\n" + 
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	Store<? extends Key<T>> store;\n" + 
-		"	      ^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends Key<T> is not a valid substitute for the bounded parameter <F extends Key<F>> of the type Store<F>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	Store<? extends Key<T>> store;\n" + 
+		"1. ERROR in X.java (at line 5)\r\n" + 
+		"	Store<? extends Key<T>> store1;\r\n" + 
 		"	                    ^\n" + 
 		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\r\n" + 
+		"	Store<? extends Key<? extends T>> store2;\r\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
 		"----------\n");
 }	
 //check fault tolerance, in spite of bound mismatch, still pass param type for further resolving message send
@@ -19769,7 +19770,7 @@ public void test678() {
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
 public void test679() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"class Key<E, F extends Key<E, F>> {}\n" + 
@@ -19779,16 +19780,11 @@ public void test679() {
 			"	Store<K, ? extends Key<K, ?>> store;\n" + 
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	Store<K, ? extends Key<K, ?>> store;\n" + 
-		"	         ^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends Key<K,?> is not a valid substitute for the bounded parameter <B extends Key<A,B>> of the type Store<A,B>\n" + 
-		"----------\n");
+		"");
 }	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
 public void test680() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"import java.util.List;\n" + 
@@ -19802,16 +19798,11 @@ public void test680() {
 			"	List<Store<K, ?, ? extends Key<K, ?, ?, ?>, ? extends State<?>>> stores;\n" + 
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	List<Store<K, ?, ? extends Key<K, ?, ?, ?>, ? extends State<?>>> stores;\n" + 
-		"	                 ^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends Key<K,?,?,?> is not a valid substitute for the bounded parameter <C extends Key<A,B,C,D>> of the type Store<A,B,C,D>\n" + 
-		"----------\n");
-}
+		"");
+}	
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
 public void test681() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"class Key<E, K extends Key<E, K>> {\n" + 
@@ -19830,14 +19821,9 @@ public void test681() {
 			"	Y<?, ?> y;\n" + 
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	Store<E, ? extends Key<E, ?>> store2;\n" + 
-		"	         ^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The type ? extends Key<E,?> is not a valid substitute for the bounded parameter <K extends Key<E,K>> of the type Store<E,K>\n" + 
-		"----------\n");
-}
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96134
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95963
 public void test682() {
 	this.runNegativeTest(
 		new String[] {
@@ -19852,5 +19838,441 @@ public void test682() {
 		"X.M cannot be resolved to a type\n" + 
 		"----------\n"
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96085
+public void test683() {
+	this.runConformTest(
+		new String[] {
+			"P.java",
+			"interface P<V> {\n" + 
+			"    interface A {}\n" + 
+			"}\n",
+			"P2.java",
+			"class P2 implements P.A {\n" + 
+			"    P2(P.A problem) {}\n" + 
+			"}\n",
+			"P3.java",
+			"class P3 {\n" + 
+			"    void test() {P.A o = new P2((P.A) null);}\n" + 
+			"}\n",
+		},
+		"");
+}
+public void test684() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	<U> U foo(U u1, U u2) {\n" + 
+			"		return u1;\n" + 
+			"	}\n" + 
+			"	void bar(X<? extends Throwable> x1, X<? extends Runnable> x2) {\n" + 
+			"		X<String> x = foo(x1, x2);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<String> x = foo(x1, x2);\n" + 
+		"	          ^\n" + 
+		"Type mismatch: cannot convert from X<capture-of ? extends Object> to X<String>\n" + 
+		"----------\n");
+}	
+public void test685() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	<U> U foo(U u1, U u2) {\n" + 
+			"		return u1;\n" + 
+			"	}\n" + 
+			"	void bar(X<? extends Throwable> x1, X<? extends Runnable> x2) {\n" + 
+			"		X<String> x = foo(x1, x2);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<String> x = foo(x1, x2);\n" + 
+		"	          ^\n" + 
+		"Type mismatch: cannot convert from X<capture-of ? extends Object> to X<String>\n" + 
+		"----------\n");
+}	
+// check wildcard bounds wrt variable boundCheck
+public void test686() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"class Other<T extends List<? extends Runnable>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Other<? extends List<? extends Throwable>> other1;\n" + 
+			"	Other<? extends List<? super String>> other2;	\n" + 
+			"	Other<? extends List<? extends String>> other3;		\n" + 
+			"	Other<? extends List<? extends Runnable>> other7 = other1;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Other<? extends List<? super String>> other2;	\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? super String> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Other<? extends List<? extends String>> other3;		\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? extends String> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n");
+}
+// check wildcard bounds wrt variable boundCheck
+public void test687() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"class Other<T extends List<? extends Runnable>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Other<? extends List<?>> other2;\n" + 
+			"	Other<? extends List<? super Throwable>> other3;\n" + 
+			"	Other<? super List<? extends Throwable>> other4;\n" + 
+			"	Other<? super List<?>> other5;\n" + 
+			"	Other<? super List<? super Throwable>> other6;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Other<? extends List<? super Throwable>> other3;\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? super Throwable> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Other<? super List<? extends Throwable>> other4;\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super List<? extends Throwable> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	Other<? super List<?>> other5;\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super List<?> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
+		"	Other<? super List<? super Throwable>> other6;\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super List<? super Throwable> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n");
+}
+// check wildcard bounds wrt variable boundCheck
+public void test688() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"class Other<T extends List<? extends Runnable>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Other<? super List<? extends Runnable>> other5;\n" + 
+			"}\n",
+		},
+		"");
+}
+// check wildcard bounds wrt variable boundCheck
+public void test689() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"class Other<T extends List<? extends Runnable>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Other<? super List<? super Runnable>> other5;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Other<? super List<? super Runnable>> other5;\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super List<? super Runnable> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n");
+}
+// check assignment rules across param types with wildcards
+public void test690() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"	void foo(List<? extends Runnable> lr, List<?> la) {\n" + 
+			"		lr = la;\n" + 
+			"		la = lr;\n" + 
+			"	}\n" + 
+			"}         \n" + 
+			"\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	lr = la;\n" + 
+		"	     ^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ?> to List<? extends Runnable>\n" + 
+		"----------\n");
+}
+// check that final class bound is more restrictive
+public void test691() {
+	this.runNegativeTest(
+		new String[] {
+			"XX.java",
+			"public class XX<T extends Runnable> {\n" + 
+			"	void foo(XX<?> lhs, XX<? extends String> rhs) {\n" + 
+			"		lhs = rhs;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in XX.java (at line 2)\n" + 
+		"	void foo(XX<?> lhs, XX<? extends String> rhs) {\n" + 
+		"	                       ^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends String is not a valid substitute for the bounded parameter <T extends Runnable> of the type XX<T>\n" + 
+		"----------\n");
+}
+// check wildcard bounds wrt variable boundCheck
+public void test692() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X<T extends List<Object>> {\n" + 
+			"	\n" + 
+			"	void foo(X<? extends List<String>> x) {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	void foo(X<? extends List<String>> x) {\n" + 
+		"	           ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<String> is not a valid substitute for the bounded parameter <T extends List<Object>> of the type X<T>\n" + 
+		"----------\n");
+}	
+// bound checks
+public void test693() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Runnable> {\n" + 
+			"	X<X<String>> x1;\n" + 
+			"	X<? extends String> x2;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	X<X<String>> x1;\n" + 
+		"	  ^\n" + 
+		"Bound mismatch: The type X<String> is not a valid substitute for the bounded parameter <T extends Runnable> of the type X<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	X<X<String>> x1;\n" + 
+		"	    ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends Runnable> of the type X<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	X<? extends String> x2;\n" + 
+		"	  ^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends String is not a valid substitute for the bounded parameter <T extends Runnable> of the type X<T>\n" + 
+		"----------\n");
+}	
+// bound checks
+public void test694() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends X<T>> {\n" + 
+			"	X<X<X<String>>> x1;\n" + 
+			"	X<? extends X<? extends X<String>>> x2;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	X<X<X<String>>> x1;\n" + 
+		"	  ^\n" + 
+		"Bound mismatch: The type X<X<String>> is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	X<X<X<String>>> x1;\n" + 
+		"	    ^\n" + 
+		"Bound mismatch: The type X<String> is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	X<X<X<String>>> x1;\n" + 
+		"	      ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 3)\n" + 
+		"	X<? extends X<? extends X<String>>> x2;\n" + 
+		"	              ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends X<String> is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 3)\n" + 
+		"	X<? extends X<? extends X<String>>> x2;\n" + 
+		"	                          ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n");
+}	
+// bound checks
+public void test695() {
+	this.runConformTest(
+		new String[] {
+			"I.java",
+			"interface I<T extends I<? extends T>> {\n" + 
+			"}\n",
+		},
+		"");
+}
+public void test696() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Key<E extends Key<E>> {}\n" + 
+			"class Store<F extends Key<F>> {}\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"	Store<? extends Key<T>> store = new Store<Key<T>>();\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Store<? extends Key<T>> store = new Store<Key<T>>();\n" + 
+		"	                    ^\n" + 
+		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	Store<? extends Key<T>> store = new Store<Key<T>>();\n" + 
+		"	                                          ^^^\n" + 
+		"Bound mismatch: The type Key<T> is not a valid substitute for the bounded parameter <F extends Key<F>> of the type Store<F>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Store<? extends Key<T>> store = new Store<Key<T>>();\n" + 
+		"	                                              ^\n" + 
+		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
+		"----------\n");
+}
+public void test697() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"public class X<U, V extends List<U>> {\n" + 
+			"	V v;\n" + 
+			"	\n" + 
+			"	void foo(X<String, ?> x1, X<Object, ?> x2) {\n" + 
+			"		String s =x1.v.get(0);\n" + 
+			"		Object o = x2.v.get(0);\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+public void test698() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X<U extends List<Object>, V extends List<String>> {\n" + 
+			"	\n" + 
+			"	X<? super Exception, ? super Exception> x;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X<? super Exception, ? super Exception> x;\n" + 
+		"	  ^^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super Exception is not a valid substitute for the bounded parameter <U extends List<Object>> of the type X<U,V>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	X<? super Exception, ? super Exception> x;\n" + 
+		"	                     ^^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super Exception is not a valid substitute for the bounded parameter <V extends List<String>> of the type X<U,V>\n" + 
+		"----------\n");
+}
+public void test699() {
+	this.runNegativeTest(
+		new String[] {
+			"X2.java",
+			"import java.util.List;\n" + 			
+			"class Other2<T extends List< Runnable>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class X2 {\n" + 
+			"	Other2<? extends List<Throwable>> other1;\n" + 
+			"	Other2<? extends List<? super String>> other2;	\n" + 
+			"	Other2<? extends List<? extends String>> other3;		\n" + 
+			"	Other2<? extends List<? extends Runnable>> other7 = other1;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X2.java (at line 6)\n" + 
+		"	Other2<? extends List<Throwable>> other1;\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<Throwable> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X2.java (at line 7)\n" + 
+		"	Other2<? extends List<? super String>> other2;	\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? super String> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X2.java (at line 8)\n" + 
+		"	Other2<? extends List<? extends String>> other3;		\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? extends String> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96646
+public void test700() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"abstract class BaseFactory<T> {\n" + 
+			"	public T create() throws Exception {\n" + 
+			"		return getType().newInstance();\n" + 
+			"	}\n" + 
+			"	public abstract Class<T> getType();\n" + 
+			"}\n" + 
+			"interface StringFactory {\n" + 
+			"	public String create() throws Exception;\n" + 
+			"}\n" + 
+			"class X extends BaseFactory<String> implements StringFactory {\n" + 
+			"	@Override\n" + 
+			"	public Class<String> getType() {\n" + 
+			"		return String.class;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		String emptyString = new X().create();\n" + 
+			"		System.out.printf(\"We have \'%s\' of type %s\", emptyString, emptyString.getClass());\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X2.java (at line 6)\n" + 
+		"	Other2<? extends List<Throwable>> other1;\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<Throwable> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X2.java (at line 7)\n" + 
+		"	Other2<? extends List<? super String>> other2;	\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? super String> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X2.java (at line 8)\n" + 
+		"	Other2<? extends List<? extends String>> other3;		\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? extends String> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
+		"----------\n");
 }
 }

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
@@ -47,6 +48,25 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	/**
+	 * Iterate type arguments, and validate them according to corresponding variable bounds.
+	 */
+	public void boundCheck(Scope scope, TypeReference[] argumentReferences) {
+		if ((this.tagBits & PassedBoundCheck) == 0) {
+			boolean hasErrors = false;
+			TypeVariableBinding[] typeVariables = this.type.typeVariables();
+			if (this.arguments != null && typeVariables != null) { // arguments may be null in error cases
+				for (int i = 0, length = typeVariables.length; i < length; i++) {
+				    if (typeVariables[i].boundCheck(this, this.arguments[i])  != TypeConstants.OK) {
+				    	hasErrors = true;
+						scope.problemReporter().typeMismatchError(this.arguments[i], typeVariables[i], this.type, argumentReferences[i]);
+				    }
+				}
+			}	
+			if (!hasErrors) this.tagBits |= PassedBoundCheck; // no need to recheck it in the future
+		}
+	}
+	
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#canBeInstantiated()
 	 */
 	public boolean canBeInstantiated() {
@@ -63,9 +83,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if ((this.tagBits & TagBits.HasDirectWildcard) == 0) 
 			return this;
 		
-		TypeBinding[] originalArguments = arguments, capturedArguments = originalArguments;
+		TypeBinding[] originalArguments = arguments;
 		int length = originalArguments.length;
-		capturedArguments = new TypeBinding[length];
+		TypeBinding[] capturedArguments = new TypeBinding[length];
+		
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = originalArguments[i];
 			if (argument.kind() == Binding.WILDCARD_TYPE) {
@@ -78,17 +99,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				capturedArguments[i] = argument;
 			}
 		}
-		if (capturedArguments != originalArguments) {
-			ParameterizedTypeBinding capturedParameterizedType = this.environment.createParameterizedType(this.type, capturedArguments, enclosingType());
-			for (int i = 0; i < length; i++) {
-				TypeBinding argument = capturedArguments[i];
-				if (argument.isCapture()) {
-					((CaptureBinding)argument).initializeBounds(capturedParameterizedType);
-				}
+		ParameterizedTypeBinding capturedParameterizedType = this.environment.createParameterizedType(this.type, capturedArguments, enclosingType());
+		for (int i = 0; i < length; i++) {
+			TypeBinding argument = capturedArguments[i];
+			if (argument.isCapture()) {
+				((CaptureBinding)argument).initializeBounds(capturedParameterizedType);
 			}
-			return capturedParameterizedType;
 		}
-		return this;
+		return capturedParameterizedType;
 	}
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
@@ -588,6 +606,48 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         return false;
 	}
 
+	public boolean isIntersectingWith(TypeBinding otherType) {
+		if (this == otherType) 
+		    return true;
+	    if (otherType == null) 
+	        return false;
+	    switch(otherType.kind()) {
+	
+	    	case Binding.PARAMETERIZED_TYPE :
+	            if ((this.tagBits & HasDirectWildcard) == 0 && (otherType.tagBits & HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
+	            	return false; // should have been identical
+	            ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
+	            if (this.type != otherParamType.type) 
+	                return false;
+	            if (!isStatic()) { // static member types do not compare their enclosing
+	            	ReferenceBinding enclosing = enclosingType();
+	            	if (enclosing != null) {
+	            		ReferenceBinding otherEnclosing = otherParamType.enclosingType();
+	            		if (otherEnclosing == null) return false;
+	            		if ((otherEnclosing.tagBits & HasDirectWildcard) == 0) {
+							if (enclosing != otherEnclosing) return false;
+	            		} else {
+	            			if (!enclosing.isEquivalentTo(otherParamType.enclosingType())) return false;
+	            		}
+	            	}
+	            }
+	            int length = this.arguments == null ? 0 : this.arguments.length;
+	            TypeBinding[] otherArguments = otherParamType.arguments;
+	            int otherLength = otherArguments == null ? 0 : otherArguments.length;
+	            if (otherLength != length) 
+	                return false;
+	            for (int i = 0; i < length; i++) {
+	            	if (!this.arguments[i].isTypeArgumentIntersecting(otherArguments[i]))
+	            		return false;
+	            }
+	            return true;
+	    	
+	    	case Binding.RAW_TYPE :
+	            return erasure() == otherType.erasure();
+	    }
+        return false;
+	}
+	
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isParameterizedType()
 	 */

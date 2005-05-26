@@ -80,6 +80,7 @@ public class WildcardBinding extends ReferenceBinding {
 		// cannot be asked per construction
 		return false;
 	}
+	
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
@@ -347,7 +348,7 @@ public class WildcardBinding extends ReferenceBinding {
         }
         return false;
     }
-
+    
     /**
 	 * Returns true if the type is a wildcard
 	 */
@@ -460,7 +461,7 @@ public class WildcardBinding extends ReferenceBinding {
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding#superclass()
      */
-    public ReferenceBinding superclass() {
+    public ReferenceBinding superclass1() {
 		if (this.superclass == null) {
 			TypeBinding superType = null;
 			if (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) {
@@ -476,10 +477,34 @@ public class WildcardBinding extends ReferenceBinding {
 
 		return this.superclass;
     }
+    
+    public ReferenceBinding superclass() {
+		if (this.superclass == null) {
+			TypeBinding superType = (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) 
+				? this.bound
+				: null;
+			this.superclass = superType instanceof ReferenceBinding && !superType.isInterface()
+				? (ReferenceBinding) superType
+				: environment.getType(JAVA_LANG_OBJECT);
+			
+//			TypeBinding superType = null;
+//			if (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) {
+//				superType = this.bound;
+//			} else {
+//				TypeVariableBinding variable = this.typeVariable();
+//				if (variable != null) superType = variable.firstBound;
+//			}
+//			this.superclass = superType instanceof ReferenceBinding && !superType.isInterface()
+//				? (ReferenceBinding) superType
+//				: environment.getType(JAVA_LANG_OBJECT);
+		}
+
+		return this.superclass;
+    }
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
      */
-    public ReferenceBinding[] superInterfaces() {
+    public ReferenceBinding[] superInterfaces1() {
         if (this.superInterfaces == null) {
         	if (this.typeVariable() != null) {
         		this.superInterfaces = this.typeVariable.superInterfaces();
@@ -503,6 +528,31 @@ public class WildcardBinding extends ReferenceBinding {
 					}
 				}
 			}
+        }
+        return this.superInterfaces;
+    }
+
+    public ReferenceBinding[] superInterfaces() {
+        if (this.superInterfaces == null) {
+        	if (this.boundKind == Wildcard.EXTENDS) {
+        		if (this.bound.isInterface()) {
+        			if (this.otherBounds != null) {
+						// augment super interfaces with the wildcard otherBounds (interfaces per construction)
+						int otherLength = this.otherBounds.length;
+						System.arraycopy(this.otherBounds, 0, this.superInterfaces = new ReferenceBinding[otherLength+1], 1, otherLength);
+						this.superInterfaces[0] = (ReferenceBinding) this.bound;
+        			} else {
+        				this.superInterfaces = new ReferenceBinding[] { (ReferenceBinding) this.bound };
+        			}
+        		} else if (this.otherBounds != null) {
+					int otherLength = this.otherBounds.length;
+        			System.arraycopy(this.otherBounds, 0, this.superInterfaces = new ReferenceBinding[otherLength], 0, otherLength);
+        		} else {
+        			this.superInterfaces = NoSuperInterfaces;
+        		}
+        	} else { 
+        		this.superInterfaces = NoSuperInterfaces;
+        	}
         }
         return this.superInterfaces;
     }

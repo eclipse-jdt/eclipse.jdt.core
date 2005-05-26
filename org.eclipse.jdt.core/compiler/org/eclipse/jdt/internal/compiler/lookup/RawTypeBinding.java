@@ -109,6 +109,22 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	    }
         return false;
 	}
+    
+    public boolean isIntersectingWith(TypeBinding otherType) {
+		if (this == otherType) 
+		    return true;
+	    if (otherType == null) 
+	        return false;
+	    switch(otherType.kind()) {
+	
+	    	case Binding.GENERIC_TYPE :
+	    	case Binding.PARAMETERIZED_TYPE :
+	    	case Binding.RAW_TYPE :
+	            return erasure() == otherType.erasure();
+	    }
+        return false;
+	}
+    
 	/**
 	 * Raw type is not treated as a standard parameterized type
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isParameterizedType()
