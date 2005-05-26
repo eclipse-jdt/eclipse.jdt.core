@@ -30,9 +30,13 @@ public BatchCompilerTest(String name) {
 public static Test suite() {
 	if (false) {
 		TestSuite suite = new TestSuite();
-		suite.addTest(new BatchCompilerTest("test013"));
-		suite.addTest(new BatchCompilerTest("test014"));
-		suite.addTest(new BatchCompilerTest("test015"));
+		suite.addTest(new BatchCompilerTest("test026"));
+		return suite;
+	}
+	if (false) {
+		TestSuite suite = new TestSuite();
+		for (int i = 23; i < 27; i++) 
+		  suite.addTest(new BatchCompilerTest("test0" + String.valueOf(i)));
 		return suite;
 	}
 	return setupSuite(testClass());
@@ -160,7 +164,8 @@ public static Test suite() {
 		}
 		boolean compileOK;
 		try {
-			compileOK = batchCompiler.compile(Main.tokenize(commandLine));
+			final String[] tokenizeCommandLine = Main.tokenize(commandLine);
+			compileOK = batchCompiler.compile(tokenizeCommandLine);
 		} catch (RuntimeException e) {
 			compileOK = false;
 			System.out.println(getClass().getName() + '#' + getName());
@@ -722,7 +727,7 @@ public void test011(){
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
         + " -cp \"" + OUTPUT_DIR + "[+**/OK2.java;~**/Warn.java;-KO.java]"
-        + "\";"
+        + "\"" + File.pathSeparator
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
         "",
@@ -748,6 +753,12 @@ public void test012(){
         "                       specify location for system classes. Each directory or file can\n" + 
         "                       specify access rules for types between \'[\' and \']\' (e.g. [-X.java]\n" + 
         "                       to deny access to type X)\n" + 
+        "    -sourcepath <directories and zip/jar files separated by ;>\n" + 
+        "                       specify location for application sources. Each directory or file can\n" + 
+        "                       specify access rules for types between \'[\' and \']\' (e.g. [-X.java]\n" + 
+        "                       to deny access to type X)\n" + 
+        "    -extdirs <directories separated by ;>\n" + 
+        "                       specify location for extension zip/jar files\n" + 
         "    -d <dir>           destination directory (if omitted, no directory is created)\n" + 
         "    -d none            generate no .class files\n" + 
         "    -encoding <enc>    specify custom encoding for all sources. Each file/directory can override it\n" + 
@@ -818,6 +829,12 @@ public void test012(){
         "    -g                 all debug info\n" + 
         "    -g:none            no debug info\n" + 
         "    -preserveAllLocals preserve unused local vars for debug purpose\n" + 
+        " \n" + 
+        " Ignored options:\n" + 
+        "    -J<option>         pass option to virtual machine (ignored)\n" + 
+        "    -X<option>         specify non-standard option (ignored)\n" + 
+        "    -X                 print non-standard options and exit (ignored)\n" + 
+        "    -O                 optimize for execution time (ignored)\n" + 
         " \n" + 
         " Advanced options:\n" + 
         "    @<file>            read command line arguments from file\n" + 
@@ -1126,9 +1143,11 @@ public void test012(){
 	        + " -1.5 -g -preserveAllLocals"
 	        + " -cp dummmy_dir;dummy.jar;;\"" + OUTPUT_DIR + "\"" 
 	        + " -verbose -proceedOnError -referenceInfo" 
-	        + " -d \"" + OUTPUT_DIR + "\"", 
+	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "[2 .class files generated]\r\n",
-	        "",
+	        "incorrect classpath: dummmy_dir\r\n" + 
+	        "incorrect classpath: dummy.jar\r\n" + 
+	        "incorrect classpath: dummy.jar\r\n",
 	        true);
 	}
 // command line - unusual classpath (empty, but using current directory, still OK provided 
@@ -1222,6 +1241,239 @@ public void test012(){
 	        "3 problems (1 error, 2 warnings)",
 	        true);
 	}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - skip options -O -Jxxx and -Xxxx, multiple times if needed
+	public void test020(){
+		this.runConformTest(
+			new String[] {
+					"X.java",
+					"/** */\n" + 
+					"public class X {\n" + 
+					"}",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+	        + " -1.5 -g -preserveAllLocals"
+	        + " -verbose -proceedOnError -referenceInfo"
+	        + " -d \"" + OUTPUT_DIR + "\" -O -Xxxx -O -Jxyz -Xtyu -Jyu",
+	        "[1 .class file generated]\r\n",
+	        "",
+	        true);
+	}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -sourcepath finds additional source files
+	public void test021(){
+		this.runConformTest(
+			new String[] {
+					"src1/X.java",
+					"/** */\n" + 
+					"public class X {\n" + 
+					"}",
+					"src2/Y.java",
+					"/** */\n" + 
+					"public class Y extends X {\n" + 
+					"}",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
+			  + File.pathSeparator + "\"" + OUTPUT_DIR +  File.separator + "src2\""
+	        + " -1.5 -g -preserveAllLocals"
+	        + " -verbose -proceedOnError -referenceInfo"
+	        + " -d \"" + OUTPUT_DIR + "\" ",
+	        "[2 .class files generated]\r\n",
+	        "",
+	        true);
+	}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - repeated -sourcepath fails - even if the error is more
+// explicit here than what javac does
+	public void test022(){
+		this.runNegativeTest(
+			new String[] {
+					"src1/X.java",
+					"/** */\n" + 
+					"public class X {\n" + 
+					"}",
+					"src2/Y.java",
+					"/** */\n" + 
+					"public class Y extends X {\n" + 
+					"}",
+			},
+			" -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2\"" 
+	        + " \"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+	        + " -1.5 -g -preserveAllLocals"
+	        + " -verbose -proceedOnError -referenceInfo"
+	        + " -d \"" + OUTPUT_DIR + "\" ",
+	        "",
+	        "duplicate sourcepath specification: -sourcepath\r\n",
+	        true);
+	}
+//	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - repeated -extdirs fails
+		public void test023(){
+			this.runNegativeTest(
+				new String[] {
+						"src1/X.java",
+						"/** */\n" + 
+						"public class X {\n" + 
+						"}",
+						"src2/Y.java",
+						"/** */\n" + 
+						"public class Y extends X {\n" + 
+						"}",
+				},
+				" -extdirs \"" + OUTPUT_DIR +  File.separator + "src1\"" 
+				+ " -extdirs \"" + OUTPUT_DIR +  File.separator + "src2\"" 
+		        + " \"" + OUTPUT_DIR +  File.separator + "src1" + File.separator + "X.java\""
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -verbose -proceedOnError -referenceInfo"
+		        + " -d \"" + OUTPUT_DIR + "\" ",
+		        "",
+		        "duplicate extdirs specification: -extdirs\r\n",
+		        true);
+		}
+//	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - explicit empty -extdirs removes extensions
+		public void test024(){
+			this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"/** */\n" + 
+						"public class X {\n" + 
+						"  sun.net.spi.nameservice.dns.DNSNameService dummy;\n" + 
+						"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+				+ " -extdirs \"\"" 
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -verbose -proceedOnError -referenceInfo"
+		        + " -d \"" + OUTPUT_DIR + "\" ",
+		        "[1 .class file generated]\r\n",
+		        "----------\r\n" + 
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
+		        " (at line 3)\r\n" + 
+		        "	sun.net.spi.nameservice.dns.DNSNameService dummy;\r\n" + 
+		        "	^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n" + 
+		        "sun.net.spi.nameservice.dns cannot be resolved to a type\r\n" + 
+		        "----------\r\n" + 
+		        "1 problem (1 error)",
+		        true);
+		}
+//	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
+		public void test025(){
+			this.runConformTest(
+				new String[] {
+						"src1/X.java",
+						"/** */\n" + 
+						"public class X {\n" + 
+						"  sun.net.spi.nameservice.dns.DNSNameService dummy;\n" + 
+						"}",
+						"src2/Y.java",
+						"/** */\n" + 
+						"public class Y extends X {\n" + 
+						"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+				+ " -extdirs \"" + JRE_HOME_DIR + "/lib/ext" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
+				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src1\"" 
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -verbose -proceedOnError -referenceInfo"
+		        + " -d \"" + OUTPUT_DIR + "\" ",
+		        "[2 .class files generated]\r\n",
+		        "",
+		        true);
+		}
+//	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -extdirs extends the classpath before -classpath
+		public void test026(){
+			this.runConformTest(
+				new String[] {
+						"src1/X.java",
+						"/** */\n" + 
+						"public class X {\n" + 
+						"}",
+						"src2/Y.java",
+						"/** */\n" + 
+						"public class Y extends X {\n" + 
+						"}",
+						"src3/X.java",
+						"/** */\n" + 
+						"public class X {\n" + 
+						"  Zork error;\n" + 
+						"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
+				+ " -classpath \"" + OUTPUT_DIR +  File.separator + "src3\"" 
+				+ " -extdirs \"" + JRE_HOME_DIR + "/lib/ext" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
+				+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src2" + File.pathSeparator + OUTPUT_DIR +  File.separator + "src1\"" 
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -verbose -proceedOnError -referenceInfo"
+		        + " -d \"" + OUTPUT_DIR + "\" ",
+		        "[2 .class files generated]\r\n",
+				"",
+		        true);
+		}
+		
+//		 https://bugs.eclipse.org/bugs/show_bug.cgi?id=92398 -- a case that works, another that does not
+//		 revisit this test case depending on https://bugs.eclipse.org/bugs/show_bug.cgi?id=95349
+		public void test027(){
+			this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"/** */\n" + 
+					"public class X {\n" + 
+					"	OK1 ok1;\n" + 
+					"	OK2 ok2;\n" + 
+					"	Warn warn;\n" + 
+					"	KO ko;\n" + 
+			        "	Zork z;\r\n" + 
+					"}",
+					"OK1.java",
+					"/** */\n" + 
+					"public class OK1 {\n" + 
+					"	// empty\n" + 
+					"}",
+					"OK2.java",
+					"/** */\n" + 
+					"public class OK2 {\n" + 
+					"	// empty\n" + 
+					"}",
+					"p1/Warn.java",
+					"/** */\n" + 
+					"public class Warn {\n" + 
+					"	// empty\n" + 
+					"}",
+					"KO.java",
+					"/** */\n" + 
+					"public class KO {\n" + 
+					"	// empty\n" + 
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		        + " -1.5 -g -preserveAllLocals"
+		        + " -cp \"" + OUTPUT_DIR + "[+OK2.java;-KO.java]" + File.pathSeparator
+		        + OUTPUT_DIR + File.separator + "p1[~Warn.java]\""
+		        + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
+		        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+		        "[5 .class files generated]\r\n", 
+		        "----------\r\n" + 
+		        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
+		        " (at line 5)\r\n" + 
+		        "	Warn warn;\r\n" + 
+		        "	^^^^\r\n" + 
+		        "Discouraged access: Warn\r\n" + 
+		        "----------\r\n" + 
+		        "----------\r\n" + 
+		        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
+		        " (at line 6)\r\n" + 
+		        "	KO ko;\r\n" + 
+		        "	^^\r\n" + 
+		        "Access restriction: KO\r\n" + 
+		        "----------\r\n" + 
+		        "----------\r\n" + 
+		        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---\\X.java\r\n" + 
+		        " (at line 7)\r\n" + 
+		        "	Zork z;\r\n" + 
+		        "	^^^^\r\n" + 
+		        "Zork cannot be resolved to a type\r\n" + 
+		        "----------\r\n" + 
+		        "3 problems (1 error, 2 warnings)",
+		        true);
+		}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }

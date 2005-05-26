@@ -1202,10 +1202,16 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		final int InsideDefaultEncoding = 64;
 		final int InsideBootClasspath = 128;
 		final int InsideMaxProblems = 256;
+		final int InsideExtdirs = 512;
+		final int InsideSourcepath = 1024;
+
 		final int Default = 0;
 		int DEFAULT_SIZE_CLASSPATH = 4;
-		ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
-		ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
+		ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH),
+			extdirsClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH),
+			extdirsNames = new ArrayList(DEFAULT_SIZE_CLASSPATH),
+			sourcepathClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH),
+			classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		String currentClasspathName = null;
 		ArrayList currentRuleSpecs = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		int index = -1, filesCount = 0, argCount = argv.length;
@@ -1283,7 +1289,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			currentArg = newCommandLineArgs[index];
 
 			customEncoding = null;
-			if (currentArg.endsWith("]") && !(mode == InsideBootClasspath || mode == InsideClasspath) ) { //$NON-NLS-1$ 
+			if (currentArg.endsWith("]") && !(mode == InsideBootClasspath || mode == InsideClasspath || //$NON-NLS-1$ 
+					mode == InsideSourcepath) ) {
 				// look for encoding specification
 				int encodingStart = currentArg.indexOf('[') + 1;
 				int encodingEnd = currentArg.length() - 1;
@@ -1403,6 +1410,20 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					throw new InvalidInputException(
 						Main.bind("configure.duplicateBootClasspath", currentArg)); //$NON-NLS-1$
 				mode = InsideBootClasspath;
+				continue;
+			}
+			if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
+				if (sourcepathClasspaths.size() > 0)
+					throw new InvalidInputException(
+						Main.bind("configure.duplicateSourcepath", currentArg)); //$NON-NLS-1$
+				mode = InsideSourcepath;
+				continue;
+			}
+			if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
+				if (extdirsNames.size() > 0)
+					throw new InvalidInputException(
+						Main.bind("configure.duplicateExtdirs", currentArg)); //$NON-NLS-1$
+				mode = InsideExtdirs;
 				continue;
 			}
 			if (currentArg.equals("-progress")) { //$NON-NLS-1$
@@ -1837,6 +1858,35 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				useEnableJavadoc = true;
 				continue;
 			}
+			// tolerated javac options - quietly filtered out
+			if (currentArg.startsWith("-X")) { //$NON-NLS-1$
+				mode = Default;
+				continue;
+			}
+			if (currentArg.startsWith("-J")) { //$NON-NLS-1$
+				mode = Default;
+				continue;
+			}
+			if (currentArg.equals("-O")) { //$NON-NLS-1$
+				mode = Default;
+				continue;
+			}
+			
+			if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
+				if (sourcepathClasspaths.size() > 0)
+					throw new InvalidInputException(
+						Main.bind("configure.duplicateSourcepath", currentArg)); //$NON-NLS-1$
+				mode = InsideSourcepath;
+				continue;
+			}
+			if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
+				if (extdirsNames.size() > 0)
+					throw new InvalidInputException(
+						Main.bind("configure.duplicateExtdirs", currentArg)); //$NON-NLS-1$
+				mode = InsideExtdirs;
+				continue;
+			}
+
 			if (mode == TargetSetting) {
 				if (didSpecifyTarget) {
 					throw new InvalidInputException(
@@ -1936,7 +1986,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				mode = Default;
 				continue;
 			}
-			if (mode == InsideClasspath || mode == InsideBootClasspath) {
+			if (mode == InsideClasspath || mode == InsideBootClasspath || mode == InsideSourcepath) {
 				StringTokenizer tokenizer = new StringTokenizer(currentArg,
 						File.pathSeparator + "[]", true); //$NON-NLS-1$
 				// state machine
@@ -1964,6 +2014,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						case readyToCloseEndingWithRules:
 						case readyToCloseOrOtherEntry:
 							state = readyToCloseOrOtherEntry;
+							addNewEntry(InsideClasspath, InsideSourcepath, bootclasspaths, classpaths, sourcepathClasspaths, currentClasspathName, currentRuleSpecs, mode, customEncoding);
 							break;
 						case rulesReadyToClose:
 							state = rulesNeedAnotherRule;
@@ -1988,8 +2039,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 							state = error;
 						}
 
-					} else // regular word
-					{
+					} else {
+						// regular word
 						switch (state) {
 						case start:
 						case readyToCloseOrOtherEntry:
@@ -2006,68 +2057,29 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						}
 					}
 				}
-				if (state == readyToClose
-						|| state == readyToCloseEndingWithRules 
-						|| state == readyToCloseOrOtherEntry) {
-					AccessRule[] accessRules = new AccessRule[currentRuleSpecs
-							.size()];
-					boolean rulesOK = true;
-					Iterator i = currentRuleSpecs.iterator();
-					int j = 0;
-					while (i.hasNext()) {
-						String ruleSpec = (String) i.next();
-						char key = ruleSpec.charAt(0);
-						String pattern = ruleSpec.substring(1);
-						if (pattern.length() > 0) {
-							switch (key) {
-							case '+':
-								accessRules[j++] = new AccessRule(pattern
-										.toCharArray(), -1);
-								break;
-							case '~':
-								accessRules[j++] = new AccessRule(pattern
-										.toCharArray(),
-										IProblem.DiscouragedReference);
-								break;
-							case '-':
-								accessRules[j++] = new AccessRule(pattern
-										.toCharArray(),
-										IProblem.ForbiddenReference);
-								break;
-							default:
-								rulesOK = false;
-							}
-						} else {
-							rulesOK = false;
-						}
-					}
-					if (rulesOK) {
-						AccessRuleSet accessRuleSet = new AccessRuleSet(
-								accessRules, "{0}"); //$NON-NLS-1$
-						FileSystem.Classpath currentClasspath = FileSystem
-								.getClasspath(currentClasspathName,
-										customEncoding, 0, accessRuleSet);
-						if (currentClasspath != null) {
-							if (mode == InsideClasspath) {
-								classpaths.add(currentClasspath);
-							} else { // inside bootclasspath
-								bootclasspaths.add(currentClasspath);
-							}
-						} else {
-							this.logger.logIncorrectClasspath(currentArg);
-							// we go on anyway
-						}
-					} else {
-						this.logger.logIncorrectClasspath(currentArg);
+				switch(state) {
+					case readyToClose :
+					case readyToCloseEndingWithRules :
+					case readyToCloseOrOtherEntry :
+						addNewEntry(InsideClasspath, InsideSourcepath, bootclasspaths, classpaths, sourcepathClasspaths, currentClasspathName, currentRuleSpecs, mode, customEncoding);
+						break;
+					default :
 						// we go on anyway
-					}
-				} else {
-					this.logger.logIncorrectClasspath(currentArg);
-					// we go on anyway
+						this.logger.logIncorrectClasspath(currentArg);
 				}
 				mode = Default;
 				continue;
 			}
+			if (mode == InsideExtdirs) {
+				StringTokenizer tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
+				while (tokenizer.hasMoreTokens())
+					extdirsNames.add(tokenizer.nextToken());
+				if (extdirsNames.size() == 0) // empty entry
+					extdirsNames.add(""); //$NON-NLS-1$
+				mode = Default;
+				continue;
+			}
+
 			//default is input directory
 			currentArg = currentArg.replace('/', File.separatorChar);
 			if (currentArg.endsWith(File.separator))
@@ -2164,7 +2176,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 		
-		if (bootclasspaths.size() == 0) {
+	 	 if (bootclasspaths.size() == 0) {
 			/* no bootclasspath specified
 			 * we can try to retrieve the default librairies of the VM used to run
 			 * the batch compiler
@@ -2179,41 +2191,85 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 	/*
 		 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
 		 	 */
-		 	 String javaHome = System.getProperty("java.home");//$NON-NLS-1$
-		 	 if (javaHome != null) {
-		 	 	File javaHomeFile = new File(javaHome);
-		 	 	if (javaHomeFile.exists()) {
-					try {
-						javaHomeFile = new File(javaHomeFile.getCanonicalPath());
-						// add all jars in the lib subdirectory
-						File[] directoriesToCheck = new File[] { new File(javaHomeFile, "lib"), new File(javaHomeFile, "lib/ext")};//$NON-NLS-1$//$NON-NLS-2$
-						File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
-						if (systemLibrariesJars != null) {
-							for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
-								File[] current = systemLibrariesJars[i];
-								if (current != null) {
-									for (int j = 0, max2 = current.length; j < max2; j++) {
-										FileSystem.Classpath classpath = 
-											FileSystem.getClasspath(
-													current[j].getAbsolutePath(),
-													null, 0, null); 
-										if (classpath != null) {
-											bootclasspaths.add(classpath);
-										}
-									}
+		 	 if (getJavaHome() != null) {
+				File[] directoriesToCheck = new File[] { 
+						new File(getJavaHome(), "lib") //$NON-NLS-1$
+						};
+				File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
+				if (systemLibrariesJars != null) {
+					for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
+						File[] current = systemLibrariesJars[i];
+						if (current != null) {
+							for (int j = 0, max2 = current.length; j < max2; j++) {
+								FileSystem.Classpath classpath = 
+									FileSystem.getClasspath(
+											current[j].getAbsolutePath(),
+											null, 0, null); 
+								if (classpath != null) {
+									bootclasspaths.add(classpath);
 								}
 							}
 						}
-					} catch (IOException e) {
-						// cannot retrieve libraries
 					}
-		 	 	}
-		 	 }
+				}
+	 		}
+	 	 }
+		
+		/*
+		 * Feed extdirsNames according to:
+		 * - -extdirs first if present;
+		 * - else java.ext.dirs if defined;
+		 * - else default extensions directory for the platform.
+		 */
+		if (extdirsNames.size() == 0) {
+			String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
+			if (extdirsStr == null) {
+				extdirsNames.add(getJavaHome().getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
+			}
+			else {
+				StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
+				while (tokenizer.hasMoreTokens()) 
+					extdirsNames.add(tokenizer.nextToken());
+			}
+		}
+		
+		/*
+		 * Feed extdirsClasspath with the entries found into the directories listed by
+		 * extdirsNames.
+		 */
+		if (extdirsNames.size() != 0) {
+			File[] directoriesToCheck = new File[extdirsNames.size()];
+			for (int i = 0; i < directoriesToCheck.length; i++) 
+				directoriesToCheck[i] = new File((String) extdirsNames.get(i));
+			File[][] extdirsJars = getLibrariesFiles(directoriesToCheck);
+			if (extdirsJars != null) {
+				for (int i = 0, max = extdirsJars.length; i < max; i++) {
+					File[] current = extdirsJars[i];
+					if (current != null) {
+						for (int j = 0, max2 = current.length; j < max2; j++) {
+							FileSystem.Classpath classpath = 
+								FileSystem.getClasspath(
+										current[j].getAbsolutePath(),
+										null, 0, null); 
+							if (classpath != null) {
+								extdirsClasspaths.add(classpath);
+							}
+						}
+					}
+				}
+			}
 		}
 
 		/* 
-		 * We put the bootclasspath at the beginning of the classpath entries
+		 * Concatenate classpath entries
+		 * We put the bootclasspath at the beginning of the classpath
+		 * entries, followed by the extension libraries, followed by
+		 * the sourcepath followed by the classpath.  All classpath
+		 * entries are searched for both sources and binaries except
+		 * the sourcepath entries which are searched for sources only.
 		 */
+		bootclasspaths.addAll(extdirsClasspaths);
+		bootclasspaths.addAll(sourcepathClasspaths);
 		bootclasspaths.addAll(classpaths);
 		classpaths = bootclasspaths;
 		this.checkedClasspaths = new FileSystem.Classpath[classpaths.size()];
@@ -2308,6 +2364,83 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 	}
 
+	private void addNewEntry(final int InsideClasspath, final int InsideSourcepath, ArrayList bootclasspaths, ArrayList classpaths,ArrayList sourcepathClasspaths, String currentClasspathName, ArrayList currentRuleSpecs, int mode, String customEncoding) {
+		AccessRule[] accessRules = new AccessRule[currentRuleSpecs
+				.size()];
+		boolean rulesOK = true;
+		Iterator i = currentRuleSpecs.iterator();
+		int j = 0;
+		while (i.hasNext()) {
+			String ruleSpec = (String) i.next();
+			char key = ruleSpec.charAt(0);
+			String pattern = ruleSpec.substring(1);
+			if (pattern.length() > 0) {
+				switch (key) {
+				case '+':
+					accessRules[j++] = new AccessRule(pattern
+							.toCharArray(), -1);
+					break;
+				case '~':
+					accessRules[j++] = new AccessRule(pattern
+							.toCharArray(),
+							IProblem.DiscouragedReference);
+					break;
+				case '-':
+					accessRules[j++] = new AccessRule(pattern
+							.toCharArray(),
+							IProblem.ForbiddenReference);
+					break;
+				default:
+					rulesOK = false;
+				}
+			} else {
+				rulesOK = false;
+			}
+		}
+		if (rulesOK) {
+			AccessRuleSet accessRuleSet = new AccessRuleSet(
+					accessRules, "{0}"); //$NON-NLS-1$
+			FileSystem.Classpath currentClasspath = FileSystem
+					.getClasspath(currentClasspathName,
+							customEncoding, 0, accessRuleSet);
+			if (currentClasspath != null) {
+				if (mode == InsideClasspath) {
+					classpaths.add(currentClasspath);
+				} else if (mode == InsideSourcepath) {
+					if (currentClasspath instanceof ClasspathDirectory) {
+						((ClasspathDirectory) currentClasspath).mode = 
+							ClasspathDirectory.SOURCE; 
+						// TODO may consider adding this attribute to other classpath natures
+					}
+					sourcepathClasspaths.add(currentClasspath);
+				} else { // inside bootclasspath
+					bootclasspaths.add(currentClasspath);
+				}
+			} else {
+				this.logger.logIncorrectClasspath(currentClasspathName);
+				// we go on anyway
+			}
+		} else {
+			this.logger.logIncorrectClasspath(currentClasspathName);
+			// we go on anyway
+		}
+	}
+
+	private File javaHomeCache;
+	private boolean javaHomeChecked;
+	private File getJavaHome() {
+		if (!javaHomeChecked) {
+			javaHomeChecked = true;
+			String javaHome = System.getProperty("java.home");//$NON-NLS-1$
+			if (javaHome != null) {
+				javaHomeCache = new File(javaHome);
+				if (!javaHomeCache.exists())
+					javaHomeCache = null;
+			}
+		}
+		return javaHomeCache;
+	}
+	
 	private void disableWarnings() {
 		Object[] entries = this.options.entrySet().toArray();
 		for (int i = 0, max = entries.length; i < max; i++) {
