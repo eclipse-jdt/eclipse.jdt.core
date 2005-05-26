@@ -165,7 +165,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	int nameLength = this.name.length;
 	
 	// return type
-	char[] returnTypeKey = this.type.computeUniqueKey(false/*not a leaf*/);
+	char[] returnTypeKey = this.type == null ? new char[] {'V'} : this.type.computeUniqueKey(false/*not a leaf*/);
 	int returnTypeLength = returnTypeKey.length;
 	
 	char[] uniqueKey = new char[declaringLength + 1 + nameLength + 1 + returnTypeLength];
