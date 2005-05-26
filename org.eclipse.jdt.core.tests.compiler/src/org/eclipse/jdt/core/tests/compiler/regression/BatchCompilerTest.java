@@ -783,7 +783,7 @@ public void test012(){
 	this.runConformTest(
 		new String[0],
         " -help -showversion -referenceInfo",
-        "Eclipse Java Compiler 0.558, pre-3.1.0 release candidate-1, Copyright IBM Corp 2000, 2005. All rights reserved.\n" + 
+        "Eclipse Java Compiler 0.559, pre-3.1.0 release candidate-1, Copyright IBM Corp 2000, 2005. All rights reserved.\n" + 
         " \n" + 
         " Usage: <options> <source files | directories>\n" + 
         " If directories are specified, then their source contents are compiled.\n" + 
@@ -929,7 +929,7 @@ public void test012(){
 		String expectedLogContents = 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<!DOCTYPE compiler SYSTEM \"compiler.dtd\">\n" + 
-			"<compiler name=\"Eclipse Java Compiler\" copyright=\"Copyright IBM Corp 2000, 2005. All rights reserved.\" version=\"0.558, pre-3.1.0 release candidate-1\">\n" + 
+			"<compiler name=\"Eclipse Java Compiler\" copyright=\"Copyright IBM Corp 2000, 2005. All rights reserved.\" version=\"0.559, pre-3.1.0 release candidate-1\">\n" + 
 			"	<command_line>\n" + 
 			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\"/>\n" + 
 			"		<argument value=\"-1.5\"/>\n" + 
