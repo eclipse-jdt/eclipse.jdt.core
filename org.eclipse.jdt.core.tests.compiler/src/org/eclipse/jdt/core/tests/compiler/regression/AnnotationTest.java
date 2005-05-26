@@ -4689,4 +4689,15 @@ public class AnnotationTest extends AbstractComparableTest {
 			"Cannot reference a field before it is defined\n" + 
 			"----------\n");
     }      
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96631
+    public void test146() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings(value={})\n" + 
+				"public class X {\n" + 
+				"}\n",
+            },
+			"");
+    }    
 }

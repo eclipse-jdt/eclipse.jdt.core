@@ -173,15 +173,17 @@ public abstract class Annotation extends Expression {
 				if (value instanceof ArrayInitializer) {
 					ArrayInitializer initializer = (ArrayInitializer) value;
 					Expression[] inits = initializer.expressions;
-					for (int j = 0, initsLength = inits.length; j < initsLength; j++) {
-						Constant cst = inits[j].constant;
-						if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
-							long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
-							if (irritant != 0) {
-								suppressWarningIrritants |= irritant;
-								if (~suppressWarningIrritants == 0) break pairLoop;
-							} else {
-								scope.problemReporter().unhandledWarningToken(inits[j]);
+					if (inits != null) {
+						for (int j = 0, initsLength = inits.length; j < initsLength; j++) {
+							Constant cst = inits[j].constant;
+							if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
+								long irritant = CompilerOptions.warningTokenToIrritant(cst.stringValue());
+								if (irritant != 0) {
+									suppressWarningIrritants |= irritant;
+									if (~suppressWarningIrritants == 0) break pairLoop;
+								} else {
+									scope.problemReporter().unhandledWarningToken(inits[j]);
+								}
 							}
 						}
 					}
