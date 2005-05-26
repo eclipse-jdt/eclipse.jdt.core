@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
@@ -182,7 +183,7 @@ public class DeltaProcessor {
 	/*
 	 * The Java model manager
 	 */
-	private JavaModelManager manager;
+	JavaModelManager manager;
 	
 	/*
 	 * The <code>JavaElementDelta</code> corresponding to the <code>IResourceDelta</code> being translated.
@@ -303,21 +304,42 @@ public class DeltaProcessor {
 				// force classpath marker refresh of affected projects
 				JavaModel.flushExternalFileCache();
 				IJavaElementDelta[] projectDeltas = this.currentDelta.getAffectedChildren();
-				for (int i = 0, length = projectDeltas.length; i < length; i++) {
+				final int length = projectDeltas.length;
+				final IProject[] projectsToTouch = new IProject[length];
+				for (int i = 0; i < length; i++) {
 					IJavaElementDelta delta = projectDeltas[i];
 					JavaProject javaProject = (JavaProject)delta.getElement();
 					javaProject.getResolvedClasspath(
 						true/*ignoreUnresolvedEntry*/, 
 						true/*generateMarkerOnError*/, 
 						false/*don't returnResolutionInProgress*/);
-					
-					try {
-						// touch the project to force it to be recompiled
-						javaProject.getProject().touch(monitor);
-					} catch (CoreException e) {
-						throw new JavaModelException(e);
+					projectsToTouch[i] = javaProject.getProject();
+				}
+				
+				// touch the projects to force them to be recompiled while taking the workspace lock 
+				// so that there is no concurrency with the Java builder
+				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=96575
+				IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+					public void run(IProgressMonitor progressMonitor) throws CoreException {
+						for (int i = 0; i < length; i++) {
+							IProject project = projectsToTouch[i];
+							
+							// reset the corresponding project built state, since the builder would miss this change
+							if (JavaBuilder.DEBUG)
+								System.out.println("Clearing last state for project with external jar changed: " + project); //$NON-NLS-1$						
+							DeltaProcessor.this.manager.setLastBuiltState(project, null /*no state*/);
+							
+							// touch to force a build of this project
+							project.touch(progressMonitor);
+						}
 					}
-				}		
+				};
+				try {
+					ResourcesPlugin.getWorkspace().run(runnable, monitor);
+				} catch (CoreException e) {
+					throw new JavaModelException(e);
+				}
+				
 				if (this.currentDelta != null) { // if delta has not been fired while creating markers
 					this.fire(this.currentDelta, DEFAULT_CHANGE_EVENT);
 				}
@@ -828,10 +850,6 @@ public class DeltaProcessor {
 							if (VERBOSE){
 								System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
-							// reset the corresponding project built state, since the builder would miss this change
-							if (JavaBuilder.DEBUG)
-								System.out.println("Clearing last state for project with external jar changed: " + project); //$NON-NLS-1$						
-							this.manager.setLastBuiltState(project.getProject(), null /*no state*/);
 							contentChanged(root);
 							hasDelta = true;
 						} else if (status == EXTERNAL_JAR_REMOVED) {
