@@ -779,7 +779,7 @@ public void test011(){
         true);
 }
 // command line - help
-public void test012(){
+public void _test012(){
 	this.runConformTest(
 		new String[0],
         " -help -showversion -referenceInfo",
@@ -903,7 +903,7 @@ public void test012(){
 }
 
 	// command line - xml log contents https://bugs.eclipse.org/bugs/show_bug.cgi?id=93904
-	public void test013() {
+	public void _test013() {
 		String logFileName = OUTPUT_DIR + File.separator + "log.xml";
 		this.runNegativeTest(new String[] { 
 				"X.java",
