@@ -829,6 +829,8 @@ public class DeltaProcessor {
 								System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
 							// reset the corresponding project built state, since the builder would miss this change
+							if (JavaBuilder.DEBUG)
+								System.out.println("Clearing last state for project with external jar changed: " + project); //$NON-NLS-1$						
 							this.manager.setLastBuiltState(project.getProject(), null /*no state*/);
 							contentChanged(root);
 							hasDelta = true;
@@ -2179,6 +2181,8 @@ public class DeltaProcessor {
 	
 				if (deltaRes.getType() == IResource.PROJECT){			
 					// reset the corresponding project built state, since cannot reuse if added back
+					if (JavaBuilder.DEBUG)
+						System.out.println("Clearing last state for removed project : " + deltaRes); //$NON-NLS-1$
 					this.manager.setLastBuiltState((IProject)deltaRes, null /*no state*/);
 					
 					// clean up previous session containers (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89850)
@@ -2245,6 +2249,8 @@ public class DeltaProcessor {
 								this.manager.indexManager.discardJobs(element.getElementName());
 								this.manager.indexManager.removeIndexFamily(res.getFullPath());
 								// reset the corresponding project built state, since cannot reuse if added back
+								if (JavaBuilder.DEBUG)
+									System.out.println("Clearing last state for project loosing Java nature: " + res); //$NON-NLS-1$
 								this.manager.setLastBuiltState(res, null /*no state*/);
 							}
 							return false; // when a project's nature is added/removed don't process children

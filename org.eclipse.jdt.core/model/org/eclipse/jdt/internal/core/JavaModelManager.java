@@ -1109,7 +1109,11 @@ public class JavaModelManager implements ISaveParticipant {
 	 * For use by image builder and evaluation support only
 	 */
 	public Object getLastBuiltState(IProject project, IProgressMonitor monitor) {
-		if (!JavaProject.hasJavaNature(project)) return null; // should never be requested on non-Java projects
+		if (!JavaProject.hasJavaNature(project)) {
+			if (JavaBuilder.DEBUG)
+				System.out.println(project + " is not a Java project"); //$NON-NLS-1$
+			return null; // should never be requested on non-Java projects
+		}
 		PerProjectInfo info = getPerProjectInfo(project, true/*create if missing*/);
 		if (!info.triedRead) {
 			info.triedRead = true;
@@ -1925,7 +1929,10 @@ public class JavaModelManager implements ISaveParticipant {
 				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Error reading last build state for project "+ project.getName(), e)); //$NON-NLS-1$
 			}
 		} else if (JavaBuilder.DEBUG) {
-			System.out.println("Build state file " + file.getPath() + " does not exist"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (file == null)
+				System.out.println("Project does not exist: " + project); //$NON-NLS-1$
+			else
+				System.out.println("Build state file " + file.getPath() + " does not exist"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
