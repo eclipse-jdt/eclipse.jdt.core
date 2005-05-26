@@ -20234,7 +20234,7 @@ public void test699() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96646
-public void test700() {
+public void _test700() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
