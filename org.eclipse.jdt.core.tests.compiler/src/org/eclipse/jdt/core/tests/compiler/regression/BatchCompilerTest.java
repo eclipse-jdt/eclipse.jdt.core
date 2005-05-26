@@ -1146,8 +1146,7 @@ public void test012(){
 		}
 		assertTrue("unexpected log contents", compareOK);
 	}
-//	 command line - unusual classpath (contains multiple empty members, still OK)
-	public void test016(){
+public void test016(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
@@ -1163,15 +1162,14 @@ public void test012(){
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
-	        + " -cp .;;;\"" + OUTPUT_DIR + "\""
+	        + " -cp ." + File.pathSeparator + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\""
 	        + " -verbose -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "[2 .class files generated]\n",
 	        "",
 	        true);
 	}
-//	 command line - unusual classpath (contains erroneous members, still OK)
-	public void test017(){
+public void test017(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
@@ -1187,7 +1185,7 @@ public void test012(){
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals"
-	        + " -cp dummmy_dir;dummy.jar;;\"" + OUTPUT_DIR + "\"" 
+	        + " -cp dummmy_dir" + File.pathSeparator + "dummy.jar" + File.pathSeparator + File.pathSeparator + "\"" + OUTPUT_DIR + "\"" 
 	        + " -verbose -proceedOnError -referenceInfo" 
 	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "[2 .class files generated]\n",
@@ -1220,10 +1218,7 @@ public void test012(){
 	        "",
 	        true);
 	}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=92398 -- with wildcards 
-// a case that works, another that does not
-// revisit this test case depending on https://bugs.eclipse.org/bugs/show_bug.cgi?id=95349
-	public void test019(){
+public void test019(){
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1258,7 +1253,7 @@ public void test012(){
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals" 
-	        + " -cp \"" + OUTPUT_DIR + "[+OK2.*;~Warn.*;-KO.*]\""
+	        + " -cp \"" + OUTPUT_DIR + "[+OK2.*" + File.pathSeparator + "~Warn.*" + File.pathSeparator + "-KO.*]\""
 	        + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
 	        + " -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"", 
@@ -1454,9 +1449,7 @@ public void test012(){
 		        true);
 		}
 		
-//		 https://bugs.eclipse.org/bugs/show_bug.cgi?id=92398 -- a case that works, another that does not
-//		 revisit this test case depending on https://bugs.eclipse.org/bugs/show_bug.cgi?id=95349
-		public void test027(){
+public void test027(){
 			this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -1491,7 +1484,7 @@ public void test012(){
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals"
-		        + " -cp \"" + OUTPUT_DIR + "[+OK2.java;-KO.java]" + File.pathSeparator
+		        + " -cp \"" + OUTPUT_DIR + "[+OK2.java" + File.pathSeparator + "-KO.java]" + File.pathSeparator
 		        + OUTPUT_DIR + File.separator + "p1[~Warn.java]\""
 		        + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
 		        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
@@ -1520,8 +1513,7 @@ public void test012(){
 		        "3 problems (1 error, 2 warnings)",
 		        true);
 		}
-// command line - classpath includes output directory
-		public void test028(){
+public void test028(){
 			this.runConformTest(
 				new String[] {
 					"src1/X.java",
@@ -1545,7 +1537,7 @@ public void test012(){
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "src2/Y.java\""
 		        + " -1.5 -g -preserveAllLocals"
-		        + " -cp dummy;\"" + OUTPUT_DIR + File.separator + "bin\";dummy"
+		        + " -cp dummy" + File.pathSeparator + "\"" + OUTPUT_DIR + File.separator + "bin\"" + File.pathSeparator + "dummy"
 		        + " -proceedOnError -referenceInfo"
 		        + " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
 		        "",
