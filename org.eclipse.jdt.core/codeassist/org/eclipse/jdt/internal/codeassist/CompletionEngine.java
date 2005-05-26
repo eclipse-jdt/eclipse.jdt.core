@@ -4345,7 +4345,13 @@ public final class CompletionEngine
 			return;
 		
 		// do not propose type if completion token is empty
-		if (NO_TYPE_COMPLETION_ON_EMPTY_TOKEN && token.length == 0) return;
+		boolean skip = false;
+		if (token.length == 0 && NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
+			if(!assistNodeIsConstructor) {
+				return;
+			}
+			skip = true;
+		}
 		
 		boolean proposeType = !this.requestor.isIgnored(CompletionProposal.TYPE_REF);
 		
@@ -4353,12 +4359,12 @@ public final class CompletionEngine
 		
 		ObjectVector typesFound = new ObjectVector();
 		
-		if (proposeType && scope.enclosingSourceType() != null) {
+		if (!skip && proposeType && scope.enclosingSourceType() != null) {
 			findNestedTypes(token, scope.enclosingSourceType(), scope, proposeAllMemberTypes, typesFound);
 			findTypeParameters(token, scope);
 		}
 
-		if (proposeType && this.unitScope != null) {
+		if (!skip && proposeType && this.unitScope != null) {
 			ReferenceBinding outerInvocationType = scope.enclosingSourceType();
 			if(outerInvocationType != null) {
 				ReferenceBinding temp = outerInvocationType.enclosingType();
@@ -4442,7 +4448,7 @@ public final class CompletionEngine
 			}
 		}
 		
-		if(proposeType) {
+		if(!skip && proposeType) {
 			this.findTypesFromStaticImports(token, scope, proposeAllMemberTypes, typesFound);
 		}
 		
@@ -4459,13 +4465,13 @@ public final class CompletionEngine
 								switch (accessRestriction.getProblemId()) {
 									case IProblem.ForbiddenReference:
 										if (this.options.checkForbiddenReference) {
-											return;
+											continue next;
 										}
 										accessibility = IAccessRule.K_NON_ACCESSIBLE;
 										break;
 									case IProblem.DiscouragedReference:
 										if (this.options.checkDiscouragedReference) {
-											return;
+											continue next;
 										}
 										accessibility = IAccessRule.K_DISCOURAGED;
 										break;
@@ -4476,7 +4482,7 @@ public final class CompletionEngine
 						boolean inSameUnit = this.unitScope.isDefinedInSameUnit(refBinding);
 						
 						// top level types of the current unit are already proposed.
-						if(!inSameUnit || (inSameUnit && refBinding.isMemberType())) {
+						if(skip || !inSameUnit || (inSameUnit && refBinding.isMemberType())) {
 							char[] packageName = refBinding.qualifiedPackageName();
 							char[] typeName = refBinding.sourceName();
 							char[] completionName = typeName;
@@ -4606,13 +4612,13 @@ public final class CompletionEngine
 						switch (accessRestriction.getProblemId()) {
 							case IProblem.ForbiddenReference:
 								if (this.options.checkForbiddenReference) {
-									return;
+									continue;
 								}
 								accessibility = IAccessRule.K_NON_ACCESSIBLE;
 								break;
 							case IProblem.DiscouragedReference:
 								if (this.options.checkDiscouragedReference) {
-									return;
+									continue;
 								}
 								accessibility = IAccessRule.K_DISCOURAGED;
 								break;

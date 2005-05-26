@@ -47,7 +47,7 @@ public static Test suite() {
 		}
 		return suite;
 	}
-	suite.addTest(new CompletionTests("testCompletionWithProblem1"));			
+	suite.addTest(new CompletionTests("testCompletionInsideExtends11"));			
 	return suite;
 }
 
@@ -2620,22 +2620,29 @@ public void testCompletionConstructorForAnonymousType() throws JavaModelExceptio
 * http://dev.eclipse.org/bugs/show_bug.cgi?id=25221
 */
 public void testCompletionEmptyTypeName1() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionEmptyTypeName1.java");
-
-	String str = cu.getSource();
-	String completeBehind = "new ";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.wc = getWorkingCopy(
+            "/Completion/src/CompletionEmptyTypeName1.java",
+            "public class CompletionEmptyTypeName1 {\n"+
+           "	void foo() {\n"+
+           "		A a = new \n"+
+           "	}\n"+
+           "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "new ";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
 
 	if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
-		assertEquals(
-			"",
+		assertResults(
+			"A[TYPE_REF]{A, , LA;, null, null, " +(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} else {
-		assertEquals(
-			"element:A    completion:A    relevance:" +(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:CompletionEmptyTypeName1    completion:CompletionEmptyTypeName1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED),
+		assertResults(
+			"CompletionEmptyTypeName1[TYPE_REF]{CompletionEmptyTypeName1, , LCompletionEmptyTypeName1;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED)+"}\n"+
+			"A[TYPE_REF]{A, , LA;, null, null, " +(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	}
 }
@@ -2719,7 +2726,7 @@ public void testCompletionEmptyTypeName3() throws JavaModelException {
 		assertEquals(
 			"element:CompletionEmptyTypeName2    completion:CompletionEmptyTypeName2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"\n" +
 			"element:CompletionEmptyTypeName3    completion:CompletionEmptyTypeName3    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-			"element:CompletionEmptyTypeName3.CompletionEmptyTypeName3_1    completion:CompletionEmptyTypeName3_1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n" +
+			"element:CompletionEmptyTypeName3.CompletionEmptyTypeName3_1    completion:CompletionEmptyTypeName3_1    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:CompletionEmptyTypeName3_2    completion:CompletionEmptyTypeName3_2    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:clone    completion:clone()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
 			"element:equals    completion:equals()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
@@ -2980,7 +2987,7 @@ public void testCompletionQualifiedExpectedType() throws JavaModelException {
 
     if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
     	assertResults(
-	            "",
+	            "PX[TYPE_REF]{pack2.PX, pack2, Lpack2.PX;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE+ R_NON_RESTRICTED)+ "}",
 				requestor.getResults());
     } else {
 	    assertResults(
@@ -8403,7 +8410,7 @@ public void testCompletionMemberType2() throws JavaModelException {
 	} else {
 		assertResults(
 			"CompletionMemberType2[TYPE_REF]{CompletionMemberType2, test, Ltest.CompletionMemberType2;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-			"CompletionMemberType2.MemberException[TYPE_REF]{MemberException, test, Ltest.CompletionMemberType2$MemberException;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXCEPTION+ R_NON_RESTRICTED)+"}",
+			"CompletionMemberType2.MemberException[TYPE_REF]{MemberException, test, Ltest.CompletionMemberType2$MemberException;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXCEPTION+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	}
 }
@@ -9536,6 +9543,10 @@ public void testCompletionInsideExtends11() throws JavaModelException {
 		assertResults(
 				"",
 				requestor.getResults());
+	} else if (CompletionEngine.PROPOSE_MEMBER_TYPES) {
+		assertResults(
+				"",
+				requestor.getResults());
 	} else {
 		assertResults(
 				"CompletionInsideExtends11TopLevel[TYPE_REF]{CompletionInsideExtends11TopLevel, test, Ltest.CompletionInsideExtends11TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -10039,6 +10050,151 @@ public void testCompletionWithProblem1() throws JavaModelException {
 		assertResults(
 	            "",
 	            requestor.getProblem());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95505
+public void testCompletionExpectedTypeOnEmptyToken1() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		
+		aType = getWorkingCopy(
+	            "/Completion/src/test/AType.java",
+	            "package test;\n" +
+	            "public class AType{\n"+
+	            "}");
+		
+	    this.wc = getWorkingCopy(
+	            "/Completion/src/test/Test.java",
+	            "package test;\n" +
+	            "public class Test{\n"+
+	            "  void foo() {\n"+
+	            "    AType a = new \n"+
+	            "  }\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "AType a = new ";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+	    assertResults(
+	            "expectedTypesSignatures={Ltest.AType;}\n"+
+	            "expectedTypesKeys={Ltest/AType;}",
+	            requestor.getContext());
+	    if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
+			assertResults(
+		            "AType[TYPE_REF]{AType, test, Ltest.AType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+		            requestor.getResults());
+	    } else {
+	    	assertResults(
+		            "Test[TYPE_REF]{Test, test, Ltest.Test;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+					"AType[TYPE_REF]{AType, test, Ltest.AType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+		            requestor.getResults());
+	    }
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95505
+public void testCompletionExpectedTypeOnEmptyToken3() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/test/AType.java",
+	            "package test;\n" +
+	            "public class AType{\n"+
+	            "}");
+		
+	    this.wc = getWorkingCopy(
+	            "/Completion/src/test/Test.java",
+	            "package test;\n" +
+	            "public class Test{\n"+
+	            "  void foo() {\n"+
+	            "    AType a = \n"+
+	            "  }\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    requestor.setIgnored(CompletionProposal.METHOD_REF, true);
+	    requestor.setIgnored(CompletionProposal.FIELD_REF, true);
+	    requestor.setIgnored(CompletionProposal.LOCAL_VARIABLE_REF, true);
+	    
+	    String str = this.wc.getSource();
+	    String completeBehind = "AType a = ";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+	    assertResults(
+	            "expectedTypesSignatures={Ltest.AType;}\n"+
+	            "expectedTypesKeys={Ltest/AType;}",
+	            requestor.getContext());
+	    if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
+			assertResults(
+		            "",
+		            requestor.getResults());
+	    } else {
+	    	assertResults(
+		            "Test[TYPE_REF]{Test, test, Ltest.Test;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+					"AType[TYPE_REF]{AType, test, Ltest.AType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+		            requestor.getResults());
+	    }
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95505
+public void testCompletionExpectedTypeOnEmptyToken4() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/test/AInterface.java",
+	            "package test;\n" +
+	            "public interface AInterface{\n"+
+	            "}");
+		
+	    this.wc = getWorkingCopy(
+	            "/Completion/src/test/Test.java",
+	            "package test;\n" +
+	            "public class Test{\n"+
+	            "  void foo() {\n"+
+	            "    AInterface a = new \n"+
+	            "  }\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    
+	    String str = this.wc.getSource();
+	    String completeBehind = "AInterface a = new ";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+	    assertResults(
+	            "expectedTypesSignatures={Ltest.AInterface;}\n"+
+	            "expectedTypesKeys={Ltest/AInterface;}",
+	            requestor.getContext());
+	    
+	    if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
+			assertResults(
+		            "AInterface[TYPE_REF]{AInterface, test, Ltest.AInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+		            requestor.getResults());
+	    } else {
+	    	assertResults(
+		            "Test[TYPE_REF]{Test, test, Ltest.Test;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+					"AInterface[TYPE_REF]{AInterface, test, Ltest.AInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+		            requestor.getResults());
+	    }
 	} finally {
 		if(aType != null) {
 			aType.discardWorkingCopy();
