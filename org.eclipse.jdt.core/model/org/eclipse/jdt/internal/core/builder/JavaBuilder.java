@@ -411,8 +411,10 @@ private boolean hasClasspathChanged() {
 			}
 		} catch (CoreException ignore) { // skip it
 		}
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("New location: " + newSourceLocations[n] + "\n!= old location: " + oldSourceLocations[o]); //$NON-NLS-1$ //$NON-NLS-2$
+			printLocations(newSourceLocations, oldSourceLocations);
+		}
 		return true;
 	}
 	while (n < newLength) {
@@ -425,24 +427,14 @@ private boolean hasClasspathChanged() {
 		}
 		if (DEBUG) {
 			System.out.println("Added non-empty source folder"); //$NON-NLS-1$
-			System.out.println("New source folders:"); //$NON-NLS-1$
-			for (int i = 0; i < newLength; i++)
-				System.out.println("    " + newSourceLocations[i].debugPathString()); //$NON-NLS-1$
-			System.out.println("Old source folders:"); //$NON-NLS-1$
-			for (int i = 0; i < oldLength; i++)
-				System.out.println("    " + oldSourceLocations[i].debugPathString()); //$NON-NLS-1$
+			printLocations(newSourceLocations, oldSourceLocations);
 		}
 		return true;
 	}
 	if (o < oldLength) {
 		if (DEBUG) {
 			System.out.println("Removed source folder"); //$NON-NLS-1$
-			System.out.println("New source folders:"); //$NON-NLS-1$
-			for (int i = 0; i < newLength; i++)
-				System.out.println("    " + newSourceLocations[i].debugPathString()); //$NON-NLS-1$
-			System.out.println("Old source folders:"); //$NON-NLS-1$
-			for (int i = 0; i < oldLength; i++)
-				System.out.println("    " + oldSourceLocations[i].debugPathString()); //$NON-NLS-1$
+			printLocations(newSourceLocations, oldSourceLocations);
 		}
 		return true;
 	}
@@ -453,19 +445,16 @@ private boolean hasClasspathChanged() {
 	oldLength = oldBinaryLocations.length;
 	for (n = o = 0; n < newLength && o < oldLength; n++, o++) {
 		if (newBinaryLocations[n].equals(oldBinaryLocations[o])) continue;
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("New location: " + newBinaryLocations[n] + "\n!= old location: " + oldBinaryLocations[o]); //$NON-NLS-1$ //$NON-NLS-2$
+			printLocations(newBinaryLocations, oldBinaryLocations);
+		}
 		return true;
 	}
 	if (n < newLength || o < oldLength) {
 		if (DEBUG) {
 			System.out.println("Number of binary folders/jar files has changed:"); //$NON-NLS-1$
-			System.out.println("New binary locations:"); //$NON-NLS-1$
-			for (int i = 0; i < newLength; i++)
-				System.out.println("    " + newBinaryLocations[i].debugPathString()); //$NON-NLS-1$
-			System.out.println("Old binary locations:"); //$NON-NLS-1$
-			for (int i = 0; i < oldLength; i++)
-				System.out.println("    " + oldBinaryLocations[i].debugPathString()); //$NON-NLS-1$
+			printLocations(newBinaryLocations, oldBinaryLocations);
 		}
 		return true;
 	}
@@ -617,6 +606,15 @@ void mustPropagateStructuralChanges() {
 			}
 		}
 	}
+}
+
+private void printLocations(ClasspathLocation[] newLocations, ClasspathLocation[] oldLocations) {
+	System.out.println("New locations:"); //$NON-NLS-1$
+	for (int i = 0, length = newLocations.length; i < length; i++)
+		System.out.println("    " + newLocations[i].debugPathString()); //$NON-NLS-1$
+	System.out.println("Old locations:"); //$NON-NLS-1$
+	for (int i = 0, length = oldLocations.length; i < length; i++)
+		System.out.println("    " + oldLocations[i].debugPathString()); //$NON-NLS-1$
 }
 
 private void recordNewState(State state) {
