@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.text.MessageFormat;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -780,34 +782,32 @@ public void test011(){
 }
 // command line - help
 public void _test012(){
-	this.runConformTest(
-		new String[0],
-        " -help -showversion -referenceInfo",
-        "Eclipse Java Compiler 0.559, pre-3.1.0 release candidate-1, Copyright IBM Corp 2000, 2005. All rights reserved.\n" + 
+	final String expectedOutput =
+        "{0}\n" + 
         " \n" + 
         " Usage: <options> <source files | directories>\n" + 
         " If directories are specified, then their source contents are compiled.\n" + 
-        " Possible options are listed below. Options enabled by default are prefixed with \'+\'\n" + 
+        " Possible options are listed below. Options enabled by default are prefixed with \'\'+\'\'\n" + 
         " \n" + 
         " Classpath options:\n" + 
-        "    -cp -classpath <directories and zip/jar files separated by " + File.pathSeparator +">\n" + 
+        "    -cp -classpath <directories and zip/jar files separated by {1}>\n" + 
         "                       specify location for application classes and sources. Each\n" + 
         "                       directory or file can specify access rules for types between\n" + 
-        "                       \'[\' and \']\' (e.g. [-X.java] to deny access to type X)\n" + 
-        "    -bootclasspath <directories and zip/jar files separated by " + File.pathSeparator +">\n" + 
+        "                       \'\'[\'\' and \'\']\'\' (e.g. [-X.java] to deny access to type X)\n" + 
+        "    -bootclasspath <directories and zip/jar files separated by {1}>\n" + 
         "                       specify location for system classes. Each directory or file can\n" + 
-        "                       specify access rules for types between \'[\' and \']\' (e.g. [-X.java]\n" + 
+        "                       specify access rules for types between \'\'[\'\' and \'\']\'\' (e.g. [-X.java]\n" + 
         "                       to deny access to type X)\n" + 
-        "    -sourcepath <directories and zip/jar files separated by " + File.pathSeparator +">\n" + 
+        "    -sourcepath <directories and zip/jar files separated by {1}>\n" + 
         "                       specify location for application sources. Each directory or file can\n" + 
-        "                       specify access rules for types between \'[\' and \']\' (e.g. [-X.java]\n" + 
+        "                       specify access rules for types between \'\'[\'\' and \'\']\'\' (e.g. [-X.java]\n" + 
         "                       to deny access to type X)\n" + 
-        "    -extdirs <directories separated by " + File.pathSeparator +">\n" + 
+        "    -extdirs <directories separated by {1}>\n" + 
         "                       specify location for extension zip/jar files\n" + 
         "    -d <dir>           destination directory (if omitted, no directory is created)\n" + 
         "    -d none            generate no .class files\n" + 
         "    -encoding <enc>    specify custom encoding for all sources. Each file/directory can override it\n" + 
-        "                       when suffixed with \'[\'<enc>\']\' (e.g. X.java[utf8])\n" + 
+        "                       when suffixed with \'\'[\'\'<enc>\'\']\'\' (e.g. X.java[utf8])\n" + 
         " \n" + 
         " Compliance options:\n" + 
         "    -1.3               use 1.3 compliance level (implicit -source 1.3 -target 1.1)\n" + 
@@ -825,7 +825,7 @@ public void _test012(){
         "    -warn:-<warnings separated by ,>   disable specific warnings\n" + 
         "      allDeprecation       deprecation including inside deprecated code\n" + 
         "      allJavadoc           invalid or missing javadoc\n" + 
-        "      assertIdentifier   + \'assert\' used as identifier\n" + 
+        "      assertIdentifier   + \'\'assert\'\' used as identifier\n" + 
         "      boxing               autoboxing conversion\n" + 
         "      charConcat         + char[] in String concat\n" + 
         "      conditionAssign      possible accidental boolean assignment\n" + 
@@ -898,7 +898,19 @@ public void _test012(){
         "    -? -help           print this help message\n" + 
         "    -v -version        print compiler version\n" + 
         "    -showversion       print compiler version and continue\n" + 
-        "\n", 
+        "\n";
+
+	this.runConformTest(
+		new String[0],
+        " -help -showversion -referenceInfo",
+		MessageFormat.format(expectedOutput, new String[] {
+				Main.bind("misc.version", new String[] {
+					Main.bind("compiler.name"),
+					Main.bind("compiler.version"),
+					Main.bind("compiler.copyright")
+				}),
+				File.pathSeparator
+		}),
         "", true);
 }
 
@@ -922,20 +934,19 @@ public void _test012(){
 				"	^^^^\n" + 
 				"Zork cannot be resolved to a type\n" + 
 				"----------\n" + 
-				"1 problem (1 error)"
-, 
+				"1 problem (1 error)", 
 				true);
 		String logContents = Util.fileContent(logFileName);
 		String expectedLogContents = 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<!DOCTYPE compiler SYSTEM \"compiler.dtd\">\n" + 
-			"<compiler name=\"Eclipse Java Compiler\" copyright=\"Copyright IBM Corp 2000, 2005. All rights reserved.\" version=\"0.559, pre-3.1.0 release candidate-1\">\n" + 
+			"<compiler name=\"Eclipse Java Compiler\" copyright=\"Copyright IBM Corp 2000, 2005. All rights reserved.\" version=\"{1}\">\n" + 
 			"	<command_line>\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\"/>\n" + 
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\"/>\n" + 
 			"		<argument value=\"-1.5\"/>\n" + 
 			"		<argument value=\"-proceedOnError\"/>\n" + 
 			"		<argument value=\"-log\"/>\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "log.xml\"/>\n" + 
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}log.xml\"/>\n" + 
 			"		<argument value=\"-d\"/>\n" + 
 			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\"/>\n" + 
 			"	</command_line>\n" + 
@@ -1015,7 +1026,7 @@ public void _test012(){
 			"	</options>\n" + 
 			"	<classpaths>NORMALIZED SECTION</classpaths>\n" + 
 			"	<sources>\n" + 
-			"		<source path=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\">\n" + 
+			"		<source path=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\">\n" + 
 			"			<problems problems=\"1\" errors=\"1\" warnings=\"0\">\n" + 
 			"				<problem charEnd=\"28\" charStart=\"25\" severity=\"ERROR\" line=\"3\" id=\"UndefinedType\">\n" + 
 			"					<message value=\"Zork cannot be resolved to a type\"/>\n" + 
@@ -1025,14 +1036,20 @@ public void _test012(){
 			"					</arguments>\n" + 
 			"				</problem>\n" + 
 			"			</problems>\n" + 
-			"			<classfile path=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.class\"/>\n" + 
+			"			<classfile path=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.class\"/>\n" + 
 			"		</source>\n" + 
 			"	</sources>\n" + 
 			"	<stats>\n" + 
 			"		<problem_summary problems=\"1\" errors=\"1\" warnings=\"0\" tasks=\"0\"/>\n" + 
 			"	</stats>\n" + 
 			"</compiler>\n";
-		boolean compareOK = semiNormalizedComparison(expectedLogContents,
+		boolean compareOK = semiNormalizedComparison(
+				MessageFormat.format(
+						expectedLogContents,
+						new String[] {
+								File.separator,
+								Main.bind("compiler.version")
+						}),
 				logContents, xmlLogsNormalizer);
 		if (!compareOK) {
 			System.out.println(getClass().getName() + '#' + getName());
