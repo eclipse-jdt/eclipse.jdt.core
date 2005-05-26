@@ -2056,22 +2056,29 @@ public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding acces
 		this.aload_0();
 		this.getfield(fieldBinding);
 	}
-	if ((type = fieldBinding.type).isBaseType()) {
-		if (type == IntBinding)
+	switch (fieldBinding.type.id) {
+//		case T_void :
+//			this.return_();
+//			break;
+		case T_boolean :
+		case T_byte :
+		case T_char :
+		case T_short :
+		case T_int :
 			this.ireturn();
-		else
-			if (type == FloatBinding)
-				this.freturn();
-			else
-				if (type == LongBinding)
-					this.lreturn();
-				else
-					if (type == DoubleBinding)
-						this.dreturn();
-					else
-						this.ireturn();
-	} else
-		this.areturn();
+			break;
+		case T_long :
+			this.lreturn();
+			break;
+		case T_float :
+			this.freturn();
+			break;
+		case T_double :
+			this.dreturn();
+			break;
+		default :
+			this.areturn();
+	}	
 }
 public void generateSyntheticBodyForFieldWriteAccess(SyntheticMethodBinding accessBinding) {
 	initializeMaxLocals(accessBinding);
@@ -2086,17 +2093,17 @@ public void generateSyntheticBodyForFieldWriteAccess(SyntheticMethodBinding acce
 	}
 	this.return_();
 }
-public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessBinding) {
+public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMethod) {
 
-	initializeMaxLocals(accessBinding);
-	MethodBinding methodBinding = accessBinding.targetMethod;
-	TypeBinding[] parameters = methodBinding.parameters;
+	initializeMaxLocals(accessMethod);
+	MethodBinding targetMethod = accessMethod.targetMethod;
+	TypeBinding[] parameters = targetMethod.parameters;
 	int length = parameters.length;
-	TypeBinding[] arguments = accessBinding.kind == SyntheticMethodBinding.BridgeMethod 
-													? accessBinding.parameters
+	TypeBinding[] arguments = accessMethod.kind == SyntheticMethodBinding.BridgeMethod 
+													? accessMethod.parameters
 													: null;
 	int resolvedPosition;
-	if (methodBinding.isStatic())
+	if (targetMethod.isStatic())
 		resolvedPosition = 0;
 	else {
 		this.aload_0();
@@ -2117,42 +2124,47 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessBi
 		else
 			resolvedPosition++;
 	}
-	TypeBinding type;
-	if (methodBinding.isStatic())
-		this.invokestatic(methodBinding);
+	if (targetMethod.isStatic())
+		this.invokestatic(targetMethod);
 	else {
-		if (methodBinding.isConstructor()
-			|| methodBinding.isPrivate()
+		if (targetMethod.isConstructor()
+			|| targetMethod.isPrivate()
 			// qualified super "X.super.foo()" targets methods from superclass
-			|| accessBinding.kind == SyntheticMethodBinding.SuperMethodAccess){
-			this.invokespecial(methodBinding);
+			|| accessMethod.kind == SyntheticMethodBinding.SuperMethodAccess){
+			this.invokespecial(targetMethod);
 		} else {
-			if (methodBinding.declaringClass.isInterface()) { // interface or annotation type
-				this.invokeinterface(methodBinding);
+			if (targetMethod.declaringClass.isInterface()) { // interface or annotation type
+				this.invokeinterface(targetMethod);
 			} else {
-				this.invokevirtual(methodBinding);
+				this.invokevirtual(targetMethod);
 			}
 		}
 	}
-	if ((type = methodBinding.returnType).isBaseType())
-		if (type == VoidBinding)
+	switch (targetMethod.returnType.id) {
+		case T_void :
 			this.return_();
-		else
-			if (type == IntBinding)
-				this.ireturn();
-			else
-				if (type == FloatBinding)
-					this.freturn();
-				else
-					if (type == LongBinding)
-						this.lreturn();
-					else
-						if (type == DoubleBinding)
-							this.dreturn();
-						else
-							this.ireturn();
-	else
-		this.areturn();
+			break;
+		case T_boolean :
+		case T_byte :
+		case T_char :
+		case T_short :
+		case T_int :
+			this.ireturn();
+			break;
+		case T_long :
+			this.lreturn();
+			break;
+		case T_float :
+			this.freturn();
+			break;
+		case T_double :
+			this.dreturn();
+			break;
+		default :
+			if (targetMethod.returnType != accessMethod.returnType)
+				this.checkcast(accessMethod.returnType); // for bridge methods
+			this.areturn();
+	}
 }
 public void generateBoxingConversion(int unboxedTypeID) {
 	switch (unboxedTypeID) {
