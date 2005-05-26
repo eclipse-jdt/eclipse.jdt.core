@@ -412,7 +412,7 @@ private boolean hasClasspathChanged() {
 		} catch (CoreException ignore) { // skip it
 		}
 		if (DEBUG)
-			System.out.println(newSourceLocations[n] + " != " + oldSourceLocations[o]); //$NON-NLS-1$
+			System.out.println("New location: " + newSourceLocations[n] + "\n!= old location: " + oldSourceLocations[o]); //$NON-NLS-1$ //$NON-NLS-2$
 		return true;
 	}
 	while (n < newLength) {
@@ -423,13 +423,27 @@ private boolean hasClasspathChanged() {
 			}
 		} catch (CoreException ignore) { // skip it
 		}
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("Added non-empty source folder"); //$NON-NLS-1$
+			System.out.println("New source folders:"); //$NON-NLS-1$
+			for (int i = 0; i < newLength; i++)
+				System.out.println("    " + newSourceLocations[i].debugPathString()); //$NON-NLS-1$
+			System.out.println("Old source folders:"); //$NON-NLS-1$
+			for (int i = 0; i < oldLength; i++)
+				System.out.println("    " + oldSourceLocations[i].debugPathString()); //$NON-NLS-1$
+		}
 		return true;
 	}
 	if (o < oldLength) {
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("Removed source folder"); //$NON-NLS-1$
+			System.out.println("New source folders:"); //$NON-NLS-1$
+			for (int i = 0; i < newLength; i++)
+				System.out.println("    " + newSourceLocations[i].debugPathString()); //$NON-NLS-1$
+			System.out.println("Old source folders:"); //$NON-NLS-1$
+			for (int i = 0; i < oldLength; i++)
+				System.out.println("    " + oldSourceLocations[i].debugPathString()); //$NON-NLS-1$
+		}
 		return true;
 	}
 
@@ -440,17 +454,18 @@ private boolean hasClasspathChanged() {
 	for (n = o = 0; n < newLength && o < oldLength; n++, o++) {
 		if (newBinaryLocations[n].equals(oldBinaryLocations[o])) continue;
 		if (DEBUG)
-			System.out.println(newBinaryLocations[n] + " != " + oldBinaryLocations[o]); //$NON-NLS-1$
+			System.out.println("New location: " + newBinaryLocations[n] + "\n!= old location: " + oldBinaryLocations[o]); //$NON-NLS-1$ //$NON-NLS-2$
 		return true;
 	}
 	if (n < newLength || o < oldLength) {
 		if (DEBUG) {
 			System.out.println("Number of binary folders/jar files has changed:"); //$NON-NLS-1$
+			System.out.println("New binary locations:"); //$NON-NLS-1$
 			for (int i = 0; i < newLength; i++)
-				System.out.println(newBinaryLocations[i]);
-			System.out.println("was:"); //$NON-NLS-1$
+				System.out.println("    " + newBinaryLocations[i].debugPathString()); //$NON-NLS-1$
+			System.out.println("Old binary locations:"); //$NON-NLS-1$
 			for (int i = 0; i < oldLength; i++)
-				System.out.println(oldBinaryLocations[i]);
+				System.out.println("    " + oldBinaryLocations[i].debugPathString()); //$NON-NLS-1$
 		}
 		return true;
 	}

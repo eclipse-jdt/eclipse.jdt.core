@@ -140,4 +140,9 @@ public void reset() {
 public String toString() {
 	return "Source classpath directory " + sourceFolder.getFullPath().toString(); //$NON-NLS-1$
 }
+
+public String debugPathString() {
+	return this.sourceLocation;
+}
+
 }
