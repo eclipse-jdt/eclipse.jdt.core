@@ -5466,7 +5466,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	public void test0580() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
-			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/p/X.java", true/*resolve*/);
 			String source = "package p;\n" +
 			"public class X {\n" +
 			"	d String[][]tab;\n" +
@@ -5499,7 +5499,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	public void test0581() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
-			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/p/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				"package p;\n" +
 				"public class X {\n" +
@@ -5557,7 +5557,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\000\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5589,7 +5589,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\u0020\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5621,7 +5621,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\b\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5653,7 +5653,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\t\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5685,7 +5685,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\n\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5717,7 +5717,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\f\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5749,7 +5749,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\r\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5781,7 +5781,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\\"\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5813,7 +5813,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\'\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5845,7 +5845,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\\\\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5877,7 +5877,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\077\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5909,7 +5909,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\777\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy,
@@ -5962,7 +5962,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		}\n" +
 				"	}\n" +
 				"}\n";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -6059,7 +6059,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return /*start*/1 + 2 + ++i/*end*/;\n" +
 				"	}\n" +
 				"}\n";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -6141,7 +6141,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		}\n" +
 				"	};\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -6338,7 +6338,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"    System.out.println(i+s);\n" +
 				"  }\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
