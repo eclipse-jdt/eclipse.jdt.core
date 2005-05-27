@@ -1034,7 +1034,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				break;
 			case 'n' :
 				if ("nls".equals(warningToken)) //$NON-NLS-1$
-					return AssertUsedAsAnIdentifier;
+					return NonExternalizedString;
 				if ("noEffectAssign".equals(warningToken)) //$NON-NLS-1$
 					return NoEffectAssignment;
 				if ("null".equals(warningToken)) //$NON-NLS-1$

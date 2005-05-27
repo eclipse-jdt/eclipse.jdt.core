@@ -4699,5 +4699,24 @@ public class AnnotationTest extends AbstractComparableTest {
 				"}\n",
             },
 			"");
-    }    
+    }
+    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96974
+    public void test147() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings({\"nls\"})\n" +
+				"public class X<T> {\n" +
+				"	 String test= \"\";\n" +
+				"}",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
 }
