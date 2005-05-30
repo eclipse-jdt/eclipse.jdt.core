@@ -578,6 +578,45 @@ public void testAddRemoveClassFile() throws CoreException {
 		h.removeTypeHierarchyChangedListener(this);
 	}
 }
+/*
+ * Ensures that changing the modifiers of the focus type in a working copy reports a hierarchy change on save.
+ * (regression test for bug 
+ */
+public void testChangeFocusModifier() throws CoreException {
+	ITypeHierarchy h = null;
+	ICompilationUnit workingCopy = null;
+	try {
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		workingCopy = getCompilationUnit("/P1/p/X.java");
+		workingCopy.becomeWorkingCopy(null/*no pb requestor*/, null/*no progress*/);
+		h = workingCopy.getType("X").newTypeHierarchy(null);
+		h.addTypeHierarchyChangedListener(this);
+		
+		workingCopy.getBuffer().setContents(
+			"package p1;\n" +
+			"class X {\n" +
+			"}"
+		);
+		workingCopy.reconcile(ICompilationUnit.NO_AST, false/*no pb detection*/, null/*no workingcopy owner*/, null/*no prgress*/);
+		workingCopy.commitWorkingCopy(false/*don't force*/, null/*no progress*/);
+		
+		assertOneChange(h);
+	} finally {
+		if (h != null)
+			h.removeTypeHierarchyChangedListener(this);
+		if (workingCopy != null)
+			workingCopy.discardWorkingCopy();
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+
 /**
  * Ensures that a TypeHierarchyNotification is made invalid when the project is closed.
  */
