@@ -295,7 +295,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 * verbose option
 		 */
 		if (this.verbose) {
-			cmd.createArgument().setValue("-verbose"); //$NON-NLS-1$
+			// Fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=96605
+			// cmd.createArgument().setValue("-verbose"); //$NON-NLS-1$
 			/*
 			 * extra option allowed by the Eclipse compiler
 			 */
