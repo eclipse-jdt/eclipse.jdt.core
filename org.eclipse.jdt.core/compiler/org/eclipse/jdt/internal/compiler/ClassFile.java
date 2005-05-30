@@ -1253,11 +1253,12 @@ public class ClassFile
 	 */
 	public void addSyntheticConstructorAccessMethod(SyntheticMethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding);
-		// We know that we won't get more than 2 attribute: the code attribute + synthetic attribute
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 2;
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = contentsOffset;
+		attributeNumber++; // add code attribute
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForConstructorAccess(methodBinding);
@@ -1269,16 +1270,9 @@ public class ClassFile
 				.referenceCompilationUnit()
 				.compilationResult
 				.lineSeparatorPositions);
-		// add the synthetic attribute
-		int syntheticAttributeNameIndex =
-			constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
-		contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
-		contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
-		// the length of a synthetic attribute is equals to 0
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
+		// update the number of attributes
+		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
 
 	/**
@@ -1288,13 +1282,13 @@ public class ClassFile
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
 	 */	
 	public void addSyntheticEnumValueOfMethod(SyntheticMethodBinding methodBinding) {
-
 		generateMethodInfoHeader(methodBinding);
-		// We know that we won't get more than 1 attribute: the code attribute 
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 1;
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = contentsOffset;
+		attributeNumber++; // add code attribute
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForEnumValueOf(methodBinding);
@@ -1306,26 +1300,19 @@ public class ClassFile
 				.referenceCompilationUnit()
 				.compilationResult
 				.lineSeparatorPositions);
-//		// add the synthetic attribute
-//		int syntheticAttributeNameIndex =
-//			constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
-//		contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
-//		contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
-//		// the length of a synthetic attribute is equals to 0
-//		contents[contentsOffset++] = 0;
-//		contents[contentsOffset++] = 0;
-//		contents[contentsOffset++] = 0;
-//		contents[contentsOffset++] = 0;
-			
+		// update the number of attributes
+		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		contents[methodAttributeOffset] = (byte) attributeNumber;			
 	}
 
 	public void addSyntheticSwitchTable(SyntheticMethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding);
-		// We know that we won't get more than 1 attribute: the code attribute 
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 2;
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = contentsOffset;
+		attributeNumber++; // add code attribute
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForSwitchTable(methodBinding);
@@ -1338,16 +1325,9 @@ public class ClassFile
 				.referenceCompilationUnit()
 				.compilationResult
 				.lineSeparatorPositions);
-		// add the synthetic attribute
-		int syntheticAttributeNameIndex =
-			constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
-		contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
-		contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
-		// the length of a synthetic attribute is equals to 0
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
+		// update the number of attributes
+		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
 	/**
 	 * INTERNAL USE-ONLY
@@ -1356,13 +1336,13 @@ public class ClassFile
 	 * @param methodBinding org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
 	 */	
 	public void addSyntheticEnumValuesMethod(SyntheticMethodBinding methodBinding) {
-
 		generateMethodInfoHeader(methodBinding);
-		// We know that we won't get more than 1 attribute: the code attribute 
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 1;
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = contentsOffset;
+		attributeNumber++; // add code attribute
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForEnumValues(methodBinding);
@@ -1374,17 +1354,9 @@ public class ClassFile
 				.referenceCompilationUnit()
 				.compilationResult
 				.lineSeparatorPositions);
-//		// add the synthetic attribute
-//		int syntheticAttributeNameIndex =
-//			constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
-//		contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
-//		contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
-//		// the length of a synthetic attribute is equals to 0
-//		contents[contentsOffset++] = 0;
-//		contents[contentsOffset++] = 0;
-//		contents[contentsOffset++] = 0;
-//		contents[contentsOffset++] = 0;
-			
+		// update the number of attributes
+		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		contents[methodAttributeOffset] = (byte) attributeNumber;		
 	}
 
 	/**
@@ -1396,11 +1368,12 @@ public class ClassFile
 	 */
 	public void addSyntheticFieldReadAccessMethod(SyntheticMethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding);
-		// We know that we won't get more than 2 attribute: the code attribute + synthetic attribute
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 2;
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = contentsOffset;
+		attributeNumber++; // add code attribute
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForFieldReadAccess(methodBinding);
@@ -1412,16 +1385,9 @@ public class ClassFile
 				.referenceCompilationUnit()
 				.compilationResult
 				.lineSeparatorPositions);
-		// add the synthetic attribute
-		int syntheticAttributeNameIndex =
-			constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
-		contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
-		contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
-		// the length of a synthetic attribute is equals to 0
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
+		// update the number of attributes
+		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
 
 	/**
@@ -1433,11 +1399,12 @@ public class ClassFile
 	 */
 	public void addSyntheticFieldWriteAccessMethod(SyntheticMethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding);
-		// We know that we won't get more than 2 attribute: the code attribute + synthetic attribute
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 2;
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = contentsOffset;
+		attributeNumber++; // add code attribute
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForFieldWriteAccess(methodBinding);
@@ -1449,16 +1416,9 @@ public class ClassFile
 				.referenceCompilationUnit()
 				.compilationResult
 				.lineSeparatorPositions);
-		// add the synthetic attribute
-		int syntheticAttributeNameIndex =
-			constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
-		contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
-		contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
-		// the length of a synthetic attribute is equals to 0
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
+		// update the number of attributes
+		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
 
 	/**
