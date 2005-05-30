@@ -2227,6 +2227,9 @@ public class ClassFile
 		localContentsOffset += 2; // first we handle the linenumber attribute
 
 		if (codeStream.generateLineNumberAttributes) {
+			if (localContentsOffset + 12 >= this.contents.length) {
+				resizeContents(12);
+			}
 			/* Create and add the line number attribute (used for debugging) 
 			    * Build the pairs of:
 			    * (bytecodePC lineNumber)
@@ -2711,6 +2714,9 @@ public class ClassFile
 
 		// first we handle the linenumber attribute
 		if (codeStream.generateLineNumberAttributes) {
+			if (localContentsOffset + 12 >= this.contents.length) {
+				resizeContents(12);
+			}		
 			int index = 0;
 			int lineNumberNameIndex =
 				constantPool.literalIndex(AttributeNamesConstants.LineNumberTableName);
