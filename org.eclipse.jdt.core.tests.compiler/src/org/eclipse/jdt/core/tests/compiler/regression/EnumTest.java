@@ -3604,4 +3604,51 @@ the right of e1."
 			null,
 			null);	
 	}
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97247
+	public void test112() {
+		this.runConformTest(
+			new String[] {
+				"com/annot/Foo.java",
+				"package com.annot;\r\n" + 
+				"\r\n" + 
+				"import static com.annot.TestType.*;\n" +
+				"\n" +
+				"public class Foo {\n" +
+				"	@Test(type=PERFORMANCE)\n" +
+				"	public void testBar() throws Exception {\n" +
+				"		Test annotation = this.getClass().getMethod(\"testBar\").getAnnotation(Test.class);\n" +
+				"		switch (annotation.type()) {\n" +
+				"			case PERFORMANCE:\n" +
+				"				System.out.println(PERFORMANCE);\n" +
+				"				break;\n" +
+				"			case CORRECTNESS:\n" +
+				"				System.out.println(CORRECTNESS);\n" +
+				"				break;\n" +
+				"		}		\n" +
+				"	}\n" +
+				"}",
+				"com/annot/Test.java",
+				"package com.annot;\n" +
+				"\n" +
+				"import static com.annot.TestType.CORRECTNESS;\n" +
+				"import static java.lang.annotation.ElementType.METHOD;\n" +
+				"\n" +
+				"import java.lang.annotation.Target;\n" +
+				"\n" +
+				"@Target(METHOD)\n" +
+				"public @interface Test {\n" +
+				"	TestType type() default CORRECTNESS;\n" +
+				"}",
+				"com/annot/TestType.java",
+				"package com.annot;\n" +
+				"\n" +
+				"public enum TestType {\n" +
+				"	CORRECTNESS,\n" +
+				"	PERFORMANCE\n" +
+				"}"
+			},
+			""
+		);
+	}
 }
