@@ -55,7 +55,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 		boolean hasSubstitution = substitution != null;
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
 			return TypeConstants.MISMATCH;	
-		
+		// special case for re-entrant source types (selection, code assist, etc)...
+		// can request additional types during hierarchy walk that are found as source types that also 'need' to connect their hierarchy
+		if (this.superclass == null)
+			return TypeConstants.OK;
+
 		if (argumentType.isWildcard()) {
 			WildcardBinding wildcard = (WildcardBinding) argumentType;
 			switch(wildcard.boundKind) {
