@@ -2139,4 +2139,34 @@ public void test0096() throws JavaModelException {
 		true/*show key*/
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95481
+public void test0097() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Resolve/src2/test0097/Key.java",
+				"public class Key<\n" +
+				"	TT extends Test<KK, TT>,\n" +
+				"	KK extends Key<TT, KK>> {\n" +
+				"}\n");
+
+		IJavaElement[] elements = select(
+				"/Resolve/src2/test0097/Test.java",
+				"public class Test<\n" +
+				"	K extends Key<T, K>,\n" +
+				"	T extends Test<K, T>> {\n" +
+				"}\n",
+				"Key");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"Key [in [Working copy] Key.java [in test0097 [in src2 [in Resolve]]]]",
+			elements
+		);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
+}
 }
