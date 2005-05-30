@@ -131,7 +131,12 @@ public void test003() {
 		"	new StaticM1().new StaticM2();}\n" + 
 		"	^^^^^^^^^^^^^^\n" + 
 		"Illegal enclosing instance specification for type Top.StaticM1.StaticM2\n" + 
-		"----------\n"	);
+		"----------\n" + 
+		"2. WARNING in p\\Top.java (at line 42)\n" + 
+		"	Object hello(){\n" + 
+		"	       ^^^^^^^\n" + 
+		"The method hello() from the type new Top.StaticM1.StaticM2.NonStaticM3(){} is never used locally\n" + 
+		"----------\n");
 }
 /**
  * Regression test for PR #1G9ES9B

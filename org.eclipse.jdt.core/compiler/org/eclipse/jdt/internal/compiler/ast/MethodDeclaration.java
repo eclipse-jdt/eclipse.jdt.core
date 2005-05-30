@@ -45,8 +45,10 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (binding == null)
 				return;
 				
-			if (this.binding.isPrivate() && !this.binding.isPrivateUsed()) {
-				if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError()) {
+			if (!this.binding.isUsed() && 
+					(this.binding.isPrivate() 
+						|| (((this.binding.modifiers & (AccOverriding|AccImplementing)) == 0) && this.binding.declaringClass.isLocalType()))) {
+				if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
 					scope.problemReporter().unusedPrivateMethod(this);
 				}
 			}

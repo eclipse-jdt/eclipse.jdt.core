@@ -59,6 +59,7 @@ public class CompilationResult {
 	public boolean hasBeenAccepted = false;
 	public char[] fileName;
 	public boolean hasInconsistentToplevelHierarchies = false; // record the fact some toplevel types have inconsistent hierarchies
+	public boolean hasSyntaxError = false;
 	
 	long[] suppressWarningIrritants;  // irritant for suppressed warnings
 	long[] suppressWarningPositions; // (start << 32) + end 
@@ -318,17 +319,6 @@ public class CompilationResult {
 		return problemCount != 0;
 	}
 
-	public boolean hasSyntaxError(){
-
-		if (problems != null)
-			for (int i = 0; i < problemCount; i++) {
-				IProblem problem = problems[i];
-				if ((problem.getID() & IProblem.Syntax) != 0 && problem.isError())
-					return true;
-			}
-		return false;
-	}
-
 	public boolean hasTasks() {
 		return this.taskCount != 0;
 	}
@@ -427,6 +417,8 @@ public class CompilationResult {
 			if (newProblem.isError() && !referenceContext.hasErrors()) firstErrors.add(newProblem);
 			problemsMap.put(newProblem, referenceContext);
 		}
+		if ((newProblem.getID() & IProblem.Syntax) != 0 && newProblem.isError())
+			this.hasSyntaxError = true;
 	}
 
 	public void recordSuppressWarnings(long irritant, int sourceStart, int sourceEnd) {

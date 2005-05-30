@@ -337,9 +337,9 @@ public TypeBinding resolveType(BlockScope scope) {
 		// record the closest match, for clients who may still need hint about possible method match
 		if (closestMatch != null) {
 			this.binding = closestMatch;
-			if (closestMatch.isPrivate() && !scope.isDefinedInMethod(closestMatch)) {
+			if ((closestMatch.isPrivate() || closestMatch.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatch)) {
 				// ignore cases where method is used from within inside itself (e.g. direct recursions)
-				closestMatch.original().modifiers |= AccPrivateUsed;
+				closestMatch.original().modifiers |= AccLocallyUsed;
 			}
 		}
 		return this.resolvedType;

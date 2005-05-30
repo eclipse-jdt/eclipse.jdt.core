@@ -32,7 +32,7 @@ public interface CompilerModifiers extends ClassFileConstants { // modifier cons
 	final int AccClearPrivateModifier = ASTNode.Bit27; // might be requested during private access emulation
 	final int AccBlankFinal = ASTNode.Bit27; // for blank final variables
 	final int AccIsDefaultConstructor = ASTNode.Bit27; // for default constructor
-	final int AccPrivateUsed = ASTNode.Bit28; // used to diagnose unused private members
+	final int AccLocallyUsed = ASTNode.Bit28; // used to diagnose unused private/local members
 	final int AccVisibilityMASK = AccPublic | AccProtected | AccPrivate;
 	
 	final int AccOverriding = ASTNode.Bit29; // record fact a method overrides another one

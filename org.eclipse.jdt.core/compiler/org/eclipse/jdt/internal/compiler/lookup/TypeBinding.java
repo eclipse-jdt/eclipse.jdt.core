@@ -128,6 +128,9 @@ public char[] genericTypeSignature() {
 }
 public abstract PackageBinding getPackage();
 
+public final boolean isAnonymousType() {
+	return (tagBits & IsAnonymousType) != 0;
+}
 public boolean isAnnotationType() {
 	return false;
 }

@@ -40,8 +40,8 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		if (ignoreFurtherInvestigation)
 			return;
 
-		if (this.binding != null && this.binding.isPrivate() && !this.binding.isPrivateUsed()) {
-			if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError()) {
+		if (this.binding != null && !this.binding.isUsed() && (this.binding.isPrivate() || (this.binding.declaringClass.tagBits & (TagBits.IsAnonymousType|TagBits.IsLocalType)) == TagBits.IsLocalType)) {
+			if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
 				scope.problemReporter().unusedPrivateConstructor(this);
 			}
 		}

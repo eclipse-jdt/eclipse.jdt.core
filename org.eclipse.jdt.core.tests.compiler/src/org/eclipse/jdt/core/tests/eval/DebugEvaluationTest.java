@@ -2077,7 +2077,7 @@ public void test032() {
 			}
 		}
 		assertEquals("Unexpected errors",
-			"The field j is not visible|",
+			"The field B32.j is not visible|",
 			buffer == null ? "none" : buffer.toString());       
 	} finally {
 		removeTempClass("B32");

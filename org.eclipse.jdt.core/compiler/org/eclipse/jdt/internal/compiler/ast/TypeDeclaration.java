@@ -625,8 +625,8 @@ public class TypeDeclaration
 	 */
 	public void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 
-		if (this.binding.isPrivate() && !this.binding.isPrivateUsed()) {
-			if (!scope.referenceCompilationUnit().compilationResult.hasSyntaxError()) {
+		if ((this.binding.isPrivate()/* || (this.binding.tagBits & (TagBits.IsAnonymousType|TagBits.IsLocalType)) == TagBits.IsLocalType*/) && !this.binding.isUsed()) {
+			if (!scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
 				scope.problemReporter().unusedPrivateType(this);
 			}
 		}

@@ -1217,12 +1217,12 @@ public void test032() {
 		"1. ERROR in p\\X.java (at line 4)\n" + 
 		"	System.out.println(new q.X2().foo);	\n" + 
 		"	                              ^^^\n" + 
-		"The field foo is not visible\n" + 
+		"The field X2.foo is not visible\n" + 
 		"----------\n" + 
 		"2. ERROR in p\\X.java (at line 5)\n" + 
 		"	System.out.println(new q.X2().bar);	\n" + 
 		"	                              ^^^\n" + 
-		"The field bar is not visible\n" + 
+		"The field X2.bar is not visible\n" + 
 		"----------\n");
 }
 
@@ -1891,7 +1891,7 @@ public void test052() {
 		"1. WARNING in p\\A.java (at line 6)\n" + 
 		"	private int i;\n" + 
 		"	            ^\n" + 
-		"The private field A.i is never read locally\n" + 
+		"The field A.i is never read locally\n" + 
 		"----------\n" + 
 		"2. ERROR in p\\A.java (at line 8)\n" + 
 		"	int x = i;\n" + 
@@ -1903,8 +1903,7 @@ public void test052() {
 		"	while (false);\n" + 
 		"	             ^\n" + 
 		"Unreachable code\n" + 
-		"----------\n"
-	);
+		"----------\n");
 }
 
 public void test053() {
@@ -2115,9 +2114,18 @@ public void test059() {
 		"1. WARNING in p\\FieldQualification.java (at line 6)\n" + 
 		"	String field = \"Enclosing field for anonymous type\";\n" + 
 		"	       ^^^^^\n" + 
+		"The field Local.field is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in p\\FieldQualification.java (at line 6)\n" + 
+		"	String field = \"Enclosing field for anonymous type\";\n" + 
+		"	       ^^^^^\n" + 
 		"The field Local.field is hiding a field from type FieldQualification\n" + 
-		"----------\n"
-	);
+		"----------\n" + 
+		"3. WARNING in p\\FieldQualification.java (at line 7)\n" + 
+		"	void foo() {\n" + 
+		"	     ^^^^^\n" + 
+		"The method foo() from the type Local is never used locally\n" + 
+		"----------\n");
 }
 
 public void test060() {
@@ -2175,7 +2183,7 @@ public void test061() {
 		"1. WARNING in q\\Y.java (at line 3)\n" + 
 		"	private static class X {}	\n" + 
 		"	                     ^\n" + 
-		"The private type Y.X is never used locally\n" + 
+		"The type Y.X is never used locally\n" + 
 		"----------\n");
 }
 
@@ -3067,9 +3075,8 @@ public void test088() {
 		"3. WARNING in p\\X.java (at line 25)\n" + 
 		"	private void a() { System.out.println(\"A\");} \n" + 
 		"	             ^^^\n" + 
-		"The private method a() from the type X is never used locally\n" + 
-		"----------\n"
-	);
+		"The method a() from the type X is never used locally\n" + 
+		"----------\n");
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78089

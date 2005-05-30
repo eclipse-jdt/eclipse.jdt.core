@@ -348,8 +348,8 @@ public class DependencyTests extends Tests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {cPath, xPath});
-		expectingSpecificProblemFor(cPath, new Problem("C", "The field i is not visible", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(xPath, new Problem("X", "The field c.i is not visible", xPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(cPath, new Problem("C", "The field A.i is not visible", cPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The field A.i is not visible", xPath)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$
@@ -360,7 +360,7 @@ public class DependencyTests extends Tests {
 
 		incrementalBuild(projectPath);
 		expectingOnlyProblemsFor(new IPath[] {xPath});
-		expectingSpecificProblemFor(xPath, new Problem("X", "The field c.i is not visible", xPath)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(xPath, new Problem("X", "The field A.i is not visible", xPath)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p1;\n"+ //$NON-NLS-1$

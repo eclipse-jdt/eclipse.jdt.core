@@ -648,9 +648,6 @@ public final boolean isAbstract() {
 public boolean isAnnotationType() {
 	return (modifiers & AccAnnotation) != 0;
 }
-public final boolean isAnonymousType() {
-	return (tagBits & IsAnonymousType) != 0;
-}
 public final boolean isBinaryBinding() {
 	return (tagBits & IsBinaryBinding) != 0;
 }
@@ -741,8 +738,8 @@ public final boolean isPrivate() {
 /* Answer true if the receiver has private visibility and is used locally
 */
 
-public final boolean isPrivateUsed() {
-	return (modifiers & AccPrivateUsed) != 0;
+public final boolean isUsed() {
+	return (modifiers & AccLocallyUsed) != 0;
 }
 /* Answer true if the receiver has protected visibility
 */

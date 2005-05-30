@@ -88,14 +88,13 @@ public void test002() {
 		"1. WARNING in p1\\A.java (at line 3)\n" + 
 		"	private int value;								\n" + 
 		"	            ^^^^^\n" + 
-		"The private field A.value is never read locally\n" + 
+		"The field A.value is never read locally\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 6)\n" + 
 		"	value = 2;								\n" + 
 		"	^^^^^\n" + 
 		"Cannot make a static reference to the non-static field value\n" + 
-		"----------\n"
-	);									
+		"----------\n");									
 }
 /**
  * Access static field from static inner class
@@ -218,15 +217,13 @@ public void test006() {
 		"1. WARNING in p1\\A.java (at line 3)\n" + 
 		"	private static String success = \"SUCCESS\";	\n" + 
 		"	                      ^^^^^^^\n" + 
-		"The private field A.success is never read locally\n" + 
+		"The field A.success is never read locally\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(this.success);}\n" + 
 		"	                                        ^^^^^^^^^^^^\n" + 
-		"The field success is not visible\n" + 
-		"----------\n"
-
-	);
+		"The field A.success is not visible\n" + 
+		"----------\n");
 }
 /**
  * No errors in jdk1.2.2, jdk1.3
@@ -312,15 +309,13 @@ public void test009() {
 		"1. WARNING in p1\\A.java (at line 3)\n" + 
 		"	private String success = \"SUCCESS\";			\n" + 
 		"	               ^^^^^^^\n" + 
-		"The private field A.success is never read locally\n" + 
+		"The field A.success is never read locally\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(this.success);}\n" + 
 		"	                                        ^^^^^^^^^^^^\n" + 
-		"The field success is not visible\n" + 
-		"----------\n"
-
-	);
+		"The field A.success is not visible\n" + 
+		"----------\n");
 }
 /**
  * jdk1.2.2 reports: Can't make a static reference to nonstatic variable success in class p1.A
@@ -348,14 +343,13 @@ public void test010() {
 		"1. WARNING in p1\\A.java (at line 3)\n" + 
 		"	private String success = \"SUCCESS\";			\n" + 
 		"	               ^^^^^^^\n" + 
-		"The private field A.success is never read locally\n" + 
+		"The field A.success is never read locally\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(A.success);}\n" + 
 		"	                                        ^^^^^^^^^\n" + 
 		"Cannot make a static reference to the non-static field A.success\n" + 
-		"----------\n"
-	);
+		"----------\n");
 }
 /**
  * 
@@ -904,9 +898,8 @@ public void test026() {
 		"1. ERROR in p2\\B.java (at line 6)\n" + 
 		"	bleh.B = 35;						\n" + 
 		"	^^^^^^\n" + 
-		"The field bleh.B is not visible\n" + 
-		"----------\n"
-	);
+		"The field A.B.B is not visible\n" + 
+		"----------\n");
 }
 /**
  *

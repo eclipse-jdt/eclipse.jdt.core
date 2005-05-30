@@ -238,42 +238,42 @@ public class StaticImportTest extends AbstractComparableTest {
 				"	static class ZMember {}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 3)\n" + 
-			"	import static p2.Z.Zint;\n" + 
-			"	              ^^^^^^^^^\n" + 
-			"The import p2.Z.Zint cannot be resolved\n" + 
-			"----------\n" + 
-			"2. ERROR in p\\X.java (at line 4)\n" + 
-			"	import static p2.Z.ZMember;\n" + 
-			"	              ^^^^^^^^^^^^\n" + 
-			"The type p2.Z.ZMember is not visible\n" + 
-			"----------\n" + 
-			"3. ERROR in p\\X.java (at line 6)\n" + 
-			"	int x = y(1);\n" + 
-			"	        ^\n" + 
-			"The method y(int) from the type Y is not visible\n" + 
-			"----------\n" + 
-			"4. ERROR in p\\X.java (at line 7)\n" + 
-			"	int y = Yint;\n" + 
-			"	        ^^^^\n" + 
-			"The field Yint is not visible\n" + 
-			"----------\n" + 
-			"5. ERROR in p\\X.java (at line 8)\n" + 
-			"	int z = Zint;\n" + 
-			"	        ^^^^\n" + 
-			"Zint cannot be resolved\n" + 
-			"----------\n" + 
-			"6. ERROR in p\\X.java (at line 9)\n" + 
-			"	void m1(YMember m) {}\n" + 
-			"	        ^^^^^^^\n" + 
-			"The type YMember is not visible\n" + 
-			"----------\n" + 
-			"7. ERROR in p\\X.java (at line 10)\n" + 
-			"	void m2(ZMember m) {}\n" + 
-			"	        ^^^^^^^\n" + 
-			"ZMember cannot be resolved to a type\n" + 
-			"----------\n");
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 3)\n" + 
+		"	import static p2.Z.Zint;\n" + 
+		"	              ^^^^^^^^^\n" + 
+		"The import p2.Z.Zint cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 4)\n" + 
+		"	import static p2.Z.ZMember;\n" + 
+		"	              ^^^^^^^^^^^^\n" + 
+		"The type p2.Z.ZMember is not visible\n" + 
+		"----------\n" + 
+		"3. ERROR in p\\X.java (at line 6)\n" + 
+		"	int x = y(1);\n" + 
+		"	        ^\n" + 
+		"The method y(int) from the type Y is not visible\n" + 
+		"----------\n" + 
+		"4. ERROR in p\\X.java (at line 7)\n" + 
+		"	int y = Yint;\n" + 
+		"	        ^^^^\n" + 
+		"The field Y.Yint is not visible\n" + 
+		"----------\n" + 
+		"5. ERROR in p\\X.java (at line 8)\n" + 
+		"	int z = Zint;\n" + 
+		"	        ^^^^\n" + 
+		"Zint cannot be resolved\n" + 
+		"----------\n" + 
+		"6. ERROR in p\\X.java (at line 9)\n" + 
+		"	void m1(YMember m) {}\n" + 
+		"	        ^^^^^^^\n" + 
+		"The type YMember is not visible\n" + 
+		"----------\n" + 
+		"7. ERROR in p\\X.java (at line 10)\n" + 
+		"	void m2(ZMember m) {}\n" + 
+		"	        ^^^^^^^\n" + 
+		"ZMember cannot be resolved to a type\n" + 
+		"----------\n");
 	}
 
 	public void test006() { // test non static member types
@@ -645,7 +645,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"1. ERROR in bug\\A.java (at line 4)\n" + 
 			"	private B b2 = b;\n" + 
 			"	               ^\n" + 
-			"The field b is not visible\n" + 
+			"The field C.b is not visible\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. WARNING in bug\\B.java (at line 2)\n" + 
@@ -657,7 +657,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"1. WARNING in bug\\C.java (at line 3)\n" + 
 			"	private static B b;\n" + 
 			"	                 ^\n" + 
-			"The private field C.b is never read locally\n" + 
+			"The field C.b is never read locally\n" + 
 			"----------\n");
 	}
 

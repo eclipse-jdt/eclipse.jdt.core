@@ -2488,8 +2488,13 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 */
 			break;
 		case NotVisible :
-			id = IProblem.NotVisibleField;
-			break;
+			this.handle(
+				IProblem.NotVisibleField,
+				new String[] {new String(fieldRef.token), new String(field.declaringClass.readableName())},
+				new String[] {new String(fieldRef.token), new String(field.declaringClass.shortReadableName())},
+				fieldRef.sourceStart,
+				fieldRef.sourceEnd);			
+			return;
 		case Ambiguous :
 			id = IProblem.AmbiguousField;
 			break;
@@ -2532,8 +2537,15 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 			id = IProblem.UndefinedField;
 			break;
 		case NotVisible :
-			id = IProblem.NotVisibleField;
-			break;
+			char[] name = field.readableName();
+			name = CharOperation.lastSegment(name, '.');
+			this.handle(
+				IProblem.NotVisibleField,
+				new String[] {new String(name), new String(field.declaringClass.readableName())},
+				new String[] {new String(name), new String(field.declaringClass.shortReadableName())},
+				nameRef.sourceStart,
+				nameRef.sourceEnd);				
+			return;
 		case Ambiguous :
 			id = IProblem.AmbiguousField;
 			break;
@@ -2602,8 +2614,14 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 */
 			break;
 		case NotVisible :
-			id = IProblem.NotVisibleField;
-			break;
+			String fieldName = new String(nameRef.tokens[index]);
+			this.handle(
+				IProblem.NotVisibleField,
+				new String[] {fieldName, new String(field.declaringClass.readableName())},
+				new String[] {fieldName, new String(field.declaringClass.shortReadableName())},
+				nameRef.sourceStart, 
+				(int) nameRef.sourcePositions[index]);				
+			return;
 		case Ambiguous :
 			id = IProblem.AmbiguousField;
 			break;
