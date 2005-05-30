@@ -399,6 +399,7 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 
 public void setActualReceiverType(ReferenceBinding receiverType) {
+	if (receiverType == null) return; // error scenario only
 	this.actualReceiverType = receiverType;
 }
 /**
