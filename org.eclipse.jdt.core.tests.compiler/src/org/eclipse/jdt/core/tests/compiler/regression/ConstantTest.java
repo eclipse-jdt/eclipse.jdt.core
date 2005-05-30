@@ -588,6 +588,45 @@ public void test012() {
 		},
 		"3232");
 }
+//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97190
+public void test013() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(-9223372036854775809L); // KO\n" +
+			"		System.out.println(9223372036854775809L); // KO\n" +
+			"		System.out.println(9223372036854775808L); // KO\n" +
+			"		System.out.println(23092395825689123986L); // KO\n" +
+			"		System.out.println(-9223372036854775808L); // OK\n" +
+			"		System.out.println(9223372036854775807L); // OK\n" +
+			"		System.out.println(2309239582568912398L); // OK\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	System.out.println(-9223372036854775809L); // KO\n" + 
+		"	                    ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The literal 9223372036854775809L of type long is out of range \n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	System.out.println(9223372036854775809L); // KO\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The literal 9223372036854775809L of type long is out of range \n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	System.out.println(9223372036854775808L); // KO\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The literal 9223372036854775808L of type long is out of range \n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	System.out.println(23092395825689123986L); // KO\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The literal 23092395825689123986L of type long is out of range \n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return ConstantTest.class;
 }
