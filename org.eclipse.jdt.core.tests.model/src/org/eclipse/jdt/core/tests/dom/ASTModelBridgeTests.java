@@ -154,6 +154,26 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that the IJavaElement of an IBinding representing an array type is correct.
+	 */
+	public void testArrayType() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/Object[]/*end*/ field;\n" +
+			"}"
+		);
+		IBinding binding = ((ArrayType) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing a method coming from a class file is correct.
 	 * (regression test for bug 91445 IMethodBinding.getJavaElement() returns an "unopen" IMethod)
 	 */

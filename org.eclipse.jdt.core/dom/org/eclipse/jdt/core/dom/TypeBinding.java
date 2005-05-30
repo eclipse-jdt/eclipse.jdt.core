@@ -374,22 +374,25 @@ class TypeBinding implements ITypeBinding {
 	}
 	
 	private JavaElement getUnresolvedJavaElement() {
-		if (this.binding == null) 
+		org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = this.binding;
+		if (typeBinding == null) 
 			return null;
-		switch (this.binding.kind()) {
+		switch (typeBinding.kind()) {
 			case Binding.ARRAY_TYPE :
+				typeBinding = ((ArrayBinding) typeBinding).leafComponentType();
+				break;
 			case Binding.BASE_TYPE :
 			case Binding.WILDCARD_TYPE :
 				return null;
 			default :
-				if (this.binding.isCapture()) 
+				if (typeBinding.isCapture()) 
 					return null;
 		}
 		ReferenceBinding referenceBinding;
-		if (this.binding.isParameterizedType() || this.binding.isRawType())
-			referenceBinding = (ReferenceBinding) this.binding.erasure();
+		if (typeBinding.isParameterizedType() || typeBinding.isRawType())
+			referenceBinding = (ReferenceBinding) typeBinding.erasure();
 		else
-			referenceBinding = (ReferenceBinding) this.binding;
+			referenceBinding = (ReferenceBinding) typeBinding;
 		char[] fileName = referenceBinding.getFileName();
 		if (Util.isClassFileName(fileName)) {
 			ClassFile classFile = (ClassFile) getClassFile(fileName);
