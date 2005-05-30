@@ -1776,16 +1776,22 @@ public class JavaModelManager implements ISaveParticipant {
 					String varName = propertyName.substring(variablePrefixLength);
 					String propertyValue = preferences.get(propertyName, null);
 					if (propertyValue != null) {
+						// cleanup old preferences
+						preferences.remove(propertyName); 
+						
+						// add variable to table
 						IPath varPath = new Path(propertyValue.trim());
 						this.variables.put(varName, varPath); 
 						this.previousSessionVariables.put(varName, varPath);
-						preferences.remove(propertyName); // cleanup old preferences
 					}
 				} else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
 					String propertyValue = preferences.get(propertyName, null);
 					if (propertyValue != null) {
+						// cleanup old preferences
+						preferences.remove(propertyName); 
+						
+						// recreate container
 						recreatePersistedContainer(propertyName, propertyValue, true/*add to container values*/);
-						preferences.remove(propertyName); // cleanup old preferences
 					}
 				}
 			}
