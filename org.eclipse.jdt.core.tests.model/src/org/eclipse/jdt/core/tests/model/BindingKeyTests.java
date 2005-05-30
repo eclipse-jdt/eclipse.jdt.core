@@ -418,4 +418,15 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		);
 	}
 
+	/*
+	 * Generic secondary type
+	 * (regression test for bug 96858 IllegalArgumentException in Signature)
+	 */
+	public void test038() {
+		assertBindingKeySignatureEquals(
+			"<T:U:>Lp1.Y;",
+			"Lp1/X~Y<TT;TU;>;"
+		);
+	}
+
 }

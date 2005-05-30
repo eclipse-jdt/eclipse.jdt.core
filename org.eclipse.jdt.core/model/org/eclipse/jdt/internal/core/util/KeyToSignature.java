@@ -173,6 +173,11 @@ public class KeyToSignature extends BindingKeyParser {
 	}
 
 	public void consumeType() {
+		// remove main type if needed
+		if (this.mainTypeStart != -1) {
+			this.signature.replace(this.mainTypeStart, this.mainTypeEnd, ""); //$NON-NLS-1$
+		}
+		// parameter types
 		int length = this.typeParameters.size();
 		if (length > 0) {
 			StringBuffer typeParametersSig = new StringBuffer();
@@ -185,10 +190,6 @@ public class KeyToSignature extends BindingKeyParser {
 			typeParametersSig.append('>');
 			this.signature.insert(this.typeSigStart, typeParametersSig);
 			this.typeParameters = new ArrayList();
-		}
-		// remove main type if needed
-		if (this.mainTypeStart != -1) {
-			this.signature.replace(this.mainTypeStart, this.mainTypeEnd, ""); //$NON-NLS-1$
 		}
 		this.signature.append(';');
 	}
