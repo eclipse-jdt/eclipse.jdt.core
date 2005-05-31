@@ -2424,6 +2424,78 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97161
+	public void test043a() {
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import static p.Y.*;\n" +
+				"import static p.Z.*;\n" +
+				"public class X {\n" +
+				"	Y data = null;\n" +
+				"	public X() { foo(data.l); }\n" +
+				"}\n",
+				"p/Y.java",
+				"package p;\n" +
+				"import java.util.List;\n" +
+				"public class Y {\n" +
+				"	List l = null;\n" +
+				"	public static <T> void foo(T... e) {}\n" +
+				"}\n",
+				"p/Z.java",
+				"package p;\n" +
+				"import java.util.List;\n" +
+				"public class Z {\n" +
+				"	public static <T> void foo(List<T>... e) {}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\X.java (at line 6)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List...) of the generic method foo(List<T>...) of type Z\n" + 
+			"----------\n" + 
+			"2. WARNING in p\\X.java (at line 6)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	                 ^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+			"----------\n"
+			// unchecked conversion warnings
+		);
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import static p.Y.*;\n" +
+				"public class X {\n" +
+				"	Y data = null;\n" +
+				"	public X() { foo(data.l); }\n" +
+				"}\n",
+				"p/Y.java",
+				"package p;\n" +
+				"import java.util.List;\n" +
+				"public class Y {\n" +
+				"	List l = null;\n" +
+				"	public static <T> void foo(T... e) {}\n" +
+				"	public static <T> void foo(List<T>... e) {}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\X.java (at line 5)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List...) of the generic method foo(List<T>...) of type Y\n" + 
+			"----------\n" + 
+			"2. WARNING in p\\X.java (at line 5)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	                 ^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+			"----------\n"
+			// unchecked conversion warnings
+		);
+	}
+
 	// ensure AccOverriding remains when attempting to override final method 
 	public void test044() {
 		this.runNegativeTest(

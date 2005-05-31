@@ -1963,6 +1963,7 @@ public abstract class Scope
 			CompilationUnitScope unitScope = (CompilationUnitScope) scope;
 			ImportBinding[] imports = unitScope.imports;
 			if (imports != null) {
+				MethodBinding[] visible = null;
 				int importLevel = -1; // -1 = not found, 0 = on demand match, 1 = single import match
 				for (int i = 0, length = imports.length; i < length; i++) {
 					ImportBinding importBinding = imports[i];
@@ -2002,21 +2003,20 @@ public abstract class Scope
 										if (compatibleMethod.canBeSeenBy(unitScope.fPackage)) {
 											ImportReference importReference = importBinding.reference;
 											if (importReference != null) importReference.used = true;
-											int matchingImportLevel = importBinding.onDemand ? 0 : 1;
-											if (matchingImportLevel == importLevel) {
-												scope = this;
-												while (true) {
-													switch (scope.kind) {
-														case CLASS_SCOPE :
-															return new ProblemMethodBinding(selector, argumentTypes, ((ClassScope) scope).referenceContext.binding, Ambiguous);
-														case COMPILATION_UNIT_SCOPE :
-															return new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, Ambiguous);
-													}
-													scope = scope.parent;
+											if (foundMethod == null || !foundMethod.isValidBinding()) {
+												foundMethod = compatibleMethod;
+											} else {
+												if (visible == null) {
+													visible = new MethodBinding[] {foundMethod, compatibleMethod};
+												} else {
+													int visibleLength = visible.length;
+													MethodBinding[] temp = new MethodBinding[visibleLength + 1];
+													System.arraycopy(visible, 0, temp, 0, visibleLength);
+													temp[visibleLength] = compatibleMethod;
+													visible = temp;
 												}
 											}
-											foundMethod = compatibleMethod;
-											importLevel = matchingImportLevel;
+											importLevel = importBinding.onDemand ? 0 : 1;
 										} else if (foundMethod == null) {
 											foundMethod = new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, NotVisible);
 										}
@@ -2028,6 +2028,8 @@ public abstract class Scope
 						}
 					}
 				}
+				if (visible != null)
+					foundMethod = mostSpecificMethodBinding(visible, visible.length, argumentTypes, invocationSite);
 			}
 			if (foundMethod != null) {
 				invocationSite.setActualReceiverType(foundMethod.declaringClass);
@@ -3299,31 +3301,40 @@ public abstract class Scope
 								continue; // special case to choose between 2 varargs methods when the last arg is missing or its Object[]
 						}
 						continue nextVisible;
+					} else if (method.isStatic()) {
+						// detect collision between static import methods
+						if (method.declaringClass != method2.declaringClass && method.original().areParametersEqual(method2.original()))
+							continue nextVisible;
 					} else if (method.hasSubstitutedParameters() && method.isAbstract() == method2.isAbstract()) { // must both be abstract or concrete, not one of each
 						if (method.areParametersEqual(method2)) {
-							// its possible with 2 abstract methods that one does not inherit from the other
+							// its possible with 2 methods that one does not inherit from the other
 							// need to find their methods from the receiver type
+							// see cases in verify test #43
 							MethodBinding original = method.original();
 							MethodBinding original2 = method2.original();
 							if (original.areParameterErasuresEqual(original2)) continue;
 							ReferenceBinding receiverType = (ReferenceBinding) ((MessageSend) invocationSite).actualReceiverType;
 							if (receiverType != method.declaringClass) {
 								ReferenceBinding superType = ((ReferenceBinding) receiverType.erasure()).findSuperTypeErasingTo(original.declaringClass);
-								MethodBinding[] superMethods = superType.getMethods(original.selector);
-								for (int m = 0, l = superMethods.length; m < l; m++) {
-									if (superMethods[m].original() == original) {
-										original = superMethods[m];
-										break;
+								if (superType != null) {
+									MethodBinding[] superMethods = superType.getMethods(original.selector);
+									for (int m = 0, l = superMethods.length; m < l; m++) {
+										if (superMethods[m].original() == original) {
+											original = superMethods[m];
+											break;
+										}
 									}
 								}
 							}
 							if (receiverType != method2.declaringClass) {
 								ReferenceBinding superType = ((ReferenceBinding) receiverType.erasure()).findSuperTypeErasingTo(original2.declaringClass);
-								MethodBinding[] superMethods = superType.getMethods(original2.selector);
-								for (int m = 0, l = superMethods.length; m < l; m++) {
-									if (superMethods[m].original() == original2) {
-										original2 = superMethods[m];
-										break;
+								if (superType != null) {
+									MethodBinding[] superMethods = superType.getMethods(original2.selector);
+									for (int m = 0, l = superMethods.length; m < l; m++) {
+										if (superMethods[m].original() == original2) {
+											original2 = superMethods[m];
+											break;
+										}
 									}
 								}
 							}
