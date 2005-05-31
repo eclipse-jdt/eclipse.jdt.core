@@ -7014,4 +7014,40 @@ public void test0220() throws JavaModelException {
 		}
 	}
 }
+public void test0221() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0221/AType.java",
+				"package test0221;\n"+
+				"\n"+
+				"public class AType<T> {\n"+
+				"}");
+		
+
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0221/Test.java",
+	            "package test0221;\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "  AType<? extends ATy\n"+
+	            "}",
+            	"ATy");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"AType[TYPE_REF]{AType, test0221, Ltest0221.AType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+	}
+}
 }
