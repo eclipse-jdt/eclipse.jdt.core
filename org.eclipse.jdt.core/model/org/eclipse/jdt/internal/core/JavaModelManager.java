@@ -2720,6 +2720,15 @@ public class JavaModelManager implements ISaveParticipant {
 			// discard obsoleted information about previous session
 			this.previousSessionVariables.remove(variableName);
 		}
+	
+		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
+		String variableString = variablePath == null ? CP_ENTRY_IGNORE : variablePath.toString();
+		getInstancePreferences().put(variableKey, variableString);
+		try {
+			getInstancePreferences().flush();
+		} catch (BackingStoreException e) {
+			// ignore exception
+		}
 	}
 	
 	/*
