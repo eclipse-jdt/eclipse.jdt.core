@@ -20,6 +20,9 @@ public class CompletionOnKeyword2 extends ImportReference implements CompletionO
 		this.token = token;
 		this.possibleKeywords = possibleKeywords;
 	}
+	public boolean canCompleteEmptyToken() {
+		return false;
+	}
 	public char[] getToken() {
 		return token;
 	}

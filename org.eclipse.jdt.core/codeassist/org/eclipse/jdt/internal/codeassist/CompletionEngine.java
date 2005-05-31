@@ -733,7 +733,7 @@ public final class CompletionEngine
 							findTypesAndPackages(this.completionToken, scope);
 							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 								if(this.completionToken != null && this.completionToken.length != 0) {
-									findKeywords(this.completionToken, singleNameReference.possibleKeywords);
+									findKeywords(this.completionToken, singleNameReference.possibleKeywords, false);
 								} else {
 									findTrueOrFalseKeywords(singleNameReference.possibleKeywords);
 								}
@@ -830,7 +830,7 @@ public final class CompletionEngine
 											((scope instanceof MethodScope && !((MethodScope)scope).isStatic)
 											|| ((methodScope = scope.enclosingMethodScope()) != null && !methodScope.isStatic))) {
 										if(this.completionToken.length > 0) {
-											findKeywords(this.completionToken, new char[][]{Keywords.THIS});
+											findKeywords(this.completionToken, new char[][]{Keywords.THIS}, false);
 										} else {
 											int relevance = computeBaseRelevance();
 											relevance += computeRelevanceForInterestingProposal();
@@ -942,7 +942,7 @@ public final class CompletionEngine
 									this.completionToken = access.token;
 									
 									if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-										findKeywords(this.completionToken, new char[][]{Keywords.NEW});
+										findKeywords(this.completionToken, new char[][]{Keywords.NEW}, false);
 									}
 									
 									findFieldsAndMethods(
@@ -1106,7 +1106,7 @@ public final class CompletionEngine
 																if(astNode instanceof CompletionOnKeyword) {
 																	if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 																		CompletionOnKeyword keyword = (CompletionOnKeyword)astNode;
-																		findKeywords(keyword.getToken(), keyword.getPossibleKeywords());
+																		findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), keyword.canCompleteEmptyToken());
 																	}
 																} else if(astNode instanceof CompletionOnParameterizedQualifiedTypeReference) {
 																	if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
@@ -1464,7 +1464,7 @@ public final class CompletionEngine
 							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 								setSourceRange(importReference.sourceStart, importReference.sourceEnd);
 								CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
-								findKeywords(keyword.getToken(), keyword.getPossibleKeywords());
+								findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), false);
 							}
 							if(this.noProposal && this.problem != null) {
 								this.requestor.completionFailure(this.problem);
@@ -2590,11 +2590,11 @@ public final class CompletionEngine
 	
 	// what about onDemand types? Ignore them since it does not happen!
 	// import p1.p2.A.*;
-	private void findKeywords(char[] keyword, char[][] choices) {
+	private void findKeywords(char[] keyword, char[][] choices, boolean canCompleteEmptyToken) {
 		if(choices == null || choices.length == 0) return;
 		
 		int length = keyword.length;
-		if (length > 0)
+		if (canCompleteEmptyToken || length > 0)
 			for (int i = 0; i < choices.length; i++)
 				if (length <= choices[i].length
 					&& CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */
@@ -2742,7 +2742,7 @@ public final class CompletionEngine
 		}
 		System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
 		
-		findKeywords(token, keywords);
+		findKeywords(token, keywords, false);
 	}
 
 	// Helper method for findMemberTypes(char[], ReferenceBinding, Scope)
@@ -4546,7 +4546,7 @@ public final class CompletionEngine
 			} 
 		} else {
 			if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-				findKeywords(token, baseTypes);
+				findKeywords(token, baseTypes, false);
 			}
 			if(proposeType) {
 				int l = typesFound.size();

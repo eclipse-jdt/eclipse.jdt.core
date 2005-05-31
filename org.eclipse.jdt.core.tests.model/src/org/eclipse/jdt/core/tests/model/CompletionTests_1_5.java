@@ -7050,4 +7050,46 @@ public void test0221() throws JavaModelException {
 		}
 	}
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=96918
+ */
+public void test0222() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0222/AType.java",
+				"package test0222;\n"+
+				"\n"+
+				"public class AType<T> {\n"+
+				"}");
+		
+
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0222/Test.java",
+	            "package test0222;\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	void foo() {\n" +
+	            "	  AType<? \n" +
+	            "	}\n" +
+	            "}",
+            	"? ");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"super[KEYWORD]{super, null, null, super, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+	}
+}
 }

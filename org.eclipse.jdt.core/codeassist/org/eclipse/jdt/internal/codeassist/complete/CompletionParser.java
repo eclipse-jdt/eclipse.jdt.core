@@ -2833,11 +2833,13 @@ protected void consumeWildcard() {
 		return;
 	}
 	Wildcard wildcard = (Wildcard) this.genericsStack[this.genericsPtr];
-	wildcard.kind = Wildcard.EXTENDS;
-	wildcard.bound = new CompletionOnKeyword1(
+	CompletionOnKeyword1 keyword = new CompletionOnKeyword1(
 		identifierStack[this.identifierPtr],
 		identifierPositionStack[this.identifierPtr],
 		new char[][]{Keywords.EXTENDS, Keywords.SUPER} );
+	keyword.canCompleteEmptyToken = true;
+	wildcard.kind = Wildcard.EXTENDS;
+	wildcard.bound = keyword;
 	
 	this.identifierPtr--;
 	this.identifierLengthPtr--;

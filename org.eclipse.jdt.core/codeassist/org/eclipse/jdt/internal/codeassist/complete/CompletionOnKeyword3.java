@@ -24,6 +24,9 @@ public class CompletionOnKeyword3 extends SingleNameReference implements Complet
 		this.token = token;
 		this.possibleKeywords = possibleKeywords;
 	}
+	public boolean canCompleteEmptyToken() {
+		return false;
+	}
 	public char[] getToken() {
 		return token;
 	}
