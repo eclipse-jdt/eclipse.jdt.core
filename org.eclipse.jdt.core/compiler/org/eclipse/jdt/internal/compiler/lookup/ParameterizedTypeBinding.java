@@ -572,8 +572,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	        	return ((WildcardBinding) otherType).boundCheck(this);
 	    		
 	    	case Binding.PARAMETERIZED_TYPE :
-	            if ((otherType.tagBits & HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
-	            	return false; // should have been identical
+//	            if ((otherType.tagBits & HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
+//	            	return false; // should have been identical
 	            ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
 	            if (this.type != otherParamType.type) 
 	                return false;

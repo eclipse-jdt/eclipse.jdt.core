@@ -317,42 +317,104 @@ public boolean isReifiable() {
 }
 
 // JLS3: 4.5.1.1
-public boolean isTypeArgumentContainedBy(TypeBinding otherArgument) {
-	if (this == otherArgument)
+public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
+	if (this == otherType)
 		return true;
-	TypeBinding lowerBound = this;
-	TypeBinding upperBound = this;
-	if (isWildcard()) {
-		WildcardBinding wildcard = (WildcardBinding) this;
-		switch(wildcard.boundKind) {
-			case Wildcard.EXTENDS :
-				upperBound = wildcard.bound;
-				lowerBound = null;
-				break;
-			case Wildcard. SUPER :
-				upperBound = wildcard;
-				lowerBound = wildcard.bound;
-				break;
-			case Wildcard.UNBOUND :
-				upperBound = wildcard;
-				lowerBound = null;
-		}
-	}
-	if (otherArgument.isWildcard()) {
-		WildcardBinding otherWildcard = (WildcardBinding) otherArgument;
-		if (otherWildcard.otherBounds != null) return false; // not a true wildcard (intersection type)
-		switch(otherWildcard.boundKind) {
-			case Wildcard.EXTENDS:
-				if (otherWildcard.bound == this) return true; // ? extends T  <=  ? extends ? extends T
-				return upperBound != null && upperBound.isCompatibleWith(otherWildcard.bound);
-
-			case Wildcard.SUPER :
-				if (otherWildcard.bound == this) return true; // ? super T  <=  ? super ? super T
-				return lowerBound != null && otherWildcard.bound.isCompatibleWith(lowerBound);
-
-			case Wildcard.UNBOUND :
-				return true;
-		}
+	switch(otherType.kind()) {
+		// allow wildcard containment
+		case Binding.WILDCARD_TYPE :
+			TypeBinding lowerBound = this;
+			TypeBinding upperBound = this;
+			if (isWildcard()) {
+				WildcardBinding wildcard = (WildcardBinding) this;
+				switch(wildcard.boundKind) {
+					case Wildcard.EXTENDS :
+						upperBound = wildcard.bound;
+						lowerBound = null;
+						break;
+					case Wildcard. SUPER :
+						upperBound = wildcard;
+						lowerBound = wildcard.bound;
+						break;
+					case Wildcard.UNBOUND :
+						upperBound = wildcard;
+						lowerBound = null;
+				}
+			}
+			WildcardBinding otherWildcard = (WildcardBinding) otherType;
+			if (otherWildcard.otherBounds != null) return false; // not a true wildcard (intersection type)
+			switch(otherWildcard.boundKind) {
+				case Wildcard.EXTENDS:
+					if (otherWildcard.bound == this) return true; // ? extends T  <=  ? extends ? extends T
+					return upperBound != null && upperBound.isCompatibleWith(otherWildcard.bound);
+	
+				case Wildcard.SUPER :
+					if (otherWildcard.bound == this) return true; // ? super T  <=  ? super ? super T
+					return lowerBound != null && otherWildcard.bound.isCompatibleWith(lowerBound);
+	
+				case Wildcard.UNBOUND :
+				default:
+					return true;
+			}
+		// allow List<?> to match List<? extends Object> (and reciprocally)
+		case Binding.PARAMETERIZED_TYPE :
+			if (!this.isParameterizedType()) return false;
+			ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) this;
+            ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
+            if (paramType.type != otherParamType.type) 
+                return false;
+            if (!paramType.isStatic()) { // static member types do not compare their enclosing
+            	ReferenceBinding enclosing = enclosingType();
+            	if (enclosing != null) {
+            		ReferenceBinding otherEnclosing = otherParamType.enclosingType();
+            		if (otherEnclosing == null) return false;
+            		if ((otherEnclosing.tagBits & HasDirectWildcard) == 0) {
+						if (enclosing != otherEnclosing) return false;
+            		} else {
+            			if (!enclosing.isEquivalentTo(otherParamType.enclosingType())) return false;
+            		}
+            	}
+            }
+            int length = paramType.arguments == null ? 0 : paramType.arguments.length;
+            TypeBinding[] otherArguments = otherParamType.arguments;
+            int otherLength = otherArguments == null ? 0 : otherArguments.length;
+            if (otherLength != length) 
+                return false;
+            nextArgument: for (int i = 0; i < length; i++) {
+            	TypeBinding argument = paramType.arguments[i];
+            	TypeBinding otherArgument = otherArguments[i];
+            	if (argument == otherArgument) 
+            		continue nextArgument;
+            	int kind = argument.kind();
+            	if (otherArgument.kind() != kind)
+            		return false;
+           		switch(kind) {
+        			case Binding.PARAMETERIZED_TYPE :
+        				if (argument.isTypeArgumentContainedBy(otherArgument)) // recurse
+	        				continue nextArgument;
+        				break;
+        			case Binding.WILDCARD_TYPE :
+        				WildcardBinding wildcard = (WildcardBinding) argument;
+        				otherWildcard = (WildcardBinding) otherArgument;
+        				switch (wildcard.boundKind) {
+        					case Wildcard.EXTENDS :
+        						// match "? extends <upperBound>" with "?"
+        						if (otherWildcard.boundKind == Wildcard.UNBOUND && wildcard.bound == wildcard.typeVariable().upperBound())
+        							continue nextArgument; 
+        						break;
+        					case Wildcard.SUPER :
+        						break;
+        					case Wildcard.UNBOUND :
+        						// match "?" with "? extends <upperBound>"
+        						if (otherWildcard.boundKind == Wildcard.EXTENDS && otherWildcard.bound == otherWildcard.typeVariable().upperBound())
+        							continue nextArgument; 
+        						break;
+        				}
+        				break;
+           		}
+           		return false;
+            }
+            return true;
 	}
 	return false;
 }

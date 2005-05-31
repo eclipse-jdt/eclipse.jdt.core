@@ -2868,7 +2868,7 @@ public abstract class Scope
 				return invocation; // raw type is taking precedence
 			}
 		}
-		return createParameterizedType((ReferenceBinding) mec.erasure(), bestArguments, null);
+		return createParameterizedType((ReferenceBinding) mec.erasure(), bestArguments, mec.enclosingType());
 	}
 	
 	// JLS 15.12.2
