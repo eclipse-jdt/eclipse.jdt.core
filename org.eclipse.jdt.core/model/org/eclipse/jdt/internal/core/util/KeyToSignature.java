@@ -106,32 +106,48 @@ public class KeyToSignature extends BindingKeyParser {
 			this.signature.append(Signature.C_PARAM_START);
 			char[][] parameters = Signature.getParameterTypes(methodSignature);
 			for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++)
-				this.signature.append(substitute(parameters[i], typeParameterSigs, typeParametersSize));
+				substitute(parameters[i], typeParameterSigs, typeParametersSize);
 			this.signature.append(Signature.C_PARAM_END);
 			
 			// substitute return type
 			char[] returnType = Signature.getReturnType(methodSignature);
-			returnType = substitute(returnType, typeParameterSigs, typeParametersSize);
-			this.signature.append(returnType);
+			substitute(returnType, typeParameterSigs, typeParametersSize);
 
 			// substitute exceptions
 			char[][] exceptions = Signature.getThrownExceptionTypes(methodSignature);
 			for (int i = 0, exceptionsLength = exceptions.length; i < exceptionsLength; i++) {
 				this.signature.append(Signature.C_EXCEPTION_START);
-				this.signature.append(substitute(exceptions[i], typeParameterSigs, typeParametersSize));
+				substitute(exceptions[i], typeParameterSigs, typeParametersSize);
 			}
 		
 		}
 	}
 	
-	private char[] substitute(char[] parameter, char[][] typeParameterSigs, int typeParametersLength) {
+	/*
+	 * Substitutes the type variables referenced in the given parameter (a parameterized type signature) with the corresponding
+	 * type argument.
+	 * Appends the given parameter if it is not a parameterized type signature.
+	 */
+	private void substitute(char[] parameter, char[][] typeParameterSigs, int typeParametersLength) {
 		for (int i = 0; i < typeParametersLength; i++) {
 			if (CharOperation.equals(parameter, typeParameterSigs[i])) {
 				String typeArgument = ((KeyToSignature) this.arguments.get(i)).signature.toString();
-				return typeArgument.toCharArray();
+				this.signature.append(typeArgument);
+				return;
 			}
 		}
-		return parameter;
+		int genericStart = CharOperation.indexOf(Signature.C_GENERIC_START, parameter);
+		if (genericStart > -1) {
+			this.signature.append(CharOperation.subarray(parameter, 0, genericStart));
+			char[][] parameters = Signature.getTypeArguments(parameter);
+			this.signature.append(Signature.C_GENERIC_START);
+			for (int j = 0, paramsLength = parameters.length; j < paramsLength; j++)
+				substitute(parameters[j], typeParameterSigs, typeParametersLength);
+			this.signature.append(Signature.C_GENERIC_END);
+			this.signature.append(Signature.C_SEMICOLON);
+		} else {
+			this.signature.append(parameter);
+		}
 	}
 	
 	public void consumeParameterizedType(char[] simpleTypeName, boolean isRaw) {

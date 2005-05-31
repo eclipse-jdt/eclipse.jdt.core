@@ -439,4 +439,16 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Z"
 		);
 	}
+	
+	/*
+	 * Parameterized method with argument nested in another argument
+	 * (regression test for bug 97275 method reference should not contain type variable anymore)
+	 */
+	public void test040() {
+		assertBindingKeySignatureEquals(
+			"<T:Ljava.lang.Object;>(Ljava.util.List<Ljava.lang.String;>;Ljava.lang.Integer;)V",
+			"Lp1/X;.foo<T:Ljava/lang/Object;>(Ljava/util/List<TT;>;Ljava/lang/Integer;)V%<Ljava/lang/String;>)"
+		);
+	}
+
 }
