@@ -48,6 +48,11 @@ public class KeyToSignature extends BindingKeyParser {
 		this.signature.append(brakets);
 	}
 	
+	public void consumeBaseType(char[] baseTypeSig) {
+		this.typeSigStart = this.signature.length();
+		this.signature.append(baseTypeSig);
+	}
+	
 	public void consumeCapture(int position) {
 		// behave as if it was a wildcard
 		this.signature = ((KeyToSignature) this.arguments.get(0)).signature;

@@ -100,6 +100,14 @@ public class BindingKeyResolver extends BindingKeyParser {
 		this.dimension = brakets.length;
 	}
 	
+	public void consumeBaseType(char[] baseTypeSig) {
+		this.compoundName = new char[][] {baseTypeSig};
+		TypeBinding baseTypeBinding = getBaseTypeBinding(baseTypeSig);
+		if (baseTypeBinding != null) {
+			this.typeBinding = baseTypeBinding;
+		}
+	}
+	
 	public void consumeCapture(final int position) {
 		CompilationUnitDeclaration outerParsedUnit = this.outerMostResolver == null ? this.parsedUnit : this.outerMostResolver.parsedUnit;
 		if (outerParsedUnit == null) return;
@@ -301,14 +309,6 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public void consumeTopLevelType() {
-		if (this.compoundName.length == 1 && this.compoundName[0].length == 1) {
-			// case of base type
- 			TypeBinding baseTypeBinding = getBaseTypeBinding(this.compoundName[0]);
- 			if (baseTypeBinding != null) {
-				this.typeBinding = baseTypeBinding;
-				return;
- 			}
-		}
 		this.parsedUnit = getCompilationUnitDeclaration();
 		if (this.parsedUnit != null && this.compiler != null) {
 			this.compiler.process(this.parsedUnit, this.compiler.totalUnits+1); // noop if unit has already been resolved

@@ -429,4 +429,14 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		);
 	}
 
+	/*
+	 * Base type
+	 * (regression test for bug 97187 [rendering] Shows Single Char for primitve Types)
+	 */
+	public void test039() {
+		assertBindingKeySignatureEquals(
+			"Z",
+			"Z"
+		);
+	}
 }

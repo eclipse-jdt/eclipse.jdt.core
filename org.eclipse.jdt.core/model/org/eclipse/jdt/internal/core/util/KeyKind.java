@@ -36,6 +36,10 @@ public class KeyKind extends BindingKeyParser {
 	public KeyKind(String key) {
 		super(key);
 	}
+	
+	public void consumeBaseType(char[] baseTypeSig) {
+		this.flags |= F_TYPE;
+	}
 
 	public void consumeCapture(int position) {
 		this.flags |= F_CAPTURE;

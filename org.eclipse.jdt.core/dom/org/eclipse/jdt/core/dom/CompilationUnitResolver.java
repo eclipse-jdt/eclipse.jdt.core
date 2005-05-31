@@ -213,15 +213,10 @@ class CompilationUnitResolver extends Compiler {
 				} 
 					
 			} else {
-				if (!resolver.hasTypeName()) {
-					// package binding key
-					char[] pkgName = CharOperation.concatWith(resolver.compoundName(), '.');
-					this.requestedKeys.put(pkgName, resolver);
-				} else {
-					// base type binding or binary binding
-					char[] key = resolver.getKey().toCharArray();
-					this.requestedKeys.put(key, resolver);
-				}
+				char[] key = resolver.hasTypeName() 
+					? resolver.getKey().toCharArray() // binary binding
+					: CharOperation.concatWith(resolver.compoundName(), '.'); // package binding or base type binding
+				this.requestedKeys.put(key, resolver);
 			}
 			worked(1);
 		}

@@ -27,7 +27,8 @@ public class BindingKeyParser {
 		static final int FLAGS = 6;
 		static final int WILDCARD = 7;
 		static final int CAPTURE = 8;
-		static final int END = 9;
+		static final int BASE_TYPE = 9;
+		static final int END = 10;
 		
 		static final int START = -1;
 		
@@ -154,7 +155,7 @@ public class BindingKeyParser {
 						if (this.index == previousTokenEnd 
 								&& (this.index == 0 || this.source[this.index-1] != '.')) { // case of field or method starting with one of the character above
 							this.index++;
-							this.token = TYPE;
+							this.token = BASE_TYPE;
 							return this.token;
 						}
 						break;
@@ -188,6 +189,7 @@ public class BindingKeyParser {
 									this.token = LOCAL_VAR;
 									break;
 								case TYPE:
+								case BASE_TYPE:
 									if (this.index > this.start && this.source[this.start-1] == '.')
 										this.token = FIELD;
 									break;
@@ -372,6 +374,9 @@ public class BindingKeyParser {
 				case CAPTURE:
 					buffer.append("CAPTURE: "); //$NON-NLS-1$
 					break;
+				case BASE_TYPE:
+					buffer.append("BASE TYPE: "); //$NON-NLS-1$
+					break;
 				case END:
 					buffer.append("END: "); //$NON-NLS-1$
 					break;
@@ -416,6 +421,10 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 	
+	public void consumeBaseType(char[] baseTypeSig) {
+		// default is to do nothing
+	}
+
 	public void consumeCapture(int position) {
 		// default is to do nothing
 	}
@@ -616,14 +625,25 @@ public class BindingKeyParser {
 				this.keyStart = this.scanner.start-1;
 				consumeFullyQualifiedName(this.scanner.getTokenSource());
 				break;
+			case Scanner.BASE_TYPE:
+				this.keyStart = this.scanner.start-1;
+				consumeBaseType(this.scanner.getTokenSource());
+				this.hasTypeName = false;
+				break;
 	 		case Scanner.ARRAY:
 	 			this.keyStart = this.scanner.start;
 	 			consumeArrayDimension(this.scanner.getTokenSource());
-				if (this.scanner.nextToken() == Scanner.TYPE)
-	 				consumeFullyQualifiedName(this.scanner.getTokenSource());
-				else {
-					malformedKey();
-					return;
+	 			switch (this.scanner.nextToken()) {
+	 				case Scanner.TYPE:
+		 				consumeFullyQualifiedName(this.scanner.getTokenSource());
+		 				break;
+	 				case Scanner.BASE_TYPE:
+	 					consumeBaseType(this.scanner.getTokenSource());
+	 					this.hasTypeName = false;
+	 					break;
+	 				default:
+						malformedKey();
+						return;
 				}
 				break;
 			default:
