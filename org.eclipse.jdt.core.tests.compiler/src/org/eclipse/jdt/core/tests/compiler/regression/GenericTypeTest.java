@@ -20260,4 +20260,89 @@ public void test700() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303
+public void test701() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"class Deejay {\n" + 
+			"	class Counter<T> {}\n" + 
+			"\n" + 
+			"	Counter<Song> songCounter = new Counter<Song>();\n" + 
+			"	Counter<Genre> genreCounter = new Counter<Genre>();\n" + 
+			"\n" + 
+			"	List<Counter<?>> list1 = Arrays.asList(songCounter, genreCounter);\n" + 
+			"	List<Counter<? extends Object>> list2 = Arrays.asList(songCounter, genreCounter);\n" + 
+			"	List<Counter<?>> list3 = Arrays.<Counter<?>>asList(songCounter, genreCounter);\n" + 
+			"	List<Counter<?>> list4 = Arrays.asList(new Counter<?>[] {songCounter, genreCounter});\n" + 
+			"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" + 
+			"}\n" + 
+			"class Genre {}\n" +
+			"class Song {}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	List<Counter<? extends String>> list5 = Arrays.asList(songCounter, genreCounter);\n" + 
+		"	                                ^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Deejay.Counter<? extends Object>> to List<Deejay.Counter<? extends String>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97303 - variation
+public void test702() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Runnable> implements Runnable {\n" + 
+			"	\n" + 
+			"	void foo0(X<X<?>> lhs, X<X<? extends Runnable>> rhs) {\n" + 
+			"		lhs = rhs; // 0\n" + 
+			"	}\n" + 
+			"	void foo1(X<X<?>> lhs, X<X<? extends Object>> rhs) {\n" + 
+			"		lhs = rhs; // 1\n" + 
+			"	}\n" + 
+			"	void foo2(X<X<? extends Cloneable>> lhs, X<X<? extends Object>> rhs) {\n" + 
+			"		lhs = rhs; // 2\n" + 
+			"	}\n" + 
+			"	void foo3(X<X<? extends Runnable>> lhs, X<X<? extends Object>> rhs) {\n" + 
+			"		lhs = rhs; // 3\n" + 
+			"	}\n" + 
+			"	void foo4(X<X<? extends Runnable>> lhs, X<X<?>> rhs) {\n" + 
+			"		lhs = rhs; // 4\n" + 
+			"	}\n" + 
+			"	void foo5(X<X<?>> lhs, X<X<? extends Cloneable>> rhs) {\n" + 
+			"		lhs = rhs; // 5\n" + 
+			"	}\n" + 
+			"	void foo6(X<X<X<X<X<?>>>>> lhs, X<X<X<X<X<? extends Runnable>>>>> rhs) {\n" + 
+			"		lhs = rhs; // 6\n" + 
+			"	}	\n" + 
+			"	public void run() {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	lhs = rhs; // 1\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from X<X<? extends Object>> to X<X<?>>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	lhs = rhs; // 2\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from X<X<? extends Object>> to X<X<? extends Cloneable>>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	lhs = rhs; // 3\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from X<X<? extends Object>> to X<X<? extends Runnable>>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 19)\n" + 
+		"	lhs = rhs; // 5\n" + 
+		"	      ^^^\n" + 
+		"Type mismatch: cannot convert from X<X<? extends Cloneable>> to X<X<?>>\n" + 
+		"----------\n");
+}
+
 }
