@@ -101,7 +101,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public void consumeBaseType(char[] baseTypeSig) {
-		this.compoundName = new char[][] {baseTypeSig};
+		this.compoundName = new char[][] {getKey().toCharArray()};
 		TypeBinding baseTypeBinding = getBaseTypeBinding(baseTypeSig);
 		if (baseTypeBinding != null) {
 			this.typeBinding = baseTypeBinding;
