@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -1641,12 +1642,15 @@ public void test044() {
 	}
 	
 	String expectedOutput = 
-		"     1  invokevirtual java/lang/Object.clone()Ljava/lang/Object; [19]\n"; 
+		"     1  invokevirtual java.lang.Object.clone() : java.lang.Object  [19]\n"; 
 		
-	if (actualOutput.indexOf(expectedOutput) == -1) {
-		System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 2));
 	}
-	assertTrue("unexpected bytecode sequence", actualOutput.indexOf(expectedOutput) != -1);
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
 }
 
 // 39172

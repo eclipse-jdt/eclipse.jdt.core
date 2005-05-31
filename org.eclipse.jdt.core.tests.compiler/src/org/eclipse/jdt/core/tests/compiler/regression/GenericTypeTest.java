@@ -2822,19 +2822,19 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"     3  dup\n" + 
 			"     4  new BX [27]\n" + 
 			"     7  dup\n" + 
-			"     8  invokespecial BX.<init>()V [28]\n" + 
-			"    11  invokespecial X.<init>(LAX;)V [30]\n" + 
+			"     8  invokespecial BX() [28]\n" + 
+			"    11  invokespecial X(AX) [30]\n" + 
 			"    14  astore_1 [x]\n" + 
 			"    15  aload_1 [x]\n" + 
-			"    16  getfield X.t LAX; [17]\n" + 
+			"    16  getfield X.t : AX [17]\n" + 
 			"    19  checkcast BX [27]\n" + 
 			"    22  ldc <String \"SUCC\"> [32]\n" + 
-			"    24  invokevirtual BX.foo(Ljava/lang/Object;)V [36]\n" + 
+			"    24  invokevirtual BX.foo(java.lang.Object) : void  [36]\n" + 
 			"    27  aload_1 [x]\n" + 
-			"    28  getfield X.t LAX; [17]\n" + 
+			"    28  getfield X.t : AX [17]\n" + 
 			"    31  checkcast BX [27]\n" + 
 			"    34  ldc <String \"ESS\"> [38]\n" + 
-			"    36  invokevirtual BX.bar(Ljava/lang/Object;)V [41]\n" + 
+			"    36  invokevirtual BX.bar(java.lang.Object) : void  [41]\n" + 
 			"    39  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
@@ -2842,10 +2842,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"        [pc: 27, line: 9]\n" + 
 			"        [pc: 39, line: 10]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 40] local: args index: 0 type: [Ljava/lang/String;\n" + 
-			"        [pc: 15, pc: 40] local: x index: 1 type: LX;\n" + 
+			"        [pc: 0, pc: 40] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 15, pc: 40] local: x index: 1 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 15, pc: 40] local: x index: 1 type: LX<+LBX;>;\n";
+			"        [pc: 15, pc: 40] local: x index: 1 type: X<? extends BX>\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -5769,12 +5769,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"     5  astore_1 [i]\n" + 
 			"     6  goto 10\n" + 
 			"     9  return\n" + 
-			"    10  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    10  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
 			"    13  aload_1 [i]\n" + 
-			"    14  invokevirtual java/io/PrintStream.println(Ljava/lang/Object;)V [27]\n" + 
-			"    17  getstatic java/lang/System.out Ljava/io/PrintStream; [21]\n" + 
+			"    14  invokevirtual java.io.PrintStream.println(java.lang.Object) : void  [27]\n" + 
+			"    17  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
 			"    20  ldc <String \"SUCCESS\"> [29]\n" + 
-			"    22  invokevirtual java/io/PrintStream.println(Ljava/lang/String;)V [32]\n" + 
+			"    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [32]\n" + 
 			"    25  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 5]\n" + 
@@ -5785,12 +5785,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"        [pc: 17, line: 12]\n" + 
 			"        [pc: 25, line: 13]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 26] local: args index: 0 type: [Ljava/lang/String;\n" + 
-			"        [pc: 6, pc: 9] local: i index: 1 type: Ljava/util/ArrayList;\n" + 
-			"        [pc: 10, pc: 26] local: i index: 1 type: Ljava/util/ArrayList;\n" + 
+			"        [pc: 0, pc: 26] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 6, pc: 9] local: i index: 1 type: java.util.ArrayList\n" + 
+			"        [pc: 10, pc: 26] local: i index: 1 type: java.util.ArrayList\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 6, pc: 9] local: i index: 1 type: Ljava/util/ArrayList<Ljava/lang/Object;>;\n" + 
-			"        [pc: 10, pc: 26] local: i index: 1 type: Ljava/util/ArrayList<Ljava/lang/Object;>;\n";
+			"        [pc: 6, pc: 9] local: i index: 1 type: java.util.ArrayList<java.lang.Object>\n" + 
+			"        [pc: 10, pc: 26] local: i index: 1 type: java.util.ArrayList<java.lang.Object>\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -13798,21 +13798,21 @@ public void test500(){
 			"     3  dup\n" + 
 			"     4  new BX [27]\n" + 
 			"     7  dup\n" + 
-			"     8  invokespecial BX.<init>()V [28]\n" + 
-			"    11  invokespecial X.<init>(LAX;)V [30]\n" + 
+			"     8  invokespecial BX() [28]\n" + 
+			"    11  invokespecial X(AX) [30]\n" + 
 			"    14  astore_1 [x]\n" + 
-			"    15  getstatic java/lang/System.out Ljava/io/PrintStream; [36]\n" + 
+			"    15  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
 			"    18  aload_1 [x]\n" + 
-			"    19  getfield X.t LAX; [17]\n" + 
+			"    19  getfield X.t : AX [17]\n" + 
 			"    22  checkcast BX [27]\n" + 
-			"    25  getfield BX.ax Ljava/lang/Object; [40]\n" + 
-			"    28  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [46]\n" + 
-			"    31  getstatic java/lang/System.out Ljava/io/PrintStream; [36]\n" + 
+			"    25  getfield BX.ax : java.lang.Object [40]\n" + 
+			"    28  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [46]\n" + 
+			"    31  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
 			"    34  aload_1 [x]\n" + 
-			"    35  getfield X.t LAX; [17]\n" + 
+			"    35  getfield X.t : AX [17]\n" + 
 			"    38  checkcast BX [27]\n" + 
-			"    41  getfield BX.bx Ljava/lang/Object; [49]\n" + 
-			"    44  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [46]\n" + 
+			"    41  getfield BX.bx : java.lang.Object [49]\n" + 
+			"    44  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [46]\n" + 
 			"    47  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
@@ -13820,10 +13820,10 @@ public void test500(){
 			"        [pc: 31, line: 9]\n" + 
 			"        [pc: 47, line: 10]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 48] local: args index: 0 type: [Ljava/lang/String;\n" + 
-			"        [pc: 15, pc: 48] local: x index: 1 type: LX;\n" + 
+			"        [pc: 0, pc: 48] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 15, pc: 48] local: x index: 1 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 15, pc: 48] local: x index: 1 type: LX<+LBX;>;\n";
+			"        [pc: 15, pc: 48] local: x index: 1 type: X<? extends BX>\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -13880,23 +13880,23 @@ public void test500(){
 			"     3  dup\n" + 
 			"     4  new BX [27]\n" + 
 			"     7  dup\n" + 
-			"     8  invokespecial BX.<init>()V [28]\n" + 
-			"    11  invokespecial X.<init>(LAX;)V [30]\n" + 
+			"     8  invokespecial BX() [28]\n" + 
+			"    11  invokespecial X(AX) [30]\n" + 
 			"    14  astore_1 [x]\n" + 
-			"    15  getstatic java/lang/System.out Ljava/io/PrintStream; [36]\n" + 
+			"    15  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
 			"    18  aload_1 [x]\n" + 
-			"    19  invokevirtual X.self()LX; [40]\n" + 
-			"    22  getfield X.t LAX; [17]\n" + 
+			"    19  invokevirtual X.self() : X  [40]\n" + 
+			"    22  getfield X.t : AX [17]\n" + 
 			"    25  checkcast BX [27]\n" + 
-			"    28  getfield BX.ax Ljava/lang/Object; [44]\n" + 
-			"    31  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [50]\n" + 
-			"    34  getstatic java/lang/System.out Ljava/io/PrintStream; [36]\n" + 
+			"    28  getfield BX.ax : java.lang.Object [44]\n" + 
+			"    31  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [50]\n" + 
+			"    34  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
 			"    37  aload_1 [x]\n" + 
-			"    38  invokevirtual X.self()LX; [40]\n" + 
-			"    41  getfield X.t LAX; [17]\n" + 
+			"    38  invokevirtual X.self() : X  [40]\n" + 
+			"    41  getfield X.t : AX [17]\n" + 
 			"    44  checkcast BX [27]\n" + 
-			"    47  getfield BX.bx Ljava/lang/Object; [53]\n" + 
-			"    50  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [50]\n" + 
+			"    47  getfield BX.bx : java.lang.Object [53]\n" + 
+			"    50  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [50]\n" + 
 			"    53  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
@@ -13904,10 +13904,10 @@ public void test500(){
 			"        [pc: 34, line: 9]\n" + 
 			"        [pc: 53, line: 10]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 54] local: args index: 0 type: [Ljava/lang/String;\n" + 
-			"        [pc: 15, pc: 54] local: x index: 1 type: LX;\n" + 
+			"        [pc: 0, pc: 54] local: args index: 0 type: java.lang.String[]\n" + 
+			"        [pc: 15, pc: 54] local: x index: 1 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 15, pc: 54] local: x index: 1 type: LX<+LBX;>;\n";
+			"        [pc: 15, pc: 54] local: x index: 1 type: X<? extends BX>\n";
 		
 		try {
 			File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -13963,55 +13963,55 @@ public void test500(){
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
 			"    0  aload_0 [this]\n" + 
-			"    1  invokespecial java/lang/Object.<init>()V [13]\n" + 
+			"    1  invokespecial java.lang.Object() [13]\n" + 
 			"    4  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: LX;\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: LX<TE;>;\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: X<E>\n" + 
 			"  \n" + 
 			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
-			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [27]\n" + 
 			"     3  new X [2]\n" + 
 			"     6  dup\n" + 
-			"     7  invokespecial X.<init>()V [28]\n" + 
-			"    10  getfield X.e LXA; [30]\n" + 
+			"     7  invokespecial X() [28]\n" + 
+			"    10  getfield X.e : XA [30]\n" + 
 			"    13  pop\n" + 
-			"    14  getstatic XAB.CONST LXB; [36]\n" + 
-			"    17  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [42]\n" + 
+			"    14  getstatic XAB.CONST : XB [36]\n" + 
+			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [42]\n" + 
 			"    20  new X [2]\n" + 
 			"    23  dup\n" + 
-			"    24  invokespecial X.<init>()V [28]\n" + 
-			"    27  invokevirtual X.foo()V [45]\n" + 
+			"    24  invokespecial X() [28]\n" + 
+			"    27  invokevirtual X.foo() : void  [45]\n" + 
 			"    30  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 10]\n" + 
 			"        [pc: 20, line: 11]\n" + 
 			"        [pc: 30, line: 12]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 31] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"        [pc: 0, pc: 31] local: args index: 0 type: java.lang.String[]\n" + 
 			"  \n" + 
 			"  // Method descriptor #10 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
-			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [27]\n" + 
 			"     3  aload_0 [this]\n" + 
-			"     4  getfield X.e LXA; [30]\n" + 
+			"     4  getfield X.e : XA [30]\n" + 
 			"     7  pop\n" + 
-			"     8  getstatic XB.CONST LXB; [50]\n" + 
-			"    11  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [42]\n" + 
+			"     8  getstatic XB.CONST : XB [50]\n" + 
+			"    11  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [42]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 14]\n" + 
 			"        [pc: 14, line: 15]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: LX;\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: LX<TE;>;\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: X<E>\n" + 
 			"}";
 		
 		try {
@@ -14064,14 +14064,14 @@ public void test500(){
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
 			"    0  aload_0 [this]\n" + 
-			"    1  invokespecial java/lang/Object.<init>()V [9]\n" + 
+			"    1  invokespecial java.lang.Object() [9]\n" + 
 			"    4  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: LX;\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: LX<TE;>;\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: X<E>\n" + 
 			"  \n" + 
 			"  // Method descriptor #17 ()LXA;\n" + 
 			"  // Signature: ()TE;\n" + 
@@ -14082,50 +14082,50 @@ public void test500(){
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 8]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 2] local: this index: 0 type: LX;\n" + 
+			"        [pc: 0, pc: 2] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 2] local: this index: 0 type: LX<TE;>;\n" + 
+			"        [pc: 0, pc: 2] local: this index: 0 type: X<E>\n" + 
 			"  \n" + 
 			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
-			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [27]\n" + 
 			"     3  new X [2]\n" + 
 			"     6  dup\n" + 
-			"     7  invokespecial X.<init>()V [28]\n" + 
-			"    10  invokevirtual X.e()LXA; [30]\n" + 
+			"     7  invokespecial X() [28]\n" + 
+			"    10  invokevirtual X.e() : XA  [30]\n" + 
 			"    13  pop\n" + 
-			"    14  getstatic XAB.CONST LXB; [36]\n" + 
-			"    17  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [42]\n" + 
+			"    14  getstatic XAB.CONST : XB [36]\n" + 
+			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [42]\n" + 
 			"    20  new X [2]\n" + 
 			"    23  dup\n" + 
-			"    24  invokespecial X.<init>()V [28]\n" + 
-			"    27  invokevirtual X.foo()V [45]\n" + 
+			"    24  invokespecial X() [28]\n" + 
+			"    27  invokevirtual X.foo() : void  [45]\n" + 
 			"    30  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 10]\n" + 
 			"        [pc: 20, line: 11]\n" + 
 			"        [pc: 30, line: 12]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 31] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"        [pc: 0, pc: 31] local: args index: 0 type: java.lang.String[]\n" + 
 			"  \n" + 
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
-			"     0  getstatic java/lang/System.out Ljava/io/PrintStream; [27]\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [27]\n" + 
 			"     3  aload_0 [this]\n" + 
-			"     4  invokevirtual X.e()LXA; [30]\n" + 
+			"     4  invokevirtual X.e() : XA  [30]\n" + 
 			"     7  pop\n" + 
-			"     8  getstatic XB.CONST LXB; [50]\n" + 
-			"    11  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [42]\n" + 
+			"     8  getstatic XB.CONST : XB [50]\n" + 
+			"    11  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [42]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 14]\n" + 
 			"        [pc: 14, line: 15]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: LX;\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 15] local: this index: 0 type: LX<TE;>;\n" + 
+			"        [pc: 0, pc: 15] local: this index: 0 type: X<E>\n" + 
 			"}";
 		
 		try {
@@ -14186,28 +14186,28 @@ public void test500(){
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
 			"    0  aload_0 [this]\n" + 
-			"    1  invokespecial java/lang/Object.<init>()V [13]\n" + 
+			"    1  invokespecial java.lang.Object() [13]\n" + 
 			"    4  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: LX;\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 5] local: this index: 0 type: LX<TE;>;\n" + 
+			"        [pc: 0, pc: 5] local: this index: 0 type: X<E>\n" + 
 			"  \n" + 
 			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
 			"     0  new X [2]\n" + 
 			"     3  dup\n" + 
-			"     4  invokespecial X.<init>()V [22]\n" + 
-			"     7  invokevirtual X.foo()V [25]\n" + 
+			"     4  invokespecial X() [22]\n" + 
+			"     7  invokevirtual X.foo() : void  [25]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 10]\n" + 
 			"        [pc: 10, line: 11]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 11] local: args index: 0 type: [Ljava/lang/String;\n" + 
+			"        [pc: 0, pc: 11] local: args index: 0 type: java.lang.String[]\n" + 
 			"  \n" + 
 			"  // Method descriptor #10 ()V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
@@ -14215,14 +14215,14 @@ public void test500(){
 			"     0  new X$1 [29]\n" + 
 			"     3  dup\n" + 
 			"     4  aload_0 [this]\n" + 
-			"     5  invokespecial X$1.<init>(LX;)V [32]\n" + 
-			"     8  invokevirtual X$1.run()V [35]\n" + 
-			"    11  getstatic java/lang/System.out Ljava/io/PrintStream; [41]\n" + 
+			"     5  invokespecial X$1(X) [32]\n" + 
+			"     8  invokevirtual X$1.run() : void  [35]\n" + 
+			"    11  getstatic java.lang.System.out : java.io.PrintStream [41]\n" + 
 			"    14  aload_0 [this]\n" + 
-			"    15  getfield X.e LXA; [43]\n" + 
+			"    15  getfield X.e : XA [43]\n" + 
 			"    18  pop\n" + 
-			"    19  getstatic XB.CONST LXB; [49]\n" + 
-			"    22  invokevirtual java/io/PrintStream.print(Ljava/lang/Object;)V [55]\n" + 
+			"    19  getstatic XB.CONST : XB [49]\n" + 
+			"    22  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [55]\n" + 
 			"    25  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 13]\n" + 
@@ -14230,9 +14230,9 @@ public void test500(){
 			"        [pc: 11, line: 18]\n" + 
 			"        [pc: 25, line: 19]\n" + 
 			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 26] local: this index: 0 type: LX;\n" + 
+			"        [pc: 0, pc: 26] local: this index: 0 type: X\n" + 
 			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 26] local: this index: 0 type: LX<TE;>;\n" + 
+			"        [pc: 0, pc: 26] local: this index: 0 type: X<E>\n" + 
 			"\n" + 
 			"  Inner classes:\n" + 
 			"    [inner class info: #29 X$1, outer class info: #0\n" + 

@@ -904,9 +904,9 @@ public void test026() {
 		null); // custom requestor
 	
 	String expectedOutput =
-			"      Local variable table:\n" + 
-			"        [pc: 6, pc: 21] local: i index: 0 type: I\n" + 
-			"        [pc: 16, pc: 20] local: e index: 1 type: Ljava/lang/Throwable;\n";
+		"      Local variable table:\n" + 
+		"        [pc: 6, pc: 21] local: i index: 0 type: int\n" + 
+		"        [pc: 16, pc: 20] local: e index: 1 type: java.lang.Throwable\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -960,11 +960,11 @@ public void test027() {
 		null); // custom requestor
 	
 	String expectedOutput =
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 20] local: this index: 0 type: LX;\n" + 
-			"        [pc: 0, pc: 20] local: b index: 1 type: Z\n" + 
-			"        [pc: 6, pc: 9] local: i index: 2 type: I\n" + 
-			"        [pc: 10, pc: 14] local: e index: 2 type: Ljava/lang/Exception;\n";
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 20] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 20] local: b index: 1 type: boolean\n" + 
+		"        [pc: 6, pc: 9] local: i index: 2 type: int\n" + 
+		"        [pc: 10, pc: 14] local: e index: 2 type: java.lang.Exception\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");

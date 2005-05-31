@@ -2007,9 +2007,9 @@ public class EnumTest extends AbstractComparableTest {
 			"  // Stack: 3, Locals: 3\n" + 
 			"  private X(String arg, int arg);\n" + 
 			"    0  aload_0 [this]\n" + 
-			"    1  aload_1 [local_1]\n" + 
-			"    2  iload_2 [local_2]\n" + 
-			"    3  invokespecial java/lang/Enum.<init>(Ljava/lang/String;I)V [25]\n" + 
+			"    1  aload_1\n" + 
+			"    2  iload_2\n" + 
+			"    3  invokespecial java.lang.Enum(java.lang.String, int) [25]\n" + 
 			"    6  return\n";
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();

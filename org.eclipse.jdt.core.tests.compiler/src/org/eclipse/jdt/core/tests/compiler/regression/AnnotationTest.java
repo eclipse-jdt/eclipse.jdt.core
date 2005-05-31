@@ -1145,13 +1145,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(val={false})\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1252,13 +1246,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value={\"Hello\"})\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1300,13 +1288,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=\"Hi\")\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1347,13 +1329,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=(int) 2)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1394,13 +1370,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=(byte) 2)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1441,13 +1411,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=(short) 2)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1488,13 +1452,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=\'@\')\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1535,13 +1493,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=9223372036854775807L)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1582,13 +1534,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=-0.0f)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1630,13 +1576,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=-0.0)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1681,13 +1621,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=@Foo(id=(int) 5))\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 11]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1731,13 +1665,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=Color.RED)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 9]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1781,13 +1709,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value={Color.RED})\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 9]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1862,12 +1784,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"      booleans={true},\n" + 
 			"      floats={0.0f},\n" + 
 			"      doubles={-0.0})\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 31]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1943,13 +1860,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"      booleans=true,\n" + 
 			"      floats=0.0f,\n" + 
 			"      doubles=-0.0)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 31]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1991,13 +1902,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(names={\"Hello\"})\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -2039,12 +1944,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" +
 			"  // Stack: 0, Locals: 1\n" +
 			"  @I(classes={X,I})\n" +
-			"  public void foo();\n" +
-			"    0  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 7]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n"; 
+			"  public void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));

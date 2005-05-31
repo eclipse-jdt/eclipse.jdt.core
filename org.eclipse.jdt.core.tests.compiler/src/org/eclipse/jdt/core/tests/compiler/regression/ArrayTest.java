@@ -124,8 +124,8 @@ public void test005() {
 	String expectedOutput = 
 		"  static {};\n" + 
 		"    0  iconst_2\n" + 
-		"    1  anewarray java/lang/Object [4]\n" + 
-		"    4  putstatic X.X [Ljava/lang/Object; [10]\n" + 
+		"    1  anewarray java.lang.Object [4]\n" + 
+		"    4  putstatic X.X : java.lang.Object[] [10]\n" + 
 		"    7  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 2]\n" + 

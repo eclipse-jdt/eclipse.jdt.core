@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.util.ISourceAttribute;
  */
 public class Disassembler extends ClassFileBytesDisassembler {
 
+	private static final String EMPTY_CLASS_NAME = "\"\""; //$NON-NLS-1$
 	private static final char[] ANY_EXCEPTION = Messages.classfileformat_anyexceptionhandler.toCharArray();	 
 	private static final String EMPTY_OUTPUT = ""; //$NON-NLS-1$
 	private static final String VERSION_UNKNOWN = "unknown";//$NON-NLS-1$
@@ -394,13 +395,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				char[] exceptionName = exceptionNames[i];
 				CharOperation.replace(exceptionName, '/', '.');
 				buffer
-					.append(exceptionName)
+					.append(returnClassName(exceptionName, '.', mode))
 					.append(Messages.disassembler_comma)
 					.append(Messages.disassembler_space); 
 			}
 			char[] exceptionName = exceptionNames[length - 1];
 			CharOperation.replace(exceptionName, '/', '.');
-			buffer.append(exceptionName);
+			buffer.append(returnClassName(exceptionName, '.', mode));
 		}
 		if (checkMode(mode, DETAILED)) {
 			if (annotationDefaultAttribute != null) {
@@ -578,7 +579,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		if (superclassName != null) {
 			buffer.append(" extends "); //$NON-NLS-1$
 			CharOperation.replace(superclassName, '/', '.');
-			buffer.append(superclassName);
+			buffer.append(returnClassName(superclassName, '.', mode));
 		}
 		char[][] superclassInterfaces = classFileReader.getInterfaceNames();
 		int length = superclassInterfaces.length;
@@ -588,13 +589,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				char[] superinterface = superclassInterfaces[i];
 				CharOperation.replace(superinterface, '/', '.');
 				buffer
-					.append(superinterface)
+					.append(returnClassName(superinterface, '.', mode))
 					.append(Messages.disassembler_comma)
 					.append(Messages.disassembler_space); 
 			}
 			char[] superinterface = superclassInterfaces[length - 1];
 			CharOperation.replace(superinterface, '/', '.');
-			buffer.append(superinterface);
+			buffer.append(returnClassName(superinterface, '.', mode));
 		}
 		buffer.append(Messages.bind(Messages.disassembler_opentypedeclaration)); 
 		if (checkMode(mode, SYSTEM)) {
@@ -743,13 +744,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				int index= localVariableTableEntry.getIndex();
 				int startPC = localVariableTableEntry.getStartPC();
 				int length  = localVariableTableEntry.getLength();
+				final char[] typeName = Signature.toCharArray(localVariableTableEntry.getDescriptor());
+				CharOperation.replace(typeName, '/', '.');
 				buffer.append(Messages.bind(Messages.classfileformat_localvariabletableentry,
 					new String[] {
 						Integer.toString(startPC),
 						Integer.toString(startPC + length),
 						new String(localVariableTableEntry.getName()),
 						Integer.toString(index),
-						new String(localVariableTableEntry.getDescriptor())
+						new String(returnClassName(typeName, '.', mode))
 					}));
 				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			}
@@ -757,13 +760,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			int index= localVariableTableEntry.getIndex();
 			int startPC = localVariableTableEntry.getStartPC();
 			int length  = localVariableTableEntry.getLength();
+			final char[] typeName = Signature.toCharArray(localVariableTableEntry.getDescriptor());
+			CharOperation.replace(typeName, '/', '.');
 			buffer.append(Messages.bind(Messages.classfileformat_localvariabletableentry,
 				new String[] {
 					Integer.toString(startPC),
 					Integer.toString(startPC + length),
 					new String(localVariableTableEntry.getName()),
 					Integer.toString(index),
-					new String(localVariableTableEntry.getDescriptor())
+					new String(returnClassName(typeName, '.', mode))
 				}));
 		} 
 		ILocalVariableTypeTableAttribute localVariableTypeAttribute= getLocalVariableTypeAttribute(codeAttribute);
@@ -779,13 +784,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				int index= localVariableTypeTableEntry.getIndex();
 				int startPC = localVariableTypeTableEntry.getStartPC();
 				int length  = localVariableTypeTableEntry.getLength();
+				final char[] typeName = Signature.toCharArray(localVariableTypeTableEntry.getSignature());
+				CharOperation.replace(typeName, '/', '.');
 				buffer.append(Messages.bind(Messages.classfileformat_localvariabletableentry,
 					new String[] {
 						Integer.toString(startPC),
 						Integer.toString(startPC + length),
 						new String(localVariableTypeTableEntry.getName()),
 						Integer.toString(index),
-						new String(localVariableTypeTableEntry.getSignature())
+						new String(returnClassName(typeName, '.', mode))
 					}));
 				writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute + 1);
 			}
@@ -793,13 +800,15 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			int index= localVariableTypeTableEntry.getIndex();
 			int startPC = localVariableTypeTableEntry.getStartPC();
 			int length  = localVariableTypeTableEntry.getLength();
+			final char[] typeName = Signature.toCharArray(localVariableTypeTableEntry.getSignature());
+			CharOperation.replace(typeName, '/', '.');
 			buffer.append(Messages.bind(Messages.classfileformat_localvariabletableentry,
 				new String[] {
 					Integer.toString(startPC),
 					Integer.toString(startPC + length),
 					new String(localVariableTypeTableEntry.getName()),
 					Integer.toString(index),
-					new String(localVariableTypeTableEntry.getSignature())
+					new String(returnClassName(typeName, '.', mode))
 				}));
 		} 
 	}
@@ -1436,6 +1445,24 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	
 	private boolean checkMode(int mode, int flag) {
 		return (mode & flag) != 0;
+	}
+	
+	private boolean isCompact(int mode) {
+		return (mode & ClassFileBytesDisassembler.COMPACT) != 0;
+	}
+
+	private String returnClassName(char[] classInfoName, char separator, int mode) {
+		if (classInfoName.length == 0) {
+			return EMPTY_CLASS_NAME;
+		} else if (isCompact(mode)) {
+			int lastIndexOfSlash = CharOperation.lastIndexOf(separator, classInfoName);
+			if (lastIndexOfSlash != -1) {
+				return new String(classInfoName, lastIndexOfSlash + 1, classInfoName.length - lastIndexOfSlash - 1);
+			}
+			return new String(classInfoName);
+		} else {
+			return new String(classInfoName);
+		}
 	}
 	
 	private void writeNewLine(StringBuffer buffer, String lineSeparator, int tabNumber) {
