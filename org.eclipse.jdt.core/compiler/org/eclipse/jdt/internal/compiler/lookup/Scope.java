@@ -3301,10 +3301,10 @@ public abstract class Scope
 								continue; // special case to choose between 2 varargs methods when the last arg is missing or its Object[]
 						}
 						continue nextVisible;
-					} else if (method.isStatic()) {
-						// detect collision between static import methods
-						if (method.declaringClass != method2.declaringClass && method.original().areParametersEqual(method2.original()))
-							continue nextVisible;
+//					} else if (method.isStatic()) {
+//						// detect collision between static import methods
+//						if (method.declaringClass != method2.declaringClass && method.original().areParametersEqual(method2.original()))
+//							continue nextVisible;
 					} else if (method.hasSubstitutedParameters() && method.isAbstract() == method2.isAbstract()) { // must both be abstract or concrete, not one of each
 						if (method.areParametersEqual(method2)) {
 							// its possible with 2 methods that one does not inherit from the other
