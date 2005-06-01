@@ -22,6 +22,7 @@ public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModel
 	protected class CompletionResult {
 		public String proposals;
 		public String context;
+		public int cursorLocation;
 	}
 	Hashtable oldOptions;
 	ICompilationUnit wc = null;
@@ -33,9 +34,12 @@ public ICompilationUnit getWorkingCopy(String path, String source) throws JavaMo
 	return super.getWorkingCopy(path, source, this.owner, null);
 }
 protected CompletionResult complete(String path, String source, String completeBehind) throws JavaModelException {
+	return this.complete(path, source, false, completeBehind);
+}
+protected CompletionResult complete(String path, String source, boolean showPositions, String completeBehind) throws JavaModelException {
 	this.wc = getWorkingCopy(path, source);
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, showPositions);
 	String str = this.wc.getSource();
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.wc.codeComplete(cursorLocation, requestor, this.owner);
@@ -43,6 +47,7 @@ protected CompletionResult complete(String path, String source, String completeB
 	CompletionResult result =  new CompletionResult();
 	result.proposals = requestor.getResults();
 	result.context = requestor.getContext();
+	result.cursorLocation = cursorLocation;
 	return result;
 }
 public void setUpSuite() throws Exception {

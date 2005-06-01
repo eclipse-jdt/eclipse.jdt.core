@@ -7092,4 +7092,49 @@ public void test0222() throws JavaModelException {
 		}
 	}
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=97307
+ */
+public void test0223() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0223/AType.java",
+				"package test0223;\n"+
+				"\n"+
+				"public class AType {\n"+
+				"  public static final int VAR = 0;\n"+
+				"}");
+		
+
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0223/Test.java",
+	            "package test0223;\n" +
+	            "\n" +
+	            "import static test0223.AType.va\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "}",
+	            true, // show positions
+            	"AType.va");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+	    int end = result.cursorLocation;
+		int start = end - "test0223.AType.va".length();
+		
+		assertResults(
+				"VAR[FIELD_REF]{test0223.AType.VAR;, Ltest0223.AType;, I, VAR, null, ["+start+", "+end+"], " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+	}
+}
 }

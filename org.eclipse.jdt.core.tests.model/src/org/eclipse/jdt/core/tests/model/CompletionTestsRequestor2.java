@@ -27,6 +27,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	
 	private boolean showParamterNames;
 	private boolean showUniqueKeys;
+	private boolean showPositions;
 	
 	public boolean fDebug = false;
 
@@ -34,11 +35,15 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this(false, false);
 	}
 	public CompletionTestsRequestor2(boolean showParamterNames) {
-		this(showParamterNames, false);
+		this(showParamterNames, false, false);
 	}
 	public CompletionTestsRequestor2(boolean showParamterNames, boolean showUniqueKeys) {
+		this(showParamterNames, showUniqueKeys, false);
+	}
+	public CompletionTestsRequestor2(boolean showParamterNames, boolean showUniqueKeys, boolean showPositions) {
 		this.showParamterNames = showParamterNames;
 		this.showUniqueKeys = showUniqueKeys;
+		this.showPositions = showPositions;
 	}
 	public void acceptContext(CompletionContext cc) {
 		this.context = cc;
@@ -189,11 +194,13 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				buffer.append(")");
 			}
 		}
-//		buffer.append(", [");
-//		buffer.append(proposal.getReplaceStart());
-//		buffer.append(", ");
-//		buffer.append(proposal.getReplaceEnd());
-//		buffer.append("]");
+		if(this.showPositions) {
+			buffer.append(", [");
+			buffer.append(proposal.getReplaceStart());
+			buffer.append(", ");
+			buffer.append(proposal.getReplaceEnd());
+			buffer.append("]");
+		}
 		buffer.append(", ");
 		buffer.append(proposal.getRelevance());
 		buffer.append('}');

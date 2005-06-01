@@ -1419,6 +1419,10 @@ public final class CompletionEngine
 								contextAccepted = true;
 								this.requestor.acceptContext(new CompletionContext());
 								
+								setSourceRange(
+									importReference.sourceStart,
+									importReference.declarationSourceEnd);
+								
 								char[][] oldTokens = importReference.tokens;
 								int tokenCount = oldTokens.length;
 								if (tokenCount == 1) {
@@ -2373,9 +2377,6 @@ public final class CompletionEngine
 
 		this.resolvingImports = true;
 		this.resolvingStaticImports = importReference.isStatic();
-		setSourceRange(
-			importReference.sourceStart,
-			importReference.declarationSourceEnd);
 			
 		this.completionToken =  importName;
 		// want to replace the existing .*;
