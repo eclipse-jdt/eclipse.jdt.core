@@ -671,9 +671,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				ReferenceBinding[] originalMemberTypes = this.type.memberTypes();
 				int length = originalMemberTypes.length;
 				ReferenceBinding[] parameterizedMemberTypes = new ReferenceBinding[length];
+				boolean isRaw = this.isRawType();
 				for (int i = 0; i < length; i++)
 					// substitute all member types, so as to get updated enclosing types
-					parameterizedMemberTypes[i] = this.environment.createParameterizedType(originalMemberTypes[i], null, this);
+					parameterizedMemberTypes[i] = /*isRaw && originalMemberTypes[i].isGenericType()
+						? this.environment.createRawType(originalMemberTypes[i], this)
+						: */ this.environment.createParameterizedType(originalMemberTypes[i], null, this);
 				this.memberTypes = parameterizedMemberTypes;	    
 			} finally {
 				// if the original fields cannot be retrieved (ex. AbortCompilation), then assume we do not have any fields

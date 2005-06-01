@@ -20388,4 +20388,45 @@ public void test704() {
 		"Cannot cast from List<Object> to List<String>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97480
+public void test705() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  void f(Object o){\n" + 
+			"		 ((Map.Entry)o).setValue(\"bug\");\n" + 
+			"		 		 \n" + 
+			"		 Map.Entry me= (Map.Entry)o; \n" + 
+			"		 me.setValue(\"ok\");\n" + 
+			"		 		 \n" + 
+			"		 ((Vector)o).add(\"ok\");\n" + 
+			"  }\n" + 
+			" Zork z;\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	((Map.Entry)o).setValue(\"bug\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method setValue(Object) belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	me.setValue(\"ok\");\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method setValue(Object) belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 10)\n" + 
+		"	((Vector)o).add(\"ok\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method add(Object) belongs to the raw type Vector. References to generic type Vector<E> should be parameterized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 12)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }

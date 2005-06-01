@@ -534,7 +534,7 @@ public abstract class Scope
 					}
 					break;
 				case Binding.RAW_TYPE :
-					needToConvert = !((ReferenceBinding)originalType).isStatic();
+					needToConvert |= !((ReferenceBinding)originalType).isStatic();
 				default :
 					convertedEnclosing = originalEnclosing;
 					break;
