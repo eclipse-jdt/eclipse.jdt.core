@@ -37,8 +37,8 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 		if (this.accessRuleSet == null)
 			return null;
 		return this.accessRuleSet
-				.getViolatedRestriction((qualifiedBinaryFileName.substring(0,
-						qualifiedBinaryFileName.length() - 6) + SUFFIX_STRING_java)
+					.getViolatedRestriction(
+						qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SUFFIX_CLASS.length)
 						.toCharArray());
 	}
 }

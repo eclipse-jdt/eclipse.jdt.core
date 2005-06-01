@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.SimpleSet;
 
 import java.io.*;
@@ -137,7 +138,8 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 		if (reader != null) {
 			if (this.accessRuleSet == null)
 				return new NameEnvironmentAnswer(reader, null);
-			return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(qualifiedBinaryFileName.toCharArray()));
+			String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
+			return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()));
 		}
 	} catch (Exception e) { // treat as if class file is missing
 	}

@@ -539,16 +539,10 @@ public class BasicSearchEngine {
 						&& !workingCopyPaths.contains(documentPath)) { // filter out working copies
 					if (access != null) {
 						// Compute document relative path
-						int pos = documentPath.lastIndexOf('.');
-						char[] extension = null;
-						if (pos >= 0 && pos > documentPath.lastIndexOf('/')) {
-							extension = documentPath.substring(pos).toCharArray();
-						}
 						int pkgLength = record.pkg==null ? 0 : record.pkg.length+1;
 						int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
-						int extLength = extension==null ? 0 : extension.length;
-						char[] path = new char[pkgLength+nameLength+extLength];
-						pos = 0;
+						char[] path = new char[pkgLength+nameLength];
+						int pos = 0;
 						if (pkgLength > 0) {
 							System.arraycopy(record.pkg, 0, path, pos, pkgLength-1);
 							CharOperation.replace(path, '.', '/');
@@ -558,9 +552,6 @@ public class BasicSearchEngine {
 						if (nameLength > 0) {
 							System.arraycopy(record.simpleName, 0, path, pos, nameLength);
 							pos += nameLength;
-							if (extLength > 0) {
-								System.arraycopy(extension, 0, path, pos, extLength);
-							}
 						}
 						// Update access restriction if path is not empty
 						if (pos > 0) {
@@ -771,15 +762,10 @@ public class BasicSearchEngine {
 					AccessRestriction accessRestriction = null;
 					if (access != null) {
 						// Compute document relative path
-						int pos = documentPath.lastIndexOf('.');
-						char[] extension = null;
-						if (pos >= 0 && pos > documentPath.lastIndexOf('/'))
-							extension = documentPath.substring(pos).toCharArray();
 						int qualificationLength = record.qualification == null ? 0 : record.qualification.length + 1;
 						int nameLength = record.simpleName == null ? 0 : record.simpleName.length;
-						int extLength = extension == null ? 0 : extension.length;
-						char[] path = new char[qualificationLength + nameLength + extLength];
-						pos = 0;
+						char[] path = new char[qualificationLength + nameLength];
+						int pos = 0;
 						if (qualificationLength > 0) {
 							System.arraycopy(record.qualification, 0, path, pos, qualificationLength - 1);
 							CharOperation.replace(path, '.', '/');
@@ -789,8 +775,6 @@ public class BasicSearchEngine {
 						if (nameLength > 0) {
 							System.arraycopy(record.simpleName, 0, path, pos, nameLength);
 							pos += nameLength;
-							if (extLength > 0)
-								System.arraycopy(extension, 0, path, pos, extLength);
 						}
 						// Update access restriction if path is not empty
 						if (pos > 0) {

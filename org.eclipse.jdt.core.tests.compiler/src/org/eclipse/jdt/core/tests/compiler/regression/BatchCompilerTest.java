@@ -700,8 +700,8 @@ public void test009(){
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[+OK2.java" + File.pathSeparator + "~Warn.java" 
-        	+ File.pathSeparator + "-KO.java]\""
+        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "~Warn" 
+        	+ File.pathSeparator + "-KO]\""
         + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "[5 .class files generated]\n", 
@@ -773,7 +773,7 @@ public void test011(){
 		},
         "\"" + OUTPUT_DIR +  File.separator + "X.java\""
         + " -1.5 -g -preserveAllLocals"
-        + " -cp \"" + OUTPUT_DIR + "[+**/OK2.java;~**/Warn.java;-KO.java]"
+        + " -cp \"" + OUTPUT_DIR + "[+**/OK2;~**/Warn;-KO]"
         + "\"" + File.pathSeparator
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
@@ -1270,7 +1270,7 @@ public void test019(){
 			},
 	        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 	        + " -1.5 -g -preserveAllLocals" 
-	        + " -cp \"" + OUTPUT_DIR + "[+OK2.*" + File.pathSeparator + "~Warn.*" + File.pathSeparator + "-KO.*]\""
+	        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "~Warn" + File.pathSeparator + "-KO]\""
 	        + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal" 
 	        + " -proceedOnError -referenceInfo"
 	        + " -d \"" + OUTPUT_DIR + "\"", 
@@ -1501,8 +1501,8 @@ public void test027(){
 				},
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals"
-		        + " -cp \"" + OUTPUT_DIR + "[+OK2.java" + File.pathSeparator + "-KO.java]" + File.pathSeparator
-		        + OUTPUT_DIR + File.separator + "p1[~Warn.java]\""
+		        + " -cp \"" + OUTPUT_DIR + "[+OK2" + File.pathSeparator + "-KO]" + File.pathSeparator
+		        + OUTPUT_DIR + File.separator + "p1[~Warn]\""
 		        + " -verbose -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
 		        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
 		        "[5 .class files generated]\n", 
