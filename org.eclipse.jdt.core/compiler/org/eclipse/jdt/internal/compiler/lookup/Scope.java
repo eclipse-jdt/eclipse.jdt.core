@@ -787,7 +787,7 @@ public abstract class Scope
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReferences(argumentTypes);
 		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, unitScope);
-		if (exactMethod != null) {
+		if (exactMethod != null && exactMethod.typeVariables == NoTypeVariables) {
 			unitScope.recordTypeReferences(exactMethod.thrownExceptions);
 			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
 			if (receiverType.isInterface() || exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
@@ -1109,6 +1109,8 @@ public abstract class Scope
 					// BUT we can also ignore any overridden method since we already know the better match (fixes 80028)
 					if (matchingMethod != null) {
 						if (currentMethod.areParametersEqual(matchingMethod)) {
+							if (matchingMethod.typeVariables != NoTypeVariables)
+								continue nextMethod; // keep inherited substituted methods to detect anonymous errors
 							if (matchingMethod.hasSubstitutedParameters() && !currentMethod.original().areParametersEqual(matchingMethod.original()))
 								continue nextMethod; // keep inherited substituted methods to detect anonymous errors
 							currentLength--;
@@ -3306,6 +3308,9 @@ public abstract class Scope
 						if (method.declaringClass != method2.declaringClass && method.original().areParametersEqual(method2.original()))
 							if (method.declaringClass.findSuperTypeErasingTo((ReferenceBinding) method2.declaringClass.erasure()) == null)
 								continue nextVisible;
+					} else if (!method.original().areTypeVariableErasuresEqual(method2.original())) {
+						// cannot override an inherited method if type variables are not compatible
+						continue nextVisible;
 					} else if (method.hasSubstitutedParameters() && method.isAbstract() == method2.isAbstract()) { // must both be abstract or concrete, not one of each
 						if (method.areParametersEqual(method2)) {
 							// its possible with 2 methods that one does not inherit from the other

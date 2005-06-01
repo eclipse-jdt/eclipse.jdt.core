@@ -20429,4 +20429,114 @@ public void test705() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
+public void test706() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		BB bb = new BB();\n" + 
+			"		bb.<Object>test();\n" + 
+			"		((AA<CC>) bb).test();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA<T> { AA<Object> test() {return null;} }\n" + 
+			"class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
+			"class CC {}\n",
+		},
+		""
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
+public void test706a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		BB bb = new BB();\n" + 
+			"		AA<Object> res1 = bb.test();\n" + 
+			"		AA res3 = bb.test();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA<T> { AA<Object> test() {return null;} }\n" + 
+			"class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
+			"class CC {}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	AA<Object> res1 = bb.test();\r\n" + 
+		"	                     ^^^^\n" + 
+		"The method test() is ambiguous for the type BB\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\r\n" + 
+		"	AA res3 = bb.test();\r\n" + 
+		"	             ^^^^\n" + 
+		"The method test() is ambiguous for the type BB\n" + 
+		"----------\n"
+		// 4: reference to test is ambiguous, both method test() in AA<CC> and method <U>test() in BB match
+		// 5: reference to test is ambiguous, both method test() in AA<CC> and method <U>test() in BB match
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
+public void test706b() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		BB bb = new BB();\n" + 
+			"		AA<CC> res = bb.test();\n" + 
+			"		BB res2 = bb.test();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA<T> { AA<Object> test() {return null;} }\n" + 
+			"class BB extends AA<CC> { <U> BB test() {return null;} }\n" + 
+			"class CC {}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	AA<CC> res = bb.test();\r\n" + 
+		"	                ^^^^\n" + 
+		"The method test() is ambiguous for the type BB\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\r\n" + 
+		"	BB res2 = bb.test();\r\n" + 
+		"	             ^^^^\n" + 
+		"The method test() is ambiguous for the type BB\n" + 
+		"----------\n"
+		// 4: reference to test is ambiguous, both method test() in AA<CC> and method <U>test() in BB match
+		// 4: incompatible types on the assignment
+		// 5: reference to test is ambiguous, both method test() in AA<CC> and method <U>test() in BB match
+		// 5: incompatible types on the assignment
+	);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		BB bb = new BB();\n" + 
+			"		AA<CC> res = bb.test();\n" + 
+			"		BB res2 = bb.test();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class AA<T> { AA<Object> test() {return null;} }\n" + 
+			"class BB extends AA<CC> { }\n" + 
+			"class CC {}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	AA<CC> res = bb.test();\r\n" + 
+		"	       ^^^\n" + 
+		"Type mismatch: cannot convert from AA<Object> to AA<CC>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\r\n" + 
+		"	BB res2 = bb.test();\r\n" + 
+		"	   ^^^^\n" + 
+		"Type mismatch: cannot convert from AA<Object> to BB\n" + 
+		"----------\n"
+		// incompatible types on both assignments
+	);
+}
 }
