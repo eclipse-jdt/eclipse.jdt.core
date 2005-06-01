@@ -3302,9 +3302,10 @@ public abstract class Scope
 						}
 						continue nextVisible;
 					} else if (method.isStatic()) {
-						// detect collision between static import methods
+						// detect collision between static import methods from unconnected types
 						if (method.declaringClass != method2.declaringClass && method.original().areParametersEqual(method2.original()))
-							continue nextVisible;
+							if (method.declaringClass.findSuperTypeErasingTo((ReferenceBinding) method2.declaringClass.erasure()) == null)
+								continue nextVisible;
 					} else if (method.hasSubstitutedParameters() && method.isAbstract() == method2.isAbstract()) { // must both be abstract or concrete, not one of each
 						if (method.areParametersEqual(method2)) {
 							// its possible with 2 methods that one does not inherit from the other

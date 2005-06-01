@@ -1082,8 +1082,8 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
-	
-		//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95909
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95909
 	public void test031() {
 		this.runNegativeTest(
 			new String[] {
@@ -1105,5 +1105,29 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	              ^^^^^^^^\n" + 
 			"pondArea cannot be resolved\n" + 
 			"----------\n");
+	}
+
+	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	public void test032() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.A.*;\n" + 
+				"import static p.B.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {foo();}\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;" +
+				"public class A {\n" + 
+				"	public static void foo() {System.out.print(false);}\n" + 
+				"}\n",
+				"p/B.java",
+				"package p;" +
+				"public class B extends A {\n" + 
+				"	public static void foo() {System.out.print(true);}\n" + 
+				"}\n"
+			},
+			"true");
 	}
 }
