@@ -371,7 +371,6 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 * srcdir option.
 		 */        
         logAndAddFilesToCompile(cmd);
-        System.out.println(cmd);
         return cmd;
 	}
 	
