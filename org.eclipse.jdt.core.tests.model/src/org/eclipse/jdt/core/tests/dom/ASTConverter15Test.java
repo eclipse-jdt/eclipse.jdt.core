@@ -36,7 +36,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 182, 183 };
+//		TESTS_NUMBERS = new int[] { 184 };
 //		TESTS_NAMES = new String[] {"test0177"};
 	}
 	public static Test suite() {
@@ -544,6 +544,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
 		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1,  fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression initializer  = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		ITypeBinding binding = initializer.resolveTypeBinding();
+		assertNotNull("No binding", binding);
 		Type type = statement.getType();
 		assertTrue("Not a parameterized type", type.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
 		ParameterizedType parameterizedType = (ParameterizedType) type;
@@ -5509,5 +5516,33 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	String expectedSource = "map= new Map<String, Number>() {\n" +
 			"	}";
     	checkSourceRange(fragment, expectedSource, contents);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=97841
+	 */
+	public void test0184() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"public class X {\n" +
+			"	java.util.Map<String, Number> map= new java.util.Map<String, Number>() {\n" +
+			"	};\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy,
+    			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+    	FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+    	List fragments = fieldDeclaration.fragments();
+    	assertEquals("Wrong size", 1, fragments.size());
+    	VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+    	Expression initializer = fragment.getInitializer();
+    	assertNotNull("No initializer", initializer);
+    	ITypeBinding binding = initializer.resolveTypeBinding();
+    	assertNotNull("No binding", binding);
 	}
 }

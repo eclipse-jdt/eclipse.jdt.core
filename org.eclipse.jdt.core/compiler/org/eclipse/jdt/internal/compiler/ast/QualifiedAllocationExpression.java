@@ -314,7 +314,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				scope.compilationUnitScope().recordTypeConversion(expectedType, enclosingInstanceType);
 			if (enclosingInstanceType.isCompatibleWith(expectedType) || scope.isBoxingCompatibleWith(enclosingInstanceType, expectedType)) {
 				enclosingInstance.computeConversion(scope, expectedType, enclosingInstanceType);
-				return receiverType;
+				return this.resolvedType = receiverType;
 			}
 			scope.problemReporter().typeMismatchError(enclosingInstanceType, expectedType, this.enclosingInstance);
 			return this.resolvedType = receiverType;
