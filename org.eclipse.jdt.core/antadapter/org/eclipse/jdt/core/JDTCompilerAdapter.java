@@ -62,7 +62,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			Method compile = c.getMethod("compile", new Class[] {String[].class}); //$NON-NLS-1$
 			Object result = compile.invoke(batchCompilerInstance, new Object[] { cmd.getArguments()});
 			final boolean resultValue = ((Boolean) result).booleanValue();
-			if (!resultValue && this.verbose) {
+			if (!resultValue && this.logFileName != null) {
 				System.out.println(AntAdapterMessages.getString("ant.jdtadapter.error.compilationFailed", this.logFileName)); //$NON-NLS-1$
 			}
 			return resultValue;
@@ -294,7 +294,11 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		/*
 		 * verbose option
 		 */
-		if (this.verbose) {
+		if (this.verbose && this.destDir != null) {
+			/*
+			 * if destDir is null, we don't generate any log.
+			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=97744
+			 */
 			// Fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=96605
 			// cmd.createArgument().setValue("-verbose"); //$NON-NLS-1$
 			/*
@@ -302,7 +306,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			 */
 			cmd.createArgument().setValue("-log"); //$NON-NLS-1$
 			this.logFileName = this.destDir.getAbsolutePath() + ".log"; //$NON-NLS-1$
-			cmd.createArgument().setValue(this.logFileName);
+			cmd.createArgument().setValue(this.logFileName);			
 		}
 
 		/*
@@ -367,7 +371,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 * srcdir option.
 		 */        
         logAndAddFilesToCompile(cmd);
-		return cmd;
+        System.out.println(cmd);
+        return cmd;
 	}
 	
     /**
