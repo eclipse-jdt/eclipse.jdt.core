@@ -34,35 +34,13 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.env.ISourceImport;
-import org.eclipse.jdt.internal.compiler.env.ISourceType;
 
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.SourceFieldElementInfo;
-import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 
 public class SourceTypeConverter implements CompilerModifiers {
 	
@@ -158,12 +136,17 @@ public class SourceTypeConverter implements CompilerModifiers {
 		}
 		/* convert type(s) */
 		int typeCount = sourceTypes.length;
-		this.unit.types = new TypeDeclaration[typeCount];
+		final TypeDeclaration[] types = new TypeDeclaration[typeCount];
+		/*
+		 * We used a temporary types collection to prevent this.unit.types from being null during a call to
+		 * convert(...) when the source is syntactically incorrect and the parser is flushing the unit's types.
+		 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=97466
+		 */
 		for (int i = 0; i < typeCount; i++) {
 			SourceTypeElementInfo typeInfo = (SourceTypeElementInfo) sourceTypes[i];
-			this.unit.types[i] =
-				convert((SourceType) typeInfo.getHandle(), compilationResult);
+			types[i] = convert((SourceType) typeInfo.getHandle(), compilationResult);
 		}
+		this.unit.types = types;
 		return this.unit;
 	}
 	
@@ -555,13 +538,27 @@ public class SourceTypeConverter implements CompilerModifiers {
 		if (positions == null) return null;
 		int length = positions.length;
 		Annotation[] annotations = new Annotation[length];
+		int recordedAnnotations = 0;
 		for (int i = 0; i < length; i++) {
 			long position = positions[i];
 			int start = (int) (position >>> 32);
 			int end = (int) position;
 			char[] annotationSource = CharOperation.subarray(cuSource, start, end+1);
 			Expression expression = parseMemberValue(annotationSource);
-			annotations[i] = (Annotation) expression;
+			/*
+			 * expression can be null or not an annotation if the source has changed between
+			 * the moment where the annotation source positions have been retrieved and the moment were
+			 * this parsing occured.
+			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=90916
+			 */
+			if (expression instanceof Annotation) {
+				annotations[i] = (Annotation) expression;
+				recordedAnnotations++;
+			}
+		}
+		if (length != recordedAnnotations) {
+			// resize to remove null annotations
+			System.arraycopy(annotations, 0, (annotations = new Annotation[recordedAnnotations]), 0, recordedAnnotations);
 		}
 		return annotations;
 	}
