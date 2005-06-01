@@ -8068,7 +8068,7 @@ public void goForInitializer(){
 	this.scanner.recordLineSeparator = false;
 }
 public void goForMemberValue() {
-	//tells the scanner to go for a memeber value parsing
+	//tells the scanner to go for a member value parsing
 
 	this.firstToken = TokenNameOR_OR;
 	this.scanner.recordLineSeparator = true; // recovery goals must record line separators
