@@ -4521,7 +4521,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"public class X {\n" + 
 				"    \n" + 
 				"    public static void main(String[] args) {\n" + 
-				"        AX<String, Thread> a = bar();\n" + // TODO (philippe) should flag impossible to compute proper substitutes
+				"        AX<String, Thread> a = bar();\n" + 
 				"        String s = a.get();\n" + 
 				"        System.out.println(s);\n" + 
 				"	}\n" + 
@@ -4634,8 +4634,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    public static void main(String[] args) {\n" + 
 				"        AX<X> ax = new AX<X>(new X());\n" + 
 				"        AX<String> as = new AX<String>(\"\");\n" + 
-				"        ax = (AX<X>)bar(ax);\n" + // should still complain about unnecessary cast as return type inference would have
-				"	}\n" +                                         // worked the same without the cast due to assignment
+				"        ax = (AX<X>)bar(ax);\n" + // shouldn't complain about unnecessary cast as return type inference do not
+				"	}\n" +                                         // work on cast conversion
 				"    public static <T> T bar(AX<?> a) {\n" + 
 				"		return a.get();\n" + 
 				"    }    \n" + 
@@ -4650,7 +4650,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	ax = (AX<X>)bar(ax);\n" + 
 			"	     ^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from AX<X> to AX<X>\n" + 
+			"Type safety: The cast from Object to AX<X> is actually checking against the erased type AX\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
@@ -10596,7 +10596,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78139 - downcast generic method inference
 	public void test396() {
-		this.runConformTest(
+		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.util.Collection;\n" + 
@@ -10642,8 +10642,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" + 
 				"}"
 			},
-			""
-		);
+			"----------\n" + 
+			"1. ERROR in X.java (at line 22)\r\n" + 
+			"	final Collection<String> cL = (Collection<String>)emptyList(); // 2\r\n" + 
+			"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from List<Object> to Collection<String>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 25)\r\n" + 
+			"	final Iterable<String> iL = (Iterable<String>)emptyList(); // 3\r\n" + 
+			"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from List<Object> to Iterable<String>\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 31)\r\n" + 
+			"	final Iterable<String> iC = (Iterable<String>)emptyCollection(); // 5\r\n" + 
+			"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from Collection<Object> to Iterable<String>\n" + 
+			"----------\n");
 	}		
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=76132
@@ -20344,5 +20358,34 @@ public void test702() {
 		"Type mismatch: cannot convert from X<X<? extends Cloneable>> to X<X<?>>\n" + 
 		"----------\n");
 }
-
+public void test703() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends X<T>> {}\n" + 
+			"class Y extends X<Y> {\n" + 
+			"    X<?> p = (Y)null;\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97800
+public void test704() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"		 public static void main(String[] args) {\n" + 
+			"		 		 List<String> l = (List<String>)Collections.emptyList();\n" + 
+			"		 }	 \n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	List<String> l = (List<String>)Collections.emptyList();\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<Object> to List<String>\n" + 
+		"----------\n");
+}
 }
