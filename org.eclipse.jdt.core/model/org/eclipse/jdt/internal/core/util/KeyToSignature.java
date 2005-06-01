@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 /*
  * Converts a binding key into a signature 
  */
-// TODO (jerome) handle methods and fields
 public class KeyToSignature extends BindingKeyParser {
 	
 	public static final int SIGNATURE = 0;
@@ -146,7 +145,27 @@ public class KeyToSignature extends BindingKeyParser {
 			this.signature.append(Signature.C_GENERIC_END);
 			this.signature.append(Signature.C_SEMICOLON);
 		} else {
-			this.signature.append(parameter);
+			// handle array, wildcard and capture
+			int index = 0;
+			int length = parameter.length;
+			loop: while (index < length) {
+				char current = parameter[index];
+				switch (current) {
+					case Signature.C_CAPTURE:
+					case Signature.C_EXTENDS:
+					case Signature.C_SUPER:
+					case Signature.C_ARRAY:
+						this.signature.append(current);
+						index++;
+						break;
+					default:
+						break loop;
+				}
+			}
+			if (index > 0) 
+				substitute(CharOperation.subarray(parameter, index, length), typeParameterSigs, typeParametersLength);
+			else
+				this.signature.append(parameter);
 		}
 	}
 	

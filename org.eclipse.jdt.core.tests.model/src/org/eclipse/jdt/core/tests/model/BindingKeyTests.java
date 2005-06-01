@@ -450,5 +450,27 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Lp1/X;.foo<T:Ljava/lang/Object;>(Ljava/util/List<TT;>;Ljava/lang/Integer;)V%<Ljava/lang/String;>)"
 		);
 	}
+	
+	/*
+	 * Parameterized method with argument nested in another argument as a wilcard bound
+	 * (regression test for bug 97814 Incorrect resolved information on hover)
+	 */
+	public void test041() {
+		assertBindingKeySignatureEquals(
+			"<T:Ljava.lang.Object;>(LY<-Ljava.lang.NullPointerException;>;Ljava.lang.NullPointerException;)V",
+			"LX~Z;.foo<T:Ljava/lang/Object;>(LY<-TT;>;TT;)V%<Ljava/lang/NullPointerException;>"
+		);
+	}
+
+	/*
+	 * Parameterized method with argument nested in another argument as an array
+	 * (regression test for bug 97814 Incorrect resolved information on hover)
+	 */
+	public void test042() {
+		assertBindingKeySignatureEquals(
+			"<T:Ljava.lang.Object;>([Ljava.lang.NullPointerException;Ljava.lang.NullPointerException;)V",
+			"LX~Z;.foo<T:Ljava/lang/Object;>([TT;TT;)V%<Ljava/lang/NullPointerException;>"
+		);
+	}
 
 }
