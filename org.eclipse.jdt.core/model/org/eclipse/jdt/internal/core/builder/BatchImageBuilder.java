@@ -219,7 +219,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 								createProblemFor(
 									resource,
 									null,
-									Messages.bind(Messages.build_duplicateResource, (new String[] {id})), 
+									Messages.bind(Messages.build_duplicateResource, id), 
 									javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, true));
 								return false;
 							}

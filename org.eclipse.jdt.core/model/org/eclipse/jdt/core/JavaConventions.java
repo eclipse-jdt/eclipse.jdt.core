@@ -305,7 +305,7 @@ public final class JavaConventions {
 			}
 			return JavaModelStatus.VERIFIED_OK;
 		} else {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.convention_type_invalidName, (new String[] {name})), null); 
+			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.convention_type_invalidName, name), null); 
 		}
 	}
 
@@ -372,7 +372,7 @@ public final class JavaConventions {
 			typeName = typeName.trim(); // grammar allows spaces
 			char[] scannedID = scannedIdentifier(typeName);
 			if (scannedID == null) {
-				return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.convention_illegalIdentifier, (new String[] {typeName})), null); 
+				return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.convention_illegalIdentifier, typeName), null); 
 			}
 			IStatus status = workspace.validateName(new String(scannedID), IResource.FOLDER);
 			if (!status.isOK()) {

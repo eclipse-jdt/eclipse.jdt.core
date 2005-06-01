@@ -840,12 +840,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					buffer.append(
 						Messages.bind(Messages.disassembler_constantpool_fieldref,
 							new String[] {
-							Integer.toString(i),
-							Integer.toString(constantPoolEntry.getClassIndex()),
-							Integer.toString(constantPoolEntry.getNameAndTypeIndex()),
-							new String(constantPoolEntry.getClassName()),
-							new String(constantPoolEntry.getFieldName()),
-							new String(constantPoolEntry.getFieldDescriptor())}));
+								Integer.toString(i),
+								Integer.toString(constantPoolEntry.getClassIndex()),
+								Integer.toString(constantPoolEntry.getNameAndTypeIndex()),
+								new String(constantPoolEntry.getClassName()),
+								new String(constantPoolEntry.getFieldName()),
+								new String(constantPoolEntry.getFieldDescriptor())
+							}));
 					break;
 				case IConstantPoolConstant.CONSTANT_Float :
 					buffer.append(
@@ -858,8 +859,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					buffer.append(
 						Messages.bind(Messages.disassembler_constantpool_integer,
 							new String[] {
-							Integer.toString(i),
-							Integer.toString(constantPoolEntry.getIntegerValue())}));
+								Integer.toString(i),
+								Integer.toString(constantPoolEntry.getIntegerValue())}));
 					break;
 				case IConstantPoolConstant.CONSTANT_InterfaceMethodref :
 					buffer.append(

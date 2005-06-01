@@ -299,7 +299,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			if (!this.force) {
 				throw new JavaModelException(new JavaModelStatus(
 					IJavaModelStatusConstants.NAME_COLLISION, 
-					Messages.bind(Messages.status_nameCollision, (new String[] {destFile.getFullPath().toString()})))); 
+					Messages.bind(Messages.status_nameCollision, destFile.getFullPath().toString()))); 
 			}
 			// update new resource content
 			// in case we do a saveas on the same resource we have to simply update the contents
@@ -439,7 +439,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 								} else {
 									throw new JavaModelException(new JavaModelStatus(
 										IJavaModelStatusConstants.NAME_COLLISION, 
-										Messages.bind(Messages.status_nameCollision, (new String[] {destinationResource.getFullPath().toString()})))); 
+										Messages.bind(Messages.status_nameCollision, destinationResource.getFullPath().toString()))); 
 								}
 							}
 						}

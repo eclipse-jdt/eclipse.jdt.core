@@ -180,7 +180,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	} catch (MissingClassFileException e) {
 		// do not log this exception since its thrown to handle aborted compiles because of missing class files
 		if (DEBUG)
-			System.out.println(Messages.bind(Messages.build_incompleteClassPath, (new String[] {e.missingClassFile}))); 
+			System.out.println(Messages.bind(Messages.build_incompleteClassPath, e.missingClassFile)); 
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_incompleteClassPath, e.missingClassFile)); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);

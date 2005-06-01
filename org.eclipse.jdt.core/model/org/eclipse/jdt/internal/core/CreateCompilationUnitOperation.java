@@ -105,7 +105,7 @@ protected void executeOperation() throws JavaModelException {
 			} else {
 				throw new JavaModelException(new JavaModelStatus(
 					IJavaModelStatusConstants.NAME_COLLISION, 
-					Messages.bind(Messages.status_nameCollision, (new String[] {compilationUnitFile.getFullPath().toString()})))); 
+					Messages.bind(Messages.status_nameCollision, compilationUnitFile.getFullPath().toString()))); 
 			}
 		} else {
 			try {

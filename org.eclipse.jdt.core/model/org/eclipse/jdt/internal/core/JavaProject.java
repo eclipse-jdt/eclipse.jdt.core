@@ -849,7 +849,7 @@ public class JavaProject
 			if (createMarker && this.project.isAccessible()) {
 					this.createClasspathProblemMarker(new JavaModelStatus(
 							IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-							Messages.bind(Messages.classpath_xmlFormatError, (new String[] {this.getElementName(), e.getMessage()})))); 
+							Messages.bind(Messages.classpath_xmlFormatError, new String[] {this.getElementName(), e.getMessage()}))); 
 			}
 			if (logProblems) {
 				Util.log(e, 
@@ -862,7 +862,7 @@ public class JavaProject
 			if (createMarker && this.project.isAccessible()) {
 				this.createClasspathProblemMarker(new JavaModelStatus(
 						IJavaModelStatusConstants.INVALID_CLASSPATH_FILE_FORMAT,
-						Messages.bind(Messages.classpath_illegalEntryInClasspathFile, (new String[] {this.getElementName(), e.getMessage()})))); 
+						Messages.bind(Messages.classpath_illegalEntryInClasspathFile, new String[] {this.getElementName(), e.getMessage()}))); 
 			}
 			if (logProblems) {
 				Util.log(e, 

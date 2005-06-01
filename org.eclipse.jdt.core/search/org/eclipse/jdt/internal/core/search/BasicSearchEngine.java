@@ -186,7 +186,7 @@ public class BasicSearchEngine {
 				SubProgressMonitor subMonitor= monitor==null ? null : new SubProgressMonitor(monitor, 1000);
 				if (subMonitor != null) subMonitor.beginTask("", 1000); //$NON-NLS-1$
 				try {
-					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_indexing, (new String[] {participant.getDescription()}))); 
+					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_indexing, new String[] {participant.getDescription()})); 
 					participant.beginSearching();
 					requestor.enterParticipant(participant);
 					PathCollector pathCollector = new PathCollector();
@@ -197,7 +197,7 @@ public class BasicSearchEngine {
 					if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	
 					// locate index matches if any (note that all search matches could have been issued during index querying)
-					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_matching, (new String[] {participant.getDescription()}))); 
+					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_matching, new String[] {participant.getDescription()})); 
 					String[] indexMatchPaths = pathCollector.getPaths();
 					pathCollector = null; // release
 					int indexMatchLength = indexMatchPaths == null ? 0 : indexMatchPaths.length;
