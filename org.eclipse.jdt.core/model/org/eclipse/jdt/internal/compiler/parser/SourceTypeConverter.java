@@ -552,8 +552,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=90916
 			 */
 			if (expression instanceof Annotation) {
-				annotations[i] = (Annotation) expression;
-				recordedAnnotations++;
+				annotations[recordedAnnotations++] = (Annotation) expression;
 			}
 		}
 		if (length != recordedAnnotations) {
