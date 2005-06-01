@@ -1735,6 +1735,9 @@ protected void consumeClassBodyDeclarationsopt() {
 	// ClassBodyDeclarationsopt ::= NestedType ClassBodyDeclarations
 	this.nestedType-- ;
 }
+protected void consumeAnnotationTypeMemberDeclarationsopt() {
+	this.nestedType-- ;
+}
 protected void consumeClassBodyopt() {
 	// ClassBodyopt ::= $empty
 	pushOnAstStack(null);
@@ -6069,6 +6072,10 @@ protected void consumeRule(int act) {
  
     case 650 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarationsopt ::="); }  //$NON-NLS-1$
 		    consumeEmptyAnnotationTypeMemberDeclarationsopt() ;  
+			break;
+ 
+    case 651 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarationsopt ::= NestedType..."); }  //$NON-NLS-1$
+		    consumeAnnotationTypeMemberDeclarationsopt() ;  
 			break;
  
     case 653 : if (DEBUG) { System.out.println("AnnotationTypeMemberDeclarations ::=..."); }  //$NON-NLS-1$

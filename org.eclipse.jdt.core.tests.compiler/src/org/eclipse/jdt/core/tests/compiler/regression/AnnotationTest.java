@@ -37,7 +37,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 143 };
+//		TESTS_NUMBERS = new int[] { 148 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -4588,7 +4588,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	           ^^^\n" + 
 			"Cannot reference a field before it is defined\n" + 
 			"----------\n");
-    }      
+    }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96631
     public void test146() {
         this.runConformTest(
@@ -4618,5 +4618,26 @@ public class AnnotationTest extends AbstractComparableTest {
 			true,
 			options
 		);
+    }
+    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97466
+    public void test148() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" +
+				"	private static void foo() {\n" +
+				"		 @interface Bar {\n" +
+				"			public String bar = \"BUG\";\n" +
+				"		}\n" +
+				"	}\n" +
+				"}",
+            },
+            "----------\n" + 
+    		"1. ERROR in X.java (at line 3)\n" + 
+    		"	@interface Bar {\n" + 
+    		"	           ^^^\n" + 
+    		"The member annotation Bar can only be defined inside a top-level class or interface\n" + 
+    		"----------\n");
     }
 }
