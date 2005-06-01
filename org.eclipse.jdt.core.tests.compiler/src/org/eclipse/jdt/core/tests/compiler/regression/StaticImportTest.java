@@ -1129,5 +1129,30 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"true");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.A.*;\n" + 
+				"import static p.B.*;\n" + 
+				"public class X { void test() {foo();} }\n",
+				"p/A.java",
+				"package p;" +
+				"public class A {\n" + 
+				"	public static void foo() {}\n" + 
+				"}\n",
+				"p/B.java",
+				"package p;" +
+				"public class B {\n" + 
+				"	public static void foo() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	public class X { void test() {foo();} }\r\n" + 
+			"	                              ^^^\n" + 
+			"The method foo() is ambiguous for the type X\n" + 
+			"----------\n"
+			// reference to foo is ambiguous, both method foo() in p.B and method foo() in p.A match
+		);
 	}
 }
