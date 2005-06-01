@@ -24,7 +24,10 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
+import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
@@ -135,10 +138,15 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	}
 
 	private CompilationParticipantResult cleanNotify( CompilationParticipantEvent cpe )
-	{
+	{		
 		IProject p = cpe.getJavaProject().getProject();
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
 		gfm.projectClean( true );
+		try{
+			p.deleteMarkers(ProcessorEnvImpl.BUILD_MARKER, true, IResource.DEPTH_INFINITE);
+		}catch (CoreException e) {
+			throw new IllegalStateException(e);
+		}
 		return GENERIC_COMPILATION_RESULT;
 	}
 	

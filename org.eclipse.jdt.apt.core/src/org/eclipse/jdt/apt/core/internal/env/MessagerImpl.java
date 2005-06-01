@@ -13,15 +13,18 @@ package org.eclipse.jdt.apt.core.internal.env;
 
 import com.sun.mirror.apt.Messager;
 import com.sun.mirror.util.SourcePosition;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.apt.core.internal.NonEclipseImplementationException;
+import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl.Phase;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+
 
 public class MessagerImpl implements Messager, EclipseMessager
 {
@@ -33,13 +36,12 @@ public class MessagerImpl implements Messager, EclipseMessager
     
     public void printError(SourcePosition pos, String msg)
     {
-        if( pos instanceof SourcePositionImpl )
+    	if( pos == null )
+    		printError(msg);
+    	else if( pos instanceof SourcePositionImpl )
             print((SourcePositionImpl)pos, IMarker.SEVERITY_ERROR, msg);
-        else if (pos == null )
-			printError(msg);        
-        else
-            throw new NonEclipseImplementationException("only applicable to eclipse mirror objects." +
-                                                         " Found " + pos.getClass().getName());
+    	else
+    		print(pos, IMarker.SEVERITY_ERROR, msg);
     }
 	
 	public void printError(ASTNode node, String msg)
@@ -61,10 +63,9 @@ public class MessagerImpl implements Messager, EclipseMessager
         if( pos instanceof SourcePositionImpl )
             print((SourcePositionImpl)pos, IMarker.SEVERITY_INFO, msg);
 		else if (pos == null )
-			printNotice(msg); 
-        else
-            throw new NonEclipseImplementationException("only applicable to eclipse mirror objects." +
-                                                         " Found " + pos.getClass().getName());
+			printNotice(msg);
+		else
+    		print(pos, IMarker.SEVERITY_INFO, msg);
     }
 	
 	public void printNotice(ASTNode node, String msg)
@@ -87,9 +88,8 @@ public class MessagerImpl implements Messager, EclipseMessager
             print((SourcePositionImpl)pos, IMarker.SEVERITY_WARNING, msg);
 		else if (pos == null )
 			printWarning(msg); 
-        else
-            throw new NonEclipseImplementationException("only applicable to eclipse mirror objects." +
-                                                         " Found " + pos.getClass().getName());
+		else
+    		print(pos, IMarker.SEVERITY_WARNING, msg);
     }
 	
 	public void printWarning(ASTNode node, String msg)
@@ -104,8 +104,8 @@ public class MessagerImpl implements Messager, EclipseMessager
     public void printWarning(String msg)
     {
         print(IMarker.SEVERITY_WARNING, msg);
-    }
-
+    }    
+  
     private void print(SourcePositionImpl pos,
                        int severity,
                        String msg)
@@ -126,25 +126,68 @@ public class MessagerImpl implements Messager, EclipseMessager
 				     pos.line());
         }
     }
+    
+    private void print(SourcePosition pos,
+    				   int severity,
+    				   String msg)
+    {    	
+    	final java.io.File file = pos.file();
+    	IResource resource = null;
+    	if( file != null ){    		
+    		final String projAbsPath = _env.getProject().getLocation().toOSString();
+    		final String fileAbsPath = file.getAbsolutePath();
+    		final String fileRelPath = fileAbsPath.substring(projAbsPath.length());    			
+    		resource = _env.getProject().getFile(fileRelPath);
+    		if( !resource.exists() )
+    			resource = null;
+    	}
+    	else
+    		resource = null;
+    	 
+    	final IResource currentResource = _env.getFile();
+    	int offset = 0;    	
+    	if( currentResource.equals(resource) ){
+    		final CompilationUnit unit = _env.getAstCompilationUnit();
+    		//TODO: waiting on new API Bugzilla #97766
+    		//offset = unit.getPosition(pos.line(), pos.column() );
+    		offset = 0;
+    	}    	
+
+    	addMarker(resource, offset, -1, severity, msg, pos.line());
+    }
 
     private void print(int severity, String msg)
     {
 		addMarker(null, 0, 1, severity, msg, 1);	
     }
 
+    /**
+     * 
+     * @param resource null to indicate current resource
+     * @param start the starting offset of the marker
+     * @param end -1 to indicate unknow ending offset.
+     * @param severity the severity of the marker
+     * @param msg the message on the marker
+     * @param line the line number of where the marker should be
+     */
     private void addMarker(final IResource resource, final int start, final int end,
                             final int severity, String msg, final int line)
     {         
+    	final IResource currentResource = _env.getFile();
+    	// not going to post any markers to resource outside of the one we are currently 
+    	// processing during reconcile phase.
+    	if( resource != null && !currentResource.equals(resource) && _env.getPhase() == Phase.RECONCILE )
+    		return;
 		if( msg == null )
 			msg = "<no message>";		
         Map<String, Object> map = new HashMap<String, Object>(8); // entries = 6, loadFactory = 0.75 thus, capacity = 8
         map.put( IMarker.CHAR_START, start );
-        map.put( IMarker.CHAR_END, end );
+        if(end >= 0)
+        	map.put( IMarker.CHAR_END, end );
         map.put( IMarker.SEVERITY, severity );
         map.put( IMarker.MESSAGE, msg );
 		map.put( IMarker.LINE_NUMBER, line);
-		map.put( IMarker.LOCATION, "line: " + line);
-        map = Collections.unmodifiableMap(map);
+		map.put( IMarker.LOCATION, "line: " + line);        
         _env.addMarker(resource, map);
     }
 }

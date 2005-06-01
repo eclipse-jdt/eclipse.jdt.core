@@ -110,7 +110,12 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements Typ
 			if( node == null ) return null;
             final CompilationUnit unit = getCompilationUnit();
             final int offset = node.getStartPosition();
-            return new SourcePositionImpl(offset, node.getLength(), unit.lineNumber(offset), this);
+    		//TODO: waiting on new API Bugzilla #97766
+            return new SourcePositionImpl(offset, 
+            		                      node.getLength(), 
+            							  unit.lineNumber(offset), 
+            							  0,//unit.columnNumber(offset),
+            							  this);
         }
         else
             return null;

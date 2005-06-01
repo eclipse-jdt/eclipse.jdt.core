@@ -78,16 +78,30 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
     public String getDocComment()
     {
         if( isFromSource()){
-			final BodyDeclaration bodyDecl = (BodyDeclaration)getAstNode();
-			if( bodyDecl != null ){
-				final Javadoc javaDoc = bodyDecl.getJavadoc();
-	            if( javaDoc == null ) return "";
-	            return javaDoc.toString();
-			}
-			return "";
+        	final ASTNode node = getAstNode();        	
+        	if(node != null){
+        		if( node instanceof BodyDeclaration )
+        			
+        			return getDocComment((BodyDeclaration)node);
+
+        		else if( node.getNodeType() == ASTNode.VARIABLE_DECLARATION_FRAGMENT ){
+        			final ASTNode parent = node.getParent();
+        			// a field declaration
+        			if( parent instanceof BodyDeclaration )
+        				return getDocComment((BodyDeclaration)parent);
+        			
+        		}
+        		return "";
+        	}  
         }
         return null;
-
+    }
+    
+    private String getDocComment(final BodyDeclaration decl)
+    {
+    	final Javadoc javaDoc = ((BodyDeclaration)decl).getJavadoc();
+        if( javaDoc == null ) return "";
+        return javaDoc.toString();
     }
 	
 	/**
@@ -150,9 +164,11 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 			if( node == null ) return null;			       
             final CompilationUnit unit = getCompilationUnit();
             final int start = node.getStartPosition();
+    		//TODO: waiting on new API Bugzilla #97766
             return new SourcePositionImpl(start,
 					node.getLength(),
 					unit.lineNumber(start),
+					0,//unit.columnNumber(start),
 					this);
         }
         return null;

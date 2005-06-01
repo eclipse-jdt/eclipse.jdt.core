@@ -25,17 +25,20 @@ public class SourcePositionImpl implements SourcePosition
     private final int _startingOffset;
     private final int _length;
     private final int _line;
+    private final int _column;
     /** the back pointer to the declaration that created this object */
     private final EclipseMirrorImpl _decl;
 
     public SourcePositionImpl(final int startingOffset,
                               final int length,
                               final int line,
+                              final int column,
                               final DeclarationImpl decl)
     {
         _startingOffset = startingOffset;
         _length = length;
         _line = line;
+        _column = column;
         _decl = decl;
         assert decl != null : "missing declaration [decl] == null.";
     }
@@ -43,11 +46,13 @@ public class SourcePositionImpl implements SourcePosition
 	public SourcePositionImpl(final int startingOffset,
 							  final int length,
 							  final int line,
+							  final int column,
 							  final AnnotationValueImpl decl )
 	{
 		_startingOffset = startingOffset;
         _length = length;
         _line = line;
+        _column = column;
         _decl = decl;
         assert decl != null : "missing declaration [decl] == null.";
 	}
@@ -55,17 +60,19 @@ public class SourcePositionImpl implements SourcePosition
 	public SourcePositionImpl(final int startingOffset,
 							  final int length,
 							  final int line,
+							  final int column,
 							  final AnnotationMirrorImpl decl )
 	{
 		_startingOffset = startingOffset;
         _length = length;
         _line = line;
+        _column = column;
         _decl = decl;
         assert decl != null : "missing declaration [decl] == null.";
 	}
     
     public int line(){ return _line; }
-    public int column(){ return 0; /* TODO: fix me */ }
+    public int column(){ return _column; }
     public File file(){
         IResource resource = getResource();
         if( resource == null ) return null;
@@ -87,5 +94,20 @@ public class SourcePositionImpl implements SourcePosition
 			return ((AnnotationValueImpl)_decl).getResource();
 		
 		throw new IllegalStateException();
+    }
+    
+    public String toString()
+    {
+    	StringBuilder buffer = new StringBuilder();
+    	buffer.append("offset = ");
+    	buffer.append(_startingOffset);
+    	buffer.append(" line = ");
+    	buffer.append( _line );
+    	buffer.append(" column = ");
+    	buffer.append( _column );
+    	buffer.append(" length = ");
+    	buffer.append( _length );
+    	
+    	return buffer.toString();
     }
 }

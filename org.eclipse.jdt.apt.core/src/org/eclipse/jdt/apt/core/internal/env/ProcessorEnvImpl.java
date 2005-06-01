@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -110,7 +111,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
     private final IFile _file;
 	/**
 	 * The source code in <code>_file</code>.
-	 * This is the exact same source code that created the dom compil
+	 * This is the exact same source code that created the dom compilation unit
 	 */
 	private final char[] _source;
 
@@ -983,21 +984,55 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	 */
     void addMarker(final IResource resource, Map<String, Object> markerAttrs)
     {
-		_markerInfos.add( new MarkerInfo(resource, markerAttrs));
+		_markerInfos.add( new MarkerInfo(resource, markerAttrs) );
     }
 
     void postMarkers()
     {
+    	// for those markers that doesn't have an ending offset, figure it out by
+    	// traversing the ast.
+    	// we do it once just before we post the marker so we only have to walk the ast 
+    	// once.
+    	int count = 0;
+    	for( MarkerInfo markerInfo : _markerInfos ){    		
+    		if( markerInfo._markerAttrs.get(IMarker.CHAR_END) == null ) 
+    			count ++;
+    	}
+    	if( count > 0 ){
+	    	final int[] startingOffsets = new int[count];
+	    	int index = 0;
+	    	for( MarkerInfo markerInfo : _markerInfos ){    		
+	    		if( markerInfo._markerAttrs.get(IMarker.CHAR_END) == null ){
+	    			final Integer startingOffset = (Integer)markerInfo._markerAttrs.get(IMarker.CHAR_START);
+	    			startingOffsets[index++] = startingOffset.intValue();
+	    		}
+	    	}
+	    	
+	    	final EndingOffsetFinder lfinder = new EndingOffsetFinder(startingOffsets);
+	    	_astCompilationUnit.accept( lfinder );
+	    	
+	    	for( MarkerInfo markerInfo : _markerInfos ){    		
+	    		if( markerInfo._markerAttrs.get(IMarker.CHAR_END) == null ){
+	    			final int startingOffset = 
+	    				((Integer)markerInfo._markerAttrs.get(IMarker.CHAR_START)).intValue();
+	    			int endingOffset = lfinder.getEndingOffset(startingOffset);
+	    			if( endingOffset == 0 )
+	    				endingOffset = startingOffset;
+	    			markerInfo._markerAttrs.put(IMarker.CHAR_END, endingOffset);
+	    		}
+	    	}
+    	}
+    	
 		// Posting all the markers to the workspace. Doing this in a batch process
 		// to minimize the amount of notification.
 		try{
 			// the resource of the compilation unit in the environment.
-			final IResource currentResource = _file;
+			final IResource currentResource = _file; 
 	        final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
 	            public void run(IProgressMonitor monitor)
-	            {
+	            {	            
 					final String markerType = _phase == Phase.RECONCILE ?
-											  RECONCILE_MARKER : BUILD_MARKER;
+											  RECONCILE_MARKER : BUILD_MARKER;				
 	                for( MarkerInfo markerInfo : _markerInfos ){
 	                    IResource resource = markerInfo._resource;
 						if( resource == null )
@@ -1021,6 +1056,96 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		finally{
 			_markerInfos.clear();
 		}
+    }
+    
+    /**
+     * Responsible for finding the ending offset of the ast node that has the tightest match 
+     * for a given offset. This ast visitor can operator on an array of offsets in one pass.   
+     * @author tyeung     
+     */
+    private static class EndingOffsetFinder extends ASTVisitor 
+    {
+    	private final int[] _sortedStartingOffset;
+    	/** 
+    	 * parallel to <code>_sortedOffsets</code> and contains 
+    	 * the ending offset of the ast node that has the tightest match for the 
+    	 * corresponding starting offset.
+    	 */
+    	private final int[] _endingOffsets;
+    	
+    	/**
+    	 * @param offsets the array of offsets which will be sorted.
+    	 * @throws IllegalArgumentException if <code>offsets</code> is <code>null</code>.
+    	 */
+    	private EndingOffsetFinder(int[] offsets)
+    	{
+    		if(offsets == null)
+    			throw new IllegalArgumentException("argument cannot be null.");
+    		// sort the array first
+    		Arrays.sort(offsets);
+    	
+    		// look for duplicates.		
+    		int count = 0;	
+    		for( int i=0, len=offsets.length; i<len; i++){
+    			if( i == 0 ) ; // do nothing				
+    			else if( offsets[i-1] == offsets[i] )
+    				continue;			
+    			count ++;
+    		}	
+    	
+    		if( count != offsets.length ){
+    			_sortedStartingOffset = new int[count];
+    	
+    			int index = 0;
+    			for( int i=0, len=offsets.length; i<len; i++){
+    				if( i != 0 && offsets[i-1] == offsets[i] )
+    					continue;
+    				_sortedStartingOffset[index++] = offsets[i];
+    			}		
+    		}
+    		else{
+    			_sortedStartingOffset = offsets;
+    		}
+    		
+    		_endingOffsets = new int[count];
+    		for( int i=0; i<count; i++ )
+    			_endingOffsets[i] = 0;
+    	}
+    	
+    	public void preVisit(ASTNode node) 
+    	{
+    		final int startingOffset = node.getStartPosition();
+    		final int endingOffset = startingOffset + node.getLength();
+    		// starting offset is inclusive
+    		int startIndex = Arrays.binarySearch(_sortedStartingOffset, startingOffset);
+    		// ending offset is exclusive
+    		int endIndex = Arrays.binarySearch(_sortedStartingOffset, endingOffset);
+    		if( startIndex < 0 )
+    			startIndex = - startIndex - 1;		
+    		if( endIndex < 0 )
+    			endIndex = - endIndex - 1;
+    		else 
+    			// endIndex needs to be exclusive and we want to 
+    			// include the 'endIndex'th entry in our computation.
+    			endIndex ++; 
+    		if( startIndex >= _sortedStartingOffset.length )
+    			return;
+    		
+    		for( int i=startIndex; i<endIndex; i++ ){    			
+    			if( _endingOffsets[i] == 0 )
+    				_endingOffsets[i] = endingOffset;
+    			else if( endingOffset < _endingOffsets[i] )
+    				_endingOffsets[i] = endingOffset;
+    		}
+    	}
+    	
+    	
+    	public int getEndingOffset(final int startingOffset)
+    	{
+    		int index = Arrays.binarySearch(_sortedStartingOffset, startingOffset);
+    		if( index == -1 ) return 0;
+    		return _endingOffsets[index];
+    	}
     }
 
 	/**

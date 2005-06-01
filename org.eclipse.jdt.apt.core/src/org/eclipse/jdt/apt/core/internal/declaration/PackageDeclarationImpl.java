@@ -103,9 +103,11 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 			final ASTNode node = unit.findDeclaringNode(getDeclarationBinding());
 			if( node == null ) return null;
 			final int start = node.getStartPosition();
+			//TODO: waiting on new API Bugzilla #97766
 	        return new SourcePositionImpl(start,
 										  node.getLength(),
 	                                      unit.lineNumber(start),
+	                                      0,//unit.columnNumber(start),
 	                                      this);			
 		}
 		return null;
