@@ -21,6 +21,7 @@
       <!-- don't need to import 'org.eclipse.ui.editors'. 
            This is here so I could read the source code for debugging. -->
       <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.apache.ant"/>
    </requires>
 
 <!-- =================================================================================== -->

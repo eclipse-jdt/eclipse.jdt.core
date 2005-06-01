@@ -20,7 +20,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 /**
  * Commandline entry point for building a workspace using APT.
- * Currently cleans and then builds the entire workspace.
+ * Currently cleans and then builds the entire workspace.<P>
+ * 
+ * Sample commandline invocation:
+ * 
+ * java -cp %ECLIPSE_HOME%/startup.jar org.eclipse.core.launcher.Main 
+ * 	-noupdate -application org.eclipse.jdt.apt.core.aptBuild -data %WORKSPACE%
  */
 public class AptBuilder implements IPlatformRunnable {
 
