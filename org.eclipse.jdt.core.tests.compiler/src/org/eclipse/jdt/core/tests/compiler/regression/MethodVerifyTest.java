@@ -2425,8 +2425,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97161
-	//TODO(kent) reenable once addressed
-	public void _test043a() {
+	public void test043a() {
 		this.runNegativeTest(
 			new String[] {
 				"p/X.java",
@@ -3437,36 +3436,24 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"1"
 		);
 	}
-	
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
 	public void test056() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.Collection;\n" + 
 				"public class X {\n" + 
-				"   public static String bind(String message, Object binding) {\n" + 
-				"      return null;\n" + 
-				"   }\n" + 
-				"   public static String bind(String message, Object[] bindings) {\n" + 
-				"      return null;\n" + 
-				"   }\n" + 
+				"   public static String bind(String message, Object binding) { return null; }\n" + 
+				"   public static String bind(String message, Object[] bindings) { return null; }\n" + 
 				"}\n" + 
 				"class Y extends X {\n" + 
-				"   public static String bind(String message, Object binding) {\n" + 
-				"      return null;\n" + 
-				"   }\n" + 
-				"   public static String bind(String message, Object[] bindings) {\n" + 
-				"      return null;\n" + 
-				"   }\n" + 
+				"   public static String bind(String message, Object binding) { return null; }\n" + 
+				"   public static String bind(String message, Object[] bindings) { return null; }\n" + 
 				"}\n" + 
 				"class Z {\n" + 
-				"   void bar() {\n" + 
-				"      Y.bind(\"\", new String[] {\"\"});\n" + 
-				"   }\n" + 
+				"   void bar() { Y.bind(\"\", new String[] {\"\"}); }\n" + 
 				"}\n"
 			},
 			"");
-	}	
+	}
 }

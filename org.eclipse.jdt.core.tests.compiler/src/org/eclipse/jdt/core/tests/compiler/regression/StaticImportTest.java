@@ -870,8 +870,7 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83376
-	// TODO (kent) reenable when fixed
-	public void _test024() {
+	public void test024() {
 		this.runNegativeTest(
 			new String[] {
 				"p/B.java",

@@ -1094,7 +1094,7 @@ public abstract class Scope
 			int currentLength = currentMethods.length;
 
 			if (isCompliant14 && (mustBePublic || matchingMethod != null || found.size > 0)) {
-				nextMethod: for (int i = 0; i < currentLength; i++) {
+				nextMethod: for (int i = 0, l = currentLength; i < l; i++) { // currentLength can be modified inside the loop
 					MethodBinding currentMethod = currentMethods[i];
 					if (mustBePublic && !currentMethod.isPublic()) { // only public methods from Object are visible to interface receiverTypes
 						currentLength--;
@@ -3301,10 +3301,10 @@ public abstract class Scope
 								continue; // special case to choose between 2 varargs methods when the last arg is missing or its Object[]
 						}
 						continue nextVisible;
-//					} else if (method.isStatic()) {
-//						// detect collision between static import methods
-//						if (method.declaringClass != method2.declaringClass && method.original().areParametersEqual(method2.original()))
-//							continue nextVisible;
+					} else if (method.isStatic()) {
+						// detect collision between static import methods
+						if (method.declaringClass != method2.declaringClass && method.original().areParametersEqual(method2.original()))
+							continue nextVisible;
 					} else if (method.hasSubstitutedParameters() && method.isAbstract() == method2.isAbstract()) { // must both be abstract or concrete, not one of each
 						if (method.areParametersEqual(method2)) {
 							// its possible with 2 methods that one does not inherit from the other
