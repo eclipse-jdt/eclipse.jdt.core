@@ -11,18 +11,14 @@
 
 package org.eclipse.jdt.core.tests.dom;
 
-import java.util.Hashtable;
 import java.util.List;
 
 import junit.framework.Test;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
 
@@ -40,7 +36,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 185 };
+//		TESTS_NUMBERS = new int[] { 185, 186 };
 //		TESTS_NAMES = new String[] {"test0177"};
 	}
 	public static Test suite() {
@@ -5554,31 +5550,40 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98086
 	 */
 	public void test0185() throws JavaModelException {
-		final IProject project = getWorkspaceRoot().getProject("Converter15");
-		IJavaProject javaProject = JavaCore.create(project);
-		Hashtable options = (Hashtable) javaProject.getOptions(true);
-		Hashtable newOptions = (Hashtable) javaProject.getOptions(true);
-		try {
-			newOptions.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.WARNING);
-			JavaCore.setOptions(newOptions);
-
-			this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-	    	final String contents =
-				"import java.util.ArrayList;\n" +
-				"import java.util.List;\n" +
-				"@SuppressWarnings(\"unchecked\")\n" +
-				"public class X {\n" +
-				"	List<String> ls = new ArrayList();\n" +
-				"}";
-	    	ASTNode node = buildAST(
-	    			contents,
-	    			this.workingCopy,
-	    			false);
-	    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-	    	CompilationUnit compilationUnit = (CompilationUnit) node;
-	    	assertProblemsSize(compilationUnit, 0);
-		} finally {
-			javaProject.setOptions(options);
-		}
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"@SuppressWarnings(\"unchecked\")\n" +
+			"public class X {\n" +
+			"	List<String> ls = new ArrayList();\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98086
+	 */
+	public void test0186() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"//@SuppressWarnings(\"unchecked\")\n" +
+			"public class X {\n" +
+			"	List<String> ls = new ArrayList();\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy,
+    			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 1, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>");
 	}
 }
