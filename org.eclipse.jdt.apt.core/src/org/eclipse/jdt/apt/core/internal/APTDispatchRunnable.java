@@ -96,7 +96,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			if ( deletedFiles.size() == 0 )
 				_result =  EMPTY_APT_RESULT;
 			else
-				_result = new APTResult( (Set<IFile>)Collections.emptySet(), deletedFiles, (Set<String>)Collections.emptySet() );
+				_result = new APTResult( Collections.<IFile>emptySet(), deletedFiles, Collections.<String>emptySet() );
 		}
 		else
 		{
@@ -222,7 +222,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	{
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( parent.getProject() );
 		Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( parent );
-		return cleanupNoLongerGeneratedFiles( parent, lastGeneratedFiles, (Set<IFile>)Collections.emptySet(), gfm );
+		return cleanupNoLongerGeneratedFiles( parent, lastGeneratedFiles, Collections.<IFile>emptySet(), gfm );
 	}
 	
 	private static Set<IFile> cleanupNoLongerGeneratedFiles( 
@@ -352,7 +352,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		}
 	}
 	
-	public static final APTResult EMPTY_APT_RESULT = new APTResult( (Set<IFile>)Collections.emptySet(), (Set<IFile>)Collections.emptySet(), (Set<String>)Collections.emptySet() );
+	public static final APTResult EMPTY_APT_RESULT = new APTResult( Collections.<IFile>emptySet(), Collections.<IFile>emptySet(), Collections.<String>emptySet() );
 	
 	public static final boolean DEBUG = false;
 }
