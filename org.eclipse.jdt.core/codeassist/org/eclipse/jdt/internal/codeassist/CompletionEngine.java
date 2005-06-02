@@ -806,7 +806,8 @@ public final class CompletionEngine
 	
 							} else {
 	
-								if (qualifiedBinding instanceof ReferenceBinding) {
+								if (qualifiedBinding instanceof ReferenceBinding &&
+										!(qualifiedBinding instanceof TypeVariableBinding)) {
 									boolean isInsideAnnotationAttribute = ref.isInsideAnnotationAttribute;
 									ReferenceBinding receiverType = (ReferenceBinding) qualifiedBinding;
 									setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
@@ -909,7 +910,8 @@ public final class CompletionEngine
 								long completionPosition = ref.sourcePositions[ref.tokens.length];
 	
 								// get the source positions of the completion identifier
-								if (qualifiedBinding instanceof ReferenceBinding) {
+								if (qualifiedBinding instanceof ReferenceBinding &&
+										!(qualifiedBinding instanceof TypeVariableBinding)) {
 									if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 										setSourceRange((int) (completionPosition >>> 32), (int) completionPosition);
 										findMemberTypes(
