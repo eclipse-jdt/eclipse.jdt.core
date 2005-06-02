@@ -2799,6 +2799,36 @@ protected void consumeTypeParameters() {
 	super.consumeTypeParameters();
 	popElement(K_BINARY_OPERATOR);
 }
+protected void consumeTypeParameterHeader() {
+	super.consumeTypeParameterHeader();
+	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
+	if(typeParameter.type != null || (typeParameter.bounds != null && typeParameter.bounds.length > 0)) return;
+	
+	if (assistIdentifier() == null && this.currentToken == TokenNameIdentifier) { // Test below copied from CompletionScanner.getCurrentIdentifierSource()
+		if (cursorLocation < this.scanner.startPosition && this.scanner.currentPosition == this.scanner.startPosition){ // fake empty identifier got issued
+			this.pushIdentifier();					
+		} else if (cursorLocation+1 >= this.scanner.startPosition && cursorLocation < this.scanner.currentPosition){
+			this.pushIdentifier();
+		} else {
+			return;
+		}
+	} else {
+		return;
+	}
+
+	CompletionOnKeyword1 keyword = new CompletionOnKeyword1(
+		identifierStack[this.identifierPtr],
+		identifierPositionStack[this.identifierPtr],
+		Keywords.EXTENDS);
+	keyword.canCompleteEmptyToken = true;
+	typeParameter.type = keyword;
+	
+	this.identifierPtr--;
+	this.identifierLengthPtr--;
+	
+	this.assistNode = typeParameter.type;
+	this.lastCheckPoint = typeParameter.type.sourceEnd + 1;
+}
 protected void consumeTypeParameters1() {
 	super.consumeTypeParameter1();
 	popElement(K_BINARY_OPERATOR);

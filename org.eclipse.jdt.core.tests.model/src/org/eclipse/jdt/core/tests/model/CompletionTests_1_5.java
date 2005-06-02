@@ -7137,4 +7137,94 @@ public void test0223() throws JavaModelException {
 		}
 	}
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85384
+ */
+public void test0224() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0224/Test.java",
+            "package test0224;\n" +
+            "\n" +
+            "public class Test<T ext> {\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+	
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85384
+ */
+public void test0225() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0225/Test.java",
+            "package test0225;\n" +
+            "\n" +
+            "public class Test<T ext\n" +
+            "",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+	
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85384
+ */
+public void test0226() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0226/Test.java",
+            "package test0226;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "  public <T ext> void foo() {}\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+	
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85384
+ */
+public void test0227() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0227/Test.java",
+            "package test0227;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "  public <T ext\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+	
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
 }
