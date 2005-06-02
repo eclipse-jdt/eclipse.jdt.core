@@ -11,15 +11,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.*;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2120,6 +2111,26 @@ public class JavaProject
 				Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
 				// fallback to default
 				property = new String(bytes);
+			}
+		} else {
+			// when a project is imported, we get a first delta for the addition of the .project, but the .classpath is not accessible
+			// so default to using java.io.File
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=96258
+			File file  = rscFile.getLocation().toFile();
+			if (file.exists()) {
+				byte[] bytes;
+				try {
+					bytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file);
+				} catch (IOException e) {
+					return null;
+				}
+				try {
+					property = new String(bytes, "UTF-8"); //$NON-NLS-1$ // .classpath always encoded with UTF-8
+				} catch (UnsupportedEncodingException e) {
+					Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
+					// fallback to default
+					property = new String(bytes);
+				}
 			}
 		}
 		return property;
