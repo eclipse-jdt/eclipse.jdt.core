@@ -216,17 +216,25 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 	/*
 	 * declaringUniqueKey : genericTypeSignature
-	 * p.X<T> { ... } --> Lp/X<TT;>;:TT;
+	 * p.X<T> { ... } --> Lp/X;:TT;
+	 * p.X { <T> void foo() {...} } --> Lp/X;.foo()V:TT;
 	 */
 	public char[] computeUniqueKey(boolean isLeaf) {
-		char[] declaringKey = this.declaringElement.computeUniqueKey(false/*not a leaf*/);
-		int declaringLength = declaringKey.length;
-		char[] sig = genericTypeSignature();
-		int sigLength = sig.length;
-		char[] uniqueKey = new char[declaringLength + 1 + sigLength];
-		System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
-		uniqueKey[declaringLength] = ':';
-		System.arraycopy(sig, 0, uniqueKey, declaringLength+1, sigLength);
+		StringBuffer buffer = new StringBuffer();
+		Binding declaring = this.declaringElement;
+		if (!isLeaf && declaring.kind() == Binding.METHOD) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=97902
+			MethodBinding methodBinding = (MethodBinding) declaring;
+			buffer.append(methodBinding.declaringClass.computeUniqueKey(false/*not a leaf*/));
+			buffer.append(':');
+			buffer.append(methodBinding.sourceStart());
+		} else {
+			buffer.append(declaring.computeUniqueKey(false/*not a leaf*/));
+			buffer.append(':');			
+		}
+		buffer.append(genericTypeSignature());
+		int length = buffer.length();
+		char[] uniqueKey = new char[length];
+		buffer.getChars(0, length, uniqueKey, 0);
 		return uniqueKey;
 	}
 	/**

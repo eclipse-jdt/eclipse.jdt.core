@@ -473,4 +473,15 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		);
 	}
 
+	/*
+	 * Parameterized type binding with a type variable of the current's method in its arguments
+	 * (regression test for bug 97902 NPE on Open Declaration on reference to generic type)
+	 */
+	public void test043() {
+		assertBindingKeySignatureEquals(
+			"Lp1.Y<TT;>;",
+			"Lp1/X~Y<Lp1/X;:40TT;>;"
+		);
+	}
+
 }

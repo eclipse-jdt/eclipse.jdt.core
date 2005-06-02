@@ -90,7 +90,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test021" };
+//		TESTS_NAMES = new String[] { "test065" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1403,6 +1403,26 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"Lp1/X;",
 				"Lp1/X;&Lp1/Y<!Lp1/Y;*83;>;",
 			}
+		);
+	}
+
+	/*
+	 * Ensures that a parameterized type binding with a type variable of the current's method in its arguments can be created using its key in batch creation.
+	 * (regression test for bug 97902 NPE on Open Declaration on reference to generic type)
+	 */
+	public void test065() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" + 
+				"  <T> void foo(/*start*/Y<T>/*end*/ y) {\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"class Y<E> {\n" + 
+				"}",
+			}, 
+			"Lp1/X~Y<Lp1/X;:40TT;>;"
 		);
 	}
 

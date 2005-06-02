@@ -238,7 +238,7 @@ public class KeyToSignature extends BindingKeyParser {
 		this.typeParameters.add(typeParameterName);
 	}
 	
-	public void consumeTypeVariable(char[] typeVariableName) {
+	public void consumeTypeVariable(char[] position, char[] typeVariableName) {
 		this.signature = new StringBuffer();
 		this.signature.append('T');
 		this.signature.append(typeVariableName);

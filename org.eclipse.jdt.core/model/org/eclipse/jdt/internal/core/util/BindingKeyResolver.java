@@ -328,7 +328,20 @@ public class BindingKeyResolver extends BindingKeyParser {
 		}
 	}
 	
-	public void consumeTypeVariable(char[] typeVariableName) {
+	public void consumeTypeVariable(char[] position, char[] typeVariableName) {
+		if (position.length > 0) {
+			int sourceStart = Integer.parseInt(new String(position));
+			MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).methods();
+			if (methods != null) {
+				for (int i = 0, length = methods.length; i < length; i++) {
+					MethodBinding binding = methods[i];
+					if (sourceStart == binding.sourceStart()) {
+						this.methodBinding = binding;
+						break;
+					}
+				}
+			}
+		}
 	 	TypeVariableBinding[] typeVariableBindings = this.methodBinding != null ? this.methodBinding.typeVariables() : this.typeBinding.typeVariables();
 	 	for (int i = 0, length = typeVariableBindings.length; i < length; i++) {
 			TypeVariableBinding typeVariableBinding = typeVariableBindings[i];

@@ -505,7 +505,7 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 	
-	public void consumeTypeVariable(char[] typeVariableName) {
+	public void consumeTypeVariable(char[] position, char[] typeVariableName) {
 		// default is to do nothing
 	}
 	
@@ -804,7 +804,17 @@ public class BindingKeyParser {
 			malformedKey();
 			return;
 		}
-		consumeTypeVariable(this.scanner.getTokenSource());
+		char[] typeVariableName = this.scanner.getTokenSource();
+		char[] position;
+		int length = typeVariableName.length;
+		if (length > 0 && Character.isDigit(typeVariableName[0])) {
+			int firstT = CharOperation.indexOf('T', typeVariableName);
+			position = CharOperation.subarray(typeVariableName, 0, firstT);
+			typeVariableName = CharOperation.subarray(typeVariableName, firstT+1, typeVariableName.length);
+		} else {
+			position = CharOperation.NO_CHAR;
+		}
+		consumeTypeVariable(position, typeVariableName);
 		this.scanner.skipTypeEnd();
 	}
 	
