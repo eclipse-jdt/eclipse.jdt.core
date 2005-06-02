@@ -1736,10 +1736,23 @@ public final class CompletionEngine
 			if(!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
 				CompletionProposal proposal = this.createProposal(CompletionProposal.FIELD_REF, this.actualCompletionPosition);
 				//proposal.setDeclarationSignature(null);
-				proposal.setSignature(
-						createNonGenericTypeSignature(
-								CharOperation.concatWith(JAVA_LANG, '.'),
-								CLASS));
+				char[] signature = 
+					createNonGenericTypeSignature(
+						CharOperation.concatWith(JAVA_LANG, '.'),
+						CLASS);
+				if (this.compilerOptions.sourceLevel > ClassFileConstants.JDK1_4) {
+					// add type argument
+					char[] typeArgument = getTypeSignature(receiverType);
+					int oldLength = signature.length;
+					int argumentLength = typeArgument.length;
+					int newLength = oldLength + argumentLength + 2;
+					System.arraycopy(signature, 0, signature = new char[newLength], 0, oldLength - 1);
+					signature[oldLength - 1] = '<';
+					System.arraycopy(typeArgument, 0, signature, oldLength , argumentLength);
+					signature[newLength - 2] = '>';
+					signature[newLength - 1] = ';';
+				}
+				proposal.setSignature(signature);
 				//proposal.setDeclarationPackageName(null);
 				//proposal.setDeclarationTypeName(null);
 				proposal.setPackageName(CharOperation.concatWith(JAVA_LANG, '.'));

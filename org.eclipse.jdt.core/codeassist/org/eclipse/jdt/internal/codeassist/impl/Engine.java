@@ -315,6 +315,17 @@ public abstract class Engine implements ITypeRequestor {
 		lookupEnvironment.reset();
 	}
 	
+	public static char[] getTypeSignature(TypeBinding typeBinding) {
+		if(typeBinding.isLocalType()) {
+			LocalTypeBinding localTypeBinding = (LocalTypeBinding)typeBinding;
+			if(localTypeBinding.isAnonymousType()) {
+				typeBinding = localTypeBinding.superclass();
+			} else {
+				localTypeBinding.setConstantPoolName(typeBinding.sourceName());
+			}
+		}
+		return typeBinding.signature();
+	}
 	public static char[] getSignature(Binding binding) {
 		char[] result = null;
 		if ((binding.kind() & Binding.TYPE) != 0) {
