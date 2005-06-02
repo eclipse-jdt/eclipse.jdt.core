@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 700 };
+		TESTS_NUMBERS = new int[] { 683 };
 //		TESTS_RANGE = new int[] { 514, -1 };
 	}
 	public static Test suite() {
@@ -19854,23 +19854,34 @@ public void test682() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96085
-public void test683() {
+public void _test683() {
 	this.runConformTest(
 		new String[] {
 			"P.java",
-			"interface P<V> {\n" + 
+			"public interface P<V> {\n" + 
 			"    interface A {}\n" + 
 			"}\n",
 			"P2.java",
-			"class P2 implements P.A {\n" + 
+			"public class P2 implements P.A {\n" + 
 			"    P2(P.A problem) {}\n" + 
 			"}\n",
+			"P3.java",
+			"public class P3 {\n" + 
+			"    void test() {P.A o = new P2((P.A) null);}\n" + 
+			"}\n",
+		},
+		"");
+	this.runConformTest(
+		new String[] {
 			"P3.java",
 			"class P3 {\n" + 
 			"    void test() {P.A o = new P2((P.A) null);}\n" + 
 			"}\n",
 		},
-		"");
+		"",
+		null,
+		false,
+		null);
 }
 public void test684() {
 	this.runNegativeTest(
