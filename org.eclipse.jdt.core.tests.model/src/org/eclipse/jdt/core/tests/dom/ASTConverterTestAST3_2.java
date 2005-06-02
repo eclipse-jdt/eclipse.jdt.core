@@ -105,7 +105,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 608, 609 };
+//		TESTS_NUMBERS =  new int[] { 610 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -6439,5 +6439,16 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=98088
+	 */
+	public void test0610() throws JavaModelException {
+		final ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0610", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		final ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertProblemsSize(unit, 1, "The type Test is deprecated");
 	}
 }
