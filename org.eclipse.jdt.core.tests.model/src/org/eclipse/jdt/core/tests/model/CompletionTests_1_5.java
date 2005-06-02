@@ -7277,4 +7277,73 @@ public void test0229() throws JavaModelException {
 			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0229/Test;>;, class, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			result.proposals);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=96944
+public void test0230() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0230/Test.java",
+            "package test0230;\n" +
+            "\n" +
+            "public class Test<ZT> {\n" +
+            "  void foo() {\n"+
+            "    new ZT\n"+
+            "  }\n"+
+            "}",
+        	"ZT");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=96944
+public void test0231() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0231/Test.java",
+            "package test0231;\n" +
+            "\n" +
+            "public class Test<ZT> {\n" +
+            "  void foo() {\n"+
+            "    ZT var = new ZT\n"+
+            "  }\n"+
+            "}",
+        	"ZT");
+    
+
+    assertResults(
+            "expectedTypesSignatures={TZT;}\n" +
+            "expectedTypesKeys={Ltest0231/Test;:TZT;}",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=96944
+public void test0232() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0232/Test.java",
+            "package test0232;\n" +
+            "\n" +
+            "public class Test<ZT> {\n" +
+            "  void foo() {\n"+
+            "    ZT var = new \n"+
+            "  }\n"+
+            "}",
+        	"new ");
+    
+
+    assertResults(
+            "expectedTypesSignatures={TZT;}\n" +
+            "expectedTypesKeys={Ltest0232/Test;:TZT;}",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
 }

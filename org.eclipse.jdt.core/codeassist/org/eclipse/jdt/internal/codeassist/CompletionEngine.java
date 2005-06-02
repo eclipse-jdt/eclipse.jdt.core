@@ -4375,7 +4375,10 @@ public final class CompletionEngine
 		
 		if (!skip && proposeType && scope.enclosingSourceType() != null) {
 			findNestedTypes(token, scope.enclosingSourceType(), scope, proposeAllMemberTypes, typesFound);
-			findTypeParameters(token, scope);
+			if(!assistNodeIsConstructor) {
+				// don't propose type parmaters if the completion is a constructor ('new |')
+				findTypeParameters(token, scope);
+			}
 		}
 
 		if (!skip && proposeType && this.unitScope != null) {
@@ -4471,6 +4474,11 @@ public final class CompletionEngine
 				next : for (int i = 0; i <= this.expectedTypesPtr; i++) {
 					if(this.expectedTypes[i] instanceof ReferenceBinding) {
 						ReferenceBinding refBinding = (ReferenceBinding)this.expectedTypes[i];
+						
+						if(refBinding.isTypeVariable() && assistNodeIsConstructor) {
+							// don't propose type variable if the completion is a constructor ('new |')
+							continue next;
+						}
 						
 						int accessibility = IAccessRule.K_ACCESSIBLE;
 						if(refBinding.hasRestrictedAccess()) {
