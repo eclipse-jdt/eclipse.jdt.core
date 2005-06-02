@@ -184,10 +184,13 @@ public final class JavaConventions {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("convention.classFile.notClassFileName"), null); //$NON-NLS-1$
 		}
 		identifier = name.substring(0, index);
+		if( "package-info".equals(identifier) ) //$NON-NLS-1$
+			return JavaModelStatus.VERIFIED_OK; 
 		IStatus status = validateIdentifier(identifier);
 		if (!status.isOK()) {
 			return status;
 		}
+		
 		status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
 		if (!status.isOK()) {
 			return status;

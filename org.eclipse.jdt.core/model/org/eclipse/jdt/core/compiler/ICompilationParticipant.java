@@ -12,22 +12,50 @@
 
 package org.eclipse.jdt.core.compiler;
 
+import org.eclipse.jdt.core.IJavaProject;
+
 /**
  * Interface to extend when for a client that wants to participate in the compilation process
  */
 public interface ICompilationParticipant {
 	
+	/**
+	 * Called when a compilation event is fired
+	 */
 	public CompilationParticipantResult notify( CompilationParticipantEvent e );
 
+	/**
+	 * During project compilation, this method is called on the compilation
+	 * participant to discover if it is interested in this project.<P>
+	 * 
+	 * For efficiency, participants that are not interested in a 
+	 * given project should return false for that project.<P>
+	 */
+	public boolean doesParticipateInProject( IJavaProject project );
 	
-	/** a flag indicating a generic event */
+	
+	/** 
+	 * a flag indicating a generic event 
+	 */
 	public static final int GENERIC_EVENT        = 1;
-	/** a flag indicating an event fired after reconcile */
+	
+	/** 
+	 * a flag indicating an event fired after reconcile 
+	 */
 	public static final int POST_RECONCILE_EVENT = 2;
-	/** a flag indicating an event fired before a build */
+	
+	/** 
+	 * a flag indicating an event fired before a build 
+	 */
 	public static final int PRE_BUILD_EVENT      = 4;
-	/** a flag indicating an event fired after a build */
+	
+	/** 
+	 * a flag indicating an event fired after a build 
+	 */
 	public static final int POST_BUILD_EVENT     = 8;
-	/** a flag indicating an event fired before a clean operation */
+	
+	/** 
+	 * a flag indicating an event fired before a clean operation 
+	 */
 	public static final int CLEAN_EVENT          = 16;
 }

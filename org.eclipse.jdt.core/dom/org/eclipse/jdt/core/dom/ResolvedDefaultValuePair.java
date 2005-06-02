@@ -41,6 +41,10 @@ class ResolvedDefaultValuePair implements IResolvedMemberValuePair
 		return this.domValue;
 	}	
 	
+	public boolean isDefault(){
+		return true;
+	}
+	
 	public void toString(StringBuffer buffer) {
 		buffer.append(getName());
 		buffer.append(" = "); //$NON-NLS-1$		

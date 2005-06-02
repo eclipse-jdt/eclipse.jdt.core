@@ -17,67 +17,141 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 
 public class MethodInfo extends ClassFileStruct implements IBinaryMethod, AttributeNamesConstants, Comparable {
 	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
-	private int accessFlags;
-	private int attributeBytes;
+	protected int accessFlags;
+	protected int attributeBytes;
 	protected int[] constantPoolOffsets;
-	private char[] descriptor;
-	private char[][] exceptionNames;
-	private char[] name;
-	private char[] signature;
-	private int signatureUtf8Offset;
-	private long tagBits;
-	/** method annotation as well as parameter annotations 
-	 * index 0 always contains the method annotation info.
-	 * index 1 and onwards contains parameter annotation info. 
-	 * If the array is of size 0, there are no annotations.
-	 * If the array is of size 1, there are only method annotations.
-	 * if the array has a size greater than 1, then there are at least 
-	 * parameter annotations.
-	 */
-	private AnnotationInfo[][] allAnnotations;	
+	protected char[] descriptor;
+	protected char[][] exceptionNames;
+	protected char[] name;
+	protected char[] signature;
+	protected int signatureUtf8Offset;
+	protected long tagBits;
+	
+
+public static MethodInfo createMethod(byte classFileBytes[], int offsets[], int offset ){
+	final MethodInfo methodInfo = new MethodInfo(classFileBytes, offsets, offset);
+	
+	AnnotationInfo[][] allAnnotations = _createMethod(methodInfo); 
+	if( allAnnotations == null )
+		return methodInfo;
+	else
+		return new MethodInfoWithAnnotation(methodInfo, allAnnotations);
+}
+
+/**
+ * populate the given method info
+ * @param methodInfo
+ * @return all the method and parameter annotations if any. Return null otherwise.
+ */
+protected static AnnotationInfo[][] _createMethod(MethodInfo methodInfo)
+{
+	int attributesCount = methodInfo.u2At(6);
+	int readOffset = 8;
+	AnnotationInfo[][] allAnnotations = null;
+	
+	for (int i = 0; i < attributesCount; i++) {
+		// check the name of each attribute
+		int utf8Offset = methodInfo.constantPoolOffsets[methodInfo.u2At(readOffset)] - methodInfo.structOffset;
+		char[] attributeName = methodInfo.utf8At(utf8Offset + 3, methodInfo.u2At(utf8Offset + 1));
+		if (attributeName.length > 0) {
+			
+			switch(attributeName[0]) {				
+				case 'S' :
+					if (CharOperation.equals(AttributeNamesConstants.SignatureName, attributeName)) {
+						methodInfo.signatureUtf8Offset = 
+							methodInfo.constantPoolOffsets[methodInfo.u2At(readOffset + 6)] - methodInfo.structOffset;
+					}
+					break;
+				case 'R' :
+					AnnotationInfo[] methodAnnos = null;
+					AnnotationInfo[][] paramAnnos = null;
+					if (CharOperation.equals(attributeName, RuntimeVisibleAnnotationsName)) {
+						methodAnnos = decodeMethodAnnotations(readOffset, true, methodInfo);						
+					}
+					else if (CharOperation.equals(attributeName, RuntimeInvisibleAnnotationsName)) {
+						methodAnnos = decodeMethodAnnotations(readOffset, false, methodInfo);
+					}
+					else if( CharOperation.equals(attributeName, RuntimeVisibleParameterAnnotationsName)){
+						paramAnnos = decodeParamAnnotations(readOffset, true, methodInfo);						
+					}
+					else if( CharOperation.equals(attributeName, RuntimeInvisibleParameterAnnotationsName)){
+						paramAnnos = decodeParamAnnotations(readOffset, false, methodInfo);
+					}
+					if( methodAnnos != null ){
+						if( allAnnotations == null )
+							allAnnotations = new AnnotationInfo[][]{methodAnnos};
+						else{
+							int curlen = allAnnotations[0].length;
+							int numberOfAnnotations = methodAnnos.length;
+							int newTotal = curlen + numberOfAnnotations;
+							final AnnotationInfo[] newAnnos = new AnnotationInfo[newTotal];
+							System.arraycopy(allAnnotations[0], 0, newAnnos, 0, curlen);
+							System.arraycopy(methodAnnos, 0, newAnnos, curlen, numberOfAnnotations);
+							allAnnotations[0] = newAnnos;
+						}
+					}
+					if( paramAnnos != null ){
+						final int numberOfParameters = paramAnnos.length;
+						if(allAnnotations == null){
+							allAnnotations = new AnnotationInfo[numberOfParameters + 1][];
+							for(int j=0, len = numberOfParameters + 1; j < len; j++){
+								allAnnotations[j] = null;
+							}
+						}
+						else{
+							if( allAnnotations.length == 1 ){
+								// make room for the parameter annotations
+								final AnnotationInfo[][] newArray = new AnnotationInfo[numberOfParameters + 1][];
+								newArray[0] = allAnnotations[0];
+								allAnnotations = newArray;
+								for(int j=1; j <= numberOfParameters; j++){
+									allAnnotations[j] = null;
+								}
+							}
+							// else
+							// have already initialize the field to the proper size.
+						}						
+					
+						for( int paramIndex=0; paramIndex<numberOfParameters; paramIndex++ ){
+							final int numberOfAnnotations = 
+								paramAnnos[paramIndex] == null ? 0 : paramAnnos[paramIndex].length;
+							if( numberOfAnnotations > 0 )
+							{
+								final int paramAnnoIndex = paramIndex + 1;
+								if( allAnnotations[paramAnnoIndex] == null )
+									allAnnotations[paramAnnoIndex] = paramAnnos[paramIndex];
+								else{										
+									final int curlen = allAnnotations[paramAnnoIndex].length;
+									final int newTotal = curlen + numberOfAnnotations;
+									final AnnotationInfo[] newAnnos = new AnnotationInfo[newTotal];
+									System.arraycopy(allAnnotations[paramAnnoIndex], 0, newAnnos, 0, curlen);
+									System.arraycopy(paramAnnos[paramIndex], 0, newAnnos, curlen, numberOfAnnotations);
+									allAnnotations[paramAnnoIndex] = newAnnos;
+								}
+							}							
+						}
+					}
+			}
+		}
+		readOffset += (6 + methodInfo.u4At(readOffset + 2));
+	}
+	methodInfo.attributeBytes = readOffset;
+	
+	return allAnnotations;
+}
 	
 /**
  * @param classFileBytes byte[]
  * @param offsets int[]
  * @param offset int
  */
-public MethodInfo (byte classFileBytes[], int offsets[], int offset) {
+protected MethodInfo (byte classFileBytes[], int offsets[], int offset) {
 	super(classFileBytes, offset);
 	constantPoolOffsets = offsets;
-	accessFlags = -1;
-	int attributesCount = u2At(6);
-	int readOffset = 8;
+	accessFlags = -1;	
 	this.signatureUtf8Offset = -1;
-	for (int i = 0; i < attributesCount; i++) {
-		// check the name of each attribute
-		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
-		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		if (attributeName.length > 0) {
-			switch(attributeName[0]) {				
-				case 'S' :
-					if (CharOperation.equals(AttributeNamesConstants.SignatureName, attributeName)) {
-						this.signatureUtf8Offset = constantPoolOffsets[u2At(readOffset + 6)] - structOffset;
-					}
-					break;
-				case 'R' :
-					if (CharOperation.equals(attributeName, RuntimeVisibleAnnotationsName)) {
-						decodeMethodAnnotations(readOffset, true);
-					}
-					else if (CharOperation.equals(attributeName, RuntimeInvisibleAnnotationsName)) {
-						decodeMethodAnnotations(readOffset, false);
-					}
-					else if( CharOperation.equals(attributeName, RuntimeVisibleParameterAnnotationsName)){
-						decodeParamAnnotations(readOffset, true);						
-					}
-					else if( CharOperation.equals(attributeName, RuntimeInvisibleParameterAnnotationsName)){
-						decodeParamAnnotations(readOffset, false);
-					}
-			}
-		}
-		readOffset += (6 + u4At(readOffset + 2));
-	}
-	attributeBytes = readOffset;
 }
+
 public int compareTo(Object o) {
 	if (!(o instanceof MethodInfo)) {
 		throw new ClassCastException();
@@ -93,54 +167,34 @@ public int compareTo(Object o) {
  * @param offset the offset is located at the beginning of the 
  * parameter annotation attribute.
  */
-private void decodeParamAnnotations(int offset, boolean runtimeVisible)
+private static AnnotationInfo[][] decodeParamAnnotations(int offset, boolean runtimeVisible, MethodInfo methodInfo)
 {		
 	// u1 num_parameters;
-	int numberOfParameters = u1At(offset + 6);
+	int numberOfParameters = methodInfo.u1At(offset + 6);
+	AnnotationInfo[][] allParamAnnotations = null;	
 	if( numberOfParameters > 0 ){
 		// u2 attribute_name_index + u4 attribute_length + u1 num_parameters
 		int readOffset = offset + 7;
 		for( int i=0; i<numberOfParameters; i++ ){
-			int numberOfAnnotations = u2At(readOffset);
+			int numberOfAnnotations = methodInfo.u2At(readOffset);
 			readOffset += 2;	    
 			if( numberOfAnnotations > 0 ){	
-				if(this.allAnnotations == null){
-					this.allAnnotations = new AnnotationInfo[numberOfParameters + 1][];
-					for(int j=0, len = numberOfParameters + 1; j < len; j++){
-						this.allAnnotations[j] = null;
-					}
+				
+				if(allParamAnnotations == null ){
+					allParamAnnotations = new AnnotationInfo[numberOfParameters][];
+					for(int j=0; j < numberOfParameters; j++)
+						allParamAnnotations[j] = null;
 				}
-				else{
-					if( this.allAnnotations.length == 1 ){
-						// make room for the parameter annotations
-						final AnnotationInfo[][] newArray = new AnnotationInfo[numberOfParameters + 1][];
-						newArray[0] = this.allAnnotations[0];
-						this.allAnnotations = newArray;
-						for(int j=1; j <= numberOfParameters; j++){
-							this.allAnnotations[j] = null;
-						}
-					}
-					// else
-					// have already initialize the field to the proper size.
-				}
+				
 				final AnnotationInfo[] annos = 
-					decodeAnnotations(readOffset, runtimeVisible, numberOfAnnotations);
+					decodeAnnotations(readOffset, runtimeVisible, numberOfAnnotations, methodInfo);
+				allParamAnnotations[i] = annos;
 				for( int aIndex = 0; aIndex < annos.length; aIndex ++ )
-					readOffset += annos[aIndex].getLength();
-				final int paramAnnoIndex = i + 1;
-				if( this.allAnnotations[paramAnnoIndex] == null )
-					this.allAnnotations[paramAnnoIndex] = annos;
-				else{
-					final int curlen = this.allAnnotations[paramAnnoIndex].length;
-					final int newTotal = curlen + numberOfAnnotations;
-					final AnnotationInfo[] newAnnos = new AnnotationInfo[newTotal];
-					System.arraycopy(this.allAnnotations[paramAnnoIndex], 0, newAnnos, 0, curlen);
-					System.arraycopy(annos, 0, newAnnos, curlen, numberOfAnnotations);
-					this.allAnnotations[paramAnnoIndex] = newAnnos;
-				}
+					readOffset += annos[aIndex].getLength();						
 			}
 		}
 	}
+	return allParamAnnotations;
 }
 
 /**
@@ -148,16 +202,16 @@ private void decodeParamAnnotations(int offset, boolean runtimeVisible)
  * attribute.
  * @param runtimeVisible <code>true</code> to indicate decoding 'RuntimeVisibleAnnotation'
  */
-private void decodeMethodAnnotations(int offset, boolean runtimeVisible){
-	int numberOfAnnotations = u2At(offset + 6);
-	AnnotationInfo[] annos = decodeAnnotations(offset + 8, runtimeVisible, numberOfAnnotations);
+private static AnnotationInfo[] decodeMethodAnnotations(int offset, boolean runtimeVisible, MethodInfo methodInfo){
+	int numberOfAnnotations = methodInfo.u2At(offset + 6);
+	AnnotationInfo[] annos = decodeAnnotations(offset + 8, runtimeVisible, numberOfAnnotations, methodInfo);
 	
 	if( numberOfAnnotations > 0 ){
 		if( runtimeVisible ){
 			int numStandardAnnotations = 0;			
 			for( int i=0; i<numberOfAnnotations; i++ ){
 				final long standardAnnoTagBits = annos[i].getStandardAnnotationTagBits();
-				this.tagBits |= standardAnnoTagBits;
+				methodInfo.tagBits |= standardAnnoTagBits;
 				if(standardAnnoTagBits != 0){
 					annos[i] = null;
 					numStandardAnnotations ++;
@@ -166,7 +220,7 @@ private void decodeMethodAnnotations(int offset, boolean runtimeVisible){
 			
 			if( numStandardAnnotations != 0 ){
 				if( numStandardAnnotations == numberOfAnnotations )
-					return;
+					return null;
 				
 				// need to resize			
 				AnnotationInfo[] temp = new AnnotationInfo[numberOfAnnotations - numStandardAnnotations ];
@@ -179,27 +233,20 @@ private void decodeMethodAnnotations(int offset, boolean runtimeVisible){
 				numberOfAnnotations = numberOfAnnotations - numStandardAnnotations;				
 			}
 		}
-		
-		if( this.allAnnotations == null )
-			this.allAnnotations = new AnnotationInfo[][]{annos};
-		else{
-			int curlen = this.allAnnotations[0].length;
-			int newTotal = curlen + numberOfAnnotations;
-			final AnnotationInfo[] newAnnos = new AnnotationInfo[newTotal];
-			System.arraycopy(this.allAnnotations[0], 0, newAnnos, 0, curlen);
-			System.arraycopy(annos, 0, newAnnos, curlen, numberOfAnnotations);
-			this.allAnnotations[0] = newAnnos;
-		}
+		return annos;
 	}
+	
+	return null;
 }
 
 /**
  * @param offset the offset is located at the beginning of the  
  * annotation attribute.
  */
-private AnnotationInfo[] decodeAnnotations(int offset, 
-										   boolean runtimeVisible,
-										   int numberOfAnnotations) {
+private static AnnotationInfo[] decodeAnnotations(int offset, 
+												  boolean runtimeVisible,
+												  int numberOfAnnotations,
+												  MethodInfo methodInfo) {
 	int readOffset = offset;
 	AnnotationInfo[] result = null;
 	if( numberOfAnnotations > 0 ){	
@@ -207,9 +254,9 @@ private AnnotationInfo[] decodeAnnotations(int offset,
 	}	
 	
 	for (int i = 0; i < numberOfAnnotations; i++) {
-		result[i] = new AnnotationInfo(reference, 
-									   readOffset + structOffset, 
-									   this.constantPoolOffsets, 
+		result[i] = new AnnotationInfo(methodInfo.reference, 
+									   readOffset + methodInfo.structOffset, 
+									   methodInfo.constantPoolOffsets, 
 									   runtimeVisible, 
 									   false);		
 		readOffset = result[i].getLength() + readOffset;		
@@ -220,16 +267,9 @@ private AnnotationInfo[] decodeAnnotations(int offset,
 /**
  * @return the annotations or null if there is none.
  */
-public IBinaryAnnotation[] getAnnotations(){
-	if( this.allAnnotations == null || this.allAnnotations.length == 0 ) return null;
-	return this.allAnnotations[0];
-}
+public IBinaryAnnotation[] getAnnotations(){ return null; }	
 
-public IBinaryAnnotation[] getParameterAnnotations(int index)
-{
-	if(this.allAnnotations == null || this.allAnnotations.length < 2  ) return null;
-	return this.allAnnotations[index + 1];
-}
+public IBinaryAnnotation[] getParameterAnnotations(int index){ return null; }
 
 /**
  * @see org.eclipse.jdt.internal.compiler.env.IGenericMethod#getArgumentNames()
@@ -318,17 +358,7 @@ void initialize() {
 	getSelector();
 	getMethodDescriptor();
 	getExceptionTypeNames();
-	getGenericSignature();
-	if( this.allAnnotations != null ){
-		for( int i=0, max = this.allAnnotations.length; i<max; i++ ){
-			if( this.allAnnotations[i] != null ){
-				for( int aIndex=0, aMax = this.allAnnotations[i].length; aIndex<aMax; aIndex++ ){
-					final AnnotationInfo anno = this.allAnnotations[i][aIndex];
-					anno.initialize();					
-				}				
-			}
-		}
-	}	
+	getGenericSignature();	
 	reset();
 }
 /**
@@ -413,18 +443,7 @@ private void readModifierRelatedAttributes() {
 	}
 }
 protected void reset() {
-	this.constantPoolOffsets = null;
-	if( this.allAnnotations != null ){
-		for( int i=0, max = this.allAnnotations.length; i<max; i++ ){
-			if( this.allAnnotations[i] != null ){
-				final int aMax = this.allAnnotations[i].length;
-				for( int aIndex=0; aIndex<aMax; aIndex++ ){
-					final AnnotationInfo anno = this.allAnnotations[i][aIndex];
-					anno.reset();					
-				}				
-			}
-		}
-	}
+	this.constantPoolOffsets = null;	
 	super.reset();
 }
 /**
@@ -438,59 +457,39 @@ public int sizeInBytes() {
 
 public Object getDefaultValue(){ return null; }
 
-void toString(StringBuffer buffer)
+protected void toStringContent(StringBuffer buffer)
 {
 	int modifiers = getModifiers();
 	char[] desc = getGenericSignature();
 	if (desc == null)
 		desc = getMethodDescriptor();
-	
-	buffer.append(this.getClass().getName());	
-	
-	final int totalNumAnno = this.allAnnotations == null ? 0 : this.allAnnotations.length;
-	if(totalNumAnno > 0){
-		buffer.append('\n');
-		if(this.allAnnotations[0] != null ){
-			for( int i=0, len = this.allAnnotations[0].length; i<len; i++ ){		
-				
-				buffer.append(this.allAnnotations[0][i]);
-				buffer.append('\n');
-			}	
-		}
-	}
-	
-	if(totalNumAnno > 1){		
-		buffer.append('\n');
-		for( int i=1; i<totalNumAnno; i++ ){
-			buffer.append("param" + (i-1)); //$NON-NLS-1$
-			buffer.append('\n');
-			if( this.allAnnotations[i] != null ){
-				for( int j=0, numParamAnno=this.allAnnotations[i].length; j<numParamAnno; j++){
-					buffer.append(this.allAnnotations[i][j]);
-					buffer.append('\n');
-				}
-			}
-		}
-	}
-	
 	buffer
-		.append("{") //$NON-NLS-1$
-		.append(
-			((modifiers & AccDeprecated) != 0 ? "deprecated " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0001) == 1 ? "public " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0002) == 0x0002 ? "private " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0004) == 0x0004 ? "protected " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0008) == 0x000008 ? "static " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0010) == 0x0010 ? "final " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0040) == 0x0040 ? "volatile " : "") //$NON-NLS-1$ //$NON-NLS-2$
-				+ ((modifiers & 0x0080) == 0x0080 ? "varargs " : "")) //$NON-NLS-1$ //$NON-NLS-2$
-		.append(getSelector())
-		.append(desc)
-		.append("}"); //$NON-NLS-1$ 
+	.append("{") //$NON-NLS-1$
+	.append(
+		((modifiers & AccDeprecated) != 0 ? "deprecated " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			+ ((modifiers & 0x0001) == 1 ? "public " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			+ ((modifiers & 0x0002) == 0x0002 ? "private " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			+ ((modifiers & 0x0004) == 0x0004 ? "protected " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			+ ((modifiers & 0x0008) == 0x000008 ? "static " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			+ ((modifiers & 0x0010) == 0x0010 ? "final " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			+ ((modifiers & 0x0040) == 0x0040 ? "volatile " : "") //$NON-NLS-1$ //$NON-NLS-2$
+			+ ((modifiers & 0x0080) == 0x0080 ? "varargs " : "")) //$NON-NLS-1$ //$NON-NLS-2$
+	.append(getSelector())
+	.append(desc)
+	.append("}"); //$NON-NLS-1$ 
 }
+
+void toString(StringBuffer buffer)
+{	
+	buffer.append(this.getClass().getName());	
+	toStringContent(buffer);
+}
+
 public String toString() {
 	final StringBuffer buffer = new StringBuffer();
 	toString(buffer);
 	return buffer.toString();
 }
+
+
 }

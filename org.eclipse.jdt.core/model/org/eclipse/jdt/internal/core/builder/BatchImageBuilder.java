@@ -102,7 +102,7 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 private void notifyCompilationParticipantsOfClean()
 {
 	List cps = JavaCore.getCompilationParticipants( 
-			ICompilationParticipant.CLEAN_EVENT );
+			ICompilationParticipant.CLEAN_EVENT, javaBuilder.javaProject );
 		
 	if ( cps.isEmpty() ) 
 		return;

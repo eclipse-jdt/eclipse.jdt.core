@@ -47,6 +47,7 @@ private FieldBinding[] fields;
 private MethodBinding[] methods;
 private ReferenceBinding[] memberTypes;
 protected TypeVariableBinding[] typeVariables;
+public IAnnotationInstance[] annotations;
 
 // For the link with the principle structure
 LookupEnvironment environment;
@@ -272,10 +273,11 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		this.fields = NoFields;
 		this.methods = NoMethods;
 	}
-	this.annotations = createAnnotations(binaryType.getAnnotations());	
+	this.annotations = createAnnotations(binaryType.getAnnotations(), this.environment);	
 }
 
-private IAnnotationInstance[] createAnnotations(IBinaryAnnotation[] annotationInfos ){
+public static IAnnotationInstance[] createAnnotations(IBinaryAnnotation[] annotationInfos,
+											   		  LookupEnvironment env){
 	
 	IAnnotationInstance[] result = NoAnnotations;
 	if( annotationInfos != null ){
@@ -283,25 +285,27 @@ private IAnnotationInstance[] createAnnotations(IBinaryAnnotation[] annotationIn
 		if( size > 0 ){
 			result = new BinaryAnnotation[size];
 			for( int i = 0; i < size; i++ ){		
-				result[i] = createAnnotation(annotationInfos[i]);				
+				result[i] = createAnnotation(annotationInfos[i], env);				
 			}
 		}
 	}
 	return result;
 }
 
-private BinaryAnnotation createAnnotation(IBinaryAnnotation annotationInfo )
+static BinaryAnnotation createAnnotation(IBinaryAnnotation annotationInfo,
+		   								 LookupEnvironment env)
 {
 	final char[] typeName = annotationInfo.getTypeName();
 	final ReferenceBinding annotationType = 
-		environment.getTypeFromConstantPoolName(typeName, 1, typeName.length-1, false);
-	final BinaryAnnotation annotation = new BinaryAnnotation(annotationType, this.environment);				 
-	createElementValuePairs(annotationInfo.getMemberValuePairs(), annotation);
+		env.getTypeFromConstantPoolName(typeName, 1, typeName.length-1, false);
+	final BinaryAnnotation annotation = new BinaryAnnotation(annotationType, env);				 
+	createElementValuePairs(annotationInfo.getMemberValuePairs(), annotation, env);
 	return annotation;
 }
 
-private void createElementValuePairs(final IBinaryElementValuePair[] pairs, 
-							  		 final BinaryAnnotation anno)
+static private void createElementValuePairs(final IBinaryElementValuePair[] pairs, 
+							  		 		final BinaryAnnotation anno,
+							  		 		final LookupEnvironment env)
 {	
 	final int len = pairs == null ? 0 : pairs.length; 
 	anno.pairs = NoElementValuePairs;
@@ -309,13 +313,14 @@ private void createElementValuePairs(final IBinaryElementValuePair[] pairs,
 		anno.pairs = new IElementValuePair[len]; 
 		for( int i = 0; i < len; i++ ){
 			anno.pairs[i] = new BinaryElementValuePair(anno, 
-										    			pairs[i].getMemberName(), 
-													    getMemberValue(pairs[i].getMemberValue())); 				
+										    		   pairs[i].getMemberName(), 
+													   getMemberValue(pairs[i].getMemberValue(), env)); 				
 		}
 	}
 }
 
-private Object getMemberValue(final Object binaryValue)
+static private Object getMemberValue(final Object binaryValue,
+									 LookupEnvironment env)
 {
 	if( binaryValue == null ) return null;
 	if( binaryValue instanceof Constant )
@@ -323,13 +328,13 @@ private Object getMemberValue(final Object binaryValue)
 	
 	else if( binaryValue instanceof IClassReference ){
 		final IClassReference ref = (IClassReference)binaryValue;
-		return environment.getTypeFromSignature(ref.getTypeName(), 0, -1, false, null);
+		return env.getTypeFromSignature(ref.getTypeName(), 0, -1, false, null);
 	}
 	
 	else if( binaryValue instanceof IEnumConstantReference ){
 		final IEnumConstantReference ref = (IEnumConstantReference)binaryValue;
-		ReferenceBinding enumType = (ReferenceBinding)environment.getTypeFromSignature(ref.getTypeName(), 0, -1, false, null);
-		enumType = BinaryTypeBinding.resolveType(enumType, this.environment, false);
+		ReferenceBinding enumType = (ReferenceBinding)env.getTypeFromSignature(ref.getTypeName(), 0, -1, false, null);
+		enumType = BinaryTypeBinding.resolveType(enumType, env, false);
 		return enumType.getField(ref.getEnumConstantName(), false);
 	}
 	else if( binaryValue instanceof Object[] ){
@@ -338,12 +343,12 @@ private Object getMemberValue(final Object binaryValue)
 		if( len == 0 ) return objects;
 		final Object[] values = new Object[len];
 		for( int i = 0; i < len; i++ ){
-			values[i] = getMemberValue(objects[i]);
+			values[i] = getMemberValue(objects[i], env);
 		}
 		return values;
 	}
 	else if( binaryValue instanceof IBinaryAnnotation )
-		return createAnnotation((IBinaryAnnotation)binaryValue);
+		return createAnnotation((IBinaryAnnotation)binaryValue, env);
 	
 	// should never reach here.
 	throw new IllegalStateException();
@@ -363,7 +368,7 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 				TypeBinding type = fieldSignature == null 
 					? environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this) 
 					: environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), NoTypeVariables, this);
-				IAnnotationInstance[] fieldAnnos = createAnnotations(binaryField.getAnnotations());
+				IAnnotationInstance[] fieldAnnos = createAnnotations(binaryField.getAnnotations(), this.environment);
 				FieldBinding field = 
 					new FieldBinding( binaryField.getName(), type, binaryField.getModifiers() | AccUnresolved, 
 						  			  this, binaryField.getConstant() );				
@@ -420,7 +425,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 					parameters[i - startIndex] = environment.getTypeFromSignature(methodDescriptor, index, end, false, this);
 					// 'paramAnnotations' line up with 'parameters'
 					// int parameter to method.getParameterAnnotations() include the synthetic arg.
-					paramAnnotations[i - startIndex] = createAnnotations(method.getParameterAnnotations(i));
+					paramAnnotations[i - startIndex] = createAnnotations(method.getParameterAnnotations(i), this.environment);
 				}
 				index = end + 1;
 			}
@@ -464,7 +469,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 				
 				paramAnnotations = new IAnnotationInstance[numParam][];
 				for( int i = 0; i < numParam; i ++ ){
-					paramAnnotations[i] = createAnnotations( method.getParameterAnnotations(i) );
+					paramAnnotations[i] = createAnnotations( method.getParameterAnnotations(i), this.environment );
 				}
 			}
 		}
@@ -493,7 +498,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 			}
 		}
 	}
-	final IAnnotationInstance[] methodAnnos = createAnnotations(method.getAnnotations());
+	final IAnnotationInstance[] methodAnnos = createAnnotations(method.getAnnotations(), this.environment);
 	
 	final MethodBinding result;
 	if( method.isConstructor() )
@@ -502,7 +507,9 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 	else{
 		if( isAnnotationType() ){	
 			if( method instanceof org.eclipse.jdt.internal.compiler.classfmt.MethodInfo )
-				result = new AnnotationMethodBinding(methodModifiers, method.getSelector(), returnType, this, getMemberValue(method.getDefaultValue()));
+				result = new AnnotationMethodBinding(methodModifiers, method.getSelector(), 
+													 returnType, this, 
+													 getMemberValue(method.getDefaultValue(), this.environment));
 			else
 				throw new IllegalStateException(method.getClass().getName());
 		}

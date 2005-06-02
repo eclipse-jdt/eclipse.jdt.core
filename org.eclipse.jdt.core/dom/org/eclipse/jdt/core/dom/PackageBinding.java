@@ -11,9 +11,23 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.Iterator;
+import java.util.List;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationUtils;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
@@ -26,12 +40,14 @@ class PackageBinding implements IPackageBinding {
 	private static final String UNNAMED = ""; //$NON-NLS-1$
 	private static final char PACKAGE_NAME_SEPARATOR = '.';
 	
-	private org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding;
+	private final org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding;	
 	private String name;
+	private final BindingResolver resolver;
 	private String[] components;
 		
 	PackageBinding(org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding, BindingResolver resolver) {
-		this.binding = binding;
+		this.binding = binding;		
+		this.resolver = resolver;
 	}
 	
 	/*
@@ -148,9 +164,86 @@ class PackageBinding implements IPackageBinding {
 		}
 	}
 	
-	public IResolvedAnnotation[] getAnnotations() {
-		throw new UnsupportedOperationException("NYI"); //$NON-NLS-1$
+	public IResolvedAnnotation[] getAnnotations() 
+	{		
+		try{
+			INameEnvironment nameEnvironment = this.binding.environment.nameEnvironment; 
+			if (!(nameEnvironment instanceof SearchableEnvironment)) return ResolvedAnnotation.NoAnnotations;
+			NameLookup nameLookup = ((SearchableEnvironment) nameEnvironment).nameLookup;
+			if (nameLookup == null) return null;
+			final String pkgName = getName();
+			IPackageFragment[] pkgs = nameLookup.findPackageFragments(pkgName, false/*exact match*/);
+			if (pkgs == null) return ResolvedAnnotation.NoAnnotations;
+			
+			for( int i=0,len=pkgs.length; i<len; i++ ){
+				final int fragType = pkgs[i].getKind();
+				switch(fragType)
+				{
+				case IPackageFragmentRoot.K_SOURCE:				
+					final String unitName = "package-info.java"; //$NON-NLS-1$
+					final ICompilationUnit unit = pkgs[i].getCompilationUnit(unitName);
+					if( unit != null ){
+						ASTParser p = ASTParser.newParser( AST.JLS3 );					
+						p.setSource( unit );
+						p.setResolveBindings( true );
+						p.setUnitName( unitName );
+						p.setFocalPosition( 0 );
+						p.setKind( ASTParser.K_COMPILATION_UNIT );
+						CompilationUnit domUnit = (CompilationUnit)p.createAST( null );
+						PackageDeclaration pkgDecl = domUnit.getPackage();
+						if( pkgDecl != null ){
+							final List annos = pkgDecl.annotations();
+							if( annos == null || annos.isEmpty() )
+								return ResolvedAnnotation.NoAnnotations; 
+							final IResolvedAnnotation[] result = new IResolvedAnnotation[annos.size()];
+							int index=0;
+	 						for( Iterator it = annos.iterator(); it.hasNext(); index++ ){
+								result[index] = ((Annotation)it.next()).resolveAnnotation();
+								// not resolving bindings
+								if( result[index] == null )
+									return ResolvedAnnotation.NoAnnotations;							
+							}
+							return result;
+						}
+					}
+					break;
+				case IPackageFragmentRoot.K_BINARY:		
+					
+					NameEnvironmentAnswer answer = 
+						nameEnvironment.findType(TypeConstants.PACKAGE_INFO_NAME, this.binding.compoundName);
+					if( answer != null && answer.isBinaryType() ){
+						final IBinaryType type = answer.getBinaryType();
+						final IBinaryAnnotation[] bAnnos = type.getAnnotations();
+						final IAnnotationInstance[] binaryInstances = BinaryTypeBinding.createAnnotations(bAnnos, this.binding.environment);
+						final int numBinaryAnnos = binaryInstances.length;
+						final int numStandardAnnos = AnnotationUtils.getNumberOfStandardAnnotations(type.getTagBits());
+						final int total = numBinaryAnnos + numStandardAnnos;
+						IAnnotationInstance[] allInstances = binaryInstances;
+						if( numStandardAnnos != 0 ){
+							allInstances = new IAnnotationInstance[total];
+							AnnotationUtils.buildStandardAnnotations(type.getTagBits(), allInstances, this.binding.environment);
+							System.arraycopy(binaryInstances, 0, allInstances, numStandardAnnos, numBinaryAnnos);
+						}
+						 
+						final IResolvedAnnotation[] domInstances = new ResolvedAnnotation[total];
+						
+						for( int dIndex=0; dIndex<total; dIndex++ ){
+							domInstances[dIndex] = this.resolver.getAnnotationInstance(allInstances[dIndex]);
+							if( domInstances[dIndex] == null ) // not resolving binding
+								return ResolvedAnnotation.NoAnnotations; 
+						}
+						
+						return domInstances;
+					}
+				}	
+			}		
+		}
+		catch(JavaModelException e){
+			return ResolvedAnnotation.NoAnnotations;
+		}		
+		return ResolvedAnnotation.NoAnnotations;
 	}
+	
 
 	/* 
 	 * For debugging purpose only.

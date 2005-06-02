@@ -48,4 +48,10 @@ public interface IResolvedMemberValuePair
 	 * @return the resolved value, or <code>null</code> if none exists
 	 */
 	public Object getValue();
+	
+	/**
+	 * @return <code>true</code> iff this member value pair's value is the default value.
+	 *         Returns <code>false</code> otherwise.
+	 */
+	public boolean isDefault();
 }

@@ -126,15 +126,15 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	}
 
 	private void notifyCompilationParticipants() {
-		
-		List l = JavaCore.getCompilationParticipants(ICompilationParticipant.POST_RECONCILE_EVENT);	
-
 		CompilationUnit workingCopy = getWorkingCopy();
 		
+		IJavaProject javaProject = workingCopy.getJavaProject();
+		List l = JavaCore.getCompilationParticipants(ICompilationParticipant.POST_RECONCILE_EVENT, javaProject);	
+
 		// we want to go through ICompilationParticipant only if there are participants
 		// and the compilation unit is not consistent or we are forcing problem detection
 		if ( ( l != null && l.size() > 0 ) && ( !workingCopy.isConsistent() || forceProblemDetection )) {	
-			PostReconcileCompilationEvent prce = new PostReconcileCompilationEvent( workingCopy, workingCopy.getJavaProject() );
+			PostReconcileCompilationEvent prce = new PostReconcileCompilationEvent( workingCopy, javaProject );
 			Iterator it = l.iterator();
 			while ( it.hasNext() ) {
 				ICompilationParticipant p = (ICompilationParticipant)it.next(); 

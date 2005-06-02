@@ -20,7 +20,7 @@ public abstract class VariableBinding extends Binding implements TypeConstants {
 	private Constant constant;
 	public int id; // for flow-analysis (position in flowInfo bit vector)
 	public long tagBits;
-	protected IAnnotationInstance[] annotations;
+	public IAnnotationInstance[] annotations;
 
 	public VariableBinding(char[] name, TypeBinding type, int modifiers, Constant constant) {
 		this.name = name;

@@ -228,7 +228,8 @@ protected void compile(SourceFile[] units) {
  */
 private  void notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set newFiles, Set deletedFiles, Map extraDependencies ) {
 	List cps = JavaCore
-			.getCompilationParticipants( ICompilationParticipant.PRE_BUILD_EVENT );
+			.getCompilationParticipants( ICompilationParticipant.PRE_BUILD_EVENT,
+					javaBuilder.javaProject );
 	if ( cps.isEmpty() ) {
 		return;
 	}

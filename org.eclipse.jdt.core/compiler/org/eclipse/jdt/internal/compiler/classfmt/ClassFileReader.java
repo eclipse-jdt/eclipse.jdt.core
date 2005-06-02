@@ -204,7 +204,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 			FieldInfo field;
 			this.fields = new FieldInfo[this.fieldsCount];
 			for (int i = 0; i < this.fieldsCount; i++) {
-				field = new FieldInfo(reference, this.constantPoolOffsets, readOffset);
+				field = FieldInfo.createField(reference, this.constantPoolOffsets, readOffset);
 				this.fields[i] = field;
 				readOffset += field.sizeInBytes();
 			}
@@ -218,9 +218,9 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 			final boolean isAnnotationType = (this.accessFlags & AccAnnotation) != 0;
 			for (int i = 0; i < this.methodsCount; i++) {
 				if( isAnnotationType )
-					method = new AnnotationMethodInfo(reference, this.constantPoolOffsets, readOffset);
+					method = AnnotationMethodInfo.createAnnotationMethod(reference, this.constantPoolOffsets, readOffset);
 				else
-					method = new MethodInfo(reference, this.constantPoolOffsets, readOffset);
+					method = MethodInfo.createMethod(reference, this.constantPoolOffsets, readOffset);
 				this.methods[i] = method;
 				readOffset += method.sizeInBytes();
 			}

@@ -14,11 +14,22 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class AnnotationMethodInfo extends MethodInfo 
 {	
-	private Object defaultValue = null; 
-	AnnotationMethodInfo(byte classFileBytes[], int constantPoolOffsets[], int offset)
+	protected Object defaultValue = null;	
+	
+	public static AnnotationMethodInfo createAnnotationMethod(byte classFileBytes[], int constantPoolOffsets[], int offset)
+	{
+		final AnnotationMethodInfo methodInfo = new AnnotationMethodInfo(classFileBytes, constantPoolOffsets, offset);
+		final AnnotationInfo[][] allAnnotations = _createMethod(methodInfo);
+		methodInfo.readAttributes();
+		if( allAnnotations == null )
+			return methodInfo;
+		else
+			return new AnnotationMethodInfoWithAnnotation(methodInfo, allAnnotations[0]);
+	}
+	
+	protected AnnotationMethodInfo(byte classFileBytes[], int constantPoolOffsets[], int offset)
 	{	
-		super(classFileBytes, constantPoolOffsets, offset);
-		readAttributes();
+		super(classFileBytes, constantPoolOffsets, offset);		
 	}
 	
 	private void readAttributes()
@@ -53,10 +64,8 @@ public class AnnotationMethodInfo extends MethodInfo
 	
 	public Object getDefaultValue(){ return this.defaultValue; }
 	
-	public String toString()
+	protected void toStringDefault(StringBuffer buffer)
 	{
-		final StringBuffer buffer = new StringBuffer();
-		toString(buffer);
 		if( this.defaultValue != null )
 		{
 			buffer.append(" default "); //$NON-NLS-1$
@@ -74,6 +83,15 @@ public class AnnotationMethodInfo extends MethodInfo
 			else
 				buffer.append(this.defaultValue);
 		}
+	}
+	
+	public String toString()
+	{
+		final StringBuffer buffer = new StringBuffer();
+		buffer.append(this.getClass().getName());
+		toStringContent(buffer);
+		toStringDefault(buffer);
+		
 		return buffer.toString();
 	}
 }

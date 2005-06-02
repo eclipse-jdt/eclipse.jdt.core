@@ -46,6 +46,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public final static int RECEIVER_TYPE_EMUL = 3;
 	HashMap[] synthetics;
 	char[] genericReferenceTypeSignature;
+	public IAnnotationInstance[] annotations;
 	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
@@ -636,24 +637,8 @@ public long getAnnotationTagBits() {
 
 public IAnnotationInstance[] getAnnotations()
 {
-	if( this.annotations == null )
-		buildAnnotations();
+	getAnnotationTagBits();
 	return this.annotations;
-}
-
-private void buildAnnotations()
-{
-	if( this.annotations != null ) return;
-	this.annotations = NoAnnotations;
-	final TypeDeclaration typeDecl = this.scope.referenceContext;
-	final int numAnnotations = typeDecl.annotations == null ? 0 : typeDecl.annotations.length;
-	if( numAnnotations > 0 ){
-		this.annotations = new IAnnotationInstance[numAnnotations];
-		for( int i=0; i<numAnnotations; i++ ){		
-			typeDecl.annotations[i].resolveType(typeDecl.staticInitializerScope);			
-			this.annotations[i] = typeDecl.annotations[i].getCompilerAnnotation();			
-		}
-	}
 }
 
 public MethodBinding[] getDefaultAbstractMethods() {
@@ -1382,20 +1367,5 @@ void verifyMethods(MethodVerifier verifier) {
 
 	for (int i = memberTypes.length; --i >= 0;)
 		 ((SourceTypeBinding) memberTypes[i]).verifyMethods(verifier);
-}
-/*
- * Called when the ast information is about to be null-ed out.
- */
-public void finish()
-{
-	buildAnnotations();
-	if(this.methods != null){
-		for( int i=0, len=this.methods.length; i<len; i++ )
-			this.methods[i].buildAnnotations();
-	}
-	if(this.fields != null){
-		for( int i=0, len=this.fields.length; i<len; i++)
-			this.fields[i].buildAnnotations();
-	}
 }
 }

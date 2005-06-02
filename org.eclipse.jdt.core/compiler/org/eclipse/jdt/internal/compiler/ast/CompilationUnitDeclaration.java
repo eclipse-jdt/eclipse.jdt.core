@@ -118,8 +118,7 @@ public class CompilationUnitDeclaration
 				cleanUp(type.memberTypes[i]);
 			}
 		}
-		if (type.binding != null) {
-			type.binding.finish();
+		if (type.binding != null) {			
 			// null out the type's scope backpointers
 			type.binding.scope = null;
 		}

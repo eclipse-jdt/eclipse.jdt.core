@@ -313,14 +313,13 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	/* Answer true if the type use is considered deprecated.
 	* An access in the same compilation unit is allowed.
 	*/
-	public final boolean isTypeUseDeprecated(TypeBinding type, Scope scope) {
-
+	public final boolean isTypeUseDeprecated(TypeBinding type, Scope scope) {		
 		if (type.isArrayType())
 			type = ((ArrayBinding) type).leafComponentType;
 		if (type.isBaseType())
 			return false;
 
-		ReferenceBinding refType = (ReferenceBinding) type;
+		ReferenceBinding refType = (ReferenceBinding) type;		
 
 		if (refType.isPrivate() && !scope.isDefinedInType(refType)) {
 			// ignore cases where type is used from within inside itself 
@@ -389,46 +388,76 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	 * Resolve annotations, and check duplicates, answers combined tagBits 
 	 * for recognized standard annotations
 	 */
-	public static void resolveAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {
+	public static void resolveAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {		
+		
+		IAnnotationInstance[] instances = null;
+		int length = annotations == null ? 0 : annotations.length;
 		if (recipient != null) {
 			switch (recipient.kind()) {
 				case Binding.PACKAGE :
-					PackageBinding packageBinding = (PackageBinding) recipient;
+					PackageBinding packageBinding = (PackageBinding) recipient;					
 					if ((packageBinding.tagBits & TagBits.AnnotationResolved) != 0) return;
-					packageBinding.tagBits |= TagBits.AnnotationResolved;
+					packageBinding.tagBits |= TagBits.AnnotationResolved;					
 					break;
-				case Binding.TYPE :
-				case Binding.GENERIC_TYPE :
-				case Binding.TYPE_PARAMETER :
-					ReferenceBinding type = (ReferenceBinding) recipient;
+				case Binding.TYPE :				
+					SourceTypeBinding type = (SourceTypeBinding) recipient;
 					if ((type.tagBits & TagBits.AnnotationResolved) != 0) return;
 					type.tagBits |= TagBits.AnnotationResolved;
+					if( length == 0 )
+						type.annotations = TypeConstants.NoAnnotations;						
+					else{
+						type.annotations = new IAnnotationInstance[length];
+						instances = type.annotations;
+					}
 					break;
 				case Binding.METHOD :
 					MethodBinding method = (MethodBinding) recipient;
 					if ((method.tagBits & TagBits.AnnotationResolved) != 0) return;
-					method.tagBits |= TagBits.AnnotationResolved;
+					method.tagBits |= TagBits.AnnotationResolved;	
+					if( length == 0 )
+						method.extendedModifiers = MethodBinding.NoAnnotationsAtAll;						
+					else{
+						method.extendedModifiers = new IAnnotationInstance[1][];
+						method.extendedModifiers[0] = new IAnnotationInstance[length];
+						instances = method.extendedModifiers[0];
+					}
+					
 					break;
 				case Binding.FIELD :
 					FieldBinding field = (FieldBinding) recipient;
 					if ((field.tagBits & TagBits.AnnotationResolved) != 0) return;
 					field.tagBits |= TagBits.AnnotationResolved;
+					if( length == 0 )
+						field.annotations = TypeConstants.NoAnnotations;						
+					else{
+						field.annotations = new IAnnotationInstance[length];
+						instances = field.annotations;
+					}
 					break;
 				case Binding.LOCAL :
 					LocalVariableBinding local = (LocalVariableBinding) recipient;
 					if ((local.tagBits & TagBits.AnnotationResolved) != 0) return;
 					local.tagBits |= TagBits.AnnotationResolved;
+					if( length == 0 )
+						local.annotations = TypeConstants.NoAnnotations;						
+					else{
+						local.annotations = new IAnnotationInstance[length];
+						instances = local.annotations;
+					}
 					break;
 			}			
 		}
 		if (annotations == null) 
 			return;
-		int length = annotations.length;
+		
 		TypeBinding[] annotationTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			Annotation annotation = annotations[i];
 			annotation.recipient = recipient;			
-			annotationTypes[i] = annotation.resolveType(scope);			
+			annotationTypes[i] = annotation.resolveType(scope);		
+			// null if receipient is a package binding
+			if( instances != null )				
+				instances[i] = annotation.getCompilerAnnotation();
 		}
 		// check duplicate annotations
 		for (int i = 0; i < length; i++) {
@@ -446,6 +475,8 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 				scope.problemReporter().duplicateAnnotation(annotations[i]);
 			}
 		}
+		
+		
 	}
 	
 	public int sourceStart() {

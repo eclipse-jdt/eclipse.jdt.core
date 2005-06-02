@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -206,9 +205,8 @@ private boolean isBinary()
 }
 
 public IAnnotationInstance[] getAnnotations()
-{
-	if(this.annotations == null )
-		buildAnnotations();
+{	
+	getAnnotationTagBits();
 	// binary annotations can be encoded in tag bits.
 	if( isBinary() ){
 		final int current = this.annotations.length;		
@@ -231,32 +229,6 @@ public IAnnotationInstance[] getAnnotations()
 	}
 	else
 		return this.annotations;
-}
-
-void buildAnnotations()
-{
-	if( this.annotations != null ) return;
-	this.annotations = NoAnnotations;
-	FieldBinding originalField = this.original();
-	// length field of an array don't have a declaring class.
-	if( originalField.declaringClass != null && originalField.declaringClass instanceof SourceTypeBinding){				
-		TypeDeclaration typeDecl = ((SourceTypeBinding)originalField.declaringClass).scope.referenceContext;
-		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
-		
-		if (fieldDecl != null){
-			final Annotation[] fieldAnnos = fieldDecl.annotations;
-			final int len = fieldAnnos == null ? 0 : fieldAnnos.length;
-			if( len > 0 )
-			{
-				this.annotations = new IAnnotationInstance[len];
-				for( int i = 0; i < len; i++ ){
-					final BlockScope scope = isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope;
-					fieldAnnos[i].resolveType(scope);
-					this.annotations[i] = fieldAnnos[i].getCompilerAnnotation();
-				}
-			}
-		}
-	}	
 }
 
 protected void setAnnotations(final IAnnotationInstance[] annos )

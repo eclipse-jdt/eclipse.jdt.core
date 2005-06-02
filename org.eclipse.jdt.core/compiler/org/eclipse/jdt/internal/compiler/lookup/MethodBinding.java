@@ -13,17 +13,15 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Annotation;
-import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 
 public class MethodBinding extends Binding implements BaseTypes, TypeConstants 
 {		
-	protected static final IAnnotationInstance[][] NoAnnotationsAtAll = new IAnnotationInstance[0][0];
+	public static final IAnnotationInstance[][] NoAnnotationsAtAll = new IAnnotationInstance[0][0];
 	public int modifiers;
 	public char[] selector;
-	public TypeBinding returnType;
+	public TypeBinding returnType; 
 	public TypeBinding[] parameters;
 	public ReferenceBinding[] thrownExceptions;
 	public ReferenceBinding declaringClass;
@@ -45,7 +43,7 @@ public class MethodBinding extends Binding implements BaseTypes, TypeConstants
 	 * Method annotations are always at index 0 and parameter annotations 
 	 * always start at index 1 if they are ever present.
 	 */
-	protected IAnnotationInstance[][] extendedModifiers = null;
+	public IAnnotationInstance[][] extendedModifiers = null;
 	char[] signature;
 	public long tagBits;
 	
@@ -391,14 +389,6 @@ public final int getAccessFlags() {
 	return modifiers & AccJustFlag;
 }
 
-void buildAnnotations()
-{
-	if( this.extendedModifiers != null ) return;
-	IAnnotationInstance[] methodAnnotations = buildMethodAnnotations();
-	IAnnotationInstance[][] paramAnnotations = buildParamAnnotations();
-	setExtendedModifiers(methodAnnotations, paramAnnotations);
-}
-
 public void setExtendedModifiers(final IAnnotationInstance[] methodAnnotations, 
 								 final IAnnotationInstance[][] parameterAnnotations )
 {
@@ -421,66 +411,6 @@ public void setExtendedModifiers(final IAnnotationInstance[] methodAnnotations,
 	}	
 }
 
-private IAnnotationInstance[] buildMethodAnnotations()
-{
-	IAnnotationInstance[] methodAnno = NoAnnotations;	
-	MethodBinding originalMethod = this.original();
-	if(!isBinary())
-	{
-		TypeDeclaration typeDecl = ((SourceTypeBinding)originalMethod.declaringClass).scope.referenceContext;		
-		AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(originalMethod);
-					
-		if (methodDecl != null){
-			final int len = methodDecl.annotations == null ? 0 : methodDecl.annotations.length;
-			if( len > 0 ){
-				methodAnno = new IAnnotationInstance[len];
-				for( int i=0; i<len; i++ ){
-					methodDecl.annotations[i].resolveType(methodDecl.scope);
-					methodAnno[i] = methodDecl.annotations[i].getCompilerAnnotation();
-				}
-			}			
-		}		
-	}
-	return methodAnno;
-}
-
-private IAnnotationInstance[][] buildParamAnnotations()
-{
-	IAnnotationInstance[][] result = null;
-	MethodBinding originalMethod = this.original();
-	if(!isBinary())
-	{
-		TypeDeclaration typeDecl = ((SourceTypeBinding)originalMethod.declaringClass).scope.referenceContext;
-		AbstractMethodDeclaration methodDecl = typeDecl.declarationOf(originalMethod);		
-		if(methodDecl != null ){
-			final Argument[] args = methodDecl.arguments;
-			final int numArgs = args == null ? 0 : args.length;
-			for( int argIndex=0; argIndex<numArgs; argIndex++ )
-			{
-				final Argument arg = args[argIndex];
-				final Annotation[] argAnnos = arg.annotations;
-				final int numAnnotations = argAnnos == null ? 0 : argAnnos.length;				
-				if( numAnnotations > 0 ){
-					if( result == null ){
-						result = new IAnnotationInstance[numArgs][];
-						for( int i=0; i<numArgs; i++ )
-							result[i] = NoAnnotations;
-					}
-					result[argIndex] = new SourceAnnotation[numAnnotations];
-					// check for errors
-					ASTNode.resolveAnnotations(methodDecl.scope, argAnnos, this);
-					for( int j=0; j<numAnnotations; j++ ){
-						argAnnos[j].resolveType(methodDecl.scope);
-						result[argIndex][j] = argAnnos[j].getCompilerAnnotation();
-					}
-				}	
-			}
-		}
-	}
-	
-	return result;
-}
-
 private boolean isBinary()
 {
 	final MethodBinding originalMethod = this.original();
@@ -493,9 +423,7 @@ private boolean isBinary()
  *         Return a zero-length array if none is found.
  */
 public IAnnotationInstance[] getAnnotations()
-{	
-	if( this.extendedModifiers == null )
-		buildAnnotations();
+{
 	final boolean isBinary = isBinary();	
 	// part of the binary annotations are in the tag bits
 	if( isBinary ){
@@ -529,7 +457,6 @@ public IAnnotationInstance[] getAnnotations()
 			return this.extendedModifiers[0];
 	}
 }
-
 /**
  * @param index the index of the parameter of interest
  * @return the annotations on the <code>index</code>th parameter

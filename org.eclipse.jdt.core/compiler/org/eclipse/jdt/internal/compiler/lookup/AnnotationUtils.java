@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-class AnnotationUtils {
+public class AnnotationUtils {
 	/**
 	 * Build out the data structure representing the standard annotations.
 	 * @param annotationTagBits 
@@ -18,9 +18,9 @@ class AnnotationUtils {
 	 * @param env
 	 * @return the number of standard annotations found 
 	 */
-	static int buildStandardAnnotations(final long annotationTagBits, 
-										final IAnnotationInstance[] result,
-										final LookupEnvironment env)
+	public static int buildStandardAnnotations(final long annotationTagBits, 
+											   final IAnnotationInstance[] result,
+											   final LookupEnvironment env)
 	{
 		int index = 0;
 		if( (annotationTagBits & TagBits.AnnotationTargetMASK) != 0 )
@@ -40,7 +40,7 @@ class AnnotationUtils {
 		return index;
 	}
 
-	static int getNumberOfStandardAnnotations(final long annotationTagBits)
+	public static int getNumberOfStandardAnnotations(final long annotationTagBits)
 	{	
 		int count = 0;
 		if( (annotationTagBits & TagBits.AnnotationTargetMASK) != 0 ) count ++;		

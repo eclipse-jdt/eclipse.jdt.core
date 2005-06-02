@@ -72,7 +72,7 @@ public abstract class AbstractMethodDeclaration
 
 	public abstract void analyseCode(ClassScope classScope, InitializationFlowContext initializationContext, FlowInfo info);
 
-		/**
+	/**
 	 * Bind and add argument's binding into the scope of the method
 	 */
 	public void bindArguments() {
@@ -82,12 +82,30 @@ public abstract class AbstractMethodDeclaration
 			boolean used = this.binding == null || this.binding.isAbstract() || this.binding.isNative();
 
 			int length = this.arguments.length;
+			boolean init = false;
 			for (int i = 0; i < length; i++) {
 				TypeBinding argType = this.binding == null ? null : this.binding.parameters[i];
 				Argument argument = this.arguments[i];
 				argument.bind(this.scope, argType, used);
 				if (argument.annotations != null) {
 					this.binding.tagBits |= TagBits.HasParameterAnnotations;
+					if( !init )
+					{
+						init = true;
+						// parameter annotation starts at index 1 since we are packing both
+						// method and parameter annotation into one 2D array.
+						final IAnnotationInstance[][] newExtMods = new IAnnotationInstance[length+1][]; 
+						final int extModLen = this.binding.extendedModifiers.length;
+						if(extModLen == 1){
+							newExtMods[0] = this.binding.extendedModifiers[0];						
+						}
+						else
+							newExtMods[0] = TypeConstants.NoAnnotations;
+						this.binding.extendedModifiers = newExtMods;
+						for(int eIndex = 1; eIndex <= length; eIndex ++)
+							newExtMods[eIndex] = TypeConstants.NoAnnotations;						
+					}					
+					this.binding.extendedModifiers[i+1] = argument.binding.getAnnotations();
 				}
 			}
 		}

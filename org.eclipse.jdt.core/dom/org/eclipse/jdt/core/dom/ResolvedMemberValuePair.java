@@ -108,6 +108,10 @@ class ResolvedMemberValuePair implements IResolvedMemberValuePair
 		return value == NoValue ? null : this.value;
 	}	
 	
+	public boolean isDefault(){
+		return false;
+	}
+	
 	public void toString(StringBuffer buffer) {
 		buffer.append(getName());
 		buffer.append(" = "); //$NON-NLS-1$		

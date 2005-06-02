@@ -1544,11 +1544,12 @@ public final class JavaCore extends Plugin {
 	 * for a complete description of the circumstances under which this deadlock can occur.
 	 * 
 	 * @param eventMask an ORed combination of values from ICompilationParticipant.
+	 * @param project the java project that will the participants will operate against
 	 * @return an immutable list of ICompilationParticipant.
 	 * @see JavaModelManager.CompilationParticipants#getCompilationParticipants
 	 */
-	public static List getCompilationParticipants(int eventMask) {
-		return JavaModelManager.getJavaModelManager().getCompilationParticipants().getCompilationParticipants(eventMask);
+	public static List getCompilationParticipants(int eventMask, IJavaProject project) {
+		return JavaModelManager.getJavaModelManager().getCompilationParticipants().getCompilationParticipants(eventMask, project);
 	}
 	
 	/**

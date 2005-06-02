@@ -189,9 +189,11 @@ public class JavaModelManager implements ISaveParticipant {
 		 *  be called.
 		 *  
 		 * @param eventMask an ORed combination of values from ICompilationParticipant.
+		 * @param project the java project on which the compilation participant will
+		 * operate
 		 * @return an immutable list of ICompilationParticipant.
 		 */
-		public List getCompilationParticipants(int eventMask) {
+		public List getCompilationParticipants(int eventMask, IJavaProject project) {
 			initPlugins();
 			List filteredICPs = new ArrayList();
 			Iterator it;
@@ -200,7 +202,9 @@ public class JavaModelManager implements ISaveParticipant {
 				while (it.hasNext()) {
 					Map.Entry cp = (Map.Entry)it.next();
 					if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
-						filteredICPs.add(cp.getKey());
+						ICompilationParticipant participant = (ICompilationParticipant)cp.getKey();
+						if (participant.doesParticipateInProject(project))
+							filteredICPs.add(participant);
 					}
 				}
 			}
@@ -208,7 +212,9 @@ public class JavaModelManager implements ISaveParticipant {
 			while (it.hasNext()) {
 				Map.Entry cp = (Map.Entry)it.next();
 				if (0 != (((Integer)cp.getValue()).intValue() | eventMask)) {
-					filteredICPs.add(cp.getKey());
+					ICompilationParticipant participant = (ICompilationParticipant)cp.getKey();
+					if (participant.doesParticipateInProject(project))
+						filteredICPs.add(participant);
 				}
 			}
 			return Collections.unmodifiableList(filteredICPs);

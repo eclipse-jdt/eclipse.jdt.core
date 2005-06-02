@@ -35,8 +35,7 @@ abstract public class ReferenceBinding extends TypeBinding implements IDependent
 	public PackageBinding fPackage;
 	char[] fileName;
 	char[] constantPoolName;
-	char[] signature;
-	protected IAnnotationInstance[] annotations;
+	char[] signature;	
 
 public FieldBinding[] availableFields() {
 	return fields();
@@ -862,6 +861,7 @@ MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't re
  */
 public IAnnotationInstance[] getAnnotations()
 {
-	return this.annotations;
+	return TypeConstants.NoAnnotations;
 }
+
 }

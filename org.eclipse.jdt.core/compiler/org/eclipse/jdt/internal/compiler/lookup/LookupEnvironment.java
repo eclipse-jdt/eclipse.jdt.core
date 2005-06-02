@@ -200,6 +200,7 @@ public void completeTypeBindings() {
 		(this.unitBeingCompleted = this.units[i]).scope.buildFieldsAndMethods();
 		this.units[i] = null; // release unnecessary reference to the parsed unit
 	}
+	
 	stepCompleted = BUILD_FIELDS_AND_METHODS;
 	this.lastCompletedUnitIndex = this.lastUnitIndex;
 	this.unitBeingCompleted = null;
