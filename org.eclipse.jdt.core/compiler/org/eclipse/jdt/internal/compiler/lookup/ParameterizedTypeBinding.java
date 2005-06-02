@@ -124,12 +124,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			case CONSTRAINT_EQUAL :
 			case CONSTRAINT_EXTENDS :
 				equivalent = this;
-		        otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeErasingTo((ReferenceBinding)this.type.erasure());
+		        otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeWithSameErasure(this.type);
 		        if (otherEquivalent == null) return;
 		        break;
 			case CONSTRAINT_SUPER :
 	        default:
-		        equivalent = this.findSuperTypeErasingTo((ReferenceBinding)(otherType.erasure()));
+		        equivalent = this.findSuperTypeWithSameErasure(otherType);
 		        if (equivalent == null) return;
 		        otherEquivalent = (ReferenceBinding) otherType;
 		        break;

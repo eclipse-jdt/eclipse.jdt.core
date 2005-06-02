@@ -689,7 +689,7 @@ public class QualifiedNameReference extends NameReference {
 					TypeBinding fieldReceiverType = type;
 					TypeBinding receiverErasure = type.erasure();
 					if (receiverErasure instanceof ReferenceBinding) {
-						ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeErasingTo((ReferenceBinding)field.declaringClass.erasure());
+						ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeWithSameErasure(field.declaringClass);
 						if (match == null) {
 							fieldReceiverType = field.declaringClass; // handle indirect inheritance thru variable secondary bound
 						}

@@ -526,12 +526,12 @@ public void collectSubstitutes(Scope currentScope, TypeBinding otherType, Map su
 		case CONSTRAINT_EQUAL :
 		case CONSTRAINT_EXTENDS :
 			equivalent = this;
-	        otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeErasingTo(this);
+	        otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeWithSameErasure(this);
 	        if (otherEquivalent == null) return;
 	        break;
 		case CONSTRAINT_SUPER :
         default:
-	        equivalent = this.findSuperTypeErasingTo((ReferenceBinding)(otherType.erasure()));
+	        equivalent = this.findSuperTypeWithSameErasure(otherType);
 	        if (equivalent == null) return;
 	        otherEquivalent = (ReferenceBinding) otherType;
 	        break;
@@ -893,7 +893,7 @@ public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, bool
 		while (accessFields.hasNext()) {
 			field = (FieldBinding) accessFields.next();
 			if (CharOperation.prefixEquals(TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX, field.name)
-				&& ((ReferenceBinding) field.type).findSuperTypeErasingTo(targetEnclosingType) != null)
+				&& ((ReferenceBinding) field.type).findSuperTypeWithSameErasure(targetEnclosingType) != null)
 					return field;
 		}
 	}

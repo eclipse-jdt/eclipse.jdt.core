@@ -455,7 +455,7 @@ public abstract class Scope
 						continue nextVariable;
 					}
 					if (superType.isParameterizedType()) {
-						ReferenceBinding match = typeVariable.superclass.findSuperTypeErasingTo((ReferenceBinding) superType.erasure());
+						ReferenceBinding match = typeVariable.superclass.findSuperTypeWithSameErasure(superType);
 						boolean isCollision = match != null && match != superType;
 						for (int index = typeVariable.superInterfaces.length; !isCollision && --index >= 0;) {
 							ReferenceBinding temp = typeVariable.superInterfaces[index];
@@ -3160,7 +3160,7 @@ public abstract class Scope
 					if (superType.isArrayType()) {
 						match = null;
 					} else {
-						match = otherRefType.findSuperTypeErasingTo((ReferenceBinding)superType);
+						match = otherRefType.findSuperTypeWithSameErasure(superType);
 					}
 					if (match == null) { // incompatible super type
 						superTypes[j] = null;
@@ -3185,7 +3185,7 @@ public abstract class Scope
 					ReferenceBinding otherType = (ReferenceBinding)superTypes[j];
 					if (otherType == null) continue nextOtherType;
 					if (otherType.id == T_JavaLangObject && superType.isInterface()) continue nextOtherType;
-					if (superType.findSuperTypeErasingTo(otherType) != null) {
+					if (superType.findSuperTypeWithSameErasure(otherType) != null) {
 						superTypes[j] = null; // discard non minimal supertype
 						remaining--;
 					}
@@ -3306,7 +3306,7 @@ public abstract class Scope
 					} else if (method.isStatic()) {
 						// detect collision between static import methods from unconnected types
 						if (method.declaringClass != method2.declaringClass && method.original().areParametersEqual(method2.original()))
-							if (method.declaringClass.findSuperTypeErasingTo((ReferenceBinding) method2.declaringClass.erasure()) == null)
+							if (method.declaringClass.findSuperTypeWithSameErasure(method2.declaringClass) == null)
 								continue nextVisible;
 					} else if (!method.original().areTypeVariableErasuresEqual(method2.original())) {
 						// cannot override an inherited method if type variables are not compatible
@@ -3321,7 +3321,7 @@ public abstract class Scope
 							if (original.areParameterErasuresEqual(original2)) continue;
 							ReferenceBinding receiverType = (ReferenceBinding) ((MessageSend) invocationSite).actualReceiverType;
 							if (receiverType != method.declaringClass) {
-								ReferenceBinding superType = ((ReferenceBinding) receiverType.erasure()).findSuperTypeErasingTo(original.declaringClass);
+								ReferenceBinding superType = ((ReferenceBinding) receiverType.erasure()).findSuperTypeWithSameErasure(original.declaringClass);
 								if (superType != null) {
 									MethodBinding[] superMethods = superType.getMethods(original.selector);
 									for (int m = 0, l = superMethods.length; m < l; m++) {
@@ -3333,7 +3333,7 @@ public abstract class Scope
 								}
 							}
 							if (receiverType != method2.declaringClass) {
-								ReferenceBinding superType = ((ReferenceBinding) receiverType.erasure()).findSuperTypeErasingTo(original2.declaringClass);
+								ReferenceBinding superType = ((ReferenceBinding) receiverType.erasure()).findSuperTypeWithSameErasure(original2.declaringClass);
 								if (superType != null) {
 									MethodBinding[] superMethods = superType.getMethods(original2.selector);
 									for (int m = 0, l = superMethods.length; m < l; m++) {

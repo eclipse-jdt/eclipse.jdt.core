@@ -20550,4 +20550,24 @@ public void test706b() {
 		// incompatible types on both assignments
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98079
+public void test707() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"\n" + 
+			"    B<? extends T> b() {\n" + 
+			"        return a();\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    <U extends T> B<U> a() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    static class B<V> { }\n" + 
+			"}\n",
+		},
+		"");
+}
 }

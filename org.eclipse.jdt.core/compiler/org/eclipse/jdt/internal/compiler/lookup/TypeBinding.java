@@ -555,7 +555,7 @@ public boolean needsUncheckedConversion(TypeBinding targetType) {
 	if (!(currentType instanceof ReferenceBinding))
 		return false;
 	
-	ReferenceBinding compatible = ((ReferenceBinding)currentType).findSuperTypeErasingTo((ReferenceBinding)targetType.erasure());
+	ReferenceBinding compatible = ((ReferenceBinding)currentType).findSuperTypeWithSameErasure(targetType);
 	if (compatible == null) 
 		return false;
 

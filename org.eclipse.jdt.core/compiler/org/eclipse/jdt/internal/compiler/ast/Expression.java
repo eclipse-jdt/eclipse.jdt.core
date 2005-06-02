@@ -290,7 +290,7 @@ public abstract class Expression extends Statement {
 					case Binding.TYPE_PARAMETER : 
 						// ( TYPE_PARAMETER ) ARRAY
 						if (expressionType instanceof ReferenceBinding) {
-							ReferenceBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType);
+							ReferenceBinding match = ((ReferenceBinding)expressionType).findSuperTypeWithSameErasure(castType);
 							if (match == null) {
 								checkUnsafeCast(scope, castType, expressionType, match, true);
 							}
@@ -318,7 +318,7 @@ public abstract class Expression extends Statement {
 			case Binding.TYPE_PARAMETER :
 			case Binding.WILDCARD_TYPE :
 				if (castType instanceof ReferenceBinding) {
-					TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType);
+					TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeWithSameErasure(castType);
 					if (match != null) {
 						tagAsUnnecessaryCast(scope, castType);
 						return true;
@@ -343,7 +343,7 @@ public abstract class Expression extends Statement {
 
 						case Binding.TYPE_PARAMETER :
 							// ( INTERFACE ) TYPE_PARAMETER
-							TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType);
+							TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeWithSameErasure(castType);
 							if (match == null) {
 								checkUnsafeCast(scope, castType, expressionType, match, true);
 							}
@@ -354,13 +354,13 @@ public abstract class Expression extends Statement {
 							if (castType.isInterface()) {
 								// ( INTERFACE ) INTERFACE
 								ReferenceBinding interfaceType = (ReferenceBinding) expressionType;
-								match = interfaceType.findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+								match = interfaceType.findSuperTypeWithSameErasure(castType);
 								if (match != null) {
 									return checkUnsafeCast(scope, castType, interfaceType, match, false);
 								}
 								
 								tagAsNeedCheckCast();
-								match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)interfaceType.erasure());
+								match = ((ReferenceBinding)castType).findSuperTypeWithSameErasure(interfaceType);
 								if (match != null) {
 									return checkUnsafeCast(scope, castType, interfaceType, match, true);
 								}
@@ -389,7 +389,7 @@ public abstract class Expression extends Statement {
 								}
 								if (((ReferenceBinding) castType).isFinal()) {
 									// no subclass for castType, thus compile-time check is valid
-									match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+									match = ((ReferenceBinding)castType).findSuperTypeWithSameErasure(expressionType);
 									if (match == null) {
 										// potential runtime error
 										return false;
@@ -412,7 +412,7 @@ public abstract class Expression extends Statement {
 							
 						case Binding.TYPE_PARAMETER :
 							// ( TYPE_PARAMETER ) CLASS
-							TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType);
+							TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeWithSameErasure(castType);
 							if (match == null) {
 								checkUnsafeCast(scope, castType, expressionType, match, true);
 							}
@@ -423,7 +423,7 @@ public abstract class Expression extends Statement {
 							if (castType.isInterface()) {
 								// ( INTERFACE ) CLASS
 								ReferenceBinding refExprType = (ReferenceBinding) expressionType;
-								match = refExprType.findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+								match = refExprType.findSuperTypeWithSameErasure(castType);
 								if (refExprType.isFinal()) {
 									// unless final a subclass may implement the interface ==> no check at compile time
 									if (match == null || !match.isCompatibleWith(castType)) {
@@ -436,19 +436,19 @@ public abstract class Expression extends Statement {
 									}
 								}
 								tagAsNeedCheckCast();
-								match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+								match = ((ReferenceBinding)castType).findSuperTypeWithSameErasure(expressionType);
 								if (match != null) {
 									return checkUnsafeCast(scope, castType, expressionType, match, true);
 								}
 								return true;
 							} else {
 								// ( CLASS ) CLASS
-								match = ((ReferenceBinding)expressionType).findSuperTypeErasingTo((ReferenceBinding)castType.erasure());
+								match = ((ReferenceBinding)expressionType).findSuperTypeWithSameErasure(castType);
 								if (match != null) {
 									if (expression != null && castType.id == T_JavaLangString) this.constant = expression.constant; // (String) cst is still a constant
 									return checkUnsafeCast(scope, castType, expressionType, match, false);
 								}
-								match = ((ReferenceBinding)castType).findSuperTypeErasingTo((ReferenceBinding)expressionType.erasure());
+								match = ((ReferenceBinding)castType).findSuperTypeWithSameErasure(expressionType);
 								if (match != null) {
 									tagAsNeedCheckCast();
 									return checkUnsafeCast(scope, castType, expressionType, match, true);
