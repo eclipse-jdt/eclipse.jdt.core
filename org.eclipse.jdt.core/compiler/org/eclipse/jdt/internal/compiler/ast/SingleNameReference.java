@@ -716,7 +716,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					TypeBinding type = (TypeBinding)binding;
 					if (isTypeUseDeprecated(type, scope))
 						scope.problemReporter().deprecatedType(type, this);
-					return this.resolvedType = scope.convertToRawType(type);
+					return this.resolvedType = scope.environment().convertToRawType(type);
 			}
 		}
 	

@@ -107,7 +107,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 				if (currentType.isStatic() 
 						|| (enclosingType.isGenericType() 
 								&& enclosingType.outermostEnclosingType() != scope.outerMostClassScope().referenceContext.binding)) {
-					enclosingType = (ReferenceBinding) scope.convertToRawType(enclosingType);
+					enclosingType = (ReferenceBinding) scope.environment().convertToRawType(enclosingType);
 				}
 			}
 		} else { // resolving member type (relatively to enclosingType)

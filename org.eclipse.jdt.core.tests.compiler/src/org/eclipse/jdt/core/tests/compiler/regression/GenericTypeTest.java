@@ -19854,7 +19854,7 @@ public void test682() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96085
-public void _test683() {
+public void test683() {
 	this.runConformTest(
 		new String[] {
 			"P.java",
