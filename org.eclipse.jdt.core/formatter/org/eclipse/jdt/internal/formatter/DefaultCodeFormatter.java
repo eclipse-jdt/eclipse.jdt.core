@@ -333,21 +333,25 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 		ProbingScanner.setSource((char[]) null);
 
+		// probe for expression
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (expression != null) {
 			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
 		}
 
-		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), getDefaultCompilerOptions(), true);
-		if (bodyDeclarations != null) {
-			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
-		}
-
+		// probe for statements
 		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (constructorDeclaration.statements != null) {
 			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 		}
 
+		// probe for body declarations (fields, methods, constructors)
+		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), getDefaultCompilerOptions(), true);
+		if (bodyDeclarations != null) {
+			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
+		}
+
+		// this has to be a compilation unit
 		return formatCompilationUnit(source, indentationLevel, lineSeparator, offset, length);
 	}
 }

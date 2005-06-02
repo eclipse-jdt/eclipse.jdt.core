@@ -311,6 +311,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						if (currentField.declarationSourceStart == ((FieldDeclaration) previousMergedNode).declarationSourceStart) {
 							// we create a multi field declaration
 							mergedNodes.set(mergedNodes.size() - 1, new MultiFieldDeclaration(new FieldDeclaration[]{ (FieldDeclaration)previousMergedNode, currentField}));
+						} else {
+							mergedNodes.add(currentNode);
 						}
 					} else {
 						mergedNodes.add(currentNode);
