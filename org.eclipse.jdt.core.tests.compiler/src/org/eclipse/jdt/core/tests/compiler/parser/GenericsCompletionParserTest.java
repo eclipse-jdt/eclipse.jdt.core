@@ -8143,4 +8143,66 @@ public void test0187(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80432
+ */
+public void test0188(){
+	String str =
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    for(;;) {\n" + 
+		"      bar(toto.\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "toto.";
+	int cursorLocation = str.indexOf("toto.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:toto.>";
+	expectedParentNodeToString = "bar(<CompleteOnName:toto.>)";
+	completionIdentifier = "";
+	expectedReplacedSource = "toto.";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      bar(<CompleteOnName:toto.>);\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

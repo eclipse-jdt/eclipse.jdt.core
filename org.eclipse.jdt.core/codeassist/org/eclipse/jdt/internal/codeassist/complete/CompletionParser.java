@@ -517,7 +517,7 @@ private void buildMoreCompletionContext(Expression expression) {
 					int length = expressionLengthStack[expressionLengthPtr];
 					
 					// search previous arguments if missing
-					if(expressionLengthPtr > 0 && length == 1) {
+					if(this.expressionPtr > 0 && this.expressionLengthPtr > 0 && length == 1) {
 						int start = (int) (identifierPositionStack[selector] >>> 32);
 						if(this.expressionStack[expressionPtr-1] != null && this.expressionStack[expressionPtr-1].sourceStart > start) {
 							length += expressionLengthStack[expressionLengthPtr-1];
