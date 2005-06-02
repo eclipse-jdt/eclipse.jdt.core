@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
 
@@ -5550,40 +5551,23 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98086
 	 */
 	public void test0185() throws JavaModelException {
-		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-    	final String contents =
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"@SuppressWarnings(\"unchecked\")\n" +
-			"public class X {\n" +
-			"	List<String> ls = new ArrayList();\n" +
-			"}";
-    	ASTNode node = buildAST(
-    			contents,
-    			this.workingCopy);
-    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-    	CompilationUnit compilationUnit = (CompilationUnit) node;
-    	assertProblemsSize(compilationUnit, 0);
+		final ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0185", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		assertEquals("Wrong setting", JavaCore.WARNING, sourceUnit.getJavaProject().getOption(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, true));
+		final ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		final CompilationUnit compilationUnit = (CompilationUnit) result;
+	   	assertProblemsSize(compilationUnit, 0);
 	}
 	
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98086
 	 */
 	public void test0186() throws JavaModelException {
-		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-    	final String contents =
-			"import java.util.ArrayList;\n" +
-			"import java.util.List;\n" +
-			"//@SuppressWarnings(\"unchecked\")\n" +
-			"public class X {\n" +
-			"	List<String> ls = new ArrayList();\n" +
-			"}";
-    	ASTNode node = buildAST(
-    			contents,
-    			this.workingCopy,
-    			false);
-    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-    	CompilationUnit compilationUnit = (CompilationUnit) node;
-    	assertProblemsSize(compilationUnit, 1, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>");
+		final ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0186", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		assertEquals("Wrong setting", JavaCore.WARNING, sourceUnit.getJavaProject().getOption(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, true));
+		final ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		final CompilationUnit compilationUnit = (CompilationUnit) result;
+	   	assertProblemsSize(compilationUnit, 1, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>");
 	}
 }

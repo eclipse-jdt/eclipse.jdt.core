@@ -1172,11 +1172,12 @@ class ASTConverter {
 		int problemLength = unit.compilationResult.problemCount;
 		if (problemLength != 0) {
 			IProblem[] resizedProblems = null;
-			final IProblem[] problems = unit.compilationResult.problems;
-			if (problems.length == problemLength) {
+			final IProblem[] problems = unit.compilationResult.getProblems();
+			final int realProblemLength=problems.length;
+			if (realProblemLength == problemLength) {
 				resizedProblems = problems;
 			} else {
-				System.arraycopy(problems, 0, (resizedProblems = new IProblem[problemLength]), 0, problemLength);
+				System.arraycopy(problems, 0, (resizedProblems = new IProblem[realProblemLength]), 0, realProblemLength);
 			}
 			ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(resizedProblems);
 			compilationUnit.accept(syntaxErrorPropagator);
