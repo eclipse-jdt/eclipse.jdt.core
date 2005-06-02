@@ -551,7 +551,12 @@ private void buildMoreCompletionContext(Expression expression) {
 								
 								// remove selector 
 								this.identifierPtr--; 
-								this.identifierLengthStack[this.identifierLengthPtr]--;
+								if(this.genericsPtr > -1 && this.genericsLengthPtr > -1 && this.genericsLengthStack[this.genericsLengthPtr] > 0) {
+									// is inside a paremeterized method: bar.<X>.foo
+									this.identifierLengthPtr--;
+								} else {
+									this.identifierLengthStack[this.identifierLengthPtr]--;
+								}
 								// consume the receiver
 								int identifierLength = this.identifierLengthStack[this.identifierLengthPtr];
 								if(this.identifierPtr > -1 && identifierLength > 0 && this.identifierPtr + 1 >= identifierLength) {
@@ -1163,7 +1168,12 @@ private boolean checkInvocation() {
 				
 					// remove selector 
 					this.identifierPtr--; 
-					this.identifierLengthStack[this.identifierLengthPtr]--;
+					if(this.genericsPtr > -1 && this.genericsLengthPtr > -1 && this.genericsLengthStack[this.genericsLengthPtr] > 0) {
+						// is inside a paremeterized method: bar.<X>.foo
+						this.identifierLengthPtr--;
+					} else {
+						this.identifierLengthStack[this.identifierLengthPtr]--;
+					}
 					// consume the receiver
 					messageSend.receiver = this.getUnspecifiedReference();
 					break;
