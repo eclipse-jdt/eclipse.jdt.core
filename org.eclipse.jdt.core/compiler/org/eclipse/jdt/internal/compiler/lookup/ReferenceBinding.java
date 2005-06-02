@@ -504,7 +504,6 @@ public ReferenceBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
     	otherType = otherType.erasure();
    	    if (!isTypeVariable() && erasure() == otherType) return this;
     }
-
     
     ReferenceBinding currentType = this;
     if (!otherType.isInterface()) {
