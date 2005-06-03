@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
@@ -173,8 +176,13 @@ public abstract class SearchParticipant {
 	public final void scheduleDocumentIndexing(SearchDocument document, IPath indexLocation) {
 		IPath documentPath = new Path(document.getPath());
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IResource resource = root.findMember(documentPath);
-		IPath containerPath = resource == null ? documentPath : resource.getProject().getFullPath();
+		Object file = JavaModel.getTarget(root, documentPath, true);
+		IPath containerPath = documentPath;
+		if (file instanceof IResource) {
+			containerPath = ((IResource)file).getProject().getFullPath();
+		} else if (file == null) {
+			containerPath = documentPath.removeLastSegments(documentPath.segmentCount()-1);
+		}
 		IndexManager manager = JavaModelManager.getJavaModelManager().getIndexManager();
 		String osIndexLocation = indexLocation.toOSString();
 		// TODO (jerome) should not have to create index manually, should expose API that recreates index instead
