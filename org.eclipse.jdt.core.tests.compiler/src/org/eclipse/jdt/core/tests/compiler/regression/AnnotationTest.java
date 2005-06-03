@@ -4640,4 +4640,43 @@ public class AnnotationTest extends AbstractComparableTest {
     		"The member annotation Bar can only be defined inside a top-level class or interface\n" + 
     		"----------\n");
     }
+    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96991
+    public void test149() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	void bar() {\n" + 
+				"		@Annot(foo = zzz)\n" + 
+				"		final int zzz = 0;\n" + 
+				"\n" + 
+				"		@Annot(foo = kkk)\n" + 
+				"		int kkk = 1;\n" + 
+				"\n" + 
+				"	}\n" + 
+				"	@Annot(foo = fff)\n" + 
+				"	final int fff = 0;\n" + 
+				"	\n" + 
+				"	@Annot(foo = Member.ttt)\n" + 
+				"	static class Member {\n" + 
+				"		final static int ttt = 2;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"@interface Annot {\n" + 
+				"	int foo();\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	@Annot(foo = kkk)\n" + 
+			"	             ^^^\n" + 
+			"The value for annotation attribute Annot.foo must be a constant expression\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	@Annot(foo = fff)\n" + 
+			"	             ^^^\n" + 
+			"Cannot reference a field before it is defined\n" + 
+			"----------\n");
+    }    
 }
