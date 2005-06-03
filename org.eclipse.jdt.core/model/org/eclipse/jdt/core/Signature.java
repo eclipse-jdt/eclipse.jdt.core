@@ -1016,6 +1016,24 @@ public static int getTypeSignatureKind(char[] typeSignature) {
 		throw new IllegalArgumentException();
 	}
 	char c = typeSignature[0];
+	if (c == C_GENERIC_START) {
+		int count = 1;
+		for (int i = 1, length = typeSignature.length; i < length; i++) {
+			switch (typeSignature[i]) {
+				case 	C_GENERIC_START:
+					count++;
+					break;
+				case C_GENERIC_END:
+					count--;
+					break;
+			}
+			if (count == 0) {
+				if (i+1 < length)
+					c = typeSignature[i+1]; 
+				break;
+			}
+		}
+	}
 	switch (c) {
 		case C_ARRAY :
 			return ARRAY_TYPE_SIGNATURE;
@@ -1062,6 +1080,24 @@ public static int getTypeSignatureKind(String typeSignature) {
 		throw new IllegalArgumentException();
 	}
 	char c = typeSignature.charAt(0);
+	if (c == C_GENERIC_START) {
+		int count = 1;
+		for (int i = 1, length = typeSignature.length(); i < length; i++) {
+			switch (typeSignature.charAt(i)) {
+				case 	C_GENERIC_START:
+					count++;
+					break;
+				case C_GENERIC_END:
+					count--;
+					break;
+			}
+			if (count == 0) {
+				if (i+1 < length)
+					c = typeSignature.charAt(i+1); 
+				break;
+			}
+		}
+	}
 	switch (c) {
 		case C_ARRAY :
 			return ARRAY_TYPE_SIGNATURE;
@@ -1085,7 +1121,7 @@ public static int getTypeSignatureKind(String typeSignature) {
 		case C_EXTENDS :
 			return WILDCARD_TYPE_SIGNATURE;
 		case C_CAPTURE :
-			return CAPTURE_TYPE_SIGNATURE;			
+			return CAPTURE_TYPE_SIGNATURE;
 		default :
 			throw new IllegalArgumentException();
 	}

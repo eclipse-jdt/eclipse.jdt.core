@@ -1127,21 +1127,32 @@ public void testGetTypeSignatureKind21() {
 }
 public void testGetTypeSignatureKind22() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 22", 
+		"Signature#getTypeSignatureKind(String) is not correct 22", 
 		Signature.WILDCARD_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("*"));
 }
 public void testGetTypeSignatureKind23() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 23", 
+		"Signature#getTypeSignatureKind(String) is not correct 23", 
 		Signature.WILDCARD_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("-Ljava.lang.Object;"));
 }
 public void testGetTypeSignatureKind24() {
 	assertEquals(
-		"Signature#getTypeSignatureKind(char[]) is not correct 24", 
+		"Signature#getTypeSignatureKind(String) is not correct 24", 
 		Signature.WILDCARD_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("+Ljava.lang.Object;"));
+}
+
+/*
+ * Generic type signature
+ * (regression test for bug 97273 Illegal argument exception in Signature#getTypeSignatureKind)
+ */
+public void testGetTypeSignatureKind25() {
+	assertEquals(
+		"Signature#getTypeSignatureKind(String) is not correct 25", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("<T:>Ljava.lang.Class;"));
 }
 
 /**
@@ -1294,6 +1305,17 @@ public void testGetTypeSignatureKindCharArray24() {
 		Signature.WILDCARD_TYPE_SIGNATURE,
 		Signature.getTypeSignatureKind("+Ljava.lang.Object;".toCharArray()));
 }
+/*
+ * Generic type signature
+ * (regression test for bug 97273 Illegal argument exception in Signature#getTypeSignatureKind)
+ */
+public void testGetTypeSignatureKindCharArray25() {
+	assertEquals(
+		"Signature#getTypeSignatureKind(char[]) is not correct 25", 
+		Signature.CLASS_TYPE_SIGNATURE,
+		Signature.getTypeSignatureKind("<T:>Ljava.lang.Class;".toCharArray()));
+}
+
 public void testGetTypeFragment01() {
 	assertEquals(
 		"C.D.E",
