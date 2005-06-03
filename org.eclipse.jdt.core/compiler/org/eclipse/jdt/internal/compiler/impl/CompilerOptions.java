@@ -206,6 +206,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| TypeParameterHiding
 		| FinalParameterBound
 		| UnhandledWarningToken
+		| UnusedLocalVariable
+		| UnusedPrivateMember
+		| FieldHiding
+		| LocalVariableHiding
 		/*| NullReference*/;
 
 	// Debug attributes

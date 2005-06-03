@@ -110,7 +110,7 @@ public void setUp() throws Exception {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+	IJavaProject javaProject = createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 	createFolder("/Reconciler/src/p1");
 	createFolder("/Reconciler/src/p2");
 	createFile(
@@ -122,7 +122,8 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}"
 	);
-	IJavaProject javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+	javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+	javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 	addLibrary(
 		javaProject, 
 		"lib15.jar", 
@@ -156,6 +157,7 @@ public void setUpSuite() throws Exception {
 		}, 
 		JavaCore.VERSION_1_5
 	);
+	javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 }
 private void setUp15WorkingCopy() throws JavaModelException {
 	setUp15WorkingCopy("Reconciler15/src/p1/X.java", new WorkingCopyOwner() {});
