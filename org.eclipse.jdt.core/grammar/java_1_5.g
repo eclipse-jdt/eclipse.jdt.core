@@ -367,9 +367,13 @@ PackageDeclarationName ::= Modifiers 'package' PushRealModifiers Name
 /:$readableName PackageDeclarationName:/
 /:$compliance 1.5:/
 
-PackageDeclarationName ::= 'package' Name
+PackageDeclarationName ::= PackageComment 'package' Name
 /.$putCase  consumePackageDeclarationName(); $break ./
 /:$readableName PackageDeclarationName:/
+
+PackageComment ::= $empty
+/.$putCase  consumePackageComment(); $break ./
+/:$readableName PackageComment:/
 
 ImportDeclaration -> SingleTypeImportDeclaration
 ImportDeclaration -> TypeImportOnDemandDeclaration
@@ -1578,7 +1582,7 @@ EnumConstantHeaderName ::= Modifiersopt Identifier
 /.$putCase consumeEnumConstantHeaderName(); $break ./
 /:$readableName EnumConstantHeaderName:/
 
-EnumConstantHeader ::= EnumConstantHeaderName Argumentsopt
+EnumConstantHeader ::= EnumConstantHeaderName ForceNoDiet Argumentsopt RestoreDiet
 /.$putCase consumeEnumConstantHeader(); $break ./
 /:$readableName EnumConstantHeader:/
 
@@ -2124,9 +2128,19 @@ MemberValuePairs ::= MemberValuePairs ',' MemberValuePair
 /:$readableName MemberValuePairs:/
 /:$compliance 1.5:/
 
-MemberValuePair ::= SimpleName '=' MemberValue
+MemberValuePair ::= SimpleName '=' EnterMemberValue MemberValue ExitMemberValue
 /.$putCase consumeMemberValuePair() ; $break ./
 /:$readableName MemberValuePair:/
+/:$compliance 1.5:/
+
+EnterMemberValue ::= $empty
+/.$putCase consumeEnterMemberValue() ; $break ./
+/:$readableName EnterMemberValue:/
+/:$compliance 1.5:/
+
+ExitMemberValue ::= $empty
+/.$putCase consumeExitMemberValue() ; $break ./
+/:$readableName ExitMemberValue:/
 /:$compliance 1.5:/
 
 MemberValue -> ConditionalExpression_NotName

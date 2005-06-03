@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -66,7 +67,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 	 */
 	protected void executeOperation() throws JavaModelException {
 		try {
-			beginTask(Util.bind("workingCopy.commit"), 2); //$NON-NLS-1$
+			beginTask(Messages.workingCopy_commit, 2); 
 			CompilationUnit workingCopy = getCompilationUnit();
 			IFile resource = (IFile)workingCopy.getResource();
 			ICompilationUnit primary = workingCopy.getPrimary();

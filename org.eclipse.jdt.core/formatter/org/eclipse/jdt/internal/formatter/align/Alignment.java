@@ -1,13 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 International Business Machines Corp. and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0 
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- ******************************************************************************/
+ *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.align;
 
 import org.eclipse.jdt.internal.formatter.Location;
@@ -160,7 +160,6 @@ public class Alignment {
 			// indent broken fragments exactly one level deeper than current indentation
 			this.breakIndentationLevel = this.location.outputIndentationLevel + indentSize;
 		} else {
-			// indent broken fragments by one continuation indentation deeper than current indentation
 			this.breakIndentationLevel = this.location.outputIndentationLevel + continuationIndent * indentSize;
 		}
 		this.shiftBreakIndentationLevel = this.breakIndentationLevel + indentSize;

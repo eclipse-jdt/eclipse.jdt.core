@@ -20,7 +20,11 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.ICompilationParticipant;
@@ -34,8 +38,10 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
+import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.osgi.service.prefs.BackingStoreException;
 import org.w3c.dom.Element;
@@ -72,12 +78,18 @@ public class JavaModelManager implements ISaveParticipant {
 	public HashMap containers = new HashMap(5);
 	public HashMap previousSessionContainers = new HashMap(5);
 	private ThreadLocal containerInitializationInProgress = new ThreadLocal();
-	public boolean batchContainerInitializations = true;
+	public boolean batchContainerInitializations = false;
+	public HashMap containerInitializersCache = new HashMap(5);
 	
 	/*
 	 * A HashSet that contains the IJavaProject whose classpath is being resolved.
 	 */
 	private ThreadLocal classpathsBeingResolved = new ThreadLocal();
+	
+	/*
+	 * The unique workspace scope
+	 */
+	public JavaWorkspaceScope workspaceScope;
 	
 	/*
 	 * Pools of symbols used in the Java model.
@@ -89,6 +101,8 @@ public class JavaModelManager implements ISaveParticipant {
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
 	public final static String CP_ENTRY_IGNORE = "##<cp entry ignore>##"; //$NON-NLS-1$
+	
+	private final static int VARIABLES_AND_CONTAINERS_FILE_VERSION = 1;
 
 	/**
 	 * Name of the extension point for contributing classpath variable initializers
@@ -142,10 +156,27 @@ public class JavaModelManager implements ISaveParticipant {
 	private static final String RESOLUTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/resolution" ; //$NON-NLS-1$
 	private static final String SELECTION_DEBUG = JavaCore.PLUGIN_ID + "/debug/selection" ; //$NON-NLS-1$
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
+	private static final String SOURCE_MAPPER_DEBUG_VERBOSE = JavaCore.PLUGIN_ID + "/debug/sourcemapper" ; //$NON-NLS-1$
 
+	public static final String COMPLETION_PERF = JavaCore.PLUGIN_ID + "/perf/completion" ; //$NON-NLS-1$
+	public static final String SELECTION_PERF = JavaCore.PLUGIN_ID + "/perf/selection" ; //$NON-NLS-1$
+	public static final String DELTA_LISTENER_PERF = JavaCore.PLUGIN_ID + "/perf/javadeltalistener" ; //$NON-NLS-1$
+	public static final String VARIABLE_INITIALIZER_PERF = JavaCore.PLUGIN_ID + "/perf/variableinitializer" ; //$NON-NLS-1$
+	public static final String CONTAINER_INITIALIZER_PERF = JavaCore.PLUGIN_ID + "/perf/containerinitializer" ; //$NON-NLS-1$
+	public static final String RECONCILE_PERF = JavaCore.PLUGIN_ID + "/perf/reconcile" ; //$NON-NLS-1$
+	
+	public static boolean PERF_VARIABLE_INITIALIZER = false;
+	public static boolean PERF_CONTAINER_INITIALIZER = false;
+	
 	public final static ICompilationUnit[] NO_WORKING_COPY = new ICompilationUnit[0];
 	
-	public HashSet optionNames = new HashSet(20);
+	// Preferences
+	HashSet optionNames = new HashSet(20);
+	Hashtable optionsCache;
+
+	public final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
+	static final int PREF_INSTANCE = 0;
+	static final int PREF_DEFAULT = 1;
 
 	public class CompilationParticipants {
 		
@@ -346,18 +377,14 @@ public class JavaModelManager implements ISaveParticipant {
 	public synchronized void containerPut(IJavaProject project, IPath containerPath, IClasspathContainer container){
 
 		// set/unset the initialization in progress
-		HashSet projectInitializations = containerInitializationInProgress(project);
 		if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
+			HashSet projectInitializations = containerInitializationInProgress(project);
 			projectInitializations.add(containerPath);
 			
 			// do not write out intermediate initialization value
 			return;
 		} else {
-			projectInitializations.remove(containerPath);
-			if (projectInitializations.size() == 0) {
-				Map initializations = (Map)this.containerInitializationInProgress.get();
-				initializations.remove(project);
-			}
+			containerRemoveInitializationInProgress(project, containerPath);
 
 			Map projectContainers = (Map)this.containers.get(project);
 			if (projectContainers == null){
@@ -377,6 +404,103 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 		// container values are persisted in preferences during save operations, see #saving(ISaveContext)
+	}
+	
+	/*
+	 * Optimize startup case where a container for 1 project is initialized at a time with the same entries as on shutdown.
+	 */
+	public boolean containerPutIfInitializingWithSameEntries(IPath containerPath, IJavaProject[] projects, IClasspathContainer[] respectiveContainers) {
+		int projectLength = projects.length;
+		if (projectLength != 1) 
+			return false;
+		final IClasspathContainer container = respectiveContainers[0];
+		if (container == null)
+			return false;
+		IJavaProject project = projects[0];
+		if (!containerInitializationInProgress(project).contains(containerPath))
+			return false;
+		IClasspathContainer previousSessionContainer = getPreviousSessionContainer(containerPath, project);
+		final IClasspathEntry[] newEntries = container.getClasspathEntries();
+		if (previousSessionContainer == null) 
+			if (newEntries.length == 0) {
+				containerPut(project, containerPath, container);
+				return true;
+			} else {
+				return false;
+			}
+		final IClasspathEntry[] oldEntries = previousSessionContainer.getClasspathEntries();
+		if (oldEntries.length != newEntries.length) 
+			return false;
+		for (int i = 0, length = newEntries.length; i < length; i++) {
+			if (!newEntries[i].equals(oldEntries[i])) {
+				if (CP_RESOLVE_VERBOSE) {
+					Util.verbose(
+						"CPContainer SET  - missbehaving container\n" + //$NON-NLS-1$
+						"	container path: " + containerPath + '\n' + //$NON-NLS-1$
+						"	projects: {" +//$NON-NLS-1$
+						org.eclipse.jdt.internal.compiler.util.Util.toString(
+							projects, 
+							new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+								public String displayString(Object o) { return ((IJavaProject) o).getElementName(); }
+							}) +
+						"}\n	values on previous session: {\n"  +//$NON-NLS-1$
+						org.eclipse.jdt.internal.compiler.util.Util.toString(
+							respectiveContainers, 
+							new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+								public String displayString(Object o) { 
+									StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+									if (o == null) {
+										buffer.append("<null>"); //$NON-NLS-1$
+										return buffer.toString();
+									}
+									buffer.append(container.getDescription());
+									buffer.append(" {\n"); //$NON-NLS-1$
+									for (int j = 0; j < oldEntries.length; j++){
+										buffer.append(" 			"); //$NON-NLS-1$
+										buffer.append(oldEntries[j]); 
+										buffer.append('\n'); 
+									}
+									buffer.append(" 		}"); //$NON-NLS-1$
+									return buffer.toString();
+								}
+							}) +
+						"}\n	new values: {\n"  +//$NON-NLS-1$
+						org.eclipse.jdt.internal.compiler.util.Util.toString(
+							respectiveContainers, 
+							new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){ 
+								public String displayString(Object o) { 
+									StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+									if (o == null) {
+										buffer.append("<null>"); //$NON-NLS-1$
+										return buffer.toString();
+									}
+									buffer.append(container.getDescription());
+									buffer.append(" {\n"); //$NON-NLS-1$
+									for (int j = 0; j < newEntries.length; j++){
+										buffer.append(" 			"); //$NON-NLS-1$
+										buffer.append(newEntries[j]); 
+										buffer.append('\n'); 
+									}
+									buffer.append(" 		}"); //$NON-NLS-1$
+									return buffer.toString();
+								}
+							}) +
+						"\n	}"); //$NON-NLS-1$
+				}
+				return false;
+			}
+		}
+		containerPut(project, containerPath, container);
+		return true;
+	}
+	
+	private void containerRemoveInitializationInProgress(IJavaProject project, IPath containerPath) {
+		HashSet projectInitializations = containerInitializationInProgress(project);
+		projectInitializations.remove(containerPath);
+		if (projectInitializations.size() == 0) {
+			Map initializations = (Map)this.containerInitializationInProgress.get();
+			initializations.remove(project);
+		}
 	}
 	
 	private synchronized void containersReset(String[] containerIDs) {
@@ -629,7 +753,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * The singleton manager
 	 */
-	private final static JavaModelManager MANAGER= new JavaModelManager();
+	private static JavaModelManager MANAGER= new JavaModelManager();
 
 	/**
 	 * Infos cache.
@@ -681,12 +805,33 @@ public class JavaModelManager implements ISaveParticipant {
 		public IPath outputLocation;
 		
 		public IEclipsePreferences preferences;
+		public Hashtable options;
 		
 		public PerProjectInfo(IProject project) {
 
 			this.triedRead = false;
 			this.savedState = null;
 			this.project = project;
+		}
+		
+		public void rememberExternalLibTimestamps() {
+			IClasspathEntry[] classpath = this.resolvedClasspath;
+			if (classpath == null) return;
+			IWorkspaceRoot wRoot = ResourcesPlugin.getWorkspace().getRoot();
+			Map externalTimeStamps = JavaModelManager.getJavaModelManager().deltaState.getExternalLibTimeStamps();
+			for (int i = 0, length = classpath.length; i < length; i++) {
+				IClasspathEntry entry = classpath[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+					IPath path = entry.getPath();
+					if (externalTimeStamps.get(path) == null) {
+						Object target = JavaModel.getTarget(wRoot, path, true);
+						if (target instanceof java.io.File) {
+							long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
+							externalTimeStamps.put(path, new Long(timestamp));							
+						}
+					}
+				}
+			}
 		}
 		
 		// updating raw classpath need to flush obsoleted cached information about resolved entries
@@ -812,6 +957,14 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/**
+	 * @deprecated
+	 */
+	private void addDeprecatedOptions(Hashtable options) {
+		options.put(JavaCore.COMPILER_PB_INVALID_IMPORT, JavaCore.ERROR);		
+		options.put(JavaCore.COMPILER_PB_UNREACHABLE_CODE, JavaCore.ERROR);
+	}
+
+	/**
 	 * Starts caching ZipFiles.
 	 * Ignores if there are already clients.
 	 */
@@ -883,6 +1036,19 @@ public class JavaModelManager implements ISaveParticipant {
 
 			option = Platform.getDebugOption(ZIP_ACCESS_DEBUG);
 			if(option != null) JavaModelManager.ZIP_ACCESS_VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			
+			option = Platform.getDebugOption(SOURCE_MAPPER_DEBUG_VERBOSE);
+			if(option != null) SourceMapper.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+		}
+		
+		// configure performance options
+		if(PerformanceStats.ENABLED) {
+			CompletionEngine.PERF = PerformanceStats.isEnabled(COMPLETION_PERF);
+			SelectionEngine.PERF = PerformanceStats.isEnabled(SELECTION_PERF);
+			DeltaProcessor.PERF = PerformanceStats.isEnabled(DELTA_LISTENER_PERF);
+			JavaModelManager.PERF_VARIABLE_INITIALIZER = PerformanceStats.isEnabled(VARIABLE_INITIALIZER_PERF);
+			JavaModelManager.PERF_CONTAINER_INITIALIZER = PerformanceStats.isEnabled(CONTAINER_INITIALIZER_PERF);
+			ReconcileWorkingCopyOperation.PERF = PerformanceStats.isEnabled(RECONCILE_PERF);
 		}
 	}
 	
@@ -1017,6 +1183,42 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/**
+	 * Get workpsace eclipse preference for JavaCore plugin.
+	 */
+	public IEclipsePreferences getInstancePreferences() {
+		return preferencesLookup[PREF_INSTANCE];
+	}
+ 
+	public Hashtable getDefaultOptions(){
+	
+		Hashtable defaultOptions = new Hashtable(10);
+
+		// see JavaCorePreferenceInitializer#initializeDefaultPluginPreferences() for changing default settings
+		IEclipsePreferences defaultPreferences = getDefaultPreferences();
+		
+		// initialize preferences to their default
+		Iterator iterator = this.optionNames.iterator();
+		while (iterator.hasNext()) {
+		    String propertyName = (String) iterator.next();
+		    String value = defaultPreferences.get(propertyName, null);
+		    if (value != null) defaultOptions.put(propertyName, value);
+		}
+		// get encoding through resource plugin
+		defaultOptions.put(JavaCore.CORE_ENCODING, JavaCore.getEncoding());
+		// backward compatibility
+		addDeprecatedOptions(defaultOptions);
+		
+		return defaultOptions;
+	}
+	
+	/**
+	 * Get default eclipse preference for JavaCore plugin.
+	 */
+	public IEclipsePreferences getDefaultPreferences() {
+		return preferencesLookup[PREF_DEFAULT];
+	}
+
+	/**
 	 * Returns the handle to the active Java Model.
 	 */
 	public final JavaModel getJavaModel() {
@@ -1037,13 +1239,17 @@ public class JavaModelManager implements ISaveParticipant {
 	 * For use by image builder and evaluation support only
 	 */
 	public Object getLastBuiltState(IProject project, IProgressMonitor monitor) {
-		if (!JavaProject.hasJavaNature(project)) return null; // should never be requested on non-Java projects
+		if (!JavaProject.hasJavaNature(project)) {
+			if (JavaBuilder.DEBUG)
+				System.out.println(project + " is not a Java project"); //$NON-NLS-1$
+			return null; // should never be requested on non-Java projects
+		}
 		PerProjectInfo info = getPerProjectInfo(project, true/*create if missing*/);
 		if (!info.triedRead) {
 			info.triedRead = true;
 			try {
 				if (monitor != null)
-					monitor.subTask(Util.bind("build.readStateProgress", project.getName())); //$NON-NLS-1$
+					monitor.subTask(Messages.bind(Messages.build_readStateProgress, project.getName())); 
 				info.savedState = readState(project);
 			} catch (CoreException e) {
 				e.printStackTrace();
@@ -1052,6 +1258,56 @@ public class JavaModelManager implements ISaveParticipant {
 		return info.savedState;
 	}
 
+	public String getOption(String optionName) {
+		
+		if (JavaCore.CORE_ENCODING.equals(optionName)){
+			return JavaCore.getEncoding();
+		}
+		// backward compatibility
+		if (isDeprecatedOption(optionName)) {
+			return JavaCore.ERROR;
+		}
+		String propertyName = optionName;
+		if (this.optionNames.contains(propertyName)){
+			IPreferencesService service = Platform.getPreferencesService();
+			String value =  service.get(optionName, null, this.preferencesLookup);
+			return value==null ? null : value.trim();
+		}
+		return null;
+	}
+	
+	public Hashtable getOptions() {
+
+		// return cached options if already computed
+		if (this.optionsCache != null) return new Hashtable(this.optionsCache);
+
+		// init
+		Hashtable options = new Hashtable(10);
+		IPreferencesService service = Platform.getPreferencesService();
+
+		// set options using preferences service lookup
+		Iterator iterator = optionNames.iterator();
+		while (iterator.hasNext()) {
+		    String propertyName = (String) iterator.next();
+		    String propertyValue = service.get(propertyName, null, this.preferencesLookup);
+		    if (propertyValue != null) {
+			    options.put(propertyName, propertyValue);
+		    }
+		}
+
+		// get encoding through resource plugin
+		options.put(JavaCore.CORE_ENCODING, JavaCore.getEncoding()); 
+
+		// backward compatibility
+		addDeprecatedOptions(options);
+
+		// store built map in cache
+		this.optionsCache = new Hashtable(options);
+
+		// return built map
+		return options;
+	}
+	
 	/*
 	 * Returns the per-project info for the given project. If specified, create the info if the info doesn't exist.
 	 */
@@ -1173,6 +1429,10 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		return result;
 	}
+	
+	private File getVariableAndContainersFile() {
+		return JavaCore.getPlugin().getStateLocation().append("variablesAndContainers.dat").toFile(); //$NON-NLS-1$
+	}
 
 	/**
  	 * Returns the name of the variables for which an CP variable initializer is registered through an extension point
@@ -1260,6 +1520,13 @@ public class JavaModelManager implements ISaveParticipant {
 		}		
 	}
 	
+	public JavaWorkspaceScope getWorkspaceScope() {
+		if (this.workspaceScope == null) {
+			this.workspaceScope = new JavaWorkspaceScope();
+		}
+		return this.workspaceScope;
+	}
+	
 	/**
 	 * Returns the open ZipFile at the given location. If the ZipFile
 	 * does not yet exist, it is created, opened, and added to the cache
@@ -1283,7 +1550,7 @@ public class JavaModelManager implements ISaveParticipant {
 			// internal resource
 			IPath location;
 			if (file.getType() != IResource.FILE || (location = file.getLocation()) == null) {
-				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("file.notFound", path.toString()), null)); //$NON-NLS-1$
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null)); 
 			}
 			fileSystemPath= location.toOSString();
 		} else {
@@ -1301,7 +1568,7 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			return zipFile;
 		} catch (IOException e) {
-			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Util.bind("status.IOException"), e)); //$NON-NLS-1$
+			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, e)); 
 		}
 	}
 	
@@ -1403,6 +1670,11 @@ public class JavaModelManager implements ISaveParticipant {
 					"	invocation stack trace:"); //$NON-NLS-1$
 				new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
 			}
+			PerformanceStats stats = null;
+			if(JavaModelManager.PERF_CONTAINER_INITIALIZER) {
+				stats = PerformanceStats.getStats(JavaModelManager.CONTAINER_INITIALIZER_PERF, this);
+				stats.startRun(containerPath + " of " + project.getPath()); //$NON-NLS-1$
+			}
 			containerPut(project, containerPath, CONTAINER_INITIALIZATION_IN_PROGRESS); // avoid initialization cycles
 			boolean ok = false;
 			try {
@@ -1431,8 +1703,13 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 				throw e;
 			} finally {
+				if(JavaModelManager.PERF_CONTAINER_INITIALIZER) {
+					stats.endRun();
+				}
 				if (!ok) {
-					containerPut(project, containerPath, null); // flush cache
+					// just remove initialization in progress and keep previous session container so as to avoid a full build
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=92588
+					containerRemoveInitializationInProgress(project, containerPath); 
 					if (CP_RESOLVE_VERBOSE) {
 						if (container == CONTAINER_INITIALIZATION_IN_PROGRESS) {
 							Util.verbose(
@@ -1480,7 +1757,45 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 		return container;
 	}
-	
+
+	/**
+	 * Initialize preferences lookups for JavaCore plugin.
+	 */
+	public void initializePreferences() {
+		
+		// Create lookups
+		preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+		preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
+
+		// Listen to instance preferences node removal from parent in order to refresh stored one
+		IEclipsePreferences.INodeChangeListener listener = new IEclipsePreferences.INodeChangeListener() {
+			public void added(IEclipsePreferences.NodeChangeEvent event) {
+				// do nothing
+			}
+			public void removed(IEclipsePreferences.NodeChangeEvent event) {
+				if (event.getChild() == preferencesLookup[PREF_INSTANCE]) {
+					preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(JavaCore.PLUGIN_ID);
+					preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
+				}
+			}
+		};
+		((IEclipsePreferences) preferencesLookup[PREF_INSTANCE].parent()).addNodeChangeListener(listener);
+		preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
+
+		// Listen to default preferences node removal from parent in order to refresh stored one
+		listener = new IEclipsePreferences.INodeChangeListener() {
+			public void added(IEclipsePreferences.NodeChangeEvent event) {
+				// do nothing
+			}
+			public void removed(IEclipsePreferences.NodeChangeEvent event) {
+				if (event.getChild() == preferencesLookup[PREF_DEFAULT]) {
+					preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(JavaCore.PLUGIN_ID);
+				}
+			}
+		};
+		((IEclipsePreferences) preferencesLookup[PREF_DEFAULT].parent()).addNodeChangeListener(listener);
+	}
+
 	public synchronized char[] intern(char[] array) {
 		return this.charArraySymbols.add(array);
 	}
@@ -1516,6 +1831,14 @@ public class JavaModelManager implements ISaveParticipant {
 	    return getClasspathBeingResolved().contains(project);
 	}
 	
+	/**
+	 * @deprecated
+	 */
+	private boolean isDeprecatedOption(String optionName) {
+		return JavaCore.COMPILER_PB_INVALID_IMPORT.equals(optionName)
+				|| JavaCore.COMPILER_PB_UNREACHABLE_CODE.equals(optionName);
+	}
+	
 	public void setClasspathBeingResolved(IJavaProject project, boolean classpathIsResolved) {
 	    if (classpathIsResolved) {
 	        getClasspathBeingResolved().add(project);
@@ -1525,7 +1848,6 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	public void loadVariablesAndContainers() throws CoreException {
-
 		// backward compatibility, consider persistent property	
 		QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "variables"); //$NON-NLS-1$
 		String xmlString = ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(qName);
@@ -1570,14 +1892,12 @@ public class JavaModelManager implements ISaveParticipant {
 			if (xmlString != null){
 				ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(qName, null); // flush old one
 			}
-			
 		}
-		
-		// load variables and containers from preferences into cache
-		IEclipsePreferences preferences = JavaCore.getInstancePreferences();
 
-		// only get variable from preferences not set to their default
+		// backward compatibility, load variables and containers from preferences into cache
+		IEclipsePreferences preferences = getInstancePreferences();
 		try {
+			// only get variable from preferences not set to their default
 			String[] propertyNames = preferences.keys();
 			int variablePrefixLength = CP_VARIABLE_PREFERENCES_PREFIX.length();
 			for (int i = 0; i < propertyNames.length; i++){
@@ -1589,17 +1909,68 @@ public class JavaModelManager implements ISaveParticipant {
 						IPath varPath = new Path(propertyValue.trim());
 						this.variables.put(varName, varPath); 
 						this.previousSessionVariables.put(varName, varPath);
+						preferences.remove(propertyName); // cleanup old preferences
 					}
-				}
-				if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
+				} else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
 					String propertyValue = preferences.get(propertyName, null);
-					if (propertyValue != null)
+					if (propertyValue != null) {
 						recreatePersistedContainer(propertyName, propertyValue, true/*add to container values*/);
+						preferences.remove(propertyName); // cleanup old preferences
+					}
 				}
 			}
 		} catch (BackingStoreException e1) {
 			// TODO (frederic) see if it's necessary to report this failure...
 		}
+
+		// load variables and containers from saved file into cache
+		File file = getVariableAndContainersFile();
+		DataInputStream in = null;
+		try {
+			in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+			if (VARIABLES_AND_CONTAINERS_FILE_VERSION == in.readInt()) {
+				
+				// variables
+				int size = in.readInt();
+				while (size-- > 0) {
+					String varName = in.readUTF();
+					String pathString = in.readUTF();
+					if (CP_ENTRY_IGNORE.equals(pathString))
+						continue;
+					IPath varPath = Path.fromPortableString(pathString);
+					this.variables.put(varName, varPath);
+					this.previousSessionVariables.put(varName, varPath);
+				}
+				
+				// containers
+				IJavaModel model = getJavaModel();
+				int projectSize = in.readInt();
+				while (projectSize-- > 0) {
+					String projectName = in.readUTF();
+					IJavaProject project = model.getJavaProject(projectName);
+					int containerSize = in.readInt();
+					while (containerSize-- > 0) {
+						IPath containerPath = Path.fromPortableString(in.readUTF());
+						int length = in.readInt();
+						byte[] containerString = new byte[length];
+						in.readFully(containerString);
+						recreatePersistedContainer(project, containerPath, new String(containerString), true/*add to container values*/);
+					}
+				}
+			}
+		} catch (IOException e) {
+			if (file.exists())
+				Util.log(e, "Unable to read variable and containers file"); //$NON-NLS-1$
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					// nothing we can do: ignore
+				}
+			}
+		}
+
 		// override persisted values for variables which have a registered initializer
 		String[] registeredVariables = getRegisteredVariableNames();
 		for (int i = 0; i < registeredVariables.length; i++) {
@@ -1672,10 +2043,10 @@ public class JavaModelManager implements ISaveParticipant {
 				try {
 					String pluginID= in.readUTF();
 					if (!pluginID.equals(JavaCore.PLUGIN_ID))
-						throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
+						throw new IOException(Messages.build_wrongFileFormat); 
 					String kind= in.readUTF();
 					if (!kind.equals("STATE")) //$NON-NLS-1$
-						throw new IOException(Util.bind("build.wrongFileFormat")); //$NON-NLS-1$
+						throw new IOException(Messages.build_wrongFileFormat); 
 					if (in.readBoolean())
 						return JavaBuilder.readState(project, in);
 					if (JavaBuilder.DEBUG)
@@ -1687,6 +2058,11 @@ public class JavaModelManager implements ISaveParticipant {
 				e.printStackTrace();
 				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Error reading last build state for project "+ project.getName(), e)); //$NON-NLS-1$
 			}
+		} else if (JavaBuilder.DEBUG) {
+			if (file == null)
+				System.out.println("Project does not exist: " + project); //$NON-NLS-1$
+			else
+				System.out.println("Build state file " + file.getPath() + " does not exist"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return null;
 	}
@@ -1696,44 +2072,47 @@ public class JavaModelManager implements ISaveParticipant {
 		int index = propertyName.indexOf('|', containerPrefixLength);
 		if (containerString != null) containerString = containerString.trim();
 		if (index > 0) {
-			final String projectName = propertyName.substring(containerPrefixLength, index).trim();
-			JavaProject project = (JavaProject)getJavaModelManager().getJavaModel().getJavaProject(projectName);
-			if (!project.getProject().isAccessible()) return; // avoid leaking deleted project's persisted container
-			final IPath containerPath = new Path(propertyName.substring(index+1).trim());
-			
-			if (containerString == null || containerString.equals(CP_ENTRY_IGNORE)) {
-				getJavaModelManager().containerPut(project, containerPath, null);
-			} else {
-				final IClasspathEntry[] containerEntries = project.decodeClasspath(containerString, false, false);
-				if (containerEntries != null && containerEntries != JavaProject.INVALID_CLASSPATH) {
-					IClasspathContainer container = new IClasspathContainer() {
-						public IClasspathEntry[] getClasspathEntries() {
-							return containerEntries;
-						}
-						public String getDescription() {
-							return "Persisted container ["+containerPath+" for project ["+ projectName+"]"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-						}
-						public int getKind() {
-							return 0; 
-						}
-						public IPath getPath() {
-							return containerPath;
-						}
-						public String toString() {
-							return getDescription();
-						}
+			String projectName = propertyName.substring(containerPrefixLength, index).trim();
+			IJavaProject project = getJavaModelManager().getJavaModel().getJavaProject(projectName);
+			IPath containerPath = new Path(propertyName.substring(index+1).trim());
+			recreatePersistedContainer(project, containerPath, containerString, addToContainerValues);
+		}
+	}
+	
+	private static void recreatePersistedContainer(final IJavaProject project, final IPath containerPath, String containerString, boolean addToContainerValues) {
+		if (!project.getProject().isAccessible()) return; // avoid leaking deleted project's persisted container	
+		if (containerString == null) {
+			getJavaModelManager().containerPut(project, containerPath, null);
+		} else {
+			final IClasspathEntry[] containerEntries = ((JavaProject) project).decodeClasspath(containerString, false, false);
+			if (containerEntries != null && containerEntries != JavaProject.INVALID_CLASSPATH) {
+				IClasspathContainer container = new IClasspathContainer() {
+					public IClasspathEntry[] getClasspathEntries() {
+						return containerEntries;
+					}
+					public String getDescription() {
+						return "Persisted container ["+containerPath+" for project ["+ project.getElementName()+"]"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					}
+					public int getKind() {
+						return 0; 
+					}
+					public IPath getPath() {
+						return containerPath;
+					}
+					public String toString() {
+						return getDescription();
+					}
 
-					};
-					if (addToContainerValues) {
-						getJavaModelManager().containerPut(project, containerPath, container);
-					}
-					Map projectContainers = (Map)getJavaModelManager().previousSessionContainers.get(project);
-					if (projectContainers == null){
-						projectContainers = new HashMap(1);
-						getJavaModelManager().previousSessionContainers.put(project, projectContainers);
-					}
-					projectContainers.put(containerPath, container);
+				};
+				if (addToContainerValues) {
+					getJavaModelManager().containerPut(project, containerPath, container);
 				}
+				Map projectContainers = (Map)getJavaModelManager().previousSessionContainers.get(project);
+				if (projectContainers == null){
+					projectContainers = new HashMap(1);
+					getJavaModelManager().previousSessionContainers.put(project, projectContainers);
+				}
+				projectContainers.put(containerPath, container);
 			}
 		}
 	}
@@ -1813,6 +2192,19 @@ public class JavaModelManager implements ISaveParticipant {
 	}
 
 	/*
+	 * Reset project options stored in info cache.
+	 */
+	public void resetProjectOptions(JavaProject javaProject) {
+		synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
+			IProject project = javaProject.getProject();
+			PerProjectInfo info= (PerProjectInfo) this.perProjectInfos.get(project);
+			if (info != null) {
+				info.options = null;
+			}
+		}
+	}
+
+	/*
 	 * Reset project preferences stored in info cache.
 	 */
 	public void resetProjectPreferences(JavaProject javaProject) {
@@ -1823,6 +2215,11 @@ public class JavaModelManager implements ISaveParticipant {
 				info.preferences = null;
 			}
 		}
+	}
+	
+	public static final void doNotUse() {
+		// used by tests to simulate a startup
+		MANAGER = new JavaModelManager();
 	}
 	
 	/*
@@ -1853,7 +2250,7 @@ public class JavaModelManager implements ISaveParticipant {
 	 */
 	private void saveBuiltState(PerProjectInfo info) throws CoreException {
 		if (JavaBuilder.DEBUG)
-			System.out.println(Util.bind("build.saveStateProgress", info.project.getName())); //$NON-NLS-1$
+			System.out.println(Messages.bind(Messages.build_saveStateProgress, info.project.getName())); 
 		File file = getSerializationFile(info.project);
 		if (file == null) return;
 		long t = System.currentTimeMillis();
@@ -1879,7 +2276,7 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			throw new CoreException(
 				new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR,
-					Util.bind("build.cannotSaveState", info.project.getName()), e)); //$NON-NLS-1$
+					Messages.bind(Messages.build_cannotSaveState, info.project.getName()), e)); 
 		} catch (IOException e) {
 			try {
 				file.delete();
@@ -1888,52 +2285,101 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			throw new CoreException(
 				new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR,
-					Util.bind("build.cannotSaveState", info.project.getName()), e)); //$NON-NLS-1$
+					Messages.bind(Messages.build_cannotSaveState, info.project.getName()), e)); 
 		}
 		if (JavaBuilder.DEBUG) {
 			t = System.currentTimeMillis() - t;
-			System.out.println(Util.bind("build.saveStateComplete", String.valueOf(t))); //$NON-NLS-1$
+			System.out.println(Messages.bind(Messages.build_saveStateComplete, String.valueOf(t))); 
 		}
 	}
-
+	
+	private void saveVariablesAndContainers() throws CoreException {
+		File file = getVariableAndContainersFile();
+		DataOutputStream out = null;
+		try {
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+			out.writeInt(VARIABLES_AND_CONTAINERS_FILE_VERSION);
+			
+			// variables
+			out.writeInt(this.variables.size());
+			Iterator variableNames = this.variables.keySet().iterator();
+			while (variableNames.hasNext()) {
+				String variableName = (String) variableNames.next();
+				out.writeUTF(variableName);
+				IPath path = (IPath) this.variables.get(variableName);
+				out.writeUTF(path == null ? CP_ENTRY_IGNORE : path.toPortableString());
+			}
+			
+			// containers
+			IJavaProject[] projects = getJavaModel().getJavaProjects();
+			int length = projects.length;
+			out.writeInt(length);
+			for (int i = 0; i < length; i++) {
+			    IJavaProject project = projects[i];
+				// clone while iterating (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59638)
+				Map projectContainers = containerClone(project);
+				out.writeUTF(project.getElementName());
+				if (projectContainers == null) {
+					out.writeInt(0);
+					continue;
+				}
+				HashMap containersToSave = new HashMap();
+				for (Iterator iterator = projectContainers.keySet().iterator(); iterator.hasNext();) {
+				    IPath containerPath = (IPath) iterator.next();
+				    IClasspathContainer container = (IClasspathContainer) projectContainers.get(containerPath);
+					String containerString = null;
+					try {
+						if (container == null) {
+							// container has not been initialized yet, use previous session value
+							// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=73969)
+							container = getPreviousSessionContainer(containerPath, project);
+						}
+						if (container != null) {
+							IClasspathEntry[] entries = container.getClasspathEntries();
+							containerString = ((JavaProject)project).encodeClasspath(
+									entries, 
+									null, 
+									false);
+						}
+					} catch(JavaModelException e){
+						// could not encode entry: will not persist
+						Util.log(e, "Could not persist container " + containerPath + " for project " + project.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					if (containerString != null)
+						containersToSave.put(containerPath, containerString);
+				}
+				out.writeInt(containersToSave.size());
+				Iterator iterator = containersToSave.keySet().iterator();
+				while (iterator.hasNext()) {
+					IPath containerPath = (IPath) iterator.next();
+					out.writeUTF(containerPath.toPortableString());
+					String containerString = (String) containersToSave.get(containerPath);
+					out.writeInt(containerString.length());
+					out.writeBytes(containerString);
+				}
+			}
+			
+		} catch (IOException e) {
+			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving variables and containers", e); //$NON-NLS-1$
+			throw new CoreException(status);
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					// nothing we can do: ignore
+				}
+			}
+		}
+	}
+	
 	/**
 	 * @see ISaveParticipant
 	 */
 	public void saving(ISaveContext context) throws CoreException {
 		
-	    // save container values on snapshot/full save
-		IJavaProject[] projects = getJavaModel().getJavaProjects();
-		for (int i = 0, length = projects.length; i < length; i++) {
-		    IJavaProject project = projects[i];
-			// clone while iterating (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59638)
-			Map projectContainers = containerClone(project);
-			if (projectContainers == null) continue;
-			for (Iterator keys = projectContainers.keySet().iterator(); keys.hasNext();) {
-			    IPath containerPath = (IPath) keys.next();
-			    IClasspathContainer container = (IClasspathContainer) projectContainers.get(containerPath);
-				String containerKey = CP_CONTAINER_PREFERENCES_PREFIX+project.getElementName() +"|"+containerPath;//$NON-NLS-1$
-				String containerString = CP_ENTRY_IGNORE;
-				try {
-					if (container != null) {
-						containerString = ((JavaProject)project).encodeClasspath(
-								container.getClasspathEntries(), 
-								null, 
-								false);
-					}
-				} catch(JavaModelException e){
-					// could not encode entry: leave it as CP_ENTRY_IGNORE
-				}
-				JavaCore.getDefaultPreferences().put(containerKey, CP_ENTRY_IGNORE); // TODO (frederic) verify if this is really necessary...
-				JavaCore.getInstancePreferences().put(containerKey, containerString);
-			}
-		}
-		try {
-			JavaCore.getInstancePreferences().flush();
-		} catch (BackingStoreException e) {
-			// TODO (frederic) see if it's necessary to report this exception
-			// IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving context", e); //$NON-NLS-1$
-			// throw new CoreException(status);
-		}
+	    // save variable and container values on snapshot/full save
+		saveVariablesAndContainers();
 		
 		if (context.getKind() == ISaveContext.FULL_SAVE) {
 			// will need delta since this save (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658)
@@ -1942,7 +2388,10 @@ public class JavaModelManager implements ISaveParticipant {
 			// clean up indexes on workspace full save
 			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=52347)
 			IndexManager manager = this.indexManager;
-			if (manager != null) {
+			if (manager != null 
+					// don't force initialization of workspace scope as we could be shutting down
+					// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93941)
+					&& this.workspaceScope != null) { 
 				manager.cleanUpIndexes();
 			}
 		}
@@ -1952,14 +2401,16 @@ public class JavaModelManager implements ISaveParticipant {
 			if (!JavaProject.hasJavaNature(savedProject)) return; // ignore
 			PerProjectInfo info = getPerProjectInfo(savedProject, true /* create info */);
 			saveState(info, context);
+			info.rememberExternalLibTimestamps();
 			return;
 		}
-
+	
 		ArrayList vStats= null; // lazy initialized
 		for (Iterator iter =  this.perProjectInfos.values().iterator(); iter.hasNext();) {
 			try {
 				PerProjectInfo info = (PerProjectInfo) iter.next();
 				saveState(info, context);
+				info.rememberExternalLibTimestamps();
 			} catch (CoreException e) {
 				if (vStats == null)
 					vStats= new ArrayList();
@@ -1969,8 +2420,11 @@ public class JavaModelManager implements ISaveParticipant {
 		if (vStats != null) {
 			IStatus[] stats= new IStatus[vStats.size()];
 			vStats.toArray(stats);
-			throw new CoreException(new MultiStatus(JavaCore.PLUGIN_ID, IStatus.ERROR, stats, Util.bind("build.cannotSaveStates"), null)); //$NON-NLS-1$
+			throw new CoreException(new MultiStatus(JavaCore.PLUGIN_ID, IStatus.ERROR, stats, Messages.build_cannotSaveStates, null)); 
 		}
+		
+		// save external libs timestamps
+		this.deltaState.saveExternalLibTimeStamps();
 	}
 
 	/**
@@ -2048,11 +2502,134 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 	}
+	
+	public void setOptions(Hashtable newOptions) {
+		
+		try {
+			IEclipsePreferences defaultPreferences = getDefaultPreferences();
+			IEclipsePreferences instancePreferences = getInstancePreferences();
+
+			if (newOptions == null){
+				instancePreferences.clear();
+			} else {
+				Enumeration keys = newOptions.keys();
+				while (keys.hasMoreElements()){
+					String key = (String)keys.nextElement();
+					if (!this.optionNames.contains(key)) continue; // unrecognized option
+					if (key.equals(JavaCore.CORE_ENCODING)) continue; // skipped, contributed by resource prefs
+					String value = (String)newOptions.get(key);
+					String defaultValue = defaultPreferences.get(key, null);
+					if (defaultValue != null && defaultValue.equals(value)) {
+						instancePreferences.remove(key);
+					} else {
+						instancePreferences.put(key, value);
+					}
+				}
+			}
+
+			// persist options
+			instancePreferences.flush();
+			
+			// update cache
+			this.optionsCache = newOptions==null ? null : new Hashtable(newOptions);
+		} catch (BackingStoreException e) {
+			// ignore
+		}
+	}
+		
+	public void startup() throws CoreException {
+		try {
+			configurePluginDebugOptions();
+
+			// request state folder creation (workaround 19885)
+			JavaCore.getPlugin().getStateLocation();
+
+			// Initialize eclipse preferences
+			initializePreferences();
+
+			// Listen to preference changes
+			Preferences.IPropertyChangeListener propertyListener = new Preferences.IPropertyChangeListener() {
+				public void propertyChange(Preferences.PropertyChangeEvent event) {
+					JavaModelManager.this.optionsCache = null;
+				}
+			};
+			JavaCore.getPlugin().getPluginPreferences().addPropertyChangeListener(propertyListener);
+
+			// retrieve variable values
+			loadVariablesAndContainers();
+
+			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			workspace.addResourceChangeListener(
+				this.deltaState,
+				IResourceChangeEvent.PRE_BUILD
+					| IResourceChangeEvent.POST_BUILD
+					| IResourceChangeEvent.POST_CHANGE
+					| IResourceChangeEvent.PRE_DELETE
+					| IResourceChangeEvent.PRE_CLOSE);
+
+			startIndexing();
+			
+			// process deltas since last activated in indexer thread so that indexes are up-to-date.
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=38658
+			Job processSavedState = new Job(Messages.savedState_jobName) { 
+				protected IStatus run(IProgressMonitor monitor) {
+					try {
+						// add save participant and process delta atomically
+						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=59937
+						workspace.run(
+							new IWorkspaceRunnable() {
+								public void run(IProgressMonitor progress) throws CoreException {
+									ISavedState savedState = workspace.addSaveParticipant(JavaCore.getJavaCore(), JavaModelManager.this);
+									if (savedState != null) {
+										// the event type coming from the saved state is always POST_AUTO_BUILD
+										// force it to be POST_CHANGE so that the delta processor can handle it
+										JavaModelManager.this.deltaState.getDeltaProcessor().overridenEventType = IResourceChangeEvent.POST_CHANGE;
+										savedState.processResourceChangeEvents(JavaModelManager.this.deltaState);
+									}
+								}
+							},
+							monitor);
+					} catch (CoreException e) {
+						return e.getStatus();
+					}
+					return Status.OK_STATUS;
+				}
+			};
+			processSavedState.setSystem(true);
+			processSavedState.setPriority(Job.SHORT); // process asap
+			processSavedState.schedule();
+		} catch (RuntimeException e) {
+			shutdown();
+			throw e;
+		}
+	}
+
+	/**
+	 * Initiate the background indexing process.
+	 * This should be deferred after the plugin activation.
+	 */
+	private void startIndexing() {
+		getIndexManager().reset();
+	}
 
 	public void shutdown () {
+		JavaCore javaCore = JavaCore.getJavaCore();
+		javaCore.savePluginPreferences();
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		workspace.removeResourceChangeListener(this.deltaState);
+		workspace.removeSaveParticipant(javaCore);
+	
 		if (this.indexManager != null){ // no more indexing
 			this.indexManager.shutdown();
 		}
+		
+		// wait for the initialization job to finish
+		try {
+			Platform.getJobManager().join(JavaCore.PLUGIN_ID, null);
+		} catch (InterruptedException e) {
+			// ignore
+		}
+		
 		// Note: no need to close the Java model as this just removes Java element infos from the Java model cache
 	}
 		
@@ -2081,6 +2658,9 @@ public class JavaModelManager implements ISaveParticipant {
 				"	variables: " + org.eclipse.jdt.internal.compiler.util.Util.toString(variableNames) + '\n' +//$NON-NLS-1$
 				"	values: " + org.eclipse.jdt.internal.compiler.util.Util.toString(variablePaths)); //$NON-NLS-1$
 		}
+		
+		if (variablePutIfInitializingWithSameValue(variableNames, variablePaths))
+			return;
 
 		int varLength = variableNames.length;
 		
@@ -2192,7 +2772,7 @@ public class JavaModelManager implements ISaveParticipant {
 								affectedProject
 									.setRawClasspath(
 										affectedProject.getRawClasspath(),
-										SetClasspathOperation.REUSE_PATH,
+										SetClasspathOperation.DO_NOT_SET_OUTPUT,
 										null, // don't call beginTask on the monitor (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=3717)
 										canChangeResources, 
 										(IClasspathEntry[]) affectedProjectClasspaths.get(affectedProject),
@@ -2264,17 +2844,22 @@ public class JavaModelManager implements ISaveParticipant {
 			// discard obsoleted information about previous session
 			this.previousSessionVariables.remove(variableName);
 		}
-
-		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
-		String variableString = variablePath == null ? CP_ENTRY_IGNORE : variablePath.toString();
-		JavaCore.getDefaultPreferences().put(variableKey, CP_ENTRY_IGNORE); // TODO (frederic) verify if this is really necessary...
-		JavaCore.getInstancePreferences().put(variableKey, variableString);
-		try {
-			JavaCore.getInstancePreferences().flush();
-		} catch (BackingStoreException e) {
-			// TODO (frederic) see if it's necessary to report this exception
-//			IStatus status = new Status(IStatus.ERROR, Platform.PI_RUNTIME, IStatus.ERROR, "Problems while saving context", e); //$NON-NLS-1$
-//			throw new CoreException(status);
-		}
+	}
+	
+	/*
+	 * Optimize startup case where 1 variable is initialized at a time with the same value as on shutdown.
+	 */
+	public boolean variablePutIfInitializingWithSameValue(String[] variableNames, IPath[] variablePaths) {
+		if (variableNames.length != 1)
+			return false;
+		String variableName = variableNames[0];
+		IPath oldPath = getPreviousSessionVariable(variableName);
+		if (oldPath == null)
+			return false;
+		IPath newPath = variablePaths[0];
+		if (!oldPath.equals(newPath))
+			return false;
+		variablePut(variableName, newPath);
+		return true;
 	}
 }

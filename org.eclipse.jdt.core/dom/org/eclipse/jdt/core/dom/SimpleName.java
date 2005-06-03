@@ -171,6 +171,7 @@ public class SimpleName extends Name {
 	 * @exception IllegalArgumentException if the identifier is invalid
 	 */ 
 	public void setIdentifier(String identifier) {
+		// update internalSetIdentifier if this is changed
 		if (identifier == null) {
 			throw new IllegalArgumentException();
 		}
@@ -199,6 +200,15 @@ public class SimpleName extends Name {
 		postValueChange(IDENTIFIER_PROPERTY);
 	}
 
+	/* (omit javadoc for this method)
+	 * This method is a copy of setIdentifier(String) that doesn't do any validation.
+	 */
+	void internalSetIdentifier(String ident) {
+		preValueChange(IDENTIFIER_PROPERTY);
+		this.identifier = ident;
+		postValueChange(IDENTIFIER_PROPERTY);
+	}
+	
 	/**
 	 * Returns whether this simple name represents a name that is being defined,
 	 * as opposed to one being referenced. The following positions are considered

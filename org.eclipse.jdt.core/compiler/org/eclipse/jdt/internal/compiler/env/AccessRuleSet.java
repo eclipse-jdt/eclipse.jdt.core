@@ -25,6 +25,10 @@ public class AccessRuleSet {
 	public AccessRuleSet(AccessRule[] accessRules) {
 		this.accessRules = accessRules;
 	}
+	public AccessRuleSet(AccessRule[] accessRules, String messageTemplate) {
+		this.accessRules = accessRules;
+		this.messageTemplate = messageTemplate;
+	}
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -70,12 +74,22 @@ public class AccessRuleSet {
 	}
 	
 	public String toString() {
+		return toString(true/*wrap lines*/);
+	}
+	
+	public String toString(boolean wrap) {
 		StringBuffer buffer = new StringBuffer(200);
 		buffer.append("AccessRuleSet {"); //$NON-NLS-1$
+		if (wrap)
+			buffer.append('\n');
 		for (int i = 0, length = this.accessRules.length; i < length; i++) {
+			if (wrap)
+				buffer.append('\t');
 			AccessRule accessRule = this.accessRules[i];
 			buffer.append(accessRule);
-			if (i < length-1)
+			if (wrap)
+				buffer.append('\n');
+			else if (i < length-1)
 				buffer.append(", "); //$NON-NLS-1$
 		}
 		buffer

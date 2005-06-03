@@ -14,12 +14,14 @@ import java.io.File;
 import java.io.IOException;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -34,27 +36,17 @@ public class ExternalJarDeltaTests extends ModifyingResourceTests {
 public ExternalJarDeltaTests(String name) {
 	super(name);
 }
-
 public static Test suite() {
-	TestSuite suite = new Suite(ExternalJarDeltaTests.class.getName());
-	
-	suite.addTest(new ExternalJarDeltaTests("testExternalJar0"));
-
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarChanged1"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarChanged2"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarChanged3"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarAdded1"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarAdded2"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarAdded3"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarRemoved1"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarRemoved2"));
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarRemoved3"));
-	
-	suite.addTest(new ExternalJarDeltaTests("testExternalJarInternalExternalJar"));
-	
-	return suite;
+	return buildTestSuite(ExternalJarDeltaTests.class);
 }
-
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+//		TESTS_PREFIX =  "testBug79990";
+//		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
+//		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
+//		TESTS_RANGE = new int[] { 83304, -1 };
+}
 private void touch(File f) {
 	f.setLastModified(f.lastModified() + 10000);
 }
@@ -71,9 +63,10 @@ public void testExternalJar0() throws CoreException, IOException {
 		
 		f = new File(pPath);
 		f.createNewFile();
-		this.getJavaModel().refreshExternalArchives(null,null);
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
 		
-		this.startDeltas();
+		startDeltas();
 		touch(f);
 		
 		assertDeltas(
@@ -102,11 +95,12 @@ public void testExternalJarChanged1() throws CoreException, IOException {
 		
 		f = new File(pPath);
 		f.createNewFile();
-		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
 		
 		touch(f);
-		this.getJavaModel().refreshExternalArchives(null,null);
+		getJavaModel().refreshExternalArchives(null,null);
 		
 		assertDeltas(
 			"Unexpected delta", 
@@ -134,11 +128,12 @@ public void testExternalJarChanged2() throws CoreException, IOException {
 		
 		f = new File(pPath);
 		f.createNewFile();
-		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
 		
 		touch(f);
-		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
+		getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
 		
 		assertDeltas(
 			"Unexpected delta", 
@@ -166,12 +161,134 @@ public void testExternalJarChanged3() throws CoreException, IOException {
 		
 		f = new File(pPath);
 		f.createNewFile();
-		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
 
 		touch(f);
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(pPath);
-		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
+		getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
+		
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n"+
+			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		if(f != null) {
+			deleteFile(f);
+		}
+		this.deleteProject("P");
+		this.stopDeltas();
+	}
+}
+/**
+ * Refresh the JavaModel after a modification of an external jar after shutdown.
+ * (regression test for bug 39856 External jar's timestamps should be persisted accross sessions)
+ */
+public void testExternalJarChanged4() throws CoreException, IOException {
+	File f = null;
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
+		
+		String pPath = getExternalPath() + "p.jar";
+		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		
+		f = new File(pPath);
+		f.createNewFile();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		
+		// exit, change the jar, and restart
+		simulateExit();
+		touch(f);
+		simulateRestart();
+
+		startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n"+
+			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		if(f != null) {
+			deleteFile(f);
+		}
+		this.deleteProject("P");
+		this.stopDeltas();
+	}
+}
+/**
+ * Ensure that the external jars are refreshed by a call to JavaCore#initializeAfterLoad()
+ * (regression test for bug 93668 Search indexes not rebuild)
+ */
+public void testExternalJarChanged5() throws CoreException, IOException {
+	File f = null;
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
+		
+		String pPath = getExternalPath() + "p.jar";
+		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		
+		f = new File(pPath);
+		f.createNewFile();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		
+		// exit, change the jar, and restart
+		simulateExit();
+		touch(f);
+		simulateRestart();
+
+		startDeltas();
+		JavaCore.initializeAfterLoad(null);
+		try {
+			Platform.getJobManager().join(JavaCore.PLUGIN_ID, null);
+		} catch (OperationCanceledException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		assertDeltas(
+			"Unexpected delta", 
+			"P[*]: {CHILDREN}\n"+
+			"	"+f.getCanonicalPath()+"[*]: {CONTENT | ARCHIVE CONTENT CHANGED}"
+		);
+	} finally {
+		if(f != null) {
+			deleteFile(f);
+		}
+		this.deleteProject("P");
+		this.stopDeltas();
+	}
+}
+/**
+ * Ensure that the external jars are refreshed by full build
+ * (regression test for bug 93668 Search indexes not rebuild)
+ */
+public void testExternalJarChanged6() throws CoreException, IOException {
+	File f = null;
+	try {
+		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
+		
+		String pPath = getExternalPath() + "p.jar";
+		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
+		
+		f = new File(pPath);
+		f.createNewFile();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		
+		// exit, change the jar, and restart
+		simulateExit();
+		touch(f);
+		simulateRestart();
+
+		startDeltas();
+		getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		
 		assertDeltas(
 			"Unexpected delta", 
@@ -197,12 +314,13 @@ public void testExternalJarAdded1() throws CoreException, IOException {
 		String pPath = getExternalPath() + "pAdded1.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
-		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
 		
 		f = new File(pPath);
 		f.createNewFile();
-		this.getJavaModel().refreshExternalArchives(null,null);
+		getJavaModel().refreshExternalArchives(null,null);
 		
 		assertDeltas(
 			"Unexpected delta", 
@@ -228,12 +346,13 @@ public void testExternalJarAdded2() throws CoreException, IOException {
 		String pPath = getExternalPath() + "pAdded2.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
-		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
 		
 		f = new File(pPath);
 		f.createNewFile();
-		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
+		getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
 		
 		assertDeltas(
 			"Unexpected delta", 
@@ -259,13 +378,14 @@ public void testExternalJarAdded3() throws CoreException, IOException {
 		String pPath = getExternalPath() + "pAdded3.jar";
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
 		
-		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
 		
 		f = new File(pPath);
 		f.createNewFile();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(pPath);
-		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
+		getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
 		
 		assertDeltas(
 			"Unexpected delta", 
@@ -293,11 +413,12 @@ public void testExternalJarRemoved1() throws CoreException, IOException {
 		
 		f = new File(pPath);
 		f.createNewFile();
-		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
 		
 		deleteFile(f);
-		this.getJavaModel().refreshExternalArchives(null,null);
+		getJavaModel().refreshExternalArchives(null,null);
 		
 		assertDeltas(
 			"Unexpected delta", 
@@ -325,11 +446,12 @@ public void testExternalJarRemoved2() throws CoreException, IOException {
 		
 		f = new File(pPath);
 		f.createNewFile();
-		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
 		
 		deleteFile(f);
-		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
+		getJavaModel().refreshExternalArchives(new IJavaElement[]{project},null);
 		
 		assertDeltas(
 			"Unexpected delta", 
@@ -357,12 +479,13 @@ public void testExternalJarRemoved3() throws CoreException, IOException {
 		
 		f = new File(pPath);
 		f.createNewFile();
-		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
 		
 		deleteFile(f);
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(pPath);
-		this.getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
+		getJavaModel().refreshExternalArchives(new IJavaElement[]{root},null);
 		
 		assertDeltas(
 			"Unexpected delta", 
@@ -391,8 +514,9 @@ public void testExternalJarInternalExternalJar() throws CoreException, IOExcepti
 		IFile fooIFile = this.createFile(internalFooPath, new byte[0]);
 		
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(internalFooPath), null, null)});
-		this.getJavaModel().refreshExternalArchives(null,null);
-		this.startDeltas();
+		getJavaModel().refreshExternalArchives(null,null);
+		waitUntilIndexesReady();
+		startDeltas();
 		
 		IPath externalFooPath = fooIFile.getLocation();
 		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(externalFooPath, null, null)});
@@ -401,7 +525,7 @@ public void testExternalJarInternalExternalJar() throws CoreException, IOExcepti
 		f.createNewFile();
 		touch(f);
 		
-		this.getJavaModel().refreshExternalArchives(null,null);
+		getJavaModel().refreshExternalArchives(null,null);
 		
 		String externalFooPathString = f.getCanonicalPath();
 		assertDeltas(

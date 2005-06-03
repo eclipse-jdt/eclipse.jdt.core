@@ -114,7 +114,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	this.fPackage = packageBinding;
 	this.fileName = binaryType.getFileName();
 
-	char[] typeSignature = environment.options.sourceLevel >= ClassFileConstants.JDK1_5 ? binaryType.getGenericSignature() : null;
+	char[] typeSignature = environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_5 ? binaryType.getGenericSignature() : null;
 	this.typeVariables = typeSignature != null && typeSignature.length > 0 && typeSignature[0] == '<'
 		? null // is initialized in cachePartsFrom (called from LookupEnvironment.createBinaryTypeFrom())... must set to null so isGenericType() answers true
 		: NoTypeVariables;
@@ -198,7 +198,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			this.modifiers |= AccDeprecatedImplicitly;
 	}
 
-	long sourceLevel = environment.options.sourceLevel;
+	long sourceLevel = environment.globalOptions.sourceLevel;
 	char[] typeSignature = null;
 	if (sourceLevel >= ClassFileConstants.JDK1_5) {
 		typeSignature = binaryType.getGenericSignature();
@@ -378,6 +378,8 @@ private void createFields(IBinaryField[] iFields, long sourceLevel) {
 					field.tagBits |= binaryField.getTagBits();
 				if (isViewedAsDeprecated && !field.isDeprecated())
 					field.modifiers |= AccDeprecatedImplicitly;
+				if (fieldSignature != null)
+					field.modifiers |= AccGenericSignature;
 				this.fields[i] = field;
 			}
 		}
@@ -444,6 +446,7 @@ private MethodBinding createMethod(IBinaryMethod method, long sourceLevel) {
 		if (!method.isConstructor())
 			returnType = environment.getTypeFromSignature(methodDescriptor, index + 1, -1, false, this);   // index is currently pointing at the ')'
 	} else {
+		methodModifiers |= AccGenericSignature;
 		// MethodTypeSignature = ParameterPart(optional) '(' TypeSignatures ')' return_typeSignature ['^' TypeSignature (optional)]
 		SignatureWrapper wrapper = new SignatureWrapper(methodSignature);
 		if (wrapper.signature[wrapper.start] == '<') {
@@ -925,72 +928,75 @@ public IAnnotationInstance[] getAnnotations()
 }
 
 public String toString() {
-	String s = ""; //$NON-NLS-1$
+	StringBuffer buffer = new StringBuffer();
 
-	if (isDeprecated()) s += "deprecated "; //$NON-NLS-1$
-	if (isPublic()) s += "public "; //$NON-NLS-1$
-	if (isProtected()) s += "protected "; //$NON-NLS-1$
-	if (isPrivate()) s += "private "; //$NON-NLS-1$
-	if (isAbstract() && isClass()) s += "abstract "; //$NON-NLS-1$
-	if (isStatic() && isNestedType()) s += "static "; //$NON-NLS-1$
-	if (isFinal()) s += "final "; //$NON-NLS-1$
+	if (isDeprecated()) buffer.append("deprecated "); //$NON-NLS-1$
+	if (isPublic()) buffer.append("public "); //$NON-NLS-1$
+	if (isProtected()) buffer.append("protected "); //$NON-NLS-1$
+	if (isPrivate()) buffer.append("private "); //$NON-NLS-1$
+	if (isAbstract() && isClass()) buffer.append("abstract "); //$NON-NLS-1$
+	if (isStatic() && isNestedType()) buffer.append("static "); //$NON-NLS-1$
+	if (isFinal()) buffer.append("final "); //$NON-NLS-1$
 
-	s += isInterface() ? "interface " : "class "; //$NON-NLS-1$ //$NON-NLS-2$
-	s += (compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE"; //$NON-NLS-1$
+	if (isEnum()) buffer.append("enum "); //$NON-NLS-1$
+	else if (isAnnotationType()) buffer.append("@interface "); //$NON-NLS-1$
+	else if (isClass()) buffer.append("class "); //$NON-NLS-1$
+	else buffer.append("interface "); //$NON-NLS-1$	
+	buffer.append((compoundName != null) ? CharOperation.toString(compoundName) : "UNNAMED TYPE"); //$NON-NLS-1$
 
-	s += "\n\textends "; //$NON-NLS-1$
-	s += (superclass != null) ? superclass.debugName() : "NULL TYPE"; //$NON-NLS-1$
+	buffer.append("\n\textends "); //$NON-NLS-1$
+	buffer.append((superclass != null) ? superclass.debugName() : "NULL TYPE"); //$NON-NLS-1$
 
 	if (superInterfaces != null) {
 		if (superInterfaces != NoSuperInterfaces) {
-			s += "\n\timplements : "; //$NON-NLS-1$
+			buffer.append("\n\timplements : "); //$NON-NLS-1$
 			for (int i = 0, length = superInterfaces.length; i < length; i++) {
 				if (i  > 0)
-					s += ", "; //$NON-NLS-1$
-				s += (superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE"; //$NON-NLS-1$
+					buffer.append(", "); //$NON-NLS-1$
+				buffer.append((superInterfaces[i] != null) ? superInterfaces[i].debugName() : "NULL TYPE"); //$NON-NLS-1$
 			}
 		}
 	} else {
-		s += "NULL SUPERINTERFACES"; //$NON-NLS-1$
+		buffer.append("NULL SUPERINTERFACES"); //$NON-NLS-1$
 	}
 
 	if (enclosingType != null) {
-		s += "\n\tenclosing type : "; //$NON-NLS-1$
-		s += enclosingType.debugName();
+		buffer.append("\n\tenclosing type : "); //$NON-NLS-1$
+		buffer.append(enclosingType.debugName());
 	}
 
 	if (fields != null) {
 		if (fields != NoFields) {
-			s += "\n/*   fields   */"; //$NON-NLS-1$
+			buffer.append("\n/*   fields   */"); //$NON-NLS-1$
 			for (int i = 0, length = fields.length; i < length; i++)
-				s += (fields[i] != null) ? "\n" + fields[i].toString() : "\nNULL FIELD"; //$NON-NLS-1$ //$NON-NLS-2$
+				buffer.append((fields[i] != null) ? "\n" + fields[i].toString() : "\nNULL FIELD"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
-		s += "NULL FIELDS"; //$NON-NLS-1$
+		buffer.append("NULL FIELDS"); //$NON-NLS-1$
 	}
 
 	if (methods != null) {
 		if (methods != NoMethods) {
-			s += "\n/*   methods   */"; //$NON-NLS-1$
+			buffer.append("\n/*   methods   */"); //$NON-NLS-1$
 			for (int i = 0, length = methods.length; i < length; i++)
-				s += (methods[i] != null) ? "\n" + methods[i].toString() : "\nNULL METHOD"; //$NON-NLS-1$ //$NON-NLS-2$
+				buffer.append((methods[i] != null) ? "\n" + methods[i].toString() : "\nNULL METHOD"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
-		s += "NULL METHODS"; //$NON-NLS-1$
+		buffer.append("NULL METHODS"); //$NON-NLS-1$
 	}
 
 	if (memberTypes != null) {
 		if (memberTypes != NoMemberTypes) {
-			s += "\n/*   members   */"; //$NON-NLS-1$
+			buffer.append("\n/*   members   */"); //$NON-NLS-1$
 			for (int i = 0, length = memberTypes.length; i < length; i++)
-				s += (memberTypes[i] != null) ? "\n" + memberTypes[i].toString() : "\nNULL TYPE"; //$NON-NLS-1$ //$NON-NLS-2$
+				buffer.append((memberTypes[i] != null) ? "\n" + memberTypes[i].toString() : "\nNULL TYPE"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
-		s += "NULL MEMBER TYPES"; //$NON-NLS-1$
+		buffer.append("NULL MEMBER TYPES"); //$NON-NLS-1$
 	}
 
-	s += "\n\n\n"; //$NON-NLS-1$
-	return s;
+	buffer.append("\n\n\n"); //$NON-NLS-1$
+	return buffer.toString();
 }
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
 	return methods;

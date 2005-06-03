@@ -17,23 +17,27 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IInitializer;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.AssertStatement;
@@ -41,6 +45,7 @@ import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
@@ -57,6 +62,7 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -68,6 +74,7 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
@@ -96,13 +103,12 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		super(name);
 	}
 
+	static {
+//		TESTS_NAMES = new String[] {"test0602"};
+//		TESTS_NUMBERS =  new int[] { 608, 609 };
+	}
 	public static Test suite() {
-		if (true) {
-			return new Suite(ASTConverterTestAST3_2.class);		
-		}
-		TestSuite suite = new Suite(ASTConverterTestAST3_2.class.getName());
-		suite.addTest(new ASTConverterTestAST3_2("test0601"));
-		return suite;
+		return buildTestSuite(ASTConverterTestAST3_2.class);
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22560
@@ -1085,7 +1091,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertProblemsSize(unit, 1, "The type A.CInner is not visible"); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1094,13 +1100,13 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		SimpleType simpleType = (SimpleType) type;
 		Name name = simpleType.getName();
 		IBinding binding = name.resolveBinding();
-		assertNull("Got a binding", binding);
+		assertNotNull("No binding", binding);
 		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, name.getNodeType());
 		QualifiedName qualifiedName = (QualifiedName) name;
 		SimpleName simpleName = qualifiedName.getName();
 		assertEquals("wrong name", "CInner", simpleName.getIdentifier());
 		IBinding binding2 = simpleName.resolveBinding();
-		assertNull("Got a binding", binding2);
+		assertNotNull("No binding", binding2);
 	}	
 
 	/**
@@ -1111,7 +1117,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertProblemsSize(unit, 1, "The type CInner is not visible"); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -1122,7 +1128,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
 		SimpleName simpleName = (SimpleName) name;
 		IBinding binding = simpleName.resolveBinding();
-		assertNull("No binding", binding);
+		assertNotNull("No binding", binding);
 	}
 
 	/**
@@ -3006,7 +3012,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		FieldDeclaration fieldDeclaration = typeDeclaration.getFields()[0];
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fieldDeclaration.fragments().get(0);
 		IVariableBinding fieldBinding = fragment.resolveBinding();
-		assertEquals("Unexpected key", "Ltest0502/A$206;.field", fieldBinding.getKey()); //$NON-NLS-1$
+		assertEquals("Unexpected key", "Ltest0502/A$206;.field)I", fieldBinding.getKey()); //$NON-NLS-1$
 	}	
 
 	/**
@@ -5460,7 +5466,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	public void test0580() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
-			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/p/X.java", true/*resolve*/);
 			String source = "package p;\n" +
 			"public class X {\n" +
 			"	d String[][]tab;\n" +
@@ -5493,7 +5499,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	public void test0581() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
-			workingCopy = getWorkingCopy("/Converter15/src/p/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/p/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				"package p;\n" +
 				"public class X {\n" +
@@ -5551,7 +5557,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\000\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5583,7 +5589,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\u0020\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5615,7 +5621,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\b\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5647,7 +5653,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\t\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5679,7 +5685,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\n\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5711,7 +5717,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\f\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5743,7 +5749,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\r\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5775,7 +5781,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\\"\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5807,7 +5813,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\'\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5839,7 +5845,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\\\\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5871,7 +5877,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\077\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -5903,7 +5909,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return \'\\777\';\n" +
 				"	}\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy,
@@ -5956,7 +5962,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		}\n" +
 				"	}\n" +
 				"}\n";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -6053,7 +6059,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		return /*start*/1 + 2 + ++i/*end*/;\n" +
 				"	}\n" +
 				"}\n";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -6135,7 +6141,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"		}\n" +
 				"	};\n" +
 				"}";
-			workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				contents,
 				workingCopy);
@@ -6179,6 +6185,256 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			IMethodBinding methodBinding2 = methodDeclaration.resolveBinding();
 			
 			assertFalse("Bindings are equals", methodBinding.isEqualTo(methodBinding2));
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=70526
+	 */
+	public void test0602() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0602", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		compilationUnit.accept(new ASTVisitor() {
+			public boolean visit(StringLiteral stringLiteral) {
+				assertTrue("Wrong start position", stringLiteral.getStartPosition() != 0);
+				assertTrue("Wrong length", stringLiteral.getLength() != -1);
+				return false;
+			}
+		});
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=91098
+	 */
+	public void test0603() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0603", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		assertProblemsSize(compilationUnit, 0);
+		compilationUnit.accept(new ASTVisitor() {
+			public boolean visit(SimpleType type) {
+				assertFalse("start cannot be -1", type.getStartPosition() == -1);
+				assertFalse("length cannot be 0", type.getLength() == 0);
+				return false;
+			}
+			public boolean visit(ArrayType type) {
+				assertFalse("start cannot be -1", type.getStartPosition() == -1);
+				assertFalse("length cannot be 0", type.getLength() == 0);
+				return true;
+			}
+		});
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=91098
+	 */
+	public void test0604() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0604", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		assertProblemsSize(compilationUnit, 0);
+		compilationUnit.accept(new ASTVisitor() {
+			public boolean visit(SimpleType type) {
+				assertFalse("start cannot be -1", type.getStartPosition() == -1);
+				assertFalse("length cannot be 0", type.getLength() == 0);
+				return false;
+			}
+			public boolean visit(ArrayType type) {
+				assertFalse("start cannot be -1", type.getStartPosition() == -1);
+				assertFalse("length cannot be 0", type.getLength() == 0);
+				return true;
+			}
+		});
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=92059
+	 * check resolvedType binding from variable ref (of array type)
+	 */
+	public void test0605() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0605", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runJLS3Conversion(sourceUnit, true, false);
+		assertNotNull(node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 1);
+		assertEquals("Not a variable declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement varDecl = (VariableDeclarationStatement) node;
+		List fragments = varDecl.fragments();
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);		
+		Expression expression = fragment.getInitializer();
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, expression.getNodeType());
+		IBinding arraylength = ((QualifiedName)expression).resolveBinding();
+		IJavaElement element = arraylength.getJavaElement();		
+		assertNull("Shouldn't be binding for arraylength", element);
+		Name name = ((QualifiedName) expression).getQualifier();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+		ITypeBinding binding = name.resolveTypeBinding();
+		assertNotNull("No binding", binding);
+		assertTrue("No array", binding.isArray());
+
+		node = getASTNode(compilationUnit, 0, 0, 4);
+		assertEquals("Not a variable declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		varDecl = (VariableDeclarationStatement) node;
+		fragments = varDecl.fragments();
+		fragment = (VariableDeclarationFragment) fragments.get(0);		
+		expression = fragment.getInitializer();
+		assertEquals("Not a qualified name", ASTNode.QUALIFIED_NAME, expression.getNodeType());
+		name = ((QualifiedName) expression).getQualifier();
+		assertEquals("Not a simple name", ASTNode.QUALIFIED_NAME, name.getNodeType());
+		name = ((QualifiedName) name).getName();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+		ITypeBinding binding2 = name.resolveTypeBinding();
+		assertNotNull("No binding", binding2);
+		assertTrue("No array", binding2.isArray());
+		
+		assertEquals("Not same binding", binding, binding2);
+
+		node = getASTNode(compilationUnit, 0, 0, 2);
+		assertEquals("Not a variable declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		varDecl = (VariableDeclarationStatement) node;
+		fragments = varDecl.fragments();
+		fragment = (VariableDeclarationFragment) fragments.get(0);		
+		expression = fragment.getInitializer();
+		assertEquals("Not a qualified name", ASTNode.FIELD_ACCESS, expression.getNodeType());
+		expression = ((FieldAccess) expression).getExpression();
+		assertEquals("Not a simple name", ASTNode.FIELD_ACCESS, expression.getNodeType());
+		name = ((FieldAccess) expression).getName();
+		assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, name.getNodeType());
+		ITypeBinding binding3 = name.resolveTypeBinding();
+		assertNotNull("No binding", binding3);
+		assertTrue("No array", binding3.isArray());
+
+		assertEquals("Not same binding", binding, binding3);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89014
+	 */
+	public void test0606() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    int i = 0;\n" +
+				"    i += 1;\n" +
+				"    String s = \"\";\n" +
+				"    s += \"hello world\";\n" +
+				"    System.out.println(i+s);\n" +
+				"  }\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = getASTNode(compilationUnit, 0, 0, 1);
+			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+			Expression expression = ((ExpressionStatement) node).getExpression();
+			assertEquals("Not an assignment", ASTNode.ASSIGNMENT, expression.getNodeType());
+			Assignment assignment = (Assignment) expression;
+			assertEquals("Wrong operator", Assignment.Operator.PLUS_ASSIGN, assignment.getOperator());
+			ITypeBinding typeBinding = assignment.resolveTypeBinding();
+			assertNotNull("No binding", typeBinding);
+			assertEquals("Wrong type", "int", typeBinding.getQualifiedName());
+			
+			node = getASTNode(compilationUnit, 0, 0, 3);
+			assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
+			expression = ((ExpressionStatement) node).getExpression();
+			assertEquals("Not an assignment", ASTNode.ASSIGNMENT, expression.getNodeType());
+			assignment = (Assignment) expression;
+			assertEquals("Wrong operator", Assignment.Operator.PLUS_ASSIGN, assignment.getOperator());
+			typeBinding = assignment.resolveTypeBinding();
+			assertNotNull("No binding", typeBinding);
+			assertEquals("Wrong type", "java.lang.String", typeBinding.getQualifiedName());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=95262
+	 */
+	public void test0607() throws JavaModelException {
+		final char[] source = "private static Category[] values = new Category[]{v1, v2, v3};".toCharArray();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+		parser.setSource(source);
+		ASTNode root = parser.createAST(null);
+		assertNotNull("cannot be null", root);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=96698
+	 */
+	public void test0608() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    for (int /*start*/i = 0/*end*/; i < args.length; i++) {\n" +
+				"		System.out.println(args[i]);\n" +
+				"	 }\n" +
+				"  }\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a variable declaration fragment", ASTNode.VARIABLE_DECLARATION_FRAGMENT, node.getNodeType());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) node;
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			IJavaElement javaElement = variableBinding.getJavaElement();
+			assertNotNull("No java element", javaElement);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=96698
+	 */
+	public void test0609() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    int /*start*/i = 0/*end*/;\n" +
+				"	 System.out.println(i);\n" +
+				"  }\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a variable declaration fragment", ASTNode.VARIABLE_DECLARATION_FRAGMENT, node.getNodeType());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) node;
+			IVariableBinding variableBinding = fragment.resolveBinding();
+			assertNotNull("No binding", variableBinding);
+			IJavaElement javaElement = variableBinding.getJavaElement();
+			assertNotNull("No java element", javaElement);
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();

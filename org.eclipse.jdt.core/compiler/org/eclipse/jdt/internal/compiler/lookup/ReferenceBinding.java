@@ -300,6 +300,10 @@ public void computeId() {
 					else if (CharOperation.equals(typeName, JAVA_LANG_OVERRIDE[2]))
 						id = T_JavaLangOverride;
 					return;
+				case 'R' :
+					if (CharOperation.equals(typeName, JAVA_LANG_RUNTIMEEXCEPTION[2]))
+						id = 	T_JavaLangRuntimeException;
+					break;
 				case 'S' :
 					if (CharOperation.equals(typeName, JAVA_LANG_STRING[2]))
 						id = T_JavaLangString;
@@ -371,13 +375,20 @@ public void computeId() {
 			break;
 	}
 }
+/*
+ * p.X<T extends Y & I, U extends Y> {} -> Lp/X<TT;TU;>;
+ */
+public char[] computeUniqueKey(boolean isLeaf) {
+	if (!isLeaf) return signature();
+	return genericTypeSignature();
+}
 /* Answer the receiver's constant pool name.
 *
 * NOTE: This method should only be used during/after code gen.
 */
 
 public char[] constantPoolName() /* java/lang/Object */ {
-	if (constantPoolName != null) 	return constantPoolName;
+	if (constantPoolName != null) return constantPoolName;
 	return constantPoolName = CharOperation.concatWith(compoundName, '/');
 }
 public String debugName() {
@@ -529,9 +540,7 @@ public long getAnnotationTagBits() {
 public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	return null;
 }
-public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes) {
-	return getExactMethod(selector, argumentTypes, null);
-}
+
 public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes, CompilationUnitScope refScope) {
 	return null;
 }
@@ -657,24 +666,46 @@ public boolean isHierarchyBeingConnected() {
 */
 public boolean isCompatibleWith(TypeBinding otherType) {
     
-	if (otherType == this) {
-		if (isWildcard()) return false;
+	if (otherType == this) 
 		return true;
-	}
-	if (otherType.id == T_JavaLangObject)
+	if (otherType.id == T_JavaLangObject) 
 		return true;
-	if (!(otherType instanceof ReferenceBinding))
-		return false;
-	ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
-	if (this.isEquivalentTo(otherReferenceType)) return true;
-	if (otherReferenceType.isWildcard()) {
-		return false; // should have passed equivalence check above if wildcard
+	// equivalence may allow compatibility with array type through wildcard bound
+	if (this.isEquivalentTo(otherType)) 
+		return true;
+	switch (otherType.kind()) {
+		case Binding.WILDCARD_TYPE :
+			return false; // should have passed equivalence check above if wildcard
+		case Binding.TYPE_PARAMETER :
+			// check compatibility with capture of ? super X
+			if (otherType.isCapture()) {
+				CaptureBinding otherCapture = (CaptureBinding) otherType;
+				TypeBinding otherLowerBound;
+				if ((otherLowerBound = otherCapture.lowerBound) != null) {
+					if (otherLowerBound.isArrayType()) return false;
+					return this.isCompatibleWith(otherLowerBound);
+				}
+			}
+		case Binding.GENERIC_TYPE :
+		case Binding.TYPE :
+		case Binding.PARAMETERIZED_TYPE :
+		case Binding.RAW_TYPE :
+			switch (this.kind()) {
+				case Binding.GENERIC_TYPE :
+				case Binding.PARAMETERIZED_TYPE :
+				case Binding.RAW_TYPE :
+					if (this.erasure() == otherType.erasure())
+						return false; // should have passed equivalence check above if same erasure
+			}
+			ReferenceBinding otherReferenceType = (ReferenceBinding) otherType;
+			if (otherReferenceType.isInterface()) // could be annotation type
+				return implementsInterface(otherReferenceType, true);
+			if (this.isInterface())  // Explicit conversion from an interface to a class is not allowed
+				return false;
+			return otherReferenceType.isSuperclassOf(this);
+		default :
+			return false;
 	}
-	if (otherReferenceType.isInterface())
-		return implementsInterface(otherReferenceType, true);
-	if (this.isInterface())  // Explicit conversion from an interface to a class is not allowed
-		return false;
-	return otherReferenceType.isSuperclassOf(this);
 }
 
 /* Answer true if the receiver has default visibility
@@ -700,7 +731,7 @@ public boolean isInterface() {
 	// consider strict interfaces and annotation types
 	return (modifiers & AccInterface) != 0;
 }
-
+	
 /* Answer true if the receiver has private visibility
 */
 public final boolean isPrivate() {
@@ -728,8 +759,7 @@ public final boolean isPublic() {
  */
 
 public final boolean isStatic() {
-	return (modifiers & (AccStatic | AccInterface)) != 0 ||
-		    (tagBits & IsNestedType) == 0;
+	return (modifiers & (AccStatic | AccInterface)) != 0 || (tagBits & IsNestedType) == 0;
 }
 /* Answer true if all float operations must adher to IEEE 754 float/double rules
 */
@@ -749,9 +779,39 @@ public boolean isSuperclassOf(ReferenceBinding otherType) {
 	return false;
 }
 
+/**
+ * JLS 11.5 ensures that Throwable, Exception, RuntimeException and Error are directly connected.
+ * (Throwable<- Exception <- RumtimeException, Throwable <- Error). Thus no need to check #isCompatibleWith
+ * but rather check in type IDs so as to avoid some eager class loading for JCL writers.
+ * When 'includeSupertype' is true, answers true if the given type can be a supertype of some unchecked exception
+ * type (i.e. Throwable or Exception).
+ * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#isUncheckedException(boolean)
+ */
+public boolean isUncheckedException(boolean includeSupertype) {
+	switch (this.id) {
+			case TypeIds.T_JavaLangError :
+			case TypeIds.T_JavaLangRuntimeException :
+				return true;
+			case TypeIds.T_JavaLangThrowable :
+			case TypeIds.T_JavaLangException :
+				return includeSupertype;
+	}
+	ReferenceBinding current = this;
+	while ((current = current.superclass()) != null) {
+		switch (current.id) {
+			case TypeIds.T_JavaLangError :
+			case TypeIds.T_JavaLangRuntimeException :
+				return true;
+			case TypeIds.T_JavaLangThrowable :
+			case TypeIds.T_JavaLangException :
+				return false;
+		}
+	}
+	return false;
+}
+
 /* Answer true if the receiver is deprecated (or any of its enclosing types)
 */
-
 public final boolean isViewedAsDeprecated() {
 	return (modifiers & (AccDeprecated | AccDeprecatedImplicitly)) != 0;
 }
@@ -761,6 +821,14 @@ public ReferenceBinding[] memberTypes() {
 
 public MethodBinding[] methods() {
 	return NoMethods;
+}
+public final ReferenceBinding outermostEnclosingType() {
+	ReferenceBinding current = this;
+	while (true) {
+		ReferenceBinding last = current;
+		if ((current = current.enclosingType()) == null) 
+			return last;
+	}
 }
 /**
 * Answer the source name for the type.

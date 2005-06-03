@@ -27,7 +27,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
@@ -93,7 +93,7 @@ public class DeleteElementsOperation extends MultiOperation {
 	 * @see MultiOperation
 	 */
 	protected String getMainTaskName() {
-		return Util.bind("operation.deleteElementProgress"); //$NON-NLS-1$
+		return Messages.operation_deleteElementProgress; 
 	}
 	protected ISchedulingRule getSchedulingRule() {
 		if (this.elementsToProcess != null && this.elementsToProcess.length == 1) {

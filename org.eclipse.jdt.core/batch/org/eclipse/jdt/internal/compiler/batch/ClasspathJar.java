@@ -18,29 +18,32 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
-public class ClasspathJar implements FileSystem.Classpath {
+public class ClasspathJar extends ClasspathLocation {
 	
 ZipFile zipFile;
-Hashtable packageCache;
 boolean closeZipFileAtEnd;
+Hashtable packageCache;
 
 public ClasspathJar(File file) throws IOException {
-	this(new ZipFile(file), true);
+	this(new ZipFile(file), true, null);
 }
-public ClasspathJar(ZipFile zipFile, boolean closeZipFileAtEnd) {
+public ClasspathJar(ZipFile zipFile, boolean closeZipFileAtEnd, AccessRuleSet accessRuleSet) {
+	super(accessRuleSet);
 	this.zipFile = zipFile;
-	this.packageCache = null;
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
-}	
+}
+
 public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 	if (!isPackage(qualifiedPackageName)) 
 		return null; // most common case
 
 	try {
 		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
-		if (reader != null) return new NameEnvironmentAnswer(reader, null /*no access restriction*/);
+		if (reader != null) return new NameEnvironmentAnswer(reader, 
+				fetchAccessRestriction(qualifiedBinaryFileName));
 	} catch (Exception e) {
 		// treat as if class file is missing
 	}
@@ -81,5 +84,9 @@ public void reset() {
 }
 public String toString() {
 	return "Classpath for jar file " + this.zipFile.getName(); //$NON-NLS-1$
+}
+public String normalizedPath(){
+	String rawName = this.zipFile.getName();
+	return rawName.substring(0, rawName.lastIndexOf('.'));
 }
 }

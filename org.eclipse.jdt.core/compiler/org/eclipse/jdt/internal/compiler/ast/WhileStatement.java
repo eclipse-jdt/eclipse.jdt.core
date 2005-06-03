@@ -66,7 +66,7 @@ public class WhileStatement extends Statement {
 		FlowInfo actionInfo;
 		FlowInfo exitBranch;
 		if (action == null 
-			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3)) {
+			|| (action.isEmptyBlock() && currentScope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3)) {
 			condLoopContext.complainOnDeferredChecks(currentScope, condInfo);
 			if (isConditionTrue) {
 				return FlowInfo.DEAD_END;

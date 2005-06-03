@@ -159,16 +159,32 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 }
 /*
  * declaringUniqueKey dot fieldName
- * p.X { X<T> x} --> Lp/X;.x;
+ * p.X { X<T> x} --> Lp/X;.x)p/X<TT;>;
  */
-public char[] computeUniqueKey() {
-	char[] declaringKey = this.declaringClass == null /*case of length field for an array*/ ? CharOperation.NO_CHAR : this.declaringClass.computeUniqueKey();
+public char[] computeUniqueKey(boolean isLeaf) {
+	// declaring key
+	char[] declaringKey = 
+		this.declaringClass == null /*case of length field for an array*/ 
+			? CharOperation.NO_CHAR 
+			: this.declaringClass.computeUniqueKey(false/*not a leaf*/);
 	int declaringLength = declaringKey.length;
+	
+	// name
 	int nameLength = this.name.length;
-	char[] uniqueKey = new char[declaringLength + 1 + nameLength];
-	System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
-	uniqueKey[declaringLength] = '.';
-	System.arraycopy(this.name, 0, uniqueKey, declaringLength + 1, nameLength);
+	
+	// return type
+	char[] returnTypeKey = this.type == null ? new char[] {'V'} : this.type.computeUniqueKey(false/*not a leaf*/);
+	int returnTypeLength = returnTypeKey.length;
+	
+	char[] uniqueKey = new char[declaringLength + 1 + nameLength + 1 + returnTypeLength];
+	int index = 0;
+	System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
+	index += declaringLength;
+	uniqueKey[index++] = '.';
+	System.arraycopy(this.name, 0, uniqueKey, index, nameLength);
+	index += nameLength;
+	uniqueKey[index++] = ')';
+	System.arraycopy(returnTypeKey, 0, uniqueKey, index, returnTypeLength);
 	return uniqueKey;
 }
 /**
@@ -193,8 +209,19 @@ public long getAnnotationTagBits() {
 	if ((originalField.tagBits & TagBits.AnnotationResolved) == 0 && originalField.declaringClass instanceof SourceTypeBinding) {
 		TypeDeclaration typeDecl = ((SourceTypeBinding)originalField.declaringClass).scope.referenceContext;
 		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
-		if (fieldDecl != null)
-			ASTNode.resolveAnnotations(isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope, fieldDecl.annotations, originalField);		
+		if (fieldDecl != null) {
+			MethodScope initializationScope = isStatic() ? typeDecl.staticInitializerScope : typeDecl.initializerScope;
+			FieldBinding previousField = initializationScope.initializedField;
+			int previousFieldID = initializationScope.lastVisibleFieldID;			
+			try {
+				initializationScope.initializedField = originalField;
+				initializationScope.lastVisibleFieldID = originalField.id;
+				ASTNode.resolveAnnotations(initializationScope, fieldDecl.annotations, originalField);
+			} finally {
+				initializationScope.initializedField = previousField;
+				initializationScope.lastVisibleFieldID = previousFieldID;
+			}
+		}
 	}
 	return originalField.tagBits;
 }

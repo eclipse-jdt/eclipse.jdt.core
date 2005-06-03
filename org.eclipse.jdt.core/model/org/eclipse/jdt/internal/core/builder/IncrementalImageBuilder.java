@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import java.io.*;
@@ -70,7 +71,7 @@ public boolean build(SimpleLookupTable deltas) {
 	try {
 		resetCollections();
 
-		notifier.subTask(Util.bind("build.analyzingDeltas")); //$NON-NLS-1$
+		notifier.subTask(Messages.build_analyzingDeltas); 
 		IResourceDelta sourceDelta = (IResourceDelta) deltas.get(javaBuilder.currentProject);
 		if (sourceDelta != null)
 			if (!findSourceFiles(sourceDelta)) return false;
@@ -89,7 +90,7 @@ public boolean build(SimpleLookupTable deltas) {
 		}
 		notifier.updateProgressDelta(0.10f);
 
-		notifier.subTask(Util.bind("build.analyzingSources")); //$NON-NLS-1$
+		notifier.subTask(Messages.build_analyzingSources); 
 		addAffectedSourceFiles();
 		notifier.updateProgressDelta(0.05f);
 

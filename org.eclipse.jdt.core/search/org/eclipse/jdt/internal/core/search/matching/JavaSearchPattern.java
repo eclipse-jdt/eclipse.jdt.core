@@ -178,6 +178,7 @@ public class JavaSearchPattern extends SearchPattern {
 					return CharOperation.prefixEquals(pattern, name, this.isCaseSensitive);
 				case R_PATTERN_MATCH :
 					if (!this.isCaseSensitive)
+						 // TODO do we really need to this? should we add a 'fast' method when we know its already been done?
 						pattern = CharOperation.toLowerCase(pattern);
 					return CharOperation.match(pattern, name, this.isCaseSensitive);
 				case R_REGEXP_MATCH :
@@ -241,7 +242,7 @@ public class JavaSearchPattern extends SearchPattern {
 	void storeTypeSignaturesAndArguments(IType type) {
 		BindingKey key;
 		if (type.isResolved() && (key = new BindingKey(type.getKey())).isParameterizedType()) {
-			String signature = key.toSignature();
+			String signature = key.internalToSignature();
 			this.typeSignatures = Util.splitTypeLevelsSignature(signature);
 			setTypeArguments(Util.getAllTypeArguments(this.typeSignatures));
 		} else {

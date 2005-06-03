@@ -97,9 +97,6 @@ public class JavadocFieldReference extends FieldReference {
 		return this.resolvedType = this.binding.type;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
-	 */
 	public boolean isSuperAccess() {
 		return this.superAccess;
 	}
@@ -113,16 +110,10 @@ public class JavadocFieldReference extends FieldReference {
 		return output;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
 	public TypeBinding resolveType(BlockScope scope) {
 		return internalResolveType(scope);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
 	public TypeBinding resolveType(ClassScope scope) {
 		return internalResolveType(scope);
 	}

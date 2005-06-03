@@ -63,7 +63,7 @@ public class LocalVariableBinding extends VariableBinding implements TypeConstan
 	 * declaringUniqueKey # scopeIndex / varName
 	 * p.X { void foo() { int local; } } --> Lp/X;.foo()V#1/local
 	 */
-	public char[] computeUniqueKey() {
+	public char[] computeUniqueKey(boolean isLeaf) {
 		StringBuffer buffer = new StringBuffer();
 		
 		// declaring method or type
@@ -73,12 +73,12 @@ public class LocalVariableBinding extends VariableBinding implements TypeConstan
 		if (referenceContext instanceof AbstractMethodDeclaration) {
 			MethodBinding methodBinding = ((AbstractMethodDeclaration) referenceContext).binding;
 			if (methodBinding != null) {
-				buffer.append(methodBinding.computeUniqueKey());
+				buffer.append(methodBinding.computeUniqueKey(false/*not a leaf*/));
 			}
 		} else if (referenceContext instanceof TypeDeclaration) {
 			TypeBinding typeBinding = ((TypeDeclaration) referenceContext).binding;
 			if (typeBinding != null) {
-				buffer.append(typeBinding.computeUniqueKey());
+				buffer.append(typeBinding.computeUniqueKey(false/*not a leaf*/));
 			}
 		}
 

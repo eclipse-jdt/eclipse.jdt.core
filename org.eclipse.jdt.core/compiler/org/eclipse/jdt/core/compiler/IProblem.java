@@ -521,8 +521,8 @@ public interface IProblem {
 	int InvalidDigit = Syntax + Internal + 262;	
 	/** @since 3.1 */
 	int InvalidLowSurrogate = Syntax + Internal + 263;
+	/** @since 3.1 */
 	int InvalidHighSurrogate = Syntax + Internal + 264;
-	
 
 	// type related problems
 	/** @since 3.1 */
@@ -699,7 +699,7 @@ public interface IProblem {
 	int IncompatibleReturnTypeForNonInheritedInterfaceMethod = MethodRelated + 413;
 	/** @since 2.1 */
 	int IncompatibleExceptionInThrowsClauseForNonInheritedInterfaceMethod = MethodRelated + 414;
-	/** @since 3.0 */
+	/** @since 3.1 */
 	int IllegalVararg = MethodRelated + 415;
 
 	// code snippet support
@@ -762,9 +762,9 @@ public interface IProblem {
 	/** @since 3.0 */
 	int JavadocInvalidThrowsClassName = Javadoc + Internal + 481;
 	/** @since 3.0 */
-	int JavadocMissingReference = Javadoc + Internal + 482;
+	int JavadocMissingSeeReference = Javadoc + Internal + 482;
 	/** @since 3.0 */
-	int JavadocInvalidReference = Javadoc + Internal + 483;
+	int JavadocInvalidSeeReference = Javadoc + Internal + 483;
 	/** @since 3.0 */
 	int JavadocInvalidSeeHref = Javadoc + Internal + 484;
 	/** @since 3.0 */
@@ -836,21 +836,21 @@ public interface IProblem {
 	/** @since 3.0 */
 	int JavadocUnterminatedInlineTag = Javadoc + Internal + 512;
 	/** @since 3.0 */
-	int JavadocMissingHashCharacter = Javadoc + Internal + 513;
+	int JavadocMalformedSeeReference = Javadoc + Internal + 513;
 	/** @since 3.0 */
-	int JavadocMalformedSeeReference = Javadoc + Internal + 514;
-	/** @since 3.0 */
-	int JavadocEmptyReturnTag = Javadoc + Internal + 515;
+	int JavadocMessagePrefix = Internal + 514;
 	/** @since 3.1 */
-	int JavadocInvalidValueReference = Javadoc + Internal + 516;
+	int JavadocMissingHashCharacter = Javadoc + Internal + 515;
 	/** @since 3.1 */
-	int JavadocUnexpectedText = Javadoc + Internal + 517;
+	int JavadocEmptyReturnTag = Javadoc + Internal + 516;
 	/** @since 3.1 */
-	int JavadocInvalidParamTagName = Javadoc + Internal + 518;
+	int JavadocInvalidValueReference = Javadoc + Internal + 517;
+	/** @since 3.1 */
+	int JavadocUnexpectedText = Javadoc + Internal + 518;
+	/** @since 3.1 */
+	int JavadocInvalidParamTagName = Javadoc + Internal + 519;
 	/** @since 3.1 */
 	int JavadocInvalidParamTagTypeParameter = Javadoc + Internal + 469;
-	/** @since 3.0 */
-	int JavadocMessagePrefix = Internal + 519;
 
 	/**
 	 * Generics
@@ -860,7 +860,7 @@ public interface IProblem {
 	/** @since 3.1 */
 	int IllegalTypeVariableSuperReference = Internal + 521;
 	/** @since 3.1 */
-	int TypeVariableReferenceFromStaticContext = Internal + 522;
+	int NonStaticTypeFromStaticInvocation = Internal + 522;
 	/** @since 3.1 */
 	int ObjectCannotBeGeneric = Internal + 523;
 	/** @since 3.1 */
@@ -1053,6 +1053,8 @@ public interface IProblem {
 	int MethodMissingDeprecatedAnnotation = Internal + 629;
 	/** @since 3.1 */
 	int TypeMissingDeprecatedAnnotation = Internal + 630;
+	/** @since 3.1 */
+	int UnhandledWarningToken = Internal + 631;
 	
 	/**
 	 * Corrupted binaries

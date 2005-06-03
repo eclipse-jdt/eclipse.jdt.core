@@ -10,11 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.*;
 
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
+import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -1809,7 +1811,7 @@ public void generateSyntheticEnclosingInstanceValues(
 	if ((syntheticArgumentTypes = targetType.syntheticEnclosingInstanceTypes()) != null) {
 
 		ReferenceBinding targetEnclosingType = checkedTargetType.enclosingType();
-		long compliance = currentScope.environment().options.complianceLevel;
+		long compliance = currentScope.compilerOptions().complianceLevel;
 
 		// deny access to enclosing instance argument for allocation and super constructor call (if 1.4)
 		// always consider it if complying to 1.5
@@ -1998,32 +2000,84 @@ public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBin
 	this.invokeJavaLangIllegalArgumentExceptionStringConstructor();
 	this.athrow();
 }
+public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBinding) {
+	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
+	initializeMaxLocals(methodBinding);
+	final Label nullLabel = new Label(this);
+	FieldBinding syntheticFieldBinding = methodBinding.targetReadField;
+
+	this.getstatic(syntheticFieldBinding);
+	this.dup();
+	this.ifnonnull(nullLabel);
+	this.pop();
+	ReferenceBinding enumBinding = (ReferenceBinding) methodBinding.targetEnumType;
+	char[] signature = "()".toCharArray(); //$NON-NLS-1$
+	ArrayBinding arrayBinding = scope.createArrayType(enumBinding, 1);
+	signature = CharOperation.concat(signature, arrayBinding.constantPoolName());
+	this.invoke(OPC_invokestatic, 0, 1, enumBinding.constantPoolName(), TypeConstants.VALUES, signature);
+	this.arraylength();
+	this.newarray(INT_ARRAY);
+	this.putstatic(syntheticFieldBinding);
+	final FieldBinding[] fields = enumBinding.fields();
+	if (fields != null) {
+		for (int i = 0, max = fields.length; i < max; i++) {
+			FieldBinding fieldBinding = fields[i];
+			if ((fieldBinding.getAccessFlags() & IConstants.AccEnum) != 0) {
+				final Label endLabel = new Label(this);
+				final ExceptionLabel anyExceptionHandler = new ExceptionLabel(this, BaseTypes.LongBinding /* represents NoSuchFieldError*/);
+				this.getstatic(syntheticFieldBinding);
+				this.getstatic(fieldBinding);
+				this.invokeEnumOrdinal(enumBinding.constantPoolName());
+				this.generateInlinedValue(fieldBinding.id);
+				this.iastore();
+				anyExceptionHandler.placeEnd();
+				this.goto_(endLabel);
+				// Generate the body of the exception handler
+				final int saveStackSize = stackDepth;
+				stackDepth = 1;
+				anyExceptionHandler.place();
+				this.pop(); // we don't use it so we can pop it
+				stackDepth = saveStackSize;
+				endLabel.place();				
+			}
+		}
+	}
+	this.getstatic(syntheticFieldBinding);
+	nullLabel.place();
+	areturn();
+}
 public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessBinding) {
 	initializeMaxLocals(accessBinding);
 	FieldBinding fieldBinding = accessBinding.targetReadField;
-	TypeBinding type;
 	if (fieldBinding.isStatic())
 		this.getstatic(fieldBinding);
 	else {
 		this.aload_0();
 		this.getfield(fieldBinding);
 	}
-	if ((type = fieldBinding.type).isBaseType()) {
-		if (type == IntBinding)
+	switch (fieldBinding.type.id) {
+//		case T_void :
+//			this.return_();
+//			break;
+		case T_boolean :
+		case T_byte :
+		case T_char :
+		case T_short :
+		case T_int :
 			this.ireturn();
-		else
-			if (type == FloatBinding)
-				this.freturn();
-			else
-				if (type == LongBinding)
-					this.lreturn();
-				else
-					if (type == DoubleBinding)
-						this.dreturn();
-					else
-						this.ireturn();
-	} else
-		this.areturn();
+			break;
+		case T_long :
+			this.lreturn();
+			break;
+		case T_float :
+			this.freturn();
+			break;
+		case T_double :
+			this.dreturn();
+			break;
+		default :
+			this.areturn();
+	}	
 }
 public void generateSyntheticBodyForFieldWriteAccess(SyntheticMethodBinding accessBinding) {
 	initializeMaxLocals(accessBinding);
@@ -2038,17 +2092,17 @@ public void generateSyntheticBodyForFieldWriteAccess(SyntheticMethodBinding acce
 	}
 	this.return_();
 }
-public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessBinding) {
+public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMethod) {
 
-	initializeMaxLocals(accessBinding);
-	MethodBinding methodBinding = accessBinding.targetMethod;
-	TypeBinding[] parameters = methodBinding.parameters;
+	initializeMaxLocals(accessMethod);
+	MethodBinding targetMethod = accessMethod.targetMethod;
+	TypeBinding[] parameters = targetMethod.parameters;
 	int length = parameters.length;
-	TypeBinding[] arguments = accessBinding.kind == SyntheticMethodBinding.BridgeMethod 
-													? accessBinding.parameters
+	TypeBinding[] arguments = accessMethod.kind == SyntheticMethodBinding.BridgeMethod 
+													? accessMethod.parameters
 													: null;
 	int resolvedPosition;
-	if (methodBinding.isStatic())
+	if (targetMethod.isStatic())
 		resolvedPosition = 0;
 	else {
 		this.aload_0();
@@ -2069,42 +2123,47 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessBi
 		else
 			resolvedPosition++;
 	}
-	TypeBinding type;
-	if (methodBinding.isStatic())
-		this.invokestatic(methodBinding);
+	if (targetMethod.isStatic())
+		this.invokestatic(targetMethod);
 	else {
-		if (methodBinding.isConstructor()
-			|| methodBinding.isPrivate()
+		if (targetMethod.isConstructor()
+			|| targetMethod.isPrivate()
 			// qualified super "X.super.foo()" targets methods from superclass
-			|| accessBinding.kind == SyntheticMethodBinding.SuperMethodAccess){
-			this.invokespecial(methodBinding);
+			|| accessMethod.kind == SyntheticMethodBinding.SuperMethodAccess){
+			this.invokespecial(targetMethod);
 		} else {
-			if (methodBinding.declaringClass.isInterface()) { // interface or annotation type
-				this.invokeinterface(methodBinding);
+			if (targetMethod.declaringClass.isInterface()) { // interface or annotation type
+				this.invokeinterface(targetMethod);
 			} else {
-				this.invokevirtual(methodBinding);
+				this.invokevirtual(targetMethod);
 			}
 		}
 	}
-	if ((type = methodBinding.returnType).isBaseType())
-		if (type == VoidBinding)
+	switch (targetMethod.returnType.id) {
+		case T_void :
 			this.return_();
-		else
-			if (type == IntBinding)
-				this.ireturn();
-			else
-				if (type == FloatBinding)
-					this.freturn();
-				else
-					if (type == LongBinding)
-						this.lreturn();
-					else
-						if (type == DoubleBinding)
-							this.dreturn();
-						else
-							this.ireturn();
-	else
-		this.areturn();
+			break;
+		case T_boolean :
+		case T_byte :
+		case T_char :
+		case T_short :
+		case T_int :
+			this.ireturn();
+			break;
+		case T_long :
+			this.lreturn();
+			break;
+		case T_float :
+			this.freturn();
+			break;
+		case T_double :
+			this.dreturn();
+			break;
+		default :
+			if (targetMethod.returnType != accessMethod.returnType)
+				this.checkcast(accessMethod.returnType); // for bridge methods
+			this.areturn();
+	}
 }
 public void generateBoxingConversion(int unboxedTypeID) {
 	switch (unboxedTypeID) {
@@ -5421,7 +5480,7 @@ public final void removeNotDefinitelyAssignedVariables(Scope scope, int initStat
 public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetClassFile) {
 	init(targetClassFile);
 	this.methodDeclaration = referenceMethod;
-	preserveUnusedLocals = referenceMethod.scope.problemReporter().options.preserveAllLocalVariables;
+	this.preserveUnusedLocals = referenceMethod.scope.compilerOptions().preserveAllLocalVariables;
 	initializeMaxLocals(referenceMethod.binding);
 }
 /**

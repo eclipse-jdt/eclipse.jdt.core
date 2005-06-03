@@ -63,11 +63,11 @@ public abstract class NamedMember extends Member {
 		return this.name;
 	}
 	
-	protected String getKey(IField field) {
+	protected String getKey(IField field, boolean forceOpen) throws JavaModelException {
 		StringBuffer key = new StringBuffer();
 		
 		// declaring class 
-		String declaringKey = ((IType) field.getParent()).getKey();
+		String declaringKey = getKey((IType) field.getParent(), forceOpen);
 		key.append(declaringKey);
 		
 		// field name
@@ -77,11 +77,11 @@ public abstract class NamedMember extends Member {
 		return key.toString();
 	}
 	
-	protected String getKey(IMethod method) {
+	protected String getKey(IMethod method, boolean forceOpen) throws JavaModelException {
 		StringBuffer key = new StringBuffer();
 		
 		// declaring class 
-		String declaringKey = ((IType) method.getParent()).getKey();
+		String declaringKey = getKey((IType) method.getParent(), forceOpen);
 		key.append(declaringKey);
 		
 		// selector
@@ -97,17 +97,15 @@ public abstract class NamedMember extends Member {
 		key.append(')');
 		
 		// return type
-		try {
+		if (forceOpen)
 			key.append(method.getReturnType());
-		} catch (JavaModelException e) {
-			// method doesn't exist
+		else
 			key.append('V');
-		}
 		
 		return key.toString();
 	}
 	
-	protected String getKey(IType type) {
+	protected String getKey(IType type, boolean forceOpen) throws JavaModelException {
 		StringBuffer key = new StringBuffer();
 		key.append('L');
 		String packageName = type.getPackageFragment().getElementName();

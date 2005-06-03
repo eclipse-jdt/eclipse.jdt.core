@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.ICompilationParticipant;
 import org.eclipse.jdt.core.compiler.CleanCompilationEvent;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import java.util.*;
@@ -32,12 +33,12 @@ public void build() {
 		System.out.println("FULL build"); //$NON-NLS-1$
 
 	try {
-		notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
+		notifier.subTask(Messages.build_cleaningOutput); 
 		JavaBuilder.removeProblemsAndTasksFor(javaBuilder.currentProject);
 		cleanOutputFolders(true);
 		notifier.updateProgressDelta(0.1f);
 
-		notifier.subTask(Util.bind("build.analyzingSources")); //$NON-NLS-1$
+		notifier.subTask(Messages.build_analyzingSources); 
 		ArrayList sourceFiles = new ArrayList(33);
 		addAllSourceFiles(sourceFiles);
 		notifier.updateProgressDelta(0.15f);
@@ -125,7 +126,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 		
 		ArrayList visited = new ArrayList(sourceLocations.length);
 		for (int i = 0, l = sourceLocations.length; i < l; i++) {
-			notifier.subTask(Util.bind("build.cleaningOutput")); //$NON-NLS-1$
+			notifier.subTask(Messages.build_cleaningOutput); 
 			ClasspathMultiDirectory sourceLocation = sourceLocations[i];
 			if (sourceLocation.hasIndependentOutputFolder) {
 				IContainer outputFolder = sourceLocation.binaryFolder;
@@ -210,7 +211,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 	// When, if ever, does a builder need to copy resources files (not .java or .class) into the output folder?
 	// If we wipe the output folder at the beginning of the build then all 'extra' resources must be copied to the output folder.
 
-	notifier.subTask(Util.bind("build.copyingResources")); //$NON-NLS-1$
+	notifier.subTask(Messages.build_copyingResources); 
 	final int segmentCount = sourceLocation.sourceFolder.getFullPath().segmentCount();
 	final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 	final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
@@ -240,7 +241,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 								createProblemFor(
 									resource,
 									null,
-									Util.bind("build.duplicateResource", id), //$NON-NLS-1$
+									Messages.bind(Messages.build_duplicateResource, (new String[] {id})), 
 									javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_DUPLICATE_RESOURCE, true));
 								return false;
 							}

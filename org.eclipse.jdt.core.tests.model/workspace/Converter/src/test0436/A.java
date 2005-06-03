@@ -1,11 +1,11 @@
 package test0436;
 
-class A {
+public class A {
   private class CInner {
   }
 }
 
-public class D extends A {
+class D extends A {
   public void goo() {
     A.CInner a;
   }

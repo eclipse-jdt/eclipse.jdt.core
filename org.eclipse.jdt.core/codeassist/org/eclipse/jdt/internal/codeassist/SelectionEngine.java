@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
 public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	public static boolean DEBUG = false;
+	public static boolean PERF = false;
 	
 	SelectionParser parser;
 	ISelectionRequestor requestor;
@@ -130,14 +131,25 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		this.parser = new SelectionParser(problemReporter);
 	}
 
-	public void acceptType(char[] packageName, char[] typeName, int modifiers, AccessRestriction accessRestriction) {
-		if (CharOperation.equals(typeName, this.selectedIdentifier)) {
-			if(mustQualifyType(packageName, typeName)) {
+	public void acceptType(char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, int modifiers, AccessRestriction accessRestriction) {
+		char[] typeName = enclosingTypeNames == null ?
+				simpleTypeName :
+					CharOperation.concat(
+						CharOperation.concatWith(enclosingTypeNames, '.'),
+						simpleTypeName,
+						'.');
+		
+		if (CharOperation.equals(simpleTypeName, this.selectedIdentifier)) {
+			char[] flatEnclosingTypeNames =
+				enclosingTypeNames == null || enclosingTypeNames.length == 0 ?
+						null :
+							CharOperation.concatWith(enclosingTypeNames, '.');
+			if(mustQualifyType(packageName, simpleTypeName, flatEnclosingTypeNames, modifiers)) {
 				int length = 0;
-				int kind = modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
+				int kind = modifiers & (IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation);
 				switch (kind) {
 					case IConstants.AccAnnotation:
-					case IConstants.AccAnnotation+IConstants.AccInterface:
+					case IConstants.AccAnnotation | IConstants.AccInterface:
 						char[][] acceptedAnnotation = new char[2][];
 						acceptedAnnotation[0] = packageName;
 						acceptedAnnotation[1] = typeName;
@@ -361,6 +373,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						case '\r':
 						case '\n':
 						case '/':
+						case '"':
+						case '\'':
 							break lineLoop;
 					}
 					currentPosition--;
@@ -598,7 +612,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							char[][] tokens = ((SelectionOnImportReference) importReference).tokens;
 							this.noProposal = false;
 							this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
-							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), this);
+							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), false, this);
 							
 							if(importReference.isStatic()) {
 								this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
@@ -620,7 +634,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							if(!this.acceptedAnswer) {
 								acceptQualifiedTypes();
 								if (!this.acceptedAnswer) {
-									this.nameEnvironment.findTypes(this.selectedIdentifier, this);
+									this.nameEnvironment.findTypes(this.selectedIdentifier, false, this);
 									// try with simple type name
 									if(!this.acceptedAnswer) {
 										acceptQualifiedTypes();
@@ -634,7 +648,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						}
 					}
 				}
-				if (parsedUnit.types != null) {
+				if (parsedUnit.types != null || parsedUnit.isPackageInfo()) {
 					if(selectDeclaration(parsedUnit))
 						return;
 					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
@@ -642,7 +656,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						try {
 							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
-							ASTNode node = parseBlockStatements(parsedUnit, selectionSourceStart);
+							ASTNode node = null;
+							if (parsedUnit.types != null)
+								node = parseBlockStatements(parsedUnit, selectionSourceStart);
 							if(DEBUG) {
 								System.out.println("SELECTION - AST :"); //$NON-NLS-1$
 								System.out.println(parsedUnit.toString());
@@ -667,7 +683,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// only reaches here if no selection could be derived from the parsed tree
 			// thus use the selected source and perform a textual type search
 			if (!this.acceptedAnswer) {
-				this.nameEnvironment.findTypes(this.selectedIdentifier, this);
+				this.nameEnvironment.findTypes(this.selectedIdentifier, false, this);
 				
 				// accept qualified types only if no unqualified type was accepted
 				if(!this.acceptedAnswer) {
@@ -960,6 +976,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	public void selectType(ISourceType sourceType, char[] typeName, SourceTypeElementInfo[] topLevelTypes, boolean searchInEnvironment) {
 		try {
 			this.acceptedAnswer = false;
+			
+			// only the type erasure are returned by IType.resolvedType(...)
+			if (CharOperation.indexOf('<', typeName) != -1) {
+				char[] typeSig = Signature.createCharArrayTypeSignature(typeName, false/*not resolved*/);
+				typeSig = Signature.getTypeErasure(typeSig);
+				typeName = Signature.toCharArray(typeSig);
+			}
 
 			// find the outer most type
 			ISourceType outerType = sourceType;
@@ -1042,7 +1065,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// thus use the selected source and perform a textual type search
 			if (!this.acceptedAnswer && searchInEnvironment) {
 				if (this.selectedIdentifier != null) {
-					this.nameEnvironment.findTypes(typeName, this);
+					this.nameEnvironment.findTypes(typeName, false, this);
 					
 					// accept qualified types only if no unqualified type was accepted
 					if(!this.acceptedAnswer) {

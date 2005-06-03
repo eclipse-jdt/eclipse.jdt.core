@@ -124,7 +124,7 @@ public class UserLibraryManager {
 		if (userLibraries == null) {
 			userLibraries= new HashMap();
 			// load variables and containers from preferences into cache
-			IEclipsePreferences instancePreferences = JavaCore.getInstancePreferences();
+			IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
 			instancePreferences.addPreferenceChangeListener(listener);
 
 			// only get variable from preferences not set to their default
@@ -143,7 +143,7 @@ public class UserLibraryManager {
 					}
 				}
 			} catch (BackingStoreException e) {
-				// TODO (frederic) see if it's necessary to report this exception
+				// nothing to do in this case
 			}
 		}
 		return userLibraries;
@@ -182,7 +182,7 @@ public class UserLibraryManager {
 			}
 		}
 		
-		IEclipsePreferences instancePreferences = JavaCore.getInstancePreferences();
+		IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
 		String containerKey = CP_USERLIBRARY_PREFERENCES_PREFIX+name;
 		String containerString = CP_ENTRY_IGNORE;
 		if (library != null) {
@@ -194,13 +194,12 @@ public class UserLibraryManager {
 		}
 		instancePreferences.removePreferenceChangeListener(listener);
 		try {
-			JavaCore.getDefaultPreferences().put(containerKey, CP_ENTRY_IGNORE); // TODO (frederic) verify if this is really necessary...
 			instancePreferences.put(containerKey, containerString);
 			if (save) {
 				try {
 					instancePreferences.flush();
 				} catch (BackingStoreException e) {
-					// TODO (frederic) see if it's necessary to report this exception
+					// nothing to do in this case
 				}
 			}
 			if (rebind) {

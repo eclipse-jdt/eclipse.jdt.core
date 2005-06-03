@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -31,6 +32,13 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 		 * a new name environment without creating a new object.
 		 */
 		void reset();
+		/**
+		 * Return a normalized path for file based classpath entries. This is an absolute path
+		 * ending with a file separator for directories, an absolute path deprived from the '.jar'
+		 * (resp. '.zip') extension for jar (resp. zip) files.
+		 * @return a normalized path for file based classpath entries
+		 */
+		String normalizedPath();
 	}
 /*
 	classPathNames is a collection is Strings representing the full path of each class path
@@ -43,47 +51,54 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 public FileSystem(String[] classpathNames, String[] initialFileNames, String encoding, int[] classpathDirectoryModes) {
 	int classpathSize = classpathNames.length;
 	this.classpaths = new Classpath[classpathSize];
-	String[] pathNames = new String[classpathSize];
 	int problemsOccured = 0;
 	for (int i = 0; i < classpathSize; i++) {
-		try {
-			File file = new File(convertPathSeparators(classpathNames[i]));
-			if (file.isDirectory()) {
-				if (file.exists()) {
-					if (classpathDirectoryModes == null){
-						this.classpaths[i] = new ClasspathDirectory(file, encoding);
-					} else {
-						this.classpaths[i] = new ClasspathDirectory(file, encoding, classpathDirectoryModes[i]);
-					}
-					pathNames[i] = ((ClasspathDirectory) this.classpaths[i]).path;
-				}
-			} else {
-				String lowercaseClasspathName = classpathNames[i].toLowerCase();
-				if (lowercaseClasspathName.endsWith(SUFFIX_STRING_jar)
-					  || lowercaseClasspathName.endsWith(SUFFIX_STRING_zip)) {
-					this.classpaths[i] = this.getClasspathJar(file); // will throw an IOException if file does not exist
-					pathNames[i] = classpathNames[i].substring(0, classpathNames[i].lastIndexOf('.'));
-				}
-			}
-		} catch (IOException e) {
-			this.classpaths[i] = null;
-		}
+		this.classpaths[i] = getClasspath(classpathNames[i], encoding,
+					classpathDirectoryModes == null ? 0
+							: classpathDirectoryModes[i], null);
 		if (this.classpaths[i] == null)
 			problemsOccured++;
 	}
 	if (problemsOccured > 0) {
 		Classpath[] newPaths = new Classpath[classpathSize - problemsOccured];
-		String[] newNames = new String[classpathSize - problemsOccured];
 		for (int i = 0, current = 0; i < classpathSize; i++)
 			if (this.classpaths[i] != null) {
 				newPaths[current] = this.classpaths[i];
-				newNames[current++] = pathNames[i];
 			}
 		classpathSize = newPaths.length;
 		this.classpaths = newPaths;
-		pathNames = newNames;
 	}
-
+	initializeKnownFileNames(initialFileNames);
+}
+FileSystem(Classpath[] classpaths, String[] initialFileNames) {
+	this.classpaths = classpaths;
+	initializeKnownFileNames(initialFileNames);
+}
+static Classpath getClasspath(String classpathName, String encoding,
+		int classpathDirectoryMode, AccessRuleSet accessRuleSet) {
+	Classpath result = null;
+	try {
+			File file = new File(convertPathSeparators(classpathName));
+			if (file.isDirectory()) {
+				if (file.exists()) {
+					result = new ClasspathDirectory(file, encoding,
+							classpathDirectoryMode, accessRuleSet);
+				}
+			} else {
+				String lowercaseClasspathName = classpathName.toLowerCase();
+				if (lowercaseClasspathName.endsWith(SUFFIX_STRING_jar)
+						|| lowercaseClasspathName.endsWith(SUFFIX_STRING_zip)) {
+					result = new ClasspathJar(new ZipFile(file), true,
+							accessRuleSet);
+					// will throw an IOException if file does not exist
+				}
+			}
+		} catch (IOException e) {
+			// result = null; -- this is already the case
+		}
+	return result;
+}
+private void initializeKnownFileNames(String[] initialFileNames) {
 	this.knownFileNames = new String[initialFileNames.length];
 	for (int i = initialFileNames.length; --i >= 0;) {
 		String fileName = initialFileNames[i];
@@ -92,20 +107,26 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 			fileName = fileName.substring(0, fileName.lastIndexOf('.')); // remove trailing ".java"
 
 		fileName = convertPathSeparators(fileName);
-		for (int j = 0; j < classpathSize; j++)
-			if (fileName.startsWith(pathNames[j]))
-				matchingPathName = pathNames[j];
+		for (int j = 0; j < classpaths.length; j++){
+			String matchCandidate = this.classpaths[j].normalizedPath();
+			if (this.classpaths[j] instanceof  ClasspathDirectory && 
+					fileName.startsWith(matchCandidate) && 
+					(matchingPathName == null || 
+							matchCandidate.length() < matchingPathName.length()))
+				matchingPathName = matchCandidate;
+		}
 		if (matchingPathName == null)
 			this.knownFileNames[i] = fileName; // leave as is...
 		else
 			this.knownFileNames[i] = fileName.substring(matchingPathName.length());
+		matchingPathName = null;
 	}
 }
 public void cleanup() {
 	for (int i = 0, max = this.classpaths.length; i < max; i++)
 		this.classpaths[i].reset();
 }
-private String convertPathSeparators(String path) {
+private static String convertPathSeparators(String path) {
 	return File.separatorChar == '/'
 		? path.replace('\\', '/')
 		 : path.replace('/', '\\');
@@ -153,7 +174,7 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	return null;
 }
 public ClasspathJar getClasspathJar(File file) throws IOException {
-	return new ClasspathJar(new ZipFile(file), true);
+	return new ClasspathJar(new ZipFile(file), true, null);
 }
 public boolean isPackage(char[][] compoundName, char[] packageName) {
 	String qualifiedPackageName = new String(CharOperation.concatWith(compoundName, packageName, '/'));

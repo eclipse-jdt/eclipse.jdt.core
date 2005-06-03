@@ -40,7 +40,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression)
 	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000; 				// compound assigned (reference lhs)
-	public final static int Bit18 = 0x20000; 
+	public final static int Bit18 = 0x20000; 				
 	public final static int Bit19 = 0x40000; 
 	public final static int Bit20 = 0x80000; 
 	public final static int Bit21 = 0x100000; 		
@@ -157,6 +157,9 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	// for variable argument
 	public static final int IsVarArgs = Bit15;
 	
+	// for array initializer
+	public static final int IsAnnotationDefaultValue = Bit1;
+	
 	public ASTNode() {
 
 		super();
@@ -166,7 +169,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		if (argumentType != NullBinding && parameterType.isWildcard()) {
 			WildcardBinding wildcard = (WildcardBinding) parameterType;
-			if (wildcard.kind != Wildcard.SUPER && wildcard.otherBounds == null) // lub wildcards are tolerated
+			if (wildcard.boundKind != Wildcard.SUPER && wildcard.otherBounds == null) // lub wildcards are tolerated
 		    	return true; // unsafeWildcardInvocation
 		}
 		TypeBinding checkedParameterType = originalParameterType == null ? parameterType : originalParameterType;
@@ -181,11 +184,16 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		boolean unsafeWildcardInvocation = false;
 		TypeBinding[] params = method.parameters;
 		int paramLength = params.length;
-		boolean isRawMemberInvocation = !method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType());
+		boolean isRawMemberInvocation = !method.isStatic() 
+				&& !receiverType.isUnboundWildcard() 
+				&& method.declaringClass.isRawType() 
+				&& (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType());
+		
 		MethodBinding rawOriginalGenericMethod = null;
 		if (!isRawMemberInvocation) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
-				if (((ParameterizedGenericMethodBinding)method).isRaw && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType())) {
+				ParameterizedGenericMethodBinding paramMethod = (ParameterizedGenericMethodBinding) method;
+				if (paramMethod.isUnchecked || (paramMethod.isRaw && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType()))) {
 					rawOriginalGenericMethod = method.original();
 				}
 			}
@@ -271,7 +279,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		if (scope.isDefinedInSameUnit(field.declaringClass)) return false;
 		
 		// if context is deprecated, may avoid reporting
-		if (!scope.environment().options.reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
 		return true;
 	}
 
@@ -296,7 +304,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		if (scope.isDefinedInSameUnit(method.declaringClass)) return false;
 		
 		// if context is deprecated, may avoid reporting
-		if (!scope.environment().options.reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
 		return true;
 	}
 
@@ -338,7 +346,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		if (scope.isDefinedInSameUnit(refType)) return false;
 		
 		// if context is deprecated, may avoid reporting
-		if (!scope.environment().options.reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
 		return true;
 	}
 

@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.search.*;
  */
 public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 
+	static char[] RESULT_POTENTIAL_MATCH = "*] POTENTIAL_*".toCharArray();
 	static char[] RESULT_EXACT_MATCH = "*] EXACT_*".toCharArray();
 	static char[] RESULT_ERASURE_MATCH = "*] ERASURE_*".toCharArray();
 	int matchRule;

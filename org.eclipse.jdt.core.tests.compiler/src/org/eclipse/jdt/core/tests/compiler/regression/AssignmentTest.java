@@ -1368,6 +1368,29 @@ public void test036() {
 		"The variable o cannot be null; it was either set to a non-null value or assumed to be non-null when last used\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93588
+public void test037() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X extends Object implements Runnable {\n" + 
+			"	int interval = 5;\n" + 
+			"	public void run() {\n" + 
+			"		try {\n" + 
+			"			Thread.sleep(interval = interval + 100);\n" + 
+			"			Thread.sleep(interval += 100);\n" + 
+			"		} catch (InterruptedException e) {\n" + 
+			"			e.printStackTrace();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X().run();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }

@@ -125,11 +125,20 @@ class VariableBinding implements IVariableBinding {
 	 * @see IBinding#getJavaElement()
 	 */
 	public IJavaElement getJavaElement() {
+		JavaElement element = getUnresolvedJavaElement();
+		if (element == null)
+			return null;
+		return element.resolved(this.binding);
+	}
+	
+	private JavaElement getUnresolvedJavaElement() {
 		if (isField()) {
 			// field
+			FieldBinding fieldBinding = (FieldBinding) this.binding;
+			if (fieldBinding.declaringClass == null) return null; // arraylength
 			IType declaringType = (IType) getDeclaringClass().getJavaElement();
 			if (declaringType == null) return null;
-			return declaringType.getField(getName());
+			return (JavaElement) declaringType.getField(getName());
 		}
 		// local variable
 		IMethodBinding declaringMethod = getDeclaringMethod();
@@ -151,9 +160,9 @@ class VariableBinding implements IVariableBinding {
 		} else {
 			nameStart =  localVar.getStartPosition();
 			nameLength = localVar.getLength();
-			VariableDeclarationStatement statement = (VariableDeclarationStatement) localVar.getParent();
-			sourceStart = statement.getStartPosition();
-			sourceLength = statement.getLength();
+			ASTNode node = localVar.getParent();
+			sourceStart = node.getStartPosition();
+			sourceLength = node.getLength();
 		}
 		char[] typeSig = this.binding.type.genericTypeSignature();
 		return new LocalVariable(method, localVar.getName().getIdentifier(), sourceStart, sourceStart+sourceLength-1, nameStart, nameStart+nameLength-1, new String(typeSig));

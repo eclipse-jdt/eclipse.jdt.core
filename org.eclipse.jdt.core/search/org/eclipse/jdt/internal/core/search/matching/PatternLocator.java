@@ -151,6 +151,10 @@ protected TypeBinding getTypeNameBinding(int index) {
 public void initializePolymorphicSearch(MatchLocator locator) {
 	// default is to do nothing
 }
+public int match(Annotation node, MatchingNodeSet nodeSet) {
+	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
+}
 /**
  * Check if the given ast node syntactically matches this pattern.
  * If it does, add it to the match set.
@@ -177,6 +181,10 @@ public int match(LocalDeclaration node, MatchingNodeSet nodeSet) {
 	return IMPOSSIBLE_MATCH;
 }
 public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
+	// each subtype should override if needed
+	return IMPOSSIBLE_MATCH;
+}
+public int match(MemberValuePair node, MatchingNodeSet nodeSet) {
 	// each subtype should override if needed
 	return IMPOSSIBLE_MATCH;
 }
@@ -279,13 +287,13 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (locator.encloses(element)) {
 		// default is to report a match as a regular ref.
-		this.matchReportReference(importRef, element, accuracy, locator);
+		this.matchReportReference(importRef, element, null/*no binding*/, accuracy, locator);
 	}
 }
 /**
  * Reports the match of the given reference.
  */
-protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	match = null;
 	int referenceType = referenceType();
 	int offset = reference.sourceStart;
@@ -294,10 +302,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			match = locator.newPackageReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.TYPE:
-			match = locator.newTypeReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
+			match = locator.newTypeReferenceMatch(element, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.FIELD:
-			match = locator.newFieldReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
+			match = locator.newFieldReferenceMatch(element, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.LOCAL_VARIABLE:
 			match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
@@ -310,8 +318,8 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 		locator.report(match);
 	}
 }
-public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, int accuracy, int length, MatchLocator locator) {
-    return locator.newDeclarationMatch(element, accuracy, reference.sourceStart, length);
+public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, int length, MatchLocator locator) {
+    return locator.newDeclarationMatch(element, elementBinding, accuracy, reference.sourceStart, length);
 }
 protected int referenceType() {
 	return 0; // defaults to unknown (a generic JavaSearchMatch will be created)
@@ -348,8 +356,8 @@ protected void updateMatch(ParameterizedTypeBinding parameterizedBinding, char[]
 	if (locator.unitScope == null) return;
 
 	// Set match raw flag
-	boolean endPattern = depth>=patternTypeArguments.length;
-	char[][] patternArguments = (patternTypeArguments==null || endPattern) ? null : patternTypeArguments[depth];
+	boolean endPattern = patternTypeArguments==null  ? true  : depth>=patternTypeArguments.length;
+	char[][] patternArguments =  endPattern ? null : patternTypeArguments[depth];
 	boolean isRaw = parameterizedBinding.isRawType()|| (parameterizedBinding.arguments==null && parameterizedBinding.type.isGenericType());
 	if (isRaw && !match.isRaw()) {
 		match.setRaw(isRaw);
@@ -416,7 +424,10 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 		for (int i=0; i<typeArgumentsLength; i++) {
 			// Get parameterized type argument binding
 			TypeBinding argumentBinding = argumentsBinding[i];
-
+			if (argumentBinding instanceof CaptureBinding) {
+				WildcardBinding capturedWildcard = ((CaptureBinding)argumentBinding).wildcard;
+				if (capturedWildcard != null) argumentBinding = capturedWildcard;
+			}
 			// Get binding for pattern argument
 			char[] patternTypeArgument = patternArguments[i];
 			char patternWildcard = patternTypeArgument[0];
@@ -426,7 +437,7 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 				case Signature.C_STAR:
 					if (argumentBinding.isWildcard()) {
 						WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
-						if (wildcardBinding.kind == Wildcard.UNBOUND) continue;
+						if (wildcardBinding.boundKind == Wildcard.UNBOUND) continue;
 					}
 					matchRule &= ~SearchPattern.R_FULL_MATCH;
 					continue; // unbound parameter always match
@@ -447,7 +458,7 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 			if (patternBinding == null) {
 				if (argumentBinding.isWildcard()) {
 					WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
-					if (wildcardBinding.kind == Wildcard.UNBOUND) {
+					if (wildcardBinding.boundKind == Wildcard.UNBOUND) {
 						matchRule &= ~SearchPattern.R_FULL_MATCH;
 					} else {
 						match.setRule(SearchPattern.R_ERASURE_MATCH);
@@ -467,11 +478,11 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 					if (argumentBinding.isWildcard()) { // argument is a wildcard
 						WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
 						// It's ok if wildcards are identical
-						if (wildcardBinding.kind == patternWildcardKind && wildcardBinding.bound == patternBinding) {
+						if (wildcardBinding.boundKind == patternWildcardKind && wildcardBinding.bound == patternBinding) {
 							continue;
 						}
 						// Look for wildcard compatibility
-						switch (wildcardBinding.kind) {
+						switch (wildcardBinding.boundKind) {
 							case Wildcard.EXTENDS:
 								if (wildcardBinding.bound== null || wildcardBinding.bound.isCompatibleWith(patternBinding)) {
 									// valid when arg extends a subclass of pattern
@@ -495,11 +506,11 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 					if (argumentBinding.isWildcard()) { // argument is a wildcard
 						WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
 						// It's ok if wildcards are identical
-						if (wildcardBinding.kind == patternWildcardKind && wildcardBinding.bound == patternBinding) {
+						if (wildcardBinding.boundKind == patternWildcardKind && wildcardBinding.bound == patternBinding) {
 							continue;
 						}
 						// Look for wildcard compatibility
-						switch (wildcardBinding.kind) {
+						switch (wildcardBinding.boundKind) {
 							case Wildcard.EXTENDS:
 								break;
 							case Wildcard.SUPER:
@@ -522,7 +533,7 @@ protected void updateMatch(TypeBinding[] argumentsBinding, MatchLocator locator,
 				default:
 					if (argumentBinding.isWildcard()) {
 						WildcardBinding wildcardBinding = (WildcardBinding) argumentBinding;
-						switch (wildcardBinding.kind) {
+						switch (wildcardBinding.boundKind) {
 							case Wildcard.EXTENDS:
 								if (wildcardBinding.bound== null || patternBinding.isCompatibleWith(wildcardBinding.bound)) {
 									// valid only when arg extends a superclass of pattern
@@ -698,9 +709,13 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 	
 				// Verify that names match...
 				// ...special case for wildcard
+				if (argTypeBinding instanceof CaptureBinding) {
+					WildcardBinding capturedWildcard = ((CaptureBinding)argTypeBinding).wildcard;
+					if (capturedWildcard != null) argTypeBinding = capturedWildcard;
+				}
 				if (argTypeBinding.isWildcard()) {
 					WildcardBinding wildcardBinding = (WildcardBinding) argTypeBinding;
-					switch (wildcardBinding.kind) {
+					switch (wildcardBinding.boundKind) {
 						case Wildcard.EXTENDS:
 							// Invalid if type argument is not exact
 							if (patternTypeArgHasAnyChars) return impossible;

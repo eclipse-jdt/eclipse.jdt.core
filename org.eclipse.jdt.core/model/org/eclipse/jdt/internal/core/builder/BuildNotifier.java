@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 public class BuildNotifier {
 
@@ -58,7 +58,7 @@ public BuildNotifier(IProgressMonitor monitor, IProject project) {
  * Notification before a compile that a unit is about to be compiled.
  */
 public void aboutToCompile(SourceFile unit) {
-	String message = Util.bind("build.compiling", unit.resource.getFullPath().removeLastSegments(1).makeRelative().toString()); //$NON-NLS-1$
+	String message = Messages.bind(Messages.build_compiling, unit.resource.getFullPath().removeLastSegments(1).makeRelative().toString()); 
 	subTask(message);
 }
 
@@ -94,7 +94,7 @@ public void checkCancelWithinCompiler() {
  * Notification while within a compile that a unit has finished being compiled.
  */
 public void compiled(SourceFile unit) {
-	String message = Util.bind("build.compiling", unit.resource.getFullPath().removeLastSegments(1).makeRelative().toString()); //$NON-NLS-1$
+	String message = Messages.bind(Messages.build_compiling, unit.resource.getFullPath().removeLastSegments(1).makeRelative().toString()); 
 	subTask(message);
 	updateProgressDelta(progressPerCompilationUnit);
 	checkCancelWithinCompiler();
@@ -107,7 +107,7 @@ public void done() {
 	FixedWarningCount = this.fixedWarningCount;
 
 	updateProgress(1.0f);
-	subTask(Util.bind("build.done")); //$NON-NLS-1$
+	subTask(Messages.build_done); 
 	if (monitor != null)
 		monitor.done();
 	this.previousSubtask = null;
@@ -126,28 +126,28 @@ protected String problemsMessage() {
 	buffer.append('(');
 	if (numNew > 0) {
 		// (Found x errors + y warnings)
-		buffer.append(Util.bind("build.foundHeader")); //$NON-NLS-1$
+		buffer.append(Messages.build_foundHeader); 
 		buffer.append(' ');
 		if (displayBoth || newErrorCount > 0) {
 			if (newErrorCount == 1)
-				buffer.append(Util.bind("build.oneError")); //$NON-NLS-1$
+				buffer.append(Messages.build_oneError); 
 			else
-				buffer.append(Util.bind("build.multipleErrors", String.valueOf(newErrorCount))); //$NON-NLS-1$
+				buffer.append(Messages.bind(Messages.build_multipleErrors, String.valueOf(newErrorCount))); 
 			if (displayBoth || newWarningCount > 0)
 				buffer.append(" + "); //$NON-NLS-1$
 		}
 		if (displayBoth || newWarningCount > 0) {
 			if (newWarningCount == 1)
-				buffer.append(Util.bind("build.oneWarning")); //$NON-NLS-1$
+				buffer.append(Messages.build_oneWarning); 
 			else
-				buffer.append(Util.bind("build.multipleWarnings", String.valueOf(newWarningCount))); //$NON-NLS-1$
+				buffer.append(Messages.bind(Messages.build_multipleWarnings, String.valueOf(newWarningCount))); 
 		}
 		if (numFixed > 0)
 			buffer.append(", "); //$NON-NLS-1$
 	}
 	if (numFixed > 0) {
 		// (Fixed x errors + y warnings) or (Found x errors + y warnings, Fixed x + y)
-		buffer.append(Util.bind("build.fixedHeader")); //$NON-NLS-1$
+		buffer.append(Messages.build_fixedHeader); 
 		buffer.append(' ');
 		if (displayBoth) {
 			buffer.append(String.valueOf(fixedErrorCount));
@@ -156,17 +156,17 @@ protected String problemsMessage() {
 		} else {
 			if (fixedErrorCount > 0) {
 				if (fixedErrorCount == 1)
-					buffer.append(Util.bind("build.oneError")); //$NON-NLS-1$
+					buffer.append(Messages.build_oneError); 
 				else
-					buffer.append(Util.bind("build.multipleErrors", String.valueOf(fixedErrorCount))); //$NON-NLS-1$
+					buffer.append(Messages.bind(Messages.build_multipleErrors, String.valueOf(fixedErrorCount))); 
 				if (fixedWarningCount > 0)
 					buffer.append(" + "); //$NON-NLS-1$
 			}
 			if (fixedWarningCount > 0) {
 				if (fixedWarningCount == 1)
-					buffer.append(Util.bind("build.oneWarning")); //$NON-NLS-1$
+					buffer.append(Messages.build_oneWarning); 
 				else
-					buffer.append(Util.bind("build.multipleWarnings", String.valueOf(fixedWarningCount))); //$NON-NLS-1$
+					buffer.append(Messages.bind(Messages.build_multipleWarnings, String.valueOf(fixedWarningCount))); 
 			}
 		}
 	}

@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -120,13 +121,16 @@ public class NameLookup implements SuffixConstants {
 	protected HashMap unitsToLookInside;
 	
 	public long timeSpentInSeekTypesInSourcePackage = 0;
+	public long timeSpentInSeekTypesInBinaryPackage = 0;
 
 	public NameLookup(IPackageFragmentRoot[] packageFragmentRoots, HashtableOfArrayToObject packageFragments, ICompilationUnit[] workingCopies, Map rootToResolvedEntries) {
+		long start = -1;
 		if (VERBOSE) {
 			System.out.println(Thread.currentThread() + " BUILDING NameLoopkup");  //$NON-NLS-1$
 			System.out.println(Thread.currentThread() + " -> pkg roots size: " + (packageFragmentRoots == null ? 0 : packageFragmentRoots.length));  //$NON-NLS-1$
 			System.out.println(Thread.currentThread() + " -> pkgs size: " + (packageFragments == null ? 0 : packageFragments.size()));  //$NON-NLS-1$
 			System.out.println(Thread.currentThread() + " -> working copy size: " + (workingCopies == null ? 0 : workingCopies.length));  //$NON-NLS-1$
+			start = System.currentTimeMillis();
 		}
 		this.packageFragmentRoots = packageFragmentRoots;
 		try {
@@ -136,7 +140,6 @@ public class NameLookup implements SuffixConstants {
 		}
 		if (workingCopies != null) {
 			this.unitsToLookInside = new HashMap();
-			HashSet visited = new HashSet();
 			for (int i = 0, length = workingCopies.length; i < length; i++) {
 				ICompilationUnit workingCopy = workingCopies[i];
 				PackageFragment pkg = (PackageFragment) workingCopy.getParent();
@@ -169,26 +172,37 @@ public class NameLookup implements SuffixConstants {
 				
 				// add root of package fragment to cache
 				IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
-				if (visited.contains(root)) continue;
 				String[] pkgName = pkg.names;
 				Object existing = this.packageFragments.get(pkgName);
 				if (existing == null) {
 					this.packageFragments.put(pkgName, root);
 				} else {
 					if (existing instanceof PackageFragmentRoot) {
-						this.packageFragments.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
+						if (!existing.equals(root))
+							this.packageFragments.put(pkgName, new IPackageFragmentRoot[] {(PackageFragmentRoot) existing, root});
 					} else {
 						IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) existing;
 						int rootLength = roots.length;
-						System.arraycopy(roots, 0, roots = new IPackageFragmentRoot[rootLength+1], 0, rootLength);
-						roots[rootLength] = root;
-						this.packageFragments.put(pkgName, roots);
+						boolean containsRoot = false;
+						for (int j = 0; j < rootLength; j++) {
+							if (roots[j].equals(root)) {
+								containsRoot = true;
+								break;
+							}
+						}
+						if (containsRoot) {
+							System.arraycopy(roots, 0, roots = new IPackageFragmentRoot[rootLength+1], 0, rootLength);
+							roots[rootLength] = root;
+							this.packageFragments.put(pkgName, roots);
+						}
 					}
 				}
-				visited.add(root);
 			}
 		}
 		this.rootToResolvedEntries = rootToResolvedEntries;
+        if (VERBOSE) {
+            System.out.println(Thread.currentThread() + " -> spent: " + (start - System.currentTimeMillis()) + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+        }
 	}
 
 	/**
@@ -323,7 +337,7 @@ public class NameLookup implements SuffixConstants {
 	 */
 	public IPackageFragment findPackageFragment(IPath path) {
 		if (!path.isAbsolute()) {
-			throw new IllegalArgumentException(Util.bind("path.mustBeAbsolute")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.path_mustBeAbsolute); 
 		}
 /*
  * TODO (jerome) this code should rather use the package fragment map to find the candidate package, then
@@ -769,46 +783,54 @@ public class NameLookup implements SuffixConstants {
 	 * Performs type search in a binary package.
 	 */
 	protected void seekTypesInBinaryPackage(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
-		IClassFile[] classFiles= null;
+		long start = -1;
+		if (VERBOSE)
+			start = System.currentTimeMillis();
 		try {
-			classFiles= pkg.getClassFiles();
-		} catch (JavaModelException npe) {
-			return; // the package is not present
-		}
-		int length= classFiles.length;
-
-		String unqualifiedName= name;
-		int index= name.lastIndexOf('$');
-		if (index != -1) {
-			//the type name of the inner type
-			unqualifiedName= Util.localTypeName(name, index, name.length());
-			// unqualifiedName is empty if the name ends with a '$' sign.
-			// See http://dev.eclipse.org/bugs/show_bug.cgi?id=14642
-		}
-		String matchName= partialMatch ? name.toLowerCase() : name;
-		for (int i= 0; i < length; i++) {
-			if (requestor.isCanceled())
-				return;
-			IClassFile classFile= classFiles[i];
-			String elementName = classFile.getElementName();
-			if (partialMatch) elementName = elementName.toLowerCase();
-
-			/**
-			 * Must use startWith because matchName will never have the 
-			 * extension ".class" and the elementName always will.
-			 */
-			if (elementName.startsWith(matchName)) {
-				IType type= null;
-				try {
-					type= classFile.getType();
-				} catch (JavaModelException npe) {
-					continue; // the classFile is not present
-				}
-				if (!partialMatch || (type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
-					if (nameMatches(unqualifiedName, type, partialMatch) && acceptType(type, acceptFlags, false/*not a source type*/))
-						requestor.acceptType(type);
+			IClassFile[] classFiles= null;
+			try {
+				classFiles= pkg.getClassFiles();
+			} catch (JavaModelException npe) {
+				return; // the package is not present
+			}
+			int length= classFiles.length;
+	
+			String unqualifiedName= name;
+			int index= name.lastIndexOf('$');
+			if (index != -1) {
+				//the type name of the inner type
+				unqualifiedName= Util.localTypeName(name, index, name.length());
+				// unqualifiedName is empty if the name ends with a '$' sign.
+				// See http://dev.eclipse.org/bugs/show_bug.cgi?id=14642
+			}
+			String matchName= partialMatch ? name.toLowerCase() : name;
+			for (int i= 0; i < length; i++) {
+				if (requestor.isCanceled())
+					return;
+				IClassFile classFile= classFiles[i];
+				String elementName = classFile.getElementName();
+				if (partialMatch) elementName = elementName.toLowerCase();
+	
+				/**
+				 * Must use startWith because matchName will never have the 
+				 * extension ".class" and the elementName always will.
+				 */
+				if (elementName.startsWith(matchName)) {
+					IType type= null;
+					try {
+						type= classFile.getType();
+					} catch (JavaModelException npe) {
+						continue; // the classFile is not present
+					}
+					if (!partialMatch || (type.getElementName().length() > 0 && !Character.isDigit(type.getElementName().charAt(0)))) { //not an anonymous type
+						if (nameMatches(unqualifiedName, type, partialMatch) && acceptType(type, acceptFlags, false/*not a source type*/))
+							requestor.acceptType(type);
+					}
 				}
 			}
+		} finally {
+			if (VERBOSE)
+				this.timeSpentInSeekTypesInBinaryPackage += System.currentTimeMillis()-start;
 		}
 	}
 

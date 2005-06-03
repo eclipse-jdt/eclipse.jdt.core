@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class JobManager implements Runnable {
@@ -27,6 +28,7 @@ public abstract class JobManager implements Runnable {
 
 	/* background processing */
 	protected Thread processingThread;
+	protected Job progressJob;
 
 	/* counter indicating whether job execution is enabled or not, disabled if <= 0 
 	    it cannot go beyond 1 */
@@ -197,7 +199,6 @@ public abstract class JobManager implements Runnable {
 				case IJob.CancelIfNotReady :
 					if (VERBOSE)
 						Util.verbose("-> NOT READY - cancelling - " + searchJob); //$NON-NLS-1$
-					if (progress != null) progress.setCanceled(true);
 					if (VERBOSE)
 						Util.verbose("CANCELED concurrent job - " + searchJob); //$NON-NLS-1$
 					throw new OperationCanceledException();
@@ -233,7 +234,7 @@ public abstract class JobManager implements Runnable {
 									Util.verbose("-> NOT READY - waiting until ready - " + searchJob);//$NON-NLS-1$
 								if (subProgress != null) {
 									subProgress.subTask(
-										Util.bind("manager.filesToIndex", Integer.toString(awaitingWork))); //$NON-NLS-1$
+										Messages.bind(Messages.manager_filesToIndex, Integer.toString(awaitingWork))); 
 									subProgress.worked(1);
 								}
 								previousJob = currentJob;
@@ -316,8 +317,8 @@ public abstract class JobManager implements Runnable {
 				}
 				protected IStatus run(IProgressMonitor monitor) {
 					int awaitingJobsCount;
-					while ((awaitingJobsCount = awaitingJobsCount()) > 0) {
-						monitor.subTask(Util.bind("manager.filesToIndex", Integer.toString(awaitingJobsCount))); //$NON-NLS-1$
+					while (!monitor.isCanceled() && (awaitingJobsCount = awaitingJobsCount()) > 0) {
+						monitor.subTask(Messages.bind(Messages.manager_filesToIndex, Integer.toString(awaitingJobsCount))); 
 						try {
 							Thread.sleep(500);
 						} catch (InterruptedException e) {
@@ -327,7 +328,7 @@ public abstract class JobManager implements Runnable {
 					return Status.OK_STATUS;
 				}
 			}
-			ProgressJob progressJob = null;
+			this.progressJob = null;
 			while (this.processingThread != null) {
 				try {
 					IJob job;
@@ -337,7 +338,10 @@ public abstract class JobManager implements Runnable {
 
 						// must check for new job inside this sync block to avoid timing hole
 						if ((job = currentJob()) == null) {
-							if (progressJob != null) progressJob = null;
+							if (this.progressJob != null) {
+								this.progressJob.cancel();
+								this.progressJob = null;
+							}
 							if (idlingStart < 0)
 								idlingStart = System.currentTimeMillis();
 							else
@@ -359,11 +363,11 @@ public abstract class JobManager implements Runnable {
 					}
 					try {
 						this.executing = true;
-						if (progressJob == null) {
-							progressJob = new ProgressJob(Util.bind("manager.indexingInProgress")); //$NON-NLS-1$
-							progressJob.setPriority(Job.LONG);
-							progressJob.setSystem(true);
-							progressJob.schedule();
+						if (this.progressJob == null) {
+							this.progressJob = new ProgressJob(Messages.manager_indexingInProgress); 
+							this.progressJob.setPriority(Job.LONG);
+							this.progressJob.setSystem(true);
+							this.progressJob.schedule();
 						}
 						/*boolean status = */job.execute(null);
 						//if (status == FAILED) request(job);
@@ -421,6 +425,11 @@ public abstract class JobManager implements Runnable {
 				}
 				// in case processing thread is handling a job
 				thread.join();
+			}
+			Job job = this.progressJob;
+			if (job != null) {
+				job.cancel();
+				job.join();
 			}
 		} catch (InterruptedException e) {
 			// ignore

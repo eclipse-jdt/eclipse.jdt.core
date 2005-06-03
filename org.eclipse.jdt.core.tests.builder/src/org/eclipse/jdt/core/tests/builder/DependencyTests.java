@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.builder;
 import junit.framework.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class DependencyTests extends Tests {
@@ -932,5 +933,57 @@ public class DependencyTests extends Tests {
 		expectingOnlyProblemsFor(new IPath[] {aPath});
 		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foo is not visible", aPath)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(aPath, new Problem("A", "The type Foos is not visible", aPath)); //$NON-NLS-1$ //$NON-NLS-2$
-}
+	}
+
+	public void testTypeVariable() throws JavaModelException {
+		if ((AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_5) == 0) return;
+
+		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath,""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+	
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A<T> {}\n" //$NON-NLS-1$
+		);
+
+		IPath bPath = env.addClass(root, "p2", "B", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p2;\n"+ //$NON-NLS-1$
+			"public class B<T> extends p1.A<T> {}\n" //$NON-NLS-1$
+		);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A {}\n" //$NON-NLS-1$
+		);
+
+		incrementalBuild(projectPath);
+		expectingOnlyProblemsFor(new IPath[] {bPath});
+		expectingSpecificProblemFor(bPath, new Problem("B", "The type A is not generic; it cannot be parameterized with arguments <T>", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A<T extends Comparable> {}\n" //$NON-NLS-1$
+		);
+
+		incrementalBuild(projectPath);
+		expectingOnlyProblemsFor(new IPath[] {bPath});
+		expectingSpecificProblemFor(bPath, new Problem("B", "Bound mismatch: The type T is not a valid substitute for the bounded parameter <T extends Comparable> of the type A<T>", bPath)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n"+ //$NON-NLS-1$
+			"public class A<T> {}\n" //$NON-NLS-1$
+		);
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
 }

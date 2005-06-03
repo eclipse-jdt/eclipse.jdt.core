@@ -11,8 +11,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class JavadocAllocationExpression extends AllocationExpression {
 
@@ -71,7 +69,8 @@ public class JavadocAllocationExpression extends AllocationExpression {
 			return null;
 		}
 		this.resolvedType = scope.convertToRawType(this.type.resolvedType);
-		this.superAccess = scope.enclosingSourceType().isCompatibleWith(this.resolvedType);
+		SourceTypeBinding enclosingType = scope.enclosingSourceType();
+		this.superAccess = enclosingType==null ? false : enclosingType.isCompatibleWith(this.resolvedType);
 	
 		ReferenceBinding allocationType = (ReferenceBinding) this.resolvedType;
 		this.binding = scope.getConstructor(allocationType, argumentTypes, this);
@@ -124,27 +123,17 @@ public class JavadocAllocationExpression extends AllocationExpression {
 		if (isMethodUseDeprecated(this.binding, scope)) {
 			scope.problemReporter().javadocDeprecatedMethod(this.binding, this, scope.getDeclarationModifiers());
 		}
-		// TODO (frederic) add support for unsafe type operation warning
 		return allocationType;
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
-	 */
+
 	public boolean isSuperAccess() {
 		return this.superAccess;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
 	public TypeBinding resolveType(BlockScope scope) {
 		return internalResolveType(scope);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
 	public TypeBinding resolveType(ClassScope scope) {
 		return internalResolveType(scope);
 	}

@@ -22,6 +22,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
+	String reportMissingJavadocCommentsVisibility = null;
 
 	public JavadocTest_1_5(String name) {
 		super(name);
@@ -34,9 +35,9 @@ public class JavadocTest_1_5 extends JavadocTest {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_PREFIX = "testBug83127";
-//		TESTS_NAMES = new String[] { "testBug83127g" };
-//		TESTS_NUMBERS = new int[] { 83393 };
+//		TESTS_PREFIX = "testBug95521";
+//		TESTS_NAMES = new String[] { "testBug83127a" };
+//		TESTS_NUMBERS = new int[] { 83804 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
@@ -51,6 +52,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
 		else
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportInvalidJavadoc);
+		if (reportMissingJavadocCommentsVisibility != null) 
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsVisibility, reportMissingJavadocCommentsVisibility);
 		if (reportMissingJavadocTags != null) 
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportMissingJavadocTags);
 		else
@@ -144,7 +147,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"----------\n" + 
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	* {@value \"invalid}\n" + 
-				"	         ^^^^^^^^^^\n" + 
+				"	          ^^^^^^^^^\n" + 
 				"Javadoc: Invalid reference\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 3)\n" + 
@@ -1693,6 +1696,182 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	            ^^^\n" + 
 			"Javadoc: The method foo(Exception, boolean...) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
 			"----------\n"
+		);
+	}
+
+	/**
+	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
+	 */
+	public void testBug83804() {
+		runNegativeTest(
+			new String[] {
+				"pack/package-info.java",
+				"/**\n" + 
+				" * Valid javadoc.\n" + 
+				" * @see Test\n" + 
+				" * @see Unknown\n" + 
+				" * @see Test#foo()\n" + 
+				" * @see Test#unknown()\n" + 
+				" * @see Test#field\n" + 
+				" * @see Test#unknown\n" + 
+				" * @param unexpected\n" + 
+				" * @throws unexpected\n" + 
+				" * @return unexpected \n" + 
+				" * @deprecated accepted by javadoc.exe although javadoc 1.5 spec does not say that's a valid tag\n" + 
+				" * @other-tags are valid\n" + 
+				" */\n" + 
+				"package pack;\n",
+				"pack/Test.java",
+				"/**\n" + 
+				" * Invalid javadoc\n" + 
+				" */\n" + 
+				"package pack;\n" + 
+				"public class Test {\n" + 
+				"	public int field;\n" + 
+				"	public void foo() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in pack\\package-info.java (at line 4)\n" + 
+			"	* @see Unknown\n" + 
+			"	       ^^^^^^^\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in pack\\package-info.java (at line 6)\n" + 
+			"	* @see Test#unknown()\n" + 
+			"	            ^^^^^^^\n" + 
+			"Javadoc: The method unknown() is undefined for the type Test\n" + 
+			"----------\n" + 
+			"3. ERROR in pack\\package-info.java (at line 8)\n" + 
+			"	* @see Test#unknown\n" + 
+			"	            ^^^^^^^\n" + 
+			"Javadoc: unknown cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"4. ERROR in pack\\package-info.java (at line 9)\n" + 
+			"	* @param unexpected\n" + 
+			"	   ^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"5. ERROR in pack\\package-info.java (at line 10)\n" + 
+			"	* @throws unexpected\n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"6. ERROR in pack\\package-info.java (at line 11)\n" + 
+			"	* @return unexpected \n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Bug 95286: [1.5][javadoc] package-info.java incorrectly flags "Missing comment for public declaration"
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95286"
+	 */
+	public void testBug95286_Default() {
+		this.reportMissingJavadocComments = CompilerOptions.ERROR;
+		this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
+		runConformTest(
+			new String[] {
+				"test/package-info.java",
+				"/**\n" + 
+				" * Javadoc for all package \n" + 
+				" */\n" + 
+				"package test;\n"
+			}
+		);
+	}
+	public void testBug95286_Private() {
+		this.reportMissingJavadocComments = CompilerOptions.ERROR;
+		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
+		runConformTest(
+			new String[] {
+				"test/package-info.java",
+				"/**\n" + 
+				" * Javadoc for all package \n" + 
+				" */\n" + 
+				"package test;\n"
+			}
+		);
+	}
+
+	/**
+	 * Bug 95521: [1.5][javadoc] validation with @see tag not working for generic method
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95521"
+	 */
+	public void testBug95521() {
+		runConformTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" + 
+				"\n" + 
+				"/** Test */\n" + 
+				"public class X implements I {\n" + 
+				"	/**\n" + 
+				"	 * @see test.I#foo(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"	public <T> G<T> foo(Class<T> stuffClass) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/** Interface */\n" + 
+				"interface I {\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param stuffClass \n" + 
+				"     * @return stuff\n" + 
+				"     */\n" + 
+				"    public <T extends Object> G<T> foo(Class<T> stuffClass);\n" + 
+				"}\n" + 
+				"/** \n" + 
+				" * @param <T>\n" + 
+				" */\n" + 
+				"class G<T> {}\n"
+			}
+		);
+	}
+	public void testBug95521b() {
+		runConformTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" + 
+				"\n" + 
+				"/** Test */\n" + 
+				"public class X {\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param classT \n" + 
+				"     */\n" + 
+				"	public <T> X(Class<T> classT) {\n" + 
+				"	}\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param classT\n" + 
+				"     * @return classT\n" + 
+				"     */\n" + 
+				"	public <T> Class<T> foo(Class<T> classT) {\n" + 
+				"		return classT;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/** Super class */\n" + 
+				"class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * @see X#X(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"	public <T> Y(Class<T> classT) {\n" + 
+				"		super(classT);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @see X#foo(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"    public <T extends Object> Class<T> foo(Class<T> stuffClass) {\n" + 
+				"    	return null;\n" + 
+				"    }\n" + 
+				"}\n"
+			}
 		);
 	}
 }

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -21,7 +22,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jface.text.IDocument;
 
 /**
@@ -61,7 +62,7 @@ protected IJavaElement generateResultHandle() {
  * @see CreateElementInCUOperation#getMainTaskName()
  */
 public String getMainTaskName(){
-	return Util.bind("operation.createFieldProgress"); //$NON-NLS-1$
+	return Messages.operation_createFieldProgress; 
 }
 /**
  * By default the new field is positioned after the last existing field
@@ -71,11 +72,19 @@ public String getMainTaskName(){
 protected void initializeDefaultPosition() {
 	IType parentElement = getType();
 	try {
-		IJavaElement[] elements = parentElement.getFields();
-		if (elements != null && elements.length > 0) {
-			createAfter(elements[elements.length - 1]);
+		IField[] fields = parentElement.getFields();
+		if (fields != null && fields.length > 0) {
+			final IField lastField = fields[fields.length - 1];
+			if (parentElement.isEnum()) {
+				IField field = lastField;
+				if (!field.isEnumConstant()) {
+					createAfter(lastField);
+				}
+			} else {
+				createAfter(lastField);
+			}
 		} else {
-			elements = parentElement.getChildren();
+			IJavaElement[] elements = parentElement.getChildren();
 			if (elements != null && elements.length > 0) {
 				createBefore(elements[0]);
 			}
@@ -94,7 +103,7 @@ protected IJavaModelStatus verifyNameCollision() {
 		if (type.getField(fieldName).exists()) {
 			return new JavaModelStatus(
 				IJavaModelStatusConstants.NAME_COLLISION, 
-				Util.bind("status.nameCollision", fieldName)); //$NON-NLS-1$
+				Messages.bind(Messages.status_nameCollision, fieldName)); 
 		}
 	}
 	return JavaModelStatus.VERIFIED_OK;

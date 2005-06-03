@@ -1163,6 +1163,96 @@ public void test34() {
 		expectedReplacedSource,
 		testName); 
 }
+public void test34a() {
+
+	String str = 
+		"import java.io.*;									\n" + 
+		"													\n" + 
+		"public class X extends IOException {			\n" + 
+		"}													\n"; 
+
+	String completeBehind = "IOE";
+	String expectedCompletionNodeToString = "<CompleteOnClass:IOE>";
+	String completionIdentifier = "IOE";
+	String expectedUnitDisplayString =
+		"import java.io.*;\n" + 
+		"public class X extends <CompleteOnClass:IOE> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "IOException";
+	String testName = "<complete on superclass before a unicode>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName); 
+}
+public void test34b() {
+
+	String str = 
+		"import java.io.*;									\n" + 
+		"													\n" + 
+		"public class X extends IOE\\u0078c\\u0065ption {			\n" + 
+		"}													\n"; 
+
+	String completeBehind = "IOE\\u0078c\\u0065p";
+	String expectedCompletionNodeToString = "<CompleteOnClass:IOExcep>";
+	String completionIdentifier = "IOExcep";
+	String expectedUnitDisplayString =
+		"import java.io.*;\n" + 
+		"public class X extends <CompleteOnClass:IOExcep> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "IOE\\u0078c\\u0065ption";
+	String testName = "<complete on superclass behind a unicode>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName); 
+}
+public void test34c() {
+
+	String str = 
+		"import java.io.*;									\n" + 
+		"													\n" + 
+		"public class X \\u0065xt\\u0065nds IOE\\u0078c\\u0065ption {			\n" + 
+		"}													\n"; 
+
+	String completeBehind = "IOE\\u0078c\\u0065p";
+	String expectedCompletionNodeToString = "<CompleteOnClass:IOExcep>";
+	String completionIdentifier = "IOExcep";
+	String expectedUnitDisplayString =
+		"import java.io.*;\n" + 
+		"public class X extends <CompleteOnClass:IOExcep> {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "IOE\\u0078c\\u0065ption";
+	String testName = "<complete on superclass behind a unicode>";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	this.checkDietParse(
+		str.toCharArray(), 
+		cursorLocation, 
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName); 
+}
 /*
  * Invalid completion inside a unicode
  *

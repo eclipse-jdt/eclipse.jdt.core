@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -191,7 +192,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * @see MultiOperation
 	 */
 	protected String getMainTaskName() {
-		return Util.bind("operation.copyResourceProgress"); //$NON-NLS-1$
+		return Messages.operation_copyResourceProgress; 
 	}
 	/**
 	 * Sets the deltas to register the changes resulting from this operation
@@ -255,7 +256,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 						// abort
 						throw new JavaModelException(new JavaModelStatus(
 							IJavaModelStatusConstants.NAME_COLLISION, 
-							Util.bind("status.nameCollision", destFile.getFullPath().toString()))); //$NON-NLS-1$
+							Messages.bind(Messages.status_nameCollision, destFile.getFullPath().toString()))); 
 					}
 				}
 				int flags = this.force ? IResource.FORCE : IResource.NONE;
@@ -298,7 +299,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			if (!this.force) {
 				throw new JavaModelException(new JavaModelStatus(
 					IJavaModelStatusConstants.NAME_COLLISION, 
-					Util.bind("status.nameCollision", destFile.getFullPath().toString()))); //$NON-NLS-1$
+					Messages.bind(Messages.status_nameCollision, (new String[] {destFile.getFullPath().toString()})))); 
 			}
 			// update new resource content
 			// in case we do a saveas on the same resource we have to simply update the contents
@@ -422,7 +423,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 								} else {
 									throw new JavaModelException(new JavaModelStatus(
 										IJavaModelStatusConstants.NAME_COLLISION, 
-										Util.bind("status.nameCollision", destinationResource.getFullPath().toString()))); //$NON-NLS-1$
+										Messages.bind(Messages.status_nameCollision, destinationResource.getFullPath().toString()))); 
 								}
 							}
 						}
@@ -438,7 +439,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 								} else {
 									throw new JavaModelException(new JavaModelStatus(
 										IJavaModelStatusConstants.NAME_COLLISION, 
-										Util.bind("status.nameCollision", destinationResource.getFullPath().toString()))); //$NON-NLS-1$
+										Messages.bind(Messages.status_nameCollision, (new String[] {destinationResource.getFullPath().toString()})))); 
 								}
 							}
 						}

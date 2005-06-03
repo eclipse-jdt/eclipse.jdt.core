@@ -99,6 +99,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_ReportIncompleteEnumSwitch = "org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"; //$NON-NLS-1$
 	public static final String OPTION_ReportForbiddenReference =  "org.eclipse.jdt.core.compiler.problem.forbiddenReference"; //$NON-NLS-1$
 	public static final String OPTION_ReportDiscouragedReference =  "org.eclipse.jdt.core.compiler.problem.discouragedReference"; //$NON-NLS-1$
+	public static final String OPTION_SuppressWarnings =  "org.eclipse.jdt.core.compiler.problem.suppressWarnings"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnhandledWarningToken =  "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"; //$NON-NLS-1$
 	
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -177,6 +179,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long IncompleteEnumSwitch = ASTNode.Bit42L;
 	public static final long MissingDeprecatedAnnotation = ASTNode.Bit43L;
 	public static final long DiscouragedReference = ASTNode.Bit44L;
+	public static final long UnhandledWarningToken = ASTNode.Bit45L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -202,6 +205,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		| AnnotationSuperInterface
 		| TypeParameterHiding
 		| FinalParameterBound
+		| UnhandledWarningToken
 		/*| NullReference*/;
 
 	// Debug attributes
@@ -264,18 +268,20 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 
 	// check missing javadoc tags
 	public int reportMissingJavadocTagsVisibility = AccPrivate; 
-	public boolean reportMissingJavadocTagsOverriding = true;
+	public boolean reportMissingJavadocTagsOverriding = false;
 
 	// check missing javadoc comments
 	public int reportMissingJavadocCommentsVisibility = AccPublic; 
-	public boolean reportMissingJavadocCommentsOverriding = true; 
-	
+	public boolean reportMissingJavadocCommentsOverriding = false; 
+
 	// JSR bytecode inlining
 	public boolean inlineJsrBytecode = false;
 	
 	// javadoc comment support
 	public boolean docCommentSupport = false;
 	
+	// suppress warning annotation
+	public boolean suppressWarnings = true;
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -369,15 +375,17 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportSpecialParameterHidingField, this.reportSpecialParameterHidingField ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_MaxProblemPerUnit, String.valueOf(this.maxProblemsPerUnit));
 		optionsMap.put(OPTION_InlineJsr, this.inlineJsrBytecode ? ENABLED : DISABLED); 
-		optionsMap.put(OPTION_ReportNullReference, getSeverityString(NullReference)); 
+		optionsMap.put(OPTION_ReportNullReference, getSeverityString(NullReference));
+		optionsMap.put(OPTION_SuppressWarnings, this.suppressWarnings ? ENABLED : DISABLED); 
+		optionsMap.put(OPTION_ReportUnhandledWarningToken, getSeverityString(UnhandledWarningToken));
 		return optionsMap;		
 	}
 	
 	public int getSeverity(long irritant) {
-		if((this.warningThreshold & irritant) != 0)
-			return Warning;
 		if((this.errorThreshold & irritant) != 0)
 			return Error;
+		if((this.warningThreshold & irritant) != 0)
+			return Warning;
 		return Ignore;
 	}
 
@@ -553,6 +561,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				}
 			}
 		}
+		if ((optionValue = optionsMap.get(OPTION_SuppressWarnings)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.suppressWarnings = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.suppressWarnings = false;
+			}
+		}		
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportOverridingPackageDefaultMethod)) != null) updateSeverity(OverriddenPackageDefaultMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeprecation)) != null) updateSeverity(UsingDeprecatedAPI, optionValue);
@@ -593,6 +608,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingOverrideAnnotation)) != null) updateSeverity(MissingOverrideAnnotation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingDeprecatedAnnotation)) != null) updateSeverity(MissingDeprecatedAnnotation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportIncompleteEnumSwitch)) != null) updateSeverity(IncompleteEnumSwitch, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnhandledWarningToken)) != null) updateSeverity(UnhandledWarningToken, optionValue);
 		
 		// Javadoc options
 		if ((optionValue = optionsMap.get(OPTION_DocCommentSupport)) != null) {
@@ -605,7 +621,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportInvalidJavadoc)) != null) {
 			updateSeverity(InvalidJavadoc, optionValue);
 		}
-		if ((optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTagsVisibility)) != null) {
+		if ( (optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTagsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
 				this.reportInvalidJavadocTagsVisibility = AccPublic;
 			} else if (PROTECTED.equals(optionValue)) {
@@ -752,7 +768,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- annotation super interface: ").append(getSeverityString(AnnotationSuperInterface)); //$NON-NLS-1$
 		buf.append("\n\t- missing @Override annotation: ").append(getSeverityString(MissingOverrideAnnotation)); //$NON-NLS-1$		
 		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$		
-		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$		
+		buf.append("\n\t- incomplete enum switch: ").append(getSeverityString(IncompleteEnumSwitch)); //$NON-NLS-1$
+		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$
 		return buf.toString();
 	}
 
@@ -796,5 +814,287 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			return VERSION_1_5;
 		}
 		return ""; // unknown version //$NON-NLS-1$
+	}
+	
+	/**
+	 * Return all warning option names for use as keys in compiler options maps.
+	 * @return all warning option names
+	 */
+	public static String[] warningOptionNames() {
+		String[] result = {
+			OPTION_ReportAnnotationSuperInterface,
+			OPTION_ReportAssertIdentifier,
+			OPTION_ReportAutoboxing,
+			OPTION_ReportDeprecation,
+			OPTION_ReportDiscouragedReference,
+			OPTION_ReportEmptyStatement,
+			OPTION_ReportEnumIdentifier,
+			OPTION_ReportFieldHiding,
+			OPTION_ReportFinalParameterBound,
+			OPTION_ReportFinallyBlockNotCompletingNormally,
+			OPTION_ReportForbiddenReference,
+			OPTION_ReportHiddenCatchBlock,
+			OPTION_ReportIncompatibleNonInheritedInterfaceMethod,
+			OPTION_ReportIncompleteEnumSwitch,
+			OPTION_ReportIndirectStaticAccess,
+			OPTION_ReportInvalidJavadoc,
+			OPTION_ReportLocalVariableHiding,
+			OPTION_ReportMethodWithConstructorName,
+			OPTION_ReportMissingDeprecatedAnnotation,
+			OPTION_ReportMissingJavadocComments,
+			OPTION_ReportMissingJavadocTags,
+			OPTION_ReportMissingOverrideAnnotation,
+			OPTION_ReportMissingSerialVersion,
+			OPTION_ReportNoEffectAssignment,
+			OPTION_ReportNoImplicitStringConversion,
+			OPTION_ReportNonExternalizedStringLiteral,
+			OPTION_ReportNonStaticAccessToStatic,
+			OPTION_ReportNullReference,
+			OPTION_ReportOverridingPackageDefaultMethod,
+			OPTION_ReportPossibleAccidentalBooleanAssignment,
+			OPTION_ReportSyntheticAccessEmulation,
+			OPTION_ReportTypeParameterHiding,
+			OPTION_ReportUncheckedTypeOperation,
+			OPTION_ReportUndocumentedEmptyBlock,
+			OPTION_ReportUnnecessaryElse,
+			OPTION_ReportUnnecessaryTypeCheck,
+			OPTION_ReportUnqualifiedFieldAccess,
+			OPTION_ReportUnusedDeclaredThrownException,
+			OPTION_ReportUnusedImport,
+			OPTION_ReportUnusedLocal,
+			OPTION_ReportUnusedParameter,
+			OPTION_ReportUnusedPrivateMember,
+			OPTION_ReportVarargsArgumentNeedCast,
+			OPTION_ReportUnhandledWarningToken,
+		};
+		return result;
+	}
+	
+	public static String warningTokenFromIrritant(long irritant) {
+		int irritantInt = (int) irritant;
+		if (irritantInt == irritant) {
+			switch (irritantInt) {
+				case (int) MethodWithConstructorName :
+					return "constructorName"; //$NON-NLS-1$
+				case (int) OverriddenPackageDefaultMethod :
+					return "pkgDefaultMethod"; //$NON-NLS-1$
+				case (int) UsingDeprecatedAPI :
+					return "deprecation"; //$NON-NLS-1$
+				case (int) MaskedCatchBlock :
+					return "maskedCatchBlock"; //$NON-NLS-1$
+				case (int) UnusedLocalVariable :
+					return "unusedLocal"; //$NON-NLS-1$
+				case (int) UnusedArgument :
+					return "unusedArgument"; //$NON-NLS-1$
+				case (int) NoImplicitStringConversion :
+					return "charConcat"; //$NON-NLS-1$
+				case (int) AccessEmulation :
+					return "syntheticAccess"; //$NON-NLS-1$
+				case (int) NonExternalizedString :
+					return "nls"; //$NON-NLS-1$
+				case (int) AssertUsedAsAnIdentifier :
+					return "assertIdentifier"; //$NON-NLS-1$
+				case (int) UnusedImport :
+					return "unusedImport"; //$NON-NLS-1$
+				case (int) NonStaticAccessToStatic :
+					return "staticReceiver"; //$NON-NLS-1$
+				case (int) NoEffectAssignment :
+					return "noEffectAssign"; //$NON-NLS-1$
+				case (int) IncompatibleNonInheritedInterfaceMethod :
+					return "intfNonInherited"; //$NON-NLS-1$
+				case (int) UnusedPrivateMember :
+					return "unusedPrivate"; //$NON-NLS-1$
+				case (int) LocalVariableHiding :
+					return "localHiding"; //$NON-NLS-1$
+				case (int) FieldHiding :
+					return "fieldHiding"; //$NON-NLS-1$
+				case (int) AccidentalBooleanAssign :
+					return "conditionAssign"; //$NON-NLS-1$
+				case (int) EmptyStatement :		
+					return "semicolon"; //$NON-NLS-1$
+				case (int) MissingJavadocComments :
+				case (int) MissingJavadocTags :
+				case (int) InvalidJavadoc :
+				case (int) (MissingJavadocComments | MissingJavadocTags | InvalidJavadoc):
+					return "javadoc"; //$NON-NLS-1$
+				case (int) UnqualifiedFieldAccess :
+					return "unqualifiedField"; //$NON-NLS-1$
+				case (int) UnusedDeclaredThrownException :
+					return "unusedThrown"; //$NON-NLS-1$
+				case (int) FinallyBlockNotCompleting :
+					return "finally"; //$NON-NLS-1$
+				case (int) UnnecessaryTypeCheck :
+					return "uselessTypeCheck"; //$NON-NLS-1$
+				case (int) UndocumentedEmptyBlock :
+					return "emptyBlock"; //$NON-NLS-1$
+				case (int) IndirectStaticAccess :
+					return "indirectStatic"; //$NON-NLS-1$
+				case (int) UnnecessaryElse :
+					return "unnecessaryElse"; //$NON-NLS-1$
+				case (int) UncheckedTypeOperation :
+					return "unchecked"; //$NON-NLS-1$
+			}
+		} else {
+			irritantInt = (int)(irritant >>> 32);
+			switch (irritantInt) {
+				case (int) (FinalParameterBound >>> 32) :
+					return "finalBound"; //$NON-NLS-1$
+				case (int) (MissingSerialVersion >>> 32) :
+					return "serial"; //$NON-NLS-1$
+				case (int) (EnumUsedAsAnIdentifier >>> 32) :
+					return "enumIdentifier"; //$NON-NLS-1$
+				case (int) (ForbiddenReference >>> 32) :
+				case (int) (DiscouragedReference >>> 32) :
+				case (int) ((ForbiddenReference | DiscouragedReference) >>> 32)  :
+					return "restricted"; //$NON-NLS-1$
+				case (int) (VarargsArgumentNeedCast >>> 32) :
+					return "varargs"; //$NON-NLS-1$
+				case (int) (NullReference >>> 32) :
+					return "null"; //$NON-NLS-1$
+				case (int) (Autoboxing >>> 32) :
+					return "boxing"; //$NON-NLS-1$
+				case (int) (AnnotationSuperInterface >>> 32) :
+					return "intfAnnotation"; //$NON-NLS-1$
+				case (int) (TypeParameterHiding >>> 32) :
+					return "typeHiding"; //$NON-NLS-1$
+				case (int) (MissingOverrideAnnotation >>> 32) :
+					return "over-ann"; //$NON-NLS-1$
+				case (int) (IncompleteEnumSwitch >>> 32) :
+					return "enumSwitch"; //$NON-NLS-1$
+				case (int) (MissingDeprecatedAnnotation >>> 32) :
+					return "dep-ann"; //$NON-NLS-1$
+				case (int) (UnhandledWarningToken >>> 32) :
+					return "warningToken"; //$NON-NLS-1$
+			}
+		}
+		return null;
+	}
+	public static long warningTokenToIrritant(String warningToken) {
+		if (warningToken == null || warningToken.length() == 0) return 0;
+		switch (warningToken.charAt(0)) {
+			case 'a' :
+				if ("all".equals(warningToken)) //$NON-NLS-1$
+					return 0xFFFFFFFFFFFFFFFFl; // suppress all warnings
+				if ("assertIdentifier".equals(warningToken)) //$NON-NLS-1$
+					return AssertUsedAsAnIdentifier;
+				break;
+			case 'b' :
+				if ("boxing".equals(warningToken)) //$NON-NLS-1$
+					return Autoboxing;
+				break;
+			case 'c' :
+				if ("constructorName".equals(warningToken)) //$NON-NLS-1$
+					return MethodWithConstructorName;
+				if ("conditionAssign".equals(warningToken)) //$NON-NLS-1$
+					return AccidentalBooleanAssign;
+				if ("charConcat".equals(warningToken)) //$NON-NLS-1$
+					return NoImplicitStringConversion;
+				break;
+			case 'd' :
+				if ("deprecation".equals(warningToken)) //$NON-NLS-1$
+					return UsingDeprecatedAPI;
+				if ("dep-ann".equals(warningToken)) //$NON-NLS-1$
+					return MissingDeprecatedAnnotation;
+				break;
+			case 'e' :
+				if ("emptyBlock".equals(warningToken)) //$NON-NLS-1$
+					return UndocumentedEmptyBlock;
+				if ("enumIdentifier".equals(warningToken)) //$NON-NLS-1$
+					return EnumUsedAsAnIdentifier;
+				if ("enumSwitch".equals(warningToken)) //$NON-NLS-1$
+					return IncompleteEnumSwitch;
+				break;
+			case 'f' :
+				if ("fieldHiding".equals(warningToken)) //$NON-NLS-1$
+					return FieldHiding;
+				if ("finally".equals(warningToken)) //$NON-NLS-1$
+					return FinallyBlockNotCompleting;
+				if ("finalBound".equals(warningToken)) //$NON-NLS-1$
+					return FinalParameterBound;
+				break;
+			case 'i' :
+				if ("intfNonInherited".equals(warningToken)) //$NON-NLS-1$
+					return IncompatibleNonInheritedInterfaceMethod;
+				if ("indirectStatic".equals(warningToken)) //$NON-NLS-1$
+					return IndirectStaticAccess;
+				if ("intfAnnotation".equals(warningToken)) //$NON-NLS-1$
+					return AnnotationSuperInterface;
+				break;
+			case 'j' :
+				if ("javadoc".equals(warningToken)) //$NON-NLS-1$
+					return MissingJavadocComments | MissingJavadocTags | InvalidJavadoc;
+				break;
+			case 'l' :
+				if ("localHiding".equals(warningToken)) //$NON-NLS-1$
+					return LocalVariableHiding;
+				break;
+			case 'm' :
+				if ("maskedCatchBlock".equals(warningToken)) //$NON-NLS-1$
+					return MaskedCatchBlock;
+				break;
+			case 'n' :
+				if ("nls".equals(warningToken)) //$NON-NLS-1$
+					return AssertUsedAsAnIdentifier;
+				if ("noEffectAssign".equals(warningToken)) //$NON-NLS-1$
+					return NoEffectAssignment;
+				if ("null".equals(warningToken)) //$NON-NLS-1$
+					return NullReference;
+				break;
+			case 'o' :
+				if ("over-ann".equals(warningToken)) //$NON-NLS-1$
+					return MissingOverrideAnnotation;
+				break;
+			case 'p' :
+				if ("pkgDefaultMethod".equals(warningToken)) //$NON-NLS-1$
+					return OverriddenPackageDefaultMethod;
+				break;
+			case 'r' :
+				if ("restricted".equals(warningToken)) //$NON-NLS-1$
+					return ForbiddenReference | DiscouragedReference;
+				break;
+			case 's' :
+				if ("syntheticAccess".equals(warningToken)) //$NON-NLS-1$
+					return AccessEmulation;
+				if ("staticReceiver".equals(warningToken)) //$NON-NLS-1$
+					return NonStaticAccessToStatic;
+				if ("serial".equals(warningToken)) //$NON-NLS-1$
+					return MissingSerialVersion;
+				if ("semicolon".equals(warningToken)) //$NON-NLS-1$
+					return EmptyStatement;
+				break;
+			case 't' :
+				if ("typeHiding".equals(warningToken)) //$NON-NLS-1$
+					return TypeParameterHiding;
+				break;
+			case 'u' :
+				if ("unusedLocal".equals(warningToken)) //$NON-NLS-1$
+					return UnusedLocalVariable;
+				if ("unusedArgument".equals(warningToken)) //$NON-NLS-1$
+					return UnusedArgument;
+				if ("unchecked".equals(warningToken)) //$NON-NLS-1$
+					return UncheckedTypeOperation;
+				if ("unusedImport".equals(warningToken)) //$NON-NLS-1$
+					return UnusedImport;
+				if ("unusedPrivate".equals(warningToken)) //$NON-NLS-1$
+					return UnusedPrivateMember;
+				if ("unqualifiedField".equals(warningToken)) //$NON-NLS-1$
+					return UnqualifiedFieldAccess;
+				if ("unusedThrown".equals(warningToken)) //$NON-NLS-1$
+					return UnusedDeclaredThrownException;
+				if ("uselessTypeCheck".equals(warningToken)) //$NON-NLS-1$
+					return UnnecessaryTypeCheck;
+				if ("unnecessaryElse".equals(warningToken)) //$NON-NLS-1$
+					return UnnecessaryElse;
+				break;
+			case 'v' :
+				if ("varargs".equals(warningToken)) //$NON-NLS-1$
+					return VarargsArgumentNeedCast;
+				break;
+			case 'w' :
+				if ("warningToken".equals(warningToken)) //$NON-NLS-1$
+					return UnhandledWarningToken;
+				break;
+		}
+		return 0;
 	}
 }

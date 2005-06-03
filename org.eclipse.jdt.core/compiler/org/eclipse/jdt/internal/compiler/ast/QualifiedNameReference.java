@@ -90,7 +90,7 @@ public class QualifiedNameReference extends NameReference {
 		}
 		// all intermediate field accesses are read accesses
 		if (otherBindings != null) {
-			boolean complyTo14 = currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4;
+			boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 			for (int i = 0; i < otherBindingsCount-1; i++) {
 				lastFieldBinding = otherBindings[i];
 				needValue = !otherBindings[i+1].isStatic();
@@ -228,7 +228,7 @@ public class QualifiedNameReference extends NameReference {
 			// only for first binding
 		}
 		if (otherBindings != null) {
-			boolean complyTo14 = currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4;
+			boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 			for (int i = 0; i < otherBindingsCount; i++) {
 				needValue = i < otherBindingsCount-1 ? !otherBindings[i+1].isStatic() : valueRequired;
 				if (needValue || complyTo14) {
@@ -340,7 +340,7 @@ public class QualifiedNameReference extends NameReference {
 						codeStream.generateConstant(lastFieldBinding.constant(), implicitConversion);
 					}
 				} else {
-					if (valueRequired  || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+					if (valueRequired  || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 						if (lastFieldBinding.declaringClass == null) { // array length
 							codeStream.arraylength();
 							if (valueRequired) {
@@ -493,7 +493,7 @@ public class QualifiedNameReference extends NameReference {
 			implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 		codeStream.generateImplicitConversion(
-			postIncrement.assignmentImplicitConversion);
+			postIncrement.preAssignImplicitConversion);
 		fieldStore(codeStream, lastFieldBinding, syntheticWriteAccessor, false);
 	}
 	/*
@@ -507,7 +507,7 @@ public class QualifiedNameReference extends NameReference {
 		boolean needValue = otherBindingsCount == 0 || !this.otherBindings[0].isStatic();
 		FieldBinding lastFieldBinding = null;
 		TypeBinding lastGenericCast = null;
-		boolean complyTo14 = currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4;
+		boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 
 		switch (bits & RestrictiveFlagMASK) {
 			case Binding.FIELD :
@@ -655,7 +655,10 @@ public class QualifiedNameReference extends NameReference {
 		int index = indexOfFirstFieldBinding;
 		if (index == length) { //	restrictiveFlag == FIELD
 			this.constant = FieldReference.getConstantFor((FieldBinding) binding, this, false, scope);
-			return type;
+			// perform capture conversion if read access
+			return (type != null && (this.bits & IsStrictlyAssignedMASK) == 0)
+					? type.capture(scope, this.sourceEnd)
+					: type;
 		}
 		// allocation of the fieldBindings array	and its respective constants
 		int otherBindingsLength = length - index;
@@ -676,7 +679,7 @@ public class QualifiedNameReference extends NameReference {
 
 			bits &= ~DepthMASK; // flush previous depth if any		
 			FieldBinding previousField = field;
-			field = scope.getField(type, token, this);
+			field = scope.getField(type.capture(scope, (int)this.sourcePositions[index]), token, this);
 			int place = index - indexOfFirstFieldBinding;
 			otherBindings[place] = field;
 			otherDepths[place] = (bits & DepthMASK) >> DepthSHIFT;
@@ -724,7 +727,11 @@ public class QualifiedNameReference extends NameReference {
 			}
 		}
 		setDepth(firstDepth);
-		return (otherBindings[otherBindingsLength - 1]).type;
+		type = (otherBindings[otherBindingsLength - 1]).type;
+		// perform capture conversion if read access
+		return (type != null && (this.bits & IsStrictlyAssignedMASK) == 0)
+				? type.capture(scope, this.sourceEnd)
+				: type;		
 	}
 	public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 		if (!flowInfo.isReachable()) return;
@@ -787,7 +794,7 @@ public class QualifiedNameReference extends NameReference {
 				&& !lastReceiverType.isArrayType()
 				&& fieldBinding.declaringClass != null // array.length
 				&& !fieldBinding.isConstantValue()) {
-			CompilerOptions options = currentScope.environment().options;
+			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
 					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || fieldBinding != binding || indexOfFirstFieldBinding > 1 || !fieldBinding.isStatic())
 					&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields
@@ -857,7 +864,7 @@ public class QualifiedNameReference extends NameReference {
 						}
 						if (!fieldBinding.isStatic() 
 								&& this.indexOfFirstFieldBinding == 1
-								&& scope.environment().options.getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
+								&& scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 							scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
 						}
 						bits &= ~RestrictiveFlagMASK; // clear bits

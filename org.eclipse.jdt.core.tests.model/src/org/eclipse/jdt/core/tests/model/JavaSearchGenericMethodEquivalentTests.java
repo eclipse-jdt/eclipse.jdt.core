@@ -43,7 +43,8 @@ public class JavaSearchGenericMethodEquivalentTests extends JavaSearchGenericMet
 	 * Add line to result only if it is not an erasure match rule.
 	 */
 	void addResultLine(StringBuffer buffer, char[] line) {
-		if (!CharOperation.match(RESULT_ERASURE_MATCH, line, true)) {
+		if (!CharOperation.match(RESULT_ERASURE_MATCH, line, true) &&
+			!CharOperation.match(RESULT_POTENTIAL_MATCH, line, true)) {
 			super.addResultLine(buffer, line);
 		}
 	}

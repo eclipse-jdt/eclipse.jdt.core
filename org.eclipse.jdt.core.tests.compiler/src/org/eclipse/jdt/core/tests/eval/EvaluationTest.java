@@ -190,6 +190,35 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	/**
 	 * Evaluates the given code snippet and makes sure it returns a result with the given display string.
 	 */
+	public void evaluateWithExpectedDisplayString(Map compilerOptions, char[] codeSnippet, char[] displayString) {
+		Requestor requestor = new Requestor();
+		try {
+			context.evaluate(codeSnippet, getEnv(), compilerOptions, requestor, getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("Target exception " + e.getMessage(), false);
+		}
+		if (requestor.resultIndex != 0) {
+			for (int i = 0; i < requestor.resultIndex; i++) {
+				System.out.println("unexpected result[" + i + "]: " + requestor.results[i]);
+			}
+		}
+		assertTrue("Unexpected result", requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		assertTrue("Has problem", !result.hasProblems());
+		assertTrue("Empty problem list", result.getProblems().length == 0);
+		if (displayString == null) {
+			assertTrue("Has value", !result.hasValue());
+		} else {
+			assertTrue("Has value", result.hasValue());
+			assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
+			//assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
+			assertEquals("Value display string", displayString, result.getValueDisplayString());
+		}
+	}
+	
+	/**
+	 * Evaluates the given code snippet and makes sure it returns a result with the given display string.
+	 */
 	public void evaluateWithExpectedDisplayString(char[] codeSnippet, char[] displayString) {
 		Requestor requestor = new Requestor();
 		try {

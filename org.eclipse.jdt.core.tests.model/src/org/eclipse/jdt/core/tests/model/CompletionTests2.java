@@ -13,7 +13,10 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -21,16 +24,107 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IAccessRule;
+import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathContainer;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import junit.framework.*;
 
 public class CompletionTests2 extends ModifyingResourceTests implements RelevanceConstants {
-
+	
+	public static class CompletionContainerInitializer implements ContainerInitializer.ITestInitializer {
+		
+		public static class DefaultContainer implements IClasspathContainer {
+			char[][] libPaths;
+			boolean[] areExported;
+			String[] forbiddenReferences;
+			public DefaultContainer(char[][] libPaths, boolean[] areExported, String[] forbiddenReferences) {
+				this.libPaths = libPaths;
+				this.areExported = areExported;
+				this.forbiddenReferences = forbiddenReferences;
+			}
+			public IClasspathEntry[] getClasspathEntries() {
+				int length = this.libPaths.length;
+				IClasspathEntry[] entries = new IClasspathEntry[length];
+				for (int j = 0; j < length; j++) {
+				    IPath path = new Path(new String(this.libPaths[j]));
+				    boolean isExported = this.areExported[j];
+		
+				    IAccessRule[] accessRules;
+				    if(forbiddenReferences != null && forbiddenReferences[j]!= null && forbiddenReferences[j].length() != 0) {
+					    StringTokenizer tokenizer = new StringTokenizer(forbiddenReferences[j], ";");
+					    int count = tokenizer.countTokens();
+					    accessRules = new IAccessRule[count];
+					    String token = null;
+					    for (int i = 0; i < count; i++) {
+					    	token = tokenizer.nextToken();
+							accessRules[i] = JavaCore.newAccessRule(new Path(token), IAccessRule.K_NON_ACCESSIBLE);
+						}
+					} else {
+						accessRules = new IAccessRule[0];
+					}
+				    if (path.segmentCount() == 1) {
+				        entries[j] = JavaCore.newProjectEntry(path, accessRules, true, new IClasspathAttribute[0], isExported);
+				    } else {
+						entries[j] = JavaCore.newLibraryEntry(path, null, null, accessRules, new IClasspathAttribute[0], isExported);
+				    }
+				}
+				return entries;
+			}
+			public String getDescription() {
+				return "Test container";
+			}
+			public int getKind() {
+				return IClasspathContainer.K_APPLICATION;
+			}
+			public IPath getPath() {
+				return new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER");
+			}
+		}
+		
+		Map containerValues;
+		CoreException exception;
+		
+		public CompletionContainerInitializer(String projectName, String[] libPaths, boolean[] areExported) {
+			this(projectName, libPaths, areExported, null);
+		}
+		public CompletionContainerInitializer(String projectName, String[] libPaths, boolean[] areExported, String[] forbiddenRefrences) {
+			containerValues = new HashMap();
+			
+			int libPathsLength = libPaths.length;
+			char[][] charLibPaths = new char[libPathsLength][];
+			for (int i = 0; i < libPathsLength; i++) {
+				charLibPaths[i] = libPaths[i].toCharArray();
+			}
+			containerValues.put(
+				projectName, 
+				newContainer(charLibPaths, areExported, forbiddenRefrences)
+			);
+		}
+		protected DefaultContainer newContainer(final char[][] libPaths, final boolean[] areExperted, final String[] forbiddenRefrences) {
+			return new DefaultContainer(libPaths, areExperted, forbiddenRefrences);
+		}
+		public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+			if (containerValues == null) return;
+			try {
+				JavaCore.setClasspathContainer(
+					containerPath, 
+					new IJavaProject[] {project},
+					new IClasspathContainer[] {(IClasspathContainer)containerValues.get(project.getElementName())}, 
+					null);
+			} catch (CoreException e) {
+				this.exception = e;
+				throw e;
+			}
+		}
+	}
 public CompletionTests2(String name) {
 	super(name);
 }
@@ -60,6 +154,9 @@ public static Test suite() {
 	
 	suite.addTest(new CompletionTests2("testBug29832"));
 	suite.addTest(new CompletionTests2("testBug33560"));
+	suite.addTest(new CompletionTests2("testBug79288"));
+	suite.addTest(new CompletionTests2("testBug91772"));
+	suite.addTest(new CompletionTests2("testBug93891"));
 	suite.addTest(new CompletionTests2("testAccessRestriction1"));
 	suite.addTest(new CompletionTests2("testAccessRestriction2"));
 	suite.addTest(new CompletionTests2("testAccessRestriction3"));
@@ -72,6 +169,8 @@ public static Test suite() {
 	suite.addTest(new CompletionTests2("testAccessRestriction10"));
 	suite.addTest(new CompletionTests2("testAccessRestriction11"));
 	suite.addTest(new CompletionTests2("testAccessRestriction12"));
+	suite.addTest(new CompletionTests2("testAccessRestriction13"));
+	suite.addTest(new CompletionTests2("testAccessRestriction14"));
 	return suite;
 }
 
@@ -103,7 +202,7 @@ public void testBug29832() throws Exception {
 		IJavaProject p = this.createJavaProject(
 			"P1",
 			new String[]{},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "");
 		this.createFile("/P1/lib.jar", f.getContents());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
@@ -112,7 +211,7 @@ public void testBug29832() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P1"},
 			"bin");
 		this.createFile(
@@ -120,6 +219,8 @@ public void testBug29832() throws Exception {
 			"public class X {\n"+
 			"  ZZZ z;\n"+
 			"}");
+		
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -187,6 +288,7 @@ public void testBug29832() throws Exception {
 		getWorkspace().run(populate, null);
 		JavaCore.create(project);
 		
+		waitUntilIndexesReady();
 		
 		// do completion
 		requestor = new CompletionTestsRequestor();
@@ -216,7 +318,7 @@ public void testBug33560() throws Exception {
 		IJavaProject p = this.createJavaProject(
 			"P1",
 			new String[]{},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "");
 		this.createFile("/P1/lib.jar", f.getContents());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
@@ -225,7 +327,7 @@ public void testBug33560() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P1"},
 			new boolean[]{true},
 			"bin");
@@ -234,7 +336,7 @@ public void testBug33560() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P2"},
 			"bin");
 		this.createFile(
@@ -242,6 +344,8 @@ public void testBug33560() throws Exception {
 			"public class X {\n"+
 			"  ZZZ z;\n"+
 			"}");
+		
+		waitUntilIndexesReady();
 		
 		// do completion
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -309,6 +413,7 @@ public void testBug33560() throws Exception {
 		getWorkspace().run(populate, null);
 		JavaCore.create(project);
 		
+		waitUntilIndexesReady();
 		
 		// do completion
 		requestor = new CompletionTestsRequestor();
@@ -323,13 +428,172 @@ public void testBug33560() throws Exception {
 		this.deleteProject("P3");
 	}
 }
-public void testAccessRestriction1() throws Exception {
+public void testBug79288() throws Exception {
+	try {
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
+
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			 "bin");
+		
+		this.createFolder("/P1/src/a");
+		this.createFile(
+				"/P1/src/a/XX1.java",
+				"package a;\n"+
+				"public class XX1 {\n"+
+				"}");
+		
+		// create P2
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			new String[]{"/P1"},
+			"bin");
+		
+		this.createFolder("/P2/src/b");
+		this.createFile(
+				"/P2/src/b/XX2.java",
+				"package b;\n"+
+				"public class XX2 {\n"+
+				"}");
+		
+		// create P3
+		this.createJavaProject(
+			"P3",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			new String[]{"/P2"},
+			"bin");
+		
+		this.createFile(
+				"/P3/src/YY.java",
+				"public class YY {\n"+
+				"  vois foo(){\n"+
+				"    XX\n"+
+				"  }\n"+
+				"}");
+		
+		waitUntilIndexesReady();
+		
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P3", "src", "", "YY.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "XX";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+		this.deleteProject("P3");
+	}
+}
+public void testBug91772() throws Exception {
+	try {
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
+
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			 "bin");
+		
+		this.createFolder("/P1/src/a");
+		this.createFile(
+				"/P1/src/a/XX1.java",
+				"package a;\n"+
+				"public class XX1 {\n"+
+				"}");
+		
+		// create P2
+		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}));
+		String[] classLib = new String[]{"JCL_LIB"};
+		int classLibLength = classLib.length;
+		String[] lib = new String[classLibLength + 1];
+		System.arraycopy(classLib, 0, lib, 0, classLibLength);
+		lib[classLibLength] = "org.eclipse.jdt.core.tests.model.TEST_CONTAINER";
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			lib,
+			"bin");
+		
+		this.createFolder("/P2/src/b");
+		this.createFile(
+				"/P2/src/b/XX2.java",
+				"package b;\n"+
+				"public class XX2 {\n"+
+				"}");
+		
+		// create P3
+		this.createJavaProject(
+			"P3",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			new String[]{"/P2"},
+			"bin");
+		
+		this.createFile(
+				"/P3/src/YY.java",
+				"public class YY {\n"+
+				"  vois foo(){\n"+
+				"    XX\n"+
+				"  }\n"+
+				"}");
+		
+		waitUntilIndexesReady();
+		
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P3", "src", "", "YY.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "XX";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+			"XX1[TYPE_REF]{a.XX1, a, La.XX1;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+		this.deleteProject("P3");
+		
+		
+		// TODO the following code is not the correct way to remove the container
+		// Cleanup caches
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.containers = new HashMap(5);
+		manager.variables = new HashMap(5);
+	}
+}
+public void testBug93891() throws Exception {
 	Hashtable oldOptions = JavaCore.getOptions();
 	try {
 		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -342,7 +606,93 @@ public void testAccessRestriction1() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
+			 "bin");
+		
+		this.createFolder("/P1/src/a");
+		this.createFile(
+				"/P1/src/a/XX1.java",
+				"package a;\n"+
+				"public class XX1 {\n"+
+				"}");
+		
+		this.createFolder("/P1/src/b");
+		this.createFile(
+				"/P1/src/b/XX2.java",
+				"package b;\n"+
+				"public class XX2 {\n"+
+				"}");
+		
+		// create P2
+		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}, new String[]{"a/*"}));
+		String[] classLib = new String[]{"JCL_LIB"};
+		int classLibLength = classLib.length;
+		String[] lib = new String[classLibLength + 1];
+		System.arraycopy(classLib, 0, lib, 0, classLibLength);
+		lib[classLibLength] = "org.eclipse.jdt.core.tests.model.TEST_CONTAINER";
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			lib,
+			"bin");
+		
+		this.createFolder("/P2/src/b");
+		this.createFile(
+				"/P2/src/YY.java",
+				"public class YY {\n"+
+				"  void foo() {\n"+
+				"    XX\n"+
+				"  }\n"+
+				"}");
+		
+		waitUntilIndexesReady();
+		
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "XX";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+		
+		// TODO the following code is not the correct way to remove the container
+		// Cleanup caches
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		manager.containers = new HashMap(5);
+		manager.variables = new HashMap(5);
+		
+		JavaCore.setOptions(oldOptions);
+	}
+}
+public void testAccessRestriction1() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
+		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+		JavaCore.setOptions(options);
+		
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
+
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -363,7 +713,7 @@ public void testAccessRestriction1() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			new String[]{"/P1"},
 			"bin");
 		this.createFile(
@@ -403,6 +753,7 @@ public void testAccessRestriction2() throws Exception {
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -415,7 +766,7 @@ public void testAccessRestriction2() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -436,7 +787,7 @@ public void testAccessRestriction2() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -483,6 +834,7 @@ public void testAccessRestriction3() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -495,7 +847,7 @@ public void testAccessRestriction3() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -516,7 +868,7 @@ public void testAccessRestriction3() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -564,6 +916,7 @@ public void testAccessRestriction4() throws Exception {
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -576,7 +929,7 @@ public void testAccessRestriction4() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -597,7 +950,7 @@ public void testAccessRestriction4() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -644,6 +997,7 @@ public void testAccessRestriction5() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -656,7 +1010,7 @@ public void testAccessRestriction5() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -677,7 +1031,7 @@ public void testAccessRestriction5() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -723,6 +1077,7 @@ public void testAccessRestriction6() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -735,7 +1090,7 @@ public void testAccessRestriction6() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -763,7 +1118,7 @@ public void testAccessRestriction6() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -780,7 +1135,7 @@ public void testAccessRestriction6() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P2"},
@@ -828,6 +1183,7 @@ public void testAccessRestriction7() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -840,7 +1196,7 @@ public void testAccessRestriction7() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -861,7 +1217,7 @@ public void testAccessRestriction7() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1", "/P3"},
@@ -885,7 +1241,7 @@ public void testAccessRestriction7() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -925,6 +1281,7 @@ public void testAccessRestriction8() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -937,7 +1294,7 @@ public void testAccessRestriction8() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/a");
@@ -958,7 +1315,7 @@ public void testAccessRestriction8() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P3", "/P1"},
@@ -982,7 +1339,7 @@ public void testAccessRestriction8() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1023,6 +1380,7 @@ public void testAccessRestriction9() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1035,7 +1393,7 @@ public void testAccessRestriction9() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/p11");
@@ -1056,7 +1414,7 @@ public void testAccessRestriction9() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1", "/P3"},
@@ -1087,7 +1445,7 @@ public void testAccessRestriction9() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1118,7 +1476,7 @@ public void testAccessRestriction9() throws Exception {
 		this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				Util.getJavaClassLibs(),
+				new String[]{"JCL_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -1170,6 +1528,7 @@ public void testAccessRestriction10() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1182,7 +1541,7 @@ public void testAccessRestriction10() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/p11");
@@ -1203,7 +1562,7 @@ public void testAccessRestriction10() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1", "/P3"},
@@ -1234,7 +1593,7 @@ public void testAccessRestriction10() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1265,7 +1624,7 @@ public void testAccessRestriction10() throws Exception {
 		this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				Util.getJavaClassLibs(),
+				new String[]{"JCL_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -1319,6 +1678,7 @@ public void testAccessRestriction11() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1331,7 +1691,7 @@ public void testAccessRestriction11() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/x/y/z/p11");
@@ -1352,7 +1712,7 @@ public void testAccessRestriction11() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P3", "/P1"},
@@ -1383,7 +1743,7 @@ public void testAccessRestriction11() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1414,7 +1774,7 @@ public void testAccessRestriction11() throws Exception {
 		this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				Util.getJavaClassLibs(),
+				new String[]{"JCL_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -1466,6 +1826,7 @@ public void testAccessRestriction12() throws Exception {
 		Hashtable options = new Hashtable(oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 		
 		// create variable
@@ -1478,7 +1839,7 @@ public void testAccessRestriction12() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			 "bin");
 		
 		this.createFolder("/P1/src/p11");
@@ -1499,7 +1860,7 @@ public void testAccessRestriction12() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P3", "/P1"},
@@ -1530,7 +1891,7 @@ public void testAccessRestriction12() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			Util.getJavaClassLibs(),
+			new String[]{"JCL_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -1561,7 +1922,7 @@ public void testAccessRestriction12() throws Exception {
 		this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				Util.getJavaClassLibs(),
+				new String[]{"JCL_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -1609,6 +1970,166 @@ public void testAccessRestriction12() throws Exception {
 		JavaCore.setOptions(oldOptions);
 	}
 }
+public void testAccessRestriction13() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+		JavaCore.setOptions(options);
+		
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
+
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			 "bin");
+		
+		this.createFolder("/P1/src/a");
+		this.createFile(
+				"/P1/src/a/XX1.java",
+				"package a;\n"+
+				"public class XX1 {\n"+
+				"}");
+
+		this.createFolder("/P1/src/b");
+		this.createFile(
+				"/P1/src/b/XX2.java",
+				"package b;\n"+
+				"public class XX2 {\n"+
+				"}");
+		
+		// create P2
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			null,
+			null,
+			new String[]{"/P1"},
+			new String[][]{{}},
+			new String[][]{{"a/*"}},
+			new boolean[]{false},
+			"bin",
+			null,
+			null,
+			null,
+			"1.4");
+		this.createFile(
+			"/P2/src/YY.java",
+			"public class YY {\n"+
+			"  void foo() {\n"+
+			"    XX\n"+
+			"  }\n"+
+			"}");
+		
+		waitUntilIndexesReady();
+		
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "XX";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+		JavaCore.setOptions(oldOptions);
+	}
+}
+public void testAccessRestriction14() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
+
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			 "bin");
+		
+		this.createFolder("/P1/src/a");
+		this.createFile(
+				"/P1/src/a/XX1.java",
+				"package a;\n"+
+				"public class XX1 {\n"+
+				"}");
+
+		this.createFolder("/P1/src/b");
+		this.createFile(
+				"/P1/src/b/XX2.java",
+				"package b;\n"+
+				"public class XX2 {\n"+
+				"}");
+		
+		// create P2
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			null,
+			null,
+			new String[]{"/P1"},
+			new String[][]{{}},
+			new String[][]{{"a/*"}},
+			new boolean[]{false},
+			"bin",
+			null,
+			null,
+			null,
+			"1.4");
+		this.createFile(
+			"/P2/src/YY.java",
+			"public class YY {\n"+
+			"  void foo() {\n"+
+			"    XX\n"+
+			"  }\n"+
+			"}");
+		
+		waitUntilIndexesReady();
+		
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "YY.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "XX";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+			"XX2[TYPE_REF]{b.XX2, b, Lb.XX2;, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+		JavaCore.setOptions(oldOptions);
+	}
+}
 //public void testAccessRestrictionX() throws Exception {
 //	Hashtable oldOptions = JavaCore.getOptions();
 //	try {
@@ -1627,7 +2148,7 @@ public void testAccessRestriction12() throws Exception {
 //		this.createJavaProject(
 //			"P1",
 //			new String[]{"src"},
-//			Util.getJavaClassLibs(),
+//			new String[]{"JCL_LIB"},
 //			 "bin");
 //		
 //		this.createFolder("/P1/src/a");
@@ -1643,7 +2164,7 @@ public void testAccessRestriction12() throws Exception {
 //		this.createJavaProject(
 //			"P2",
 //			new String[]{"src"},
-//			Util.getJavaClassLibs(),
+//			new String[]{"JCL_LIB"},
 //			null,
 //			null,
 //			new String[]{"/P1"},

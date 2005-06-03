@@ -180,7 +180,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
         return true;
     }
 	
-	protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		buffer.append(this.tabString(tab));
 		if (info != NO_INFO) {
 			buffer.append(Signature.toString(this.getTypeSignature()));

@@ -208,21 +208,27 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		// optimizing assignment like: i = i + 1 or i = 1 + i
 		if (assignment.expression.isCompactableOperation()) {
 			BinaryExpression operation = (BinaryExpression) assignment.expression;
+			int operator = (operation.bits & OperatorMASK) >> OperatorSHIFT;
 			SingleNameReference variableReference;
 			if ((operation.left instanceof SingleNameReference) && ((variableReference = (SingleNameReference) operation.left).binding == binding)) {
 				// i = i + value, then use the variable on the right hand side, since it has the correct implicit conversion
-				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.right, (operation.bits & OperatorMASK) >> OperatorSHIFT, operation.implicitConversion, valueRequired);
+				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.right, operator, operation.implicitConversion, valueRequired);
+				if (valueRequired) {
+					codeStream.generateImplicitConversion(assignment.implicitConversion);
+				}				
 				return;
-			}
-			int operator = (operation.bits & OperatorMASK) >> OperatorSHIFT;
+			} 
 			if ((operation.right instanceof SingleNameReference)
-				&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
-				&& ((variableReference = (SingleNameReference) operation.right).binding == binding)
-				&& (operation.left.constant != NotAConstant) // exclude non constant expressions, since could have side-effect
-				&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString) // exclude string concatenation which would occur backwards
-				&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString)) { // exclude string concatenation which would occur backwards
+					&& ((operator == PLUS) || (operator == MULTIPLY)) // only commutative operations
+					&& ((variableReference = (SingleNameReference) operation.right).binding == binding)
+					&& (operation.left.constant != NotAConstant) // exclude non constant expressions, since could have side-effect
+					&& (((operation.left.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString) // exclude string concatenation which would occur backwards
+					&& (((operation.right.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_JavaLangString)) { // exclude string concatenation which would occur backwards
 				// i = value + i, then use the variable on the right hand side, since it has the correct implicit conversion
 				variableReference.generateCompoundAssignment(currentScope, codeStream, syntheticAccessors == null ? null : syntheticAccessors[WRITE], operation.left, operator, operation.implicitConversion, valueRequired);
+				if (valueRequired) {
+					codeStream.generateImplicitConversion(assignment.implicitConversion);
+				}				
 				return;
 			}
 		}
@@ -308,7 +314,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 							codeStream.generateConstant(fieldBinding.constant(), implicitConversion);
 						}
 					} else {
-						if (valueRequired || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+						if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 							boolean isStatic = fieldBinding.isStatic();
 							if (!isStatic) {
 								if ((bits & DepthMASK) != 0) {
@@ -536,7 +542,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				codeStream.generateImplicitConversion(implicitConversion);		
 				codeStream.generateConstant(postIncrement.expression.constant, implicitConversion);
 				codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
-				codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 				fieldStore(codeStream, fieldBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], false);
 				// no need for generic cast 
 				return;
@@ -564,7 +570,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					codeStream.generateImplicitConversion(implicitConversion);
 					codeStream.generateConstant(postIncrement.expression.constant, implicitConversion);
 					codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
-					codeStream.generateImplicitConversion(postIncrement.assignmentImplicitConversion);
+					codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
 	
 					codeStream.store(localBinding, false);
 				}
@@ -624,7 +630,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 					&& !this.actualReceiverType.isArrayType()
 					&& fieldBinding.declaringClass != null // array.length
 					&& !fieldBinding.isConstantValue()) {
-				CompilerOptions options = currentScope.environment().options;
+				CompilerOptions options = currentScope.compilerOptions();
 				if ((options.targetJDK >= ClassFileConstants.JDK1_2
 						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !fieldBinding.isStatic())
 						&& fieldBinding.declaringClass.id != T_JavaLangObject) // no change for Object fields
@@ -675,22 +681,30 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						if (binding instanceof LocalVariableBinding) {
 							bits &= ~RestrictiveFlagMASK;  // clear bits
 							bits |= Binding.LOCAL;
-							if ((this.bits & IsStrictlyAssignedMASK) == 0) {
-								constant = variable.constant();
-							} else {
-								constant = NotAConstant;
-							}
 							if (!variable.isFinal() && (bits & DepthMASK) != 0) {
 								scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)variable, this);
 							}
-							return this.resolvedType = variable.type;
+							TypeBinding fieldType = variable.type;
+							if ((this.bits & IsStrictlyAssignedMASK) == 0) {
+								constant = variable.constant();
+								if (fieldType != null) 
+									fieldType = fieldType.capture(scope, this.sourceEnd); // perform capture conversion if read access
+							} else {
+								constant = NotAConstant;
+							}
+							return this.resolvedType = fieldType;
 						}
 						// a field
 						FieldBinding field = (FieldBinding) this.binding;
-						if (!field.isStatic() && scope.environment().options.getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
+						if (!field.isStatic() && scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 							scope.problemReporter().unqualifiedFieldAccess(this, field);
 						}
-						return this.resolvedType = checkFieldAccess(scope);
+						// perform capture conversion if read access
+						TypeBinding fieldType = checkFieldAccess(scope);
+						return this.resolvedType = 
+							(((this.bits & IsStrictlyAssignedMASK) == 0) 
+								? fieldType.capture(scope, this.sourceEnd)
+								: fieldType);
 					}
 	
 					// thus it was a type

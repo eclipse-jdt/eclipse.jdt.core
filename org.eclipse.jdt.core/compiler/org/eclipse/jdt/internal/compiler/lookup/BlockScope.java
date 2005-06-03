@@ -235,7 +235,7 @@ public class BlockScope extends Scope {
 				
 				// could be optimized out, but does need to preserve unread variables ?
 				if (!generateCurrentLocalVar) {
-					if (local.declaration != null && environment().options.preserveAllLocalVariables) {
+					if (local.declaration != null && compilerOptions().preserveAllLocalVariables) {
 						generateCurrentLocalVar = true; // force it to be preserved in the generated code
 						local.useFlag = LocalVariableBinding.USED;
 					}
@@ -320,7 +320,7 @@ public class BlockScope extends Scope {
 	 */
 	public final ReferenceBinding findLocalType(char[] name) {
 
-		long compliance = environment().options.complianceLevel;
+		long compliance = compilerOptions().complianceLevel;
 		for (int i = 0, length = subscopeCount; i < length; i++) {
 			if (subscopes[i] instanceof ClassScope) {
 				LocalTypeBinding sourceType = (LocalTypeBinding)((ClassScope) subscopes[i]).referenceContext.binding;
@@ -430,6 +430,7 @@ public class BlockScope extends Scope {
 		}
 
 		// know binding is now a ReferenceBinding
+		binding = convertToRawType((ReferenceBinding) binding);
 		while (currentIndex < length) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
 			char[] nextName = compoundName[currentIndex++];

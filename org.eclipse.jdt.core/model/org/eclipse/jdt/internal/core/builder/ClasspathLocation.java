@@ -50,4 +50,7 @@ public void cleanup() {
 public void reset() {
 	// reset any internal caches before another compile loop starts
 }
+
+public abstract String debugPathString();
+
 }

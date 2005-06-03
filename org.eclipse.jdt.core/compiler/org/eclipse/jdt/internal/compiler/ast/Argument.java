@@ -100,7 +100,7 @@ public class Argument extends LocalDeclaration {
 
 		TypeBinding exceptionType = this.type.resolveType(scope, true /* check bounds*/);
 		if (exceptionType == null) return null;
-		if (exceptionType.isGenericType() || exceptionType.isParameterizedType()) {
+		if (exceptionType.isGenericType() || exceptionType.isBoundParameterizedType()) {
 			scope.problemReporter().invalidParameterizedExceptionType(exceptionType, this);
 			return null;
 		}

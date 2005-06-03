@@ -31,7 +31,7 @@ import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * Implementation of <code>IJavaModel<code>. The Java Model maintains a cache of
@@ -49,7 +49,14 @@ public class JavaModel extends Openable implements IJavaModel {
 	 * Note this cache is kept for the whole session.
 	 */ 
 	public static HashSet existingExternalFiles = new HashSet();
-		
+
+	/**
+	 * A set of external files ({@link #existingExternalFiles}) which have
+	 * been confirmed as file (ie. which returns true to {@link java.io.File#isFile()}.
+	 * Note this cache is kept for the whole session.
+	 */ 
+	public static HashSet existingExternalConfirmedFiles = new HashSet();
+
 /**
  * Constructs a new Java Model on the given workspace.
  * Note that only one instance of JavaModel handle should ever be created.
@@ -160,6 +167,7 @@ public int getElementType() {
  */
 public static void flushExternalFileCache() {
 	existingExternalFiles = new HashSet();
+	existingExternalConfirmedFiles = new HashSet();
 }
 
 /*
@@ -212,7 +220,7 @@ public IJavaProject getJavaProject(IResource resource) {
 		case IResource.PROJECT:
 			return new JavaProject((IProject)resource, this);
 		default:
-			throw new IllegalArgumentException(Util.bind("element.invalidResourceForProject")); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.element_invalidResourceForProject); 
 	}
 }
 /**
@@ -317,7 +325,7 @@ protected void runOperation(MultiOperation op, IJavaElement[] elements, IJavaEle
 /**
  * @private Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(this.tabString(tab));
 	buffer.append("Java Model"); //$NON-NLS-1$
 	if (info == null) {
@@ -366,5 +374,30 @@ public static Object getTarget(IContainer container, IPath path, boolean checkRe
 		}
 	}
 	return null;	
+}
+
+/**
+ * Helper method - returns whether an object is afile (ie. which returns true to {@link java.io.File#isFile()}.
+ */
+public static boolean isFile(Object target) {
+	return getFile(target) != null;
+}
+
+/**
+ * Helper method - returns the file item (ie. which returns true to {@link java.io.File#isFile()},
+ * or null if unbound
+ */
+public static File getFile(Object target) {
+	if (existingExternalConfirmedFiles.contains(target))
+		return (File) target;
+	if (target instanceof File) {
+		File f = (File) target;
+		if (f.isFile()) {
+			existingExternalConfirmedFiles.add(f);
+			return f;
+		}
+	}
+	
+	return null;
 }
 }

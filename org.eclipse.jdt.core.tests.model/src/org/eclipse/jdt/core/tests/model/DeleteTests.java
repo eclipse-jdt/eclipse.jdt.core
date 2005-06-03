@@ -33,6 +33,11 @@ public class DeleteTests extends ModifyingResourceTests {
 public DeleteTests(String name) {
 	super(name);
 }
+protected void setUp() throws Exception {
+	super.setUp();
+	// ensure that indexing is not going to interfer with deletion
+	waitUntilIndexesReady();
+}
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	createJavaProject("P");

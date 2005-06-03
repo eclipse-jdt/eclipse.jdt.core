@@ -75,6 +75,10 @@ public class ClassButNoMethodDeclarationVisitor extends ASTVisitor {
 		patternLocator.match(methodDeclaration, nodeSet);
 		return (methodDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
 	}
+	public boolean visit(AnnotationMethodDeclaration methodDeclaration, ClassScope scope) {
+		patternLocator.match(methodDeclaration, nodeSet);
+		return false; // no local type for annotation type members
+	}
 }
 public class ClassAndMethodDeclarationVisitor extends ClassButNoMethodDeclarationVisitor {
 	public boolean visit(TypeDeclaration localTypeDeclaration, BlockScope scope) {
@@ -175,13 +179,6 @@ protected void classInstanceCreation(boolean alwaysQualified) {
 	super.classInstanceCreation(alwaysQualified);
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
 }
-protected void consumeAnnotationAsModifier() {
-	super.consumeAnnotationAsModifier();
-	Expression expression = this.expressionStack[this.expressionPtr];
-	if (expression instanceof Annotation) {
-		this.patternLocator.match(((Annotation)expression).type, this.nodeSet);
-	}
-}
 protected void consumeAssignment() {
 	super.consumeAssignment();
 	this.patternLocator.match(this.expressionStack[this.expressionPtr], this.nodeSet);
@@ -208,29 +205,23 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	// this is always a Reference
 	this.patternLocator.match((Reference) this.expressionStack[this.expressionPtr], this.nodeSet);
 }
-protected void consumeInternalCompilationUnit() {
-	// InternalCompilationUnit ::= PackageDeclaration
-	// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports
-	// InternalCompilationUnit ::= ImportDeclarations ReduceImports
-}
-protected void consumeInternalCompilationUnitWithTypes() {
-	// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports TypeDeclarations
-	// InternalCompilationUnit ::= PackageDeclaration TypeDeclarations
-	// InternalCompilationUnit ::= TypeDeclarations
-	// InternalCompilationUnit ::= ImportDeclarations ReduceImports TypeDeclarations
-	// consume type declarations
-	int length;
-	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		this.compilationUnit.types = new TypeDeclaration[length];
-		this.astPtr -= length;
-		System.arraycopy(this.astStack, this.astPtr + 1, this.compilationUnit.types, 0, length);
-	}
-}
 protected void consumeLocalVariableDeclaration() {
 	super.consumeLocalVariableDeclaration();
 
 	// this is always a LocalDeclaration
 	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
+}
+protected void consumeMarkerAnnotation() {
+	super.consumeMarkerAnnotation();
+	// this is always an Annotation
+	Annotation annotation = (Annotation) expressionStack[expressionPtr];
+	this.patternLocator.match(annotation, nodeSet);
+}
+protected void consumeMemberValuePair() {
+	super.consumeMemberValuePair();
+
+	// this is always a MemberValuePair
+	this.patternLocator.match((MemberValuePair) this.astStack[this.astPtr], this.nodeSet);
 }
 protected void consumeMethodInvocationName() {
 	super.consumeMethodInvocationName();
@@ -268,6 +259,12 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 	// this is always a MessageSend
 	this.patternLocator.match((MessageSend) this.expressionStack[this.expressionPtr], this.nodeSet);
 }
+protected void consumeNormalAnnotation() {
+	super.consumeNormalAnnotation();
+	// this is always an Annotation
+	Annotation annotation = (Annotation) expressionStack[expressionPtr];
+	this.patternLocator.match(annotation, nodeSet);
+}
 protected void consumePrimaryNoNewArray() {
 	// pop parenthesis positions (and don't update expression positions
 	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
@@ -282,6 +279,12 @@ protected void consumePrimaryNoNewArrayWithName() {
 	// (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=23329)
 	intPtr--;
 	intPtr--;
+}
+protected void consumeSingleMemberAnnotation() {
+	super.consumeSingleMemberAnnotation();
+	// this is always an Annotation
+	Annotation annotation = (Annotation) expressionStack[expressionPtr];
+	this.patternLocator.match(annotation, nodeSet);
 }
 protected void consumeTypeArgument() {
 	super.consumeTypeArgument();

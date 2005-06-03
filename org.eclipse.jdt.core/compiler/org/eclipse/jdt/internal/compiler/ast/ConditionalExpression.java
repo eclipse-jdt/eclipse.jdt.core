@@ -276,10 +276,10 @@ public class ConditionalExpression extends OperatorExpression {
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
-		// specs p.368
+		// JLS3 15.25
 		constant = NotAConstant;
 		LookupEnvironment env = scope.environment();
-		boolean use15specifics = env.options.sourceLevel >= ClassFileConstants.JDK1_5;
+		boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		TypeBinding conditionType = condition.resolveTypeExpecting(scope, BooleanBinding);
 		
 		if (valueIfTrue instanceof CastExpression) valueIfTrue.bits |= IgnoreNeedForCastCheckMASK; // will check later on
@@ -418,7 +418,7 @@ public class ConditionalExpression extends OperatorExpression {
 			if (commonType != null) {
 				valueIfTrue.computeConversion(scope, commonType, valueIfTrueType);
 				valueIfFalse.computeConversion(scope, commonType, valueIfFalseType);
-				return this.resolvedType = commonType;
+				return this.resolvedType = commonType.capture(scope, this.sourceEnd);
 			}
 		}
 		scope.problemReporter().conditionalArgumentsIncompatibleTypes(

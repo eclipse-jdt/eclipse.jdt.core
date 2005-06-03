@@ -63,6 +63,7 @@ public class SearchMatch {
 	
 	// store other necessary information
 	private boolean raw = false;
+	private boolean implicit = false;
 
 	/**
 	 * Creates a new search match.
@@ -201,6 +202,20 @@ public class SearchMatch {
 	}
 
 	/**
+	 * Returns whether the associated element is implicit or not.
+	 * 
+	 * Note that this piece of information is currently only implemented
+	 * for implicit member pair value in annotation.
+	 * 
+	 * @return <code>true</code> if this match is associated to an implicit
+	 * element and <code>false</code> otherwise
+	 * @since 3.1
+	 */
+	public final boolean isImplicit() {
+		return this.implicit;
+	}
+
+	/**
 	 * Returns whether the associated element is a raw type/method or not.
 	 * 
 	 * @return <code>true</code> if this match is associated to a raw
@@ -254,6 +269,19 @@ public class SearchMatch {
 	}
 
 	/**
+	 * Sets whether the associated element is implicit or not.
+	 * Typically, this is the case when match is on an implicit constructor
+	 * or an implicit member pair value in annotation.
+	 * 
+	 * @param implicit <code>true</code> if this match is associated to an implicit
+	 * element and <code>false</code> otherwise
+	 * @since 3.1
+	 */
+	public final void setImplicit(boolean implicit) {
+		this.implicit = implicit;
+	}
+
+	/**
 	 * Sets the length of this search match.
 	 * 
 	 * @param length the length of the match, or -1 if unknown
@@ -290,7 +318,7 @@ public class SearchMatch {
 	}
 
 	/**
-	 * Returns the rule used while creating the match.
+	 * Set the rule used while reporting the match.
 	 * 
 	 * @param rule one of {@link SearchPattern#R_FULL_MATCH}, {@link SearchPattern#R_EQUIVALENT_MATCH}
 	 * 	or {@link SearchPattern#R_ERASURE_MATCH}
@@ -301,7 +329,7 @@ public class SearchMatch {
 	}
 
 	/**
-	 * Returns whether the associated element is a raw type/method or not.
+	 * Set whether the associated element is a raw type/method or not.
 	 * 
 	 * @param raw <code>true</code> if this search match is associated to a raw
 	 * type or method and <code>false</code> otherwise

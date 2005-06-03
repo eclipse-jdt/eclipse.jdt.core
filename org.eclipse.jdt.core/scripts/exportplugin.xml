@@ -63,30 +63,28 @@
 	<delete dir="${plugin-dir}" />
 	<mkdir dir="${plugin-dir}" />
 
-	<echo message="UPDATE jdtcore.jar" />
-	<jar 
-		jarfile="${plugin-dir}/jdtcore.jar"
-		basedir="bin"
-		manifest="batch/META-INF/MANIFEST.MF"/>
-		
 	<echo message="UPDATE jdtCompilerAdapter.jar" />
-	<jar 
+  	<jar 
 		jarfile="${plugin-dir}/jdtCompilerAdapter.jar"
 		basedir="antbin"/>
 
-	<echo message="UPDATE plugin.xml" />
-	<copy file="plugin.xml" todir="${plugin-dir}" />
-	<echo message="UPDATE plugin.properties" />
-	<copy file="plugin.properties" todir="${plugin-dir}" />
+	<echo message="UPDATE ${plugin}_${jdt_core_version}.jar" />
+	<zip zipfile="${plugin-dir}/${plugin}_${jdt_core_version}.jar">
+		<fileset dir=".">
+		  <include name="plugin.xml" />
+		  <include name="plugin.properties" />
+		  <include name="META-INF/**" />
+	      <include name=".options"/>
+          <include name="about.html"/>
+        </fileset>
+        <fileset dir="bin" />
+        <fileset file="${plugin-dir}/jdtCompilerAdapter.jar"/>
+	</zip>
 
-	<echo message="UPDATE .options" />
-	<copy file=".options" todir="${plugin-dir}" />
-
-	<echo message="UPDATE about.html" />
-	<copy file="about.html" todir="${plugin-dir}" />
-
+	<delete file="${plugin-dir}/jdtCompilerAdapter.jar"/>
 	<echo message="UPDATE jdtcoresrc.zip" />
 	<zip zipfile="${plugin-dir}/jdtcoresrc.zip">
+        <fileset file="component.xml"/>	
 	    <fileset dir="batch" />
 	    <fileset dir="codeassist" />
 	    <fileset dir="compiler" />
@@ -101,11 +99,13 @@
 	<zip zipfile="${plugin-dir}/jdtCompilerAdaptersrc.zip">
 		<fileset dir="antadapter" />
 	</zip>	    
-
 	<echo message="UPDATE ${export-dir}/../${plugin}_${jdt_core_version}.zip" />
 	<zip zipfile="${export-dir}/../${plugin}_${jdt_core_version}.zip"
 	    basedir="${export-dir}" 
 	    includes="${plugin}_${jdt_core_version}/**"	/>		
+	<!--
+		<delete dir="${plugin-dir}" />
+	-->
 </target>
 
 <target name="zz_internal_export_structure">

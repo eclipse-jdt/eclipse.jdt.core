@@ -24,7 +24,7 @@ import junit.framework.Test;
 /**
  * Name Lookup within Inner Classes
  * Creation date: (8/2/00 12:04:53 PM)
- * @author: Dennis Conway
+ * @author Dennis Conway
  */
 public class LookupTest extends AbstractRegressionTest {
 public LookupTest(String name) {
@@ -1777,6 +1777,32 @@ public void test053() {
 			"}\n",
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93486
+public void test054() {
+    this.runConformTest(
+        new String[] {
+            "X.java", //---------------------------
+            "import java.util.LinkedHashMap;\n" + 
+            "import java.util.Map.Entry;\n" + 
+            "\n" + 
+            "public class X {\n" + 
+            "    \n" + 
+            "    private LinkedHashMap fCache;\n" + 
+            "    \n" + 
+            "    public X(final int cacheSize) {\n" + 
+            "        // start with 100 elements but be able to grow until cacheSize\n" + 
+            "        fCache= new LinkedHashMap(100, 0.75f, true) {\n" + 
+            "            /** This class is not intended to be serialized. */\n" + 
+            "            private static final long serialVersionUID= 1L;\n" + 
+            "            protected boolean removeEldestEntry(Entry eldest) {\n" + 
+            "                return size() > cacheSize;\n" + 
+            "            }\n" + 
+            "        };\n" + 
+            "    }\n" + 
+            "}\n",
+        },
+        "");
 }
 public static Class testClass() {
 	return LookupTest.class;

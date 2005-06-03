@@ -99,7 +99,7 @@ public class ForStatement extends Statement {
 		LoopingFlowContext loopingContext;
 		FlowInfo actionInfo;
 		if (action == null 
-			|| (action.isEmptyBlock() && currentScope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3)) {
+			|| (action.isEmptyBlock() && currentScope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3)) {
 			if (condLoopContext != null)
 				condLoopContext.complainOnDeferredChecks(scope, condInfo);
 			if (isConditionTrue) {

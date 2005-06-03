@@ -15,7 +15,7 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -26,7 +26,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+
 /**
  * @see ICompilationUnit
  */
@@ -41,7 +43,6 @@ public class CompilationUnit extends Openable implements ICompilationUnit, org.e
 	protected String name;
 	public WorkingCopyOwner owner;
 
-	
 /**
  * Constructs a handle to a compilation unit with the given name in the
  * specified package for the specified owner
@@ -331,7 +332,7 @@ public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws Ja
  */
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.operation_nullContainer); 
 	}
 	IJavaElement[] elements = new IJavaElement[] {this};
 	IJavaElement[] containers = new IJavaElement[] {container};
@@ -387,7 +388,8 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 		String source = ""; //$NON-NLS-1$
 		if (!pkg.isDefaultPackage()) {
 			//not the default package...add the package declaration
-			source = "package " + pkg.getElementName() + ";"  + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR + org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR; //$NON-NLS-1$ //$NON-NLS-2$
+			String lineSeparator = Util.getLineSeparator(null/*no existing source*/, getJavaProject());
+			source = "package " + pkg.getElementName() + ";"  + lineSeparator + lineSeparator; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		CreateCompilationUnitOperation op = new CreateCompilationUnitOperation(pkg, this.name, source, force);
 		op.runOperation(monitor);
@@ -757,10 +759,9 @@ public IPath getPath() {
  * Returns the per working copy info for the receiver, or null if none exist.
  * Note: the use count of the per working copy info is NOT incremented.
  */
-public JavaModelManager.PerWorkingCopyInfo getPerWorkingCopyInfo() {	
+public JavaModelManager.PerWorkingCopyInfo getPerWorkingCopyInfo() {
 	return JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(this, false/*don't create*/, false/*don't record usage*/, null/*no problem requestor needed*/);
 }
-
 /*
  * @see ICompilationUnit#getPrimary()
  */
@@ -903,14 +904,6 @@ public boolean isBasedOn(IResource resource) {
 public boolean isConsistent() {
 	return JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().get(this) == null;
 }
-/**
- * 
- * @see IOpenable
- */
-public boolean isOpen() {
-	Object info = JavaModelManager.getJavaModelManager().getInfo(this);
-	return info != null && ((CompilationUnitElementInfo)info).isOpen();
-}
 public boolean isPrimary() {
 	return this.owner == DefaultWorkingCopyOwner.PRIMARY;
 }
@@ -974,7 +967,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(boolean createAST
  */
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullContainer")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.operation_nullContainer); 
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] containers= new IJavaElement[] {container};
@@ -1031,18 +1024,11 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	
 	return buffer;
 }
-/*
- * @see Openable#openParent
- */
 protected void openParent(Object childInfo, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
-	try {
+	if (!isWorkingCopy())
 		super.openParent(childInfo, newElements, pm);
-	} catch(JavaModelException e){
-		// allow parent to not exist for working copies defined outside classpath
-		if (!isWorkingCopy() && !e.isDoesNotExist()){ 
-			throw e;
-		}
-	}
+	// don't open parent for a working copy to speed up the first becomeWorkingCopy
+	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=89411)
 }
 /**
  * @see ICompilationUnit#reconcile()
@@ -1073,6 +1059,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	if (!isWorkingCopy()) return null; // Reconciling is not supported on non working copies
 	if (workingCopyOwner == null) workingCopyOwner = DefaultWorkingCopyOwner.PRIMARY;
 	
+	
 	boolean createAST = false;
 	switch(astLevel) {
 		case JLS2_INTERNAL :
@@ -1085,12 +1072,16 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 			// either way, request denied
 			createAST = false;
 	}
-	
-	
-	ReconcileWorkingCopyOperation op = null;
-	op = new ReconcileWorkingCopyOperation(this, createAST, astLevel, forceProblemDetection, workingCopyOwner);
+	PerformanceStats stats = null;
+	if(ReconcileWorkingCopyOperation.PERF) {
+		stats = PerformanceStats.getStats(JavaModelManager.RECONCILE_PERF, this);
+		stats.startRun(new String(this.getFileName()));
+	}
+	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, createAST, astLevel, forceProblemDetection, workingCopyOwner);
 	op.runOperation(monitor);
-
+	if(ReconcileWorkingCopyOperation.PERF) {
+		stats.endRun();
+	}
 	return op.ast;
 }
 
@@ -1099,7 +1090,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
  */
 public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (newName == null) {
-		throw new IllegalArgumentException(Util.bind("operation.nullName")); //$NON-NLS-1$
+		throw new IllegalArgumentException(Messages.operation_nullName); 
 	}
 	IJavaElement[] elements= new IJavaElement[] {this};
 	IJavaElement[] dests= new IJavaElement[] {this.getParent()};
@@ -1134,9 +1125,9 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
 	}
 }
 /**
- * @private Debugging purposes
+ * Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	if (!isPrimary()) {
 		buffer.append(this.tabString(tab));
 		buffer.append("[Working copy] "); //$NON-NLS-1$
@@ -1150,7 +1141,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
 				buffer.append(" (not open)"); //$NON-NLS-1$
 			}
 		} else {
-			super.toStringInfo(tab, buffer, info);
+			super.toStringInfo(tab, buffer, info, showResolvedInfo);
 		}
 	}
 }

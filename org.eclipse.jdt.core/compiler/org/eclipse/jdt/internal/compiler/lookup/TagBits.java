@@ -47,6 +47,9 @@ public interface TagBits {
 	// test bit to identify if the type's hierarchy is inconsistent
 	long HierarchyHasProblems = ASTNode.Bit16;
 
+	// set for parameterized type with successfull bound check
+	long PassedBoundCheck = ASTNode.Bit23;
+	
 	// set for parameterized type NOT of the form X<?,?>
 	long IsBoundParameterizedType = ASTNode.Bit24; 
 	

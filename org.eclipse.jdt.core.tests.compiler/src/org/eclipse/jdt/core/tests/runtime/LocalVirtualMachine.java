@@ -123,7 +123,7 @@ public int getDebugPortNumber() {
  * See also <code>java.lang.Process.getErrorStream()</code>.
  * 
  * @return an input stream connected to the target VM's <code>System.err</code>.
- * @exception org.eclipse.jdt.tests.eval.runtime.TargetException if the target VM is not reachable.
+ * @exception TargetException if the target VM is not reachable.
  */
 public InputStream getErrorStream() throws TargetException {
 	if (this.process == null)
@@ -143,7 +143,7 @@ public InputStream getErrorStream() throws TargetException {
  * See also <code>java.lang.Process.getInputStream()</code>.
  *
  * @return an input stream connected to the target VM's <code>System.out</code>.
- * @exception org.eclipse.jdt.tests.eval.runtime.TargetException if the target VM is not reachable.
+ * @exception TargetException if the target VM is not reachable.
  */
 public InputStream getInputStream() throws TargetException {
 	if (this.process == null)
@@ -164,7 +164,7 @@ public InputStream getInputStream() throws TargetException {
  * See also <code>java.lang.Process.getOutputStream()</code>.
  *
  * @return an output stream connected to the target VM's <code>System.in</code>.
- * @exception org.eclipse.jdt.tests.eval.runtime.TargetException if the target VM is not reachable.
+ * @exception TargetException if the target VM is not reachable.
  */
 public OutputStream getOutputStream() throws TargetException {
 	if (this.process == null)
@@ -195,7 +195,7 @@ public boolean isRunning() {
  * This causes the VM to exit. This operation is ignored
  * if the VM has already shut down.
  *
- * @exception org.eclipse.jdt.tests.eval.runtime.TargetException if the target VM could not be shut down.
+ * @exception TargetException if the target VM could not be shut down.
  */
 public void shutDown()  throws TargetException {
 	this.basicShutDown();

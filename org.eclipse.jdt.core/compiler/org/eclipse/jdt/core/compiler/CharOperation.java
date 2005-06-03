@@ -1346,17 +1346,15 @@ public final class CharOperation {
 	 * @throws NullPointerException if array is null
 	 */
 	public static final int hashCode(char[] array) {
-		int hash = 0;
-		int offset = 0;
 		int length = array.length;
-		if (length < 16) {
-			for (int i = length; i > 0; i--)
-				hash = (hash * 37) + array[offset++];
+		int hash = length == 0 ? 31 : array[0];
+		if (length < 8) {
+			for (int i = length; --i > 0;)
+				hash = (hash * 31) + array[i];
 		} else {
-			// only sample some characters
-			int skip = length / 8;
-			for (int i = length; i > 0; i -= skip, offset += skip)
-				hash = (hash * 39) + array[offset];
+			// 8 characters is enough to compute a decent hash code, don't waste time examining every character
+			for (int i = length - 1, last = i > 16 ? i - 16 : 0; i > last; i -= 2)
+				hash = (hash * 31) + array[i];
 		}
 		return hash & 0x7FFFFFFF;
 	}

@@ -175,7 +175,7 @@ public class ArrayReference extends Reference {
 			implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 		codeStream.generateImplicitConversion(
-			postIncrement.assignmentImplicitConversion);
+			postIncrement.preAssignImplicitConversion);
 		codeStream.arrayAtPut(this.resolvedType.id, false);
 	}
 
@@ -196,7 +196,8 @@ public class ArrayReference extends Reference {
 		if (arrayType != null) {
 			receiver.computeConversion(scope, arrayType, arrayType);
 			if (arrayType.isArrayType()) {
-				this.resolvedType = ((ArrayBinding) arrayType).elementsType();
+				TypeBinding elementType = ((ArrayBinding) arrayType).elementsType();
+				this.resolvedType = ((this.bits & IsStrictlyAssignedMASK) == 0) ? elementType.capture(scope, this.sourceEnd) : elementType;
 			} else {
 				scope.problemReporter().referenceMustBeArrayTypeAt(arrayType, this);
 			}

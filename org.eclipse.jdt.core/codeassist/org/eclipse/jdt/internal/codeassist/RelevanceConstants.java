@@ -34,5 +34,6 @@ public interface RelevanceConstants {
 	int R_NAME_SUFFIX = 3;
 	int R_NON_STATIC_OVERIDE = 3;
 	int R_NON_RESTRICTED = 3;
+	int R_TRUE_OR_FALSE = 1;
 	
 }

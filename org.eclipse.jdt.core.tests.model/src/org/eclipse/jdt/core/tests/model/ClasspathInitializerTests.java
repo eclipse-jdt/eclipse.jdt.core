@@ -14,28 +14,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.DeltaProcessingState;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
+import org.eclipse.jdt.internal.core.UserLibraryManager;
 
 import junit.framework.Test;
 
-/*
- * Test variable initializers and container initializers.
- */
 public class ClasspathInitializerTests extends ModifyingResourceTests {
 	
 public static class DefaultVariableInitializer implements VariablesInitializer.ITestInitializer {
@@ -143,39 +130,17 @@ public ClasspathInitializerTests(String name) {
 	super(name);
 }
 public static Test suite() {
-	if (false) {
-		System.err.println("WARNING: "+ClasspathInitializerTests.class.getName()+" is currently running subset of test cases!!!");
-		Suite suite = new Suite(ClasspathInitializerTests.class.getName());
-		suite.addTest(new ClasspathInitializerTests("testContainerInitializer10"));
-		return suite;
-	}
-	return new Suite(ClasspathInitializerTests.class);
+	return buildTestSuite(ClasspathInitializerTests.class);
 }
-/*
- * Simulate state on startup (flush container, preserve their previous values, and close project)
- */
-private void setContainerStartupState(IJavaProject project) throws JavaModelException {
-	waitUntilIndexesReady();
-	waitForAutoBuild();
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	manager.previousSessionContainers = manager.containers;
-	manager.containers = new HashMap(5);
-	manager.removePerProjectInfo((JavaProject)project);
-	project.close();
-}
-/*
- * Simulate state on startup (flush variables, set their previous values, and close project)
- */
-private void setVariableStartupState(String[] variableValues, IJavaProject project) throws JavaModelException {
-	waitUntilIndexesReady();
-	waitForAutoBuild();
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	manager.previousSessionVariables = new HashMap(5);
-	for (int i = 0, length = variableValues.length; i < length; i++)
-		manager.previousSessionVariables.put(variableValues[i], new Path(variableValues[++i]));
-	manager.variables = new HashMap(5);
-	manager.removePerProjectInfo((JavaProject)project);
-	project.close();
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		TESTS_NAMES = new String[] { "testContainerInitializer11" };
+	// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		TESTS_NUMBERS = new int[] { 2, 12 };
+	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//		TESTS_RANGE = new int[] { 16, -1 };
 }
 protected void tearDown() throws Exception {
 	// Cleanup caches
@@ -185,7 +150,7 @@ protected void tearDown() throws Exception {
 
 	super.tearDown();
 }
-public void testContainerInitializer1() throws CoreException {
+public void testContainerInitializer01() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
@@ -203,7 +168,7 @@ public void testContainerInitializer1() throws CoreException {
 		deleteProject("P2");
 	}
 }
-public void testContainerInitializer2() throws CoreException {
+public void testContainerInitializer02() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
@@ -214,8 +179,8 @@ public void testContainerInitializer2() throws CoreException {
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 				"");
 				
-		// simulate state on startup (flush containers, preserve their previous values, and close project)
-		setContainerStartupState(p2);
+		// simulate state on startup
+		simulateExitRestart();
 		
 		startDeltas();
 		p2.getResolvedClasspath(true);
@@ -230,12 +195,12 @@ public void testContainerInitializer2() throws CoreException {
 		deleteProject("P2");
 	}
 }
-public void testContainerInitializer3() throws CoreException {
+public void testContainerInitializer03() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"}));
-		IJavaProject p2 = createJavaProject(
+		createJavaProject(
 				"P2", 
 				new String[] {}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
@@ -245,11 +210,11 @@ public void testContainerInitializer3() throws CoreException {
 		createFile("/P1/lib2.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib2.jar"}));
 
-		// simulate state on startup (flush containers, and preserve their previous values)
-		setContainerStartupState(p2);
+		// simulate state on startup
+		simulateExitRestart();
 		
 		startDeltas();
-		p2.getResolvedClasspath(true);
+		getJavaProject("P2").getResolvedClasspath(true);
 		
 		assertDeltas(
 			"Unexpected delta on startup", 
@@ -266,20 +231,20 @@ public void testContainerInitializer3() throws CoreException {
 /* Ensure that initializer is not callled when resource tree is locked.
  * (regression test for bug 29585 Core Exception as resource tree is locked initializing classpath container)
  */
-public void testContainerInitializer4() throws CoreException {
+public void testContainerInitializer04() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
 		DefaultContainerInitializer initializer = new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar"});
 		ContainerInitializer.setInitializer(initializer);
-		IJavaProject p2 = createJavaProject(
+		createJavaProject(
 				"P2", 
 				new String[] {""}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 				"");
 				
-		// simulate state on startup (flush containers, and preserve their previous values)
-		setContainerStartupState(p2);
+		// simulate state on startup
+		simulateExitRestart();
 		
 		startDeltas();
 		createFile("/P2/X.java", "public class X {}");
@@ -302,18 +267,18 @@ public void testContainerInitializer4() throws CoreException {
 /* 
  * 30920 - Stack overflow when container resolved to null
  */
-public void testContainerInitializer5() throws CoreException {
+public void testContainerInitializer05() throws CoreException {
 	try {
 		NullContainerInitializer nullInitializer = new NullContainerInitializer();
 		ContainerInitializer.setInitializer(nullInitializer);
-		IJavaProject p1 = createJavaProject(
+		createJavaProject(
 				"P1", 
 				new String[] {""}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
 				"");
 				
-		// simulate state on startup (flush containers, and preserve their previous values)
-		setContainerStartupState(p1);
+		// simulate state on startup
+		simulateExitRestart();
 		
 		startDeltas();
 
@@ -331,14 +296,14 @@ public void testContainerInitializer5() throws CoreException {
 		// next cp resolution request will rerun the initializer
 		waitForAutoBuild();
 		nullInitializer.hasRun = false; // reset		
-		p1.getResolvedClasspath(true);
+		getJavaProject("P1").getResolvedClasspath(true);
 		assertTrue("initializer did not run", nullInitializer.hasRun); // initializer should have run again (since keep setting to null)
 
 		// assigning new (non-null) value to container
 		waitForAutoBuild();
 		createFile("/P1/lib.jar", "");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}));
-		p1.getResolvedClasspath(true);
+		getJavaProject("P1").getResolvedClasspath(true);
 		assertDeltas(
 			"Unexpected delta after setting container", 
 			"P1[*]: {CHILDREN}\n" + 
@@ -363,12 +328,12 @@ public void testContainerInitializer5() throws CoreException {
  * doesn't throw a NPE
  * (regression test for bug 48818 NPE in delta processor)
   */
-public void testContainerInitializer6() throws CoreException {
+public void testContainerInitializer06() throws CoreException {
     ICompilationUnit workingCopy = null;
 	try {
 		createProject("P1");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", ""}));
-		IJavaProject p2 = createJavaProject(
+		createJavaProject(
 				"P2", 
 				new String[] {"src"}, 
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
@@ -378,31 +343,23 @@ public void testContainerInitializer6() throws CoreException {
 			"public class X {\n" +
 			"}"
 		);
-		workingCopy = getCompilationUnit("/P2/src/X.java");
 				
 		// change value of TEST_CONTAINER
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
 
-		// simulate state on startup (flush containers, and preserve their previous values)
-		setContainerStartupState(p2);
-		
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(manager.deltaState);
-		manager.deltaState = new DeltaProcessingState();
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(
-			manager.deltaState,
-			IResourceChangeEvent.PRE_BUILD
-					| IResourceChangeEvent.POST_BUILD
-					| IResourceChangeEvent.POST_CHANGE
-					| IResourceChangeEvent.PRE_DELETE
-					| IResourceChangeEvent.PRE_CLOSE);
+		// simulate state on startup
+		simulateExitRestart();
 		
 		startDeltas();
+		workingCopy = getCompilationUnit("/P2/src/X.java");
 		workingCopy.becomeWorkingCopy(null, null);
 		
 		assertDeltas(
 			"Unexpected delta on startup", 
-			""
+			"P2[*]: {CHILDREN}\n" + 
+			"	src[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
+			"			[Working copy] X.java[+]: {PRIMARY WORKING COPY}"
 		);
 	} finally {
 		stopDeltas();
@@ -415,7 +372,7 @@ public void testContainerInitializer6() throws CoreException {
  * Ensure that an OperationCanceledException goes through
  * (regression test for bug 59363 Should surface cancellation exceptions)
  */
-public void testContainerInitializer7() throws CoreException {
+public void testContainerInitializer07() throws CoreException {
 	try {
 		boolean gotException = false;
 		try {
@@ -442,7 +399,7 @@ public void testContainerInitializer7() throws CoreException {
  * Ensure that the stack doesn't blow up if initializer is missbehaving
  * (regression test for bug 61052 Flatten cp container initialization)
  */
-public void testContainerInitializer8() throws CoreException {
+public void testContainerInitializer08() throws CoreException {
 	final int projectLength = 10;
 	final String[] projects = new String[projectLength];
 	for (int i = 0; i < projectLength; i++) {
@@ -522,7 +479,7 @@ public void testContainerInitializer8() throws CoreException {
  * that is being resolved.
  * (regression test for bug 61040 Should add protect for reentrance to #getResolvedClasspath)
  */
-public void testContainerInitializer9() throws CoreException {
+public void testContainerInitializer09() throws CoreException {
 	try {
 		ClasspathInitializerTests.DefaultContainerInitializer initializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {"P1", "/P1/lib.jar"}) {
 			protected DefaultContainer newContainer(char[][] libPaths) {
@@ -647,6 +604,35 @@ public void testContainerInitializer10() throws CoreException {
 		deleteProject("P3");
 	}
 }
+/*
+ * Ensure that a classpath initializer is not run on shutdown
+ * (regression test for bug 93941 Classpath initialization on shutdown)
+ */
+public void testContainerInitializer11() throws CoreException {
+	boolean hasExited = false;
+	try {
+		ContainerInitializer.setInitializer(null);
+		createJavaProject(
+			"P", 
+			new String[] {}, 
+			new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, 
+			"");
+		simulateExitRestart();
+		ClasspathInitializerTests.DefaultContainerInitializer initializer = new ClasspathInitializerTests.DefaultContainerInitializer(new String[] {}) {
+			public void initialize(IPath containerPath,IJavaProject project) throws CoreException {
+				assertTrue("Should not initialize container on shutdown", false);
+			}
+		};
+		ContainerInitializer.setInitializer(initializer);
+		simulateExit();
+		hasExited = true;
+	} finally {
+		ContainerInitializer.setInitializer(null);
+		if (hasExited)
+			simulateRestart();
+		deleteProject("P");
+	}
+}
 public void testVariableInitializer1() throws CoreException {
 	try {
 		createProject("P1");
@@ -692,14 +678,14 @@ public void testVariableInitializer3() throws CoreException {
 			"TEST_ROOT", "src",
 		};
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(variableValues));
-		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
+		createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 
-		// simulate state on startup (flush variables, set their previous values, and close project)
-		setVariableStartupState(variableValues, p2);
+		// simulate state on startup
+		simulateExitRestart();
 		
 		startDeltas();
 		//JavaModelManager.CP_RESOLVE_VERBOSE=true;		
-		p2.getResolvedClasspath(true);
+		getJavaProject("P2").getResolvedClasspath(true);
 		
 		assertDeltas(
 			"Unexpected delta on startup", 
@@ -798,7 +784,7 @@ public void testVariableInitializer7() throws CoreException {
 			"TEST_ROOT", "src",
 		};
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(variableValues));
-		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
+		createJavaProject("P2", new String[] {}, new String[] {"TEST_LIB,TEST_SRC,TEST_ROOT"}, "");
 
 		// change value of TEST_LIB
 		createFile("/P1/lib2.jar", "");
@@ -808,12 +794,12 @@ public void testVariableInitializer7() throws CoreException {
 			"TEST_ROOT", "src",
 		}));
 
-		// simulate state on startup (flush variables, and preserve their previous values)
-		setVariableStartupState(variableValues, p2);
+		// simulate state on startup
+		simulateExitRestart();
 		
 		startDeltas();
 		//JavaModelManager.CP_RESOLVE_VERBOSE=true;		
-		p2.getResolvedClasspath(true);
+		getJavaProject("P2").getResolvedClasspath(true);
 		
 		assertDeltas(
 			"Unexpected delta on startup", 

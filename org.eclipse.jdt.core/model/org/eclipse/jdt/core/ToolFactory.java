@@ -375,7 +375,8 @@ public class ToolFactory {
 	 * the Unicode 4.0 is supporte, otherwise Unicode 3.0 is supported.
   	 * @return a scanner
 	 * @see org.eclipse.jdt.core.compiler.IScanner
-     * @since 3.0
+	 *
+     * @since 3.1
 	 */
 	public static IScanner createScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace, boolean recordLineSeparator, String sourceLevel, String complianceLevel) {
 		PublicScanner scanner = null;

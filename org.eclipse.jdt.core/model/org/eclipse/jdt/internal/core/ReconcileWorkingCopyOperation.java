@@ -22,13 +22,14 @@ import org.eclipse.jdt.core.compiler.ICompilationParticipant;
 import org.eclipse.jdt.core.compiler.PostReconcileCompilationEvent;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * Reconcile a working copy and signal the changes through a delta.
  */
 public class ReconcileWorkingCopyOperation extends JavaModelOperation {
-		
+	public static boolean PERF = false;
+	
 	boolean createAST;
 	int astLevel;
 	boolean forceProblemDetection;
@@ -50,7 +51,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		if (this.progressMonitor != null){
 			if (this.progressMonitor.isCanceled()) 
 				throw new OperationCanceledException();
-			this.progressMonitor.beginTask(Util.bind("element.reconciling"), 2); //$NON-NLS-1$
+			this.progressMonitor.beginTask(Messages.element_reconciling, 2); 
 		}
 	
 		notifyCompilationParticipants();

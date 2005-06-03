@@ -97,7 +97,7 @@ public static Test suite() {
 		return new Suite(SortCompilationUnitElementsTests.class);
 	}
 	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
-	suite.addTest(new SortCompilationUnitElementsTests("test025")); //$NON-NLS-1$
+	suite.addTest(new SortCompilationUnitElementsTests("test027")); //$NON-NLS-1$
 	return suite;
 }
 public void tearDownSuite() throws Exception {
@@ -1251,15 +1251,16 @@ public void test022() throws CoreException {
 	try {
 		this.createFile(
 			"/P/src/BuildUtilities.java",
-			"/**********************************************************************\n" +
-			" * Copyright (c) 2004 IBM Corporation and others. All rights reserved.   This\n" +
-			" * program and the accompanying materials are made available under the terms of\n" +
-			" * the Common Public License v1.0 which accompanies this distribution, and is\n" +
-			" * available at http://www.eclipse.org/legal/cpl-v10.html\n" +
-			" * \n" +
-			" * Contributors: \n" +
-			" * IBM - Initial API and implementation\n" +
-			" **********************************************************************/\n" +
+			"/*******************************************************************************" +
+			" * Copyright (c) 2000, 2005 IBM Corporation and others." +
+			" * All rights reserved. This program and the accompanying materials" +
+			" * are made available under the terms of the Eclipse Public License v1.0" +
+			" * which accompanies this distribution, and is available at" +
+			" * http://www.eclipse.org/legal/epl-v10.html" +
+			" *" +
+			" * Contributors:" +
+			" *     IBM Corporation - initial API and implementation" +
+			" *******************************************************************************/" +
 			"import java.util.HashSet;\n" +
 			"import org.eclipse.core.resources.ICommand;\n" +
 			"import org.eclipse.core.resources.IProject;\n" +
@@ -1419,15 +1420,16 @@ public void test022() throws CoreException {
 			"}"
 		);
 		String expectedResult = 
-			"/**********************************************************************\n" +
-			" * Copyright (c) 2004 IBM Corporation and others. All rights reserved.   This\n" +
-			" * program and the accompanying materials are made available under the terms of\n" +
-			" * the Common Public License v1.0 which accompanies this distribution, and is\n" +
-			" * available at http://www.eclipse.org/legal/cpl-v10.html\n" +
-			" * \n" +
-			" * Contributors: \n" +
-			" * IBM - Initial API and implementation\n" +
-			" **********************************************************************/\n" +
+			"/*******************************************************************************" +
+			" * Copyright (c) 2000, 2005 IBM Corporation and others." +
+			" * All rights reserved. This program and the accompanying materials" +
+			" * are made available under the terms of the Eclipse Public License v1.0" +
+			" * which accompanies this distribution, and is available at" +
+			" * http://www.eclipse.org/legal/epl-v10.html" +
+			" *" +
+			" * Contributors:" +
+			" *     IBM Corporation - initial API and implementation" +
+			" *******************************************************************************/" +
 			"import java.util.HashSet;\n" +
 			"import org.eclipse.core.resources.ICommand;\n" +
 			"import org.eclipse.core.resources.IProject;\n" +
@@ -1695,6 +1697,86 @@ public void test025() throws CoreException {
 			"	@Jpf.Action(validatableProperties = { @Jpf.ValidatableProperty(propertyName = \"fooField\", localeRules = { @Jpf.ValidationLocaleRules(validateMinLength = @Jpf.ValidateMinLength(chars = \"12\")) }) })\n" +
 			"	public String actionForValidationRuleTest() {\n" +
 			"		return null;\n" +
+			"	}\n" +
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95388
+public void test026() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"	void z() {\n" +
+			"	}\n" +
+			"	void b() {\n" +
+			"		System.out.println(\"b1\");\n" +
+			"	}\n" +
+			"	void b() {\n" +
+			"		System.out.println(\"b2\");\n" +
+			"	}\n" +
+			"	void a() {\n" +
+			"	}\n" +
+			"}"
+		);
+		String expectedResult = 
+			"public class X {\n" +
+			"	void a() {\n" +
+			"	}\n" +
+			"	void b() {\n" +
+			"		System.out.println(\"b1\");\n" +
+			"	}\n" +
+			"	void b() {\n" +
+			"		System.out.println(\"b2\");\n" +
+			"	}\n" +
+			"	void z() {\n" +
+			"	}\n" +
+			"}";
+		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=96583
+public void test027() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public final class X\n" +
+			"{\n" +
+			"	static\n" +
+			"	{\n" +
+			"\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args)\n" +
+			"	{\n" +
+			"	}\n" +
+			"\n" +
+			"	static\n" +
+			"	{\n" +
+			"\n" +
+			"	}\n" +
+			"}"
+		);
+		String expectedResult = 
+			"public final class X\n" +
+			"{\n" +
+			"	static\n" +
+			"	{\n" +
+			"\n" +
+			"	}\n" +
+			"\n" +
+			"	static\n" +
+			"	{\n" +
+			"\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args)\n" +
+			"	{\n" +
 			"	}\n" +
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);

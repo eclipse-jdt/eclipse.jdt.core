@@ -94,7 +94,7 @@ public class ForeachStatement extends Statement {
 		FlowInfo actionInfo = condInfo.initsWhenTrue().copy();
 		FlowInfo exitBranch;
 		if (!(action == null || (action.isEmptyBlock() 
-		        	&& currentScope.environment().options.complianceLevel <= ClassFileConstants.JDK1_3))) {
+		        	&& currentScope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_3))) {
 
 			if (!this.action.complainIfUnreachable(actionInfo, scope, false)) {
 				actionInfo = action.analyseCode(scope, loopingContext, actionInfo);

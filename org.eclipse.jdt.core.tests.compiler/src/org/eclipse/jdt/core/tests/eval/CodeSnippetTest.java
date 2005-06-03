@@ -671,4 +671,30 @@ public void testRunMethodInAnonymous() {
 		"x.i"}), 
 		"10".toCharArray());
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89632
+ */
+public void testFor89632() {
+	if (!COMPLIANCE_1_5.equals(this.complianceLevel)) return;
+	try {
+		context.setImports(new char[][] {"java.util.*".toCharArray()});
+		evaluateWithExpectedDisplayString(
+				buildCharArray(new String[] {
+					"Collection<String> c = new ArrayList<String>();\n" +
+					"c.add(\"a\");\n" +
+					"c.add(\"b\");\n" +
+					"c.add(\"c\");  \n" +
+					"Iterator<String> i = c.iterator();\n" +
+					"StringBuffer buffer = new StringBuffer();\n" +
+					"while (i.hasNext()) {\n" +
+					"	buffer.append(i.next());\n" +
+					"}" +
+					"return String.valueOf(buffer);"
+				}), 
+				"abc".toCharArray());
+	} finally {
+		// clean up
+		context.setImports(new char[0][]);
+	}
+}
 }

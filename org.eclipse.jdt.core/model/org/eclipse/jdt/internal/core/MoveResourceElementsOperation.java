@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * This operation moves resources (package fragments and compilation units) from their current
@@ -34,7 +34,7 @@ public MoveResourceElementsOperation(IJavaElement[] elementsToMove, IJavaElement
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.moveResourceProgress"); //$NON-NLS-1$
+	return Messages.operation_moveResourceProgress; 
 }
 /**
  * @see CopyResourceElementsOperation#isMove()

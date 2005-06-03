@@ -178,10 +178,14 @@ public class ASTRewrite {
 		if (rootNode != null) {
 			//validateASTNotModified(rootNode);
 			
-			getRewriteEventStore().markMovedNodesRemoved();
+			TargetSourceRangeComputer sourceRangeComputer= getExtendedSourceRangeComputer();
+			
+			this.eventStore.prepareMovedNodes(sourceRangeComputer);
 
-			ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(document, result, this.eventStore, this.nodeStore, options, getExtendedSourceRangeComputer());
+			ASTRewriteAnalyzer visitor= new ASTRewriteAnalyzer(document, result, this.eventStore, this.nodeStore, options, sourceRangeComputer);
 			rootNode.accept(visitor); // throws IllegalArgumentException
+			
+			this.eventStore.revertMovedNodes();
 		}
 		return result;
 	}

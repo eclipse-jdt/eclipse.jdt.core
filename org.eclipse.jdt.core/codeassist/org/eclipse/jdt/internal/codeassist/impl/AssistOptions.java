@@ -39,13 +39,13 @@ public class AssistOptions {
 	public static final String OPTION_ArgumentSuffixes =
 		"org.eclipse.jdt.core.codeComplete.argumentSuffixes"; 	//$NON-NLS-1$
 	public static final String OPTION_PerformForbiddenReferenceCheck =
-		"org.eclipse.jdt.core.codeComplete.restrictionsCheck"; 	//$NON-NLS-1$
+		"org.eclipse.jdt.core.codeComplete.forbiddenReferenceCheck"; 	//$NON-NLS-1$
 	public static final String OPTION_PerformDiscouragedReferenceCheck =
 		"org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"; 	//$NON-NLS-1$
 	
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
-
+	
 	public boolean checkVisibility = false;
 	public boolean checkForbiddenReference = false;
 	public boolean checkDiscouragedReference = false;

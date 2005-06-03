@@ -18,7 +18,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jface.text.IDocument;
 
 /**
@@ -199,6 +199,12 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			progressMonitor.beginTask(name, totalWork);
 		}
 	}
+	/*
+	 * Returns whether this operation can modify the package fragment roots.
+	 */
+	protected boolean canModifyRoots() {
+		return false;
+	}
 	/**
 	 * Checks with the progress monitor to see whether this operation
 	 * should be canceled. An operation should regularly call this method
@@ -209,7 +215,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 */
 	protected void checkCanceled() {
 		if (isCanceled()) {
-			throw new OperationCanceledException(Util.bind("operation.cancelled")); //$NON-NLS-1$
+			throw new OperationCanceledException(Messages.operation_cancelled); 
 		}
 	}
 	/**
@@ -703,9 +709,11 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			progressMonitor = monitor;
 			pushOperation(this);
 			try {
-				// computes the root infos before executing the operation
-				// noop if aready initialized
-				JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
+				if (canModifyRoots()) {
+					// computes the root infos before executing the operation
+					// noop if aready initialized
+					JavaModelManager.getJavaModelManager().deltaState.initializeRoots();
+				}
 				
 				executeOperation();
 			} finally {
@@ -715,6 +723,9 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 			}
 		} finally {
 			try {
+				// reacquire delta processor as it can have been reset during executeOperation()
+				deltaProcessor = manager.getDeltaProcessor();
+				
 				// update JavaModel using deltas that were recorded during this operation
 				for (int i = previousDeltaCount, size = deltaProcessor.javaModelDeltas.size(); i < size; i++) {
 					deltaProcessor.updateJavaModel((IJavaElementDelta)deltaProcessor.javaModelDeltas.get(i));

@@ -13,7 +13,6 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
-import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -26,7 +25,9 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -40,6 +41,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	// working copies usage
 	protected ICompilationUnit[] workingCopies;
+	protected WorkingCopyOwner wcOwner;
 	protected boolean discard;
 	
 	// infos for invalid results
@@ -56,12 +58,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		public void acceptProblem(IProblem problem) {
 			org.eclipse.jdt.core.tests.util.Util.appendProblem(this.problems, problem, this.unitSource, ++this.problemCount);
+			this.problems.append("----------\n");
 		}
 		public void beginReporting() {
 			this.problems.append("----------\n");
 		}
 		public void endReporting() {
-			problems.append("----------\n");
+			if (this.problemCount == 0)
+				this.problems.append("----------\n");
 		}
 		public boolean isActive() {
 			return true;
@@ -170,7 +174,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertSearchResults(String message, String expected, Object collector) {
 		String actual = collector.toString();
 		if (!expected.equals(actual)) {
-			if (this.displayName) System.out.println(getName()+" expected result is:");
+			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.print(displayString(actual, this.tabs));
 			System.out.println(",");
 		}
@@ -219,8 +223,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, boolean exported) throws JavaModelException{
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
-		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 1, length);
-		entries[0] = JavaCore.newLibraryEntry(
+		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 0, length);
+		entries[length] = JavaCore.newLibraryEntry(
 			path, 
 			srcAttachmentPath, 
 			srcAttachmentPathRoot, 
@@ -254,14 +258,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		);
 	}
 	protected void assertElementEquals(String message, String expected, IJavaElement element) {
-		String actual = element == null ? "<null>" : ((JavaElement) element).toStringWithAncestors();
+		String actual = element == null ? "<null>" : ((JavaElement) element).toStringWithAncestors(false/*don't show key*/);
 		if (!expected.equals(actual)) {
-			if (this.displayName) System.out.println(getName()+" expected result is:");
+			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
 	protected void assertElementsEqual(String message, String expected, IJavaElement[] elements) {
+		assertElementsEqual(message, expected, elements, false/*don't show key*/);
+	}
+	protected void assertElementsEqual(String message, String expected, IJavaElement[] elements, boolean showResolvedInfo) {
 		StringBuffer buffer = new StringBuffer();
 		if (elements != null) {
 			for (int i = 0, length = elements.length; i < length; i++){
@@ -269,7 +276,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				if (element == null) {
 					buffer.append("<null>");
 				} else {
-					buffer.append(element.toStringWithAncestors());
+					buffer.append(element.toStringWithAncestors(showResolvedInfo));
 				}
 				if (i != length-1) buffer.append("\n");
 			}
@@ -278,7 +285,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		String actual = buffer.toString();
 		if (!expected.equals(actual)) {
-			if (this.displayName) System.out.println(getName()+" expected result is:");
+			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
@@ -286,6 +293,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertHierarchyEquals(String expected, ITypeHierarchy hierarchy) {
 		String actual = hierarchy.toString();
 		if (!expected.equals(actual)) {
+			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals("Unexpected type hierarchy", expected, actual);
@@ -406,12 +414,15 @@ protected void assertDeltas(String message, String expected) {
 		assertEquals("Unepexeted type parameters", expected, actual);
 	}
 	protected void assertStringsEqual(String message, String expected, String[] strings) {
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < strings.length; i++){
-			buffer.append(strings[i]);
-			buffer.append("\n");
+		String actual = toString(strings, true/*add extra new lines*/);
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 3) + this.endChar);
 		}
-		String actual = buffer.toString();
+		assertEquals(message, expected, actual);
+	}
+	protected void assertStringsEqual(String message, String[] expectedStrings, String[] actualStrings) {
+		String expected = toString(expectedStrings, false/*don't add extra new lines*/);
+		String actual = toString(actualStrings, false/*don't add extra new lines*/);
 		if (!expected.equals(actual)) {
 			System.out.println(displayString(actual, 3) + this.endChar);
 		}
@@ -1720,7 +1731,12 @@ protected void assertDeltas(String message, String expected) {
 	 */
 	IJavaElement selectJavaElement(ICompilationUnit unit, String selection, int occurences, int elementType) throws JavaModelException {
 		int[] selectionPositions = selectionInfo(unit, selection, occurences);
-		IJavaElement[] elements = unit.codeSelect(selectionPositions[0], selectionPositions[1]);
+		IJavaElement[] elements = null;
+		if (wcOwner == null) {
+			elements = unit.codeSelect(selectionPositions[0], selectionPositions[1]);
+		} else {
+			elements = unit.codeSelect(selectionPositions[0], selectionPositions[1], wcOwner);
+		}
 		assertEquals("Invalid selection number", 1, elements.length);
 		assertEquals("Invalid java element type: "+elements[0].getElementName(), elements[0].getElementType(), elementType);
 		return elements[0];
@@ -1861,7 +1877,9 @@ protected void assertDeltas(String message, String expected) {
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
-		if (discard) workingCopies = null;
+		if (discard) {
+			workingCopies = null;
+		}
 		discard = true;
 	}
 	protected void sortElements(IJavaElement[] elements) {
@@ -1903,6 +1921,29 @@ protected void assertDeltas(String message, String expected) {
 		};
 		Util.sort(types, comparer);
 	}
+	/*
+	 * Simulate a save/exit of the workspace
+	 */
+	protected void simulateExit() throws CoreException {
+		waitForAutoBuild();
+		getWorkspace().save(true/*full save*/, null/*no progress*/);
+		JavaModelManager.getJavaModelManager().shutdown();
+	}
+	/*
+	 * Simulate a save/exit/restart of the workspace
+	 */
+	protected void simulateExitRestart() throws CoreException {
+		simulateExit();
+		simulateRestart();
+	}
+	/*
+	 * Simulate a restart of the workspace
+	 */
+	protected void simulateRestart() throws CoreException {
+		JavaModelManager.doNotUse(); // reset the MANAGER singleton
+		JavaModelManager.getJavaModelManager().startup();
+		new JavaCorePreferenceInitializer().initializeDefaultPreferences();
+	}
 	/**
 	 * Starts listening to element deltas, and queues them in fgDeltas.
 	 */
@@ -1926,10 +1967,23 @@ protected void assertDeltas(String message, String expected) {
 		}
 		return result;
 	}
+	protected String toString(String[] strings) {
+		return toString(strings, false/*don't add extra new line*/);
+	}
+	protected String toString(String[] strings, boolean addExtraNewLine) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0, length = strings.length; i < length; i++){
+			buffer.append(strings[i]);
+			if (addExtraNewLine || i < length - 1)
+				buffer.append("\n");
+		}
+		return buffer.toString();
+	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (discard && workingCopies != null) {
 			discardWorkingCopies(workingCopies);
+			wcOwner = null;
 		}
 	}
 	/**

@@ -12,12 +12,8 @@ package org.eclipse.jdt.core.tests.dom;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.ASTNode;
 
 import junit.framework.Test;
 
@@ -33,9 +29,18 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	public static Test suite() {
-		return new Suite(ASTModelBridgeTests.class);
+		return buildTestSuite(ASTModelBridgeTests.class);
 	}
 	
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+//		TESTS_PREFIX =  "testBug86380";
+//		TESTS_NAMES = new String[] { "testAnonymousType2" };
+//		TESTS_NUMBERS = new int[] { 83230 };
+//		TESTS_RANGE = new int[] { 83304, -1 };
+		}
+
 	/*
 	 * Removes the marker comments "*start*" and "*end*" from the given contents,
 	 * builds an AST from the resulting source, and returns the AST node that was delimited
@@ -64,7 +69,20 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB,JCL15_SRC", "/P/lib"}, "bin", "1.5");
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB,JCL15_SRC", "/P/lib"}, "bin", "1.5");
+		addLibrary(
+			project, 
+			"lib.jar",
+			"libsrc.zip", 
+			new String[] {
+				"p/Y.java",
+				"package p;\n" +
+				"public class Y<T> {\n" +
+				"  public Y(T t) {\n" +
+				"  }\n" +
+				"}"
+			}, 
+			"1.5");
 		this.workingCopy = getCompilationUnit("/P/src/X.java").getWorkingCopy(
 			new WorkingCopyOwner() {}, 
 			new IProblemRequestor() {
@@ -110,6 +128,53 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertTrue("Element should exist", element.exists());
 	}
 
+	public void testAnonymousType2() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" + 
+			"	public void foo() {\n" + 
+			"		new Y(0/*c*/) /*start*/{\n" + 
+			"			Object field;\n" + 
+			"		}/*end*/;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y {\n" + 
+			"	Y(int i) {\n" + 
+			"	}\n" + 
+			"}"
+		);
+		IBinding binding = ((AnonymousClassDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"<anonymous #1> [in foo() [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method coming from a class file is correct.
+	 * (regression test for bug 91445 IMethodBinding.getJavaElement() returns an "unopen" IMethod)
+	 */
+	public void testBinaryMethod() throws JavaModelException {
+		IClassFile classFile = getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "Enum.class");
+		String source = classFile.getSource();
+		MarkerInfo markerInfo = new MarkerInfo(source);
+		markerInfo.astStarts = new int[] {source.indexOf("protected Enum")};
+		markerInfo.astEnds = new int[] {source.indexOf('}', markerInfo.astStarts[0]) + 1};
+		ASTNode node = buildAST(markerInfo, classFile);
+		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Enum(java.lang.String, int) [in Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+	
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a type coming from a class file is correct.
 	 */
@@ -117,8 +182,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IClassFile classFile = getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "String.class");
 		String source = classFile.getSource();
 		MarkerInfo markerInfo = new MarkerInfo(source);
-		markerInfo.astStart = source.indexOf("public");
-		markerInfo.astEnd = source.lastIndexOf('}') + 1;
+		markerInfo.astStarts = new int[] {source.indexOf("public")};
+		markerInfo.astEnds = new int[] {source.lastIndexOf('}') + 1};
 		ASTNode node = buildAST(markerInfo, classFile);
 		IBinding binding = ((TypeDeclaration) node).resolveBinding();
 		assertNotNull("No binding", binding);
@@ -165,7 +230,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		IType typeX = this.workingCopies[0].getType("X");
 		IJavaElement[] elements = new IJavaElement[] {
 			typeX, 
-			getClassFile("P", getExternalJCLPathString(), "java.lang", "Object.class").getType(),
+			getClassFile("P", getExternalJCLPathString("1.5"), "java.lang", "Object.class").getType(),
 			typeX.getMethod("foo", new String[] {"I", "QString;"}),
 			this.workingCopies[2].getType("I").getField("BAR"),
 			this.workingCopies[1].getType("Y").getMethod("bar", new String[0]).getType("", 1)
@@ -175,7 +240,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;\n" + 
 			"Ljava/lang/Object;\n" + 
 			"LX;.foo(ILjava/lang/String;)V\n" + 
-			"LI;.BAR\n" + 
+			"LI;.BAR)I\n" + 
 			"LY$50;",
 			bindings);
 	}
@@ -262,7 +327,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getField("field")
 		);
 		assertBindingsEqual(
-			"LX;.field",
+			"LX;.field)I",
 			bindings);
 	}
 	
@@ -340,7 +405,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getField("FOO")
 		);
 		assertBindingsEqual(
-			"LX;.FOO",
+			"LX;.FOO)LX;",
 			bindings);
 	}
 	
@@ -389,7 +454,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getTypeParameter("T")
 		);
 		assertBindingsEqual(
-			"LX<TT;>;:TT;",
+			"LX;:TT;",
 			bindings);
 	}
 	
@@ -420,7 +485,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			getClassFile("/P/lib/A.class").getType().getField("field")
 		);
 		assertBindingsEqual(
-			"LA;.field",
+			"LA;.field)I",
 			bindings);
 	}
 	
@@ -756,6 +821,74 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 		assertTrue("Element should exist", element.exists());
 	}
+	
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method with array parameters is correct.
+	 * (regression test for bug 88769 IMethodBinding#getJavaElement() drops extra array dimensions and varargs
+	 */
+	public void testMethod7() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/public int[] bar(int a[]) {\n" +
+			"    return a;\n" +
+			"  }/*end*/\n" +
+			"}"
+		);
+		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"bar(int[]) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method with array parameters is correct.
+	 * (regression test for bug 88769 IMethodBinding#getJavaElement() drops extra array dimensions and varargs
+	 */
+	public void testMethod8() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/public Object[] bar2(Object[] o[][]) [][] {\n" +
+			"    return o;\n" +
+			"  }/*end*/\n" +
+			"}"
+		);
+		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"bar2(Object[][][]) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a method with varargs parameters is correct.
+	 * (regression test for bug 88769 IMethodBinding#getJavaElement() drops extra array dimensions and varargs
+	 */
+	public void testMethod9() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/public void bar3(Object... objs) {\n" +
+			"  }/*end*/\n" +
+			"}"
+		);
+		IBinding binding = ((MethodDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"bar3(Object[]) [in X [in [Working copy] X.java [in <default> [in src [in P]]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
 
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing a package is correct.
@@ -814,6 +947,29 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertElementEquals(
 			"Unexpected Java element",
 			"Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing a parameterized binary method is correct.
+	 * (regression test for bug 88892 [1.5] IMethodBinding#getJavaElement() returns nonexistent IMethods (wrong parameter types))
+	 */
+	public void testParameterizedBinaryMethod() throws CoreException {
+		ASTNode node = buildAST(
+			"public class X extends p.Y<String> {\n" +
+			"  public X(String s) {\n" +
+			"    /*start*/super(s);/*end*/\n" +
+			"  }\n" +
+			"}"		
+		);
+		IBinding binding = ((SuperConstructorInvocation) node).resolveConstructorBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Y(T) [in Y [in Y.class [in p [in lib.jar [in P]]]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());

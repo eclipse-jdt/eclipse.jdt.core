@@ -201,7 +201,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 		// perform some emulation work in case there is some and we are inside a local type only
 		if (binding.isPrivate() && accessMode != This) {
 
-			if (currentScope.environment().options.isPrivateConstructorAccessChangingVisibility) {
+			if (currentScope.compilerOptions().isPrivateConstructorAccessChangingVisibility) {
 				this.codegenBinding.tagForClearingPrivateModifier();
 				// constructor will not be dumped as private, no emulation required thus
 			} else {

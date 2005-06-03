@@ -38,15 +38,17 @@ public class CompletionOnSingleNameReference extends SingleNameReference {
 
 	public char[][] possibleKeywords;
 	public boolean canBeExplicitConstructor;
+	public boolean isInsideAnnotationAttribute;
 
-	public CompletionOnSingleNameReference(char[] source, long pos) {
-		this(source, pos, null, false);
+	public CompletionOnSingleNameReference(char[] source, long pos, boolean isInsideAnnotationAttribute) {
+		this(source, pos, null, false, isInsideAnnotationAttribute);
 	}
 
-	public CompletionOnSingleNameReference(char[] source, long pos, char[][] possibleKeywords, boolean canBeExplicitConstructor) {
+	public CompletionOnSingleNameReference(char[] source, long pos, char[][] possibleKeywords, boolean canBeExplicitConstructor, boolean isInsideAnnotationAttribute) {
 		super(source, pos);
 		this.possibleKeywords = possibleKeywords;
 		this.canBeExplicitConstructor = canBeExplicitConstructor;
+		this.isInsideAnnotationAttribute = isInsideAnnotationAttribute;
 	}
 
 	public StringBuffer printExpression(int indent, StringBuffer output) {
@@ -56,6 +58,9 @@ public class CompletionOnSingleNameReference extends SingleNameReference {
 	}
 
 	public TypeBinding resolveType(BlockScope scope) {
+		if(scope instanceof MethodScope) {
+			throw new CompletionNodeFound(this, scope, ((MethodScope)scope).insideTypeAnnotation);
+		}
 		throw new CompletionNodeFound(this, scope);
 	}
 }

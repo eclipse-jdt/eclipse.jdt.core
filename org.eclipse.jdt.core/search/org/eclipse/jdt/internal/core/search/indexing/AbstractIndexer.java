@@ -80,6 +80,9 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		char[] simpleTypeName = CharOperation.lastSegment(typeName,'.');
 		addTypeReference(simpleTypeName);
 		addIndexEntry(CONSTRUCTOR_REF, ConstructorPattern.createIndexKey(simpleTypeName, argCount));
+		char[] innermostTypeName = CharOperation.lastSegment(simpleTypeName,'$');
+		if (innermostTypeName != simpleTypeName)
+			addIndexEntry(CONSTRUCTOR_REF, ConstructorPattern.createIndexKey(innermostTypeName, argCount));
 	}
 	public void addEnumDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces) {
 		addIndexEntry(TYPE_DECL, TypeDeclarationPattern.createIndexKey(modifiers, name, packageName, enclosingTypeNames));

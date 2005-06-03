@@ -6055,8 +6055,8 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong msg size", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
-		assertEquals("Wrong pb size", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong msg size", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong pb size", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertTrue("Not a return statement", node instanceof ReturnStatement); //$NON-NLS-1$
 		ReturnStatement returnStatement = (ReturnStatement) node;

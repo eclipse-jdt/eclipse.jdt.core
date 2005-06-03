@@ -358,7 +358,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 		if (!expected.equals(actual)) {
 			if (this.displayName) {
 				System.out.print(getName());
-				System.out.print(" expects ");
+				System.out.print(" got ");
 				if (collector.count==0)
 					System.out.println("no result!");
 				else {
@@ -372,7 +372,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 			}
 			if (!displayName || collector.count>0) {
 				System.out.print(displayString(actual, this.tabs));
-				System.out.println(",");
+				System.out.println(this.endChar);
 			}
 		}
 		assertEquals(
@@ -446,6 +446,12 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	}
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope) throws CoreException {
 		search(element, limitTo, EXACT_RULE, scope, resultCollector);
+	}
+	IJavaSearchScope getJavaSearchWorkingCopiesScope(ICompilationUnit workingCopy) throws JavaModelException {
+		return SearchEngine.createJavaSearchScope(new ICompilationUnit[] { workingCopy });
+	}
+	IJavaSearchScope getJavaSearchWorkingCopiesScope() throws JavaModelException {
+		return SearchEngine.createJavaSearchScope(this.workingCopies);
 	}
 	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope) throws CoreException {
 		search(element, limitTo, matchRule, scope, resultCollector);

@@ -15,19 +15,23 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class ClassScope extends Scope {
+	
 	public TypeDeclaration referenceContext;
 	private TypeReference superTypeReference;
+	public CompilerOptions options;
 
 	private final static char[] IncompleteHierarchy = new char[] {'h', 'a', 's', ' ', 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', ' ', 'h', 'i', 'e', 'r', 'a', 'r', 'c', 'h', 'y'};
 
@@ -334,7 +338,7 @@ public class ClassScope extends Scope {
 		TypeParameter[] typeParameters = referenceContext.typeParameters;
 		
 	    // do not construct type variables if source < 1.5
-		if (typeParameters == null || environment().options.sourceLevel < ClassFileConstants.JDK1_5) {
+		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) {
 		    sourceType.typeVariables = NoTypeVariables;
 		    return;
 		}
@@ -466,9 +470,27 @@ public class ClassScope extends Scope {
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
 
-// what about inherited interface methods?
+			// what about inherited interface methods?
 			if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0)
 				modifiers |= AccAbstract;
+			else if (!sourceType.isAnonymousType()){ // body of enum constant must implement any inherited abstract methods
+				// enum type needs to implement abstract methods if one of its constants does not supply a body
+				TypeDeclaration typeDeclaration = this.referenceContext;
+				FieldDeclaration[] fields = typeDeclaration.fields;
+				int length = typeDeclaration.fields == null ? 0 : typeDeclaration.fields.length;
+				checkAbstractEnum: {
+					if (length == 0) break checkAbstractEnum; // has no constants so must implement the method itself
+					for (int i = 0; i < length; i++) {
+						FieldDeclaration fieldDecl = fields[i];
+						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
+							if (!(fieldDecl.initialization instanceof QualifiedAllocationExpression))
+								break checkAbstractEnum;
+					}
+					// tag this enum as abstract since an abstract method must be implemented AND all enum constants define an anonymous body
+					// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method					
+					modifiers |= AccAbstract;
+				}
+			}
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
@@ -710,7 +732,7 @@ public class ClassScope extends Scope {
 			return true; // do not propagate Object's hierarchy problems down to every subtype
 		}
 		if (referenceContext.superclass == null) {
-			if (sourceType.isEnum() && environment().options.sourceLevel >= JDK1_5) // do not connect if source < 1.5 as enum already got flagged as syntax error
+			if (sourceType.isEnum() && compilerOptions().sourceLevel >= JDK1_5) // do not connect if source < 1.5 as enum already got flagged as syntax error
 				return connectEnumSuperclass();
 			sourceType.superclass = getJavaLangObject();
 			return !detectHierarchyCycle(sourceType, sourceType.superclass, null);
@@ -756,12 +778,12 @@ public class ClassScope extends Scope {
 			return false; // cannot reach here as AbortCompilation is thrown
 		}			
 		// check argument type compatibility
-		ParameterizedTypeBinding  superType = createParameterizedType(rootEnumType, new TypeBinding[]{ sourceType } , null);
+		ParameterizedTypeBinding  superType = createParameterizedType(rootEnumType, new TypeBinding[]{ convertToRawType(sourceType) } , null);
 		sourceType.superclass = superType;
-		// bound check
-		if (!refTypeVariables[0].boundCheck(superType, sourceType)) {
+		// bound check (in case of bogus definition of Enum type)
+		if (refTypeVariables[0].boundCheck(superType, sourceType) != TypeConstants.OK) {
 			problemReporter().typeMismatchError(rootEnumType, refTypeVariables[0], sourceType, null);
-		}
+		}		
 		return !foundCycle;
 	}
 
@@ -779,7 +801,7 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		sourceType.superInterfaces = NoSuperInterfaces;
 		if (referenceContext.superInterfaces == null) {
-			if (sourceType.isAnnotationType() && environment().options.sourceLevel >= JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
+			if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
 				ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
 				boolean foundCycle = detectHierarchyCycle(sourceType, annotationType, null);
 				sourceType.superInterfaces = new ReferenceBinding[] { annotationType };

@@ -26,7 +26,7 @@ public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, 
 	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.typeSuffix = typeSuffix;
 
-	((InternalSearchPattern)this).mustResolve = this.qualification != null;
+	((InternalSearchPattern)this).mustResolve = this.qualification != null || typeSuffix != TYPE_SUFFIX;
 }
 QualifiedTypeDeclarationPattern(int matchRule) {
 	super(matchRule);
@@ -60,7 +60,7 @@ public SearchPattern getBlankPattern() {
 public char[] getPackageName() {
 	if (this.packageIndex == -1)
 		return this.qualification;
-	return CharOperation.subarray(this.qualification, 0, this.packageIndex);
+	return internedPackageNames.add(CharOperation.subarray(this.qualification, 0, this.packageIndex));
 }
 public char[][] getEnclosingTypeNames() {
 	if (this.packageIndex == -1)
@@ -75,10 +75,56 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	QualifiedTypeDeclarationPattern pattern = (QualifiedTypeDeclarationPattern) decodedPattern;
 	switch(this.typeSuffix) {
 		case CLASS_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case INTERFACE_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case INTERFACE_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case ENUM_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case ENUM_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case ANNOTATION_TYPE_SUFFIX :
 			if (this.typeSuffix != pattern.typeSuffix) return false;
+			break;
+		case CLASS_AND_INTERFACE_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case INTERFACE_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
+		case CLASS_AND_ENUM_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case ENUM_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 	}
 
 	return matchesName(this.simpleName, pattern.simpleName) && matchesName(this.qualification, pattern.qualification);
@@ -87,6 +133,12 @@ protected StringBuffer print(StringBuffer output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
 			output.append("ClassDeclarationPattern: qualification<"); //$NON-NLS-1$
+			break;
+		case CLASS_AND_INTERFACE_SUFFIX:
+			output.append("ClassAndInterfaceDeclarationPattern: qualification<"); //$NON-NLS-1$
+			break;
+		case CLASS_AND_ENUM_SUFFIX :
+			output.append("ClassAndEnumDeclarationPattern: qualification<"); //$NON-NLS-1$
 			break;
 		case INTERFACE_SUFFIX :
 			output.append("InterfaceDeclarationPattern: qualification<"); //$NON-NLS-1$

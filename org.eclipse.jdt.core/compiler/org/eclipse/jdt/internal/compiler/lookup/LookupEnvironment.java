@@ -44,7 +44,7 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private int lastUnitIndex = -1;
 
 	public INameEnvironment nameEnvironment;
-	public CompilerOptions options;
+	public CompilerOptions globalOptions;
 	public ProblemReporter problemReporter;
 
 	// shared byte[]'s used by ClassFile to avoid allocating MBs during a build
@@ -68,9 +68,9 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private MethodVerifier verifier;
 
-public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions options, ProblemReporter problemReporter, INameEnvironment nameEnvironment) {
+public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOptions, ProblemReporter problemReporter, INameEnvironment nameEnvironment) {
 	this.typeRequestor = typeRequestor;
-	this.options = options;
+	this.globalOptions = globalOptions;
 	this.problemReporter = problemReporter;
 	this.defaultPackage = new PackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
@@ -305,6 +305,29 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, NotFound);				
 	}
+	// allow indirect unboxing conversion for wildcards and type parameters
+	switch (type.kind()) {
+		case Binding.WILDCARD_TYPE :
+		case Binding.TYPE_PARAMETER :
+			switch (type.erasure().id) {
+				case TypeIds.T_JavaLangBoolean :
+					return BooleanBinding;
+				case TypeIds.T_JavaLangByte :
+					return ByteBinding;
+				case TypeIds.T_JavaLangCharacter :
+					return CharBinding;
+				case TypeIds.T_JavaLangShort :
+					return ShortBinding;
+				case TypeIds.T_JavaLangDouble :
+					return DoubleBinding;
+				case TypeIds.T_JavaLangFloat :
+					return FloatBinding;
+				case TypeIds.T_JavaLangInteger :
+					return IntBinding;
+				case TypeIds.T_JavaLangLong :
+					return LongBinding;
+			}
+	}
 	return type;
 }	
 private PackageBinding computePackageFrom(char[][] constantPoolName) {
@@ -494,7 +517,7 @@ public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBindi
 	
 }
 
-public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int kind) {
+public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind) {
 	
 	// cached info is array of already created wildcard  types for this type
 	if (genericType == null) // pseudo wildcard denoting composite bounds for lub computation
@@ -508,7 +531,7 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
 			    WildcardBinding cachedType = cachedInfo[i];
 			    if (cachedType.genericType != genericType) continue nextCachedType; // remain of unresolved type
 			    if (cachedType.rank != rank) continue nextCachedType;
-			    if (cachedType.kind != kind) continue nextCachedType;
+			    if (cachedType.boundKind != boundKind) continue nextCachedType;
 			    if (cachedType.bound != bound) continue nextCachedType;
 			    if (cachedType.otherBounds != otherBounds) {
 			    	int cachedLength = cachedType.otherBounds == null ? 0 : cachedType.otherBounds.length;
@@ -533,7 +556,7 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
 		this.uniqueWildcardBindings.put(genericType, cachedInfo);
 	}
 	// add new binding
-	WildcardBinding wildcard = new WildcardBinding(genericType, rank, bound, otherBounds, kind, this);
+	WildcardBinding wildcard = new WildcardBinding(genericType, rank, bound, otherBounds, boundKind, this);
 	cachedInfo[cachedInfo.length-1] = wildcard;
 	return wildcard;
 }
@@ -835,7 +858,7 @@ TypeBinding getTypeFromVariantTypeSignature(
 	}
 }
 public boolean isBoxingCompatibleWith(TypeBinding left, TypeBinding right) {
-	if (options.sourceLevel < ClassFileConstants.JDK1_5 || left.isBaseType() == right.isBaseType())
+	if (this.globalOptions.sourceLevel < ClassFileConstants.JDK1_5 || left.isBaseType() == right.isBaseType())
 		return false;
 
 	TypeBinding convertedType = computeBoxingType(left);
@@ -852,7 +875,7 @@ boolean isPackage(char[][] compoundName, char[] name) {
 
 public MethodVerifier methodVerifier() {
 	if (verifier == null)
-		verifier = this.options.complianceLevel < ClassFileConstants.JDK1_5
+		verifier = this.globalOptions.complianceLevel < ClassFileConstants.JDK1_5
 			? new MethodVerifier(this)
 			: new MethodVerifier15(this); // check for covariance even if sourceLevel is < 1.5
 	return verifier;

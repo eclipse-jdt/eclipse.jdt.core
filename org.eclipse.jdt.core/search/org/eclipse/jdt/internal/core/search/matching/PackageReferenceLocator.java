@@ -142,7 +142,7 @@ protected void matchLevelAndReportImportRef(ImportReference importRef, Binding b
 }
 protected void matchReportImportRef(ImportReference importRef, Binding binding, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
 	if (binding == null) {
-		this.matchReportReference(importRef, element, accuracy, locator);
+		this.matchReportReference(importRef, element, null/*no binding*/, accuracy, locator);
 	} else {
 		if (locator.encloses(element)) {
 			long[] positions = importRef.sourcePositions;
@@ -163,7 +163,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 		}
 	}
 }
-protected void matchReportReference(ASTNode reference, IJavaElement element, int accuracy, MatchLocator locator) throws CoreException {
+protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	long[] positions = null;
 	int last = -1;
 	if (reference instanceof ImportReference) {
@@ -216,6 +216,17 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, int
 			PackageBinding pkgBinding = ((ReferenceBinding) typeBinding).fPackage;
 			if (pkgBinding != null)
 				last = pkgBinding.compoundName.length;
+		}
+		// Do not report qualified references which are only enclosing type
+		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=91078)
+		ReferenceBinding enclosingType = typeBinding == null ? null: typeBinding.enclosingType();
+		if (enclosingType != null) {
+			int length = positions.length;
+			while (enclosingType != null && length > 0) {
+				length--;
+				enclosingType = enclosingType.enclosingType();
+			}
+			if (length <= 1) return;
 		}
 	}
 	if (last == -1) {

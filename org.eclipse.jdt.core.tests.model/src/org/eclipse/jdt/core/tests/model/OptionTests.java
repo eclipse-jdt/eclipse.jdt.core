@@ -12,12 +12,12 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -34,17 +34,21 @@ public class OptionTests extends ModifyingResourceTests {
 	public OptionTests(String name) {
 		super(name);
 	}
-	public static Test suite() {
-	
-		if (false){
-			System.err.println("Warning: only tests subset is currently running!");
-			TestSuite suite = new Suite(OptionTests.class.getName());
-			suite.addTest(new OptionTests("testBug72214"));
-			suite.addTest(new OptionTests("testBug72214b"));
-			return suite;
-		}
-		return new Suite(OptionTests.class);	
+	static {
+//		TESTS_NUMBERS = new int[] { 4 };
+//		TESTS_RANGE = new int[] { 4, -1 };
 	}
+	public static Test suite() {
+		return buildTestSuite(OptionTests.class);	
+	}
+	
+	protected void tearDown() throws Exception {
+		// Put back default options
+		JavaCore.setOptions(JavaCore.getDefaultOptions());
+
+		super.tearDown();
+	}
+
 	/**
 	 * Test persistence of project custom options
 	 */
@@ -507,23 +511,14 @@ public class OptionTests extends ModifyingResourceTests {
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=72214">72214</a>
 	 */
 	public void testBug72214() throws CoreException, BackingStoreException {
-
 		// Remove JavaCore instance prefs
-		IEclipsePreferences javacorePreferences = JavaCore.getInstancePreferences();
-		javacorePreferences.removeNode();
-
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IEclipsePreferences preferences = manager.getInstancePreferences();
+		int size = JavaCore.getOptions().size();
+		preferences.removeNode();
+	
 		// verify that JavaCore preferences have been reset
-		assertFalse("JavaCore preferences should have been reset", javacorePreferences == JavaCore.getInstancePreferences());
-		assertFalse("JavaCore preferences should be accessible!", JavaCore.getOptions().isEmpty());
-	}
-	public void testBug72214b() throws CoreException, BackingStoreException {
-
-		// Remove JavaCore default prefs
-		IEclipsePreferences defaultPreferences = JavaCore.getDefaultPreferences();
-		defaultPreferences.removeNode();
-
-		// verify that JavaCore preferences have been reset
-		assertFalse("JavaCore default preferences should have been reset", defaultPreferences == JavaCore.getDefaultPreferences());
-		assertFalse("JavaCore default preferences should be accessible!", JavaCore.getDefaultOptions().isEmpty());
+		assertFalse("JavaCore preferences should have been reset", preferences == manager.getInstancePreferences());
+		assertEquals("JavaCore preferences should have been resotred!", size, JavaCore.getOptions().size());
 	}
 }

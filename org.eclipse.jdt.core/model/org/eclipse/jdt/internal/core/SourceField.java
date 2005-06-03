@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 
 /**
  * @see IField
@@ -46,11 +47,12 @@ public ASTNode findNode(org.eclipse.jdt.core.dom.CompilationUnit ast) {
 public Object getConstant() throws JavaModelException {
 	Object constant = null;	
 	SourceFieldElementInfo info = (SourceFieldElementInfo) getElementInfo();
-	if (info.initializationSource == null) {
+	final char[] constantSourceChars = info.initializationSource;
+	if (constantSourceChars == null) {
 		return null;
 	}
 			
-	String constantSource = new String(info.initializationSource);
+	String constantSource = new String(constantSourceChars);
 	String signature = info.getTypeSignature();
 	if (signature.equals(Signature.SIG_INT)) {
 		constant = new Integer(constantSource);
@@ -61,7 +63,10 @@ public Object getConstant() throws JavaModelException {
 	} else if (signature.equals(Signature.SIG_BOOLEAN)) {
 		constant = Boolean.valueOf(constantSource);
 	} else if (signature.equals(Signature.SIG_CHAR)) {
-		constant = new Character(constantSource.charAt(0));
+		if (constantSourceChars.length != 3) {
+			return null;
+		}
+		constant = new Character(constantSourceChars[1]);
 	} else if (signature.equals(Signature.SIG_DOUBLE)) {
 		constant = new Double(constantSource);
 	} else if (signature.equals(Signature.SIG_FLOAT)) {
@@ -92,7 +97,12 @@ public int getElementType() {
  * @see org.eclipse.jdt.core.IField#getKey()
  */
 public String getKey() {
-	return getKey(this);
+	try {
+		return getKey(this, false/*don't open*/);
+	} catch (JavaModelException e) {
+		// happen only if force open is true
+		return null;
+	}
 }
 /**
  * @see JavaElement#getHandleMemento()
@@ -129,10 +139,15 @@ public String getTypeSignature() throws JavaModelException {
 public boolean isResolved() {
 	return false;
 }
+public JavaElement resolved(Binding binding) {
+	SourceRefElement resolvedHandle = new ResolvedSourceField(this.parent, this.name, new String(binding.computeUniqueKey()));
+	resolvedHandle.occurrenceCount = this.occurrenceCount;
+	return resolvedHandle;
+}
 /**
  * @private Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(this.tabString(tab));
 	if (info == null) {
 		toStringName(buffer);

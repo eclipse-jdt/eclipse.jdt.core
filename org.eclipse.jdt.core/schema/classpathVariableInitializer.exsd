@@ -58,6 +58,9 @@
                   the class that implements this variable initializer.
          This class must implement a public subclass of &lt;code&gt;org.eclipse.jdt.core.ClasspathVariableInitializer&lt;/code&gt; with a public 0-argument constructor.
                </documentation>
+               <appInfo>
+                  <meta.attribute kind="java" basedOn="org.eclipse.jdt.core.ClasspathVariableInitializer"/>
+               </appInfo>
             </annotation>
          </attribute>
       </complexType>

@@ -102,13 +102,11 @@ protected void setUp() throws Exception {
 	this.reset();
 	this.setUpJavaProject("TypeHierarchyNotification");
 }
+static {
+//	TESTS_NAMES= new String[] { "testBinaryTypeHiddenByOtherJar" };
+}
 public static Test suite() {
-	if (false) {
-		Suite suite = new Suite(TypeHierarchyNotificationTests.class.getName());
-		suite.addTest(new TypeHierarchyNotificationTests("testRemoveExternalProject"));
-		return suite;
-	}
-	return new Suite(TypeHierarchyNotificationTests.class);
+	return buildTestSuite(TypeHierarchyNotificationTests.class);
 }
 protected void tearDown() throws Exception {
 	this.deleteProject("TypeHierarchyNotification");
@@ -620,6 +618,27 @@ public void testEditExtendsSourceType() throws CoreException {
 		assertOneChange(h);
 	} finally {
 		h.removeTypeHierarchyChangedListener(this);
+	}
+}
+public void testAddDependentProject() throws CoreException {
+	ITypeHierarchy h = null;
+	try {
+		createJavaProject("P1");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p1;\n" +
+			"public class X {\n" +
+			"}"
+		);
+		h = getCompilationUnit("/P1/p/X.java").getType("X").newTypeHierarchy(null);
+		h.addTypeHierarchyChangedListener(this);
+		createJavaProject("P2", new String[] {""}, new String[0], new String[] {"/P1"}, "");
+		assertOneChange(h);
+	} finally {
+		if (h != null)
+			h.removeTypeHierarchyChangedListener(this);
+		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
 /**

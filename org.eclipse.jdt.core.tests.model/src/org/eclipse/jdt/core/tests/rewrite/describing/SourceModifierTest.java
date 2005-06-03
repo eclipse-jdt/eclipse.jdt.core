@@ -65,7 +65,7 @@ public class SourceModifierTest extends ASTRewritingTest {
 		int length= buf.toString().indexOf("return;") + "return;".length() - offset;
 		
 		String content= buffer.get(offset, length);
-		SourceModifier modifier= new SourceModifier(2, "    ", 4);
+		SourceModifier modifier= new SourceModifier(2, "    ", 4, 4);
 		MultiTextEdit edit= new MultiTextEdit(0, content.length());
 		ReplaceEdit[] replaces= modifier.getModifications(content);
 		for (int i= 0; i < replaces.length; i++) {
@@ -116,7 +116,7 @@ public class SourceModifierTest extends ASTRewritingTest {
 		int length= buf.toString().indexOf("return;") + "return;".length() - offset;
 		
 		String content= buffer.get(offset, length);
-		SourceModifier modifier= new SourceModifier(2, "            ", 4);
+		SourceModifier modifier= new SourceModifier(2, "            ", 4, 4);
 		MultiTextEdit edit= new MultiTextEdit(0, content.length());
 		ReplaceEdit[] replaces= modifier.getModifications(content);
 		for (int i= 0; i < replaces.length; i++) {

@@ -62,24 +62,20 @@ public void addInnerEmulationDependent(BlockScope dependentScope, boolean wasEnc
 	dependents[index] = new InnerEmulationDependency(dependentScope, wasEnclosingInstanceSupplied);
 	//  System.out.println("Adding dependency: "+ new String(scope.enclosingType().readableName()) + " --> " + new String(this.readableName()));
 }
-public char[] computeUniqueKey() {
-	ReferenceBinding enclosing = enclosingType();
-	ReferenceBinding temp;
-	while ((temp = enclosing.enclosingType()) != null)
-		enclosing = temp;
+public char[] computeUniqueKey(boolean isLeaf) {
 	StringBuffer buffer = new StringBuffer();
-	buffer.append(enclosing.computeUniqueKey());
-	buffer.insert(buffer.length()-1, '$');
-	buffer.insert(buffer.length()-1, this.sourceStart);
+	buffer.append(outermostEnclosingType().computeUniqueKey(isLeaf));
+	
+	// innsert $sourceStart
+	int semicolon = buffer.lastIndexOf(";"); //$NON-NLS-1$
+	buffer.insert(semicolon, '$');
+	semicolon = buffer.lastIndexOf(";"); //$NON-NLS-1$
+	buffer.insert(semicolon, this.sourceStart);
 	int length = buffer.length();
 	char[] uniqueKey = new char[length];
 	buffer.getChars(0, length, uniqueKey, 0);
 	return uniqueKey;
 }
-/* Answer the receiver's constant pool name.
-*
-* NOTE: This method should only be used during/after code gen.
-*/
 
 public char[] constantPoolName() /* java/lang/Object */ {
 	return constantPoolName;

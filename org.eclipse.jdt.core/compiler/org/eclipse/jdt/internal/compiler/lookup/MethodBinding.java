@@ -82,7 +82,22 @@ protected MethodBinding(MethodBinding initialMethodBinding, ReferenceBinding dec
 	this.declaringClass = declaringClass;
 	this.extendedModifiers = initialMethodBinding.extendedModifiers;
 }
+/* Answer true if the argument types & the receiver's parameters have the same erasure
+*/
+public final boolean areParameterErasuresEqual(MethodBinding method) {
+	TypeBinding[] args = method.parameters;
+	if (parameters == args)
+		return true;
 
+	int length = parameters.length;
+	if (length != args.length)
+		return false;
+
+	for (int i = 0; i < length; i++)
+		if (parameters[i] != args[i] && parameters[i].erasure() != args[i].erasure())
+			return false;
+	return true;
+}
 /* Answer true if the argument types & the receiver's parameters are equal
 */
 public final boolean areParametersEqual(MethodBinding method) {
@@ -126,22 +141,6 @@ public final boolean areParametersCompatibleWith(TypeBinding[] arguments) {
 	return true;
 }
 
-/* Answer true if the argument types & the receiver's parameters have the same erasure
-*/
-public final boolean areParameterErasuresEqual(MethodBinding method) {
-	TypeBinding[] args = method.parameters;
-	if (parameters == args)
-		return true;
-
-	int length = parameters.length;
-	if (length != args.length)
-		return false;
-
-	for (int i = 0; i < length; i++)
-		if (parameters[i] != args[i] && parameters[i].erasure() != args[i].erasure())
-			return false;
-	return true;
-}
 /* API
 * Answer the receiver's binding type from Binding.BindingID.
 */
@@ -158,6 +157,22 @@ public final boolean canBeSeenBy(PackageBinding invocationPackage) {
 
 	// isProtected() or isDefault()
 	return invocationPackage == declaringClass.getPackage();
+}
+/* Answer true if the type variables have the same erasure
+*/
+public final boolean areTypeVariableErasuresEqual(MethodBinding method) {
+	TypeVariableBinding[] vars = method.typeVariables;
+	if (this.typeVariables == vars)
+		return true;
+
+	int length = this.typeVariables.length;
+	if (length != vars.length)
+		return false;
+
+	for (int i = 0; i < length; i++)
+		if (this.typeVariables[i] != vars[i] && this.typeVariables[i].erasure() != vars[i].erasure())
+			return false;
+	return true;
 }
 /* Answer true if the receiver is visible to the type provided by the scope.
 * InvocationSite implements isSuperAccess() to provide additional information
@@ -301,12 +316,12 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
  * declaringUniqueKey dot selector genericSignature
  * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V
  */
-public char[] computeUniqueKey() {
-	return computeUniqueKey(this);
+public char[] computeUniqueKey(boolean isLeaf) {
+	return computeUniqueKey(this, isLeaf);
 }
-protected char[] computeUniqueKey(MethodBinding methodBinding) {
+protected char[] computeUniqueKey(MethodBinding methodBinding, boolean isLeaf) {
 	// declaring class 
-	char[] declaringKey = this.declaringClass.computeUniqueKey();
+	char[] declaringKey = this.declaringClass.computeUniqueKey(false/*not a leaf*/);
 	int declaringLength = declaringKey.length;
 	
 	// selector
@@ -317,12 +332,15 @@ protected char[] computeUniqueKey(MethodBinding methodBinding) {
 	if (sig == null) sig = methodBinding.signature();
 	int signatureLength = sig.length;
 	
-	// compute unique key
 	char[] uniqueKey = new char[declaringLength + 1 + selectorLength + signatureLength];
-	System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
-	uniqueKey[declaringLength] = '.';
-	System.arraycopy(this.selector, 0, uniqueKey, declaringLength+1, selectorLength);
-	System.arraycopy(sig, 0, uniqueKey, declaringLength + 1 + selectorLength, signatureLength);
+	int index = 0;
+	System.arraycopy(declaringKey, 0, uniqueKey, index, declaringLength);
+	index = declaringLength;
+	uniqueKey[index++] = '.';
+	System.arraycopy(this.selector, 0, uniqueKey, index, selectorLength);
+	index += selectorLength;
+	System.arraycopy(sig, 0, uniqueKey, index, signatureLength);
+	//index += signatureLength;
 	return uniqueKey;
 }
 /* 

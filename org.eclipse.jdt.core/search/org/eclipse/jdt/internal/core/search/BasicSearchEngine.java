@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.search.matching.*;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * Search basic engine. Public search engine (see {@link org.eclipse.jdt.core.search.SearchEngine}
@@ -131,19 +131,19 @@ public class BasicSearchEngine {
 	public static IJavaSearchScope createJavaSearchScope(IJavaElement[] elements, int includeMask) {
 		JavaSearchScope scope = new JavaSearchScope();
 		HashSet visitedProjects = new HashSet(2);
-		try {
-			for (int i = 0, length = elements.length; i < length; i++) {
-				IJavaElement element = elements[i];
-				if (element != null) {
+		for (int i = 0, length = elements.length; i < length; i++) {
+			IJavaElement element = elements[i];
+			if (element != null) {
+				try {
 					if (element instanceof JavaProject) {
 						scope.add((JavaProject)element, includeMask, visitedProjects);
 					} else {
 						scope.add(element);
 					}
+				} catch (JavaModelException e) {
+					// ignore
 				}
 			}
-		} catch (JavaModelException e) {
-			// ignore
 		}
 		return scope;
 	}
@@ -154,7 +154,7 @@ public class BasicSearchEngine {
 	 * @return a new workspace scope
 	 */
 	public static IJavaSearchScope createWorkspaceScope() {
-		return new JavaWorkspaceScope();
+		return JavaModelManager.getJavaModelManager().getWorkspaceScope();
 	}
 	
 	/**
@@ -170,7 +170,7 @@ public class BasicSearchEngine {
 	
 		/* initialize progress monitor */
 		if (monitor != null)
-			monitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
+			monitor.beginTask(Messages.engine_searching, 100); 
 		if (BasicSearchEngine.VERBOSE) {
 			System.out.println("Searching for pattern: " + pattern.toString()); //$NON-NLS-1$
 			System.out.println(scope); //$NON-NLS-1$
@@ -186,7 +186,7 @@ public class BasicSearchEngine {
 				SubProgressMonitor subMonitor= monitor==null ? null : new SubProgressMonitor(monitor, 1000);
 				if (subMonitor != null) subMonitor.beginTask("", 1000); //$NON-NLS-1$
 				try {
-					if (subMonitor != null) subMonitor.subTask(Util.bind("engine.searching.indexing", participant.getDescription())); //$NON-NLS-1$
+					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_indexing, (new String[] {participant.getDescription()}))); 
 					participant.beginSearching();
 					requestor.enterParticipant(participant);
 					PathCollector pathCollector = new PathCollector();
@@ -197,7 +197,7 @@ public class BasicSearchEngine {
 					if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	
 					// locate index matches if any (note that all search matches could have been issued during index querying)
-					if (subMonitor != null) subMonitor.subTask(Util.bind("engine.searching.matching", participant.getDescription())); //$NON-NLS-1$
+					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_matching, (new String[] {participant.getDescription()}))); 
 					String[] indexMatchPaths = pathCollector.getPaths();
 					pathCollector = null; // release
 					int indexMatchLength = indexMatchPaths == null ? 0 : indexMatchPaths.length;
@@ -338,10 +338,34 @@ public class BasicSearchEngine {
 		return getWorkingCopies();
 	}
 
+	boolean match(char patternTypeSuffix, int modifiers) {
+		switch(patternTypeSuffix) {
+			case IIndexConstants.CLASS_SUFFIX :
+				return (modifiers & (Flags.AccAnnotation | Flags.AccInterface | Flags.AccEnum)) == 0;
+			case IIndexConstants.CLASS_AND_INTERFACE_SUFFIX:
+				return (modifiers & (Flags.AccAnnotation | Flags.AccEnum)) == 0;
+			case IIndexConstants.CLASS_AND_ENUM_SUFFIX:
+				return (modifiers & (Flags.AccAnnotation | Flags.AccInterface)) == 0;
+			case IIndexConstants.INTERFACE_SUFFIX :
+				return (modifiers & Flags.AccInterface) != 0;
+			case IIndexConstants.ENUM_SUFFIX :
+				return (modifiers & Flags.AccEnum) != 0;
+			case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
+				return (modifiers & Flags.AccAnnotation) != 0;
+		}
+		return true;
+	}
+
 	boolean match(char patternTypeSuffix, char[] patternPkg, char[] patternTypeName, int matchRule, int typeKind, char[] pkg, char[] typeName) {
 		switch(patternTypeSuffix) {
 			case IIndexConstants.CLASS_SUFFIX :
 				if (typeKind != IGenericType.CLASS_DECL) return false;
+				break;
+			case IIndexConstants.CLASS_AND_INTERFACE_SUFFIX:
+				if (typeKind != IGenericType.CLASS_DECL && typeKind != IGenericType.INTERFACE_DECL) return false;
+				break;
+			case IIndexConstants.CLASS_AND_ENUM_SUFFIX:
+				if (typeKind != IGenericType.CLASS_DECL && typeKind != IGenericType.ENUM_DECL) return false;
 				break;
 			case IIndexConstants.INTERFACE_SUFFIX :
 				if (typeKind != IGenericType.INTERFACE_DECL) return false;
@@ -391,6 +415,9 @@ public class BasicSearchEngine {
 	 *@since 3.0
 	 */
 	public void search(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor)"); //$NON-NLS-1$
+		}
 		findMatches(pattern, participants, scope, requestor, monitor);
 	}
 
@@ -415,12 +442,16 @@ public class BasicSearchEngine {
 	 * combined with <code>SearchPattern.R_CASE_SENSITIVE</code>,
 	 *   e.g. <code>R_EXACT_MATCH | R_CASE_SENSITIVE</code> if an exact and case sensitive match is requested, 
 	 *   or <code>R_PREFIX_MATCH</code> if a prefix non case sensitive match is requested.
-	 * @param searchFor one of
-	 * <ul>
-	 * 		<li><code>IJavaSearchConstants.CLASS</code> if searching for classes only</li>
-	 * 		<li><code>IJavaSearchConstants.INTERFACE</code> if searching for interfaces only</li>
-	 * 		<li><code>IJavaSearchConstants.TYPE</code> if searching for both classes and interfaces</li>
-	 * </ul>
+	 * @param searchFor determines the nature of the searched elements
+	 *	<ul>
+	 * 	<li>{@link IJavaSearchConstants#CLASS}: only look for classes</li>
+	 *		<li>{@link IJavaSearchConstants#INTERFACE}: only look for interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#ENUM}: only look for enumeration</li>
+	 *		<li>{@link IJavaSearchConstants#ANNOTATION_TYPE}: only look for annotation type</li>
+	 * 	<li>{@link IJavaSearchConstants#CLASS_AND_ENUM}: only look for classes and enumerations</li>
+	 *		<li>{@link IJavaSearchConstants#CLASS_AND_INTERFACE}: only look for classes and interfaces</li>
+	 * 	<li>{@link IJavaSearchConstants#TYPE}: look for all types (ie. classes, interfaces, enum and annotation types)</li>
+	 *	</ul>
 	 * @param scope the scope to search in
 	 * @param nameRequestor the requestor that collects the results of the search
 	 * @param waitingPolicy one of
@@ -449,12 +480,27 @@ public class BasicSearchEngine {
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
+			System.out.println("	- package name: "+(packageName==null?"null":new String(packageName))); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("	- type name: "+(typeName==null?"null":new String(typeName))); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("	- match rule: "+matchRule); //$NON-NLS-1$
+			System.out.println("	- search for: "+searchFor); //$NON-NLS-1$
+			System.out.println("	- scope: "+scope); //$NON-NLS-1$
+		}
+
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 			
 		final char typeSuffix;
 		switch(searchFor){
 			case IJavaSearchConstants.CLASS :
 				typeSuffix = IIndexConstants.CLASS_SUFFIX;
+				break;
+			case IJavaSearchConstants.CLASS_AND_INTERFACE :
+				typeSuffix = IIndexConstants.CLASS_AND_INTERFACE_SUFFIX;
+				break;
+			case IJavaSearchConstants.CLASS_AND_ENUM :
+				typeSuffix = IIndexConstants.CLASS_AND_ENUM_SUFFIX;
 				break;
 			case IJavaSearchConstants.INTERFACE :
 				typeSuffix = IIndexConstants.INTERFACE_SUFFIX;
@@ -521,7 +567,9 @@ public class BasicSearchEngine {
 							accessRestriction = access.getViolatedRestriction(path);
 						}
 					}
-					nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
+					if (match(record.typeSuffix, record.modifiers)) {
+						nameRequestor.acceptType(record.modifiers, record.pkg, record.simpleName, record.enclosingTypeNames, documentPath, accessRestriction);
+					}
 				}
 				return true;
 			}
@@ -529,7 +577,7 @@ public class BasicSearchEngine {
 	
 		try {
 			if (progressMonitor != null) {
-				progressMonitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
+				progressMonitor.beginTask(Messages.engine_searching, 100); 
 			}
 			// add type names from indexes
 			indexManager.performConcurrentJob(
@@ -671,12 +719,26 @@ public class BasicSearchEngine {
 		int waitingPolicy,
 		IProgressMonitor progressMonitor)  throws JavaModelException {
 
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.searchAllTypeNames(char[][], char[][], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
+			System.out.println("	- package name: "+(qualifications==null?"null":new String(CharOperation.concatWith(qualifications, ',')))); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("	- type name: "+(typeNames==null?"null":new String(CharOperation.concatWith(typeNames, ',')))); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("	- match rule: "+matchRule); //$NON-NLS-1$
+			System.out.println("	- search for: "+searchFor); //$NON-NLS-1$
+			System.out.println("	- scope: "+scope); //$NON-NLS-1$
+		}
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();
 
 		final char typeSuffix;
 		switch(searchFor){
 			case IJavaSearchConstants.CLASS :
 				typeSuffix = IIndexConstants.CLASS_SUFFIX;
+				break;
+			case IJavaSearchConstants.CLASS_AND_INTERFACE :
+				typeSuffix = IIndexConstants.CLASS_AND_INTERFACE_SUFFIX;
+				break;
+			case IJavaSearchConstants.CLASS_AND_ENUM :
+				typeSuffix = IIndexConstants.CLASS_AND_ENUM_SUFFIX;
 				break;
 			case IJavaSearchConstants.INTERFACE :
 				typeSuffix = IIndexConstants.INTERFACE_SUFFIX;
@@ -743,7 +805,7 @@ public class BasicSearchEngine {
 	
 		try {
 			if (progressMonitor != null) {
-				progressMonitor.beginTask(Util.bind("engine.searching"), 100); //$NON-NLS-1$
+				progressMonitor.beginTask(Messages.engine_searching, 100); 
 			}
 			// add type names from indexes
 			indexManager.performConcurrentJob(
@@ -861,13 +923,16 @@ public class BasicSearchEngine {
 	}
 	
 	public void searchDeclarations(IJavaElement enclosingElement, SearchRequestor requestor, SearchPattern pattern, IProgressMonitor monitor) throws JavaModelException {
+		if (VERBOSE) {
+			System.out.println("	- java element: "+enclosingElement); //$NON-NLS-1$
+		}
 		IJavaSearchScope scope = createJavaSearchScope(new IJavaElement[] {enclosingElement});
 		IResource resource = this.getResource(enclosingElement);
 		try {
 			if (resource instanceof IFile) {
 				try {
 					requestor.beginReporting();
-					if (BasicSearchEngine.VERBOSE) {
+					if (VERBOSE) {
 						System.out.println("Searching for " + pattern + " in " + resource.getFullPath()); //$NON-NLS-1$//$NON-NLS-2$
 					}
 					SearchParticipant participant = getDefaultSearchParticipant();
@@ -938,6 +1003,9 @@ public class BasicSearchEngine {
 	 * @since 3.0
 	 */	
 	public void searchDeclarationsOfAccessedFields(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.searchDeclarationsOfAccessedFields(IJavaElement, SearchRequestor, SearchPattern, IProgressMonitor)"); //$NON-NLS-1$
+		}
 		SearchPattern pattern = new DeclarationOfAccessedFieldsPattern(enclosingElement);
 		searchDeclarations(enclosingElement, requestor, pattern, monitor);
 	}
@@ -980,6 +1048,9 @@ public class BasicSearchEngine {
 	 * @since 3.0
 	 */	
 	public void searchDeclarationsOfReferencedTypes(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.searchDeclarationsOfReferencedTypes(IJavaElement, SearchRequestor, SearchPattern, IProgressMonitor)"); //$NON-NLS-1$
+		}
 		SearchPattern pattern = new DeclarationOfReferencedTypesPattern(enclosingElement);
 		searchDeclarations(enclosingElement, requestor, pattern, monitor);
 	}
@@ -1025,6 +1096,9 @@ public class BasicSearchEngine {
 	 * @since 3.0
 	 */	
 	public void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
+		if (VERBOSE) {
+			System.out.println("BasicSearchEngine.searchDeclarationsOfSentMessages(IJavaElement, SearchRequestor, SearchPattern, IProgressMonitor)"); //$NON-NLS-1$
+		}
 		SearchPattern pattern = new DeclarationOfReferencedMethodsPattern(enclosingElement);
 		searchDeclarations(enclosingElement, requestor, pattern, monitor);
 	}

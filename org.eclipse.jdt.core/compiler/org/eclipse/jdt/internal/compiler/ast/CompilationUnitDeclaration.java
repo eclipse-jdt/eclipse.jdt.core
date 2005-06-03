@@ -36,6 +36,8 @@ public class CompilationUnitDeclaration
 	
 	public boolean isPropagatingInnerClassEmulation;
 
+	public Javadoc javadoc; // 1.5 addition for package-info.java
+	
 	public CompilationUnitDeclaration(
 		ProblemReporter problemReporter,
 		CompilationResult compilationResult,
@@ -138,9 +140,9 @@ public class CompilationUnitDeclaration
 	}
 	
 	public CompilationResult compilationResult() {
-		return compilationResult;
+		return this.compilationResult;
 	}
-	
+
 	/*
 	 * Finds the matching type amoung this compilation unit types.
 	 * Returns null if no type with this name is found.
@@ -173,7 +175,7 @@ public class CompilationUnitDeclaration
 			}
 			return;
 		}
-		if (this.isPackageInfo() && this.types != null) {
+		if (this.isPackageInfo() && this.types != null && this.currentPackage.annotations != null) {
 			types[0].annotations = this.currentPackage.annotations;
 		}
 		try {
@@ -218,7 +220,7 @@ public class CompilationUnitDeclaration
 	public boolean isPackageInfo() {
 		return CharOperation.equals(this.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME)
 			&& this.currentPackage != null
-			&& this.currentPackage.annotations != null;
+			&& (this.currentPackage.annotations != null || this.javadoc != null);
 	}
 	
 	public boolean hasErrors() {
@@ -277,22 +279,25 @@ public class CompilationUnitDeclaration
 
 	public void resolve() {
 		int startingTypeIndex = 0;
-		if (this.currentPackage != null) {
+		boolean isPackageInfo = isPackageInfo();
+		if (this.types != null && isPackageInfo) {
+            // resolve synthetic type declaration
+			final TypeDeclaration syntheticTypeDeclaration = types[0];
+			// set empty javadoc to avoid missing warning (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=95286)
+			syntheticTypeDeclaration.javadoc = new Javadoc(syntheticTypeDeclaration.declarationSourceStart, syntheticTypeDeclaration.declarationSourceStart);
+			syntheticTypeDeclaration.resolve(this.scope);
+			// resolve annotations if any
 			if (this.currentPackage.annotations != null) {
-				if (CharOperation.equals(this.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME)) {
-                    if (this.types != null) {
-                        // resolve annotations
-    					final TypeDeclaration syntheticTypeDeclaration = types[0];
-    					syntheticTypeDeclaration.resolve(this.scope);
-    					resolveAnnotations(syntheticTypeDeclaration.staticInitializerScope, this.currentPackage.annotations, this.scope.fPackage);
-    					// set the synthetic bit
-    					syntheticTypeDeclaration.binding.modifiers |= AccSynthetic;
-    					startingTypeIndex = 1;
-                    }
-				} else {
-					scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
-				}
+				resolveAnnotations(syntheticTypeDeclaration.staticInitializerScope, this.currentPackage.annotations, this.scope.fPackage);
 			}
+			// resolve javadoc package if any
+			if (this.javadoc != null) {
+				this.javadoc.resolve(syntheticTypeDeclaration.staticInitializerScope);
+    		}
+			startingTypeIndex = 1;
+		}
+		if (this.currentPackage != null && this.currentPackage.annotations != null && !isPackageInfo) {
+			scope.problemReporter().invalidFileNameForPackageAnnotations(this.currentPackage.annotations[0]);
 		}
 		try {
 			if (types != null) {
@@ -300,7 +305,7 @@ public class CompilationUnitDeclaration
 					types[i].resolve(scope);
 				}
 			}
-			if (!this.compilationResult.hasSyntaxError()) checkUnusedImports();
+			if (!this.compilationResult.hasErrors()) checkUnusedImports();
 		} catch (AbortCompilationUnit e) {
 			this.ignoreFurtherInvestigation = true;
 			return;

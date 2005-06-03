@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
@@ -100,6 +101,7 @@ void checkAbstractMethod(MethodBinding abstractMethod) {
 }
 void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] methods, int length, MethodBinding[] otherInheritedMethods) {
 	boolean isAnnotationMember = this.type.isAnnotationType();
+	CompilerOptions options = type.scope.compilerOptions();
 	nextMethod : for (int i = length; --i >= 0;) {
 		MethodBinding inheritedMethod = methods[i];
 		if (isAnnotationMember) { // annotation cannot override any method
@@ -135,8 +137,8 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			problemReporter(currentMethod).finalMethodCannotBeOverridden(currentMethod, inheritedMethod);
 		if (!isAsVisible(currentMethod, inheritedMethod))
 			problemReporter(currentMethod).visibilityConflict(currentMethod, inheritedMethod);
-		if (environment.options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
-			if (!currentMethod.isViewedAsDeprecated() || environment.options.reportDeprecationInsideDeprecatedCode) {
+		if (options.reportDeprecationWhenOverridingDeprecatedMethod && inheritedMethod.isViewedAsDeprecated()) {
+			if (!currentMethod.isViewedAsDeprecated() || options.reportDeprecationInsideDeprecatedCode) {
 				// check against the other inherited methods to see if they hide this inheritedMethod
 				ReferenceBinding declaringClass = inheritedMethod.declaringClass;
 				if (declaringClass.isInterface())
@@ -176,7 +178,7 @@ void checkExceptions(MethodBinding newMethod, MethodBinding inheritedMethod) {
 		int j = inheritedExceptions.length;
 		while (--j > -1 && !isSameClassOrSubclassOf(newException, inheritedExceptions[j])){/*empty*/}
 		if (j == -1)
-			if (!(newException.isCompatibleWith(runtimeException()) || newException.isCompatibleWith(errorException())))
+			if (!newException.isUncheckedException(false))
 				problemReporter(newMethod).incompatibleExceptionInThrowsClause(this.type, newMethod, inheritedMethod, newException);
 	}
 }
@@ -517,11 +519,6 @@ public boolean doReturnTypesCollide(MethodBinding method, MethodBinding inherite
 		&& org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector)
 		&& method.areParametersEqual(inheritedMethod);
 }
-ReferenceBinding errorException() {
-	if (errorException == null)
-		this.errorException = this.type.scope.getJavaLangError();
-	return errorException;
-}
 boolean isAsVisible(MethodBinding newMethod, MethodBinding inheritedMethod) {
 	if (inheritedMethod.modifiers == newMethod.modifiers) return true;
 
@@ -584,11 +581,6 @@ ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 	for (int i = exceptions.length; --i >= 0;)
 		exceptions[i] = BinaryTypeBinding.resolveType(exceptions[i], this.environment, true);
 	return exceptions;
-}
-ReferenceBinding runtimeException() {
-	if (runtimeException == null)
-		this.runtimeException = this.type.scope.getJavaLangRuntimeException();
-	return runtimeException;
 }
 void verify(SourceTypeBinding someType) {
 	this.type = someType;

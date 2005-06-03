@@ -21,9 +21,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IAccessRule;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -61,7 +63,7 @@ public class UserLibrary {
 	public boolean isSystemLibrary() {
 		return this.isSystemLibrary;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -97,7 +99,7 @@ public class UserLibrary {
 	/* package */  String serialize() throws IOException {
 		ByteArrayOutputStream s = new ByteArrayOutputStream();
 		OutputStreamWriter writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
-		XMLWriter xmlWriter = new XMLWriter(writer);
+		XMLWriter xmlWriter = new XMLWriter(writer, null/*use the workspace line delimiter*/);
 		
 		HashMap library = new HashMap();
 		library.put(TAG_VERSION, String.valueOf(CURRENT_VERSION));
@@ -105,17 +107,35 @@ public class UserLibrary {
 		xmlWriter.printTag(TAG_USERLIBRARY, library, true, true, false);
 		
 		for (int i = 0; i < this.entries.length; ++i) {
-			IClasspathEntry curr= this.entries[i];
-			
+			ClasspathEntry cpEntry = (ClasspathEntry) this.entries[i];
+		
 			HashMap archive = new HashMap();
-			archive.put(TAG_PATH, curr.getPath().toString());
-			IPath sourceAttach= curr.getSourceAttachmentPath();
+			archive.put(TAG_PATH, cpEntry.getPath().toString());
+			IPath sourceAttach= cpEntry.getSourceAttachmentPath();
 			if (sourceAttach != null)
 				archive.put(TAG_SOURCEATTACHMENT, sourceAttach);
-			IPath sourceAttachRoot= curr.getSourceAttachmentRootPath();
+			IPath sourceAttachRoot= cpEntry.getSourceAttachmentRootPath();
 			if (sourceAttachRoot != null)
 				archive.put(TAG_SOURCEATTACHMENTROOT, sourceAttachRoot);				
-			xmlWriter.printTag(TAG_ARCHIVE, archive, true, true, true);
+
+			boolean hasExtraAttributes = cpEntry.extraAttributes != null && cpEntry.extraAttributes.length != 0;
+			boolean hasRestrictions = cpEntry.getAccessRuleSet() != null; // access rule set is null if no access rules
+			xmlWriter.printTag(TAG_ARCHIVE, archive, true, true, !(hasExtraAttributes || hasRestrictions));
+
+			// write extra attributes if necessary
+			if (hasExtraAttributes) {
+				cpEntry.encodeExtraAttributes(xmlWriter, true, true);
+			}
+
+			// write extra attributes and restriction if necessary
+			if (hasRestrictions) {
+				cpEntry.encodeAccessRules(xmlWriter, true, true);
+			}
+
+			// write archive end tag if necessary
+			if (hasExtraAttributes || hasRestrictions) {
+				xmlWriter.endTag(TAG_ARCHIVE, true);
+			}
 		}	
 		xmlWriter.endTag(TAG_USERLIBRARY, true);
 		writer.flush();
@@ -129,15 +149,15 @@ public class UserLibrary {
 			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 		} catch (SAXException e) {
-			throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+			throw new IOException(Messages.file_badFormat); 
 		} catch (ParserConfigurationException e) {
-			throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+			throw new IOException(Messages.file_badFormat); 
 		} finally {
 			reader.close();
 		}
 		
 		if (!cpElement.getNodeName().equalsIgnoreCase(TAG_USERLIBRARY)) { //$NON-NLS-1$
-			throw new IOException(Util.bind("file.badFormat")); //$NON-NLS-1$
+			throw new IOException(Messages.file_badFormat); 
 		}
 		// String version= cpElement.getAttribute(TAG_VERSION);
 		// in case we update the format: add code to read older versions
@@ -157,7 +177,10 @@ public class UserLibrary {
 					String path = element.getAttribute(TAG_PATH);
 					IPath sourceAttach= element.hasAttribute(TAG_SOURCEATTACHMENT) ? new Path(element.getAttribute(TAG_SOURCEATTACHMENT)) : null;
 					IPath sourceAttachRoot= element.hasAttribute(TAG_SOURCEATTACHMENTROOT) ? new Path(element.getAttribute(TAG_SOURCEATTACHMENTROOT)) : null;
-					res.add(JavaCore.newLibraryEntry(new Path(path), sourceAttach, sourceAttachRoot));
+					IClasspathAttribute[] extraAttributes = ClasspathEntry.decodeExtraAttributes(element);
+					IAccessRule[] accessRules = ClasspathEntry.decodeAccessRules(element);
+					IClasspathEntry entry = JavaCore.newLibraryEntry(new Path(path), sourceAttach, sourceAttachRoot, accessRules, extraAttributes, false/*not exported*/);
+					res.add(entry);
 				}
 			}
 		}

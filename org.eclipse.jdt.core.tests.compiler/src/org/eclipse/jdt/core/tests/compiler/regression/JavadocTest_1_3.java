@@ -22,6 +22,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 	String reportInvalidJavadoc = CompilerOptions.ERROR;
 	String reportMissingJavadocTags = CompilerOptions.ERROR;
 	String reportMissingJavadocComments = null;
+	String reportMissingJavadocCommentsVisibility = null;
 
 	public JavadocTest_1_3(String name) {
 		super(name);
@@ -52,6 +53,8 @@ public class JavadocTest_1_3 extends JavadocTest {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
 		else
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportInvalidJavadoc);
+		if (reportMissingJavadocCommentsVisibility != null) 
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsVisibility, reportMissingJavadocCommentsVisibility);
 		if (reportMissingJavadocTags != null) 
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportMissingJavadocTags);
 		else
@@ -2492,6 +2495,309 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"	* @see Test#foo(Exception, boolean, boolean)\n" + 
 			"	            ^^^\n" + 
 			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
+	 */
+	public void testBug83804() {
+		runNegativeTest(
+			new String[] {
+				"pack/package-info.java",
+				"/**\n" + 
+				" * Valid javadoc.\n" + 
+				" * @see Test\n" + 
+				" * @see Unknown\n" + 
+				" * @see Test#foo()\n" + 
+				" * @see Test#unknown()\n" + 
+				" * @see Test#field\n" + 
+				" * @see Test#unknown\n" + 
+				" * @param unexpected\n" + 
+				" * @throws unexpected\n" + 
+				" * @return unexpected \n" + 
+				" * @deprecated accepted by javadoc.exe although javadoc 1.5 spec does not say that's a valid tag\n" + 
+				" * @other-tags are valid\n" + 
+				" */\n" + 
+				"package pack;\n",
+				"pack/Test.java",
+				"/**\n" + 
+				" * Invalid javadoc\n" + 
+				" */\n" + 
+				"package pack;\n" + 
+				"public class Test {\n" + 
+				"	public int field;\n" + 
+				"	public void foo() {}\n" + 
+				"}\n"
+			},
+			""
+		);
+	}
+
+	/**
+	 * Bug 95286: [1.5][javadoc] package-info.java incorrectly flags "Missing comment for public declaration"
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95286"
+	 */
+	public void testBug95286_Default() {
+		this.reportMissingJavadocComments = CompilerOptions.ERROR;
+		this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
+		runConformTest(
+			new String[] {
+				"test/package-info.java",
+				"/**\n" + 
+				" * Javadoc for all package \n" + 
+				" */\n" + 
+				"package test;\n"
+			}
+		);
+	}
+	public void testBug95286_Private() {
+		this.reportMissingJavadocComments = CompilerOptions.ERROR;
+		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
+		runConformTest(
+			new String[] {
+				"test/package-info.java",
+				"/**\n" + 
+				" * Javadoc for all package \n" + 
+				" */\n" + 
+				"package test;\n"
+			}
+		);
+	}
+
+	/**
+	 * Bug 95521: [1.5][javadoc] validation with @see tag not working for generic method
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=95521"
+	 */
+	public void testBug95521() {
+		runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" + 
+				"\n" + 
+				"/** Test */\n" + 
+				"public class X implements I {\n" + 
+				"	/**\n" + 
+				"	 * @see test.I#foo(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"	public <T> G<T> foo(Class<T> stuffClass) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/** Interface */\n" + 
+				"interface I {\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param stuffClass \n" + 
+				"     * @return stuff\n" + 
+				"     */\n" + 
+				"    public <T extends Object> G<T> foo(Class<T> stuffClass);\n" + 
+				"}\n" + 
+				"/** \n" + 
+				" * @param <T>\n" + 
+				" */\n" + 
+				"class G<T> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 8)\r\n" + 
+			"	public <T> G<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	        ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 8)\r\n" + 
+			"	public <T> G<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	             ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X.java (at line 8)\r\n" + 
+			"	public <T> G<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	             ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\X.java (at line 8)\r\n" + 
+			"	public <T> G<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                          ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"5. ERROR in test\\X.java (at line 8)\r\n" + 
+			"	public <T> G<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                          ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"6. ERROR in test\\X.java (at line 15)\r\n" + 
+			"	* @param <T>\r\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"7. ERROR in test\\X.java (at line 19)\r\n" + 
+			"	public <T extends Object> G<T> foo(Class<T> stuffClass);\r\n" + 
+			"	        ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"8. ERROR in test\\X.java (at line 19)\r\n" + 
+			"	public <T extends Object> G<T> foo(Class<T> stuffClass);\r\n" + 
+			"	                            ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in test\\X.java (at line 19)\r\n" + 
+			"	public <T extends Object> G<T> foo(Class<T> stuffClass);\r\n" + 
+			"	                            ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"10. ERROR in test\\X.java (at line 19)\r\n" + 
+			"	public <T extends Object> G<T> foo(Class<T> stuffClass);\r\n" + 
+			"	                                         ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"11. ERROR in test\\X.java (at line 19)\r\n" + 
+			"	public <T extends Object> G<T> foo(Class<T> stuffClass);\r\n" + 
+			"	                                         ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"12. ERROR in test\\X.java (at line 22)\r\n" + 
+			"	* @param <T>\r\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"13. ERROR in test\\X.java (at line 24)\r\n" + 
+			"	class G<T> {}\r\n" + 
+			"	        ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug95521b() {
+		runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" + 
+				"\n" + 
+				"/** Test */\n" + 
+				"public class X {\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param classT \n" + 
+				"     */\n" + 
+				"	public <T> X(Class<T> classT) {\n" + 
+				"	}\n" + 
+				"    /**\n" + 
+				"     * @param <T>\n" + 
+				"     * @param classT\n" + 
+				"     * @return classT\n" + 
+				"     */\n" + 
+				"	public <T> Class<T> foo(Class<T> classT) {\n" + 
+				"		return classT;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"/** Super class */\n" + 
+				"class Y extends X {\n" + 
+				"	/**\n" + 
+				"	 * @see X#X(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"	public <T> Y(Class<T> classT) {\n" + 
+				"		super(classT);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @see X#foo(java.lang.Class)\n" + 
+				"	 */\n" + 
+				"    public <T extends Object> Class<T> foo(Class<T> stuffClass) {\n" + 
+				"    	return null;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 6)\r\n" + 
+			"	* @param <T>\r\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\X.java (at line 9)\r\n" + 
+			"	public <T> X(Class<T> classT) {\r\n" + 
+			"	        ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"3. ERROR in test\\X.java (at line 9)\r\n" + 
+			"	public <T> X(Class<T> classT) {\r\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in test\\X.java (at line 9)\r\n" + 
+			"	public <T> X(Class<T> classT) {\r\n" + 
+			"	                   ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"5. ERROR in test\\X.java (at line 12)\r\n" + 
+			"	* @param <T>\r\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"6. ERROR in test\\X.java (at line 16)\r\n" + 
+			"	public <T> Class<T> foo(Class<T> classT) {\r\n" + 
+			"	        ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"7. ERROR in test\\X.java (at line 16)\r\n" + 
+			"	public <T> Class<T> foo(Class<T> classT) {\r\n" + 
+			"	                 ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"8. ERROR in test\\X.java (at line 16)\r\n" + 
+			"	public <T> Class<T> foo(Class<T> classT) {\r\n" + 
+			"	                 ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"9. ERROR in test\\X.java (at line 16)\r\n" + 
+			"	public <T> Class<T> foo(Class<T> classT) {\r\n" + 
+			"	                              ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. ERROR in test\\X.java (at line 16)\r\n" + 
+			"	public <T> Class<T> foo(Class<T> classT) {\r\n" + 
+			"	                              ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"11. ERROR in test\\X.java (at line 25)\r\n" + 
+			"	public <T> Y(Class<T> classT) {\r\n" + 
+			"	        ^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"12. ERROR in test\\X.java (at line 25)\r\n" + 
+			"	public <T> Y(Class<T> classT) {\r\n" + 
+			"	                   ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"13. ERROR in test\\X.java (at line 25)\r\n" + 
+			"	public <T> Y(Class<T> classT) {\r\n" + 
+			"	                   ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"14. ERROR in test\\X.java (at line 32)\r\n" + 
+			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	        ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"15. ERROR in test\\X.java (at line 32)\r\n" + 
+			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                                ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"16. ERROR in test\\X.java (at line 32)\r\n" + 
+			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                                ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"17. ERROR in test\\X.java (at line 32)\r\n" + 
+			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                                             ^\n" + 
+			"T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"18. ERROR in test\\X.java (at line 32)\r\n" + 
+			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
+			"	                                             ^\n" + 
+			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
 			"----------\n"
 		);
 	}

@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.*;
 
@@ -32,25 +33,36 @@ public abstract class InternalSearchPattern {
 	int kind;
 	boolean mustResolve = true;
 	
-	void acceptMatch(String documentName, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
-		String documentPath = Index.convertPath(documentName);
+	void acceptMatch(String relativePath, String containerPath, SearchPattern pattern, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope) {
 
 		if (scope instanceof JavaSearchScope) {
 			JavaSearchScope javaSearchScope = (JavaSearchScope) scope;
 			// Get document path access restriction from java search scope
 			// Note that requestor has to verify if needed whether the document violates the access restriction or not
-			AccessRuleSet access = javaSearchScope.getAccessRuleSet(documentPath);
-			if (JavaSearchScope.NOT_INITIALIZED_RESTRICTION != access) { // scope encloses the document path
+			AccessRuleSet access = javaSearchScope.getAccessRuleSet(relativePath, containerPath);
+			if (access != JavaSearchScope.NOT_ENCLOSED) { // scope encloses the document path
+				String documentPath = documentPath(containerPath, relativePath);
 				if (!requestor.acceptIndexMatch(documentPath, pattern, participant, access)) 
 					throw new OperationCanceledException();
 			}
-		} else if (scope.encloses(documentPath)) {
-			if (!requestor.acceptIndexMatch(documentPath, pattern, participant, null)) 
-				throw new OperationCanceledException();
+		} else {
+			String documentPath = documentPath(containerPath, relativePath);
+			if (scope.encloses(documentPath)) 
+				if (!requestor.acceptIndexMatch(documentPath, pattern, participant, null)) 
+					throw new OperationCanceledException();
+			
 		}
 	}
 	SearchPattern currentPattern() {
 		return (SearchPattern) this;
+	}
+	String documentPath(String containerPath, String relativePath) {
+		String separator = Util.isArchiveFileName(containerPath) ? IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR : "/"; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer(containerPath.length() + separator.length() + relativePath.length());
+		buffer.append(containerPath);
+		buffer.append(separator);
+		buffer.append(relativePath);
+		return buffer.toString();
 	}
 	/**
 	 * Query a given index for matching entries. Assumes the sender has opened the index and will close when finished.
@@ -64,15 +76,17 @@ public abstract class InternalSearchPattern {
 			if (entries == null) return;
 		
 			SearchPattern decodedResult = pattern.getBlankPattern();
+			String containerPath = index.containerPath;
 			for (int i = 0, l = entries.length; i < l; i++) {
 				if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 		
 				EntryResult entry = entries[i];
 				decodedResult.decodeIndexKey(entry.getWord());
 				if (pattern.matchesDecodedKey(decodedResult)) {
+					// TODO (kent) some clients may not need the document names
 					String[] names = entry.getDocumentNames(index);
 					for (int j = 0, n = names.length; j < n; j++)
-						acceptMatch(names[j], decodedResult, requestor, participant, scope);
+						acceptMatch(names[j], containerPath, decodedResult, requestor, participant, scope);
 				}
 			}
 		} finally {

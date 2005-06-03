@@ -37,7 +37,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 	static {
 //		org.eclipse.jdt.internal.core.search.matching.MatchLocator.PRINT_BUFFER = false;
 //		TESTS_PREFIX =  "testArray";
-//		TESTS_NAMES = new String[] { "testStringNoArgument03" };
+//		TESTS_NAMES = new String[] { "testParameterizedTypeMultipleArguments01" };
 //		TESTS_NUMBERS = new int[] { 8 };
 //		TESTS_RANGE = new int[] { 6, -1 };
 	}

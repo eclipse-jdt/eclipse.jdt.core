@@ -27,13 +27,15 @@ private int numberOfChunks;
 private int sizeOfLastChunk;
 private int[] chunkOffsets;
 private int documentReferenceSize; // 1, 2 or more bytes... depends on # of document names
+private int startOfCategoryTables;
 private HashtableOfIntValues categoryOffsets;
 
 private int cacheUserCount;
 private String[][] cachedChunks; // decompressed chunks of document names
 private HashtableOfObject categoryTables; // category name -> HashtableOfObject(words -> int[] of document #'s) or offset if not read yet
+private char[] cachedCategoryName;
 
-public static final String SIGNATURE= "INDEX VERSION 1.014"; //$NON-NLS-1$
+public static final String SIGNATURE= "INDEX VERSION 1.104"; //$NON-NLS-1$
 public static boolean DEBUG = false;
 
 private static final int RE_INDEXED = -1;
@@ -78,6 +80,7 @@ DiskIndex(String fileName) {
 	this.cacheUserCount = -1;
 	this.cachedChunks = null;
 	this.categoryTables = null;
+	this.cachedCategoryName = null;
 	this.categoryOffsets = null;
 }
 SimpleSet addDocumentNames(String substring, MemoryIndex memoryIndex) throws IOException {
@@ -112,8 +115,10 @@ SimpleSet addDocumentNames(String substring, MemoryIndex memoryIndex) throws IOE
 	}
 	return results;
 }
-private void addQueryResult(HashtableOfObject results, char[] word, HashtableOfObject wordsToDocNumbers, MemoryIndex memoryIndex) throws IOException {
+private HashtableOfObject addQueryResult(HashtableOfObject results, char[] word, HashtableOfObject wordsToDocNumbers, MemoryIndex memoryIndex) throws IOException {
 	// must skip over documents which have been added/changed/deleted in the memory index
+	if (results == null)
+		results = new HashtableOfObject(13);
 	EntryResult result = (EntryResult) results.get(word);
 	if (memoryIndex == null) {
 		if (result == null)
@@ -133,18 +138,32 @@ private void addQueryResult(HashtableOfObject results, char[] word, HashtableOfO
 		if (!result.isEmpty())
 			results.put(word, result);
 	}
+	return results;
 }
 HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule, MemoryIndex memoryIndex) throws IOException {
 	// assumes sender has called startQuery() & will call stopQuery() when finished
-	HashtableOfObject results = new HashtableOfObject(13);
-	if (this.categoryOffsets == null)
-		return results; // file is empty
+	if (this.categoryOffsets == null) return null; // file is empty
 
-	if (matchRule == SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE) {
+	HashtableOfObject results = null; // initialized if needed
+	if (key == null) {
+		for (int i = 0, l = categories.length; i < l; i++) {
+			HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], true); // cache if key is null since its a definite match
+			if (wordsToDocNumbers != null) {
+				char[][] words = wordsToDocNumbers.keyTable;
+				if (results == null)
+					results = new HashtableOfObject(wordsToDocNumbers.elementSize);
+				for (int j = 0, m = words.length; j < m; j++)
+					if (words[j] != null)
+						results = addQueryResult(results, words[j], wordsToDocNumbers, memoryIndex);
+			}
+		}
+		if (results != null && this.cachedChunks == null)
+			cacheDocumentNames();
+	} else if (matchRule == SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE) {
 		for (int i = 0, l = categories.length; i < l; i++) {
 			HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
 			if (wordsToDocNumbers != null && wordsToDocNumbers.containsKey(key))
-				addQueryResult(results, key, wordsToDocNumbers, memoryIndex);
+				results = addQueryResult(results, key, wordsToDocNumbers, memoryIndex);
 		}
 	} else {
 		for (int i = 0, l = categories.length; i < l; i++) {
@@ -154,12 +173,28 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 				for (int j = 0, m = words.length; j < m; j++) {
 					char[] word = words[j];
 					if (word != null && Index.isMatch(key, word, matchRule))
-						addQueryResult(results, word, wordsToDocNumbers, memoryIndex);
+						results = addQueryResult(results, word, wordsToDocNumbers, memoryIndex);
 				}
 			}
 		}
 	}
+
+	if (results == null) return null;
 	return results;
+}
+private void cacheDocumentNames() throws IOException {
+	// will need all document names so get them now
+	this.cachedChunks = new String[this.numberOfChunks][];
+	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), this.numberOfChunks > 5 ? 4096 : 2048));
+	try {
+		stream.skip(this.chunkOffsets[0]);
+		for (int i = 0; i < this.numberOfChunks; i++) {
+			int size = i == this.numberOfChunks - 1 ? this.sizeOfLastChunk : CHUNK_SIZE;
+			readChunk(this.cachedChunks[i] = new String[size], stream, 0, size);
+		}
+	} finally {
+		stream.close();
+	}
 }
 private String[] computeDocumentNames(String[] onDiskNames, int[] positions, SimpleLookupTable indexedDocuments, MemoryIndex memoryIndex) {
 	int onDiskLength = onDiskNames.length;
@@ -294,7 +329,7 @@ void initialize(boolean reuseExistingFile) throws IOException {
 			try {
 				String signature = file.readUTF();
 				if (!signature.equals(SIGNATURE))
-					throw new IOException(Util.bind("exception.wrongFormat")); //$NON-NLS-1$
+					throw new IOException(Messages.exception_wrongFormat); 
 
 				this.headerInfoOffset = file.readInt();
 				if (this.headerInfoOffset > 0) // file is empty if its not set
@@ -477,7 +512,7 @@ private synchronized String[] readAllDocumentNames() throws IOException {
 	if (this.numberOfChunks <= 0)
 		return new String[0];
 
-	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
+	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), this.numberOfChunks > 5 ? 4096 : 2048));
 	try {
 		stream.skip(this.chunkOffsets[0]);
 		int lastIndex = this.numberOfChunks - 1;
@@ -489,18 +524,25 @@ private synchronized String[] readAllDocumentNames() throws IOException {
 		stream.close();
 	}
 }
-private synchronized HashtableOfObject readCategoryTable(char[] categoryName, boolean cacheDocNumbers) throws IOException {
+private synchronized HashtableOfObject readCategoryTable(char[] categoryName, boolean readDocNumbers) throws IOException {
 	// result will be null if categoryName is unknown
 	int offset = this.categoryOffsets.get(categoryName);
 	if (offset == HashtableOfIntValues.NO_VALUE)
 		return null;
 
 	if (this.categoryTables == null) {
-		this.categoryTables = new HashtableOfObject(this.categoryOffsets.elementSize);
+		this.categoryTables = new HashtableOfObject(3);
 	} else {
 		HashtableOfObject cachedTable = (HashtableOfObject) this.categoryTables.get(categoryName);
-		if (cachedTable != null)
+		if (cachedTable != null) {
+			if (readDocNumbers) { // must cache remaining document number arrays
+				Object[] arrayOffsets = cachedTable.valueTable;
+				for (int i = 0, l = arrayOffsets.length; i < l; i++)
+					if (arrayOffsets[i] instanceof Integer)
+						arrayOffsets[i] = readDocumentNumbers(arrayOffsets[i]);
+			}
 			return cachedTable;
+		}
 	}
 
 	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
@@ -512,23 +554,34 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		stream.skip(offset);
 		int size = stream.readInt();
 		categoryTable = new HashtableOfObject(size);
-		if (cacheDocNumbers)
-			matchingWords = new char[size][];
+		int largeArraySize = 256;
 		for (int i = 0; i < size; i++) {
 			char[] word = Util.readUTF(stream);
 			int arrayOffset = stream.readInt();
-			if (arrayOffset > 0) {
-				if (matchingWords != null) {
+			// if arrayOffset is:
+			//		<= 0 then the array size == 1 with the value -> -arrayOffset
+			//		> 1 & < 256 then the size of the array is > 1 & < 256, the document array follows immediately
+			//		256 if the array size >= 256 followed by another int which is the offset to the array (written prior to the table)
+			if (arrayOffset <= 0) {
+				categoryTable.put(word, new int[] {-arrayOffset}); // store 1 element array by negating documentNumber
+			} else if (arrayOffset < largeArraySize) {
+				categoryTable.put(word, readDocumentArray(stream, arrayOffset)); // read in-lined array providing size
+			} else {
+				arrayOffset = stream.readInt(); // read actual offset
+				if (readDocNumbers) {
+					if (matchingWords == null)
+						matchingWords = new char[size][];
 					if (count == 0)
 						firstOffset = arrayOffset;
 					matchingWords[count++] = word;
 				}
 				categoryTable.put(word, new Integer(arrayOffset)); // offset to array in the file
-			} else {
-				categoryTable.put(word, new int[] {-arrayOffset}); // stored a 1 element array by negating the documentNumber
 			}
 		}
 		this.categoryTables.put(categoryName, categoryTable);
+		// cache the table as long as its not too big
+		// in practise, some tables can be greater than 500K when the contain more than 10K elements
+		this.cachedCategoryName = categoryTable.elementSize < 10000 ? categoryName : null;
 	} finally {
 		stream.close();
 	}
@@ -538,7 +591,7 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		try {
 			stream.skip(firstOffset);
 			for (int i = 0; i < count; i++) // each array follows the previous one
-				categoryTable.put(matchingWords[i], readDocumentArray(stream));
+				categoryTable.put(matchingWords[i], readDocumentArray(stream, stream.readInt()));
 		} finally {
 			stream.close();
 		}
@@ -567,23 +620,21 @@ private void readChunk(String[] docNames, DataInputStream stream, int index, int
 		current = next;
 	}
 }
-private int[] readDocumentArray(DataInputStream stream) throws IOException {
-	int arraySize = stream.readShort();
-	if (arraySize == 0x7FFF)
-		arraySize = stream.readInt();
+private int[] readDocumentArray(DataInputStream stream, int arraySize) throws IOException {
 	int[] result = new int[arraySize];
-	for (int i = 0; i < arraySize; i++) {
-		switch (this.documentReferenceSize) {
-			case 1 :
+	switch (this.documentReferenceSize) {
+		case 1 :
+			for (int i = 0; i < arraySize; i++)
 				result[i] = stream.readUnsignedByte();
-				break;
-			case 2 :
+			break;
+		case 2 :
+			for (int i = 0; i < arraySize; i++)
 				result[i] = stream.readUnsignedShort();
-				break;
-			default :
+			break;
+		default :
+			for (int i = 0; i < arraySize; i++)
 				result[i] = stream.readInt();
-				break;
-		}
+			break;
 	}
 	return result;
 }
@@ -594,16 +645,24 @@ synchronized String readDocumentName(int docNumber) throws IOException {
 	int chunkNumber = docNumber / CHUNK_SIZE;
 	String[] chunk = this.cachedChunks[chunkNumber];
 	if (chunk == null) {
-		DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
+		boolean isLastChunk = chunkNumber == this.numberOfChunks - 1;
+		int start = this.chunkOffsets[chunkNumber];
+		int numberOfBytes = (isLastChunk ? this.startOfCategoryTables : this.chunkOffsets[chunkNumber + 1]) - start;
+		if (numberOfBytes < 0)
+			throw new IllegalArgumentException();
+		byte[] bytes = new byte[numberOfBytes];
+		FileInputStream file = new FileInputStream(getIndexFile());
 		try {
-			stream.skip(this.chunkOffsets[chunkNumber]);
-			int size = chunkNumber == this.numberOfChunks - 1 ? this.sizeOfLastChunk : CHUNK_SIZE;
-			chunk = new String[size];
-			readChunk(chunk, stream, 0, size);
+			file.skip(start);
+			if (file.read(bytes, 0, numberOfBytes) != numberOfBytes)
+				throw new IOException();
 		} finally {
-			stream.close();
+			file.close();
 		}
-		this.cachedChunks[chunkNumber] = chunk;
+		DataInputStream stream = new DataInputStream(new ByteArrayInputStream(bytes));
+		int numberOfNames = isLastChunk ? this.sizeOfLastChunk : CHUNK_SIZE;
+		chunk = this.cachedChunks[chunkNumber] = new String[numberOfNames];
+		readChunk(chunk, stream, 0, numberOfNames);
 	}
 	return chunk[docNumber - (chunkNumber * CHUNK_SIZE)];
 }
@@ -615,7 +674,7 @@ synchronized int[] readDocumentNumbers(Object arrayOffset) throws IOException {
 	DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(getIndexFile()), 2048));
 	try {
 		stream.skip(((Integer) arrayOffset).intValue());
-		return readDocumentArray(stream);
+		return readDocumentArray(stream, stream.readInt());
 	} finally {
 		stream.close();
 	}
@@ -632,11 +691,13 @@ private void readHeaderInfo(RandomAccessFile file) throws IOException {
 	for (int i = 0; i < this.numberOfChunks; i++)
 		this.chunkOffsets[i] = file.readInt();
 
+	this.startOfCategoryTables = file.readInt();
+
 	int size = file.readInt();
 	this.categoryOffsets = new HashtableOfIntValues(size);
 	for (int i = 0; i < size; i++)
 		this.categoryOffsets.put(Util.readUTF(file), file.readInt()); // cache offset to category table
-	this.categoryTables = new HashtableOfObject(size);
+	this.categoryTables = new HashtableOfObject(3);
 }
 synchronized void startQuery() {
 	this.cacheUserCount++;
@@ -646,7 +707,15 @@ synchronized void stopQuery() {
 		// clear cached items
 		this.cacheUserCount = -1;
 		this.cachedChunks = null;
-		this.categoryTables = null;
+		if (this.categoryTables != null) {
+			if (this.cachedCategoryName == null) {
+				this.categoryTables = null;
+			} else if (this.categoryTables.elementSize > 1) {
+				HashtableOfObject newTables = new HashtableOfObject(3);
+				newTables.put(this.cachedCategoryName, this.categoryTables.get(this.cachedCategoryName));
+				this.categoryTables = newTables;
+			}
+		}
 	}
 }
 private void writeAllDocumentNames(String[] sortedDocNames, DataOutputStream stream) throws IOException {
@@ -693,6 +762,7 @@ private void writeAllDocumentNames(String[] sortedDocNames, DataOutputStream str
 			while (current.charAt(--len1) == next.charAt(--len2)) {
 				end++;
 				if (len2 == start) break; // current is 'abbba', next is 'abba'
+				if (len1 == 0) break; // current is 'xabc', next is 'xyabc'
 			}
 			if (end > 255) end = 255;
 			stream.writeByte(start);
@@ -703,6 +773,7 @@ private void writeAllDocumentNames(String[] sortedDocNames, DataOutputStream str
 			current = next;
 		}
 	}
+	this.startOfCategoryTables = stream.size() + 1;
 }
 private void writeCategories(DataOutputStream stream) throws IOException {
 	char[][] categoryNames = this.categoryTables.keyTable;
@@ -713,57 +784,68 @@ private void writeCategories(DataOutputStream stream) throws IOException {
 	this.categoryTables = null;
 }
 private void writeCategoryTable(char[] categoryName, HashtableOfObject wordsToDocs, DataOutputStream stream) throws IOException {
-	// append the file with the document number arrays & remember the offsets
+	// the format of a category table is as follows:
+	// any document number arrays with >= 256 elements are written before the table (the offset to each array is remembered)
+	// then the number of word->int[] pairs in the table is written
+	// for each word -> int[] pair, the word is written followed by:
+	//		an int <= 0 if the array size == 1
+	//		an int > 1 & < 256 for the size of the array if its > 1 & < 256, the document array follows immediately
+	//		256 if the array size >= 256 followed by another int which is the offset to the array (written prior to the table)
+
+	int largeArraySize = 256;
 	Object[] values = wordsToDocs.valueTable;
 	for (int i = 0, l = values.length; i < l; i++) {
 		Object o = values[i];
 		if (o != null) {
-			int[] documentNumbers = o instanceof int[] ? (int[]) o : ((IntList) o).asArray();
-			int length = documentNumbers.length;
-			if (length == 1) {
-				values[i] = new Integer(-documentNumbers[0]); // store an array of 1 element by negating the documentNumber (can be zero)
-			} else {
+			if (o instanceof IntList)
+				o = values[i] = ((IntList) values[i]).asArray();
+			int[] documentNumbers = (int[]) o;
+			if (documentNumbers.length >= largeArraySize) {
 				values[i] = new Integer(stream.size());
 				writeDocumentNumbers(documentNumbers, stream);
 			}
 		}
 	}
 
-	// append the file with the arrays followed by the words & offsets
 	this.categoryOffsets.put(categoryName, stream.size()); // remember the offset to the start of the table
 	this.categoryTables.put(categoryName, null); // flush cached table
 	stream.writeInt(wordsToDocs.elementSize);
 	char[][] words = wordsToDocs.keyTable;
 	for (int i = 0, l = words.length; i < l; i++) {
-		if (words[i] != null) {
+		Object o = values[i];
+		if (o != null) {
 			Util.writeUTF(stream, words[i]);
-			stream.writeInt(((Integer) values[i]).intValue()); // offset in the file of the array of document numbers
+			if (o instanceof int[]) {
+				int[] documentNumbers = (int[]) o;
+				if (documentNumbers.length == 1)
+					stream.writeInt(-documentNumbers[0]); // store an array of 1 element by negating the documentNumber (can be zero)
+				else
+					writeDocumentNumbers(documentNumbers, stream);
+			} else {
+				stream.writeInt(largeArraySize); // mark to identify that an offset follows
+				stream.writeInt(((Integer) o).intValue()); // offset in the file of the array of document numbers
+			}
 		}
 	}
 }
 private void writeDocumentNumbers(int[] documentNumbers, DataOutputStream stream) throws IOException {
+	// must store length as a positive int to detect in-lined array of 1 element
 	int length = documentNumbers.length;
-	if (length < 0x7FFF) {
-		if (length == 0)
-			throw new IllegalArgumentException();
-		stream.writeShort(length);
-	} else {
-		stream.writeShort(0x7FFF);
-		stream.writeInt(length);
-	}
+	stream.writeInt(length);
 	Util.sort(documentNumbers);
-	for (int i = 0; i < length; i++) {
-		switch (this.documentReferenceSize) {
-			case 1 :
+	switch (this.documentReferenceSize) {
+		case 1 :
+			for (int i = 0; i < length; i++)
 				stream.writeByte(documentNumbers[i]);
-				break;
-			case 2 :
+			break;
+		case 2 :
+			for (int i = 0; i < length; i++)
 				stream.writeShort(documentNumbers[i]);
-				break;
-			default :
+			break;
+		default :
+			for (int i = 0; i < length; i++)
 				stream.writeInt(documentNumbers[i]);
-				break;
-		}
+			break;
 	}
 }
 private void writeHeaderInfo(DataOutputStream stream) throws IOException {
@@ -774,6 +856,8 @@ private void writeHeaderInfo(DataOutputStream stream) throws IOException {
 	// apend the file with chunk offsets
 	for (int i = 0; i < this.numberOfChunks; i++)
 		stream.writeInt(this.chunkOffsets[i]);
+
+	stream.writeInt(this.startOfCategoryTables);
 
 	// append the file with the category offsets... # of name -> offset pairs, followed by each name & an offset to its word->doc# table
 	stream.writeInt(this.categoryOffsets.elementSize);

@@ -75,7 +75,7 @@ public ClasspathTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//	TESTS_PREFIX = "testCombineAccessRestrictions";
+//	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
 //	TESTS_NAMES = new String[] {"testExportContainer"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
@@ -1700,6 +1700,58 @@ public void testClasspathWithDuplicateEntries() throws CoreException {
 	}
 }
 /**
+ * Bug 94404: [model] Disallow classpath attributes with same key
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94404"
+ */
+public void testClasspathDuplicateExtraAttribute() throws CoreException {
+	try {
+		IJavaProject proj =  this.createJavaProject("P1", new String[] {}, "bin");
+		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[2];
+		extraAttributes[0] = JavaCore.newClasspathAttribute("javadoc_location", "http://www.sample-url.org/doc/");
+		extraAttributes[1] = JavaCore.newClasspathAttribute("javadoc_location", "d:/tmp");
+
+		// Verify container entry validation
+		IClasspathEntry container = JavaCore.newContainerEntry(new Path("JRE_CONTAINER"), ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
+		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, container, false);
+		assertStatus(
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'JRE_CONTAINER\' for project P1",
+			status);
+
+		// Verify library entry validation
+		IClasspathEntry library = JavaCore.newLibraryEntry(new Path(getExternalJCLPathString()), null, null, ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
+		status = JavaConventions.validateClasspathEntry(proj, library, false);
+		assertStatus(
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'"+getExternalJCLPath()+"\' for project P1",
+			status);
+
+		// Verify project entry validation
+		createJavaProject("P2");
+		IClasspathEntry projectEntry = JavaCore.newProjectEntry(new Path("/P2"), ClasspathEntry.NO_ACCESS_RULES, false, extraAttributes, false);
+		status = JavaConventions.validateClasspathEntry(proj, projectEntry, false);
+		assertStatus(
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'/P2\' for project P1",
+			status);
+
+		// Verify source entry validation
+		createFolder("/P1/src");
+		IClasspathEntry sourceEntry = JavaCore.newSourceEntry(new Path("/P1/src"), new IPath[0], new IPath[0], null, extraAttributes);
+		status = JavaConventions.validateClasspathEntry(proj, sourceEntry, false);
+		assertStatus(
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'src\' for project P1",
+			status);
+
+		// Verify variable entry validation
+		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("JCL_LIB"), new Path("JCL_SRC"), null, ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
+		status = JavaConventions.validateClasspathEntry(proj, variable, false);
+		assertStatus(
+			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'"+getExternalJCLPath()+"\' for project P1",
+			status);
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
+/**
  * Adding an entry to the classpath for a library that does not exist
  * should not break the model. The classpath should contain the
  * entry, but the root should not appear in the children.
@@ -1998,10 +2050,7 @@ public void testExtraAttributes1() throws CoreException {
 			"Unexpected content", 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<classpath>\n" + 
-			"	<classpathentry kind=\"src\" path=\"\">\n" + 
-			"		<attributes>\n" + 
-			"		</attributes>\n" + 
-			"	</classpathentry>\n" + 
+			"	<classpathentry kind=\"src\" path=\"\"/>\n" + 
 			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
 			"</classpath>\n",
 			contents);
@@ -2464,10 +2513,7 @@ public void testCombineAccessRules1() throws CoreException {
 			"Unexpected content", 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<classpath>\n" + 
-			"	<classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/P1\">\n" + 
-			"		<attributes>\n" + 
-			"		</attributes>\n" + 
-			"	</classpathentry>\n" + 
+			"	<classpathentry combineaccessrules=\"false\" kind=\"src\" path=\"/P1\"/>\n" + 
 			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
 			"</classpath>\n",
 			contents);
@@ -2491,10 +2537,7 @@ public void testCombineAccessRules2() throws CoreException {
 			"Unexpected content", 
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
 			"<classpath>\n" + 
-			"	<classpathentry kind=\"src\" path=\"/P1\">\n" + 
-			"		<attributes>\n" + 
-			"		</attributes>\n" + 
-			"	</classpathentry>\n" + 
+			"	<classpathentry kind=\"src\" path=\"/P1\"/>\n" + 
 			"	<classpathentry kind=\"output\" path=\"\"/>\n" + 
 			"</classpath>\n",
 			contents);

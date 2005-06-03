@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 	IPath destination;
@@ -254,7 +254,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 					if (foundExistingEntry && (this.updateModelFlags & IPackageFragmentRoot.REPLACE) == 0) {
 						return new JavaModelStatus(
 							IJavaModelStatusConstants.NAME_COLLISION, 
-							Util.bind("status.nameCollision", this.destination.toString())); //$NON-NLS-1$
+							Messages.bind(Messages.status_nameCollision, new String[] {this.destination.toString()})); 
 					}
 				} catch (JavaModelException e) {
 					return e.getJavaModelStatus();

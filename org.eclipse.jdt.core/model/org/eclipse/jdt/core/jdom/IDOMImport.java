@@ -50,12 +50,7 @@ int getFlags();
 /**
  * Sets the modifier flags for this import. The flags can be examined using class
  * <code>Flags</code>. Only the static flag is meaningful for import declarations.
- * <p>
- * Note: Static imports are an experimental language feature 
- * under discussion in JSR-201 and under consideration for inclusion
- * in the 1.5 release of J2SE. The support here is therefore tentative
- * and subject to change.
- * </p>
+ *
  * @param flags the modifier flags for this import
  * @see org.eclipse.jdt.core.Flags
  * @since 3.0

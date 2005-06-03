@@ -491,8 +491,8 @@ public void testJavaSearchScope7() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
 		assertScopeEquals(
 			"JavaSearchScope on [\n" + 
-			"	/P2/src\n" + 
 			"	/P1\n" + 
+			"	/P2/src\n" + 
 			"]",
 			scope);
 	} finally {
@@ -512,8 +512,8 @@ public void testJavaSearchScope8() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS);
 		assertScopeEquals(
 			"JavaSearchScope on [\n" + 
-			"	/P2/src\n" + 
 			"	/P1\n" + 
+			"	/P2/src\n" + 
 			"]",
 			scope);
 	} finally {

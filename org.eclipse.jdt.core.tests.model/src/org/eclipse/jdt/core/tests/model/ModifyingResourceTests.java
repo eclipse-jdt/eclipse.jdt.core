@@ -283,41 +283,44 @@ protected IClasspathEntry[] createClasspath(String projectName, String[] folders
 	for (int i = 0; i < length; i+=2) {
 		String src = foldersAndPatterns[i];
 		String patterns = foldersAndPatterns[i+1];
-		StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
-		int ruleCount =  tokenizer.countTokens();
-		IAccessRule[] accessRules = new IAccessRule[ruleCount];
-		int nonAccessibleRules = 0;
-		for (int j = 0; j < ruleCount; j++) {
-			String rule = tokenizer.nextToken();
-			int kind;
-			if (rule.charAt(0) == '+') {
-				kind = IAccessRule.K_ACCESSIBLE;
-			} else {
-				kind = IAccessRule.K_NON_ACCESSIBLE;
-				nonAccessibleRules++;
-			}
-			accessRules[j] = JavaCore.newAccessRule(new Path(rule.substring(1)), kind);
-		}
-
-		IPath folderPath = new Path(src);
-		if (projectName != null && folderPath.segmentCount() == 1 && !projectName.equals(folderPath.lastSegment())) {
-			classpath[i/2] = JavaCore.newProjectEntry(folderPath, accessRules, true/*combine access restrictions*/, new IClasspathAttribute[0], false); 
-		} else {
-			IPath[] accessibleFiles = new IPath[ruleCount-nonAccessibleRules];
-			int accessibleIndex = 0;
-			IPath[] nonAccessibleFiles = new IPath[nonAccessibleRules];
-			int nonAccessibleIndex = 0;
-			for (int j = 0; j < ruleCount; j++) {
-				IAccessRule accessRule = accessRules[i];
-				if (accessRule.getKind() == IAccessRule.K_ACCESSIBLE) 
-					accessibleFiles[accessibleIndex++] = accessRule.getPattern();
-				else
-					nonAccessibleFiles[nonAccessibleIndex++] = accessRule.getPattern();
-			}
-			classpath[i/2] = JavaCore.newSourceEntry(folderPath, accessibleFiles, nonAccessibleFiles, null); 
-		}
+		classpath[i/2] = createSourceEntry(projectName, src, patterns);
 	}
 	return classpath;
+}
+public IClasspathEntry createSourceEntry(String referingProjectName, String src, String patterns) {
+	StringTokenizer tokenizer = new StringTokenizer(patterns, "|");
+	int ruleCount =  tokenizer.countTokens();
+	IAccessRule[] accessRules = new IAccessRule[ruleCount];
+	int nonAccessibleRules = 0;
+	for (int j = 0; j < ruleCount; j++) {
+		String rule = tokenizer.nextToken();
+		int kind;
+		if (rule.charAt(0) == '+') {
+			kind = IAccessRule.K_ACCESSIBLE;
+		} else {
+			kind = IAccessRule.K_NON_ACCESSIBLE;
+			nonAccessibleRules++;
+		}
+		accessRules[j] = JavaCore.newAccessRule(new Path(rule.substring(1)), kind);
+	}
+
+	IPath folderPath = new Path(src);
+	if (referingProjectName != null && folderPath.segmentCount() == 1 && !referingProjectName.equals(folderPath.lastSegment())) {
+		return JavaCore.newProjectEntry(folderPath, accessRules, true/*combine access restrictions*/, new IClasspathAttribute[0], false); 
+	} else {
+		IPath[] accessibleFiles = new IPath[ruleCount-nonAccessibleRules];
+		int accessibleIndex = 0;
+		IPath[] nonAccessibleFiles = new IPath[nonAccessibleRules];
+		int nonAccessibleIndex = 0;
+		for (int j = 0; j < ruleCount; j++) {
+			IAccessRule accessRule = accessRules[j];
+			if (accessRule.getKind() == IAccessRule.K_ACCESSIBLE) 
+				accessibleFiles[accessibleIndex++] = accessRule.getPattern();
+			else
+				nonAccessibleFiles[nonAccessibleIndex++] = accessRule.getPattern();
+		}
+		return JavaCore.newSourceEntry(folderPath, accessibleFiles, nonAccessibleFiles, null); 
+	}
 }
 public void setReadOnly(IResource resource, boolean readOnly) throws CoreException {
 	ResourceAttributes resourceAttributes = resource.getResourceAttributes();

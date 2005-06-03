@@ -35,7 +35,7 @@ public class JavadocBugsTest extends JavadocTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX = "testBug83127";
-//		TESTS_NAMES = new String[] { "testBug47339" };
+//		TESTS_NAMES = new String[] { "testBug68017javadocWarning2" };
 //		TESTS_NUMBERS = new int[] { 83285 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
@@ -47,14 +47,18 @@ public class JavadocBugsTest extends JavadocTest {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_DocCommentSupport, docCommentSupport);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, reportInvalidJavadoc);
-		if (reportMissingJavadocComments != null) 
+		if (reportMissingJavadocComments != null) {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportMissingJavadocComments);
-		else
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding, CompilerOptions.ENABLED);
+		} else {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, reportInvalidJavadoc);
-		if (reportMissingJavadocTags != null) 
+		}
+		if (reportMissingJavadocTags != null) {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportMissingJavadocTags);
-		else
+			options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsOverriding, CompilerOptions.ENABLED);
+		} else {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocTags, reportInvalidJavadoc);
+		}
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
@@ -852,21 +856,26 @@ public class JavadocBugsTest extends JavadocTest {
 					"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
-				"	       ^^^\n" + 
-				"Javadoc: Missing tag for return type\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
-				"	                      ^^^\n" + 
-				"Javadoc: Missing tag for parameter str\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
-				"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
-				"	                                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Javadoc: Missing tag for declared exception IllegalArgumentException\n" + 
-				"----------\n"
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	* {@inheritDoc}\n" + 
+			"	    ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
+			"	       ^^^\n" + 
+			"Javadoc: Missing tag for return type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
+			"	                      ^^^\n" + 
+			"Javadoc: Missing tag for parameter str\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	public int foo(String str) throws IllegalArgumentException { return 0; }\n" + 
+			"	                                  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Missing tag for declared exception IllegalArgumentException\n" + 
+			"----------\n"
 		);
 	}
 
@@ -2076,11 +2085,26 @@ public class JavadocBugsTest extends JavadocTest {
 					"}\n"
 			},
 			"----------\n" + 
-				"1. ERROR in Test.java (at line 11)\n" + 
-				"	int foo() { // should warn on missing tag for return type\n" + 
-				"	^^^\n" + 
-				"Javadoc: Missing tag for return type\n" + 
-				"----------\n"
+			"1. ERROR in Test.java (at line 3)\n" + 
+			"	* @@@@see Unknown Should not complain on ref\n" + 
+			"	   ^^^^^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 8)\n" + 
+			"	* @@@param xxx Should not complain on param\n" + 
+			"	   ^^^^^^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 9)\n" + 
+			"	* @@return int\n" + 
+			"	   ^^^^^^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n" + 
+			"4. ERROR in Test.java (at line 11)\n" + 
+			"	int foo() { // should warn on missing tag for return type\n" + 
+			"	^^^\n" + 
+			"Javadoc: Missing tag for return type\n" + 
+			"----------\n"
 		);
 	}
 
@@ -2267,22 +2291,45 @@ public class JavadocBugsTest extends JavadocTest {
 		);
 	}
 	public void testBug68017javadocWarning2() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 *	@return #\n" + 
+				"	 */\n" + 
+				"	public int foo1() {return 0; }\n" + 
+				"	/**\n" + 
+				"	 *	@return @\n" + 
+				"	 */\n" + 
+				"	public int foo2() {return 0; }\n" + 
+				"}\n"
+			}
+		);
+	}
+	public void testBug68017javadocWarning3() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
 					"	/**\n" + 
 					"	 *	@return#\n" + 
+					"	 *	@return#text\n" + 
 					"	 */\n" + 
 					"	public int foo() {return 0; }\n" + 
 					"}\n",
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	*	@return#\n" + 
-				"	 	 ^^^^^^\n" + 
-				"Javadoc: Missing return type description\n" + 
-				"----------\n"
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	*	@return#\n" + 
+			"	 	 ^^^^^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	*	@return#text\n" + 
+			"	 	 ^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid tag\n" + 
+			"----------\n"
 		);
 	}
 
@@ -2583,7 +2630,7 @@ public class JavadocBugsTest extends JavadocTest {
 
 	/**
 	 * Bug 69302: [Javadoc] Invalid reference warning inconsistent with javadoc tool
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302">69302</a>
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=69302"
 	 */
 	public void testBug69302conform1() {
 		runConformTest(
@@ -2602,8 +2649,8 @@ public class JavadocBugsTest extends JavadocTest {
 			}
 		);
 	}
-	public void testBug69302conform2() {
-		runConformTest(
+	public void testBug69302negative1() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -2616,10 +2663,21 @@ public class JavadocBugsTest extends JavadocTest {
 					"	 */\n" + 
 					"	void foo2() {}\n" + 
 					"}\n"	
-			}
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	*	@see Unknown <a href=\"http://www.eclipse.org\">Eclipse</a>\n" + 
+			"	 	     ^^^^^^^\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	*	@see Unknown \"Valid string reference\"\n" + 
+			"	 	     ^^^^^^^\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
+			"----------\n"
 		);
 	}
-	public void testBug69302negative() {
+	public void testBug69302negative2() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2631,16 +2689,16 @@ public class JavadocBugsTest extends JavadocTest {
 					"}\n"	
 			},
 			"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	/**@see Unknown blabla <a href=\"http://www.eclipse.org\">text</a>*/\n" + 
-				"	        ^^^^^^^\n" + 
-				"Javadoc: Unknown cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	/**@see Unknown blabla \"Valid string reference\"*/\n" + 
-				"	        ^^^^^^^\n" + 
-				"Javadoc: Unknown cannot be resolved to a type\n" + 
-				"----------\n"
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	/**@see Unknown blabla <a href=\"http://www.eclipse.org\">text</a>*/\n" + 
+			"	        ^^^^^^^\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	/**@see Unknown blabla \"Valid string reference\"*/\n" + 
+			"	        ^^^^^^^\n" + 
+			"Javadoc: Unknown cannot be resolved to a type\n" + 
+			"----------\n"
 		);
 	}
 
@@ -2946,7 +3004,7 @@ public class JavadocBugsTest extends JavadocTest {
  	}
 
 	/**
-	 * Bug 73995: [Javadoc] Wrong warning for missing return type description for @return {@inheritDoc}
+	 * Bug 73995: [Javadoc] Wrong warning for missing return type description for @return {@inheritdoc}
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73995">73995</a>
 	 */
 	public void testBug73995() {
@@ -3171,41 +3229,41 @@ public class JavadocBugsTest extends JavadocTest {
 	public void testBug76324string() {
 		runNegativeTest(
 			new String[] {
-				"X.java",
-				"public class X {\n" +
-					"	/**\n" + 
-					"	 * Inline string references \n" + 
-					"	 *\n" + 
-					"	 * {@link \"}\n" + 
-					"	 * {@link \"unterminated string}\n" + 
-					"	 * {@link \"invalid string\"\"}\n" + 
-					"	 * {@link \"valid string\"}\n" + 
-					"	 * {@link \"invalid\" no text allowed after the string}\n" + 
-					"	 */\n" + 
-					"	public void s_foo() {\n" + 
-					"	}\n" + 
-					"}\n" },
-				"----------\n" + 
-					"1. ERROR in X.java (at line 5)\n" + 
-					"	* {@link \"}\n" + 
-					"	        ^^^\n" + 
-					"Javadoc: Invalid reference\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 6)\n" + 
-					"	* {@link \"unterminated string}\n" + 
-					"	        ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Javadoc: Invalid reference\n" + 
-					"----------\n" + 
-					"3. ERROR in X.java (at line 7)\n" + 
-					"	* {@link \"invalid string\"\"}\n" + 
-					"	                         ^^\n" + 
-					"Javadoc: Unexpected text\n" + 
-					"----------\n" + 
-					"4. ERROR in X.java (at line 9)\n" + 
-					"	* {@link \"invalid\" no text allowed after the string}\n" + 
-					"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Javadoc: Unexpected text\n" + 
-					"----------\n"
+			"X.java",
+			"public class X {\n" +
+			"	/**\n" + 
+			"	 * Inline string references \n" + 
+			"	 *\n" + 
+			"	 * {@link \"}\n" + 
+			"	 * {@link \"unterminated string}\n" + 
+			"	 * {@link \"invalid string\"\"}\n" + 
+			"	 * {@link \"valid string\"}\n" + 
+			"	 * {@link \"invalid\" no text allowed after the string}\n" + 
+			"	 */\n" + 
+			"	public void s_foo() {\n" + 
+			"	}\n" + 
+			"}\n" },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	* {@link \"}\n" + 
+			"	         ^^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	* {@link \"unterminated string}\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	* {@link \"invalid string\"\"}\n" + 
+			"	                         ^^\n" + 
+			"Javadoc: Unexpected text\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	* {@link \"invalid\" no text allowed after the string}\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected text\n" + 
+			"----------\n"
 		);
 	}
 
@@ -3776,6 +3834,112 @@ public class JavadocBugsTest extends JavadocTest {
 				"	void bar() {}\n" + 
 				"}"
 			}
+		);
+	}
+
+	/**
+	 * Bug 90302: [javadoc] {@inheritedDoc} should be inactive for non-overridden method
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=90302"
+	 */
+	public void testBug90302() {
+		this.reportMissingJavadocTags = CompilerOptions.ERROR;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" + 
+				" * @see #foo(String)\n" + 
+				" */\n" + 
+				"public class X {\n" + 
+				"	/**\n" + 
+				"	 * Static method\n" + 
+				"	 * @param str\n" + 
+				"	 * @return int\n" + 
+				"	 * @throws NumberFormatException\n" + 
+				"	 */\n" + 
+				"	static int foo(String str) throws NumberFormatException{\n" + 
+				"		return Integer.parseInt(str);\n" + 
+				"	}\n" + 
+				"}\n",
+				"Y.java",
+				"/**\n" + 
+				" * @see #foo(String)\n" + 
+				" */\n" + 
+				"public class Y extends X { \n" + 
+				"	/**\n" + 
+				"	 * Static method: does not override super\n" + 
+				"	 * {@inheritDoc}\n" + 
+				"	 */\n" + 
+				"	static int foo(String str) throws NumberFormatException{\n" + 
+				"		return Integer.parseInt(str);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 7)\n" + 
+			"	* {@inheritDoc}\n" + 
+			"	    ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"2. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	       ^^^\n" + 
+			"Javadoc: Missing tag for return type\n" + 
+			"----------\n" + 
+			"3. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	                      ^^^\n" + 
+			"Javadoc: Missing tag for parameter str\n" + 
+			"----------\n" + 
+			"4. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	                                  ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Missing tag for declared exception NumberFormatException\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug90302b() {
+		this.reportMissingJavadocTags = CompilerOptions.ERROR;
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/** */\n" + 
+				"public class X {\n" + 
+				"}\n",
+				"Y.java",
+				"/**\n" + 
+				" * @see #foo(String)\n" + 
+				" */\n" + 
+				"public class Y extends X { \n" + 
+				"	/**\n" + 
+				"	 * Simple method: does not override super\n" + 
+				"	 * {@inheritDoc}\n" + 
+				"	 */\n" + 
+				"	static int foo(String str) throws NumberFormatException{\n" + 
+				"		return Integer.parseInt(str);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 7)\n" + 
+			"	* {@inheritDoc}\n" + 
+			"	    ^^^^^^^^^^\n" + 
+			"Javadoc: Unexpected tag\n" + 
+			"----------\n" + 
+			"2. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	       ^^^\n" + 
+			"Javadoc: Missing tag for return type\n" + 
+			"----------\n" + 
+			"3. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	                      ^^^\n" + 
+			"Javadoc: Missing tag for parameter str\n" + 
+			"----------\n" + 
+			"4. ERROR in Y.java (at line 9)\n" + 
+			"	static int foo(String str) throws NumberFormatException{\n" + 
+			"	                                  ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Javadoc: Missing tag for declared exception NumberFormatException\n" + 
+			"----------\n"
 		);
 	}
 }

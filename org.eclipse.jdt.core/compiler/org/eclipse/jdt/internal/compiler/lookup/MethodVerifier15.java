@@ -10,11 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 class MethodVerifier15 extends MethodVerifier {
@@ -335,7 +330,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 	ParameterizedGenericMethodBinding substitute =
 		new ParameterizedGenericMethodBinding(inheritedMethod, arguments, this.environment);
 	for (int i = 0; i < inheritedLength; i++)
-	    if (!inheritedTypeVariables[i].boundCheck(substitute, arguments[i]))
+	    if (inheritedTypeVariables[i].boundCheck(substitute, arguments[i]) != TypeConstants.OK)
 	    	return inheritedMethod; // incompatible due to bound check
    return substitute;
 }
@@ -388,39 +383,15 @@ public boolean doReturnTypesCollide(MethodBinding method, MethodBinding inherite
 		&& !areReturnTypesEqual(method, sub);
 }
 boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
-	TypeBinding[] currentVars = one.typeVariables;
-	TypeBinding[] inheritedVars = substituteTwo.original().typeVariables;
-	return currentVars.length != inheritedVars.length && currentVars.length > 0;
+	return one.typeVariables != NoTypeVariables && !one.areTypeVariableErasuresEqual(substituteTwo.original());
 }
 boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBinding existingMethod, ReferenceBinding superType) {
+	if (inheritedMethod.original() != inheritedMethod && existingMethod.declaringClass.isInterface())
+		return false; // must hold onto ParameterizedMethod to see if a bridge method is necessary
+
 	inheritedMethod = computeSubstituteMethod(inheritedMethod, existingMethod);
 	return inheritedMethod.returnType == existingMethod.returnType
 		&& super.isInterfaceMethodImplemented(inheritedMethod, existingMethod, superType);
-}
-boolean mustImplementAbstractMethod(ReferenceBinding declaringClass) {
-	if (!this.type.isEnum())
-		return super.mustImplementAbstractMethod(declaringClass);
-	if (this.type.isAnonymousType())
-		return true; // body of enum constant must implement any inherited abstract methods
-	if (this.type.isAbstract())
-		return false; // is an enum that has since been tagged as abstract by the code below
-
-	// enum type needs to implement abstract methods if one of its constants does not supply a body
-	TypeDeclaration typeDeclaration = this.type.scope.referenceContext;
-	FieldDeclaration[] fields = typeDeclaration.fields;
-	int length = typeDeclaration.fields == null ? 0 : typeDeclaration.fields.length;
-	if (length == 0) return true; // has no constants so must implement the method itself
-	for (int i = 0; i < length; i++) {
-		FieldDeclaration fieldDecl = fields[i];
-		if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
-			if (!(fieldDecl.initialization instanceof QualifiedAllocationExpression))
-				return true;
-	}
-
-	// tag this enum as abstract since an abstract method must be implemented AND all enum constants define an anonymous body
-	// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method
-	this.type.modifiers |= IConstants.AccAbstract;
-	return false;
 }
 void verify(SourceTypeBinding someType) {
 	if (someType.isAnnotationType())

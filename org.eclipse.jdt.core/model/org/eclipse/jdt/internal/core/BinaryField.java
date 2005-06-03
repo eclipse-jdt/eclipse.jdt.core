@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 
 /**
  * @see IField
@@ -58,11 +59,8 @@ public int getElementType() {
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_FIELD;
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.IField#getKey()
- */
-public String getKey() {
-	return getKey(this);
+public String getKey(boolean forceOpen) throws JavaModelException {
+	return getKey(this, forceOpen);
 }
 /*
  * @see IField
@@ -82,10 +80,15 @@ public String getTypeSignature() throws JavaModelException {
 public boolean isResolved() {
 	return false;
 }
+public JavaElement resolved(Binding binding) {
+	SourceRefElement resolvedHandle = new ResolvedBinaryField(this.parent, this.name, new String(binding.computeUniqueKey()));
+	resolvedHandle.occurrenceCount = this.occurrenceCount;
+	return resolvedHandle;
+}
 /*
  * @private Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(this.tabString(tab));
 	if (info == null) {
 		toStringName(buffer);

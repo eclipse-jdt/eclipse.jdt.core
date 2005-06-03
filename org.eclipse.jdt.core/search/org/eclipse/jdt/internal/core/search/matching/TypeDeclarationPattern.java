@@ -34,6 +34,51 @@ public int modifiers;
 
 protected static char[][] CATEGORIES = { TYPE_DECL };
 
+// want to save space by interning the package names for each match
+static PackageNameSet internedPackageNames = new PackageNameSet(1001);
+static class PackageNameSet {
+
+public char[][] names;
+public int elementSize; // number of elements in the table
+public int threshold;
+
+PackageNameSet(int size) {
+	this.elementSize = 0;
+	this.threshold = size; // size represents the expected number of elements
+	int extraRoom = (int) (size * 1.5f);
+	if (this.threshold == extraRoom)
+		extraRoom++;
+	this.names = new char[extraRoom][];
+}
+
+char[] add(char[] name) {
+	int length = names.length;
+	int index = CharOperation.hashCode(name) % length;
+	char[] current;
+	while ((current = names[index]) != null) {
+		if (CharOperation.equals(current, name)) return current;
+		if (++index == length) index = 0;
+	}
+	names[index] = name;
+
+	// assumes the threshold is never equal to the size of the table
+	if (++elementSize > threshold) rehash();
+	return name;
+}
+
+void rehash() {
+	PackageNameSet newSet = new PackageNameSet(elementSize * 2); // double the number of expected elements
+	char[] current;
+	for (int i = names.length; --i >= 0;)
+		if ((current = names[i]) != null)
+			newSet.add(current);
+
+	this.names = newSet.names;
+	this.elementSize = newSet.elementSize;
+	this.threshold = newSet.threshold;
+}
+}
+
 /*
  * Create index key for type declaration pattern:
  *		key = typeName / packageName / enclosingTypeName / typeSuffix modifiers
@@ -98,7 +143,7 @@ public TypeDeclarationPattern(
 	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.typeSuffix = typeSuffix;
 
-	((InternalSearchPattern)this).mustResolve = this.pkg != null && this.enclosingTypeNames != null;
+	((InternalSearchPattern)this).mustResolve = (this.pkg != null && this.enclosingTypeNames != null) || typeSuffix != TYPE_SUFFIX;
 }
 TypeDeclarationPattern(int matchRule) {
 	super(TYPE_DECL_PATTERN, matchRule);
@@ -115,7 +160,7 @@ public void decodeIndexKey(char[] key) {
 
 	int start = slash + 1;
 	slash = CharOperation.indexOf(SEPARATOR, key, start);
-	this.pkg = slash == start ? CharOperation.NO_CHAR : CharOperation.subarray(key, start, slash);
+	this.pkg = slash == start ? CharOperation.NO_CHAR : internedPackageNames.add(CharOperation.subarray(key, start, slash));
 
 	slash = CharOperation.indexOf(SEPARATOR, key, start = slash + 1);
 	if (slash == start) {
@@ -158,10 +203,56 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	TypeDeclarationPattern pattern = (TypeDeclarationPattern) decodedPattern;
 	switch(this.typeSuffix) {
 		case CLASS_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case INTERFACE_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case INTERFACE_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case ENUM_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case ENUM_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case ANNOTATION_TYPE_SUFFIX :
 			if (this.typeSuffix != pattern.typeSuffix) return false;
+			break;
+		case CLASS_AND_INTERFACE_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case INTERFACE_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
+		case CLASS_AND_ENUM_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case ENUM_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 	}
 
 	if (!matchesName(this.simpleName, pattern.simpleName))
@@ -209,8 +300,9 @@ EntryResult[] queryIn(Index index) throws IOException {
 						case INTERFACE_SUFFIX :
 						case ENUM_SUFFIX :
 						case ANNOTATION_TYPE_SUFFIX :
-							key = new char[] {ONE_STAR[0],  SEPARATOR,
-								isCaseSensitive() ? this.typeSuffix : Character.toLowerCase(this.typeSuffix)}; // find all classes or all interfaces
+						case CLASS_AND_INTERFACE_SUFFIX :
+						case CLASS_AND_ENUM_SUFFIX :
+							key = new char[] {ONE_STAR[0],  SEPARATOR, ONE_STAR[0]};
 							break;
 					}
 				} else if (this.simpleName[this.simpleName.length - 1] != '*') {
@@ -230,6 +322,12 @@ protected StringBuffer print(StringBuffer output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
 			output.append("ClassDeclarationPattern: pkg<"); //$NON-NLS-1$
+			break;
+		case CLASS_AND_INTERFACE_SUFFIX:
+			output.append("ClassAndInterfaceDeclarationPattern: pkg<"); //$NON-NLS-1$
+			break;
+		case CLASS_AND_ENUM_SUFFIX :
+			output.append("ClassAndEnumDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case INTERFACE_SUFFIX :
 			output.append("InterfaceDeclarationPattern: pkg<"); //$NON-NLS-1$

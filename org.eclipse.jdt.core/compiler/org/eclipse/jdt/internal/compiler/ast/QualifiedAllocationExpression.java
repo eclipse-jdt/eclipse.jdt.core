@@ -232,6 +232,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			} else {
 				receiverType = this.type.resolveType(scope, true /* check bounds*/);
 				checkParameterizedAllocation: {
+					if (receiverType == null) break checkParameterizedAllocation;
 					if (this.type instanceof ParameterizedQualifiedTypeReference) { // disallow new X<String>.Y<Integer>()
 						ReferenceBinding currentType = (ReferenceBinding)receiverType;
 						do {

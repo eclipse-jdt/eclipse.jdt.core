@@ -2750,6 +2750,271 @@ public void test0073(){
 			expectedReplacedSource,
 	"diet ast");
 }
+public void test0074(){
+	String str =
+		"@Annot(zzz=foo)\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public @Annot(zzz = <CompleteOnName:foo>) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0075(){
+	String str =
+		"@Annot(zzz= a && foo)\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public @Annot(zzz = (a && <CompleteOnName:foo>)) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0076(){
+	String str =
+		"@Annot(zzz= {foo})\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public @Annot(zzz = {<CompleteOnName:foo>}) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0078(){
+	String str =
+		"@Annot(zzz= {yyy, foo})\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public @Annot(zzz = {yyy, <CompleteOnName:foo>}) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0079(){
+	String str =
+		"@Annot(zzz=foo\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"@Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0080(){
+	String str =
+		"@Annot(zzz= a && foo\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"@Annot(zzz = (a && <CompleteOnName:foo>))\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0081(){
+	String str =
+		"@Annot(zzz= {yyy, foo}\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "{yyy, <CompleteOnName:foo>}";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"@Annot(zzz = {yyy, <CompleteOnName:foo>})\n" +
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0082(){
+	String str =
+		"@Annot(zzz= {yyy, foo\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"@Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0083(){
+	String str =
+		"@Annot(zzz= a && (b || (foo && c)))\n" +
+		"public class X {\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public @Annot(zzz = (a && (b || (<CompleteOnName:foo> && c)))) class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 public void test0084(){
 	String str =
 		"@Annot(zzz= a && (b || (foo\n" +
@@ -2764,8 +3029,1600 @@ public void test0084(){
 	String completionIdentifier = "foo";
 	String expectedReplacedSource = "foo";
 	String expectedUnitDisplayString =
+		"@Annot(zzz = <CompleteOnName:foo>)\n" + 
 		"public class X {\n" + 
 		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0085(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz=foo)\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  @Annot(zzz = <CompleteOnName:foo>) void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0086(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= a && foo)\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  @Annot(zzz = (a && <CompleteOnName:foo>)) void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0087(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= {foo})\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  @Annot(zzz = {<CompleteOnName:foo>}) void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0088(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= {yyy, foo})\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  @Annot(zzz = {yyy, <CompleteOnName:foo>}) void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0089(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz=foo\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0090(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= a && foo\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = (a && <CompleteOnName:foo>))\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0091(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= {yyy, foo}\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "{yyy, <CompleteOnName:foo>}";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = {yyy, <CompleteOnName:foo>})\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0092(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= {yyy, foo\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0093(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= a && (b || (foo && c)))\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  @Annot(zzz = (a && (b || (<CompleteOnName:foo> && c)))) void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0094(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= a && (b || (foo\n" +
+		"  void bar() {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0095(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz=foo)\n" +
+		"  int bar;\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = <CompleteOnName:foo>) int bar;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0096(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= a && foo)\n" +
+		"  int bar;\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = (a && <CompleteOnName:foo>)) int bar;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0097(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= {foo})\n" +
+		"  int bar;\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = {<CompleteOnName:foo>}) int bar;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0098(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= {yyy, foo})\n" +
+		"  int bar;\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = {yyy, <CompleteOnName:foo>}) int bar;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0099(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz=foo\n" +
+		"  int bar;\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  int bar;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0100(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= a && foo\n" +
+		"  int bar;\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = (a && <CompleteOnName:foo>))\n" + 
+		"  int bar;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0101(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= {yyy, foo}\n" +
+		"  int bar;\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "{yyy, <CompleteOnName:foo>}";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = {yyy, <CompleteOnName:foo>})\n" + 
+		"  int bar;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0102(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= {yyy, foo\n" +
+		"  int bar;\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  int bar;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0103(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= a && (b || (foo && c)))\n" +
+		"  int bar;\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = (a && (b || (<CompleteOnName:foo> && c)))) int bar;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0104(){
+	String str =
+		"public class X {\n" +
+		"  @Annot(zzz= a && (b || (foo\n" +
+		"  int bar;\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  int bar;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0105(){
+	String str =
+		"public class X {\n" +
+		"  void bar() {\n" +
+		"    @Annot(zzz=foo)\n" +
+		"    int var;\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0106(){
+	String str =
+		"public class X {\n" +
+		"  void bar() {\n" +
+		"    @Annot(zzz= a && foo)\n" +
+		"    int var;\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = (a && <CompleteOnName:foo>))\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0107(){
+	String str =
+		"public class X {\n" +
+		"  void bar() {\n" +
+		"    @Annot(zzz= {foo})\n" +
+		"    int var;\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0108(){
+	String str =
+		"public class X {\n" +
+		"  void bar() {\n" +
+		"    @Annot(zzz= {yyy, foo})\n" +
+		"    int var;\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0109(){
+	String str =
+		"public class X {\n" +
+		"  void bar() {\n" +
+		"    @Annot(zzz=foo\n" +
+		"    int var;\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0110(){
+	String str =
+		"public class X {\n" +
+		"  void bar() {\n" +
+		"    int var;\n" +
+		"    @Annot(zzz= a && foo\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    int var;\n" + 
+		"    @Annot(zzz = (a && <CompleteOnName:foo>))\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0111(){
+	String str =
+		"public class X {\n" +
+		"  void bar() {\n" +
+		"    @Annot(zzz= {yyy, foo}\n" +
+		"    int var;\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0112(){
+	String str =
+		"public class X {\n" +
+		"  void bar() {\n" +
+		"    @Annot(zzz= {yyy, foo\n" +
+		"    int var;\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0113(){
+	String str =
+		"public class X {\n" +
+		"  void bar() {\n" +
+		"    @Annot(zzz= a && (b || (foo && c)))\n" +
+		"    int var;\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0114(){
+	String str =
+		"public class X {\n" +
+		"  void bar() {\n" +
+		"    @Annot(zzz= a && (b || (foo\n" +
+		"    int var;\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0115(){
+	String str =
+		"public class X {\n" +
+		"  void bar(@Annot(zzz=foo) int var) {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar(@Annot(zzz = <CompleteOnName:foo>) int var) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0116(){
+	String str =
+		"public class X {\n" +
+		"  void bar(@Annot(zzz= a && foo) int var) {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar(@Annot(zzz = (a && <CompleteOnName:foo>)) int var) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0117(){
+	String str =
+		"public class X {\n" +
+		"  void bar(@Annot(zzz= {foo}) int var) {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar(@Annot(zzz = {<CompleteOnName:foo>}) int var) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0118(){
+	String str =
+		"public class X {\n" +
+		"  void bar(@Annot(zzz= {yyy, foo}) int var) {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar(@Annot(zzz = {yyy, <CompleteOnName:foo>}) int var) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0119(){
+	String str =
+		"public class X {\n" +
+		"  void bar(@Annot(zzz=foo int var) {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "zzz = <CompleteOnName:foo>";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = <CompleteOnName:foo>)\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0120(){
+	String str =
+		"public class X {\n" +
+		"  void bar(@Annot(zzz= a && foo int var) {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	expectedParentNodeToString = "(a && <CompleteOnName:foo>)";
+	completionIdentifier = "foo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    @Annot(zzz = (a && <CompleteOnName:foo>))\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void test0121(){
+	String str =
+		"public class X {\n" +
+		"  void bar(@Annot(zzz= {yyy, foo} int var) {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "{yyy, <CompleteOnName:foo>}";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  @Annot(zzz = {yyy, <CompleteOnName:foo>})\n" + 
+		"  int var;\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0122(){
+	String str =
+		"public class X {\n" +
+		"  void bar(@Annot(zzz= {yyy, foo int var) {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0123(){
+	String str =
+		"public class X {\n" +
+		"  void bar(@Annot(zzz= a && (b || (foo && c))) int var) {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar(@Annot(zzz = (a && (b || (<CompleteOnName:foo> && c)))) int var) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+public void test0124(){
+	String str =
+		"public class X {\n" +
+		"  void bar(@Annot(zzz= a && (b || (foo int var) {\n" +
+		"  }\n" +
+		"}";
+
+
+	String completeBehind = "foo";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:foo>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "foo";
+	String expectedReplacedSource = "foo";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
 		"  }\n" + 
 		"}\n";
 

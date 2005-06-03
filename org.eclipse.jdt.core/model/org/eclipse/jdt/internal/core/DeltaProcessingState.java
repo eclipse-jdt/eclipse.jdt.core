@@ -10,23 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Map;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -70,6 +66,9 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	
 	/* A table from IPath (a source attachment path from a classpath entry) to IPath (a root path) */
 	public HashMap sourceAttachments = new HashMap();
+	
+	/* A table from IJavaProject to IJavaProject[] (the list of direct dependent of the key) */
+	public HashMap projectDependencies = new HashMap();
 
 	/* Whether the roots tables should be recomputed */
 	public boolean rootsAreStale = true;
@@ -77,7 +76,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	/* Threads that are currently running initializeRoots() */
 	private Set initializingThreads = Collections.synchronizedSet(new HashSet());	
 	
-	public Hashtable externalTimeStamps = new Hashtable();
+	public Hashtable externalTimeStamps;
 	
 	public HashMap projectUpdates = new HashMap();
 
@@ -232,6 +231,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		HashMap newRoots = null;
 		HashMap newOtherRoots = null;
 		HashMap newSourceAttachments = null;
+		HashMap newProjectDependencies = null;
 		if (this.rootsAreStale) {
 			Thread currentThread = Thread.currentThread();
 			boolean addedCurrentThread = false;			
@@ -240,10 +240,15 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=47213
 				if (!this.initializingThreads.add(currentThread)) return;
 				addedCurrentThread = true;
+				
+				// all classpaths in the workspace are going to be resolved
+				// ensure that containers are initialized in one batch
+				JavaModelManager.getJavaModelManager().batchContainerInitializations = true;
 
 				newRoots = new HashMap();
 				newOtherRoots = new HashMap();
 				newSourceAttachments = new HashMap();
+				newProjectDependencies = new HashMap();
 		
 				IJavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
 				IJavaProject[] projects;
@@ -264,7 +269,19 @@ public class DeltaProcessingState implements IResourceChangeListener {
 					}
 					for (int j= 0, classpathLength = classpath.length; j < classpathLength; j++) {
 						IClasspathEntry entry = classpath[j];
-						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) continue;
+						if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+							IJavaProject key = model.getJavaProject(entry.getPath().segment(0)); // TODO (jerome) reuse handle
+							IJavaProject[] dependents = (IJavaProject[]) newProjectDependencies.get(key);
+							if (dependents == null) {
+								dependents = new IJavaProject[] {project};
+							} else {
+								int dependentsLength = dependents.length;
+								System.arraycopy(dependents, 0, dependents = new IJavaProject[dependentsLength+1], 0, dependentsLength);
+								dependents[dependentsLength] = project;
+							}
+							newProjectDependencies.put(key, dependents);
+							continue;
+						}
 						
 						// root path
 						IPath path = entry.getPath();
@@ -313,6 +330,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				this.roots = newRoots;
 				this.otherRoots = newOtherRoots;
 				this.sourceAttachments = newSourceAttachments;
+				this.projectDependencies = newProjectDependencies;
 				this.rootsAreStale = false;
 			}
 		}
@@ -419,6 +437,67 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			}
 		}
 
+	}
+	
+	public Hashtable getExternalLibTimeStamps() {
+		if (this.externalTimeStamps == null) {
+			this.externalTimeStamps = new Hashtable();
+			File timestamps = getTimeStampsFile();
+			DataInputStream in = null;
+			try {
+				in = new DataInputStream(new BufferedInputStream(new FileInputStream(timestamps)));
+				int size = in.readInt();
+				while (size-- > 0) {
+					String key = in.readUTF();
+					long timestamp = in.readLong();
+					this.externalTimeStamps.put(Path.fromPortableString(key), new Long(timestamp));
+				}
+			} catch (IOException e) {
+				if (timestamps.exists())
+					Util.log(e, "Unable to read external time stamps"); //$NON-NLS-1$
+			} finally {
+				if (in != null) {
+					try {
+						in.close();
+					} catch (IOException e) {
+						// nothing we can do: ignore
+					}
+				}
+			}
+		}
+		return this.externalTimeStamps;
+	}
+	
+	private File getTimeStampsFile() {
+		return JavaCore.getPlugin().getStateLocation().append("externalLibsTimeStamps").toFile(); //$NON-NLS-1$
+	}
+	
+	public void saveExternalLibTimeStamps() throws CoreException {
+		if (this.externalTimeStamps == null) return;
+		File timestamps = getTimeStampsFile();
+		DataOutputStream out = null;
+		try {
+			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(timestamps)));
+			out.writeInt(this.externalTimeStamps.size());
+			Iterator keys = this.externalTimeStamps.keySet().iterator();
+			while (keys.hasNext()) {
+				IPath key = (IPath) keys.next();
+				out.writeUTF(key.toPortableString());
+				Long timestamp = (Long) this.externalTimeStamps.get(key);
+				out.writeLong(timestamp.longValue());
+			}
+		} catch (IOException e) {
+			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving timestamps", e); //$NON-NLS-1$
+			throw new CoreException(status);
+		} finally {
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					// nothing we can do: ignore
+				}
+			}
+		}
 	}
 
 	/*

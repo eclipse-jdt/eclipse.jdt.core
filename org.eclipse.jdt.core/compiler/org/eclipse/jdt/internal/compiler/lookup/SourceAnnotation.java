@@ -31,7 +31,7 @@ public class SourceAnnotation implements IAnnotationInstance, TypeConstants
 				this.pairs = NoElementValuePairs;
 		}
 		else if( astAnnotation instanceof SingleMemberAnnotation ){
-			final MemberValuePair astPair = ((SingleMemberAnnotation)astAnnotation).singlePair;
+			final MemberValuePair astPair = ((SingleMemberAnnotation)astAnnotation).memberValuePairs()[0];
 			if( astPair != null )
 				this.pairs = new SourceElementValuePair[]{ new SourceElementValuePair(astPair) };
 			else

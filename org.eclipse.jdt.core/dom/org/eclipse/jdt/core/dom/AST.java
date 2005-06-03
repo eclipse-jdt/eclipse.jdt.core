@@ -1239,7 +1239,7 @@ public final class AST {
 		result.setIdentifier(identifier);
 		return result;
 	}
-	
+
 	/**
 	 * Creates and returns a new unparented qualified name node for the given 
 	 * qualifier and simple name child node.
@@ -1280,6 +1280,7 @@ public final class AST {
 	 * </ul>
 	 */
 	public Name newName(String[] identifiers) {
+		// update internalSetName(String[] if changed
 		int count = identifiers.length;
 		if (count == 0) {
 			throw new IllegalArgumentException();
@@ -1287,6 +1288,25 @@ public final class AST {
 		Name result = newSimpleName(identifiers[0]);
 		for (int i = 1; i < count; i++) {
 			SimpleName name = newSimpleName(identifiers[i]);
+			result = newQualifiedName(result, name);
+		}
+		return result;
+	}
+	
+	/* (omit javadoc for this method)
+	 * This method is a copy of setName(String[]) that doesn't do any validation.
+	 */
+	Name internalNewName(String[] identifiers) {
+		int count = identifiers.length;
+		if (count == 0) {
+			throw new IllegalArgumentException();
+		}
+		final SimpleName simpleName = new SimpleName(this);
+		simpleName.internalSetIdentifier(identifiers[0]);
+		Name result = simpleName;
+		for (int i = 1; i < count; i++) {
+			SimpleName name = new SimpleName(this);
+			name.internalSetIdentifier(identifiers[i]);
 			result = newQualifiedName(result, name);
 		}
 		return result;

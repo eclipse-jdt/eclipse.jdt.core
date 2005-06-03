@@ -24,10 +24,11 @@ import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.index.Index;
-import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.PatternSearchJob;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class IndexManager extends JobManager implements IIndexConstants {
@@ -96,7 +97,7 @@ public void addSource(IFile resource, IPath containerPath) {
  */
 public void cleanUpIndexes() {
 	SimpleLookupTable knownPaths = new SimpleLookupTable();
-	IJavaSearchScope scope = new JavaWorkspaceScope();
+	IJavaSearchScope scope = BasicSearchEngine.createWorkspaceScope();
 	PatternSearchJob job = new PatternSearchJob(null, SearchEngine.getDefaultSearchParticipant(), scope, null);
 	Index[] selectedIndexes = job.getIndexes(null);
 	for (int j = 0, max = selectedIndexes.length; j < max; j++) {
@@ -162,6 +163,18 @@ public void ensureIndexExists(String indexLocation, IPath containerPath) {
  * 
  * Warning: Does not check whether index is consistent (not being used)
  */
+public synchronized Index getIndex(IPath containerPath, boolean reuseExistingFile, boolean createIfMissing) {
+	String indexLocation = computeIndexLocation(containerPath);
+	return getIndex(containerPath, indexLocation, reuseExistingFile, createIfMissing);
+}
+/**
+ * Returns the index for a given project, according to the following algorithm:
+ * - if index is already in memory: answers this one back
+ * - if (reuseExistingFile) then read it and return this index and record it in memory
+ * - if (createIfMissing) then create a new empty index and record it in memory
+ * 
+ * Warning: Does not check whether index is consistent (not being used)
+ */
 public synchronized Index getIndex(IPath containerPath, String indexLocation, boolean reuseExistingFile, boolean createIfMissing) {
 	// Path is already canonical per construction
 	Index index = (Index) indexes.get(indexLocation);
@@ -180,7 +193,7 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 			File indexFile = new File(indexLocation);
 			if (indexFile.exists()) { // check before creating index so as to avoid creating a new empty index if file is missing
 				try {
-					index = new Index(indexLocation, "Index for " + containerPath.toOSString(), true /*reuse index file*/); //$NON-NLS-1$
+					index = new Index(indexLocation, containerPath.toString(), true /*reuse index file*/); //$NON-NLS-1$
 					indexes.put(indexLocation, index);
 					return index;
 				} catch (IOException e) {
@@ -204,7 +217,7 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 			try {
 				if (VERBOSE)
 					Util.verbose("-> create empty index: "+indexLocation+" path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-				index = new Index(indexLocation, "Index for " + containerPath.toOSString(), false /*do not reuse index file*/); //$NON-NLS-1$
+				index = new Index(indexLocation, containerPath.toString(), false /*do not reuse index file*/); //$NON-NLS-1$
 				indexes.put(indexLocation, index);
 				return index;
 			} catch (IOException e) {
@@ -218,17 +231,8 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 	//System.out.println(" index name: " + path.toOSString() + " <----> " + index.getIndexFile().getName());	
 	return index;
 }
-/**
- * Returns the index for a given project, according to the following algorithm:
- * - if index is already in memory: answers this one back
- * - if (reuseExistingFile) then read it and return this index and record it in memory
- * - if (createIfMissing) then create a new empty index and record it in memory
- * 
- * Warning: Does not check whether index is consistent (not being used)
- */
-public synchronized Index getIndex(IPath containerPath, boolean reuseExistingFile, boolean createIfMissing) {
-	String indexLocation = computeIndexLocation(containerPath);
-	return getIndex(containerPath, indexLocation, reuseExistingFile, createIfMissing);
+public synchronized Index getIndex(String indexLocation) {
+	return (Index) indexes.get(indexLocation); // is null if unknown, call if the containerPath must be computed
 }
 public synchronized Index getIndexForUpdate(IPath containerPath, boolean reuseExistingFile, boolean createIfMissing) {
 	String indexLocation = computeIndexLocation(containerPath);
@@ -385,7 +389,7 @@ protected void notifyIdle(long idlingTime){
  * Name of the background process
  */
 public String processName(){
-	return Util.bind("process.name"); //$NON-NLS-1$
+	return Messages.process_name; 
 }
 private void rebuildIndex(String indexLocation, IPath containerPath) {
 	IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -428,7 +432,7 @@ public synchronized Index recreateIndex(IPath containerPath) {
 
 		if (VERBOSE)
 			Util.verbose("-> recreating index: "+indexLocation+" for path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-		index = new Index(indexLocation, "Index for " + containerPath.toOSString(), false /*reuse index file*/); //$NON-NLS-1$
+		index = new Index(indexLocation, containerPath.toString(), false /*reuse index file*/); //$NON-NLS-1$
 		this.indexes.put(indexLocation, index);
 		index.monitor = monitor;
 		return index;
@@ -445,8 +449,8 @@ public synchronized Index recreateIndex(IPath containerPath) {
  * Trigger removal of a resource to an index
  * Note: the actual operation is performed in background
  */
-public void remove(String resourceName, IPath indexedContainer){
-	request(new RemoveFromIndex(resourceName, indexedContainer, this));
+public void remove(String containerRelativePath, IPath indexedContainer){
+	request(new RemoveFromIndex(containerRelativePath, indexedContainer, this));
 }
 /**
  * Removes the index for a given path. 

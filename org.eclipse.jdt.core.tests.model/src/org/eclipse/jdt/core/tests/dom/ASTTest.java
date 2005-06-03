@@ -1044,9 +1044,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * This implementation does nothing. Subclasses
 		 * should reimplement if they reimplement <code>wrap</code>.
 		 * </p>
-		 * 
-		 * @return a sample node that embeds the given node,
-		 *    and <code>null</code> if such an embedding is impossible
 		 */
 		public void unwrap() {
 		}

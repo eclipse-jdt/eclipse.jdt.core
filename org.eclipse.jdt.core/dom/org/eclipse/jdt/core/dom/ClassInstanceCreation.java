@@ -445,7 +445,7 @@ public class ClassInstanceCreation extends Expression {
 	 * deprecation warnings.
 	 * @since 3.1
 	 */
-	/*package*/ public void internalSetName(Name name) {
+	/*package*/ void internalSetName(Name name) {
 	    supportedOnlyIn2();
 		if (name == null) {
 			throw new IllegalArgumentException();

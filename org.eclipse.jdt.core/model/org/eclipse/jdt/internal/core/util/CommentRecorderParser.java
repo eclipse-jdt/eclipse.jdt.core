@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -50,8 +49,6 @@ public class CommentRecorderParser extends Parser {
 		boolean checkDeprecated = false;
 		int lastCommentIndex = -1;
 		
-		// 
-		
 		//since jdk1.2 look only in the last java doc comment...
 		nextComment : for (lastCommentIndex = this.scanner.commentPtr; lastCommentIndex >= 0; lastCommentIndex--){
 			//look for @deprecated into the first javadoc comment preceeding the declaration
@@ -68,7 +65,7 @@ public class CommentRecorderParser extends Parser {
 			
 			// do not report problem before last parsed comment while recovering code...
 			this.javadocParser.reportProblems = this.currentElement == null || commentSourceEnd > this.lastJavadocEnd;
-			deprecated = this.javadocParser.checkDeprecation(commentSourceStart, commentSourceEnd);
+			deprecated = this.javadocParser.checkDeprecation(lastCommentIndex);
 			this.javadoc = this.javadocParser.docComment;
 			break nextComment;
 		}
@@ -113,24 +110,6 @@ public class CommentRecorderParser extends Parser {
 		super.consumeInterfaceHeader();
 	}
 
-	protected void consumeInternalCompilationUnit() {
-		// InternalCompilationUnit ::= PackageDeclaration
-		// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports
-		// InternalCompilationUnit ::= ImportDeclarations ReduceImports
-	}
-	protected void consumeInternalCompilationUnitWithTypes() {
-		// InternalCompilationUnit ::= PackageDeclaration ImportDeclarations ReduceImports TypeDeclarations
-		// InternalCompilationUnit ::= PackageDeclaration TypeDeclarations
-		// InternalCompilationUnit ::= TypeDeclarations
-		// InternalCompilationUnit ::= ImportDeclarations ReduceImports TypeDeclarations
-		// consume type declarations
-		int length;
-		if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-			this.compilationUnit.types = new TypeDeclaration[length];
-			this.astPtr -= length;
-			System.arraycopy(this.astStack, this.astPtr + 1, this.compilationUnit.types, 0, length);
-		}
-	}
 	/**
 	 * Insure that start position is always positive.
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#containsComment(int, int)
@@ -201,9 +180,28 @@ public class CommentRecorderParser extends Parser {
 		if (index < 0) return position; // no obsolete comment
 		pushOnCommentsStack(0, index); // store comment before flushing them
 
-		if (validCount > 0){ // move valid comment infos, overriding obsolete comment infos
-			System.arraycopy(this.scanner.commentStarts, index + 1, this.scanner.commentStarts, 0, validCount);
-			System.arraycopy(this.scanner.commentStops, index + 1, this.scanner.commentStops, 0, validCount);		
+		switch (validCount) {
+			case 0:
+				// do nothing
+				break;
+			// move valid comment infos, overriding obsolete comment infos
+			case 2:
+				this.scanner.commentStarts[0] = this.scanner.commentStarts[index+1];
+				this.scanner.commentStops[0] = this.scanner.commentStops[index+1];
+				this.scanner.commentTagStarts[0] = this.scanner.commentTagStarts[index+1];
+				this.scanner.commentStarts[1] = this.scanner.commentStarts[index+2];
+				this.scanner.commentStops[1] = this.scanner.commentStops[index+2];
+				this.scanner.commentTagStarts[1] = this.scanner.commentTagStarts[index+2];
+				break;
+			case 1:
+				this.scanner.commentStarts[0] = this.scanner.commentStarts[index+1];
+				this.scanner.commentStops[0] = this.scanner.commentStops[index+1];
+				this.scanner.commentTagStarts[0] = this.scanner.commentTagStarts[index+1];
+				break;
+			default:
+				System.arraycopy(this.scanner.commentStarts, index + 1, this.scanner.commentStarts, 0, validCount);
+				System.arraycopy(this.scanner.commentStops, index + 1, this.scanner.commentStops, 0, validCount);		
+				System.arraycopy(this.scanner.commentTagStarts, index + 1, this.scanner.commentTagStarts, 0, validCount);
 		}
 		this.scanner.commentPtr = validCount - 1;
 		return position;

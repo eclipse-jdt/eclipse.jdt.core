@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -153,11 +154,8 @@ protected void getHandleMemento(StringBuffer buff) {
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_METHOD;
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.IMethod#getKey()
- */
-public String getKey() {
-	return getKey(this);
+public String getKey(boolean forceOpen) throws JavaModelException {
+	return getKey(this, forceOpen);
 }
 /*
  * @see IMethod
@@ -326,10 +324,14 @@ public String readableName() {
 	buffer.append(")"); //$NON-NLS-1$
 	return buffer.toString();
 }
-/*
+public JavaElement resolved(Binding binding) {
+	SourceRefElement resolvedHandle = new ResolvedBinaryMethod(this.parent, this.name, this.parameterTypes, new String(binding.computeUniqueKey()));
+	resolvedHandle.occurrenceCount = this.occurrenceCount;
+	return resolvedHandle;
+}/*
  * @private Debugging purposes
  */
-protected void toStringInfo(int tab, StringBuffer buffer, Object info) {
+protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(tabString(tab));
 	if (info == null) {
 		toStringName(buffer);

@@ -420,17 +420,16 @@ public class EqualExpression extends BinaryExpression {
 		}
 	
 		// autoboxing support
-		LookupEnvironment env = scope.environment();
-		boolean use15specifics = env.options.sourceLevel >= JDK1_5;
+		boolean use15specifics = scope.compilerOptions().sourceLevel >= JDK1_5;
 		TypeBinding leftType = originalLeftType, rightType = originalRightType;
 		if (use15specifics) {
 			if (leftType != NullBinding && leftType.isBaseType()) {
 				if (!rightType.isBaseType()) {
-					rightType = env.computeBoxingType(rightType);
+					rightType = scope.environment().computeBoxingType(rightType);
 				}
 			} else {
 				if (rightType != NullBinding && rightType.isBaseType()) {
-					leftType = env.computeBoxingType(leftType);
+					leftType = scope.environment().computeBoxingType(leftType);
 				}
 			}
 		}

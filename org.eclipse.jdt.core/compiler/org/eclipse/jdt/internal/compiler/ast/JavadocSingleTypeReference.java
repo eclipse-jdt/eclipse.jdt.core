@@ -47,6 +47,9 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		visitor.endVisit(this, scope);
 	}
 
+	/*
+	 * We need to modify resolving behavior to handle package references
+	 */
 	TypeBinding internalResolveType(Scope scope) {
 		// handle the error here
 		this.constant = NotAConstant;
@@ -80,10 +83,6 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 		return internalResolveType(blockScope);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#resolveType(org.eclipse.jdt.internal.compiler.lookup.ClassScope)
-	 * We need to override to handle package references
-	 */
 	public TypeBinding resolveType(ClassScope classScope) {
 		return internalResolveType(classScope);
 	}

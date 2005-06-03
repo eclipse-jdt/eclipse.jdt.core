@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.core.IJavaProject;
@@ -26,11 +27,9 @@ import org.eclipse.jdt.core.IJavaProject;
  * are included.
  */
 public class JavaWorkspaceScope extends JavaSearchScope {
-	protected boolean needsInitialize;
-	
-public JavaWorkspaceScope() {
-	JavaModelManager.getJavaModelManager().rememberScope(this);
-}
+
+protected boolean needsInitialize;
+
 public boolean encloses(IJavaElement element) {
 	/*
 	if (this.needsInitialize) {
@@ -61,18 +60,23 @@ public boolean encloses(String resourcePathString) {
 }
 public IPath[] enclosingProjectsAndJars() {
 	if (this.needsInitialize) {
-		this.initialize();
+		this.initialize(5);
 	}
 	return super.enclosingProjectsAndJars();
 }
 public boolean equals(Object o) {
   return o instanceof JavaWorkspaceScope;
 }
+public AccessRuleSet getAccessRuleSet(String relativePath, String containerPath) {
+	if (this.pathRestrictions == null) 
+		return null;
+	return super.getAccessRuleSet(relativePath, containerPath);
+}
 public int hashCode() {
 	return JavaWorkspaceScope.class.hashCode();
 }
-public void initialize() {
-	super.initialize();
+public void initialize(int size) {
+	super.initialize(size);
 	try {
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 		for (int i = 0, length = projects.length; i < length; i++) {
@@ -103,10 +107,16 @@ public void processDelta(IJavaElementDelta delta) {
 					this.needsInitialize = true;
 					break;
 				case IJavaElementDelta.CHANGED:
-					children = delta.getAffectedChildren();
-					for (int i = 0, length = children.length; i < length; i++) {
-						IJavaElementDelta child = children[i];
-						this.processDelta(child);
+					int flags = delta.getFlags();
+					if ((flags & IJavaElementDelta.F_CLOSED) != 0
+							|| (flags & IJavaElementDelta.F_OPENED) != 0) {
+						this.needsInitialize = true;
+					} else {
+						children = delta.getAffectedChildren();
+						for (int i = 0, length = children.length; i < length; i++) {
+							IJavaElementDelta child = children[i];
+							this.processDelta(child);
+						}
 					}
 					break;
 			}

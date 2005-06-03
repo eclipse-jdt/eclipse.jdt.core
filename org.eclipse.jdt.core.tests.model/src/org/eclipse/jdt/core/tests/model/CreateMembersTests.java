@@ -28,8 +28,17 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 		super(name);
 	}
 
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+//		TESTS_PREFIX = "testCombineAccessRestrictions";
+//		TESTS_NAMES = new String[] {"test004"};
+//		TESTS_NUMBERS = new int[] { 5, 6 };
+//		TESTS_RANGE = new int[] { 21, 38 };
+	}
 	public static Test suite() {
-		return new Suite(CreateMembersTests.class);
+		return buildTestSuite(CreateMembersTests.class);
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
@@ -109,6 +118,82 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 				"	String bar();\n" + 
 				"\n" + 
 				"	String foo();\n" + 
+				"}";
+			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
+		} finally {
+			JavaCore.setOptions(oldOptions);
+		}
+	}
+	
+	/*
+	 * Ensures that the handle for a created method that has varargs type arguments is correct.
+	 * (regression test for bug 93487 IType#findMethods fails on vararg methods)
+	 */
+	public void test004() throws JavaModelException {
+		Hashtable oldOptions = JavaCore.getOptions();
+		try {
+			Hashtable options = new Hashtable(oldOptions);
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			JavaCore.setOptions(options);
+			IType type = getCompilationUnit("/CreateMembers/src/A.java").getType("A");
+			IMethod method = type.createMethod(
+				"void bar(String... args) {}",
+				null, // no siblings
+				false, // don't force
+				null // no progress monitor
+			);
+			assertTrue("Method should exist", method.exists());
+		} finally {
+			JavaCore.setOptions(oldOptions);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95580
+	public void test005() throws JavaModelException {
+		Hashtable oldOptions = JavaCore.getOptions();
+		try {
+			Hashtable options = new Hashtable(oldOptions);
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			JavaCore.setOptions(options);
+			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E2.java");
+			assertNotNull("No compilation unit", compilationUnit);
+			IType[] types = compilationUnit.getTypes();
+			assertNotNull("No types", types);
+			assertEquals("Wrong size", 1, types.length);
+			IType type = types[0];
+			type.createField("int i;", null, true, null);
+			String expectedSource = 
+				"public enum E2 {\n" + 
+				"	A, B, C;\n\n" +
+				"	int i;\n" + 
+				"}";
+			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
+		} finally {
+			JavaCore.setOptions(oldOptions);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95580
+	public void test006() throws JavaModelException {
+		Hashtable oldOptions = JavaCore.getOptions();
+		try {
+			Hashtable options = new Hashtable(oldOptions);
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			JavaCore.setOptions(options);
+			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "E3.java");
+			assertNotNull("No compilation unit", compilationUnit);
+			IType[] types = compilationUnit.getTypes();
+			assertNotNull("No types", types);
+			assertEquals("Wrong size", 1, types.length);
+			IType type = types[0];
+			type.createType("class DD {}", null, true, null);
+			String expectedSource = 
+				"public enum E3 {\n" + 
+				"	A, B, C;\n\n" +
+				"	class DD {}\n" + 
 				"}";
 			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 		} finally {

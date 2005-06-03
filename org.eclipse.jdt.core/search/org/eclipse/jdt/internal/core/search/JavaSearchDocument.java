@@ -31,10 +31,6 @@ public class JavaSearchDocument extends SearchDocument {
 	public JavaSearchDocument(String documentPath, SearchParticipant participant) {
 		super(documentPath, participant);
 	}
-	public JavaSearchDocument(IFile file, SearchParticipant participant) {
-		super(file.getFullPath().toString(), participant);
-		this.file = file;
-	}
 	public JavaSearchDocument(java.util.zip.ZipEntry zipEntry, IPath zipFilePath, byte[] contents, SearchParticipant participant) {
 		super(zipFilePath + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + zipEntry.getName(), participant);
 		this.byteContents = contents;

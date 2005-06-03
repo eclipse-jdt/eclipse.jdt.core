@@ -459,13 +459,17 @@ public char[][] getInterfaceNames() {
  * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
  */
 public int getKind() {
-	int modifiers = getModifiers();
-	if ((modifiers & AccInterface) != 0) {
-		if ((modifiers & AccAnnotation) != 0) return IGenericType.ANNOTATION_TYPE_DECL;
-		return IGenericType.INTERFACE_DECL;
-	}
-	if ((modifiers & AccEnum) != 0)	return IGenericType.ENUM_DECL;
-	return IGenericType.CLASS_DECL;
+	
+		switch (getModifiers() & (AccInterface|AccAnnotation|AccEnum)) {
+			case AccInterface :
+				return IGenericType.INTERFACE_DECL;
+			case AccInterface|AccAnnotation :
+				return IGenericType.ANNOTATION_TYPE_DECL;
+			case AccEnum :
+				return IGenericType.ENUM_DECL;
+			default : 
+				return IGenericType.CLASS_DECL;
+		}
 }
 /**
  * Answer the receiver's nested types or null if the array is empty.
@@ -680,6 +684,9 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 		if ((this.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated|TagBits.AnnotationRetentionMASK) != (newClassFile.getTagBits() & TagBits.AnnotationTargetMASK|TagBits.AnnotationDeprecated|TagBits.AnnotationRetentionMASK))
 			return true;
 		
+		// generic signature
+		if (!CharOperation.equals(this.getGenericSignature(), newClassFile.getGenericSignature()))
+			return true;
 		// superclass
 		if (!CharOperation.equals(this.getSuperclassName(), newClassFile.getSuperclassName()))
 			return true;
@@ -774,6 +781,9 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 	}
 }
 private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo otherFieldInfo) {
+	// generic signature
+	if (!CharOperation.equals(currentFieldInfo.getGenericSignature(), otherFieldInfo.getGenericSignature()))
+		return true;
 	if (currentFieldInfo.getModifiers() != otherFieldInfo.getModifiers())
 		return true;
 	if ((currentFieldInfo.getTagBits() & TagBits.AnnotationDeprecated) != (otherFieldInfo.getTagBits() & TagBits.AnnotationDeprecated))
@@ -815,6 +825,9 @@ private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo 
 	return false;
 }
 private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodInfo otherMethodInfo) {
+	// generic signature
+	if (!CharOperation.equals(currentMethodInfo.getGenericSignature(), otherMethodInfo.getGenericSignature()))
+		return true;
 	if (currentMethodInfo.getModifiers() != otherMethodInfo.getModifiers())
 		return true;
 	if ((currentMethodInfo.getTagBits() & TagBits.AnnotationDeprecated) != (otherMethodInfo.getTagBits() & TagBits.AnnotationDeprecated))

@@ -26,6 +26,11 @@ public class BatchOperation extends JavaModelOperation {
 		this.runnable = runnable;
 	}
 
+	protected boolean canModifyRoots() {
+		// anything in the workspace runnable can modify the roots
+		return true;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.JavaModelOperation#executeOperation()
 	 */

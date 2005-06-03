@@ -50,7 +50,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testSearch1" };
+//		TESTS_NAMES = new String[] { "testMoveWorkingCopy" };
 		// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -941,6 +941,9 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			createFolder("/P/p2");
 			workingCopy = getCompilationUnit("P/p1/Y.java");
 			workingCopy.becomeWorkingCopy(null, null);
+			
+			// ensure the package is open
+			getPackage("/P/p1").open(null);
 			
 			workingCopy.move(getPackage("/P/p2"), null, null, false, null);
 			assertElementDescendants(

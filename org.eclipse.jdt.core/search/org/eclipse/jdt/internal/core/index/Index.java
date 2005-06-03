@@ -12,12 +12,10 @@ package org.eclipse.jdt.internal.core.index;
 
 import java.io.*;
 
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.core.util.*;
-import org.eclipse.jdt.internal.core.search.indexing.InternalSearchDocument;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 
 /**
@@ -30,7 +28,7 @@ import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 
 public class Index {
 
-public String printableName;
+public String containerPath;
 public ReadWriteMonitor monitor;
 
 protected DiskIndex diskIndex;
@@ -45,36 +43,6 @@ static final int MATCH_RULE_INDEX_MASK = SearchPattern.R_EXACT_MATCH +
 	SearchPattern.R_REGEXP_MATCH +
 	SearchPattern.R_CASE_SENSITIVE;
 
-/**
- * Returns the path represented by pathString converted back to a path relative to the local file system.
- *
- * @param pathString the path to convert:
- * <ul>
- *		<li>an absolute IPath (relative to the workspace root) if the path represents a resource in the 
- *			workspace
- *		<li>a relative IPath (relative to the workspace root) followed by JAR_FILE_ENTRY_SEPARATOR
- *			followed by an absolute path (relative to the jar) if the path represents a .class file in
- *			an internal jar
- *		<li>an absolute path (relative to the file system) followed by JAR_FILE_ENTRY_SEPARATOR
- *			followed by an absolute path (relative to the jar) if the path represents a .class file in
- *			an external jar
- * </ul>
- * @return the converted path:
- * <ul>
- *		<li>the original pathString if the path represents a resource in the workspace
- *		<li>an absolute path (relative to the file system) followed by JAR_FILE_ENTRY_SEPARATOR
- *			followed by an absolute path (relative to the jar) if the path represents a .class file in
- *			an external or internal jar
- * </ul>
- */
-public static String convertPath(String pathString) {
-	int index = pathString.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
-	if (index == -1) return pathString;
-	
-	Path jarPath = new Path(pathString.substring(0, index));
-	return (jarPath.isAbsolute() ? jarPath.toOSString() : jarPath.makeAbsolute().toString())
-		+ pathString.substring(index, pathString.length());
-}
 public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	if (pattern == null) return true;
 
@@ -99,16 +67,25 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 }
 
 
-public Index(String fileName, String printableName, boolean reuseExistingFile) throws IOException {
-	this.printableName = printableName;
+public Index(String fileName, String containerPath, boolean reuseExistingFile) throws IOException {
+	this.containerPath = containerPath;
 	this.monitor = new ReadWriteMonitor();
 
 	this.memoryIndex = new MemoryIndex();
 	this.diskIndex = new DiskIndex(fileName);
 	this.diskIndex.initialize(reuseExistingFile);
 }
-public void addIndexEntry(char[] category, char[] key, InternalSearchDocument document) {
-	this.memoryIndex.addIndexEntry(category, key, document);
+public void addIndexEntry(char[] category, char[] key, String containerRelativePath) {
+	this.memoryIndex.addIndexEntry(category, key, containerRelativePath);
+}
+public String containerRelativePath(String documentPath) {
+	int index = documentPath.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
+	if (index == -1) {
+		index = this.containerPath.length();
+		if (documentPath.length() <= index)
+			throw new IllegalArgumentException("Document path " + documentPath + " must be relative to " + this.containerPath); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+	return documentPath.substring(index + 1);
 }
 public File getIndexFile() {
 	if (this.diskIndex == null) return null;
@@ -136,11 +113,11 @@ public EntryResult[] query(char[][] categories, char[] key, int matchRule) throw
 	int rule = matchRule & MATCH_RULE_INDEX_MASK;
 	if (this.memoryIndex.hasChanged()) {
 		results = this.diskIndex.addQueryResults(categories, key, rule, this.memoryIndex);
-		this.memoryIndex.addQueryResults(categories, key, rule, results);
+		results = this.memoryIndex.addQueryResults(categories, key, rule, results);
 	} else {
 		results = this.diskIndex.addQueryResults(categories, key, rule, null);
 	}
-	if (results.elementSize == 0) return null;
+	if (results == null) return null;
 
 	EntryResult[] entryResults = new EntryResult[results.elementSize];
 	int count = 0;
@@ -173,8 +150,8 @@ public String[] queryDocumentNames(String substring) throws IOException {
 			documentNames[count++] = (String) paths[i];
 	return documentNames;
 }
-public void remove(String documentName) {
-	this.memoryIndex.remove(documentName);
+public void remove(String containerRelativePath) {
+	this.memoryIndex.remove(containerRelativePath);
 }
 public void save() throws IOException {
 	// must own the write lock of the monitor
@@ -195,7 +172,6 @@ public void stopQuery() {
 		this.diskIndex.stopQuery();
 }
 public String toString() {
-	if (this.printableName != null) return this.printableName;
-	return super.toString();
+	return "Index for " + this.containerPath; //$NON-NLS-1$
 }
 }

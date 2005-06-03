@@ -15,7 +15,7 @@ import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * This operation renames elements.
@@ -42,7 +42,7 @@ public RenameElementsOperation(IJavaElement[] elements, IJavaElement[] destinati
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.renameElementProgress"); //$NON-NLS-1$
+	return Messages.operation_renameElementProgress; 
 }
 /**
  * @see CopyElementsOperation#isRename()

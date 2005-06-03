@@ -11,17 +11,15 @@
 package org.eclipse.jdt.internal.core.util;
 
 import java.io.*;
-import java.text.MessageFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.content.IContentType;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -72,10 +70,6 @@ public class Util {
 	}
 	private static final String ARGUMENTS_DELIMITER = "#"; //$NON-NLS-1$
 
-	/* Bundle containing messages */
-	protected static ResourceBundle bundle;
-	private final static String bundleName = "org.eclipse.jdt.internal.core.util.messages"; //$NON-NLS-1$
-
 	private static final String EMPTY_ARGUMENT = "   "; //$NON-NLS-1$
 	
 	private static char[][] JAVA_LIKE_EXTENSIONS;
@@ -90,10 +84,6 @@ public class Util {
 	private static final char[] SHORT = "short".toCharArray(); //$NON-NLS-1$
 	private static final char[] VOID = "void".toCharArray(); //$NON-NLS-1$
 	private static final char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$
-
-	static {
-		relocalize();
-	}	
 
 	private Util() {
 		// cannot be instantiated
@@ -146,47 +136,6 @@ public class Util {
 		System.arraycopy(first, 0, result, 0, length);
 		result[length] = second;
 		return result;
-	}
-
-	/**
-	 * Lookup the message with the given ID in this catalog 
-	 */
-	public static String bind(String id) {
-		return bind(id, (String[])null);
-	}
-	
-	/**
-	 * Lookup the message with the given ID in this catalog and bind its
-	 * substitution locations with the given string.
-	 */
-	public static String bind(String id, String binding) {
-		return bind(id, new String[] {binding});
-	}
-	
-	/**
-	 * Lookup the message with the given ID in this catalog and bind its
-	 * substitution locations with the given strings.
-	 */
-	public static String bind(String id, String binding1, String binding2) {
-		return bind(id, new String[] {binding1, binding2});
-	}
-
-	/**
-	 * Lookup the message with the given ID in this catalog and bind its
-	 * substitution locations with the given string values.
-	 */
-	public static String bind(String id, String[] arguments) {
-		if (id == null)
-			return "No message available"; //$NON-NLS-1$
-		String message = null;
-		try {
-			message = bundle.getString(id);
-		} catch (MissingResourceException e) {
-			// If we got an exception looking for the message, fail gracefully by just returning
-			// the id we were looking for.  In most cases this is semi-informative so is not too bad.
-			return "Missing message: " + id + " in: " + bundleName; //$NON-NLS-2$ //$NON-NLS-1$
-		}
-		return MessageFormat.format(message, arguments);
 	}
 
 	/**
@@ -891,6 +840,41 @@ public class Util {
 	}
 	
 	/**
+	 * Returns the line separator found in the given text.
+	 * If it is null, or not found return the line delimitor for the given project.
+	 * If the project is null, returns the line separator for the workspace.
+	 * If still null, return the system line separator.
+	 */
+	public static String getLineSeparator(String text, IJavaProject project) {
+		String lineSeparator = null;
+		
+		// line delimiter in given text
+		if (text != null) {
+			lineSeparator = findLineSeparator(text.toCharArray());
+			if (lineSeparator != null)
+				return lineSeparator;
+		}
+		
+		// line delimiter in project preference
+		IScopeContext[] scopeContext;
+		if (project != null) {
+			scopeContext= new IScopeContext[] { new ProjectScope(project.getProject()) };
+			lineSeparator= Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
+			if (lineSeparator != null)
+				return lineSeparator;
+		}
+		
+		// line delimiter in workspace preference
+		scopeContext= new IScopeContext[] { new InstanceScope() };
+		lineSeparator = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
+		if (lineSeparator != null)
+			return lineSeparator;
+		
+		// system line delimiter
+		return org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
+	}
+	
+	/**
 	 * Returns the line separator used by the given buffer.
 	 * Uses the given text if none found.
 	 *
@@ -904,7 +888,7 @@ public class Util {
 			lineSeparator = findLineSeparator(text);
 			if (lineSeparator == null) {
 				// default to system line separator
-				return org.eclipse.jdt.internal.compiler.util.Util.LINE_SEPARATOR;
+				return getLineSeparator((String) null, (IJavaProject) null);
 			}
 		}
 		return lineSeparator;
@@ -1064,6 +1048,18 @@ public class Util {
 		StringBuffer buffer = new StringBuffer();
 		getFullyQualifiedName(type, buffer);
 		return Signature.createTypeSignature(buffer.toString(), false/*not resolved in source*/);
+	}
+	
+	/*
+	 * Returns the declaring type signature of the element represented by the given binding key.
+	 * Returns the signature of the element if it is a type.
+	 * 
+	 * @return the declaring type signature
+	 */
+	public static String getDeclaringTypeSignature(String key) {
+		KeyToSignature keyToSignature = new KeyToSignature(key, KeyToSignature.DECLARING_TYPE);
+		keyToSignature.parse();
+		return keyToSignature.signature.toString();
 	}
 	
 	/*
@@ -1739,16 +1735,47 @@ public class Util {
 	}
 
 	/**
-	 * Creates a NLS catalog for the given locale.
+	 * Returns the toString() of the given full path minus the first given number of segments.
+	 * The returned string is always a relative path (it has no leading slash)
 	 */
-	public static void relocalize() {
-		try {
-			bundle = ResourceBundle.getBundle(bundleName, Locale.getDefault());
-		} catch(MissingResourceException e) {
-			System.out.println("Missing resource : " + bundleName.replace('.', '/') + ".properties for locale " + Locale.getDefault()); //$NON-NLS-1$//$NON-NLS-2$
-			throw e;
+	public static String relativePath(IPath fullPath, int skipSegmentCount) {
+		boolean hasTrailingSeparator = fullPath.hasTrailingSeparator();
+		String[] segments = fullPath.segments();
+		
+		// compute length
+		int length = 0;
+		int max = segments.length;
+		if (max > skipSegmentCount) {
+			for (int i1 = skipSegmentCount; i1 < max; i1++) {
+				length += segments[i1].length();
+			}
+			//add the separator lengths
+			length += max - skipSegmentCount - 1;
 		}
+		if (hasTrailingSeparator)
+			length++;
+
+		char[] result = new char[length];
+		int offset = 0;
+		int len = segments.length - 1;
+		if (len >= skipSegmentCount) {
+			//append all but the last segment, with separators
+			for (int i = skipSegmentCount; i < len; i++) {
+				int size = segments[i].length();
+				segments[i].getChars(0, size, result, offset);
+				offset += size;
+				result[offset++] = '/';
+			}
+			//append the last segment
+			int size = segments[len].length();
+			segments[len].getChars(0, size, result, offset);
+			offset += size;
+		}
+		if (hasTrailingSeparator)
+			result[offset++] = '/';
+		return new String(result);
 	}
+	
 	/**
 	 * Return a new array which is the split of the given string using the given divider. The given end 
 	 * is exclusive and the given start is inclusive.
@@ -2316,6 +2343,8 @@ public class Util {
 			case Signature.C_SHORT :
 			case Signature.C_VOID :
 				return scanBaseTypeSignature(string, start);
+			case Signature.C_CAPTURE :
+				return scanCaptureTypeSignature(string, start);
 			case Signature.C_EXTENDS:
 			case Signature.C_SUPER:
 			case Signature.C_STAR:
@@ -2379,6 +2408,31 @@ public class Util {
 		}
 		return scanTypeSignature(string, start + 1);
 	}
+	
+	/**
+	 * Scans the given string for a capture of a wildcard type signature starting at the given
+	 * index and returns the index of the last character.
+	 * <pre>
+	 * CaptureTypeSignature:
+	 *     <b>!</b> TypeBoundSignature
+	 * </pre>
+	 * 
+	 * @param string the signature string
+	 * @param start the 0-based character index of the first character
+	 * @return the 0-based character index of the last character
+	 * @exception IllegalArgumentException if this is not a capture type signature
+	 */
+	public static int scanCaptureTypeSignature(char[] string, int start) {
+		// need a minimum 2 char
+		if (start >= string.length - 1) {
+			throw new IllegalArgumentException();
+		}
+		char c = string[start];
+		if (c != Signature.C_CAPTURE) { //$NON-NLS-1$
+			throw new IllegalArgumentException();
+		}
+		return scanTypeBoundSignature(string, start + 1);
+	}	
 
 	/**
 	 * Scans the given string for a type variable signature starting at the given
@@ -2508,30 +2562,37 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c == Signature.C_STAR) { //$NON-NLS-1$
-			return start;
-		}
-	
-		// need a minimum 4 chars "+Lx;"
-		if (start >= string.length - 3) { 
-			throw new IllegalArgumentException();
-		}
-		// must start in "+/-"
-		if (c != Signature.C_SUPER && c != Signature.C_EXTENDS) {
-			throw new IllegalArgumentException();
-		}
-		c = string[start + 1];
 		switch (c) {
+			case Signature.C_STAR :
+				return start;
 			case Signature.C_SUPER :
 			case Signature.C_EXTENDS :
-				return scanTypeBoundSignature(string, start + 1);
+				// need a minimum 4 chars "+Lx;"
+				if (start >= string.length - 3) {
+					throw new IllegalArgumentException();
+				}
+				break;
+			default :
+				// must start in "+/-"
+					throw new IllegalArgumentException();
+				
+		}
+		c = string[++start];
+		switch (c) {
+			case Signature.C_CAPTURE :
+				return scanCaptureTypeSignature(string, start);
+			case Signature.C_SUPER :
+			case Signature.C_EXTENDS :
+				return scanTypeBoundSignature(string, start);
 			case Signature.C_RESOLVED :
 			case Signature.C_UNRESOLVED :
-				return scanClassTypeSignature(string, start + 1);
+				return scanClassTypeSignature(string, start);
 			case Signature.C_TYPE_VARIABLE :
-				return scanTypeVariableSignature(string, start + 1);
+				return scanTypeVariableSignature(string, start);
 			case Signature.C_ARRAY :
-				return scanArrayTypeSignature(string, start + 1);
+				return scanArrayTypeSignature(string, start);
+			case Signature.C_STAR:
+				return start;
 			default:
 				throw new IllegalArgumentException();
 		}
@@ -2601,13 +2662,14 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c == Signature.C_STAR) {
-			return start;
-		}
-		if (c == Signature.C_EXTENDS || c == Signature.C_SUPER) {
-			return scanTypeBoundSignature(string, start);
-		} else {
-			return scanTypeSignature(string, start);
+		switch (c) {
+			case Signature.C_STAR :
+				return start;
+			case Signature.C_EXTENDS :
+			case Signature.C_SUPER :
+				return scanTypeBoundSignature(string, start);
+			default :
+				return scanTypeSignature(string, start);
 		}
 	}	
 
@@ -2646,7 +2708,6 @@ public class Util {
 		}
 		return typeArguments;
 	}
-
 	/**
 	 * Split signatures of all levels  from a type unique key.
 	 * 
@@ -2664,7 +2725,8 @@ public class Util {
 	 */
 	public final static char[][] splitTypeLevelsSignature(String typeSignature) {
 		// In case of IJavaElement signature, replace '$' by '.'
-		char[] source = typeSignature.replace('$','.').toCharArray();
+		char[] source = Signature.removeCapture(typeSignature.toCharArray());
+		CharOperation.replace(source, '$', '.');
 
 		// Init counters and arrays
 		char[][] signatures = new char[10][];

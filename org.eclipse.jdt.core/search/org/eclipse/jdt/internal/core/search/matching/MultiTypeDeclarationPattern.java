@@ -59,7 +59,7 @@ public MultiTypeDeclarationPattern(
 	}
 	this.typeSuffix = typeSuffix;
 
-	((InternalSearchPattern)this).mustResolve = false; // only used to report type declarations, not their positions
+	((InternalSearchPattern)this).mustResolve = typeSuffix != TYPE_SUFFIX; // only used to report type declarations, not their positions
 }
 MultiTypeDeclarationPattern(int matchRule) {
 	super(TYPE_DECL_PATTERN, matchRule);
@@ -74,10 +74,56 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 	QualifiedTypeDeclarationPattern pattern = (QualifiedTypeDeclarationPattern) decodedPattern;
 	switch(this.typeSuffix) {
 		case CLASS_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case INTERFACE_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case INTERFACE_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case ENUM_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case ENUM_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 		case ANNOTATION_TYPE_SUFFIX :
 			if (this.typeSuffix != pattern.typeSuffix) return false;
+			break;
+		case CLASS_AND_INTERFACE_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case INTERFACE_SUFFIX :
+				case CLASS_AND_INTERFACE_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
+		case CLASS_AND_ENUM_SUFFIX :
+			switch (pattern.typeSuffix) {
+				case CLASS_SUFFIX :
+				case ENUM_SUFFIX :
+				case CLASS_AND_ENUM_SUFFIX :
+					break;
+				default:
+					return false;
+			}
+			break;
 	}
 
 	if (this.qualifications != null) {
@@ -142,6 +188,12 @@ protected StringBuffer print(StringBuffer output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
 			output.append("MultiClassDeclarationPattern: "); //$NON-NLS-1$
+			break;
+		case CLASS_AND_INTERFACE_SUFFIX :
+			output.append("MultiClassAndInterfaceDeclarationPattern: "); //$NON-NLS-1$
+			break;
+		case CLASS_AND_ENUM_SUFFIX :
+			output.append("MultiClassAndEnumDeclarationPattern: "); //$NON-NLS-1$
 			break;
 		case INTERFACE_SUFFIX :
 			output.append("MultiInterfaceDeclarationPattern: "); //$NON-NLS-1$

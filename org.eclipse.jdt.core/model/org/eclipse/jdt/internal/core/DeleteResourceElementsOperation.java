@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
  * This operation deletes a collection of resources and all of their children.
@@ -97,7 +97,7 @@ private void deletePackageFragment(IPackageFragment frag)
  * @see MultiOperation
  */
 protected String getMainTaskName() {
-	return Util.bind("operation.deleteResourceProgress"); //$NON-NLS-1$
+	return Messages.operation_deleteResourceProgress; 
 }
 /**
  * @see MultiOperation This method delegate to <code>deleteResource</code> or

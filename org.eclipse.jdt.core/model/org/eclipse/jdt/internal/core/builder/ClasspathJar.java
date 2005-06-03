@@ -174,4 +174,9 @@ public String toString() {
 		return start;
 	return start + " with " + this.accessRuleSet; //$NON-NLS-1$
 }
+
+public String debugPathString() {
+	return this.zipFilename;
+}
+
 }

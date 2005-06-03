@@ -135,7 +135,7 @@ public void checkComment() {
 			int commentEnd = this.scanner.commentStops[lastComment] - 1; //stop is one over,
 			// do not report problem before last parsed comment while recovering code...
 			this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
-			if (this.javadocParser.checkDeprecation(this.scanner.commentStarts[lastComment], commentEnd)) {
+			if (this.javadocParser.checkDeprecation(lastComment)) {
 				checkAndSetModifiers(AccDeprecated);
 			}
 			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated
@@ -329,6 +329,20 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		requestor.acceptFieldReference(fr.token, fr.sourceStart);
 	}
 }
+protected void consumeMemberValuePair() {
+	super.consumeMemberValuePair();
+	MemberValuePair memberValuepair = (MemberValuePair) this.astStack[this.astPtr];
+	if (reportReferenceInfo) {
+		requestor.acceptMethodReference(memberValuepair.name, 0, memberValuepair.sourceStart);
+	}
+}
+protected void consumeMarkerAnnotation() {
+	super.consumeMarkerAnnotation();
+	Annotation annotation = (Annotation)expressionStack[expressionPtr];
+	if (reportReferenceInfo) { // accept annotation type reference
+		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
+	}
+}
 protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
 	int selectorSourceEnd = (int) selectorSourcePositions;
@@ -433,6 +447,20 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 			messageSend.selector, 
 			args == null ? 0 : args.length, 
 			(int)(messageSend.nameSourcePosition >>> 32));
+	}
+}
+protected void consumeNormalAnnotation() {
+	super.consumeNormalAnnotation();
+	Annotation annotation = (Annotation)expressionStack[expressionPtr];
+	if (reportReferenceInfo) { // accept annotation type reference
+		this.requestor.acceptTypeReference(annotation.type.getTypeName(), annotation.sourceStart, annotation.sourceEnd);
+	}
+}
+protected void consumeSingleMemberAnnotation() {
+	super.consumeSingleMemberAnnotation();
+	SingleMemberAnnotation member = (SingleMemberAnnotation) expressionStack[expressionPtr];
+	if (reportReferenceInfo) {
+		requestor.acceptMethodReference(TypeConstants.VALUE, 0, member.sourceStart);
 	}
 }
 protected void consumeSingleStaticImportDeclarationName() {

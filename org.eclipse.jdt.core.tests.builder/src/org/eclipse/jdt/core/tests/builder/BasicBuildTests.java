@@ -52,7 +52,7 @@ public class BasicBuildTests extends Tests {
 			
 		incrementalBuild(projectPath);
 	}
-	
+
 	/*
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23894
 	 */
@@ -80,6 +80,50 @@ public class BasicBuildTests extends Tests {
 
 		fullBuild(projectPath);
 		expectingOnlySpecificProblemFor(pathToA, new Problem("A", "todo nothing", pathToA)); //$NON-NLS-1$ //$NON-NLS-2$
+		
+		JavaCore.setOptions(options);
+	}
+
+	/*
+	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=92821
+	 */
+	public void testUnusedImport() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		Hashtable newOptions = JavaCore.getOptions();
+		newOptions.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.WARNING);
+		
+		JavaCore.setOptions(newOptions);
+		
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(root, "util", "MyException", //$NON-NLS-1$ //$NON-NLS-2$
+			"package util;\n" + 
+			"public class MyException extends Exception {\n" + 
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
+		); //$NON-NLS-1$
+
+		env.addClass(root, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n" + 
+			"import util.MyException;\n" + 
+			"public class Test {\n" + 
+			"	/**\n" + 
+			"	 * @throws MyException\n" + 
+			"	 */\n" + 
+			"	public void bar() {\n" + 
+			"	}\n" + 
+			"}"
+		);
+
+		fullBuild(projectPath);
+		expectingNoProblems();
 		
 		JavaCore.setOptions(options);
 	}

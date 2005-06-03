@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
@@ -27,9 +30,12 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 
+import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
@@ -41,6 +47,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	
 	public JavaSearchBugsTests(String name) {
 		super(name);
+		this.endChar = "";
 	}
 	public static Test suite() {
 		return buildTestSuite(JavaSearchBugsTests.class);
@@ -50,11 +57,19 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug88300";
-//		TESTS_NAMES = new String[] { "testBug89848" };
-//		TESTS_NUMBERS = new int[] { 83693 };
+//		TESTS_PREFIX =  "testBug75816";
+//		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
+//		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
+
+	class TestCollector extends JavaSearchResultCollector {
+		public List matches = new ArrayList();
+		public void acceptSearchMatch(SearchMatch match) throws CoreException {
+			super.acceptSearchMatch(match);
+			matches.add(match);
+		}
+	}
 
 	IJavaSearchScope getJavaSearchScopeBugs() {
 		return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
@@ -88,6 +103,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
+		this.resultCollector = new TestCollector();
+		resultCollector.showInsideDoc = false;
 		resultCollector.showAccuracy = true;
 	}
 
@@ -529,6 +546,21 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
+	 * Bug 75816: [search] correct results are missing in java search
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75816"
+	 */
+	public void testBug75816() throws CoreException {
+		IType type = getClassFile("JavaSearchBugs", "lib/test75816.jar", "", "Test.class").getType();
+		IType innerType = type.getType("Inner");
+		IMethod[] methods = innerType.getMethods();
+		assertEquals("Wrong number of method.", 1, methods.length);
+		search(methods[0], REFERENCES);
+		assertSearchResults(
+			"lib/test75816.jar Test.Inner Test.newInner(java.lang.Object) EXACT_MATCH"
+		);
+	}
+
+	/**
 	 * Bug 77093: [search] No references found to method with member type argument
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=77093"
 	 */
@@ -564,8 +596,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug77093field() throws CoreException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("X");
 		IField field = type.getField("z_arrays");
 		// Search for field declarations and references
@@ -579,8 +611,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug77093method() throws CoreException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("X");
 		IMethod method = type.getMethod("foo", new String[] {"[QZ;"});
 		search(method, ALL_OCCURRENCES);
@@ -719,8 +751,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug79378b() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IMethod[] methods = workingCopies[0].getType("Test").getMethods();
 		assertEquals("Invalid number of methods", 3, methods.length);
 		search(methods[1], REFERENCES);
@@ -748,8 +780,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug79803string() throws CoreException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		search("A", TYPE, REFERENCES);
 		assertSearchResults(
 			"src/b79803/A.java b79803.A.a [A] EXACT_MATCH\n" + 
@@ -781,20 +813,85 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			owner,
 			true);
 		IType type = workingCopies[0].getType("A");
-		search(type, REFERENCES, getJavaSearchScopeBugs("b79860", false));
+		search(type, REFERENCES);
 		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
 			"src/b79860/X.java b79860.X [A] EXACT_MATCH"
 		);
 	}
 	public void testBug79860string() throws CoreException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 2, workingCopies.length);
-		search("I?", TYPE, REFERENCES, getJavaSearchScopeBugs("b79860", false), resultCollector);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+		search("I?", TYPE, REFERENCES);
 		assertSearchResults(
 			"src/b79860/Y.java b79860.Y [I1] EXACT_MATCH\n" + 
 			"src/b79860/Y.java b79860.Y [I2] EXACT_MATCH\n" + 
 			"src/b79860/Y.java b79860.Y [I3] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 79990: [1.5][search] Search doesn't find type reference in type parameter bound
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=79990"
+	 */
+	public void testBug79990() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79990/Test.java",
+			"package b79990;\n" + 
+			"class Test<T> {\n" + 
+			"    public void first(Exception num) {}\n" + 
+			"    public void second(T t) {}\n" + 
+			"}\n" + 
+			"class Sub extends Test<Exception> {\n" + 
+			"    public void first(Exception num) {}\n" + 
+			"    public void second(Exception t) {}\n" + 
+			"}\n"
+		);
+		IMethod method = workingCopies[0].getType("Test").getMethods()[0];
+		search(method, DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b79990/Test.java void b79990.Test.first(Exception) [first] EXACT_MATCH\n" + 
+			"src/b79990/Test.java void b79990.Sub.first(Exception) [first] EXACT_MATCH"
+		);
+	}
+	public void testBug79990b() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		IMethod method = workingCopies[0].getType("Test").getMethods()[1];
+		search(method, DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b79990/Test.java void b79990.Test.second(T) [second] EXACT_MATCH\n" + 
+			"src/b79990/Test.java void b79990.Sub.second(Exception) [second] EXACT_MATCH"
+		);
+	}
+	public void testBug79990c() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		IMethod method = workingCopies[0].getType("Test").getMethods()[1];
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		assertSearchResults(
+			"src/b79990/Test.java void b79990.Test.second(T) [second] EXACT_MATCH\n" + 
+			"src/b79990/Test.java void b79990.Sub.second(Exception) [second] EXACT_MATCH"
+		);
+	}
+	public void testBug79990d() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b79990/Test.java",
+			"package b79990;\n" + 
+			"public class Test<T> {\n" + 
+			"	void methodT(T t) {}\n" + 
+			"}\n" + 
+			"class Sub<X> extends Test<X> {\n" + 
+			"	void methodT(X x) {} // overrides Super#methodT(T)\n" + 
+			"}\n"
+		);
+		IMethod method = workingCopies[0].getType("Test").getMethods()[0];
+		search(method, DECLARATIONS);
+		assertSearchResults(
+			"src/b79990/Test.java void b79990.Test.methodT(T) [methodT] EXACT_MATCH\n" + 
+			"src/b79990/Test.java void b79990.Sub.methodT(X) [methodT] EXACT_MATCH"
 		);
 	}
 
@@ -854,8 +951,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80194b() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Test");
 		IMethod method = type.getMethod("doSomething", new String[] { "QMap<QString;QObject;>;", "Z" } );
 		search(method, REFERENCES);
@@ -865,8 +962,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80194string1() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		search("doSomething(boolean)", METHOD, ALL_OCCURRENCES);
 		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
@@ -876,8 +973,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80194string2() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		search("doSomething(Map<String,Object>)", METHOD, ALL_OCCURRENCES);
 		discard = false; // keep working copies for next test (set before assertion as an error is raised...)
 		assertSearchResults(
@@ -887,8 +984,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80194string3() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		search("doSomething(Map<String,Object>,boolean)", METHOD, ALL_OCCURRENCES);
 		assertSearchResults(
 			"src/b80194/Test.java void b80194.Test.callDoSomething() [doSomething(map, true)] EXACT_MATCH\n" + 
@@ -965,8 +1062,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80264_MethodsIgnoreDeclaringType() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Methods");
 		IMethod[] methods = type.getMethods();
 		search(methods[0], DECLARATIONS|IGNORE_DECLARING_TYPE);
@@ -981,8 +1078,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80264_MethodsIgnoreReturnType() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Methods");
 		IMethod[] methods = type.getMethods();
 		search(methods[0], DECLARATIONS|IGNORE_RETURN_TYPE);
@@ -996,8 +1093,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80264_MethodsIgnoreBothTypes() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Methods");
 		IMethod[] methods = type.getMethods();
 		search(methods[0], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
@@ -1034,8 +1131,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80264_ClassesIgnoreDeclaringType() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Classes").getType("Inner");
 		search(type, DECLARATIONS|IGNORE_DECLARING_TYPE);
 		this.discard = false;
@@ -1046,8 +1143,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80264_ClassesIgnoreReturnType() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Classes").getType("Inner");
 		search(type, DECLARATIONS|IGNORE_RETURN_TYPE);
 		this.discard = false;
@@ -1056,8 +1153,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80264_ClassesIgnoreTypes() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Classes").getType("Inner");
 		search(type, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
 		assertSearchResults(
@@ -1095,8 +1192,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80264_FieldsIgnoreDeclaringType() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Fields");
 		IField[] fields = type.getFields();
 		search(fields[0], DECLARATIONS|IGNORE_DECLARING_TYPE);
@@ -1111,8 +1208,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80264_FieldsIgnoreReturnType() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Fields");
 		IField[] fields = type.getFields();
 		search(fields[0], DECLARATIONS|IGNORE_RETURN_TYPE);
@@ -1124,8 +1221,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug80264_FieldsIgnoreBothTypes() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Fields");
 		IField[] fields = type.getFields();
 		search(fields[0], DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
@@ -1183,7 +1280,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	 */
 	public void testBug80918() throws CoreException {
 		IType type = getClassFile("JavaSearchBugs", getExternalJCLPathString("1.5"), "java.lang", "Exception.class").getType();
-		search(type, REFERENCES, SearchPattern.R_CASE_SENSITIVE|SearchPattern.R_ERASURE_MATCH, getJavaSearchScopeBugs("b79803", false), this.resultCollector);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")}, IJavaSearchScope.SOURCES);
+		search(type, REFERENCES, SearchPattern.R_CASE_SENSITIVE|SearchPattern.R_ERASURE_MATCH, scope);
 		assertSearchResults(
 			"" // do not expect to find anything, just verify that no CCE happens
 		);
@@ -1222,8 +1320,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug81084string() throws CoreException, JavaModelException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		search("fList1", FIELD, REFERENCES);
 		search("fList2", FIELD, REFERENCES);
 		assertSearchResults(
@@ -1326,6 +1424,318 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
+	 * Bug 82208: [1.5][search][annot] Search for annotations misses references in default and values constructs
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=82208"
+	 */
+	public void testBug82208_TYPE() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b82208/Test.java",
+			"package b82208;\n" + 
+			"interface B82208_I {}\n" + 
+			"enum B82208_E {}\n" + 
+			"@interface B82208_A {}\n" + 
+			"public class B82208 {}\n"
+		);
+		search("B82208*", TYPE, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH\n" + 
+			"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" + 
+			"src/b82208/Test.java b82208.B82208_A [B82208_A] EXACT_MATCH\n" + 
+			"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_CLASS() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("B82208*", CLASS, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_INTERFACE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("B82208*", INTERFACE, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_ENUM() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("B82208*", ENUM, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_ANNOTATION_TYPE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("B82208*", ANNOTATION_TYPE, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_A [B82208_A] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_CLASS_AND_INTERFACE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("B82208*", CLASS_AND_INTERFACE, ALL_OCCURRENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_I [B82208_I] EXACT_MATCH\n" + 
+			"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
+		);
+	}
+	public void testBug82208_CLASS_AND_ENUMERATION() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("B82208*", CLASS_AND_ENUM, ALL_OCCURRENCES);
+		assertSearchResults(
+			"src/b82208/Test.java b82208.B82208_E [B82208_E] EXACT_MATCH\n" + 
+			"src/b82208/Test.java b82208.B82208 [B82208] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 82673: [1.5][search][annot] Search for annotations misses references in default and values constructs
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83012"
+	 */
+	public void testBug82673() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b82673/Test.java",
+			"package b82673;\n" + 
+			"public class Test {\n" + 
+			"    void test1() {\n" + 
+			"        class Dummy {};\n" + 
+			"        Dummy d = new Dummy();\n" + 
+			"		new X();\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    void test2() {\n" + 
+			"        class Dummy {};\n" + 
+			"        Dummy d = new Dummy();\n" + 
+			"		new Y();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class X {}\n" + 
+			"class Y {}\n"
+		);
+		IType type = selectType(workingCopies[0], "Test").getMethod("test1", new String[0]).getType("Dummy", 1);
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b82673/Test.java void b82673.Test.test1() [Dummy] EXACT_MATCH\n" + 
+			"src/b82673/Test.java void b82673.Test.test1() [Dummy] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 83012: [1.5][search][annot] Search for annotations misses references in default and values constructs
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83012"
+	 */
+	public void testBug83012() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83012/Test.java",
+			"package b83012;\n" + 
+			"@interface A {\n" + 
+			"    String value() default \"\";\n" + 
+			"}\n" + 
+			"@interface Main {\n" + 
+			"	A first() default @A(\"Void\");\n" + 
+			"	A second();\n" + 
+			"}\n" + 
+			"\n" + 
+			"@Main(first=@A(\"\"), second=@A(\"2\"))\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		IType type = selectType(workingCopies[0], "A");
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b83012/Test.java A b83012.Main.first() [A] EXACT_MATCH\n" + 
+			"src/b83012/Test.java A b83012.Main.first() [A] EXACT_MATCH\n" + 
+			"src/b83012/Test.java A b83012.Main.second() [A] EXACT_MATCH\n" + 
+			"src/b83012/Test.java b83012.Test [A] EXACT_MATCH\n" + 
+			"src/b83012/Test.java b83012.Test [A] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 83230: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83230"
+	 */
+	public void testBug83230_Explicit() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
+			"package b83230;\n" + 
+			"@interface Author {\n" + 
+			"	String[] authorName() default \"FREDERIC\";\n" + 
+			"	int[] age();\n" + 
+			"	int ageMin = 20;\n" + 
+			"	@interface Surname {}\n" + 
+			"	class Address {\n" + 
+			"		String city;\n" + 
+			"		public void foo(Object obj) {}\n" + 
+			"	}\n" + 
+			"}\n" +
+			"\n" +
+			"@Author(authorName=\"FREDERIC\", age=41)\n" + 
+			"public class Test {\n" + 
+			"	@Author(authorName={\"FREDERIC\", \"JEROME\"}, age={41, 35} )\n" + 
+			"	Test() {}\n" + 
+			"	@Author(authorName=\"PHILIPPE\", age=37)\n" + 
+			"	void foo() {\n" + 
+			"		@Author(authorName=\"FREDERIC\", age=41)\n" + 
+			"		final Object obj = new Object() {};\n" + 
+			"		@Author(authorName=\"FREDERIC\", age=41)\n" + 
+			"		class Local {\n" + 
+			"			@Author(authorName=\"FREDERIC\", age=41)\n" + 
+			"			String foo() {\n" + 
+			"				Author.Address address = new Author.Address();\n" + 
+			"				address.foo(obj);\n" + 
+			"				return address.city;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	@Author(authorName=\"DAVID\", age=28)\n" + 
+			"	int min = Author.ageMin;\n" + 
+			"}\n"
+		);
+		IMethod method = selectMethod(workingCopies[0], "authorName");
+		search(method, REFERENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b83230/Test.java b83230.Test [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test.min [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test() [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java void b83230.Test.foo():Local#1 [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java void b83230.Test.foo() [authorName] EXACT_MATCH\n" + 
+			"src/b83230/Test.java void b83230.Test.foo() [authorName] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Explicit01() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "authorName");
+		search(method, DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b83230/Test.java String[] b83230.Author.authorName() [authorName] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Explicit02() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		IType type = selectType(workingCopies[0], "Address");
+		search(type, REFERENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [Author.Address] EXACT_MATCH\n" + 
+			"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [Author.Address] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Explicit03() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		IMethod method = selectMethod(workingCopies[0], "foo");
+		search(method, REFERENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [foo(obj)] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Explicit04() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		IField field = selectField(workingCopies[0], "city");
+		search(field, REFERENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b83230/Test.java String void b83230.Test.foo():Local#1.foo() [city] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Explicit05() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		IField field = selectField(workingCopies[0], "ageMin");
+		search(field, REFERENCES);
+		assertSearchResults(
+			"src/b83230/Test.java b83230.Test.min [ageMin] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Implicit01() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
+			"package b83230;\n" + 
+			"@interface Annot {\n" + 
+			"	int value();\n" +
+			"}\n" +
+			"@Annot(41)\n" + 
+			"public class Test {\n" + 
+			"	@Annot(10)\n" + 
+			"	public void foo() {}\n" + 
+			"	@Annot(21)\n" + 
+			"	int bar;\n" + 
+			"}\n"
+		);
+		IType type = selectType(workingCopies[0], "Annot");
+		IMethod method = type.getMethod("value", new String[0]);
+		search(method, REFERENCES);
+		assertSearchResults(
+			"src/b83230/Test.java b83230.Test [41] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test.bar [21] EXACT_MATCH\n" + 
+			"src/b83230/Test.java void b83230.Test.foo() [10] EXACT_MATCH"
+		);
+	}
+	public void testBug83230_Implicit02() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83230/Test.java",
+			"package b83230;\n" + 
+			"@interface A {\n" + 
+			"    String value() default \"\";\n" + 
+			"}\n" + 
+			"@interface Main {\n" + 
+			"	A first() default @A(\"Void\");\n" + 
+			"	A second();\n" + 
+			"}\n" + 
+			"\n" + 
+			"@Main(first=@A(\"\"), second=@A(\"2\"))\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		IType type = selectType(workingCopies[0], "A");
+		IMethod method = type.getMethod("value", new String[0]);
+		search(method, REFERENCES);
+		assertSearchResults(
+			"src/b83230/Test.java A b83230.Main.first() [\"Void\"] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test [\"\"] EXACT_MATCH\n" + 
+			"src/b83230/Test.java b83230.Test [\"2\"] EXACT_MATCH"
+		);
+	}
+
+	/**
 	 * Bug 83304: [search] correct results are missing in java search
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83304"
 	 */
@@ -1383,8 +1793,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug83304_TypeGenericElementPattern() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g1.t.s.def", "Generic.class").getType();
 		search(type, REFERENCES, ERASURE_RULE);
 		discard = false; // use working copy for next test
@@ -1401,8 +1811,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug83304_TypeStringPattern() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		search("Generic<? super Exception>", TYPE, REFERENCES, ERASURE_RULE);
 		assertSearchResults(
 			"src/b83304/Types.java [Generic] EQUIVALENT_RAW_MATCH\n" + 
@@ -1442,8 +1852,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug83304_MethodGenericElementPattern() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g5.m.def", "Single.class").getType();
 		IMethod method = type.getMethod("generic", new String[] { "TU;" });
 		search(method, REFERENCES, ERASURE_RULE);
@@ -1456,8 +1866,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug83304_MethodStringPattern() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		search("<Exception>generic", METHOD, REFERENCES, ERASURE_RULE);
 		assertSearchResults(
 			"src/b83304/Methods.java void b83304.Methods.test() [generic(exc)] ERASURE_MATCH\n" + 
@@ -1491,8 +1901,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug83304_ConstructorParameterizedElementPattern() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = getClassFile("JavaSearchBugs", "lib/JavaSearch15.jar", "g5.c.def", "Single.class").getType();
 		IMethod method = type.getMethod("Single", new String[] { "TT;", "TU;" });
 		search(method, REFERENCES, ERASURE_RULE);
@@ -1505,14 +1915,82 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug83304_ConstructorStringPattern() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		search("<Exception>Single", CONSTRUCTOR, REFERENCES, ERASURE_RULE);
 		assertSearchResults(
 			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Throwable>Single<String>(\"\", exc)] ERASURE_MATCH\n" + 
 			"src/b83304/Constructors.java void b83304.Constructors.test() [new <Exception>Single<String>(\"\", exc)] EXACT_MATCH\n" + 
 			"src/b83304/Constructors.java void b83304.Constructors.test() [new <String>Single<String>(\"\", \"\")] ERASURE_MATCH\n" + 
-			"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.returnParamType() ERASURE_MATCH"
+			"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.returnParamType() ERASURE_MATCH\n" + 
+			"lib/JavaSearch15.jar g5.m.def.Single<T> g5.m.def.Single.complete(U, g5.m.def.Single<T>) ERASURE_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 83804: [1.5][javadoc] Missing Javadoc node for package declaration
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
+	 */
+	public void testBug83804_Type() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83804/package-info.java",
+			"/**\n" + 
+			" * Valid javadoc.\n" + 
+			" * @see Test\n" + 
+			" * @see Unknown\n" + 
+			" * @see Test#foo()\n" + 
+			" * @see Test#unknown()\n" + 
+			" * @see Test#field\n" + 
+			" * @see Test#unknown\n" + 
+			" * @param unexpected\n" + 
+			" * @throws unexpected\n" + 
+			" * @return unexpected \n" + 
+			" */\n" + 
+			"package b83804;\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b83804/Test.java",
+			"/**\n" + 
+			" * Invalid javadoc\n" + 
+			" */\n" + 
+			"package b83804;\n" + 
+			"public class Test {\n" + 
+			"	public int field;\n" + 
+			"	public void foo() {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[1].getType("Test");
+		this.discard = false;
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC"
+		);
+	}
+	public void testBug83804_Method() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IMethod[] methods = workingCopies[1].getType("Test").getMethods();
+		assertEquals("Invalid number of methods", 1, methods.length);
+		this.discard = false;
+		search(methods[0], REFERENCES);
+		assertSearchResults(
+			"src/b83804/package-info.java b83804.package-info [foo()] EXACT_MATCH INSIDE_JAVADOC"
+		);
+	}
+	public void testBug83804_Field() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		assertNotNull("Problem in tests processing", workingCopies);
+		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		IField[] fields = workingCopies[1].getType("Test").getFields();
+		assertEquals("Invalid number of fields", 1, fields.length);
+		search(fields[0], REFERENCES);
+		assertSearchResults(
+			"src/b83804/package-info.java b83804.package-info [field] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
 
@@ -1551,8 +2029,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug83388b() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 1, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IPackageDeclaration packageDeclaration = workingCopies[0].getPackageDeclaration("pack");
 		assertNotNull("Cannot find \"pack\" import declaration for "+workingCopies[0].getElementName(), packageDeclaration);
 		SearchPattern pattern = SearchPattern.createPattern(
@@ -1571,6 +2049,63 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 		assertSearchResults(
 			"src/b83388/R.java b83388 [No source] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 83693: [search][javadoc] References to methods/constructors: range does not include parameter lists
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83693"
+	 */
+	public void testBug83693() throws CoreException {
+		resultCollector.showRule = true;
+		resultCollector.showInsideDoc = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83693/A.java",
+			"package b83693;\n" + 
+			"import static b83693.A.m;\n" + 
+			"/**\n" + 
+			" * @see A#m(int)\n" + 
+			" */\n" + 
+			"class A {\n" + 
+			"    static void m(int i) {\n" + 
+			"        b83693.A.m(i);\n" + 
+			"    }\n" + 
+			"}"
+		);
+		IMethod[] methods = workingCopies[0].getType("A").getMethods();
+		assertEquals("Invalid number of methods", 1, methods.length);
+		search(methods[0], REFERENCES);
+		assertSearchResults(
+			"src/b83693/A.java [b83693.A.m] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+			"src/b83693/A.java b83693.A [m(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83693/A.java void b83693.A.m(int) [m(i)] EXACT_MATCH OUTSIDE_JAVADOC"
+		);
+	}
+
+	/**
+	 * Bug 83716: [search] refs to 2-arg constructor on Action found unexpected matches
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83716"
+	 * 
+	 * Note that this test does verify that bug is really fixed, but only that it has no impact
+	 * on existing behavior. It was not really possible to put a test in this suite to verify that
+	 * bug is effectively fixed as it appears only to potential match found in plugin dependencies...
+	 */
+	public void testBug83716() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83716/X.java",
+			"package b83716;\n" + 
+			"public class X {\n" + 
+			"	X() {}\n" + 
+			"	X(int x) {}\n" + 
+			"}\n" + 
+			"class Y extends X {\n" + 
+			"	Y(int y) {\n" + 
+			"	}\n" + 
+			"}"
+		);
+		search("X", CONSTRUCTOR, REFERENCES);
+		assertSearchResults(
+			"src/b83716/X.java b83716.Y(int) [Y] EXACT_MATCH"
 		);
 	}
 
@@ -1614,8 +2149,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug84100b() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
 		IMethod method = selectMethod(workingCopies[0], "foo", 2);
 		search(method, REFERENCES);
 		discard = false; // use working copy for next test
@@ -1625,8 +2160,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug84100c() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
 		IMethod method = selectMethod(workingCopies[0], "foo", 3);
 		search(method, REFERENCES);
 		discard = false; // use working copy for next test
@@ -1637,8 +2172,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug84100d() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
 		IMethod method = selectMethod(workingCopies[0], "foo", 4);
 		search(method, REFERENCES);
 		discard = false; // use working copy for next test
@@ -1648,8 +2183,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug84100e() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
 		IMethod method = selectMethod(workingCopies[0], "foo", 5);
 		search(method, REFERENCES);
 		assertSearchResults(
@@ -1720,8 +2255,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug84724b() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
 		IMethod method = selectMethod(workingCopies[0], "X", 3);
 		search(method, REFERENCES);
 		discard = false; // use working copy for next test
@@ -1733,8 +2268,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug84724c() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
 		IMethod method = selectMethod(workingCopies[0], "X", 4);
 		search(method, REFERENCES);
 		discard = false; // use working copy for next test
@@ -1744,8 +2279,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug84724d() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 2, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
 		IMethod method = selectMethod(workingCopies[0], "X", 5);
 		search(method, REFERENCES);
 		assertSearchResults(
@@ -1793,8 +2328,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 	public void testBug84727b() throws CoreException {
 		resultCollector.showRule = true;
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 3, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
 		IMethod[] methods = workingCopies[0].getType("A").getMethods();
 		assertEquals("Invalid number of methods", 2, methods.length);
 		search(methods[1], REFERENCES);
@@ -1888,32 +2423,117 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
-	 * Bug 83693: [search][javadoc] References to methods/constructors: range does not include parameter lists
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=83693"
+	 * Bug 86380: [1.5][search][annot] Add support to find references inside annotations on a package declaration
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=86380"
 	 */
-	public void testBug83693() throws CoreException {
-		resultCollector.showRule = true;
+	public void testBug86380_Type() throws CoreException {
 		resultCollector.showInsideDoc = true;
-		workingCopies = new ICompilationUnit[1];
-		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b83693/A.java",
-			"package b83693;\n" + 
-			"import static b83693.A.m;\n" + 
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b86380/package-info.java",
 			"/**\n" + 
-			" * @see A#m(int)\n" + 
+			" * @see Annot#field\n" + 
 			" */\n" + 
-			"class A {\n" + 
-			"    static void m(int i) {\n" + 
-			"        b83693.A.m(i);\n" + 
-			"    }\n" + 
-			"}"
+			"@Annot(value=11)\n" + 
+			"package b86380;\n"
 		);
-		IMethod[] methods = workingCopies[0].getType("A").getMethods();
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b86380/Test.java",
+			"package b86380;\n" + 
+			"@Annot(12) public class Test {\n" + 
+			"	public int field = Annot.field;\n" + 
+			"	public void foo() {}\n" + 
+			"}\n"
+		);
+		ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
+		IType type = unit.getType("Annot");
+		this.discard = false;
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b86380/Test.java b86380.Test [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+			"src/b86380/Test.java b86380.Test.field [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [Annot] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [Annot] EXACT_MATCH OUTSIDE_JAVADOC"
+		);
+	}
+	public void testBug86380_Method() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+		ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
+		IMethod[] methods = unit.getType("Annot").getMethods();
 		assertEquals("Invalid number of methods", 1, methods.length);
+		this.discard = false;
 		search(methods[0], REFERENCES);
 		assertSearchResults(
-			"src/b83693/A.java [b83693.A.m] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
-			"src/b83693/A.java b83693.A [m(int)] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/b83693/A.java void b83693.A.m(int) [m(i)] EXACT_MATCH OUTSIDE_JAVADOC"
+			"src/b86380/Test.java b86380.Test [12] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [value] EXACT_MATCH OUTSIDE_JAVADOC"
+		);
+	}
+	public void testBug86380_Field() throws CoreException {
+		resultCollector.showInsideDoc = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+		ICompilationUnit unit = getCompilationUnit("JavaSearchBugs", "src", "b86380", "Annot.java");
+		IField[] fields = unit.getType("Annot").getFields();
+		assertEquals("Invalid number of fields", 1, fields.length);
+		search(fields[0], REFERENCES);
+		assertSearchResults(
+			"src/b86380/Test.java b86380.Test.field [field] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java b86380.package-info [field] EXACT_MATCH INSIDE_JAVADOC"
+		);
+	}
+
+	/**
+	 * Bug 88174: [1.5][search][annot] Search for annotations misses references in default and values constructs
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174"
+	 */
+	public void testBug88174() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88174/Test.java",
+			"package b88174;\n" + 
+			"public enum Test {\n" + 
+			"  a {\n" + 
+			"    int getTheValue() { // not found\n" + 
+			"      return 0;\n" + 
+			"    }\n" + 
+			"  };\n" + 
+			"  abstract int getTheValue();\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b88174/X.java",
+			"package b88174;\n" + 
+			"public class X {\n" + 
+			"  X x = new X() {\n" + 
+			"    int getTheValue() {\n" + 
+			"      return 0;\n" + 
+			"    }\n" + 
+			"  };\n" + 
+			"  int getTheValue() { return 0; }\n" + 
+			"}\n"
+		);
+		IMethod method = workingCopies[0].getType("Test").getMethod("getTheValue", new String[0]);
+		search(method, DECLARATIONS | IGNORE_DECLARING_TYPE);
+		assertSearchResults(
+			"src/b88174/Test.java int b88174.Test.a:<anonymous>#1.getTheValue() [getTheValue] EXACT_MATCH\n" + 
+			"src/b88174/Test.java int b88174.Test.getTheValue() [getTheValue] EXACT_MATCH\n" + 
+			"src/b88174/X.java int b88174.X.x:<anonymous>#1.getTheValue() [getTheValue] EXACT_MATCH\n" + 
+			"src/b88174/X.java int b88174.X.getTheValue() [getTheValue] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 87627: [search] correct results are missing in java search
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=87627"
+	 */
+	public void testBug87627() throws CoreException {
+		IType type = getClassFile("JavaSearchBugs", "lib/b87627.jar", "b87627", "List.class").getType();
+		ITypeParameter[] parameters = type.getTypeParameters();
+		assertNotNull(type.getFullyQualifiedName()+" should have parameters", parameters);
+		assertEquals("Wrong number of parameters", 1, parameters.length);
+		search(parameters[0], REFERENCES);
+		assertSearchResults(
+			"lib/b87627.jar b87627.List EXACT_MATCH\n" + 
+			"lib/b87627.jar boolean b87627.List.addAll(b87627.Collection<? extends E>) EXACT_MATCH"
 		);
 	}
 
@@ -1956,8 +2576,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		);
 	}
 	public void testBug88300b() throws CoreException {
-		assertNotNull("Problem in tests processing", workingCopies);
-		assertEquals("Problem in tests processing", 3, workingCopies.length);
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
 		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b88300/SubClass.java",
 			"package b88300;\n" + 
 			"public class SubClass extends SuperClass {\n" + 
@@ -2034,5 +2654,652 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"lib/b89848/Test.class void b89848.Test.foo() EXACT_MATCH\n" + 
 			"lib/b89848/X.class void b89848.X.foo() EXACT_MATCH"
 		);
+	}
+
+	/**
+	 * Bug 90779: [search] Constructor Declaration search with ignoring declaring and return type also ignores type name
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=90779"
+	 */
+	public void testBug90779() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b90779/A.java",
+			"package b90779;\n" +
+			"public class A {\n" + 
+			"	public A() {}\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b90779/B.java",
+			"package b90779;\n" +
+			"public class B {\n" + 
+			"	public B() {}\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b90779/C.java",
+			"package b90779;\n" +
+			"public class C {\n" + 
+			"	public C() {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("A");
+		IMethod[] methods = type.getMethods();
+		assertEquals("Wrong number of methods", 1, methods.length);
+		search(methods[0], DECLARATIONS | IGNORE_DECLARING_TYPE | IGNORE_RETURN_TYPE);
+		assertSearchResults(
+			"src/b90779/A.java b90779.A() [A] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 90915: [1.5][search] NPE in PatternLocator
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=90915"
+	 */
+	public void testBug90915() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b90915/X.java",
+			"package b90915;\n" +
+			"import g5.m.def.Single;\n" + 
+			"public class X<T> {\n" + 
+			"	void foo() {\n" + 
+			"		Single<String> single = new Single<String>() {\n" + 
+			"			public <U> String generic(U u) { return \"\"; }\n" + 
+			"			public void paramTypesArgs(Single<String> gs) {}\n" + 
+			"		};\n" + 
+			"		single.paramTypesArgs(null);\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("X");
+		IMethod[] methods = type.getMethods();
+		assertEquals("Wrong number of methods", 1, methods.length);
+		IType anonymous = methods[0].getType("", 1);
+		assertNotNull("Cannot find anonymous in method foo()", anonymous);
+		methods = anonymous.getMethods();
+		assertEquals("Wrong number of methods", 2, methods.length);
+		search(methods[1], REFERENCES);
+		assertSearchResults(
+			"src/b90915/X.java void b90915.X.foo() [paramTypesArgs(null)] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 91542: [1.5][search] JavaModelException on ResolvedSourceMethod during refactoring
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=91542"
+	 */
+	public void testBug91542() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b91542/A.java",
+			"package b91542;\n" + 
+			"\n" + 
+			"class A<T> {\n" + 
+			"	void a(A<T> a){}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class B<T> extends A<T> {\n" + 
+			"	protected void foo() { \n" + 
+			"		a(this);\n" + 
+			"	}\n" + 
+			"}"
+		);
+		IType type = workingCopies[0].getType("B");
+		IMethod method = type.getMethod("foo", new String[0]);
+		searchDeclarationsOfSentMessages(method, this.resultCollector);
+		assertSearchResults(
+			"src/b91542/A.java void b91542.A.a(A<T>) [a(A<T> a)] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 91078: [search] Java search for package reference wrongly identifies inner class as package
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=91078"
+	 */
+	public void testBug91078() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b91078/test/Example.java",
+			"package b91078.test;\n" + 
+			"import b91078.util.HashMap;\n" + 
+			"import b91078.util.Map;\n" + 
+			"public class Example {\n" + 
+			"    public Map.Entry logAll(Object obj) {\n" + 
+			"    	if (obj instanceof b91078.util.HashMap) {\n" + 
+			"    		HashMap map = (HashMap) obj;\n" + 
+			"            return map.entry;\n" + 
+			"    	}\n" + 
+			"    	if (obj instanceof b91078.util.HashMap.Entry) {\n" + 
+			"            Map.Entry entry = (Map.Entry) obj;\n" + 
+			"            return entry;\n" + 
+			"    	}\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b91078/util/HashMap.java",
+			"package b91078.util;\n" + 
+			"public class HashMap implements Map {\n" + 
+			"	public Entry entry;\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b91078/util/Map.java",
+			"package b91078.util;\n" + 
+			"public interface Map {\n" + 
+			"	class Entry{}\n" + 
+			"}\n"
+		);
+		search("*", PACKAGE, REFERENCES, getJavaSearchWorkingCopiesScope(workingCopies[0]));
+		assertSearchResults(
+			"src/b91078/test/Example.java [b91078.util] EXACT_MATCH\n" + 
+			"src/b91078/test/Example.java [b91078.util] EXACT_MATCH\n" + 
+			"src/b91078/test/Example.java Map.Entry b91078.test.Example.logAll(Object) [b91078.util] EXACT_MATCH\n" + 
+			"src/b91078/test/Example.java Map.Entry b91078.test.Example.logAll(Object) [b91078.util] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 92944: [1.5][search] SearchEngine#searchAllTypeNames doesn't honor enum or annotation element kind
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=92944"
+	 */
+	public void testBug92944_TYPE() throws CoreException {
+		resultCollector.showRule = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b92944/Test.java",
+			"package b92944;\n" + 
+			"interface B92944_I {}\n" + 
+			"enum B92944_E {}\n" + 
+			"@interface B92944_A {}\n" + 
+			"public class B92944 {}\n"
+		);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			TYPE,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"Test\n" + 
+			"Test$Inner\n" + 
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
+			"b86380.Annot\n" + 
+			"b87627.Collection\n" + 
+			"b87627.List\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"b92944.B92944\n" + 
+			"b92944.B92944_A\n" + 
+			"b92944.B92944_E\n" + 
+			"b92944.B92944_I\n" + 
+			"b95794.Test\n" + 
+			"b95794.Test$Color\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" + 
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable\n" + 
+			"java.lang.annotation.Annotation",
+			requestor);
+	}
+	public void testBug92944_CLASS() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			IIndexConstants.ONE_STAR,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			CLASS,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		// Remove interface, enum and annotation
+		assertSearchResults(
+			"Unexpected all type names",
+			"Test\n" + 
+			"Test$Inner\n" + 
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"b92944.B92944\n" + 
+			//"b92944.B92944_A\n" + 
+			//"b92944.B92944_E\n" + 
+			//"b92944.B92944_I\n" + 
+			"b95794.Test\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			//"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			//"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" +  // Enum is not an enum in java.lang
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable",
+			//"java.lang.annotation.Annotation",
+			requestor);
+	}
+	public void testBug92944_CLASS_AND_INTERFACE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			CLASS_AND_INTERFACE,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		// Remove enum and annotation
+		assertSearchResults(
+			"Unexpected all type names",
+			"Test\n" + 
+			"Test$Inner\n" + 
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
+			"b87627.Collection\n" + 
+			"b87627.List\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"b92944.B92944\n" + 
+			//"b92944.B92944_A\n" + 
+			//"b92944.B92944_E\n" + 
+			"b92944.B92944_I\n" + 
+			"b95794.Test\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" +  // Enum is not an enum in java.lang
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable\n" +
+			"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
+			requestor);
+	}
+	public void testBug92944_CLASS_AND_ENUM() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			CLASS_AND_ENUM,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		// Remove interface and annotation
+		assertSearchResults(
+			"Unexpected all type names",
+			"Test\n" + 
+			"Test$Inner\n" + 
+			"b81556.a.A81556\n" + 
+			"b81556.a.B81556\n" + 
+			"b81556.a.X81556\n" + 
+			"b81556.b.XX81556\n" + 
+			"b89848.Test\n" + 
+			"b89848.X\n" + 
+			"b92944.B92944\n" + 
+			//"b92944.B92944_A\n" + 
+			"b92944.B92944_E\n" + 
+			//"b92944.B92944_I\n" + 
+			"b95794.Test\n" + 
+			"b95794.Test$Color\n" + 
+			"g1.t.s.def.Generic\n" + 
+			"g1.t.s.def.Generic$Member\n" + 
+			"g1.t.s.def.Generic$MemberGeneric\n" + 
+			"g1.t.s.def.NonGeneric\n" + 
+			"g1.t.s.def.NonGeneric$GenericMember\n" + 
+			"g5.c.def.Multiple\n" + 
+			"g5.c.def.Single\n" + 
+			"g5.m.def.Multiple\n" + 
+			"g5.m.def.Single\n" + 
+			//"java.io.Serializable\n" + 
+			"java.lang.Class\n" + 
+			"java.lang.CloneNotSupportedException\n" + 
+			//"java.lang.Comparable\n" + 
+			"java.lang.Enum\n" + 
+			"java.lang.Error\n" + 
+			"java.lang.Exception\n" + 
+			"java.lang.IllegalMonitorStateException\n" + 
+			"java.lang.InterruptedException\n" + 
+			"java.lang.Object\n" + 
+			"java.lang.RuntimeException\n" + 
+			"java.lang.String\n" + 
+			"java.lang.Throwable",
+			//"java.lang.annotation.Annotation",
+			requestor);
+	}
+	public void testBug92944_INTERFACE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			INTERFACE,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b87627.Collection\n" + 
+			"b87627.List\n" + 
+			"b92944.B92944_I\n" + 
+			"java.io.Serializable\n" + 
+			"java.lang.Comparable\n" +
+			"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
+			requestor);
+	}
+	public void testBug92944_ENUM() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			ENUM,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b92944.B92944_E\n" + 
+			"b95794.Test$Color",
+			requestor);
+	}
+	public void testBug92944_ANNOTATION_TYPE() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		this.discard = false;
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(this.workingCopies).searchAllTypeNames(
+			null,
+			null,
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			ANNOTATION_TYPE,
+			getJavaSearchScopeBugs(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"b86380.Annot\n" + 
+			"b92944.B92944_A",
+			requestor);
+	}
+
+	/**
+	 * Bug 93392: [1.5][search][annot] search for annotation elements does not seem to be implemented yet
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=93392"
+	 * 
+	 * Note that this test valid also:
+	 * Bug 94062: [1.5][search][annot] search for annotation elements incorrect match range
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94062"
+	 */
+	public void testBug93392() throws CoreException {
+		TestCollector collector = new TestCollector();
+		collector.showAccuracy = true;
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b93392/Test.java",
+			"package b93392;\n" + 
+			"@interface Annot {\n" + 
+			"	int value();\n" +
+			"}\n" +
+			"@Annot(41)\n" + 
+			"public class Test {\n" + 
+			"	@Annot(21)\n" + 
+			"	int bar;\n" + 
+			"	@Annot(10)\n" + 
+			"	public void foo() {}\n" + 
+			"}\n"
+		);
+		IType type = selectType(workingCopies[0], "Annot");
+		IMethod method = type.getMethod("value", new String[0]);
+		search(method, REFERENCES, getJavaSearchScopeBugs(), collector);
+		assertSearchResults(
+			"src/b93392/Test.java b93392.Test [41] EXACT_MATCH\n" + 
+			"src/b93392/Test.java b93392.Test.bar [21] EXACT_MATCH\n" + 
+			"src/b93392/Test.java void b93392.Test.foo() [10] EXACT_MATCH",
+			collector
+		);
+		// Verify matches positions
+		String source = workingCopies[0].getSource();
+		String str = "@Annot(";
+		// First match
+		assertEquals("Invalid number of matches", 3, collector.matches.size());
+		int index= source.indexOf(str)+str.length();
+		assertEquals("Invalid offset for first match", index, ((SearchMatch)collector.matches.get(0)).getOffset());
+		assertEquals("Invalid length for first match", 2, ((SearchMatch)collector.matches.get(0)).getLength());
+		// Second match
+		index= source.indexOf(str, index)+str.length();
+		assertEquals("Invalid offset for second match", index, ((SearchMatch)collector.matches.get(1)).getOffset());
+		assertEquals("Invalid length for second match", 2, ((SearchMatch)collector.matches.get(1)).getLength());
+		// Last match
+		index= source.indexOf(str, index)+str.length();
+		assertEquals("Invalid offset for last match", index, ((SearchMatch)collector.matches.get(2)).getOffset());
+		assertEquals("Invalid length for last match", 2, ((SearchMatch)collector.matches.get(2)).getLength());
+	}
+
+	/**
+	 * Bug 94389: [search] InvocationTargetException on Rename
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94389"
+	 */
+	public void testBug94389() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b94389/Test.java",
+			"package b94389;\n" + 
+			"public class Test {\n" + 
+			"	public void foo() {}\n" + 
+			"	public void foo() {}\n" + 
+			"	public void foo() {}\n" + 
+			"	public void foo() {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("Test");
+		IMethod[] methods = type.getMethods();
+		int methodsLength = methods.length;
+	
+		// Perform search on each duplicate method
+		IJavaSearchScope scope = getJavaSearchScopeBugs();
+		for (int m=0; m<methodsLength; m++) {
+			
+			// Search method declaration
+			TestCollector collector = new TestCollector();
+			search(methods[m], DECLARATIONS, scope, collector);
+			assertSearchResults(
+				"src/b94389/Test.java void b94389.Test.foo() [foo]\n" + 
+				"src/b94389/Test.java void b94389.Test.foo() [foo]\n" + 
+				"src/b94389/Test.java void b94389.Test.foo() [foo]\n" + 
+				"src/b94389/Test.java void b94389.Test.foo() [foo]",
+				collector
+			);
+		
+			// Verify that all matches have correct occurence count
+			int size = collector.matches.size();
+			for (int i=0; i<size; i++) {
+				assertEquals("Invalid foo method occurence count (m="+(m+1)+")", i+1, ((SourceMethod) methods[i]).occurrenceCount);
+			}
+		}
+	}
+
+	/**
+	 * Bug 94718: [1.5][search][annot] Find references in workspace breaks on an annotation
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94718"
+	 */
+	public void testBug94718() throws CoreException {
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b94718/SetUp.java",
+			"package b94718;\n" + 
+			"public @interface SetUp {\n" + 
+			"	String value() {}\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b94718/Test.java",
+			"package b94718;\n" + 
+			"@SetUp(\"howdy\")\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[1].getType("SetUp");
+		search(type, REFERENCES, SearchEngine.createWorkspaceScope());
+		assertSearchResults(
+			"src/b94718/Test.java b94718.Test [SetUp] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 95794: [1.5][search][annot] Find references in workspace breaks on an annotation
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=95794"
+	 */
+	public void testBug95794() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getCompilationUnit("JavaSearchBugs", "src", "b95794", "Test.java");
+		IType type = workingCopies[0].getType("Test");
+		this.discard = false;
+		
+		// Verify matches
+		TestCollector occurencesCollector = new TestCollector();
+		occurencesCollector.showAccuracy = true;
+		search(type, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
+		assertSearchResults(
+			"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" + 
+			"src/b95794/Test.java [b95794.Test] EXACT_MATCH\n" + 
+			"src/b95794/Test.java b95794.Test [Test] EXACT_MATCH\n" + 
+			"src/b95794/Test.java b95794.Test.there [Test] EXACT_MATCH",
+			occurencesCollector
+		);
+		
+		// Verify with references matches
+		TestCollector referencesCollector = new TestCollector();
+		search(type, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
+		assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
+	}
+	public void testBug95794b() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		this.discard = false;
+		IType type = workingCopies[0].getType("Test").getType("Color");
+		this.discard = false;
+		
+		// Verify matches
+		TestCollector occurencesCollector = new TestCollector();
+		occurencesCollector.showAccuracy = true;
+		search(type, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
+		assertSearchResults(
+			"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" + 
+			"src/b95794/Test.java [b95794.Test.Color] EXACT_MATCH\n" + 
+			"src/b95794/Test.java void b95794.Test.main(String[]) [Color] EXACT_MATCH\n" + 
+			"src/b95794/Test.java b95794.Test$Color [Color] EXACT_MATCH",
+			occurencesCollector
+		);
+		
+		// Verify with references matches
+		TestCollector referencesCollector = new TestCollector();
+		search(type, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
+		assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
+	}
+	public void testBug95794c() throws CoreException {
+		resultCollector.showRule = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		this.discard = false;
+		IField field = workingCopies[0].getType("Test").getType("Color").getField("WHITE");
+		
+		// Verify matches
+		TestCollector occurencesCollector = new TestCollector();
+		occurencesCollector.showAccuracy = true;
+		search(field, ALL_OCCURRENCES, getJavaSearchScopeBugs(), occurencesCollector);
+		assertSearchResults(
+			"src/b95794/Test.java [WHITE] EXACT_MATCH\n" + 
+			"src/b95794/Test.java void b95794.Test.main(String[]) [WHITE] EXACT_MATCH\n" + 
+			"src/b95794/Test.java b95794.Test$Color.WHITE [WHITE] EXACT_MATCH",
+			occurencesCollector
+		);
+		
+		// Verify with references matches
+		TestCollector referencesCollector = new TestCollector();
+		search(field, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
+		assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
 	}
 }

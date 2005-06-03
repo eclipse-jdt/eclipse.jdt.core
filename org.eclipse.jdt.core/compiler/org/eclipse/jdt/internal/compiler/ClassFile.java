@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.compiler.util.Messages;
 
 /**
  * Represents a class file wrapper on bytes, it is aware of its actual
@@ -79,14 +79,14 @@ public class ClassFile
 		f = new File(outputPath);
 		if (f.exists()) {
 			if (!f.isDirectory()) {
-				System.out.println(Util.bind("output.isFile" , f.getAbsolutePath())); //$NON-NLS-1$
-				throw new IOException(Util.bind("output.isFileNotDirectory" )); //$NON-NLS-1$
+				System.out.println(Messages.bind(Messages.output_isFile, f.getAbsolutePath()));
+				throw new IOException(Messages.output_isFileNotDirectory);
 			}
 		} else {
 			// we have to create that directory
 			if (!f.mkdirs()) {
-				System.out.println(Util.bind("output.dirName" , f.getAbsolutePath())); //$NON-NLS-1$
-				throw new IOException(Util.bind("output.notValidAll" )); //$NON-NLS-1$
+				System.out.println(Messages.bind(Messages.output_dirName, f.getAbsolutePath()));
+				throw new IOException(Messages.output_notValidAll);
 			}
 		}
 		StringBuffer outDir = new StringBuffer(outputPath);
@@ -102,8 +102,8 @@ public class ClassFile
 			} else {
 				// Need to add the outDir
 				if (!f.mkdir()) {
-					System.out.println(Util.bind("output.fileName" , f.getName())); //$NON-NLS-1$
-					throw new IOException(Util.bind("output.notValid" )); //$NON-NLS-1$
+					System.out.println(Messages.bind(Messages.output_fileName, f.getName()));
+					throw new IOException(Messages.output_notValid);
 				}
 			}
 			token = tokenizer.nextToken();
@@ -356,7 +356,7 @@ public class ClassFile
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 		header[headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 		
-		final CompilerOptions options = aType.scope.environment().options;
+		final CompilerOptions options = aType.scope.compilerOptions();
 		this.targetJDK = options.targetJDK;
 		header[headerOffset++] = (byte) (this.targetJDK >> 8); // minor high
 		header[headerOffset++] = (byte) (this.targetJDK >> 0); // minor low
@@ -933,7 +933,7 @@ public class ClassFile
 		generateCodeAttributeHeader();
 		StringBuffer buffer = new StringBuffer(25);
 		buffer.append("\t"  + problem.getMessage() + "\n" ); //$NON-NLS-1$ //$NON-NLS-2$
-		buffer.insert(0, Util.bind("compilation.unresolvedProblem" )); //$NON-NLS-1$
+		buffer.insert(0, Messages.compilation_unresolvedProblem);
 		String problemString = buffer.toString();
 		
 		codeStream.init(this);
@@ -987,9 +987,9 @@ public class ClassFile
 				}
 			} // insert the top line afterwards, once knowing how many problems we have to consider
 			if (count > 1) {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblems" )); //$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblems);
 			} else {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblem" )); //$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblem);
 			}
 			problemString = buffer.toString();
 		}
@@ -1049,9 +1049,9 @@ public class ClassFile
 				}
 			} // insert the top line afterwards, once knowing how many problems we have to consider
 			if (count > 1) {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblems" )); //$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblems);
 			} else {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblem" )); //$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblem);
 			}
 			problemString = buffer.toString();
 		}
@@ -1139,9 +1139,9 @@ public class ClassFile
 				}
 			} // insert the top line afterwards, once knowing how many problems we have to consider
 			if (count > 1) {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblems" )); //$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblems);
 			} else {
-				buffer.insert(0, Util.bind("compilation.unresolvedProblem" )); //$NON-NLS-1$
+				buffer.insert(0, Messages.compilation_unresolvedProblem);
 			}
 			problemString = buffer.toString();
 		}
@@ -1237,6 +1237,9 @@ public class ClassFile
 						// generate a method info to define <enum>#valueOf(String)
 						addSyntheticEnumValueOfMethod(syntheticMethod);
 						break;
+					case SyntheticMethodBinding.SwitchTable :
+						// generate a method info to define the switch table synthetic method
+						addSyntheticSwitchTable(syntheticMethod);
 				}
 			}
 		}
@@ -1316,6 +1319,36 @@ public class ClassFile
 			
 	}
 
+	public void addSyntheticSwitchTable(SyntheticMethodBinding methodBinding) {
+		generateMethodInfoHeader(methodBinding);
+		// We know that we won't get more than 1 attribute: the code attribute 
+		contents[contentsOffset++] = 0;
+		contents[contentsOffset++] = 2;
+		// Code attribute
+		int codeAttributeOffset = contentsOffset;
+		generateCodeAttributeHeader();
+		codeStream.init(this);
+		codeStream.generateSyntheticBodyForSwitchTable(methodBinding);
+		completeCodeAttributeForSyntheticMethod(
+			true,
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.lineSeparatorPositions);
+		// add the synthetic attribute
+		int syntheticAttributeNameIndex =
+			constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
+		contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
+		contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
+		// the length of a synthetic attribute is equals to 0
+		contents[contentsOffset++] = 0;
+		contents[contentsOffset++] = 0;
+		contents[contentsOffset++] = 0;
+		contents[contentsOffset++] = 0;
+	}
 	/**
 	 * INTERNAL USE-ONLY
 	 *  Generate the bytes for a synthetic method that implements Enum#values() for a given enum type
@@ -1436,11 +1469,12 @@ public class ClassFile
 	 */
 	public void addSyntheticMethodAccessMethod(SyntheticMethodBinding methodBinding) {
 		generateMethodInfoHeader(methodBinding);
-		// We know that we won't get more than 2 attribute: the code attribute + synthetic attribute
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 2;
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttribute(methodBinding);
 		// Code attribute
 		int codeAttributeOffset = contentsOffset;
+		attributeNumber++; // add code attribute
 		generateCodeAttributeHeader();
 		codeStream.init(this);
 		codeStream.generateSyntheticBodyForMethodAccess(methodBinding);
@@ -1452,16 +1486,9 @@ public class ClassFile
 				.referenceCompilationUnit()
 				.compilationResult
 				.lineSeparatorPositions);
-		// add the synthetic attribute
-		int syntheticAttributeNameIndex =
-			constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
-		contents[contentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
-		contents[contentsOffset++] = (byte) syntheticAttributeNameIndex;
-		// the length of a synthetic attribute is equals to 0
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
-		contents[contentsOffset++] = 0;
+		// update the number of attributes
+		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
 
 	/**
@@ -1658,8 +1685,8 @@ public class ClassFile
 					if (startPC != endPC) { // only entries for non zero length
 						if (endPC == -1) {
 							localVariable.declaringScope.problemReporter().abortDueToInternalError(
-								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
-								(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
+									Messages.bind(Messages.abort_invalidAttribute, new String(localVariable.name)), 
+									(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (isParameterizedType) {
 							numberOfGenericEntries++;
@@ -1950,7 +1977,7 @@ public class ClassFile
 						if (startPC != endPC) { // only entries for non zero length
 							if (endPC == -1) {
 								localVariable.declaringScope.problemReporter().abortDueToInternalError(
-									Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
+									Messages.bind(Messages.abort_invalidAttribute, new String(localVariable.name)), 
 									(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 							}
 							if (localContentsOffset + 10 >= this.contents.length) {
@@ -2575,6 +2602,32 @@ public class ClassFile
 		SyntheticMethodBinding binding,
 		int codeAttributeOffset,
 		int[] startLineIndexes) {
+		
+		this.completeCodeAttributeForSyntheticMethod(
+				false,
+				binding,
+				codeAttributeOffset,
+				startLineIndexes);
+	}
+
+	/**
+	 * INTERNAL USE-ONLY
+	 * That method completes the creation of the code attribute by setting
+	 * - the attribute_length
+	 * - max_stack
+	 * - max_locals
+	 * - code_length
+	 * - exception table
+	 * - and debug attributes if necessary.
+	 *
+	 * @param binding org.eclipse.jdt.internal.compiler.lookup.SyntheticAccessMethodBinding
+	 * @param codeAttributeOffset <CODE>int</CODE>
+	 */
+	public void completeCodeAttributeForSyntheticMethod(
+		boolean hasExceptionHandlers,
+		SyntheticMethodBinding binding,
+		int codeAttributeOffset,
+		int[] startLineIndexes) {
 		// reinitialize the contents with the byte modified by the code stream
 		this.contents = codeStream.bCodeStream;
 		int localContentsOffset = codeStream.classFileOffset;
@@ -2596,10 +2649,60 @@ public class ClassFile
 		if ((localContentsOffset + 40) >= this.contents.length) {
 			resizeContents(40);
 		}
-		// there is no exception table, so we need to offset by 2 the current offset and move 
-		// on the attribute generation
-		contents[localContentsOffset++] = 0;
-		contents[localContentsOffset++] = 0;
+		
+		if (hasExceptionHandlers) {
+			// write the exception table
+			int exceptionHandlersNumber = codeStream.exceptionHandlersCounter;
+			ExceptionLabel[] exceptionHandlers = codeStream.exceptionHandlers;
+			int exSize = exceptionHandlersNumber * 8 + 2;
+			if (exSize + localContentsOffset >= this.contents.length) {
+				resizeContents(exSize);
+			}
+			// there is no exception table, so we need to offset by 2 the current offset and move 
+			// on the attribute generation
+			this.contents[localContentsOffset++] = (byte) (exceptionHandlersNumber >> 8);
+			this.contents[localContentsOffset++] = (byte) exceptionHandlersNumber;
+			for (int i = 0, max = codeStream.exceptionHandlersIndex; i < max; i++) {
+				ExceptionLabel exceptionHandler = exceptionHandlers[i];
+				if (exceptionHandler != null) {
+					int start = exceptionHandler.start;
+					this.contents[localContentsOffset++] = (byte) (start >> 8);
+					this.contents[localContentsOffset++] = (byte) start;
+					int end = exceptionHandler.end;
+					this.contents[localContentsOffset++] = (byte) (end >> 8);
+					this.contents[localContentsOffset++] = (byte) end;
+					int handlerPC = exceptionHandler.position;
+					this.contents[localContentsOffset++] = (byte) (handlerPC >> 8);
+					this.contents[localContentsOffset++] = (byte) handlerPC;
+					if (exceptionHandler.exceptionType == null) {
+						// any exception handler
+						this.contents[localContentsOffset++] = 0;
+						this.contents[localContentsOffset++] = 0;
+					} else {
+						int nameIndex;
+						switch(exceptionHandler.exceptionType.id) {
+							case T_null :
+								/* represents ClassNotFoundException, see class literal access*/
+								nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangClassNotFoundExceptionConstantPoolName);
+								break;
+							case T_long :
+								/* represents NoSuchFieldError, see switch table generation*/
+								nameIndex = constantPool.literalIndexForType(ConstantPool.JavaLangNoSuchFieldErrorConstantPoolName);
+								break;
+							default:
+								nameIndex = constantPool.literalIndexForType(exceptionHandler.exceptionType.constantPoolName());
+						}
+						this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+						this.contents[localContentsOffset++] = (byte) nameIndex;
+					}
+				}
+			}
+		} else {
+			// there is no exception table, so we need to offset by 2 the current offset and move 
+			// on the attribute generation
+			contents[localContentsOffset++] = 0;
+			contents[localContentsOffset++] = 0;
+		}
 		// debug attributes
 		int codeAttributeAttributeOffset = localContentsOffset;
 		int attributeNumber = 0;
@@ -2669,7 +2772,7 @@ public class ClassFile
 					if (startPC != endPC) { // only entries for non zero length
 						if (endPC == -1) {
 							localVariable.declaringScope.problemReporter().abortDueToInternalError(
-								Util.bind("abort.invalidAttribute" , new String(localVariable.name)), //$NON-NLS-1$
+								Messages.bind(Messages.abort_invalidAttribute, new String(localVariable.name)), 
 								(ASTNode) localVariable.declaringScope.methodScope().referenceContext);
 						}
 						if (localContentsOffset + 10 > this.contents.length) {
@@ -2769,7 +2872,7 @@ public class ClassFile
 		contents[codeAttributeOffset + 5] = (byte) codeAttributeLength;
 		contentsOffset = localContentsOffset;
 	}
-
+	
 	/**
 	 * INTERNAL USE-ONLY
 	 * Complete the creation of a method info by setting up the number of attributes at the right offset.
@@ -2844,7 +2947,7 @@ public class ClassFile
 			final int elementNameIndex = constantPool.literalIndex(VALUE);
 			contents[contentsOffset++] = (byte) (elementNameIndex >> 8);
 			contents[contentsOffset++] = (byte) elementNameIndex;
-			MethodBinding methodBinding = singleMemberAnnotation.singlePair.binding;
+			MethodBinding methodBinding = singleMemberAnnotation.memberValuePairs()[0].binding;
 			if (methodBinding == null) {
 				contentsOffset = attributeOffset;
 			} else {

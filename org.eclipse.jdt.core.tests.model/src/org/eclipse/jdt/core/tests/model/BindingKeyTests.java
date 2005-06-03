@@ -19,7 +19,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	
 	static {
 //		TESTS_PREFIX = "testInvalidCompilerOptions";
-//		TESTS_NAMES = new String[] { "test010"};
+//		TESTS_NAMES = new String[] { "test028"};
 	}
 
 	public BindingKeyTests(String name) {
@@ -38,7 +38,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	
 	protected void assertBindingKeySignatureEquals(String expected, String key) {
 		BindingKey bindingKey = new BindingKey(key);
-		String signature = bindingKey.toSignature();
+		String signature = bindingKey.internalToSignature();
 		if (!(expected.equals(signature)))
 			System.out.println(displayString(signature, 3) + ",");
 		assertEquals(expected, signature);
@@ -129,7 +129,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test009() {
 		assertBindingKeySignatureEquals(
-			"Lp1.X<TT;>;",
+			"<T:>Lp1.X;",
 			"Lp1/X<TT;>;"
 		);
 	}
@@ -139,7 +139,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test010() {
 		assertBindingKeySignatureEquals(
-			"Lp1.X<TT;TU;>;",
+			"<T:U:>Lp1.X;",
 			"Lp1/X<TT;TU;>;"
 		);
 	}
@@ -304,4 +304,118 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Lp/X;.foo()V:TSomeTypeVariable;",
 			key);
 	}
+	
+	/*
+	 * Parameterized member type
+	 */
+	public void test027() {
+		assertBindingKeySignatureEquals(
+			"Lp1.X<Ljava.lang.String;>.Member;",
+			"Lp1/X<Ljava/lang/String;>.Member;"
+		);
+	}
+
+	/*
+	 * Wildcard binding (no bounds)
+	 */
+	public void test028() {
+		assertBindingKeySignatureEquals(
+			"*",
+			"Lp1/X;*"
+		);
+	}
+
+	/*
+	 * Wildcard binding (super bounds)
+	 */
+	public void test029() {
+		assertBindingKeySignatureEquals(
+			"-<E:>Ljava.util.List;",
+			"Lp1/X;-Ljava/util/List<TE;>;"
+		);
+	}
+
+	/*
+	 * Wildcard binding (extends bounds)
+	 */
+	public void test030() {
+		assertBindingKeySignatureEquals(
+			"+Ljava.util.ArrayList;",
+			"Lp1/X;+Ljava/util/ArrayList;"
+		);
+	}
+
+	/*
+	 * Capture binding (no bounds)
+	 */
+	public void test031() {
+		assertBindingKeySignatureEquals(
+			"*",
+			"Ljava/util/List;&!Lp1/X;*123;"
+		);
+	}
+
+	/*
+	 * Capture binding (super bounds)
+	 */
+	public void test032() {
+		assertBindingKeySignatureEquals(
+			"-<E:>Ljava.util.List;",
+			"Ljava/util/List;&!Lp1/X;-Ljava/util/List<TE;>;123;"
+		);
+	}
+
+	/*
+	 * Capture binding (extends bounds)
+	 */
+	public void test033() {
+		assertBindingKeySignatureEquals(
+			"+Ljava.util.ArrayList;",
+			"Ljava/util/List;&!Lp1/X;+Ljava/util/ArrayList;123;"
+		);
+	}
+	
+	/*
+	 * Method starting with an upper case corresponding to a primitive type
+	 * (regression test for bug 94398 Error attempting to find References)
+	 */
+	public void test034() {
+		assertBindingKeySignatureEquals(
+			"(Ljava.lang.String;I)Z",
+			"Lp1/X;.Set(Ljava/lang/String;I)Z"
+		);
+	}
+	
+	/*
+	 * Parameterized method with capture argument
+	 * (regression test for bug 96410 Incorrect information in selection resolved key)
+	 */
+	public void test035() {
+		assertBindingKeySignatureEquals(
+			"(!*)!*",
+			"LX;&LX~Store<!LX~Store;*157;>;.get(!*)!*"
+		);
+	}
+		
+	/*
+	 * Parameterized method with argument similar to a type name
+	 */
+	public void test036() {
+		assertBindingKeySignatureEquals(
+			"<U:Ljava.lang.Object;>(La.TU;La.TU;)V",
+			"La/A<La/A~TU;>;.foo<U:Ljava/lang/Object;>(TU;La/TU;)V%<La/A~TU;>"
+		);
+	}
+	
+	/*
+	 * Field
+	 * (regression test for bug  87362 BindingKey#internalToSignature() should return the field's type signature)
+	 */
+	public void test037() {
+		assertBindingKeySignatureEquals(
+			"Ljava.lang.String;",
+			"Lp/X;.foo)Ljava/lang/String;"
+		);
+	}
+
 }

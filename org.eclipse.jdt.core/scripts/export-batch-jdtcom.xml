@@ -16,12 +16,18 @@
 		<mkdir dir="${dest}" />
 
 		<echo message="UPDATE jdtcom.jar" />
-		<jar 
+		<zip zipfile="${dest}/jdtcom.jar">
+			<fileset dir=".">
+			  <include name="META-INF/**" />
+	        </fileset>
+	        <fileset dir="bin" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**"/>
+		</zip>
+<!--		<jar 
 			jarfile="${dest}/jdtcom.jar"
 			basedir="bin"
 			includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**"
-			manifest="batch/META-INF/MANIFEST.MF"
-			index="true"/>
+			manifest="META-INF/MANIFEST.MF"
+			index="true"/> -->
 		
 		<echo message="UPDATE jdtcomsrc.zip" />
 		<zip zipfile="${dest}/jdtcomsrc.zip">

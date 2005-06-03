@@ -82,19 +82,19 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		}
 	}
 	/**
-	 * @see JavaNamingConventions
+	 * @see JavaConventions
 	 */
 	public void testInvalidImportDeclaration1() {
 		assertTrue("import not reconized as invalid; java.math.", !JavaConventions.validateImportDeclaration("java.math.").isOK());
 	}
 	/**
-	 * @see JavaNamingConventions
+	 * @see JavaConventions
 	 */
 	public void testInvalidImportDeclaration2() {
 		assertTrue("import not reconized as invalid; java.math*", !JavaConventions.validateImportDeclaration("java.math*").isOK());
 	}
 	/**
-	 * @see JavaNamingConventions
+	 * @see JavaConventions
 	 */
 	public void testInvalidImportDeclaration3() {
 		assertTrue("import not reconized as invalid; empty string", !JavaConventions.validateImportDeclaration("").isOK());
@@ -144,7 +144,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		}
 	}
 	/**
-	 * @see JavaNamingConventions
+	 * @see JavaConventions
 	 */
 	public void testValidFieldName() {
 		assertTrue("unicode field name not handled", JavaConventions.validateFieldName("s\\u0069ze").isOK());
@@ -165,13 +165,13 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		assertTrue("import not reconized as valid", JavaConventions.validateImportDeclaration("java.math.*").isOK());
 	}
 	/**
-	 * @see JavaNamingConventions
+	 * @see JavaConventions
 	 */
 	public void testValidMethodName() {
 		assertTrue("unicode method name not handled", JavaConventions.validateMethodName("getSiz\\u0065").isOK());
 	}
 	/**
-	 * @see JavaNamingConventions
+	 * @see JavaConventions
 	 */
 	public void testValidPackageName() {
 		
@@ -189,7 +189,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		assertTrue("package name not recognized as unconventional2", JavaConventions.validatePackageName("Test.sample").getSeverity() == IStatus.WARNING);
 	}
 	/**
-	 * @see JavaNamingConventions
+	 * @see JavaConventions
 	 */
 	public void testValidTypeName() {
 		// regression tests for 1G5HVPB: ITPJCORE:WINNT - validateJavaTypeName accepts type names ending with \
@@ -210,13 +210,13 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		assertTrue("invalid type name not recognized", JavaConventions.validateJavaTypeName("==?==").getSeverity() == IStatus.ERROR);
 	}
 	/**
-	 * @see JavaNamingConventions
+	 * @see JavaConventions
 	 */
 	public void testValidTypeVariableName() {
 		assertTrue("E sould be a valid variable name", JavaConventions.validateTypeVariableName("E").isOK());
 	}
 	/**
-	 * @see JavaNamingConventions
+	 * @see JavaConventions
 	 */
 	public void testValidUnicodeImportDeclaration() {
 		
@@ -225,7 +225,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	
 	}
 	/**
-	 * @see JavaNamingConventions
+	 * @see JavaConventions
 	 */
 	public void testValidUnicodePackageName() {
 		

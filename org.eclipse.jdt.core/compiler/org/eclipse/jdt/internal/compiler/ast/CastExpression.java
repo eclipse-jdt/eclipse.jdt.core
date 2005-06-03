@@ -58,7 +58,7 @@ public class CastExpression extends Expression {
 	 */
 	public static void checkNeedForEnclosingInstanceCast(BlockScope scope, Expression enclosingInstance, TypeBinding enclosingInstanceType, TypeBinding memberType) {
 	
-		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 		
 		TypeBinding castedExpressionType = ((CastExpression)enclosingInstance).expression.resolvedType;
 		if (castedExpressionType == null) return; // cannot do better
@@ -81,7 +81,7 @@ public class CastExpression extends Expression {
 	 */
 	public static void checkNeedForArgumentCast(BlockScope scope, int operator, int operatorSignature, Expression expression, int expressionTypeId) {
 	
-		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 	
 		// check need for left operand cast
 		int alternateLeftTypeId = expressionTypeId;
@@ -117,7 +117,7 @@ public class CastExpression extends Expression {
 	 */
 	public static void checkNeedForArgumentCasts(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] argumentTypes, final InvocationSite invocationSite) {
 	
-		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 		
 		int length = argumentTypes.length;
 
@@ -157,7 +157,7 @@ public class CastExpression extends Expression {
 	 */
 	public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int operatorSignature, Expression left, int leftTypeId, boolean leftIsCast, Expression right, int rightTypeId, boolean rightIsCast) {
 
-		if (scope.environment().options.getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 
 		// check need for left operand cast
 		int alternateLeftTypeId = leftTypeId;
@@ -238,7 +238,18 @@ public class CastExpression extends Expression {
 					: scope.getMethod(receiverType, binding.selector, alternateArgumentTypes, fakeInvocationSite); 	
 			}
 			if (bindingIfNoCast == binding) {
-				for (int i = 0, length = originalArgumentTypes.length; i < length; i++) {
+				int argumentLength = originalArgumentTypes.length;
+				if (binding.isVarargs()) {
+					int paramLength = binding.parameters.length;
+				   if (paramLength == argumentLength) {
+						int varargIndex = paramLength - 1;
+						ArrayBinding varargType = (ArrayBinding) binding.parameters[varargIndex];
+						TypeBinding lastArgType = alternateArgumentTypes[varargIndex];
+						if (varargType.dimensions == lastArgType.dimensions() && varargType.leafComponentType != lastArgType.leafComponentType())
+								return;
+				   }
+				}
+				for (int i = 0; i < argumentLength; i++) {
 					if (originalArgumentTypes[i] != alternateArgumentTypes[i]) {
 						scope.problemReporter().unnecessaryCast((CastExpression)arguments[i]);
 					}
@@ -268,7 +279,7 @@ public class CastExpression extends Expression {
 					return true;
 				}
 			}
-		} else if (isNarrowing && castType.isTypeVariable()) {
+		} else if (isNarrowing && castType.leafComponentType().isTypeVariable()) {
 			this.bits |= UnsafeCastMask;
 			return true;
 		}
@@ -377,6 +388,7 @@ public class CastExpression extends Expression {
 						if (!isIndirectlyUsed()) // used for generic type inference or boxing ?
 							scope.problemReporter().unnecessaryCast(this);
 					}
+					this.resolvedType = this.resolvedType.capture(scope, this.sourceEnd);
 				} else { // illegal cast
 					scope.problemReporter().typeCastError(this,  this.resolvedType, expressionType);
 				}

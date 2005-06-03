@@ -32,6 +32,9 @@ public class MemberValuePair extends ASTNode {
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 		this.value = value;
+		if (value instanceof ArrayInitializer) {
+			value.bits |= IsAnnotationDefaultValue;
+		}
 	}
 	
 	/* (non-Javadoc)

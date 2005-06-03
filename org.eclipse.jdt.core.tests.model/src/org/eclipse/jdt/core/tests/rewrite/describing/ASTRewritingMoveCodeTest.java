@@ -1476,7 +1476,6 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 			
 			ASTNode placeholder3= rewrite.createMoveTarget(node);
 			rewrite.getListRewrite(methodDecl.getBody(), Block.STATEMENTS_PROPERTY).insertFirst(placeholder3, null);
-
 		}	
 					
 		String preview= evaluateRewrite(cu, rewrite);
@@ -1497,6 +1496,271 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	}	
 	
+	public void testMoveMultipleNodes() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        if (i == 0) {\n");
+		buf.append("            foo();\n");
+		buf.append("            i++; // comment\n");
+		buf.append("            i++;\n");
+		buf.append("        }\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		assertTrue("Code has errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		{
+			List statements= methodDecl.getBody().statements();
+			IfStatement ifStatement= (IfStatement) statements.get(0);
+			Block thenBlock= (Block) ifStatement.getThenStatement();
+
+			ListRewrite listRewrite= rewrite.getListRewrite(thenBlock, Block.STATEMENTS_PROPERTY);
+			List thenStatements= thenBlock.statements();
+			ASTNode first= (ASTNode) thenStatements.get(0);
+			ASTNode last= (ASTNode) thenStatements.get(1);
+			
+			ASTNode placeholder= listRewrite.createMoveTarget(first, last);
+			
+			rewrite.getListRewrite(methodDecl.getBody(), Block.STATEMENTS_PROPERTY).insertLast(placeholder, null);
+		}	
+					
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        if (i == 0) {\n");
+		buf.append("            i++;\n");
+		buf.append("        }\n");
+		buf.append("        foo();\n");
+		buf.append("        i++; // comment\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	
+	public void testMoveMultipleNodes2() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        if (i == 0) {\n");
+		buf.append("            foo();\n");
+		buf.append("            i++; // comment\n");
+		buf.append("            i++;\n");
+		buf.append("            i--;\n");
+		buf.append("        }\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		assertTrue("Code has errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		{
+			List statements= methodDecl.getBody().statements();
+			IfStatement ifStatement= (IfStatement) statements.get(0);
+			Block thenBlock= (Block) ifStatement.getThenStatement();
+
+			ListRewrite listRewrite= rewrite.getListRewrite(thenBlock, Block.STATEMENTS_PROPERTY);
+			List thenStatements= thenBlock.statements();
+			ASTNode first1= (ASTNode) thenStatements.get(0);
+			ASTNode last1= (ASTNode) thenStatements.get(1);
+			
+			ASTNode placeholder1= listRewrite.createMoveTarget(first1, last1);
+			
+			ASTNode first2= (ASTNode) thenStatements.get(2);
+			ASTNode last2= (ASTNode) thenStatements.get(3);
+			
+			ASTNode placeholder2= listRewrite.createMoveTarget(first2, last2);
+			
+			rewrite.getListRewrite(methodDecl.getBody(), Block.STATEMENTS_PROPERTY).insertFirst(placeholder1, null);
+			rewrite.getListRewrite(methodDecl.getBody(), Block.STATEMENTS_PROPERTY).insertLast(placeholder2, null);
+		}	
+					
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        foo();\n");
+		buf.append("        i++; // comment\n");
+		buf.append("        if (i == 0) {\n");
+		buf.append("        }\n");
+		buf.append("        i++;\n");
+		buf.append("        i--;\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	
+
+	public void testMoveMultipleNodes3() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        if (i == 0) {\n");
+		buf.append("            foo();\n");
+		buf.append("            i++; // comment\n");
+		buf.append("            i++;\n");
+		buf.append("            i--;\n");
+		buf.append("        }\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		assertTrue("Code has errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		{
+			List statements= methodDecl.getBody().statements();
+			IfStatement ifStatement= (IfStatement) statements.get(0);
+			Block thenBlock= (Block) ifStatement.getThenStatement();
+
+			ListRewrite listRewrite= rewrite.getListRewrite(thenBlock, Block.STATEMENTS_PROPERTY);
+			List thenStatements= thenBlock.statements();
+			ASTNode first= (ASTNode) thenStatements.get(0);
+			ASTNode between= (ASTNode) thenStatements.get(1);
+			ASTNode last= (ASTNode) thenStatements.get(3);
+			
+			ASTNode placeholder1= listRewrite.createMoveTarget(first, last);
+			ASTNode placeholder2= listRewrite.createCopyTarget(first, between);
+			
+			rewrite.replace(ifStatement, placeholder1, null);
+						
+			rewrite.getListRewrite(methodDecl.getBody(), Block.STATEMENTS_PROPERTY).insertFirst(placeholder2, null);
+		}	
+					
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        foo();\n");
+		buf.append("        i++; // comment\n");
+		buf.append("        foo();\n");
+		buf.append("        i++; // comment\n");
+		buf.append("        i++;\n");
+		buf.append("        i--;\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	public void testMoveMultipleNodes4() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        if (i == 0) {\n");
+		buf.append("            foo();\n");
+		buf.append("            i++; // comment\n");
+		buf.append("            i++;\n");
+		buf.append("            i--;\n");
+		buf.append("        }\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		assertTrue("Code has errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		{
+			List statements= methodDecl.getBody().statements();
+			IfStatement ifStatement= (IfStatement) statements.get(0);
+			Block thenBlock= (Block) ifStatement.getThenStatement();
+
+			ListRewrite listRewrite= rewrite.getListRewrite(thenBlock, Block.STATEMENTS_PROPERTY);
+			List thenStatements= thenBlock.statements();
+			ASTNode first1= (ASTNode) thenStatements.get(0);
+			ASTNode last1= (ASTNode) thenStatements.get(2);
+			
+			listRewrite.createMoveTarget(first1, last1);
+			
+			ASTNode first2= (ASTNode) thenStatements.get(2);
+			ASTNode last2= (ASTNode) thenStatements.get(3);
+			
+			try {
+				listRewrite.createMoveTarget(first2, last2);
+				assertFalse(true);
+			} catch (IllegalArgumentException e) {
+				// overlapping move ranges
+			}
+		}	
+	}
+
+	
+	public void testReplaceMoveMultiple() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        foo();\n");
+		buf.append("        i++; // comment\n");
+		buf.append("        i--;\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		assertTrue("Code has errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		{
+			List statements= methodDecl.getBody().statements();
+			ASTNode first= (ASTNode) statements.get(0);
+			ASTNode last= (ASTNode) statements.get(2);
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl.getBody(), Block.STATEMENTS_PROPERTY);
+			
+			Block newBlock= astRoot.getAST().newBlock();
+			
+			ASTNode placeholder1= listRewrite.createMoveTarget(first, last, newBlock, null);
+			newBlock.statements().add(placeholder1);
+		}	
+					
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        {\n");
+		buf.append("            foo();\n");
+		buf.append("            i++; // comment\n");
+		buf.append("            i--;\n");
+		buf.append("        }\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
 	
 	
 	public void testMoveForStatementToForBlockCD() throws Exception {

@@ -19,11 +19,13 @@ import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jface.text.IDocument;
 
@@ -54,14 +56,19 @@ public CreateMethodOperation(IType parentElement, String source, boolean force) 
 protected String[] convertASTMethodTypesToSignatures() {
 	if (this.parameterTypes == null) {
 		if (this.createdNode != null) {
-			List parameters = ((MethodDeclaration) this.createdNode).parameters();
+			MethodDeclaration methodDeclaration = (MethodDeclaration) this.createdNode;
+			List parameters = methodDeclaration.parameters();
 			int size = parameters.size();
 			this.parameterTypes = new String[size];
 			Iterator iterator = parameters.iterator();
 			// convert the AST types to signatures
 			for (int i = 0; i < size; i++) {
 				SingleVariableDeclaration parameter = (SingleVariableDeclaration) iterator.next();
-				this.parameterTypes[i] = Util.getSignature(parameter.getType());
+				String typeSig = Util.getSignature(parameter.getType());
+				int extraDimensions = parameter.getExtraDimensions();
+				if (methodDeclaration.isVarargs() && i == size-1)
+					extraDimensions++;
+				this.parameterTypes[i] = Signature.createArraySignature(typeSig, extraDimensions);
 			}
 		}
 	}
@@ -88,7 +95,7 @@ private String getASTNodeName() {
  * @see CreateElementInCUOperation#getMainTaskName()
  */
 public String getMainTaskName(){
-	return Util.bind("operation.createMethodProgress"); //$NON-NLS-1$
+	return Messages.operation_createMethodProgress; 
 }
 protected SimpleName rename(ASTNode node, SimpleName newName) {
 	MethodDeclaration method = (MethodDeclaration) node;
@@ -111,7 +118,7 @@ protected IJavaModelStatus verifyNameCollision() {
 		if (type.getMethod(name, types).exists()) {
 			return new JavaModelStatus(
 				IJavaModelStatusConstants.NAME_COLLISION, 
-				Util.bind("status.nameCollision", name)); //$NON-NLS-1$
+				Messages.bind(Messages.status_nameCollision, name)); 
 		}
 	}
 	return JavaModelStatus.VERIFIED_OK;

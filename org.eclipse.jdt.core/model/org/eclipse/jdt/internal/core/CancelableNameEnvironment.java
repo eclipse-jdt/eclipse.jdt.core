@@ -50,8 +50,8 @@ public class CancelableNameEnvironment extends SearchableEnvironment {
 		return super.findType(compoundTypeName);
 	}
 
-	public void findTypes(char[] prefix, ISearchRequestor storage) {
+	public void findTypes(char[] prefix, boolean findMembers, ISearchRequestor storage) {
 		checkCanceled();
-		super.findTypes(prefix, storage);
+		super.findTypes(prefix, findMembers, storage);
 	}
 }

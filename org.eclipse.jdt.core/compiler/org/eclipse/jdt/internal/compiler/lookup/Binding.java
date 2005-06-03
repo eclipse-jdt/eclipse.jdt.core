@@ -23,13 +23,13 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	public static final int PACKAGE = ASTNode.Bit5;
 	public static final int IMPORT = ASTNode.Bit6;
 	public static final int ARRAY_TYPE = TYPE | ASTNode.Bit7;
-	public static final int PARAMETERIZED_TYPE = TYPE | ASTNode.Bit8;
-	public static final int WILDCARD_TYPE = TYPE | ASTNode.Bit9;
-	public static final int RAW_TYPE = TYPE | ASTNode.Bit10;
-	public static final int GENERIC_TYPE = TYPE | ASTNode.Bit11;
-	public static final int TYPE_PARAMETER = TYPE | ASTNode.Bit12;
-	public static final int ANNOTATION_BINDING = TYPE | ASTNode.Bit13; // for annotation refs
-
+	public static final int BASE_TYPE = TYPE | ASTNode.Bit8;
+	public static final int PARAMETERIZED_TYPE = TYPE | ASTNode.Bit9;
+	public static final int WILDCARD_TYPE = TYPE | ASTNode.Bit10;
+	public static final int RAW_TYPE = TYPE | ASTNode.Bit11;
+	public static final int GENERIC_TYPE = TYPE | ASTNode.Bit12;
+	public static final int TYPE_PARAMETER = TYPE | ASTNode.Bit13;
+	
 	/* API
 	* Answer the receiver's binding type from Binding.BindingID.
 	*
@@ -42,6 +42,13 @@ public abstract class Binding implements CompilerModifiers, ProblemReasons {
 	 * Returns null if binding is not a TypeBinding, a MethodBinding, a FieldBinding or a PackageBinding.
 	 */
 	public char[] computeUniqueKey() {
+		return computeUniqueKey(true/*leaf*/);
+	}
+	/*
+	 * Computes a key that uniquely identifies this binding. Optinaly include access flags.
+	 * Returns null if binding is not a TypeBinding, a MethodBinding, a FieldBinding or a PackageBinding.
+	 */
+	public char[] computeUniqueKey(boolean isLeaf) {
 		return null;
 	}
 	

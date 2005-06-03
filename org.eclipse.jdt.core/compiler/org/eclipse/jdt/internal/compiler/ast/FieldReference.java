@@ -116,7 +116,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic);
 		if (nonStatic) receiver.checkNullStatus(currentScope, flowContext, flowInfo, FlowInfo.NON_NULL);
 		
-		if (valueRequired || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+		if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 			manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 		}
 		return flowInfo;
@@ -203,7 +203,7 @@ public class FieldReference extends Reference implements InvocationSite {
 				}
 			} else {
 				receiver.generateCode(currentScope, codeStream, !isStatic);
-				if (valueRequired || currentScope.environment().options.complianceLevel >= ClassFileConstants.JDK1_4) {
+				if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 					if (this.codegenBinding.declaringClass == null) { // array length
 						codeStream.arraylength();
 						if (valueRequired) {
@@ -352,7 +352,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 		codeStream.generateImplicitConversion(
-			postIncrement.assignmentImplicitConversion);
+			postIncrement.preAssignImplicitConversion);
 		fieldStore(codeStream, this.codegenBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], false);
 	}
 	/**
@@ -483,7 +483,7 @@ public class FieldReference extends Reference implements InvocationSite {
 				&& !this.receiverType.isArrayType()
 				&& this.binding.declaringClass != null // array.length
 				&& !this.binding.isConstantValue()) {
-			CompilerOptions options = currentScope.environment().options;
+			CompilerOptions options = currentScope.compilerOptions();
 			if ((options.targetJDK >= ClassFileConstants.JDK1_2
 					&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !receiver.isImplicitThis() || !this.codegenBinding.isStatic())
 					&& this.binding.declaringClass.id != T_JavaLangObject) // no change for Object fields
@@ -527,40 +527,44 @@ public class FieldReference extends Reference implements InvocationSite {
 			}
 		}		
 		// the case receiverType.isArrayType and token = 'length' is handled by the scope API
-		this.codegenBinding = this.binding = scope.getField(this.receiverType, token, this);
-		if (!binding.isValidBinding()) {
+		FieldBinding fieldBinding = this.codegenBinding = this.binding = scope.getField(this.receiverType, token, this);
+		if (!fieldBinding.isValidBinding()) {
 			constant = NotAConstant;
 			scope.problemReporter().invalidField(this, this.receiverType);
 			return null;
 		}
 		TypeBinding receiverErasure = this.receiverType.erasure();
 		if (receiverErasure instanceof ReferenceBinding) {
-			ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeErasingTo((ReferenceBinding)this.binding.declaringClass.erasure());
+			ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeErasingTo((ReferenceBinding)fieldBinding.declaringClass.erasure());
 			if (match == null) {
-				this.receiverType = this.binding.declaringClass; // handle indirect inheritance thru variable secondary bound
+				this.receiverType = fieldBinding.declaringClass; // handle indirect inheritance thru variable secondary bound
 			}
 		}
 		this.receiver.computeConversion(scope, this.receiverType, this.receiverType);
-		if (isFieldUseDeprecated(binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {
-			scope.problemReporter().deprecatedField(binding, this);
+		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {
+			scope.problemReporter().deprecatedField(fieldBinding, this);
 		}
 		boolean isImplicitThisRcv = receiver.isImplicitThis();
-		constant = FieldReference.getConstantFor(binding, this, isImplicitThisRcv, scope);
+		constant = FieldReference.getConstantFor(fieldBinding, this, isImplicitThisRcv, scope);
 		if (!isImplicitThisRcv) {
 			constant = NotAConstant;
 		}
-		if (binding.isStatic()) {
+		if (fieldBinding.isStatic()) {
 			// static field accessed through receiver? legal but unoptimal (optional warning)
 			if (!(isImplicitThisRcv
 					|| (receiver instanceof NameReference 
 						&& (((NameReference) receiver).bits & Binding.TYPE) != 0))) {
-				scope.problemReporter().nonStaticAccessToStaticField(this, binding);
+				scope.problemReporter().nonStaticAccessToStaticField(this, fieldBinding);
 			}
-			if (!isImplicitThisRcv && binding.declaringClass != receiverType) {
-				scope.problemReporter().indirectAccessToStaticField(this, binding);
+			if (!isImplicitThisRcv && fieldBinding.declaringClass != receiverType) {
+				scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
 			}
 		}
-		return this.resolvedType = binding.type;
+		// perform capture conversion if read access
+		return this.resolvedType = 
+			(((this.bits & IsStrictlyAssignedMASK) == 0) 
+				? fieldBinding.type.capture(scope, this.sourceEnd)
+				: fieldBinding.type);
 	}
 
 	public void setActualReceiverType(ReferenceBinding receiverType) {

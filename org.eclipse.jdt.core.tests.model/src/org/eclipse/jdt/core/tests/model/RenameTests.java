@@ -607,7 +607,7 @@ public void testRenameMainTypes() throws CoreException {
  * Ensures that main types can be renamed as well as a child of a main type. As a side effect
  * of renaming the main types, the types enclosing compilation unit
  * are renamed as well.
- * @see 1FTKMBD: ITPJCORE:ALL - JM- Cannot rename parent and child with the same operation
+ * @see "1FTKMBD: ITPJCORE:ALL - JM- Cannot rename parent and child with the same operation"
  */
 public void testRenameMainTypesAndAChild() throws CoreException {
 	this.createFile(

@@ -1374,6 +1374,60 @@ public void test035() {
 		"Cannot cast from new Object(){} to Test231i\n" + 
 		"----------\n");
 }
+public void test036() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public final class X {\n" + 
+			"	private static final boolean DO_BUG = true;\n" + 
+			"\n" + 
+			"	// Workaround: cast null to Base\n" + 
+			"	private static Base base = DO_BUG ?\n" + 
+			"	// (Base)null\n" + 
+			"			null : new Base() {\n" + 
+			"				public final String test() {\n" + 
+			"					return (\"anonymous\");\n" + 
+			"				}\n" + 
+			"			};\n" + 
+			"\n" + 
+			"	private X() {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] argv) {\n" + 
+			"		if (base == null)\n" + 
+			"			System.out.println(\"no base\");\n" + 
+			"		else\n" + 
+			"			System.out.println(base.test());\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static abstract class Base {\n" + 
+			"		public Base() {\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		public abstract String test();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"no base");
+}
+public void test037() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Integer[] integers = {};\n" + 
+			"		int[] ints = (int[]) integers;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	int[] ints = (int[]) integers;\n" + 
+		"	             ^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Integer[] to int[]\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return CastTest.class;
 }

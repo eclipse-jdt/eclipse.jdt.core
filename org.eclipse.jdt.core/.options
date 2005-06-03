@@ -38,8 +38,29 @@ org.eclipse.jdt.core/debug/resolution=false
 # Reports java search activity
 org.eclipse.jdt.core/debug/search=false
 
+# Reports source mapper activity
+org.eclipse.jdt.core/debug/sourcemapper=false
+
 # Reports open on selection activity : recovered unit, inferred selection
 org.eclipse.jdt.core/debug/selection=false
 
 # Reports access to zip and jar files through the Java model
 org.eclipse.jdt.core/debug/zipaccess=false
+
+# Reports the time to perform code completion.
+org.eclipse.jdt.core/perf/completion=300
+
+# Reports the time to perform code selection.
+org.eclipse.jdt.core/perf/selection=300
+
+# Reports the time to process a java element delta.
+org.eclipse.jdt.core/perf/javadeltalistener=500
+
+# Reports the time to perform an initialization of a classpath variable.
+org.eclipse.jdt.core/perf/variableinitializer=5000
+
+# Reports the time to perform an initialization of a classpath container.
+org.eclipse.jdt.core/perf/containerinitializer=5000
+
+# Reports the time to perform a reconcile operation.
+org.eclipse.jdt.core/perf/reconcile=1000

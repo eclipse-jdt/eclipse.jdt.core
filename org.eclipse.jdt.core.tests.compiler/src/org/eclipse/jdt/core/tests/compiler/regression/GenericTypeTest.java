@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 520 };
+//		TESTS_NUMBERS = new int[] { 700 };
 //		TESTS_RANGE = new int[] { 514, -1 };
 	}
 	public static Test suite() {
@@ -149,7 +149,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	T s;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n");
 	}
 				
@@ -179,17 +179,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	T wrong1;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	static void foo(T wrong2) {\n" + 
 			"	                ^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	T wrong3;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 10)\n" + 
 			"	class MX extends T {\n" + 
@@ -199,12 +199,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. ERROR in X.java (at line 13)\n" + 
 			"	static class SMX extends T {\n" + 
 			"	                         ^\n" + 
-			"Cannot refer to the type parameter T as a supertype\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 14)\n" + 
 			"	T wrong4;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n");
 	}
 	
@@ -225,7 +225,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	T wrong4;\n" + 
 			"	^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n");
 	}
 	
@@ -244,7 +244,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	static T wrong;\n" + 
 			"	       ^\n" + 
-			"Cannot make a static reference to the type parameter T\n" + 
+			"Cannot make a static reference to the non-static type T\n" + 
 			"----------\n");
 	}
 	
@@ -2772,12 +2772,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"   }\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	x.t.bar(\"ESS\");\n" + 
-		"	    ^^^\n" + 
-		"The method bar(String) is undefined for the type ?\n" + 
-		"----------\n");		
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	x.t.foo(\"SUCC\");\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method foo(Object) belongs to the raw type AX. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	x.t.bar(\"ESS\");\n" + 
+			"	    ^^^\n" + 
+			"The method bar(String) is undefined for the type capture-of ?\n" + 
+			"----------\n");		
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85303
 	public void test103() {
@@ -3485,7 +3490,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	Class<? extends X> c3 = s.getClass();\n" + 
 			"	                   ^^\n" + 
-			"Type mismatch: cannot convert from Class<? extends String> to Class<? extends X>\n" + 
+			"Type mismatch: cannot convert from Class<capture-of ? extends String> to Class<? extends X>\n" + 
 			"----------\n");
 	}		
 	// variation on test128
@@ -3515,7 +3520,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	Class<? extends XY> c3 = s.getClass();\n" + 
 			"	                    ^^\n" + 
-			"Type mismatch: cannot convert from Class<? extends String> to Class<? extends XY>\n" + 
+			"Type mismatch: cannot convert from Class<capture-of ? extends String> to Class<? extends XY>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 14)\n" + 
 			"	public Class <? extends Object> getClass() {\n" + 
@@ -3700,7 +3705,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. ERROR in Z.java (at line 6)\n" + 
 			"	zs.foo();\n" + 
 			"	   ^^^\n" + 
-			"The method foo(Z<? super ZA>) in the type Z<? super ZA> is not applicable for the arguments ()\n" + 
+			"The method foo(Z<? super ZA>) in the type Z<capture-of ? super ZA> is not applicable for the arguments ()\n" + 
 			"----------\n");
 	}
 	public void test137() {
@@ -3792,7 +3797,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	x.get().afoo();\n" + 
 			"	        ^^^^\n" + 
-			"The method afoo() is undefined for the type ? extends BX\n" + 
+			"The method afoo() is undefined for the type capture-of ? extends BX\n" + 
 			"----------\n");
 	}		
 	// extending wildcard considers its bound prior to its corresponding variable
@@ -3854,7 +3859,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	x.get().bfoo();\n" + 
 			"	        ^^^^\n" + 
-			"The method bfoo() is undefined for the type ? super BX\n" + 
+			"The method bfoo() is undefined for the type capture-of ? super BX\n" + 
 			"----------\n");
 	}		
 	public void test142() {
@@ -3894,7 +3899,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	x = identity(x);\n" + 
 			"	    ^^^^^^^^\n" + 
-			"Bound mismatch: The generic method identity(X<P>) of type X<T> is not applicable for the arguments (X<? extends X>) since the type ? extends X is not a valid substitute for the bounded parameter <P extends AX>\n" + 
+			"Bound mismatch: The generic method identity(X<P>) of type X<T> is not applicable for the arguments (X<capture-of ? extends X>) since the type capture-of ? extends X is not a valid substitute for the bounded parameter <P extends AX>\n" + 
 			"----------\n");
 	}			
 	public void test143() {
@@ -3913,7 +3918,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	Class<Object> xo2 = xx;\n" + 
 			"	              ^^^\n" + 
-			"Type mismatch: cannot convert from Class<? extends X> to Class<Object>\n" + 
+			"Type mismatch: cannot convert from Class<capture-of ? extends X> to Class<Object>\n" + 
 			"----------\n");
 	}			
 	public void test144() {
@@ -3960,13 +3965,18 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lx.add(x);\n" + 
-			"	^^^^^^^^^\n" + 
-			"Bound mismatch: The method add(?) of type XList<?> is not applicable for the arguments (X). The wildcard parameter ? has no lower bound, and may actually be more restrictive than argument X\n" + 
+			"	   ^^^\n" + 
+			"The method add(capture-of ?) in the type XList<capture-of ?> is not applicable for the arguments (X)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	lx.slot = x;\n" + 
 			"	          ^\n" + 
-			"Bound mismatch: Cannot assign expression of type X to wildcard type ?. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
+			"Type mismatch: cannot convert from X to capture-of ?\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	lx.addAll(lx);\n" + 
+			"	   ^^^^^^\n" + 
+			"The method addAll(XList<capture-of ?>) in the type XList<capture-of ?> is not applicable for the arguments (XList<capture-of ?>)\n" + 
 			"----------\n");
 	}
 	// 59628
@@ -4278,7 +4288,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
 			"	       ^^^^^^^\n" + 
-			"Type mismatch: cannot convert from ? to T\n" + 
+			"Type mismatch: cannot convert from capture-of ? to T\n" + 
 			"----------\n");
 	}		
 	public void test160() {
@@ -4611,7 +4621,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	return a.get();\n" + 
 			"	       ^^^^^^^\n" + 
-			"Type mismatch: cannot convert from ? to T\n" + 
+			"Type mismatch: cannot convert from capture-of ? to T\n" + 
 			"----------\n");
 	}
 	// Expected type inference for cast operation
@@ -4636,17 +4646,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    E get() { return this.e; }\n" + 
 				"}\n"
 			},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 6)\n" + 
-		"	ax = (AX<X>)bar(ax);\n" + 
-		"	     ^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from AX<X> to AX<X>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
-		"	return a.get();\n" + 
-		"	       ^^^^^^^\n" + 
-		"Type mismatch: cannot convert from ? to T\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	ax = (AX<X>)bar(ax);\n" + 
+			"	     ^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from AX<X> to AX<X>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	return a.get();\n" + 
+			"	       ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from capture-of ? to T\n" + 
+			"----------\n");
 	}
 	// Expected type inference for cast operation
 	public void test172() {
@@ -5913,7 +5923,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	Integer i = al.get(0);  // (2)\n" + 
 			"	        ^\n" + 
-			"Type mismatch: cannot convert from ? super Integer to Integer\n" + 
+			"Type mismatch: cannot convert from capture-of ? super Integer to Integer\n" + 
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69141 variation
@@ -5933,8 +5943,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	al.add(new Integer(1)); // (1)\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Bound mismatch: The method add(? extends Integer) of type ArrayList<? extends Integer> is not applicable for the arguments (Integer). The wildcard parameter ? extends Integer has no lower bound, and may actually be more restrictive than argument Integer\n" + 
+			"	   ^^^\n" + 
+			"The method add(capture-of ? extends Integer) in the type ArrayList<capture-of ? extends Integer> is not applicable for the arguments (Integer)\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69141: variation
@@ -5957,7 +5967,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	Integer i = lx.slot;\n" + 
 			"	        ^\n" + 
-			"Type mismatch: cannot convert from ? super Integer to Integer\n" + 
+			"Type mismatch: cannot convert from capture-of ? super Integer to Integer\n" + 
 			"----------\n");
 	}	
 	
@@ -6159,7 +6169,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"9. ERROR in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
 			"	                                ^\n" + 
-			"Type mismatch: cannot convert from Collection<?> to List\n" + 
+			"Type mismatch: cannot convert from Collection<capture-of ?> to List\n" + 
 			"----------\n" + 
 			"10. WARNING in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
@@ -6217,7 +6227,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	li= ln;\n" + 
 			"	    ^^\n" + 
-			"Type mismatch: cannot convert from List<? extends Number> to List<? extends Integer>\n" + 
+			"Type mismatch: cannot convert from List<capture-of ? extends Number> to List<? extends Integer>\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69170 - variation
@@ -6796,7 +6806,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	return clazz.newInstance(); // ? extends Object\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from ? extends Object to X.A\n" + 
+			"Type mismatch: cannot convert from capture-of ? extends Object to X.A\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69799 NPE in foreach checkcast
@@ -6846,17 +6856,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	List<Number> x2= (List<Number>)ls;//unsafe\n" + 
 			"	                 ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from List<? extends Number> to List<Number> is actually checking against the erased type List\n" + 
+			"Type safety: The cast from List<capture-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	List<Number> ls2 = (List<? extends Number>)ls;\n" + 
 			"	             ^^^\n" + 
-			"Type mismatch: cannot convert from List<? extends Number> to List<Number>\n" + 
+			"Type mismatch: cannot convert from List<capture-of ? extends Number> to List<Number>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 11)\n" + 
 			"	List<Number> ls2 = (List<? extends Number>)ls;\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from List<? extends Number> to List<? extends Number>\n" + 
+			"Unnecessary cast from List<capture-of ? extends Number> to List<? extends Number>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 12)\n" + 
 			"	List<? extends Number> ls3 = (List<? extends Number>) li;\n" + 
@@ -7090,7 +7100,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	XC<U> xcu1 = (XC<?>) new X<E>();			\n" + 
 			"	      ^^^^\n" + 
-			"Type mismatch: cannot convert from XC<?> to XC<U>\n" + 
+			"Type mismatch: cannot convert from XC<capture-of ?> to XC<U>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	XC<?> xcu2 = (XC<? extends X>) new X<E>();						\n" + 
@@ -7991,12 +8001,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 2)\n" + 
-			"	import java.util.Enumeration;\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The import java.util.Enumeration is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
 			"	for (Iterator<String> i= l.iterator(); i.next(); ) {\n" + 
 			"	                                       ^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from String to boolean\n" + 
@@ -8313,12 +8318,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 16)\n" + 
+			"2. WARNING in X.java (at line 12)\n" + 
 			"	xe.element().add(this);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 20)\n" + 
+			"3. WARNING in X.java (at line 16)\n" + 
+			"	xe.element().add(this);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method add(Object) belongs to the raw type List. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 20)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -9378,7 +9388,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	out.element = in.element;\n" + 
 			"	              ^^^^^^^^^^\n" + 
-			"Bound mismatch: Cannot assign expression of type ? to wildcard type ?. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
+			"Type mismatch: cannot convert from capture-of ? to capture-of ?\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75328
@@ -9640,12 +9650,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"  }\n" + 
 				"}\n"
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\r\n" + 
-		"	m_values = values.entrySet();\r\n" + 
-		"	           ^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Set<Map.Entry<Integer,?>> to Set<Map.Entry<Integer,?>>\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	m_values = values.entrySet();\n" + 
+			"	           ^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Set<Map.Entry<Integer,capture-of ?>> to Set<Map.Entry<Integer,?>>\n" + 
+			"----------\n");
 	}	
 	// check param type equivalences
 	public void test364() {
@@ -9693,7 +9703,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	mx = x.createMX();\n" + 
 			"	     ^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from X<?>.MX<?> to X<T>.MX<?>\n" + 
+			"Type mismatch: cannot convert from X<capture-of ?>.MX<capture-of ?> to X<T>.MX<?>\n" + 
 			"----------\n");
 	}		
 	// check param type equivalences
@@ -9778,12 +9788,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"7. ERROR in X.java (at line 31)\n" + 
 			"	target= value; // foo10 - wrong\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from MX<? extends Object> to MX<? extends String>\n" + 
+			"Type mismatch: cannot convert from MX<capture-of ? extends Object> to MX<? extends String>\n" + 
 			"----------\n" + 
 			"8. ERROR in X.java (at line 34)\n" + 
 			"	target= value; // foo11 - wrong\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from MX<? super String> to MX<? super Object>\n" + 
+			"Type mismatch: cannot convert from MX<capture-of ? super String> to MX<? super Object>\n" + 
 			"----------\n");
 	}		
 	// check param type equivalences
@@ -9875,7 +9885,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	target = value;\n" + 
 			"	         ^^^^^\n" + 
-			"Type mismatch: cannot convert from XC<? extends Runnable> to XC<Runnable>\n" + 
+			"Type mismatch: cannot convert from XC<capture-of ? extends Runnable> to XC<Runnable>\n" + 
 			"----------\n");
 	}			
 	public void test372() {
@@ -9985,7 +9995,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	target = value; // foo1\n" + 
 			"	         ^^^^^\n" + 
-			"Type mismatch: cannot convert from X<? extends Exception> to X<? super Exception>\n" + 
+			"Type mismatch: cannot convert from X<capture-of ? extends Exception> to X<? super Exception>\n" + 
 			"----------\n");
 	}		
 	public void test376() {
@@ -10580,9 +10590,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	xnpe.element = new java.io.IOException();\n" + 
 			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from IOException to ? super NullPointerException\n" + 
-			"----------\n"
-		);
+			"Type mismatch: cannot convert from IOException to capture-of ? super NullPointerException\n" + 
+			"----------\n");
 	}			
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78139 - downcast generic method inference
@@ -10905,7 +10914,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	X<String> x = (X<String>) xs;\n" + 
 			"	              ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<? extends String> to X<String> is actually checking against the erased type X\n" + 
+			"Type safety: The cast from X<capture-of ? extends String> to X<String> is actually checking against the erased type X\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
@@ -11056,15 +11065,15 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\r\n" + 
-			"	list.add(new Object());                       // should fail\r\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	list.add(new Object());                       // should fail\n" + 
 			"	     ^^^\n" + 
-			"The method add(? super Exception) in the type List<? super Exception> is not applicable for the arguments (Object)\n" + 
+			"The method add(capture-of ? super Exception) in the type List<capture-of ? super Exception> is not applicable for the arguments (Object)\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 12)\r\n" + 
-			"	list.add(new Throwable());                    // should fail\r\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	list.add(new Throwable());                    // should fail\n" + 
 			"	     ^^^\n" + 
-			"The method add(? super Exception) in the type List<? super Exception> is not applicable for the arguments (Throwable)\n" + 
+			"The method add(capture-of ? super Exception) in the type List<capture-of ? super Exception> is not applicable for the arguments (Throwable)\n" + 
 			"----------\n");	
 	}			
 	
@@ -11948,12 +11957,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	list.add((T) other.get(0)); // checked cast\n" + 
 			"	         ^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from ? extends T to T\n" + 
+			"Unnecessary cast from capture-of ? extends T to T\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 13)\n" + 
 			"	list.add((T) other.get(0)); // unchecked cast\n" + 
 			"	         ^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from ? super T to T is actually checking against the erased type Object\n" + 
+			"Type safety: The cast from capture-of ? super T to T is actually checking against the erased type Object\n" + 
 			"----------\n");
 	}		
 
@@ -12209,12 +12218,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	     ^^\n" + 
 			"Type safety: The expression of type X.Inner needs unchecked conversion to conform to X<String>.Inner<Integer>\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 10)\n" + 
+			"5. ERROR in X.java (at line 10)\n" + 
 			"	d1 = d3;\n" + 
 			"	     ^^\n" + 
-			"Type safety: The expression of type X.Inner<Integer> needs unchecked conversion to conform to X<String>.Inner<Integer>\n" + 
+			"Type mismatch: cannot convert from X.Inner<Integer> to X<String>.Inner<Integer>\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 13)\n" + 
+			"6. ERROR in X.java (at line 11)\n" + 
+			"	d3 = d1;\n" + 
+			"	     ^^\n" + 
+			"Type mismatch: cannot convert from X<String>.Inner<Integer> to X.Inner<Integer>\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 13)\n" + 
 			"	d3 = d2;\n" + 
 			"	     ^^\n" + 
 			"Type safety: The expression of type X.Inner needs unchecked conversion to conform to X.Inner<Integer>\n" + 
@@ -12251,17 +12265,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"  }\n" + 
 				"}\n" ,
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
-			"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
-			"	                              ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type X.Inner<Integer> needs unchecked conversion to conform to X<String>.Inner<Integer>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
-			"	                                  ^^^^^^^\n" + 
-			"The member type X.Inner<Integer> must be qualified with a parameterized type, since it is not static\n" + 
-			"----------\n");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
+		"	                         ^^\n" + 
+		"Type mismatch: cannot convert from X.Inner<Integer> to X<String>.Inner<Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	X<String>.Inner<Integer> d4 = new X.Inner<Integer>();\n" + 
+		"	                                  ^^^^^^^\n" + 
+		"The member type X.Inner<Integer> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n");
 	}			
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
@@ -12457,8 +12471,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	l.add(new X()); \n" + 
-			"	^^^^^^^^^^^^^^\n" + 
-			"Bound mismatch: The method add(? extends X) of type List<? extends X> is not applicable for the arguments (X). The wildcard parameter ? extends X has no lower bound, and may actually be more restrictive than argument X\n" + 
+			"	  ^^^\n" + 
+			"The method add(capture-of ? extends X) in the type List<capture-of ? extends X> is not applicable for the arguments (X)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 17)\n" + 
 			"	add3(lx, ls);\n" + 
@@ -12578,8 +12592,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	Class<? extends Collection> d = getClazz(); // ko\n" + 
 			"	                            ^\n" + 
-			"Type mismatch: cannot convert from Class<? extends Object> to Class<? extends Collection>\n" + 
-			"----------\n"	);
+			"Type mismatch: cannot convert from Class<capture-of ? extends Object> to Class<? extends Collection>\n" + 
+			"----------\n");
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82844
@@ -12767,7 +12781,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}	
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83083
-	public void _test469() {
+	public void test469() {
 		this.runConformTest(
 			new String[] {
 				"a/C.java",
@@ -12805,8 +12819,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			null,
 			false, // do not flush output
 			null);			
-	}		
-	
+	}
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83225
 	public void test470() {
 		this.runNegativeTest(
@@ -13024,7 +13038,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	list.add(new Object());   // should fail\n" + 
 			"	     ^^^\n" + 
-			"The method add(? super Number) in the type List<? super Number> is not applicable for the arguments (Object)\n" + 
+			"The method add(capture-of ? super Number) in the type List<capture-of ? super Number> is not applicable for the arguments (Object)\n" + 
 			"----------\n");
 	}		
 	
@@ -13046,7 +13060,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lo = list;\n" + 
 			"	     ^^^^\n" + 
-			"Type mismatch: cannot convert from List<? super Number> to List<Object>\n" + 
+			"Type mismatch: cannot convert from List<capture-of ? super Number> to List<Object>\n" + 
 			"----------\n");
 	}			
 	
@@ -13068,7 +13082,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(? super T) in the type List<? super T> is not applicable for the arguments (? extends Number)\n" + 
+			"The method add(capture-of ? super T) in the type List<capture-of ? super T> is not applicable for the arguments (capture-of ? extends Number)\n" + 
 			"----------\n");
 	}		
 	
@@ -13090,7 +13104,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(? super Number) in the type List<? super Number> is not applicable for the arguments (? super U)\n" + 
+			"The method add(capture-of ? super Number) in the type List<capture-of ? super Number> is not applicable for the arguments (capture-of ? super U)\n" + 
 			"----------\n");
 	}	
 	
@@ -13130,7 +13144,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(? super Integer) in the type List<? super Integer> is not applicable for the arguments (? extends Number)\n" + 
+			"The method add(capture-of ? super Integer) in the type List<capture-of ? super Integer> is not applicable for the arguments (capture-of ? extends Number)\n" + 
 			"----------\n");
 	}			
 
@@ -13149,11 +13163,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n"
 			},
-			"----------\n" +  
+			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
-			"The method add(? super Number) in the type List<? super Number> is not applicable for the arguments (? super Integer)\n" + 
+			"The method add(capture-of ? super Number) in the type List<capture-of ? super Number> is not applicable for the arguments (capture-of ? super Integer)\n" + 
 			"----------\n");
 	}		
 	
@@ -13316,10 +13330,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	bar(l, \"\"); \n" + 
 			"	^^^\n" + 
-			"The method bar(List<? super T>, T) in the type X is not applicable for the arguments (List<?>, String)\n" + 
+			"The method bar(List<? super T>, T) in the type X is not applicable for the arguments (List<capture-of ?>, String)\n" + 
 			"----------\n");
-	}		
-	public void _test488() {
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496
+	public void test488() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13337,9 +13352,15 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" + 
 				"}\n"
 			},
-			"should report type mismatch");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	f1.bar = f2.bar;\n" + 
+			"	         ^^^^^^\n" + 
+			"Type mismatch: cannot convert from X.Bar<capture-of ?> to X.Bar<capture-of ?>\n" + 
+			"----------\n");
 	}		
-	public void _test489() {
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496
+	public void test489() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -13356,7 +13377,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" + 
 				"}\n"
 			},
-			"should report type mismatch?!");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	f1.bar = f1.bar;\n" + 
+			"	         ^^^^^^\n" + 
+			"Type mismatch: cannot convert from X.Bar<capture-of ?> to X.Bar<capture-of ?>\n" + 
+			"----------\n");
 	}		
 	public void test490() {
 		this.runNegativeTest(
@@ -13378,7 +13404,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	lhs.t = rhs.t;\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from ? to ?\n" + 
+			"Type mismatch: cannot convert from capture-of ? to capture-of ?\n" + 
 			"----------\n");
 	}		
 	
@@ -13418,32 +13444,32 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	lhs.t = rhs.t;\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from ? to ?\n" + 
+			"Type mismatch: cannot convert from capture-of ? to capture-of ?\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 12)\n" + 
 			"	lhs = rhs;\n" + 
 			"	      ^^^\n" + 
-			"Type mismatch: cannot convert from X<? extends Number> to X<? super Number>\n" + 
+			"Type mismatch: cannot convert from X<capture-of ? extends Number> to X<? super Number>\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 17)\n" + 
 			"	lhs.t = rhs.t;\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from ? extends Number to ? extends Number\n" + 
+			"Type mismatch: cannot convert from capture-of ? extends Number to capture-of ? extends Number\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 20)\n" + 
 			"	lhs = rhs;\n" + 
 			"	      ^^^\n" + 
-			"Type mismatch: cannot convert from X<? super Number> to X<? extends Number>\n" + 
+			"Type mismatch: cannot convert from X<capture-of ? super Number> to X<? extends Number>\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 21)\n" + 
 			"	lhs.t = rhs.t;\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from ? super Number to ? extends Number\n" + 
+			"Type mismatch: cannot convert from capture-of ? super Number to capture-of ? extends Number\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 25)\n" + 
 			"	lhs.t = rhs.t;\n" + 
 			"	        ^^^^^\n" + 
-			"Type mismatch: cannot convert from ? super Number to ? super Number\n" + 
+			"Type mismatch: cannot convert from capture-of ? super Number to capture-of ? super Number\n" + 
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=81576
@@ -13625,7 +13651,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	take(new A());\n" + 
 			"	     ^^^^^^^\n" + 
-			"Type safety: The expression of type Super<Double>.A needs unchecked conversion to conform to Super<Double>.A<Double>\n" + 
+			"Type safety: The expression of type Super.A needs unchecked conversion to conform to Super<Double>.A<Double>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 14)\n" + 
 			"	Zork z;\n" + 
@@ -14258,67 +14284,62 @@ public void test500(){
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import java.util.Collections;\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The import java.util.Collections is never used\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 7)\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
 			"	foo(list, comparator);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation foo(List, Comparator) of the generic method foo(List<T>, Comparator<? super T>) of type X<E>\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 7)\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
 			"	foo(list, comparator);\n" + 
 			"	    ^^^^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 7)\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
 			"	foo(list, comparator);\n" + 
 			"	          ^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<? super T>\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 8)\n" + 
+			"4. WARNING in X.java (at line 8)\n" + 
 			"	bar(list, comparator);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation bar(List, Comparator) of the generic method bar(List<T>, Comparator<? super T>) of type X<E>\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 8)\n" + 
+			"5. WARNING in X.java (at line 8)\n" + 
 			"	bar(list, comparator);\n" + 
 			"	    ^^^^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
 			"----------\n" + 
-			"7. WARNING in X.java (at line 8)\n" + 
+			"6. WARNING in X.java (at line 8)\n" + 
 			"	bar(list, comparator);\n" + 
 			"	          ^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<? super T>\n" + 
 			"----------\n" + 
-			"8. WARNING in X.java (at line 10)\n" + 
+			"7. WARNING in X.java (at line 10)\n" + 
 			"	x.foo(list, comparator);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The method foo(List, Comparator) belongs to the raw type X. References to generic type X<E> should be parameterized\n" + 
 			"----------\n" + 
-			"9. WARNING in X.java (at line 11)\n" + 
+			"8. WARNING in X.java (at line 11)\n" + 
 			"	x.bar(list, comparator);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"The static method bar(List, Comparator) from the type X should be accessed in a static way\n" + 
 			"----------\n" + 
-			"10. WARNING in X.java (at line 11)\n" + 
+			"9. WARNING in X.java (at line 11)\n" + 
 			"	x.bar(list, comparator);\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation bar(List, Comparator) of the generic method bar(List<T>, Comparator<? super T>) of type X\n" + 
 			"----------\n" + 
-			"11. WARNING in X.java (at line 11)\n" + 
+			"10. WARNING in X.java (at line 11)\n" + 
 			"	x.bar(list, comparator);\n" + 
 			"	      ^^^^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
 			"----------\n" + 
-			"12. WARNING in X.java (at line 11)\n" + 
+			"11. WARNING in X.java (at line 11)\n" + 
 			"	x.bar(list, comparator);\n" + 
 			"	            ^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Comparator needs unchecked conversion to conform to Comparator<? super T>\n" + 
 			"----------\n" + 
-			"13. ERROR in X.java (at line 18)\n" + 
+			"12. ERROR in X.java (at line 18)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -15464,17 +15485,17 @@ public void test500(){
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	m3((X2) m());  // A<Object>.m() --> X<? extends Object> - cannot cast to X2\n" + 
 			"	   ^^^^^^^^\n" + 
-			"Type safety: The cast from X<? extends Object> to X2 is actually checking against the erased type X2\n" + 
+			"Type safety: The cast from X<capture-of ? extends Object> to X2 is actually checking against the erased type X2\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 18)\n" + 
 			"	lhs = rhs; // cannot convert\n" + 
 			"	      ^^^\n" + 
-			"Type mismatch: cannot convert from X<? extends Object> to X<String>\n" + 
+			"Type mismatch: cannot convert from X<capture-of ? extends Object> to X<String>\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 21)\n" + 
 			"	lhs = rhs; // cannot convert\n" + 
 			"	      ^^^\n" + 
-			"Type mismatch: cannot convert from X<? extends Object> to X2\n" + 
+			"Type mismatch: cannot convert from X<capture-of ? extends Object> to X2\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 29)\n" + 
 			"	void foo(X<String> xs) {}\n" + 
@@ -15552,10 +15573,15 @@ public void test500(){
 			"----------\n" + 
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	Object o = (DC<?>) (DA<?>) null;\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from DA<capture-of ?> to DC<?> is actually checking against the erased type DC\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	Object o = (DC<?>) (DA<?>) null;\n" + 
 			"	                   ^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from null to DA<?>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 10)\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -15593,7 +15619,7 @@ public void test500(){
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	X<U> foo = (X<U>)param;\n" + 
 			"	           ^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<? super A> to X<U> is actually checking against the erased type X\n" + 
+			"Type safety: The cast from X<capture-of ? super A> to X<U> is actually checking against the erased type X\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	Zork z;\n" + 
@@ -15699,37 +15725,32 @@ public void test500(){
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import java.util.*;\n" + 
-			"	       ^^^^^^^^^\n" + 
-			"The import java.util is never used\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 8)\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
 			"	Object o1 = (X<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<? extends Object> to X<String> is actually checking against the erased type X\n" + 
+			"Type safety: The cast from X<capture-of ? extends Object> to X<String> is actually checking against the erased type X\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 9)\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
 			"	Object o2 = (X<? extends Object>) xs;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from X<String> to X<? extends Object>\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 10)\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
 			"	Object o3 = (X2) xo;\n" + 
 			"	            ^^^^^^^\n" + 
-			"Type safety: The cast from X<? extends Object> to X2 is actually checking against the erased type X2\n" + 
+			"Type safety: The cast from X<capture-of ? extends Object> to X2 is actually checking against the erased type X2\n" + 
 			"----------\n" + 
-			"5. WARNING in X.java (at line 11)\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
 			"	Object o4 = (X<? extends Object>) x2;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Unnecessary cast from X2 to X<? extends Object>\n" + 
 			"----------\n" + 
-			"6. WARNING in X.java (at line 12)\n" + 
+			"5. WARNING in X.java (at line 12)\n" + 
 			"	Object o5 = (X3<String>) xo;\n" + 
 			"	            ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The cast from X<? extends Object> to X3<String> is actually checking against the erased type X3\n" + 
+			"Type safety: The cast from X<capture-of ? extends Object> to X3<String> is actually checking against the erased type X3\n" + 
 			"----------\n" + 
-			"7. ERROR in X.java (at line 18)\n" + 
+			"6. ERROR in X.java (at line 18)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -15751,25 +15772,20 @@ public void test500(){
 				"}\n",
 			},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	import java.util.List;\n" + 
-			"	       ^^^^^^^^^^^^^^\n" + 
-			"The import java.util.List is never used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
 			"	xu = xn;\n" + 
 			"	     ^^\n" + 
-			"Type mismatch: cannot convert from X<? extends Number> to X<? extends U>\n" + 
+			"Type mismatch: cannot convert from X<capture-of ? extends Number> to X<? extends U>\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 7)\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
 			"	xu.u = xn.u; // ko\n" + 
 			"	       ^^^^\n" + 
-			"Type mismatch: cannot convert from ? extends Number to ? extends U\n" + 
+			"Type mismatch: cannot convert from capture-of ? extends Number to capture-of ? extends U\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 8)\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
 			"	xn.u = xu.u; // ko\n" + 
 			"	       ^^^^\n" + 
-			"Bound mismatch: Cannot assign expression of type ? extends U to wildcard type ? extends Number. The wildcard type has no lower bound, and may actually be more restrictive than expression type\n" + 
+			"Type mismatch: cannot convert from capture-of ? extends U to capture-of ? extends Number\n" + 
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87273
@@ -15980,7 +15996,7 @@ public void test500(){
 		);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87550
-	public void _test562() {
+	public void test562() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -16013,7 +16029,7 @@ public void test500(){
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87550 - variation	
 	public void test564() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"import java.util.*;\n" + 
@@ -16025,17 +16041,7 @@ public void test500(){
 				"	public static final <P, Q> void bar(Collection<? extends Inter<P, Q>> c, Q q) {}\n" + 
 				"}\n",
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	public class X<T, U, V extends X<T, U, V>> extends ArrayList<V> implements Inter<T, U> {\n" + 
-			"	             ^\n" + 
-			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	X.bar(this, u);\n" + 
-			"	  ^^^\n" + 
-			"The method bar(Collection<? extends Inter<P,Q>>, Q) in the type X is not applicable for the arguments (X<T,U,V>, U)\n" + 
-			"----------\n");	
+			"");	
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=87995	- check no warning
 	public void test565() {
@@ -16169,4 +16175,4089 @@ public void test500(){
 			"Exce cannot be resolved to a type\n" + 
 			"----------\n");	
 	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90147
+	public void test570() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T extends Object> {\n" + 
+				"  public class InnerClass implements Comparable<T> {\n" + 
+				"    public int compareTo(T other) {\n" + 
+				"      return -1;\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"  \n" + 
+				"  public void foo() {\n" + 
+				"    InnerClass a = new InnerClass();\n" + 
+				"    InnerClass b = new InnerClass();\n" + 
+				"    // The following line does not compile (anymore):\n" + 
+				"    a.compareTo(b);\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	a.compareTo(b);\n" + 
+			"	  ^^^^^^^^^\n" + 
+			"The method compareTo(T) in the type X<T>.InnerClass is not applicable for the arguments (X<T>.InnerClass)\n" + 
+			"----------\n");	
+	}
+	public void test571() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface IFoo {\n" + 
+				"	void foo();\n" + 
+				"}\n" + 
+				"class Box<T extends IFoo> {\n" + 
+				"	T value() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IBar {\n" + 
+				"	void bar();\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void test1(Box<?> box) {\n" + 
+				"		box.value().foo();\n" + 
+				"	}\n" + 
+				"	void test2(Box<? extends IBar> box) {\n" + 
+				"		box.value().foo();\n" + 
+				"		box.value().bar();\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");	
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90430
+	public void test572() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public <T extends Enum<T>> void doWithEnumClass(Class<T> enumClass) {\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void f() {\n" + 
+				"		Class<?> cl = null; // Returned by Class.forName(\"xyz\");\n" + 
+				"		doWithEnumClass((Class<Enum>) cl);\n" + 
+				"	}\n" + 
+			"}\n",
+			},
+			"");	
+	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90430 - check unchecked warnings
+	public void test573() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public <T extends Enum<T>> void doWithEnumClass(Class<T> enumClass) {\n" + 
+				"		Zork z;\n" +
+				"	}\n" + 
+				"\n" + 
+				"	public void f() {\n" + 
+				"		Class<?> cl = null; // Returned by Class.forName(\"xyz\");\n" + 
+				"		doWithEnumClass((Class<Enum>) cl);\n" + 
+				"	}\n" + 
+			"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	doWithEnumClass((Class<Enum>) cl);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation doWithEnumClass(Class<Enum>) of the generic method doWithEnumClass(Class<T>) of type X\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 8)\n" + 
+			"	doWithEnumClass((Class<Enum>) cl);\n" + 
+			"	                ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Class<capture-of ?> to Class<Enum> is actually checking against the erased type Class\n" + 
+			"----------\n");	
+	}			
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
+	public void _test574() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	class C2 {\n" + 
+				"		<T extends Integer> T foo(Object o) {  return null; } // ok\n" + 
+				"		<T extends String> T foo(Object o) {  return null; } // ok\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().new C2().foo((List<String>) null);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"complain about ambiguity");
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation with field ref
+	public void test575() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Foo<?> f1 = new Foo<Integer>();\n" + 
+				"        (f1).bar = (f1).bar;\n" + 
+				"    }\n" + 
+				"    static class Foo<T> {\n" + 
+				"       Bar<T> bar = new Bar<T>();\n" + 
+				"    }\n" + 
+				"    static class Bar<T> {\n" + 
+				"        T t;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	(f1).bar = (f1).bar;\n" + 
+			"	                ^^^\n" + 
+			"Type mismatch: cannot convert from X.Bar<capture-of ?> to X.Bar<capture-of ?>\n" + 
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation with single ref
+	public void test576() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Foo<?> f1 = new Foo<Integer>();\n" + 
+				"        Foo<?> f2 = new Foo<String>();\n" + 
+				"		f1 = f1;\n" + 
+				"		f1 = f2;\n" + 
+				"    }\n" + 
+				"    static class Foo<T> {\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation with qualified name ref
+	public void test577() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Foo<?> f1 = new Foo<Integer>();\n" + 
+				"        (f1).bar = f1.bar;\n" + 
+				"    }\n" + 
+				"    static class Foo<T> {\n" + 
+				"       Bar<T> bar = new Bar<T>();\n" + 
+				"    }\n" + 
+				"    static class Bar<T> {\n" + 
+				"        T t;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	(f1).bar = f1.bar;\n" + 
+			"	           ^^^^^^\n" + 
+			"Type mismatch: cannot convert from X.Bar<capture-of ?> to X.Bar<capture-of ?>\n" + 
+			"----------\n");
+	}	
+	// check array bound for wildcard
+	public void test578() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(Box<? extends int[]> box) {\n" + 
+				"		int[] ints = box.get();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Box<T> {\n" + 
+				"	T get() { return null; }\n" + 
+				"}\n"
+			},
+			"");
+	}		
+	// check array bound for wildcard
+	public void test579() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(Box<? super int[]> box) {\n" + 
+				"		int[] ints = box.get();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Box<T> {\n" + 
+				"	T get() { return null; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	int[] ints = box.get();\n" + 
+			"	      ^^^^\n" + 
+			"Type mismatch: cannot convert from capture-of ? super int[] to int[]\n" + 
+			"----------\n");
+	}		
+	// check array bound for wildcard
+	public void test580() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void foo(Box<?> box) {\n" + 
+				"		int[] ints = box.get();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Box<T> {\n" + 
+				"	T get() { return null; }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	int[] ints = box.get();\n" + 
+			"	      ^^^^\n" + 
+			"Type mismatch: cannot convert from capture-of ? to int[]\n" + 
+			"----------\n");
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation
+	public void test581() {
+	    this.runNegativeTest(
+			new String[] {
+	            "X.java",
+	            "class X {" +
+	            "  public static void main(String[] args) {\n" +
+	            "    Foo<?> f1 = new Foo<Integer>();\n" +
+	            "    f1.bar = f1.bar;\n" +
+	            "   }\n" +
+	            " }\n" +
+	            "class Foo<T> {\n" +
+	            "  Bar<T> bar = new Bar<T>();\n" +
+	            "}\n" +
+	            "class Bar<T> {\n" +
+	            "  T t;\n" +
+	            "}\n"
+	   		},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	f1.bar = f1.bar;\n" + 
+			"	         ^^^^^^\n" + 
+			"Type mismatch: cannot convert from Bar<capture-of ?> to Bar<capture-of ?>\n" + 
+			"----------\n");            
+	}
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496
+	public void test582() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+                "import java.util.List;\n" +
+                "class X {\n" +
+                "  void foo(List<? extends I1> l1) {\n" +
+                "    C1 c1 = (C1)l1.get(0);\n" +
+                "  }\n" +
+                "}\n" +
+                "interface I1{}\n" +
+                "class C1{}\n"
+            },
+            "");
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=91021
+	public void test583() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"class D<U> {\n" + 
+				"		 public D (D<U> anotherD) {\n" + 
+				"		 }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<S> {\n" + 
+				"		 public static class C<T> {\n" + 
+				"		 		 public C(C<T> anotherC) {\n" + 
+				"		 		 }\n" + 
+				"		 }\n" + 
+				"\n" + 
+				"		 public void mD(D<S> d) {\n" + 
+				"		 		 //the following line is OK (no warning reported)\n" + 
+				"		 		 new D<S>(d);\n" + 
+				"		 }\n" + 
+				"		 \n" + 
+				"		 public void mC(C<S> c) {\n" + 
+				"		 		 /* type safety warning\n" + 
+				"		 		  * (The expression of type X.C<S>\n" + 
+				"		 		  * needs unchecked conversion to conform to\n" + 
+				"		 		  * XSB<S>.C<S>)\n" + 
+				"		 		  */\n" + 
+				"		 		 new C<S>(c);\n" + 
+				"		 }\n" + 
+				"		Zork z;\n" +
+				"}\n"
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 25)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}	
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=91017
+	public void test584() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"		 public static void main(String[] args) {\n" + 
+				"		 		 List<String> stringList = new ArrayList<String>();\n" + 
+				"		 		 stringList.add(\"foo\");\n" + 
+				"		 		 List<Integer> intList = new ArrayList<Integer>();\n" + 
+				"		 		 intList.add(1);\n" + 
+				"\n" + 
+				"		 		 List<?> untypedList = stringList;\n" + 
+				"		 		 List<?> untypedList2 = intList;\n" + 
+				"\n" + 
+				"		 		 //correctly flagged as error: untypedList.add(new Object());\n" + 
+				"		 		 //ditto: untypedList.add(untypedList2.get(0));\n" + 
+				"\n" + 
+				"		 		 //but this is not flagged at all by eclipse:\n" + 
+				"		 		 untypedList.addAll(untypedList2);\n" + 
+				"\n" + 
+				"		 		 for(String s : stringList){\n" + 
+				"		 		 		 //next line generates runtime ClassCastException\n" + 
+				"		 		 		 Logger.log(\"Test_Lists.main: s: \" + s);\n" + 
+				"		 		 }\n" + 
+				"		 }\n" + 
+				"}\n"
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	untypedList.addAll(untypedList2);\n" + 
+			"	            ^^^^^^\n" + 
+			"The method addAll(Collection<? extends capture-of ?>) in the type List<capture-of ?> is not applicable for the arguments (List<capture-of ?>)\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 22)\n" + 
+			"	Logger.log(\"Test_Lists.main: s: \" + s);\n" + 
+			"	^^^^^^\n" + 
+			"Logger cannot be resolved\n" + 
+			"----------\n");
+	}		
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90881
+	public void test585() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"        public static void main(String[] args) {\n" + 
+				"                Outer.Comparator<String> i = new Outer.Comparator<String>() {\n" + 
+				"\n" + 
+				"                        public boolean equals(String a, String b) {\n" + 
+				"                                return false;\n" + 
+				"                        }\n" + 
+				"\n" + 
+				"                        public int hashCode(String a) {\n" + 
+				"                                return 0;\n" + 
+				"                        }\n" + 
+				"                };\n" + 
+				"\n" + 
+				"        }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Outer {}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Outer.Comparator<String> i = new Outer.Comparator<String>() {\n" + 
+			"	^^^^^^^^^^^^^^^^\n" + 
+			"Outer.Comparator cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	Outer.Comparator<String> i = new Outer.Comparator<String>() {\n" + 
+			"	                                 ^^^^^^^^^^^^^^^^\n" + 
+			"Outer.Comparator cannot be resolved to a type\n" + 
+			"----------\n");
+	}			
+	
+	//javac incorrectly rejects it
+	public void test586() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"    static class BB<T, S> { }\n" + 
+				"    static class BD<T> extends BB<T, T> { }\n" + 
+				"    void f() {\n" + 
+				"        BB<? extends Number, ? super Integer> bb = null;\n" + 
+				"        Object o = (BD<Number>) bb;\n" + 
+				"    }\n" + 
+				"}\n",
+            },
+			"");
+	}			
+	
+	public void test587() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"interface DA<T> {\n" + 
+				"}\n" + 
+				"interface DB<T> extends DA<T> {\n" + 
+				"}\n" + 
+				"interface DC<T> extends DA<Integer> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	Object o = (DC<?>) (DA<?>) null;\n" + 
+				"}\n",
+            },
+			"");
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90433
+	public void test588() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X<S extends Comparable<S>> {\n" + 
+				"    public void f() {\n" + 
+				"        Class<S> currentClass = null;\n" + 
+				"        boolean b = currentClass == Long.class;\n" + // not provably distinct types
+				"		\n" + 
+				"		boolean c = X.class == Long.class;\n" + // provably distinct types
+				"    }\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	boolean c = X.class == Long.class;\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Incompatible operand types Class<X> and Class<Long>\n" + 
+			"----------\n");
+	}			
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281
+	public void test589() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	void addAll(List<? extends Number> target, List<? extends Number> source) {\n" + 
+				"		target.addAll(source);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String... args) {\n" + 
+				"		List<Integer> ints = new ArrayList<Integer>();\n" + 
+				"		ints.add(3);\n" + 
+				"\n" + 
+				"		List<Float> floats = new ArrayList<Float>();\n" + 
+				"		floats.add(3f);\n" + 
+				"\n" + 
+				"		new X().addAll(ints, floats);\n" + 
+				"\n" + 
+				"		for (Integer integer : ints) {\n" + 
+				"			System.out.println(integer.intValue());\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	target.addAll(source);\n" + 
+			"	       ^^^^^^\n" + 
+			"The method addAll(Collection<? extends capture-of ? extends Number>) in the type List<capture-of ? extends Number> is not applicable for the arguments (List<capture-of ? extends Number>)\n" + 
+			"----------\n");
+	}		
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281 - variation
+	public void test590() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	void assignAll(Class<? super Number> sup, Class<? extends Number> ext) {\n" + 
+				"		Class<? super Number> superSup = sup.getSuperclass();\n" + 
+				"		Class<?> superExt = ext.getSuperclass();\n" + 
+				"		Class<? super Number> superSup2 = ext.getSuperclass();\n" + 
+				"	}	\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	Class<? super Number> superSup2 = ext.getSuperclass();\n" + 
+			"	                      ^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Class<capture-of ? super capture-of ? extends Number> to Class<? super Number>\n" + 
+			"----------\n");
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281 - variation
+	public void test591() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X<U> {\n" + 
+				"\n" + 
+				"	public Values<U> foo(Box<? extends U> box) {\n" + 
+				"		return select(box.getValues());\n" + 
+				"	}\n" + 
+				"	public static <G> Values<G> select(Values<? extends G> v) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Box<V> {\n" + 
+				"	  abstract Values<V> getValues();\n" + 
+				"}\n" + 
+				"abstract class Values<T> {\n" + 
+				"}\n",
+            },
+			"");
+	}		
+	public void test592() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"    List<?> l;\n" + 
+				"    void m() {\n" + 
+				"	m2(l);\n" + 
+				"    }\n" + 
+				"    <T> void m2(List<T> l2) {\n" + 
+				"	l2.add(l2.remove(0));\n" + 
+				"    }\n" + 
+				"}\n",
+            },
+			"");
+	}			
+	public void test593() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"	    List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" + 
+				"	    List<? extends Class<?>> classes2 = Arrays.asList(String.class, Boolean.class);\n" + 				
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" + 
+			"	               ^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<?>>\n" + 
+			"----------\n");
+	}		
+	public void test594() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				" import java.util.*;\n" + 
+				"import static java.util.Map.*;\n" + 
+				"\n" + 
+				"abstract class MyIterator<E> implements Iterator<E> {\n" + 
+				"	Set<E> iteratedSet;\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	void foo() {\n" + 
+				"		Map<String, ?> map;\n" + 
+				"		Iterator<Entry<String, ?>> it = map.entrySet().iterator();\n" + 
+				"\n" + 
+				"		Entry<String, Number> unrelatedEntry;\n" + 
+				"		MyIterator<Entry<String, ?>> mit = (MyIterator<Entry<String, ?>>) it;\n" + 
+				"		mit.iteratedSet.add(unrelatedEntry);\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	Iterator<Entry<String, ?>> it = map.entrySet().iterator();\n" + 
+			"	                           ^^\n" + 
+			"Type mismatch: cannot convert from Iterator<Map.Entry<String,capture-of ?>> to Iterator<Map.Entry<String,?>>\n" + 
+			"----------\n");
+	}		
+	public void test595() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				" import java.util.*;\n" + 
+				"import static java.util.Map.*;\n" + 
+				"\n" + 
+				"abstract class MyIterator<E> implements Iterator<E> {\n" + 
+				"	Set<E> iteratedSet;\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	\n" + 
+				"	void bar() {\n" + 
+				"		Map<? extends String, ?> map;\n" + 
+				"		Iterator<Entry<? extends String, ?>> it = map.entrySet().iterator();\n" + 
+				"\n" + 
+				"		Entry<String, Number> unrelatedEntry;\n" + 
+				"		MyIterator<Entry<? extends String, ?>> mit = (MyIterator<Entry<? extends String, ?>>) it;\n" + 
+				"		mit.iteratedSet.add(unrelatedEntry);\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	Iterator<Entry<? extends String, ?>> it = map.entrySet().iterator();\n" + 
+			"	                                     ^^\n" + 
+			"Type mismatch: cannot convert from Iterator<Map.Entry<capture-of ? extends String,capture-of ?>> to Iterator<Map.Entry<? extends String,?>>\n" + 
+			"----------\n");
+	}		
+	public void test596() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	<T> Set<T> unmodifiableSet(Set<T> set) {\n" + 
+				"		return set;\n" + 
+				"	}\n" + 
+				"	public void foo(Set<?> s) {\n" + 
+				"		Set<?> s2 = unmodifiableSet(s);\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"");
+	}		
+	public void test597() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X<U> {\n" + 
+				"	Pair<U,U> m() { \n" + 
+				"		return null; \n" + 
+				"	}\n" + 
+				"	void foo(X<?> x) {\n" + 
+				"		x.m().first = x.m().second;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"	\n" + 
+				"class Pair<E, F> {\n" + 
+				"	E first;\n" + 
+				"	F second;\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	x.m().first = x.m().second;\n" + 
+			"	                    ^^^^^^\n" + 
+			"Type mismatch: cannot convert from capture-of ? to capture-of ?\n" + 
+			"----------\n");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90879
+	public void test598() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"class X implements Comparable {\n" + 
+				"\n" + 
+				"	public int compareTo(Object o) {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Y {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<X> lx = null;\n" + 
+				"		Collections.sort(lx);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"");
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90879 - variation
+	public void test599() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X implements Comparable {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Zork z;\n" + 
+				"		\n" + 
+				"		List<X> lx = null;\n" + 
+				"		sort1(lx);\n" + 
+				"		sort2(lx);\n" + 
+				"		sort3(lx);\n" + 
+				"		sort4(lx);\n" + 
+				"		sort5(lx);\n" + 
+				"	}\n" + 
+				"	public int compareTo(Object o) {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	static <T extends Comparable<? super T>> void sort1(List<T> list) {}\n" + 
+				"	static <T extends Comparable<? extends T>> void sort2(List<T> list) {}\n" + 
+				"	static <T extends Comparable<?>> void sort3(List<T> list) {}\n" + 
+				"	static <T extends Comparable<T>> void sort4(List<T> list) {}\n" + 
+				"	static <T extends Comparable> void sort5(List<T> list) {}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	sort1(lx);\n" + 
+			"	^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation sort1(List<X>) of the generic method sort1(List<T>) of type X\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	sort2(lx);\n" + 
+			"	^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation sort2(List<X>) of the generic method sort2(List<T>) of type X\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
+			"	sort4(lx);\n" + 
+			"	^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation sort4(List<X>) of the generic method sort4(List<T>) of type X\n" + 
+			"----------\n");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90879 - variation
+	public void test600() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X implements Comparable {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Zork z;\n" + 
+				"		\n" + 
+				"		List<MyEnum> le = null;\n" + 
+				"		sort6(le);\n" + 
+				"		sort7(le);\n" + 
+				"		sort8(le);\n" + 
+				"		sort9(le);\n" + 
+				"		sort10(le);\n" + 
+				"	}\n" + 
+				"	public int compareTo(Object o) {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	static <T extends MyEnum<? super T>> void sort6(List<T> list) {}\n" + 
+				"	static <T extends MyEnum<? extends T>> void sort7(List<T> list) {}\n" + 
+				"	static <T extends MyEnum<?>> void sort8(List<T> list) {}\n" + 
+				"	static <T extends MyEnum<T>> void sort9(List<T> list) {}\n" + 
+				"	static <T extends MyEnum> void sort10(List<T> list) {}\n" + 
+				"}\n" + 
+				"class MyEnum<E extends MyEnum<E>> {}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	sort6(le);\n" + 
+			"	^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation sort6(List<MyEnum>) of the generic method sort6(List<T>) of type X\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 9)\n" + 
+			"	sort7(le);\n" + 
+			"	^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation sort7(List<MyEnum>) of the generic method sort7(List<T>) of type X\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
+			"	sort9(le);\n" + 
+			"	^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation sort9(List<MyEnum>) of the generic method sort9(List<T>) of type X\n" + 
+			"----------\n");
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281 - variation
+	public void test601() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X<U> {\n" + 
+				"\n" + 
+				"	public Values<U> foo(Box<? extends U> box) {\n" + 
+				"		return select(box.getValues());\n" + 
+				"	}\n" + 
+				"	public static <G> Values<G> select(Values<G> v) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Box<V> {\n" + 
+				"	  abstract Values<V> getValues();\n" + 
+				"}\n" + 
+				"abstract class Values<T> {\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	return select(box.getValues());\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<U>\n" + 
+			"----------\n");
+	}		
+	public void test602() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X<U> {\n" + 
+				"\n" + 
+				"	public void foo(Box<? extends U> box) {\n" + 
+				"		box.getValues()[0] = box.getValues()[1];\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Box<V> {\n" + 
+				"	  abstract Values<V>[] getValues();\n" + 
+				"}\n" + 
+				"abstract class Values<T> {\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	box.getValues()[0] = box.getValues()[1];\n" + 
+			"	                     ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
+			"----------\n");
+	}		
+	public void test603() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X<U> {\n" + 
+				"\n" + 
+				"	public void foo(Box<? extends U>[] boxes) {\n" + 
+				"		boxes[0] = boxes[1];\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Box<V> {\n" + 
+				"	  abstract Values<V>[] getValues();\n" + 
+				"}\n" + 
+				"abstract class Values<T> {\n" + 
+				"}\n",
+            },
+			"");
+	}		
+	// capture on array ref 
+	public void test604() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X<U> {\n" + 
+				"\n" + 
+				"	public void foo(Box<? extends U>[] boxes) {\n" + 
+				"		bar(boxes[0], boxes[1]);\n" + 
+				"	}\n" + 
+				"	<V> void bar(V v1, V v2) {}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Box<V> {\n" + 
+				"	  abstract Values<V>[] getValues();\n" + 
+				"}\n" + 
+				"abstract class Values<T> {\n" + 
+				"}\n",
+            },
+			"");
+	}		
+	// capture on array ref
+	public void test605() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X<U> {\n" + 
+				"\n" + 
+				"	public void foo(Box<? extends U> box) {\n" + 
+				"		box.getValues()[1] = box.getValues()[2];\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Box<V> {\n" + 
+				"	  abstract Values<V>[] getValues();\n" + 
+				"}\n" + 
+				"abstract class Values<T> {\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	box.getValues()[1] = box.getValues()[2];\n" + 
+			"	                     ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
+			"----------\n");
+	}		
+	public void test606() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X<U> {\n" + 
+				"\n" + 
+				"	public void foo(Box<? extends U> box) {\n" + 
+				"		box.getValues()[1] = (Values<? extends U>) box.getValues()[2];\n" + 
+				"	}\n" + 
+				"	<V> void bar(V v1, V v2) {}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Box<V> {\n" + 
+				"	  abstract Values<V>[] getValues();\n" + 
+				"}\n" + 
+				"abstract class Values<T> {\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	box.getValues()[1] = (Values<? extends U>) box.getValues()[2];\n" + 
+			"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unnecessary cast from Values<capture-of ? extends U> to Values<? extends U>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	box.getValues()[1] = (Values<? extends U>) box.getValues()[2];\n" + 
+			"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
+			"----------\n");
+	}		
+	public void test607() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	void test1() {\n" + 
+				"		List<Comparable<Object>> lObj = new ArrayList<Comparable<Object>> ();\n" + 
+				"		Collections.sort (lObj);	\n" + 
+				"	}\n" + 
+				"	void test2() {\n" + 
+				"		List<Comparable> lComp = new ArrayList<Comparable> ();\n" + 
+				"		Collections.sort (lComp);		\n" + 
+				"	}\n" + 
+				"	void test3() {\n" + 
+				"		List<Comparable<String>> lStr = new ArrayList<Comparable<String>> ();\n" + 
+				"		Collections.sort (lStr);\n" + 
+				"	}\n" + 
+				" }\n",
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 11)\n" + 
+			"	Collections.sort (lComp);		\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation sort(List<Comparable>) of the generic method sort(List<T>) of type Collections\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	Collections.sort (lStr);\n" + 
+			"	            ^^^^\n" + 
+			"Bound mismatch: The generic method sort(List<T>) of type Collections is not applicable for the arguments (List<Comparable<String>>) since the type Comparable<String> is not a valid substitute for the bounded parameter <T extends Comparable<? super T>>\n" + 
+			"----------\n");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84284 - check warnings
+	public void test608() {
+	    this.runNegativeTest(
+            new String[] {
+                "Ball.java",
+				"import java.util.*;\n" + 
+				"class Ball implements Comparable {\n" + 
+				"\n" + 
+				"    public int compareTo(Object o) {\n" + 
+				"    	return 0;\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    	LinkedList<Ball> foo = new LinkedList<Ball>();\n" + 
+				"    	Collections.sort(foo);\n" + 
+				"    }\n" + 
+				"	Zork z;\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. WARNING in Ball.java (at line 10)\n" + 
+			"	Collections.sort(foo);\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation sort(List<Ball>) of the generic method sort(List<T>) of type Collections\n" + 
+			"----------\n" + 
+			"2. ERROR in Ball.java (at line 12)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=81831
+	public void test609() {
+	    this.runConformTest(
+            new String[] {
+                "I.java",
+				"interface I<T extends I<? super T>> {}\n",
+            },
+			"");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89940
+	public void _test610() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				" import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void foo(List<Object> objects, List raw) {\n" + 
+				"\n" + 
+				"	    List<Number> numbers;\n" + 
+				"	    List<? extends Number> ext;\n" + 
+				"	    \n" + 
+				"	    numbers= (List<Number>) objects; // correct - cast error\n" + 
+				"	    ext= (List<? extends Number>) objects; // wrong, should fail\n" + 
+				"\n" + 
+				"	    ext= raw; // correct - raw conversion warning issued\n" + 
+				"	    numbers= raw; // correct - raw conversion warning issued\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	numbers= (List<Number>) objects; // correct - cast error\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from List<Object> to List<Number>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	ext= (List<? extends Number>) objects; // wrong, should fail\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot cast from List<Object> to List<? extends Number>\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 12)\n" + 
+			"	ext= raw; // correct - raw conversion warning issued\n" + 
+			"	     ^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<? extends Number>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 13)\n" + 
+			"	numbers= raw; // correct - raw conversion warning issued\n" + 
+			"	         ^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<Number>\n" + 
+			"----------\n");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=91696
+	public void test611() {
+	    this.runConformTest(
+            new String[] {
+                "C.java",
+				"import java.io.Serializable;\n" + 
+				"\n" + 
+				"interface A<K extends A.BK<S>, S extends A.BS> {\n" + 
+				"	public interface BS extends Serializable {\n" + 
+				"	}\n" + 
+				"	public interface BK<SS> extends Serializable {\n" + 
+				"		public void put(SS a);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public P<K, S> getP();\n" + 
+				"}\n" + 
+				"\n" + 
+				"class P<K extends A.BK<S>, S extends A.BS> {\n" + 
+				"	K k;\n" + 
+				"	S s;\n" + 
+				"\n" + 
+				"	public void put() {\n" + 
+				"		k.put(s);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class C<T> implements A<C.K, C.S> {\n" + 
+				"	public static class K implements A.BK<C.S> {\n" + 
+				"		public void put(S a) {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	protected static class S implements A.BS {\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public P<K, S> getP() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"");
+	}			
+	public void test612() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"class MPair<A,B> {}\n" + 
+				"\n" + 
+				"public class X<K,V> {\n" + 
+				"    private static class Bucket extends LinkedList<MPair<K,V>> {}\n" + 
+				"    private Bucket[] buckets = new X.Bucket[100];\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	private static class Bucket extends LinkedList<MPair<K,V>> {}\n" + 
+			"	                                                     ^\n" + 
+			"Cannot make a static reference to the non-static type K\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	private static class Bucket extends LinkedList<MPair<K,V>> {}\n" + 
+			"	                                                       ^\n" + 
+			"Cannot make a static reference to the non-static type V\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 7)\n" + 
+			"	private Bucket[] buckets = new X.Bucket[100];\n" + 
+			"	                 ^^^^^^^\n" + 
+			"The private field X<K,V>.buckets is never read locally\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973
+	public void test613() {
+	    this.runNegativeTest(
+            new String[] {
+                "Map.java",
+				"package xy;\n" + 
+				"import xy.Map.Entry;\n" + 
+				"\n" + 
+				"class Map<M> {\n" + 
+				"    class Entry<E> { }\n" + 
+				"}\n" + 
+				"class User {\n" + 
+				"    void a(Entry<String> e) { } // Entry<String> is illegal (eclipse accepts)\n" + 
+				"    void c(Map.Entry<String> e) { } // illegal (correctly flagged)\n" + 
+				"    void b(Entry e) { } // OK\n" + 
+				"    void d(Map<Integer>.Entry<String> e) { } // OK\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in Map.java (at line 8)\n" + 
+			"	void a(Entry<String> e) { } // Entry<String> is illegal (eclipse accepts)\n" + 
+			"	       ^^^^^\n" + 
+			"The member type Map.Entry<String> must be qualified with a parameterized type, since it is not static\n" + 
+			"----------\n" + 
+			"2. ERROR in Map.java (at line 9)\n" + 
+			"	void c(Map.Entry<String> e) { } // illegal (correctly flagged)\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"The member type Map.Entry<String> must be qualified with a parameterized type, since it is not static\n" + 
+			"----------\n");
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
+	public void test614() {
+	    this.runNegativeTest(
+            new String[] {
+                "X1.java",
+				"class X1 {\n" + 
+				"	static class X2<T> {\n" + 
+				"		class X3<U> {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Y1 {\n" + 
+				"	class Y2 extends X1.X2<Exception> {\n" + 
+				"		void foo() {\n" + 
+				"			X3<String> x;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X1.java (at line 13)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
+	public void _test615() {
+	    this.runNegativeTest(
+            new String[] {
+                "X1.java",
+				"class X1 {\n" + 
+				"	static class X2<T> {\n" + 
+				"		class X3<U> {\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Y1 {\n" + 
+				"	class Y2 extends X1.X2 {\n" + 
+				"		void foo() {\n" + 
+				"			X3<String> x;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n",
+            },
+			"should complain about raw enclosing type + parameterized member");
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
+	public void test616() {
+	    this.runNegativeTest(
+            new String[] {
+                "Map.java",
+				"package xy;\n" + 
+				"import xy.Map.Entry;\n" + 
+				"\n" + 
+				"class Map<M> {\n" + 
+				"    class Entry<E> { }\n" + 
+				"}\n" + 
+				"class User extends Map<String> {\n" + 
+				"    void a(Entry<String> e) { } // Entry<String> is illegal (eclipse accepts)\n" + 
+				"    void c(Map.Entry<String> e) { } // illegal (correctly flagged)\n" + 
+				"    void b(Entry e) { } // OK\n" + 
+				"    void d(Map<Integer>.Entry<String> e) { } // OK\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in Map.java (at line 9)\n" + 
+			"	void c(Map.Entry<String> e) { } // illegal (correctly flagged)\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"The member type Map.Entry<String> must be qualified with a parameterized type, since it is not static\n" + 
+			"----------\n");
+	}
+public void test617() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "public class X {\n" + 
+                "\n" + 
+                "   public void foo() {\n" + 
+                "       String s = null;\n" + 
+                "       ZZZ1<?>.ZZZ2<?>.ZZZ3<?> var = null;\n" + 
+                "       s = var;\n" + 
+                "   }\n" + 
+                "}\n" + 
+                "\n" + 
+                "class ZZZ1<T1> {\n" + 
+                "  class ZZZ2<T2> {\n" +
+                "    class ZZZ3<T3> {}\n" + 
+                "  }\n" + 
+                "}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	s = var;\n" + 
+			"	    ^^^\n" + 
+			"Type mismatch: cannot convert from ZZZ1<?>.ZZZ2<?>.ZZZ3<capture-of ?> to String\n" + 
+			"----------\n");
+    }
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
+	public void test618() {
+	    this.runNegativeTest(
+            new String[] {
+                "Map.java",
+				"class Map<M> {\n" + 
+				"    class Entry<E> { }\n" + 
+				"    class Foo {\n" + 
+				"    	Entry<String> entry;\n" + 
+				"    	static void foo(Entry<String> e) { } // invalid static ref\n" + 
+				"    }\n" + 
+				"    static class Bar {\n" + 
+				"    	Entry<String> entry; // invalid static ref\n" + 
+				"    }\n" + 
+				"    void a(Entry<String> e) { } // OK\n" + 
+				"    void c(Map.Entry<String> e) { } // illegal \n" + 
+				"    void b(Entry e) { } // OK\n" + 
+				"    void d(Map<Integer>.Entry<String> e) { } // OK\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in Map.java (at line 5)\n" + 
+			"	static void foo(Entry<String> e) { } // invalid static ref\n" + 
+			"	            ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The method foo cannot be declared static; static methods can only be declared in a static or top level type\n" + 
+			"----------\n" + 
+			"2. ERROR in Map.java (at line 5)\n" + 
+			"	static void foo(Entry<String> e) { } // invalid static ref\n" + 
+			"	                ^^^^^\n" + 
+			"Cannot make a static reference to the non-static type Entry\n" + 
+			"----------\n" + 
+			"3. ERROR in Map.java (at line 8)\n" + 
+			"	Entry<String> entry; // invalid static ref\n" + 
+			"	^^^^^\n" + 
+			"Cannot make a static reference to the non-static type Entry\n" + 
+			"----------\n" + 
+			"4. ERROR in Map.java (at line 11)\n" + 
+			"	void c(Map.Entry<String> e) { } // illegal \n" + 
+			"	       ^^^^^^^^^\n" + 
+			"The member type Map.Entry<String> must be qualified with a parameterized type, since it is not static\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89440	
+	public void test619() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"interface ISample<V> {\n" + 
+				"	public static enum Stuff {\n" + 
+				"		FIRST, SECOND, THIRD\n" + 
+				"	};\n" + 
+				"}\n" + 
+				"\n" + 
+				"class SampleClass {\n" + 
+				"	public void doSomething(ISample.Stuff thing) {\n" + 
+				"\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public void doSomething() {\n" + 
+				"		SampleClass sample = new SampleClass();\n" + 
+				"		sample.doSomething(ISample.Stuff.FIRST);\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84551	
+	public void test620() {
+	    this.runNegativeTest(
+            new String[] {
+                "Outer.java",
+				"public class Outer<O> {\n" + 
+				"	class Inner { }\n" + 
+				"	\n" + 
+				"	static void test(Inner i) { }\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in Outer.java (at line 4)\n" + 
+			"	static void test(Inner i) { }\n" + 
+			"	                 ^^^^^\n" + 
+			"Cannot make a static reference to the non-static type Inner\n" + 
+			"----------\n");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84551- variation
+	public void test621() {
+	    this.runConformTest(
+            new String[] {
+                "Outer.java",
+				"public class Outer {\n" + 
+				"	class Inner { }\n" + 
+				"	\n" + 
+				"	static void test(Inner i) { }\n" + 
+				"}\n",
+            },
+			"");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84551 - variation
+	public void test622() {
+	    this.runConformTest(
+            new String[] {
+                "Outer.java",
+				"public class Outer<O> {\n" + 
+				"	static class Inner { }\n" + 
+				"	\n" + 
+				"	static void test(Inner i) { }\n" + 
+				"}\n",
+            },
+			"");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84551 - variation
+	public void test623() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X<T> {\n" + 
+				"	static class Outer {\n" + 
+				"		class Inner { }\n" + 
+				"		static void test(Inner i) { }\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"");
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83034
+	public void test624() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				" interface IFoo<U, V extends X<U, V>> {\n" + 
+				"	V bar(int i);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X<E, F extends X<E, F>> {\n" + 
+				"	\n" + 
+				"	public boolean foo(X<E, ?> x) {\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"	public boolean baz(IFoo<E, ?> f) {\n" + 
+				"		return foo(f.bar(0));\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83034 - variation
+	public void test625() {
+	    this.runConformTest(
+            new String[] {
+                "Foo.java",
+				"public class Foo<K> {\n" + 
+				"	public enum Mode {\n" + 
+				"		A\n" + 
+				"	};\n" + 
+				"	public void test(Mode mode) {\n" + 
+				"	}\n" + 
+				"} \n",
+            },
+			"");
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	enum Keys {\n" + 
+				"		B\n" + 
+				"	};\n" + 
+				"	public void test() {\n" + 
+				"		Foo<Keys> foo = new Foo<Keys>();\n" + 
+				"		foo.test(Foo.Mode.A); // error\n" + 
+				"	}\n" + 
+				"} \n",
+            },
+			"",
+			null,
+			false,
+			null);
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92037
+	public void test626() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	private static class A {\n" + 
+				"\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static class B<A> {\n" + 
+				"\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static class AA extends A {\n" + 
+				"\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static class C extends B<AA> {\n" + 
+				"\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		B<A> b = new B<A>();\n" + 
+				"		System.out.println(b instanceof C);\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	private static class B<A> {\n" + 
+			"	                       ^\n" + 
+			"The type parameter A is hiding the type X.A\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 21)\n" + 
+			"	System.out.println(b instanceof C);\n" + 
+			"	                   ^^^^^^^^^^^^^^\n" + 
+			"Incompatible conditional operand types X.B<X.A> and X.C\n" + 
+			"----------\n");
+	}		
+	public void test627() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	<T> List<? extends T> foo(List<? extends T> l1, List<? extends T> l2) {\n" + 
+				"		return l1;\n" + 
+				"	}\n" + 
+				"	void bar(List<String> l1, List<Integer> l2) {\n" + 
+				"		String s = foo(l1, l2);\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	String s = foo(l1, l2);\n" + 
+			"	       ^\n" + 
+			"Type mismatch: cannot convert from List<capture-of ? extends Object&Serializable&Comparable<?>> to String\n" + 
+			"----------\n");
+	}	
+	// check capture for conditional operator
+	public void test628() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	<T> List<? extends T> foo(List<? extends T> l1, List<? extends T> l2) {\n" + 
+				"		return l1;\n" + 
+				"	}\n" + 
+				"	void bar(List<Float> l1, List<Integer> l2) {\n" + 
+				"		List<?> l3 = null;\n" + 
+				"		String s = l1 != null ? foo(l1, l2) : l3;\n" + 
+				"	}\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	String s = l1 != null ? foo(l1, l2) : l3;\n" + 
+			"	       ^\n" + 
+			"Type mismatch: cannot convert from List<capture-of ? extends Object> to String\n" + 
+			"----------\n");
+	}		
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=92556
+	public void test629() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public abstract class Context<N extends Number> {\n" + 
+				"		private Strategy<N, ? super Context<N>> strategy;\n" + 
+				"		public void setStrategy(Strategy<N, ? super Context<N>> strategy) {\n" + 
+				"			this.strategy = strategy;\n" + 
+				"		}\n" + 
+				"		// méthode qui utilise la stratégie\n" + 
+				"		public N call() throws Exception {\n" + 
+				"			return this.strategy.call(this);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public interface Strategy<N extends Number, C extends Context<N>> {\n" + 
+				"		public abstract N call(C context);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"} \n",
+            },
+			"");
+	}			
+	public void test630() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"\n" + 
+				"	void test0() {\n" + 
+				"		List<? super Number[]> arrays= new ArrayList<Number[]>();\n" + 
+				"		Number[] a= null;\n" + 
+				"		arrays.add(null);\n" + 
+				"		arrays.add(a); // Error: The method add(capture-of ? super Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void test1() {\n" + 
+				"		List<? extends Number[]> arrays= new ArrayList<Number[]>();\n" + 
+				"		Number[] a= null;\n" + 
+				"		arrays.add(null);\n" + 
+				"		arrays.add(a); // Error: The method add(capture-of ? extends Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	void test2() {\n" + 
+				"		List<? super Number> nums= null;\n" + 
+				"		Number n= null;\n" + 
+				"		nums.add(null);\n" + 
+				"		nums.add(n);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void test3() {\n" + 
+				"		List<? super List<Number>> nums= null;\n" + 
+				"		List<Number> n= null;\n" + 
+				"		nums.add(null);\n" + 
+				"		nums.add(n);\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\r\n" + 
+			"	arrays.add(a); // Error: The method add(capture-of ? super Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\r\n" + 
+			"	       ^^^\n" + 
+			"The method add(capture-of ? super Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 17)\r\n" + 
+			"	arrays.add(a); // Error: The method add(capture-of ? extends Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\r\n" + 
+			"	       ^^^\n" + 
+			"The method add(capture-of ? extends Number[]) in the type List<capture-of ? extends Number[]> is not applicable for the arguments (Number[])\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93044	
+	public void test631() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"\n" + 
+				"public class X\n" + 
+				"{\n" + 
+				"		 public static void main(String[] args)\n" + 
+				"		 {\n" + 
+				"		 		 Class<? extends Enum<?>> c = RetentionPolicy.class;\n" + 
+				"		 		 System.out.println(Enum.valueOf(c, \"CLASS\"));\n" + 
+				"		 }\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	System.out.println(Enum.valueOf(c, \"CLASS\"));\n" + 
+			"	                        ^^^^^^^\n" + 
+			"Bound mismatch: The generic method valueOf(Class<T>, String) of type Enum<E> is not applicable for the arguments (Class<capture-of ? extends Enum<?>>, String) since the type capture-of ? extends Enum<?> is not a valid substitute for the bounded parameter <T extends Enum<T>>\n" + 
+			"----------\n");
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982
+	public void test632() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.Vector;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void test1() {\n" + 
+				"		Vector<? super java.lang.Object[]> lhs = null;\n" + 
+				"		Vector<? extends java.lang.Object[]> rhs = null;\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"	void test2() {\n" + 
+				"		Vector<? extends java.lang.Object[]> lhs = null;\n" + 
+				"		Vector<? extends java.lang.Object[]> rhs = null;\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"	void test3() {\n" + 
+				"		Vector<? super java.lang.Object[]> lhs = null;\n" + 
+				"		Vector<? super java.lang.Object[]> rhs = null;\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"	void test4() {\n" + 
+				"		Vector<?  extends java.lang.Object[]> lhs = null;\n" + 
+				"		Vector<? super java.lang.Object[]> rhs = null;\n" + 
+				"		lhs.add(rhs.get(0));\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (capture-of ? extends Object[])\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(capture-of ? extends Object[]) in the type Vector<capture-of ? extends Object[]> is not applicable for the arguments (capture-of ? extends Object[])\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 17)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (capture-of ? super Object[])\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 22)\n" + 
+			"	lhs.add(rhs.get(0));\n" + 
+			"	    ^^^\n" + 
+			"The method add(capture-of ? extends Object[]) in the type Vector<capture-of ? extends Object[]> is not applicable for the arguments (capture-of ? super Object[])\n" + 
+			"----------\n");
+	}				
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982 - variation
+	public void test633() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.Vector;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void test1() {\n" + 
+				"		Vector<? super Object[]> lhs = null;\n" + 
+				"		Vector<Object[]> rhs = null;\n" + 
+				"		lhs.add(rhs.get(0)); \n" + 
+				"		foo(rhs.get(0)); // ok #foo(Object[])\n" + 
+				"	}\n" + 
+				"	void foo(Object[] objs) {\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	lhs.add(rhs.get(0)); \n" + 
+			"	    ^^^\n" + 
+			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (Object[])\n" + 
+			"----------\n");
+	}				
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90775
+	public void test634() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.lang.reflect.Array;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"\n" + 
+				"	T[] theArray;\n" + 
+				"\n" + 
+				"	public X(Class<T> clazz) {\n" + 
+				"		theArray = (T[]) Array.newInstance(clazz, 10); // Compiler warning\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public T get(int i) {\n" + 
+				"		return theArray[i];\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X<Integer> t = new X<Integer>(Integer.class);\n" + 
+				"		// GenericsArray1<Integer> t = new GenericsArray1<Integer>( int.class );\n" + 
+				"		Object[] o = t.theArray;\n" + 
+				"	}\n" + 
+				"  Zork z;\n" +
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 8)\n" + 
+			"	theArray = (T[]) Array.newInstance(clazz, 10); // Compiler warning\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Object to T[] is actually checking against the erased type Object[]\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 20)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}					
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93298
+	public void test635() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.util.Iterator;\n" + 
+				"public class X {\n" + 
+				"	public static class Indexed <U>  {\n" + 
+				"		public Iterator<U> foo() {\n" + 
+				"			return new IndexedIter();\n" + 
+				"		}\n" + 
+				"		class IndexedIter implements Iterator<U> {\n" + 
+				"			public boolean hasNext() {\n" + 
+				"				return false;\n" + 
+				"			}\n" + 
+				"			public U next() {\n" + 
+				"				return null;\n" + 
+				"			}\n" + 
+				"			public void remove() {\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=78084	
+	public void test636() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+			"public abstract class X<T> {\n" + 
+			"  public final T element() {\n" + 
+			"    T result = (T) customElement(); // reports unnecessary cast\n" + 
+			"    return result;\n" + 
+			"  }\n" + 
+			"  protected abstract Object customElement();\n" + 
+			"  Zork z;\n" +
+			"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	T result = (T) customElement(); // reports unnecessary cast\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84968	
+	public void test637() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X<E> {\n" + 
+				"	public static final class Ex1 extends Exception {\n" + 
+				"		private static final long serialVersionUID = 1;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private void a1() {\n" + 
+				"		try {\n" + 
+				"			a1_1();\n" + 
+				"		} catch (Ex1 si) {\n" + 
+				"			assert si != null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	protected Object a1_1() throws Ex1 {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private void a2() {\n" + 
+				"		try {\n" + 
+				"			a2_1();\n" + 
+				"		} catch (Ex2 si) {\n" + 
+				"			assert si != null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	protected Object a2_1() throws Ex2 {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public final class Ex3 extends Exception {\n" + 
+				"		private static final long serialVersionUID = 1;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private void a3() {\n" + 
+				"		try {\n" + 
+				"			a3_1();\n" + 
+				"		} catch (Ex3 si) {\n" + 
+				"			assert si != null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	protected Object a3_1() throws Ex3 {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n" + 
+				"\n" + 
+				"final class Ex2 extends Exception {\n" + 
+				"	private static final long serialVersionUID = 1;\n" + 
+				"}\n",
+	        },
+			"");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93478	
+	public void test638() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.util.concurrent.BlockingQueue;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	static interface IMX<S, L> {\n" + 
+				"		void call(L a, S b);\n" + 
+				"	}\n" + 
+				"	static interface Y<S, L> {\n" + 
+				"		void addX(final IMX<S, L> a);\n" + 
+				"		void removeX(final IMX<S, L> a);\n" + 
+				"	}\n" + 
+				"	static final class Pair<T, V> {\n" + 
+				"		T first;\n" + 
+				"\n" + 
+				"		V second;\n" + 
+				"	}\n" + 
+				"	static class Bar<P> {\n" + 
+				"		Bar(final BlockingQueue<P> a) {\n" + 
+				"\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"final class Foo<S, L> extends X.Bar<X.Pair<L[], S>> implements X.IMX<S, L> {\n" + 
+				"	Foo(final BlockingQueue<X.Pair<L[], S>> in) {\n" + 
+				"		super(in);\n" + 
+				"	}\n" + 
+				"	public void call(L a, S b) {\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"");
+	}
+	public void test639() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.Annotation;\n" + 
+				"import java.lang.reflect.*;\n" + 
+				"\n" + 
+				"@interface MyAnnotation {\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	void test() throws Exception {\n" + 
+				"		Class type = X.class;\n" + 
+				"		Method method = type.getMethod(\"test\");\n" + 
+				"		Constructor constructor = type.getConstructor();\n" + 
+				"		Field field = type.getField(\"field\");\n" + 
+				"		Package packge = type.getPackage();\n" + 
+				"		MyAnnotation typeAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation methodAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation constrAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation fieldAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation packgeAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	int field;\n" + 
+				"	\n" + 
+				"	<U extends Annotation> U getAnnotation(Class<U> annotatedType) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"");
+	}		
+	public void test640() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.Annotation;\n" + 
+				"import java.lang.reflect.*;\n" + 
+				"\n" + 
+				"@interface MyAnnotation {\n" + 
+				"}\n" + 
+				"public class X {\n" + 
+				"	void test() throws Exception {\n" + 
+				"		Class<?> type = X.class;\n" + 
+				"		Method method = type.getMethod(\"test\");\n" + 
+				"		Constructor constructor = type.getConstructor();\n" + 
+				"		Field field = type.getField(\"field\");\n" + 
+				"		Package packge = type.getPackage();\n" + 
+				"		MyAnnotation typeAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation methodAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation constrAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation fieldAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation packgeAnnot = getAnnotation(MyAnnotation.class);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	int field;\n" + 
+				"	\n" + 
+				"	<U extends Annotation> U getAnnotation(Class<U> annotatedType) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"");
+	}			
+	public void test641() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.lang.reflect.*;\n" + 
+				"\n" + 
+				"@interface MyAnnotation {\n" + 
+				"}\n" + 
+				"@SuppressWarnings(\"all\")\n" +
+				"public class X {\n" + 
+				"	void test() throws Exception {\n" + 
+				"		Class type = X.class;\n" + 
+				"		Method method = type.getMethod(\"test\");\n" + 
+				"		Constructor constructor = type.getConstructor();\n" + 
+				"		Field field = type.getField(\"field\");\n" + 
+				"		Package packge = type.getPackage();\n" + 
+				"		MyAnnotation typeAnnot = type.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation methodAnnot = method.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation constrAnnot = constructor.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation fieldAnnot = field.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation packgeAnnot = packge.getAnnotation(MyAnnotation.class);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	int field;\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	MyAnnotation typeAnnot = type.getAnnotation(MyAnnotation.class);\n" + 
+			"	             ^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Annotation to MyAnnotation\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
+			"	MyAnnotation constrAnnot = constructor.getAnnotation(MyAnnotation.class);\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Annotation to MyAnnotation\n" + 
+			"----------\n");
+	}			
+	public void test642() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.lang.reflect.*;\n" + 
+				"\n" + 
+				"@interface MyAnnotation {\n" + 
+				"}\n" + 
+				"@SuppressWarnings(\"all\")\n" +
+				"public class X {\n" + 
+				"	void test() throws Exception {\n" + 
+				"		Class<?> type = X.class;\n" + 
+				"		Method method = type.getMethod(\"test\");\n" + 
+				"		Constructor<?> constructor = type.getConstructor();\n" + 
+				"		Field field = type.getField(\"field\");\n" + 
+				"		Package packge = type.getPackage();\n" + 
+				"		MyAnnotation typeAnnot = type.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation methodAnnot = method.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation constrAnnot = constructor.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation fieldAnnot = field.getAnnotation(MyAnnotation.class);\n" + 
+				"		MyAnnotation packgeAnnot = packge.getAnnotation(MyAnnotation.class);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	int field;\n" + 
+				"}\n",
+	        },
+			"");
+	}		
+	public void test643() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X<T> {\n" + 
+				"	\n" + 
+				"	static <U> U foo(U u) {\n" + 
+				"		return u;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	void bar(X x) {\n" + 
+				"		String str = x.foo(\"hello\");\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"");
+	}		
+	public void test644() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X<T> {\n" + 
+				"	\n" + 
+				"	<U> U foo(U u) {\n" + 
+				"		return u;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	void bar(X x) {\n" + 
+				"		String str = x.foo(\"hello\");\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\r\n" + 
+			"	String str = x.foo(\"hello\");\r\n" + 
+			"	       ^^^\n" + 
+			"Type mismatch: cannot convert from Object to String\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\r\n" + 
+			"	String str = x.foo(\"hello\");\r\n" + 
+			"	             ^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method foo(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+			"----------\n");
+	}			
+	public void _test645() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.lang.annotation.Annotation;\n" + 
+				"\n" + 
+				"@interface MyAnnotation {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class X {\n" + 
+				"	void bar(XClass<String> arg) {\n" + 
+				"		XClass xc = new XClass();\n" + 
+				"		String str = xc.getConstructor().getAnnotation(arg);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class XClass<U> {\n" + 
+				"	XConstructor<U> getConstructor() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class XConstructor<V> {\n" + 
+				"	<W extends Annotation> W getAnnotation(XClass<W> cl) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"should complain about bound check failure on #getAnnotation(XClass<String>)");
+	}			
+	public void test646() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Outer.Inner inner = new Outer().new Inner();\n" + 
+				"		X x = inner.setOuterT(new X());\n" + 
+				"		\n" + 
+				"		Outer<String>.Inner innerS = inner;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Outer<T> {\n" + 
+				"	T t;\n" + 
+				"	class Inner {\n" + 
+				"		T setOuterT(T t1) {\n" + 
+				"			t = t1;\n" + 
+				"			return t;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	X x = inner.setOuterT(new X());\n" + 
+			"	  ^\n" + 
+			"Type mismatch: cannot convert from Object to X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	X x = inner.setOuterT(new X());\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method setOuterT(Object) belongs to the raw type Outer.Inner. References to generic type Outer<T>.Inner should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 6)\n" + 
+			"	Outer<String>.Inner innerS = inner;\n" + 
+			"	                             ^^^^^\n" + 
+			"Type safety: The expression of type Outer.Inner needs unchecked conversion to conform to Outer<String>.Inner\n" + 
+			"----------\n");
+	}				
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644
+	public void test647() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Outer.Inner inner = new Outer().new Inner();\n" + 
+				"		X x = inner.set(new X());\n" + 
+				"		\n" + 
+				"		Outer<String>.Inner innerS = inner;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Outer<T> {\n" + 
+				"	T t;\n" + 
+				"	static class Inner<U> {\n" + 
+				"		U set(U u) {\n" + 
+				"			return u;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	X x = inner.set(new X());\n" + 
+			"	  ^\n" + 
+			"Type mismatch: cannot convert from Object to X\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
+			"	X x = inner.set(new X());\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method set(Object) belongs to the raw type Outer.Inner. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	Outer<String>.Inner innerS = inner;\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"The member type Outer<String>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<String>\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644 - variation	
+	public void test648() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		@SuppressWarnings(\"unusedLocal\")\n" + 
+				"		Outer.Inner inner = new Sub().get();\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n" + 
+				"class Outer<T> {\n" + 
+				"	class Inner<U> {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Sub extends Outer {\n" + 
+				"	Inner get() { return null; }\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644 - variation	
+	public void test649() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	void foo() {\n" + 
+				"		@SuppressWarnings(\"unusedLocal\")\n" + 
+				"		Outer<String>.Inner inner = new Sub().get();\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n" + 
+				"class Outer<T> {\n" + 
+				"	class Inner {\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Sub extends Outer {\n" + 
+				"	Inner get() { return null; }\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	Outer<String>.Inner inner = new Sub().get();\n" + 
+			"	                            ^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Outer.Inner needs unchecked conversion to conform to Outer<String>.Inner\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89440	
+	public void test650() {
+	    this.runConformTest(
+            new String[] {
+				"p/A.java",
+				"package p;\n" +
+				"\n" +
+				"public interface A<V> {\n" +
+				"	public static enum Stuff {\n" +
+				"		FIRST, SECOND, THIRD\n" +
+				"	};\n" +
+				"}",
+            },
+            "");
+	    this.runConformTest(
+	    	new String[] {
+				"q/SampleClass2.java",
+				"package q;\n" +
+				"\n" +
+				"import p.A.Stuff;\n" +
+				"\n" +
+				"public class SampleClass2 {\n" +
+				"  public void doSomething(Stuff thing) {\n" +
+				"    \n" +
+				"  }\n" +
+				"}"
+            },
+			"",
+			null,
+			false,
+			null);
+		this.runConformTest(
+			new String[] {
+				"q/SampleClass3.java",
+				"package q;\n" +
+				"\n" +
+				"import p.A;\n" +
+				"\n" +
+				"public class SampleClass3 {\n" +
+				"	public void doSomething() {\n" +
+				"		SampleClass2 sample = new SampleClass2();\n" +
+				"		sample.doSomething(A.Stuff.FIRST);\n" +
+				"	}\n" +
+				"}",
+			},
+			"",
+			null,
+			false,
+			null);
+	}
+	public void test651() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"public class X<U> {\n" + 
+				"\n" + 
+				"	int field;\n" + 
+				"	static int FIELD;\n" + 
+				"\n" + 
+				"	{\n" + 
+				"		field = 1;\n" + 
+				"	}\n" + 
+				"	static {\n" + 
+				"		FIELD = 1;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public Values<U> foo(Box<? extends U> box) {\n" + 
+				"		return select(box.getValues()); // 1\n" + 
+				"	}\n" + 
+				"	public static <G> Values<G> select(Values<? extends G> v) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"abstract class Box<V extends java.io.Serializable> { // Added bound for V\n" + 
+				"	abstract Values<V> getValues();\n" + 
+				"}\n" + 
+				"abstract class Values<T> {\n" + 
+				"}\n",
+	        },
+			"");
+	}	
+	public void test652() {
+	    this.runConformTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Collection<?> c = new HashSet<String>();\n" + 
+				"        Set<?> s = (Set<?>)c;\n" + 
+				"    }\n" + 
+				"}\n",
+	        },
+			"");
+	}	
+	public void test653() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	static public <T extends Collection> void workaround(T a, T b) {\n" + 
+				"		a.addAll(b);\n" + 
+				"	}\n" + 
+				"	Zork z;\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	a.addAll(b);\n" + 
+			"	^^^^^^^^^^^\n" + 
+			"Type safety: The method addAll(Collection) belongs to the raw type Collection. References to generic type Collection<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}		
+	public void test654() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Map myMap = new HashMap();\n" + 
+				"		myMap.put(\"key1\", \"1\");\n" + 
+				"\n" + 
+				"		for (Map.Entry e : myMap.entrySet())\n" + 
+				"			System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+				"		Set<Map.Entry> set = myMap.entrySet();\n" + 
+				"		for (Map.Entry e : set)\n" + 
+				"			System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	myMap.put(\"key1\", \"1\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method put(Object, Object) belongs to the raw type Map. References to generic type Map<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 8)\n" + 
+			"	for (Map.Entry e : myMap.entrySet())\n" + 
+			"	                   ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method entrySet() belongs to the raw type Map. References to generic type Map<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	for (Map.Entry e : myMap.entrySet())\n" + 
+			"	                   ^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from element type Object to Map.Entry\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 9)\n" + 
+			"	System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+			"	                              ^^^^^^^^^^\n" + 
+			"Type safety: The method getKey() belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 9)\n" + 
+			"	System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+			"	                                                         ^^^^^^^^^^^^\n" + 
+			"Type safety: The method getValue() belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 10)\n" + 
+			"	Set<Map.Entry> set = myMap.entrySet();\n" + 
+			"	                     ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method entrySet() belongs to the raw type Map. References to generic type Map<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 10)\n" + 
+			"	Set<Map.Entry> set = myMap.entrySet();\n" + 
+			"	                     ^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Set needs unchecked conversion to conform to Set<Map.Entry>\n" + 
+			"----------\n" + 
+			"8. WARNING in X.java (at line 12)\n" + 
+			"	System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+			"	                              ^^^^^^^^^^\n" + 
+			"Type safety: The method getKey() belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"----------\n" + 
+			"9. WARNING in X.java (at line 12)\n" + 
+			"	System.out.println(\"Key = \" + e.getKey() + \" Value = \" + e.getValue());\n" + 
+			"	                                                         ^^^^^^^^^^^^\n" + 
+			"Type safety: The method getValue() belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"----------\n");
+	}			
+// javac incorrectly rejects the cast
+public void test655() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static class BB<T, S> { }\n" + 
+			"    static class BD<T> extends BB<T, T> { }\n" + 
+			"    void f() {\n" + 
+			"        BB<? extends Number, ? super Integer> bb = null;\n" + 
+			"        Object o = (BD<Number>) bb;\n" + 
+			"    }\n" + 
+			"    Zork z;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	Object o = (BD<Number>) bb;\n" + 
+		"	           ^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from X.BB<capture-of ? extends Number,capture-of ? super Integer> to X.BD<Number> is actually checking against the erased type X.BD\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+public void test656() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	protected Vector<String> v = null;\n" + 
+			"\n" + 
+			"	public void f() {\n" + 
+			"		((String) (v.elementAt(0))).charAt(0);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}	
+public void test657() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X{\n" + 
+			"	\n" + 
+			"	private static class GenericWrapper<Elem>  {\n" + 
+			"		private Elem theObject;\n" + 
+			"		public GenericWrapper(Elem arg) {\n" + 
+			"			theObject = arg;\n" + 
+			"		}\n" + 
+			"		public <T extends Elem> GenericWrapper (GenericWrapper<T> other) {\n" + 
+			"			this.theObject = other.theObject;\n" + 
+			"		}\n" + 
+			"		public String toString() {\n" + 
+			"			return theObject.toString();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	private static GenericWrapper<String> method (Object wrappedString) {\n" + 
+			"		return (GenericWrapper<String>) wrappedString;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.print(method(new GenericWrapper<String>(\"abc\")));\n" + 
+			"		System.out.println(method(new GenericWrapper<Exception>(new Exception())));\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"abcjava.lang.Exception");
+}	
+public void test658() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X{\n" + 
+			"	\n" + 
+			"	private static class GenericWrapper<Elem>  {\n" + 
+			"		Zork z;\n" +
+			"		private Elem theObject;\n" + 
+			"		public GenericWrapper(Elem arg) {\n" + 
+			"			theObject = arg;\n" + 
+			"		}\n" + 
+			"		public <T extends Elem> GenericWrapper (GenericWrapper<T> other) {\n" + 
+			"			this.theObject = other.theObject;\n" + 
+			"		}\n" + 
+			"		public String toString() {\n" + 
+			"			return theObject.toString();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	private static GenericWrapper<String> method (Object wrappedString) {\n" + 
+			"		return (GenericWrapper<String>) wrappedString;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.print(method(new GenericWrapper<String>(\"abc\")));\n" + 
+			"		System.out.println(method(new GenericWrapper<Exception>(new Exception())));\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	public String toString() {\n" + 
+		"	              ^^^^^^^^^^\n" + 
+		"The method toString() of type X.GenericWrapper<Elem> should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 17)\n" + 
+		"	return (GenericWrapper<String>) wrappedString;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to X.GenericWrapper<String> is actually checking against the erased type X.GenericWrapper\n" + 
+		"----------\n");
+}	
+public void test659() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.lang.ref.*;\n" + 
+			"\n" + 
+			"@SuppressWarnings(\"unusedLocal\")\n" + 
+			"public class X<K, V> extends WeakReference<V> {\n" + 
+			"	Zork z;\n" + 
+			"	static ReferenceQueue<Integer> queue = new ReferenceQueue<Integer>();\n" + 
+			"\n" + 
+			"	private K key;\n" + 
+			"\n" + 
+			"	public X(K key, V value, ReferenceQueue<V> queue) {\n" + 
+			"		super(value, queue);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public K getKey() {\n" + 
+			"		return key;\n" + 
+			"	}\n" + 
+			"	@Override\n" + 
+			"	public String toString() {\n" + 
+			"		return \"key:\" + key;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] arg) throws Exception {\n" + 
+			"		X<String, Integer> ref = new X<String, Integer>(\"Dummy Key\", new Integer(5), queue);\n" + 
+			"		new Thread() {\n" + 
+			"			@Override\n" + 
+			"			public void run() {\n" + 
+			"				for (;;) {\n" + 
+			"					// force ref to be cleared\n" + 
+			"					System.gc();\n" + 
+			"				}\n" + 
+			"			}\n" + 
+			"		}.start();\n" + 
+			"\n" + 
+			"		X<String, Integer> fromQueue = (X<String, Integer>) queue.remove();\n" + 
+			"		System.out.println(fromQueue);\n" + 
+			"		System.exit(0);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 34)\n" + 
+		"	X<String, Integer> fromQueue = (X<String, Integer>) queue.remove();\n" + 
+		"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Reference<capture-of ? extends Integer> to X<String,Integer> is actually checking against the erased type X\n" + 
+		"----------\n");
+}	
+public void test660() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"	boolean run(X x) {\n" + 
+			"		return false;\n" + 
+			"	}\n" + 
+			"	<T> void run(Class<T> ct) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		boolean b = new X().run(new X(){});\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066
+public void test661() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<S extends Comparable<S>> {\n" + 
+			"   public X() {\n" + 
+			"       S a = (S)(Integer)3;\n" + 
+			"   }\n" + 
+			"	Zork z;\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	S a = (S)(Integer)3;\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Integer to S\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	S a = (S)(Integer)3;\n" + 
+		"	         ^^^^^^^^^^\n" + 
+		"Unnecessary cast from int to Integer\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
+public void test662() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<S extends Comparable<String>> {\n" + 
+			"   public X() {\n" + 
+			"       S a = (S)(Integer)3; // this should fail\n" + 
+			"   }\n" +
+			"	Zork z;\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	S a = (S)(Integer)3; // this should fail\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"Cannot cast from Integer to S\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	S a = (S)(Integer)3; // this should fail\n" + 
+		"	         ^^^^^^^^^^\n" + 
+		"Unnecessary cast from int to Integer\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
+public void test663() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"   Object foo(Comparable<Integer> c) {\n" + 
+			"	   return (Comparable<S>) c;\n" + 
+			"   }\n" + 
+			"   <U extends Throwable, V extends Runnable> void foo(List<V> lv) {\n" + 
+			"	   List l = (List<U>) lv;\n" + 
+			"   }\n" + 
+			"   <U extends Throwable, V extends Runnable> void foo2(List<List<V>> lv) {\n" + 
+			"	   List l = (List<List<U>>) lv;\n" + 
+			"   }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	return (Comparable<S>) c;\n" + 
+		"	                   ^\n" + 
+		"S cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 8)\n" + 
+		"	List l = (List<U>) lv;\n" + 
+		"	         ^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from List<V> to List<U> is actually checking against the erased type List\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	List l = (List<List<U>>) lv;\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<List<V>> to List<List<U>>\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
+public void test664() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<S extends Comparable<String>> {\n" + 
+			"   public X(X2 x2) {\n" + 
+			"       S a = (S)x2;\n" + 
+			"   }\n" + 
+			"}\n" + 
+			"abstract class X2 implements Comparable<X2> {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	S a = (S)x2;\n" + 
+		"	      ^^^^^\n" + 
+		"Cannot cast from X2 to S\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95066 - variation
+public void test665() {
+	this.runNegativeTest(
+		new String[] {
+			"Test.java",
+			"public class Test<S> {\n" + 
+			"	void foo() {\n" + 
+			"		A a = new A();\n" + 
+			"		Comparable<Object> c = (Comparable<Object>) a; // Fails as expected\n" + 
+			"		Comparable<S> c2 = (Comparable<S>) a; // Should fail?\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n" + 
+			"\n" + 
+			"final class A implements Comparable<A> {\n" + 
+			"	public int compareTo(A o) {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 4)\n" + 
+		"	Comparable<Object> c = (Comparable<Object>) a; // Fails as expected\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from A to Comparable<Object>\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 5)\n" + 
+		"	Comparable<S> c2 = (Comparable<S>) a; // Should fail?\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from A to Comparable<S>\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89940
+public void test666() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo(List<Object> objects, List raw) {\n" + 
+			"\n" + 
+			"	    List<Number> numbers;\n" + 
+			"	    List<? extends Number> ext;\n" + 
+			"	    \n" + 
+			"	    numbers= (List<Number>) objects; // correct - cast error\n" + 
+			"	    ext= (List<? extends Number>) objects; // wrong, should fail\n" + 
+			"\n" + 
+			"	    ext= raw; // correct - raw conversion warning issued\n" + 
+			"	    numbers= raw; // correct - raw conversion warning issued\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	numbers= (List<Number>) objects; // correct - cast error\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<Object> to List<Number>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 10)\n" + 
+		"	ext= (List<? extends Number>) objects; // wrong, should fail\n" + 
+		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from List<Object> to List<? extends Number> is actually checking against the erased type List\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
+		"	ext= raw; // correct - raw conversion warning issued\n" + 
+		"	     ^^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<? extends Number>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 13)\n" + 
+		"	numbers= raw; // correct - raw conversion warning issued\n" + 
+		"	         ^^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<Number>\n" + 
+		"----------\n");
+}	
+public void _test667() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    public static void foo(List<? super Object[]> l) {    }\n" + 
+			" \n" + 
+			"    public static void foo2(List<Object[]> l) {    }\n" + 
+			" \n" + 
+			"    public static void foo3(List<? extends Object[]> l) {    }\n" + 
+			" \n" + 
+			"    public static void bar(List<? super Object> l) {    }\n" + 
+			" \n" + 
+			"    public static void bar2(List<Object> l) {    }\n" + 
+			" \n" + 
+			"    public static void bar3(List<? extends Object> l) {    }\n" + 
+			" \n" + 
+			"    public static void bar4(List<?> l) {    }\n" + 
+			" \n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        {   // can be { Object, Object[] }\n" + 
+			"            List<? super Object[]> l = new ArrayList<Object[]>();\n" + 
+			"            l.add(l.get(0));  // illegal [01]\n" + 
+			"            l.add((Object) null);  // illegal [02]\n" + 
+			"            l.add((Integer) null);  // illegal [03]\n" + 
+			"            l.add((Object []) null); // illegal [04]\n" + 
+			"            l.add((Integer []) null); // illegal [05]\n" + 
+			"            l.add((Integer [][]) null); // illegal [06]\n" + 
+			" \n" + 
+			"            foo(l); // List<? super Object[]> - legal [07]\n" + 
+			"            foo2(l); // List<Object[]> - illegal [08]\n" + 
+			"            foo3(l); // List<? extends Object[]> - illegal [09]\n" + 
+			"            bar(l); // List<? super Object> - illegal [10]\n" + 
+			"            bar2(l); // List<Object> - illegal [11]\n" + 
+			"            bar3(l); // List<? extends Object> - legal [12]\n" + 
+			"            bar4(l); // List<?> - legal [13]\n" + 
+			"        }\n" + 
+			"        {   // can be Object[] or (? extends Object)[]\n" + 
+			"            List<Object[]> l = new ArrayList<Object[]>();\n" + 
+			"            l.add(l.get(0));  // legal [14]\n" + 
+			"            l.add((Object) null);  // illegal [15]\n" + 
+			"            l.add((Integer) null);  // illegal [16]\n" + 
+			"            l.add((Object []) null); // legal [17]\n" + 
+			"            l.add((Integer []) null); // legal [18]\n" + 
+			"            l.add((Integer [][]) null); // legal [19]\n" + 
+			" \n" + 
+			"            foo(l); // List<? super Object[]> - legal [20]\n" + 
+			"            foo2(l); // List<Object[]> - legal [21]\n" + 
+			"            foo3(l); // List<? extends Object[]> - legal [22]\n" + 
+			"            bar(l); // List<? super Object> - illegal [23]\n" + 
+			"            bar2(l); // List<Object> - illegal [24]\n" + 
+			"            bar3(l); // List<? extends Object> - legal [25]\n" + 
+			"            bar4(l); // List<?> - legal [26]\n" + 
+			"        }\n" + 
+			"        {   // Only allows wildcards, Object is illegal.\n" + 
+			"            List<? extends Object[]> l = new ArrayList<Object[]>();\n" + 
+			"            l.add(l.get(0));  // illegal [27]\n" + 
+			"            l.add((Object) null);  // illegal [28]\n" + 
+			"            l.add((Integer) null);  // illegal [29]\n" + 
+			"            l.add((Object []) null); // illegal [30]\n" + 
+			"            l.add((Integer []) null); // illegal [31]\n" + 
+			"            l.add((Integer [][]) null); // illegal [32]\n" + 
+			" \n" + 
+			"            foo(l); // List<? super Object[]> - illegal [33]\n" + 
+			"            foo2(l); // List<Object[]> - illegal [34]\n" + 
+			"            foo3(l); // List<? extends Object[]> - legal [35]\n" + 
+			"            bar(l); // List<? super Object> - illegal [36]\n" + 
+			"            bar2(l); // List<Object> - illegal [37]\n" + 
+			"            bar3(l); // List<? extends Object> - legal [38]\n" + 
+			"            bar4(l); // List<?> - legal [39]\n" + 
+			"        }\n" + 
+			"        {   // can add non-arrays but can only match ? super Object, ? super Object[], or ? extends Object, but not Object  \n" + 
+			"            List<? super Object> l = new ArrayList<Object>();\n" + 
+			"            l.add(l.get(0));  // legal [40]\n" + 
+			"            l.add((Object) null);  // legal [41]\n" + 
+			"            l.add((Integer) null);  // legal [42]\n" + 
+			"            l.add((Object []) null); // illegal [43]\n" + 
+			"            l.add((Integer []) null); // illegal [44]\n" + 
+			"            l.add((Integer [][]) null); // illegal [45]\n" + 
+			" \n" + 
+			"            foo(l); // legal [46]\n" + 
+			"            foo2(l); // illegal [47]\n" + 
+			"            foo3(l); // illegal [48]\n" + 
+			"            bar(l); // legal [49]\n" + 
+			"            bar2(l); // illegal [50]\n" + 
+			"            bar3(l); // legal [51]\n" + 
+			"            bar4(l); // legal [52]\n" + 
+			"        }\n" + 
+			"        {   // can add array but cannot call a method which expects an array. 100% !\n" + 
+			"            List<Object> l = new ArrayList<Object>();\n" + 
+			"            l.get(0).toString();\n" + 
+			"            l.add(l.get(0));  // legal [53]\n" + 
+			"            l.add((Object) null);  // legal [54]\n" + 
+			"            l.add((Integer) null);  // legal [55]\n" + 
+			"            l.add((Object []) null); // legal [56]\n" + 
+			"            l.add((Integer []) null); // legal [57]\n" + 
+			"            l.add((Integer [][]) null); // legal [58]\n" + 
+			" \n" + 
+			"            foo(l); // legal [59]\n" + 
+			"            foo2(l); // illegal [60]\n" + 
+			"            foo3(l); // illegal [61]\n" + 
+			"            bar(l); // legal [62]\n" + 
+			"            bar2(l); // legal [63]\n" + 
+			"            bar3(l); // legal [64]\n" + 
+			"            bar4(l); // legal [65]\n" + 
+			"        }\n" + 
+			"        {   // cannot add any type but can match ? or ? extends Object.\n" + 
+			"            List<? extends Object> l = new ArrayList<Object>();\n" + 
+			"            l.add(l.get(0));  // illegal [66]\n" + 
+			"            l.add((Object) null);  // illegal [67]\n" + 
+			"            l.add((Integer) null);  // illegal [68]\n" + 
+			"            l.add((Object []) null); // illegal [69]\n" + 
+			"            l.add((Integer []) null); // illegal [70]\n" + 
+			"            l.add((Integer [][]) null); // illegal [71]\n" + 
+			" \n" + 
+			"            foo(l); // List<? super Object[]> - illegal [72]\n" + 
+			"            foo2(l); // List<Object[]> - illegal [73]\n" + 
+			"            foo3(l); // List<? extends Object[]> - illegal [74]\n" + 
+			"            bar(l); // List<? super Object> - illegal [75]\n" + 
+			"            bar2(l); // List<Object> - illegal [76]\n" + 
+			"            bar3(l); // List<? extends Object> - legal [77]\n" + 
+			"            bar4(l); // List<?> - legal [78]\n" + 
+			"        }\n" + 
+			"        {   // same as ? extends Object.\n" + 
+			"            List<?> l = new ArrayList<Object>();\n" + 
+			"            l.add(l.get(0));  // illegal [79]\n" + 
+			"            l.add((Object) null);  // illegal [80]\n" + 
+			"            l.add((Integer) null);  // illegal [81]\n" + 
+			"            l.add((Object []) null); // illegal [82]\n" + 
+			"            l.add((Integer []) null); // illegal [83]\n" + 
+			"            l.add((Integer [][]) null); // illegal [84]\n" + 
+			" \n" + 
+			"            foo(l); // List<? super Object[]> - illegal [85]\n" + 
+			"            foo2(l); // List<Object[]> - illegal [86]\n" + 
+			"            foo3(l); // List<? extends Object[]> - illegal [87]\n" + 
+			"            bar(l); // List<? super Object> - illegal [88]\n" + 
+			"            bar2(l); // List<Object> - illegal [89]\n" + 
+			"            bar3(l); // List<? extends Object> - legal [90]\n" + 
+			"            bar4(l); // List<?> - legal [91]\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 21)\n" + 
+		"	l.add(l.get(0));  // illegal [01]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (capture-of ? super Object[])\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 22)\n" + 
+		"	l.add((Object) null);  // illegal [02]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 23)\n" + 
+		"	l.add((Integer) null);  // illegal [03]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (Integer)\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 24)\n" + 
+		"	l.add((Object []) null); // illegal [04]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 25)\n" + 
+		"	l.add((Integer []) null); // illegal [05]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (Integer[])\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 26)\n" + 
+		"	l.add((Integer [][]) null); // illegal [06]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object[]) in the type List<capture-of ? super Object[]> is not applicable for the arguments (Integer[][])\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 28)\n" + 
+		"	foo(l); // List<? super Object[]> - legal [07]\n" + 
+		"	^^^\n" + 
+		"The method foo(List<? super Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object[]>)\n" + 
+		"----------\n" + 
+		"8. ERROR in X.java (at line 29)\n" + 
+		"	foo2(l); // List<Object[]> - illegal [08]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object[]>)\n" + 
+		"----------\n" + 
+		"9. ERROR in X.java (at line 30)\n" + 
+		"	foo3(l); // List<? extends Object[]> - illegal [09]\n" + 
+		"	^^^^\n" + 
+		"The method foo3(List<? extends Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object[]>)\n" + 
+		"----------\n" + 
+		"10. ERROR in X.java (at line 31)\n" + 
+		"	bar(l); // List<? super Object> - illegal [10]\n" + 
+		"	^^^\n" + 
+		"The method bar(List<? super Object>) in the type X is not applicable for the arguments (List<capture-of ? super Object[]>)\n" + 
+		"----------\n" + 
+		"11. ERROR in X.java (at line 32)\n" + 
+		"	bar2(l); // List<Object> - illegal [11]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ? super Object[]>)\n" + 
+		"----------\n" + 
+		"12. ERROR in X.java (at line 39)\n" + 
+		"	l.add((Object) null);  // illegal [15]\n" + 
+		"	  ^^^\n" + 
+		"The method add(Object[]) in the type List<Object[]> is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"13. ERROR in X.java (at line 40)\n" + 
+		"	l.add((Integer) null);  // illegal [16]\n" + 
+		"	  ^^^\n" + 
+		"The method add(Object[]) in the type List<Object[]> is not applicable for the arguments (Integer)\n" + 
+		"----------\n" + 
+		"14. ERROR in X.java (at line 48)\n" + 
+		"	bar(l); // List<? super Object> - illegal [23]\n" + 
+		"	^^^\n" + 
+		"The method bar(List<? super Object>) in the type X is not applicable for the arguments (List<Object[]>)\n" + 
+		"----------\n" + 
+		"15. ERROR in X.java (at line 49)\n" + 
+		"	bar2(l); // List<Object> - illegal [24]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<Object[]>)\n" + 
+		"----------\n" + 
+		"16. ERROR in X.java (at line 55)\n" + 
+		"	l.add(l.get(0));  // illegal [27]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (capture-of ? extends Object[])\n" + 
+		"----------\n" + 
+		"17. ERROR in X.java (at line 56)\n" + 
+		"	l.add((Object) null);  // illegal [28]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"18. ERROR in X.java (at line 57)\n" + 
+		"	l.add((Integer) null);  // illegal [29]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (Integer)\n" + 
+		"----------\n" + 
+		"19. ERROR in X.java (at line 58)\n" + 
+		"	l.add((Object []) null); // illegal [30]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"20. ERROR in X.java (at line 59)\n" + 
+		"	l.add((Integer []) null); // illegal [31]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (Integer[])\n" + 
+		"----------\n" + 
+		"21. ERROR in X.java (at line 60)\n" + 
+		"	l.add((Integer [][]) null); // illegal [32]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object[]) in the type List<capture-of ? extends Object[]> is not applicable for the arguments (Integer[][])\n" + 
+		"----------\n" + 
+		"22. ERROR in X.java (at line 62)\n" + 
+		"	foo(l); // List<? super Object[]> - illegal [33]\n" + 
+		"	^^^\n" + 
+		"The method foo(List<? super Object[]>) in the type X is not applicable for the arguments (List<capture-of ? extends Object[]>)\n" + 
+		"----------\n" + 
+		"23. ERROR in X.java (at line 63)\n" + 
+		"	foo2(l); // List<Object[]> - illegal [34]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<capture-of ? extends Object[]>)\n" + 
+		"----------\n" + 
+		"24. ERROR in X.java (at line 65)\n" + 
+		"	bar(l); // List<? super Object> - illegal [36]\n" + 
+		"	^^^\n" + 
+		"The method bar(List<? super Object>) in the type X is not applicable for the arguments (List<capture-of ? extends Object[]>)\n" + 
+		"----------\n" + 
+		"25. ERROR in X.java (at line 66)\n" + 
+		"	bar2(l); // List<Object> - illegal [37]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ? extends Object[]>)\n" + 
+		"----------\n" + 
+		"26. ERROR in X.java (at line 75)\n" + 
+		"	l.add((Object []) null); // illegal [43]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object) in the type List<capture-of ? super Object> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"27. ERROR in X.java (at line 76)\n" + 
+		"	l.add((Integer []) null); // illegal [44]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object) in the type List<capture-of ? super Object> is not applicable for the arguments (Integer[])\n" + 
+		"----------\n" + 
+		"28. ERROR in X.java (at line 77)\n" + 
+		"	l.add((Integer [][]) null); // illegal [45]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? super Object) in the type List<capture-of ? super Object> is not applicable for the arguments (Integer[][])\n" + 
+		"----------\n" + 
+		"29. ERROR in X.java (at line 79)\n" + 
+		"	foo(l); // legal [46]\n" + 
+		"	^^^\n" + 
+		"The method foo(List<? super Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object>)\n" + 
+		"----------\n" + 
+		"30. ERROR in X.java (at line 80)\n" + 
+		"	foo2(l); // illegal [47]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object>)\n" + 
+		"----------\n" + 
+		"31. ERROR in X.java (at line 81)\n" + 
+		"	foo3(l); // illegal [48]\n" + 
+		"	^^^^\n" + 
+		"The method foo3(List<? extends Object[]>) in the type X is not applicable for the arguments (List<capture-of ? super Object>)\n" + 
+		"----------\n" + 
+		"32. ERROR in X.java (at line 83)\n" + 
+		"	bar2(l); // illegal [50]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ? super Object>)\n" + 
+		"----------\n" + 
+		"33. ERROR in X.java (at line 98)\n" + 
+		"	foo2(l); // illegal [60]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<Object>)\n" + 
+		"----------\n" + 
+		"34. ERROR in X.java (at line 99)\n" + 
+		"	foo3(l); // illegal [61]\n" + 
+		"	^^^^\n" + 
+		"The method foo3(List<? extends Object[]>) in the type X is not applicable for the arguments (List<Object>)\n" + 
+		"----------\n" + 
+		"35. ERROR in X.java (at line 107)\n" + 
+		"	l.add(l.get(0));  // illegal [66]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (capture-of ? extends Object)\n" + 
+		"----------\n" + 
+		"36. ERROR in X.java (at line 108)\n" + 
+		"	l.add((Object) null);  // illegal [67]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"37. ERROR in X.java (at line 109)\n" + 
+		"	l.add((Integer) null);  // illegal [68]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (Integer)\n" + 
+		"----------\n" + 
+		"38. ERROR in X.java (at line 110)\n" + 
+		"	l.add((Object []) null); // illegal [69]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"39. ERROR in X.java (at line 111)\n" + 
+		"	l.add((Integer []) null); // illegal [70]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (Integer[])\n" + 
+		"----------\n" + 
+		"40. ERROR in X.java (at line 112)\n" + 
+		"	l.add((Integer [][]) null); // illegal [71]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ? extends Object) in the type List<capture-of ? extends Object> is not applicable for the arguments (Integer[][])\n" + 
+		"----------\n" + 
+		"41. ERROR in X.java (at line 114)\n" + 
+		"	foo(l); // List<? super Object[]> - illegal [72]\n" + 
+		"	^^^\n" + 
+		"The method foo(List<? super Object[]>) in the type X is not applicable for the arguments (List<capture-of ? extends Object>)\n" + 
+		"----------\n" + 
+		"42. ERROR in X.java (at line 115)\n" + 
+		"	foo2(l); // List<Object[]> - illegal [73]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<capture-of ? extends Object>)\n" + 
+		"----------\n" + 
+		"43. ERROR in X.java (at line 116)\n" + 
+		"	foo3(l); // List<? extends Object[]> - illegal [74]\n" + 
+		"	^^^^\n" + 
+		"The method foo3(List<? extends Object[]>) in the type X is not applicable for the arguments (List<capture-of ? extends Object>)\n" + 
+		"----------\n" + 
+		"44. ERROR in X.java (at line 117)\n" + 
+		"	bar(l); // List<? super Object> - illegal [75]\n" + 
+		"	^^^\n" + 
+		"The method bar(List<? super Object>) in the type X is not applicable for the arguments (List<capture-of ? extends Object>)\n" + 
+		"----------\n" + 
+		"45. ERROR in X.java (at line 118)\n" + 
+		"	bar2(l); // List<Object> - illegal [76]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ? extends Object>)\n" + 
+		"----------\n" + 
+		"46. ERROR in X.java (at line 124)\n" + 
+		"	l.add(l.get(0));  // illegal [79]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (capture-of ?)\n" + 
+		"----------\n" + 
+		"47. ERROR in X.java (at line 125)\n" + 
+		"	l.add((Object) null);  // illegal [80]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (Object)\n" + 
+		"----------\n" + 
+		"48. ERROR in X.java (at line 126)\n" + 
+		"	l.add((Integer) null);  // illegal [81]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (Integer)\n" + 
+		"----------\n" + 
+		"49. ERROR in X.java (at line 127)\n" + 
+		"	l.add((Object []) null); // illegal [82]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"50. ERROR in X.java (at line 128)\n" + 
+		"	l.add((Integer []) null); // illegal [83]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (Integer[])\n" + 
+		"----------\n" + 
+		"51. ERROR in X.java (at line 129)\n" + 
+		"	l.add((Integer [][]) null); // illegal [84]\n" + 
+		"	  ^^^\n" + 
+		"The method add(capture-of ?) in the type List<capture-of ?> is not applicable for the arguments (Integer[][])\n" + 
+		"----------\n" + 
+		"52. ERROR in X.java (at line 131)\n" + 
+		"	foo(l); // List<? super Object[]> - illegal [85]\n" + 
+		"	^^^\n" + 
+		"The method foo(List<? super Object[]>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n" + 
+		"53. ERROR in X.java (at line 132)\n" + 
+		"	foo2(l); // List<Object[]> - illegal [86]\n" + 
+		"	^^^^\n" + 
+		"The method foo2(List<Object[]>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n" + 
+		"54. ERROR in X.java (at line 133)\n" + 
+		"	foo3(l); // List<? extends Object[]> - illegal [87]\n" + 
+		"	^^^^\n" + 
+		"The method foo3(List<? extends Object[]>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n" + 
+		"55. ERROR in X.java (at line 134)\n" + 
+		"	bar(l); // List<? super Object> - illegal [88]\n" + 
+		"	^^^\n" + 
+		"The method bar(List<? super Object>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n" + 
+		"56. ERROR in X.java (at line 135)\n" + 
+		"	bar2(l); // List<Object> - illegal [89]\n" + 
+		"	^^^^\n" + 
+		"The method bar2(List<Object>) in the type X is not applicable for the arguments (List<capture-of ?>)\n" + 
+		"----------\n");
+}	
+public void _test668() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			" \n" + 
+			"public class X {\n" + 
+			"    void foo(List<? super Object[]> l) {\n" + 
+			"        l.add(new Object[0]);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95289
+public void test669() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"private static<T> int indexOf(final T[] array,final T elem) {\n" + 
+			"	return 0;\n" + 
+			"}\n" + 
+			"public static void meth(AContainer ac, AInfo[] aiArray) {\n" + 
+			"  for(AInfo ai: aiArray) {\n" + 
+			"	int index1 = indexOf(ac.getAs(),ai.a);\n" + 
+			"	int index2 = indexOf(ac.getAs(),ai); // ai.class!=ai.a.class!!!\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class AContainer {\n" + 
+			"   public A[] getAs(){ return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class AInfo {\n" + 
+			"   public A a;\n" + 
+			"}\n" + 
+			"\n" + 
+			"class A {\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 (ensure not even a warning)
+public void test670() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"interface MethodProperty<ActualType extends MethodProperty<ActualType>> {\n" + 
+			"	public void copyFrom(ActualType other);\n" + 
+			"}\n" + 
+			"\n" + 
+			"class MethodPropertyDatabase<Property extends MethodProperty<Property>> {\n" + 
+			"	Map<String, Property> propertyMap;\n" + 
+			"	\n" + 
+			"	void read(String fileName) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class FooProperty implements MethodProperty<FooProperty> {\n" + 
+			"	String value;\n" + 
+			"\n" + 
+			"	public void copyFrom(FooProperty other) {\n" + 
+			"		this.value = other.value;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class FooPropertyDatabase extends MethodPropertyDatabase<FooProperty> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	FooPropertyDatabase fooDatabase;\n" + 
+			"	\n" + 
+			"	public void readDatabase() {\n" + 
+			"		FooPropertyDatabase database = new FooPropertyDatabase();\n" + 
+			"		\n" + 
+			"		fooDatabase = readDatabase(database, \"foodatabase.db\"); // Bug reported on this line\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private<\n" + 
+			"		Property extends MethodProperty<Property>,\n" + 
+			"		DatabaseType extends MethodPropertyDatabase<Property>\n" + 
+			"		> DatabaseType readDatabase(DatabaseType database, String fileName) {\n" + 
+			"			database.read(fileName);\n" + 
+			"			return database;\n" + 
+			"		}\n" + 
+			"	\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 - variation: ensure not even a warning
+public void test671() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"interface MethodProperty<ActualType extends MethodProperty<ActualType>> {\n" + 
+			"	public void copyFrom(ActualType other);\n" + 
+			"}\n" + 
+			"\n" + 
+			"class MethodPropertyDatabase<Property extends MethodProperty<Property>> {\n" + 
+			"	Map<String, Property> propertyMap;\n" + 
+			"	\n" + 
+			"	void read(String fileName) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class FooProperty implements MethodProperty<FooProperty> {\n" + 
+			"	String value;\n" + 
+			"\n" + 
+			"	public void copyFrom(FooProperty other) {\n" + 
+			"		this.value = other.value;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class FooPropertyDatabase extends MethodPropertyDatabase<FooProperty> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  Zork z;\n" +
+			"	FooPropertyDatabase fooDatabase;\n" + 
+			"	\n" + 
+			"	public void readDatabase() {\n" + 
+			"		FooPropertyDatabase database = new FooPropertyDatabase();\n" + 
+			"		\n" + 
+			"		fooDatabase = readDatabase(database, \"foodatabase.db\"); // Bug reported on this line\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private<\n" + 
+			"		Property extends MethodProperty<Property>,\n" + 
+			"		DatabaseType extends MethodPropertyDatabase<Property>\n" + 
+			"		> DatabaseType readDatabase(DatabaseType database, String fileName) {\n" + 
+			"			database.read(fileName);\n" + 
+			"			return database;\n" + 
+			"		}\n" + 
+			"	\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 26)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 - variation: ensure not even a warning
+public void test672() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Foo<T extends Foo<T>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Bar<Q> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Zork z;\n" +
+			"	void readDatabase() {\n" + 
+			"		Bar<Foo> bar = new Bar<Foo>();\n" + 
+			"		read(bar, \"sadasd\");\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	<P extends Foo<P>, D extends Bar<P>> \n" + 
+			"	D read(D d, String s) {\n" + 
+			"			return d;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	read(bar, \"sadasd\");\n" + 
+		"	^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation read(Bar<Foo>, String) of the generic method read(D, String) of type X\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 
+public void test673() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"class Key<E, F extends Type<E, F>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class State<S extends State> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Type<T, U extends Type<T, U>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Store<A, B extends Type<A, B>, C extends Key<A, B>, D extends State<D>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X<K> {\n" + 
+			"	List<Store<K, ?, ? extends Key<K, ?>, ? extends State<?>>> stores;\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
+public void test674() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Key<E extends Key<E>> {}\n" + 
+			"class Store<F extends Key<F>> {}\n" + 
+			"\n" + 
+			"public class X<T extends Key<T>> {\n" + 
+			"	Store<? extends Key<T>> store;\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
+public void test675() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Key<E extends Key<E>> {}\n" + 
+			"class Store<F extends Key<F>> {}\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"	Store<? extends Key<T>> store1;\n" + 
+			"	Store<? extends Key<? extends T>> store2;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\r\n" + 
+		"	Store<? extends Key<T>> store1;\r\n" + 
+		"	                    ^\n" + 
+		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\r\n" + 
+		"	Store<? extends Key<? extends T>> store2;\r\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
+		"----------\n");
+}	
+//check fault tolerance, in spite of bound mismatch, still pass param type for further resolving message send
+public void test676() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Throwable> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	\n" + 
+			"	void foo(X<String> xs) {\n" + 
+			"		xs.get().printStackTrace();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	void foo(X<String> xs) {\n" + 
+		"	           ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends Throwable> of the type X<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	xs.get().printStackTrace();\n" + 
+		"	         ^^^^^^^^^^^^^^^\n" + 
+		"The method printStackTrace() is undefined for the type String\n" + 
+		"----------\n");
+}	
+public void test677() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		{\n" + 
+			"			ArrayList<Number> arrayList = new ArrayList<Integer>(); // compile error\n" + 
+			"			Number number = arrayList.get(0);\n" + 
+			"		}\n" + 
+			"		{\n" + 
+			"			ArrayList<? extends Number> arrayList = new ArrayList<Integer>(); //correct\n" + 
+			"			Number number = arrayList.get(0);\n" + 
+			"		}\n" + 
+			"		{\n" + 
+			"			ArrayList<? super Integer> arrayList = new ArrayList<Number>();\n" + 
+			"			Object number = arrayList.get(0); //returns java.lang.Object\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	ArrayList<Number> arrayList = new ArrayList<Integer>(); // compile error\n" + 
+		"	                  ^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from ArrayList<Integer> to ArrayList<Number>\n" + 
+		"----------\n");
+}	
+public void test678() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"public class X<T, T2 extends T & Serializable > {\n" + 
+			"	\n" + 
+			"	X<Object, Serializable> right1;\n" + 
+			"	X<String, Serializable> wrong1;\n" + 
+			"	X<Y, Y> right2;\n" + 
+			"	\n" + 
+			"	static class Y implements Serializable {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<String, Serializable> wrong1;\n" + 
+		"	          ^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type Serializable is not a valid substitute for the bounded parameter <T2 extends T & Serializable> of the type X<T,T2>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	static class Y implements Serializable {\n" + 
+		"	             ^\n" + 
+		"The serializable class Y does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
+public void test679() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Key<E, F extends Key<E, F>> {}\n" + 
+			"class Store<A, B extends Key<A, B>> {}\n" + 
+			"\n" + 
+			"public class X<K extends Key<?, K>> {\n" + 
+			"	Store<K, ? extends Key<K, ?>> store;\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
+public void test680() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"class Key<E, F extends Type<E, F, G, H>, G extends Key<E, F, G, H>, H extends State<H>> {}\n" + 
+			"class State<S extends State> {}\n" + 
+			"class Type<T, U extends Type<T, U, V, W>, V extends Key<T, U, V, W>, W extends State<W>> {}\n" + 
+			"class Store<A, B extends Type<A, B, C, D>, C extends Key<A, B, C, D>, D extends State<D>> {}\n" + 
+			"\n" + 
+			"public class X<K extends Key<K, ?,?,?>> {\n" + 
+			"	List<Store<K, ?, ? extends Key<K, ?, ?, ?>, ? extends State<?>>> stores;\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
+public void test681() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Key<E, K extends Key<E, K>> {\n" + 
+			"}\n" + 
+			"class Store<E, K extends Key<E, K>> {\n" + 
+			"}\n" + 
+			"class X<E> {\n" + 
+			"	Store<E, ?> store1;\n" + 
+			"	Store<E, ? extends Key<E, ?>> store2;\n" + 
+			"\n" + 
+			"	class StoreHolder <F extends Key<E, F>> {\n" + 
+			"		Store<E, F> store;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y<T, U extends Y<T, U>> {\n" + 
+			"	Y<?, ?> y;\n" + 
+			"}\n",
+		},
+		"");
+}	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95963
+public void test682() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X extends A<X.M> {}\n" + 
+			"class A<T> {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	class X extends A<X.M> {}\n" + 
+		"	                  ^^^\n" + 
+		"X.M cannot be resolved to a type\n" + 
+		"----------\n"
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96085
+public void test683() {
+	this.runConformTest(
+		new String[] {
+			"P.java",
+			"interface P<V> {\n" + 
+			"    interface A {}\n" + 
+			"}\n",
+			"P2.java",
+			"class P2 implements P.A {\n" + 
+			"    P2(P.A problem) {}\n" + 
+			"}\n",
+			"P3.java",
+			"class P3 {\n" + 
+			"    void test() {P.A o = new P2((P.A) null);}\n" + 
+			"}\n",
+		},
+		"");
+}
+public void test684() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	<U> U foo(U u1, U u2) {\n" + 
+			"		return u1;\n" + 
+			"	}\n" + 
+			"	void bar(X<? extends Throwable> x1, X<? extends Runnable> x2) {\n" + 
+			"		X<String> x = foo(x1, x2);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<String> x = foo(x1, x2);\n" + 
+		"	          ^\n" + 
+		"Type mismatch: cannot convert from X<capture-of ? extends Object> to X<String>\n" + 
+		"----------\n");
+}	
+public void test685() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	<U> U foo(U u1, U u2) {\n" + 
+			"		return u1;\n" + 
+			"	}\n" + 
+			"	void bar(X<? extends Throwable> x1, X<? extends Runnable> x2) {\n" + 
+			"		X<String> x = foo(x1, x2);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	X<String> x = foo(x1, x2);\n" + 
+		"	          ^\n" + 
+		"Type mismatch: cannot convert from X<capture-of ? extends Object> to X<String>\n" + 
+		"----------\n");
+}	
+// check wildcard bounds wrt variable boundCheck
+public void test686() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"class Other<T extends List<? extends Runnable>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Other<? extends List<? extends Throwable>> other1;\n" + 
+			"	Other<? extends List<? super String>> other2;	\n" + 
+			"	Other<? extends List<? extends String>> other3;		\n" + 
+			"	Other<? extends List<? extends Runnable>> other7 = other1;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Other<? extends List<? super String>> other2;	\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? super String> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Other<? extends List<? extends String>> other3;		\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? extends String> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n");
+}
+// check wildcard bounds wrt variable boundCheck
+public void test687() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"class Other<T extends List<? extends Runnable>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Other<? extends List<?>> other2;\n" + 
+			"	Other<? extends List<? super Throwable>> other3;\n" + 
+			"	Other<? super List<? extends Throwable>> other4;\n" + 
+			"	Other<? super List<?>> other5;\n" + 
+			"	Other<? super List<? super Throwable>> other6;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	Other<? extends List<? super Throwable>> other3;\n" + 
+		"	      ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? super Throwable> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Other<? super List<? extends Throwable>> other4;\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super List<? extends Throwable> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	Other<? super List<?>> other5;\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super List<?> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
+		"	Other<? super List<? super Throwable>> other6;\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super List<? super Throwable> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n");
+}
+// check wildcard bounds wrt variable boundCheck
+public void test688() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"class Other<T extends List<? extends Runnable>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Other<? super List<? extends Runnable>> other5;\n" + 
+			"}\n",
+		},
+		"");
+}
+// check wildcard bounds wrt variable boundCheck
+public void test689() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"class Other<T extends List<? extends Runnable>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	Other<? super List<? super Runnable>> other5;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Other<? super List<? super Runnable>> other5;\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super List<? super Runnable> is not a valid substitute for the bounded parameter <T extends List<? extends Runnable>> of the type Other<T>\n" + 
+		"----------\n");
+}
+// check assignment rules across param types with wildcards
+public void test690() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"public class X {\n" + 
+			"	void foo(List<? extends Runnable> lr, List<?> la) {\n" + 
+			"		lr = la;\n" + 
+			"		la = lr;\n" + 
+			"	}\n" + 
+			"}         \n" + 
+			"\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	lr = la;\n" + 
+		"	     ^^\n" + 
+		"Type mismatch: cannot convert from List<capture-of ?> to List<? extends Runnable>\n" + 
+		"----------\n");
+}
+// check that final class bound is more restrictive
+public void test691() {
+	this.runNegativeTest(
+		new String[] {
+			"XX.java",
+			"public class XX<T extends Runnable> {\n" + 
+			"	void foo(XX<?> lhs, XX<? extends String> rhs) {\n" + 
+			"		lhs = rhs;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in XX.java (at line 2)\n" + 
+		"	void foo(XX<?> lhs, XX<? extends String> rhs) {\n" + 
+		"	                       ^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends String is not a valid substitute for the bounded parameter <T extends Runnable> of the type XX<T>\n" + 
+		"----------\n");
+}
+// check wildcard bounds wrt variable boundCheck
+public void test692() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X<T extends List<Object>> {\n" + 
+			"	\n" + 
+			"	void foo(X<? extends List<String>> x) {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	void foo(X<? extends List<String>> x) {\n" + 
+		"	           ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<String> is not a valid substitute for the bounded parameter <T extends List<Object>> of the type X<T>\n" + 
+		"----------\n");
+}	
+// bound checks
+public void test693() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Runnable> {\n" + 
+			"	X<X<String>> x1;\n" + 
+			"	X<? extends String> x2;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	X<X<String>> x1;\n" + 
+		"	  ^\n" + 
+		"Bound mismatch: The type X<String> is not a valid substitute for the bounded parameter <T extends Runnable> of the type X<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	X<X<String>> x1;\n" + 
+		"	    ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends Runnable> of the type X<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	X<? extends String> x2;\n" + 
+		"	  ^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends String is not a valid substitute for the bounded parameter <T extends Runnable> of the type X<T>\n" + 
+		"----------\n");
+}	
+// bound checks
+public void test694() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends X<T>> {\n" + 
+			"	X<X<X<String>>> x1;\n" + 
+			"	X<? extends X<? extends X<String>>> x2;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	X<X<X<String>>> x1;\n" + 
+		"	  ^\n" + 
+		"Bound mismatch: The type X<X<String>> is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 2)\n" + 
+		"	X<X<X<String>>> x1;\n" + 
+		"	    ^\n" + 
+		"Bound mismatch: The type X<String> is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 2)\n" + 
+		"	X<X<X<String>>> x1;\n" + 
+		"	      ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 3)\n" + 
+		"	X<? extends X<? extends X<String>>> x2;\n" + 
+		"	              ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends X<String> is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 3)\n" + 
+		"	X<? extends X<? extends X<String>>> x2;\n" + 
+		"	                          ^^^^^^\n" + 
+		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n");
+}	
+// bound checks
+public void test695() {
+	this.runConformTest(
+		new String[] {
+			"I.java",
+			"interface I<T extends I<? extends T>> {\n" + 
+			"}\n",
+		},
+		"");
+}
+public void test696() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Key<E extends Key<E>> {}\n" + 
+			"class Store<F extends Key<F>> {}\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"	Store<? extends Key<T>> store = new Store<Key<T>>();\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	Store<? extends Key<T>> store = new Store<Key<T>>();\n" + 
+		"	                    ^\n" + 
+		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	Store<? extends Key<T>> store = new Store<Key<T>>();\n" + 
+		"	                                          ^^^\n" + 
+		"Bound mismatch: The type Key<T> is not a valid substitute for the bounded parameter <F extends Key<F>> of the type Store<F>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	Store<? extends Key<T>> store = new Store<Key<T>>();\n" + 
+		"	                                              ^\n" + 
+		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
+		"----------\n");
+}
+public void test697() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"public class X<U, V extends List<U>> {\n" + 
+			"	V v;\n" + 
+			"	\n" + 
+			"	void foo(X<String, ?> x1, X<Object, ?> x2) {\n" + 
+			"		String s =x1.v.get(0);\n" + 
+			"		Object o = x2.v.get(0);\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+public void test698() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X<U extends List<Object>, V extends List<String>> {\n" + 
+			"	\n" + 
+			"	X<? super Exception, ? super Exception> x;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X<? super Exception, ? super Exception> x;\n" + 
+		"	  ^^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super Exception is not a valid substitute for the bounded parameter <U extends List<Object>> of the type X<U,V>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	X<? super Exception, ? super Exception> x;\n" + 
+		"	                     ^^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super Exception is not a valid substitute for the bounded parameter <V extends List<String>> of the type X<U,V>\n" + 
+		"----------\n");
+}
+public void test699() {
+	this.runNegativeTest(
+		new String[] {
+			"X2.java",
+			"import java.util.List;\n" + 			
+			"class Other2<T extends List< Runnable>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class X2 {\n" + 
+			"	Other2<? extends List<Throwable>> other1;\n" + 
+			"	Other2<? extends List<? super String>> other2;	\n" + 
+			"	Other2<? extends List<? extends String>> other3;		\n" + 
+			"	Other2<? extends List<? extends Runnable>> other7 = other1;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X2.java (at line 6)\n" + 
+		"	Other2<? extends List<Throwable>> other1;\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<Throwable> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
+		"----------\n" + 
+		"2. ERROR in X2.java (at line 7)\n" + 
+		"	Other2<? extends List<? super String>> other2;	\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? super String> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X2.java (at line 8)\n" + 
+		"	Other2<? extends List<? extends String>> other3;		\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends List<? extends String> is not a valid substitute for the bounded parameter <T extends List<Runnable>> of the type Other2<T>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96646
+public void test700() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"abstract class BaseFactory<T> {\n" + 
+			"	public T create() throws Exception {\n" + 
+			"		return getType().newInstance();\n" + 
+			"	}\n" + 
+			"	public abstract Class<T> getType();\n" + 
+			"}\n" + 
+			"interface StringFactory {\n" + 
+			"	public String create() throws Exception;\n" + 
+			"}\n" + 
+			"public class X extends BaseFactory<String> implements StringFactory {\n" + 
+			"	@Override\n" + 
+			"	public Class<String> getType() {\n" + 
+			"		return String.class;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		String emptyString = new X().create();\n" + 
+			"		System.out.printf(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
 }

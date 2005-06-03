@@ -18,7 +18,8 @@ public class SyntheticMethodBinding extends MethodBinding {
 
 	public FieldBinding targetReadField;		// read access to a field
 	public FieldBinding targetWriteField;		// write access to a field
-	public MethodBinding targetMethod;	// method or constructor
+	public MethodBinding targetMethod;			// method or constructor
+	public TypeBinding targetEnumType; 			// enum type
 	
 	public int kind;
 
@@ -30,6 +31,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public final static int BridgeMethod = 6; // bridge method
 	public final static int EnumValues = 7; // enum #values()
 	public final static int EnumValueOf = 8; // enum #valueOf(String)
+	public final static int SwitchTable = 9; // switch table method
 
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
@@ -128,6 +130,59 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.sourceStart = declaringSourceType.scope.referenceContext.sourceStart; // use the target declaring class name position instead
 	}
 
+	public SyntheticMethodBinding(FieldBinding targetField, ReferenceBinding declaringClass, TypeBinding enumBinding, char[] selector) {
+		this.modifiers = AccDefault | AccStatic | AccSynthetic;
+		this.tagBits |= TagBits.AnnotationResolved;
+		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
+		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
+		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
+		this.index = methodId;
+		this.selector = selector;
+		this.returnType = declaringSourceType.scope.createArrayType(BaseTypes.IntBinding, 1);
+		this.parameters = NoParameters;
+		this.targetReadField = targetField;
+		this.targetEnumType = enumBinding;
+		this.kind = SwitchTable;
+		this.thrownExceptions = NoExceptions;
+		this.declaringClass = declaringSourceType;
+  
+		if (declaringSourceType.isStrictfp()) {
+			this.modifiers |= AccStrictfp;
+		}
+		// check for method collision
+		boolean needRename;
+		do {
+			check : {
+				needRename = false;
+				// check for collision with known methods
+				MethodBinding[] methods = declaringSourceType.methods;
+				for (int i = 0, length = methods.length; i < length; i++) {
+					if (CharOperation.equals(this.selector, methods[i].selector) && this.areParametersEqual(methods[i])) {
+						needRename = true;
+						break check;
+					}
+				}
+				// check for collision with synthetic accessors
+				if (knownAccessMethods != null) {
+					for (int i = 0, length = knownAccessMethods.length; i < length; i++) {
+						if (knownAccessMethods[i] == null) continue;
+						if (CharOperation.equals(this.selector, knownAccessMethods[i].selector) && this.areParametersEqual(methods[i])) {
+							needRename = true;
+							break check;
+						}
+					}
+				}
+			}
+			if (needRename) { // retry with a selector postfixed by a growing methodId
+				this.setSelector(CharOperation.concat(selector, String.valueOf(++methodId).toCharArray()));
+			}
+		} while (needRename);
+
+		// We now at this point - per construction - it is for sure an enclosing instance, we are going to
+		// show the target field type declaration location.
+		this.sourceStart = declaringSourceType.scope.referenceContext.sourceStart; // use the target declaring class name position instead
+	}
+	
 	public SyntheticMethodBinding(MethodBinding targetMethod, boolean isSuperAccess, ReferenceBinding receiverType) {
 	
 		if (targetMethod.isConstructor()) {

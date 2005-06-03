@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
  * they can pass in to various APIs (e.g. <code>IType.resolveType(String, WorkingCopyOwner)</code>.
  * Clients can also override the default implementation of <code>createBuffer(ICompilationUnit)</code>.
  * </p><p>
- * Note: even though this class has no abstract method, which means that it provides functional default behvior,
+ * Note: even though this class has no abstract method, which means that it provides functional default behavior,
  * it is still an abstract class, as clients are intended to own their owner implementation.
  * </p>
  * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, org.eclipse.core.runtime.IProgressMonitor)

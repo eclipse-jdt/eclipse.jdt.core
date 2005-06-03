@@ -31,11 +31,11 @@ public class EnumTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
-//	static {
+	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 0 };
+//		TESTS_NUMBERS = new int[] { 110 };
 //		TESTS_RANGE = new int[] { 21, 50 };
-//	}
+	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
 		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
@@ -1554,8 +1554,6 @@ public class EnumTest extends AbstractComparableTest {
 	
 	// TODO (philippe) check one cannot redefine Enum incorrectly
 	
-	// TODO (philippe) check binary compatibility (removing referenced enum constants in switch)
-	
 	// TODO (philippe) check enum syntax recovery
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78914 - variation
@@ -1725,7 +1723,7 @@ public class EnumTest extends AbstractComparableTest {
 				"        case Second:\n" + 
 				"            break;\n" + 
 				"        }\n" + 
-				"        Zork z;\n" +
+				"        throw new Exception();\n" + // fake error to cause dump of unused import warnings
 				"    }\n" + 
 				"}\n",
 			},
@@ -1741,9 +1739,9 @@ public class EnumTest extends AbstractComparableTest {
 			"The import com.flarion.test.a.MyEnum.Second is never used\n" + 
 			"----------\n" + 
 			"3. ERROR in com\\flarion\\test\\b\\MyClass.java (at line 15)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"	throw new Exception();\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Unhandled exception type Exception\n" + 
 			"----------\n");
 	}
 	
@@ -3045,4 +3043,565 @@ public class EnumTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}			
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89274
+	public void test099() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class A<T> {\n" + 
+				"	enum E {\n" + 
+				"		v1, v2;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X extends A<Integer> {\n" + 
+				"	void a(A.E e) {\n" + 
+				"		b(e); // no unchecked warning\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void b(E e) {\n" + 
+				"		A<Integer>.E e1 = e;\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	A<Integer>.E e1 = e;\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"The member type A<Integer>.E cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type A<Integer>\n" + 
+			"----------\n");
+	}				
+	/* from JLS
+"It is a compile-time error to reference a static field of an enum type
+that is not a compile-time constant (15.28) from constructors, instance
+initializer blocks, or instance variable initializer expressions of that
+type.  It is a compile-time error for the constructors, instance initializer
+blocks, or instance variable initializer expressions of an enum constant e1
+to refer to itself or an enum constant of the same type that is declared to
+the right of e1."
+	*/
+	public void _test100() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"\n" + 
+				"	anEnumValue {\n" + 
+				"		private final X thisOne = anEnumValue;\n" + 
+				"\n" + 
+				"		String getMessage() {\n" + 
+				"			return \"Here is what thisOne gets assigned: \" + thisOne;\n" + 
+				"		}\n" + 
+				"	};\n" + 
+				"\n" + 
+				"	abstract String getMessage();\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(anEnumValue.getMessage());\n" + 
+				"		System.out.println(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n",
+			},
+			"should reject as invalid ref to non-constant");
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91761
+	public void test101() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface Foo {\n" + 
+				"  public boolean bar();\n" + 
+				"}\n" + 
+				"enum BugDemo {\n" + 
+				"  CONSTANT(new Foo() {\n" + 
+				"    public boolean bar() {\n" + 
+				"      Zork z;\n" + 
+				"      return true;\n" + 
+				"    }\n" + 
+				"  });\n" + 
+				"  BugDemo(Foo foo) {\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90775
+	public void test102() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X <T> {\n" + 
+				"	enum SomeEnum {\n" + 
+				"		A, B;\n" + 
+				"		static SomeEnum foo() {\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	Enum<SomeEnum> e = SomeEnum.A;\n" + 
+				"		\n" + 
+				"	Set<SomeEnum> set1 = EnumSet.of(SomeEnum.A);\n" + 
+				"	Set<SomeEnum> set2 = EnumSet.of(SomeEnum.foo());\n" + 
+				"	\n" + 
+				"	Foo<Bar> foo = null;\n" + 
+				"}\n" + 
+				"class Foo <U extends Foo<U>> {\n" + 
+				"}\n" + 
+				"class Bar extends Foo {\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	Foo<Bar> foo = null;\n" + 
+			"	    ^^^\n" + 
+			"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <U extends Foo<U>> of the type Foo<U>\n" + 
+			"----------\n");
+	}		
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93396
+    public void test103() {
+        this.runNegativeTest(
+            new String[] {
+                "BadEnum.java",
+                "public class BadEnum {\n" + 
+                "  public interface EnumInterface<T extends Object> {\n" + 
+                "    public T getMethod();\n" + 
+                "  }\n" + 
+                "  public enum EnumClass implements EnumInterface<String> {\n" + 
+                "    ENUM1 { public String getMethod() { return \"ENUM1\";} },\n" + 
+                "    ENUM2 { public String getMethod() { return \"ENUM2\";} };\n" + 
+                "  }\n" + 
+                "}\n" + 
+                "}\n",
+            },
+            "----------\n" + 
+            "1. ERROR in BadEnum.java (at line 10)\n" + 
+            "	}\n" + 
+            "	^\n" + 
+            "Syntax error on token \"}\", delete this token\n" + 
+            "----------\n");
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=90215
+    public void test104() {
+        this.runConformTest(
+            new String[] {
+                "p/Placeholder.java",
+				"package p;\n" + 
+				"\n" + 
+				"public class Placeholder {\n" + 
+				"    public static void main(String... argv) {\n" + 
+				"        ClassWithBadEnum.EnumClass constant = ClassWithBadEnum.EnumClass.ENUM1;\n" + // forward ref
+				"        ClassWithBadEnum.main(argv);\n" + 
+				"	}\n" + 
+				"}    \n" + 
+				"\n",
+                "p/ClassWithBadEnum.java",
+				"package p;\n" + 
+				"\n" + 
+				"public class ClassWithBadEnum {\n" + 
+				"	public interface EnumInterface<T extends Object> {\n" + 
+				"	    public T getMethod();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public enum EnumClass implements EnumInterface<String> {\n" + 
+				"		ENUM1 { public String getMethod() { return \"ENUM1\";} },\n" + 
+				"		ENUM2 { public String getMethod() { return \"ENUM2\";} };\n" + 
+				"	}\n" + 
+				"	private EnumClass enumVar; \n" + 
+				"	public EnumClass getEnumVar() {\n" + 
+				"		return enumVar;\n" + 
+				"	}\n" + 
+				"	public void setEnumVar(EnumClass enumVar) {\n" + 
+				"		this.enumVar = enumVar;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String... argv) {\n" + 
+				"		int a = 1;\n" + 
+				"		ClassWithBadEnum badEnum = new ClassWithBadEnum();\n" + 
+				"		badEnum.setEnumVar(ClassWithBadEnum.EnumClass.ENUM1);\n" + 
+				"		// Should fail if bug manifests itself because there will be two getInternalValue() methods\n" + 
+				"		// one returning an Object instead of a String\n" + 
+				"		String s3 = badEnum.getEnumVar().getMethod();\n" + 
+				"		System.out.println(s3);\n" + 
+				"	}\n" + 
+				"}  \n",
+            },
+            "ENUM1");
+    }
+    
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test105() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"Black"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {BLACK, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"Black",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test106() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        }\n" +
+					"		 System.out.print(\"SUCCESS\");\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"SUCCESS"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {BLACK, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"SUCCESS",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test107() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"BlackBlack"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color { BLACK }"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"BlackBlack",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test108() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        default:\n" +
+					"            System.out.print(\"Error\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"Black"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {RED, GREEN, YELLOW, BLACK, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"Black",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test109() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"		Color c = null;\n" +
+					"		 try {\n" +
+					"        	c = BLACK;\n" +
+					"		} catch(NoSuchFieldError e) {\n" +
+					"			System.out.print(\"SUCCESS\");\n" +
+					"			return;\n" +
+					"		}\n" +
+					"      	switch(c) {\n" +
+					"       	case BLACK:\n" +
+					"          	System.out.print(\"Black\");\n" +
+					"          	break;\n" +
+					"       	case WHITE:\n" +
+					"          	System.out.print(\"White\");\n" +
+					"          	break;\n" +
+					"      	}\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"Black"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {RED, GREEN, YELLOW, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"SUCCESS",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test110() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"	public int[] $SWITCH_TABLE$pack$Color;\n" +
+					"	public int[] $SWITCH_TABLE$pack$Color() { return null; }\n" +
+					"   public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"Black"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {BLACK, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"Black",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
+	
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88395
+	public void test111() {
+		this.runConformTest(
+				new String[] {
+					"pack/X.java",
+					"package pack;\n" +
+					"import static pack.Color.*;\n" +
+					"public class X {\n" +
+					"	public int[] $SWITCH_TABLE$pack$Color;\n" +
+					"	public int[] $SWITCH_TABLE$pack$Color() { return null; }\n" +
+					"   public static void main(String[] args) {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"		 foo();\n" +
+					"    }\n" +
+					"   public static void foo() {\n" +
+					"        Color c = BLACK;\n" +
+					"        switch(c) {\n" +
+					"        case BLACK:\n" +
+					"            System.out.print(\"Black\");\n" +
+					"            break;\n" +
+					"        case WHITE:\n" +
+					"            System.out.print(\"White\");\n" +
+					"            break;\n" +
+					"        }\n" +
+					"    }\n" +
+					"}",
+					"pack/Color.java",
+					"package pack;\n" + 
+					"enum Color {WHITE, BLACK}"
+				},
+				"BlackBlack"
+			);
+		
+		this.runConformTest(
+			new String[] {
+				"pack/Color.java",
+				"package pack;\n" + 
+				"enum Color {BLACK, WHITE}"
+			},
+			"",
+			null,
+			false,
+			null
+		);
+		
+		this.executeClass(
+			"pack/X.java",
+			"BlackBlack",
+			null,
+			false,
+			null,
+			null,
+			null);	
+	}
 }

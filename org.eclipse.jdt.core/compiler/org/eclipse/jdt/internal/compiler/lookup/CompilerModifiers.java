@@ -16,9 +16,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 public interface CompilerModifiers extends ClassFileConstants { // modifier constant
 	// those constants are depending upon ClassFileConstants (relying that classfiles only use the 16 lower bits)
 	final int AccDefault = 0;
-	final int AccJustFlag = // 16 lower bits
-	    	ASTNode.Bit1|ASTNode.Bit2|ASTNode.Bit3|ASTNode.Bit4|ASTNode.Bit5|ASTNode.Bit6|ASTNode.Bit7|ASTNode.Bit8|
-			ASTNode.Bit9|ASTNode.Bit10|ASTNode.Bit11|ASTNode.Bit12|ASTNode.Bit13|ASTNode.Bit14|ASTNode.Bit15|ASTNode.Bit16;
+	final int AccJustFlag = 0xFFFF;// 16 lower bits
 
 	// bit17 - free
 	// bit18 - IConstants.AccAnnotationDefault

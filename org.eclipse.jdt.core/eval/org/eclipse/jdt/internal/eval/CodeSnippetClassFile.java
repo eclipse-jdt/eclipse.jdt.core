@@ -49,7 +49,7 @@ public CodeSnippetClassFile(
 	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 8);
 	this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 0);
 
-	this.targetJDK = this.referenceBinding.scope.environment().options.targetJDK;
+	this.targetJDK = this.referenceBinding.scope.compilerOptions().targetJDK;
 	this.header[this.headerOffset++] = (byte) (targetJDK >> 8); // minor high
 	this.header[this.headerOffset++] = (byte) (targetJDK >> 0); // minor low
 	this.header[this.headerOffset++] = (byte) (targetJDK >> 24); // major high
@@ -108,7 +108,7 @@ public CodeSnippetClassFile(
 			this.contents[this.contentsOffset++] = (byte) interfaceIndex;
 		}
 	}
-	this.produceDebugAttributes = this.referenceBinding.scope.environment().options.produceDebugAttributes;
+	this.produceDebugAttributes = this.referenceBinding.scope.compilerOptions().produceDebugAttributes;
 	this.innerClassesBindings = new ReferenceBinding[INNER_CLASSES_SIZE];
 	this.creatingProblemType = creatingProblemType;
 	this.codeStream = new CodeSnippetCodeStream(this);

@@ -11,12 +11,11 @@
 package org.eclipse.jdt.internal.compiler.problem;
 
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DefaultProblem implements ProblemSeverities, IProblem {
 	
-	private static final String LINE_DELIMITER = System.getProperty("line.separator"); //$NON-NLS-1$
-		
 	private char[] fileName;
 	private int id;
 	private int startPosition, endPosition, line;
@@ -53,11 +52,11 @@ public class DefaultProblem implements ProblemSeverities, IProblem {
 		//sanity .....
 		if ((this.startPosition > this.endPosition)
 			|| ((this.startPosition < 0) && (this.endPosition < 0)))
-			return Util.bind("problem.noSourceInformation"); //$NON-NLS-1$
+			return Messages.problem_noSourceInformation; 
 
 		StringBuffer errorBuffer = new StringBuffer(" "); //$NON-NLS-1$
-		errorBuffer.append(Util.bind("problem.atLine", String.valueOf(this.line))); //$NON-NLS-1$
-		errorBuffer.append(LINE_DELIMITER).append("\t"); //$NON-NLS-1$
+		errorBuffer.append(Messages.bind(Messages.problem_atLine, String.valueOf(this.line))); 
+		errorBuffer.append(Util.LINE_SEPARATOR).append("\t"); //$NON-NLS-1$
 		
 		char c;
 		final char SPACE = '\u0020';
@@ -83,7 +82,7 @@ public class DefaultProblem implements ProblemSeverities, IProblem {
 		
 		// copy source
 		errorBuffer.append(unitSource, begin, end-begin+1);
-		errorBuffer.append(LINE_DELIMITER).append("\t"); //$NON-NLS-1$
+		errorBuffer.append(Util.LINE_SEPARATOR).append("\t"); //$NON-NLS-1$
 
 		// compute underline
 		for (int i = begin; i <this.startPosition; i++) {

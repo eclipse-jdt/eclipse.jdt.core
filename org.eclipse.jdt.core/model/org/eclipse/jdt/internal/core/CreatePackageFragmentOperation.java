@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -68,7 +69,7 @@ public CreatePackageFragmentOperation(IPackageFragmentRoot parentElement, String
 protected void executeOperation() throws JavaModelException {
 	JavaElementDelta delta = null;
 	PackageFragmentRoot root = (PackageFragmentRoot) getParentElement();
-	beginTask(Util.bind("operation.createPackageFragmentProgress"), this.pkgName.length); //$NON-NLS-1$
+	beginTask(Messages.operation_createPackageFragmentProgress, this.pkgName.length); 
 	IContainer parentFolder = (IContainer) root.getResource();
 	String[] sideEffectPackageName = CharOperation.NO_STRINGS; 
 	ArrayList results = new ArrayList(this.pkgName.length);
@@ -139,7 +140,7 @@ public IJavaModelStatus verify() {
 			if (subFolder.getType() != IResource.FOLDER) {
 				return new JavaModelStatus(
 					IJavaModelStatusConstants.NAME_COLLISION, 
-					Util.bind("status.nameCollision", subFolder.getFullPath().toString())); //$NON-NLS-1$
+					Messages.bind(Messages.status_nameCollision, subFolder.getFullPath().toString())); 
 			}
 			parentFolder = (IContainer) subFolder;
 		}

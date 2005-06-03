@@ -28,6 +28,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     public boolean wasInferred; // only set to true for instances resulting from method invocation inferrence
     public boolean isRaw; // set to true for method behaving as raw for substitution purpose
     public MethodBinding tiebreakMethod;
+	public boolean isUnchecked; // indicates whether inferred arguments used unchecked conversion during bound check or was raw
 	
 	/**
 	 * Perform inference of generic method type parameters and/or expected type
@@ -72,17 +73,25 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					MessageSend message = (MessageSend) invocationSite;
 					expectedType = message.expectedType;
 				}
-				TypeBinding upperBound = null;
-				if (methodSubstitute.returnType.isTypeVariable()) {
-					// should be: if no expected type, then assume Object
-					// actually it rather seems to handle the returned variable case by expecting its erasure instead
-					upperBound = methodSubstitute.returnType.erasure();
-				} else {
-					if (methodSubstitute.returnType.id != TypeIds.T_void)
+				TypeBinding upperBound;
+				TypeBinding substitutedReturnType = methodSubstitute.returnType;
+				switch (substitutedReturnType.kind()) {
+					case Binding.TYPE_PARAMETER :
+						// should be: if no expected type, then assume Object
+						// actually it rather seems to handle the returned variable case by expecting its erasure instead
+						upperBound = ((TypeVariableBinding)substitutedReturnType).upperBound();
+						break;
+					case Binding.BASE_TYPE :
+						if (substitutedReturnType == VoidBinding) {
+							upperBound = null;
+							break;
+						}
+						// fallthrough
+					default:
 						upperBound = scope.getJavaLangObject(); 
 				}
 				// Object o = foo(); // where <T extends Serializable> T foo();
-				if (expectedType == null || upperBound.isCompatibleWith(expectedType)) {
+				if (expectedType == null || (upperBound != null && upperBound.isCompatibleWith(expectedType))) {
 					expectedType = upperBound;
 				}
 				methodSubstitute = methodSubstitute.inferFromExpectedType(scope, expectedType, collectedSubstitutes, substitutes);
@@ -96,9 +105,15 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			for (int i = 0, length = typeVariables.length; i < length; i++) {
 			    TypeVariableBinding typeVariable = typeVariables[i];
 			    TypeBinding substitute = methodSubstitute.typeArguments[i];
-			    if (!typeVariable.boundCheck(methodSubstitute, substitute))
-			        // incompatible due to bound check
-			        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, new TypeBinding[]{substitute, typeVariables[i] }, ParameterBoundMismatch);
+				switch (typeVariable.boundCheck(methodSubstitute, substitute)) {
+					case TypeConstants.MISMATCH :
+				        // incompatible due to bound check
+				        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, new TypeBinding[]{substitute, typeVariables[i] }, ParameterBoundMismatch);
+					case TypeConstants.UNCHECKED :
+						// tolerate unchecked bounds
+						methodSubstitute.isUnchecked = true;
+						break;
+				}
 			}
 		}
 
@@ -193,7 +208,18 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						for (int j = 0, equalLength = equalSubstitutes.length; j < equalLength; j++) {
 							TypeBinding equalSubstitute = equalSubstitutes[j];
 							if (equalSubstitute == null) continue nextConstraint;
-//							if (equalSubstitute == current) continue nextConstraint;
+							if (equalSubstitute == current) {
+								// try to find a better different match if any in subsequent equal candidates
+								for (int k = j+1; k < equalLength; k++) {
+									equalSubstitute = equalSubstitutes[k];
+									if (equalSubstitute != current && equalSubstitute != null) {
+										substitutes[i] = equalSubstitute;
+										continue nextTypeParameter;
+									}
+								}
+								substitutes[i] = current;
+								continue nextTypeParameter;
+							}
 //							if (equalSubstitute.isTypeVariable()) {
 //								TypeVariableBinding variable = (TypeVariableBinding) equalSubstitute;
 //								// substituted by a variable of the same method, ignore
@@ -235,7 +261,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					TypeBinding[][] variableSubstitutes = (TypeBinding[][]) collectedSubstitutes.get(current);
 					TypeBinding [] bounds = variableSubstitutes[CONSTRAINT_EXTENDS];
 					if (bounds == null) continue nextTypeParameter;
-					TypeBinding[] glb = scope.greaterLowerBound(bounds);
+					TypeBinding[] glb = Scope.greaterLowerBound(bounds);
 					TypeBinding mostSpecificSubstitute = null;
 					if (glb != null) mostSpecificSubstitute = glb[0]; // TODO (philippe) need to improve
 						//TypeBinding mostSpecificSubstitute = scope.greaterLowerBound(bounds);
@@ -257,9 +283,10 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		int length = originalVariables.length;
 		TypeBinding[] rawArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
-			rawArguments[i] = originalVariables[i].erasure();
+			rawArguments[i] = originalVariables[i].upperBound();
 		}		
 	    this.isRaw = true;
+		this.isUnchecked = false;
 	    this.environment = environment;
 		this.modifiers = originalMethod.modifiers;
 		this.selector = originalMethod.selector;
@@ -292,6 +319,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.typeVariables = NoTypeVariables;
 	    this.typeArguments = typeArguments;
 	    this.isRaw = false;
+		this.isUnchecked = false;
 	    this.originalMethod = originalMethod;
 	    this.parameters = Scope.substitute(this, originalMethod.parameters);
 	    this.thrownExceptions = Scope.substitute(this, originalMethod.thrownExceptions);
@@ -301,19 +329,19 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 
 	/*
 	 * parameterizedDeclaringUniqueKey dot selector originalMethodGenericSignature percent typeArguments
-	 * p.X<U> { <T> void bar(T t, U u) { new X<String>().bar(this, "") } } --> Lp/X<Ljava/lang/String;>;.bar<T:Ljava/lang/Object;>(TT;TU;)V%<Lp/X;>
+	 * p.X<U> { <T> void bar(T t, U u) { new X<String>().bar(this, "") } } --> Lp/X<Ljava/lang/String;>;.bar<T:Ljava/lang/Object;>(TT;Ljava/lang/String;)V%<Lp/X;>
 	 */
-	public char[] computeUniqueKey() {
-		if (this.isRaw)
-			return super.computeUniqueKey();
+	public char[] computeUniqueKey(boolean isLeaf) {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(super.computeUniqueKey());
+		buffer.append(this.originalMethod.computeUniqueKey(false/*not a leaf*/));
 		buffer.append('%');
 		buffer.append('<');
-		int length = this.typeArguments.length;
-		for (int i = 0; i < length; i++) {
-			TypeBinding typeArgument = this.typeArguments[i];
-			buffer.append(typeArgument.computeUniqueKey());
+		if (!this.isRaw) {
+			int length = this.typeArguments.length;
+			for (int i = 0; i < length; i++) {
+				TypeBinding typeArgument = this.typeArguments[i];
+				buffer.append(typeArgument.computeUniqueKey(false/*not a leaf*/));
+			}
 		}
 		buffer.append('>');
 		int resultLength = buffer.length();
@@ -380,8 +408,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (substitutes.length == 0) {
 		    	// raw generic method inferred
 		    	this.isRaw = true;
+				this.isUnchecked = false;
 		    	for (int i = 0; i < varLength; i++) {
-		    		this.typeArguments[i] = originalVariables[i].erasure();
+		    		this.typeArguments[i] = originalVariables[i].upperBound();
 		    	}
 		    	break computeSubstitutes;
 			}
@@ -392,7 +421,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    			this.typeArguments[i] = substitutes[i];
 	    		} else {
 	    			// remaining unresolved variable are considered to be Object (or their bound actually)
-		    		this.typeArguments[i] = originalVariables[i].erasure();
+		    		this.typeArguments[i] = originalVariables[i].upperBound();
 		    	}
 	    	}
 		}		

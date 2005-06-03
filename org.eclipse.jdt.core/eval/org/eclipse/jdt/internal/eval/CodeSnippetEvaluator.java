@@ -126,6 +126,7 @@ Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 				this.context,
 				getMapper().startPosOffset,
 				getMapper().startPosOffset + this.codeSnippet.length - 1);
+		((CodeSnippetParser) compiler.parser).lineSeparatorLength = this.context.lineSeparator.length();
 		// Initialize the compiler's lookup environment with the already compiled super classes
 		IBinaryType binary = this.context.getRootCodeSnippetBinary();
 		if (binary != null) {
@@ -180,7 +181,8 @@ private CodeSnippetToCuMapper getMapper() {
 			this.context.localVariableNames, 
 			this.context.localVariableTypeNames, 
 			this.context.localVariableModifiers, 
-			this.context.declaringTypeName			
+			this.context.declaringTypeName,
+			this.context.lineSeparator
 		);
 
 	}

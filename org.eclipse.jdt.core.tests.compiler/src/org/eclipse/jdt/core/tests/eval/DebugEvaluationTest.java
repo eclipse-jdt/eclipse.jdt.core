@@ -2118,6 +2118,9 @@ public void test033() {
 			"} catch(Exception e) {}\n" +
 			"return l;").toCharArray();
 		try {
+			final Map compilerOptions = getCompilerOptions();
+			compilerOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
+
 			context.evaluate(
 				snippet,
 				stackFrame.localVariableTypeNames(),
@@ -2127,7 +2130,7 @@ public void test033() {
 				stackFrame.isStatic(),
 				stackFrame.isConstructorCall(),
 				getEnv(),
-				getCompilerOptions(),
+				compilerOptions,
 				requestor,
 				getProblemFactory());
 		} catch (InstallException e) { 

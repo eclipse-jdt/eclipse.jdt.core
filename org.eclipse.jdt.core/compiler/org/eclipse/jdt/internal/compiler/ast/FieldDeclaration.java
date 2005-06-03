@@ -160,8 +160,6 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 			this.hasBeenResolved = true;
 
-			resolveAnnotations(initializationScope, this.annotations, this.binding);
-
 			// check if field is hiding some variable - issue is that field binding already got inserted in scope
 			// thus must lookup separately in super type and outer context
 			ClassScope classScope = initializationScope.enclosingClassScope();
@@ -202,6 +200,8 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				initializationScope.initializedField = this.binding;
 				initializationScope.lastVisibleFieldID = this.binding.id;
 
+				resolveAnnotations(initializationScope, this.annotations, this.binding);
+				
 				// the resolution of the initialization hasn't been done
 				if (this.initialization == null) {
 					this.binding.setConstant(Constant.NotAConstant);
@@ -229,7 +229,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 							if (initializationType.needsUncheckedConversion(fieldType)) {
 								    initializationScope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, fieldType);
 							}									
-						} else if (initializationScope.environment().options.sourceLevel >= JDK1_5 // autoboxing
+						} else if (initializationScope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
 										&& (initializationScope.isBoxingCompatibleWith(initializationType, fieldType) 
 												|| (initializationType.isBaseType()  // narrowing then boxing ?
 														&& initializationType != null 
