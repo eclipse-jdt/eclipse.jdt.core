@@ -675,6 +675,13 @@ protected void consumeToken(int token) {
 					case TokenNamesuper: // explicit constructor invocation, eg. super(1, 2)
 						this.pushOnElementStack(K_SELECTOR, SUPER_CONSTRUCTOR);
 						break;
+					case TokenNameGREATER: // explicit constructor invocation, eg. Fred<X>[(]1, 2)
+					case TokenNameRIGHT_SHIFT: // or fred<X<X>>[(]1, 2) 
+					case TokenNameUNSIGNED_RIGHT_SHIFT: //or Fred<X<X<X>>>[(]1, 2)
+						if(this.identifierPtr > -1) {
+							this.pushOnElementStack(K_SELECTOR, this.identifierPtr);
+						}
+						break;
 				}
 				break;
 		}

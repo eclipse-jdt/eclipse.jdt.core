@@ -7416,4 +7416,28 @@ public void test0235() throws JavaModelException {
 			"",
 			result.proposals);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
+public void test0236() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0236/Test.java",
+            "package test0236;\n" +
+            "\n" +
+            "public class Test<ZT> {\n" +
+            "  void foo() {\n"+
+            "    new Test<String>();\n"+
+            "  }\n"+
+            "}",
+        	">(");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"Test[METHOD_REF]{, Ltest0236.Test<Ljava.lang.String;>;, ()V, Test, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test<java.lang.String>[ANONYMOUS_CLASS_DECLARATION]{, Ltest0236.Test<Ljava.lang.String;>;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
 }

@@ -8437,4 +8437,178 @@ public void test0192(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
+ */
+public void test0193(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    new Foo<X>();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = ">(";
+	int cursorLocation = str.indexOf(">(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new Foo<X>()>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    <CompleteOnAllocationExpression:new Foo<X>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
+ */
+public void test0194(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    new Foo<X<X>>();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = ">(";
+	int cursorLocation = str.indexOf(">(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new Foo<X<X>>()>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    <CompleteOnAllocationExpression:new Foo<X<X>>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
+ */
+public void test0195(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    new Foo<X<X<X>>>();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = ">(";
+	int cursorLocation = str.indexOf(">(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new Foo<X<X<X>>>()>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    <CompleteOnAllocationExpression:new Foo<X<X<X>>>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }
