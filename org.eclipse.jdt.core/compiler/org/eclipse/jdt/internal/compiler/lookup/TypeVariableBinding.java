@@ -224,9 +224,18 @@ public class TypeVariableBinding extends ReferenceBinding {
 		Binding declaring = this.declaringElement;
 		if (!isLeaf && declaring.kind() == Binding.METHOD) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=97902
 			MethodBinding methodBinding = (MethodBinding) declaring;
-			buffer.append(methodBinding.declaringClass.computeUniqueKey(false/*not a leaf*/));
+			ReferenceBinding declaringClass = methodBinding.declaringClass;
+			buffer.append(declaringClass.computeUniqueKey(false/*not a leaf*/));
 			buffer.append(':');
-			buffer.append(methodBinding.sourceStart());
+			MethodBinding[] methods = declaringClass.methods();
+			if (methods != null)
+				for (int i = 0, length = methods.length; i < length; i++) {
+					MethodBinding binding = methods[i];
+					if (binding == methodBinding) {
+						buffer.append(i);
+						break;
+					}
+				}
 		} else {
 			buffer.append(declaring.computeUniqueKey(false/*not a leaf*/));
 			buffer.append(':');			

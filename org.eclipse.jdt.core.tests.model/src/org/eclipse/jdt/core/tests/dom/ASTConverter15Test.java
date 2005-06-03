@@ -38,7 +38,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	static {
 //		TESTS_NUMBERS = new int[] { 185, 186 };
-//		TESTS_NAMES = new String[] {"test0177"};
+//		TESTS_NAMES = new String[] {"test0187"};
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -5570,4 +5570,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		final CompilationUnit compilationUnit = (CompilationUnit) result;
 	   	assertProblemsSize(compilationUnit, 1, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>");
 	}
+	
+	/*
+	 * Ensures that the binding key of a parameterized type can be computed when it contains a reference to a type variable.
+	 * (regression test for bug 98259 NPE computing ITypeBinding#getKey())
+	 */
+	public void test0187() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"public class X {\n" +
+			"	<T> /*start*/Y<T>/*end*/ foo() {\n" +
+			"      return null;" +
+			"	};\n" +
+			"}\n" +
+			"class Y<E> {\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy,
+    			false);
+    	ParameterizedType type = (ParameterizedType) node;
+    	assertBindingEquals(
+    		"LX~Y<LX;:1TT;>;",
+    		type.resolveBinding());
+	}
+
 }

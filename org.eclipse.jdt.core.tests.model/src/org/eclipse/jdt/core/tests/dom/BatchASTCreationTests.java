@@ -1422,7 +1422,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"class Y<E> {\n" + 
 				"}",
 			}, 
-			"Lp1/X~Y<Lp1/X;:40TT;>;"
+			"Lp1/X~Y<Lp1/X;:1TT;>;"
 		);
 	}
 
