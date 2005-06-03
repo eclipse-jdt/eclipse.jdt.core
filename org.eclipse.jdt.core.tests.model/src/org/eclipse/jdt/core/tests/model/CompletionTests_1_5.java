@@ -7440,4 +7440,124 @@ public void test0236() throws JavaModelException {
 			"Test<java.lang.String>[ANONYMOUS_CLASS_DECLARATION]{, Ltest0236.Test<Ljava.lang.String;>;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			result.proposals);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0237() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0237/Test.java",
+            "package test0237;\n" +
+            "\n" +
+            "public class Test<ZT> ext {\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0238() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0238/Test.java",
+            "package test0238;\n" +
+            "\n" +
+            "public class Test<ZT> imp {\n" +
+            "}",
+        	"imp");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"implements[KEYWORD]{implements, null, null, implements, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0239() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0239/Test.java",
+            "package test0239;\n" +
+            "\n" +
+            "public class Test<ZT> extends Object ext {\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0240() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0204/Test.java",
+            "package test0240;\n" +
+            "\n" +
+            "public class Test<ZT> extends Object imp {\n" +
+            "}",
+        	"imp");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"implements[KEYWORD]{implements, null, null, implements, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0241() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0241/Test.java",
+            "package test0241;\n" +
+            "\n" +
+            "public interface Test<ZT> ext {\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0242() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0242/Test.java",
+            "package test0242;\n" +
+            "\n" +
+            "public interface Test<ZT> imp {\n" +
+            "}",
+        	"imp");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
 }

@@ -1403,6 +1403,62 @@ private boolean checkRecoveredType() {
 	}
 	return false;
 }
+private void classHeaderExtendsOrImplements(boolean isInterface) {
+	if (currentElement != null
+			&& currentToken == TokenNameIdentifier
+			&& this.cursorLocation+1 >= scanner.startPosition
+			&& this.cursorLocation < scanner.currentPosition){
+			this.pushIdentifier();
+		int index = -1;
+		/* check if current awaiting identifier is the completion identifier */
+		if ((index = this.indexOfAssistIdentifier()) > -1) {
+			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
+			RecoveredType recoveredType = (RecoveredType)currentElement;
+			/* filter out cases where scanner is still inside type header */
+			if (!recoveredType.foundOpeningBrace) {
+				TypeDeclaration type = recoveredType.typeDeclaration;
+				if(!isInterface) {
+					char[][] keywords = new char[Keywords.COUNT][];
+					int count = 0;
+					
+					
+					if(type.superInterfaces == null) {
+						if(type.superclass == null) {
+							keywords[count++] = Keywords.EXTENDS;
+						}
+						keywords[count++] = Keywords.IMPLEMENTS;
+					}
+					
+					System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+					
+					if(count > 0) {
+						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
+							identifierStack[ptr],
+							identifierPositionStack[ptr],
+							keywords);
+						completionOnKeyword.canCompleteEmptyToken = true;
+						type.superclass = completionOnKeyword;
+						type.superclass.bits |= ASTNode.IsSuperType;
+						this.assistNode = completionOnKeyword;
+						this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
+					}
+				} else {
+					if(type.superInterfaces == null) {
+						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
+							identifierStack[ptr],
+							identifierPositionStack[ptr],
+							Keywords.EXTENDS);
+						completionOnKeyword.canCompleteEmptyToken = true;
+						type.superInterfaces = new TypeReference[]{completionOnKeyword};
+						type.superInterfaces[0].bits |= ASTNode.IsSuperType;
+						this.assistNode = completionOnKeyword;
+						this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
+					}
+				}
+			}
+		}
+	}
+}
 /* 
  * Check whether about to shift beyond the completion token.
  * If so, depending on the context, a special node might need to be created
@@ -1568,45 +1624,9 @@ protected void consumeClassBodyopt() {
 protected void consumeClassHeaderName1() {
 	super.consumeClassHeaderName1();
 
-	if (currentElement != null
-		&& currentToken == TokenNameIdentifier
-		&& this.cursorLocation+1 >= scanner.startPosition
-		&& this.cursorLocation < scanner.currentPosition){
-		this.pushIdentifier();
-
-		int index = -1;
-		/* check if current awaiting identifier is the completion identifier */
-		if ((index = this.indexOfAssistIdentifier()) > -1) {
-			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
-			RecoveredType recoveredType = (RecoveredType)currentElement;
-			/* filter out cases where scanner is still inside type header */
-			if (!recoveredType.foundOpeningBrace) {
-				char[][] keywords = new char[Keywords.COUNT][];
-				int count = 0;
-				
-				TypeDeclaration type = recoveredType.typeDeclaration;
-				if(type.superInterfaces == null) {
-					if(type.superclass == null) {
-						keywords[count++] = Keywords.EXTENDS;
-					}
-					keywords[count++] = Keywords.IMPLEMENTS;
-				}
-				
-				System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
-				
-				if(count > 0) {
-					type.superclass = new CompletionOnKeyword1(
-						identifierStack[ptr],
-						identifierPositionStack[ptr],
-						keywords);
-					type.superclass.bits |= ASTNode.IsSuperType;
-					this.assistNode = type.superclass;
-					this.lastCheckPoint = type.superclass.sourceEnd + 1;
-				}
-			}
-		}
-	}
+	classHeaderExtendsOrImplements(false);
 }
+
 protected void consumeClassHeaderExtends() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_CLASS);
 	super.consumeClassHeaderExtends();
@@ -1939,33 +1959,7 @@ protected void consumeInstanceOfExpressionWithName(int op) {
 protected void consumeInterfaceHeaderName1() {
 	super.consumeInterfaceHeaderName1();
 	
-	if (currentElement != null
-		&& currentToken == TokenNameIdentifier
-		&& this.cursorLocation+1 >= scanner.startPosition
-		&& this.cursorLocation < scanner.currentPosition){
-		this.pushIdentifier();
-		
-		int index = -1;
-		/* check if current awaiting identifier is the completion identifier */
-		if ((index = this.indexOfAssistIdentifier()) > -1) {
-			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
-			RecoveredType recoveredType = (RecoveredType)currentElement;
-			/* filter out cases where scanner is still inside type header */
-			if (!recoveredType.foundOpeningBrace) {
-				TypeDeclaration type = recoveredType.typeDeclaration;
-				if(type.superInterfaces == null) {
-					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
-						identifierStack[ptr],
-						identifierPositionStack[ptr],
-						Keywords.EXTENDS);
-					type.superInterfaces = new TypeReference[]{completionOnKeyword};
-					type.superInterfaces[0].bits |= ASTNode.IsSuperType;
-					this.assistNode = completionOnKeyword;
-					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
-				}
-			}
-		}
-	}
+	classHeaderExtendsOrImplements(true);
 }
 protected void consumeInterfaceHeaderExtends() {
 	super.consumeInterfaceHeaderExtends();
@@ -2816,6 +2810,12 @@ protected void consumeTypeArgumentReferenceType2() {
 protected void consumeTypeArguments() {
 	super.consumeTypeArguments();
 	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeTypeHeaderNameWithTypeParameters() {
+	super.consumeTypeHeaderNameWithTypeParameters();
+	
+	TypeDeclaration typeDecl = (TypeDeclaration)this.astStack[this.astPtr];
+	classHeaderExtendsOrImplements((typeDecl.modifiers & AccInterface) != 0);
 }
 protected void consumeTypeParameters() {
 	super.consumeTypeParameters();

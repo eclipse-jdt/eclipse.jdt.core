@@ -8611,4 +8611,220 @@ public void test0195(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0196(){
+	String str =
+		"public class Test<T> ext{\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "ext";
+	int cursorLocation = str.indexOf("ext") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ext";
+	String expectedReplacedSource = "ext";
+	String expectedUnitDisplayString =
+		"public class Test<T> extends <CompleteOnKeyword:ext> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0197(){
+	String str =
+		"public class Test<T> imp{\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "imp";
+	int cursorLocation = str.indexOf("imp") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:imp>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "imp";
+	String expectedReplacedSource = "imp";
+	String expectedUnitDisplayString =
+		"public class Test<T> extends <CompleteOnKeyword:imp> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0198(){
+	String str =
+		"public class Test<T> extends X ext {\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "X ext";
+	int cursorLocation = str.indexOf("X ext") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ext";
+	String expectedReplacedSource = "ext";
+	String expectedUnitDisplayString =
+		"public class Test<T> extends <CompleteOnKeyword:ext> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0199(){
+	String str =
+		"public class Test<T> extends X imp {\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "X imp";
+	int cursorLocation = str.indexOf("X imp") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:imp>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "imp";
+	String expectedReplacedSource = "imp";
+	String expectedUnitDisplayString =
+		"public class Test<T> extends <CompleteOnKeyword:imp> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0200(){
+	String str =
+		"public interface Test<T> ext{\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "ext";
+	int cursorLocation = str.indexOf("ext") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ext";
+	String expectedReplacedSource = "ext";
+	String expectedUnitDisplayString =
+		"public interface Test<T> extends <CompleteOnKeyword:ext> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0201(){
+	String str =
+		"public interface Test<T> imp{\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "imp";
+	int cursorLocation = str.indexOf("imp") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:imp>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "imp";
+	String expectedReplacedSource = "imp";
+	String expectedUnitDisplayString =
+		"public interface Test<T> extends <CompleteOnKeyword:imp> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
