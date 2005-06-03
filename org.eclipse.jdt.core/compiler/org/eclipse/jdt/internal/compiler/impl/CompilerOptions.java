@@ -892,8 +892,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 					return "syntheticAccess"; //$NON-NLS-1$
 				case (int) NonExternalizedString :
 					return "nls"; //$NON-NLS-1$
-				case (int) AssertUsedAsAnIdentifier :
-					return "assertIdentifier"; //$NON-NLS-1$
 				case (int) UnusedImport :
 					return "unusedImport"; //$NON-NLS-1$
 				case (int) NonStaticAccessToStatic :
@@ -975,8 +973,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			case 'a' :
 				if ("all".equals(warningToken)) //$NON-NLS-1$
 					return 0xFFFFFFFFFFFFFFFFl; // suppress all warnings
-				if ("assertIdentifier".equals(warningToken)) //$NON-NLS-1$
-					return AssertUsedAsAnIdentifier;
 				break;
 			case 'b' :
 				if ("boxing".equals(warningToken)) //$NON-NLS-1$
