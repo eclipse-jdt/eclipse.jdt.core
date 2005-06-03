@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
-import java.io.File;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
