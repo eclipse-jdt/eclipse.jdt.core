@@ -2385,4 +2385,82 @@ public void test53() {
 		expectedReplacedSource,
 		testName);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84001
+public void test54() {
+
+	String str =
+		"public class X {                \n" +
+		"  void foo() {\n" +
+		"    new Test.Sub();\n" +
+		"  }\n" +
+		"}								 \n";
+		
+	String selection = "Test";
+	
+	String expectedCompletionNodeToString = "<SelectOnType:Test>";
+	
+	String completionIdentifier = "Test";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    new <SelectOnType:Test>();\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "Test";
+	String testName = "<select>";
+
+	int selectionStart = str.indexOf(selection);
+	int selectionEnd = str.indexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84001
+public void test55() {
+
+	String str =
+		"public class X {                \n" +
+		"  void foo() {\n" +
+		"    new Test.Sub();\n" +
+		"  }\n" +
+		"}								 \n";
+		
+	String selection = "Sub";
+	
+	String expectedCompletionNodeToString = "<SelectOnAllocationExpression:new Test.Sub()>";
+	
+	String completionIdentifier = "Sub";
+	String expectedUnitDisplayString =
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    <SelectOnAllocationExpression:new Test.Sub()>;\n" + 
+		"  }\n" + 
+		"}\n";
+	String expectedReplacedSource = "new Test.Sub()";
+	String testName = "<select>";
+
+	int selectionStart = str.indexOf(selection);
+	int selectionEnd = str.indexOf(selection) + selection.length() - 1;
+		
+	this.checkMethodParse(
+		str.toCharArray(), 
+		selectionStart,
+		selectionEnd,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
 }

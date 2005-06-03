@@ -16,7 +16,8 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import junit.framework.*;
 
 public class ResolveTests extends AbstractJavaModelTests {
-
+	ICompilationUnit wc = null;
+	WorkingCopyOwner owner = null; 
 
 public static Test suite() {
 	if (false) {
@@ -30,15 +31,37 @@ public static Test suite() {
 public ResolveTests(String name) {
 	super(name);
 }
+public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
+	return super.getWorkingCopy(path, source, this.owner, null);
+}
+private IJavaElement[] select(String path, String source, String selection) throws JavaModelException {
+	this.wc = getWorkingCopy(path, source);
+	String str = wc.getSource();
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	return wc.codeSelect(start, length, this.owner);
+}
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	
 	setUpJavaProject("Resolve");
 }
+protected void setUp() throws Exception {
+	super.setUp();
+	
+	this.owner = new WorkingCopyOwner(){};
+}
+
 public void tearDownSuite() throws Exception {
 	deleteProject("Resolve");
 	
 	super.tearDownSuite();
+}
+protected void tearDown() throws Exception {
+	if(this.wc != null) {
+		this.wc.discardWorkingCopy();
+	}
+	super.tearDown();
 }
 /**
  * Resolve default abstract method
@@ -1482,5 +1505,36 @@ public void testQualifiedName5() throws JavaModelException {
 		"ZZ [in YY [in XX [in ResolveQualifiedName5 [in ResolveQualifiedName5.java [in <default> [in src [in Resolve]]]]]]]",
 		elements
 	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84001
+public void testTypeInsideConstructor() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Resolve/src/test/AType.java",
+				"public class AType {\n" +
+				"	public class Sub {\n" +
+				"	}\n" +
+				"}\n");
+
+		IJavaElement[] elements = select(
+				"/Resolve/src/test/Test.java",
+				"public class Test<\n" +
+				"	void foo() {\n" +
+				"	  new Test.Sub();\n" +
+				"	}\n" +
+				"}\n",
+				"Test");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]",
+			elements
+		);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
 }
 }
