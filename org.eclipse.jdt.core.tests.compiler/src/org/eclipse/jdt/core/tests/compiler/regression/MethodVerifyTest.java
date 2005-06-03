@@ -1052,6 +1052,22 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
+				"	<E extends A> void m(E e) { System.out.print(\"A=\"+e.getClass()); }\n" + 
+				"	<E extends B> void m(E e) { System.out.print(\"B=\"+e.getClass()); }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().m(new A());\n" +
+				"		new X().m(new B());\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class A {}\n" + 
+				"class B extends A {}\n"
+			},
+			"A=class AB=class B"
+		);
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
 				"	static <E extends A> void m(E e) { System.out.print(\"A=\"+e.getClass()); }\n" + 
 				"	static <E extends B> void m(E e) { System.out.print(\"B=\"+e.getClass()); }\n" + 
 				"	public static void main(String[] args) {\n" + 
@@ -2501,6 +2517,45 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
+	public void test043b() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	void test(M<Integer,Integer> m) {\n" +
+				"		m.id(new Integer(111), new Integer(112));\n" +
+				"	}\n" +
+				"}\n" +
+				"abstract class C<T1 extends Number> { public <U1 extends Number> void id(T1 x, U1 u) {} }\n" +
+				"interface I<T2> { }\n" +
+				"abstract class E<T3 extends Number, T4> extends C<T3> implements I<T4> {}\n" +
+				"class M<T5 extends Number, T6> extends E<T5, T6> { public <U2 extends Number> void id(T5 b, U2 u) {} }\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	void test(M<Integer,Integer> m) {\n" +
+				"		m.id(new Integer(111));\n" +
+				"	}\n" +
+				"}\n" +
+				"abstract class C<T1 extends Number> { public void id(T1 x) {} }\n" +
+				"interface I<T2> { void id(T2 x); }\n" +
+				"abstract class E<T3 extends Number, T4> extends C<T3> implements I<T4> {}\n" +
+				"class M<T5 extends Number, T6> extends E<T5, T6> { public void id(T6 b) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	m.id(new Integer(111));\n" + 
+			"	  ^^\n" + 
+			"The method id(Integer) is ambiguous for the type M<Integer,Integer>\n" + 
+			"----------\n"
+			// reference to id is ambiguous, both method id(A) in C<java.lang.Integer> and method id(B) in M<java.lang.Integer,java.lang.Integer> match
+		);
+	}
+
 	// ensure AccOverriding remains when attempting to override final method 
 	public void test044() {
 		this.runNegativeTest(
@@ -2792,25 +2847,18 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
 	public void test050() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
-				"		 public static <S extends A> S foo() { \n" + 
-				"		     System.out.print(\"A\"); \n" + 
-				"		     return null; \n" + 
-				"		  }\n" + 
-				"		 public static <N extends B> N foo() { \n" + 
-				"		     System.out.print(\"B\");\n" + 
-				"		     return null; \n" + 
-				"		 }\n" + 
+				"		 public static <S extends A> S foo() { System.out.print(\"A\"); return null; }\n" + 
+				"		 public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" + 
 				"		 public static void main(String[] args) {\n" + 
 				"		 	X.<A>foo();\n" + 
 				"		 	X.<B>foo();\n" + 
-				"		 	X o = new X();\n" + 
-				"		    o.<B>foo();\n" + 
+				"		 	new X().<B>foo();\n" + 
 				"		 }\n" + 
 				"}\n" + 
 				"class A {}\n" + 
@@ -2818,30 +2866,33 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"ABB"
 		);
-// TODO (philippe) we get BBB
-//		this.runConformTest(
-//			new String[] {
-//				"X.java",
-//				"public class X {\n" + 
-//				"		 public static <S extends A> void foo() { \n" + 
-//				"		     System.out.print(\"A\"); \n" + 
-//				"		  }\n" + 
-//				"		 public static <N extends B> N foo() { \n" + 
-//				"		     System.out.print(\"B\");\n" + 
-//				"		     return null; \n" + 
-//				"		 }\n" + 
-//				"		 public static void main(String[] args) {\n" + 
-//				"		 	X.foo();\n" + 
-//				"		 	X.<B>foo();\n" + 
-//				"		 	X o = new X();\n" + 
-//				"		    o.<B>foo();\n" + 
-//				"		 }\n" + 
-//				"}\n" + 
-//				"class A {}\n" + 
-//				"class B {}\n"
-//			},
-//			"ABB"
-//		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"		 public static <S extends A> void foo() { System.out.print(\"A\"); }\n" + 
+				"		 public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" + 
+				"		 static void test () {\n" + 
+				"		 	X.foo();\n" + 
+				"		 	foo();\n" + 
+				"		 }\n" + 
+				"}\n" + 
+				"class A {}\n" + 
+				"class B {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\r\n" + 
+			"	X.foo();\r\n" + 
+			"	  ^^^\n" + 
+			"The method foo() is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\r\n" + 
+			"	foo();\r\n" + 
+			"	^^^\n" + 
+			"The method foo() is ambiguous for the type X\n" + 
+			"----------\n"
+			// both references are ambiguous
+		);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
@@ -3460,5 +3511,121 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84035
+	public void test057() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"   public static void main(String[] args) {\n" + 
+				"   	A<Integer> x = new A<Integer>();\n" + 
+				"   	B<Integer> y = new B<Integer>();\n" + 
+				"   	new X().print(x);\n" + 
+				"   	new X().print(y);\n" + 
+				"	}\n" +
+				"	public <T extends IA<?>> void print(T a) { System.out.print(1); }\n" +
+				"	public <T extends IB<?>> void print(T a) { System.out.print(2); }\n" +
+				"}\n" +
+				"interface IA<E> {}\n" + 
+				"interface IB<E> extends IA<E> {}\n" + 
+				"class A<E> implements IA<E> {}\n" + 
+				"class B<E> implements IB<E> {}\n"
+			},
+			"12");
+		this.runConformTest(
+			new String[] {
+				"XX.java",
+				"public class XX {\n" + 
+				"   public static void main(String[] args) {\n" + 
+				"   	A<Integer> x = new A<Integer>();\n" + 
+				"   	B<Integer> y = new B<Integer>();\n" + 
+				"   	print(x);\n" + 
+				"   	print(y);\n" + 
+				"	}\n" +
+				"	public static <T extends IA<?>> void print(T a) { System.out.print(3); }\n" +
+				"	public static <T extends IB<?>> void print(T a) { System.out.print(4); }\n" +
+				"}\n" +
+				"interface IA<E> {}\n" + 
+				"interface IB<E> extends IA<E> {}\n" + 
+				"class A<E> implements IA<E> {}\n" + 
+				"class B<E> implements IB<E> {}\n"
+			},
+			"34");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
+	public void test058() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <B extends Number> {\n" + 
+				"   public static void main(String[] args) {\n" + 
+				"   	X<Integer> x = new X<Integer>();\n" + 
+				"   	x.aaa(null);\n" + 
+				"   	x.aaa(15);\n" + 
+				"	}\n" +
+				"	<T> T aaa(T t) { System.out.print('T'); return null; }\n" +
+				"	void aaa(B b) { System.out.print('B'); }\n" +
+				"}\n"
+			},
+			"BB");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<A> {\n" + 
+				"   void test() {\n" + 
+				"   	new X<Object>().foo(\"X\");\n" + 
+				"   	new X<Object>().foo2(\"X\");\n" + 
+				"   }\n" + 
+				"	<T> T foo(T t) {return null;}\n" +
+				"	void foo(A a) {}\n" +
+				"	<T> T foo2(T t) {return null;}\n" +
+				"	<T> void foo2(A a) {}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	new X<Object>().foo(\"X\");\r\n" + 
+			"	                ^^^\n" + 
+			"The method foo(String) is ambiguous for the type X<Object>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\r\n" + 
+			"	new X<Object>().foo2(\"X\");\r\n" + 
+			"	                ^^^^\n" + 
+			"The method foo2(String) is ambiguous for the type X<Object>\n" + 
+			"----------\n"
+			// both references are ambiguous
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<A> extends Y<A> {\n" + 
+				"   void test() {\n" + 
+				"   	new X<Object>().foo(\"X\");\n" + 
+				"   	new X<Object>().foo2(\"X\");\n" + 
+				"   }\n" + 
+				"	<T> T foo(T t) {return null;}\n" +
+				"	<T> T foo2(T t) {return null;}\n" +
+				"}\n" +
+				"class Y<A> {\n" +
+				"	void foo(A a) {}\n" +
+				"	<T> void foo2(A a) {}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	new X<Object>().foo(\"X\");\r\n" + 
+			"	                ^^^\n" + 
+			"The method foo(String) is ambiguous for the type X<Object>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\r\n" + 
+			"	new X<Object>().foo2(\"X\");\r\n" + 
+			"	                ^^^^\n" + 
+			"The method foo2(String) is ambiguous for the type X<Object>\n" + 
+			"----------\n"
+			// both references are ambiguous
+		);
 	}
 }
