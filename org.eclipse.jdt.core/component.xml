@@ -304,5 +304,5 @@
    <type name="OpcodeStringValues" subclass="false" instantiate="false"/>
  </package>
  
-<component-depends/>
+<component-depends unrestricted="true"/>
 </component>
