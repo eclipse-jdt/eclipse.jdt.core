@@ -16,24 +16,10 @@ import java.util.List;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeParameter;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.search.SearchMatch;
-import org.eclipse.jdt.core.search.SearchParticipant;
-import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.core.search.TypeNameRequestor;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.search.*;
 
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
@@ -59,7 +45,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug75816";
 //		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
-//		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
+//		TESTS_NUMBERS = new int[] { 97606 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -3301,5 +3287,115 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		TestCollector referencesCollector = new TestCollector();
 		search(field, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
 		assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
+	}
+
+	/**
+	 * Bug 97606: [1.5][search] Raw type reference is reported as exact match for qualified names
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97606"
+	 */
+	public void testBug97606() throws CoreException {
+		workingCopies = new ICompilationUnit[4];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/L.java",
+			"package b97606.pack.def;\n" + 
+			"public interface L<E> {}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/LL.java",
+			"package b97606.pack.def;\n" + 
+			"public class LL<E> implements L<E> {\n" + 
+			"	public Object clone() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/K.java",
+			"package b97606.pack.ref;\n" + 
+			"public interface K {}\n"
+		);
+		workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/X.java",
+			"package b97606.pack.ref;\n" + 
+			"public class X implements K {\n" + 
+			"	private b97606.pack.def.LL sg;\n" + 
+			"	protected synchronized b97606.pack.def.L<K> getSG() {\n" + 
+			"		return (sg != null) \n" + 
+			"			? (b97606.pack.def.L) sg.clone()\n" + 
+			"			: null;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IPath pathDef = new Path("/JavaSearchBugs/src/b97606/pack/def");
+		IPath pathRef = new Path("/JavaSearchBugs/src/b97606/pack/ref");
+		try {
+			createFolder(pathDef);
+			createFolder(pathRef);
+			workingCopies[0].commitWorkingCopy(true, null);
+			workingCopies[1].commitWorkingCopy(true, null);
+			workingCopies[2].commitWorkingCopy(true, null);
+			workingCopies[3].commitWorkingCopy(true, null);
+			this.resultCollector.showRule = true;
+			IType type = workingCopies[0].getType("L");
+			search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH);
+			assertSearchResults(
+				"src/b97606/pack/def/LL.java b97606.pack.def.LL [L] ERASURE_MATCH\n" + 
+				"src/b97606/pack/ref/X.java b97606.pack.def.L<K> b97606.pack.ref.X.getSG() [b97606.pack.def.L] ERASURE_MATCH\n" + 
+				"src/b97606/pack/ref/X.java b97606.pack.def.L<K> b97606.pack.ref.X.getSG() [b97606.pack.def.L] ERASURE_RAW_MATCH"
+			);
+		}
+		finally {
+			deleteFolder(pathDef);
+			deleteFolder(pathRef);
+		}
+	}
+	public void testBug97606b() throws CoreException {
+		workingCopies = new ICompilationUnit[4];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/L.java",
+			"package b97606.pack.def;\n" + 
+			"public interface L<E> {}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/LL.java",
+			"package b97606.pack.def;\n" + 
+			"public class LL<E> implements L<E> {\n" + 
+			"	public Object clone() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/K.java",
+			"package b97606.pack.ref;\n" + 
+			"public interface K {}\n"
+		);
+		workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/X.java",
+			"package b97606.pack.ref;\n" + 
+			"import b97606.pack.def.*;\n" + 
+			"public class X implements K {\n" + 
+			"	private LL sg;\n" + 
+			"	protected synchronized L<K> getSG() {\n" + 
+			"		return (sg != null) \n" + 
+			"			? (L) sg.clone()\n" + 
+			"			: null;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IPath pathDef = new Path("/JavaSearchBugs/src/b97606/pack/def");
+		IPath pathRef = new Path("/JavaSearchBugs/src/b97606/pack/ref");
+		try {
+			createFolder(pathDef);
+			createFolder(pathRef);
+			workingCopies[0].commitWorkingCopy(true, null);
+			workingCopies[1].commitWorkingCopy(true, null);
+			workingCopies[2].commitWorkingCopy(true, null);
+			workingCopies[3].commitWorkingCopy(true, null);
+			this.resultCollector.showRule = true;
+			IType type = workingCopies[0].getType("L");
+			search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH);
+			assertSearchResults(
+				"src/b97606/pack/def/LL.java b97606.pack.def.LL [L] ERASURE_MATCH\n" + 
+				"src/b97606/pack/ref/X.java L<K> b97606.pack.ref.X.getSG() [L] ERASURE_MATCH\n" + 
+				"src/b97606/pack/ref/X.java L<K> b97606.pack.ref.X.getSG() [L] ERASURE_RAW_MATCH"
+			);
+		}
+		finally {
+			deleteFolder(pathDef);
+			deleteFolder(pathRef);
+		}
 	}
 }

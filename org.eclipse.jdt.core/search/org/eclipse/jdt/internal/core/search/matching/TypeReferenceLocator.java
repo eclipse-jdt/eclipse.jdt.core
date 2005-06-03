@@ -312,11 +312,19 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 			if (resolveLevelForType(refBinding) == ACCURATE_MATCH) {
 				if (locator.encloses(element)) {
 					long[] positions = qNameRef.sourcePositions;
-					int start = (int) ((positions[this.pattern.qualification == null ? lastIndex : 0]) >>> 32);
+					// index now depends on pattern type signature
+					int index = lastIndex;
+					if (this.pattern.qualification != null) {
+						index = lastIndex - this.pattern.segmentsSize;
+					}
+					if (index < 0) index = 0;
+					int start = (int) ((positions[index]) >>> 32);
 					int end = (int) positions[lastIndex];
 					match.setOffset(start);
 					match.setLength(end-start+1);
-					locator.report(match);
+
+					//  Look if there's a need to special report for parameterized type
+					matchReportReference(qNameRef, lastIndex, refBinding, locator);
 				}
 				return;
 			}
