@@ -3628,4 +3628,27 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// both references are ambiguous
 		);
 	}
+
+	public void test059() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {new B().foo(\"aa\");}\n" + 
+				"}\n" +
+				"class A { <U> void foo(U u) {System.out.print(false);} }\n" + 
+				"class B extends A { <V> void foo(String s) {System.out.print(true);} }\n"
+			},
+			"true");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {new B().foo(\"aa\");}\n" + 
+				"}\n" +
+				"class A { <U> void foo(String s) {System.out.print(true);} }\n" + 
+				"class B extends A { <V> void foo(V v) {System.out.print(false);} }\n"
+			},
+			"true");
+	}
 }

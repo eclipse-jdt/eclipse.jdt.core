@@ -1877,13 +1877,16 @@ public abstract class Scope
 			ImportBinding[] imports = unitScope.imports;
 			if (imports != null) {
 				MethodBinding[] visible = null;
-				int importLevel = -1; // -1 = not found, 0 = on demand match, 1 = single import match
 				for (int i = 0, length = imports.length; i < length; i++) {
 					ImportBinding importBinding = imports[i];
 					if (importBinding.isStatic()) {
 						Binding resolvedImport = importBinding.resolvedImport;
 						MethodBinding possible = null;
-						if (!importBinding.onDemand && importBinding.isStatic()) {
+						if (importBinding.onDemand) {
+							if (resolvedImport instanceof ReferenceBinding)
+								// answers closest approximation, may not check argumentTypes or visibility
+								possible = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);
+						} else {
 							if (resolvedImport instanceof MethodBinding) {
 								MethodBinding staticMethod = (MethodBinding) resolvedImport;
 								if (CharOperation.equals(staticMethod.selector, selector))
@@ -1901,9 +1904,6 @@ public abstract class Scope
 										possible = findMethod((ReferenceBinding) referencedType, selector, argumentTypes, invocationSite);
 								}
 							}
-						} else if (importBinding.onDemand && importLevel < 1 && resolvedImport instanceof ReferenceBinding) {
-							// answers closest approximation, may not check argumentTypes or visibility
-							possible = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);
 						}
 						if (possible != null && possible != foundMethod) {
 							if (!possible.isValidBinding()) {
@@ -1929,7 +1929,6 @@ public abstract class Scope
 													visible = temp;
 												}
 											}
-											importLevel = importBinding.onDemand ? 0 : 1;
 										} else if (foundMethod == null) {
 											foundMethod = new ProblemMethodBinding(compatibleMethod, selector, compatibleMethod.parameters, NotVisible);
 										}
@@ -3217,7 +3216,8 @@ public abstract class Scope
 						continue nextVisible;
 					}
 
-					if (method == method2) continue; // interfaces may be walked twice from different paths
+					// parameterized superclasses & interfaces may be walked twice from different paths
+					if (method.original() == method2.original()) continue;
 
 					// see if method & method2 are duplicates due to the current substitution or multiple static imported methods
 					if (method.tiebreakMethod().areParametersEqual(method2.tiebreakMethod())) {

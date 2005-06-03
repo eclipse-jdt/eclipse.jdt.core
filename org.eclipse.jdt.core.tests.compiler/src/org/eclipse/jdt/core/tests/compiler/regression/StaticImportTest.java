@@ -1154,5 +1154,73 @@ public class StaticImportTest extends AbstractComparableTest {
 			"----------\n"
 			// reference to foo is ambiguous, both method foo() in p.B and method foo() in p.A match
 		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import static p.A.*;\n" + 
+				"import static p.B.foo;\n" + 
+				"public class X { void test() {foo();} }\n",
+				"p/A.java",
+				"package p;" +
+				"public class A {\n" + 
+				"	public static void foo() {}\n" + 
+				"}\n",
+				"p/B.java",
+				"package p;" +
+				"public class B {\n" + 
+				"	public static void foo() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	public class X { void test() {foo();} }\r\n" + 
+			"	                              ^^^\n" + 
+			"The method foo() is ambiguous for the type X\n" + 
+			"----------\n"
+			// reference to foo is ambiguous, both method foo() in p.B and method foo() in p.A match
+		);
+	}
+
+	public void test033() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.A.*;\n" + 
+				"import static p.B.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {foo(\"aa\");}\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;" +
+				"public class A {\n" + 
+				"	public static <U> void foo(U u) {System.out.print(false);}\n" + 
+				"}\n",
+				"p/B.java",
+				"package p;" +
+				"public class B extends A {\n" + 
+				"	public static <V> void foo(String s) {System.out.print(true);}\n" + 
+				"}\n"
+			},
+			"true");
+		this.runConformTest(
+			new String[] {
+				"XX.java",
+				"import static p.AA.*;\n" + 
+				"import static p.BB.*;\n" + 
+				"public class XX {\n" + 
+				"	public static void main(String[] args) {foo(\"aa\");}\n" + 
+				"}\n",
+				"p/AA.java",
+				"package p;" +
+				"public class AA {\n" + 
+				"	public static <U> void foo(String s) {System.out.print(true);}\n" + 
+				"}\n",
+				"p/BB.java",
+				"package p;" +
+				"public class BB extends AA {\n" + 
+				"	public static <V> void foo(V v) {System.out.print(false);}\n" + 
+				"}\n"
+			},
+			"true");
 	}
 }
