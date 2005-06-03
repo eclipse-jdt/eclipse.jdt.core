@@ -38,17 +38,17 @@ public void test001() {
 		"    int x = 1;\n" + 
 		"}\n",
 	}, 
-		"----------\n" + 
-		"1. WARNING in p\\B.java (at line 3)\n" + 
-		"	float x = super.x;\n" + 
-		"	      ^\n" + 
-		"The field B.x is hiding a field from type A\n" + 
-		"----------\n" + 
-		"2. WARNING in p\\B.java (at line 3)\n" + 
-		"	float x = super.x;\n" + 
-		"	          ^^^^^^^\n" + 
-		"The field A.x is deprecated\n" + 
-		"----------\n"
+	"----------\n" + 
+	"1. WARNING in p\\B.java (at line 3)\n" + 
+	"	float x = super.x;\n" + 
+	"	      ^\n" + 
+	"The field B.x is hiding a field from type A\n" + 
+	"----------\n" + 
+	"2. WARNING in p\\B.java (at line 3)\n" + 
+	"	float x = super.x;\n" + 
+	"	                ^\n" + 
+	"The field A.x is deprecated\n" + 
+	"----------\n"
 	);
 }
 public void test002() {

@@ -3137,10 +3137,9 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 		pushOnExpressionStack(fr);
 	} else {
 		//optimize push/pop
-		if ((fr.receiver = this.expressionStack[this.expressionPtr]).isThis()) {
-			//fieldreference begins at the this
-			fr.sourceStart = fr.receiver.sourceStart;
-		}
+		fr.receiver = this.expressionStack[this.expressionPtr];
+		//fieldreference begins at the receiver
+		fr.sourceStart = fr.receiver.sourceStart;
 		this.expressionStack[this.expressionPtr] = fr;
 	}
 }

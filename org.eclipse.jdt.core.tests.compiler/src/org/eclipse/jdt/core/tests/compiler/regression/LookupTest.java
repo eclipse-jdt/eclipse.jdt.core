@@ -221,7 +221,7 @@ public void test006() {
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(this.success);}\n" + 
-		"	                                        ^^^^^^^^^^^^\n" + 
+		"	                                             ^^^^^^^\n" + 
 		"The field A.success is not visible\n" + 
 		"----------\n");
 }
@@ -278,7 +278,7 @@ public void test008() {
 		"----------\n" + 
 		"2. WARNING in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(A.this.success);}\n" + 
-		"	                                        ^^^^^^^^^^^^^^\n" + 
+		"	                                               ^^^^^^^\n" + 
 		"The static field A.success should be accessed in a static way\n" + 
 		"----------\n"
 	);
@@ -313,7 +313,7 @@ public void test009() {
 		"----------\n" + 
 		"2. ERROR in p1\\A.java (at line 7)\n" + 
 		"	public void aTask() {System.out.println(this.success);}\n" + 
-		"	                                        ^^^^^^^^^^^^\n" + 
+		"	                                             ^^^^^^^\n" + 
 		"The field A.success is not visible\n" + 
 		"----------\n");
 }

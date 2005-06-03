@@ -105,7 +105,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 610 };
+//		TESTS_NUMBERS =  new int[] { 611 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -6450,5 +6450,47 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertProblemsSize(unit, 1, "The type Test is deprecated");
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=96698
+	 */
+	public void test0611() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"abstract class SearchPattern {\n" +
+				"}\n" +
+				"class InternalSearchPattern extends SearchPattern {\n" +
+				"	boolean mustResolve;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static final int POSSIBLE_MATCH = 0;\n" +
+				"	public static final int ACCURATE_MATCH = 1;\n" +
+				"	\n" +
+				"	public void foo(SearchPattern pattern) {\n" +
+				"		int declarationLevel = ((InternalSearchPattern) pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;\n" +
+				"		System.out.println(declarationLevel);\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 2, 2, 0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+			List fragments = statement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			Expression expression = fragment.getInitializer();
+			checkSourceRange(expression, "((InternalSearchPattern) pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH", contents);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
 	}
 }
