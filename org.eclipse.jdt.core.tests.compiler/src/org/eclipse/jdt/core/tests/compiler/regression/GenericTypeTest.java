@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 683 };
+//		TESTS_NUMBERS = new int[] { 708 };
 //		TESTS_RANGE = new int[] { 514, -1 };
 	}
 	public static Test suite() {
@@ -20569,5 +20569,51 @@ public void test707() {
 			"}\n",
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95684
+public void test708() {
+	this.runConformTest(
+		new String[] {
+			"UserClass.java",
+			"public class UserClass<K> {\n" + 
+			"    protected class DataHolder {}\n" + 
+			"    protected void loadHook(DataHolder data) {}\n" + 
+			"}\n",
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"ChildClass.java",
+			"public class ChildClass extends UserClass<Object> {\n" + 
+			"    @Override protected void loadHook(DataHolder data) {}\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		false,
+		null);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95684 - variation
+public void test709() {
+	this.runConformTest(
+		new String[] {
+			"UserClass.java",
+			"public class UserClass<K> {\n" + 
+			"    protected class DataHolder {}\n" + 
+			"    protected void loadHook(DataHolder[] data) {}\n" + 
+			"}\n",
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"ChildClass.java",
+			"public class ChildClass extends UserClass<Object> {\n" + 
+			"    @Override protected void loadHook(DataHolder[] data) {}\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		false,
+		null);	
 }
 }

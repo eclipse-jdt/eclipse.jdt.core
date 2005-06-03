@@ -54,8 +54,8 @@ public static ReferenceBinding resolveType(ReferenceBinding type, LookupEnvironm
 	if (type.isWildcard())
 		return ((WildcardBinding) type).resolve();
 
-	if (convertGenericToRawType && type.isGenericType()) // raw reference to generic ?
-	    return environment.createRawType(type, type.enclosingType());
+	if (convertGenericToRawType) // raw reference to generic ?
+		return (ReferenceBinding) environment.convertToRawType(type);
 	return type;
 }
 public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
@@ -77,7 +77,7 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 						
 		case Binding.GENERIC_TYPE :
 			if (parameterizedType == null) // raw reference to generic ?
-			    return environment.createRawType((ReferenceBinding) type, type.enclosingType());
+				return environment.convertToRawType(type);
 			break;
 			
 		default:			

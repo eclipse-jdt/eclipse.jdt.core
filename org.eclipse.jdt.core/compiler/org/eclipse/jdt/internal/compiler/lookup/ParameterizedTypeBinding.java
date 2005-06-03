@@ -252,10 +252,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	public ReferenceBinding enclosingType() {
 		if (this.isMemberType() && this.enclosingType == null) {
-			ReferenceBinding originalEnclosing = this.type.enclosingType();
-			this.enclosingType = originalEnclosing.isGenericType()
-				? this.environment.createRawType(originalEnclosing, originalEnclosing.enclosingType()) // TODO (need to propagate in depth on enclosing type)
-				: originalEnclosing;
+			this.enclosingType = (ReferenceBinding) this.environment.convertToRawType(this.type.enclosingType());
 		}
 	    return this.enclosingType;
 	}
