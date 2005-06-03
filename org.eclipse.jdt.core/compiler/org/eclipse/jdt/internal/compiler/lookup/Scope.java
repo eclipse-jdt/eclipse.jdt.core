@@ -1020,7 +1020,7 @@ public abstract class Scope
 					// BUT we can also ignore any overridden method since we already know the better match (fixes 80028)
 					if (matchingMethod != null) {
 						if (currentMethod.areParametersEqual(matchingMethod)) {
-							if (matchingMethod.typeVariables != NoTypeVariables)
+							if (matchingMethod.typeVariables != NoTypeVariables && invocationSite.genericTypeArguments() == null)
 								continue nextMethod; // keep inherited substituted methods to detect anonymous errors
 							if (matchingMethod.hasSubstitutedParameters() && !currentMethod.original().areParametersEqual(matchingMethod.original()))
 								continue nextMethod; // keep inherited substituted methods to detect anonymous errors
@@ -3189,13 +3189,14 @@ public abstract class Scope
 		for (int i = 0; i < visibleSize; i++)
 			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes);
 
-		for (int level = 0; level <= VARARGS_COMPATIBLE; level++) {
+		for (int level = 0, max = VARARGS_COMPATIBLE; level <= max; level++) {
 			nextVisible : for (int i = 0; i < visibleSize; i++) {
 				if (compatibilityLevels[i] != level) continue nextVisible; // skip this method for now
 				MethodBinding method = visible[i];
 				TypeBinding[] params = method.tiebreakMethod().parameters;
 				for (int j = 0; j < visibleSize; j++) {
 					if (i == j || compatibilityLevels[j] != level) continue;
+					max = level; // do not examine further categories
 					MethodBinding method2 = visible[j];
 					// tiebreak generic methods using variant where type params are substituted by their erasures
 					if (!method2.tiebreakMethod().areParametersCompatibleWith(params)) {
@@ -3214,49 +3215,46 @@ public abstract class Scope
 								continue; // special case to choose between 2 varargs methods when the last arg is missing or its Object[]
 						}
 						continue nextVisible;
-					} else if (method.isStatic()) {
-						// detect collision between static import methods from unconnected types
-						if (method.declaringClass != method2.declaringClass && method.original().areParametersEqual(method2.original()))
-							if (method.declaringClass.findSuperTypeWithSameErasure(method2.declaringClass) == null)
+					}
+
+					if (method == method2) continue; // interfaces may be walked twice from different paths
+
+					// see if method & method2 are duplicates due to the current substitution or multiple static imported methods
+					if (method.tiebreakMethod().areParametersEqual(method2.tiebreakMethod())) {
+						if (method.declaringClass == method2.declaringClass)
+							continue nextVisible; // duplicates thru substitution
+
+						MethodBinding original = method.original();
+						if (method.hasSubstitutedParameters() || original.typeVariables != NoTypeVariables) {
+							ReferenceBinding declaringClass = (ReferenceBinding) method.declaringClass.erasure();
+							ReferenceBinding superType = declaringClass.findSuperTypeWithSameErasure(method2.declaringClass.erasure());
+							if (superType == null) {
+								// accept concrete methods over abstract methods found due to the default abstract method walk
+								if (!method.isAbstract() && method2.isAbstract())
+									continue;
 								continue nextVisible;
-					} else if (!method.original().areTypeVariableErasuresEqual(method2.original())) {
-						// cannot override an inherited method if type variables are not compatible
-						continue nextVisible;
-					} else if (method.hasSubstitutedParameters() && method.isAbstract() == method2.isAbstract()) { // must both be abstract or concrete, not one of each
-						if (method.areParametersEqual(method2)) {
-							// its possible with 2 methods that one does not inherit from the other
-							// need to find their methods from the receiver type
-							// see cases in verify test #43
-							MethodBinding original = method.original();
-							MethodBinding original2 = method2.original();
-							if (original.areParameterErasuresEqual(original2)) continue;
-							ReferenceBinding receiverType = (ReferenceBinding) ((MessageSend) invocationSite).actualReceiverType;
-							if (receiverType != method.declaringClass) {
-								ReferenceBinding superType = ((ReferenceBinding) receiverType.erasure()).findSuperTypeWithSameErasure(original.declaringClass);
-								if (superType != null) {
-									MethodBinding[] superMethods = superType.getMethods(original.selector);
-									for (int m = 0, l = superMethods.length; m < l; m++) {
-										if (superMethods[m].original() == original) {
-											original = superMethods[m];
-											break;
-										}
+							}
+							MethodBinding inheritedMethod = method2;
+							MethodBinding inheritedOriginal = method2.original();
+							if (method.hasSubstitutedParameters()) { // must find inherited method with the same substituted variables
+								MethodBinding[] superMethods = superType.getMethods(inheritedMethod.selector);
+								for (int m = 0, l = superMethods.length; m < l; m++) {
+									if (superMethods[m].original() == inheritedOriginal) {
+										inheritedMethod = superMethods[m];
+										break;
 									}
 								}
 							}
-							if (receiverType != method2.declaringClass) {
-								ReferenceBinding superType = ((ReferenceBinding) receiverType.erasure()).findSuperTypeWithSameErasure(original2.declaringClass);
-								if (superType != null) {
-									MethodBinding[] superMethods = superType.getMethods(original2.selector);
-									for (int m = 0, l = superMethods.length; m < l; m++) {
-										if (superMethods[m].original() == original2) {
-											original2 = superMethods[m];
-											break;
-										}
-									}
-								}
-							}
-							if (!original.areParametersEqual(original2))
-								continue nextVisible; // cannot be substituted from 2 different type variables
+							if (original.typeVariables != NoTypeVariables)
+								inheritedMethod = original.computeSubstitutedMethod(inheritedMethod == method2 ? inheritedOriginal : inheritedMethod, environment());
+							if (inheritedMethod == null || !original.areParametersEqual(inheritedMethod))
+								break nextVisible; // dup thru substitution, not overridden... cannot find possible match
+							// method overrides method2, accept it
+						} else if (method.isStatic() && method2.isStatic()) {
+							ReferenceBinding declaringClass = (ReferenceBinding) method.declaringClass.erasure();
+							ReferenceBinding superType = declaringClass.findSuperTypeWithSameErasure(method2.declaringClass.erasure());
+							if (superType == null)
+								continue nextVisible; // static methods from unrelated types
 						}
 					}
 				}

@@ -1037,24 +1037,13 @@ public MethodBinding[] methods() {
 
 						TypeVariableBinding[] vars = method.typeVariables;
 						TypeVariableBinding[] vars2 = method2.typeVariables;
-						boolean equalTypeVarLength = vars.length == vars2.length;
 						boolean equalTypeVars = vars == vars2;
 						MethodBinding subMethod = method2;
-						if (!equalTypeVars && equalTypeVarLength) {
-							LookupEnvironment env = this.scope.environment();
-							int varsLength = vars.length;
-							notEqual : for (int v = 0; v < varsLength; v++) {
-								if (!vars[v].isInterchangeableWith(env, vars2[v])) {
-									equalTypeVars = false;
-									break notEqual;
-								}
+						if (!equalTypeVars) {
+							MethodBinding temp = method.computeSubstitutedMethod(method2, this.scope.environment());
+							if (temp != null) {
 								equalTypeVars = true;
-							}
-							if (equalTypeVars) {
-								// must substitute to detect cases like:
-								//   <T1 extends X<T1>> void dup() {}
-								//   <T2 extends X<T2>> Object dup() {return null;}
-								subMethod = new ParameterizedGenericMethodBinding(method2, vars, env);
+								subMethod = temp;
 							}
 						}
 						boolean equalParams = method.areParametersEqual(subMethod);

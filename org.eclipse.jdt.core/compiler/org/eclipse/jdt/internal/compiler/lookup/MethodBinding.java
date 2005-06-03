@@ -288,6 +288,20 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	} while ((type = type.superclass()) != null);
 	return false;
 }
+MethodBinding computeSubstitutedMethod(MethodBinding method, LookupEnvironment env) {
+	TypeVariableBinding[] vars = this.typeVariables;
+	TypeVariableBinding[] vars2 = method.typeVariables;
+	if (vars.length != vars2.length)
+		return null;
+	for (int v = vars.length; --v >= 0;)
+		if (!vars[v].isInterchangeableWith(env, vars2[v]))
+			return null;
+
+	// must substitute to detect cases like:
+	//   <T1 extends X<T1>> void dup() {}
+	//   <T2 extends X<T2>> Object dup() {return null;}
+	return new ParameterizedGenericMethodBinding(method, vars, env);
+}
 /*
  * declaringUniqueKey dot selector genericSignature
  * p.X { <T> void bar(X<T> t) } --> Lp/X;.bar<T:Ljava/lang/Object;>(LX<TT;>;)V
