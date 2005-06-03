@@ -15,6 +15,7 @@ import junit.framework.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 
@@ -121,6 +122,7 @@ public static Test suite() {
 	suite.addTest(new CodeCorrectionTests("testCorrectArgument1"));
 	suite.addTest(new CodeCorrectionTests("testCorrectReturnType1"));
 	suite.addTest(new CodeCorrectionTests("testCorrectReturnType2"));
+	suite.addTest(new CodeCorrectionTests("testWarningAssert"));
 
 	return suite;
 }
@@ -758,5 +760,8 @@ public void testCorrectReturnType2() throws JavaModelException {
 		end+"\n"+
 		end,
 		requestor.getEnds());
+}
+public void testWarningAssert() {
+	assertNull("assertIdentifier is a valid token for @SuppressWarnings", CorrectionEngine.getWarningToken(IProblem.UseAssertAsAnIdentifier));
 }
 }

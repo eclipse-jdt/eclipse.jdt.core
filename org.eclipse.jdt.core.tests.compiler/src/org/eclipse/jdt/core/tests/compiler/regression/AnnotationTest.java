@@ -37,7 +37,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 148 };
+//		TESTS_NUMBERS = new int[] { 150 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -4678,5 +4678,20 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	             ^^^\n" + 
 			"Cannot reference a field before it is defined\n" + 
 			"----------\n");
-    }    
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98091
+    public void test150() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings(\"assertIdentifier\")\n" + 
+				"class X {}",
+            },
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 1)\n" + 
+    		"	@SuppressWarnings(\"assertIdentifier\")\n" + 
+    		"	                  ^^^^^^^^^^^^^^^^^^\n" + 
+    		"Unhandled warning token assertIdentifier\n" + 
+    		"----------\n");
+    }
 }
