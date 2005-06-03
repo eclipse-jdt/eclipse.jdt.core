@@ -20616,4 +20616,24 @@ public void test709() {
 		false,
 		null);	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96713
+public void test710() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static <V, P extends Persistent<V>> P createDataObject(V value) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static void testCreateDataObject(Object v) {\n" + 
+			"		Persistent d = createDataObject(v);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private interface Persistent<V> {\n" + 
+			"		public V getValueObject();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 }
