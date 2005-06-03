@@ -90,7 +90,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test065" };
+//		TESTS_NAMES = new String[] { "test066" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1426,4 +1426,52 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		);
 	}
 
+	/*
+	 * Ensures that the compilation with a owner is used instead of a primary working copy when looking up a type.
+	 * (regression test for bug 97542 ASTParser#createASTs does not correctly resolve bindings in working copies)
+	 */
+	public void test066() throws CoreException {
+		ICompilationUnit primaryWorkingCopy = null;
+		ICompilationUnit ownedWorkingcopy = null;
+		try {
+			// primary working copy with no method foo()
+			primaryWorkingCopy = getCompilationUnit("/P/p1/X.java");
+			primaryWorkingCopy.becomeWorkingCopy(null/*no pb requestor*/, null/*no progress*/);
+			primaryWorkingCopy.getBuffer().setContents(
+				"package p1;\n" +
+				"public class X {\n" +
+				"}"
+			);
+			primaryWorkingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+			
+			// working copy for the test's owner with a method foo()
+			ownedWorkingcopy = getWorkingCopy(
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {}\n" +
+				"}",
+				this.owner,
+				false/*don't compute problems*/
+			);
+			
+			// create bindings
+			assertRequestedBindingFound(
+				new String[] {
+					"/P/p1/Y.java",
+					"package p1;\n" +
+					"public class Y {\n" + 
+					"  void bar() {\n" +
+					"    /*start*/new X().foo()/*end*/;\n" +
+					"}",
+				}, 
+				"Lp1/X;.foo()V"
+			);
+		} finally {
+			if (primaryWorkingCopy != null)
+				primaryWorkingCopy.discardWorkingCopy();
+			if (ownedWorkingcopy != null)
+				ownedWorkingcopy.discardWorkingCopy();
+		}
+	}
 }

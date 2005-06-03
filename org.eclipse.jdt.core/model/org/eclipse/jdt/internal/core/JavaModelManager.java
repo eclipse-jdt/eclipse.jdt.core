@@ -1378,11 +1378,18 @@ public class JavaModelManager implements ISaveParticipant {
 			int primaryLength = primaryWCs == null ? 0 : primaryWCs.length;
 			int size = workingCopyToInfos.size(); // note size is > 0 otherwise pathToPerWorkingCopyInfos would be null
 			ICompilationUnit[] result = new ICompilationUnit[primaryLength + size];
+			int index = 0;
 			if (primaryWCs != null) {
-				System.arraycopy(primaryWCs, 0, result, 0, primaryLength);
+				for (int i = 0; i < primaryLength; i++) {
+					ICompilationUnit primaryWorkingCopy = primaryWCs[i];
+					ICompilationUnit workingCopy = new CompilationUnit((PackageFragment) primaryWorkingCopy.getParent(), primaryWorkingCopy.getElementName(), owner);
+					if (!workingCopyToInfos.containsKey(workingCopy))
+						result[index++] = primaryWorkingCopy;
+				}
+				if (index != primaryLength)
+					System.arraycopy(result, 0, result = new ICompilationUnit[index+size], 0, index);
 			}
 			Iterator iterator = workingCopyToInfos.values().iterator();
-			int index = primaryLength;
 			while(iterator.hasNext()) {
 				result[index++] = ((JavaModelManager.PerWorkingCopyInfo)iterator.next()).getWorkingCopy();
 			}
