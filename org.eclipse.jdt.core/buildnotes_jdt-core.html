@@ -49,6 +49,16 @@ What's new in this drop</h2>
 <li>Access rules file patterns have been changed to ignore the file extension. This allow easy switching from a source project
      to a binary project. Thus <code>"com/test/X.java"</code> is now an invalid access rule pattern, and 
      <code>"com/test/X"</code> is a valid access rule pattern.</li>
+<li>
+Following batch compiler options default value have been changed from "ignore" to "warning":
+<ul>
+<li>unusedLocal (unread local variable)</li>
+<li>unusedPrivate (unused private member declaration)</li>
+<li>fieldHiding (field hiding another variable)</li>
+<li>localHiding (local variable hiding another variable)</li>
+</ul>
+</li>
+(see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=76530">76530</a>)
 </ul>
 
 <h3>Problem Reports Fixed</h3>
