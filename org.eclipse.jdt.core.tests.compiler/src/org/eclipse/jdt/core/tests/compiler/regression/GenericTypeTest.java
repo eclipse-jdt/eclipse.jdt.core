@@ -20708,4 +20708,35 @@ public void test712(){
         false,
         null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96713
+public void test713() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	int i = 0;\n" + 
+			"	interface Y {\n" + 
+			"		java.util.List<T> lt = null;\n" + 
+			"		int j = i;\n" + 
+			"		void m1(T t);		\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	java.util.List<T> lt = null;\n" + 
+		"	               ^\n" + 
+		"Cannot make a static reference to the non-static type T\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	int j = i;\n" + 
+		"	        ^\n" + 
+		"Cannot make a static reference to the non-static field i\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	void m1(T t);		\n" + 
+		"	        ^\n" + 
+		"Cannot make a static reference to the non-static type T\n" + 
+		"----------\n");
+}
 }

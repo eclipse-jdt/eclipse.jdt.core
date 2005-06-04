@@ -2282,7 +2282,7 @@ public abstract class Scope
 								return typeVariable;
 							if (CharOperation.equals(name, sourceType.sourceName))
 								return sourceType;
-							insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
+							insideStaticContext |= sourceType.isStatic();
 							break;
 						}
 						// type variables take precedence over member types
@@ -2323,7 +2323,7 @@ public abstract class Scope
 							}
 						}
 						insideTypeAnnotation = false;
-						insideStaticContext |= (sourceType.modifiers & AccStatic) != 0; // not isStatic()
+						insideStaticContext |= sourceType.isStatic();
 						if (CharOperation.equals(sourceType.sourceName, name)) {
 							if (foundType != null && foundType != sourceType && foundType.problemId() != NotVisible)
 								return new ProblemReferenceBinding(name, InheritedNameHidesEnclosingName);
