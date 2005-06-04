@@ -160,7 +160,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	    for (int i = 0; allEqual && i < argLength; i++)
 			allEqual = typeVariables[i] == argTypes[i];
 	    if (!allEqual) {
-	    	ParameterizedTypeBinding parameterizedType = scope.createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, enclosingType);
+	    	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, enclosingType);
 			// check argument type compatibility
 			if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 				parameterizedType.boundCheck(scope, this.typeArguments);

@@ -82,7 +82,7 @@ public class QualifiedTypeReference extends TypeReference {
 				if ((rawQualified = qualifiedType.isRawType()) && !currentType.isStatic()) {
 					qualifiedType = scope.environment().createRawType((ReferenceBinding)currentType.erasure(), qualifiedType);
 				} else if (rawQualified || qualifiedType.isParameterizedType()) {
-					qualifiedType = scope.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType);
+					qualifiedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType);
 				} else {
 					qualifiedType = currentType;
 				}

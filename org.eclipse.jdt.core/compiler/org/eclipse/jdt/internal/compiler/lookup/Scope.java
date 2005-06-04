@@ -492,16 +492,6 @@ public abstract class Scope
 		return new ArrayBinding(type, dimension, environment());
 	}
 	
-	public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] arguments, ReferenceBinding enclosingType) {
-		valid: {
-			if (!genericType.isValidBinding()) break valid;
-			for (int i = 0, max = arguments == null ? 0 : arguments.length; i < max; i++)
-				if (!arguments[i].isValidBinding()) break valid;
-			return environment().createParameterizedType(genericType, arguments, enclosingType);
-		}
-		return new ParameterizedTypeBinding(genericType, arguments, enclosingType, environment());
-	}
-	
 	public TypeVariableBinding[] createTypeVariables(TypeParameter[] typeParameters, Binding declaringElement) {
 		// do not construct type variables if source < 1.5
 		if (typeParameters == null || compilerOptions().sourceLevel < ClassFileConstants.JDK1_5)
@@ -2519,7 +2509,7 @@ public abstract class Scope
 			if ((rawQualified = qualifiedType.isRawType()) && !typeBinding.isStatic()) {
 				qualifiedType = this.environment().createRawType((ReferenceBinding)typeBinding.erasure(), qualifiedType);
 			} else if (rawQualified || qualifiedType.isParameterizedType()) {
-				qualifiedType = this.createParameterizedType((ReferenceBinding)typeBinding.erasure(), null, qualifiedType);
+				qualifiedType = this.environment().createParameterizedType((ReferenceBinding)typeBinding.erasure(), null, qualifiedType);
 			} else {
 				qualifiedType = typeBinding;
 			}
@@ -2541,7 +2531,7 @@ public abstract class Scope
 				qualifiedType = this.environment().createRawType(typeBinding, qualifiedType);
 			} else {
 				qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-					? this.createParameterizedType(typeBinding, null, qualifiedType)
+					? this.environment().createParameterizedType(typeBinding, null, qualifiedType)
 					: typeBinding;
 			}
 
@@ -2782,7 +2772,7 @@ public abstract class Scope
 				return invocation; // raw type is taking precedence
 			}
 		}
-		return createParameterizedType((ReferenceBinding) mec.erasure(), bestArguments, mec.enclosingType());
+		return environment().createParameterizedType((ReferenceBinding) mec.erasure(), bestArguments, mec.enclosingType());
 	}
 	
 	// JLS 15.12.2

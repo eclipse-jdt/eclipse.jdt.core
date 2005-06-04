@@ -274,7 +274,9 @@ public class BindingKeyResolver extends BindingKeyParser {
 		} else {
 			// parameterized top level type
 			this.genericType = (ReferenceBinding) this.typeBinding;
-			this.typeBinding = this.environment.createParameterizedType(this.genericType, arguments, null);
+			ReferenceBinding enclosing = this.genericType.enclosingType();
+			if (enclosing != null) enclosing = (ReferenceBinding) this.environment.convertToRawType(enclosing); // TODO (jerome) backward compatible when null enclosing type - is it really meant to be raw all the time ?
+			this.typeBinding = this.environment.createParameterizedType(this.genericType, arguments, enclosing);
 		}
 	}
 	

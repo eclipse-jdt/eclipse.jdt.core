@@ -34,9 +34,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments,  ReferenceBinding enclosingType, LookupEnvironment environment){
 
 		this.environment = environment;
-		initialize(type, arguments);
 		this.enclosingType = enclosingType; // never unresolved, never lazy per construction
-
+		initialize(type, arguments);
 		if (type instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) type).addWrapper(this);
 		if (arguments != null) {
@@ -251,9 +250,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#enclosingType()
 	 */
 	public ReferenceBinding enclosingType() {
-		if (this.isMemberType() && this.enclosingType == null) {
-			this.enclosingType = (ReferenceBinding) this.environment.convertToRawType(this.type.enclosingType());
-		}
 	    return this.enclosingType;
 	}
 
@@ -536,6 +532,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		// this.fields = null;
 		// this.methods = null;		
 		this.modifiers = someType.modifiers | AccGenericSignature;
+//		this.modifiers = someType.modifiers;
+//		// only set AccGenericSignature if parameterized or have enclosing type required signature
+//		if (someArguments != null)
+//			this.modifiers |= AccGenericSignature;
+//		else if (this.enclosingType != null) 
+//			this.modifiers |= (this.enclosingType.modifiers & AccGenericSignature);
 		if (someArguments != null) {
 			this.arguments = someArguments;
 			for (int i = 0, length = someArguments.length; i < length; i++) {
@@ -569,8 +571,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	        	return ((WildcardBinding) otherType).boundCheck(this);
 	    		
 	    	case Binding.PARAMETERIZED_TYPE :
-//	            if ((otherType.tagBits & HasDirectWildcard) == 0 && (!this.isMemberType() || !otherType.isMemberType())) 
-//	            	return false; // should have been identical
 	            ParameterizedTypeBinding otherParamType = (ParameterizedTypeBinding) otherType;
 	            if (this.type != otherParamType.type) 
 	                return false;
@@ -866,11 +866,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (this.type == unresolvedType) {
 			this.type = resolvedType; // cannot be raw since being parameterized below
 			update = true;
+			ReferenceBinding enclosing = resolvedType.enclosingType();
+			if (enclosing != null) {
+				this.enclosingType = (ReferenceBinding) env.convertToRawType(enclosing); // needed when binding unresolved member type
+			}
 		}
 		if (this.arguments != null) {
 			for (int i = 0, l = this.arguments.length; i < l; i++) {
 				if (this.arguments[i] == unresolvedType) {
-					this.arguments[i] = resolvedType.isGenericType() ? env.createRawType(resolvedType, resolvedType.enclosingType()) : resolvedType;
+					this.arguments[i] = env.convertToRawType(resolvedType);
 					update = true;
 				}
 			}

@@ -235,7 +235,7 @@ public char[] sourceName() {
 }
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 	if (this.leafComponentType == unresolvedType) {
-		this.leafComponentType = resolvedType.isGenericType() ? env.createRawType(resolvedType, resolvedType.enclosingType()) : resolvedType;
+		this.leafComponentType = env.convertToRawType(resolvedType);
 		this.tagBits |= this.leafComponentType.tagBits & (HasTypeVariable | HasDirectWildcard);
 	}
 }

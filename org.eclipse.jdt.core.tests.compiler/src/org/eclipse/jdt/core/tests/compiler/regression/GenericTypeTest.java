@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 708 };
+//		TESTS_NUMBERS = new int[] { 711 };
 //		TESTS_RANGE = new int[] { 514, -1 };
 	}
 	public static Test suite() {
@@ -20635,5 +20635,77 @@ public void test710() {
 			"}\n",
 		},
 		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97108
+public void test711(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.HashMap;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"	static private Map<String, XX> m1 = new HashMap<String, XX>();\n" + 
+			"	private List<XX> m2 = new ArrayList<XX>();\n" + 
+			"	static protected XX foo()\n" + 
+			"	{\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	static public abstract class XX<TT>\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+	    "");
+	
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"public class Y extends X<Object>  \n" + 
+			"{        \n" + 
+			"}\n"
+		},
+	    "",
+	    null,
+	    false,
+	    null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97108
+// The case that works
+public void test712(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.HashMap;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"	static private Map<String, XX> m1 = new HashMap<String, XX>();\n" + 
+			"	private List<XX<T>> m2 = new ArrayList<XX<T>>();\n" + 
+			"	static protected XX foo()\n" + 
+			"	{\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	static public abstract class XX<TT>\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+        "");
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"public class Y extends X<Object>  \n" + 
+			"{        \n" + 
+			"}\n"
+		},
+        "",
+        null,
+        false,
+        null);
 }
 }
