@@ -20739,4 +20739,34 @@ public void test713() {
 		"Cannot make a static reference to the non-static type T\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98232
+public void test714() {	
+	this.runConformTest(
+		new String[] {
+			"B.java",
+			"import java.util.Map;\n" + 
+			"import java.util.Set;\n" + 
+			"import java.util.SortedSet;\n" + 
+			"\n" + 
+			"public class B  {\n" + 
+			"	static Set<Map.Entry> foo(SortedSet<Map.Entry> set) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n",
+		},
+        "");
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" + 
+			"	A() {\n" + 
+			"		B.foo(null);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+        "",
+        null,
+        false,
+        null);}
 }
