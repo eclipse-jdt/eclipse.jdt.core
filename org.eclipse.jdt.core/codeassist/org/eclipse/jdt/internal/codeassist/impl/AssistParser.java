@@ -1425,7 +1425,8 @@ public void recoveryTokenCheck() {
 			if(currentElement != oldElement && !isInsideAttributeValue()) {
 				if(oldElement instanceof RecoveredInitializer
 					|| oldElement instanceof RecoveredMethod
-					|| (oldElement instanceof RecoveredBlock && oldElement.parent instanceof RecoveredInitializer)) {
+					|| (oldElement instanceof RecoveredBlock && oldElement.parent instanceof RecoveredInitializer)
+					|| (oldElement instanceof RecoveredBlock && oldElement.parent instanceof RecoveredMethod)) {
 					popUntilElement(K_METHOD_DELIMITER);
 					popElement(K_METHOD_DELIMITER);
 				} else if(oldElement instanceof RecoveredType) {
