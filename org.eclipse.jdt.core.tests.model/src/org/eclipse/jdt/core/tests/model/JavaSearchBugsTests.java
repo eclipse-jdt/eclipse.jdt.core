@@ -45,7 +45,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug75816";
 //		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
-//		TESTS_NUMBERS = new int[] { 97606 };
+//		TESTS_NUMBERS = new int[] { 97322 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -3147,6 +3147,36 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
+	 * Bug 94160: [1.5][search] Generic method in superclass does not exist
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94160"
+	 */
+	public void testBug94160() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b94160/Test.java",
+			"package b94160;\n" + 
+			"public class Test {\n" + 
+			"	<T> List<T> generateList(Class<T> clazz) {\n" + 
+			"		return new ArrayList<T>();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class CTest extends Test {\n" + 
+			"	private List<String> myList = generateList(String.class);\n" + 
+			"	CTest() {\n" + 
+			"		myList = new ArrayList<String>();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface List<E> {}\n" + 
+			"class ArrayList<E> implements List<E> {}"
+		);
+		IType type = workingCopies[0].getType("CTest");
+		IField field = type.getField("myList");
+		new SearchEngine(this.workingCopies).searchDeclarationsOfSentMessages(field, resultCollector, null);
+		assertSearchResults(
+			"src/b94160/Test.java List<T> b94160.Test.generateList(Class<T>) [generateList(Class<T> clazz)] EXACT_MATCH"
+		);
+	}
+
+	/**
 	 * Bug 94389: [search] InvocationTargetException on Rename
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94389"
 	 */
@@ -3287,6 +3317,27 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		TestCollector referencesCollector = new TestCollector();
 		search(field, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
 		assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
+	}
+
+	/**
+	 * Bug 97322: [search] Search for method references sometimes reports potential match with differing argument count
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97322"
+	 */
+	public void testBug97322() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97322/Test.java",
+			"package b97322;\n" + 
+			"class Test {\n" + 
+			"	static void myMethod(int a, String b) {}\n" + 
+			"	void call() {\n" + 
+			"		myMethod(12);\n" + 
+			"	}\n" + 
+			"}"
+		);
+		IType type = workingCopies[0].getType("Test");
+		IMethod method= type.getMethods()[0];
+		search(method, REFERENCES);
+		assertSearchResults(""); // Expect no result
 	}
 
 	/**

@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -394,7 +393,7 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 	if (type == null) return; // case of a secondary type
 
 	char[] bindingSelector = methodBinding.selector;
-	TypeBinding[] parameters = methodBinding.parameters;
+	TypeBinding[] parameters = methodBinding.original().parameters;
 	int parameterLength = parameters.length;
 	String[] parameterTypes = new String[parameterLength];
 	for (int i = 0; i  < parameterLength; i++) {
@@ -492,7 +491,17 @@ public int resolveLevel(Binding binding) {
 }
 protected int resolveLevel(MessageSend messageSend) {
 	MethodBinding method = messageSend.binding;
-	if (method == null || messageSend.resolvedType == null) return INACCURATE_MATCH;
+	if (method == null) return INACCURATE_MATCH;
+	if (messageSend.resolvedType == null) {
+		// Closest match may have different argument numbers when ProblemReason is NotFound
+		// see MessageSend#resolveType(BlockScope)
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=97322
+		int argLength = messageSend.arguments == null ? 0 : messageSend.arguments.length;
+		if (pattern.parameterSimpleNames == null || argLength == pattern.parameterSimpleNames.length) {
+			return INACCURATE_MATCH;
+		}
+		return IMPOSSIBLE_MATCH;
+	}
 	
 	int methodLevel = matchMethod(method);
 	if (methodLevel == IMPOSSIBLE_MATCH) {
