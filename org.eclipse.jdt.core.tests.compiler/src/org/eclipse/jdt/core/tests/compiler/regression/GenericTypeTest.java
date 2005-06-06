@@ -20838,4 +20838,46 @@ public void test720() {
 		"The interface Foo cannot be implemented more than once with different arguments: Foo and Foo<Integer>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98561
+public void test721() {
+	this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"public class Foo<T>\n" +
+				"{\n" +
+				"	protected abstract class InnerFoo\n" +
+				"	{\n" +
+				"		protected abstract void doSomething();\n" +
+				"	}\n" +
+				"	\n" +
+				"	protected void run( InnerFoo innerFoo )\n" +
+				"	{\n" +
+				"		innerFoo.doSomething();\n" +
+				"	}\n" +
+				"}",
+			},
+	        "");
+		this.runConformTest(
+			new String[] {
+				"Bar.java",
+				"public class Bar extends Foo<Integer>\n" +
+				"{\n" +
+				"	public void go()\n" +
+				"	{\n" +
+				"		InnerFoo inner = new InnerFoo()\n" +
+				"		{\n" +
+				"			protected void doSomething()\n" +
+				"			{\n" +
+				"				System.out.println( \"hello\" );\n" +
+				"			}\n" +
+				"		};\n" +
+				"		run( inner );\n" +
+				"	}\n" +
+				"}"
+			},
+	        "",
+	        null,
+	        false,
+	        null);
+}
 }
