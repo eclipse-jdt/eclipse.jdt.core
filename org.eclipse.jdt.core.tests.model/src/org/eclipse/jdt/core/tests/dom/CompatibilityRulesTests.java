@@ -614,4 +614,30 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		assertTrue("Y#bar() should not be a subsignature of X#foo()", !bindings[1].isSubsignature(bindings[0]));
 	}
 		
+	/*
+	 * Ensures that a method in a subtype doesn't override the a method with same parameters but with different name in the super type.
+	 */
+	public void test029() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}",
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y extends X {\n" +
+				"  void bar() {\n" +
+				"  }\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/Y;.bar()V",
+				"Lp1/X;.foo()V"
+			});	
+		assertTrue("Y#bar() should not override X#foo()", !bindings[0].overrides(bindings[1]));
+	}
+
 }
