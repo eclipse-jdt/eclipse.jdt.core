@@ -352,12 +352,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	                                                  ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from A to T\n" + 
 			"----------\n" + 
-			"4. WARNING in ALL.java (at line 10)\n" + 
-			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
-			"	                                                         ^^^^^^^^^^^\n" + 
-			"Type safety: The method foo() belongs to the raw type X. References to generic type X<U> should be parameterized\n" + 
-			"----------\n" + 
-			"5. ERROR in ALL.java (at line 10)\n" + 
+			"4. ERROR in ALL.java (at line 10)\n" + 
 			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
 			"	                                                         ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to T\n" + 
@@ -423,12 +418,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from A to T\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. WARNING in W.java (at line 1)\n" + 
-			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
-			"	                                                         ^^^^^^^^^^^\n" + 
-			"Type safety: The method foo() belongs to the raw type X. References to generic type X<U> should be parameterized\n" + 
-			"----------\n" + 
-			"2. ERROR in W.java (at line 1)\n" + 
+			"1. ERROR in W.java (at line 1)\n" + 
 			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
 			"	                                                         ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to T\n" + 
@@ -497,12 +487,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from A to T\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. WARNING in W.java (at line 1)\n" + 
-			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
-			"	                                                         ^^^^^^^^^^^\n" + 
-			"Type safety: The method foo() belongs to the raw type X. References to generic type X<U> should be parameterized\n" + 
-			"----------\n" + 
-			"2. ERROR in W.java (at line 1)\n" + 
+			"1. ERROR in W.java (at line 1)\n" + 
 			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
 			"	                                                         ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to T\n" + 

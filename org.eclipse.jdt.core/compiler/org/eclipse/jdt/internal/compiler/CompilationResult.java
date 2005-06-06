@@ -401,7 +401,7 @@ public class CompilationResult {
 
 	public void record(IProblem newProblem, ReferenceContext referenceContext) {
 
-		// new Exception("VERBOSE PROBLEM REPORTING").printStackTrace();		
+		//new Exception("VERBOSE PROBLEM REPORTING").printStackTrace();		
 		if (newProblem.getID() == IProblem.Task) {
 			recordTask(newProblem);
 			return;

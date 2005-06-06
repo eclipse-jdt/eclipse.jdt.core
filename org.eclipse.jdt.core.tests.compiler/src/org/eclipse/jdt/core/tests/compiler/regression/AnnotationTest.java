@@ -3460,16 +3460,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	public String toString() { return null; }\n" + 
 			"	              ^^^^^^^^^^\n" + 
 			"The method toString() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"8. WARNING in X.java (at line 34)\n" + 
-			"	c = c.getSuperclass();\n" + 
-			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The method getSuperclass() belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n" + 
-			"9. WARNING in X.java (at line 43)\n" + 
-			"	c = c.getSuperclass();\n" + 
-			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The method getSuperclass() belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n");
     }            
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291

@@ -187,13 +187,13 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		boolean isRawMemberInvocation = !method.isStatic() 
 				&& !receiverType.isUnboundWildcard() 
 				&& method.declaringClass.isRawType() 
-				&& (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType());
+				&& method.hasSubstitutedParameters();
 		
 		MethodBinding rawOriginalGenericMethod = null;
 		if (!isRawMemberInvocation) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
 				ParameterizedGenericMethodBinding paramMethod = (ParameterizedGenericMethodBinding) method;
-				if (paramMethod.isUnchecked || (paramMethod.isRaw && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType()))) {
+				if (paramMethod.isUnchecked || (paramMethod.isRaw && method.hasSubstitutedParameters())) {
 					rawOriginalGenericMethod = method.original();
 				}
 			}
@@ -253,7 +253,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		}
 		if (unsafeWildcardInvocation) {
 		    scope.problemReporter().wildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
-		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType())) {
+		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters()) {
 		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, method);
 		} else if (rawOriginalGenericMethod != null) {
 		    scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method);

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.*;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -22,7 +24,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -31,7 +32,6 @@ public class ClassScope extends Scope {
 	
 	public TypeDeclaration referenceContext;
 	private TypeReference superTypeReference;
-	public CompilerOptions options;
 
 	private final static char[] IncompleteHierarchy = new char[] {'h', 'a', 's', ' ', 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', ' ', 'h', 'i', 'e', 'r', 'a', 'r', 'c', 'h', 'y'};
 
@@ -825,10 +825,11 @@ public class ClassScope extends Scope {
 				continue nextInterface;
 			}
 			superInterfaceRef.resolvedType = superInterface; // hold onto the problem type
+			// check for simple interface collisions 
 			// Check for a duplicate interface once the name is resolved, otherwise we may be confused (ie : a.b.I and c.d.I)
-			for (int k = 0; k < count; k++) {
-				if (interfaceBindings[k].erasure() == superInterface.erasure()) {
-					problemReporter().duplicateSuperinterface(sourceType, referenceContext, (ReferenceBinding) superInterface.erasure());
+			for (int j = 0; j < i; j++) {
+				if (interfaceBindings[j] == superInterface) {
+					problemReporter().duplicateSuperinterface(sourceType, superInterfaceRef, superInterface);
 					continue nextInterface;
 				}
 			}
@@ -846,21 +847,51 @@ public class ClassScope extends Scope {
 				noProblems = false;
 				continue nextInterface;
 			}
-			ReferenceBinding invalid = findAmbiguousInterface(superInterface, sourceType);
-			if (invalid != null) {
-				ReferenceBinding generic = null;
-				if (superInterface.isParameterizedType())
-					generic = ((ParameterizedTypeBinding) superInterface).type;
-				else if (invalid.isParameterizedType())
-					generic = ((ParameterizedTypeBinding) invalid).type;
-				problemReporter().superinterfacesCollide(generic, referenceContext, superInterface, invalid);
-				sourceType.tagBits |= HierarchyHasProblems;
-				noProblems = false;
-				continue nextInterface;
-			}
-
 			// only want to reach here when no errors are reported
 			interfaceBindings[count++] = superInterface;
+		}
+		// check for parameterized interface collisions (when different parameterizations occur)
+		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+			TypeBinding[] types = new TypeBinding[2];
+			Map invocations = new HashMap(2);
+			nextInterface: for (int i = 0; i < count; i++) {
+				ReferenceBinding superInterface =  interfaceBindings[i];
+				// check against superclass
+				if (!sourceType.isInterface()) {
+					ReferenceBinding match = sourceType.superclass.findSuperTypeWithSameErasure(superInterface);
+					if (match != null && match != superInterface) {
+						problemReporter().superinterfacesCollide(superInterface.erasure(), referenceContext, superInterface, match);
+						sourceType.tagBits |= HierarchyHasProblems;
+						noProblems = false;
+						continue nextInterface;
+					}
+				}
+				// check against other super-interfaces
+				types[0] = superInterface;
+				nextOtherInterface: for (int j = 0; j < i; j++) {
+					ReferenceBinding otherInterface = interfaceBindings[j];
+					if (otherInterface == null) continue nextOtherInterface;
+					types[1] = otherInterface;
+					invocations.clear();
+					TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
+					if (mecs != null) {
+						nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
+							TypeBinding mec = mecs[k];
+							if (mec == null) continue nextCandidate;
+							Set invalidInvocations = (Set)invocations.get(mec);
+							int invalidSize = invalidInvocations.size();
+							if (invalidSize > 1) {
+								TypeBinding[] collisions;
+								invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
+								problemReporter().superinterfacesCollide(collisions[0].erasure(), referenceContext, collisions[0], collisions[1]);
+								sourceType.tagBits |= HierarchyHasProblems;
+								noProblems = false;
+								continue nextInterface;
+							}
+						}					
+					}
+				}
+			}
 		}
 		// hold onto all correctly resolved superinterfaces
 		if (count > 0) {
@@ -1028,40 +1059,6 @@ public class ClassScope extends Scope {
 		if ((superType.tagBits & HierarchyHasProblems) != 0)
 			sourceType.tagBits |= HierarchyHasProblems;
 		return false;
-	}
-
-	private ReferenceBinding findAmbiguousInterface(ReferenceBinding newInterface, ReferenceBinding currentType) {
-		TypeBinding newErasure = newInterface.erasure();
-		if (newInterface == newErasure) return null;
-
-		ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-		int lastPosition = -1;
-		do {
-			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
-			}
-		} while ((currentType = currentType.superclass()) != null);
-
-		for (int i = 0; i <= lastPosition; i++) {
-			ReferenceBinding[] interfaces = interfacesToVisit[i];
-			for (int j = 0, length = interfaces.length; j < length; j++) {
-				currentType = interfaces[j];
-				if (currentType.erasure() == newErasure)
-					if (currentType != newInterface)
-						return currentType;
-
-				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-				if (itsInterfaces != NoSuperInterfaces) {
-					if (++lastPosition == interfacesToVisit.length)
-						System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-					interfacesToVisit[lastPosition] = itsInterfaces;
-				}
-			}
-		}
-		return null;
 	}
 
 	private ReferenceBinding findSupertype(TypeReference typeReference) {

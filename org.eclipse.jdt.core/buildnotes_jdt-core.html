@@ -62,10 +62,17 @@ Following batch compiler options default value have been changed from "ignore" t
 <li>Compiler optional diagnosis for unused private members got generalized to also flag unused
 members of local types.
 </li>
+<li>Compiler no longer reports as unchecked the situation where a method of a raw type is invoked,
+and only the return type got altered by raw conversion (also see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85815">85815</a>). 
+This change is motivated to better match the language spec 3rd edition.
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=93377">93377</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98364">98364</a>
+[1.5][compiler] Compiler allowing invalid generic interface inheritance
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85815">85815</a>
+[1.5] warn when raw iterator is used
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=93377">93377</a>
 [1.5][compiler] Multiple auto-build failures when using generics
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79309">79309</a>
 Nested interfaces aren't resolved correctly in import (with "Open Declaration" / F3)
@@ -1836,8 +1843,6 @@ The type binding of a vararg should be an array not a simple type
 [DOM] AbortCompilation should not abort the creation of the tree
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86463">86463</a>
 [1.5][compiler] Compiler-Bug using generics
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=85815">85815</a>
-[1.5] warn when raw iterator is used
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86611">86611</a>
 [1.4] 1.5 power double causes compiler internal failure
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=86531">86531</a>

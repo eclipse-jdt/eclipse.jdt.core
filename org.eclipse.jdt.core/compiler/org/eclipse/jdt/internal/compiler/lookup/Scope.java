@@ -300,24 +300,7 @@ public abstract class Scope
 	 */
 	public final CompilerOptions compilerOptions() {
 
-		Scope current = this;
-		do {
-			CompilerOptions options = null;
-			switch (current.kind) {
-				case METHOD_SCOPE :
-					options = ((MethodScope) current).options;
-					break;
-				case CLASS_SCOPE :
-					options = ((ClassScope) current).options;
-					break;
-				case COMPILATION_UNIT_SCOPE :
-					options = ((CompilationUnitScope) current).environment.globalOptions;
-					break;
-			}
-			if (options != null)
-				return options;
-		} while ((current = current.parent) != null);
-		return null;
+		return compilationUnitScope().environment.globalOptions;
 	}
 	
 	/**
@@ -2908,7 +2891,6 @@ public abstract class Scope
 			if (mec == null) return null;
 			if (!mec.isInterface()) firstBound = mec;
 			mecs[count++] = mec; // recompact them to the front
-
 		}
 		switch (count) {
 			case 0 : return VoidBinding;
@@ -2946,7 +2928,7 @@ public abstract class Scope
 	 * of minimal erased types, where some nulls may appear (and must simply be
 	 * ignored).
 	 */
-	private TypeBinding[] minimalErasedCandidates(TypeBinding[] types, Map allInvocations) {
+	protected TypeBinding[] minimalErasedCandidates(TypeBinding[] types, Map allInvocations) {
 		int length = types.length;
 		int indexOfFirst = -1, actualLength = 0;
 		for (int i = 0; i < length; i++) {

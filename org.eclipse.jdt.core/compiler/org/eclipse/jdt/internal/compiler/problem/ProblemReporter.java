@@ -971,7 +971,7 @@ public void duplicateNestedType(TypeDeclaration typeDecl) {
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
 }
-public void duplicateSuperinterface(SourceTypeBinding type, TypeDeclaration typeDecl, ReferenceBinding superType) {
+public void duplicateSuperinterface(SourceTypeBinding type, TypeReference reference, ReferenceBinding superType) {
 	this.handle(
 		IProblem.DuplicateSuperInterface,
 		new String[] {
@@ -980,8 +980,8 @@ public void duplicateSuperinterface(SourceTypeBinding type, TypeDeclaration type
 		new String[] {
 			new String(superType.shortReadableName()),
 			new String(type.sourceName())},
-		typeDecl.sourceStart,
-		typeDecl.sourceEnd);
+		reference.sourceStart,
+		reference.sourceEnd);
 }
 public void duplicateTargetInTargetAnnotation(TypeBinding annotationType, NameReference reference) {
 	String name = 	new String(reference.fieldBinding().name);
@@ -4888,7 +4888,7 @@ public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeReferenc
 		superInterfaceRef.sourceStart,
 		superInterfaceRef.sourceEnd);
 }
-public void superinterfacesCollide(ReferenceBinding type, TypeDeclaration typeDecl, ReferenceBinding superType, ReferenceBinding inheritedSuperType) {
+public void superinterfacesCollide(TypeBinding type, TypeDeclaration typeDecl, TypeBinding superType, TypeBinding inheritedSuperType) {
 	this.handle(
 		IProblem.SuperInterfacesCollide,
 		new String[] {new String(superType.readableName()), new String(inheritedSuperType.readableName()), new String(type.sourceName())},
