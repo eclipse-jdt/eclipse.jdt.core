@@ -1087,7 +1087,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		String str = new String(source, nameStart, name.getLength());
 		if (str.indexOf('\n') < 0) { // cannot compare if text contains new line
 			assumeEquals(prefix+"Misplaced name for qualified name: ", str, name.toString());
-		} else {
+		} else if (debug) {
 			System.out.println(prefix+"Name contains new line for qualified name: "+name);
 		}
 	}
