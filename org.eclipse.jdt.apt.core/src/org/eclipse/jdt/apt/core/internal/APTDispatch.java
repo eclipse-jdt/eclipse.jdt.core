@@ -12,7 +12,9 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
@@ -21,6 +23,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
@@ -78,20 +81,34 @@ public class APTDispatch
 
 	public static class APTResult
 	{
-		APTResult( Set<IFile> newFiles, Set<IFile> deletedFiles, Set<String> deps )
+		/**
+		 * For creating an empty result. i.e. no file changes, no new dependencies and not
+		 * new problems.
+		 */
+		APTResult()
+		{
+			_newFiles = Collections.emptySet();
+			_deletedFiles = Collections.emptySet();
+			_newDependencies = Collections.emptySet();
+			_newProblems = Collections.emptyMap();
+		}
+		APTResult( Set<IFile> newFiles, Set<IFile> deletedFiles, Set<String> deps, Map<IFile, List<IProblem>> problems )
 		{
 			_newFiles = newFiles;
 			_newDependencies = deps;
 			_deletedFiles = deletedFiles;
+			_newProblems = problems;
 		}
 		
-		private Set<IFile> _newFiles;
-		private Set<IFile> _deletedFiles;
-		private Set<String> _newDependencies;
+		private final Set<IFile> _newFiles;
+		private final Set<IFile> _deletedFiles;
+		private final Set<String> _newDependencies;
+		private final Map<IFile, List<IProblem>> _newProblems;
 		
 		Set<IFile> getNewFiles() { return _newFiles; }
 		Set<IFile> getDeletedFiles() { return _deletedFiles; }
 		Set<String> getNewDependencies() { return _newDependencies; }
+		Map<IFile, List<IProblem>> getProblems(){return _newProblems;}
 	}
 
 	

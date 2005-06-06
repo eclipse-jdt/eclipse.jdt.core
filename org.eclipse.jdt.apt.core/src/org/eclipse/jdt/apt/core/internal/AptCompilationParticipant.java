@@ -16,24 +16,25 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CompilationParticipantEvent;
 import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
 import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.PostReconcileCompilationEvent;
 import org.eclipse.jdt.core.compiler.PostReconcileCompilationResult;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationEvent;
@@ -98,6 +99,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		HashSet<IFile> newFiles = new HashSet<IFile>();
 		HashSet<IFile> deletedFiles = new HashSet<IFile>();
 		HashMap<IFile, Set<String>> newDependencies = new HashMap<IFile, Set<String>>();
+		HashMap<IFile, List<IProblem>> problems = new HashMap<IFile, List<IProblem>>(4);
 		for ( int i = 0; i < buildFiles.length; i++ )
 		{
 			APTResult result = APTDispatch.runAPTDuringBuild( 
@@ -106,7 +108,8 @@ public class AptCompilationParticipant implements ICompilationParticipant
 					javaProject );
 			newFiles.addAll( result.getNewFiles() );			
 			deletedFiles.addAll( result.getDeletedFiles() );
-			newDependencies.put( buildFiles[i], result.getNewDependencies() );
+			newDependencies.put( buildFiles[i], result.getNewDependencies() );	
+			mergeMaps(result.getProblems(), problems);
 		}
 		
 		// for apt, new files will always trump deleted files
@@ -114,11 +117,38 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			if ( newFiles.contains( df ) )
 				deletedFiles.remove( df );
 
-		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), newDependencies ); 
+		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), newDependencies, problems ); 
+	}
+	
+	/** 
+	 *   Given a Map which maps from a key to a value, where key is an arbitrary 
+	 *   type, and where value is a Collection, mergeMaps will ensure that for a key 
+	 *   k with value v in source, all of the elements in the Collection v will be 
+	 *   moved into the Collection v' corresponding to key k in the destination Map. 
+	 * 
+	 * @param source - The source map from some key to a Collection.
+	 * @param destination - The destination map from some key to a Collection
+	 */
+	private static void mergeMaps( Map source, Map destination ) {
+		if( source == null || destination == null ) return;
+		Iterator keys = source.keySet().iterator();
+		while( keys.hasNext() ) {
+			Object key = keys.next();
+			Object val = destination.get( key );
+			if ( val != null ) {
+				Collection c = (Collection) val;
+				c.addAll( (Collection)source.get( key ) );
+			}
+			else {
+				destination.put( key, source.get( key ) );
+			}
+		}
 	}
 	
 	private CompilationParticipantResult postReconcileNotify( PostReconcileCompilationEvent prce )
 	{
+		IProblem[] problems = null;
+		
 		try
 		{
 			org.eclipse.jdt.core.ICompilationUnit cu = prce.getCompilationUnit();
@@ -128,13 +158,18 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			if ( cu == null || javaProject == null  )
 				return GENERIC_COMPILATION_RESULT;
 			
-			APTDispatch.runAPTDuringReconcile( _factories, cu, javaProject );
+			APTResult result = APTDispatch.runAPTDuringReconcile( _factories, cu, javaProject );
+			Map<IFile, List<IProblem>> allproblems = result.getProblems();			
+			
+			final List<IProblem> problemList = allproblems.get((IFile)cu.getResource());
+			if( problemList != null && !problemList.isEmpty())
+				problems = problemList.toArray(new IProblem[problemList.size()]);	
 		}
 		catch ( Throwable t )
 		{
 			t.printStackTrace();
 		}	
-		return new PostReconcileCompilationResult();
+		return new PostReconcileCompilationResult(problems);
 	}
 
 	private CompilationParticipantResult cleanNotify( CompilationParticipantEvent cpe )
@@ -142,11 +177,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		IProject p = cpe.getJavaProject().getProject();
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
 		gfm.projectClean( true );
-		try{
-			p.deleteMarkers(ProcessorEnvImpl.BUILD_MARKER, true, IResource.DEPTH_INFINITE);
-		}catch (CoreException e) {
-			throw new IllegalStateException(e);
-		}
+		
 		return GENERIC_COMPILATION_RESULT;
 	}
 	
@@ -163,7 +194,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
     private final static String DOT_JAVA = ".java";
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 
-		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap() );
+		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap() );
 
 	private final static CompilationParticipantResult GENERIC_COMPILATION_RESULT = 
 		new CompilationParticipantResult();

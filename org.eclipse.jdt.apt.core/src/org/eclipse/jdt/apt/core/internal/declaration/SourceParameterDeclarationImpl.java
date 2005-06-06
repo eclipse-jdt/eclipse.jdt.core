@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -108,7 +108,7 @@ public class SourceParameterDeclarationImpl extends ParameterDeclarationImpl imp
         return _executable.getCompilationUnit();
     }
 
-    public IResource getResource(){
+    public IFile getResource(){
         return _executable.getResource();
     }
 }

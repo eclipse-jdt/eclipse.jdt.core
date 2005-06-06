@@ -16,7 +16,8 @@ import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.util.SourcePosition;
 import java.util.Collection;
 import java.util.Collections;
-import org.eclipse.core.resources.IResource;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -62,5 +63,5 @@ public class BinaryParameterDeclarationImpl extends ParameterDeclarationImpl imp
 
     ASTNode getAstNode(){ return null; }
 
-    public IResource getResource(){ return null; }
+    public IFile getResource(){ return null; }
 } 

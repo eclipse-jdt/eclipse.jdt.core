@@ -13,6 +13,8 @@ package org.eclipse.jdt.apt.core.internal.util;
 
 import com.sun.mirror.util.SourcePosition;
 import java.io.File;
+
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
@@ -85,7 +87,7 @@ public class SourcePositionImpl implements SourcePosition
     public int getStartingOffset(){ return _startingOffset; }
     public int getEndingOffset(){ return _startingOffset + _length; }
     public int getLength(){ return _length; }
-    public IResource getResource(){
+    public IFile getResource(){
 		if( _decl instanceof DeclarationImpl )
 			return ((DeclarationImpl)_decl).getResource();
 		else if( _decl instanceof AnnotationMirrorImpl )

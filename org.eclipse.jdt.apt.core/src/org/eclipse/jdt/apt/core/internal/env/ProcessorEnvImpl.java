@@ -29,14 +29,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
@@ -58,6 +53,7 @@ import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -97,16 +93,16 @@ import com.sun.mirror.util.Types;
 
 public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 										 EclipseAnnotationProcessorEnvironment
-{
-	public static final String RECONCILE_MARKER = "org.eclipse.jdt.apt.core.reconcile_marker";
-	public static final String BUILD_MARKER		= "org.eclipse.jdt.apt.core.build_marker";
+{	
+	
 	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
 
     public enum Phase { RECONCILE, BUILD };
 
     private final CompilationUnit _astCompilationUnit;
-    private final ICompilationUnit _compilationUnit;
-    private final List<MarkerInfo> _markerInfos;
+    private final ICompilationUnit _compilationUnit;   
+    
+    private Map<IFile, List<IProblem>> _allProblems;
     private final Phase _phase;
     private final IFile _file;
 	/**
@@ -133,6 +129,10 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	// is outside of the workspace.
 	private VoidTypeImpl _voidType;
 	private PrimitiveTypeImpl[] _primitives;
+	
+	/** used to create unique problem id */
+	private int _problemId = 0;
+	
 
     /**
      * Mapping model compilation unit to dom compilation unit.
@@ -184,7 +184,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		_javaProject = javaProj;
 		_modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
 		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
-        _markerInfos = new ArrayList<MarkerInfo>(4);
+        _allProblems = new HashMap<IFile, List<IProblem>>(4);        
 		_filer = new FilerImpl(this);
 		initPrimitives(_javaProject);
     }
@@ -205,7 +205,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		_javaProject = javaProj;
         _modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
 		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
-        _markerInfos = new ArrayList<MarkerInfo>(4);
+		_allProblems = new HashMap<IFile, List<IProblem>>(4);        
 		_filer = new FilerImpl(this);
 		initPrimitives(_javaProject);
     }
@@ -767,17 +767,18 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	public boolean hasGeneratedClassFiles()			   { return _filer.hasGeneratedClassFile(); }
 
 	/**
-	 * @return true iff errors (markers with serverity == IMarker.SEVERITY_ERRROR) has been posted
+	 * @return true iff errors (markers with serverity == APTProblem.Severity.Error) has been posted
 	 *         Always return false when this environment is closed.
 	 */
 	public boolean hasRaisedErrors()
 	{
 		checkValid();
-		for(MarkerInfo info : _markerInfos )
+		for(List<IProblem> problems : _allProblems.values() )
 		{
-			final Object val = info._markerAttrs.get(IMarker.SEVERITY);
-			if( val != null && ((Integer)val).intValue() == IMarker.SEVERITY_ERROR )
-				return true;
+			for(IProblem problem : problems ){
+				if( problem.isError() ) 
+					return true;
+			}		
 		}
 		return false;
 	}
@@ -960,11 +961,8 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	 *  4) add or remove listeners
 	 */
     public void close(){
-        // post all of the messages
-        postMarkers();
-
-        _modelCompUnit2astCompUnit.clear();
-		_markerInfos.clear();
+    	_allProblems = null;
+        _modelCompUnit2astCompUnit.clear();		
 		_generatedFiles.clear();
 		if(_listeners != null)
 			_listeners.clear();
@@ -975,87 +973,106 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	{
 		if( _isClosed )
 			throw new IllegalStateException("Environment has expired");
-	}
-
-	/**
-	 * Add a marker to the environment.
-	 * @param resource null to indicate the resource of the current compilation unit in this environment.
-	 * @param markerAttrs the attributes to the marker
-	 */
-    void addMarker(final IResource resource, Map<String, Object> markerAttrs)
+	}	
+    
+    private int getUniqueProblemId(){ return _problemId++ ;}    
+    
+    /**
+     * 
+     * @param resource null to indicate current resource
+     * @param start the starting offset of the marker
+     * @param end -1 to indicate unknow ending offset.
+     * @param severity the severity of the marker
+     * @param msg the message on the marker
+     * @param line the line number of where the marker should be
+     */
+    void addProblem(IFile resource, 
+       		        int start, 
+    				int end,
+                    APTProblem.Severity severity, 
+                    String msg, 
+                    int line)
     {
-		_markerInfos.add( new MarkerInfo(resource, markerAttrs) );
+    	// not going to post any markers to resource outside of the one we are currently 
+    	// processing during reconcile phase.
+    	if( _phase == Phase.RECONCILE && resource != null && !resource.equals(_file) )
+    		return;
+    	if(resource == null)
+    		resource = _file;
+    	final APTProblem newProblem = 
+        	new APTProblem(getUniqueProblemId(), msg, severity, resource, start, end, line);
+    	List<IProblem> problems = _allProblems.get(resource);
+    	if( problems == null ){
+    		problems = new ArrayList<IProblem>(4);
+    		_allProblems.put(resource, problems);    		
+    	}
+    	problems.add(newProblem);
     }
-
-    void postMarkers()
+    
+    public Map<IFile, List<IProblem>> getProblems()
+    {
+    	checkValid();
+    	
+    	updateProblemLength();
+    	return Collections.unmodifiableMap(_allProblems);
+    }   
+    
+    /**
+     * Determine the ending offset of any problems on the current resource that doesn't have one by
+     * traversing the ast for the. We will only walk the ast once to determine the ending 
+     * offsets of all the marker infos that do not have the information set.
+     */
+    private void updateProblemLength()
     {
     	// for those markers that doesn't have an ending offset, figure it out by
     	// traversing the ast.
     	// we do it once just before we post the marker so we only have to walk the ast 
     	// once.
     	int count = 0;
-    	for( MarkerInfo markerInfo : _markerInfos ){    		
-    		if( markerInfo._markerAttrs.get(IMarker.CHAR_END) == null ) 
-    			count ++;
+    	for( Map.Entry<IFile, List<IProblem>> entry : _allProblems.entrySet() ){  
+    		if( _file.equals(entry.getKey()) ){
+    			for(IProblem problem : entry.getValue() ){
+    				if( problem.getSourceEnd() == -1 )
+    					count ++;
+    			}    				
+    		}
+    		else{
+    			for(IProblem problem : entry.getValue() ){
+    				if( problem.getSourceEnd() < problem.getSourceStart() )
+    					problem.setSourceEnd(problem.getSourceStart());
+    			}
+    		}
     	}
     	if( count > 0 ){
 	    	final int[] startingOffsets = new int[count];
 	    	int index = 0;
-	    	for( MarkerInfo markerInfo : _markerInfos ){    		
-	    		if( markerInfo._markerAttrs.get(IMarker.CHAR_END) == null ){
-	    			final Integer startingOffset = (Integer)markerInfo._markerAttrs.get(IMarker.CHAR_START);
-	    			startingOffsets[index++] = startingOffset.intValue();
+	    	
+	    	for( Map.Entry<IFile, List<IProblem>> entry : _allProblems.entrySet() ){  
+	    		if( entry.getKey() == _file ){
+	    			for(IProblem problem : entry.getValue() ){
+	    				if( problem.getSourceEnd() == -1 )
+	    					startingOffsets[index++] = problem.getSourceStart();
+	    			}    				
 	    		}
 	    	}
 	    	
 	    	final EndingOffsetFinder lfinder = new EndingOffsetFinder(startingOffsets);
 	    	_astCompilationUnit.accept( lfinder );
 	    	
-	    	for( MarkerInfo markerInfo : _markerInfos ){    		
-	    		if( markerInfo._markerAttrs.get(IMarker.CHAR_END) == null ){
-	    			final int startingOffset = 
-	    				((Integer)markerInfo._markerAttrs.get(IMarker.CHAR_START)).intValue();
-	    			int endingOffset = lfinder.getEndingOffset(startingOffset);
-	    			if( endingOffset == 0 )
-	    				endingOffset = startingOffset;
-	    			markerInfo._markerAttrs.put(IMarker.CHAR_END, endingOffset);
+	    	for( Map.Entry<IFile, List<IProblem>> entry : _allProblems.entrySet() ){  
+	    		if( _file.equals(entry.getKey()) ){
+	    			for(IProblem problem : entry.getValue() ){
+	    				if( problem.getSourceEnd() == -1 ){
+	    					int startingOffset = problem.getSourceStart();
+	    					int endingOffset = lfinder.getEndingOffset(startingOffset);
+	    	    			if( endingOffset == 0 )
+	    	    				endingOffset = startingOffset;
+	    	    			problem.setSourceEnd(endingOffset);	    	    			
+	    				}
+	    			}    				
 	    		}
 	    	}
     	}
-    	
-		// Posting all the markers to the workspace. Doing this in a batch process
-		// to minimize the amount of notification.
-		try{
-			// the resource of the compilation unit in the environment.
-			final IResource currentResource = _file; 
-	        final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
-	            public void run(IProgressMonitor monitor)
-	            {	            
-					final String markerType = _phase == Phase.RECONCILE ?
-											  RECONCILE_MARKER : BUILD_MARKER;				
-	                for( MarkerInfo markerInfo : _markerInfos ){
-	                    IResource resource = markerInfo._resource;
-						if( resource == null )
-							resource = currentResource;
-						try{
-		                    final IMarker marker = resource.createMarker(markerType);
-		                    marker.setAttributes(markerInfo._markerAttrs);
-						}
-						catch(CoreException e){
-							throw new IllegalStateException(e);
-						}
-	                }
-	            };
-	        };
-			currentResource.getWorkspace().run(runnable, currentResource, IWorkspace.AVOID_UPDATE, null );
-
-		}
-		catch(CoreException e){
-			throw new IllegalStateException(e);
-		}
-		finally{
-			_markerInfos.clear();
-		}
     }
     
     /**
@@ -1152,18 +1169,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	 * @return - the extra type dependencies for the file under compilation
 	 */
 	public Set<String> getTypeDependencies()  { return _typeDependencies; }
-
-    private static class MarkerInfo
-    {
-        private final IResource _resource;
-        private final Map<String, Object> _markerAttrs;
-
-        private MarkerInfo(final IResource resource, final Map<String, Object> markerAttrs )
-        {
-            _resource = resource;
-            _markerAttrs = markerAttrs;
-        }
-    }
+    
 
 	// Implementation for EclipseAnnotationProcessorEnvironment
 	public CompilationUnit getAST()

@@ -19,7 +19,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
@@ -377,7 +377,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 
 	public ProcessorEnvImpl getEnvironment(){ return _env; }
 	
-	public IResource getResouce()
+	public IFile getResouce()
 	{ 	return _annotated.getResource(); }
 	
 	public DeclarationImpl getAnnotatedDeclaration(){ return _annotated; }

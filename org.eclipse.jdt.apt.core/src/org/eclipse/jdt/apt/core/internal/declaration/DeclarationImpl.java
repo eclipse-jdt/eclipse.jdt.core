@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.AnnotationInvocationHandler;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
@@ -204,7 +204,7 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
 	/**
 	 * @return the resource of this declaration if the declaration is from source.
 	 */
-	public IResource getResource(){
+	public IFile getResource(){
         if( isFromSource() ){
             final IBinding binding = getDeclarationBinding();
 			return _env.getDeclaringFileForBinding(binding);            

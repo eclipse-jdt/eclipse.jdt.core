@@ -17,10 +17,7 @@
    <requires>
       <import plugin="org.eclipse.jdt.core"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.core.resources"/>
-      <!-- don't need to import 'org.eclipse.ui.editors'. 
-           This is here so I could read the source code for debugging. -->
-      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.core.resources"/>     
       <import plugin="org.apache.ant"/>
    </requires>
 
@@ -32,29 +29,6 @@
 	id="annotationProcessorFactory" 
 	name="Annotation Processor Factories" 
 	schema="schema/annotationProcessorFactory.exsd"/>
-
-<!-- =================================================================================== -->
-<!-- Extension: Marker posted during reconcile											 -->
-<!-- =================================================================================== -->
-<extension
-    id="reconcile_marker"
-    point="org.eclipse.core.resources.markers"
-    name="APT Reconcile-time Marker">
-	<super type="org.eclipse.core.resources.problemmarker"/>
-	<super type="org.eclipse.core.resources.textmarker"/>
-	<persistent value="false"/>
-</extension>	
-<!-- =================================================================================== -->
-<!-- Extension: Marker posted during build												 -->
-<!-- =================================================================================== -->
-<extension
-    id="build_marker"
-    name="APT Build-time Marker"
-    point="org.eclipse.core.resources.markers">       
-    <super type="org.eclipse.core.resources.problemmarker"/>
-	<super type="org.eclipse.core.resources.textmarker"/>
-    <persistent value="true"/>   
-</extension>
 
 <!-- =================================================================================== -->
 <!-- Extension: Compilation Participant                                                  -->

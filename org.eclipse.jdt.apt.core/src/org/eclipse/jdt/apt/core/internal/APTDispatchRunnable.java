@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -37,6 +36,7 @@ import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.util.AptUtil;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -96,7 +96,10 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			if ( deletedFiles.size() == 0 )
 				_result =  EMPTY_APT_RESULT;
 			else
-				_result = new APTResult( Collections.<IFile>emptySet(), deletedFiles, Collections.<String>emptySet() );
+				_result = new APTResult( Collections.<IFile>emptySet(), 
+										 deletedFiles, 
+										 Collections.<String>emptySet(),
+										 (Map<IFile, List<IProblem>>)Collections.emptyMap() );
 		}
 		else
 		{
@@ -131,18 +134,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			{
 				if ( DEBUG ) trace( "runAPT: leaving early because file doesn't exist");
 				return EMPTY_APT_RESULT;
-			}
-				
-			// clear out all the markers from the previous round.
-			final String markerType = processorEnv.getPhase() == ProcessorEnvImpl.Phase.RECONCILE ? ProcessorEnvImpl.RECONCILE_MARKER
-					: ProcessorEnvImpl.BUILD_MARKER;
-			try {
-				processorEnv.getFile().deleteMarkers(markerType, true,
-						IResource.DEPTH_INFINITE);
-
-			} catch (CoreException e) {
-				throw new IllegalStateException(e);
-			}
+			}				
+		
 			final Map<String, AnnotationTypeDeclaration> annotationDecls = getAnnotationTypeDeclarations(
 					processorEnv.getAstCompilationUnit(), processorEnv);
 			
@@ -207,7 +200,10 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			// run, but are no longer generated should be removed
 			Set<IFile> deletedFiles = cleanupNoLongerGeneratedFiles( processorEnv.getFile(), lastGeneratedFiles, allGeneratedFiles, gfm );
 
-			APTResult result = new APTResult( modifiedFiles, deletedFiles, processorEnv.getTypeDependencies() );
+			APTResult result = new APTResult( modifiedFiles, 
+											  deletedFiles, 
+											  processorEnv.getTypeDependencies(), 
+											  processorEnv.getProblems() );
 			processorEnv.close();
 			return result;
 
@@ -352,7 +348,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		}
 	}
 	
-	public static final APTResult EMPTY_APT_RESULT = new APTResult( Collections.<IFile>emptySet(), Collections.<IFile>emptySet(), Collections.<String>emptySet() );
+	public static final APTResult EMPTY_APT_RESULT = new APTResult();
 	
 	public static final boolean DEBUG = false;
 }

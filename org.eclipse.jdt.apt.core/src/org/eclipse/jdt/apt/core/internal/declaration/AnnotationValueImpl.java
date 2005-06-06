@@ -15,7 +15,7 @@ import java.util.List;
 
 import com.sun.mirror.util.SourcePosition;
 
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
@@ -157,7 +157,7 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 		}
 	}
 	
-	public IResource getResource()
+	public IFile getResource()
 	{
 		final MirrorKind kind = _parent.kind();
 		switch(kind)

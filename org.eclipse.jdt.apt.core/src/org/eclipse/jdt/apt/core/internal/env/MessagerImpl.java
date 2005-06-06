@@ -14,12 +14,7 @@ package org.eclipse.jdt.apt.core.internal.env;
 import com.sun.mirror.apt.Messager;
 import com.sun.mirror.util.SourcePosition;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl.Phase;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -39,9 +34,9 @@ public class MessagerImpl implements Messager, EclipseMessager
     	if( pos == null )
     		printError(msg);
     	else if( pos instanceof SourcePositionImpl )
-            print((SourcePositionImpl)pos, IMarker.SEVERITY_ERROR, msg);
+            print((SourcePositionImpl)pos, APTProblem.Severity.Error, msg);
     	else
-    		print(pos, IMarker.SEVERITY_ERROR, msg);
+    		print(pos, APTProblem.Severity.Error, msg);
     }
 	
 	public void printError(ASTNode node, String msg)
@@ -50,22 +45,22 @@ public class MessagerImpl implements Messager, EclipseMessager
 			throw new IllegalArgumentException("'node' cannot be null");
 		final int start = node.getStartPosition();
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		addMarker(_env.getFile(), start, node.getLength() + start, IMarker.SEVERITY_ERROR, msg, line );
+		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.Error, msg, line );
 	}
 
     public void printError(String msg)
     {
-        print(IMarker.SEVERITY_ERROR, msg);
+        print(APTProblem.Severity.Error, msg);
     }
 
     public void printNotice(SourcePosition pos, String msg)
     {
         if( pos instanceof SourcePositionImpl )
-            print((SourcePositionImpl)pos, IMarker.SEVERITY_INFO, msg);
+            print((SourcePositionImpl)pos, APTProblem.Severity.Info, msg);
 		else if (pos == null )
 			printNotice(msg);
 		else
-    		print(pos, IMarker.SEVERITY_INFO, msg);
+    		print(pos, APTProblem.Severity.Info, msg);
     }
 	
 	public void printNotice(ASTNode node, String msg)
@@ -74,22 +69,22 @@ public class MessagerImpl implements Messager, EclipseMessager
 			throw new IllegalArgumentException("'node' cannot be null");
 		final int start = node.getStartPosition();
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		addMarker(_env.getFile(), start, node.getLength() + start, IMarker.SEVERITY_INFO, msg, line );
+		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.Info, msg, line );
 	}
 
     public void printNotice(String msg)
     {
-       print(IMarker.SEVERITY_INFO, msg);
+       print(APTProblem.Severity.Info, msg);
     }
 
     public void printWarning(SourcePosition pos, String msg)
     {		
         if( pos instanceof SourcePositionImpl )
-            print((SourcePositionImpl)pos, IMarker.SEVERITY_WARNING, msg);
+            print((SourcePositionImpl)pos, APTProblem.Severity.Warning, msg);
 		else if (pos == null )
 			printWarning(msg); 
 		else
-    		print(pos, IMarker.SEVERITY_WARNING, msg);
+    		print(pos, APTProblem.Severity.Warning, msg);
     }
 	
 	public void printWarning(ASTNode node, String msg)
@@ -98,41 +93,37 @@ public class MessagerImpl implements Messager, EclipseMessager
 			throw new IllegalArgumentException("'node' cannot be null");
 		final int start = node.getStartPosition();
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		addMarker(_env.getFile(), start, node.getLength() + start, IMarker.SEVERITY_WARNING, msg, line );
+		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.Warning, msg, line );
 	}
 
     public void printWarning(String msg)
     {
-        print(IMarker.SEVERITY_WARNING, msg);
+        print(APTProblem.Severity.Warning, msg);
     }    
   
     private void print(SourcePositionImpl pos,
-                       int severity,
+    				   APTProblem.Severity severity,
                        String msg)
     {
 
         final int start = pos.getStartingOffset();
         final int end   = pos.getEndingOffset();
-        final IResource resource = pos.getResource();
+        final IFile resource = pos.getResource();
         if( resource == null ){
 			throw new IllegalStateException("missing resource");            
         }
-        else{
-           addMarker(resource, 
-				   	 pos.getStartingOffset(), 
-				   	 pos.getEndingOffset(), 
-				     severity, 
-				     msg, 
-				     pos.line());
+        else{          
+          _env.addProblem(resource, pos.getStartingOffset(), pos.getEndingOffset(), 
+						  severity, msg, pos.line());
         }
     }
     
     private void print(SourcePosition pos,
-    				   int severity,
+    				   APTProblem.Severity severity,
     				   String msg)
     {    	
     	final java.io.File file = pos.file();
-    	IResource resource = null;
+    	IFile resource = null;
     	if( file != null ){    		
     		final String projAbsPath = _env.getProject().getLocation().toOSString();
     		final String fileAbsPath = file.getAbsolutePath();
@@ -144,7 +135,7 @@ public class MessagerImpl implements Messager, EclipseMessager
     	else
     		resource = null;
     	 
-    	final IResource currentResource = _env.getFile();
+    	final IFile currentResource = _env.getFile();
     	int offset = 0;    	
     	if( currentResource.equals(resource) ){
     		final CompilationUnit unit = _env.getAstCompilationUnit();
@@ -152,42 +143,13 @@ public class MessagerImpl implements Messager, EclipseMessager
     		//offset = unit.getPosition(pos.line(), pos.column() );
     		offset = 0;
     	}    	
-
-    	addMarker(resource, offset, -1, severity, msg, pos.line());
+    	_env.addProblem(resource, offset, -1, severity, msg, pos.line() );   
     }
 
-    private void print(int severity, String msg)
+    private void print(APTProblem.Severity severity, String msg)
     {
-		addMarker(null, 0, 1, severity, msg, 1);	
+    	_env.addProblem(null, 0, -1, severity, msg, 1 );  
+		
     }
-
-    /**
-     * 
-     * @param resource null to indicate current resource
-     * @param start the starting offset of the marker
-     * @param end -1 to indicate unknow ending offset.
-     * @param severity the severity of the marker
-     * @param msg the message on the marker
-     * @param line the line number of where the marker should be
-     */
-    private void addMarker(final IResource resource, final int start, final int end,
-                            final int severity, String msg, final int line)
-    {         
-    	final IResource currentResource = _env.getFile();
-    	// not going to post any markers to resource outside of the one we are currently 
-    	// processing during reconcile phase.
-    	if( resource != null && !currentResource.equals(resource) && _env.getPhase() == Phase.RECONCILE )
-    		return;
-		if( msg == null )
-			msg = "<no message>";		
-        Map<String, Object> map = new HashMap<String, Object>(8); // entries = 6, loadFactory = 0.75 thus, capacity = 8
-        map.put( IMarker.CHAR_START, start );
-        if(end >= 0)
-        	map.put( IMarker.CHAR_END, end );
-        map.put( IMarker.SEVERITY, severity );
-        map.put( IMarker.MESSAGE, msg );
-		map.put( IMarker.LINE_NUMBER, line);
-		map.put( IMarker.LOCATION, "line: " + line);        
-        _env.addMarker(resource, map);
-    }
+  
 }
