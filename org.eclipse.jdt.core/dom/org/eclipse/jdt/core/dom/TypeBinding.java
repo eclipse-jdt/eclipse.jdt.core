@@ -991,7 +991,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isInterface()
 	 */
 	public boolean isInterface() {
-		return this.binding.isInterface();
+		return this.binding.isInterface() && !this.binding.isTypeVariable() && !this.binding.isWildcard();
 	}
 
 	/*

@@ -37,7 +37,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 185, 186 };
+//		TESTS_NUMBERS = new int[] { 188 };
 //		TESTS_NAMES = new String[] {"test0187"};
 	}
 	public static Test suite() {
@@ -5593,6 +5593,31 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertBindingEquals(
     		"LX~Y<LX;:1TT;>;",
     		type.resolveBinding());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98473
+	 */
+	public void test0188() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	class Counter<T, /*start*/L extends List<T>/*end*/> {\n" +
+			"		private L _attribute;\n" +
+			"	}\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy);
+    	assertEquals("Not a type parameter", ASTNode.TYPE_PARAMETER, node.getNodeType());
+    	ITypeBinding typeBinding = ((TypeParameter) node).resolveBinding();
+    	assertNotNull("No binding", typeBinding);
+    	assertFalse("Cannot be top level", typeBinding.isTopLevel());
+    	assertFalse("A class", typeBinding.isClass());
+    	assertFalse("An interface", typeBinding.isInterface());
+    	assertTrue("Not a type variable", typeBinding.isTypeVariable());
 	}
 
 }
