@@ -1476,10 +1476,10 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 	
 	/*
-	 * Ensures that a member parameterized type binding with a raw enclosing type can be created using its key in batch creation.
+	 * Ensures that the declaring class of a member parameterized type binding with a raw enclosing type is correct
 	 */
 	public void test067() throws CoreException {
-		assertRequestedBindingFound(
+		ITypeBinding[] bindings = createTypeBindings(
 			new String[] {
 				"/P/p1/X.java",
 				"package p1;\n" +
@@ -1489,7 +1489,11 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  /*start*/Y<K, V>/*end*/ field;\n" +
 				"}"
 			}, 
-			"Lp1/X$Y<Lp1/X;:TK;Lp1/X;:TV;>;"
+			new String[] {"Lp1/X$Y<Lp1/X;:TK;Lp1/X;:TV;>;"}
+		);
+		assertBindingEquals(
+			"Lp1/X<>;",
+			bindings.length == 0 ? null : bindings[0].getDeclaringClass()
 		);
 	}
 
