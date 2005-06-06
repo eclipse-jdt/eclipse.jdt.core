@@ -3651,4 +3651,27 @@ the right of e1."
 			""
 		);
 	}
-}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=93789
+	public void test113() {
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"enum BugDemo {\n" + 
+				"	FOO() {\n" + 
+				"		static int bar;\n" + 
+				"	}\n" + 
+				"}\n",
+	        },
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	static int bar;\n" + 
+			"	           ^^^\n" + 
+			"The field new BugDemo(){}.bar is never read locally\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	static int bar;\n" + 
+			"	           ^^^\n" + 
+			"The field bar cannot be declared static; static fields can only be declared in static or top level types\n" + 
+			"----------\n");
+	}	
+	}

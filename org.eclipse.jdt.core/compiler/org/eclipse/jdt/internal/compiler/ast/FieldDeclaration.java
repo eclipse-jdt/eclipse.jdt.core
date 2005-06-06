@@ -69,7 +69,6 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				&& this.binding.isStatic()
 				&& !this.binding.isConstantValue()
 				&& this.binding.declaringClass.isNestedType()
-				&& this.binding.declaringClass.isClass() // no need to check for enum, since implicitly static
 				&& !this.binding.declaringClass.isStatic()) {
 			initializationScope.problemReporter().unexpectedStaticModifierForField(
 				(SourceTypeBinding) this.binding.declaringClass,
