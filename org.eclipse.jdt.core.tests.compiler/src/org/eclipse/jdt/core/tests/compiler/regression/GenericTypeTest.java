@@ -20827,4 +20827,46 @@ public void test717() {
 		"Cannot cast from T to Comparable<Integer>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98478
+public void test718() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Collections;\n" + 
+			"import java.util.Set;\n" + 
+			"import java.util.TreeSet;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"    \n" + 
+			"    public interface Base {\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    abstract class Action<T extends Base> {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public class ActionImpl<T extends Base> extends Action<T> implements Comparable<ActionImpl> {\n" + 
+			"        public int compareTo(ActionImpl o) {\n" + 
+			"            return 0;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public void test() {\n" + 
+			"        Set<ActionImpl> set = new TreeSet<ActionImpl>();\n" + 
+			"        Collections.max(set);\n" + 
+			"    }\n" + 
+			"   Zork z;\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 21)\n" + 
+		"	Collections.max(set);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation max(Collection<? extends X.ActionImpl>) of the generic method max(Collection<? extends T>) of type Collections\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 23)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
