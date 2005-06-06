@@ -70,6 +70,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB,JCL15_SRC", "/P/lib"}, "bin", "1.5");
+		project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
 		addLibrary(
 			project, 
 			"lib.jar",
