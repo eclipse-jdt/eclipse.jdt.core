@@ -614,16 +614,17 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
 							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), false, this);
 							
-							if(importReference.isStatic()) {
-								this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-								if ((this.unitScope = parsedUnit.scope) != null) {
-									int tokenCount = tokens.length;
-									char[] lastToken = tokens[tokenCount - 1];
-									char[][] qualifierTokens = CharOperation.subarray(tokens, 0, tokenCount - 1);
-									
-									Binding binding = this.unitScope.getTypeOrPackage(qualifierTokens);
-									if(binding != null && binding instanceof ReferenceBinding) {
-										ReferenceBinding ref = (ReferenceBinding) binding;
+							this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+							if ((this.unitScope = parsedUnit.scope) != null) {
+								int tokenCount = tokens.length;
+								char[] lastToken = tokens[tokenCount - 1];
+								char[][] qualifierTokens = CharOperation.subarray(tokens, 0, tokenCount - 1);
+								
+								Binding binding = this.unitScope.getTypeOrPackage(qualifierTokens);
+								if(binding != null && binding instanceof ReferenceBinding) {
+									ReferenceBinding ref = (ReferenceBinding) binding;
+									selectMemberTypeFromImport(parsedUnit, lastToken, ref, importReference.isStatic());
+									if(importReference.isStatic()) {
 										selectStaticFieldFromStaticImport(parsedUnit, lastToken, ref);
 										selectStaticMethodFromStaticImport(parsedUnit, lastToken, ref);
 									}
@@ -708,6 +709,25 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 
+	private void selectMemberTypeFromImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref, boolean staticOnly) {
+		int fieldLength = lastToken.length;
+		ReferenceBinding[] memberTypes = ref.memberTypes();
+		next : for (int j = 0; j < memberTypes.length; j++) {
+			ReferenceBinding memberType = memberTypes[j];
+			
+			if (fieldLength > memberType.sourceName.length)
+				continue next;
+
+			if (staticOnly && !memberType.isStatic())
+				continue next;
+
+			if (!CharOperation.equals(lastToken, memberType.sourceName, true))
+				continue next;
+			
+			this.selectFrom(memberType, parsedUnit, false);
+		}
+	}
+	
 	private void selectStaticFieldFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
 		int fieldLength = lastToken.length;
 		FieldBinding[] fields = ref.fields();

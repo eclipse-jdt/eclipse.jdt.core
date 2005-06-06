@@ -1537,4 +1537,33 @@ public void testTypeInsideConstructor() throws JavaModelException {
 		}
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=79309
+public void testMemberTypeInImport() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Resolve/src/test/AType.java",
+				"public class AType {\n" +
+				"	public class Sub {\n" +
+				"	}\n" +
+				"}\n");
+
+		IJavaElement[] elements = select(
+				"/Resolve/src/test/Test.java",
+				"import test.AType.Sub;\n" +
+				"public class Test\n" +
+				"}\n",
+				"Sub");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"Sub [in AType [in [Working copy] AType.java [in test [in src [in Resolve]]]]]",
+			elements
+		);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
+}
 }
