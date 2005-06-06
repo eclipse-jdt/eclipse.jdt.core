@@ -22,12 +22,12 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AptUtil {
 
@@ -81,7 +81,7 @@ public class AptUtil {
 			if ( source == null )
 				return false;
 			IScanner scanner = ToolFactory.createScanner( 
-				false, false, false, CompilerOptions.VERSION_1_5 );
+				false, false, false, JavaCore.VERSION_1_5 );
 			scanner.setSource( source );
 			int token = scanner.getNextToken();
 			while ( token != ITerminalSymbols.TokenNameEOF ) {

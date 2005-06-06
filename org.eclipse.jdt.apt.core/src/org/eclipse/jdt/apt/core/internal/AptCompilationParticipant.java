@@ -39,7 +39,6 @@ import org.eclipse.jdt.core.compiler.PostReconcileCompilationEvent;
 import org.eclipse.jdt.core.compiler.PostReconcileCompilationResult;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationEvent;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationResult;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
@@ -56,15 +55,6 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		_factoryLoader.loadFactoriesFromPlugins();
         _factories = _factoryLoader.getFactories();
 	}
-	
-    private String getUnitName( ICompilationUnit sourceUnit )
-    {
-    	char[] mainTypeName = sourceUnit.getMainTypeName();
-    	StringBuffer sb = new StringBuffer( mainTypeName.length + DOT_JAVA.length() );
-    	sb.append( mainTypeName );
-    	sb.append( DOT_JAVA );
-    	return sb.toString();
-    }
 
 	public CompilationParticipantResult notify( CompilationParticipantEvent cpe )
 	{	

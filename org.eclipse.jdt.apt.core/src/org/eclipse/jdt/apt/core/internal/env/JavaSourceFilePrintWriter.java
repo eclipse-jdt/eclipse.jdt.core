@@ -20,8 +20,6 @@ import org.eclipse.jdt.apt.core.internal.generatedfile.FileGenerationResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
-
 
 public class JavaSourceFilePrintWriter extends PrintWriter {
 
@@ -47,7 +45,7 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
             {
             	ICompilationUnit parentCompilationUnit = _env.getCompilationUnit();
                 FileGenerationResult result  = gfm.generateFileDuringReconcile( 
-                    parentCompilationUnit, _typeName, contents, DefaultWorkingCopyOwner.PRIMARY, null, null );
+                    parentCompilationUnit, _typeName, contents, parentCompilationUnit.getOwner(), null, null );
 				_env.addGeneratedFile(result.getFile(), result.isModified());
             }
             else if ( phase == ProcessorEnvImpl.Phase.BUILD)	
