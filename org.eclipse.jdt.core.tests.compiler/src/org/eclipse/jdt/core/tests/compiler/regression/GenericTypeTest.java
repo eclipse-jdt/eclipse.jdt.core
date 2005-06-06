@@ -20768,5 +20768,63 @@ public void test714() {
         "",
         null,
         false,
-        null);}
+        null);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98393
+public void test715() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    void foo() {\n" + 
+			"    	Comparable<String> c = (java.util.List)bar(5, 5.0);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    <T> T bar(T t1, T t2) { return t1; }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Comparable<String> c = (java.util.List)bar(5, 5.0);\n" + 
+		"	                   ^\n" + 
+		"Type mismatch: cannot convert from List to Comparable<String>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98396
+public void test716() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends Number & Comparable<String>> {\n" + 
+			"    void foo(T t) {\n" + 
+			"    		 Comparable<Integer> ci = (Comparable<Integer>) t;  \n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Comparable<Integer> ci = (Comparable<Integer>) t;  \n" + 
+		"	                         ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from T to Comparable<Integer>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=98396 - variation
+public void test717() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"public class X<T extends Comparable<String> & List<Integer>> {\n" + 
+			"    void foo(T t) {\n" + 
+			"    		 Comparable<Integer> ci = (Comparable<Integer>) t;  \n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	Comparable<Integer> ci = (Comparable<Integer>) t;  \n" + 
+		"	                         ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from T to Comparable<Integer>\n" + 
+		"----------\n");
+}
 }

@@ -316,16 +316,24 @@ public abstract class Expression extends Statement {
 				}
 						
 			case Binding.TYPE_PARAMETER :
-			case Binding.WILDCARD_TYPE :
 				if (castType instanceof ReferenceBinding) {
 					TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeWithSameErasure(castType);
 					if (match != null) {
-						tagAsUnnecessaryCast(scope, castType);
-						return true;
-					}
+						return checkUnsafeCast(scope, castType, expressionType, match, false);
+					}					
 				}
 				// recursively on the type variable upper bound
 				return checkCastTypesCompatibility(scope, castType, ((TypeVariableBinding)expressionType).upperBound(), expression);
+				
+			case Binding.WILDCARD_TYPE : // intersection type
+				if (castType instanceof ReferenceBinding) {
+					TypeBinding match = ((ReferenceBinding)expressionType).findSuperTypeWithSameErasure(castType);
+					if (match != null) {
+						return checkUnsafeCast(scope, castType, expressionType, match, false);
+					}						
+				}
+				// recursively on the type variable upper bound
+				return checkCastTypesCompatibility(scope, castType, ((WildcardBinding)expressionType).bound, expression);
 
 			default:
 				if (expressionType.isInterface()) {
