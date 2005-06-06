@@ -47,7 +47,7 @@ import com.sun.mirror.apt.AnnotationProcessorListener;
 import com.sun.mirror.apt.RoundCompleteListener;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
-/*package*/ class AptDispatchRunnable implements IWorkspaceRunnable
+/*package*/ class APTDispatchRunnable implements IWorkspaceRunnable
 {
 	private final IFile _file;
 	private final ICompilationUnit _compilationUnit;
@@ -56,7 +56,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	
 	private  APTResult _result;
 
-	/*package*/ AptDispatchRunnable( IFile file, IJavaProject javaProject, List<AnnotationProcessorFactory> factories)
+	/*package*/ APTDispatchRunnable( IFile file, IJavaProject javaProject, List<AnnotationProcessorFactory> factories)
 	{
 		_compilationUnit = null;
 		_file = file;
@@ -64,7 +64,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		_factories = factories;
 	}
 
-	/*package*/ AptDispatchRunnable( ICompilationUnit cu, IJavaProject javaProject, List<AnnotationProcessorFactory> factories)
+	/*package*/ APTDispatchRunnable( ICompilationUnit cu, IJavaProject javaProject, List<AnnotationProcessorFactory> factories)
 	{
 		_compilationUnit = cu;
 		_file = null;
@@ -99,7 +99,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				_result = new APTResult( Collections.<IFile>emptySet(), 
 										 deletedFiles, 
 										 Collections.<String>emptySet(),
-										 (Map<IFile, List<IProblem>>)Collections.emptyMap() );
+										 Collections.<IFile, List<IProblem>>emptyMap() );
 		}
 		else
 		{

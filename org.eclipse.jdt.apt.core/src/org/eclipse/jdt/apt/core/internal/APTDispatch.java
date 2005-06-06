@@ -58,11 +58,11 @@ public class APTDispatch
 			ICompilationUnit compilationUnit )
 	{
 		
-		AptDispatchRunnable runnable;
+		APTDispatchRunnable runnable;
 		if ( file != null )
-			 runnable = new AptDispatchRunnable( file, javaProj, factories );
+			 runnable = new APTDispatchRunnable( file, javaProj, factories );
 		else
-			runnable = new AptDispatchRunnable( compilationUnit, javaProj, factories );
+			runnable = new APTDispatchRunnable( compilationUnit, javaProj, factories );
 		
 		IWorkspace w = ResourcesPlugin.getWorkspace();
 		try
