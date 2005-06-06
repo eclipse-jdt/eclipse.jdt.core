@@ -1844,6 +1844,11 @@ protected void assertDeltas(String message, String expected) {
 			}
 			javaProject.setRawClasspath(classpath, null);
 		}
+		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
+		javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
+		javaProject.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
+		javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
 		return javaProject;
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {

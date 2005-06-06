@@ -104,16 +104,8 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		super.setUpSuite();
 
 		if (!PROJECT_SETUP) {
-			IJavaProject project = setUpJavaProject("Converter"); //$NON-NLS-1$
-			project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
-			project.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
-			project.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
-			project.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
-			project = setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
-			project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
-			project.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
-			project.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
-			project.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
+			setUpJavaProject("Converter"); //$NON-NLS-1$
+			setUpJavaProject("Converter15", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
 			PROJECT_SETUP = true;
 		}
 	}
