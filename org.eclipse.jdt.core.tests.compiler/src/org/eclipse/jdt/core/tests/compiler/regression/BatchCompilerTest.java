@@ -594,7 +594,7 @@ public void test006() {
 			result);
 }
 // test the tester - runConformTest
-public void test007(){
+public void _test007(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -629,7 +629,7 @@ public void test007(){
         "1 problem (1 warning)", true);
 }
 // test the tester - runNegativeTest
-public void test008(){
+public void _test008(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -665,7 +665,7 @@ public void test008(){
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=92398 -- a case that works, another that does not
 // revisit this test case depending on https://bugs.eclipse.org/bugs/show_bug.cgi?id=95349
-public void test009(){
+public void _test009(){
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -730,7 +730,7 @@ public void test009(){
         true);
 }
 // command line - no user classpath nor bootclasspath
-public void test010(){
+public void _test010(){
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1163,7 +1163,7 @@ public void _test012(){
 		}
 		assertTrue("unexpected log contents", compareOK);
 	}
-public void test016(){
+public void _test016(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
@@ -1186,7 +1186,7 @@ public void test016(){
 	        "",
 	        true);
 	}
-public void test017(){
+public void _test017(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
@@ -1235,7 +1235,7 @@ public void test017(){
 	        "",
 	        true);
 	}
-public void test019(){
+public void _test019(){
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1300,7 +1300,7 @@ public void test019(){
 	        true);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - skip options -O -Jxxx and -Xxxx, multiple times if needed
-	public void test020(){
+	public void _test020(){
 		this.runConformTest(
 			new String[] {
 					"X.java",
@@ -1317,7 +1317,7 @@ public void test019(){
 	        true);
 	}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -sourcepath finds additional source files
-	public void test021(){
+	public void _test021(){
 		this.runConformTest(
 			new String[] {
 					"src1/X.java",
@@ -1387,7 +1387,7 @@ public void test019(){
 		        true);
 		}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - explicit empty -extdirs removes extensions
-		public void test024(){
+		public void _test024(){
 			this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -1413,7 +1413,7 @@ public void test019(){
 		        true);
 		}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - cumulative -extdirs extends the classpath
-		public void test025(){
+		public void _test025(){
 			this.runConformTest(
 				new String[] {
 						"src1/X.java",
@@ -1437,7 +1437,7 @@ public void test019(){
 		        true);
 		}
 //	 https://bugs.eclipse.org/bugs/show_bug.cgi?id=88364 - -extdirs extends the classpath before -classpath
-		public void test026(){
+		public void _test026(){
 			this.runConformTest(
 				new String[] {
 						"src1/X.java",
@@ -1466,7 +1466,7 @@ public void test019(){
 		        true);
 		}
 		
-public void test027(){
+public void _test027(){
 			this.runNegativeTest(
 				new String[] {
 					"X.java",
