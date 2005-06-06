@@ -90,7 +90,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test066" };
+//		TESTS_NAMES = new String[] { "test067" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -1474,4 +1474,23 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				ownedWorkingcopy.discardWorkingCopy();
 		}
 	}
+	
+	/*
+	 * Ensures that a member parameterized type binding with a raw enclosing type can be created using its key in batch creation.
+	 */
+	public void test067() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<K, V> {\n" +
+				"  public class Y<K1, V1> {\n" +
+				"  }\n" +
+				"  /*start*/Y<K, V>/*end*/ field;\n" +
+				"}"
+			}, 
+			"Lp1/X$Y<Lp1/X;:TK;Lp1/X;:TV;>;"
+		);
+	}
+
 }

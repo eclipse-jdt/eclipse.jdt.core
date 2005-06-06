@@ -568,7 +568,7 @@ public class BindingKeyParser {
 				parseInnerType();
 			} else if (this.scanner.isAtTypeArgumentStart())
 				// parameterized type
-				parseParameterizedType(null/*top level type*/, false/*no raw*/);
+				parseParameterizedType(null/*top level type or member type with raw enclosing type*/, false/*no raw*/);
 			else if (this.scanner.isAtRawTypeEnd())
 				// raw type
 				parseRawType();

@@ -264,7 +264,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	public void consumeParameterizedType(char[] simpleTypeName, boolean isRaw) {
 		TypeBinding[] arguments = getTypeBindingArguments();
 		if (simpleTypeName != null) {
-			// parameterized member type
+			// parameterized member type with parameterized enclosing type
 			this.genericType = this.genericType.getMemberType(simpleTypeName);
 			if (!isRaw)
 				this.typeBinding = this.environment.createParameterizedType(this.genericType, arguments, (ReferenceBinding) this.typeBinding);
@@ -272,10 +272,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 				// raw type
 				this.typeBinding = this.environment.createRawType(this.genericType, (ReferenceBinding) this.typeBinding);
 		} else {
-			// parameterized top level type
+			// parameterized top level type or parameterized member type with raw enclosing type
 			this.genericType = (ReferenceBinding) this.typeBinding;
 			ReferenceBinding enclosing = this.genericType.enclosingType();
-			if (enclosing != null) enclosing = (ReferenceBinding) this.environment.convertToRawType(enclosing); // TODO (jerome) backward compatible when null enclosing type - is it really meant to be raw all the time ?
+			if (enclosing != null) enclosing = (ReferenceBinding) this.environment.convertToRawType(enclosing);
 			this.typeBinding = this.environment.createParameterizedType(this.genericType, arguments, enclosing);
 		}
 	}
