@@ -1867,13 +1867,14 @@ public abstract class Scope
 			ImportBinding[] imports = unitScope.imports;
 			if (imports != null) {
 				MethodBinding[] visible = null;
+				boolean skipOnDemand = false; // set to true when matched static import of method name so stop looking for on demand methods
 				for (int i = 0, length = imports.length; i < length; i++) {
 					ImportBinding importBinding = imports[i];
 					if (importBinding.isStatic()) {
 						Binding resolvedImport = importBinding.resolvedImport;
 						MethodBinding possible = null;
 						if (importBinding.onDemand) {
-							if (resolvedImport instanceof ReferenceBinding)
+							if (!skipOnDemand && resolvedImport instanceof ReferenceBinding)
 								// answers closest approximation, may not check argumentTypes or visibility
 								possible = findMethod((ReferenceBinding) resolvedImport, selector, argumentTypes, invocationSite);
 						} else {
@@ -1908,8 +1909,14 @@ public abstract class Scope
 											if (importReference != null) importReference.used = true;
 											if (foundMethod == null || !foundMethod.isValidBinding()) {
 												foundMethod = compatibleMethod;
+												if (!importBinding.onDemand && foundMethod.isValidBinding())
+													skipOnDemand = true;
 											} else {
-												if (visible == null) {
+												if (!skipOnDemand && !importBinding.onDemand) {
+													visible = null; // forget previous matches from on demand imports
+													foundMethod = compatibleMethod;
+													skipOnDemand = true;
+												} else if (visible == null) {
 													visible = new MethodBinding[] {foundMethod, compatibleMethod};
 												} else {
 													int visibleLength = visible.length;

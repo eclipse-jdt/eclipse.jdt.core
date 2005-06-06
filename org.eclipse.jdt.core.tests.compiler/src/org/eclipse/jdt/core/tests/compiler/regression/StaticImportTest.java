@@ -28,6 +28,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		return StaticImportTest.class;
 	}
 
+
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -1129,56 +1130,83 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"true");
+	}
+
+	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	public void test032b() {
 		this.runNegativeTest(
 			new String[] {
-				"X.java",
-				"import static p.A.*;\n" + 
-				"import static p.B.*;\n" + 
-				"public class X { void test() {foo();} }\n",
-				"p/A.java",
-				"package p;" +
+				"X2.java",
+				"import static p2.A.*;\n" + 
+				"import static p2.B.*;\n" + 
+				"public class X2 { void test() {foo();} }\n",
+				"p2/A.java",
+				"package p2;" +
 				"public class A {\n" + 
 				"	public static void foo() {}\n" + 
 				"}\n",
-				"p/B.java",
-				"package p;" +
+				"p2/B.java",
+				"package p2;" +
 				"public class B {\n" + 
 				"	public static void foo() {}\n" + 
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	public class X { void test() {foo();} }\r\n" + 
-			"	                              ^^^\n" + 
-			"The method foo() is ambiguous for the type X\n" + 
+			"1. ERROR in X2.java (at line 3)\r\n" + 
+			"	public class X2 { void test() {foo();} }\r\n" + 
+			"	                               ^^^\n" + 
+			"The method foo() is ambiguous for the type X2\n" + 
 			"----------\n"
 			// reference to foo is ambiguous, both method foo() in p.B and method foo() in p.A match
 		);
-		this.runNegativeTest(
+	}
+
+	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	public void test032c() {
+		this.runConformTest(
 			new String[] {
-				"X.java",
-				"import static p.A.*;\n" + 
-				"import static p.B.foo;\n" + 
-				"public class X { void test() {foo();} }\n",
-				"p/A.java",
-				"package p;" +
-				"public class A {\n" + 
-				"	public static void foo() {}\n" + 
+				"X3.java",
+				"import static p3.A.*;\n" + 
+				"import static p3.B.foo;\n" + 
+				"public class X3 {\n" + 
+				"	public static void main(String[] args) {foo();}\n" + 
 				"}\n",
-				"p/B.java",
-				"package p;" +
+				"p3/A.java",
+				"package p3;" +
+				"public class A {\n" + 
+				"	public static void foo() {System.out.print(false);}\n" + 
+				"}\n",
+				"p3/B.java",
+				"package p3;" +
 				"public class B {\n" + 
-				"	public static void foo() {}\n" + 
+				"	public static void foo() {System.out.print(true);}\n" + 
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	public class X { void test() {foo();} }\r\n" + 
-			"	                              ^^^\n" + 
-			"The method foo() is ambiguous for the type X\n" + 
-			"----------\n"
-			// reference to foo is ambiguous, both method foo() in p.B and method foo() in p.A match
-		);
+			"true");
+	}
+
+	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	public void test032d() {
+		this.runConformTest(
+			new String[] {
+				"X4.java",
+				"import static p4.A.foo;\n" + 
+				"import static p4.B.*;\n" + 
+				"public class X4 {\n" + 
+				"	public static void main(String[] args) {foo();}\n" + 
+				"}\n",
+				"p4/A.java",
+				"package p4;" +
+				"public class A {\n" + 
+				"	public static void foo() {System.out.print(true);}\n" + 
+				"}\n",
+				"p4/B.java",
+				"package p4;" +
+				"public class B extends A {\n" + 
+				"	public static void foo() {System.out.print(false);}\n" + 
+				"}\n"
+			},
+			"true");
 	}
 
 	public void test033() {
@@ -1202,22 +1230,25 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"true");
+	}
+
+	public void test033b() {
 		this.runConformTest(
 			new String[] {
-				"XX.java",
-				"import static p.AA.*;\n" + 
-				"import static p.BB.*;\n" + 
-				"public class XX {\n" + 
+				"X2.java",
+				"import static p2.A.*;\n" + 
+				"import static p2.B.*;\n" + 
+				"public class X2 {\n" + 
 				"	public static void main(String[] args) {foo(\"aa\");}\n" + 
 				"}\n",
-				"p/AA.java",
-				"package p;" +
-				"public class AA {\n" + 
+				"p2/A.java",
+				"package p2;" +
+				"public class A {\n" + 
 				"	public static <U> void foo(String s) {System.out.print(true);}\n" + 
 				"}\n",
-				"p/BB.java",
-				"package p;" +
-				"public class BB extends AA {\n" + 
+				"p2/B.java",
+				"package p2;" +
+				"public class B extends A {\n" + 
 				"	public static <V> void foo(V v) {System.out.print(false);}\n" + 
 				"}\n"
 			},
