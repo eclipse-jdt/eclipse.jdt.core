@@ -1562,6 +1562,416 @@ public void test028(){
 		        "incorrect classpath: dummy\n",
 		        false);
 		}
+//Extraneous auto-build error message - https://bugs.eclipse.org/bugs/show_bug.cgi?id=93377
+public void test030(){
+	// first series shows that a clean build is OK
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public interface X<T extends X<T, K, S>, \n" + 
+			"                   K extends X.K<T, S>, \n" + 
+			"                   S extends X.S> {\n" + 
+			"	public interface K<KT extends X<KT, ?, KS>, \n" + 
+			"	                   KS extends X.S> {\n" + 
+			"	}\n" + 
+			"	public interface S {\n" + 
+			"	}\n" + 
+			"}\n",
+			"Y.java",
+			"public class Y<T extends X<T, K, S>, \n" + 
+			"               K extends X.K<T, S>, \n" + 
+			"               S extends X.S> { \n" + 
+			"}\n",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + File.separator + "\""
+        + " -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + "\"",
+        "",
+        "",
+        true);
+	// second series shows that a staged build - that simulates the auto build context - is OK as well
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public interface X<T extends X<T, K, S>, \n" + 
+			"                   K extends X.K<T, S>, \n" + 
+			"                   S extends X.S> {\n" + 
+			"	public interface K<KT extends X<KT, ?, KS>, \n" + 
+			"	                   KS extends X.S> {\n" + 
+			"	}\n" + 
+			"	public interface S {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -proceedOnError -referenceInfo" 
+        + " -d \"" + OUTPUT_DIR + "\"",
+        "",
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"Y.java",
+			"public class Y<T extends X<T, K, S>, \n" + 
+			"               K extends X.K<T, S>, \n" + 
+			"               S extends X.S> { \n" + 
+			"}\n",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "Y.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + File.separator + "\""
+        + " -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + "\"",
+        "",
+        "",
+        false);
+}
+// Extraneous auto-build error message - https://bugs.eclipse.org/bugs/show_bug.cgi?id=93377
+// More complex test case than test30
+public void test032(){
+	// first series shows that a clean build is OK (warning messages only)
+	this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" + 
+				"import java.io.Serializable;\n" + 
+				"public interface X<T extends X<T, U, V>, \n" + 
+				"				   U extends X.XX<T, V>, \n" + 
+				"				   V extends X.XY> {\n" + 
+				"	public interface XX<TT extends X<TT, ?, UU>, \n" + 
+				"	                    UU extends X.XY> \n" + 
+				"			extends	Serializable {\n" + 
+				"	}\n" + 
+				"	public interface XY extends Serializable {\n" + 
+				"	}\n" + 
+				"}\n",
+				"p/Y.java",
+				"package p;\n" + 
+				"import java.util.*;\n" + 
+				"import p.X.*;\n" + 
+				"public class Y<T extends X<T, U, V>, \n" + 
+				"               U extends X.XX<T, V>, \n" + 
+				"               V extends X.XY> {\n" + 
+				"	private final Map<U, V> m1 = new HashMap<U, V>();\n" + 
+				"	private final Map<U, T> m2 = new HashMap<U, T>();\n" + 
+				"	private final Z m3;\n" + 
+				"\n" + 
+				"	public Y(final Z p1) {\n" + 
+				"		this.m3 = p1;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void foo1(final U p1, final V p2, final T p3) {\n" + 
+				"		m1.put(p1, p2);\n" + 
+				"		m2.put(p1, p3);\n" + 
+				"		m3.foo2(p1, p2);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void foo3(final U p1) {\n" + 
+				"		assert m1.containsKey(p1);\n" + 
+				"		m1.remove(p1);\n" + 
+				"		m2.remove(p1);\n" + 
+				"		m3.foo2(p1, null);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public Collection<T> foo4() {\n" + 
+				"		return Collections.unmodifiableCollection(m2.values());\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" + 
+				"		p1.putAll(m1);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" + 
+				"		m1.keySet().retainAll(p1.keySet());\n" + 
+				"		m2.keySet().retainAll(p1.keySet());\n" + 
+				"	}\n" + 
+				"}\n",
+				"p/Z.java",
+				"package p;\n" + 
+				"\n" + 
+				"import java.util.*;\n" + 
+				"\n" + 
+				"import p.X.*;\n" + 
+				"\n" + 
+				"public class Z {\n" + 
+				"	private final Map<Class<? extends X>, \n" + 
+				"		              Y<?, ? extends XX<?, ?>, ? extends XY>> \n" + 
+				"		m1 = new HashMap<Class<? extends X>, \n" + 
+				"		                 Y<?, ? extends XX<?, ?>, ? extends XY>>();\n" + 
+				"\n" + 
+				"	private Map<X.XX<?, XY>, \n" + 
+				"	            X.XY> \n" + 
+				"		m2 = new HashMap<X.XX<?, XY>, \n" + 
+				"		                 X.XY>();\n" + 
+				"\n" + 
+				"	public <T extends X<T, U, V>, \n" + 
+				"	        U extends X.XX<T, V>, \n" + 
+				"	        V extends X.XY> \n" + 
+				"	Y<T, U, V> foo1(final Class<T> p1) {\n" + 
+				"		Y l1 = m1.get(p1);\n" + 
+				"		if (l1 == null) {\n" + 
+				"			l1 = new Y<T, U, V>(this);\n" + 
+				"			m1.put(p1, l1);\n" + 
+				"		}\n" + 
+				"		return l1;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public <TT extends X.XX<?, UU>, \n" + 
+				"	        UU extends X.XY> \n" + 
+				"	void foo2(final TT p1, final UU p2) {\n" + 
+				"		m2.put((XX<?, XY>) p1, p2);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public Map<XX<?, ?>, XY> foo3() {\n" + 
+				"		final Map<XX<?, ?>, \n" + 
+				"		          XY> l1 = new HashMap<XX<?, ?>, \n" + 
+				"		                               XY>();\n" + 
+				"		for (final Y<?, \n" + 
+				"				     ? extends XX<?, ?>, \n" + 
+				"				     ? extends XY> \n" + 
+				"				i : m1.values()) {\n" + 
+				"			i.foo5(l1);\n" + 
+				"		}\n" + 
+				"		return l1;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void foo4(final Object p1, final Map<XX<?, ?>, \n" + 
+				"			                                    XY> p2) {\n" + 
+				"		for (final Y<?, \n" + 
+				"				     ? extends XX<?, ?>, \n" + 
+				"				     ? extends XY> i : m1.values()) {\n" + 
+				"			i.foo6(p2);\n" + 
+				"		}\n" + 
+				"		for (final Map.Entry<XX<?, ?>, \n" + 
+				"				             XY> i : p2.entrySet()) {\n" + 
+				"			final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
+	        + " \"" + OUTPUT_DIR +  File.separator + "p/Y.java\""
+	        + " \"" + OUTPUT_DIR +  File.separator + "p/Z.java\""
+	        + " -1.5 -g -preserveAllLocals"
+	        + " -cp \"" + OUTPUT_DIR + File.separator + "\""
+	        + " -proceedOnError -referenceInfo"
+	        + " -d \"" + OUTPUT_DIR + "\"",
+	        "",
+	        "----------\n" + 
+	        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\p\\Z.java\n" + 
+	        " (at line 25)\n" + 
+	        "	m1.put(p1, l1);\n" + 
+	        "	           ^^\n" + 
+	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
+	        "----------\n" + 
+	        "----------\n" + 
+	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\p\\Z.java\n" + 
+	        " (at line 27)\n" + 
+	        "	return l1;\n" + 
+	        "	       ^^\n" + 
+	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
+	        "----------\n" + 
+	        "----------\n" + 
+	        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\p\\Z.java\n" + 
+	        " (at line 33)\n" + 
+	        "	m2.put((XX<?, XY>) p1, p2);\n" + 
+	        "	       ^^^^^^^^^^^^^^\n" + 
+	        "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
+	        "----------\n" + 
+	        "----------\n" + 
+	        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\p\\Z.java\n" + 
+	        " (at line 58)\n" + 
+	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
+	        "	                ^^\n" + 
+	        "The local variable l1 is never read\n" + 
+	        "----------\n" + 
+	        "----------\n" + 
+	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\p\\Z.java\n" + 
+	        " (at line 58)\n" + 
+	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
+	        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	        "Type safety: The cast from X.XX<capture-of ?,capture-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
+	        "----------\n" + 
+	        "5 problems (5 warnings)",
+	        true);
+	// second series shows that a staged build - that simulates the auto build context - is OK as well
+	this.runConformTest(
+		new String[] {
+			"p/X.java",
+			"package p;\n" + 
+			"import java.io.Serializable;\n" + 
+			"public interface X<T extends X<T, U, V>, \n" + 
+			"				   U extends X.XX<T, V>, \n" + 
+			"				   V extends X.XY> {\n" + 
+			"	public interface XX<TT extends X<TT, ?, UU>, \n" + 
+			"	                    UU extends X.XY> \n" + 
+			"			extends	Serializable {\n" + 
+			"	}\n" + 
+			"	public interface XY extends Serializable {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "p/X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -proceedOnError -referenceInfo" 
+        + " -d \"" + OUTPUT_DIR + "\"",
+        "",
+        "",
+        true);
+	this.runConformTest(
+		new String[] {
+			"p/Y.java",
+			"package p;\n" + 
+			"import java.util.*;\n" + 
+			"import p.X.*;\n" + 
+			"public class Y<T extends X<T, U, V>, \n" + 
+			"               U extends X.XX<T, V>, \n" + 
+			"               V extends X.XY> {\n" + 
+			"	private final Map<U, V> m1 = new HashMap<U, V>();\n" + 
+			"	private final Map<U, T> m2 = new HashMap<U, T>();\n" + 
+			"	private final Z m3;\n" + 
+			"\n" + 
+			"	public Y(final Z p1) {\n" + 
+			"		this.m3 = p1;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void foo1(final U p1, final V p2, final T p3) {\n" + 
+			"		m1.put(p1, p2);\n" + 
+			"		m2.put(p1, p3);\n" + 
+			"		m3.foo2(p1, p2);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void foo3(final U p1) {\n" + 
+			"		assert m1.containsKey(p1);\n" + 
+			"		m1.remove(p1);\n" + 
+			"		m2.remove(p1);\n" + 
+			"		m3.foo2(p1, null);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public Collection<T> foo4() {\n" + 
+			"		return Collections.unmodifiableCollection(m2.values());\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" + 
+			"		p1.putAll(m1);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" + 
+			"		m1.keySet().retainAll(p1.keySet());\n" + 
+			"		m2.keySet().retainAll(p1.keySet());\n" + 
+			"	}\n" + 
+			"}\n",
+			"p/Z.java",
+			"package p;\n" + 
+			"\n" + 
+			"import java.util.*;\n" + 
+			"\n" + 
+			"import p.X.*;\n" + 
+			"\n" + 
+			"public class Z {\n" + 
+			"	private final Map<Class<? extends X>, \n" + 
+			"		              Y<?, ? extends XX<?, ?>, ? extends XY>> \n" + 
+			"		m1 = new HashMap<Class<? extends X>, \n" + 
+			"		                 Y<?, ? extends XX<?, ?>, ? extends XY>>();\n" + 
+			"\n" + 
+			"	private Map<X.XX<?, XY>, \n" + 
+			"	            X.XY> \n" + 
+			"		m2 = new HashMap<X.XX<?, XY>, \n" + 
+			"		                 X.XY>();\n" + 
+			"\n" + 
+			"	public <T extends X<T, U, V>, \n" + 
+			"	        U extends X.XX<T, V>, \n" + 
+			"	        V extends X.XY> \n" + 
+			"	Y<T, U, V> foo1(final Class<T> p1) {\n" + 
+			"		Y l1 = m1.get(p1);\n" + 
+			"		if (l1 == null) {\n" + 
+			"			l1 = new Y<T, U, V>(this);\n" + 
+			"			m1.put(p1, l1);\n" + 
+			"		}\n" + 
+			"		return l1;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public <TT extends X.XX<?, UU>, \n" + 
+			"	        UU extends X.XY> \n" + 
+			"	void foo2(final TT p1, final UU p2) {\n" + 
+			"		m2.put((XX<?, XY>) p1, p2);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public Map<XX<?, ?>, XY> foo3() {\n" + 
+			"		final Map<XX<?, ?>, \n" + 
+			"		          XY> l1 = new HashMap<XX<?, ?>, \n" + 
+			"		                               XY>();\n" + 
+			"		for (final Y<?, \n" + 
+			"				     ? extends XX<?, ?>, \n" + 
+			"				     ? extends XY> \n" + 
+			"				i : m1.values()) {\n" + 
+			"			i.foo5(l1);\n" + 
+			"		}\n" + 
+			"		return l1;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void foo4(final Object p1, final Map<XX<?, ?>, \n" + 
+			"			                                    XY> p2) {\n" + 
+			"		for (final Y<?, \n" + 
+			"				     ? extends XX<?, ?>, \n" + 
+			"				     ? extends XY> i : m1.values()) {\n" + 
+			"			i.foo6(p2);\n" + 
+			"		}\n" + 
+			"		for (final Map.Entry<XX<?, ?>, \n" + 
+			"				             XY> i : p2.entrySet()) {\n" + 
+			"			final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "p/Y.java\""
+        + " \"" + OUTPUT_DIR +  File.separator + "p/Z.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR + File.separator + "\""
+        + " -proceedOnError -referenceInfo"
+        + " -d \"" + OUTPUT_DIR + "\"",
+        "",
+        "----------\n" + 
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\p\\Z.java\n" + 
+        " (at line 25)\n" + 
+        "	m1.put(p1, l1);\n" + 
+        "	           ^^\n" + 
+        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
+        "----------\n" + 
+        "----------\n" + 
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\p\\Z.java\n" + 
+        " (at line 27)\n" + 
+        "	return l1;\n" + 
+        "	       ^^\n" + 
+        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
+        "----------\n" + 
+        "----------\n" + 
+        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\p\\Z.java\n" + 
+        " (at line 33)\n" + 
+        "	m2.put((XX<?, XY>) p1, p2);\n" + 
+        "	       ^^^^^^^^^^^^^^\n" + 
+        "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
+        "----------\n" + 
+        "----------\n" + 
+        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\p\\Z.java\n" + 
+        " (at line 58)\n" + 
+        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
+        "	                ^^\n" + 
+        "The local variable l1 is never read\n" + 
+        "----------\n" + 
+        "----------\n" + 
+        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---\\p\\Z.java\n" + 
+        " (at line 58)\n" + 
+        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
+        "	                     ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+        "Type safety: The cast from X.XX<capture-of ?,capture-of ?> to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
+        "----------\n" + 
+        "5 problems (5 warnings)",
+        false);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
