@@ -500,4 +500,303 @@ public void test0007(){
 			expectedReplacedSource,
 			"full ast");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0008(){
+	String str =
+		"public enum Test {\n" + 
+		"	A() {\n" + 
+		"	  void foo() {\n" + 
+		"	    zzz\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+		"public enum Test {\n" + 
+		"  A() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    void foo() {\n" + 
+		"      <CompleteOnName:zzz>;\n" + 
+		"    }\n" + 
+		"  },\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0009(){
+	String str =
+		"public enum Test {\n" + 
+		"	B,\n" + 
+		"	A() {\n" + 
+		"	  void foo() {\n" + 
+		"	    zzz\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+		"public enum Test {\n" + 
+		"  B(),\n" + 
+		"  A() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    void foo() {\n" + 
+		"      <CompleteOnName:zzz>;\n" + 
+		"    }\n" + 
+		"  },\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0010(){
+	String str =
+		"public enum Test {\n" + 
+		"	#\n" + 
+		"	B,\n" + 
+		"	A() {\n" + 
+		"	  void foo() {\n" + 
+		"	    zzz\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+		"public enum Test {\n" + 
+		"  B(),\n" + 
+		"  A() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    void foo() {\n" + 
+		"      <CompleteOnName:zzz>;\n" + 
+		"    }\n" + 
+		"  },\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0011(){
+	String str =
+		"public enum Test {\n" + 
+		"	B() {\n" + 
+		"	  void foo() {\n" + 
+		"	  }\n" + 
+		"	},\n" + 
+		"	A() {\n" + 
+		"	  void foo() {\n" + 
+		"	    zzz\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+		"public enum Test {\n" + 
+		"  B() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    void foo() {\n" + 
+		"    }\n" + 
+		"  },\n" + 
+		"  A() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    void foo() {\n" + 
+		"      <CompleteOnName:zzz>;\n" + 
+		"    }\n" + 
+		"  },\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0012(){
+	String str =
+		"public enum Test {\n" + 
+		"	#\n" + 
+		"	B() {\n" + 
+		"	  void foo() {\n" + 
+		"	  }\n" + 
+		"	},\n" + 
+		"	A() {\n" + 
+		"	  void foo() {\n" + 
+		"	    zzz\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+		"public enum Test {\n" + 
+		"  B() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    void foo() {\n" + 
+		"    }\n" + 
+		"  },\n" + 
+		"  A() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    void foo() {\n" + 
+		"      <CompleteOnName:zzz>;\n" + 
+		"    }\n" + 
+		"  },\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
+public void test0013(){
+	String str =
+		"public enum Test {\n" + 
+		"	#\n" + 
+		"	B() {\n" + 
+		"	  void foo() {\n" + 
+		"	    #\n" + 
+		"	  }\n" + 
+		"	},\n" + 
+		"	A() {\n" + 
+		"	  void foo() {\n" + 
+		"	    zzz\n" + 
+		"	  }\n" + 
+		"	}\n" + 
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "zzz";
+	String expectedReplacedSource = "zzz";
+	String expectedUnitDisplayString =
+		"public enum Test {\n" + 
+		"  B() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    void foo() {\n" + 
+		"    }\n" + 
+		"  },\n" + 
+		"  A() {\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"    void foo() {\n" + 
+		"      <CompleteOnName:zzz>;\n" + 
+		"    }\n" + 
+		"  },\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
