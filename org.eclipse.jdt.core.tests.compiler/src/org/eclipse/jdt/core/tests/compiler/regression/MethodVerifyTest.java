@@ -3636,4 +3636,53 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"true");
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90619
+	public void test060() {
+		this.runConformTest(
+			new String[] {
+				"I.java",
+				"import java.util.Iterator;\n" +
+				"public interface I {\n" +
+				"	void method(Iterator<Object> iter);\n" +
+				"	public static class TestClass implements I {\n" +
+				"		public void method(Iterator iter) {}\n" +
+				"	}\n" +
+				"}"
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"I2.java",
+				"import java.util.Iterator;\n" +
+				"public interface I2 {\n" +
+				"	void method(Iterator<Object>[] iter);\n" +
+				"	public static class TestClass implements I2 {\n" +
+				"		public void method(Iterator[] iter) {}\n" +
+				"	}\n" +
+				"}"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"I3.java",
+				"import java.util.Iterator;\n" +
+				"public interface I3 {\n" +
+				"	void method(Iterator<Object>[] iter);\n" +
+				"	public static class TestClass implements I3 {\n" +
+				"		public void method(Iterator[][] iter) {}\n" +
+				"	}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in I3.java (at line 4)\r\n" + 
+			"	public static class TestClass implements I3 {\r\n" + 
+			"	                    ^^^^^^^^^\n" + 
+			"The type I3.TestClass must implement the inherited abstract method I3.method(Iterator<Object>[])\n" + 
+			"----------\n"
+			// does not override abstract method method(java.util.Iterator<java.lang.Object>[]) in I3
+		);
+	}
 }

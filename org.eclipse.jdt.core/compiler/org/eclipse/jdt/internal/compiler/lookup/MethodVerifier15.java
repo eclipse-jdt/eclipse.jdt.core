@@ -31,8 +31,9 @@ boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	for (int i = 0; i < length; i++) {
 		if (!areTypesEqual(oneArgs[i], twoArgs[i])) {
 			// methods with raw parameters are considered equal to inherited methods with parameterized parameters for backwards compatibility
-			if (oneArgs[i].isRawType() && !one.declaringClass.isInterface() && oneArgs[i].isEquivalentTo(twoArgs[i]))
-				continue;
+			if (!one.declaringClass.isInterface() && oneArgs[i].leafComponentType().isRawType())
+				if (oneArgs[i].dimensions() == twoArgs[i].dimensions() && oneArgs[i].leafComponentType().isEquivalentTo(twoArgs[i].leafComponentType()))
+					continue;
 			return false;
 		}
 	}
