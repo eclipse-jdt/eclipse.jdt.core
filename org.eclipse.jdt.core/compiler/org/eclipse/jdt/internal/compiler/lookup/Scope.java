@@ -2953,7 +2953,7 @@ public abstract class Scope
 		} else if (firstType.isArrayType()) {
 			superLength = 4;
 			if (firstType.erasure() != firstType) {
-				ArrayList someInvocations = new ArrayList(1);
+				Set someInvocations = new HashSet(1);
 				someInvocations.add(firstType);
 				allInvocations.put(firstType.erasure(), someInvocations);
 			}
@@ -3070,16 +3070,18 @@ public abstract class Scope
 		// eliminate non minimal super types
 		if (remaining > 1) {
 			nextType: for (int i = 0; i < superLength; i++) {
-				ReferenceBinding erasedSuperType = (ReferenceBinding)erasedSuperTypes[i];
+				TypeBinding erasedSuperType = erasedSuperTypes[i];
 				if (erasedSuperType == null) continue nextType;
 				nextOtherType: for (int j = 0; j < superLength; j++) {
 					if (i == j) continue nextOtherType;
-					ReferenceBinding otherType = (ReferenceBinding)erasedSuperTypes[j];
+					TypeBinding otherType = erasedSuperTypes[j];
 					if (otherType == null) continue nextOtherType;
 					if (otherType.id == T_JavaLangObject && erasedSuperType.isInterface()) continue nextOtherType;
-					if (erasedSuperType.findSuperTypeWithSameErasure(otherType) != null) {
-						erasedSuperTypes[j] = null; // discard non minimal supertype
-						remaining--;
+					if (erasedSuperType instanceof ReferenceBinding) {
+						if (((ReferenceBinding)erasedSuperType).findSuperTypeWithSameErasure(otherType) != null) {
+							erasedSuperTypes[j] = null; // discard non minimal supertype
+							remaining--;
+						}
 					}
 				}
 			}

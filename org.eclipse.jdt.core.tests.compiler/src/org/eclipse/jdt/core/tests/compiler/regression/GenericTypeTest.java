@@ -20942,4 +20942,29 @@ public void test724() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98500
+public void test725() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class AbsC {\n" + 
+			"	public <T> T[] resize(T[] src, T[] dest) {\n" + 
+			"		return dest;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class ConrC<T> extends AbsC {\n" + 
+			"	T[][] data;\n" + 
+			"	protected void allocateChunkSlots(int maxChunkNo) {\n" + 
+			"		data = resize(data, new Object[maxChunkNo][]);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	data = resize(data, new Object[maxChunkNo][]);\n" + 
+		"	       ^^^^^^\n" + 
+		"The method resize(T[], T[]) in the type AbsC is not applicable for the arguments (T[][], Object[][])\n" + 
+		"----------\n");
+}
 }
