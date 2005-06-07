@@ -325,7 +325,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 	} else {
 		System.arraycopy(typeVariables, 0, arguments, 0, length);
 		for (int i = length; i < inheritedLength; i++)
-			arguments[i] = inheritedTypeVariables[i].erasure();
+			arguments[i] = inheritedTypeVariables[i].upperBound();
 	}
 	ParameterizedGenericMethodBinding substitute =
 		new ParameterizedGenericMethodBinding(inheritedMethod, arguments, this.environment);
