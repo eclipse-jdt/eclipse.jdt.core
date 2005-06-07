@@ -20880,4 +20880,20 @@ public void test721() {
 	        false,
 	        null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98364 - variation
+public void test722() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I1<T1> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface I2<T2> extends I1<T2> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X<U1> implements I1<U1>, I2<U1> {\n" + 
+			"}\n",
+		},
+		"");
+}
 }
