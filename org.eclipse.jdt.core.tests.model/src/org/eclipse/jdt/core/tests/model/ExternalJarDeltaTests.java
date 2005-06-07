@@ -272,13 +272,12 @@ public void testExternalJarChanged5() throws CoreException, IOException {
 public void testExternalJarChanged6() throws CoreException, IOException {
 	File f = null;
 	try {
-		IJavaProject project = this.createJavaProject("P", new String[] {""}, "");
-		
 		String pPath = getExternalPath() + "p.jar";
-		setClasspath(project, new IClasspathEntry[]{JavaCore.newLibraryEntry(new Path(pPath), null, null)});
-		
 		f = new File(pPath);
 		f.createNewFile();
+		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB", pPath}, "");
+		createFile("/P/X.java", "public class X{}");
+		getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		getJavaModel().refreshExternalArchives(null,null);
 		waitUntilIndexesReady();
 		
