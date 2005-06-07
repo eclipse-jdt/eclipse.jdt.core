@@ -2946,7 +2946,7 @@ public abstract class Scope
 		// record all supertypes of type
 		// intersect with all supertypes of otherType
 		TypeBinding firstType = types[indexOfFirst];
-		TypeBinding[] superTypes;
+		TypeBinding[] erasedSuperTypes;
 		int superLength;
 		if (firstType.isBaseType()) {
 			return null; 
@@ -2957,7 +2957,7 @@ public abstract class Scope
 				someInvocations.add(firstType);
 				allInvocations.put(firstType.erasure(), someInvocations);
 			}
-			superTypes = new TypeBinding[] { // inject well-known array supertypes
+			erasedSuperTypes = new TypeBinding[] { // inject well-known array supertypes
 					firstType.erasure(), 
 					getJavaIoSerializable(),
 					getJavaLangCloneable(),
@@ -2971,7 +2971,7 @@ public abstract class Scope
 				someInvocations.add(firstType);
 				allInvocations.put(firstErasure, someInvocations);
 			}
-			typesToVisit.add(firstErasure);
+			typesToVisit.add(firstType);
 			int max = 1;
 			if (firstErasure.isArrayType()) {
 				typesToVisit.add(getJavaIoSerializable());
@@ -2995,7 +2995,7 @@ public abstract class Scope
 							someInvocations.add(itsInterface);
 							allInvocations.put(itsInterfaceErasure, someInvocations);
 						}						
-						typesToVisit.add(itsInterfaceErasure);
+						typesToVisit.add(itsInterface);
 						max++;
 					}
 				}
@@ -3008,14 +3008,17 @@ public abstract class Scope
 							someInvocations.add(itsSuperclass);
 							allInvocations.put(itsSuperclassErasure, someInvocations);
 						}
-						typesToVisit.add(itsSuperclassErasure);
+						typesToVisit.add(itsSuperclass);
 						max++;
 					}
 				}
 			}
 			superLength = typesToVisit.size();
-			superTypes = new TypeBinding[superLength];
-			typesToVisit.toArray(superTypes);
+			erasedSuperTypes = new TypeBinding[superLength];
+			int rank = 0;
+			for (Iterator iter = typesToVisit.iterator(); iter.hasNext();) {
+				erasedSuperTypes[rank++] = ((TypeBinding)iter.next()).erasure();
+			}
 		}
 		// intersecting first type supertypes with other types' ones, nullifying non matching supertypes
 		int remaining = superLength;
@@ -3024,15 +3027,15 @@ public abstract class Scope
 			if (otherType == null) continue nextOtherType;
 			if (otherType.isArrayType()) {
 				nextSuperType: for (int j = 0; j < superLength; j++) {
-					TypeBinding superType = superTypes[j];
-					if (superType == null || superType == otherType) continue nextSuperType;
-					switch (superType.id) {
+					TypeBinding erasedSuperType = erasedSuperTypes[j];
+					if (erasedSuperType == null || erasedSuperType == otherType) continue nextSuperType;
+					switch (erasedSuperType.id) {
 						case T_JavaIoSerializable :
 						case T_JavaLangCloneable :
 						case T_JavaLangObject :
 							continue nextSuperType;
 					}
-					superTypes[j] = null;
+					erasedSuperTypes[j] = null;
 					if (--remaining == 0) return null;
 					
 				}
@@ -3040,48 +3043,48 @@ public abstract class Scope
 			}
 			ReferenceBinding otherRefType = (ReferenceBinding) otherType;
 			nextSuperType: for (int j = 0; j < superLength; j++) {
-				TypeBinding superType = superTypes[j];
-				if (superType == null) continue nextSuperType;
+				TypeBinding erasedSuperType = erasedSuperTypes[j];
+				if (erasedSuperType == null) continue nextSuperType;
 				TypeBinding match;
-				if (superType == otherType || superType.id == T_JavaLangObject && otherType.isInterface()) {
-					match = superType;
+				if (erasedSuperType == otherType || erasedSuperType.id == T_JavaLangObject && otherType.isInterface()) {
+					match = erasedSuperType;
 				} else {
-					if (superType.isArrayType()) {
+					if (erasedSuperType.isArrayType()) {
 						match = null;
 					} else {
-						match = otherRefType.findSuperTypeWithSameErasure(superType);
+						match = otherRefType.findSuperTypeWithSameErasure(erasedSuperType);
 					}
 					if (match == null) { // incompatible super type
-						superTypes[j] = null;
+						erasedSuperTypes[j] = null;
 						if (--remaining == 0) return null;
 						continue nextSuperType;
 					}
 				}
 				// record invocation
-				Set someInvocations = (Set) allInvocations.get(superType);
+				Set someInvocations = (Set) allInvocations.get(erasedSuperType);
 				if (someInvocations == null) someInvocations = new HashSet(1);
 				someInvocations.add(match);
-				allInvocations.put(superType, someInvocations);
+				allInvocations.put(erasedSuperType, someInvocations);
 			}				
 		}
 		// eliminate non minimal super types
 		if (remaining > 1) {
 			nextType: for (int i = 0; i < superLength; i++) {
-				ReferenceBinding superType = (ReferenceBinding)superTypes[i];
-				if (superType == null) continue nextType;
+				ReferenceBinding erasedSuperType = (ReferenceBinding)erasedSuperTypes[i];
+				if (erasedSuperType == null) continue nextType;
 				nextOtherType: for (int j = 0; j < superLength; j++) {
 					if (i == j) continue nextOtherType;
-					ReferenceBinding otherType = (ReferenceBinding)superTypes[j];
+					ReferenceBinding otherType = (ReferenceBinding)erasedSuperTypes[j];
 					if (otherType == null) continue nextOtherType;
-					if (otherType.id == T_JavaLangObject && superType.isInterface()) continue nextOtherType;
-					if (superType.findSuperTypeWithSameErasure(otherType) != null) {
-						superTypes[j] = null; // discard non minimal supertype
+					if (otherType.id == T_JavaLangObject && erasedSuperType.isInterface()) continue nextOtherType;
+					if (erasedSuperType.findSuperTypeWithSameErasure(otherType) != null) {
+						erasedSuperTypes[j] = null; // discard non minimal supertype
 						remaining--;
 					}
 				}
 			}
 		}
-		return superTypes;
+		return erasedSuperTypes;
 	}
 	
 	// Internal use only
