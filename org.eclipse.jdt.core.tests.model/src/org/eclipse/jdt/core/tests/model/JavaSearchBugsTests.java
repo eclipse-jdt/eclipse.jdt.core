@@ -45,7 +45,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug75816";
 //		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
-//		TESTS_NUMBERS = new int[] { 97322 };
+//		TESTS_NUMBERS = new int[] { 97087 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -3317,6 +3317,34 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		TestCollector referencesCollector = new TestCollector();
 		search(field, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
 		assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
+	}
+
+	/**
+	 * Bug 97087: [1.5][search] Can't find reference of generic class's constructor.
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97087"
+	 */
+	public void testBug97087() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		this.resultCollector.showRule = true;
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97087/Bug.java",
+			"package b97087;\n" + 
+			"public class Bug<Type> {\n" + 
+			"    Bug(){}\n" + 
+			"}\n" + 
+			"class Foo extends Bug<String>{\n" + 
+			"    Foo(){}\n" + 
+			"}\n" +
+			"class Bar extends Bug<Exception>{\n" + 
+			"    Bar(){super();}\n" + 
+			"}"
+		);
+		IType type = workingCopies[0].getType("Bug");
+		IMethod method= type.getMethods()[0];
+		search(method, REFERENCES, SearchPattern.R_ERASURE_MATCH);
+		assertSearchResults(
+			"src/b97087/Bug.java b97087.Foo() [Foo] EXACT_MATCH\n" + 
+			"src/b97087/Bug.java b97087.Bar() [super()] ERASURE_MATCH"
+		);
 	}
 
 	/**
