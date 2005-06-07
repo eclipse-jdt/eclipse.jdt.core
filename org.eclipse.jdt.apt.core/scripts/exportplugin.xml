@@ -7,13 +7,14 @@
  The directory structure assumed by this script is as follows:
     [dev root]/
         [workspace]/
-            org.eclipse.jdt.apt.core/
-                bin/
-                src/
-                scripts/          // contains this script
-        plugin-export/            // will be created if necessary
-            org.eclipse.jdt.apt.core_[version]/
-        org.eclipse.jdt.apt.core_[version].zip
+            [plugins]/
+                org.eclipse.jdt.apt.core/
+                    bin/
+                    src/
+                    scripts/          // contains this script
+            plugin-export/            // will be created if necessary
+                org.eclipse.jdt.apt.core_[version]/
+            org.eclipse.jdt.apt.core_[version].zip  // will be created
         
 -->
 
@@ -37,20 +38,17 @@
 	<delete dir="${plugin-dir}" />
 	<mkdir dir="${plugin-dir}" />
 
-	<echo message="UPDATE aptcore.jar" />
-	<jar 
-		jarfile="${plugin-dir}/aptcore.jar"
-		basedir="bin"
-		/>
-		
-	<echo message="UPDATE plugin.xml" />
-	<copy file="plugin.xml" todir="${plugin-dir}" />
-	<!-- echo message="UPDATE plugin.properties" / -->
-	<!-- copy file="plugin.properties" todir="${plugin-dir}" / -->
-
-	<!-- echo message="UPDATE about.html" / -->
-	<!-- copy file="about.html" todir="${plugin-dir}" / -->
-
+	<echo message="UPDATE ${plugin}_${plugin_version}.jar" />
+	<zip zipfile="${plugin-dir}/${plugin}_${plugin_version}.jar">
+		<fileset dir=".">
+		  <!-- include name="tools.jar" / -->
+		  <include name="plugin.xml" />
+		  <include name="plugin.properties" />
+		  <include name="META-INF/**" />
+        </fileset>
+        <fileset dir="bin" />
+	</zip>
+	
 	<echo message="UPDATE aptcoresrc.zip" />
 	<zip zipfile="${plugin-dir}/aptcoresrc.zip">
 	    <fileset dir="src" />
