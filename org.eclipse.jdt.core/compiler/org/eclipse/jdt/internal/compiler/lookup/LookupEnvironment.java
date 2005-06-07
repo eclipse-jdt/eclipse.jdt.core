@@ -881,7 +881,11 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 	// type must be a ReferenceBinding at this point, cannot be a BaseTypeBinding or ArrayTypeBinding
 	ReferenceBinding actualType = (ReferenceBinding) type;
 	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, actualType);
-	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, null);
+	ReferenceBinding actualEnclosing = actualType.enclosingType();
+	if (actualEnclosing != null) { // convert needed if read some static member type
+		actualEnclosing = (ReferenceBinding) convertToRawType(actualEnclosing);
+	}
+	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, actualEnclosing);
 
 	while (wrapper.signature[wrapper.start] == '.') {
 		wrapper.start++; // skip '.'
