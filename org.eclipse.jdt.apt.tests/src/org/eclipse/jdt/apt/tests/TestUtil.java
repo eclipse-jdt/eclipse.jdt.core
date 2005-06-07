@@ -13,34 +13,31 @@
 
 package org.eclipse.jdt.apt.tests;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.eclipse.core.internal.localstore.FileSystemResourceManager;
-import org.eclipse.core.internal.resources.Workspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
-import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.ClasspathEntry;
 
 public class TestUtil
 {
@@ -59,7 +56,7 @@ public class TestUtil
 		String classesJarPath = jarFile.getAbsolutePath();
 		TestUtil.createAnnotationJar( classesJarPath );
 		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/, 
-			null /*srcAttachmentPathRoot*/, null /*accessibleFiles*/, null/*nonAccessibleFiles*/, true );
+			null /*srcAttachmentPathRoot*/, true );
 		return new File(classesJarPath);
 	}
 	
@@ -99,10 +96,7 @@ public class TestUtil
 
 	public static IPath getProjectPath( IJavaProject project )
 	{
-		Workspace workspace = (Workspace)ResourcesPlugin.getWorkspace();
-		FileSystemResourceManager fileSystemMgr = workspace.getFileSystemManager();
-		IPath p = fileSystemMgr.locationFor( project.getResource() );
-		return p;
+		return project.getResource().getLocation();
 	}
 	
 	
@@ -167,13 +161,36 @@ public class TestUtil
 						path = path.substring( rootPathLength );
 						ZipEntry entry = new ZipEntry( path.replace( '\\', '/' ) );
 						zip.putNextEntry( entry );
-						zip.write( org.eclipse.jdt.internal.compiler.util.Util
-							.getFileByteContent( file ) );
+						zip.write( getBytesFromFile( file ) );
 						zip.closeEntry();
 					}
 				}
 			}
 		}
+	}
+	
+	private static byte[] getBytesFromFile( File f )
+		throws IOException
+	{
+		FileInputStream fis = null;
+		ByteArrayOutputStream baos = null;
+		byte[] rtrn = new byte[0]; 
+		try
+		{
+			fis = new FileInputStream( f );
+			baos = new ByteArrayOutputStream();
+			int b;
+			while ( ( b = fis.read() ) != -1)
+				baos.write( b );
+			rtrn = baos.toByteArray();
+		}
+		finally
+		{
+			if ( fis != null ) fis.close();
+			if ( baos != null ) baos.close();
+		}
+		return rtrn;
+	
 	}
 	
 	public static void unzip (File srcZip, File destDir) throws IOException {
@@ -237,7 +254,7 @@ public class TestUtil
 	
 	
 
-	public static void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, IPath[] accessibleFiles, IPath[] nonAccessibleFiles, boolean exported) throws JavaModelException{
+	public static void addLibraryEntry(IJavaProject project, IPath path, IPath srcAttachmentPath, IPath srcAttachmentPathRoot, boolean exported) throws JavaModelException{
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
 		System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 1], 1, length);
@@ -245,8 +262,6 @@ public class TestUtil
 			path, 
 			srcAttachmentPath, 
 			srcAttachmentPathRoot, 
-			ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles), 
-			new IClasspathAttribute[0], 
 			exported);
 		project.setRawClasspath(entries, null);
 	}
