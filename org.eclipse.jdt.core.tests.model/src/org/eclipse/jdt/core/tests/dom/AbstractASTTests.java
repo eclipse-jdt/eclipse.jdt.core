@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
@@ -408,6 +409,8 @@ public class AbstractASTTests extends ModifyingResourceTests {
 				return ((ArrayType) node).resolveBinding();
 			case ASTNode.ASSIGNMENT:
 				return ((Assignment) node).getRightHandSide().resolveTypeBinding();
+			case ASTNode.SIMPLE_TYPE:
+				return ((SimpleType) node).resolveBinding();
 			default:
 				throw new Error("Not yet implemented for this type of node: " + node);
 		}

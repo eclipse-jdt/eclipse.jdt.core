@@ -90,7 +90,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test067" };
+//		TESTS_NAMES = new String[] { "test069" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -209,7 +209,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
 			copies = createWorkingCopies(markerInfos, this.owner);
 			BindingResolver resolver = new BindingResolver(markerInfos);
-			resolveASTs(copies, expectedKeys == null ? new String[0] : expectedKeys, resolver, getJavaProject("P"), this.owner);
+			resolveASTs(copies, expectedKeys == null ? new String[0] : expectedKeys, resolver, copies.length > 0 ? copies[0].getJavaProject() : getJavaProject("P"), this.owner);
 			return resolver;
 		} finally {
 			discardWorkingCopies(copies);
@@ -1495,6 +1495,41 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"Lp1/X<>;",
 			bindings.length == 0 ? null : bindings[0].getDeclaringClass()
 		);
+	}
+
+	/*
+	 * Ensures that a raw member type can be created using its key in batch creation.
+	 */
+	public void test068() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+			addLibrary(project, "lib.jar", "src.zip", new String[] {
+				"/P1/p/X.java",
+				"package p;\n" +
+				"public class X<K, V> {\n" +
+				"  public static class Member<K1, V1> {\n" +
+				"  }\n" +
+				"}",
+				"/P1/p/Y.java",
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo(X.Member x) {\n" +
+				"  }\n" +
+				"}",
+			}, "1.5");
+			assertRequestedBindingFound(
+				new String[] {
+					"/P1/p1/Z.java",
+					"package p1;\n" +
+					"public class Z extends p.Y {\n" +
+					"  /*start*/p.X.Member/*end*/ field;\n" +
+					"}"
+				}, 
+				"Lp/X$Member<>;"
+			);
+		} finally {
+			deleteProject("P1");
+		}
 	}
 
 }
