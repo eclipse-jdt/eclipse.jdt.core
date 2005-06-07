@@ -20896,4 +20896,50 @@ public void test722() {
 		},
 		"");
 }
+public void test723() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface IA<E> {}\n" + 
+			"interface IB<E> extends IA<E> {}\n" + 
+			"class A<E> implements IA<E> {}\n" + 
+			"class B<E> implements IB<E> {}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		A<Integer> x = new A<Integer>();\n" + 
+			"		B<Integer> y = new B<Integer>();\n" + 
+			"		print(x);\n" + 
+			"		print(y);\n" + 
+			"	}\n" + 
+			"	public static <T extends IA<?>> void print(T a) {\n" + 
+			"		System.out.print(\"A\");\n" + 
+			"	}\n" + 
+			"	public static <T extends IB<?>> void print(T a) {\n" + 
+			"		System.out.println(\"B\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"AB");
+}
+public void test724() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.HashMap;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		HashMap<Byte, Byte> subst = new HashMap<Byte, Byte>();\n" + 
+			"		subst.put((byte)1, (byte)1);\n" + 
+			"		if (1 + subst.get((byte)1) > 0.f) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}		\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
 }
