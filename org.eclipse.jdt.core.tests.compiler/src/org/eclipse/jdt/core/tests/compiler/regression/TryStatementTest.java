@@ -984,7 +984,105 @@ public void test027() {
 		assertTrue(false);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98892
+public void test028() {
 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"    	try {\n" + 
+			"	        new X().start();\n" + 
+			"    	} catch(Exception e) {\n" + 
+			"            System.out.println(\"SUCCESS\");\n" + 
+			"    	}\n" + 
+			"    }\n" + 
+			"    public Object start() {\n" + 
+			"        try {\n" + 
+			"            return null;\n" + 
+			"        } finally {\n" + 
+			"            System.out.print(\"ONCE:\");\n" + 
+			"            foo();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private void foo() {\n" + 
+			"        throw new IllegalStateException(\"Gah!\");\n" + 
+			"    }        \n" + 
+			"}\n",
+		},
+		"ONCE:SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98892 - variation
+public void test029() {
+
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"    	try {\n" + 
+			"	        new X().start();\n" + 
+			"    	} catch(Exception e) {\n" + 
+			"            System.out.println(\"SUCCESS\");\n" + 
+			"    	}\n" + 
+			"    }\n" + 
+			"    public Object start() {\n" + 
+			"        try {\n" + 
+			"            return null;\n" + 
+			"        } finally {\n" + 
+			"            System.out.print(\"ONCE:\");\n" + 
+			"            foo();\n" + 
+			"            return this;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private void foo() {\n" + 
+			"        throw new IllegalStateException(\"Gah!\");\n" + 
+			"    }        \n" + 
+			"}\n",
+		},
+		"ONCE:SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98892 - variation
+public void test030() {
+
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"    	try {\n" + 
+			"	        new X().start();\n" + 
+			"    	} catch(Exception e) {\n" + 
+			"            System.out.println(\"SUCCESS\");\n" + 
+			"    	}\n" + 
+			"    }\n" + 
+			"    public Object start() {\n" + 
+			"        try {\n" + 
+			"            Object o = null;\n" + 
+			"            o.toString();\n" + 
+			"            return null;\n" + 
+			"        } catch(Exception e) {\n" + 
+			"            System.out.print(\"EXCEPTION:\");\n" + 
+			"			return e;        	\n" + 
+			"        } finally {\n" + 
+			"            System.out.print(\"ONCE:\");\n" + 
+			"            foo();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private void foo() {\n" + 
+			"        throw new IllegalStateException(\"Gah!\");\n" + 
+			"    }        \n" + 
+			"}\n",
+		},
+		"EXCEPTION:ONCE:SUCCESS");
+}
 public static Class testClass() {
 	return TryStatementTest.class;
 }

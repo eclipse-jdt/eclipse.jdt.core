@@ -411,9 +411,11 @@ public class TryStatement extends SubRoutineStatement {
 		if (this.isSubRoutineEscaping) {
 				codeStream.goto_(this.subRoutineStartLabel);
 		} else {
-			if (currentScope.compilerOptions().inlineJsrBytecode) { 
+			if (currentScope.compilerOptions().inlineJsrBytecode) {
 				// cannot use jsr bytecode, then simply inline the subroutine
+				this.exitAnyExceptionHandler();				
 				this.finallyBlock.generateCode(currentScope, codeStream);
+				this.enterAnyExceptionHandler(codeStream);
 			} else {
 				// classic subroutine invocation, distinguish case of non-returning subroutine
 				codeStream.jsr(this.subRoutineStartLabel);
