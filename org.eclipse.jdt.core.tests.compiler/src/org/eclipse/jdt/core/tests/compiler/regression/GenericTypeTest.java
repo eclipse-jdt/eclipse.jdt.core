@@ -20287,7 +20287,7 @@ public void test702() {
 			"		lhs = rhs; // 0\n" + 
 			"	}\n" + 
 			"	void foo1(X<X<?>> lhs, X<X<? extends Object>> rhs) {\n" + 
-			"		lhs = rhs; // 1\n" + 
+			"		lhs = rhs; // 1\n" + // TODO (philippe) should be ok using capture rules for equivalence
 			"	}\n" + 
 			"	void foo2(X<X<? extends Cloneable>> lhs, X<X<? extends Object>> rhs) {\n" + 
 			"		lhs = rhs; // 2\n" + 
@@ -21111,6 +21111,40 @@ public void test729() {
 		"	class Y extends X implements I<X> {}\n" + 
 		"	                               ^\n" + 
 		"Bound mismatch: The type X is not a valid substitute for the bounded parameter <T extends I<? super T>> of the type I<T>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90437
+public void test730() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"    Zork z;\n" +
+			"    public interface SuperInterface<A> {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public interface SubInterface extends SuperInterface<String> {\n" + 
+			"        public String getString();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private SuperInterface< ? extends SuperInterface> x = null;\n" + 
+			"\n" + 
+			"    public void f() {\n" + 
+			"        ((SubInterface) this.x).getString();\n" + 
+			"    }\n" + 
+			"}\n"	
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 14)\n" + 
+		"	((SubInterface) this.x).getString();\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from X.SuperInterface<capture-of ? extends X.SuperInterface> to X.SubInterface is actually checking against the erased type X.SubInterface\n" + 
 		"----------\n");
 }
 }
