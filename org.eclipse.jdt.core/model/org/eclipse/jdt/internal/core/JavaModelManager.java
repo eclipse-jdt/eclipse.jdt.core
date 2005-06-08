@@ -1783,11 +1783,16 @@ public class JavaModelManager implements ISaveParticipant {
 					String varName = propertyName.substring(variablePrefixLength);
 					String propertyValue = preferences.get(propertyName, null);
 					if (propertyValue != null) {
-						// cleanup old preferences
-						preferences.remove(propertyName); 
+						String pathString = propertyValue.trim();
+						
+						if (CP_ENTRY_IGNORE.equals(pathString)) {
+							// cleanup old preferences
+							preferences.remove(propertyName); 
+							continue;
+						}
 						
 						// add variable to table
-						IPath varPath = new Path(propertyValue.trim());
+						IPath varPath = new Path(pathString);
 						this.variables.put(varName, varPath); 
 						this.previousSessionVariables.put(varName, varPath);
 					}
@@ -2729,8 +2734,10 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	
 		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
-		String variableString = variablePath == null ? CP_ENTRY_IGNORE : variablePath.toString();
-		getInstancePreferences().put(variableKey, variableString);
+		if (variablePath == null)
+			getInstancePreferences().remove(variableKey);
+		else
+			getInstancePreferences().put(variableKey, variablePath.toString());
 		try {
 			getInstancePreferences().flush();
 		} catch (BackingStoreException e) {
