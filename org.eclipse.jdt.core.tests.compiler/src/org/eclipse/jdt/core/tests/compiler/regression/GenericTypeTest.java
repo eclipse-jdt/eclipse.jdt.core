@@ -21089,4 +21089,28 @@ public void test728() {
 		"The method foobar(X<String>) in the type X<E> is not applicable for the arguments (?)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=96586
+public void test729() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements I<Y> {}\n" + 
+			"interface I<T> {}\n" + 
+			"class Y extends X implements I<Y> {}\n"			
+		},
+		"");
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X implements I<Y> {}\n" + 
+			"interface I<T extends I<? super T>> {}\n" + 
+			"class Y extends X implements I<X> {}\n"			
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	class Y extends X implements I<X> {}\n" + 
+		"	                               ^\n" + 
+		"Bound mismatch: The type X is not a valid substitute for the bounded parameter <T extends I<? super T>> of the type I<T>\n" + 
+		"----------\n");
+}
 }

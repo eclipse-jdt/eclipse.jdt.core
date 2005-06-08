@@ -1050,7 +1050,8 @@ public class ClassScope extends Scope {
 		}
 
 		if (superType.isHierarchyBeingConnected()) {
-			if (((SourceTypeBinding) superType).scope.superTypeReference != null) { // if null then its connecting its type variables
+			org.eclipse.jdt.internal.compiler.ast.TypeReference ref = ((SourceTypeBinding) superType).scope.superTypeReference;
+			if (ref != null && ref.resolvedType != null && ((ReferenceBinding) ref.resolvedType).isHierarchyBeingConnected()) { // if null then its connecting its type variables
 				problemReporter().hierarchyCircularity(sourceType, superType, reference);
 				sourceType.tagBits |= HierarchyHasProblems;
 				superType.tagBits |= HierarchyHasProblems;
