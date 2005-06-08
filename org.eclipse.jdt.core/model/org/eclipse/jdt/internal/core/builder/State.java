@@ -197,10 +197,10 @@ void removeQualifiedTypeName(String qualifiedTypeNameToRemove) {
 
 static State read(IProject project, DataInputStream in) throws IOException {
 	if (JavaBuilder.DEBUG)
-		System.out.println("About to read state..."); //$NON-NLS-1$
+		System.out.println("About to read state " + project.getName()); //$NON-NLS-1$
 	if (VERSION != in.readByte()) {
 		if (JavaBuilder.DEBUG)
-			System.out.println("Found non-compatible state version... answered null"); //$NON-NLS-1$
+			System.out.println("Found non-compatible state version... answered null for " + project.getName()); //$NON-NLS-1$
 		return null;
 	}
 
