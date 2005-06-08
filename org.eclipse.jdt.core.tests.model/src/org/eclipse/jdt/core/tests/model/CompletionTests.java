@@ -172,34 +172,63 @@ public void testCompletionFindClassDefaultPackage() throws JavaModelException {
  * Complete the constructor "CompletionFindConstructor" from "new CompletionFindConstructor(".
  */
 public void testCompletionFindConstructor() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindConstructor.java");
+	this.wc = getWorkingCopy(
+            "/Completion/src/CompletionFindConstructor.java",
+            "public class CompletionFindConstructor {\n"+
+            "	public CompletionFindConstructor (int i) {\n"+
+            "	}\n"+
+            "	publuc void foo(){\n"+
+            "		int x = 45;\n"+
+            "		new CompletionFindConstructor(i);\n"+
+            "	}\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    
+    String str = this.wc.getSource();
+    String completeBehind = "CompletionFindConstructor(";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
 
-	String str = cu.getSource();
-	String completeBehind = "CompletionFindConstructor(";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	assertEquals(
-		"should have two constructor (a constructor and an anonymous type)", 
-		"element:CompletionFindConstructor    completion:)    relevance:"+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"\n" +
-		"element:CompletionFindConstructor    completion:)    relevance:"+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED),
-		requestor.getResults());
+    assertResults(
+            "expectedTypesSignatures=null\n"+
+            "expectedTypesKeys=null",
+            requestor.getContext());
+    
+   assertResults(
+			"CompletionFindConstructor[ANONYMOUS_CLASS_DECLARATION]{), LCompletionFindConstructor;, (I)V, null, (i), "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
+			"CompletionFindConstructor[METHOD_REF<CONSTRUCTOR>]{), LCompletionFindConstructor;, (I)V, CompletionFindConstructor, (i), "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}",
+			requestor.getResults());
 }
 
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78801
  */
 public void testCompletionFindConstructor2() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindConstructor2.java");
+	this.wc = getWorkingCopy(
+            "/Completion/src/CompletionFindConstructor2.java",
+            "import zconstructors.*;\n"+
+            "public class CompletionFindConstructor2 {\n"+
+            "	Constructor2 c = new Constructor2();\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    
+    String str = this.wc.getSource();
+    String completeBehind = "Constructor2(";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
 
-	String str = cu.getSource();
-	String completeBehind = "Constructor2(";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	assertEquals(
+    assertResults(
+            "expectedTypesSignatures=null\n"+
+            "expectedTypesKeys=null",
+            requestor.getContext());
+    
+    assertEquals(
 			"Constructor2[ANONYMOUS_CLASS_DECLARATION]{, Lzconstructors.Constructor2;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Constructor2[METHOD_REF]{, Lzconstructors.Constructor2;, ()V, Constructor2, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			"Constructor2[METHOD_REF<CONSTRUCTOR>]{, Lzconstructors.Constructor2;, ()V, Constructor2, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
@@ -207,48 +236,87 @@ public void testCompletionFindConstructor2() throws JavaModelException {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78801
  */
 public void testCompletionFindConstructor3() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindConstructor3.java");
+	this.wc = getWorkingCopy(
+            "/Completion/src/CompletionFindConstructor3.java",
+            "import zconstructors.*;\n"+
+            "public class CompletionFindConstructor3 {\n"+
+            "	Constructor3 c = new Constructor3();\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    
+    String str = this.wc.getSource();
+    String completeBehind = "Constructor3(";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
 
-	String str = cu.getSource();
-	String completeBehind = "Constructor3(";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-	assertEquals(
+    assertResults(
+            "expectedTypesSignatures=null\n"+
+            "expectedTypesKeys=null",
+            requestor.getContext());
+    
+    assertEquals(
 			"Constructor3[ANONYMOUS_CLASS_DECLARATION]{, Lzconstructors.Constructor3;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Constructor3[METHOD_REF]{, Lzconstructors.Constructor3;, ()V, Constructor3, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			"Constructor3[METHOD_REF<CONSTRUCTOR>]{, Lzconstructors.Constructor3;, ()V, Constructor3, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78801
  */
 public void testCompletionFindConstructor4() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindConstructor4.java");
+	this.wc = getWorkingCopy(
+            "/Completion/src/CompletionFindConstructor4.java",
+            "import zconstructors.*;\n"+
+            "public class CompletionFindConstructor4 {\n"+
+            "	Constructor4 c = new Constructor4();\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    
+    String str = this.wc.getSource();
+    String completeBehind = "Constructor4(";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
 
-	String str = cu.getSource();
-	String completeBehind = "Constructor4(";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+    assertResults(
+            "expectedTypesSignatures=null\n"+
+            "expectedTypesKeys=null",
+            requestor.getContext());
+    
 	assertEquals(
 			"Constructor4[ANONYMOUS_CLASS_DECLARATION]{, Lzconstructors.Constructor4;, (I)V, null, (i), " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Constructor4[METHOD_REF]{, Lzconstructors.Constructor4;, (I)V, Constructor4, (i), " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			"Constructor4[METHOD_REF<CONSTRUCTOR>]{, Lzconstructors.Constructor4;, (I)V, Constructor4, (i), " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=78801
  */
 public void testCompletionFindConstructor5() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindConstructor5.java");
+	this.wc = getWorkingCopy(
+            "/Completion/src/CompletionFindConstructor5.java",
+            "import zconstructors.*;\n"+
+            "public class CompletionFindConstructor5 {\n"+
+            "	Constructor5 c = new Constructor5();\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    
+    String str = this.wc.getSource();
+    String completeBehind = "Constructor5(";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
 
-	String str = cu.getSource();
-	String completeBehind = "Constructor5(";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+    assertResults(
+            "expectedTypesSignatures=null\n"+
+            "expectedTypesKeys=null",
+            requestor.getContext());
+    
 	assertEquals(
 			"Constructor5[ANONYMOUS_CLASS_DECLARATION]{, Lzconstructors.Constructor5;, (I)V, null, (arg0), " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Constructor5[METHOD_REF]{, Lzconstructors.Constructor5;, (I)V, Constructor5, (arg0), " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			"Constructor5[METHOD_REF<CONSTRUCTOR>]{, Lzconstructors.Constructor5;, (I)V, Constructor5, (arg0), " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 /**
@@ -3301,19 +3369,32 @@ public void testCompletionKeywordSuper5() throws JavaModelException {
 			requestor.getResults());
 }
 public void testCompletionKeywordSuper6() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper6.java");
+	this.wc = getWorkingCopy(
+            "/Completion/src2/CompletionKeywordSuper6.java",
+            "public class CompletionKeywordSuper6 {\n"+
+            "	public CompletionKeywordSuper6() {\n"+
+            "		sup\n"+
+            "	}\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    
+    String str = this.wc.getSource();
+    String completeBehind = "sup";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
 
-		String str = cu.getSource();
-		String completeBehind = "sup";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
-
-		assertEquals(
-			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "\n" +
-			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "\n" +
-			"element:super    completion:super    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "\n" +
-			"element:super    completion:super()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+    assertResults(
+            "expectedTypesSignatures=null\n"+
+            "expectedTypesKeys=null",
+            requestor.getContext());
+    
+    assertResults(
+            "SuperClass[TYPE_REF]{SuperClass, , LSuperClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"SuperInterface[TYPE_REF]{SuperInterface, , LSuperInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"super[METHOD_REF<CONSTRUCTOR>]{super(), Ljava.lang.Object;, ()V, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"super[KEYWORD]{super, null, null, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 public void testCompletionKeywordTry1() throws JavaModelException {
@@ -5899,19 +5980,33 @@ public void testCompletionKeywordSuper11() throws JavaModelException {
 			requestor.getResults());
 }
 public void testCompletionKeywordSuper12() throws JavaModelException {
-		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-		ICompilationUnit cu= getCompilationUnit("Completion", "src2", "", "CompletionKeywordSuper12.java");
+	this.wc = getWorkingCopy(
+            "/Completion/src2/CompletionKeywordSuper12.java",
+            "public class CompletionKeywordSuper12 {\n"+
+            "	public CompletionKeywordSuper12() {\n"+
+            "		#\n"+
+            "		sup\n"+
+            "	}\n"+
+            "}");
+    
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    
+    String str = this.wc.getSource();
+    String completeBehind = "sup";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
 
-		String str = cu.getSource();
-		String completeBehind = "sup";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
-
-		assertEquals(
-			"element:SuperClass    completion:SuperClass    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "\n" +
-			"element:SuperInterface    completion:SuperInterface    relevance:" + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "\n" +
-			"element:super    completion:super    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "\n" +
-			"element:super    completion:super()    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+    assertResults(
+            "expectedTypesSignatures=null\n"+
+            "expectedTypesKeys=null",
+            requestor.getContext());
+    
+    assertResults(
+            "SuperClass[TYPE_REF]{SuperClass, , LSuperClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"SuperInterface[TYPE_REF]{SuperInterface, , LSuperInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"super[METHOD_REF<CONSTRUCTOR>]{super(), Ljava.lang.Object;, ()V, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"super[KEYWORD]{super, null, null, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 }
 public void testCompletionKeywordTry4() throws JavaModelException {
@@ -9164,18 +9259,24 @@ public void testCompletionBasicMethodDeclaration1() throws JavaModelException {
 			requestor.getResults());
 }
 public void testCompletionBasicAnonymousDeclaration1() throws JavaModelException {
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionBasicAnonymousDeclaration1.java");
-
-	String str = cu.getSource();
-	String completeBehind = "new Object(";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
+	CompletionResult result = complete(
+			"/Completion/src3/test0000/CompletionBasicCompletionContext.java",
+			"public class CompletionBasicAnonymousDeclaration1 {\n"+
+			"	void foo() {\n"+
+			"		new Object(\n"+
+			"	}\n"+
+			"}",
+			"new Object(");
+	
 	assertResults(
-			"Object[ANONYMOUS_CLASS_DECLARATION]{), Ljava.lang.Object;, ()V, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Object[METHOD_REF]{), Ljava.lang.Object;, ()V, Object, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null",
+			result.context);
+	
+	assertResults(
+			"Object[ANONYMOUS_CLASS_DECLARATION]{), Ljava.lang.Object;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Object[METHOD_REF<CONSTRUCTOR>]{), Ljava.lang.Object;, ()V, Object, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			result.proposals);
 }
 public void testCompletionBasicCompletionContext() throws JavaModelException {
 	CompletionResult result = complete(

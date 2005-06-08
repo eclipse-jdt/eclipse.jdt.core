@@ -48,6 +48,8 @@ public class InternalCompletionProposal {
 	
 	protected int accessibility = IAccessRule.K_ACCESSIBLE;
 	
+	protected boolean isConstructor = false;
+	
 	protected char[][] findMethodParameterNames(char[] signatureType, char[] selector, char[][] paramTypeNames){
 		if(signatureType == null) return null;
 		
@@ -252,5 +254,9 @@ public class InternalCompletionProposal {
 	
 	protected void setAccessibility(int kind) {
 		this.accessibility = kind;
+	}
+	
+	protected void setIsContructor(boolean isConstructor) {
+		this.isConstructor = isConstructor;
 	}
 }

@@ -1894,6 +1894,7 @@ public final class CompletionEngine
 						//proposal.setPackageName(null);
 						//proposal.setTypeName(null);
 						proposal.setName(name);
+						proposal.setIsContructor(true);
 						proposal.setCompletion(completion);
 						proposal.setFlags(constructor.modifiers);
 						proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
@@ -2001,6 +2002,7 @@ public final class CompletionEngine
 							//proposal.setPackageName(null);
 							//proposal.setTypeName(null);
 							proposal.setName(currentType.sourceName());
+							proposal.setIsContructor(true);
 							proposal.setCompletion(completion);
 							proposal.setFlags(constructor.modifiers);
 							proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);

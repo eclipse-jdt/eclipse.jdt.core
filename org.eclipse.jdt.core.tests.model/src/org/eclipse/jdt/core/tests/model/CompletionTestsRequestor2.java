@@ -139,9 +139,15 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				break;
 			case CompletionProposal.METHOD_DECLARATION :
 				buffer.append("METHOD_DECLARATION"); //$NON-NLS-1$
+				if(proposal.isConstructor()) {
+					buffer.append("<CONSTRUCTOR>"); //$NON-NLS-1$
+				}
 				break;
 			case CompletionProposal.METHOD_REF :
 				buffer.append("METHOD_REF"); //$NON-NLS-1$
+				if(proposal.isConstructor()) {
+					buffer.append("<CONSTRUCTOR>"); //$NON-NLS-1$
+				}
 				break;
 			case CompletionProposal.PACKAGE_REF :
 				buffer.append("PACKAGE_REF"); //$NON-NLS-1$

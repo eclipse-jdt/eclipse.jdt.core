@@ -46,6 +46,7 @@ Eclipse SDK 3.1RC2 - ?th June 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>CodeAssist: added a new API CompletionProposal#isConstructor() to distinguish method and constructor proposal</li>
 <li>Access rules file patterns have been changed to ignore the file extension. This allow easy switching from a source project
      to a binary project. Thus <code>"com/test/X.java"</code> is now an invalid access rule pattern, and 
      <code>"com/test/X"</code> is a valid access rule pattern.</li>
@@ -71,7 +72,9 @@ This change is motivated to better match the language spec 3rd edition.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98434">98434</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98711">98711</a>
+no way to distinguish constructor from method proposals
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98434">98434</a>
 A non-1.5 project with 1.5 projects in the classpath does not show methods with generics
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98750">98750</a>
 [dom] Java DOM Parser finding syntax Problems when parsing Annotations
