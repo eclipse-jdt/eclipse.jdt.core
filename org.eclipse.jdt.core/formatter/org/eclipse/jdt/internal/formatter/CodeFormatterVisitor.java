@@ -1330,6 +1330,28 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					if (numberOfParens > 0) {
 						manageOpeningParenthesizedExpression(currentMessageSend, numberOfParens);
 					}
+					TypeReference[] typeArguments = currentMessageSend.typeArguments;
+					if (typeArguments != null) {
+							this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_type_arguments); 
+							if (this.preferences.insert_space_after_opening_angle_bracket_in_type_arguments) {
+								this.scribe.space();
+							}
+							int length = typeArguments.length;
+							for (int j = 0; j < length - 1; j++) {
+								typeArguments[j].traverse(this, scope);
+								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_type_arguments);
+								if (this.preferences.insert_space_after_comma_in_type_arguments) {
+									this.scribe.space();
+								}				
+							}
+							typeArguments[length - 1].traverse(this, scope);
+							if (isClosingGenericToken()) {
+								this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_type_arguments); 
+							}
+							if (this.preferences.insert_space_after_closing_angle_bracket_in_type_arguments) {
+								this.scribe.space();
+							}
+					}
 					ASTNode[] arguments = currentMessageSend.arguments;
 					this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
 					this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_method_invocation);
