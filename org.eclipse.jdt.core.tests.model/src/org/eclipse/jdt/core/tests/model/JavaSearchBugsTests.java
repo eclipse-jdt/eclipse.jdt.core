@@ -45,7 +45,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug75816";
 //		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
-//		TESTS_NUMBERS = new int[] { 97087 };
+//		TESTS_NUMBERS = new int[] { 96761, 96763 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -3344,6 +3344,85 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		assertSearchResults(
 			"src/b97087/Bug.java b97087.Foo() [Foo] EXACT_MATCH\n" + 
 			"src/b97087/Bug.java b97087.Bar() [super()] ERASURE_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 96761: [1.5][search] Search for declarations of generic method finds non-overriding method
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=96761"
+	 */
+	public void testBug96761() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96761/Generic.java",
+			"package b96761;\n" + 
+			"public class Generic<G> {\n" + 
+			"	void take(G g) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Impl extends Generic<RuntimeException> {\n" + 
+			"	void take(InterruptedException g) {\n" + 
+			"	}\n" + 
+			"	void take(RuntimeException g) {\n" + 
+			"	}\n" + 
+			"}"
+		);
+		IType type = workingCopies[0].getType("Generic");
+		IMethod method= type.getMethods()[0];
+		search(method, REFERENCES);
+		assertSearchResults(""); // Expect no result
+	}
+
+	/**
+	 * Bug 96763: [1.5][search] Search for method declarations does not find overridden method with different signature
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=96763"
+	 */
+	public void testBug96763() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96763/Test.java",
+			"package b96763;\n" + 
+			"class Test<T> {\n" + 
+			"    public void first(Exception num) {}\n" + 
+			"    public void second(T t) {}\n" + 
+			"}\n" + 
+			"class Sub extends Test<Exception> {\n" + 
+			"    public void first(Exception num) {}\n" + 
+			"    public void second(Exception t) {}\n" + 
+			"}\n"
+		);
+		IMethod method = workingCopies[0].getType("Sub").getMethods()[0];
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		this.discard = false;
+		assertSearchResults(
+			"src/b96763/Test.java void b96763.Test.first(Exception) [first] EXACT_MATCH\n" + 
+			"src/b96763/Test.java void b96763.Sub.first(Exception) [first] EXACT_MATCH"
+		);
+	}
+	public void testBug96763b() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		IMethod method = workingCopies[0].getType("Sub").getMethods()[1];
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		assertSearchResults(
+			"src/b96763/Test.java void b96763.Test.second(T) [second] EXACT_MATCH\n" + 
+			"src/b96763/Test.java void b96763.Sub.second(Exception) [second] EXACT_MATCH"
+		);
+	}
+	public void testBug96763d() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96763/Test.java",
+			"package b96763;\n" + 
+			"public class Test<T> {\n" + 
+			"	void methodT(T t) {}\n" + 
+			"}\n" + 
+			"class Sub<X> extends Test<X> {\n" + 
+			"	void methodT(X x) {} // overrides Super#methodT(T)\n" + 
+			"}\n"
+		);
+		IMethod method = workingCopies[0].getType("Sub").getMethods()[0];
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		assertSearchResults(
+			"src/b96763/Test.java void b96763.Test.methodT(T) [methodT] EXACT_MATCH\n" + 
+			"src/b96763/Test.java void b96763.Sub.methodT(X) [methodT] EXACT_MATCH"
 		);
 	}
 

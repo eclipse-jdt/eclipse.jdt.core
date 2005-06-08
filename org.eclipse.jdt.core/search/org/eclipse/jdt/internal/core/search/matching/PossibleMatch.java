@@ -33,11 +33,11 @@ public SearchDocument document;
 private String sourceFileName;
 private char[] source;
 
-public PossibleMatch(MatchLocator locator, IResource resource, Openable openable, SearchDocument document) {
+public PossibleMatch(MatchLocator locator, IResource resource, Openable openable, SearchDocument document, boolean mustResolve) {
 	this.resource = resource;
 	this.openable = openable;
 	this.document = document;
-	this.nodeSet = new MatchingNodeSet();
+	this.nodeSet = new MatchingNodeSet(mustResolve);
 	char[] qualifiedName = getQualifiedName();
 	if (qualifiedName != null)
 		this.compoundName = CharOperation.splitOn('.', qualifiedName);
