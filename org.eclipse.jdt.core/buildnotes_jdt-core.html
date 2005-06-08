@@ -46,6 +46,8 @@ Eclipse SDK 3.1RC2 - ?th June 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>The build state version number has changed. A full build of all projects in the workspace will be triggered upon
+      startup if autobuild is on, or on the next build if autobuild is off.</li>
 <li>The new list of supported warning tokens for the @SuppressWarnings annotation is:
 <ul>
 <li><b><font color="red">all</font></b> : any warning</li>
@@ -112,7 +114,9 @@ This change is motivated to better match the language spec 3rd edition.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=96586">96586</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98969">98969</a>
+Builder didn't find state for prereq project
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=96586">96586</a>
 [1.5][compiler] Invalid cycle detected
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98954">98954</a>
 Javadoc of ITypeBinding#getErasure() is wrong for array types

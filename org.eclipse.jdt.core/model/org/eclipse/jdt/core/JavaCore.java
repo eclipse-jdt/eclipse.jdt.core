@@ -71,6 +71,8 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
+import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -2649,9 +2651,59 @@ public final class JavaCore extends Plugin {
 					// else indexes were not ready: catch the exception so that jars are still refreshed
 				}
 				
+				// check if the build state version number has changed since last session
+				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
+				QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+				String versionNumber = null;
+				try {
+					versionNumber = root.getPersistentProperty(qName);
+				} catch (CoreException e) {
+					// could not read version number: consider it is new
+				}
+				final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+				String newVersionNumber = Byte.toString(State.VERSION);
+				if (!newVersionNumber.equals(versionNumber)) {
+					// build state version number has changed: touch every projects to force a rebuild
+					if (JavaBuilder.DEBUG)
+						System.out.println("Build state version number has changed"); //$NON-NLS-1$
+					IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+						public void run(IProgressMonitor progressMonitor2) throws CoreException {
+							IJavaProject[] projects = null;
+							try {
+								projects = model.getJavaProjects();
+							} catch (JavaModelException e) {
+								// could not get Java projects: ignore
+							}
+							if (projects != null) {
+								for (int i = 0, length = projects.length; i < length; i++) {
+									IJavaProject project = projects[i];
+									try {
+										if (JavaBuilder.DEBUG)
+											System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
+										project.getProject().touch(progressMonitor2);
+									} catch (CoreException e) {
+										// could not touch this project: ignore
+									}
+								}
+							}
+						}
+					};
+					try {
+						ResourcesPlugin.getWorkspace().run(runnable, progressMonitor);
+					} catch (CoreException e) {
+						// could not touch all projects
+					}
+					try {
+						root.setPersistentProperty(qName, newVersionNumber);
+					} catch (CoreException e) {
+						Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
+					}
+				}
+				
 				// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
 				try {
-					JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(
+					model.refreshExternalArchives(
 						null/*refresh all projects*/, 
 						progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 1) // 1% of the time is spent in jar refresh
 					);
