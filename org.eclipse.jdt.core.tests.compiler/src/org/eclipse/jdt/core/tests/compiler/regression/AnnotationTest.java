@@ -4228,7 +4228,7 @@ public class AnnotationTest extends AbstractComparableTest {
             new String[] {
                 "X.java",
     			"public class X {\n" + 
-    			"	@SuppressWarnings(\"unusedPrivate\"//$NON-NLS-1$\n" + 
+    			"	@SuppressWarnings(\"unused\"//$NON-NLS-1$\n" + 
     			"	)\n" + 
     			"	private static final String marker = \"never used mark\"; //$NON-NLS-1$\n" + 
     			"\n" + 
@@ -4365,12 +4365,22 @@ public class AnnotationTest extends AbstractComparableTest {
     			"	Zork z;\n" + 
     			"}\n"
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n",
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 1)\n" + 
+    		"	@SuppressWarnings({\"zork\", \"warningToken\"})//$NON-NLS-1$//$NON-NLS-2$\n" + 
+    		"	                   ^^^^^^\n" + 
+    		"Unhandled warning token zork\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 1)\n" + 
+    		"	@SuppressWarnings({\"zork\", \"warningToken\"})//$NON-NLS-1$//$NON-NLS-2$\n" + 
+    		"	                           ^^^^^^^^^^^^^^\n" + 
+    		"Unhandled warning token warningToken\n" + 
+    		"----------\n" + 
+    		"3. ERROR in X.java (at line 3)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n",
 			null, true, customOptions);
     }          
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90111 - variation

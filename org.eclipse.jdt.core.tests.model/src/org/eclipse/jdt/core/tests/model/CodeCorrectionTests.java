@@ -122,7 +122,7 @@ public static Test suite() {
 	suite.addTest(new CodeCorrectionTests("testCorrectArgument1"));
 	suite.addTest(new CodeCorrectionTests("testCorrectReturnType1"));
 	suite.addTest(new CodeCorrectionTests("testCorrectReturnType2"));
-	suite.addTest(new CodeCorrectionTests("testWarningAssert"));
+	suite.addTest(new CodeCorrectionTests("testWarningTokens"));
 
 	return suite;
 }
@@ -761,7 +761,56 @@ public void testCorrectReturnType2() throws JavaModelException {
 		end,
 		requestor.getEnds());
 }
-public void testWarningAssert() {
+public void testWarningTokens() {
 	assertNull("assertIdentifier is a valid token for @SuppressWarnings", CorrectionEngine.getWarningToken(IProblem.UseAssertAsAnIdentifier));
+	assertEquals("wrong token", "deprecation", CorrectionEngine.getWarningToken(IProblem.UsingDeprecatedConstructor));
+	assertEquals("wrong token", "deprecation", CorrectionEngine.getWarningToken(IProblem.OverridingDeprecatedMethod));
+	assertEquals("wrong token", "deprecation", CorrectionEngine.getWarningToken(IProblem.UsingDeprecatedType));
+	assertEquals("wrong token", "deprecation", CorrectionEngine.getWarningToken(IProblem.UsingDeprecatedMethod));
+	assertEquals("wrong token", "deprecation", CorrectionEngine.getWarningToken(IProblem.UsingDeprecatedField));
+	assertEquals("wrong token", "boxing", CorrectionEngine.getWarningToken(IProblem.BoxingConversion));
+	assertEquals("wrong token", "boxing", CorrectionEngine.getWarningToken(IProblem.UnboxingConversion));
+	assertEquals("wrong token", "dep-ann", CorrectionEngine.getWarningToken(IProblem.FieldMissingDeprecatedAnnotation));
+	assertEquals("wrong token", "dep-ann", CorrectionEngine.getWarningToken(IProblem.MethodMissingDeprecatedAnnotation));
+	assertEquals("wrong token", "dep-ann", CorrectionEngine.getWarningToken(IProblem.TypeMissingDeprecatedAnnotation));
+	assertEquals("wrong token", "finally", CorrectionEngine.getWarningToken(IProblem.FinallyMustCompleteNormally));
+	assertEquals("wrong token", "hiding", CorrectionEngine.getWarningToken(IProblem.FieldHidingLocalVariable));
+	assertEquals("wrong token", "hiding", CorrectionEngine.getWarningToken(IProblem.FieldHidingField));
+	assertEquals("wrong token", "hiding", CorrectionEngine.getWarningToken(IProblem.LocalVariableHidingLocalVariable));
+	assertEquals("wrong token", "hiding", CorrectionEngine.getWarningToken(IProblem.LocalVariableHidingField));
+	assertEquals("wrong token", "hiding", CorrectionEngine.getWarningToken(IProblem.ArgumentHidingLocalVariable));
+	assertEquals("wrong token", "hiding", CorrectionEngine.getWarningToken(IProblem.ArgumentHidingField));
+	assertEquals("wrong token", "hiding", CorrectionEngine.getWarningToken(IProblem.MaskedCatch));
+	assertEquals("wrong token", "hiding", CorrectionEngine.getWarningToken(IProblem.TypeParameterHidingType));
+	assertEquals("wrong token", "nls", CorrectionEngine.getWarningToken(IProblem.NonExternalizedStringLiteral));
+	assertEquals("wrong token", "incomplete-switch", CorrectionEngine.getWarningToken(IProblem.MissingEnumConstantCase));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedImport));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.LocalVariableIsNeverUsed));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.ArgumentIsNeverUsed));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedPrivateConstructor));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedPrivateMethod));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedPrivateField));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedPrivateType));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedMethodDeclaredThrownException));
+	assertEquals("wrong token", "unused", CorrectionEngine.getWarningToken(IProblem.UnusedConstructorDeclaredThrownException));
+	assertEquals("wrong token", "static-access", CorrectionEngine.getWarningToken(IProblem.IndirectAccessToStaticMethod));
+	assertEquals("wrong token", "static-access", CorrectionEngine.getWarningToken(IProblem.IndirectAccessToStaticField));
+	assertEquals("wrong token", "static-access", CorrectionEngine.getWarningToken(IProblem.IndirectAccessToStaticType));
+	assertEquals("wrong token", "static-access", CorrectionEngine.getWarningToken(IProblem.NonStaticAccessToStaticMethod));
+	assertEquals("wrong token", "static-access", CorrectionEngine.getWarningToken(IProblem.NonStaticAccessToStaticField));
+	assertEquals("wrong token", "synthetic-access", CorrectionEngine.getWarningToken(IProblem.NeedToEmulateFieldReadAccess));
+	assertEquals("wrong token", "synthetic-access", CorrectionEngine.getWarningToken(IProblem.NeedToEmulateFieldWriteAccess));
+	assertEquals("wrong token", "synthetic-access", CorrectionEngine.getWarningToken(IProblem.NeedToEmulateMethodAccess));
+	assertEquals("wrong token", "synthetic-access", CorrectionEngine.getWarningToken(IProblem.NeedToEmulateConstructorAccess));
+	assertEquals("wrong token", "unqualified-field-access", CorrectionEngine.getWarningToken(IProblem.UnqualifiedFieldAccess));
+	assertEquals("wrong token", "unchecked", CorrectionEngine.getWarningToken(IProblem.UnsafeRawConstructorInvocation));
+	assertEquals("wrong token", "unchecked", CorrectionEngine.getWarningToken(IProblem.UnsafeRawMethodInvocation));
+	assertEquals("wrong token", "unchecked", CorrectionEngine.getWarningToken(IProblem.UnsafeTypeConversion));
+	assertEquals("wrong token", "unchecked", CorrectionEngine.getWarningToken(IProblem.UnsafeRawFieldAssignment));
+	assertEquals("wrong token", "unchecked", CorrectionEngine.getWarningToken(IProblem.UnsafeGenericCast));
+	assertEquals("wrong token", "unchecked", CorrectionEngine.getWarningToken(IProblem.UnsafeReturnTypeOverride));
+	assertEquals("wrong token", "unchecked", CorrectionEngine.getWarningToken(IProblem.UnsafeRawGenericMethodInvocation));
+	assertEquals("wrong token", "unchecked", CorrectionEngine.getWarningToken(IProblem.UnsafeRawGenericConstructorInvocation));
+	assertEquals("wrong token", "serial", CorrectionEngine.getWarningToken(IProblem.MissingSerialVersion));
 }
 }

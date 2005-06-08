@@ -878,95 +878,45 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		int irritantInt = (int) irritant;
 		if (irritantInt == irritant) {
 			switch (irritantInt) {
-				case (int) MethodWithConstructorName :
-					return "constructorName"; //$NON-NLS-1$
-				case (int) OverriddenPackageDefaultMethod :
-					return "pkgDefaultMethod"; //$NON-NLS-1$
 				case (int) UsingDeprecatedAPI :
 					return "deprecation"; //$NON-NLS-1$
+				case (int) FinallyBlockNotCompleting :
+					return "finally"; //$NON-NLS-1$
+				case (int) FieldHiding :
+				case (int) LocalVariableHiding :
 				case (int) MaskedCatchBlock :
-					return "maskedCatchBlock"; //$NON-NLS-1$
-				case (int) UnusedLocalVariable :
-					return "unusedLocal"; //$NON-NLS-1$
-				case (int) UnusedArgument :
-					return "unusedArgument"; //$NON-NLS-1$
-				case (int) NoImplicitStringConversion :
-					return "charConcat"; //$NON-NLS-1$
-				case (int) AccessEmulation :
-					return "syntheticAccess"; //$NON-NLS-1$
+					return "hiding"; //$NON-NLS-1$
 				case (int) NonExternalizedString :
 					return "nls"; //$NON-NLS-1$
 				case (int) UnusedImport :
-					return "unusedImport"; //$NON-NLS-1$
-				case (int) NonStaticAccessToStatic :
-					return "staticReceiver"; //$NON-NLS-1$
-				case (int) NoEffectAssignment :
-					return "noEffectAssign"; //$NON-NLS-1$
-				case (int) IncompatibleNonInheritedInterfaceMethod :
-					return "intfNonInherited"; //$NON-NLS-1$
-				case (int) UnusedPrivateMember :
-					return "unusedPrivate"; //$NON-NLS-1$
-				case (int) LocalVariableHiding :
-					return "localHiding"; //$NON-NLS-1$
-				case (int) FieldHiding :
-					return "fieldHiding"; //$NON-NLS-1$
-				case (int) AccidentalBooleanAssign :
-					return "conditionAssign"; //$NON-NLS-1$
-				case (int) EmptyStatement :		
-					return "semicolon"; //$NON-NLS-1$
-				case (int) MissingJavadocComments :
-				case (int) MissingJavadocTags :
-				case (int) InvalidJavadoc :
-				case (int) (MissingJavadocComments | MissingJavadocTags | InvalidJavadoc):
-					return "javadoc"; //$NON-NLS-1$
-				case (int) UnqualifiedFieldAccess :
-					return "unqualifiedField"; //$NON-NLS-1$
-				case (int) UnusedDeclaredThrownException :
-					return "unusedThrown"; //$NON-NLS-1$
-				case (int) FinallyBlockNotCompleting :
-					return "finally"; //$NON-NLS-1$
-				case (int) UnnecessaryTypeCheck :
-					return "uselessTypeCheck"; //$NON-NLS-1$
-				case (int) UndocumentedEmptyBlock :
-					return "emptyBlock"; //$NON-NLS-1$
+				case (int) UnusedLocalVariable :
+				case (int) UnusedArgument :
+				case (int) UnusedPrivateMember:
+				case (int) UnusedDeclaredThrownException:
+					return "unused"; //$NON-NLS-1$
 				case (int) IndirectStaticAccess :
-					return "indirectStatic"; //$NON-NLS-1$
-				case (int) UnnecessaryElse :
-					return "unnecessaryElse"; //$NON-NLS-1$
+				case (int) NonStaticAccessToStatic :
+					return "static-access"; //$NON-NLS-1$
+				case (int) AccessEmulation :
+					return "synthetic-access"; //$NON-NLS-1$
+				case (int) UnqualifiedFieldAccess :
+					return "unqualified-field-access"; //$NON-NLS-1$
 				case (int) UncheckedTypeOperation :
 					return "unchecked"; //$NON-NLS-1$
 			}
 		} else {
 			irritantInt = (int)(irritant >>> 32);
 			switch (irritantInt) {
-				case (int) (FinalParameterBound >>> 32) :
-					return "finalBound"; //$NON-NLS-1$
 				case (int) (MissingSerialVersion >>> 32) :
 					return "serial"; //$NON-NLS-1$
-				case (int) (EnumUsedAsAnIdentifier >>> 32) :
-					return "enumIdentifier"; //$NON-NLS-1$
-				case (int) (ForbiddenReference >>> 32) :
-				case (int) (DiscouragedReference >>> 32) :
-				case (int) ((ForbiddenReference | DiscouragedReference) >>> 32)  :
-					return "restricted"; //$NON-NLS-1$
-				case (int) (VarargsArgumentNeedCast >>> 32) :
-					return "varargs"; //$NON-NLS-1$
-				case (int) (NullReference >>> 32) :
-					return "null"; //$NON-NLS-1$
 				case (int) (Autoboxing >>> 32) :
 					return "boxing"; //$NON-NLS-1$
-				case (int) (AnnotationSuperInterface >>> 32) :
-					return "intfAnnotation"; //$NON-NLS-1$
 				case (int) (TypeParameterHiding >>> 32) :
-					return "typeHiding"; //$NON-NLS-1$
-				case (int) (MissingOverrideAnnotation >>> 32) :
-					return "over-ann"; //$NON-NLS-1$
+					return "hiding"; //$NON-NLS-1$
 				case (int) (IncompleteEnumSwitch >>> 32) :
-					return "enumSwitch"; //$NON-NLS-1$
+					return "incomplete-switch"; //$NON-NLS-1$
 				case (int) (MissingDeprecatedAnnotation >>> 32) :
 					return "dep-ann"; //$NON-NLS-1$
-				case (int) (UnhandledWarningToken >>> 32) :
-					return "warningToken"; //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -982,117 +932,42 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				if ("boxing".equals(warningToken)) //$NON-NLS-1$
 					return Autoboxing;
 				break;
-			case 'c' :
-				if ("constructorName".equals(warningToken)) //$NON-NLS-1$
-					return MethodWithConstructorName;
-				if ("conditionAssign".equals(warningToken)) //$NON-NLS-1$
-					return AccidentalBooleanAssign;
-				if ("charConcat".equals(warningToken)) //$NON-NLS-1$
-					return NoImplicitStringConversion;
-				break;
 			case 'd' :
 				if ("deprecation".equals(warningToken)) //$NON-NLS-1$
 					return UsingDeprecatedAPI;
 				if ("dep-ann".equals(warningToken)) //$NON-NLS-1$
 					return MissingDeprecatedAnnotation;
 				break;
-			case 'e' :
-				if ("emptyBlock".equals(warningToken)) //$NON-NLS-1$
-					return UndocumentedEmptyBlock;
-				if ("enumIdentifier".equals(warningToken)) //$NON-NLS-1$
-					return EnumUsedAsAnIdentifier;
-				if ("enumSwitch".equals(warningToken)) //$NON-NLS-1$
-					return IncompleteEnumSwitch;
-				break;
 			case 'f' :
-				if ("fieldHiding".equals(warningToken)) //$NON-NLS-1$
-					return FieldHiding;
 				if ("finally".equals(warningToken)) //$NON-NLS-1$
 					return FinallyBlockNotCompleting;
-				if ("finalBound".equals(warningToken)) //$NON-NLS-1$
-					return FinalParameterBound;
 				break;
+			case 'h' :
+				if ("hiding".equals(warningToken)) //$NON-NLS-1$
+					return FieldHiding | LocalVariableHiding | MaskedCatchBlock | TypeParameterHiding;
 			case 'i' :
-				if ("intfNonInherited".equals(warningToken)) //$NON-NLS-1$
-					return IncompatibleNonInheritedInterfaceMethod;
-				if ("indirectStatic".equals(warningToken)) //$NON-NLS-1$
-					return IndirectStaticAccess;
-				if ("intfAnnotation".equals(warningToken)) //$NON-NLS-1$
-					return AnnotationSuperInterface;
-				break;
-			case 'j' :
-				if ("javadoc".equals(warningToken)) //$NON-NLS-1$
-					return MissingJavadocComments | MissingJavadocTags | InvalidJavadoc;
-				break;
-			case 'l' :
-				if ("localHiding".equals(warningToken)) //$NON-NLS-1$
-					return LocalVariableHiding;
-				break;
-			case 'm' :
-				if ("maskedCatchBlock".equals(warningToken)) //$NON-NLS-1$
-					return MaskedCatchBlock;
+				if ("incomplete-switch".equals(warningToken)) //$NON-NLS-1$
+					return IncompleteEnumSwitch;
 				break;
 			case 'n' :
 				if ("nls".equals(warningToken)) //$NON-NLS-1$
 					return NonExternalizedString;
-				if ("noEffectAssign".equals(warningToken)) //$NON-NLS-1$
-					return NoEffectAssignment;
-				if ("null".equals(warningToken)) //$NON-NLS-1$
-					return NullReference;
-				break;
-			case 'o' :
-				if ("over-ann".equals(warningToken)) //$NON-NLS-1$
-					return MissingOverrideAnnotation;
-				break;
-			case 'p' :
-				if ("pkgDefaultMethod".equals(warningToken)) //$NON-NLS-1$
-					return OverriddenPackageDefaultMethod;
-				break;
-			case 'r' :
-				if ("restricted".equals(warningToken)) //$NON-NLS-1$
-					return ForbiddenReference | DiscouragedReference;
 				break;
 			case 's' :
-				if ("syntheticAccess".equals(warningToken)) //$NON-NLS-1$
-					return AccessEmulation;
-				if ("staticReceiver".equals(warningToken)) //$NON-NLS-1$
-					return NonStaticAccessToStatic;
 				if ("serial".equals(warningToken)) //$NON-NLS-1$
 					return MissingSerialVersion;
-				if ("semicolon".equals(warningToken)) //$NON-NLS-1$
-					return EmptyStatement;
-				break;
-			case 't' :
-				if ("typeHiding".equals(warningToken)) //$NON-NLS-1$
-					return TypeParameterHiding;
+				if ("static-access".equals(warningToken)) //$NON-NLS-1$
+					return IndirectStaticAccess | NonStaticAccessToStatic;
+				if ("synthetic-access".equals(warningToken)) //$NON-NLS-1$
+					return AccessEmulation;
 				break;
 			case 'u' :
-				if ("unusedLocal".equals(warningToken)) //$NON-NLS-1$
-					return UnusedLocalVariable;
-				if ("unusedArgument".equals(warningToken)) //$NON-NLS-1$
-					return UnusedArgument;
+				if ("unused".equals(warningToken)) //$NON-NLS-1$
+					return UnusedLocalVariable | UnusedArgument | UnusedImport | UnusedPrivateMember | UnusedDeclaredThrownException;
 				if ("unchecked".equals(warningToken)) //$NON-NLS-1$
 					return UncheckedTypeOperation;
-				if ("unusedImport".equals(warningToken)) //$NON-NLS-1$
-					return UnusedImport;
-				if ("unusedPrivate".equals(warningToken)) //$NON-NLS-1$
-					return UnusedPrivateMember;
-				if ("unqualifiedField".equals(warningToken)) //$NON-NLS-1$
+				if ("unqualified-field-access".equals(warningToken)) //$NON-NLS-1$
 					return UnqualifiedFieldAccess;
-				if ("unusedThrown".equals(warningToken)) //$NON-NLS-1$
-					return UnusedDeclaredThrownException;
-				if ("uselessTypeCheck".equals(warningToken)) //$NON-NLS-1$
-					return UnnecessaryTypeCheck;
-				if ("unnecessaryElse".equals(warningToken)) //$NON-NLS-1$
-					return UnnecessaryElse;
-				break;
-			case 'v' :
-				if ("varargs".equals(warningToken)) //$NON-NLS-1$
-					return VarargsArgumentNeedCast;
-				break;
-			case 'w' :
-				if ("warningToken".equals(warningToken)) //$NON-NLS-1$
-					return UnhandledWarningToken;
 				break;
 		}
 		return 0;

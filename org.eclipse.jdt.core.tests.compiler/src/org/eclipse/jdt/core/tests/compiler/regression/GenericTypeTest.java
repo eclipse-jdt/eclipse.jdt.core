@@ -18342,7 +18342,7 @@ public void test617() {
                 "X.java",
 				"public class X {\n" + 
 				"	void foo() {\n" + 
-				"		@SuppressWarnings(\"unusedLocal\")\n" + 
+				"		@SuppressWarnings(\"unused\")\n" + 
 				"		Outer.Inner inner = new Sub().get();\n" + 
 				"	}\n" + 
 				"	Zork z;\n" + 
@@ -18369,7 +18369,7 @@ public void test617() {
                 "X.java",
 				"public class X {\n" + 
 				"	void foo() {\n" + 
-				"		@SuppressWarnings(\"unusedLocal\")\n" + 
+				"		@SuppressWarnings(\"unused\")\n" + 
 				"		Outer<String>.Inner inner = new Sub().get();\n" + 
 				"	}\n" + 
 				"	Zork z;\n" + 
@@ -18681,7 +18681,7 @@ public void test659() {
 			"X.java",
 			"import java.lang.ref.*;\n" + 
 			"\n" + 
-			"@SuppressWarnings(\"unusedLocal\")\n" + 
+			"@SuppressWarnings(\"unused\")\n" + 
 			"public class X<K, V> extends WeakReference<V> {\n" + 
 			"	Zork z;\n" + 
 			"	static ReferenceQueue<Integer> queue = new ReferenceQueue<Integer>();\n" + 
