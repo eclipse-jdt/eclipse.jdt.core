@@ -43,7 +43,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-static final byte VERSION = 0x0012; // added timestamps to external jars
+static final byte VERSION = 0x0013; // added timestamps to external jars
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;

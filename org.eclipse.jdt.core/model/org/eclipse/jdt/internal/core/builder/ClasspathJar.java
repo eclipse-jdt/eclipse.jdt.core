@@ -93,8 +93,9 @@ ClasspathJar(IFile resource, AccessRuleSet accessRuleSet) {
 	this.accessRuleSet = accessRuleSet;
 }
 
-ClasspathJar(String zipFilename, AccessRuleSet accessRuleSet) {
+ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet) {
 	this.zipFilename = zipFilename;
+	this.lastModified = lastModified;
 	this.zipFile = null;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;

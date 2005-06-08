@@ -27,7 +27,7 @@ public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean
 }
 
 static ClasspathLocation forLibrary(String libraryPathname, long lastModified, AccessRuleSet accessRuleSet) {
-	return new ClasspathJar(libraryPathname, accessRuleSet);
+	return new ClasspathJar(libraryPathname, lastModified, accessRuleSet);
 }
 
 static ClasspathLocation forLibrary(String libraryPathname, AccessRuleSet accessRuleSet) {
