@@ -63,7 +63,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	// TESTS_NAMES = new String[] { "testSuppressWarnings1" };
+	// TESTS_NAMES = new String[] { "testTwoProjectsWithDifferentCompliances" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 	//TESTS_NUMBERS = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -1880,6 +1880,46 @@ public void testBug60689() throws JavaModelException {
 	testCU = this.workingCopy.reconcile(AST.JLS2, true, null, null);
 	assertNotNull("We should have a comment!", testCU.getCommentList());
 	assertEquals("We should have one comment!", 1, testCU.getCommentList().size());
+}
+/*
+ * Ensures that a working copy in a 1.4 project that references a 1.5 project can be reconciled without error.
+ * (regression test for bug 98434 A non-1.5 project with 1.5 projects in the classpath does not show methods with generics)
+ */
+public void testTwoProjectsWithDifferentCompliances() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	try {
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"  void foo(Class<String> c) {\n" +
+			"  }\n" +
+			"}"
+		);
+		
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "", "1.4");
+		createFolder("/P2/p");
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		this.workingCopy = getWorkingCopy("/P2/p/Y.java", "", owner, this.problemRequestor);
+		setWorkingCopyContents(
+			"package p;\n" +
+			"public class Y {\n" +
+			"  void bar(Class c) {\n" +
+			"    new X().foo(c);\n" +
+			"  }\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force pb detection*/, owner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
 }
 /*
  * Ensures that a method that has a type parameter with bound can be overriden in another working copy.

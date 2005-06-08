@@ -671,6 +671,25 @@ protected void assertDeltas(String message, String expected) {
 				"1.4"
 			);
 	}
+	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, String projectOutput, String compliance) throws CoreException {
+		return 
+			createJavaProject(
+				projectName, 
+				sourceFolders, 
+				libraries, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				projects, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no exported project*/, 
+				projectOutput, 
+				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				compliance
+			);
+		}
 	protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final boolean[] exportedProjects, final String projectOutput, final String[] sourceOutputs, final String[][] inclusionPatterns, final String[][] exclusionPatterns, final String compliance) throws CoreException {
 		return
 		this.createJavaProject(

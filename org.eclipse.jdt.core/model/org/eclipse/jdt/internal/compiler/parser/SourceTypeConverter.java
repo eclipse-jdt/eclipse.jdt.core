@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
@@ -60,12 +61,14 @@ public class SourceTypeConverter implements CompilerModifiers {
 	private ICompilationUnit cu;
 	private char[] source;
 	private HashMap annotationPositions;
+	private boolean has1_5Compliance;
 	
 	int namePos;
 	
 	private SourceTypeConverter(int flags, ProblemReporter problemReporter) {
 		this.flags = flags;
 		this.problemReporter = problemReporter;
+		this.has1_5Compliance = problemReporter.options.complianceLevel >= ClassFileConstants.JDK1_5;
 	}
 
 	/*
@@ -106,7 +109,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		this.cu = (ICompilationUnit) cuHandle;
 		this.annotationPositions = ((CompilationUnitElementInfo) ((JavaElement) this.cu).getElementInfo()).annotationPositions;
 
-		if (this.annotationPositions != null && this.annotationPositions.size() > 10) { // experimental value
+		if (this.has1_5Compliance && this.annotationPositions != null && this.annotationPositions.size() > 10) { // experimental value
 			// if more than 10 annotations, diet parse as this is faster
 			return new Parser(this.problemReporter, true).dietParse(this.cu, compilationResult);
 		}
@@ -215,8 +218,11 @@ public class SourceTypeConverter implements CompilerModifiers {
 			field.type = createTypeReference(fieldInfo.getTypeName(), start, end);
 		}
 
-		/* convert annotations */
-		field.annotations = convertAnnotations(fieldHandle);
+		// convert 1.5 specific constructs only if compliance is 1.5 or above
+		if (this.has1_5Compliance) {
+			/* convert annotations */
+			field.annotations = convertAnnotations(fieldHandle);
+		}
 
 		/* conversion of field constant */
 		if ((this.flags & FIELD_INITIALIZATION) != 0) {
@@ -266,16 +272,19 @@ public class SourceTypeConverter implements CompilerModifiers {
 		int start = methodInfo.getNameSourceStart();
 		int end = methodInfo.getNameSourceEnd();
 
-		/* convert type parameters */
-		char[][] typeParameterNames = methodInfo.getTypeParameterNames();
+		// convert 1.5 specific constructs only if compliance is 1.5 or above
 		TypeParameter[] typeParams = null;
-		if (typeParameterNames != null) {
-			int parameterCount = typeParameterNames.length;
-			if (parameterCount > 0) { // method's type parameters must be null if no type parameter
-				char[][][] typeParameterBounds = methodInfo.getTypeParameterBounds();
-				typeParams = new TypeParameter[parameterCount];
-				for (int i = 0; i < parameterCount; i++) {
-					typeParams[i] = createTypeParameter(typeParameterNames[i], typeParameterBounds[i], start, end);
+		if (this.has1_5Compliance) {
+			/* convert type parameters */
+			char[][] typeParameterNames = methodInfo.getTypeParameterNames();
+			if (typeParameterNames != null) {
+				int parameterCount = typeParameterNames.length;
+				if (parameterCount > 0) { // method's type parameters must be null if no type parameter
+					char[][][] typeParameterBounds = methodInfo.getTypeParameterBounds();
+					typeParams = new TypeParameter[parameterCount];
+					for (int i = 0; i < parameterCount; i++) {
+						typeParams[i] = createTypeParameter(typeParameterNames[i], typeParameterBounds[i], start, end);
+					}
 				}
 			}
 		}
@@ -323,8 +332,11 @@ public class SourceTypeConverter implements CompilerModifiers {
 		method.declarationSourceStart = methodInfo.getDeclarationSourceStart();
 		method.declarationSourceEnd = methodInfo.getDeclarationSourceEnd();
 
-		/* convert annotations */
-		method.annotations = convertAnnotations(methodHandle);
+		// convert 1.5 specific constructs only if compliance is 1.5 or above
+		if (this.has1_5Compliance) {
+			/* convert annotations */
+			method.annotations = convertAnnotations(methodHandle);
+		}
 
 		/* convert arguments */
 		String[] argumentTypeSignatures = methodHandle.getParameterTypes();
@@ -414,19 +426,23 @@ public class SourceTypeConverter implements CompilerModifiers {
 		type.declarationSourceEnd = typeInfo.getDeclarationSourceEnd();
 		type.bodyEnd = type.declarationSourceEnd;
 		
-		/* convert annotations */
-		type.annotations = convertAnnotations(typeHandle);
-
-		/* convert type parameters */
-		char[][] typeParameterNames = typeInfo.getTypeParameterNames();
-		if (typeParameterNames.length > 0) {
-			int parameterCount = typeParameterNames.length;
-			char[][][] typeParameterBounds = typeInfo.getTypeParameterBounds();
-			type.typeParameters = new TypeParameter[parameterCount];
-			for (int i = 0; i < parameterCount; i++) {
-				type.typeParameters[i] = createTypeParameter(typeParameterNames[i], typeParameterBounds[i], start, end);
+		// convert 1.5 specific constructs only if compliance is 1.5 or above
+		if (this.has1_5Compliance) {
+			/* convert annotations */
+			type.annotations = convertAnnotations(typeHandle);
+	
+			/* convert type parameters */
+			char[][] typeParameterNames = typeInfo.getTypeParameterNames();
+			if (typeParameterNames.length > 0) {
+				int parameterCount = typeParameterNames.length;
+				char[][][] typeParameterBounds = typeInfo.getTypeParameterBounds();
+				type.typeParameters = new TypeParameter[parameterCount];
+				for (int i = 0; i < parameterCount; i++) {
+					type.typeParameters[i] = createTypeParameter(typeParameterNames[i], typeParameterBounds[i], start, end);
+				}
 			}
 		}
+		
 		/* set superclass and superinterfaces */
 		if (typeInfo.getSuperclassName() != null) {
 			type.superclass = createTypeReference(typeInfo.getSuperclassName(), start, end);
@@ -684,6 +700,9 @@ public class SourceTypeConverter implements CompilerModifiers {
 					identCount ++;
 					break;
 				case '<' :
+					// convert 1.5 specific constructs only if compliance is 1.5 or above
+					if (!this.has1_5Compliance) 
+						break typeLoop;
 					if (fragments == null) fragments = new ArrayList(2);
 					nameFragmentEnd = this.namePos-1;
 					char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, this.namePos);
@@ -695,6 +714,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 					nameFragmentStart = -1;
 					nameFragmentEnd = -1;
 					// next increment will skip '>'
+					break;
 			}
 			this.namePos++;
 		}
