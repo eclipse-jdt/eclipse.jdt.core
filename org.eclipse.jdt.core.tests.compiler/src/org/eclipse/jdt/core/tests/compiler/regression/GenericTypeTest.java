@@ -20967,4 +20967,84 @@ public void test725() {
 		"The method resize(T[], T[]) in the type AbsC is not applicable for the arguments (T[][], Object[][])\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98500
+public void test726() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		\n" + 
+			"		Controller<?> ctrl = null;\n" + 
+			"		foobar(ctrl.getView().getContent()); \n" + 
+			"	} \n" + 
+			"	\n" + 
+			"	static void foobar(X x) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface Controller<T extends View<?>> {\n" + 
+			"    public T getView() ;\n" + 
+			"}\n" + 
+			"interface View<U extends X> {\n" + 
+			"	public U getContent();\n" + 
+			"}\n"				
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98500 - variation
+public void test727() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"	\n" + 
+			"	void foo() {\n" + 
+			"		\n" + 
+			"		Controller<?> ctrl = null;\n" + 
+			"		foobar(ctrl.getView().getContent()); \n" + 
+			"	} \n" + 
+			"	\n" + 
+			"	static void foobar(X<String> x) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface Controller<T extends View<?>> {\n" + 
+			"    public T getView() ;\n" + 
+			"}\n" + 
+			"interface View<U extends X<String>> {\n" + 
+			"	public U getContent();\n" + 
+			"}\n"				
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98500 - variation
+public void test728() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		\n" + 
+			"		Controller<?> ctrl = null;\n" + 
+			"		foobar(ctrl.getView().getContent()); \n" + 
+			"	} \n" + 
+			"	\n" + 
+			"	static void foobar(X<String> x) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface Controller<T extends View<?>> {\n" + 
+			"    public T getView() ;\n" + 
+			"}\n" + 
+			"interface View<U extends X<U>> {\n" + 
+			"	public U getContent();\n" + 
+			"}\n"			
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	foobar(ctrl.getView().getContent()); \n" + 
+		"	^^^^^^\n" + 
+		"The method foobar(X<String>) in the type X<E> is not applicable for the arguments (?)\n" + 
+		"----------\n");
+}
 }

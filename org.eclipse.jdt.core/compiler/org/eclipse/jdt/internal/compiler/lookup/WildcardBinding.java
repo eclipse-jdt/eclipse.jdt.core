@@ -461,7 +461,7 @@ public class WildcardBinding extends ReferenceBinding {
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding#superclass()
      */
-    public ReferenceBinding superclass1() {
+    public ReferenceBinding superclass() {
 		if (this.superclass == null) {
 			TypeBinding superType = null;
 			if (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) {
@@ -478,7 +478,7 @@ public class WildcardBinding extends ReferenceBinding {
 		return this.superclass;
     }
     
-    public ReferenceBinding superclass() {
+    public ReferenceBinding superclass2() {
 		if (this.superclass == null) {
 			TypeBinding superType = (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) 
 				? this.bound
@@ -504,7 +504,7 @@ public class WildcardBinding extends ReferenceBinding {
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
      */
-    public ReferenceBinding[] superInterfaces1() {
+    public ReferenceBinding[] superInterfaces() {
         if (this.superInterfaces == null) {
         	if (this.typeVariable() != null) {
         		this.superInterfaces = this.typeVariable.superInterfaces();
@@ -532,7 +532,7 @@ public class WildcardBinding extends ReferenceBinding {
         return this.superInterfaces;
     }
 
-    public ReferenceBinding[] superInterfaces() {
+    public ReferenceBinding[] superInterfaces2() {
         if (this.superInterfaces == null) {
         	if (this.boundKind == Wildcard.EXTENDS) {
         		if (this.bound.isInterface()) {
