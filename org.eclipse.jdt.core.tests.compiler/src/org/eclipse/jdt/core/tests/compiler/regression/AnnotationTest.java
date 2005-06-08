@@ -37,8 +37,8 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 150 };
-//		TESTS_RANGE = new int[] { 21, 50 };
+//		TESTS_NUMBERS = new int[] { 15 };
+		TESTS_RANGE = new int[] { 160, 170 };
 	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
@@ -4693,5 +4693,373 @@ public class AnnotationTest extends AbstractComparableTest {
     		"	                  ^^^^^^^^^^^^^^^^^^\n" + 
     		"Unhandled warning token assertIdentifier\n" + 
     		"----------\n");
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test151() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings({\"boxing\"})\n" +
+				"public class X {\n" +
+				"	 static void foo(int i) {}\n" +
+				"	 public static void main(String[] args) {\n" +
+				"		foo(new Integer(0));\n" +
+				"	 }\n" +
+				"}",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test152() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings({\"boxing\"})\n" +
+				"public class X {\n" +
+				"	 static void foo(Integer i) {}\n" +
+				"	 public static void main(String[] args) {\n" +
+				"		foo(0);\n" +
+				"	 }\n" +
+				"}",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test153() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "enum E { A, B, C }\n" +
+				"public class X {\n" +
+				"    @SuppressWarnings({\"incomplete-switch\"})\n" +
+				"	 public static void main(String[] args) {\n" +
+				"		for (E e : E.values()) {\n" +
+				"			switch(e) {\n" +
+				"				case A :\n" +
+				"					System.out.println(e);\n" +
+				"				break;\n" +
+				"			}\n" +
+				"		}\n" +
+				"	 }\n" +
+				"}",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test154() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" +
+				"	 static int i;\n" +
+				"    @SuppressWarnings({\"hiding\"})\n" +
+				"	 public static void main(String[] args) {\n" +
+				"		for (int i = 0, max = args.length; i < max; i++) {\n" +
+				"			System.out.println(args[i]);\n" +
+				"		}\n" +
+				"	 }\n" +
+				"}",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test155() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings({\"hiding\"})\n" +
+	   			"public class X {	\n"+
+    			"	{ int x = \n"+
+    			"		new Object() { 	\n"+
+    			"			int foo() {	\n"+
+    			"				int x = 0;\n" +
+    			"				return x;	\n"+
+    			"			}	\n"+
+    			"		}.foo();	\n"+
+    			"	}	\n"+
+    			"}\n",
+           },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test156() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+	   			"class T {}\n" +
+				"@SuppressWarnings({\"hiding\"})\n" +
+	   			"public class X<T> {\n"+
+    			"}\n",
+           },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test157() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			"public class X {\n" + 
+				"   @SuppressWarnings({\"hiding\"})\n" +
+    			"	public static void main(String[] args) {\n" + 
+    			"		try {\n" + 
+    			"			throw new BX();\n" + 
+    			"		} catch(BX e) {\n" + 
+    			"		} catch(AX e) {\n" + 
+    			"		}\n" + 
+    			"	}\n" + 
+    			"} \n" + 
+				"@SuppressWarnings({\"serial\"})\n" +
+	   			"class AX extends Exception {}\n" + 
+				"@SuppressWarnings({\"serial\"})\n" +
+    			"class BX extends AX {}\n"		
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test158() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			"public class X {\n" + 
+				"   @SuppressWarnings({\"finally\"})\n" +
+    			"	public static void main(String[] args) {\n" + 
+    			"		try {\n" + 
+    			"			throw new AX();\n" + 
+    			"		} finally {\n" +
+    			"			return;\n" +
+    			"		}\n" + 
+    			"	}\n" + 
+    			"} \n" + 
+				"@SuppressWarnings({\"serial\"})\n" +
+	   			"class AX extends Exception {}" 
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test159() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings({\"static-access\"})\n" +
+	   			"public class X extends XZ {\n" + 
+    			"	\n" + 
+    			"	void foo() {\n" + 
+    			"		int j = X.S;\n" + 
+    			"		int k = super.S;\n" + 
+    			"		int l = XZ.S;\n" + 
+    			"		int m = XY.S;\n" + 
+    			"		\n" + 
+    			"		bar();\n" + 
+    			"		X.bar();\n" + 
+    			"		XY.bar();\n" + 
+    			"		XZ.bar();\n" + 
+    			"	}\n" + 
+    			"}\n" + 
+    			"class XY {\n" + 
+    			"	static int S = 10;\n" + 
+    			"	static void bar(){}\n" + 
+    			"}\n" + 
+    			"class XZ extends XY {\n" + 
+    			"}"
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test160() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings(\"static-access\")\n" +
+	   			"public class X {\n" + 
+    			"	void foo() {\n" + 
+    			"		int m = new XY().S;\n" + 
+    			"	}\n" + 
+    			"}\n" + 
+    			"class XY {\n" + 
+    			"	static int S = 10;\n" + 
+    			"}"
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test161() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "@SuppressWarnings(\"unqualified-field-access\")\n" +
+	   			"public class X {\n" + 
+	   			"	int i;\n" +
+    			"	int foo() {\n" + 
+    			"		return i;\n" + 
+    			"	}\n" + 
+    			"}" 
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test162() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "@SuppressWarnings(\"unchecked\")\n" +
+				"public class X<T> {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX ax = new AX();\n" + 
+				"        AX ax2 = ax.p;\n" + 
+				"        ax.p = new AX<String>();\n" + 
+				"        ax.q = new AX<String>();\n" + 
+				"        ax.r = new AX<Object>();\n" + 
+				"        System.out.println(ax2);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX <P> {\n" + 
+				"    AX<P> p;\n" + 
+				"    AX<Object> q;\n" + 
+				"    AX<String> r;\n" + 
+				"    BX<String> s;\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BX<Q> {\n" + 
+				"}\n",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test163() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "import java.io.*;\n" +
+                "@SuppressWarnings(\"unused\")\n" +
+				"public class X<T> {\n" + 
+				"    \n" + 
+				"    public void foo(int i) throws java.io.IOException {\n" + 
+				"       int j = 0;\n" +
+				"		class C {\n" +
+				"			private void bar() {}\n" + 			
+				"		}\n" +
+				"    }\n" + 
+				"}" 
+            },
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 1)\n" + 
+    		"	import java.io.*;\n" + 
+    		"	       ^^^^^^^\n" + 
+    		"The import java.io is never used\n" + 
+    		"----------\n",
+			null,
+			true,
+			options
+		);
+    }
+    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test164() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "@SuppressWarnings({\"synthetic-access\", \"unused\"})\n" +
+				"public class X {\n" + 
+				"    private int i;\n" +
+				"	 private void bar() {}\n" +
+				"    public void foo() {\n" + 
+				"       class C {\n" +
+				"			private void bar() {\n" +
+				"				System.out.println(i);\n" +
+				"				i = 0;\n" +
+				"				bar();\n" +
+				"			}\n" +
+				"		};\n" +
+				"		new C().bar();\n" +
+				"    }\n" + 
+				"}" 
+            },
+            "",
+			null,
+			true,
+			options
+		);
     }
 }

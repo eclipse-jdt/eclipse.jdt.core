@@ -888,7 +888,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 					return "hiding"; //$NON-NLS-1$
 				case (int) NonExternalizedString :
 					return "nls"; //$NON-NLS-1$
-				case (int) UnusedImport :
 				case (int) UnusedLocalVariable :
 				case (int) UnusedArgument :
 				case (int) UnusedPrivateMember:
@@ -963,7 +962,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				break;
 			case 'u' :
 				if ("unused".equals(warningToken)) //$NON-NLS-1$
-					return UnusedLocalVariable | UnusedArgument | UnusedImport | UnusedPrivateMember | UnusedDeclaredThrownException;
+					return UnusedLocalVariable | UnusedArgument | UnusedPrivateMember | UnusedDeclaredThrownException;
 				if ("unchecked".equals(warningToken)) //$NON-NLS-1$
 					return UncheckedTypeOperation;
 				if ("unqualified-field-access".equals(warningToken)) //$NON-NLS-1$
