@@ -38,7 +38,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
 //		TESTS_NUMBERS = new int[] { 15 };
-		TESTS_RANGE = new int[] { 160, 170 };
+//		TESTS_RANGE = new int[] { 160, 170 };
 	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
