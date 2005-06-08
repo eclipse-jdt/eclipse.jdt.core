@@ -84,8 +84,10 @@ What's new in this drop</h2>
 </li>
 <li><b>synthetic-access</b> : synthetic access for innerclass (<i>syntheticAccess</i>)</li>
 </ul>
-<p>NOTE: <blockquote>All other warning tokens are not longer supported by @SuppressWarnings.<br>In <i>Italic</i> the old warning token is specified.
-<br>Warning tokens also supported by javac are in <font color="red">red</font>.
+<p>NOTE: <blockquote>All other warning tokens are not longer supported by @SuppressWarnings;
+considering that for some diagnosis, it is simpler to just fix the code than silence some warning.
+In <i>Italic</i> the old warning token is specified.
+<br>Warning tokens also supported by javac are in <font color="red">red</font> (also see <a href="http://www.javac.info/doc?n=JavaCompiler.WarningTokens">declared warning tokens</a>).
 </blockquote></p>
 </li>
 <li>CodeAssist: added a new API CompletionProposal#isConstructor() to distinguish method and constructor proposal</li>
@@ -114,7 +116,9 @@ This change is motivated to better match the language spec 3rd edition.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98969">98969</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98892">98892</a>
+[compiler] Eclipse compiler generates code that calls the finally block twice
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98969">98969</a>
 Builder didn't find state for prereq project
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=96586">96586</a>
 [1.5][compiler] Invalid cycle detected
