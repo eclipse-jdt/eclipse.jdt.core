@@ -799,7 +799,6 @@ public class ClassScope extends Scope {
 	*/
 	private boolean connectSuperInterfaces() {
 		SourceTypeBinding sourceType = referenceContext.binding;
-		sourceType.superInterfaces = NoSuperInterfaces;
 		if (referenceContext.superInterfaces == null) {
 			if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
 				ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
@@ -807,10 +806,13 @@ public class ClassScope extends Scope {
 				sourceType.superInterfaces = new ReferenceBinding[] { annotationType };
 				return !foundCycle;
 			}
+			sourceType.superInterfaces = NoSuperInterfaces;
 			return true;
 		}
-		if (sourceType.id == T_JavaLangObject) // already handled the case of redefining java.lang.Object
+		if (sourceType.id == T_JavaLangObject) { // already handled the case of redefining java.lang.Object
+			sourceType.superInterfaces = NoSuperInterfaces;
 			return true;
+		}
 
 		boolean noProblems = true;
 		int length = referenceContext.superInterfaces.length;
@@ -898,6 +900,8 @@ public class ClassScope extends Scope {
 			if (count != length)
 				System.arraycopy(interfaceBindings, 0, interfaceBindings = new ReferenceBinding[count], 0, count);
 			sourceType.superInterfaces = interfaceBindings;
+		} else {
+			sourceType.superInterfaces = NoSuperInterfaces;
 		}
 		return noProblems;
 	}

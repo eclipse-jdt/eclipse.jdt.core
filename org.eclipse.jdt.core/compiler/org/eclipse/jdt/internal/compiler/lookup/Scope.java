@@ -2265,8 +2265,9 @@ public abstract class Scope
 						break;
 					case CLASS_SCOPE :
 						SourceTypeBinding sourceType = ((ClassScope) scope).referenceContext.binding;
-						if (sourceType.isHierarchyBeingConnected()) {
-							// type variables take precedence over the source type, ex. class X <X> extends X == class X <Y> extends Y 
+						if (scope == this && sourceType.isHierarchyBeingConnected()) {
+							// type variables take precedence over the source type, ex. class X <X> extends X == class X <Y> extends Y
+							// but not when we step out to the enclosing type
 							TypeVariableBinding typeVariable = sourceType.getTypeVariable(name);
 							if (typeVariable != null)
 								return typeVariable;

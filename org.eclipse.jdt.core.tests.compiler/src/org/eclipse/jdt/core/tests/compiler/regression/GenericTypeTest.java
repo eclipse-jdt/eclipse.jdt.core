@@ -1222,16 +1222,58 @@ public class GenericTypeTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
+				"public class X <T extends N> {\n" +
+				"	static class N {}" +
+				"}\n" +
+				"class Y <T extends Y.N> {\n" +
+				"	static class N {}" +
+				"}\n" 
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X <T extends N> {\n" + 
+			"	                          ^\n" + 
+			"N cannot be resolved to a type\n" + 
+			"----------\n");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
 				"class Super {class M {}}\n" + 
-				"public class X <T extends M> extends Super {\n" +
-				"}\n", 
+				"public class X <T extends M> extends Super {}\n" +
+				"class Y <T extends Y.M> extends Super {}\n", 
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
-			"	public class X <T extends M> extends Super {\n" + 
+			"	public class X <T extends M> extends Super {}\n" + 
 			"	                          ^\n" + 
 			"M cannot be resolved to a type\n" + 
 			"----------\n");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98504
+	public void test050a() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	class M extends Y implements I {}\n" + 
+				"}\n" + 
+				"class Y {\n" + 
+				"	static interface I { void foo(); }\n" + 
+				"}\n" + 
+				"interface I {}\n"
+			},
+			"");
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test<T extends Test.InnerTest> implements Base<T> {\n" +
+				"	static class InnerTest implements Inner {}\n" + 
+				"}\n"+
+				"interface Base<T> {\n" + 
+				"	interface Inner {}\n" + 
+				"}\n"
+			},
+			"");
 	}
 	public void test051() {
 		this.runConformTest(
