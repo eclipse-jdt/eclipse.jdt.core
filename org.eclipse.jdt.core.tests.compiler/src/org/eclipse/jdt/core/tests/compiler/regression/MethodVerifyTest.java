@@ -3685,4 +3685,127 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// does not override abstract method method(java.util.Iterator<java.lang.Object>[]) in I3
 		);
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99106
+	public void _test061() {
+		this.runNegativeTest(
+			new String[] {
+				"Try.java",
+				"public class Try {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		Ex<String> ex = new Ex<String>();\n" +
+				"		ex.one(\"eclipse\", new Integer(1));\n" +
+				"		ex.two(new Integer(1));\n" +
+				"		ex.three(\"eclipse\");\n" +
+				"		ex.four(\"eclipse\");\n" +
+				"		System.out.print(',');\n" +
+				"		Ex ex2 = ex;\n" +
+				"		ex2.one(\"eclipse\", new Integer(1));\n" + // unchecked warning
+				"		ex2.two(new Integer(1));\n" + // unchecked warning
+				"		ex2.three(\"eclipse\");\n" + // unchecked warning
+				"		ex2.four(\"eclipse\");\n" + // unchecked warning
+				"	}\n" +
+				"}\n" +
+				"class Top<TC> {\n" +
+				"	<TM> void one(TC cTop, TM mTop) { System.out.print(-1); }\n" +
+				"	<TM> void two(TM mTop) { System.out.print(-2); }\n" +
+				"	void three(TC cTop) { System.out.print(-3); }\n" +
+				"	<TM> void four(TC cTop) { System.out.print(-4); }\n" +
+				"}\n" +
+				"class Ex<C> extends Top<C> {\n" +
+				"	@Override <M> void one(C cEx, M mEx) { System.out.print(1); }\n" +
+				"	@Override <M> void two(M mEx) { System.out.print(2); }\n" +
+				"	@Override void three(C cEx) { System.out.print(3); }\n" +
+				"	@Override <M> void four(C cEx) { System.out.print(4); }\n" +
+				"}"				
+			},
+			"----------\n" + 
+			"1. WARNING in Try.java (at line 10)\n" + 
+			"	ex2.one(\"eclipse\", new Integer(1));\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method one(Object, Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Try.java (at line 11)\n" + 
+			"	ex2.two(new Integer(1));\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method two(Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Try.java (at line 12)\n" + 
+			"	ex2.three(\"eclipse\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method three(Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in Try.java (at line 13)\n" + 
+			"	ex2.four(\"eclipse\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method four(Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n"
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99106
+	public void _test062() {
+		this.runNegativeTest(
+			new String[] {
+				"Errors.java",
+				"public class Errors {\n" +
+				"	void foo() {\n" +
+				"		Ex<String> ex = new Ex<String>();\n" +
+				"		ex.proof(\"eclipse\");\n" +
+				"		ex.five(\"eclipse\");\n" +
+				"		ex.six(\"eclipse\");\n" +
+				"		Ex ex2 = ex;\n" +
+				"		ex2.proof(\"eclipse\");\n" +
+				"		ex2.five(\"eclipse\");\n" +
+				"		ex2.six(\"eclipse\");\n" +
+				"	}\n" +
+				"}\n" +
+				"class Top<TC> {\n" +
+				"	<TM> void proof(Object cTop) {}\n" +
+				"	<TM> void five(TC cTop) {}\n" +
+				"	void six(TC cTop) {}\n" +
+				"}\n" +
+				"class Ex<C> extends Top<C> {\n" +
+				"	@Override void proof(Object cTop) {}\n" +
+				"	@Override void five(C cEx) {}\n" +
+				"	@Override <M> void six(C cEx) {}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in Errors.java (at line 6)\n" + 
+			"	ex.six(\"eclipse\");\n" + 
+			"	   ^^^\n" + 
+			"The method six(String) is ambiguous for the type Ex<String>\n" + 
+			"----------\n" + 
+			"2. WARNING in Errors.java (at line 9)\n" + 
+			"	ex2.five(\"eclipse\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method five(Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in Errors.java (at line 10)\n" + 
+			"	ex2.six(\"eclipse\");\n" + 
+			"	    ^^^\n" + 
+			"The method six(Object) is ambiguous for the type Ex\n" + 
+			"----------\n" + 
+			"4. ERROR in Errors.java (at line 21)\n" + 
+			"	@Override <M> void six(C cEx) {}\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"The method six(C) of type Ex<C> must override a superclass method\n" + 
+			"----------\n" + 
+			"5. ERROR in Errors.java (at line 21)\n" + 
+			"	@Override <M> void six(C cEx) {}\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"Name clash: The method six(C) of type Ex<C> has the same erasure as six(TC) of type Top<TC> but does not override it\n" + 
+			"----------\n"
+			// we disagree about the ambiguous errors on lines 5, 9 & 20, see the message sends to proof()
+			// 5: reference to five is ambiguous, both method <TM>five(TC) in Top<java.lang.String> and method five(C) in Ex<java.lang.String> match
+			// 6: reference to six is ambiguous, both method six(TC) in Top<java.lang.String> and method <M>six(C) in Ex<java.lang.String> match
+			// 9: reference to five is ambiguous, both method <TM>five(TC) in Top and method five(C) in Ex match
+			// 9: warning: [unchecked] unchecked call to <TM>five(TC) as a member of the raw type Top
+			// 10: reference to six is ambiguous, both method six(TC) in Top and method <M>six(C) in Ex match
+			// 10: warning: [unchecked] unchecked call to six(TC) as a member of the raw type Top
+			// 20: method does not override a method from its superclass
+			// 21: method does not override a method from its superclass
+		);
+	}
 }
