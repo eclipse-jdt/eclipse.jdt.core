@@ -231,7 +231,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		buf.append("                        .Z2 {\n");
 		buf.append("\n");
 		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		assertEqualString(Util.convertToIndependantLineDelimiter(preview), Util.convertToIndependantLineDelimiter(buf.toString()));
 	}
 	
 	/** @deprecated using deprecated code */
@@ -280,7 +280,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		buf.append("                        .Z2 {\n");
 		buf.append("\n");
 		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		assertEqualString(Util.convertToIndependantLineDelimiter(preview), Util.convertToIndependantLineDelimiter(buf.toString()));
 	}
 	
 	public void test0006() throws Exception {
@@ -332,7 +332,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		buf.append("        bar2();//comment2\n");
 		buf.append("    }\n");
 		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
+		assertEqualString(Util.convertToIndependantLineDelimiter(preview), Util.convertToIndependantLineDelimiter(buf.toString()));
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=93208
@@ -433,6 +433,6 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 //		buf.append("    \n");
 //		buf.append("    }\n");
 //		buf.append("}\n");
-//		assertEqualString(preview, buf.toString());
+//		assertEqualString(Util.convertToIndependantLineDelimiter(preview), Util.convertToIndependantLineDelimiter(buf.toString()));
 //	}
 }
