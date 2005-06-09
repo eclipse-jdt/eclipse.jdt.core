@@ -21147,4 +21147,27 @@ public void test730() {
 		"Type safety: The cast from X.SuperInterface<capture-of ? extends X.SuperInterface> to X.SubInterface is actually checking against the erased type X.SubInterface\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=97440
+public void test731() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"	X<? super E> parent;\n" + 
+			"	X<? super E> current;\n" + 
+			"\n" + 
+			"	X<? extends E> parent2;\n" + 
+			"	X<? extends E> current2;\n" + 
+			"\n" + 
+			"	void foo() {\n" + 
+			"		current = current.parent;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	void bar() {\n" + 
+			"		current2 = current2.parent2;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"");
+}
 }

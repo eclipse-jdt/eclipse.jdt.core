@@ -325,21 +325,28 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 		case Binding.WILDCARD_TYPE :
 			TypeBinding lowerBound = this;
 			TypeBinding upperBound = this;
-			if (isWildcard()) {
-				WildcardBinding wildcard = (WildcardBinding) this;
-				switch(wildcard.boundKind) {
-					case Wildcard.EXTENDS :
-						upperBound = wildcard.bound;
-						lowerBound = null;
-						break;
-					case Wildcard. SUPER :
-						upperBound = wildcard;
-						lowerBound = wildcard.bound;
-						break;
-					case Wildcard.UNBOUND :
-						upperBound = wildcard;
-						lowerBound = null;
-				}
+			switch (this.kind()) {
+				case Binding.WILDCARD_TYPE :
+					WildcardBinding wildcard = (WildcardBinding) this;
+					switch(wildcard.boundKind) {
+						case Wildcard.EXTENDS :
+							upperBound = wildcard.bound;
+							lowerBound = null;
+							break;
+						case Wildcard. SUPER :
+							upperBound = wildcard;
+							lowerBound = wildcard.bound;
+							break;
+						case Wildcard.UNBOUND :
+							upperBound = wildcard;
+							lowerBound = null;
+					}
+					break;
+				case Binding.TYPE_PARAMETER :
+					if (this.isCapture()) {
+						CaptureBinding capture = (CaptureBinding) this;
+						if (capture.lowerBound != null) lowerBound = capture.lowerBound;
+					}
 			}
 			WildcardBinding otherWildcard = (WildcardBinding) otherType;
 			if (otherWildcard.otherBounds != null) return false; // not a true wildcard (intersection type)

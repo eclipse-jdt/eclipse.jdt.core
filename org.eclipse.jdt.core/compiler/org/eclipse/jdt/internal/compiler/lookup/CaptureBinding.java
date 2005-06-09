@@ -149,7 +149,8 @@ public class CaptureBinding extends TypeVariableBinding {
 				break;
 			case Wildcard.SUPER :
 				this.superclass = substitutedVariableSuperclass;
-				substitutedWildcardBound = Scope.substitute(capturedParameterizedType, wildcard.bound);
+				// prevent cyclic capture: given X<T>, capture(X<? super T> could yield a circular type
+				substitutedWildcardBound = wildcard.bound.isTypeVariable() ? wildcard.bound : Scope.substitute(capturedParameterizedType, wildcard.bound);
 				if (wildcardVariable.firstBound == this.superclass 
 						|| substitutedWildcardBound == this.superclass) {
 					this.firstBound = this.superclass;
