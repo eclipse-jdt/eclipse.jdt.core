@@ -44,11 +44,24 @@ public class ElementChangedListener implements IElementChangedListener
 		}
 		if ( delta.getElement() instanceof ICompilationUnit )
 		{
+			//
+			// handle case where a working copy is discarded (e.g., an editor is closed).  If an editor 
+			// is noopen, then the compilation unit's isWorkingCopy() will return false.
+			//
+			
 			ICompilationUnit cu = (ICompilationUnit) delta.getElement();	
-				
-			// handle case where a parent editor is closed.  If an editor is open, then 
-			// the compilation unit's isWorkingCopy() will return false.
-			if ( ! cu.isWorkingCopy() )
+
+			//
+			// cu.isWorkingCopy() doesn't work here.  For back-compat reasons, that always returns 
+			// true for non-primary working copies, so we use the following test to see if a working copy
+			// has been discarded.
+			//
+			// TODO:  remove reference to jdt-internal class
+			//
+			org.eclipse.jdt.internal.core.CompilationUnit cu2 = (org.eclipse.jdt.internal.core.CompilationUnit)cu;			
+			boolean workingCopyDiscarded = cu2.isPrimary() ? !cu.isWorkingCopy() : cu2.getPerWorkingCopyInfo() == null;
+
+			if ( workingCopyDiscarded )
 			{
 				IJavaProject jp = cu.getJavaProject();
 				IProject p = jp.getProject();

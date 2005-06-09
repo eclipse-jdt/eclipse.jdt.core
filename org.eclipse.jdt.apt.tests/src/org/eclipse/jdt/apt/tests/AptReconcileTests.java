@@ -285,11 +285,11 @@ public class AptReconcileTests extends ModifyingResourceTests
 		}
 	}
 
-	/*
-	 * Temporarily disabled until I can figure out why this is failing.
-	 * See Mike K.
+	/**
+	 * Tests that when a working copy is discarded, we clean up any cached data in the
+	 * GeneratedFileManager.
 	 */
-	public void _testDiscardParentWorkingCopy()
+	public void testDiscardParentWorkingCopy()
 	 	throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
@@ -319,6 +319,9 @@ public class AptReconcileTests extends ModifyingResourceTests
 			
 			IProject p = _workingCopy.getJavaProject().getProject();
 			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
+			
+			if ( !gfm.containsWorkingCopyMapEntriesForParent((IFile)_workingCopy.getResource()))
+				fail( "Expected to find map entries in GeneratedFileManager");
 			
 			_workingCopy.discardWorkingCopy();
 

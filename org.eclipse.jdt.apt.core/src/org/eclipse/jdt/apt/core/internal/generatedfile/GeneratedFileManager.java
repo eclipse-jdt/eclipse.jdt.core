@@ -924,21 +924,27 @@ public class GeneratedFileManager {
 	public synchronized boolean containsWorkingCopyMapEntriesForParent( IFile f )
 	{
 		Collection<Set<IFile>> parentSets = _generatedWorkingCopy2OpenParentFiles.values();
-		for( Set<IFile> s : parentSets )
+		if ( parentSets != null )
 		{
-			if ( s.contains( f ) )
-				return true;
+			for( Set<IFile> s : parentSets )
+			{
+				if ( s.contains( f ) )
+					return true;
+			}
 		}
 
 		Set<IFile> generatedFiles = _parentFile2GeneratedFiles.get( f );
-		for ( IFile gf : generatedFiles )
+		if ( generatedFiles != null )
 		{
-			ICompilationUnit cu = _generatedFile2WorkingCopy.get( gf );
-			if ( cu != null )
+			for ( IFile gf : generatedFiles )
 			{
-				Set<IFile> parents = _generatedWorkingCopy2OpenParentFiles.get( cu );
-				if ( parents.contains( cu ) || parents.size() == 0 )
-					return true;
+				ICompilationUnit cu = _generatedFile2WorkingCopy.get( gf );
+				if ( cu != null )
+				{
+					Set<IFile> parents = _generatedWorkingCopy2OpenParentFiles.get( cu );
+					if ( parents.contains( cu ) || parents.size() == 0 )
+						return true;
+				}
 			}
 		}
 		
