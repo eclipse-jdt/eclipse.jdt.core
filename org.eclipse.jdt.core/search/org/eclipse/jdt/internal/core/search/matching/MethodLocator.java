@@ -151,11 +151,16 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 		if (length != argsLength) return IMPOSSIBLE_MATCH;
 		for (int i = 0; i < argsLength; i++) {
 			if (!matchesTypeReference(this.pattern.parameterSimpleNames[i], ((Argument) args[i]).type)) {
-				if (!((InternalSearchPattern)this.pattern).mustResolve) {
-					// Set resolution flag on node set in case of types was inferred in parameterized types from generic ones...
-				 	// (see  bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=79990, 96761, 96763)
-					nodeSet.mustResolve = true;
-					resolve = true;
+				// Do not return as impossible when source level is at least 1.5
+				if (this.mayBeGeneric) {
+					if (!((InternalSearchPattern)this.pattern).mustResolve) {
+						// Set resolution flag on node set in case of types was inferred in parameterized types from generic ones...
+					 	// (see  bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=79990, 96761, 96763)
+						nodeSet.mustResolve = true;
+						resolve = true;
+					}
+				} else {
+					return IMPOSSIBLE_MATCH;
 				}
 			}
 		}
