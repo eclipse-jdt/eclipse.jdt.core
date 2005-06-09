@@ -236,8 +236,7 @@ public class DependencyTests extends Tests {
 		expectingNoProblems();
 	}
 
-	// TODO (kent) test is sometime failing (timing issue ?)
-	public void _testExternalJarChanged() throws CoreException, java.io.IOException {
+	public void testExternalJarChanged() throws CoreException, java.io.IOException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -261,6 +260,7 @@ public class DependencyTests extends Tests {
 			new java.util.HashMap(),
 			externalJar
 		);
+		long lastModified = new java.io.File(externalJar).lastModified();
 		env.addExternalJar(projectPath, externalJar);
 
 		// build -> expecting problems
@@ -280,6 +280,7 @@ public class DependencyTests extends Tests {
 			new java.util.HashMap(),
 			externalJar
 		);
+		new java.io.File(externalJar).setLastModified(lastModified + 1); // to be sure its different
 		// add new class to trigger an incremental build
 		env.getProject(projectPath).touch(null);
 
