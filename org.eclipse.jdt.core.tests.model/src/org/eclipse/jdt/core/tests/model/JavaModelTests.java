@@ -266,6 +266,27 @@ public void testContains6() throws CoreException {
 	}
 }
 
+/*
+ * Ensure that using JavaCore.create(IResource) for a package that is defined in a different project
+ * returns a non-null value
+ * (regression test for bug 97487 [call hierarchy] Call Hierarchy Fails in mounted classes with attached src files)
+ */
+public void testCreatePkgHandleInDifferentProject() throws CoreException {
+	try {
+		createJavaProject("P1", new String[] {}, "bin");
+		IFolder folder = createFolder("/P1/lib/x/y");
+		createJavaProject("P2", new String[] {}, new String[] {"/P1/lib"}, "");
+		IJavaElement element = JavaCore.create(folder);
+		assertElementEquals(
+			"Unexpected element",
+			"x.y [in /P1/lib [in P2]]",
+			element
+		);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+
 /**
  * Test that a model has no project.
  */

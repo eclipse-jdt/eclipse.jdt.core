@@ -483,10 +483,29 @@ public class JavaModelManager implements ISaveParticipant {
 		if (folder == null) {
 			return null;
 		}
+		IJavaElement element;
 		if (project == null) {
 			project = JavaCore.create(folder.getProject());
+			element = determineIfOnClasspath(folder, project);
+			if (element == null) {
+				// walk all projects and find one that have the given folder on its classpath
+				IJavaProject[] projects;
+				try {
+					projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+				} catch (JavaModelException e) {
+					return null;
+				}
+				for (int i = 0, length = projects.length; i < length; i++) {
+					project = projects[i];
+					element = determineIfOnClasspath(folder, project);
+					if (element != null)
+						break;
+				}
+			}
+		} else {
+			element = determineIfOnClasspath(folder, project);
 		}
-		IJavaElement element = determineIfOnClasspath(folder, project);
+		
 		if (conflictsWithOutputLocation(folder.getFullPath(), (JavaProject)project)
 		 	|| (folder.getName().indexOf('.') >= 0 
 		 		&& !(element instanceof IPackageFragmentRoot))) {
