@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.IOException;
 import java.util.List;
 
 import junit.framework.Test;
@@ -18,6 +19,7 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -38,7 +40,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	static {
 //		TESTS_NUMBERS = new int[] { 188 };
-//		TESTS_NAMES = new String[] {"test0187"};
+//		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -5620,4 +5622,48 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Not a type variable", typeBinding.isTypeVariable());
 	}
 
+	public void test0189() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
+			addLibrary(project, "lib.jar", "src.zip", new String[] {
+				"/P1/p/I1.java",
+				"package p;\n" + 
+				"public class I1<E> {\n" + 
+				"}",
+				"/P1/p/I2.java",
+				"package p;\n" + 
+				"public interface I2<K, V> {\n" + 
+				"	interface I3<K,V> {}\n" + 
+				"	I1<I2.I3<K, V>> foo();\n" + 
+				"}",
+				"/P1/p/X.java",
+				"package p;\n" + 
+				"public class X<K,V>  implements I2<K,V> {\n" + 
+				"	public I1<I2.I3<K,V>> foo() {\n" + 
+				"		return null;\n" + 
+				"	}	\n" + 
+				"}"
+			}, "1.5");
+			this.workingCopy = getWorkingCopy("/P1/p1/Y.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p1;\n" +
+				"import p.*;\n" + 
+				"public abstract class Y implements I2 {\n" + 
+				"	public I1 foo() {\n" + 
+				"		return /*start*/bar().foo()/*end*/;\n" + 
+				"	}\n" + 
+				"	private X bar() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}",
+				this.workingCopy);
+			MethodInvocation method = (MethodInvocation) node;
+			IMethodBinding methodBinding = method.resolveMethodBinding();
+			assertBindingEquals(
+				"Lp/X;.foo()Lp/I1<Lp/I2$I3<TK;TV;>;>;",
+				methodBinding.getMethodDeclaration());
+		} finally {
+			deleteProject("P1");
+		}
+	}
 }
