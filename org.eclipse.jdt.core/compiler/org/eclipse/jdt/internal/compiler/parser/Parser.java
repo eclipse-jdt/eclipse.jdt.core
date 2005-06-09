@@ -703,6 +703,11 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	// javadoc support
 	this.javadocParser = new JavadocParser(this);	
 }
+protected void annotationRecoveryCheckPoint(int start, int end) {
+	if(this.lastCheckPoint > start && this.lastCheckPoint < end) {
+		this.lastCheckPoint = end + 1;
+	}
+}
 public void arrayInitializer(int length) {
 	//length is the size of the array Initializer
 	//expressionPtr points on the last elt of the arrayInitializer, 
@@ -1037,7 +1042,11 @@ protected void consumeAnnotationAsModifier() {
 	}
 }
 protected void consumeAnnotationName() {
-	// nothing to do
+	if(this.currentElement != null) {
+		int start = this.intStack[this.intPtr];
+		int end = (int) (this.identifierPositionStack[this.identifierPtr] & 0x00000000FFFFFFFFL);
+		annotationRecoveryCheckPoint(start, end);
+	}
 }
 protected void consumeAnnotationTypeDeclaration() {
 	int length;
@@ -4197,6 +4206,11 @@ protected void consumeNormalAnnotation() {
 	}
 	normalAnnotation.declarationSourceEnd = this.rParenPos;
 	pushOnExpressionStack(normalAnnotation);
+	
+	if(this.currentElement != null) {
+		annotationRecoveryCheckPoint(normalAnnotation.sourceStart, normalAnnotation.declarationSourceEnd);
+	}
+	
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		this.problemReporter().invalidUsageOfAnnotation(normalAnnotation);
@@ -6197,6 +6211,12 @@ protected void consumeSingleMemberAnnotation() {
 	this.expressionLengthPtr--;
 	singleMemberAnnotation.declarationSourceEnd = this.rParenPos;
 	pushOnExpressionStack(singleMemberAnnotation);
+	
+	
+	if(this.currentElement != null) {
+		annotationRecoveryCheckPoint(singleMemberAnnotation.sourceStart, singleMemberAnnotation.declarationSourceEnd);
+	}
+	
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		this.problemReporter().invalidUsageOfAnnotation(singleMemberAnnotation);

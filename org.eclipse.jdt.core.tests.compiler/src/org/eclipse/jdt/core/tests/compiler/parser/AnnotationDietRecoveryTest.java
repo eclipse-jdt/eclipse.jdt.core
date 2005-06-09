@@ -498,4 +498,44 @@ public void test0008() {
 		expectedCompletionDietUnitToString,	
 		testName);
 }
+public void test0009() {
+
+	String s = 
+		"package a;											\n"
+			+ "public class X {				        		\n"
+			+ "  @SuppressWarnings(\"unchecked\");\n"
+			+ "  List<Test> l;		\n"
+			+ "}											\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  List<Test> l;\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  List<Test> l;\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
 }
