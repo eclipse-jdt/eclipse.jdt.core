@@ -1489,6 +1489,9 @@ public class JavaModelManager implements ISaveParticipant {
 					paths.add(path);
 				}
 			}
+			/* TODO (frederic) put back when JDT/UI dummy project will be thrown away...
+			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=97524
+			 *
 			if (javaProject.equals(javaProjectToInit)) {
 				if (paths == null) {
 					paths = new HashSet();
@@ -1496,7 +1499,16 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 				paths.add(containerToInit);
 			}
+			*/
 		}
+		// TODO (frederic) remove following block when JDT/UI dummy project will be thrown away...
+		HashSet containerPaths = (HashSet) allContainerPaths.get(javaProjectToInit);
+		if (containerPaths == null) {
+			containerPaths = new HashSet();
+			allContainerPaths.put(javaProjectToInit, containerPaths);
+		}
+		containerPaths.add(containerToInit);
+		// end block
 		
 		// mark all containers as being initialized
 		this.containerInitializationInProgress.set(allContainerPaths);
