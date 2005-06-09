@@ -334,6 +334,53 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=93208
+	/** @deprecated using deprecated code */
+	public void test0007() throws Exception {
+		IPackageFragment pack1= fSourceFolder.createPackageFragment("test", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test; public class Test { }");
+		ICompilationUnit cu= pack1.createCompilationUnit("Test.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createCU(cu, false);
+		
+		astRoot.recordModifications();
+		
+		TypeDeclaration type = (TypeDeclaration) astRoot.types().get(0);
+        AST ast = type.getAST();
+        
+        MethodDeclaration m = ast.newMethodDeclaration();
+        type.bodyDeclarations().add(m);
+        
+        Block block = ast.newBlock();
+        m.setName(ast.newSimpleName("foo"));
+        m.setReturnType(ast.newPrimitiveType(PrimitiveType.VOID));
+        m.setBody(block);
+
+        FieldAccess fa = ast.newFieldAccess();
+        fa.setExpression(ast.newThisExpression());
+        fa.setName(ast.newSimpleName("x"));
+        MethodInvocation mi = ast.newMethodInvocation();
+        mi.setExpression(fa);
+        mi.setName(ast.newSimpleName("llall"));
+        
+        ExpressionStatement exp = ast.newExpressionStatement(mi);
+        block.statements().add(exp);
+
+        StructuralPropertyDescriptor loc = mi.getLocationInParent();
+        //This will cause the bug
+        ASTNode node = ASTNode.copySubtree(ast, fa);
+        exp.setStructuralProperty(loc, node);
+		
+		String preview = evaluateRewrite(cu, astRoot);
+		
+		buf= new StringBuffer();
+		buf.append("package test; public class Test {\r\n");
+		buf.append("\r\n");
+		buf.append("    void foo(){this.x;} }");
+		assertEqualString(preview, buf.toString());
+	}
+	
 //	public void test0007() throws Exception {
 //		IPackageFragment pack1= fSourceFolder.createPackageFragment("test0007", false, null);
 //		StringBuffer buf= new StringBuffer();

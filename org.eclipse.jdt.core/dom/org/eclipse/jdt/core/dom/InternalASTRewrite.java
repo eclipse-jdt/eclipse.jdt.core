@@ -209,7 +209,17 @@ class InternalASTRewrite extends NodeEventHandler {
 	
 	
 	void postCloneNodeEvent(ASTNode node, ASTNode clone) {
-		this.clonedNodes.put(clone, node);
+		if(node.ast == root.ast && clone.ast == root.ast) {
+			if((node.getFlags() & ASTNode.ORIGINAL) != 0) {
+				this.clonedNodes.put(clone, node);
+			} else {
+				// node can be a cloned node
+				Object original = this.clonedNodes.get(node);
+				if(original != null) {
+					this.clonedNodes.put(clone, original);
+				}
+			}
+		}
 		this.cloneDepth--;
 	}
 	
