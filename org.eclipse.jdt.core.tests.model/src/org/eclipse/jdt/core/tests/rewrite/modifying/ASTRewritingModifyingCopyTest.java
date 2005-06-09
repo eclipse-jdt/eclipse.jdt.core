@@ -375,8 +375,8 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		String preview = evaluateRewrite(cu, astRoot);
 		
 		buf= new StringBuffer();
-		buf.append("package test; public class Test {\r\n");
-		buf.append("\r\n");
+		buf.append("package test; public class Test {\n");
+		buf.append("\n");
 		buf.append("    void foo(){this.x;} }");
 		assertEqualString(preview, buf.toString());
 	}
