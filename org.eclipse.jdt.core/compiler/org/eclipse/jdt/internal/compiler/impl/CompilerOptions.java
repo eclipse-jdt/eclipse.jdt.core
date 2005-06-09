@@ -878,6 +878,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		int irritantInt = (int) irritant;
 		if (irritantInt == irritant) {
 			switch (irritantInt) {
+				case (int) (InvalidJavadoc | UsingDeprecatedAPI) :
 				case (int) UsingDeprecatedAPI :
 					return "deprecation"; //$NON-NLS-1$
 				case (int) FinallyBlockNotCompleting :

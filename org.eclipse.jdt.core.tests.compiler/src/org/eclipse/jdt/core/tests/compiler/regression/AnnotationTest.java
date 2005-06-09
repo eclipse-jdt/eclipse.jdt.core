@@ -38,7 +38,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
 //		TESTS_NUMBERS = new int[] { 15 };
-//		TESTS_RANGE = new int[] { 160, 170 };
+		TESTS_RANGE = new int[] { 165, 170 };
 	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
@@ -5062,4 +5062,54 @@ public class AnnotationTest extends AbstractComparableTest {
 			options
 		);
     }
+    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test165() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PRIVATE);
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"/**\n" +
+				" * @see Y\n" +
+				" */\n" +
+                "@SuppressWarnings(\"deprecation\")\n" +
+				"public class X extends Y {\n" + 
+				"	 /**\n" +
+				"	  * @see Y#foo()\n" +
+				"	  * @see Y#j\n" +
+				"	  */\n" +
+				"    public void foo() {\n" + 
+				"		super.foo();\n" +
+				"    }\n" + 
+				"}",
+				"Y.java",
+				"/**\n" +
+				" * @deprecated\n" +
+				" */\n" +
+				"public class Y {\n" +
+				"	/**\n" +
+				"	 * @deprecated\n" +
+				"	 */\n" +
+				"	public void foo() {}\n" +
+				"	/**\n" +
+				"	 * @deprecated\n" +
+				"	 */\n" +
+				"	public int j;\n" +
+				"}"
+            },
+            "",
+			null,
+			true,
+			options
+		);
+    }
+
 }

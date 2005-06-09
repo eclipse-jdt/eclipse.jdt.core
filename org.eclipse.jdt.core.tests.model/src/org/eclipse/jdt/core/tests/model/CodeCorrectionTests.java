@@ -812,5 +812,9 @@ public void testWarningTokens() {
 	assertEquals("wrong token", "unchecked", CorrectionEngine.getWarningToken(IProblem.UnsafeRawGenericMethodInvocation));
 	assertEquals("wrong token", "unchecked", CorrectionEngine.getWarningToken(IProblem.UnsafeRawGenericConstructorInvocation));
 	assertEquals("wrong token", "serial", CorrectionEngine.getWarningToken(IProblem.MissingSerialVersion));
+	assertEquals("wrong token", "deprecation", CorrectionEngine.getWarningToken(IProblem.JavadocUsingDeprecatedField));
+	assertEquals("wrong token", "deprecation", CorrectionEngine.getWarningToken(IProblem.JavadocUsingDeprecatedConstructor));
+	assertEquals("wrong token", "deprecation", CorrectionEngine.getWarningToken(IProblem.JavadocUsingDeprecatedMethod));
+	assertEquals("wrong token", "deprecation", CorrectionEngine.getWarningToken(IProblem.JavadocUsingDeprecatedType));
 }
 }
