@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
 
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 	private static final Class THIS = ASTRewritingModifyingCopyTest.class;
@@ -378,7 +379,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		buf.append("package test; public class Test {\n");
 		buf.append("\n");
 		buf.append("    void foo(){this.x;} }");
-		assertEqualString(preview, buf.toString());
+		assertEqualString(Util.convertToIndependantLineDelimiter(preview), Util.convertToIndependantLineDelimiter(buf.toString()));
 	}
 	
 //	public void test0007() throws Exception {
