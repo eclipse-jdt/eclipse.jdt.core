@@ -267,6 +267,10 @@ public class DependencyTests extends Tests {
 		fullBuild();
 		expectingProblemsFor(classTest);
 
+		try {
+			Thread.sleep(1000);
+		} catch(InterruptedException e) {
+		}
 		// fix jar
 		Util.createJar(
 			new String[] {
@@ -280,7 +284,7 @@ public class DependencyTests extends Tests {
 			new java.util.HashMap(),
 			externalJar
 		);
-		new java.io.File(externalJar).setLastModified(lastModified + 1); // to be sure its different
+		new java.io.File(externalJar).setLastModified(lastModified + 1000); // to be sure its different
 		// add new class to trigger an incremental build
 		env.getProject(projectPath).touch(null);
 

@@ -180,12 +180,17 @@ public class BuildpathTests extends Tests {
 			new HashMap(),
 			externalJar
 		);
+		long lastModified = new java.io.File(externalJar).lastModified();
 		env.addExternalJar(projectPath, externalJar);
 		
 		// build -> expecting problems
 		fullBuild();
 		expectingProblemsFor(classTest);
 		
+		try {
+			Thread.sleep(1000);
+		} catch(InterruptedException e) {
+		}
 		// fix jar
 		Util.createJar(
 			new String[] {
@@ -200,6 +205,7 @@ public class BuildpathTests extends Tests {
 			externalJar
 		);
 		
+		new java.io.File(externalJar).setLastModified(lastModified + 1000); // to be sure its different
 		// refresh project and rebuild -> expecting no problems
 		IJavaProject project = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject("Project")); //$NON-NLS-1$
 		project.getJavaModel().refreshExternalArchives(new IJavaElement[] {project}, null);
