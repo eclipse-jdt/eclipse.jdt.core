@@ -2306,15 +2306,22 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	
 		ArrayList vStats= null; // lazy initialized
-		for (Iterator iter =  this.perProjectInfos.values().iterator(); iter.hasNext();) {
-			try {
-				PerProjectInfo info = (PerProjectInfo) iter.next();
-				saveState(info, context);
-				info.rememberExternalLibTimestamps();
-			} catch (CoreException e) {
-				if (vStats == null)
-					vStats= new ArrayList();
-				vStats.add(e.getStatus());
+		ArrayList values = null;
+		synchronized(this.perProjectInfos) {
+			values = new ArrayList(this.perProjectInfos.values());
+		}
+		if (values != null) {
+			Iterator iterator = values.iterator();
+			while (iterator.hasNext()) {
+				try {
+					PerProjectInfo info = (PerProjectInfo) iterator.next();
+					saveState(info, context);
+					info.rememberExternalLibTimestamps();
+				} catch (CoreException e) {
+					if (vStats == null)
+						vStats= new ArrayList();
+					vStats.add(e.getStatus());
+				}
 			}
 		}
 		if (vStats != null) {
