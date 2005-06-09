@@ -2490,23 +2490,8 @@ public abstract class Scope
 			checkVisibility = true;
 		}
 		// binding is now a ReferenceBinding
-		ReferenceBinding qualifiedType = null;
-
 		ReferenceBinding typeBinding = (ReferenceBinding) binding;
-		if (typeBinding.isGenericType()) {
-			qualifiedType = this.environment().createRawType(typeBinding, qualifiedType);
-		} else if (qualifiedType != null) {
-			boolean rawQualified;
-			if ((rawQualified = qualifiedType.isRawType()) && !typeBinding.isStatic()) {
-				qualifiedType = this.environment().createRawType((ReferenceBinding)typeBinding.erasure(), qualifiedType);
-			} else if (rawQualified || qualifiedType.isParameterizedType()) {
-				qualifiedType = this.environment().createParameterizedType((ReferenceBinding)typeBinding.erasure(), null, qualifiedType);
-			} else {
-				qualifiedType = typeBinding;
-			}
-		} else {
-			qualifiedType = typeBinding;
-		}
+		ReferenceBinding qualifiedType = (ReferenceBinding) this.environment().convertToRawType(typeBinding);
 
 		if (checkVisibility) // handles the fall through case
 			if (!typeBinding.canBeSeenBy(this))
