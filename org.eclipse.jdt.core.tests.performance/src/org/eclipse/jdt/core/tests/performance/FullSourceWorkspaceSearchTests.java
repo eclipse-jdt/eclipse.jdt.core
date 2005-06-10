@@ -20,10 +20,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
+import org.eclipse.test.performance.Performance;
 
 /**
  */
 public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
+
+	// Degradation comment
+	private static final String SEARCH_DEGRADATION_COMMENT = "Garbage collect may occur during test making Elapsed Process result unpredictable";
 
 	// Tests counters
 	private static int TESTS_COUNT = 0;
@@ -289,6 +293,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 */
 	public void testSearchType() throws CoreException {
 		tagAsSummary("Search>Occurences>Types", true); // put in fingerprint
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, SEARCH_DEGRADATION_COMMENT);
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
@@ -323,6 +328,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 */
 	public void testSearchField() throws CoreException {
 		tagAsSummary("Search>Occurences>Fields", true); // put in fingerprint
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, SEARCH_DEGRADATION_COMMENT);
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
@@ -357,6 +363,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 */
 	public void testSearchMethod() throws CoreException {
 		tagAsSummary("Search>Occurences>Methods", true); // put in fingerprint
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, SEARCH_DEGRADATION_COMMENT);
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
@@ -391,6 +398,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	 */
 	public void testSearchConstructor() throws CoreException {
 		tagAsSummary("Search>Occurences>Constructors", true); // put in fingerprint
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, SEARCH_DEGRADATION_COMMENT);
 
 		// Wait for indexing end
 		waitUntilIndexesReady();
