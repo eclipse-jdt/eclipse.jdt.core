@@ -20,11 +20,11 @@ public class VarargsTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
-//	static {
+	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 24, 25 };
+//		TESTS_NUMBERS = new int[] { 30 };
 //		TESTS_RANGE = new int[] { 11, -1 };
-//	}
+	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
 		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
@@ -1134,5 +1134,33 @@ public class VarargsTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
-	}		
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99260
+	public void test030() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		audit(\"osvaldo\", \"localhost\", \"logged\", \"X\", new Integer(0));\n" +
+				"		audit(\"osvaldo\", \"localhost\", \"logged\", \"X\", \"Y\");\n" +
+				"		audit(\"osvaldo\", \"localhost\", \"logged\", new Float(0), new java.awt.Point(0, 0));\n" +
+				"	}\n" +
+				"	public static <A extends Serializable> void audit(String login,\n" +
+				"			String address, String event, A... args) {\n" +
+				"		for (A a : args) {\n" +
+				"			System.out.println(a.getClass());\n" +
+				"		}\n" +
+				"	}\n" +
+				"}",
+			},
+			"class java.lang.String\n" + 
+			"class java.lang.Integer\n" + 
+			"class java.lang.String\n" + 
+			"class java.lang.String\n" + 
+			"class java.lang.Float\n" + 
+			"class java.awt.Point");
+	}
 }
