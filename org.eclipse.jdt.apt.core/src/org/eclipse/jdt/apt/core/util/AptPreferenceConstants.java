@@ -6,23 +6,18 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    wharley@bea.com - initial API and implementation
+ *   {INITIAL_AUTHOR} - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.core;
+package org.eclipse.jdt.apt.core.util;
 
-import org.eclipse.core.runtime.Plugin;
-import org.osgi.framework.BundleContext;
-
-public class AptPlugin extends Plugin {
-	public static final String PLUGIN_ID= "org.eclipse.jdt.apt.core"; //$NON-NLS-1$
-	
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-	}
-
-	public void stop(BundleContext context) throws Exception {
-		super.stop(context);
-	}
-
+/**
+ * String constants used to access APT preference store
+ */
+public class AptPreferenceConstants {
+	public static final String APT_ENABLED = "org.eclipse.jdt.apt.aptEnabled";
+	public static final String APT_GENBINDIR = "org.eclipse.jdt.apt.genBinDir";
+	public static final String APT_GENSRCDIR = "org.eclipse.jdt.apt.genSrcDir";
 }
+
+
