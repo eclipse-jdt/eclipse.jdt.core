@@ -27,10 +27,6 @@ null is NOT a valid value for a non-public field... it just means the field is n
 
 abstract public class ReferenceBinding extends TypeBinding implements IDependent {
 	
-	static class SuperTypeVisitor {
-		public void accept(ReferenceBinding type) {}
-	}
-	
 	public static ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */};
 	
 	public char[][] compoundName;

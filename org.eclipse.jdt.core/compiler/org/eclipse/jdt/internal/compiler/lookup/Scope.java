@@ -2750,7 +2750,6 @@ public abstract class Scope
 				case Binding.RAW_TYPE :
 					return invocation; // raw type is taking precedence
 			}
-			TypeVariableBinding[] invocationVariables = invocation.typeVariables();
 		}
 		return environment().createParameterizedType((ReferenceBinding) mec.erasure(), bestArguments, mec.enclosingType());
 	}
