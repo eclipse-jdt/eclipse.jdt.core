@@ -435,90 +435,118 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 public boolean isTypeArgumentIntersecting(TypeBinding otherArgument) {
 	if (this == otherArgument)
 		return true;
-	if (this.isTypeVariable() || otherArgument.isTypeVariable())
-		return true;
-	if (this.isWildcard()) {
-		if (!otherArgument.isWildcard()) {
-			WildcardBinding wildcard = (WildcardBinding) this;
-			switch(wildcard.boundKind) {
-				case Wildcard.EXTENDS :
-					return otherArgument.isCompatibleWith(wildcard.bound);
-				case Wildcard. SUPER :
-					return wildcard.bound.isCompatibleWith(otherArgument);
-				case Wildcard.UNBOUND :
-				default:
-					return true;
-			}
-		}
-	} else if (otherArgument.isWildcard()) {
-		WildcardBinding otherWildcard = (WildcardBinding) otherArgument;
-		switch(otherWildcard.boundKind) {
-			case Wildcard.EXTENDS :
-				return this.isCompatibleWith(otherWildcard.bound);
-			case Wildcard. SUPER :
-				return otherWildcard.bound.isCompatibleWith(this);
-			case Wildcard.UNBOUND :
-			default:
-				return true;
-		}
-	}
-	TypeBinding lowerBound1 = null;
-	TypeBinding upperBound1 = null;
-	WildcardBinding wildcard = (WildcardBinding) this;
-	switch(wildcard.boundKind) {
-		case Wildcard.EXTENDS :
-			upperBound1 = wildcard.bound;
-			break;
-		case Wildcard. SUPER :
-			lowerBound1 = wildcard.bound;
-			break;
-		case Wildcard.UNBOUND :
-	}
-
-	TypeBinding lowerBound2 = null;
-	TypeBinding upperBound2 = null;
-	WildcardBinding otherWildcard = (WildcardBinding) otherArgument;
-	switch(otherWildcard.boundKind) {
-		case Wildcard.EXTENDS :
-			upperBound2 = otherWildcard.bound;
-			break;
-		case Wildcard. SUPER :
-			lowerBound2 = otherWildcard.bound;
-			break;
-		case Wildcard.UNBOUND :
-	}
-	if (lowerBound1 != null) {
-		if (lowerBound2 != null) {
-			return true; // Object could always be a candidate
+	switch (kind()) {
+		
+		// TYPE_PARAM & ANY TYPE
+		case Binding.TYPE_PARAMETER :   
+			return true;
 			
-		} else if (upperBound2 != null) {
-			return lowerBound1.isCompatibleWith(upperBound2);
-		} else {
-			return true;
-		}
-	} else if (upperBound1 != null) {
-		if (lowerBound2 != null) {
-			return lowerBound2.isCompatibleWith(upperBound1);
-
-		} else if (upperBound2 != null) {
-			if (upperBound1.isInterface()) {
-				if (upperBound2.isInterface())
+		case Binding.WILDCARD_TYPE :
+			switch (otherArgument.kind()) {
+				
+				// WILDCARD & TYPE_PARAM
+				case Binding.TYPE_PARAMETER :
 					return true;
-				if (upperBound2.isArrayType() || ((upperBound2 instanceof ReferenceBinding) && ((ReferenceBinding)upperBound2).isFinal())) {
-					return upperBound2.isCompatibleWith(upperBound1);
-				}
-				return true;
-			} else if (upperBound2.isInterface()) {
-				if (upperBound1.isArrayType() || ((upperBound1 instanceof ReferenceBinding) && ((ReferenceBinding)upperBound1).isFinal())) {
-					return upperBound1.isCompatibleWith(upperBound2);
-				}
+					
+				// WILDCARD & WILDCARD
+				case Binding.WILDCARD_TYPE :
+					TypeBinding lowerBound1 = null;
+					TypeBinding upperBound1 = null;
+					WildcardBinding wildcard = (WildcardBinding) this;
+					switch(wildcard.boundKind) {
+						case Wildcard.EXTENDS :
+							upperBound1 = wildcard.bound;
+							break;
+						case Wildcard. SUPER :
+							lowerBound1 = wildcard.bound;
+							break;
+						case Wildcard.UNBOUND :
+					}
+				
+					TypeBinding lowerBound2 = null;
+					TypeBinding upperBound2 = null;
+					WildcardBinding otherWildcard = (WildcardBinding) otherArgument;
+					switch(otherWildcard.boundKind) {
+						case Wildcard.EXTENDS :
+							upperBound2 = otherWildcard.bound;
+							break;
+						case Wildcard. SUPER :
+							lowerBound2 = otherWildcard.bound;
+							break;
+						case Wildcard.UNBOUND :
+					}
+					if (lowerBound1 != null) {
+						if (lowerBound2 != null) {
+							return true; // Object could always be a candidate
+							
+						} else if (upperBound2 != null) {
+							return lowerBound1.isCompatibleWith(upperBound2);
+						} else {
+							return true;
+						}
+					} else if (upperBound1 != null) {
+						if (lowerBound2 != null) {
+							return lowerBound2.isCompatibleWith(upperBound1);
+				
+						} else if (upperBound2 != null) {
+							if (upperBound1.isInterface()) {
+								if (upperBound2.isInterface())
+									return true;
+								if (upperBound2.isArrayType() || ((upperBound2 instanceof ReferenceBinding) && ((ReferenceBinding)upperBound2).isFinal())) {
+									return upperBound2.isCompatibleWith(upperBound1);
+								}
+								return true;
+							} else if (upperBound2.isInterface()) {
+								if (upperBound1.isArrayType() || ((upperBound1 instanceof ReferenceBinding) && ((ReferenceBinding)upperBound1).isFinal())) {
+									return upperBound1.isCompatibleWith(upperBound2);
+								}
+							}
+							return true;
+						} else {
+							return true;
+						}
+					} else {
+						return true;
+					}
+					
+				// WILDCARD & OTHER TYPE
+				default :
+					 wildcard = (WildcardBinding) this;
+					switch(wildcard.boundKind) {
+						case Wildcard.EXTENDS :
+							return otherArgument.isCompatibleWith(wildcard.bound);
+						case Wildcard. SUPER :
+							return wildcard.bound.isCompatibleWith(otherArgument);
+						case Wildcard.UNBOUND :
+						default:
+							return true;
+					}
 			}
-			return true;
-		} else {
-			return true;
-		}
-	} else {
-		return true;
+			
+		default:
+			switch (otherArgument.kind()) {
+
+				// OTHER TYPE & TYPE_PARAM
+				case Binding.TYPE_PARAMETER :
+					return true;
+
+				// OTHER TYPE & WILDCARD
+				case Binding.WILDCARD_TYPE :
+					WildcardBinding otherWildcard = (WildcardBinding) otherArgument;
+					switch(otherWildcard.boundKind) {
+						case Wildcard.EXTENDS :
+							return this.isCompatibleWith(otherWildcard.bound);
+						case Wildcard. SUPER :
+							return otherWildcard.bound.isCompatibleWith(this);
+						case Wildcard.UNBOUND :
+						default:
+							return true;
+					}					
+
+				// OTHER TYPE & OTHER TYPE
+				default :
+					return false;
+			}
 	}
 }
 /**

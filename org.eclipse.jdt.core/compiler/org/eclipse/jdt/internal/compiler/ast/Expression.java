@@ -375,9 +375,6 @@ public abstract class Expression extends Statement {
 									// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
 									if (interfaceType.hasIncompatibleSuperType((ReferenceBinding)castType))
 										return false;
-//									TypeBinding[] types = { castType, interfaceType };
-//									if (scope.lowerUpperBound(types) == null) /* would answer VoidBinding if unrelated interfaces */
-//										return false;
 								} else {
 									// pre1.5 semantics - no covariance allowed (even if 1.5 compliant, but 1.4 source)
 									MethodBinding[] castTypeMethods = getAllInheritedMethods((ReferenceBinding) castType);
@@ -404,10 +401,15 @@ public abstract class Expression extends Statement {
 								if (((ReferenceBinding) castType).isFinal()) {
 									// no subclass for castType, thus compile-time check is valid
 									match = ((ReferenceBinding)castType).findSuperTypeWithSameErasure(expressionType);
-									if (match == null) {
+									if (match == null /*|| !match.isCompatibleWith(expressionType)*/) {
 										// potential runtime error
 										return false;
-									}				
+									}
+								}
+								if (use15specifics) {
+									// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
+									if (((ReferenceBinding)castType).hasIncompatibleSuperType((ReferenceBinding) expressionType))
+										return false;
 								}
 							}
 					}
@@ -454,6 +456,11 @@ public abstract class Expression extends Statement {
 								if (match != null) {
 									return checkUnsafeCast(scope, castType, expressionType, match, true);
 								}
+								if (use15specifics) {
+									// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
+									if (refExprType.hasIncompatibleSuperType((ReferenceBinding) castType))
+										return false;
+								}								
 								return true;
 							} else {
 								// ( CLASS ) CLASS

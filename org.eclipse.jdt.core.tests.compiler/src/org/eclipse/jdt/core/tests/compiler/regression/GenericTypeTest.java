@@ -21297,4 +21297,94 @@ public void test737() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
+public void test738() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface B<T> {}\n" + 
+			"class C implements B<String>{}\n" + 
+			"interface D extends B<Integer>{}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"             public static void main(String[] args) {\n" + 
+			"                         D d = null;\n" + 
+			"                         C c = (C)d; // illegal\n" + 
+			"             }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	C c = (C)d; // illegal\n" + 
+		"	      ^^^^\n" + 
+		"Cannot cast from D to C\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
+public void test739() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface B<T> {}\n" + 
+			"interface C extends B<String>{}\n" + 
+			"class D implements B<Integer>{}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"             public static void main(String[] args) {\n" + 
+			"                         D d = null;\n" + 
+			"                         C c = (C)d; // illegal\n" + 
+			"             }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	C c = (C)d; // illegal\n" + 
+		"	      ^^^^\n" + 
+		"Cannot cast from D to C\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
+public void test740() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface B<T> {}\n" + 
+			"final class C implements B<String>{}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"             public static void main(String[] args) {\n" + 
+			"                         B<Integer> d = null;\n" + 
+			"                         C c = (C)d; // illegal\n" + 
+			"             }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	C c = (C)d; // illegal\n" + 
+		"	      ^^^^\n" + 
+		"Cannot cast from B<Integer> to C\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
+public void test741() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface B<T> {}\n" + 
+			"final class D implements B<Integer>{}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"             public static void main(String[] args) {\n" + 
+			"                         D d = null;\n" + 
+			"                         B<String> c = (B<String>)d; // illegal\n" + 
+			"             }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	B<String> c = (B<String>)d; // illegal\n" + 
+		"	              ^^^^^^^^^^^^\n" + 
+		"Cannot cast from D to B<String>\n" + 
+		"----------\n");
+}
 }
