@@ -27,6 +27,10 @@ null is NOT a valid value for a non-public field... it just means the field is n
 
 abstract public class ReferenceBinding extends TypeBinding implements IDependent {
 	
+	static class SuperTypeVisitor {
+		public void accept(ReferenceBinding type) {}
+	}
+	
 	public static ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */};
 	
 	public char[][] compoundName;
@@ -600,6 +604,52 @@ public int hashCode() {
 
 public final boolean hasRestrictedAccess() {
 	return (modifiers & AccRestrictedAccess) != 0;
+}
+
+/**
+ * Returns true if the two types have an incompatible common supertype,
+ * e.g. List<String> and List<Integer>
+ */
+public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
+
+    if (this == otherType) return false;
+    
+    ReferenceBinding currentType = this;
+	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
+	ReferenceBinding match;
+	int lastPosition = -1;
+	do {
+		match = otherType.findSuperTypeWithSameErasure(currentType);
+		if (match != null) {
+			if (!match.isIntersectingWith(currentType))
+					return true;
+		}
+		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+		if (itsInterfaces != NoSuperInterfaces && itsInterfaces != null) { // can be null while connecting hierarchies
+			if (++lastPosition == interfacesToVisit.length)
+				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+			interfacesToVisit[lastPosition] = itsInterfaces;
+		}
+	} while ((currentType = currentType.superclass()) != null);
+			
+	for (int i = 0; i <= lastPosition; i++) {
+		ReferenceBinding[] interfaces = interfacesToVisit[i];
+		for (int j = 0, length = interfaces.length; j < length; j++) {
+			if ((currentType = interfaces[j]) == otherType) return false;
+			match = otherType.findSuperTypeWithSameErasure(currentType);
+			if (match != null) {
+				if (!match.isIntersectingWith(currentType))
+						return true;				
+			}
+			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
+			if (itsInterfaces != NoSuperInterfaces) {
+				if (++lastPosition == interfacesToVisit.length)
+					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
+				interfacesToVisit[lastPosition] = itsInterfaces;
+			}
+		}
+	}
+	return false;
 }
 
 /* Answer true if the receiver implements anInterface or is identical to anInterface.

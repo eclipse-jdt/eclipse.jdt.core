@@ -3687,7 +3687,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99106
-	public void _test061() {
+	public void test061() {
 		this.runNegativeTest(
 			new String[] {
 				"Try.java",
@@ -3744,7 +3744,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99106
-	public void _test062() {
+	public void test062() {
 		this.runNegativeTest(
 			new String[] {
 				"Errors.java",

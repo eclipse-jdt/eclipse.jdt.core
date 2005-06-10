@@ -2730,23 +2730,27 @@ public abstract class Scope
 		TypeBinding[] bestArguments = new TypeBinding[argLength];
 		while (iter.hasNext()) {
 			TypeBinding invocation = (TypeBinding)iter.next();
-			TypeVariableBinding[] invocationVariables = invocation.typeVariables();
-			if (invocation.isGenericType()) {
-				for (int i = 0; i < argLength; i++) {
-					TypeBinding bestArgument = leastContainingTypeArgument(bestArguments[i], invocationVariables[i], (ReferenceBinding) mec, i, lubStack);
-					if (bestArgument == null) return null;
-					bestArguments[i] = bestArgument;
-				}
-			} else if (invocation.isParameterizedType()) {
-				ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding)invocation;
-				for (int i = 0; i < argLength; i++) {
-					TypeBinding bestArgument = leastContainingTypeArgument(bestArguments[i], parameterizedType.arguments[i], (ReferenceBinding) mec, i, lubStack);
-					if (bestArgument == null) return null;
-					bestArguments[i] = bestArgument;
-				}
-			} else if (invocation.isRawType()) {
-				return invocation; // raw type is taking precedence
+			switch (invocation.kind()) {
+				case Binding.GENERIC_TYPE :
+					TypeVariableBinding[] invocationVariables = invocation.typeVariables();
+					for (int i = 0; i < argLength; i++) {
+						TypeBinding bestArgument = leastContainingTypeArgument(bestArguments[i], invocationVariables[i], (ReferenceBinding) mec, i, lubStack);
+						if (bestArgument == null) return null;
+						bestArguments[i] = bestArgument;
+					}
+					break;
+				case Binding.PARAMETERIZED_TYPE :
+					ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding)invocation;
+					for (int i = 0; i < argLength; i++) {
+						TypeBinding bestArgument = leastContainingTypeArgument(bestArguments[i], parameterizedType.arguments[i], (ReferenceBinding) mec, i, lubStack);
+						if (bestArgument == null) return null;
+						bestArguments[i] = bestArgument;
+					}
+					break;
+				case Binding.RAW_TYPE :
+					return invocation; // raw type is taking precedence
 			}
+			TypeVariableBinding[] invocationVariables = invocation.typeVariables();
 		}
 		return environment().createParameterizedType((ReferenceBinding) mec.erasure(), bestArguments, mec.enclosingType());
 	}
@@ -2828,6 +2832,10 @@ public abstract class Scope
 	}
 
 	// 15.12.2
+	/**
+	 * Returns VoidBinding if types have no intersection (e.g. 2 unrelated interfaces), or null if
+	 * no common supertype (e.g. List<String> and List<Exception>), or the intersection type if possible
+	 */
 	public TypeBinding lowerUpperBound(TypeBinding[] types) {
 		int typeLength = types.length;
 		if (typeLength == 1) {

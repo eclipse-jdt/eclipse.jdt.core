@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.ArrayList;
+import java.util.*;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -366,13 +366,19 @@ public abstract class Expression extends Statement {
 								if (match != null) {
 									return checkUnsafeCast(scope, castType, interfaceType, match, false);
 								}
-								
 								tagAsNeedCheckCast();
 								match = ((ReferenceBinding)castType).findSuperTypeWithSameErasure(interfaceType);
 								if (match != null) {
 									return checkUnsafeCast(scope, castType, interfaceType, match, true);
 								}
-								if (!use15specifics) {
+								if (use15specifics) {
+									// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
+									if (interfaceType.hasIncompatibleSuperType((ReferenceBinding)castType))
+										return false;
+//									TypeBinding[] types = { castType, interfaceType };
+//									if (scope.lowerUpperBound(types) == null) /* would answer VoidBinding if unrelated interfaces */
+//										return false;
+								} else {
 									// pre1.5 semantics - no covariance allowed (even if 1.5 compliant, but 1.4 source)
 									MethodBinding[] castTypeMethods = getAllInheritedMethods((ReferenceBinding) castType);
 									MethodBinding[] expressionTypeMethods = getAllInheritedMethods((ReferenceBinding) expressionType);

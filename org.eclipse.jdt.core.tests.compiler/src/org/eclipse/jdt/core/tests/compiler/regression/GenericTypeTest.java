@@ -21170,4 +21170,107 @@ public void test731() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331
+public void test732() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface B<T> {}\n" + 
+			"interface C extends B<String>{}\n" + 
+			"interface D extends B<Integer>{}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"             public static void main(String[] args) {\n" + 
+			"                         D d = null;\n" + 
+			"                         C c = (C)d; // illegal\n" + 
+			"             }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	C c = (C)d; // illegal\n" + 
+		"	      ^^^^\n" + 
+		"Cannot cast from D to C\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
+public void test733() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface B<T> {}\n" + 
+			"interface C extends B<String>{}\n" + 
+			"interface D<E> extends B<E>{}\n" + 
+			"\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"			Object foo(C c) {\n" + 
+			"					return (D<? extends String>) c;\n" + 
+			"             }\n" + 
+			"}\n"
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
+public void test734() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface B<T> {}\n" + 
+			"interface C extends B<String>{}\n" + 
+			"interface D<E> extends B<E>{}\n" + 
+			"\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"			Object foo(C c, D<? extends String> d) {\n" + 
+			"					return c != null ? c : d; \n" + 
+			"             }\n" + 
+			"}\n"
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
+public void test735() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface B<T> {}\n" + 
+			"interface C extends B<String>{}\n" + 
+			"interface D<E> extends B<E>{}\n" + 
+			"\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"			Object foo(C c, D<? extends Exception> d) {\n" + 
+			"					return c != null ? c : d; \n" + 
+			"             }\n" + 
+			"}\n"
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98331 - variation
+public void test736() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface B<T> {}\n" + 
+			"interface C extends B<String>{}\n" + 
+			"interface D<E> extends B<E>{}\n" + 
+			"\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"			void bar(C c) {\n" + 
+			"					D<? extends Exception> d = (D<? extends Exception>) c;\n" + 
+			"					foo(d, c);\n" + 
+			"             }\n" + 
+			"			<U> void foo(U u1, U u2) {\n" + 
+			"			}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\r\n" + 
+		"	D<? extends Exception> d = (D<? extends Exception>) c;\r\n" + 
+		"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from C to D<? extends Exception>\n" + 
+		"----------\n");
+}
 }

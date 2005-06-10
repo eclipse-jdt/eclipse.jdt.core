@@ -462,7 +462,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 */
 	public MethodBinding tiebreakMethod() {
 		if (this.tiebreakMethod == null) {
-			this.tiebreakMethod = new ParameterizedGenericMethodBinding(this.originalMethod, (RawTypeBinding)null, this.environment);
+			this.tiebreakMethod = this.isRaw ? this : new ParameterizedGenericMethodBinding(this.originalMethod, (RawTypeBinding)null, this.environment);
 		} 
 		return this.tiebreakMethod;
 	}	
