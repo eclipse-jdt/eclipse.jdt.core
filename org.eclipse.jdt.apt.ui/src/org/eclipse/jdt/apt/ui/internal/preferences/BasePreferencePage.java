@@ -1,0 +1,98 @@
+/*******************************************************************************
+ * Copyright (c) 2005 BEA Systems, Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   {INITIAL_AUTHOR} - initial API and implementation
+ *******************************************************************************/
+
+package org.eclipse.jdt.apt.ui.internal.preferences;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jdt.internal.ui.preferences.PropertyAndPreferencePage;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+
+/**
+ * Base class for APT preference and property pages.
+ */
+public abstract class BasePreferencePage extends PropertyAndPreferencePage {
+	private BaseConfigurationBlock fConfigurationBlock;
+
+	protected Control createPreferenceContent(Composite composite) {
+		return getConfigurationBlock().createContents(composite);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.dialogs.DialogPage#dispose()
+	 */
+	public void dispose() {
+		if (getConfigurationBlock() != null) {
+			getConfigurationBlock().dispose();
+		}
+		super.dispose();
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.ui.preferences.PropertyAndPreferencePage#enableProjectSpecificSettings(boolean)
+	 */
+	protected void enableProjectSpecificSettings(boolean useProjectSpecificSettings) {
+		if (getConfigurationBlock() != null) {
+			getConfigurationBlock().useProjectSpecificSettings(useProjectSpecificSettings);
+		}
+		super.enableProjectSpecificSettings(useProjectSpecificSettings);
+	}
+
+	protected BaseConfigurationBlock getConfigurationBlock() {
+		return fConfigurationBlock;
+	}
+	
+	protected boolean hasProjectSpecificOptions(IProject project) {
+		return getConfigurationBlock().hasProjectSpecificOptions(project);
+	}
+	
+	/*
+	 * @see org.eclipse.jface.preference.IPreferencePage#performApply()
+	 */
+	public void performApply() {
+		if (getConfigurationBlock() != null) {
+			getConfigurationBlock().performApply();
+		}
+	}
+	
+	/*
+	 * @see org.eclipse.jface.preference.IPreferencePage#performDefaults()
+	 */
+	protected void performDefaults() {
+		super.performDefaults();
+		if (getConfigurationBlock() != null) {
+			getConfigurationBlock().performDefaults();
+		}
+	}
+	
+	/*
+	 * @see org.eclipse.jface.preference.IPreferencePage#performOk()
+	 */
+	public boolean performOk() {
+		if (getConfigurationBlock() != null && !getConfigurationBlock().performOk()) {
+			return false;
+		}	
+		return super.performOk();
+	}
+	
+	protected void setConfigurationBlock(BaseConfigurationBlock configurationBlock) {
+		fConfigurationBlock = configurationBlock;
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.ui.preferences.PropertyAndPreferencePage#setElement(org.eclipse.core.runtime.IAdaptable)
+	 */
+	public void setElement(IAdaptable element) {
+		super.setElement(element);
+		setDescription(null); // no description for property page
+	}
+}

@@ -12,13 +12,10 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
-import org.eclipse.jdt.internal.ui.preferences.OptionsConfigurationBlock;
 import org.eclipse.jdt.internal.ui.util.PixelConverter;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
-import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
 import org.eclipse.jface.dialogs.Dialog;
@@ -29,7 +26,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-public class AptConfigurationBlock extends OptionsConfigurationBlock {
+public class AptConfigurationBlock extends BaseConfigurationBlock {
 		
 	private static final Key KEY_APTENABLED= getAptCoreKey(AptPreferenceConstants.APT_ENABLED);
 	private static final Key KEY_GENSRCDIR= getAptCoreKey(AptPreferenceConstants.APT_GENSRCDIR);
@@ -39,17 +36,6 @@ public class AptConfigurationBlock extends OptionsConfigurationBlock {
 		return new Key[] {
 				KEY_APTENABLED, KEY_GENSRCDIR, KEY_GENBINDIR
 		};	
-	}
-	
-	private static Key getAptCoreKey(String name) {
-		return getKey("org.eclipse.jdt.apt.core", name);
-	}
-	
-	private class UpdateAdapter implements IDialogFieldListener {
-		
-		public void dialogFieldChanged(DialogField field) {
-			updateModel(field);
-		}
 	}
 	
 	private SelectionButtonDialogField fAptEnabledField;
@@ -104,10 +90,6 @@ public class AptConfigurationBlock extends OptionsConfigurationBlock {
 		Dialog.applyDialogFont(composite);
 		
 		return composite;
-	}
-	
-	private void updateStatus(IStatus status) {
-		fContext.statusChanged(status);
 	}
 	
 	/* (non-Javadoc)
