@@ -21273,4 +21273,28 @@ public void test736() {
 		"Cannot cast from C to D<? extends Exception>\n" + 
 		"----------\n");
 }
+public void test737() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Sup {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Sub1 extends Sup {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Sub2 extends Sup {\n" + 
+			"\n" + 
+			"}\n" + 
+			"abstract class X {\n" + 
+			"	abstract <S, A extends S, B extends S> S method(A la, B lb);\n" + 
+			"\n" + 
+			"	void m2() {\n" + 
+			"		Sup Sup = method(new Sub1(), new Sub2());// <-- compiles?? ( A=Sub1, B=Sub2, S=Sup)\n" + 
+			"		Object obj = method(1, \"32\");// <--doesn\'t compile?? ( A=Integer, B=String, S=Object)\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 }
