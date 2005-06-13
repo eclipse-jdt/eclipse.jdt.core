@@ -853,7 +853,7 @@ public abstract class AbstractCommentParser {
 		// Report problem
 		this.currentTokenType = -1;
 		end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
-		while (readToken() != TerminalTokens.TokenNameWHITESPACE) {
+		while ((token=readToken()) != TerminalTokens.TokenNameWHITESPACE && token != TerminalTokens.TokenNameEOF) {
 			this.currentTokenType = -1;
 			end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
 		}

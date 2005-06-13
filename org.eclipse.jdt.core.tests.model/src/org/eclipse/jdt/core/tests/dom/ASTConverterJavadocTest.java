@@ -2800,4 +2800,19 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 		}
 	}
+
+	/**
+	 * Bug 99507: [javadoc] Infinit loop in DocCommentParser
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=99507"
+	 */
+	public void testBug99507() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b99507/X.java",
+			"package javadoc.b99507;\n" + 
+			"public class X {\n" + 
+			"}\n" +
+			"/** @param test*/" 
+		);
+		verifyComments(workingCopies[0]);
+	}
 }
