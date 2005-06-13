@@ -21499,10 +21499,51 @@ public void test743() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 16)\n" + 
-		"	return this;//3\n" + 
-		"	       ^^^^\n" + 
-		"Type mismatch: cannot convert from TestGeneric3<A>.Nested<B> to TestGeneric3<B>.Nested<B>\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	@Override public Nested<B> getNested3() { // sub\n" + 
+		"	                           ^^^^^^^^^^^^\n" + 
+		"The return type is incompatible with TestGeneric3<B>.getNested3()\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
+		"	@Override public Nested<B> getNested3() { // sub\n" + 
+		"	                           ^^^^^^^^^^^^\n" + 
+		"The method getNested3() of type TestGeneric3<A>.Nested<B> must override a superclass method\n" + 
+		"----------\n");
+}
+public void test744() {
+	this.runNegativeTest(
+		new String[] {
+			"java/util/X.java",
+			"package java.util;\n" + 
+			"\n" + 
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public abstract class X<K1, V1> extends HashMap<K1, V1> {\n" + 
+			"\n" + 
+			"	Entry<K1, V1> h;\n" + 
+			"\n" + 
+			"	private static class Entry<K2, V2> extends HashMap.Entry<K2, V2> {\n" + 
+			"\n" + 
+			"		Entry() {\n" + 
+			"			super(0, null, null, null);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		void ab(@SuppressWarnings(\"unused\") Entry<K2, V2> e) {\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		@Override void recordAccess(HashMap<K2, V2> m) {\n" + 
+			"			X<K2, V2> x = (X<K2, V2>) m;\n" + 
+			"			ab(x.h);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"  Zork z;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in java\\util\\X.java (at line 23)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
 }

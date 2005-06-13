@@ -156,7 +156,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 
 		// if generic type X<T> is referred to as parameterized X<T>, then answer itself
-		boolean isIdentical = this.resolvedType instanceof SourceTypeBinding;
+		boolean isIdentical = true; //this.resolvedType instanceof SourceTypeBinding;
 		if (isIdentical) {
 		    for (int i = 0; i < argLength; i++) {
 				if (typeVariables[i] != argTypes[i]) {
@@ -174,6 +174,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			this.resolvedType = parameterizedType;
 			if (isTypeUseDeprecated(this.resolvedType, scope))
 				reportDeprecatedType(scope);
+		} else {
+			this.resolvedType = this.resolvedType.erasure();
 		}
 		// array type ?
 		if (this.dimensions > 0) {

@@ -178,7 +178,7 @@ public abstract class Scope
 				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
 					identicalVariables: { // if substituted with original variables, then answer the generic type itself
 						if (substitutedEnclosing != null) {
-							if (!(substitutedEnclosing instanceof SourceTypeBinding)) break identicalVariables;
+							//if (!(substitutedEnclosing instanceof SourceTypeBinding)) break identicalVariables;
 							if (substitutedEnclosing != originalEnclosing) break identicalVariables;						
 						}
 						if (originalParameterizedType.type.isBinaryBinding()) break identicalVariables; // generic binary is never used as is, see 85262
