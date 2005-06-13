@@ -16,6 +16,7 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,6 +46,12 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 public class AptCompilationParticipant implements ICompilationParticipant
 {
+	private static AptCompilationParticipant INSTANCE;
+	
+	public static AptCompilationParticipant getInstance() {
+		return INSTANCE;
+	}
+	
 	/**
 	 * This class is constructed indirectly, by registering an extension to the 
 	 * org.eclipse.jdt.core.compilationParticipants extension point.
@@ -54,6 +61,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
         _factoryLoader = new AnnotationProcessorFactoryLoader();
 		_factoryLoader.loadFactoriesFromPlugins();
         _factories = _factoryLoader.getFactories();
+        INSTANCE = this;
 	}
 
 	public CompilationParticipantResult notify( CompilationParticipantEvent cpe )
@@ -179,8 +187,12 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		return true;
 	}
 	
-    private List<AnnotationProcessorFactory> _factories;
-    private AnnotationProcessorFactoryLoader _factoryLoader;
+	public List<AnnotationProcessorFactory> getAllFactories() {
+		return new ArrayList(_factories);
+	}
+	
+    private final List<AnnotationProcessorFactory> _factories;
+    private final AnnotationProcessorFactoryLoader _factoryLoader;
     private final static String DOT_JAVA = ".java";
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 

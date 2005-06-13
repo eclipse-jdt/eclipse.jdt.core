@@ -33,7 +33,7 @@ import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl.AnnotationVisitor;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
-import org.eclipse.jdt.apt.core.util.AptUtil;
+import org.eclipse.jdt.apt.core.util.ScannerUtil;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -80,8 +80,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		//  bail-out early if there aren't factories, or if there aren't any annotation instances
 		// 
 		if ( _factories == null || _factories.size() == 0 || 
-				( _compilationUnit != null && ! AptUtil.hasAnnotationInstance( _compilationUnit ) ) ||
-				( _file!= null && !  AptUtil.hasAnnotationInstance( _file ) ) )
+				( _compilationUnit != null && ! ScannerUtil.hasAnnotationInstance( _compilationUnit ) ) ||
+				( _file!= null && !  ScannerUtil.hasAnnotationInstance( _file ) ) )
 		{
 			if ( DEBUG ) trace( "runAPTDuringBuild: leaving early because there are no factories or annotation instances");
 			
