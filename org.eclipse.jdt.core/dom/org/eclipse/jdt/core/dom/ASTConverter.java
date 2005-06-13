@@ -4377,8 +4377,15 @@ class ASTConverter {
 								if (annotations != null && indexInAnnotations < annotations.length) {
 									org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 									modifier = convert(annotation);
-									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.scanner.eofPosition);
+									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
+								break;
+							case TerminalTokens.TokenNameCOMMENT_BLOCK :
+							case TerminalTokens.TokenNameCOMMENT_LINE :
+							case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+								break;
+							default :
+								return;
 						}
 						if (modifier != null) {
 							variableDecl.modifiers().add(modifier);
@@ -4445,8 +4452,15 @@ class ASTConverter {
 							if (annotations != null && indexInAnnotations < annotations.length) {
 								org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 								modifier = convert(annotation);
-								this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.scanner.eofPosition);
+								this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 							}
+							break;
+						case TerminalTokens.TokenNameCOMMENT_BLOCK :
+						case TerminalTokens.TokenNameCOMMENT_LINE :
+						case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+							break;
+						default :
+							return;
 					}
 					if (modifier != null) {
 						variableDecl.modifiers().add(modifier);
@@ -4542,6 +4556,13 @@ class ASTConverter {
 									modifier = convert(annotation);
 									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
+								break;
+							case TerminalTokens.TokenNameCOMMENT_BLOCK :
+							case TerminalTokens.TokenNameCOMMENT_LINE :
+							case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+								break;
+							default :
+								return;
 						}
 						if (modifier != null) {
 							variableDeclarationExpression.modifiers().add(modifier);
@@ -4616,6 +4637,13 @@ class ASTConverter {
 									modifier = convert(annotation);
 									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
+								break;
+							case TerminalTokens.TokenNameCOMMENT_BLOCK :
+							case TerminalTokens.TokenNameCOMMENT_LINE :
+							case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+								break;
+							default :
+								return;
 						}
 						if (modifier != null) {
 							variableDeclarationStatement.modifiers().add(modifier);

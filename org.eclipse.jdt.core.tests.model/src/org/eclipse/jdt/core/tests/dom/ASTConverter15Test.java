@@ -39,7 +39,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 188 };
+//		TESTS_NUMBERS = new int[] { 190 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -5665,5 +5665,58 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		} finally {
 			deleteProject("P1");
 		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99355
+	public void test0190() throws CoreException, IOException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"class Container<T> {\n" +
+			"	private final T m_t;\n" +
+			"\n" +
+			"	public Container(T t) {\n" +
+			"		m_t = t;\n" +
+			"	}\n" +
+			"\n" +
+			"	T get() {\n" +
+			"		return m_t;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class GenericContainer {\n" +
+			"	private final Container<?> m_c;\n" +
+			"\n" +
+			"	public GenericContainer(Container<?> c) {\n" +
+			"		m_c = c;\n" +
+			"	}\n" +
+			"\n" +
+			"	public Container<?> getC() {\n" +
+			"		return m_c;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	GenericContainer createContainer() {\n" +
+			"		final Container<String> innerContainer = new Container<String>(\"hello\");\n" +
+			"		final Container<Container<String>> outerContainer = new Container<Container<String>>(\n" +
+			"				innerContainer);\n" +
+			"		return new GenericContainer(outerContainer);\n" +
+			"	}\n" +
+			"\n" +
+			"	void method() {\n" +
+			"		final GenericContainer createContainer = createContainer();\n" +
+			"		/*start*/@SuppressWarnings(\"unchecked\")\n" +
+			"		final Container<Container<String>> c = (Container<Container<String>>) createContainer.getC();/*end*/\n" +
+			"		final Container<String> container = c.get();\n" +
+			"		final String string = container.get();\n" +
+			"	}\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy);
+    	assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+    	VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+    	List modifiers = statement.modifiers();
+    	assertEquals("Wrong size", 2, modifiers.size());
 	}
 }
