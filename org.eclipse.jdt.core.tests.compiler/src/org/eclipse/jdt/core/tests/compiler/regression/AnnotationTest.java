@@ -37,8 +37,8 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 15 };
-		TESTS_RANGE = new int[] { 165, 170 };
+//		TESTS_NUMBERS = new int[] { 166 };
+//		TESTS_RANGE = new int[] { 165, 170 };
 	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
@@ -5112,4 +5112,268 @@ public class AnnotationTest extends AbstractComparableTest {
 		);
     }
 
+	// check array handling of singleton 
+	public void test166() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"import java.lang.annotation.Inherited;\n" +
+				"\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Inherited()\n" +
+				"@interface ParameterAnnotation {\n" +
+				"	String value() default \"Default\";\n" +
+				"}\n"+
+				"@interface ClassAnnotation {\n" +
+				"	String value() default \"Default\";\n" +
+				"}\n" +
+				"\n" +
+				"enum EnumClass{\n" +
+				"	Value1, Value2, Value3\n" +
+				"}\n" +
+				"\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Inherited()\n" +
+				"@interface ValueAnnotation {\n" +
+				"	String value() default \"Default\";\n" +
+				"	boolean booleanValue() default true;\n" +
+				"	char charValue() default \'q\';\n" +
+				"	byte byteValue() default 123;\n" +
+				"	short shortValue() default 12345;\n" +
+				"	int intValue() default 1234567890;\n" +
+				"	float floatValue() default 12345.6789f;\n" +
+				"	double doubleValue() default 12345.6789;\n" +
+				"	long longValue() default 1234567890123456789l;\n" +
+				"	String stringValue() default \"stringValue\";\n" +
+				"	EnumClass enumValue() default EnumClass.Value1;\n" +
+				"	Class classValue() default EnumClass.class;\n" +
+				"	ClassAnnotation annotationValue() default @ClassAnnotation();\n" +
+				"	boolean[] booleanArrayValue() default {true, false};\n" +
+				"	char[] charArrayValue() default {\'q\', \'m\'};\n" +
+				"	byte[] byteArrayValue() default {123, -123};\n" +
+				"	short[] shortArrayValue() default {12345, -12345};\n" +
+				"	int[] intArrayValue() default {1234567890, -1234567890};\n" +
+				"	float[] floatArrayValue() default {12345.6789f, -12345.6789f};\n" +
+				"	double[] doubleArrayValue() default {12345.6789, -12345.6789};\n" +
+				"	long[] longArrayValue() default {1234567890123456789l, -1234567890123456789l};\n" +
+				"	String[] stringArrayValue() default {\"stringValue\", \"valueString\"};\n" +
+				"	EnumClass[] enumArrayValue() default {EnumClass.Value1, EnumClass.Value2};\n" +
+				"	Class[] classArrayValue() default {X.class, EnumClass.class};\n" +
+				"	ClassAnnotation[] annotationArrayValue() default {@ClassAnnotation(), @ClassAnnotation()};\n" +
+				"}\n" +
+				"\n" +
+				"public class X {\n" +
+				"	@ValueAnnotation(\n" +
+				"		value=\"ValueAnnotation\",\n" +
+				"		booleanValue=true,\n" +
+				"		charValue=\'m\',\n" +
+				"		byteValue=-123,\n" +
+				"		shortValue=-12345,\n" +
+				"		intValue=-1234567890,\n" +
+				"		floatValue=-12345.6789f,\n" +
+				"		doubleValue=-12345.6789,\n" +
+				"		longValue=-1234567890123456789l,\n" +
+				"		stringValue=\"valueString\",\n" +
+				"		enumValue=EnumClass.Value3,\n" +
+				"		classValue=X.class,\n" +
+				"		annotationValue=@ClassAnnotation(value=\"ClassAnnotation\"),\n" +
+				"		booleanArrayValue={\n" +
+				"			false,\n" +
+				"			true\n" +
+				"		},\n" +
+				"		charArrayValue={\n" +
+				"			\'m\',\n" +
+				"			\'q\'\n" +
+				"		},\n" +
+				"		byteArrayValue={\n" +
+				"			-123,\n" +
+				"			123\n" +
+				"		},\n" +
+				"		shortArrayValue={\n" +
+				"			-12345,\n" +
+				"			12345\n" +
+				"		},\n" +
+				"		intArrayValue={\n" +
+				"			-1234567890,\n" +
+				"			1234567890\n" +
+				"		},\n" +
+				"		floatArrayValue={\n" +
+				"			-12345.6789f,\n" +
+				"			12345.6789f\n" +
+				"		},\n" +
+				"		doubleArrayValue={\n" +
+				"			-12345.6789,\n" +
+				"			12345.6789\n" +
+				"		},\n" +
+				"		longArrayValue={\n" +
+				"			-1234567890123456789l,\n" +
+				"			1234567890123456789l\n" +
+				"		},\n" +
+				"		stringArrayValue={\n" +
+				"			\"valueString\",\n" +
+				"			\"stringValue\"\n" +
+				"		},\n" +
+				"		enumArrayValue={\n" +
+				"			EnumClass.Value2,\n" +
+				"			EnumClass.Value1\n" +
+				"		},\n" +
+				"		classArrayValue={\n" +
+				"			EnumClass.class,\n" +
+				"			X.class\n" +
+				"		},\n" +
+				"		annotationArrayValue={\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation1\"),\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation2\")\n" +
+				"		})\n" +
+				"	public String field;\n" +
+				"	@ValueAnnotation(\n" +
+				"		value=\"ValueAnnotation\",\n" +
+				"		booleanValue=true,\n" +
+				"		charValue=\'m\',\n" +
+				"		byteValue=-123,\n" +
+				"		shortValue=-12345,\n" +
+				"		intValue=-1234567890,\n" +
+				"		floatValue=-12345.6789f,\n" +
+				"		doubleValue=-12345.6789,\n" +
+				"		longValue=-1234567890123456789l,\n" +
+				"		stringValue=\"valueString\",\n" +
+				"		enumValue=EnumClass.Value3,\n" +
+				"		classValue=X.class,\n" +
+				"		annotationValue=@ClassAnnotation(value=\"ClassAnnotation\"),\n" +
+				"		booleanArrayValue={\n" +
+				"			false,\n" +
+				"			true\n" +
+				"		},\n" +
+				"		charArrayValue={\n" +
+				"			\'m\',\n" +
+				"			\'q\'\n" +
+				"		},\n" +
+				"		byteArrayValue={\n" +
+				"			-123,\n" +
+				"			123\n" +
+				"		},\n" +
+				"		shortArrayValue={\n" +
+				"			-12345,\n" +
+				"			12345\n" +
+				"		},\n" +
+				"		intArrayValue={\n" +
+				"			-1234567890,\n" +
+				"			1234567890\n" +
+				"		},\n" +
+				"		floatArrayValue={\n" +
+				"			-12345.6789f,\n" +
+				"			12345.6789f\n" +
+				"		},\n" +
+				"		doubleArrayValue={\n" +
+				"			-12345.6789,\n" +
+				"			12345.6789\n" +
+				"		},\n" +
+				"		longArrayValue={\n" +
+				"			-1234567890123456789l,\n" +
+				"			1234567890123456789l\n" +
+				"		},\n" +
+				"		stringArrayValue={\n" +
+				"			\"valueString\",\n" +
+				"			\"stringValue\"\n" +
+				"		},\n" +
+				"		enumArrayValue={\n" +
+				"			EnumClass.Value2,\n" +
+				"			EnumClass.Value1\n" +
+				"		},\n" +
+				"		classArrayValue={\n" +
+				"			EnumClass.class,\n" +
+				"			X.class\n" +
+				"		},\n" +
+				"		annotationArrayValue={\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation1\"),\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation2\")\n" +
+				"		})\n" +
+				"	public X(@ParameterAnnotation(value=\"ParameterAnnotation\") @Deprecated() String param1, @ParameterAnnotation(value=\"ParameterAnnotation\") String param2) {\n" +
+				"	}\n" +
+				"	@ValueAnnotation(\n" +
+				"		value=\"ValueAnnotation\",\n" +
+				"		booleanValue=true,\n" +
+				"		charValue=\'m\',\n" +
+				"		byteValue=-123,\n" +
+				"		shortValue=-12345,\n" +
+				"		intValue=-1234567890,\n" +
+				"		floatValue=-12345.6789f,\n" +
+				"		doubleValue=-12345.6789,\n" +
+				"		longValue=-1234567890123456789l,\n" +
+				"		stringValue=\"valueString\",\n" +
+				"		enumValue=EnumClass.Value3,\n" +
+				"		classValue=X.class,\n" +
+				"		annotationValue=@ClassAnnotation(value=\"ClassAnnotation\"),\n" +
+				"		booleanArrayValue={\n" +
+				"			false,\n" +
+				"			true\n" +
+				"		},\n" +
+				"		charArrayValue={\n" +
+				"			\'m\',\n" +
+				"			\'q\'\n" +
+				"		},\n" +
+				"		byteArrayValue={\n" +
+				"			-123,\n" +
+				"			123\n" +
+				"		},\n" +
+				"		shortArrayValue={\n" +
+				"			-12345,\n" +
+				"			12345\n" +
+				"		},\n" +
+				"		intArrayValue={\n" +
+				"			-1234567890,\n" +
+				"			1234567890\n" +
+				"		},\n" +
+				"		floatArrayValue={\n" +
+				"			-12345.6789f,\n" +
+				"			12345.6789f\n" +
+				"		},\n" +
+				"		doubleArrayValue={\n" +
+				"			-12345.6789,\n" +
+				"			12345.6789\n" +
+				"		},\n" +
+				"		longArrayValue={\n" +
+				"			-1234567890123456789l,\n" +
+				"			1234567890123456789l\n" +
+				"		},\n" +
+				"		stringArrayValue={\n" +
+				"			\"valueString\",\n" +
+				"			\"stringValue\"\n" +
+				"		},\n" +
+				"		enumArrayValue={\n" +
+				"			EnumClass.Value2,\n" +
+				"			EnumClass.Value1\n" +
+				"		},\n" +
+				"		classArrayValue={\n" +
+				"			EnumClass.class,\n" +
+				"			X.class\n" +
+				"		},\n" +
+				"		annotationArrayValue={\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation1\"),\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation2\")\n" +
+				"		})\n" +
+				"	public void method(@ParameterAnnotation(value=\"ParameterAnnotation\") @Deprecated() String param1, @ParameterAnnotation(value=\"ParameterAnnotation\") String param2){\n" +
+				"	}\n" +
+				"}"
+			},
+		"");
+		
+		try {
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			final byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			new ClassFileReader(classFileBytes, "X.java".toCharArray(), true);
+			disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);			
+		} catch (ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+	}    
 }

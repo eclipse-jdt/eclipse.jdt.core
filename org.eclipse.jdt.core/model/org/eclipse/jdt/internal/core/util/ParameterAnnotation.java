@@ -46,7 +46,7 @@ public class ParameterAnnotation extends ClassFileStruct implements IParameterAn
 			this.annotations = new IAnnotation[length];
 			for (int i = 0; i < length; i++) {
 				Annotation annotation = new Annotation(classFileBytes, constantPool, offset + readOffset);
-				this.annotations[i++] = annotation;
+				this.annotations[i] = annotation;
 				this.readOffset += annotation.sizeInBytes();
 			}
 		} else {

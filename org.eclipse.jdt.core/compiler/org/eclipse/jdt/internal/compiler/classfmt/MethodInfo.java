@@ -110,7 +110,7 @@ private int decodeElementValue(int offset) {
 			readOffset += 2;
 			break;
 		case '@' :
-			readOffset += decodeAnnotation(readOffset);
+			readOffset = decodeAnnotation(readOffset);
 			break;
 		case '[' :
 			int numberOfValues = u2At(readOffset);
