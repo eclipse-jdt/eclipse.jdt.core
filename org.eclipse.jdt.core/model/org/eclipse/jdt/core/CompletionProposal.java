@@ -1454,7 +1454,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * <code>false</code>.
 	 * </p>
 	 * 
-	 * @return return <code>true</code> if the proposal is a constructor.
+	 * @return <code>true</code> if the proposal is a constructor.
 	 * @since 3.1
 	 */
 	public boolean isConstructor() {
