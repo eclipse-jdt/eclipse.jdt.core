@@ -156,10 +156,16 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 
 		// if generic type X<T> is referred to as parameterized X<T>, then answer itself
-		boolean allEqual = true;
-	    for (int i = 0; allEqual && i < argLength; i++)
-			allEqual = typeVariables[i] == argTypes[i];
-	    if (!allEqual) {
+		boolean isIdentical = this.resolvedType instanceof SourceTypeBinding;
+		if (isIdentical) {
+		    for (int i = 0; i < argLength; i++) {
+				if (typeVariables[i] != argTypes[i]) {
+					isIdentical = false;
+				    break;
+				}
+			}
+		}		
+	    if (!isIdentical) {
 	    	ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, enclosingType);
 			// check argument type compatibility
 			if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution

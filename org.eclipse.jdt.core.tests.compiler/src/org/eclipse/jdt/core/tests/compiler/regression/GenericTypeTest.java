@@ -21387,4 +21387,122 @@ public void test741() {
 		"Cannot cast from D to B<String>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98538
+public void _test742() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			" public class X {\n" + 
+			" \n" + 
+			"	/**Subclasses are parameterized by their own type*/\n" + 
+			"	private static abstract class SelfType<T extends SelfType<T>>{\n" + 
+			"		public abstract T getThis();\n" + 
+			"	}\n" + 
+			" \n" + 
+			"	/**Supertype inherits directly from the parameterized SelfType*/\n" + 
+			"	private static class SuperType extends SelfType<SuperType>{\n" + 
+			"		@Override\n" + 
+			"		public SuperType getThis(){\n" + 
+			"			return this;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			" \n" + 
+			"	/**Subtype inherits indirectly from the parameterized SelfType*/\n" + 
+			"	private static class SubType extends SuperType{}\n" + 
+			" \n" + 
+			"	/**Creates a list containing a single SelfType*/\n" + 
+			"	public static <T extends SelfType<T>> List<T> makeSingletonList(T t){\n" + 
+			"		return Collections.singletonList(t);\n" + 
+			"	}\n" + 
+			" \n" + 
+			"	/**\n" + 
+			"	 * Creates a list containing a single SelfType, allowing the list\'s\n" + 
+			"	 * element-type to be a supertype of the type of its single element\n" + 
+			"	 */\n" + 
+			"	public static <T extends SelfType<T>,S extends T> List<T> makeSingletonList2(S s){\n" + 
+			"		return Collections.singletonList((T)s);\n" + 
+			"	}\n" + 
+			" \n" + 
+			"	public static void main(String[] args){\n" + 
+			"		/*making lists of super types works fine ...*/\n" + 
+			"		makeSingletonList(new SuperType());\n" + 
+			"		List<SuperType> lsup = makeSingletonList(new SuperType());\n" + 
+			" \n" + 
+			"		/*but we can\'t make a list of sub types; seems weird ...*/\n" + 
+			"		List<SubType> lsub = makeSingletonList(new SubType()); //ERROR\n" + 
+			"		\n" + 
+			"		/*can\'t even call it w/o assigning the return value:*/\n" + 
+			"		makeSingletonList(new SubType()); //ERROR\n" + 
+			" \n" + 
+			" \n" + 
+			"		/*so instead, we should be able to make lists of super type containing sub type elements*/\n" + 
+			"		makeSingletonList2(new SubType()); //ERROR\n" + 
+			"		/*even if we assign the return value:*/\n" + 
+			"		lsup = makeSingletonList2(new SubType()); // ERROR (eclipse is okay with this though)\n" + 
+			"		/*this still doesn\'t work either:*/\n" + 
+			"		lsub = makeSingletonList2(new SubType()); // ERROR\n" + 
+			" \n" + 
+			"		/*we can make lists of super type this way though*/\n" + 
+			"		makeSingletonList2(new SuperType()); // (eclipse doesn\'t like this though)\n" + 
+			"		/*also ok if we assign the return value*/\n" + 
+			"		lsup = makeSingletonList2(new SuperType());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 40)\n" + 
+		"	List<SubType> lsub = makeSingletonList(new SubType()); //ERROR\n" + 
+		"	                     ^^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method makeSingletonList(T) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 43)\n" + 
+		"	makeSingletonList(new SubType()); //ERROR\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method makeSingletonList(T) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 47)\n" + 
+		"	makeSingletonList2(new SubType()); //ERROR\n" + 
+		"	^^^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method makeSingletonList2(S) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 51)\n" + 
+		"	lsub = makeSingletonList2(new SubType()); // ERROR\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method makeSingletonList2(S) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99553
+public void test743() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface TestGeneric2<A> {\n" + 
+			"	Nested<A> getNested2(); // super\n" + 
+			"\n" + 
+			"	class Nested<B> implements TestGeneric2<B> {\n" + 
+			"		public Nested<B> getNested2() { // sub\n" + 
+			"			return this;//2\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n" + 
+			" \n" + 
+			"class TestGeneric3<A> {\n" + 
+			"	Nested<A> getNested3() { return null; } // super\n" + 
+			"\n" + 
+			"	class Nested<B> extends TestGeneric3<B> {\n" + 
+			"		@Override public Nested<B> getNested3() { // sub\n" + 
+			"			return this;//3\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	return this;//3\n" + 
+		"	       ^^^^\n" + 
+		"Type mismatch: cannot convert from TestGeneric3<A>.Nested<B> to TestGeneric3<B>.Nested<B>\n" + 
+		"----------\n");
+}
 }
