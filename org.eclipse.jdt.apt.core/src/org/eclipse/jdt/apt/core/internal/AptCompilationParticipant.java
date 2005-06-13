@@ -16,7 +16,6 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,9 +57,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	 */
 	public AptCompilationParticipant()
 	{
-        _factoryLoader = new AnnotationProcessorFactoryLoader();
-		_factoryLoader.loadFactoriesFromPlugins();
-        _factories = _factoryLoader.getFactories();
+        _factoryLoader = AnnotationProcessorFactoryLoader.getLoader();
         INSTANCE = this;
 	}
 
@@ -98,10 +95,11 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		HashSet<IFile> deletedFiles = new HashSet<IFile>();
 		HashMap<IFile, Set<String>> newDependencies = new HashMap<IFile, Set<String>>();
 		HashMap<IFile, List<IProblem>> problems = new HashMap<IFile, List<IProblem>>(4);
+		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject.getProject() );
 		for ( int i = 0; i < buildFiles.length; i++ )
 		{
 			APTResult result = APTDispatch.runAPTDuringBuild( 
-					_factories, 
+					factories, 
 					buildFiles[i], 
 					javaProject );
 			newFiles.addAll( result.getNewFiles() );			
@@ -156,7 +154,8 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			if ( cu == null || javaProject == null  )
 				return GENERIC_COMPILATION_RESULT;
 			
-			APTResult result = APTDispatch.runAPTDuringReconcile( _factories, cu, javaProject );
+			List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject.getProject() );
+			APTResult result = APTDispatch.runAPTDuringReconcile( factories, cu, javaProject );
 			Map<IFile, List<IProblem>> allproblems = result.getProblems();			
 			
 			final List<IProblem> problemList = allproblems.get((IFile)cu.getResource());
@@ -180,19 +179,15 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	}
 	
 	public boolean doesParticipateInProject(IJavaProject project) {
-		if (_factories.size() == 0)
+		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( project.getProject() );
+		if (factories.size() == 0)
 			return false;
 		
 		//TODO: use config to decide which projects we support
 		return true;
 	}
-	
-	public List<AnnotationProcessorFactory> getAllFactories() {
-		return new ArrayList(_factories);
-	}
-	
-    private final List<AnnotationProcessorFactory> _factories;
-    private final AnnotationProcessorFactoryLoader _factoryLoader;
+
+    private AnnotationProcessorFactoryLoader _factoryLoader;
     private final static String DOT_JAVA = ".java";
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 

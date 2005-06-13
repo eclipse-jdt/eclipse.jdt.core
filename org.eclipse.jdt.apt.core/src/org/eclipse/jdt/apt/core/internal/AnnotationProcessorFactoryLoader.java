@@ -16,18 +16,18 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -38,7 +38,13 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 public class AnnotationProcessorFactoryLoader {
 	
-	private List<AnnotationProcessorFactory> _factories = new ArrayList<AnnotationProcessorFactory>();
+	private List<AnnotationProcessorFactory> _workspaceFactories = new ArrayList<AnnotationProcessorFactory>();
+	
+	private HashMap<IProject, List<AnnotationProcessorFactory>> _project2factories = new HashMap<IProject, List<AnnotationProcessorFactory>>();
+	
+	private HashMap<String, AnnotationProcessorFactory> _pluginFactoryMap = new HashMap<String, AnnotationProcessorFactory>();
+	
+	private static AnnotationProcessorFactoryLoader _factoryLoader;
 	
 	private static boolean _verboseLoad = false;
 	
@@ -47,18 +53,140 @@ public class AnnotationProcessorFactoryLoader {
         "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory"
     };
 
+    public static synchronized AnnotationProcessorFactoryLoader getLoader() {
+    	if ( _factoryLoader == null )
+    		_factoryLoader = new AnnotationProcessorFactoryLoader();
+    	return _factoryLoader;
+    }
+    
+    private AnnotationProcessorFactoryLoader() {
+    	loadPluginFactoryMap();
+    	List<FactoryContainer> containers = getPluginFactoryContainers();
+    	setWorkspaceAnnotationProcessorFactories( containers );
+    }
+    
+    public List<AnnotationProcessorFactory> getFactoriesForProject( IProject p ) {
+    	List<AnnotationProcessorFactory> factories = _project2factories.get(p);
+    	if ( factories == null )
+    		factories = Collections.unmodifiableList( _workspaceFactories );
+    	return factories;
+    }
+    
+	public synchronized void setWorkspaceAnnotationProcessorFactories( List<FactoryContainer> containers )
+	{
+		// always reset the list.  create a new list in case anyone has a handle on the old one
+		_workspaceFactories = new ArrayList<AnnotationProcessorFactory>( containers.size() );
+		loadFactories( _workspaceFactories, containers );
+	}
+	
+	public synchronized void setProjectAnnotationProcessorFactories( IProject p, List<FactoryContainer> containers )
+	{
+		// always reset the list.  create a new list in case anyone has a handle on the old one
+		List<AnnotationProcessorFactory> factories = new ArrayList<AnnotationProcessorFactory>( containers.size() );
+		_project2factories.put( p, factories );
+		loadFactories( factories, containers );
+	}
+    
+	private void loadFactories( List<AnnotationProcessorFactory> factories, List<FactoryContainer> containers )
+	{
+		ClassLoader classLoader = createClassLoader( containers );
+		for ( FactoryContainer fc : containers )
+		{
+			List<AnnotationProcessorFactory> f = loadFactoryClasses( fc, classLoader );
+			for ( AnnotationProcessorFactory apf : f )
+				factories.add( apf  );
+		}
+	}
+	
+	private List<AnnotationProcessorFactory> loadFactoryClasses( FactoryContainer fc, ClassLoader classLoader )
+	{
+		List<String> factoryNames = fc.getFactoryNames();
+		List<AnnotationProcessorFactory> factories = new ArrayList<AnnotationProcessorFactory>( factoryNames.size() ); 
+		for ( String factoryName : factoryNames )
+		{
+			AnnotationProcessorFactory factory;
+			if ( fc.isPlugin() )
+				factory = loadFactoryFromPlugin( factoryName );
+			else
+				factory = loadFactoryFromClassLoader( factoryName, classLoader );
+			
+			if ( factory != null )
+				factories.add( factory );
+		}
+		return factories;
+	}
+	
+	private AnnotationProcessorFactory loadFactoryFromPlugin( String factoryName )
+	{
+		AnnotationProcessorFactory apf = _pluginFactoryMap.get( factoryName );
+		if ( apf == null ) 
+		{
+			// TODO:  log error somewhere
+			System.err.println("could not find AnnotationProcessorFactory " + 
+					factoryName + " from available factories defined by plugins" );
+		}
+		return apf;
+	}
+
+	private AnnotationProcessorFactory loadFactoryFromClassLoader( String factoryName, ClassLoader cl )
+	{
+		AnnotationProcessorFactory f = null;
+		try
+		{
+			Class c = cl.loadClass( factoryName );
+			f = (AnnotationProcessorFactory)c.newInstance();
+		}
+		catch( Exception e )
+		{
+			e.printStackTrace();
+		}
+		return f;
+	}
+	
+	private ClassLoader createClassLoader( Collection<FactoryContainer> containers )
+	{
+		ArrayList<URL> urlList = new ArrayList<URL>( containers.size() );
+		for ( FactoryContainer fc : containers ) 
+		{
+			if ( ! fc.isPlugin() )
+			{
+				JarFactoryContainer jfc = (JarFactoryContainer) fc;
+				try
+				{
+					URL u = jfc.getJarFileURL();
+					urlList.add( u );
+				}
+				catch ( MalformedURLException mue )
+				{
+					// TODO:  log this exception
+					mue.printStackTrace();
+				}
+			}
+		}
+		
+		ClassLoader cl = null;
+		if ( urlList.size() > 0 )
+		{
+			URL[] urls = (URL[])urlList.toArray();
+			cl = new URLClassLoader( urls );
+		}
+		return cl;
+	}
+	
 	/**
 	 * Discover and instantiate annotation processor factories by searching for plugins
 	 * which contribute to org.eclipse.jdt.apt.core.annotationProcessorFactory.
 	 * This method is used when running within the Eclipse framework.  When running
 	 * standalone at the command line, use {@link #LoadFactoriesFromJars}.
 	 * This method can be called repeatedly, but each time it will erase the previous
-	 * contents of the list and do a full rediscovery.
+	 * contents of the set of known AnnotationProcessorFactoriesDefined by plugin and 
+	 * do a full rediscovery.
 	 */
-	public void loadFactoriesFromPlugins() {
-		_factories.clear();
+	private void loadPluginFactoryMap() {
+		_pluginFactoryMap.clear();
+
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
-				"org.eclipse.jdt.apt.core",  //$NON-NLS-1$ - name of plugin that exposes this extension
+				"org.eclipse.jdt.apt.core",  //$NON-NLS-1$ - namecls of plugin that exposes this extension
 				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
 		IExtension[] extensions =  extension.getExtensions();
 		// for all extensions of this point...
@@ -73,7 +201,7 @@ public class AnnotationProcessorFactoryLoader {
 				try {
 					Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
 					if (execExt instanceof AnnotationProcessorFactory){
-						_factories.add((AnnotationProcessorFactory)execExt);
+						_pluginFactoryMap.put( execExt.getClass().getName(), (AnnotationProcessorFactory)execExt );
 					}
 				} catch(CoreException e) {
 						e.printStackTrace();
@@ -82,112 +210,36 @@ public class AnnotationProcessorFactoryLoader {
 		}
 	}
 	
-	/**
-	 * Discover and instantiate annotation processor factories by searching for jars
-	 * on the classpath or factorypath that specify an AnnotationProcessorFactory
-	 * interface in their META-INF/services directory.  This method is used when
-	 * running standalone at the command line ("apt mode").  When running within the
-	 * Eclipse framework, use {@link #loadFactoriesFromPlugins()}
-	 * This method can be called repeatedly, but each time it will erase the previous
-	 * contents of the list and do a full rediscovery.
-	 */
-	public void loadFactoriesFromJars() {
-		_factories.clear();
-		// TODO: get these values somehow
-		final String factoryClassName = null;
-		final File[] factoryPaths = new File[0];
-		_loadFromJars(factoryClassName, factoryPaths);
-	}
-
-	/**
-	 * @return Returns an immutable copy of the list of annotation processor factories.
-	 */
-	public List<AnnotationProcessorFactory> getFactories() {
-		return Collections.unmodifiableList(_factories);
-	}
+	private List<FactoryContainer> getPluginFactoryContainers()
+	{
+		List<FactoryContainer> factories = new ArrayList<FactoryContainer>();
 	
-    /**
-     * Discover and load all annotation processor factories.
-     * @param factoryClassName if specified, only this factory will be loaded.
-     * @param factoryPaths if specified, this will be used instead of classpath.
-     */
-    private void _loadFromJars (final String factoryClassName, final File[] factoryPaths)
-    {
-        final long start = System.nanoTime();
-		File[] jarPath;
+		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
+				"org.eclipse.jdt.apt.core",  //$NON-NLS-1$ - name of plugin that exposes this extension
+				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
 
-		// Create an appropriate loader.  If factoryPaths is set, use it; otherwise use classpath.
-        ClassLoader factoryLoader = null;
-		if (factoryPaths.length > 0) {
-			factoryLoader = _getExtensionClassLoader(factoryPaths);
-			jarPath = factoryPaths;
-		}
-		else {
-			factoryLoader = getClass().getClassLoader();
-			jarPath = new File[0]; //TODO: how can I list all jars on compile cmdline classPath?
-		}
-
-		// If factoryClassName is specified, load only that; otherwise search all jars.
-        if( factoryClassName != null ){
-			_loadFactory(factoryClassName, factoryLoader);
-			return;
-        }
-        else {
-            final Set<String> classNames = new HashSet<String>();
-			for (File jar : jarPath) {
-                classNames.addAll(_getServiceClassnamesFromJar(jar));
-			}
-            for (String className : classNames) {
-                final long loadStart = System.nanoTime();
-                _loadFactory(className, factoryLoader);
-                if (_verboseLoad) {
-                    System.err.printf("\tLoading APT factory %s took %.2f seconds.", 
-							className, (System.nanoTime() - loadStart) / 1000000000.0);
-                    System.err.println();
-                    System.err.println();
-                }
-            }
-        }
-
-        if (_verboseLoad) {
-            System.err.println();
-            System.err.printf("Loading all APT factories took %.2f seconds.", (System.nanoTime() - start) / 1000000000.0);
-            System.err.println();
-            System.err.println();
-        }
-    }
-	
-    /**
-     * Get a class loader for loading the language implementations.
-     * This is only called in the command-line compile case; in
-     * the plugin case, Eclipse does the loading.
-     *
-     * @param jars the list of jars in the autoload directory
-     * @return a classloader that can be used to load services from these jars
-     */
-    private ClassLoader _getExtensionClassLoader(final File[] jars)
-    {
-		//TODO: check that this is actually creating the right classLoader, in the apt/Eclipse world.
-        final ClassLoader myLoader = getClass().getClassLoader();
- 		if (_verboseLoad)
-			System.err.println("I will create my own URL class loader to load these classes; my class loader type is \"" + 
-					myLoader.getClass().getName() + "\".");
-		final List<URL> temp = new ArrayList<URL>(jars.length);
-		for (File jar : jars) {
-			try {
-				final URL url = jar.toURL();
-				if (_verboseLoad) System.err.println("Conversion to URL succeeded: " + url);
-				temp.add(url);
-			}
-			catch (MalformedURLException e) {
-				if (_verboseLoad) System.err.println("This URL was malformed; skipping.");
+		IExtension[] extensions =  extension.getExtensions();
+		for(int i = 0; i < extensions.length; i++) 
+		{
+			PluginFactoryContainer container = null;
+			IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+			for(int j = 0; j < configElements.length; j++)
+			{
+				String elementName = configElements[j].getName();
+				if ( "factory".equals( elementName ) ) //$NON-NLS-1$ - name of configElement 
+				{ 
+					if ( container == null )
+					{
+						container = new PluginFactoryContainer();
+						factories.add( container );
+					}
+					container.addFactoryName( configElements[j].getAttribute("class") );
+				}
 			}
 		}
-		final URL[] urls = temp.toArray(new URL[temp.size()]);
-		final ClassLoader jarLoader = new URLClassLoader(urls, myLoader);
-        return jarLoader;
-    }
-
+		return factories;
+	}
+  
     /**
      * Given a jar file, get the names of any AnnotationProcessorFactory
      * implementations it offers.  The information is based on the Sun
@@ -244,32 +296,5 @@ public class AnnotationProcessorFactoryLoader {
             return classNames;
         }
         return classNames;
-    }
-
-    private void _loadFactory(final String className, final ClassLoader classLoader)
-    {
-        try {
-            if (_verboseLoad) {
-                System.err.println("\tAttempting to load APT factory class \"" + className + "\"...");
-            }
-            Class c = classLoader.loadClass(className);
-            Constructor ctor = c.getDeclaredConstructor( new Class[0] );
-            AnnotationProcessorFactory factory = ( AnnotationProcessorFactory ) ctor.newInstance( new Object[0] );
-            if (factory != null) {
-                if(!_factories.contains( factory) )
-                    _factories.add(factory);
-            }
-            if (_verboseLoad) {
-                System.err.println("\t... succeeded.");
-            }
-        }
-        catch (Throwable t) {
-            if (_verboseLoad) {
-                System.err.println("\t... failed: " + t);
-                if (t.getCause() != null) t.getCause().printStackTrace(System.err);
-            }
-            // Uncomment this to debug exception throws that are real.
-            //throw new IllegalStateException(t);
-        }
-    }
+    }    
 }

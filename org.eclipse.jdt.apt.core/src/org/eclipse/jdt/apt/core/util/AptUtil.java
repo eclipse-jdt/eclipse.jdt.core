@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
+import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
@@ -36,11 +36,10 @@ public class AptUtil {
 			final String fullyQualifiedAnnotation,
 			final IProject project) {
 		
-		// TODO: go to config for project to pull out factories
-		List<AnnotationProcessorFactory> allFactories = 
-			AptCompilationParticipant.getInstance().getAllFactories();
+		AnnotationProcessorFactoryLoader loader = AnnotationProcessorFactoryLoader.getLoader();
+		List<AnnotationProcessorFactory> factories = loader.getFactoriesForProject( project );
 		
-		for (AnnotationProcessorFactory factory : allFactories) {
+		for (AnnotationProcessorFactory factory : factories) {
 			Collection<String> supportedAnnos = factory.supportedAnnotationTypes();
 			for (String anno : supportedAnnos) {
 				if (anno.equals(fullyQualifiedAnnotation)) {
