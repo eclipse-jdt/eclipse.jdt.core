@@ -5376,4 +5376,21 @@ public class AnnotationTest extends AbstractComparableTest {
 			assertTrue("IOException", false);
 		}
 	}    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99469
+    public void test167() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public foo(@Deprecated() String s) {\n" + 
+				"	}\n" + 
+				"}\n",
+           },
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public foo(@Deprecated() String s) {\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Return type for the method is missing\n" + 
+		"----------\n");
+    }
 }

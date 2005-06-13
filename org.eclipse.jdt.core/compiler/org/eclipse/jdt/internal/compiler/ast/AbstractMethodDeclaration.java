@@ -79,13 +79,16 @@ public abstract class AbstractMethodDeclaration
 
 		if (this.arguments != null) {
 			// by default arguments in abstract/native methods are considered to be used (no complaint is expected)
-			boolean used = this.binding == null || this.binding.isAbstract() || this.binding.isNative();
-
-			int length = this.arguments.length;
-			for (int i = 0; i < length; i++) {
-				TypeBinding argType = this.binding == null ? null : this.binding.parameters[i];
+			if (this.binding == null) {
+				for (int i = 0, length = this.arguments.length; i < length; i++) {
+					this.arguments[i].bind(this.scope, null, true);
+				}
+				return;
+			}
+			boolean used = this.binding.isAbstract() || this.binding.isNative();
+			for (int i = 0, length = this.arguments.length; i < length; i++) {
 				Argument argument = this.arguments[i];
-				argument.bind(this.scope, argType, used);
+				argument.bind(this.scope, this.binding.parameters[i], used);
 				if (argument.annotations != null) {
 					this.binding.tagBits |= TagBits.HasParameterAnnotations;
 				}
