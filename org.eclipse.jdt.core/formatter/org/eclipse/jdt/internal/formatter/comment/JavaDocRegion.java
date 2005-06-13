@@ -197,10 +197,19 @@ public class JavaDocRegion extends MultiCommentRegion implements IJavaDocTagCons
 		ILineTracker tracker= new DefaultLineTracker();
 		String patch= indentation + MultiCommentLine.MULTI_COMMENT_CONTENT_PREFIX;
 
+		// remove trailing spaces
+		int i= snippet.length();
+		while (i > 0 && ' ' == snippet.charAt(i-1))
+			i--;
+		snippet= snippet.substring(0, i);
+		
 		buffer.setLength(0);
-		buffer.append(getDelimiter());
+		String lineDelimiter= getDelimiter();
+		if (lineDelimiter != null && snippet.indexOf(lineDelimiter) != 0)
+			buffer.append(lineDelimiter);
 		buffer.append(convertJava2Html(snippet));
-		buffer.append(getDelimiter());
+		if (lineDelimiter != null && snippet.lastIndexOf(lineDelimiter) != snippet.length() - lineDelimiter.length())
+			buffer.append(lineDelimiter);
 		tracker.set(buffer.toString());
 		
 		for (int line= tracker.getNumberOfLines() - 1; line > 0; line--)
