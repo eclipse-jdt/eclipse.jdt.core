@@ -1306,6 +1306,26 @@ public final class CompletionEngine
 					}
 				}
 			}
+		}  catch (IndexOutOfBoundsException e) { // work-around internal failure - 1GEMF6D (added with fix of 99629)
+			if(DEBUG) {
+				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
+				e.printStackTrace(System.out);
+			}
+		} catch (InvalidCursorLocation e) { // may eventually report a usefull error (added to fix 99629)
+			if(DEBUG) {
+				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
+				e.printStackTrace(System.out);
+			}
+		} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object (added with fix of 99629)
+			if(DEBUG) {
+				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
+				e.printStackTrace(System.out);
+			}
+		} catch (CompletionNodeFound e){ // internal failure - bugs 5618 (added with fix of 99629)
+			if(DEBUG) {
+				System.out.println("Exception caught by CompletionEngine:"); //$NON-NLS-1$
+				e.printStackTrace(System.out);
+			}
 		} catch(JavaModelException e) {
 			// Do nothing
 		}
