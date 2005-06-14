@@ -43,8 +43,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug75816";
-//		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
+//		TESTS_PREFIX =  "testBug97547";
+//		TESTS_NAMES = new String[] { "testBug83304" };
 //		TESTS_NUMBERS = new int[] { 96761, 96763 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -63,6 +63,12 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	IJavaSearchScope getJavaSearchScopeBugs(String packageName, boolean addSubpackages) throws JavaModelException {
 		if (packageName == null) return getJavaSearchScopeBugs();
 		return getJavaSearchPackageScope("JavaSearchBugs", packageName, addSubpackages);
+	}
+	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
+		if (this.wcOwner == null) {
+			this.wcOwner = new WorkingCopyOwner() {};
+		}
+		return getWorkingCopy(path, source, this.wcOwner, null/*don't compute problems*/);
 	}
 	protected void search(IJavaElement element, int limitTo) throws CoreException {
 		search(element, limitTo, EXACT_RULE, getJavaSearchScopeBugs(), resultCollector);
@@ -1359,7 +1365,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
-	 * Test fix for bug 82088: [search][javadoc] Method parameter types references not found in @see/@link tags
+	 * Bug 82088: [search][javadoc] Method parameter types references not found in @see/@link tags
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82088"
 	 */
 	public void testBug82088method() throws CoreException {
@@ -2629,7 +2635,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
-	 * Test fix for bug 89848: [search] does not find method references in anonymous class of imported jarred plugin
+	 * Bug 89848: [search] does not find method references in anonymous class of imported jarred plugin
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=89848"
 	 */
 	public void testBug89848() throws CoreException {
@@ -2834,6 +2840,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"g5.m.def.Multiple\n" + 
 			"g5.m.def.Single\n" + 
 			"java.io.Serializable\n" + 
+			"java.lang.CharSequence\n" + 
 			"java.lang.Class\n" + 
 			"java.lang.CloneNotSupportedException\n" + 
 			"java.lang.Comparable\n" + 
@@ -2950,6 +2957,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"g5.m.def.Multiple\n" + 
 			"g5.m.def.Single\n" + 
 			"java.io.Serializable\n" + 
+			"java.lang.CharSequence\n" + 
 			"java.lang.Class\n" + 
 			"java.lang.CloneNotSupportedException\n" + 
 			"java.lang.Comparable\n" + 
@@ -3045,6 +3053,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"b87627.List\n" + 
 			"b92944.B92944_I\n" + 
 			"java.io.Serializable\n" + 
+			"java.lang.CharSequence\n" + 
 			"java.lang.Comparable\n" +
 			"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
 			requestor);
@@ -3448,6 +3457,33 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
+	 * Bug 97547: [search] Package search does not find references in member types import clause
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97547"
+	 */
+	public void testBug97547() throws CoreException {
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97547/IX.java",
+			"package b97547;\n" + 
+			"public interface IX {\n" + 
+			"	public interface IX1 {}\n" + 
+			"}"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97547/X.java",
+			"package b97547;\n" + 
+			"import b97547.IX.*;\n" + 
+			"class X {\n" + 
+			"	IX x;\n" + 
+			"}"
+		);
+		IPackageDeclaration[] packages = workingCopies[0].getPackageDeclarations();
+		assertTrue("Invalid number of packages declaration!", packages!=null && packages.length==1);
+		search(packages[0], REFERENCES);
+		assertSearchResults(
+			"src/b97547/X.java [b97547] EXACT_MATCH"
+		);
+	}
+
+	/**
 	 * Bug 97606: [1.5][search] Raw type reference is reported as exact match for qualified names
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97606"
 	 */
@@ -3555,5 +3591,95 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			deleteFolder(pathDef);
 			deleteFolder(pathRef);
 		}
+	}
+
+	/**
+	 * Bug 97614: [1.5][search] Refactoring: renaming of field of a (complex) parametrized type does not replace all occurrences
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97614"
+	 */
+	public void testBug97614() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97614/W.java",
+			"package b97614;\n" + 
+			"public class W {\n" + 
+			"	private final Map<String, Y<?, ? extends b97614.X.XX<?, ?>, ? >> m1 = null;     // (a)\n" + 
+			"	public void getStore(final Object o) {\n" + 
+			"		m1.get(o);     // (b)\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface Map<K, V> {\n" + 
+			"	V get(Object k);\n" + 
+			"}"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97614/X.java",
+			"package b97614;\n" + 
+			"import java.io.Serializable;\n" + 
+			"public interface X<T extends X<T, U, V>, \n" + 
+			"				   U extends X.XX<T, V>, \n" + 
+			"				   V extends X.XY> {\n" + 
+			"	public interface XX<TT extends X<TT, ?, UU>, \n" + 
+			"	                   UU extends X.XY> \n" + 
+			"			extends	Serializable {\n" + 
+			"	}\n" + 
+			"	public interface XY extends Serializable {\n" + 
+			"	}\n" + 
+			"}"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b97614/Y.java",
+			"package b97614;\n" + 
+			"public class Y<T extends X<T, U, V>, U extends X.XX<T, V>, V extends X.XY> {\n" + 
+			"}\n"
+		);
+		IField field = workingCopies[0].getType("W").getField("m1");
+		search(field, REFERENCES);
+		assertSearchResults(
+			"src/b97614/W.java void b97614.W.getStore(Object) [m1] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 98378: [search] does not find method references in anonymous class of imported jarred plugin
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=98378"
+	 */
+	public void testBug98378() throws CoreException {
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b98378/X.java",
+			"package b98378;\n" + 
+			"public class  X implements java.lang.CharSequence {\n" + 
+			"	public int length() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b98378/Y.java",
+			"package b98378;\n" + 
+			"public class Y {\n" + 
+			"	public int length() {\n" + 
+			"		return -1;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		String jclPath = getExternalJCLPathString("1.5");
+		IType type = getClassFile("JavaSearchBugs", jclPath, "java.lang", "CharSequence.class").getType();
+		IMethod method = type.getMethod("length", new String[] {});
+		search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type, this.wcOwner));
+		this.discard = false;
+		assertSearchResults(
+			jclPath + " int java.lang.CharSequence.length() EXACT_MATCH\n" + 
+			jclPath + " int java.lang.String.length() EXACT_MATCH"
+		);
+	}
+	public void testBug98378b() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+		String jclPath = getExternalJCLPathString("1.5");
+		IType type = getClassFile("JavaSearchBugs", jclPath, "java.lang", "CharSequence.class").getType();
+		IMethod method = type.getMethod("length", new String[] {});
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchEngine.createHierarchyScope(type, this.wcOwner));
+		assertSearchResults(
+			"src/b98378/X.java int b98378.X.length() [length] EXACT_MATCH\n" + 
+			jclPath + " int java.lang.CharSequence.length() EXACT_MATCH\n" + 
+			jclPath + " int java.lang.String.length() EXACT_MATCH"
+		);
 	}
 }
