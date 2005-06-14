@@ -133,7 +133,8 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 						if ((includeMask & APPLICATION_LIBRARIES) != 0) {
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
-								add("", path.toString(), true, access); //$NON-NLS-1$
+								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
+								add("", pathToString, true, access); //$NON-NLS-1$
 								addEnclosingProjectOrJar(path);
 							}
 						}
@@ -145,7 +146,8 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
 								|| (includeMask & SYSTEM_LIBRARIES) != 0) {
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
-								add("", path.toString(), true, access); //$NON-NLS-1$
+								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
+								add("", pathToString, true, access); //$NON-NLS-1$
 								addEnclosingProjectOrJar(path);
 							}
 						}
@@ -178,6 +180,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet visi
  */
 public void add(IJavaElement element) throws JavaModelException {
 	IPath containerPath = null;
+	String containerPathToString = null;
 	int includeMask = SOURCES | APPLICATION_LIBRARIES | SYSTEM_LIBRARIES;
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
@@ -190,12 +193,13 @@ public void add(IJavaElement element) throws JavaModelException {
 			IPackageFragmentRoot root = (IPackageFragmentRoot)element;
 			IPath rootPath = root.getPath();
 			containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : rootPath;
+			containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 			IResource rootResource = root.getResource();
 			if (rootResource != null && rootResource.isAccessible()) {
 				String relativePath = Util.relativePath(rootResource.getFullPath(), containerPath.segmentCount());
-				add(relativePath, containerPath.toString(), true, null);
+				add(relativePath, containerPathToString, true, null);
 			} else {
-				add("", containerPath.toString(), true, null); //$NON-NLS-1$
+				add("", containerPathToString, true, null); //$NON-NLS-1$
 			}
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT:
@@ -203,13 +207,15 @@ public void add(IJavaElement element) throws JavaModelException {
 			if (root.isArchive()) {
 				String relativePath = Util.concatWith(((PackageFragment) element).names, '/');
 				containerPath = root.getPath();
-				add(relativePath, containerPath.toString(), false, null);
+				containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
+				add(relativePath, containerPathToString, false, null);
 			} else {
 				IResource resource = element.getResource();
 				if (resource != null && resource.isAccessible()) {
 					containerPath = root.getKind() == IPackageFragmentRoot.K_SOURCE ? root.getParent().getPath() : root.getPath();
+					containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 					String relativePath = Util.relativePath(resource.getFullPath(), containerPath.segmentCount());
-					add(relativePath, containerPath.toString(), false, null);
+					add(relativePath, containerPathToString, false, null);
 				}
 			}
 			break;
@@ -230,7 +236,8 @@ public void add(IJavaElement element) throws JavaModelException {
 				containerPath = root.getPath();
 				relativePath = getPath(element, true/*relative path*/).toString();
 			}
-			add(relativePath, containerPath.toString(), true, null);
+			containerPathToString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
+			add(relativePath, containerPathToString, true, null);
 	}
 	
 	if (containerPath != null)
@@ -342,8 +349,9 @@ public boolean encloses(IJavaElement element) {
 	IPackageFragmentRoot root = (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 	if (root != null && root.isArchive()) {
 		IPath rootPath = root.getPath();
+		String rootPathToString = rootPath.getDevice() == null ? rootPath.toString() : rootPath.toOSString();
 		IPath relativePath = getPath(element, true/*relative path*/);
-		return indexOf(relativePath.toString(), rootPath.toString()) >= 0;
+		return indexOf(relativePath.toString(), rootPathToString) >= 0;
 	}
 	return this.indexOf(getPath(element, false/*full path*/).toString(), null) >= 0;
 }

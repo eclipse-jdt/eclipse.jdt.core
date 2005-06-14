@@ -539,11 +539,17 @@ private IJavaElement createMethodHandle(IType type, String methodName, String[] 
  */
 protected IJavaElement createHandle(FieldDeclaration fieldDeclaration, TypeDeclaration typeDeclaration, IJavaElement parent) {
 	if (!(parent instanceof IType)) return parent;
+	IType type = (IType) parent;
 
 	switch (fieldDeclaration.getKind()) {
 		case AbstractVariableDeclaration.FIELD :
 		case AbstractVariableDeclaration.ENUM_CONSTANT :
 			return ((IType) parent).getField(new String(fieldDeclaration.name));
+	}
+	if (type.isBinary()) {
+		// do not return initializer for binary types
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=98378
+		return type;
 	}
 	// find occurence count of the given initializer in its type declaration
 	int occurrenceCount = 0;
@@ -1904,6 +1910,11 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
  */
 protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve) throws CoreException {
 	MatchingNodeSet nodeSet = this.currentPossibleMatch.nodeSet;
+	if (BasicSearchEngine.VERBOSE) {
+		System.out.println("Report matching: "); //$NON-NLS-1$
+		System.out.println("	- node set:\n"+nodeSet); //$NON-NLS-1$
+		System.out.println("	- must resolve: "+mustResolve); //$NON-NLS-1$
+	}
 	boolean locatorMustResolve = this.patternLocator.mustResolve;
 	if (nodeSet.mustResolve) this.patternLocator.mustResolve = true;
 	if (mustResolve) {
@@ -1927,6 +1938,9 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 			nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
 		}
 		nodeSet.possibleMatchingNodesSet = new SimpleSet(3);
+		if (BasicSearchEngine.VERBOSE) {
+			System.out.println("	- resolved node set:\n"+nodeSet); //$NON-NLS-1$
+		}
 	} else {
 		this.unitScope = null;
 	}

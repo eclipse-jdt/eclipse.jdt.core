@@ -391,7 +391,7 @@ public void testJavaSearchScope2() throws CoreException {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, IJavaSearchScope.APPLICATION_LIBRARIES);
 		assertScopeEquals(
 			"JavaSearchScope on [\n" + 
-			"	"+  getExternalJCLPath() +"\n" + 
+			"	"+  getExternalJCLPath().toOSString() +"\n" + 
 			"]",
 			scope);
 	} finally {
