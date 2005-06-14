@@ -2815,4 +2815,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		);
 		verifyComments(workingCopies[0]);
 	}
+	public void testBug99507b() throws JavaModelException {
+        String source = "/**\n@param country*/";
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(source.toCharArray());
+		parser.createAST(null);
+	}
+	
 }
