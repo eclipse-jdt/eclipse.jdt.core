@@ -21577,4 +21577,17 @@ public void test746() {
 		"Type mismatch: cannot convert from List<Number&Comparable<?>> to String\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99983
+public void test747() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"  interface I {}\n" +
+			"  class Y<U extends T & I> {\n" +
+			"  }\n" +
+			"}",
+		},
+		"");
+}
 }
