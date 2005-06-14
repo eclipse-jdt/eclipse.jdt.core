@@ -21546,4 +21546,35 @@ public void test744() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99922
+public void test745() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void test() {\n" + 
+			"		java.util.Arrays.asList(3, 3.1);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99922 - variation
+public void test746() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void test() {\n" + 
+			"		String s = java.util.Arrays.asList(3, 3.1);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	String s = java.util.Arrays.asList(3, 3.1);\n" + 
+		"	       ^\n" + 
+		"Type mismatch: cannot convert from List<Number&Comparable<?>> to String\n" + 
+		"----------\n");
+}
 }
