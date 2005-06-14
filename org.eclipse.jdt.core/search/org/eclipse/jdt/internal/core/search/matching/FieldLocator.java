@@ -342,11 +342,15 @@ protected int resolveLevel(NameReference nameRef) {
  */
 protected int resolveLevelForType(TypeBinding typeBinding) {
 	FieldPattern fieldPattern = (FieldPattern) this.pattern;
+	TypeBinding fieldTypeBinding = typeBinding;
+	if (fieldTypeBinding != null && fieldTypeBinding.isParameterizedType()) {
+		fieldTypeBinding = typeBinding.erasure();
+	}
 	return resolveLevelForType(
 			fieldPattern.typeSimpleName,
 			fieldPattern.typeQualification,
 			fieldPattern.getTypeArguments(),
 			0,
-			typeBinding);
+			fieldTypeBinding);
 }
 }
