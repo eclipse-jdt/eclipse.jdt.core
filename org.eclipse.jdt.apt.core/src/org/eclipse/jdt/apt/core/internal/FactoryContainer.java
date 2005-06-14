@@ -12,14 +12,20 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class FactoryContainer
 {
 	public abstract boolean isPlugin();
-	public abstract void loadFactoryNames();
-	public  List<String> getFactoryNames() { return _factoryNames; }
-	protected List<String> _factoryNames = new ArrayList<String>();
+	protected abstract List<String> loadFactoryNames();
+	protected List<String> _factoryNames;
+	
+	public  List<String> getFactoryNames() 
+	{ 
+		if ( _factoryNames == null )
+			_factoryNames = loadFactoryNames();
+		return _factoryNames;
+	}
+	
 }
 

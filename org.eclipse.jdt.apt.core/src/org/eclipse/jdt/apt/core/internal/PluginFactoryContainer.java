@@ -12,11 +12,14 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PluginFactoryContainer extends FactoryContainer
 {
 	public boolean isPlugin() { return true; }
 	public void addFactoryName( String n ) { getFactoryNames().add( n ); }
-	public void loadFactoryNames() { 
-		// TODO 
+	protected List<String> loadFactoryNames() { 
+		return new ArrayList<String>();
 	}
 }
