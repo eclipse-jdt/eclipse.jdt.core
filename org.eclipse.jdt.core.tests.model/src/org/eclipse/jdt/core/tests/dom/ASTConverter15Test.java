@@ -39,7 +39,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 190 };
+//		TESTS_NUMBERS = new int[] { 191 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -5718,5 +5718,33 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
     	List modifiers = statement.modifiers();
     	assertEquals("Wrong size", 2, modifiers.size());
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99510
+	public void test0191() throws CoreException, IOException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0191", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, true);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		assertEquals("Not a cast expression", ASTNode.CAST_EXPRESSION, initializer.getNodeType());
+		CastExpression castExpression = (CastExpression) initializer;
+		Type type = castExpression.getType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		Expression expression = castExpression.getExpression();
+		ITypeBinding typeBinding2 = expression.resolveTypeBinding();
+		assertNotNull("No binding", typeBinding2);
+		assertTrue("Not cast compatible", typeBinding2.isCastCompatible(typeBinding));
 	}
 }
