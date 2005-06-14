@@ -539,7 +539,7 @@ public class BasicSearchEngine {
 						&& !workingCopyPaths.contains(documentPath)) { // filter out working copies
 					if (access != null) {
 						// Compute document relative path
-						int pkgLength = record.pkg==null ? 0 : record.pkg.length+1;
+						int pkgLength = (record.pkg==null || record.pkg.length==0) ? 0 : record.pkg.length+1;
 						int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
 						char[] path = new char[pkgLength+nameLength];
 						int pos = 0;
@@ -762,7 +762,7 @@ public class BasicSearchEngine {
 					AccessRestriction accessRestriction = null;
 					if (access != null) {
 						// Compute document relative path
-						int qualificationLength = record.qualification == null ? 0 : record.qualification.length + 1;
+						int qualificationLength = (record.qualification == null || record.qualification.length == 0) ? 0 : record.qualification.length + 1;
 						int nameLength = record.simpleName == null ? 0 : record.simpleName.length;
 						char[] path = new char[qualificationLength + nameLength];
 						int pos = 0;
