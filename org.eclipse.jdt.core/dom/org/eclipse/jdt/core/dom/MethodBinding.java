@@ -389,18 +389,25 @@ class MethodBinding implements IMethodBinding {
 	/* (non-Javadoc)
 	 * @see IMethodBinding#overrides(IMethodBinding)
 	 */
-	public boolean overrides(IMethodBinding method) {
-		org.eclipse.jdt.internal.compiler.lookup.MethodBinding otherCompilerBinding = ((MethodBinding) method).binding;
-		if (this.binding == otherCompilerBinding) 
+	public boolean overrides(IMethodBinding overridenMethod) {
+		org.eclipse.jdt.internal.compiler.lookup.MethodBinding overridenCompilerBinding = ((MethodBinding) overridenMethod).binding;
+		if (this.binding == overridenCompilerBinding) 
 			return false;
-		if (!CharOperation.equals(this.binding.selector, otherCompilerBinding.selector))
+		if (!CharOperation.equals(this.binding.selector, overridenCompilerBinding.selector))
 			return false;
-		if (!this.binding.declaringClass.isCompatibleWith(otherCompilerBinding.declaringClass))
-			return false;
-		LookupEnvironment lookupEnvironment = this.resolver.lookupEnvironment();
-		if (lookupEnvironment == null) return false;
-		MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
-		return methodVerifier.doesMethodOverride(this.binding, otherCompilerBinding);
+		ReferenceBinding match = this.binding.declaringClass.findSuperTypeWithSameErasure(overridenCompilerBinding.declaringClass);
+		if (match == null) return false;
+		
+		org.eclipse.jdt.internal.compiler.lookup.MethodBinding[] superMethods = match.methods();
+		for (int i = 0, length = superMethods.length; i < length; i++) {
+			if (superMethods[i].original() == overridenCompilerBinding) {
+				LookupEnvironment lookupEnvironment = this.resolver.lookupEnvironment();
+				if (lookupEnvironment == null) return false;
+				MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
+				return methodVerifier.doesMethodOverride(this.binding, superMethods[i]);
+			}
+		}
+		return false;
 	}
 
 	/* 

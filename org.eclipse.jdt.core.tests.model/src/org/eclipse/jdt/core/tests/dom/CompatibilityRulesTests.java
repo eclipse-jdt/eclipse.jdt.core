@@ -28,13 +28,17 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	}
 
 	public static Test suite() {
-		if (false) {
-			Suite suite = new Suite(CompatibilityRulesTests.class.getName());
-			suite.addTest(new CompatibilityRulesTests("test027"));
-			return suite;
-		}
-		return new Suite(CompatibilityRulesTests.class);
+		return buildTestSuite(CompatibilityRulesTests.class);
 	}
+	
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+//		TESTS_PREFIX =  "testBug86380";
+//		TESTS_NAMES = new String[] { "test030" };
+//		TESTS_NUMBERS = new int[] { 83230 };
+//		TESTS_RANGE = new int[] { 83304, -1 };
+		}
 	
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
@@ -640,4 +644,30 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		assertTrue("Y#bar() should not override X#foo()", !bindings[0].overrides(bindings[1]));
 	}
 
+	/*
+	 * Ensures that a method in a subtype overrides a method in the super parameterized type.
+	 * (regression test for bug 99608 IMethodBinding#overrides returns false on overridden method)
+	 */
+	public void test030() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<T> {\n" +
+				"  void foo(T t) {\n" +
+				"  }\n" +
+				"}",
+				"/P/p1/Y.java",
+				"package p1;\n" +
+				"public class Y extends X<String> {\n" +
+				"  void foo(String s) {\n" +
+				"  }\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/Y;.foo(Ljava/lang/String;)V",
+				"Lp1/X;.foo(TT;)V"
+			});	
+		assertTrue("Y#foo(String) should override X#foo(T)", bindings[0].overrides(bindings[1]));
+	}
 }
