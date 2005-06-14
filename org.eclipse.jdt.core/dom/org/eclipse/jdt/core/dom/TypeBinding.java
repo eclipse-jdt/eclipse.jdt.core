@@ -916,7 +916,10 @@ class TypeBinding implements ITypeBinding {
 		};
 		Scope scope = this.resolver.scope();
 		if (scope == null) return false;
-		return expression.checkCastTypesCompatibility(scope, this.binding, ((TypeBinding) type).binding, null);
+		org.eclipse.jdt.internal.compiler.lookup.TypeBinding expressionType = ((TypeBinding) type).binding;
+		// simulate capture in case checked binding did not properly get extracted from a reference
+		expressionType = expressionType.capture(scope, 0);
+		return expression.checkCastTypesCompatibility(scope, this.binding, expressionType, null);
 	}
 
 	/*

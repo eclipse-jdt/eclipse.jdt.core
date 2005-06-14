@@ -86,14 +86,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		int length = originalArguments.length;
 		TypeBinding[] capturedArguments = new TypeBinding[length];
 		
+		// Retrieve the type context for capture bindingKey
+		ReferenceBinding contextType = scope.enclosingSourceType();
+		if (contextType != null) contextType = contextType.outermostEnclosingType(); // maybe null when used programmatically by DOM
+		
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = originalArguments[i];
 			if (argument.kind() == Binding.WILDCARD_TYPE) {
-				capturedArguments[i] = 
-					new CaptureBinding(
-							(WildcardBinding) argument, 
-							scope.enclosingSourceType().outermostEnclosingType(),
-							position);
+				capturedArguments[i] = new CaptureBinding((WildcardBinding) argument, contextType, position);
 			} else {
 				capturedArguments[i] = argument;
 			}
@@ -636,7 +636,34 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	            		return false;
 	            }
 	            return true;
-	    	
+
+	    	case Binding.GENERIC_TYPE :
+	            SourceTypeBinding otherGenericType = (SourceTypeBinding) otherType;
+	            if (this.type != otherGenericType) 
+	                return false;
+	            if (!isStatic()) { // static member types do not compare their enclosing
+	            	ReferenceBinding enclosing = enclosingType();
+	            	if (enclosing != null) {
+	            		ReferenceBinding otherEnclosing = otherGenericType.enclosingType();
+	            		if (otherEnclosing == null) return false;
+	            		if ((otherEnclosing.tagBits & HasDirectWildcard) == 0) {
+							if (enclosing != otherEnclosing) return false;
+	            		} else {
+	            			if (!enclosing.isEquivalentTo(otherGenericType.enclosingType())) return false;
+	            		}
+	            	}
+	            }
+	            length = this.arguments == null ? 0 : this.arguments.length;
+	            otherArguments = otherGenericType.typeVariables();
+	            otherLength = otherArguments == null ? 0 : otherArguments.length;
+	            if (otherLength != length) 
+	                return false;
+	            for (int i = 0; i < length; i++) {
+	            	if (!this.arguments[i].isTypeArgumentIntersecting(otherArguments[i]))
+	            		return false;
+	            }
+	            return true;
+	            
 	    	case Binding.RAW_TYPE :
 	            return erasure() == otherType.erasure();
 	    }

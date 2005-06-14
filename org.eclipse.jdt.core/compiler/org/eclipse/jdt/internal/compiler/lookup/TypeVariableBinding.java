@@ -64,7 +64,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 			WildcardBinding wildcard = (WildcardBinding) argumentType;
 			switch(wildcard.boundKind) {
 				case Wildcard.EXTENDS :
-					ReferenceBinding superclassBound = (ReferenceBinding)Scope.substitute(substitution, this.superclass());
+					ReferenceBinding superclassBound = hasSubstitution ? (ReferenceBinding)Scope.substitute(substitution, this.superclass) : this.superclass;
 					TypeBinding wildcardBound = wildcard.bound;
 					boolean isArrayBound = wildcardBound.isArrayType();
 					if (!wildcardBound.isInterface()) {
@@ -82,7 +82,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 							}
 						}
 					}
-					ReferenceBinding[] superInterfaceBounds = Scope.substitute(substitution, this.superInterfaces());
+					ReferenceBinding[] superInterfaceBounds = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces) : this.superInterfaces;
 					int length = superInterfaceBounds.length;
 					boolean mustImplement = isArrayBound || ((ReferenceBinding)wildcardBound).isFinal();
 					for (int i = 0; i < length; i++) {
