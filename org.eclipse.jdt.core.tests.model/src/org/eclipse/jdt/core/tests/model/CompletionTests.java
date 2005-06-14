@@ -10302,4 +10302,23 @@ public void testCompletionExpectedTypeOnEmptyToken4() throws JavaModelException 
 		}
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99811
+public void testBug99811() throws JavaModelException {
+    this.wc = getWorkingCopy(
+            "/Completion/src/test/A.java",
+            "public abstract class A implements I {}");
+    getWorkingCopy(
+            "/Completion/src/test/I.java",
+            "public interface I {\n"+
+            "  public class M extends A {}\n"+
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "A";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+
+	assertResults("", requestor.getResults());
+}
 }
