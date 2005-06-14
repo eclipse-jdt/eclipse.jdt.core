@@ -92,7 +92,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = originalArguments[i];
-			if (argument.kind() == Binding.WILDCARD_TYPE) {
+			if (argument.kind() == Binding.WILDCARD_TYPE && ((WildcardBinding)argument).otherBounds == null) { // no capture for intersection types
 				capturedArguments[i] = new CaptureBinding((WildcardBinding) argument, contextType, position);
 			} else {
 				capturedArguments[i] = argument;
