@@ -620,13 +620,15 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 								char[] lastToken = tokens[tokenCount - 1];
 								char[][] qualifierTokens = CharOperation.subarray(tokens, 0, tokenCount - 1);
 								
-								Binding binding = this.unitScope.getTypeOrPackage(qualifierTokens);
-								if(binding != null && binding instanceof ReferenceBinding) {
-									ReferenceBinding ref = (ReferenceBinding) binding;
-									selectMemberTypeFromImport(parsedUnit, lastToken, ref, importReference.isStatic());
-									if(importReference.isStatic()) {
-										selectStaticFieldFromStaticImport(parsedUnit, lastToken, ref);
-										selectStaticMethodFromStaticImport(parsedUnit, lastToken, ref);
+								if(qualifierTokens != null && qualifierTokens.length > 0) {
+									Binding binding = this.unitScope.getTypeOrPackage(qualifierTokens);
+									if(binding != null && binding instanceof ReferenceBinding) {
+										ReferenceBinding ref = (ReferenceBinding) binding;
+										selectMemberTypeFromImport(parsedUnit, lastToken, ref, importReference.isStatic());
+										if(importReference.isStatic()) {
+											selectStaticFieldFromStaticImport(parsedUnit, lastToken, ref);
+											selectStaticMethodFromStaticImport(parsedUnit, lastToken, ref);
+										}
 									}
 								}
 							}

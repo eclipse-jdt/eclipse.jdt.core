@@ -1566,4 +1566,33 @@ public void testMemberTypeInImport() throws JavaModelException {
 		}
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99901
+public void testSingleNameInImport() throws JavaModelException {
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+				"/Resolve/src/zzz/AType.java",
+				"package zzz;\n" +
+				"public class AType {\n" +
+				"}\n");
+
+		IJavaElement[] elements = select(
+				"/Resolve/src/test/Test.java",
+				"package test;\n" +
+				"import zzz.*;\n" +
+				"public class Test\n" +
+				"}\n",
+				"zzz");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"zzz [in src [in Resolve]]",
+			elements
+		);
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
 }
