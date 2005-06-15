@@ -385,6 +385,9 @@ public class BasicSearchEngine {
 		
 		if (patternTypeName != null) {
 			int matchMode = matchRule - (isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
+			if (!isCaseSensitive) {
+				patternTypeName = CharOperation.toLowerCase(patternTypeName);
+			}
 			switch(matchMode) {
 				case SearchPattern.R_EXACT_MATCH :
 					return CharOperation.equals(patternTypeName, typeName, isCaseSensitive);

@@ -20,9 +20,6 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchEngine;
 public class WorkingCopySearchTests extends JavaSearchTests {
 	ICompilationUnit workingCopy;
 	
@@ -36,7 +33,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testAllTypeNames";
-//		TESTS_NAMES = new String[] { "testGenericFieldReferenceAC04" };
+//		TESTS_NAMES = new String[] { "testAllTypeNamesBug99915" };
 //		TESTS_NUMBERS = new int[] { 8 };
 //		TESTS_RANGE = new int[] { -1, -1 };
 	}
@@ -213,7 +210,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			wc.discardWorkingCopy();
 		}
 	}
-	
+
 	/*
 	 * Search all type names with a prefix in a primary working copy (without reconciling it).
 	 * (regression test for bug 44884 Wrong list displayed while code completion)
@@ -249,6 +246,37 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 		} finally {
 			wc.discardWorkingCopy();
 		}
+	}
+
+	/**
+	 * Bug 99915: [search] Open Type: not yet saved types not found if case-sensitve name is entered
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=99915"
+	 */
+	public void testAllTypeNamesBug99915() throws CoreException {
+		this.workingCopy.getBuffer().setContents(
+			"package wc;\n" +
+			"public class X {\n" +
+			"}\n"  +
+			" class AAABBB {}\n" +
+			" class BBBCCC {}\n"
+		);
+		this.workingCopy.makeConsistent(null);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
+		SearchTests.SearchTypeNameRequestor requestor = new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllTypeNames(
+			null,
+			"A*".toCharArray(),
+			SearchPattern.R_PATTERN_MATCH, // case insensitive
+			TYPE,
+			scope, 
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null		
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"wc.AAABBB",
+			requestor);
 	}
 	
 	/**
