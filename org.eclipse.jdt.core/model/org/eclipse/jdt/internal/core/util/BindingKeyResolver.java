@@ -66,14 +66,14 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	int wildcardRank;
 	
-	BindingKeyResolver outerMostResolver;
+	CompilationUnitDeclaration outerMostParsedUnit;
 	
-	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank, BindingKeyResolver outerMostResolver) {
+	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank, CompilationUnitDeclaration outerMostParsedUnit) {
 		super(parser);
 		this.compiler = compiler;
 		this.environment = environment;
 		this.wildcardRank = wildcardRank;
-		this.outerMostResolver = outerMostResolver;
+		this.outerMostParsedUnit = outerMostParsedUnit;
 	}
 	
 	public BindingKeyResolver(String key) {
@@ -109,7 +109,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public void consumeCapture(final int position) {
-		CompilationUnitDeclaration outerParsedUnit = this.outerMostResolver == null ? this.parsedUnit : this.outerMostResolver.parsedUnit;
+		CompilationUnitDeclaration outerParsedUnit = this.outerMostParsedUnit == null ? this.parsedUnit : this.outerMostParsedUnit;
 		if (outerParsedUnit == null) return;
 		final Binding wildcardBinding = ((BindingKeyResolver) this.types.get(0)).compilerBinding;
 		class CaptureFinder extends ASTVisitor {
@@ -476,7 +476,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public BindingKeyParser newParser() {
-		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank, this.outerMostResolver == null ? this : this.outerMostResolver);
+		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank, this.outerMostParsedUnit == null ? this.parsedUnit : this.outerMostParsedUnit);
 	}
 	 
 	public String toString() {
