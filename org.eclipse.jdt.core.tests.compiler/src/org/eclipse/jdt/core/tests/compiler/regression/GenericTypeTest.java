@@ -21590,4 +21590,23 @@ public void test747() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100007
+public void test748() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static interface Factory<T> {\n" + 
+			"		public <U extends T> U create(Class<U> cl);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	static class BytesFactory implements Factory<byte[]> {\n" + 
+			"		public byte[] create(Class<byte[]> cl) {\n" + 
+			"			return null;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 }
