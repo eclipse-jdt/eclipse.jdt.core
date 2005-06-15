@@ -380,7 +380,7 @@ public class CompilationUnit extends ASTNode {
 	 *    a <code>VariableDeclarationFragment</code> in a 
 	 *    <code>VariableDeclarationStatement</code> or 
 	 *    <code>VariableDeclarationExpression</code></li>
-	 * <li>methods - a <code>MethodDeclaration</code> </li>
+	 * <li>method - a <code>MethodDeclaration</code> </li>
 	 * <li>constructor - a <code>MethodDeclaration</code> </li>
      * <li>annotation type - an <code>AnnotationTypeDeclaration</code></li>
      * <li>annotation type member - an <code>AnnotationTypeMemberDeclaration</code></li>
