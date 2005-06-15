@@ -21803,5 +21803,96 @@ public void test756() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100147
+public void test757() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<K, V> {\n" + 
+			"	static class EntryMap<K, V> {\n" + 
+			"		class Entry {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	EntryMap.Entry internalGet(Object key) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	void foo(Object key) {\n" + 
+			"		EntryMap<K,V>.Entry entry = internalGet(key);\n" + 
+			"	}\n" + 
+			"  Zork z;\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\r\n" + 
+		"	static class EntryMap<K, V> {\r\n" + 
+		"	                      ^\n" + 
+		"The type parameter K is hiding the type K\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 2)\r\n" + 
+		"	static class EntryMap<K, V> {\r\n" + 
+		"	                         ^\n" + 
+		"The type parameter V is hiding the type V\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\r\n" + 
+		"	EntryMap<K,V>.Entry entry = internalGet(key);\r\n" + 
+		"	                            ^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.EntryMap.Entry needs unchecked conversion to conform to X.EntryMap<K,V>.Entry\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 14)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100147 - variation
+public void test758() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<K, V> {\n" + 
+			"	static class EntryMap<K, V> {\n" + 
+			"		class Entry {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	EntryMap.Entry internalGet(Object key) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	void foo(Object key) {\n" + 
+			"		EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\n" + 
+			"	}\n" + 
+			"  Zork z;\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\r\n" + 
+		"	static class EntryMap<K, V> {\r\n" + 
+		"	                      ^\n" + 
+		"The type parameter K is hiding the type K\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 2)\r\n" + 
+		"	static class EntryMap<K, V> {\r\n" + 
+		"	                         ^\n" + 
+		"The type parameter V is hiding the type V\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\r\n" + 
+		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\r\n" + 
+		"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from X.EntryMap.Entry to X.EntryMap.Entry\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 12)\r\n" + 
+		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\r\n" + 
+		"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.EntryMap.Entry needs unchecked conversion to conform to X.EntryMap<K,V>.Entry\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 14)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
 
