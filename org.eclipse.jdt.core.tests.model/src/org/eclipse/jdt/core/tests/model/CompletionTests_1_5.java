@@ -7560,4 +7560,28 @@ public void test0242() throws JavaModelException {
 			"",
 			result.proposals);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99686
+	public void test0243() throws JavaModelException {
+		CompletionResult result = complete(
+			"/Completion/src3/test0243/X.java",
+			"package test0243;\n" + 
+			"public class X {\n" + 
+			"	void test() {\n" + 
+			"		foo(new Object() {}).b\n" + 
+			"	}\n" + 
+			"	<T> Y<T> foo(T t) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"	T bar() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}",
+			"foo(new Object() {}).b");
+
+		assertResults(
+			"bar[METHOD_REF]{bar(), Ltest0243.Y<LObject;>;, ()LObject;, bar, null, 29}", 
+			result.proposals);
+}
 }

@@ -335,6 +335,7 @@ public abstract class Engine implements ITypeRequestor {
 				if(localTypeBinding.isAnonymousType()) {
 					typeBinding = localTypeBinding.superclass();
 				} else {
+					// TODO (david) this code is not necessary any longer (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=99686)
 					localTypeBinding.setConstantPoolName(typeBinding.sourceName());
 				}
 			}
