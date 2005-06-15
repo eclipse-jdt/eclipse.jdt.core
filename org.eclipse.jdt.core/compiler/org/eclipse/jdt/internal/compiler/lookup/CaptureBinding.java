@@ -100,12 +100,12 @@ public class CaptureBinding extends TypeVariableBinding {
 					} else {
 						int length = substitutedVariableInterfaces.length;
 						System.arraycopy(substitutedVariableInterfaces, 0, substitutedVariableInterfaces = new ReferenceBinding[length+1], 1, length);
-						substitutedVariableInterfaces[0] =  (ReferenceBinding) wildcard.bound;
+						substitutedVariableInterfaces[0] =  (ReferenceBinding) substitutedWildcardBound;
 						this.superInterfaces = Scope.greaterLowerBound(substitutedVariableInterfaces);
 					}
 				} else {
 					// per construction the wildcard bound is a subtype of variable superclass
-					this.superclass = wildcard.bound.isArrayType() ? substitutedVariableSuperclass : (ReferenceBinding)wildcard.bound;
+					this.superclass = wildcard.bound.isArrayType() ? substitutedVariableSuperclass : (ReferenceBinding)substitutedWildcardBound;
 					this.superInterfaces = substitutedVariableInterfaces;
 				}
 				this.firstBound =  substitutedWildcardBound;
