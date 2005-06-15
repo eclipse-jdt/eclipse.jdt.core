@@ -45,7 +45,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
 //		TESTS_PREFIX =  "testBug97547";
 //		TESTS_NAMES = new String[] { "testBug83304" };
-//		TESTS_NUMBERS = new int[] { 96761, 96763 };
+//		TESTS_NUMBERS = new int[] { 99600 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -3680,6 +3680,33 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b98378/X.java int b98378.X.length() [length] EXACT_MATCH\n" + 
 			jclPath + " int java.lang.CharSequence.length() EXACT_MATCH\n" + 
 			jclPath + " int java.lang.String.length() EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 99600: [search] Java model exception on "Move to new file" on inner type with inner type
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=99600"
+	 */
+	public void testBug99600() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b99600/Test.java",
+			"package b99600;\n" + 
+			"public class Test {\n" + 
+			"	public class C1 {}\n" + 
+			"	public class C2 {\n" + 
+			"		class C3 {\n" + 
+			"			int foo(C1 c) { return 0; }\n" + 
+			"		}\n" + 
+			"		public void foo(C1 c, int i) {\n" + 
+			"			new C3().foo(c);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("Test").getType("C2");
+		new SearchEngine(this.workingCopies).searchDeclarationsOfSentMessages(type, resultCollector, null);
+		assertSearchResults(
+			"src/b99600/Test.java int b99600.Test$C2$C3.foo(C1) [foo(C1 c)] EXACT_MATCH"
 		);
 	}
 }

@@ -1521,7 +1521,9 @@ protected void report(SearchMatch match) throws CoreException {
 			// it's just for debug purposes... ignore all exceptions in this area
 		}
 		try {
-			System.out.println("\tJava element: " + ((JavaElement)match.getElement()).toStringWithAncestors()); //$NON-NLS-1$
+			JavaElement javaElement = (JavaElement)match.getElement();
+			System.out.println("\tJava element: "+ javaElement.toStringWithAncestors()); //$NON-NLS-1$
+			if (!javaElement.exists()) System.out.println("\t\tWARNING: this element does NOT exist!"); //$NON-NLS-1$
 		} catch (Exception e) {
 			// it's just for debug purposes... ignore all exceptions in this area
 		}
