@@ -21805,7 +21805,7 @@ public void test756() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100147
 public void test757() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<K, V> {\n" + 
@@ -21848,7 +21848,7 @@ public void test757() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100147 - variation
 public void test758() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<K, V> {\n" + 
@@ -21893,6 +21893,23 @@ public void test758() {
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100128
+public void test759() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<E>\n" + 
+			"{\n" + 
+			"  E[] m;\n" + 
+			"  public X()\n" + 
+			"  {\n" + 
+			"	X<? extends E> x = null;\n" + 
+			"	System.out.println(x.m.length);\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
 }
 }
 
