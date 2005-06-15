@@ -374,13 +374,15 @@ class TypeBinding implements ITypeBinding {
 	}
 	
 	private JavaElement getUnresolvedJavaElement() {
-		org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = this.binding;
+		return getUnresolvedJavaElement(this.binding);
+	}
+	private JavaElement getUnresolvedJavaElement(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding ) {
 		if (typeBinding == null) 
 			return null;
 		switch (typeBinding.kind()) {
 			case Binding.ARRAY_TYPE :
 				typeBinding = ((ArrayBinding) typeBinding).leafComponentType();
-				break;
+				return getUnresolvedJavaElement(typeBinding);
 			case Binding.BASE_TYPE :
 			case Binding.WILDCARD_TYPE :
 				return null;

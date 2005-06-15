@@ -161,7 +161,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing an array type is correct.
 	 */
-	public void testArrayType() throws JavaModelException {
+	public void testArrayType1() throws JavaModelException {
 		ASTNode node = buildAST(
 			"public class X {\n" +
 			"  /*start*/Object[]/*end*/ field;\n" +
@@ -176,6 +176,27 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			element
 		);
 		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing an array type of base type null.
+	 * (regression test for bug 100142
+	  	CCE when calling ITypeBinding#getJavaElement() on char[][]
+	 */
+	public void testArrayType2() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/char[][]/*end*/ field;\n" +
+			"}"
+		);
+		IBinding binding = ((ArrayType) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"<null>",
+			element
+		);
 	}
 
 	/*
