@@ -65,49 +65,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		}
 		return this.genericTypeSignature;
 	}
-	/**
-	 * Initialize capture bounds using substituted supertypes
-	 * e.g. given X<U, V extends X<U, V>>,     capture(X<E,?>) = X<E,capture>, where capture extends X<E,capture>
-	 */
-	public void initializeBounds1(ParameterizedTypeBinding capturedParameterizedType) {
-		TypeVariableBinding wildcardVariable = wildcard.typeVariable();
-		ReferenceBinding originalWildcardSuperclass = wildcard.superclass();
-		// prevent cyclic capture: given X<T>, capture(X<? extends T> could yield a circular type
-		ReferenceBinding substitutedWildcardSuperclass = originalWildcardSuperclass.isTypeVariable() ? originalWildcardSuperclass : (ReferenceBinding) Scope.substitute(capturedParameterizedType, originalWildcardSuperclass);
-		ReferenceBinding[] substitutedWildcardInterfaces = Scope.substitute(capturedParameterizedType, wildcard.superInterfaces());
-		
-		switch (wildcard.boundKind) {
-			case Wildcard.EXTENDS :
-				this.superclass = substitutedWildcardSuperclass;
-				TypeBinding substitutedWildcardBound = Scope.substitute(capturedParameterizedType, wildcard.bound);
-				this.firstBound =  substitutedWildcardBound;
-				if (substitutedWildcardInterfaces == NoSuperInterfaces) {
-					this.superInterfaces = NoSuperInterfaces;
-				} else {
-					this.superInterfaces = Scope.greaterLowerBound(substitutedWildcardInterfaces);
-				}
-				if ((substitutedWildcardBound.tagBits & HasTypeVariable) == 0)
-					this.tagBits &= ~HasTypeVariable;
-				break;
-			case Wildcard.UNBOUND :
-				this.superclass = substitutedWildcardSuperclass;
-				this.superInterfaces = substitutedWildcardInterfaces;
-				this.tagBits &= ~HasTypeVariable;
-				break;
-			case Wildcard.SUPER :
-				this.superclass = substitutedWildcardSuperclass;
-				substitutedWildcardBound = Scope.substitute(capturedParameterizedType, wildcard.bound);
-				if (wildcardVariable.firstBound == this.superclass 
-						|| substitutedWildcardBound == this.superclass) {
-					this.firstBound = this.superclass;
-				}
-				this.superInterfaces = substitutedWildcardInterfaces;
-				this.lowerBound = substitutedWildcardBound;
-				if ((substitutedWildcardBound.tagBits & HasTypeVariable) == 0)
-					this.tagBits &= ~HasTypeVariable;
-				break;
-		}		
-	}
+
 	/**
 	 * Initialize capture bounds using substituted supertypes
 	 * e.g. given X<U, V extends X<U, V>>,     capture(X<E,?>) = X<E,capture>, where capture extends X<E,capture>
@@ -115,9 +73,22 @@ public class CaptureBinding extends TypeVariableBinding {
 	public void initializeBounds(ParameterizedTypeBinding capturedParameterizedType) {
 		TypeVariableBinding wildcardVariable = wildcard.typeVariable();
 		ReferenceBinding originalVariableSuperclass = wildcardVariable.superclass;
+		ReferenceBinding substitutedVariableSuperclass = (ReferenceBinding) Scope.substitute(capturedParameterizedType, originalVariableSuperclass);
 		// prevent cyclic capture: given X<T>, capture(X<? extends T> could yield a circular type
-		ReferenceBinding substitutedVariableSuperclass = originalVariableSuperclass.isTypeVariable() ? originalVariableSuperclass : (ReferenceBinding) Scope.substitute(capturedParameterizedType, originalVariableSuperclass);
-		ReferenceBinding[] substitutedVariableInterfaces = Scope.substitute(capturedParameterizedType, wildcardVariable.superInterfaces());
+		if (substitutedVariableSuperclass == this) substitutedVariableSuperclass = originalVariableSuperclass;
+		
+		ReferenceBinding[] originalVariableInterfaces = wildcardVariable.superInterfaces();		
+		ReferenceBinding[] substitutedVariableInterfaces = Scope.substitute(capturedParameterizedType, originalVariableInterfaces);
+		if (substitutedVariableInterfaces != originalVariableInterfaces) {
+			// prevent cyclic capture: given X<T>, capture(X<? extends T> could yield a circular type
+			for (int i = 0, length = substitutedVariableInterfaces.length; i < length; i++) {
+				if (substitutedVariableInterfaces[i] == this) substitutedVariableInterfaces[i] = originalVariableInterfaces[i];
+			}
+		}
+		TypeBinding originalWildcardBound = wildcard.bound;
+		// prevent cyclic capture: given X<T>, capture(X<? extends T> could yield a circular type
+		TypeBinding substitutedWildcardBound = originalWildcardBound == null ? null : Scope.substitute(capturedParameterizedType, originalWildcardBound);
+		if (substitutedWildcardBound == this) substitutedWildcardBound = originalWildcardBound;
 		
 		switch (wildcard.boundKind) {
 			case Wildcard.EXTENDS :
@@ -125,7 +96,7 @@ public class CaptureBinding extends TypeVariableBinding {
 					this.superclass = substitutedVariableSuperclass;
 					// merge wildcard bound into variable superinterfaces using glb
 					if (substitutedVariableInterfaces == NoSuperInterfaces) {
-						this.superInterfaces = new ReferenceBinding[] { (ReferenceBinding) wildcard.bound };
+						this.superInterfaces = new ReferenceBinding[] { (ReferenceBinding) substitutedWildcardBound };
 					} else {
 						int length = substitutedVariableInterfaces.length;
 						System.arraycopy(substitutedVariableInterfaces, 0, substitutedVariableInterfaces = new ReferenceBinding[length+1], 1, length);
@@ -137,7 +108,6 @@ public class CaptureBinding extends TypeVariableBinding {
 					this.superclass = wildcard.bound.isArrayType() ? substitutedVariableSuperclass : (ReferenceBinding)wildcard.bound;
 					this.superInterfaces = substitutedVariableInterfaces;
 				}
-				TypeBinding substitutedWildcardBound = Scope.substitute(capturedParameterizedType, wildcard.bound);
 				this.firstBound =  substitutedWildcardBound;
 				if ((substitutedWildcardBound.tagBits & HasTypeVariable) == 0)
 					this.tagBits &= ~HasTypeVariable;
@@ -149,11 +119,8 @@ public class CaptureBinding extends TypeVariableBinding {
 				break;
 			case Wildcard.SUPER :
 				this.superclass = substitutedVariableSuperclass;
-				// prevent cyclic capture: given X<T>, capture(X<? super T> could yield a circular type
-				substitutedWildcardBound = wildcard.bound.isTypeVariable() ? wildcard.bound : Scope.substitute(capturedParameterizedType, wildcard.bound);
-				if (wildcardVariable.firstBound == this.superclass 
-						|| substitutedWildcardBound == this.superclass) {
-					this.firstBound = this.superclass;
+				if (wildcardVariable.firstBound == substitutedVariableSuperclass || substitutedWildcardBound == substitutedVariableSuperclass) {
+					this.firstBound = substitutedVariableSuperclass;
 				}
 				this.superInterfaces = substitutedVariableInterfaces;
 				this.lowerBound = substitutedWildcardBound;
