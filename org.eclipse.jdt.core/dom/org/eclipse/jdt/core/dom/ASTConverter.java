@@ -3857,6 +3857,7 @@ class ASTConverter {
 					case TerminalTokens.TokenNameint:
 					case TerminalTokens.TokenNamelong:
 					case TerminalTokens.TokenNameshort:
+					case TerminalTokens.TokenNameboolean:
 						return this.scanner.currentPosition - 1;
 				}
 			}
