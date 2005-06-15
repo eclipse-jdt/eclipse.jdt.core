@@ -29,6 +29,8 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.builder.Tests;
 
@@ -117,11 +119,12 @@ public class PerfTests extends Tests
 	
 	public void testBuilding() throws Throwable {
 		IProject proj = env.getProject(projectPath);
+		IJavaProject jproj = JavaCore.create(proj); // doesn't actually create anything
 		
 		assertNoUnexpectedProblems();
 		
 		// Start with APT turned off
-		AptConfig.setEnabled(false);
+		AptConfig.setEnabled(jproj, false);
 		proj.build(IncrementalProjectBuilder.CLEAN_BUILD, null);
 		
 		assertNoUnexpectedProblems();
@@ -135,7 +138,7 @@ public class PerfTests extends Tests
 		assertNoUnexpectedProblems();
 		
 		// Now turn on APT
-		AptConfig.setEnabled(true);
+		AptConfig.setEnabled(jproj, true);
 		proj.build(IncrementalProjectBuilder.CLEAN_BUILD, null);
 		
 		assertNoUnexpectedProblems();

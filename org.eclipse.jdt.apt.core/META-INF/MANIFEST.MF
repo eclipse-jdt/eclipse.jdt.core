@@ -26,3 +26,5 @@ Require-Bundle: org.eclipse.jdt.core,
  org.eclipse.ui.editors,
  org.apache.ant
 Bundle-Vendor: %providerName
+Bundle-Activator: org.eclipse.jdt.apt.core.AptPlugin
+Eclipse-AutoStart: true

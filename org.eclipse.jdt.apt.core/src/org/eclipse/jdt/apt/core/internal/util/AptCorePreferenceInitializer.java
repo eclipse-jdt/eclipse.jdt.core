@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *   {INITIAL_AUTHOR} - initial API and implementation
+ *   wharley - initial API and implementation
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.core.internal.util;
@@ -18,7 +18,8 @@ import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 
 /**
- * 
+ * This class is used to extend org.eclipse.core.runtime.preferences.
+ * TODO: how does this interact with the initialization done at plugin startup time?
  */
 public class AptCorePreferenceInitializer extends AbstractPreferenceInitializer {
 

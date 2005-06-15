@@ -18,6 +18,24 @@ public class AptPreferenceConstants {
 	public static final String APT_ENABLED = "org.eclipse.jdt.apt.aptEnabled";
 	public static final String APT_GENBINDIR = "org.eclipse.jdt.apt.genBinDir";
 	public static final String APT_GENSRCDIR = "org.eclipse.jdt.apt.genSrcDir";
+
+	/**
+	 * Names of all apt settings that can be read from APT preference store.
+	 * Order is unimportant.  Note that not all "apt settings" may be in the
+	 * APT preference store - for instance, the factory path is kept in a
+	 * separate file.  This list only applies to the information available
+	 * from IPreferencesService.  See AptConfig for usage.
+	 */
+	public static final String[] OPTION_NAMES = {
+		APT_ENABLED,
+		APT_GENBINDIR,
+		APT_GENSRCDIR
+	};
+	
+	/**
+	 * Number of apt settings in the APT preference store.
+	 */
+	public static final int NSETTINGS = OPTION_NAMES.length;
 }
 
 

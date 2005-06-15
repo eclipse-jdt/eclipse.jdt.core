@@ -63,7 +63,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 
 	public CompilationParticipantResult notify( CompilationParticipantEvent cpe )
 	{	
-		if (!AptConfig.isEnabled())
+		if (!AptConfig.isEnabled(cpe.getJavaProject()))
 			return GENERIC_COMPILATION_RESULT;
 		
 		if ( cpe == null )
