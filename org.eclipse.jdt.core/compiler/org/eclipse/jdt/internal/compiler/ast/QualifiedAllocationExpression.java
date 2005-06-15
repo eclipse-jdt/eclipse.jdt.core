@@ -253,11 +253,16 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 		if (receiverType == null) {
 			hasError = true;
-		} else if (((ReferenceBinding) receiverType).isFinal() && this.anonymousType != null) {
-			if (!receiverType.isEnum()) {
-				scope.problemReporter().anonymousClassCannotExtendFinalClass(type, receiverType);
+		} else if (((ReferenceBinding) receiverType).isFinal()) {
+			if (this.anonymousType != null) {
+				if (!receiverType.isEnum()) {
+					scope.problemReporter().anonymousClassCannotExtendFinalClass(type, receiverType);
+					hasError = true;
+				}
+			} else if (!receiverType.canBeInstantiated()) {
+				scope.problemReporter().cannotInstantiate(type, receiverType);
+				return this.resolvedType = receiverType;
 			}
-			hasError = true;
 		}
 		// resolve type arguments (for generic constructor call)
 		if (this.typeArguments != null) {
@@ -290,11 +295,11 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if (hasError) return this.resolvedType = receiverType;
 		if (this.anonymousType == null) {
 			// qualified allocation with no anonymous type
-			ReferenceBinding allocationType = (ReferenceBinding) receiverType;
 			if (!receiverType.canBeInstantiated()) {
 				scope.problemReporter().cannotInstantiate(type, receiverType);
 				return this.resolvedType = receiverType;
 			}
+			ReferenceBinding allocationType = (ReferenceBinding) receiverType;
 			if ((this.binding = scope.getConstructor(allocationType, argumentTypes, this)).isValidBinding()) {
 				if (isMethodUseDeprecated(binding, scope)) {
 					scope.problemReporter().deprecatedMethod(this.binding, this);

@@ -2877,7 +2877,77 @@ public class EnumTest extends AbstractComparableTest {
 		String expectedOutput = 
 			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
-			"public enum X extends java.lang.Enum {\n"; 
+			"public final enum X extends java.lang.Enum {\n" + 
+			"  \n" + 
+			"  // Field descriptor #6 [LX;\n" + 
+			"  private static final synthetic X[] ENUM$VALUES;\n" + 
+			"  \n" + 
+			"  // Method descriptor #8 (Ljava/lang/String;I)V\n" + 
+			"  // Stack: 3, Locals: 3\n" + 
+			"  private X(String arg, int arg);\n" + 
+			"    0  aload_0 [this]\n" + 
+			"    1  aload_1\n" + 
+			"    2  iload_2\n" + 
+			"    3  invokespecial java.lang.Enum(java.lang.String, int) [11]\n" + 
+			"    6  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+			"  \n" + 
+			"  // Method descriptor #17 ()[LX;\n" + 
+			"  // Stack: 5, Locals: 3\n" + 
+			"  public static final X[] values();\n" + 
+			"     0  getstatic X.ENUM$VALUES : X[] [19]\n" + 
+			"     3  dup\n" + 
+			"     4  astore_0\n" + 
+			"     5  iconst_0\n" + 
+			"     6  aload_0\n" + 
+			"     7  arraylength\n" + 
+			"     8  dup\n" + 
+			"     9  istore_1\n" + 
+			"    10  anewarray X [2]\n" + 
+			"    13  dup\n" + 
+			"    14  astore_2\n" + 
+			"    15  iconst_0\n" + 
+			"    16  iload_1\n" + 
+			"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void  [25]\n" + 
+			"    20  aload_2\n" + 
+			"    21  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"  \n" + 
+			"  // Method descriptor #27 (Ljava/lang/String;)LX;\n" + 
+			"  // Stack: 3, Locals: 4\n" + 
+			"  public static final X valueOf(String arg);\n" + 
+			"     0  getstatic X.ENUM$VALUES : X[] [19]\n" + 
+			"     3  dup\n" + 
+			"     4  astore_1\n" + 
+			"     5  arraylength\n" + 
+			"     6  istore_2\n" + 
+			"     7  goto 27\n" + 
+			"    10  aload_0\n" + 
+			"    11  aload_1\n" + 
+			"    12  iload_2\n" + 
+			"    13  aaload\n" + 
+			"    14  dup\n" + 
+			"    15  astore_3\n" + 
+			"    16  invokevirtual X.name() : java.lang.String  [31]\n" + 
+			"    19  invokevirtual java.lang.String.equals(java.lang.Object) : boolean  [37]\n" + 
+			"    22  ifeq 27\n" + 
+			"    25  aload_3\n" + 
+			"    26  areturn\n" + 
+			"    27  iinc 2 -1\n" + 
+			"    30  iload_2\n" + 
+			"    31  ifge 10\n" + 
+			"    34  new java.lang.IllegalArgumentException [39]\n" + 
+			"    37  dup\n" + 
+			"    38  aload_0\n" + 
+			"    39  invokespecial java.lang.IllegalArgumentException(java.lang.String) [42]\n" + 
+			"    42  athrow\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"}"; 
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -3674,4 +3744,103 @@ the right of e1."
 			"The field bar cannot be declared static; static fields can only be declared in static or top level types\n" + 
 			"----------\n");
 	}	
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99428 and https://bugs.eclipse.org/bugs/show_bug.cgi?id=99655
+	public void test114() {
+	    this.runConformTest(
+            new String[] {
+                "EnumTest.java",
+				"import java.lang.reflect.*;\n" + 
+				"import java.lang.annotation.*;\n" + 
+				"@ExpectedModifiers(Modifier.FINAL)\n" + 
+				"public enum EnumTest {\n" + 
+				"	X(255);\n" + 
+				"	EnumTest(int r) {}\n" + 
+				"	public static void main(String argv[]) throws Exception {\n" + 
+				"		test(\"EnumTest\");\n" + 
+				"		test(\"EnumTest$EnumA\");\n" + 
+				"		test(\"EnumTest$EnumB\");\n" + 
+				"		test(\"EnumTest$EnumB2\");\n" + 
+				"		test(\"EnumTest$EnumB3\");\n" + 
+				// TODO (kent) need verifier to detect when an Enum should be tagged as abstract
+				//"		test(\"EnumTest$EnumC\");\n" + 
+				//"		test(\"EnumTest$EnumC2\");\n" + 
+				"		test(\"EnumTest$EnumC3\");\n" + 
+				"		test(\"EnumTest$EnumD\");\n" + 
+				"	}\n" + 
+				"	static void test(String className) throws Exception {\n" + 
+				"		Class c = Class.forName(className);\n" + 
+				"		ExpectedModifiers em = (ExpectedModifiers) c.getAnnotation(ExpectedModifiers.class);\n" + 
+				"		if (em != null) {\n" + 
+				"			int classModifiers = c.getModifiers();\n" + 
+				"			int expected = em.value();\n" + 
+				"			if (expected != (classModifiers & (Modifier.ABSTRACT|Modifier.FINAL|Modifier.STATIC))) {\n" + 
+				"				if ((expected & Modifier.ABSTRACT) != (classModifiers & Modifier.ABSTRACT))\n" + 
+				"					System.out.println(\"FAILED ABSTRACT: \" + className);\n" + 
+				"				if ((expected & Modifier.FINAL) != (classModifiers & Modifier.FINAL))\n" + 
+				"					System.out.println(\"FAILED FINAL: \" + className);\n" + 
+				"				if ((expected & Modifier.STATIC) != (classModifiers & Modifier.STATIC))\n" + 
+				"					System.out.println(\"FAILED STATIC: \" + className);\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	@ExpectedModifiers(Modifier.FINAL|Modifier.STATIC)\n" + 
+				"	enum EnumA {\n" + 
+				"		A;\n" + 
+				"	}\n" + 
+				"	@ExpectedModifiers(Modifier.STATIC)\n" + 
+				"	enum EnumB {\n" + 
+				"		B {\n" + 
+				"			int value() { return 1; }\n" + 
+				"		};\n" + 
+				"		int value(){ return 0; }\n" + 
+				"	}\n" + 
+				"	@ExpectedModifiers(Modifier.STATIC)\n" + 
+				"	enum EnumB2 {\n" + 
+				"		B2 {};\n" + 
+				"		int value(){ return 0; }\n" + 
+				"	}\n" + 
+				"	@ExpectedModifiers(Modifier.FINAL|Modifier.STATIC)\n" + 
+				"	enum EnumB3 {\n" + 
+				"		B3;\n" + 
+				"		int value(){ return 0; }\n" + 
+				"	}\n" + 
+				"	@ExpectedModifiers(Modifier.STATIC)\n" + 
+				"	enum EnumC implements I {\n" + 
+				"		C {\n" + 
+				"			int value() { return 1; }\n" + 
+				"		};\n" + 
+				"		int value(){ return 0; }\n" + 
+				"		public void foo(){}\n" + 
+				"	}\n" + 
+				"	@ExpectedModifiers(Modifier.STATIC)\n" + 
+				"	enum EnumC2 implements I {\n" + 
+				"		C2 {};\n" + 
+				"		int value(){ return 0; }\n" + 
+				"		public void foo(){}\n" + 
+				"	}\n" + 
+				"	@ExpectedModifiers(Modifier.FINAL|Modifier.STATIC)\n" + 
+				"	enum EnumC3 implements I {\n" + 
+				"		C3;\n" + 
+				"		int value(){ return 0; }\n" + 
+				"		public void foo(){}\n" + 
+				"	}\n" + 
+				"	@ExpectedModifiers(Modifier.ABSTRACT|Modifier.STATIC)\n" + 
+				"	enum EnumD {\n" + 
+				"		D {\n" + 
+				"			int value() { return 1; }\n" + 
+				"		};\n" + 
+				"		abstract int value();\n" + 
+				"	}\n" + 
+				"}\n" +
+				"interface I {\n" +
+				"	void foo();\n" + 
+				"}\n" + 
+				"@Retention(RetentionPolicy.RUNTIME)\n" + 
+				"@interface ExpectedModifiers {\n" + 
+				"	int value();\n" + 
+				"}"
+			},
+			"");
 	}
+}

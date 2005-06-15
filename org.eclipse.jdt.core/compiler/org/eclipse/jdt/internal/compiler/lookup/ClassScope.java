@@ -471,16 +471,24 @@ public class ClassScope extends Scope {
 			}
 
 			// what about inherited interface methods?
-			if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0)
+			if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0) {
 				modifiers |= AccAbstract;
-			else if (!sourceType.isAnonymousType()){ // body of enum constant must implement any inherited abstract methods
+			} else if (!sourceType.isAnonymousType()) {
+				// body of enum constant must implement any inherited abstract methods
 				// enum type needs to implement abstract methods if one of its constants does not supply a body
-				TypeDeclaration typeDeclaration = this.referenceContext;
-				FieldDeclaration[] fields = typeDeclaration.fields;
-				int length = typeDeclaration.fields == null ? 0 : typeDeclaration.fields.length;
 				checkAbstractEnum: {
-					if (length == 0) break checkAbstractEnum; // has no constants so must implement the method itself
-					for (int i = 0; i < length; i++) {
+					TypeDeclaration typeDeclaration = this.referenceContext;
+					FieldDeclaration[] fields = typeDeclaration.fields;
+					int fieldsLength = fields == null ? 0 : fields.length;
+					if (fieldsLength == 0) break checkAbstractEnum; // has no constants so must implement the method itself
+					AbstractMethodDeclaration[] methods = typeDeclaration.methods;
+					int methodsLength = methods == null ? 0 : methods.length;
+					// TODO (kent) cannot tell that the superinterfaces are empty or that their methods are implemented
+					boolean definesAbstractMethod = typeDeclaration.superInterfaces != null;
+					for (int i = 0; i < methodsLength && !definesAbstractMethod; i++)
+						definesAbstractMethod = methods[i].isAbstract();
+					if (!definesAbstractMethod) break checkAbstractEnum; // all methods have bodies
+					for (int i = 0; i < fieldsLength; i++) {
 						FieldDeclaration fieldDecl = fields[i];
 						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
 							if (!(fieldDecl.initialization instanceof QualifiedAllocationExpression))
@@ -491,6 +499,7 @@ public class ClassScope extends Scope {
 					modifiers |= AccAbstract;
 				}
 			}
+			modifiers |= AccFinal;
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
@@ -588,6 +597,8 @@ public class ClassScope extends Scope {
 		
 			// set the modifiers
 			int implicitValue = AccPublic | AccStatic | AccFinal | AccEnum;
+			if (fieldDecl.initialization instanceof QualifiedAllocationExpression)
+				declaringClass.modifiers &= ~AccFinal;
 			fieldBinding.modifiers|= implicitValue;
 			return;
 		}
