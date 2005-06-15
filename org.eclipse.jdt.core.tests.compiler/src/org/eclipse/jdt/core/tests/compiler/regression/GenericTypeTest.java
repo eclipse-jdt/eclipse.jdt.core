@@ -21765,5 +21765,43 @@ public void test754() {
 		"Type mismatch: cannot convert from Object to bugElement\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999
+public void test755() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"  public static class B {}\n" +
+			"  public static void main (String... args) {\n" +
+			"    X<?>.B[] b = new X<?>.B[1];\n" +
+			"  }\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	X<?>.B[] b = new X<?>.B[1];\r\n" + 
+		"	^^^^^^\n" + 
+		"The member type X<?>.B cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<?>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\r\n" + 
+		"	X<?>.B[] b = new X<?>.B[1];\r\n" + 
+		"	                 ^^^^^^\n" + 
+		"The member type X<?>.B cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<?>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999
+public void test756() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" +
+			"  public class B {}\n" +
+			"  public static void main (String... args) {\n" +
+			"    X<?>.B[] b = new X<?>.B[1];\n" +
+			"  }\n" +
+			"}",
+		},
+		"");
+}
 }
 

@@ -918,4 +918,70 @@ public void test0019() {
 		expectedCompletionDietUnitToString,	
 		testName);
 }
+public void test0020() {
+	String s = 
+		"public class X<T> {\n" +
+		"  public class B<U> {}\n" +
+		"  public static void main (String[] args) {\n" +
+		"    X<?>.B[] b = new X<?>.B[1];\n" +
+		"    X<?>.B<?>[] b = new X<?>.B<?>[1];\n" +
+		"    p.p1.X<?>.q.B<?>[] b = new p.p1.X<?>.q.B<?>[1];\n" +
+		"    p.p1.X<?>.q.B[] b = new p.p1.X<?>.q.B[1];\n" +
+		"    p.p1.X<?>[] b = new p.p1.X<?>[1];\n" +
+		"    p.p1.X<String, Integer>.q.B<?>[] b = new p.p1.X<String, Integer>.q.B<?>[1];\n" +
+		"    X<?>.B<?> b = null;\n" +
+		"    p.p1.X<?>.q.B<?> b = null;\n" +
+		"    p.p1.X<String, Integer>.q.B<?> b = null;\n" +
+		"  }\n" +
+		"}"; 	
+
+	String expectedDietUnitToString = 
+		"public class X<T> {\n" + 
+		"  public class B<U> {\n" + 
+		"    public B() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public static void main(String[] args) {\n" + 
+		"  }\n" + 
+		"}\n";
+					
+	String expectedDietPlusBodyUnitToString = 
+		"public class X<T> {\n" + 
+		"  public class B<U> {\n" + 
+		"    public B() {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public static void main(String[] args) {\n" + 
+		"    X<?>.B[] b = new X<?>.B[1];\n" + 
+		"    X<?>.B<?>[] b = new X<?>.B<?>[1];\n" + 
+		"    p.p1.X<?>.q.B<?>[] b = new p.p1.X<?>.q.B<?>[1];\n" + 
+		"    p.p1.X<?>.q.B[] b = new p.p1.X<?>.q.B[1];\n" + 
+		"    p.p1.X<?>[] b = new p.p1.X<?>[1];\n" + 
+		"    p.p1.X<String, Integer>.q.B<?>[] b = new p.p1.X<String, Integer>.q.B<?>[1];\n" + 
+		"    X<?>.B<?> b = null;\n" + 
+		"    p.p1.X<?>.q.B<?> b = null;\n" + 
+		"    p.p1.X<String, Integer>.q.B<?> b = null;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
 }

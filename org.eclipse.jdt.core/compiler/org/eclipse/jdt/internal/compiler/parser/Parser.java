@@ -1256,7 +1256,8 @@ protected void consumeArrayInitializer() {
 	arrayInitializer(this.expressionLengthStack[this.expressionLengthPtr--]);
 }
 protected void consumeArrayTypeWithTypeArgumentsName() {
-	this.intStack[this.intPtr] += this.identifierLengthStack[this.identifierLengthPtr];
+	this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr] += this.identifierLengthStack[this.identifierLengthPtr];
+	pushOnGenericsLengthStack(0); // handle type arguments
 }
 protected void consumeAssertStatement() {
 	// AssertStatement ::= 'assert' Expression ':' Expression ';'
@@ -3297,7 +3298,8 @@ protected void consumeGenericTypeArrayType() {
 	// Will be consume by a getTypeRefence call
 }
 protected void consumeGenericTypeNameArrayType() {
-	pushOnGenericsLengthStack(0); // handle type arguments
+	// nothing to do
+	// Will be consume by a getTypeRefence call
 }
 protected void consumeImportDeclaration() {
 	// SingleTypeImportDeclaration ::= SingleTypeImportDeclarationName ';'
