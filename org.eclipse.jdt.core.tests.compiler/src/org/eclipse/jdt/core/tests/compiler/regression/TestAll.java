@@ -49,6 +49,7 @@ public static Test suite() {
 	standardTests.add(UtilTest.class);
 	standardTests.add(XLargeTest.class);
 	standardTests.add(InternalScannerTest.class);
+	standardTests.add(ConditionalExpressionTest.class);
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
 		standardTests.add(JavadocTest.ALL_CLASSES.get(i));
