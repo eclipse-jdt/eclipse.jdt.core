@@ -141,7 +141,8 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		int length = typeVariables.length;
 		TypeBinding[] typeArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
-		    typeArguments[i] = typeVariables[i].upperBound();
+			// perform raw conversion on variable upper bound - could cause infinite regression if arguments were initialized lazily
+		    typeArguments[i] = this.environment.convertToRawType(typeVariables[i].upperBound());
 		}
 		this.arguments = typeArguments;
 	}

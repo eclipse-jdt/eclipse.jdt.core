@@ -21609,4 +21609,161 @@ public void test748() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100149
+public void test749() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X<T extends X<?>> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	void foo(X x) {\n" + 
+			"		String s = x.get();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	String s = x.get();\n" + 
+		"	       ^\n" + 
+		"Type mismatch: cannot convert from X to String\n" + 
+		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100149 - variation
+public void test750() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X<T extends List<String>> {\n" + 
+			"	T get() { return null; }\n" + 
+			"	void foo(X x) {\n" + 
+			"		List<Object> l = x.get();\n" + 
+			"	}\n" + 
+			"  Zork z ;\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 6)\n" + 
+		"	List<Object> l = x.get();\n" + 
+		"	                 ^^^^^^^\n" + 
+		"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	Zork z ;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100153
+// TODO (philippe) reenable once addressed
+public void _test751() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends X<T>> {\n" + 
+			"	\n" + 
+			"	void foo(X<? extends T> x) {\n" + 
+			"		X<T> x2 = x;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X<T> x2 = x;\n" + 
+		"	     ^^\n" + 
+		"Type mismatch: cannot convert from X<capture-of ? extends T> to X<T>\n" + 
+		"----------\n");
+}
+public void test752() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"public class X<E extends Serializable> {\n" + 
+			"	X<? extends I<E>> parent;\n" + 
+			"	X<? extends I<E>> current;\n" + 
+			"	void foo() {\n" + 
+			"		current = current.parent;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface I<T> {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	current = current.parent;\n" + 
+		"	          ^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<capture-of ? extends I<capture-of ? extends I<E>>> to X<? extends I<E>>\n" + 
+		"----------\n");
+}
+public void test753() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"public class X<E extends Serializable> {\n" + 
+			"	X<? super I<E>> parent;\n" + 
+			"	X<? super I<E>> current;\n" + 
+			"	void foo() {\n" + 
+			"		current = current.parent;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface I<T> {\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	X<? super I<E>> parent;\n" + 
+		"	  ^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super I<E> is not a valid substitute for the bounded parameter <E extends Serializable> of the type X<E>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	X<? super I<E>> current;\n" + 
+		"	  ^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? super I<E> is not a valid substitute for the bounded parameter <E extends Serializable> of the type X<E>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	current = current.parent;\n" + 
+		"	          ^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from X<capture-of ? super I<capture-of ? super I<E>>> to X<? super I<E>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99578
+public void test754() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class bugSuper<T extends Object> {\n" + 
+			"	public T getData(){\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class bugElement {\n" + 
+			"}\n" + 
+			"\n" + 
+			"class bugClass<T extends bugElement> extends bugSuper<T>{\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X{\n" + 
+			"	public void method(bugClass bc){\n" + 
+			"		bugElement be = bc.getData();   //<< here\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	bugElement be = bc.getData();   //<< here\n" + 
+		"	           ^^\n" + 
+		"Type mismatch: cannot convert from Object to bugElement\n" + 
+		"----------\n");
+}
+}
+
