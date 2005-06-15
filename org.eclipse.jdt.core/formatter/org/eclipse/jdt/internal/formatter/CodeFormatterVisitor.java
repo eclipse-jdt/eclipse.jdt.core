@@ -2011,16 +2011,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			int token;
 			while ((token = this.localScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameRBRACKET://166 
+					case TerminalTokens.TokenNameRBRACKET:
 						dimensions++;
 						break;
-					case TerminalTokens.TokenNameIdentifier ://90						
-					case TerminalTokens.TokenNameLBRACE ://90						
-					case TerminalTokens.TokenNameLPAREN :
-					case TerminalTokens.TokenNameCOMMA ://90
-					case TerminalTokens.TokenNameEQUAL ://167
-					case TerminalTokens.TokenNameSEMICOLON ://64
-					case TerminalTokens.TokenNameRPAREN : //86
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+					case TerminalTokens.TokenNameLBRACKET :
+						break;
+					default:
 						return dimensions;
 				}
 			}
