@@ -281,6 +281,7 @@ public class ConditionalExpression extends OperatorExpression {
 		LookupEnvironment env = scope.environment();
 		boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		TypeBinding conditionType = condition.resolveTypeExpecting(scope, BooleanBinding);
+		condition.computeConversion(scope, BooleanBinding, conditionType);
 		
 		if (valueIfTrue instanceof CastExpression) valueIfTrue.bits |= IgnoreNeedForCastCheckMASK; // will check later on
 		TypeBinding originalValueIfTrueType = valueIfTrue.resolveType(scope);
