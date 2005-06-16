@@ -531,13 +531,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		// this.superInterfaces = null;
 		// this.fields = null;
 		// this.methods = null;		
-		this.modifiers = someType.modifiers | AccGenericSignature;
-//		this.modifiers = someType.modifiers;
-//		// only set AccGenericSignature if parameterized or have enclosing type required signature
-//		if (someArguments != null)
-//			this.modifiers |= AccGenericSignature;
-//		else if (this.enclosingType != null) 
-//			this.modifiers |= (this.enclosingType.modifiers & AccGenericSignature);
+		this.modifiers = someType.modifiers;
+		// only set AccGenericSignature if parameterized or have enclosing type required signature
+		if (someArguments != null)
+			this.modifiers |= AccGenericSignature;
+		else if (this.enclosingType != null) 
+			this.modifiers |= (this.enclosingType.modifiers & AccGenericSignature);
 		if (someArguments != null) {
 			this.arguments = someArguments;
 			for (int i = 0, length = someArguments.length; i < length; i++) {

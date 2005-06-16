@@ -219,23 +219,26 @@ public abstract class Scope
 				if (!originalType.isMemberType()) break;
 				// fall thru in case enclosing is generic
 			case Binding.GENERIC_TYPE:
-				ReferenceBinding originalGenericType = (ReferenceBinding) originalType;
+				ReferenceBinding originalReferenceType = (ReferenceBinding) originalType;
 				originalEnclosing = originalType.enclosingType();
 				substitutedEnclosing = originalEnclosing;
 				if (originalEnclosing != null) {
 					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
 				}
 				if (substitution.isRawSubstitution()) {
-		            return substitution.environment().createRawType(originalGenericType, substitutedEnclosing);
+		            return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing);
 	            }
-			    // treat as if parameterized with its type variables
-				TypeVariableBinding[] originalVariables = originalGenericType.typeVariables();
-				int length = originalVariables.length;
-				System.arraycopy(originalVariables, 0, originalArguments = new TypeBinding[length], 0, length);
-				substitutedArguments = substitute(substitution, originalArguments);
+			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
+				originalArguments = originalReferenceType.typeVariables();
+				if (originalArguments == NoTypeVariables) {
+					originalArguments = null;
+					substitutedArguments = null;
+				} else {
+					substitutedArguments = substitute(substitution, originalArguments);
+				}
 				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
 					return substitution.environment().createParameterizedType(
-							originalGenericType, substitutedArguments, substitutedEnclosing);
+							originalReferenceType, substitutedArguments, substitutedEnclosing);
 				}
 				break;
 		}

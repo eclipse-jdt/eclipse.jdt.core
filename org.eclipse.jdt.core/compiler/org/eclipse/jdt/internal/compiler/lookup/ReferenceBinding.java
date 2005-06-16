@@ -199,24 +199,38 @@ public final boolean canBeSeenBy(Scope scope) {
 	return invocationType.fPackage == fPackage;
 }
 public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
-    if (typeVariables == NoTypeVariables) {
-        return signature();
-    } else {
-	    char[] typeSig = signature();
-	    StringBuffer sig = new StringBuffer(10);
+
+	boolean isMemberOfGeneric = isMemberType() && (enclosingType().modifiers & AccGenericSignature) != 0;
+	if (typeVariables == NoTypeVariables && !isMemberOfGeneric) {
+		return signature();
+	}
+	StringBuffer sig = new StringBuffer(10);
+	if (isMemberOfGeneric) {
+	    char[] typeSig = enclosingType().genericTypeSignature();
 	    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
 	    	sig.append(typeSig[i]);
 	    }
+	    sig.append('.'); // NOTE: cannot override trailing ';' with '.' in enclosing signature, since shared char[]
+	    sig.append(this.sourceName);
+	}	else {
+	    char[] typeSig = signature();
+	    for (int i = 0; i < typeSig.length-1; i++) { // copy all but trailing semicolon
+	    	sig.append(typeSig[i]);
+	    }
+	}
+	if (typeVariables == NoTypeVariables) {
+	    sig.append(';');
+	} else {
 	    sig.append('<');
 	    for (int i = 0, length = typeVariables.length; i < length; i++) {
 	        sig.append(typeVariables[i].genericTypeSignature());
 	    }
 	    sig.append(">;"); //$NON-NLS-1$
-		int sigLength = sig.length();
-		char[] result = new char[sigLength];
-		sig.getChars(0, sigLength, result, 0);
-		return result;
-    }
+	}
+	int sigLength = sig.length();
+	char[] result = new char[sigLength];
+	sig.getChars(0, sigLength, result, 0);
+	return result;
 }
 public void computeId() {
 	

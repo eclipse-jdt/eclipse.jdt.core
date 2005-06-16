@@ -360,9 +360,8 @@ public class ClassScope extends Scope {
 		ReferenceBinding enclosingType = sourceType.enclosingType();
 		boolean isMemberType = sourceType.isMemberType();
 		if (isMemberType) {
+			modifiers |= (enclosingType.modifiers & (AccGenericSignature|AccStrictfp));
 			// checks for member types before local types to catch local members
-			if (enclosingType.isStrictfp())
-				modifiers |= AccStrictfp;
 			if (enclosingType.isInterface())
 				modifiers |= AccPublic;
 			if (sourceType.isEnum()) {
