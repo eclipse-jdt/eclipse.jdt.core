@@ -21949,5 +21949,51 @@ public void test760() {
 		"Cannot cast from X<Object> to X<Integer>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100421
+public void test761() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"  public abstract class ClassA<A, B> {\n" + 
+			"    public abstract B method(A param);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public class ClassB<C, D extends C> {\n" + 
+			"    // the following field declaration causes an error\n" + 
+			"    ClassA<? super C, ? extends D> classA;\n" + 
+			"\n" + 
+			"    public D method(D d) {\n" + 
+			"      return classA.method(d);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100421 - variation
+public void test762() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"  public abstract class ClassA<A, B extends Number> {\n" + 
+			"    public abstract B method(A param);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public class ClassB<C extends Number, D extends C> {\n" + 
+			"    // the following field declaration causes an error\n" + 
+			"    ClassA<? super C, ? extends D> classA;\n" + 
+			"\n" + 
+			"    public D method(D d) {\n" + 
+			"      return classA.method(d);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
