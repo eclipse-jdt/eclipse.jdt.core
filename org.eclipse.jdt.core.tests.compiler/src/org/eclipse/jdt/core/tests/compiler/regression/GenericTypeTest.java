@@ -21911,5 +21911,43 @@ public void test759() {
 		},
 		"");
 }
+public void test760() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X<U> {\n" + 
+			"	public static <T> X<T> make() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static <T> T itself(T t) {\n" + 
+			"		return t;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	void foo() {\n" + 
+			"		X<Integer> x1 = make();\n" + 
+			"		X<Integer> x2 = itself(x1);\n" + 
+			"	}\n" + 
+			"	void bar() {\n" + 
+			"		X<Integer> x2 = itself(make());\n" + 
+			"	}\n" + 
+			"	void baz() {\n" + 
+			"		X<Integer> x2 = itself((X<Integer>)make());\n" + 
+			"	}	\n" + 
+			"} \n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	X<Integer> x2 = itself(make());\n" + 
+		"	           ^^\n" + 
+		"Type mismatch: cannot convert from X<Object> to X<Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 19)\n" + 
+		"	X<Integer> x2 = itself((X<Integer>)make());\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from X<Object> to X<Integer>\n" + 
+		"----------\n");
+}
 }
 
