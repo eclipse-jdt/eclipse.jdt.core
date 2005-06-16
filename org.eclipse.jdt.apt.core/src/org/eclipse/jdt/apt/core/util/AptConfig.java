@@ -11,13 +11,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.util;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.core.IJavaProject;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -39,6 +45,8 @@ public class AptConfig {
 	private static final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
 	private static final int PREF_INSTANCE = 0;
 	private static final int PREF_DEFAULT = 1;
+	
+	private static final String FACTORYPATH_FILE = ".factorypath";
 
 	/**
 	 * Update the factory list and other apt settings
@@ -120,6 +128,37 @@ public class AptConfig {
 			    options.put(optionName, value);
 		    }
 		}
+	}
+	
+	/**
+	 * Loads a map of factory containers from the factory path for a given
+	 * project. If no factorypath file was created, returns null.
+	 */
+	private Map<FactoryContainer, Boolean> readFactoryPathFile(IJavaProject jproj) 
+		throws IOException, CoreException
+	{
+		IProject proj = jproj.getProject();
+		IFile file = proj.getFile(FACTORYPATH_FILE);
+		if (!file.exists()) {
+			return null;
+		}
+		String data = FileSystemUtil.getContentsOfFile(file);
+		
+		return FactoryPathUtil.decodeFactoryPath(data);
+	}
+	
+	private void saveFactoryPathFile(IJavaProject jproj, Map<FactoryContainer, Boolean> containerMap) 
+		throws CoreException, IOException 
+	{
+		IProject proj = jproj.getProject();
+		IFile file = proj.getFile(FACTORYPATH_FILE);
+		if (containerMap == null) {
+			file.delete(true, null);
+			return;
+		}
+		String data = FactoryPathUtil.encodeFactoryPath(containerMap);
+		
+		FileSystemUtil.writeStringToFile(file, data);
 	}
 	
 	/**

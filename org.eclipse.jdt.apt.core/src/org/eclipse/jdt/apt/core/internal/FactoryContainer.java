@@ -16,11 +16,25 @@ import java.util.List;
 
 public abstract class FactoryContainer
 {
-	public abstract boolean isPlugin();
+	
+	public enum FactoryType {
+		PLUGIN, JAR;
+	}
+	
+	/**	
+	 * Returns an ID that is guaranteed to be sufficiently unique for this container --
+	 * that is, all necessary state can be reconstructed from just the id.
+	 * For plugins, it's the plugin id, for jar files, the path to the jar, etc.
+	 */
+	public abstract String getId();
+	
+	public abstract FactoryType getType();
+	
 	protected abstract List<String> loadFactoryNames();
+	
 	protected List<String> _factoryNames;
 	
-	public  List<String> getFactoryNames() 
+	public List<String> getFactoryNames() 
 	{ 
 		if ( _factoryNames == null )
 			_factoryNames = loadFactoryNames();

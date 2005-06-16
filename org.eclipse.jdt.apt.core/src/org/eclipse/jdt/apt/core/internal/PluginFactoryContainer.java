@@ -17,9 +17,25 @@ import java.util.List;
 
 public class PluginFactoryContainer extends FactoryContainer
 {
+	/** The label of the plug that owns this factory container.  */
+	private final String id;
+	
+	public PluginFactoryContainer(final String label) {
+		this.id = label;
+	}
+	
 	public boolean isPlugin() { return true; }
 	public void addFactoryName( String n ) { getFactoryNames().add( n ); }
 	protected List<String> loadFactoryNames() { 
 		return new ArrayList<String>();
+	}
+	
+	public String getId() {
+		return id;
+	}
+
+	@Override
+	public FactoryType getType() {
+		return FactoryType.PLUGIN;
 	}
 }

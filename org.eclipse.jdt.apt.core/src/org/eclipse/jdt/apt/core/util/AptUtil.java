@@ -19,7 +19,7 @@ import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
-public class AptUtil {
+public final class AptUtil {
 	
 	// Private c-tor to prevent construction
 	private AptUtil() {}
