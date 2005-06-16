@@ -34,7 +34,7 @@ public TypeHierarchyTests(String name) {
 	this.displayName = true;
 }
 static {
-//	TESTS_NAMES= new String[] { "testBinaryTypeHiddenByOtherJar" };
+//	TESTS_NAMES= new String[] { "testGeneric7" };
 }
 public static Test suite() {
 	return buildTestSuite(TypeHierarchyTests.class);
@@ -105,6 +105,17 @@ public void setUpSuite() throws Exception {
 	createFile(
 		"/TypeHierarchy15/src/A.java", 
 		"public class A<E> implements I<E> {\n" +
+		"}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/X99606.java", 
+		"public class X99606 extends Y99606<X99606.Color> {\n" + 
+		"	static class Color {}\n" + 
+		"}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/Y99606.java", 
+		"public class Y99606<T> {\n" + 
 		"}"
 	);
 }
@@ -960,6 +971,22 @@ public void testGeneric6() throws CoreException {
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	IType[] subtypes = hierarchy.getSubtypes(type);
 	assertEquals("Unexpected key", "Lutil/Map<TK;TV;>;", subtypes.length < 2 ? null : subtypes[1].getKey());
+}
+/*
+ * Ensures that a hierarchy on a generic type that is extended using a member as a type parameter can be opened
+ * (regression test for bug 99606 Subtype not found if parameterized on inner class)
+ */
+public void testGeneric7() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy15/src/Y99606.java").getType("Y99606");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y99606 [in Y99606.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in TypeHierarchy15]]]]\n" + 
+		"Sub types:\n" + 
+		"  X99606 [in X99606.java [in <default> [in src [in TypeHierarchy15]]]]\n",
+		hierarchy
+	);
 }
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.

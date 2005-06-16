@@ -47,10 +47,15 @@ Eclipse SDK 3.1RC3 - ?th June 2005 - 3.1 RELEASE CANDIDATE 3
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Fix for <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=99606">bug 99606</a> required the index version to be incremented. 
+     Indexes will be automatically regenerated upon subsequent search queries (accounting for indexing notification in search progress dialogs).
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=100293">100293</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=99606">99606</a>
+Subtype not found if parameterized on inner class
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=100293">100293</a>
 1.5 compiler - Methods using non-generic inner types of concreted generic classes generate wrong signatures
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=98322">98322</a>
 [compiler] ParameterizedTypeBinding should not have AccGenericSignature set when no type arguments

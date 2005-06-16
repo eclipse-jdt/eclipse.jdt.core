@@ -145,15 +145,15 @@ private void enterAnnotationType(TypeInfo typeInfo) {
 private void enterClass(TypeInfo typeInfo) {
 
 	// eliminate possible qualifications, given they need to be fully resolved again
-	if (typeInfo.superclass != null){
-		typeInfo.superclass = CharOperation.lastSegment(typeInfo.superclass, '.');
+	if (typeInfo.superclass != null) {
+		typeInfo.superclass = getSimpleName(typeInfo.superclass);
 		
 		// add implicit constructor reference to default constructor
 		this.indexer.addConstructorReference(typeInfo.superclass, 0);
 	}
 	if (typeInfo.superinterfaces != null){
-		for (int i = 0, length = typeInfo.superinterfaces.length; i < length; i++){
-			typeInfo.superinterfaces[i] = CharOperation.lastSegment(typeInfo.superinterfaces[i], '.');
+		for (int i = 0, length = typeInfo.superinterfaces.length; i < length; i++) {
+			typeInfo.superinterfaces[i] = getSimpleName(typeInfo.superinterfaces[i]);
 		}
 	}
 	char[][] typeNames;
@@ -191,7 +191,7 @@ private void enterEnum(TypeInfo typeInfo) {
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (typeInfo.superinterfaces != null){
 		for (int i = 0, length = typeInfo.superinterfaces.length; i < length; i++){
-			typeInfo.superinterfaces[i] = CharOperation.lastSegment(typeInfo.superinterfaces[i], '.');
+			typeInfo.superinterfaces[i] = getSimpleName(typeInfo.superinterfaces[i]);
 		}
 	}	
 	char[][] typeNames;
@@ -220,7 +220,7 @@ private void enterInterface(TypeInfo typeInfo) {
 	// eliminate possible qualifications, given they need to be fully resolved again
 	if (typeInfo.superinterfaces != null){
 		for (int i = 0, length = typeInfo.superinterfaces.length; i < length; i++){
-			typeInfo.superinterfaces[i] = CharOperation.lastSegment(typeInfo.superinterfaces[i], '.');
+			typeInfo.superinterfaces[i] = getSimpleName(typeInfo.superinterfaces[i]);
 		}
 	}	
 	char[][] typeNames;
@@ -304,6 +304,38 @@ public void exitMethod(int declarationEnd, int defaultValueStart, int defaultVal
  */
 public void exitType(int declarationEnd) {
 	popTypeName();
+}
+/*
+ * Returns the unqualified name without parameters from the given type name.
+ */
+private char[] getSimpleName(char[] typeName) {
+	int lastDot = -1, lastGenericStart = -1;
+	int depthCount = 0;
+	int length = typeName.length;
+	lastDotLookup: for (int i = length -1; i >= 0; i--) {
+		switch (typeName[i]) {
+			case '.':
+				if (depthCount == 0) {
+					lastDot = i;
+					break lastDotLookup;
+				}
+				break;
+			case '<':
+				depthCount--;
+				if (depthCount == 0) lastGenericStart = i;
+				break;
+			case '>':
+				depthCount++;
+				break;
+		}
+	}
+	if (lastGenericStart < 0) {
+		if (lastDot < 0) {
+			return typeName;
+		}
+		return  CharOperation.subarray(typeName, lastDot + 1, length);
+	}
+	return  CharOperation.subarray(typeName, lastDot + 1, lastGenericStart);
 }
 public void popTypeName() {
 	if (depth > 0) {
