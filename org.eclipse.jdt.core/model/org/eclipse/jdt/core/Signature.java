@@ -2434,15 +2434,32 @@ private static int appendCaptureTypeSignature(char[] string, int start, boolean 
  * @see Util#scanArrayTypeSignature(char[], int)
  */
 private static int appendArrayTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer, boolean isVarArgs) {
+	int length = string.length;
 	// need a minimum 2 char
-	if (start >= string.length - 1) {
+	if (start >= length - 1) {
 		throw new IllegalArgumentException();
 	}
 	char c = string[start];
 	if (c != C_ARRAY) { //$NON-NLS-1$
 		throw new IllegalArgumentException();
 	}
-	int e = appendTypeSignature(string, start + 1, fullyQualifyTypeNames, buffer);
+	
+	int index = start;
+	c = string[++index];
+	while(c == C_ARRAY) {
+		// need a minimum 2 char
+		if (index >= length - 1) {
+			throw new IllegalArgumentException();
+		}
+		c = string[++index];
+	}
+	
+	int e = appendTypeSignature(string, index, fullyQualifyTypeNames, buffer);
+	
+	for(int i = 1, dims = index - start; i < dims; i++) {
+		buffer.append('[').append(']');
+	}
+	
 	if (isVarArgs) {
 		buffer.append('.').append('.').append('.');
 	} else {

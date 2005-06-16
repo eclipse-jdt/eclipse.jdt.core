@@ -2015,16 +2015,31 @@ public class Util {
 		return result;
 	}
 	private static void appendArrayTypeSignature(char[] string, int start, StringBuffer buffer, boolean compact) {
+		int length = string.length;
 		// need a minimum 2 char
-		if (start >= string.length - 1) {
+		if (start >= length - 1) {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
 		if (c != Signature.C_ARRAY) { //$NON-NLS-1$
 			throw new IllegalArgumentException();
 		}
-		appendTypeSignature(string, start + 1, buffer, compact);
-		buffer.append('[').append(']');
+		
+		int index = start;
+		c = string[++index];
+		while(c == Signature.C_ARRAY) {
+			// need a minimum 2 char
+			if (index >= length - 1) {
+				throw new IllegalArgumentException();
+			}
+			c = string[++index];
+		}
+		
+		appendTypeSignature(string, index, buffer, compact);
+		
+		for(int i = 0, dims = index - start; i < dims; i++) {
+			buffer.append('[').append(']');
+		}
 	}
 	private static void appendClassTypeSignature(char[] string, int start, StringBuffer buffer, boolean compact) {
 		char c = string[start];
@@ -2400,15 +2415,25 @@ public class Util {
 	 * @exception IllegalArgumentException if this is not an array type signature
 	 */
 	public static int scanArrayTypeSignature(char[] string, int start) {
+		int length = string.length;
 		// need a minimum 2 char
-		if (start >= string.length - 1) {
+		if (start >= length - 1) {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
 		if (c != Signature.C_ARRAY) { //$NON-NLS-1$
 			throw new IllegalArgumentException();
 		}
-		return scanTypeSignature(string, start + 1);
+		
+		c = string[++start];
+		while(c == Signature.C_ARRAY) {
+			// need a minimum 2 char
+			if (start >= length - 1) {
+				throw new IllegalArgumentException();
+			}
+			c = string[++start];
+		}
+		return scanTypeSignature(string, start);
 	}
 	
 	/**

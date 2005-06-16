@@ -1898,7 +1898,8 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 }
 protected void consumeInsideCastExpression() {
 	int end = intStack[intPtr--];
-	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST) {
+	boolean isParameterized =(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST);
+	if(isParameterized) {
 		popElement(K_PARAMETERIZED_CAST);
 		
 		if(this.identifierLengthStack[this.identifierLengthPtr] > 0) {
@@ -1911,6 +1912,9 @@ protected void consumeInsideCastExpression() {
 		}
 	}
 	Expression castType = getTypeReference(intStack[intPtr--]);
+	if(isParameterized) {
+		intPtr--;
+	}
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = intStack[intPtr--] + 1;
 	pushOnExpressionStack(castType);
@@ -1925,6 +1929,8 @@ protected void consumeInsideCastExpressionLL1() {
 	pushOnElementStack(K_CAST_STATEMENT);
 }
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
+	popElement(K_PARAMETERIZED_CAST);
+	
 	Expression castType;
 	int end = this.intStack[this.intPtr--];
 
@@ -1932,6 +1938,7 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	TypeReference rightSide = getTypeReference(0);
 
 	castType = computeQualifiedGenericsFromRightSide(rightSide, dim);
+	this.intPtr--;
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = this.intStack[this.intPtr--] + 1;
 	pushOnExpressionStack(castType);
