@@ -383,7 +383,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 		synthField = new SyntheticFieldBinding(
 			fieldName,
 			scope.createArrayType(BaseTypes.IntBinding,1),
-			AccPrivate | AccStatic | AccSynthetic | AccFinal,
+			AccPrivate | AccStatic | AccSynthetic,
 			this,
 			Constant.NotAConstant,
 			synthetics[FIELD_EMUL].size());
