@@ -42,7 +42,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] {"test0573"};
+//		TESTS_NAMES = new String[] {"test0575"};
 //		TESTS_NUMBERS =  new int[] { 606 };
 	}
 	public static Test suite() {
@@ -5310,6 +5310,28 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"}",
 				workingCopy);
 			assertEquals("Unexpected node type", ASTNode.INFIX_EXPRESSION, string.getNodeType());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * Ensures that 2 different method bindings with the same return type are not "isEqualTo(...)".
+	 * (regression test for bug 99978 MalformedTreeException on Inline Method)
+	 */
+	public void test0575() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+    		workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+	    	String contents =
+				"public class X {\n" + 
+				"	/*start1*/String foo(String o) {}/*end1*/\n" + 
+				"	/*start2*/String foo(Object o) {}/*end2*/\n" + 
+				"}";
+		   	IBinding[] firstBatch = resolveBindings(contents, workingCopy);
+		   	IBinding[] secondBatch = resolveBindings(contents, workingCopy);
+		   	assertTrue("2 different method type bindings should not be equals", !firstBatch[0].isEqualTo(secondBatch[1]));
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
