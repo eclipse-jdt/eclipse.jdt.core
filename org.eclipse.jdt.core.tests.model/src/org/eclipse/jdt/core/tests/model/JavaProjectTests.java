@@ -64,8 +64,7 @@ public static Test suite() {
 		String className = JavaProjectTests.class.getName();
 		System.err.println("WARNING: only a subset of "+className+" tests will be run...");
 		TestSuite suite = new Suite(className);
-		suite.addTest(new JavaProjectTests("testPackageFragmentRootNonJavaResources"));
-		suite.addTest(new JavaProjectTests("testAddNonJavaResourcePackageFragmentRoot"));
+		suite.addTest(new JavaProjectTests("testPackageFragmentPackageInfoClass"));
 		return suite;
 	}
 	TestSuite suite = new Suite(JavaProjectTests.class.getName());
@@ -102,6 +101,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testPackageFragmentRenameAndCreate"));
 	suite.addTest(new JavaProjectTests("testFolderWithDotName"));
 	suite.addTest(new JavaProjectTests("testPackageFragmentNonJavaResources"));
+	suite.addTest(new JavaProjectTests("testPackageFragmentPackageInfoClass"));
 	suite.addTest(new JavaProjectTests("testPackageFragmentRootNonJavaResources"));
 	suite.addTest(new JavaProjectTests("testAddNonJavaResourcePackageFragmentRoot"));
 	suite.addTest(new JavaProjectTests("testFindPackageFragmentRootFromClasspathEntry"));
@@ -733,6 +733,26 @@ public void testPackageFragmentNonJavaResources() throws JavaModelException {
 	resources = pkg.getNonJavaResources();
 	assertEquals("incorrect number of non java resources (test case 7)", 0, resources.length);
 	
+}
+
+/*
+ * Ensures that the package-info.class file doesn't appear as a child of a package if proj=src
+ * (regression test for bug 99654 [5.0] JavaModel returns both IClassFile and ICompilationUnit for package-info.java)
+ */
+public void testPackageFragmentPackageInfoClass() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFolder("/P/p1");
+		IPackageFragment pkg = getPackage("/P/p1");
+		pkg.open(null);
+		createFile("/P/p1/package-info.class", "");
+		assertResources(
+			"Unexpected resources of /P/p1",
+			"",
+			(IResource[]) pkg.getNonJavaResources());
+	} finally {
+		deleteProject("P");
+	}
 }
 /**
  * Tests that after a package "foo" has been renamed into "bar", it is possible to recreate

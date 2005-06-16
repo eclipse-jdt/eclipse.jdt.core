@@ -19,12 +19,11 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 /**
@@ -37,6 +36,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
 public final class JavaConventions {
 
 	private final static char DOT= '.';
+	private static final String PACKAGE_INFO = new String(TypeConstants.PACKAGE_INFO_NAME);
 	private final static Scanner SCANNER = new Scanner();
 
 	private JavaConventions() {
@@ -140,7 +140,7 @@ public final class JavaConventions {
 		// JSR-175 metadata strongly recommends "package-info.java" as the
 		// file in which to store package annotations and
 		// the package-level spec (replaces package.html)
-		if (!identifier.equals("package-info")) { //$NON-NLS-1$
+		if (!identifier.equals(PACKAGE_INFO)) {
 			IStatus status = validateIdentifier(identifier);
 			if (!status.isOK()) {
 				return status;
@@ -183,11 +183,16 @@ public final class JavaConventions {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_classFile_notClassFileName, null); 
 		}
 		identifier = name.substring(0, index);
-		IStatus status = validateIdentifier(identifier);
-		if (!status.isOK()) {
-			return status;
+		// JSR-175 metadata strongly recommends "package-info.java" as the
+		// file in which to store package annotations and
+		// the package-level spec (replaces package.html)
+		if (!identifier.equals(PACKAGE_INFO)) {
+			IStatus status = validateIdentifier(identifier);
+			if (!status.isOK()) {
+				return status;
+			}
 		}
-		status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
+		IStatus status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
 		if (!status.isOK()) {
 			return status;
 		}
