@@ -68,17 +68,19 @@ public class TypeVariableBinding extends ReferenceBinding {
 					TypeBinding wildcardBound = wildcard.bound;
 					boolean isArrayBound = wildcardBound.isArrayType();
 					if (!wildcardBound.isInterface()) {
-						if (isArrayBound) {
-							if (!wildcardBound.isCompatibleWith(superclassBound))
-								return TypeConstants.MISMATCH;
-						} else {
-							ReferenceBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeWithSameErasure(superclassBound);
-							if (match != null) {
-								if (!match.isIntersectingWith(superclassBound)) {
+						if (superclassBound.id != T_JavaLangObject) {
+							if (isArrayBound) {
+								if (!wildcardBound.isCompatibleWith(superclassBound))
+									return TypeConstants.MISMATCH;
+							} else {
+								ReferenceBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeWithSameErasure(superclassBound);
+								if (match != null) {
+									if (!match.isIntersectingWith(superclassBound)) {
+										return TypeConstants.MISMATCH;
+									}
+								} else {
 									return TypeConstants.MISMATCH;
 								}
-							} else {
-								return TypeConstants.MISMATCH;
 							}
 						}
 					}
