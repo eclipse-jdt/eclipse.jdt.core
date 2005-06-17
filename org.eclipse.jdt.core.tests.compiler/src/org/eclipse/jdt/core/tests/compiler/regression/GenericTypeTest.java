@@ -21995,5 +21995,20 @@ public void test762() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100519
+public void test763() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"	public static class InnerClass {\n" + 
+			"		public InnerClass() {\n" + 
+			"			System.out.println(\"class : \" + InnerClass.this);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
