@@ -380,7 +380,7 @@ public class CompilationUnit extends ASTNode {
 	 *    a <code>VariableDeclarationFragment</code> in a 
 	 *    <code>VariableDeclarationStatement</code> or 
 	 *    <code>VariableDeclarationExpression</code></li>
-	 * <li>methods - a <code>MethodDeclaration</code> </li>
+	 * <li>method - a <code>MethodDeclaration</code> </li>
 	 * <li>constructor - a <code>MethodDeclaration</code> </li>
      * <li>annotation type - an <code>AnnotationTypeDeclaration</code></li>
      * <li>annotation type member - an <code>AnnotationTypeMemberDeclaration</code></li>
@@ -570,19 +570,20 @@ public class CompilationUnit extends ASTNode {
 	 * @see ASTParser
 	 */
 	public int lineNumber(int position) {
-		int length = lineEndTable.length;
+		if (this.lineEndTable == null) return 1;
+		int length = this.lineEndTable.length;
 		if (length == 0) {
 			// no line number info
 			return 1;
 		}
 		int low = 0;
-		if (position <= lineEndTable[low]) {
+		if (position <= this.lineEndTable[low]) {
 			// position illegal or before the first line delimiter
 			return 1;
 		}
 		// assert position > lineEndTable[low+1]  && low == 0
 		int hi = length - 1;
-		if (position > lineEndTable[hi]) {
+		if (position > this.lineEndTable[hi]) {
 			// position beyond the last line separator
 			if (position >= getStartPosition() + getLength()) {
 				// this is beyond the end of the source length
@@ -607,7 +608,7 @@ public class CompilationUnit extends ASTNode {
 			// assert hi - low >= 2, so average is truly in between
 			int mid = (low + hi) / 2;
 			// assert 0 <= low < mid < hi <= length - 1
-			if (position <= lineEndTable[mid]) {
+			if (position <= this.lineEndTable[mid]) {
 				// assert lineEndTable[low] < position <= lineEndTable[mid]
 				// && 0 <= low < mid < hi <= length - 1
 				hi = mid;
@@ -618,6 +619,84 @@ public class CompilationUnit extends ASTNode {
 				low = mid;
 			}
 			// in both cases, invariant reachieved with reduced measure
+		}
+	}
+	
+	/**
+	 * Returns the column number corresponding to the given source character
+	 * position in the original source string. Column number are zero-based. 
+	 * Return zero if it is beyond the valid range.
+	 * 
+	 * @param position a 0-based character position, possibly
+	 *   negative or out of range
+	 * @return the 0-based coloumn number, or <code>0</code> if the character
+	 *    position does not correspond to a source line in the original
+	 *    source file or if column number information is not known for this
+	 *    compilation unit
+	 * @see ASTParser
+	 * @since 3.2
+	 */
+	public int columnNumber(final int position) {
+		final int line = lineNumber(position);
+		if (this.lineEndTable == null) return 0;
+		final int length = this.lineEndTable.length;
+		if (line == 1) {
+			if (length == 0 || position >= getStartPosition() + getLength())
+				return 0;
+			return position;
+		}
+		// -1 to for one-based to zero-based conversion.
+		// -1, again, to get previous line.
+		final int previousLineOffset = this.lineEndTable[line - 2];
+		 // previousLineOffset + 1 is the first character of the current line
+		final int offsetForLine = previousLineOffset + 1;
+		final int currentLineEnd = line == length + 1 ? getStartPosition() + getLength() - 1 :	this.lineEndTable[line - 1];
+		if (offsetForLine > currentLineEnd) {
+			return 0;
+		} else {
+			return position - offsetForLine;
+		}
+	}
+	
+	/**
+	 * Given a line number and column number, returns the corresponding 
+	 * position in the original source string.
+	 * Returns 0 if no line number information is available for this
+	 * compilation unit or the requested line number is less than one. 
+	 * Returns the total size of the source string if <code>line</code>
+	 * is greater than the actual number lines in the unit.
+	 * Returns 0 if <code>column</code> is less than 0,  
+	 * or the position of the last character of the line if <code>column</code>
+	 * is beyond the legal range. 
+	 * 
+	 * @param line the one-based line number
+	 * @param column the zero-based column number
+	 * @return the 0-based character position in the source string; 
+	 * returns <code>0</code> if line/column number information is not known 
+	 * for this compilation unit or the inputs are not valid
+	 * @since 3.2
+	 */
+	 public int getPosition(int line, int column) {
+		if (line < 1 || column < 0 || this.lineEndTable == null) return 0;
+		final int length = this.lineEndTable.length;
+		if (length == 0) return 0;
+		if (line == 1) {
+			final int endOfLine = this.lineEndTable[0];
+			return column > endOfLine ? 0 : column;			
+		} else if( line > length + 1 ) {
+			// greater than the number of lines in the source string.
+			return 0;
+		}		
+		// -1 to for one-based to zero-based conversion.
+		// -1, again, to get previous line.
+		final int previousLineOffset = this.lineEndTable[line - 2];
+		 // previousLineOffset + 1 is the first character of the current line
+		final int offsetForLine = previousLineOffset + 1;
+		final int currentLineEnd = line == length + 1 ? getStartPosition() + getLength() - 1 : this.lineEndTable[line-1];
+		if ((offsetForLine + column) > currentLineEnd) {  
+			return 0;
+		} else {  
+			return offsetForLine + column;
 		}
 	}
 
