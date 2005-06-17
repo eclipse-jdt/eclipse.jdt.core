@@ -64,6 +64,7 @@ public final class FactoryPathUtil {
 			sb.append("<");
 			sb.append(FACTORYPATH_ENTRY_TAG).append(" ");
 			sb.append(KIND).append("=\"").append(container.getType()).append("\" ");
+			sb.append(ID).append("=\"").append(container.getId()).append("\" ");
 			sb.append(ENABLED).append("=\"").append(enabled).append("\"/>\n");
 		}
 		sb.append("</").append(FACTORYPATH_TAG).append(">\n");

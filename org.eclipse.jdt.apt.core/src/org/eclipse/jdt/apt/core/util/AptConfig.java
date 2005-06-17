@@ -147,6 +147,11 @@ public class AptConfig {
 		return FactoryPathUtil.decodeFactoryPath(data);
 	}
 	
+	/**
+	 * Stores a map of factory containers to the factorypath file
+	 * for a given project. If null is passed in, the factorypath file
+	 * is deleted.
+	 */
 	private void saveFactoryPathFile(IJavaProject jproj, Map<FactoryContainer, Boolean> containerMap) 
 		throws CoreException, IOException 
 	{

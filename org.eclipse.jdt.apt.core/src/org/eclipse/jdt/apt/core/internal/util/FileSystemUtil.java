@@ -44,6 +44,9 @@ public final class FileSystemUtil
         }
     }
     
+    /**
+     * Returns the contents of a file as a string in UTF8 format
+     */
     public static String getContentsOfFile(IFile file) throws IOException, CoreException {
     	InputStream in = file.getContents(true);
     	try {
@@ -62,6 +65,9 @@ public final class FileSystemUtil
     	}
     }
     
+    /**
+     * Stores a string into a file in UTF8 format
+     */
     public static void writeStringToFile(IFile file, String contents) throws IOException, CoreException {
     	byte[] data = contents.getBytes("UTF8");
     	ByteArrayInputStream input = new ByteArrayInputStream(data);
