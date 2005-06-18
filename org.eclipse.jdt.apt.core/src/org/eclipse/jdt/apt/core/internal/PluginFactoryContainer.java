@@ -20,8 +20,8 @@ public class PluginFactoryContainer extends FactoryContainer
 	/** The label of the plug that owns this factory container.  */
 	private final String id;
 	
-	public PluginFactoryContainer(final String label) {
-		this.id = label;
+	public PluginFactoryContainer(final String className) {
+		this.id = className;
 	}
 	
 	public boolean isPlugin() { return true; }

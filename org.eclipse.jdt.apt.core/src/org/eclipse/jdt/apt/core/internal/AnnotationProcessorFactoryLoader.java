@@ -231,7 +231,7 @@ public class AnnotationProcessorFactoryLoader {
 				{ 
 					if ( container == null )
 					{
-						container = new PluginFactoryContainer(extensions[i].getLabel());
+						container = new PluginFactoryContainer(extensions[i].getNamespace());
 						factories.add( container );
 					}
 					container.addFactoryName( configElements[j].getAttribute("class") );

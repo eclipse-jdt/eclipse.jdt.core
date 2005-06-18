@@ -14,17 +14,24 @@ package org.eclipse.jdt.apt.core.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
+import java.net.URL;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
+import org.eclipse.jdt.core.IJavaProject;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -42,11 +49,65 @@ public final class FactoryPathUtil {
 	private static final String ID = "id";
 	private static final String ENABLED = "enabled";
 	
+	private static final String FACTORYPATH_FILE = ".factorypath";
+	private static final String WORKSPACE_SETTINGS_FILE = ".metadata";
+	
 	// four spaces for indent
 	private static final String INDENT = "    ";
 
 	// Private c-tor to prevent construction
 	private FactoryPathUtil() {}
+	
+	/**
+	 * Loads a map of factory containers from the factory path for a given
+	 * project. If no factorypath file was created, returns null.
+	 */
+	public static Map<FactoryContainer, Boolean> readFactoryPathFile(IJavaProject jproj) 
+		throws IOException, CoreException
+	{
+		String data;
+		// If project is null, use workspace-level data
+		if (jproj == null) {
+			File file = new File(getFileForWorkspace(), WORKSPACE_SETTINGS_FILE);
+			data = FileSystemUtil.getContentsOfFile(file);
+		}
+		else {
+			IProject proj = jproj.getProject();
+			IFile ifile = proj.getFile(FACTORYPATH_FILE);
+			if (!ifile.exists()) {
+				return null;
+			}
+			data = FileSystemUtil.getContentsOfIFile(ifile);
+		}
+		
+		return FactoryPathUtil.decodeFactoryPath(data);
+	}
+	
+	/**
+	 * Stores a map of factory containers to the factorypath file
+	 * for a given project. If null is passed in, the factorypath file
+	 * is deleted.
+	 */
+	public static void saveFactoryPathFile(IJavaProject jproj, Map<FactoryContainer, Boolean> containerMap) 
+		throws CoreException, IOException 
+	{
+		String data = FactoryPathUtil.encodeFactoryPath(containerMap);
+		// If project is null, use workspace-level data
+		if (jproj == null) {
+			File file = new File(getFileForWorkspace(), WORKSPACE_SETTINGS_FILE);
+			FileSystemUtil.writeStringToFile(file, data);
+		}
+		else {
+			IProject proj = jproj.getProject();
+			IFile file = proj.getFile(FACTORYPATH_FILE);
+			if (containerMap == null) {
+				file.delete(true, null);
+				return;
+			}
+			
+			FileSystemUtil.writeStringToIFile(file, data);
+		}
+	}
 	
 	/**
 	 * Returns an XML string encoding all of the factories.
@@ -75,7 +136,7 @@ public final class FactoryPathUtil {
 	public static Map<FactoryContainer, Boolean> decodeFactoryPath(final String xmlFactoryPath) 
 		throws IOException
 	{
-		Map<FactoryContainer, Boolean> result = new HashMap<FactoryContainer, Boolean>();
+		Map<FactoryContainer, Boolean> result = new LinkedHashMap<FactoryContainer, Boolean>();
 		StringReader reader = new StringReader(xmlFactoryPath);
 		Element fpElement = null;
 		
@@ -127,6 +188,12 @@ public final class FactoryPathUtil {
 		}
 		
 		return result;
+	}
+	
+	private static File getFileForWorkspace() {
+		URL workspaceUrl = Platform.getInstanceLocation().getURL();
+		File file = new File(workspaceUrl.getPath());
+		return file;
 	}
 	
 }

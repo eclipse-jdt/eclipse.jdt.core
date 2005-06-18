@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.util;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -47,8 +51,15 @@ public final class FileSystemUtil
     /**
      * Returns the contents of a file as a string in UTF8 format
      */
-    public static String getContentsOfFile(IFile file) throws IOException, CoreException {
-    	InputStream in = file.getContents(true);
+    public static String getContentsOfIFile(IFile file) throws IOException, CoreException {
+    	return getContents(file.getContents(true));
+    }
+    
+    public static String getContentsOfFile(File file) throws IOException {
+    	return getContents(new FileInputStream(file));
+    }
+    
+    private static String getContents(InputStream in) throws IOException {
     	try {
     		ByteArrayOutputStream out = new ByteArrayOutputStream();
     		byte[] buffer = new byte[512];
@@ -68,12 +79,25 @@ public final class FileSystemUtil
     /**
      * Stores a string into a file in UTF8 format
      */
-    public static void writeStringToFile(IFile file, String contents) throws IOException, CoreException {
+    public static void writeStringToIFile(IFile file, String contents) throws IOException, CoreException {
     	byte[] data = contents.getBytes("UTF8");
     	ByteArrayInputStream input = new ByteArrayInputStream(data);
     	if (file.exists()) {
     		file.setContents(input, IResource.FORCE, null);
     	}
     	file.create(input, IResource.FORCE, null);
+    }
+    
+    public static void writeStringToFile(File file, String contents) throws IOException {
+    	byte[] data = contents.getBytes("UTF8");
+    	OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
+    	try {
+    		for (byte b : data) {
+    			out.write(b);
+    		}
+    	}
+    	finally {
+    		try {out.close();} catch (IOException ioe) {}
+    	}
     }
 }

@@ -13,7 +13,7 @@
 package org.eclipse.jdt.apt.tests;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -71,7 +71,7 @@ public class PreferencesTests extends Tests {
 	
 	public void testFactoryPathEncodingAndDecoding() throws Exception {
 		//encode
-		Map<FactoryContainer, Boolean> factories = new HashMap<FactoryContainer, Boolean>();
+		Map<FactoryContainer, Boolean> factories = new LinkedHashMap<FactoryContainer, Boolean>();
 		FactoryContainer jarFactory = new JarFactoryContainer(new File("C:/test.jar"));
 		FactoryContainer pluginFactory = new PluginFactoryContainer("com.bea.ap.plugin");
 		factories.put(jarFactory, true);
@@ -82,23 +82,30 @@ public class PreferencesTests extends Tests {
 		// decode
 		factories = FactoryPathUtil.decodeFactoryPath(xml);
 		assertEquals(2, factories.size());
+
+		int index=0;
 		for (Map.Entry<FactoryContainer, Boolean> entry : factories.entrySet()) {
 			FactoryContainer container = entry.getKey();
-			if (container.getType() == FactoryType.JAR) {
+			if (index == 0) {
+				// jar
+				assertEquals(FactoryType.JAR, container.getType());
 				assertEquals(Boolean.TRUE, entry.getValue());
 			}
 			else {
-				// Plugin
+				// plugin
+				assertEquals(FactoryType.PLUGIN, container.getType());
 				assertEquals(Boolean.FALSE, entry.getValue());
 				assertEquals("com.bea.ap.plugin", container.getId());
 			}
+			
+			index++;
 		}
 	}
 	
 	private static final String serializedFactories = 
 		"<factorypath>\n" + 
-		"    <factorypathentry kind=\"PLUGIN\" id=\"com.bea.ap.plugin\" enabled=\"false\"/>\n" + 
 		"    <factorypathentry kind=\"JAR\" id=\"C:\\test.jar\" enabled=\"true\"/>\n" + 
+		"    <factorypathentry kind=\"PLUGIN\" id=\"com.bea.ap.plugin\" enabled=\"false\"/>\n" + 
 		"</factorypath>\n";
 	
 }

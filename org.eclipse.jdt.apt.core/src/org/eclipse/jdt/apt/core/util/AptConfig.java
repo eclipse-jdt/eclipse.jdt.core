@@ -12,18 +12,24 @@
 package org.eclipse.jdt.apt.core.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.*;
+import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
-import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.core.IJavaProject;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -42,11 +48,22 @@ public class AptConfig {
 	 */
 	private static Map<IJavaProject, Map> _optionsMaps = new HashMap<IJavaProject, Map>(5);
 	
+	/**
+	 * Holds the containers for each project
+	 */
+	private static Map<IJavaProject, Map<FactoryContainer, Boolean>> _containerMaps = 
+		new HashMap<IJavaProject, Map<FactoryContainer, Boolean>>(5);
+	
+	private static Map<FactoryContainer, Boolean> _workspaceFactories = null;
+	
+	private static final Set<IJavaProject> _projectsWithFactoryPathLoaded = 
+		new HashSet<IJavaProject>(5);
+	
+	private static boolean _workspaceFactoryPathLoaded = false;
+	
 	private static final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
 	private static final int PREF_INSTANCE = 0;
-	private static final int PREF_DEFAULT = 1;
-	
-	private static final String FACTORYPATH_FILE = ".factorypath";
+	private static final int PREF_DEFAULT = 1;	
 
 	/**
 	 * Update the factory list and other apt settings
@@ -80,6 +97,92 @@ public class AptConfig {
 	public static synchronized void setEnabled(IJavaProject jproject, boolean enabled) {
 		Map options = _optionsMaps.get(jproject);
 		options.put(AptPreferenceConstants.APT_ENABLED, enabled ? "true" : "false");
+	}
+	
+	/**
+	 * Get the factory containers for this project. If no project-level configuration
+	 * is set, the workspace config will be returned. Any disabled containers
+	 * will not be returned.
+	 * 
+	 * @param jproj The java project in question. 
+	 * @param getDisabled if set, 
+	 */
+	public static synchronized List<FactoryContainer> getContainers(IJavaProject jproj) {
+		Map<FactoryContainer, Boolean> containers = getAllContainers(jproj);
+		List<FactoryContainer> result = new ArrayList<FactoryContainer>(containers.size());
+		for (Map.Entry<FactoryContainer, Boolean> entry : containers.entrySet()) {
+			if (entry.getValue()) {
+				result.add(entry.getKey());
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Returns all containers for the provided project, including disabled ones
+	 * @param jproj The java project in question, or null for the workspace
+	 */
+	public static synchronized Map<FactoryContainer, Boolean> getAllContainers(IJavaProject jproj) {
+		if (jproj != null) {
+			Map<FactoryContainer, Boolean> projectContainers = null;
+			if (_projectsWithFactoryPathLoaded.contains(jproj)) {
+				projectContainers = _containerMaps.get(jproj);
+			}
+			else {
+				// Load project-level containers
+				try {
+					projectContainers = FactoryPathUtil.readFactoryPathFile(jproj);
+				}
+				catch (CoreException ce) {
+					ce.printStackTrace();
+				}
+				catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+				_projectsWithFactoryPathLoaded.add(jproj);
+				_containerMaps.put(jproj, projectContainers);
+			}
+			if (projectContainers != null) {
+				return projectContainers;
+			}
+		}
+		// Workspace
+		if (!_workspaceFactoryPathLoaded) {
+			// Load the workspace
+			try {
+				_workspaceFactories = FactoryPathUtil.readFactoryPathFile(null);
+				if (_workspaceFactories == null) {
+					// TODO: Need to get the default set of factories -- plugins only
+				}
+			}
+			catch (CoreException ce) {
+				ce.printStackTrace();
+			}
+			catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+		return new LinkedHashMap(_workspaceFactories);
+	}
+	
+	/**
+	 * Set the factory containers for a given project or the workspace.
+	 * @param jproj the java project, or null for the workspace
+	 */
+	public synchronized void setContainers(IJavaProject jproj, Map<FactoryContainer, Boolean> containers) 
+	throws IOException, CoreException 
+	{
+		if (jproj == null) {
+			// workspace
+			_workspaceFactories = new HashMap(containers);
+			_workspaceFactoryPathLoaded = true;
+		}
+		else {
+			_containerMaps.put(jproj, new HashMap(containers));
+			_projectsWithFactoryPathLoaded.add(jproj);
+		}
+		FactoryPathUtil.saveFactoryPathFile(jproj, containers);
+		
 	}
 
 	/**
@@ -130,41 +233,6 @@ public class AptConfig {
 		}
 	}
 	
-	/**
-	 * Loads a map of factory containers from the factory path for a given
-	 * project. If no factorypath file was created, returns null.
-	 */
-	private Map<FactoryContainer, Boolean> readFactoryPathFile(IJavaProject jproj) 
-		throws IOException, CoreException
-	{
-		IProject proj = jproj.getProject();
-		IFile file = proj.getFile(FACTORYPATH_FILE);
-		if (!file.exists()) {
-			return null;
-		}
-		String data = FileSystemUtil.getContentsOfFile(file);
-		
-		return FactoryPathUtil.decodeFactoryPath(data);
-	}
-	
-	/**
-	 * Stores a map of factory containers to the factorypath file
-	 * for a given project. If null is passed in, the factorypath file
-	 * is deleted.
-	 */
-	private void saveFactoryPathFile(IJavaProject jproj, Map<FactoryContainer, Boolean> containerMap) 
-		throws CoreException, IOException 
-	{
-		IProject proj = jproj.getProject();
-		IFile file = proj.getFile(FACTORYPATH_FILE);
-		if (containerMap == null) {
-			file.delete(true, null);
-			return;
-		}
-		String data = FactoryPathUtil.encodeFactoryPath(containerMap);
-		
-		FileSystemUtil.writeStringToFile(file, data);
-	}
 	
 	/**
 	 * Initialize preferences lookups, and register change listeners.
