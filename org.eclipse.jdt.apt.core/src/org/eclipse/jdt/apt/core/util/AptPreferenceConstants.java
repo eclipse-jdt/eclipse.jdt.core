@@ -15,9 +15,11 @@ package org.eclipse.jdt.apt.core.util;
  * String constants used to access APT preference store
  */
 public class AptPreferenceConstants {
-	public static final String APT_ENABLED = "org.eclipse.jdt.apt.aptEnabled";
-	public static final String APT_GENBINDIR = "org.eclipse.jdt.apt.genBinDir";
-	public static final String APT_GENSRCDIR = "org.eclipse.jdt.apt.genSrcDir";
+	public static final String APT_STRING_BASE = "org.eclipse.jdt.apt";
+	public static final String APT_ENABLED = APT_STRING_BASE + ".aptEnabled";
+	public static final String APT_GENBINDIR = APT_STRING_BASE + ".genBinDir";
+	public static final String APT_GENSRCDIR = APT_STRING_BASE + ".genSrcDir";
+	public static final String APT_PROCESSOROPTIONS = APT_STRING_BASE + ".processorOptions";
 
 	/**
 	 * Names of all apt settings that can be read from APT preference store.
@@ -29,7 +31,8 @@ public class AptPreferenceConstants {
 	public static final String[] OPTION_NAMES = {
 		APT_ENABLED,
 		APT_GENBINDIR,
-		APT_GENSRCDIR
+		APT_GENSRCDIR,
+		APT_PROCESSOROPTIONS
 	};
 	
 	/**

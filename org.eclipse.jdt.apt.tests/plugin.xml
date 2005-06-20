@@ -16,6 +16,7 @@
       <import plugin="org.apache.ant"/>
       <import plugin="org.junit"/>
       <import plugin="org.eclipse.jdt.apt.core"/>
+      <import plugin="org.eclipse.jdt.apt.ui"/>
       <import plugin="org.eclipse.jdt.core.tests.compiler"/>
       <import plugin="org.eclipse.jdt.core"/>
       <import plugin="org.eclipse.test.performance"/>

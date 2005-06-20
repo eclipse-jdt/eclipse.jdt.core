@@ -26,7 +26,9 @@ import org.eclipse.jdt.apt.core.internal.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.FactoryPathUtil;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -107,5 +109,39 @@ public class PreferencesTests extends Tests {
 		"    <factorypathentry kind=\"JAR\" id=\"C:\\test.jar\" enabled=\"true\"/>\n" + 
 		"    <factorypathentry kind=\"PLUGIN\" id=\"com.bea.ap.plugin\" enabled=\"false\"/>\n" + 
 		"</factorypath>\n";
+	
+	/**
+	 * Test the config API for settings other than factory path
+	 * @throws Exception
+	 */
+	public void testSimpleConfigApi() throws Exception {
+		IJavaProject jproj = env.getJavaProject( getProjectName() );
+		
+		// aptEnabled
+		AptConfig.setEnabled(jproj, false);
+		assertFalse(AptConfig.isEnabled(jproj));
+		AptConfig.setEnabled(jproj, true);
+		assertTrue(AptConfig.isEnabled(jproj));
+		
+		// processorOptions
+		AptConfig.addProcessorOption(jproj, "foo", "bar");
+		AptConfig.addProcessorOption(jproj, "quux", null);
+		AptConfig.addProcessorOption(jproj, "quux", null); // adding twice should have no effect
+		AptConfig.addProcessorOption(jproj, "", null); // should gracefully do nothing
+		AptConfig.addProcessorOption(jproj, null, "spud"); // should gracefully do nothing
+		Map<String, String> options = AptConfig.getProcessorOptions(jproj);
+		String val = options.get("foo");
+		assertEquals(val, "bar");
+		val = options.get("quux");
+		assertNull(val);
+		AptConfig.removeProcessorOption(jproj, "foo");
+		options = AptConfig.getProcessorOptions(jproj);
+		assertFalse(options.containsKey("foo"));
+		assertTrue(options.containsKey("quux"));
+		AptConfig.removeProcessorOption(jproj, "quux");
+		AptConfig.removeProcessorOption(jproj, null);
+		AptConfig.removeProcessorOption(jproj, "");
+		AptConfig.removeProcessorOption(jproj, "anOptionThatDoesn'tExist");
+	}
 	
 }

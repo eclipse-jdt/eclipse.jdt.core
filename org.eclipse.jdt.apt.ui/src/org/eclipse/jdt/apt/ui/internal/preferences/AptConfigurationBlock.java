@@ -31,16 +31,18 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private static final Key KEY_APTENABLED= getAptCoreKey(AptPreferenceConstants.APT_ENABLED);
 	private static final Key KEY_GENSRCDIR= getAptCoreKey(AptPreferenceConstants.APT_GENSRCDIR);
 	private static final Key KEY_GENBINDIR= getAptCoreKey(AptPreferenceConstants.APT_GENBINDIR);
+	private static final Key KEY_PROCESSOROPTIONS= getAptCoreKey(AptPreferenceConstants.APT_PROCESSOROPTIONS);
 	
 	private static Key[] getAllKeys() {
 		return new Key[] {
-				KEY_APTENABLED, KEY_GENSRCDIR, KEY_GENBINDIR
+				KEY_APTENABLED, KEY_GENSRCDIR, KEY_GENBINDIR, KEY_PROCESSOROPTIONS
 		};	
 	}
 	
 	private SelectionButtonDialogField fAptEnabledField;
 	private StringDialogField fGenSrcDirField;
 	private StringDialogField fGenBinDirField;
+	private StringDialogField fProcessorOptionsField;
 	
 	private PixelConverter fPixelConverter;
 	
@@ -60,6 +62,10 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fGenBinDirField = new StringDialogField();
 		fGenBinDirField.setDialogFieldListener(adapter);
 		fGenBinDirField.setLabelText("Generated binaries directory:");
+
+		fProcessorOptionsField = new StringDialogField();
+		fProcessorOptionsField.setDialogFieldListener(adapter);
+		fProcessorOptionsField.setLabelText("Processor options (-Akey=val):");
 
 		updateControls();
 	}
@@ -87,6 +93,9 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fGenBinDirField.doFillIntoGrid(composite, 2);
 		((GridData) fGenBinDirField.getTextControl(null).getLayoutData()).grabExcessHorizontalSpace= true;
 
+		fProcessorOptionsField.doFillIntoGrid(composite, 2);
+		((GridData) fProcessorOptionsField.getTextControl(null).getLayoutData()).grabExcessHorizontalSpace= true;
+
 		Dialog.applyDialogFont(composite);
 		
 		return composite;
@@ -109,6 +118,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fGenSrcDirField.setText(str == null ? "" : str);
 		str= getValue(KEY_GENBINDIR);
 		fGenBinDirField.setText(str == null ? "" : str);
+		str= getValue(KEY_PROCESSOROPTIONS);
+		fProcessorOptionsField.setText(str == null ? "" : str);
 	}	
 	
 	protected final void updateModel(DialogField field) {
@@ -119,6 +130,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			setValue(KEY_GENSRCDIR, fGenSrcDirField.getText());
 		} else if (field == fGenBinDirField) {
 			setValue(KEY_GENBINDIR, fGenBinDirField.getText());
+		} else if (field == fProcessorOptionsField) {
+			setValue(KEY_PROCESSOROPTIONS, fProcessorOptionsField.getText());
 		}
 	}
 	

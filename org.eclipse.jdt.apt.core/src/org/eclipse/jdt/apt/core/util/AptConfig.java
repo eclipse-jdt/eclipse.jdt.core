@@ -77,19 +77,6 @@ public class AptConfig {
 	private static final String FACTORYPATH_FILE = ".factorypath";
 	
 	/**
-     * Add the equivalent of -Akey=val to the list of processor options.
-     * @param key must be a nonempty string.  It should only include the key;
-     * that is, it should not start with "-A".
-     * @param jproj a project, or null to set the option workspace-wide.
-     * @param val can be null (equivalent to -Akey).
-     * @return the old value, or null if the option was not previously set.
-     */
-    public static String addProcessorOption(IJavaProject jproj, String key, String val) {
-    	// TODO
-    	return null;
-    }
-	
-	/**
 	 * Returns all containers for the provided project, including disabled ones
 	 * @param jproj The java project in question, or null for the workspace
 	 */
@@ -156,16 +143,79 @@ public class AptConfig {
 	}
 	
 	/**
+     * Add the equivalent of -Akey=val to the list of processor options.
+     * @param key must be a nonempty string.  It should only include the key;
+     * that is, it should not start with "-A".
+     * @param jproj a project, or null to set the option workspace-wide.
+     * @param val can be null (equivalent to -Akey).  This does not mean
+     * remove the key; for that functionality, @see #removeProcessorOption(IJavaProject, String).
+     * @return the old value, or null if the option was not previously set.
+     */
+    public static String addProcessorOption(IJavaProject jproj, String key, String val) {
+    	Map<String, String> options = getProcessorOptions(jproj);
+    	String old = options.get(key);
+    	options.put(key, val);
+    	String serializedOptions = serializeProcessorOptions(options);
+    	setString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS, serializedOptions);
+    	return old;
+    }
+	
+	/**
+     * Remove an option from the list of processor options.
+     * @param jproj a project, or null to remove the option workspace-wide.
+     * @param key must be a nonempty string.  It should only include the key;
+     * that is, it should not start with "-A".
+     * @return the old value, or null if the option was not previously set.
+     */
+    public static String removeProcessorOption(IJavaProject jproj, String key) {
+    	Map<String, String> options = getProcessorOptions(jproj);
+    	String old = options.get(key);
+    	options.remove(key);
+    	String serializedOptions = serializeProcessorOptions(options);
+    	setString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS, serializedOptions);
+    	return old;
+    }
+    
+	/**
      * Get the options that are the equivalent of the -A command line options
      * for apt.  The -A and = are stripped out, so (key, value) is the
      * equivalent of -Akey=value.  
+     * 
+     * The implementation of this at present relies on persisting all the options
+     * in one string that is the equivalent of the apt command line, e.g.,
+     * "-Afoo=bar -Aquux=baz", and then parsing the string into a map in this
+     * routine. 
+     * 
      * @param jproj a project, or null to query the workspace-wide setting.
-     * @return a map of (key, value) pairs.  Value can be null (equivalent to
-     * "-Akey").
+     * @return a mutable, possibly empty, map of (key, value) pairs.  
+     * The value part of a pair may be null (equivalent to "-Akey").
      */
     public static Map<String, String> getProcessorOptions(IJavaProject jproj) {
-    	// TODO
-    	return null;
+    	Map<String, String> options = new HashMap<String, String>();
+    	String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
+    	if (null == allOptions) {
+    		return options;
+    	}
+    	String[] parsedOptions = allOptions.split(" ");
+    	for (String keyAndVal : parsedOptions) {
+    		if (!keyAndVal.startsWith("-A")) {
+    			continue;
+    		}
+    		String[] parsedKeyAndVal = keyAndVal.split("=", 2);
+    		if (parsedKeyAndVal.length > 0) {
+    			String key = parsedKeyAndVal[0].substring(2);
+    			if (key.length() < 1) {
+    				continue;
+    			}
+    			if (parsedKeyAndVal.length == 1) {
+    				options.put(key, null);
+    			}
+    			else {
+    				options.put(key, parsedKeyAndVal[1]);
+    			}
+    		}
+    	}
+    	return options;
     }
 
 	/**
@@ -277,6 +327,32 @@ public class AptConfig {
 		return (String)options.get(optionName);
 	}
 	
+    /**
+     * Save processor (-A) options as a string.  Option key/val pairs will be
+     * serialized as -Akey=val, and key/null pairs as -Akey.  Options are
+     * space-delimited.  The result resembles the apt command line.
+     * @param options a map containing zero or more key/value or key/null pairs.
+     */
+    private static String serializeProcessorOptions(Map<String, String> options) {
+    	StringBuilder sb = new StringBuilder();
+    	boolean firstEntry = true;
+    	for (Map.Entry<String, String> entry : options.entrySet()) {
+    		if (firstEntry) {
+    			firstEntry = false;
+        		sb.append("-A");
+    		}
+    		else {
+    			sb.append(" -A");
+    		}
+    		sb.append(entry.getKey());
+    		if (entry.getValue() != null) {
+    			sb.append("=");
+    			sb.append(entry.getValue());
+    		}
+    	}
+    	return sb.toString();
+    }
+	
 	private static synchronized void setBoolean(IJavaProject jproject, String optionName, boolean value) {
 		// TODO: should we try to determine whether a project has no per-project settings,
 		// and if so, set the workspace settings?  Or, do we want the caller to tell us
@@ -304,7 +380,7 @@ public class AptConfig {
 		
 		// TODO: when there are listeners, the following two lines will be superfluous:
 		Map options = getOptions(jproject);
-		options.put(AptPreferenceConstants.APT_ENABLED, value);
+		options.put(optionName, value);
 		
 		IScopeContext context;
 		if (null != jproject) {
