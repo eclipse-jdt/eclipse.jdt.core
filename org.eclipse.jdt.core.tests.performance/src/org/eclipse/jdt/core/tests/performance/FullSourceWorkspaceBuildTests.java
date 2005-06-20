@@ -312,7 +312,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testFullBuildDefault() throws CoreException, IOException {
 		tagAsGlobalSummary("Compile>Build>Clean>Full>Default warnings", true); // put in fingerprint
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support + additional warnings (e.g. validate Javadoc comments)");
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support + additional warnings (e.g. validate unused local and private members)");
 		startBuild(warningOptions(0/*default warnings*/), false);
 	}
 
@@ -382,7 +382,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * 
 	 * @throws IOException
 	 */
-	public void testBatchCompilerAllJavadoc() throws IOException {
+	// TODO (frederic) put back after having understood why this test result can have variation over 20%
+	public void _testBatchCompilerAllJavadoc() throws IOException {
 		tagAsSummary("Compile>Batch>Compiler>All Javadoc warnings", false); // do NOT put in fingerprint
 		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "J2SE 5.0 support");
 		buildUsingBatchCompiler("-warn:allJavadoc");
