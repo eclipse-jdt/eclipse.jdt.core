@@ -364,19 +364,20 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	public void testSearchMethod() throws CoreException {
 		tagAsSummary("Search>Occurences>Methods", true); // put in fingerprint
 		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, SEARCH_DEGRADATION_COMMENT);
-
+	
 		// Wait for indexing end
 		waitUntilIndexesReady();
-
+	
 		// Warm up
 		search("equals", METHOD, ALL_OCCURRENCES);
-
-		// Clean memory
-		runGc();
-
+	
 		// Measures
 		for (int i=0; i<MEASURES_COUNT; i++) {
+			// clean before test
 			cleanCategoryTableCache(false);
+			runGc();
+	
+			// test
 			startMeasuring();
 			search("equals", METHOD, ALL_OCCURRENCES);
 			stopMeasuring();
@@ -385,7 +386,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		// Commit
 		commitMeasurements();
 		assertPerformance();
-
+	
 		// Store counter
 		REFERENCES[2] = this.resultCollector.count;
 	}
