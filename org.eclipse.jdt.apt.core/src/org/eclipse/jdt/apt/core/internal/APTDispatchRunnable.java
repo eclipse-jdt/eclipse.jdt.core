@@ -226,8 +226,12 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		GeneratedFileManager gfm )
 	{
 		HashSet<IFile> deletedFiles = new HashSet<IFile>();
-		for ( IFile f : lastGeneratedFiles )
+			
+		// make a copy into an array to avoid concurrent modification exceptions
+		IFile[] files = lastGeneratedFiles.toArray( new IFile[ lastGeneratedFiles.size() ] );
+		for ( int i = 0; i< files.length; i++ )
 		{
+			IFile f = files[i];
 			if ( ! newGeneratedFiles.contains( f ) )
 			{
 				if ( DEBUG ) trace ( "runAPT:  File " + f + " is no longer a generated file for " + parent );
