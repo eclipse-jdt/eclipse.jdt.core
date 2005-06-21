@@ -32,11 +32,11 @@ public class CodeExample {
         "\n" +
         "public class MirrorTestClass implements Serializable {\n" +
         "\n" +
-        "    private static final String STATIC_FIELD = \"Static Field\";\n" +
+        "    public static final String STATIC_FIELD = \"Static Field\";\n" +
         "\n" +
         "    private static final long serialVersionUID = 42L;\n" +
         "\n" +
-        "    private String field;\n" +
+        "    public String field;\n" +
         "\n" +
         "    public MirrorTestClass() {\n" +
         "        field = \"Field\";\n" +
@@ -56,7 +56,7 @@ public class CodeExample {
         "        return null;\n" +
         "    }\n" +
         "\n" +
-        "    private static class InnerClass extends MirrorTestClass {\n" +
+        "    public static class InnerClass extends MirrorTestClass {\n" +
 		"\n" +
         "        private static final long serialVersionUID = 148L;\n" +
         "\n" +
