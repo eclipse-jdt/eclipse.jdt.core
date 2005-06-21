@@ -82,4 +82,20 @@
       </factory>
    </extension>
 
+   <extension
+         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
+      <factory
+         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationTestAnnotationProcessorFactory"
+         enableDefault="true">
+      </factory>
+   </extension>
+
+   <extension
+         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
+      <factory
+         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestAnnotationProcessorFactory"
+         enableDefault="true">
+      </factory>
+   </extension>
+
 </plugin>

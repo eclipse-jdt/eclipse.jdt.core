@@ -39,6 +39,8 @@ public class TestAll extends TestCase {
 		suite.addTest(MirrorTests.suite());
 		suite.addTest(ReadAnnotationTests.suite());
 		suite.addTest(PreferencesTests.suite());
+		suite.addTest(MirrorDeclarationTests.suite());
+		suite.addTest(MirrorUtilTests.suite());
 	
 		return suite;
 		
