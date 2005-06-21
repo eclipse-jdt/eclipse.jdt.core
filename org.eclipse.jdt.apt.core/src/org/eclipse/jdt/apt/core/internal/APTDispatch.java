@@ -66,8 +66,8 @@ public class APTDispatch
 		
 		IWorkspace w = ResourcesPlugin.getWorkspace();
 		try
-		{
-			w.run( runnable, null );
+		{			
+			w.run(runnable, w.getRoot(), IWorkspace.AVOID_UPDATE, null);
 		}
 		catch( CoreException ce )
 		{
