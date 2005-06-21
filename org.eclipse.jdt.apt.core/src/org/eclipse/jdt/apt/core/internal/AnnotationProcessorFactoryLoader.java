@@ -21,85 +21,114 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
+import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.core.IJavaProject;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
+/**
+ * Stores annotation processor factories, and handles mapping from projects
+ * to them.
+ */
 public class AnnotationProcessorFactoryLoader {
 	
-	private List<AnnotationProcessorFactory> _workspaceFactories = new ArrayList<AnnotationProcessorFactory>();
-	
-	private HashMap<IProject, List<AnnotationProcessorFactory>> _project2factories = new HashMap<IProject, List<AnnotationProcessorFactory>>();
-	
-	private HashMap<String, AnnotationProcessorFactory> _pluginFactoryMap = new HashMap<String, AnnotationProcessorFactory>();
-	
-	private static AnnotationProcessorFactoryLoader _factoryLoader;
-	
-	private static boolean _verboseLoad = false;
-	
-    /** List of jar file entries that specify autoloadable service providers */
+	/** List of jar file entries that specify autoloadable service providers */
     private static final String[] AUTOLOAD_SERVICES = {
         "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory"
     };
+	
+    /** All plugin factories available from this install of eclipse */
+	private static List<AnnotationProcessorFactory> PLUGIN_FACTORIES;
+	
+	/** map of plugin names -> factories */
+	private static final HashMap<String, AnnotationProcessorFactory> PLUGIN_FACTORY_MAP = new HashMap<String, AnnotationProcessorFactory>();
+	
+	/** Loader instance -- holds all workspace and project data */
+	private static AnnotationProcessorFactoryLoader LOADER;
+	
+	private static boolean VERBOSE_LOAD = false;
+	
+	// Members -- workspace and project data	
+	
+	private final Map<IJavaProject, List<AnnotationProcessorFactory>> _project2Factories = new HashMap<IJavaProject, List<AnnotationProcessorFactory>>();
+	private final Set<IJavaProject> _projectsLoaded = new HashSet<IJavaProject>();
 
+	/** 
+	 * Singleton
+	 */
     public static synchronized AnnotationProcessorFactoryLoader getLoader() {
-    	if ( _factoryLoader == null )
-    		_factoryLoader = new AnnotationProcessorFactoryLoader();
-    	return _factoryLoader;
+    	if ( LOADER == null )
+    		LOADER = new AnnotationProcessorFactoryLoader();
+    	return LOADER;
     }
     
     private AnnotationProcessorFactoryLoader() {
     	loadPluginFactoryMap();
-    	List<FactoryContainer> containers = getPluginFactoryContainers();
-    	setWorkspaceAnnotationProcessorFactories( containers );
+    	List<PluginFactoryContainer> pluginContainers = FactoryPathUtil.getAllPluginFactoryContainers();
+    	setPluginAnnotationProcessorFactories( pluginContainers );
     }
     
-    public List<AnnotationProcessorFactory> getFactoriesForProject( IProject p ) {
-    	List<AnnotationProcessorFactory> factories = _project2factories.get(p);
-    	if ( factories == null )
-    		factories = Collections.unmodifiableList( _workspaceFactories );
-    	return factories;
+    /**
+     * Called when underlying preferences change
+     */
+    public synchronized void reset() {
+    	_project2Factories.clear();
     }
     
-	public synchronized void setWorkspaceAnnotationProcessorFactories( List<FactoryContainer> containers )
+    public synchronized List<AnnotationProcessorFactory> getFactoriesForProject( IJavaProject jproj ) {
+    	
+    	List<AnnotationProcessorFactory> factories = null;
+    	
+		if (_projectsLoaded.contains(jproj)) {
+    		factories = _project2Factories.get(jproj);
+    		if (factories != null) {
+    			return factories;
+    		}
+		}
+		// Load the project
+		List<FactoryContainer> containers = AptConfig.getContainers(jproj);
+		factories = loadFactories(containers);
+		_projectsLoaded.add(jproj);
+		_project2Factories.put(jproj, factories);
+		return factories;
+    	
+    }
+    
+    
+	private static void setPluginAnnotationProcessorFactories( List<PluginFactoryContainer> containers )
 	{
-		// always reset the list.  create a new list in case anyone has a handle on the old one
-		_workspaceFactories = new ArrayList<AnnotationProcessorFactory>( containers.size() );
-		loadFactories( _workspaceFactories, containers );
-	}
-	
-	public synchronized void setProjectAnnotationProcessorFactories( IProject p, List<FactoryContainer> containers )
-	{
-		// always reset the list.  create a new list in case anyone has a handle on the old one
-		List<AnnotationProcessorFactory> factories = new ArrayList<AnnotationProcessorFactory>( containers.size() );
-		_project2factories.put( p, factories );
-		loadFactories( factories, containers );
+		PLUGIN_FACTORIES = loadFactories( containers );
 	}
     
-	private void loadFactories( List<AnnotationProcessorFactory> factories, List<FactoryContainer> containers )
+	private static List<AnnotationProcessorFactory> loadFactories( List<? extends FactoryContainer> containers )
 	{
-		ClassLoader classLoader = createClassLoader( containers );
+		List<AnnotationProcessorFactory> factories = new ArrayList(containers.size());
+		ClassLoader classLoader = _createClassLoader( containers );
 		for ( FactoryContainer fc : containers )
 		{
 			List<AnnotationProcessorFactory> f = loadFactoryClasses( fc, classLoader );
 			for ( AnnotationProcessorFactory apf : f )
 				factories.add( apf  );
 		}
+		return factories;
 	}
 	
-	private List<AnnotationProcessorFactory> loadFactoryClasses( FactoryContainer fc, ClassLoader classLoader )
+	private static List<AnnotationProcessorFactory> loadFactoryClasses( FactoryContainer fc, ClassLoader classLoader )
 	{
 		List<String> factoryNames = fc.getFactoryNames();
 		List<AnnotationProcessorFactory> factories = new ArrayList<AnnotationProcessorFactory>( factoryNames.size() ); 
@@ -117,9 +146,9 @@ public class AnnotationProcessorFactoryLoader {
 		return factories;
 	}
 	
-	private AnnotationProcessorFactory loadFactoryFromPlugin( String factoryName )
+	private static AnnotationProcessorFactory loadFactoryFromPlugin( String factoryName )
 	{
-		AnnotationProcessorFactory apf = _pluginFactoryMap.get( factoryName );
+		AnnotationProcessorFactory apf = PLUGIN_FACTORY_MAP.get( factoryName );
 		if ( apf == null ) 
 		{
 			// TODO:  log error somewhere
@@ -129,7 +158,7 @@ public class AnnotationProcessorFactoryLoader {
 		return apf;
 	}
 
-	private AnnotationProcessorFactory loadFactoryFromClassLoader( String factoryName, ClassLoader cl )
+	private static AnnotationProcessorFactory loadFactoryFromClassLoader( String factoryName, ClassLoader cl )
 	{
 		AnnotationProcessorFactory f = null;
 		try
@@ -144,7 +173,7 @@ public class AnnotationProcessorFactoryLoader {
 		return f;
 	}
 	
-	private ClassLoader createClassLoader( Collection<FactoryContainer> containers )
+	private static ClassLoader _createClassLoader( Collection<? extends FactoryContainer> containers )
 	{
 		ArrayList<URL> urlList = new ArrayList<URL>( containers.size() );
 		for ( FactoryContainer fc : containers ) 
@@ -184,7 +213,7 @@ public class AnnotationProcessorFactoryLoader {
 	 * do a full rediscovery.
 	 */
 	private void loadPluginFactoryMap() {
-		_pluginFactoryMap.clear();
+		assert PLUGIN_FACTORY_MAP.size() == 0 : "loadPluginFactoryMap() called more than once";
 
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
 				"org.eclipse.jdt.apt.core",  //$NON-NLS-1$ - namecls of plugin that exposes this extension
@@ -202,7 +231,7 @@ public class AnnotationProcessorFactoryLoader {
 				try {
 					Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
 					if (execExt instanceof AnnotationProcessorFactory){
-						_pluginFactoryMap.put( execExt.getClass().getName(), (AnnotationProcessorFactory)execExt );
+						PLUGIN_FACTORY_MAP.put( execExt.getClass().getName(), (AnnotationProcessorFactory)execExt );
 					}
 				} catch(CoreException e) {
 						e.printStackTrace();
@@ -255,10 +284,10 @@ public class AnnotationProcessorFactoryLoader {
      * @param jar the jar file.
      * @return a list, possibly empty, of fully qualified classnames to be instantiated.
      */
-    private List<String> _getServiceClassnamesFromJar(File jar)
+    private static List<String> _getServiceClassnamesFromJar(File jar)
     {
         List<String> classNames = new ArrayList<String>();
-        JarFile jarFile;
+        JarFile jarFile = null;
         try {
             jarFile = new JarFile(jar);
 
@@ -280,7 +309,7 @@ public class AnnotationProcessorFactoryLoader {
                     // add the first non-whitespace token to the list
                     final String[] tokens = line.split("\\s", 2);
                     if (tokens[0].length() > 0) {
-                        if (_verboseLoad) {
+                        if (VERBOSE_LOAD) {
                             System.err.println("Found provider classname: " + tokens[0]);
                         }
                         classNames.add(tokens[0]);
@@ -288,13 +317,15 @@ public class AnnotationProcessorFactoryLoader {
                 }
                 rd.close();
             }
-            jarFile.close();
         }
         catch (IOException e) {
-            if (_verboseLoad) {
+            if (VERBOSE_LOAD) {
                 System.err.println("\tUnable to extract provider names from \"" + jar + "\"; skipping because of: " + e);
             }
             return classNames;
+        }
+        finally {
+        	if (jarFile != null) {try {jarFile.close();} catch (IOException ioe) {}}
         }
         return classNames;
     }    

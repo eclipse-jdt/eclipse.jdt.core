@@ -22,7 +22,11 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
+import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
@@ -46,6 +50,9 @@ public class AptConfig {
 		 * @see org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener#preferenceChange(org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent)
 		 */
 		public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
+			// Reset our factory loader
+			AnnotationProcessorFactoryLoader.getLoader().reset();
+			
 			// TODO: something, anything
 		}
 	}
@@ -56,23 +63,10 @@ public class AptConfig {
 	private static final int INITIAL_PROJECTS_GUESS = 5;
 	
 	/**
-	 * Holds the containers for each project
-	 */
-	private static Map<IJavaProject, Map<FactoryContainer, Boolean>> _containerMaps = 
-		new HashMap<IJavaProject, Map<FactoryContainer, Boolean>>(INITIAL_PROJECTS_GUESS);
-	
-	/**
 	 * Holds the options maps for each project.
 	 */
 	private static Map<IJavaProject, Map<String, String>> _optionsMaps = 
 		new HashMap<IJavaProject, Map<String, String>>(INITIAL_PROJECTS_GUESS);
-	
-	private static final Set<IJavaProject> _projectsWithFactoryPathLoaded = 
-		new HashSet<IJavaProject>(INITIAL_PROJECTS_GUESS);
-	
-	private static Map<FactoryContainer, Boolean> _workspaceFactories = null;
-	
-	private static boolean _workspaceFactoryPathLoaded = false;
 	
 	private static final String FACTORYPATH_FILE = ".factorypath";
 	
@@ -81,37 +75,10 @@ public class AptConfig {
 	 * @param jproj The java project in question, or null for the workspace
 	 */
 	public static synchronized Map<FactoryContainer, Boolean> getAllContainers(IJavaProject jproj) {
+		Map<FactoryContainer, Boolean> containers = null;
 		if (jproj != null) {
-			Map<FactoryContainer, Boolean> projectContainers = null;
-			if (_projectsWithFactoryPathLoaded.contains(jproj)) {
-				projectContainers = _containerMaps.get(jproj);
-			}
-			else {
-				// Load project-level containers
-				try {
-					projectContainers = FactoryPathUtil.readFactoryPathFile(jproj);
-				}
-				catch (CoreException ce) {
-					ce.printStackTrace();
-				}
-				catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-				_projectsWithFactoryPathLoaded.add(jproj);
-				_containerMaps.put(jproj, projectContainers);
-			}
-			if (projectContainers != null) {
-				return projectContainers;
-			}
-		}
-		// Workspace
-		if (!_workspaceFactoryPathLoaded) {
-			// Load the workspace
 			try {
-				_workspaceFactories = FactoryPathUtil.readFactoryPathFile(null);
-				if (_workspaceFactories == null) {
-					// TODO: Need to get the default set of factories -- plugins only
-				}
+				containers = FactoryPathUtil.readFactoryPathFile(jproj);
 			}
 			catch (CoreException ce) {
 				ce.printStackTrace();
@@ -120,7 +87,47 @@ public class AptConfig {
 				ioe.printStackTrace();
 			}
 		}
-		return new LinkedHashMap(_workspaceFactories);
+		// Workspace if no project data was found
+		if (containers == null) {
+			try {
+				containers = FactoryPathUtil.readFactoryPathFile(null);
+			}
+			catch (CoreException ce) {
+				ce.printStackTrace();
+			}
+			catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+		// if no project and no workspace data was found, we'll get the defaults
+		if (containers == null) {
+			containers = new LinkedHashMap<FactoryContainer, Boolean>();
+		}
+		handlePluginContainers(containers);
+		return new LinkedHashMap(containers);
+	}
+	
+	/**
+	 * Removes missing plugin containers, and adds any plugin containers 
+	 * that were added since the map was originally created.
+	 */
+	private static void handlePluginContainers(Map<FactoryContainer, Boolean> containers) {
+		List<PluginFactoryContainer> pluginContainers = FactoryPathUtil.getAllPluginFactoryContainers();
+		
+		// Remove any plugin factories whose plugins we did not find
+		for (Iterator<FactoryContainer> containerIter = containers.keySet().iterator(); containerIter.hasNext(); ) {
+			FactoryContainer container = containerIter.next();
+			if (container.getType() == FactoryType.PLUGIN && !pluginContainers.contains(container)) {
+				containerIter.remove();
+			}
+		}
+		
+		// Add any plugins which are new since the config was last saved
+		for (PluginFactoryContainer pluginContainer : pluginContainers) {
+			if (!containers.containsKey(pluginContainer)) {
+				containers.put(pluginContainer, true);
+			}
+		}
 	}
 	
 	/**
@@ -141,7 +148,7 @@ public class AptConfig {
 		}
 		return result;
 	}
-	
+	    
 	/**
      * Add the equivalent of -Akey=val to the list of processor options.
      * @param key must be a nonempty string.  It should only include the key;
@@ -217,6 +224,7 @@ public class AptConfig {
     	}
     	return options;
     }
+
 
 	/**
 	 * Initialize preferences lookups, and register change listeners.
@@ -400,17 +408,8 @@ public class AptConfig {
 	public synchronized void setContainers(IJavaProject jproj, Map<FactoryContainer, Boolean> containers) 
 	throws IOException, CoreException 
 	{
-		if (jproj == null) {
-			// workspace
-			_workspaceFactories = new HashMap(containers);
-			_workspaceFactoryPathLoaded = true;
-		}
-		else {
-			_containerMaps.put(jproj, new HashMap(containers));
-			_projectsWithFactoryPathLoaded.add(jproj);
-		}
 		FactoryPathUtil.saveFactoryPathFile(jproj, containers);
-		
+		AnnotationProcessorFactoryLoader.getLoader().reset();
 	}
  
 

@@ -95,7 +95,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		HashSet<IFile> deletedFiles = new HashSet<IFile>();
 		HashMap<IFile, Set<String>> newDependencies = new HashMap<IFile, Set<String>>();
 		HashMap<IFile, List<IProblem>> problems = new HashMap<IFile, List<IProblem>>(4);
-		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject.getProject() );
+		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject );
 		for ( int i = 0; i < buildFiles.length; i++ )
 		{
 			APTResult result = APTDispatch.runAPTDuringBuild( 
@@ -154,7 +154,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			if ( cu == null || javaProject == null  )
 				return GENERIC_COMPILATION_RESULT;
 			
-			List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject.getProject() );
+			List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject );
 			APTResult result = APTDispatch.runAPTDuringReconcile( factories, cu, javaProject );
 			Map<IFile, List<IProblem>> allproblems = result.getProblems();			
 			
@@ -179,7 +179,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	}
 	
 	public boolean doesParticipateInProject(IJavaProject project) {
-		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( project.getProject() );
+		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( project );
 		if (factories.size() == 0)
 			return false;
 		

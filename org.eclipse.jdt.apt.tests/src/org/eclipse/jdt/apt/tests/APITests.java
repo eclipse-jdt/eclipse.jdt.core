@@ -22,6 +22,7 @@ import org.eclipse.jdt.apt.core.util.AptUtil;
 import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;
 import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotationProcessorFactory;
 import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldWildcardAnnotationProcessorFactory;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -67,16 +68,16 @@ public class APITests extends Tests {
 	}
 	
 	public void testAptUtil() throws Exception {
-		IProject project = env.getProject( getProjectName() );
+		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		
 		// Check getting a known annotation
 		AnnotationProcessorFactory factory = 
-			AptUtil.getFactoryForAnnotation(HelloWorldAnnotation.class.getName(), project);
+			AptUtil.getFactoryForAnnotation(HelloWorldAnnotation.class.getName(), jproj);
 		assertEquals(factory.getClass(), HelloWorldAnnotationProcessorFactory.class);
 		
 		// Check getting an annotation with a wildcard
 		factory = 
-			AptUtil.getFactoryForAnnotation(HelloWorldAnnotation.class.getName() + "qwerty", project);
+			AptUtil.getFactoryForAnnotation(HelloWorldAnnotation.class.getName() + "qwerty", jproj);
 		assertEquals(factory.getClass(), HelloWorldWildcardAnnotationProcessorFactory.class);
 	}
 	

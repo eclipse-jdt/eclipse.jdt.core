@@ -9,13 +9,15 @@
  *    jgarms@bea.com - initial API and implementation
  *    
  *******************************************************************************/
-package org.eclipse.jdt.apt.core.util;
+package org.eclipse.jdt.apt.core.internal.util;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -25,12 +27,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
-import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.core.IJavaProject;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -69,6 +73,10 @@ public final class FactoryPathUtil {
 		// If project is null, use workspace-level data
 		if (jproj == null) {
 			File file = new File(getFileForWorkspace(), WORKSPACE_SETTINGS_FILE);
+			file = new File(file, FACTORYPATH_FILE);
+			if (!file.exists()) {
+				return null;
+			}
 			data = FileSystemUtil.getContentsOfFile(file);
 		}
 		else {
@@ -188,6 +196,41 @@ public final class FactoryPathUtil {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * Returns all the plugin factory containers that have been registered
+	 * as plugins. Note that this does not take into account any factory
+	 * plugins that have been disabled by the user's configuration
+	 */
+	public static List<PluginFactoryContainer> getAllPluginFactoryContainers()
+	{
+		List<PluginFactoryContainer> factories = new ArrayList<PluginFactoryContainer>();
+	
+		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
+				"org.eclipse.jdt.apt.core",  //$NON-NLS-1$ - name of plugin that exposes this extension
+				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
+
+		IExtension[] extensions =  extension.getExtensions();
+		for(int i = 0; i < extensions.length; i++) 
+		{
+			PluginFactoryContainer container = null;
+			IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+			for(int j = 0; j < configElements.length; j++)
+			{
+				String elementName = configElements[j].getName();
+				if ( "factory".equals( elementName ) ) //$NON-NLS-1$ - name of configElement 
+				{ 
+					if ( container == null )
+					{
+						container = new PluginFactoryContainer(extensions[i].getNamespace());
+						factories.add( container );
+					}
+					container.addFactoryName( configElements[j].getAttribute("class") );
+				}
+			}
+		}
+		return factories;
 	}
 	
 	private static File getFileForWorkspace() {

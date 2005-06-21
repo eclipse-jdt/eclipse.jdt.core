@@ -14,8 +14,8 @@ package org.eclipse.jdt.apt.core.util;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
+import org.eclipse.jdt.core.IJavaProject;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
@@ -34,10 +34,10 @@ public final class AptUtil {
 	 */
 	public static AnnotationProcessorFactory getFactoryForAnnotation(
 			final String fullyQualifiedAnnotation,
-			final IProject project) {
+			final IJavaProject jproj) {
 		
 		AnnotationProcessorFactoryLoader loader = AnnotationProcessorFactoryLoader.getLoader();
-		List<AnnotationProcessorFactory> factories = loader.getFactoriesForProject( project );
+		List<AnnotationProcessorFactory> factories = loader.getFactoriesForProject( jproj );
 		
 		for (AnnotationProcessorFactory factory : factories) {
 			Collection<String> supportedAnnos = factory.supportedAnnotationTypes();
