@@ -2508,7 +2508,12 @@ public abstract class Scope
 
 		while (currentIndex < nameLength) {
 			typeBinding = getMemberType(compoundName[currentIndex++], typeBinding);
-
+			// checks visibility
+			if (!typeBinding.isValidBinding())
+				return new ProblemReferenceBinding(
+					CharOperation.subarray(compoundName, 0, currentIndex),
+					typeBinding.problemId());
+			
 			if (typeBinding.isGenericType()) {
 				qualifiedType = this.environment().createRawType(typeBinding, qualifiedType);
 			} else {
@@ -2516,12 +2521,6 @@ public abstract class Scope
 					? this.environment().createParameterizedType(typeBinding, null, qualifiedType)
 					: typeBinding;
 			}
-
-			// checks visibility
-			if (!qualifiedType.isValidBinding())
-				return new ProblemReferenceBinding(
-					CharOperation.subarray(compoundName, 0, currentIndex),
-					qualifiedType.problemId());
 		}
 		return qualifiedType;
 	}

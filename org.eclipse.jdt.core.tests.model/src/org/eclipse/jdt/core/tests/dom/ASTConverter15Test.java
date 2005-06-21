@@ -39,7 +39,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 191 };
+//		TESTS_NUMBERS = new int[] { 192 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -5746,5 +5746,31 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding2 = expression.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding2);
 		assertTrue("Not cast compatible", typeBinding2.isCastCompatible(typeBinding));
+	}
+
+	// Wrong ParameterizedTypeBinding yields null type declaration result
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100584
+	public void test0192() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"public class X<E> {\n" + 
+			"	public static class InnerClass {\n" + 
+			"		static class InnerInnerClass {\n" + 
+			"			/*start*/X.WrongInnerClass/*end*/.InnerInnerClass m;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	if (bindings[0] != null) {
+	   		// should not get here if patch 100584 applied
+		   	try {
+		   		bindings[0].toString();
+		   		fail("should get an exception if bug 100584 present");
+		   		// which means that the code would now return a non null, 
+		   		// erroneous binding, yet able to respond to toString
+		   	} catch (Throwable t) {/* absorb quietly */}
+	   	}
+	   	assertTrue("should yield a null, not a malformed binding", 
+	   			bindings[0] == null);
 	}
 }
