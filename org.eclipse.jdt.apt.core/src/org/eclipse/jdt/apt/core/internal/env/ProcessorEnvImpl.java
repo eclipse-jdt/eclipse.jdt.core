@@ -43,6 +43,7 @@ import org.eclipse.jdt.apt.core.internal.util.DeclarationsUtil;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.PackageUtil;
 import org.eclipse.jdt.apt.core.internal.util.TypesUtil;
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IClassFile;
@@ -144,6 +145,12 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	 * Mapping (source) top-level type binding to the compilation unit that defines it.
 	 */
 	private final Map<ITypeBinding, ICompilationUnit> _typeBinding2ModelCompUnit;
+	
+	/**
+	 * Processor options, including -A options.
+	 * Set in ctor and then not changed.
+	 */
+	private Map<String, String> _options;
 
     public static ProcessorEnvImpl newProcessorEnvironmentForReconcile(ICompilationUnit compilationUnit, IJavaProject javaProj)
     {
@@ -187,9 +194,40 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
         _allProblems = new HashMap<IFile, List<IProblem>>(4);        
 		_filer = new FilerImpl(this);
 		initPrimitives(_javaProject);
+		initOptions(_javaProject);
     }
 
-    private ProcessorEnvImpl(ICompilationUnit compilationUnit, IJavaProject javaProj, Phase phase)
+    /**
+     * Set the _options map based on the current project/workspace settings.
+     * There is a bug in Sun's apt implementation: it parses the command line 
+     * incorrectly, such that -Akey=value gets added to the options map as 
+     * key "-Akey=value" and value "".  In order to support processors written 
+     * to run on Sun's apt as well as processors written without this bug
+     * in mind, we populate the map with two copies of every option, one the
+     * expected way ("key" / "value") and the other the Sun way 
+     * ("-Akey=value" / ""). 
+     * 
+     * Called from constructor.
+	 */
+	private void initOptions(IJavaProject jproj) {
+		Map<String, String> procOptions = AptConfig.getProcessorOptions(jproj);
+		_options = new HashMap<String, String>(procOptions.size() * 2);
+		
+		// Add configured options
+		for (Map.Entry<String, String> entry : procOptions.entrySet()) {
+			_options.put(entry.getKey(), entry.getValue());
+			String sunStyle;
+			if (entry.getValue() != null) {
+				sunStyle = "-A" + entry.getKey() + "=" + entry.getValue();
+			}
+			else {
+				sunStyle = "-A" + entry.getKey();
+			}
+			_options.put(sunStyle, "");
+		}
+	}
+
+	private ProcessorEnvImpl(ICompilationUnit compilationUnit, IJavaProject javaProj, Phase phase)
     {
         assert phase == Phase.RECONCILE : "Unexpected phase value.  Use Phase.RECONCILE instead of " + phase;
 
@@ -506,7 +544,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 
     public Map<String, String> getOptions()
     {
-        final HashMap<String, String> options = new HashMap<String, String>(2);
+        final HashMap<String, String> options = new HashMap<String, String>(_options);
 		options.put("phase", getPhase().toString());
 		return options;
     }
