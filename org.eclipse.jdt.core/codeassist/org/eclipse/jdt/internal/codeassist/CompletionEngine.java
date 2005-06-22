@@ -1714,6 +1714,7 @@ public final class CompletionEngine
 								CharOperation.NO_CHAR_CHAR,
 								CharOperation.NO_CHAR,
 								CharOperation.NO_CHAR));
+				//proposal.setOriginalSignature(null);
 				//proposal.setUniqueKey(null);
 				proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
 				proposal.setDeclarationTypeName(currentType.qualifiedSourceName());
@@ -1907,6 +1908,10 @@ public final class CompletionEngine
 						CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 						proposal.setDeclarationSignature(getSignature(currentType));
 						proposal.setSignature(getSignature(constructor));
+						MethodBinding original = constructor.original();
+						if(original != constructor) {
+							proposal.setOriginalSignature(getSignature(original));
+						}
 						proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
 						proposal.setDeclarationTypeName(currentType.qualifiedSourceName());
 						proposal.setParameterPackageNames(parameterPackageNames);
@@ -1988,6 +1993,10 @@ public final class CompletionEngine
 							proposal.setDeclarationSignature(getSignature(currentType));
 							proposal.setDeclarationKey(currentType.computeUniqueKey());
 							proposal.setSignature(getSignature(constructor));
+							MethodBinding original = constructor.original();
+							if(original != constructor) {
+								proposal.setOriginalSignature(getSignature(original));
+							}
 							proposal.setKey(constructor.computeUniqueKey());
 							proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
 							proposal.setDeclarationTypeName(currentType.qualifiedSourceName());
@@ -2015,6 +2024,10 @@ public final class CompletionEngine
 							CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 							proposal.setDeclarationSignature(getSignature(currentType));
 							proposal.setSignature(getSignature(constructor));
+							MethodBinding original = constructor.original();
+							if(original != constructor) {
+								proposal.setOriginalSignature(getSignature(original));
+							}
 							proposal.setDeclarationPackageName(currentType.qualifiedPackageName());
 							proposal.setDeclarationTypeName(currentType.qualifiedSourceName());
 							proposal.setParameterPackageNames(parameterPackageNames);
@@ -2346,6 +2359,7 @@ public final class CompletionEngine
 									CharOperation.NO_CHAR_CHAR,
 									CharOperation.concatWith(JAVA_LANG, '.'),
 									OBJECT));
+					//proposal.setOriginalSignature(null);
 					//proposal.setDeclarationPackageName(null);
 					//proposal.setDeclarationTypeName(null);
 					//proposal.setParameterPackageNames(null);
@@ -3424,6 +3438,10 @@ public final class CompletionEngine
 				CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(method.declaringClass));
 				proposal.setSignature(getSignature(method));
+				MethodBinding original = method.original();
+				if(original != method) {
+					proposal.setOriginalSignature(getSignature(original));
+				}
 				proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
 				proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
 				proposal.setParameterPackageNames(parameterPackageNames);
@@ -3509,6 +3527,10 @@ public final class CompletionEngine
 				CompletionProposal proposal = this.createProposal(CompletionProposal.METHOD_REF, this.actualCompletionPosition);
 				proposal.setDeclarationSignature(getSignature(method.declaringClass));
 				proposal.setSignature(getSignature(method));
+				MethodBinding original = method.original();
+				if(original != method) {
+					proposal.setOriginalSignature(getSignature(original));
+				}
 				proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
 				proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
 				proposal.setParameterPackageNames(parameterPackageNames);
@@ -3754,6 +3776,10 @@ public final class CompletionEngine
 				proposal.setDeclarationSignature(getSignature(method.declaringClass));
 				proposal.setDeclarationKey(method.declaringClass.computeUniqueKey());
 				proposal.setSignature(getSignature(method));
+				MethodBinding original = method.original();
+				if(original != method) {
+					proposal.setOriginalSignature(getSignature(original));
+				}
 				proposal.setKey(method.computeUniqueKey());
 				proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
 				proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());

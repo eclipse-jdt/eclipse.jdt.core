@@ -14,7 +14,6 @@ import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.NameLookup;
@@ -46,17 +45,46 @@ public class InternalCompletionProposal {
 	protected char[][] parameterPackageNames;
 	protected char[][] parameterTypeNames;
 	
+	protected char[] originalSignature;
+	
 	protected int accessibility = IAccessRule.K_ACCESSIBLE;
 	
 	protected boolean isConstructor = false;
 	
-	protected char[][] findMethodParameterNames(char[] signatureType, char[] selector, char[][] paramTypeNames){
-		if(signatureType == null) return null;
+	protected char[][] createDefaultParameterNames(int length) {
+		char[][] parameterNames;
+		switch (length) {
+			case 0 :
+				parameterNames = new char[length][];
+				break;
+			case 1 :
+				parameterNames = ARGS1;
+				break;
+			case 2 :
+				parameterNames = ARGS2;
+				break;
+			case 3 :
+				parameterNames = ARGS3;
+				break;
+			case 4 :
+				parameterNames = ARGS4;
+				break;
+			default :
+				parameterNames = new char[length][];
+				for (int i = 0; i < length; i++) {
+					parameterNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
+				}
+				break;
+		}
+		return parameterNames;
+	}
+	protected char[][] findMethodParameterNames(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] paramTypeNames){
+		if(paramTypeNames == null || declaringTypeName == null) return null;
 		
-		char[] tName = Signature.toCharArray(signatureType);
 		char[][] parameterNames = null;
 		int length = paramTypeNames.length;
 		
+		char[] tName = CharOperation.concat(declaringTypePackageName,declaringTypeName,'.');
 		Object cachedType = this.completionEngine.typeCache.get(tName);
 		
 		IType type = null;
@@ -96,32 +124,9 @@ public class InternalCompletionProposal {
 			}
 		}
 		
-//		 default parameters name
+		// default parameters name
 		if(parameterNames == null) {
-			switch (length) {
-				case 0 :
-					parameterNames = new char[length][];
-					break;
-				case 1 :
-					parameterNames = ARGS1;
-					break;
-				case 2 :
-					parameterNames = ARGS2;
-					break;
-				case 3 :
-					parameterNames = ARGS3;
-					break;
-				case 4 :
-					parameterNames = ARGS4;
-					break;
-				default :
-					parameterNames = new char[length][];
-					for (int i = 0; i < length; i++) {
-						parameterNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
-					}
-					break;
-			}
-			
+			parameterNames = createDefaultParameterNames(length);
 		}
 		
 		return parameterNames;
@@ -150,82 +155,6 @@ public class InternalCompletionProposal {
 	
 	protected char[][] getParameterTypeNames() {
 		return this.parameterTypeNames;
-	}
-	
-	protected char[][] findMethodParameterNames(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] paramPackageNames, char[][] paramTypeNames){
-		if(paramTypeNames == null) return null;
-		
-		char[][] parameterNames = null;
-		int length = paramTypeNames.length;
-		
-		char[] tName = CharOperation.concat(declaringTypePackageName,declaringTypeName,'.');
-		Object cachedType = this.completionEngine.typeCache.get(tName);
-		
-		IType type = null;
-		if(cachedType != null) {
-			if(cachedType != NO_ATTACHED_SOURCE && cachedType instanceof BinaryType) {
-				type = (BinaryType)cachedType;
-			}
-		} else { 
-			// TODO (david) shouldn't it be NameLookup.ACCEPT_ALL ?
-			type = this.nameLookup.findType(new String(tName), false, NameLookup.ACCEPT_CLASSES & NameLookup.ACCEPT_INTERFACES);
-			if(type instanceof BinaryType){
-				if(((BinaryType)type).getSourceMapper() != null) {
-					this.completionEngine.typeCache.put(tName, type);
-				} else {
-					this.completionEngine.typeCache.put(tName, NO_ATTACHED_SOURCE);
-					type = null;
-				}
-			} else {
-				type = null;
-			}
-		}
-		
-		if(type != null) {
-			String[] args = new String[length];
-			for(int i = 0;	i< length ; i++){
-				char[] parameterType = CharOperation.concat(paramPackageNames[i],paramTypeNames[i],'.');
-				args[i] = Signature.createTypeSignature(parameterType,true);
-			}
-			IMethod method = type.getMethod(new String(selector),args);
-			try{
-				parameterNames = new char[length][];
-				String[] params = method.getParameterNames();
-				for(int i = 0;	i< length ; i++){
-					parameterNames[i] = params[i].toCharArray();
-				}
-			} catch(JavaModelException e){
-				parameterNames = null;
-			}
-		}
-		// default parameters name
-		if(parameterNames == null) {
-			switch (length) {
-				case 0 :
-					parameterNames = new char[length][];
-					break;
-				case 1 :
-					parameterNames = ARGS1;
-					break;
-				case 2 :
-					parameterNames = ARGS2;
-					break;
-				case 3 :
-					parameterNames = ARGS3;
-					break;
-				case 4 :
-					parameterNames = ARGS4;
-					break;
-				default :
-					parameterNames = new char[length][];
-					for (int i = 0; i < length; i++) {
-						parameterNames[i] = CharOperation.concat(ARG, String.valueOf(i).toCharArray());
-					}
-					break;
-			}
-			
-		}
-		return parameterNames;
 	}
 	
 	protected void setDeclarationPackageName(char[] declarationPackageName) {
@@ -258,5 +187,8 @@ public class InternalCompletionProposal {
 	
 	protected void setIsContructor(boolean isConstructor) {
 		this.isConstructor = isConstructor;
+	}
+	public void setOriginalSignature(char[] originalSignature) {
+		this.originalSignature = originalSignature;
 	}
 }

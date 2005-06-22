@@ -7584,4 +7584,21 @@ public void test0242() throws JavaModelException {
 			"bar[METHOD_REF]{bar(), Ltest0243.Y<LObject;>;, ()LObject;, bar, null, 29}", 
 			result.proposals);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100009
+public void test0244() throws JavaModelException {
+		CompletionResult result = complete(
+			"/Completion/src3/test0244/X.java",
+			"package test0244;\n" + 
+			"import generics.*;\n" + 
+			"public class X extends ZAGenericType {\n" + 
+			"	foo\n" +  
+			"}",
+			"foo");
+
+		assertResults(
+			"foo[POTENTIAL_METHOD_DECLARATION]{foo, Ltest0244.X;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"foo[METHOD_DECLARATION]{public Object foo(Object t), Lgenerics.ZAGenericType;, (Ljava.lang.Object;)Ljava.lang.Object;, foo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED) + "}\n" +
+			"foo[METHOD_DECLARATION]{public Object foo(ZAGenericType var), Lgenerics.ZAGenericType;, (Lgenerics.ZAGenericType;)Ljava.lang.Object;, foo, (var), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
 }

@@ -1359,37 +1359,52 @@ public final class CompletionProposal extends InternalCompletionProposal {
 			
 			switch(this.completionKind) {
 				case ANONYMOUS_CLASS_DECLARATION:
-					this.parameterNames =  this.findMethodParameterNames(
-							this.declarationPackageName,
-							this.declarationTypeName,
-							CharOperation.lastSegment(this.declarationTypeName, '.'),
-							this.parameterPackageNames,
-							this.parameterTypeNames);
+					try {
+						this.parameterNames = this.findMethodParameterNames(
+								this.declarationPackageName,
+								this.declarationTypeName,
+								CharOperation.lastSegment(this.declarationTypeName, '.'),
+								Signature.getParameterTypes(this.originalSignature == null ? this.signature : this.originalSignature));
+					} catch(IllegalArgumentException e) {
+						// protection for invalid signature
+						if(this.parameterTypeNames != null) {
+							this.parameterNames =  this.createDefaultParameterNames(this.parameterTypeNames.length);
+						} else {
+							this.parameterNames = null;
+						}
+					}
 					break;
 				case METHOD_REF:
-					this.parameterNames =  this.findMethodParameterNames(
-							this.declarationPackageName,
-							this.declarationTypeName,
-							this.name,
-							this.parameterPackageNames,
-							this.parameterTypeNames);
-					//this.parameterNames = this.findMethodParameterNames(
-					//		this.declarationSignature,
-					//		this.name,
-					//		Signature.getParameterTypes(this.getSignature()));
+					try {
+						this.parameterNames = this.findMethodParameterNames(
+								this.declarationPackageName,
+								this.declarationTypeName,
+								this.name,
+								Signature.getParameterTypes(this.originalSignature == null ? this.signature : this.originalSignature));
+					} catch(IllegalArgumentException e) {
+						// protection for invalid signature
+						if(this.parameterTypeNames != null) {
+							this.parameterNames =  this.createDefaultParameterNames(this.parameterTypeNames.length);
+						} else {
+							this.parameterNames = null;
+						}
+					}
 					break;
 				case METHOD_DECLARATION:
-					this.parameterNames =  this.findMethodParameterNames(
-							this.declarationPackageName,
-							this.declarationTypeName,
-							this.name,
-							this.parameterPackageNames,
-							this.parameterTypeNames);
-					//char[][] parameterTypes = Signature.getParameterTypes(this.getSignature();
-					///this.parameterNames = this.findMethodParameterNames(
-					//		this.declarationSignature,
-					//		this.name,
-					//		parameterTypes);
+					try {
+						this.parameterNames = this.findMethodParameterNames(
+								this.declarationPackageName,
+								this.declarationTypeName,
+								this.name,
+								Signature.getParameterTypes(this.originalSignature == null ? this.signature : this.originalSignature));
+					} catch(IllegalArgumentException e) {
+						// protection for invalid signature
+						if(this.parameterTypeNames != null) {
+							this.parameterNames =  this.createDefaultParameterNames(this.parameterTypeNames.length);
+						} else {
+							this.parameterNames = null;
+						}
+					}
 					if(this.parameterNames != null) {
 						this.updateCompletion = true;
 					}
