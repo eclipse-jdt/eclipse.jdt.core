@@ -620,5 +620,51 @@ public class IncrementalTests extends Tests {
 		expectingProblemsFor(x);
 		expectingNoPresenceOf(bin.append("X.class")); //$NON-NLS-1$
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100631
+	public void testMemberTypeCollisionWithBinary() throws JavaModelException {
+		int max = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
+		try {
+			IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+			env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	
+			// remove old package fragment root so that names don't collide
+			env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+	
+			IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+			env.addClass(root, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
+				"public class A {\n"+ //$NON-NLS-1$
+				"	Object foo(B b) { return b.i; }\n" + //$NON-NLS-1$
+				"}");	//$NON-NLS-1$
+			env.addClass(root, "", "B", //$NON-NLS-1$ //$NON-NLS-2$
+				"public class B {\n"+ //$NON-NLS-1$
+				"	I.InnerType i;\n" + //$NON-NLS-1$
+				"}");	//$NON-NLS-1$
+			env.addClass(root, "", "I", //$NON-NLS-1$ //$NON-NLS-2$
+				"public interface I {\n"+ //$NON-NLS-1$
+				"	interface InnerType {}\n" + //$NON-NLS-1$
+				"}");	//$NON-NLS-1$
+
+			fullBuild(projectPath);
+			expectingNoProblems();
+
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1;
+
+			env.addClass(root, "", "A", //$NON-NLS-1$ //$NON-NLS-2$
+				"public class A {\n"+ //$NON-NLS-1$
+				"	Object foo(B b) { return b.i; }\n" + //$NON-NLS-1$
+				"}");	//$NON-NLS-1$
+			env.addClass(root, "", "I", //$NON-NLS-1$ //$NON-NLS-2$
+				"public interface I {\n"+ //$NON-NLS-1$
+				"	interface InnerType {}\n" + //$NON-NLS-1$
+				"}");	//$NON-NLS-1$
+	
+			incrementalBuild(projectPath);
+			expectingNoProblems();
+		} finally {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
+		}
+	}
 }
