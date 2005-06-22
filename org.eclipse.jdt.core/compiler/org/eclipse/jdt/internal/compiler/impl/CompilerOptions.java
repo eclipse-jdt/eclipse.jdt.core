@@ -181,6 +181,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long DiscouragedReference = ASTNode.Bit44L;
 	public static final long UnhandledWarningToken = ASTNode.Bit45L;
 	
+	// TODO (olivier) remove once http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21540 is fixed
+	private static final int IntMissingSerialVersion = (int) (MissingSerialVersion >>> 32);
+	private static final int IntAutoBoxing = (int) (Autoboxing >>> 32);
+	private static final int IntTypeParameterHiding = (int) (TypeParameterHiding >>> 32);
+	private static final int IntIncompleteEnumSwitch = (int) (IncompleteEnumSwitch >>> 32);
+	private static final int IntMissingDeprecatedAnnotation = (int) (MissingDeprecatedAnnotation >>> 32);
+	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
 		
@@ -904,16 +911,17 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			}
 		} else {
 			irritantInt = (int)(irritant >>> 32);
+			// TODO (olivier) remove contants once http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21540 is fixed
 			switch (irritantInt) {
-				case (int) (MissingSerialVersion >>> 32) :
+				case IntMissingSerialVersion :
 					return "serial"; //$NON-NLS-1$
-				case (int) (Autoboxing >>> 32) :
+				case IntAutoBoxing :
 					return "boxing"; //$NON-NLS-1$
-				case (int) (TypeParameterHiding >>> 32) :
+				case IntTypeParameterHiding :
 					return "hiding"; //$NON-NLS-1$
-				case (int) (IncompleteEnumSwitch >>> 32) :
+				case IntIncompleteEnumSwitch :
 					return "incomplete-switch"; //$NON-NLS-1$
-				case (int) (MissingDeprecatedAnnotation >>> 32) :
+				case IntMissingDeprecatedAnnotation :
 					return "dep-ann"; //$NON-NLS-1$
 			}
 		}
