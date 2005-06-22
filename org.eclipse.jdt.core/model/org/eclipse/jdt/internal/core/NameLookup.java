@@ -769,6 +769,7 @@ public class NameLookup implements SuffixConstants {
 					seekTypesInBinaryPackage(matchName, pkg, partialMatch, acceptFlags, requestor);
 					break;
 				case IPackageFragmentRoot.K_SOURCE :
+					matchName= matchName.replace('$', '.');
 					seekTypesInSourcePackage(matchName, pkg, partialMatch, acceptFlags, requestor);
 					break;
 				default :
