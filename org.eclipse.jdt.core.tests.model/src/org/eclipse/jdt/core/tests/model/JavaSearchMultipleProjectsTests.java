@@ -19,9 +19,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
@@ -39,11 +36,8 @@ public static Test suite() {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
-	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_NAMES = new String[] { "testMethodOccurences" };
-	// Numbers of tests to run: "test<number>" will be run for each number of this array
-//	TESTS_NUMBERS = new int[] { 2, 12 };
-	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//	TESTS_NUMBERS = new int[] { 101022 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
 protected void tearDown() throws Exception {
@@ -519,6 +513,45 @@ public void testJavaSearchScope8() throws CoreException {
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
+	}
+}
+
+/**
+ * Bug 101022: [search] JUnit Test Runner on folder runs tests outside directory
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=101022"
+ */
+public void testJavaSearchScopeBug101022() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P1", new String[] {"src", "test", "test2"}, "bin");
+		createFile(
+			"/P1/src/Test.java",
+			"public class Test {\n" +
+			"	protected void foo() {}\n" +
+			"}" 
+		);
+		createFile(
+			"/P1/test/Test.java",
+			"public class Test {\n" +
+			"	protected void foo() {}\n" +
+			"}" 
+		);
+		createFile(
+			"/P1/test2/Test.java",
+			"public class Test {\n" +
+			"	protected void foo() {}\n" +
+			"}" 
+		);
+		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFolder("/P1/test"));
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {root});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		search("foo", METHOD, DECLARATIONS, scope, resultCollector);
+		assertSearchResults(
+			"test/Test.java [in P1] void Test.foo() [foo]",
+			resultCollector);
+	}
+	finally {
+		deleteProject("P1");
 	}
 }
 /**

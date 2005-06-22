@@ -306,7 +306,11 @@ private int indexOf(String relativePath, String containerPath) {
 	for (int i = 0, length = this.paths.length; i < length; i++) {
 		String scopePath = this.paths[i];
 		if (scopePath == null) continue;
-		if (encloses(this.containerPaths[i] + '/' + scopePath, relativePath, i))
+		if (scopePath.length() == 0)
+			scopePath = this.containerPaths[i];
+		else
+			scopePath = this.containerPaths[i] + '/' + scopePath;
+		if (encloses(scopePath, relativePath, i))
 			return i;
 	}
 	return -1;
@@ -314,8 +318,20 @@ private int indexOf(String relativePath, String containerPath) {
 
 private boolean encloses(String scopePath, String path, int index) {
 	if (this.pathWithSubFolders[index]) {
-		if (path.startsWith(scopePath)) {
+		// TODO (frederic) apply similar change also if not looking at subfolders
+		int pathLength = path.length();
+		int scopeLength = scopePath.length();
+		if (pathLength < scopeLength) {
+			return false;
+		}
+		if (scopeLength == 0) {
 			return true;
+		}
+		if (pathLength == scopeLength) {
+			return path.equals(scopePath);
+		}
+		if (path.startsWith(scopePath)) {
+			return path.charAt(scopeLength) == '/';
 		}
 	} else {
 		// if not looking at subfolders, this scope encloses the given path 
