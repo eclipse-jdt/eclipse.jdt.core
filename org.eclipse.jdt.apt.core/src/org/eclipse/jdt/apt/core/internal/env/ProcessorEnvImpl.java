@@ -154,49 +154,63 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 
     public static ProcessorEnvImpl newProcessorEnvironmentForReconcile(ICompilationUnit compilationUnit, IJavaProject javaProj)
     {
-       	return new ProcessorEnvImpl( compilationUnit, javaProj, Phase.RECONCILE );
+       	return new ProcessorEnvImpl( compilationUnit, null /*IFile*/, javaProj, Phase.RECONCILE );
     }
 
     public static ProcessorEnvImpl newProcessorEnvironmentForBuild( IFile file, IJavaProject javaProj )
     {
-    	return new ProcessorEnvImpl( file, javaProj, Phase.BUILD );
+    	return new ProcessorEnvImpl( null /*ICompilationUnit*/, file, javaProj, Phase.BUILD );
     }
-
-    private ProcessorEnvImpl( IFile file, IJavaProject javaProj, Phase phase )
+    
+	private ProcessorEnvImpl(ICompilationUnit compilationUnit, IFile file, IJavaProject javaProj, Phase phase)
     {
-        assert phase == Phase.BUILD : "Unexpected phase value.  Use Phase.BUILD instead of " + phase;
+		// if we are in reconcile, file will be null & compilationUnit will be valid
+		// if we are in build, file will not be null & compilationUnit will be null
+        assert ( phase == Phase.RECONCILE && compilationUnit != null && file == null ) || ( phase == Phase.BUILD && compilationUnit == null && file != null ) : "Unexpected phase value.  Use Phase.RECONCILE instead of " + phase;
 
-    	_compilationUnit = null;
-
-		char[] source = null;
-
-		try
-		{
-			source = getFileContents( file );
-		}
-		catch( Exception e )
-		{
-			// TODO:  propagate these exceptions out of APTDispatch
-			e.printStackTrace();
-		}
-
-		_source = source;
-		assert _source != null : "missing source";
-
-		String unitName = file.getProjectRelativePath().toString();
-		ASTNode node = createDietAST( unitName, javaProj, null, _source );
-		_astCompilationUnit = (org.eclipse.jdt.core.dom.CompilationUnit) node;
         _phase = phase;
-        _file = file;
+        
+        String unitName = null;
+		if ( compilationUnit != null )
+		{
+			unitName = compilationUnit.getResource().getProjectRelativePath().toString();
+	        _compilationUnit = compilationUnit;
+			_file = (IFile)compilationUnit.getResource();
+			_source = null;
+		}
+		else
+		{
+			unitName = file.getProjectRelativePath().toString();	
+			_compilationUnit = null;
+			_file = file;
+			char[] source = null;
+			try
+			{
+				source = getFileContents( file );
+			}
+			catch( Exception e )
+			{
+				// TODO:  propagate these exceptions out of APTDispatch
+				e.printStackTrace();
+			}
+			_source = source;
+			assert _source != null : "missing source";
+		}
+
+		assert ( _source == null && _compilationUnit != null ) || ( _source != null && _compilationUnit == null ) : "Unexpected values for _compilationUnit and _source!";
+		ASTNode node = createDietAST( unitName, javaProj, _compilationUnit, _source );
+		_astCompilationUnit = (org.eclipse.jdt.core.dom.CompilationUnit) node;
+
 		_javaProject = javaProj;
-		_modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
+        _modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
 		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
-        _allProblems = new HashMap<IFile, List<IProblem>>(4);        
+		_allProblems = new HashMap<IFile, List<IProblem>>(4);        
 		_filer = new FilerImpl(this);
 		initPrimitives(_javaProject);
 		initOptions(_javaProject);
     }
-
+    
+    
     /**
      * Set the _options map based on the current project/workspace settings.
      * There is a bug in Sun's apt implementation: it parses the command line 
@@ -227,26 +241,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		}
 	}
 
-	private ProcessorEnvImpl(ICompilationUnit compilationUnit, IJavaProject javaProj, Phase phase)
-    {
-        assert phase == Phase.RECONCILE : "Unexpected phase value.  Use Phase.RECONCILE instead of " + phase;
 
-		_source = null;
-		String unitName =  compilationUnit.getResource().getProjectRelativePath().toString();
-		ASTNode node = createDietAST( unitName, javaProj, compilationUnit, null );
-
-		_astCompilationUnit = (org.eclipse.jdt.core.dom.CompilationUnit) node;
-
-        _compilationUnit = compilationUnit;
-        _phase = phase;
-        _file = (IFile)compilationUnit.getResource();
-		_javaProject = javaProj;
-        _modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
-		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
-		_allProblems = new HashMap<IFile, List<IProblem>>(4);        
-		_filer = new FilerImpl(this);
-		initPrimitives(_javaProject);
-    }
 
 
 	/**
