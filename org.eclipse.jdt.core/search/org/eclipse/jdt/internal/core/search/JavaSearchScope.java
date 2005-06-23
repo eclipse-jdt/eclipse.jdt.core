@@ -306,11 +306,7 @@ private int indexOf(String relativePath, String containerPath) {
 	for (int i = 0, length = this.paths.length; i < length; i++) {
 		String scopePath = this.paths[i];
 		if (scopePath == null) continue;
-		if (scopePath.length() == 0)
-			scopePath = this.containerPaths[i];
-		else
-			scopePath = this.containerPaths[i] + '/' + scopePath;
-		if (encloses(scopePath, relativePath, i))
+		if (encloses(this.containerPaths[i] + '/' + scopePath, relativePath, i))
 			return i;
 	}
 	return -1;
@@ -331,6 +327,7 @@ private boolean encloses(String scopePath, String path, int index) {
 			return path.equals(scopePath);
 		}
 		if (path.startsWith(scopePath)) {
+			if (scopePath.charAt(scopeLength-1) == '/') scopeLength--;
 			return path.charAt(scopeLength) == '/';
 		}
 	} else {

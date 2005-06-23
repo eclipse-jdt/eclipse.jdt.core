@@ -37,7 +37,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_NAMES = new String[] { "testMethodOccurences" };
-//	TESTS_NUMBERS = new int[] { 101022 };
+//	TESTS_NUMBERS = new int[] { 101426 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
 protected void tearDown() throws Exception {
@@ -548,6 +548,44 @@ public void testJavaSearchScopeBug101022() throws CoreException {
 		search("foo", METHOD, DECLARATIONS, scope, resultCollector);
 		assertSearchResults(
 			"test/Test.java [in P1] void Test.foo() [foo]",
+			resultCollector);
+	}
+	finally {
+		deleteProject("P1");
+	}
+}
+
+/**
+ * Bug 101426: Search doesn't work with imported plugin
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=101426"
+ */
+public void testJavaSearchScopeBug101426() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P1", new String[] {"src/", "test/", "test2/"}, "bin");
+		createFile(
+			"/P1/src/Test.java",
+			"public interface ITest {\n" +
+			"}" 
+		);
+		createFile(
+			"/P1/test/Test.java",
+			"public class Test {\n" +
+			"	ITest test;\n" +
+			"}" 
+		);
+		createFile(
+			"/P1/test2/Test.java",
+			"public class Test2 {\n" +
+			"	ITest test;\n" +
+			"}" 
+		);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project});
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		resultCollector.showProject = true;
+		search("ITest", TYPE, REFERENCES, scope, resultCollector);
+		assertSearchResults(
+			"test/Test.java [in P1] Test.test [ITest]\n" + 
+			"test2/Test.java [in P1] Test2.test [ITest]",
 			resultCollector);
 	}
 	finally {
