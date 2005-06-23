@@ -26,6 +26,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
@@ -83,7 +84,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				( _compilationUnit != null && ! ScannerUtil.hasAnnotationInstance( _compilationUnit ) ) ||
 				( _file!= null && !  ScannerUtil.hasAnnotationInstance( _file ) ) )
 		{
-			if ( DEBUG ) trace( "runAPTDuringBuild: leaving early because there are no factories or annotation instances");
+			if ( AptPlugin.DEBUG ) trace( "runAPT during : leaving early because there are no factories or annotation instances");
 			
 			
 			IFile f;
@@ -126,13 +127,13 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		try {
 			if (factories.size() == 0)
 			{
-				if ( DEBUG ) trace( "runAPT: leaving early because there are no factories");
+				if ( AptPlugin.DEBUG ) trace( "runAPT: leaving early because there are no factories");
 				return EMPTY_APT_RESULT;
 			}
 				
 			if ( ! processorEnv.getFile().exists() )
 			{
-				if ( DEBUG ) trace( "runAPT: leaving early because file doesn't exist");
+				if ( AptPlugin.DEBUG ) trace( "runAPT: leaving early because file doesn't exist");
 				return EMPTY_APT_RESULT;
 			}				
 		
@@ -141,7 +142,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			
 			if (annotationDecls.isEmpty())
 			{
-				if ( DEBUG ) trace ( "runAPT:  leaving early because annotationDecls is empty" );
+				if ( AptPlugin.DEBUG ) trace ( "runAPT:  leaving early because annotationDecls is empty" );
 				return EMPTY_APT_RESULT;
 			}
 
@@ -163,7 +164,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 							.getProcessorFor(factoryDecls, processorEnv);
 					if (processor != null)
 					{
-						if ( DEBUG ) trace( "runAPT: invoking processor " + processor.getClass().getName() );
+						if ( AptPlugin.DEBUG ) trace( "runAPT: invoking processor " + processor.getClass().getName() );
 						processor.process();
 					}
 				}
@@ -234,7 +235,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			IFile f = files[i];
 			if ( ! newGeneratedFiles.contains( f ) )
 			{
-				if ( DEBUG ) trace ( "runAPT:  File " + f + " is no longer a generated file for " + parent );
+				if ( AptPlugin.DEBUG ) trace ( "runAPT:  File " + f + " is no longer a generated file for " + parent );
 				try
 				{
 					if ( gfm.deleteGeneratedFile( f, parent, null ) )
@@ -345,7 +346,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	
 	public static void trace( String s )
 	{
-		if (DEBUG)
+		if (AptPlugin.DEBUG)
 		{
 			System.out.println( "[" + Thread.currentThread().getName() + "][" + APTDispatch.class.getName() + "] " + s );
 			System.out.flush();
@@ -354,5 +355,4 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	
 	public static final APTResult EMPTY_APT_RESULT = new APTResult();
 	
-	public static final boolean DEBUG = false;
 }

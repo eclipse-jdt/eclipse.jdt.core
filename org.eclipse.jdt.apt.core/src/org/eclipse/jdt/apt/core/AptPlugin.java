@@ -11,8 +11,10 @@
 
 package org.eclipse.jdt.apt.core;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.internal.core.BufferManager;
 import org.osgi.framework.BundleContext;
 
 public class AptPlugin extends Plugin {
@@ -20,6 +22,7 @@ public class AptPlugin extends Plugin {
 	
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		initDebugTracing();
 		AptConfig.initialize();
 	}
 
@@ -27,4 +30,12 @@ public class AptPlugin extends Plugin {
 		super.stop(context);
 	}
 
+	
+	private void initDebugTracing() {		
+		String option = Platform.getDebugOption(APT_DEBUG_OPTION);
+		if(option != null) DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$		
+	}
+	
+	public static boolean DEBUG = false;
+	public final static String APT_DEBUG_OPTION = AptPlugin.PLUGIN_ID + "/debug";
 }
