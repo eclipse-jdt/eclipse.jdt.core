@@ -1882,7 +1882,7 @@ public final class JavaCore extends Plugin {
 	 *
 	 * COMPILER / Reporting Unchecked Type Operation
 	 *    When enabled, the compiler will issue an error or a warning whenever an operation involves generic types, and potentially
-	 *    invalidates type safety since involving raw types (e.g. invoking #foo(X<String>) with arguments  (X)).
+	 *    invalidates type safety since involving raw types (e.g. invoking #foo(X&lt;String&gt;) with arguments  (X)).
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
