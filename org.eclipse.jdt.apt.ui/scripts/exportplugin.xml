@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- 
- Build script to create the apt.core plugin. 
+ Build script to create the apt.ui plugin. 
  This script assumes that the classes have already been compiled,
  and exist in the 'bin' subdirectory of the plugin project.
  The directory structure assumed by this script is as follows:
     [dev root]/
         [workspace]/
             [plugins]/
-                org.eclipse.jdt.apt.core/
+                org.eclipse.jdt.apt.ui/
                     bin/
                     src/
                     scripts/          // contains this script
             plugin-export/            // will be created if necessary
-                org.eclipse.jdt.apt.core_[version]/
-            org.eclipse.jdt.apt.core_[version].zip  // will be created
+                org.eclipse.jdt.apt.cui_[version]/
+            org.eclipse.jdt.apt.ui_[version].zip  // will be created
         
 -->
 
@@ -30,7 +30,7 @@
 
 	<tstamp/>
 	<property name="export-dir" value="../../plugin-export" />
-	<property name="plugin" value="org.eclipse.jdt.apt.core" />
+	<property name="plugin" value="org.eclipse.jdt.apt.ui" />
 	<property name="plugin-dir" value="${export-dir}/${plugin}_${plugin_version}"/>
 
 	<echo message="TARGET: ${export-dir}" />
@@ -41,17 +41,15 @@
 	<echo message="UPDATE ${plugin}_${plugin_version}.jar" />
 	<zip zipfile="${plugin-dir}/${plugin}_${plugin_version}.jar">
 		<fileset dir=".">
-		  <!-- include name="tools.jar" / -->
 		  <include name="plugin.xml" />
 		  <include name="plugin.properties" />
 		  <include name="META-INF/**" />
-		  <include name=".options"/>
         </fileset>
         <fileset dir="bin" />
 	</zip>
 	
-	<echo message="UPDATE aptcoresrc.zip" />
-	<zip zipfile="${plugin-dir}/aptcoresrc.zip">
+	<echo message="UPDATE ${plugin}.src.zip" />
+	<zip zipfile="${plugin-dir}/${plugin}.src.zip">
 	    <fileset dir="src" />
 	</zip>		
 
