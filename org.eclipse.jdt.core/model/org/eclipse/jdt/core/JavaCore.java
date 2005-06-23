@@ -1916,7 +1916,7 @@ public final class JavaCore extends Plugin {
 	 *         - if variable was assumed to be null and further used to access field or methods
 	 *         - if variable was assumed to be null or non-null and further tested for null cases.
 	 *         
-	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.inconsistentNullCheck"
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.nullReference"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 * 
