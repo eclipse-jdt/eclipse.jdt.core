@@ -54,6 +54,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	private final ICompilationUnit _compilationUnit;
 	private final IJavaProject _javaProject;
 	private final List<AnnotationProcessorFactory> _factories;
+	private final String _phaseName;
+	private final String _fileName;
 	
 	private  APTResult _result;
 
@@ -63,6 +65,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		_file = file;
 		_javaProject = javaProject;
 		_factories = factories;
+		_phaseName =  "build";
+		_fileName =  _file.toString();
 	}
 
 	/*package*/ APTDispatchRunnable( ICompilationUnit cu, IJavaProject javaProject, List<AnnotationProcessorFactory> factories)
@@ -71,12 +75,16 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		_file = null;
 		_javaProject = javaProject;
 		_factories = factories;
+		_phaseName =  "reconcile";
+		_fileName =  _compilationUnit.getResource().toString();
 	}
 	
 	public APTResult getResult() { return _result; }
 	
 	public void run(IProgressMonitor monitor) 
 	{
+		assert( _file == null || _compilationUnit == null ) : "Either _file should be null or _compilationUnit should be null.";		
+		
 		//
 		//  bail-out early if there aren't factories, or if there aren't any annotation instances
 		// 
@@ -84,7 +92,16 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				( _compilationUnit != null && ! ScannerUtil.hasAnnotationInstance( _compilationUnit ) ) ||
 				( _file!= null && !  ScannerUtil.hasAnnotationInstance( _file ) ) )
 		{
-			if ( AptPlugin.DEBUG ) trace( "runAPT during : leaving early because there are no factories or annotation instances");
+			// tracing
+			if ( AptPlugin.DEBUG ) 
+			{			
+				String msg;
+				if ( _factories == null || _factories.size() == 0 )
+					msg = "no AnnotationProcessoryFactory instances registered.";
+				else
+					msg = "no annotation instances in file.";
+				trace( "run():  leaving early because there are " + msg );
+			}
 			
 			
 			IFile f;
@@ -93,7 +110,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			else
 				f = (IFile)_compilationUnit.getResource();
 			Set<IFile> deletedFiles = cleanupAllGeneratedFilesForParent( f );
-			
+
 			if ( deletedFiles.size() == 0 )
 				_result =  EMPTY_APT_RESULT;
 			else
@@ -120,7 +137,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		}
 	}
 	
-	private static APTResult runAPT(
+	private APTResult runAPT(
 			final List<AnnotationProcessorFactory> factories,
 			final ProcessorEnvImpl processorEnv) 
 	{
@@ -142,7 +159,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			
 			if (annotationDecls.isEmpty())
 			{
-				if ( AptPlugin.DEBUG ) trace ( "runAPT:  leaving early because annotationDecls is empty" );
+				if ( AptPlugin.DEBUG ) trace( "runAPT:  leaving early because annotationDecls is empty" );
 				return EMPTY_APT_RESULT;
 			}
 
@@ -215,14 +232,14 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		return EMPTY_APT_RESULT;
 	}
 
-	private static Set<IFile> cleanupAllGeneratedFilesForParent( IFile parent )
+	private Set<IFile> cleanupAllGeneratedFilesForParent( IFile parent )
 	{
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( parent.getProject() );
 		Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( parent );
 		return cleanupNoLongerGeneratedFiles( parent, lastGeneratedFiles, Collections.<IFile>emptySet(), gfm );
 	}
 	
-	private static Set<IFile> cleanupNoLongerGeneratedFiles( 
+	private Set<IFile> cleanupNoLongerGeneratedFiles( 
 		IFile parent, Set<IFile> lastGeneratedFiles, Set<IFile> newGeneratedFiles,
 		GeneratedFileManager gfm )
 	{
@@ -235,7 +252,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			IFile f = files[i];
 			if ( ! newGeneratedFiles.contains( f ) )
 			{
-				if ( AptPlugin.DEBUG ) trace ( "runAPT:  File " + f + " is no longer a generated file for " + parent );
+				if ( AptPlugin.DEBUG ) trace( "runAPT:  File " + f + " is no longer a generated file for " + parent );
 				try
 				{
 					if ( gfm.deleteGeneratedFile( f, parent, null ) )
@@ -343,15 +360,15 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		return fDecls.isEmpty() ? null : fDecls;
 	}
 	
-	
-	public static void trace( String s )
+	private void trace( String s )
 	{
 		if (AptPlugin.DEBUG)
 		{
-			System.out.println( "[" + Thread.currentThread().getName() + "][" + APTDispatch.class.getName() + "] " + s );
-			System.out.flush();
+			s = "[ phase = " + _phaseName + ", file = " + _fileName +" ]  " + s;
+			System.out.println( "[" + APTDispatch.class.getName() + "][ thread= " + Thread.currentThread().getName() + " ]"+ s );
 		}
 	}
+	
 	
 	public static final APTResult EMPTY_APT_RESULT = new APTResult();
 	
