@@ -35,11 +35,12 @@ public class PreBuildCompilationResult extends CompilationParticipantResult {
 	 *        for the IFile.  The JDT will record these new dependencies in its depdency
 	 *        matrix. 
 	 */
-	public PreBuildCompilationResult( IFile[] newFiles, IFile[] deletedFiles, Map newDependencyInfo )
+	public PreBuildCompilationResult( IFile[] newFiles, IFile[] deletedFiles, Map newDependencyInfo, Map newProblems )
 	{
 		_newFiles = newFiles;
 		_deletedFiles = deletedFiles;
 		_newDependencyInfo = newDependencyInfo;
+		_newProblems = newProblems;
 	}
 	
 	/** 
@@ -64,6 +65,13 @@ public class PreBuildCompilationResult extends CompilationParticipantResult {
 	public Map     getNewDependencies() { return _newDependencyInfo; }
 	
 	/**
+	 * 
+	 * @return Map<IFile, List<IProblem>> that maps the files built to the problems 
+	 * encountered during prebuild compilation.
+	 */
+	public Map 	   getProblems(){ return _newProblems; }
+	
+	/**
 	 * @return an integer flag indicating that this is result for a pre-build event.
 	 * @see ICompilationParticipant#PRE_BUILD_EVENT
 	 * @see CompilationParticipantEvent#getKind()
@@ -73,5 +81,6 @@ public class PreBuildCompilationResult extends CompilationParticipantResult {
 	private IFile[] _newFiles;
 	private IFile[] _deletedFiles;
 	private Map     _newDependencyInfo;
+	private Map		_newProblems;
 
 }

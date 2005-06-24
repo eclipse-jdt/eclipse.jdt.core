@@ -226,13 +226,14 @@ protected void compile(SourceFile[] units) {
 
 /**
  *  notify the ICompilationParticipants of the pre-build event 
+ *  @return a map that maps source units to problems encountered during the prebuild process.
  */
-private  void notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set newFiles, Set deletedFiles, Map extraDependencies ) {
+private  Map notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set newFiles, Set deletedFiles, Map extraDependencies ) {
 	List cps = JavaCore
 			.getCompilationParticipants( ICompilationParticipant.PRE_BUILD_EVENT,
 					javaBuilder.javaProject );
 	if ( cps.isEmpty() ) {
-		return;
+		return null;
 	}
 
 	IFile[] files = new IFile[sourceUnits.length];
@@ -241,13 +242,14 @@ private  void notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set 
 			files[i] = ( ( SourceFile ) sourceUnits[i] ).getFile();
 		} else {
 			String fname = new String( sourceUnits[i].getFileName() );
-			javaBuilder.javaProject.getProject().getFile( fname );
+			files[i] = javaBuilder.javaProject.getProject().getFile( fname );
 		}
 	}
 	PreBuildCompilationEvent pbce = new PreBuildCompilationEvent( files,
 			javaBuilder.javaProject );
 
 	java.util.Iterator it = cps.iterator();
+	Map ifiles2problems = new HashMap();
 	while ( it.hasNext() ) {
 		ICompilationParticipant p = ( ICompilationParticipant ) it.next();
 
@@ -268,6 +270,7 @@ private  void notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set 
 			}
 			
 			mergeMaps( pbcr.getNewDependencies(), extraDependencies );
+			mergeMaps( pbcr.getProblems(), ifiles2problems );
 		}
 	}
 	
@@ -275,12 +278,34 @@ private  void notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set 
 		Set newFiles_2 = new HashSet();
 		Set deletedFiles_2 = new HashSet();
 		ICompilationUnit[] newFileArray = ifileSet2SourceFileArray( newFiles );
-		notifyCompilationParticipants( newFileArray, newFiles_2, deletedFiles_2, extraDependencies );
+		final Map newFiles2Problems = notifyCompilationParticipants( newFileArray, newFiles_2, deletedFiles_2, extraDependencies );
 		newFiles.addAll( newFiles_2 );
 		deletedFiles.addAll( deletedFiles_2 );
+		
+		mergeMaps( newFiles2Problems, ifiles2problems);
 	}
 	
+	return convertKey(files, sourceUnits, ifiles2problems);
 }	
+
+/**
+ * Convert the key of the map from <code>IFile</code> to the corresponding <code>ICompilationUnit</code>
+ * @param files parallel to <code>units</code>. The <code>IFile</code> of the corresponding <code>ICompilationUnit</code> 
+ * @param units parallel to <code>files</code>. The <code>ICompilationUnit</code> of the corresponding <code>IFile</code>
+ * @param problems Map between <code>IFile</code> and its list of <code>IProblem</code>
+ *                        Content of this map will be destructively modified.
+ * @return a map between <code>ICompilationUnit</code> and its list of <code>IProblem</code>
+ */
+private Map convertKey(final IFile[] files, final ICompilationUnit[] units, Map problems)
+{	
+	for( int i=0, len=files.length; i<len; i++ ){				
+		Object val = problems.remove(files[i]);
+		if( val != null )
+			problems.put(units[i], val);
+	}
+	
+	return problems;
+}
 
 /** 
  *   Given a Map which maps from a key to a value, where key is an arbitrary 
@@ -415,12 +440,12 @@ void compile(SourceFile[] units, SourceFile[] additionalUnits) {
 		Set newFiles = new HashSet();
 		Set deletedFiles = new HashSet();
 		extraDependencyMap = new HashMap();
-		notifyCompilationParticipants( units, newFiles, deletedFiles, extraDependencyMap );
+		Map units2Problems = notifyCompilationParticipants( units, newFiles, deletedFiles, extraDependencyMap );
 
 		// update units array with the new & deleted files
 		units = updateSourceUnits( units, newFiles, deletedFiles );
 		
-		compiler.compile(units);
+		compiler.compile(units, units2Problems);
 		
 		// we should be done with this map here, so null it out for GC
 		extraDependencyMap = null;

@@ -306,7 +306,17 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 * -> compile each of supplied files
 	 * -> recompile any required types for which we have an incomplete principle structure
 	 */
-	public void compile(ICompilationUnit[] sourceUnits) {
+	public void compile(ICompilationUnit[] sourceUnits){
+		compile(sourceUnits, null);
+	}
+
+	
+	/**
+	 * @param sourceUnits source units to be compiled
+	 * @param preCompilationProblems compilation problems came from pre-build compilation participants.
+	 *        Key of the map is <code>ICompilationUnit</code> and value is a list of <code>IProblem</code>
+	 */
+	public void compile(ICompilationUnit[] sourceUnits, Map preCompilationProblems) {
 		CompilationUnitDeclaration unit = null;
 		int i = 0;
 		try {
@@ -332,6 +342,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					unit.cleanUp();
 				}
 				unitsToProcess[i] = null; // release reference to processed unit declaration
+				if( preCompilationProblems != null )
+					includeProblemsFromParticipants(unit, (List)preCompilationProblems.get(unit.compilationResult.compilationUnit));
 				requestor.acceptResult(unit.compilationResult.tagAsAccepted());
 				if (options.verbose)
 					System.out.println(
@@ -361,6 +373,15 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				System.out.println(
 					Messages.bind(Messages.compilation_unit, String.valueOf(this.totalUnits))); 
 			}
+		}
+	}
+	
+	private void includeProblemsFromParticipants(CompilationUnitDeclaration unit, List problems )
+	{
+		if(problems == null || problems.isEmpty() ) return;
+		for(Iterator it = problems.iterator(); it.hasNext(); ){
+			final IProblem problem = (IProblem)it.next();
+			unit.compilationResult.record(problem, unit);
 		}
 	}
 

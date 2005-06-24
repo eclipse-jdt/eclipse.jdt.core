@@ -19,7 +19,9 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.ICompilationParticipant;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.PostReconcileCompilationEvent;
+import org.eclipse.jdt.core.compiler.PostReconcileCompilationResult;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -128,6 +130,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 
 	private void notifyCompilationParticipants() {
 		CompilationUnit workingCopy = getWorkingCopy();
+		final IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
 		
 		IJavaProject javaProject = workingCopy.getJavaProject();
 		List l = JavaCore.getCompilationParticipants(ICompilationParticipant.POST_RECONCILE_EVENT, javaProject);	
@@ -139,8 +142,12 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 			Iterator it = l.iterator();
 			while ( it.hasNext() ) {
 				ICompilationParticipant p = (ICompilationParticipant)it.next(); 
-				p.notify( prce );
-				// TODO: do something with the result of notify...
+				final PostReconcileCompilationResult result = (PostReconcileCompilationResult)p.notify( prce );
+				final IProblem[] problems = result.getProblems();	
+				if( problemRequestor != null && problems != null ){
+					for(int i=0, len=problems.length; i<len; i++ )
+						problemRequestor.acceptProblem(problems[i]);
+				}
 			}
 		}
 	}
