@@ -12,12 +12,10 @@ package org.eclipse.jdt.internal.core.hierarchy;
 
 import java.util.*;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -350,7 +348,9 @@ protected IBinaryType createInfoFromClassFile(Openable classFile, String osPath)
 protected IBinaryType createInfoFromClassFileInJar(Openable classFile) {
 	String filePath = (((ClassFile)classFile).getType().getFullyQualifiedName('$')).replace('.', '/') + SuffixConstants.SUFFIX_STRING_class;
 	IPackageFragmentRoot root = classFile.getPackageFragmentRoot();
-	String rootPath = root.getPath().toString(); // root path always contain forward slahes (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93113)
+	IPath path = root.getPath();
+	// take the OS path for external jars, and the forward slash path for internal jars
+	String rootPath = path.getDevice() == null ? path.toString() : path.toOSString();
 	String documentPath = rootPath + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + filePath;
 	IBinaryType binaryType = (IBinaryType)this.binariesFromIndexMatches.get(documentPath);
 	if (binaryType != null) {
