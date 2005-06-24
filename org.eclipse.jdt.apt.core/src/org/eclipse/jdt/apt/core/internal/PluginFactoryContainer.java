@@ -24,8 +24,10 @@ public class PluginFactoryContainer extends FactoryContainer
 		this.id = className;
 	}
 	
-	public boolean isPlugin() { return true; }
-	public void addFactoryName( String n ) { getFactoryNames().add( n ); }
+	public void addFactoryName( String n ) {
+		getFactoryNames().add( n ); 
+	}
+	
 	protected List<String> loadFactoryNames() { 
 		return new ArrayList<String>();
 	}
@@ -34,10 +36,6 @@ public class PluginFactoryContainer extends FactoryContainer
 		return id;
 	}
 	
-	public String toString() {
-		return getId();
-	}
-
 	@Override
 	public FactoryType getType() {
 		return FactoryType.PLUGIN;

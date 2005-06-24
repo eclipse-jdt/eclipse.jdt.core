@@ -12,19 +12,23 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.util.PixelConverter;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.*;
+import org.eclipse.jdt.ui.wizards.BuildPathDialogAccess;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
@@ -39,10 +43,12 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 
 	private static final int IDX_UP= 0;
 	private static final int IDX_DOWN= 1;
-	private static final int IDX_ADD= 2;
-	private static final int IDX_REMOVE= 3;
-	private static final int IDX_ENABLEALL= 4;
-	private static final int IDX_DISABLEALL= 5;
+	//
+	private static final int IDX_ADDEXTJAR= 3;
+	private static final int IDX_REMOVE= 4;
+	//
+	private static final int IDX_ENABLEALL= 6;
+	private static final int IDX_DISABLEALL= 7;
 
 	private final static String[] buttonLabels = { 
 		"Up",                   // 0
@@ -70,16 +76,33 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		}
 	}
 
-	private class ImportOrganizeAdapter implements IListAdapter, IDialogFieldListener {
+	private class FactoryPathAdapter implements IListAdapter, IDialogFieldListener {
+
+		/**
+		 * Can't remove a selection that contains a plugin.
+		 */
+		private boolean canRemove(ListDialogField field) {
+			List selected= fFactoryPathList.getSelectedElements();
+			boolean containsPlugin= false;
+			for (Object o : selected) {
+				if (((FactoryContainer)o).getType() == FactoryContainer.FactoryType.PLUGIN) {
+					containsPlugin = true;
+					break;
+				}
+			}
+			return !containsPlugin;
+		}
 
         public void customButtonPressed(ListDialogField field, int index) {
         	buttonPressed(index);
         }
 
         public void selectionChanged(ListDialogField field) {
+        	boolean enableRemove = canRemove(field);
+        	field.enableButton(IDX_REMOVE, enableRemove);
         }
 
-        public void dialogFieldChanged(DialogField field) {
+		public void dialogFieldChanged(DialogField field) {
         	updateModel(field);
         }
 
@@ -103,7 +126,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		
 		fJProj = JavaCore.create(project);
 		
-		ImportOrganizeAdapter adapter= new ImportOrganizeAdapter();
+		FactoryPathAdapter adapter= new FactoryPathAdapter();
 		
 		fFactoryPathList= new CheckedListDialogField(adapter, buttonLabels, new LabelProvider());
 		fFactoryPathList.setDialogFieldListener(adapter);
@@ -122,9 +145,22 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * @param index
 	 */
 	public void buttonPressed(int index) {
-		// TODO Auto-generated method stub
+		if (index == IDX_ADDEXTJAR) { // add new
+			FactoryContainer[] newEntries= openExtJarFileDialog(null);
+			int insertAt;
+			List selectedElements= fFactoryPathList.getSelectedElements();
+			if (selectedElements.size() == 1) {
+				insertAt= fFactoryPathList.getIndexOfElement(selectedElements.get(0)) + 1;
+			} else {
+				insertAt= fFactoryPathList.getSize();
+			}
+			for (int i = 0; i < newEntries.length; ++i) {
+				fFactoryPathList.addElement(newEntries[i], insertAt + i);
+				fFactoryPathList.setChecked(newEntries[i], true);
+			}
+		}
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#createContents(org.eclipse.swt.widgets.Composite)
 	 */
@@ -143,8 +179,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 
 		int buttonBarWidth= fPixelConverter.convertWidthInCharsToPixels(24);
 		fFactoryPathList.setButtonsMinWidth(buttonBarWidth);
-		
-		fFactoryPathList.enableButton(IDX_ADD, false); // temporary
 		
 		initListContents();
 
@@ -172,6 +206,21 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		return null; // TODO: figure this out.
 	}
 
+	//TODO: figure out how to edit an existing jar file - see LibrariesWorkbookPage for example
+	private FactoryContainer[] openExtJarFileDialog(FactoryContainer existing) {
+		if (existing == null) {
+			IPath[] selected= BuildPathDialogAccess.chooseExternalJAREntries(getShell());
+			if (selected != null) {
+				ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
+				for (int i= 0; i < selected.length; i++) {
+					res.add(new JarFactoryContainer(selected[i].toFile()));
+				}
+				return (FactoryContainer[]) res.toArray(new FactoryContainer[res.size()]);
+			}
+		} 		
+		return null;
+	}
+		
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#updateModel(org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField)
 	 */

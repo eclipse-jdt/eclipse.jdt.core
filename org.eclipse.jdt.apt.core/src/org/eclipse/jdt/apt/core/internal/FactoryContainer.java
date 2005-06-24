@@ -16,7 +16,6 @@ import java.util.List;
 
 public abstract class FactoryContainer
 {
-	
 	public enum FactoryType {
 		PLUGIN, JAR;
 	}
@@ -27,6 +26,16 @@ public abstract class FactoryContainer
 	 * For plugins, it's the plugin id, for jar files, the path to the jar, etc.
 	 */
 	public abstract String getId();
+	
+	/**
+	 * This method is used to display the container in the UI.
+	 * If this default implementation is not adequate for a particular
+	 * container, that container should provide an override.
+	 */
+	@Override
+	public String toString() {
+		return getId();
+	}
 	
 	public abstract FactoryType getType();
 	

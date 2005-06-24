@@ -84,8 +84,13 @@ public final class FileSystemUtil
     public static void writeStringToIFile(IFile file, String contents) throws IOException, CoreException {
     	byte[] data = contents.getBytes("UTF8");
     	ByteArrayInputStream input = new ByteArrayInputStream(data);
-    	// create with FORCE will overwrite if the file already exists
-    	file.create(input, IResource.FORCE, null);
+    	if (file.exists()) {
+    		file.setContents(input, true, false, null);
+    	}
+    	else {
+    		// Even with FORCE, create() will still throw if the file already exists.
+    		file.create(input, IResource.FORCE, null);
+    	}
     }
     
     /**

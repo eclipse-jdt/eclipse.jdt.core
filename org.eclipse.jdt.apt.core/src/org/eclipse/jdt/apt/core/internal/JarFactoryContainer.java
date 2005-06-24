@@ -9,7 +9,6 @@
  *    mkaufman@bea.com - initial API and implementation
  *******************************************************************************/
 
-
 package org.eclipse.jdt.apt.core.internal;
 
 import java.io.BufferedReader;
@@ -26,6 +25,8 @@ import java.util.jar.JarFile;
 
 public class JarFactoryContainer extends FactoryContainer
 {
+	private File _jarFile;
+
 	public JarFactoryContainer( File jarFile )
 	{
 		_jarFile = jarFile.getAbsoluteFile();
@@ -39,7 +40,7 @@ public class JarFactoryContainer extends FactoryContainer
 		return _jarFile.getPath();
 	}
 	
-	    /**
+	/**
      * Given a jar file, get the names of any AnnotationProcessorFactory
      * implementations it offers.  The information is based on the Sun
      * <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider">
@@ -91,19 +92,15 @@ public class JarFactoryContainer extends FactoryContainer
         return classNames;
     }
 	
-	
-	
-	
-	public boolean isPlugin() { return false; }
-	public URL getJarFileURL() throws MalformedURLException { return _jarFile.toURL(); }
+	public URL getJarFileURL() throws MalformedURLException { 
+		return _jarFile.toURL(); 
+	}
 		
     /** List of jar file entries that specify autoloadable service providers */
     private static final String[] AUTOLOAD_SERVICES = {
         "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory"
     };
 	
-	private File _jarFile;
-
 	@Override
 	public FactoryType getType() {
 		return FactoryType.JAR;

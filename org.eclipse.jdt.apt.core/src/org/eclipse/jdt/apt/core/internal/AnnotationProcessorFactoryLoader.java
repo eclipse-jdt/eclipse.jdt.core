@@ -197,7 +197,7 @@ public class AnnotationProcessorFactoryLoader {
 		ClassLoader cl = null;
 		if ( urlList.size() > 0 )
 		{
-			URL[] urls = (URL[])urlList.toArray();
+			URL[] urls = urlList.toArray(new URL[urlList.size()]);
 			cl = new URLClassLoader( urls );
 		}
 		return cl;

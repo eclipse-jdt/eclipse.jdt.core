@@ -32,7 +32,7 @@ public class FactoryPathPreferencePage extends BasePreferencePage {
 	public FactoryPathPreferencePage() {
 		setPreferenceStore(AptUIPlugin.getDefault().getPreferenceStore());
 		//TODO: real names
-		setDescription("FactoryPathPreferencePageDescription"); 
+		setDescription("Java annotation processor factory path:"); 
 		
 		// only used when page is shown programatically
 		setTitle("FactoryPathPreferencePageTitle");		 
