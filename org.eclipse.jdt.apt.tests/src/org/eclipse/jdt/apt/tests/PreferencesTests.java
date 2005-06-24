@@ -125,6 +125,7 @@ public class PreferencesTests extends Tests {
 		
 		// processorOptions
 		AptConfig.addProcessorOption(jproj, "foo", "bar");
+		AptConfig.addProcessorOption(jproj, "space", "\"text with spaces\"");
 		AptConfig.addProcessorOption(jproj, "quux", null);
 		AptConfig.addProcessorOption(jproj, "quux", null); // adding twice should have no effect
 		AptConfig.addProcessorOption(jproj, "", null); // should gracefully do nothing
@@ -134,6 +135,8 @@ public class PreferencesTests extends Tests {
 		assertEquals(val, "bar");
 		val = options.get("quux");
 		assertNull(val);
+		val = options.get("space");
+		assertEquals(val, "\"text with spaces\"");
 		AptConfig.removeProcessorOption(jproj, "foo");
 		options = AptConfig.getProcessorOptions(jproj);
 		assertFalse(options.containsKey("foo"));

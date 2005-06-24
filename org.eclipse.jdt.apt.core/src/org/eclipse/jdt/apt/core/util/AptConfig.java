@@ -175,6 +175,9 @@ public class AptConfig {
      * @return the old value, or null if the option was not previously set.
      */
     public static synchronized String addProcessorOption(IJavaProject jproj, String key, String val) {
+    	if (key == null || key.length() < 1) {
+    		return null;
+    	}
     	Map<String, String> options = getProcessorOptions(jproj);
     	String old = options.get(key);
     	options.put(key, val);
@@ -212,33 +215,142 @@ public class AptConfig {
      * @param jproj a project, or null to query the workspace-wide setting.
      * @return a mutable, possibly empty, map of (key, value) pairs.  
      * The value part of a pair may be null (equivalent to "-Akey").
+     * The value part can contain spaces, if it is quoted: -Afoo="bar baz".
      */
     public static Map<String, String> getProcessorOptions(IJavaProject jproj) {
-    	Map<String, String> options = new HashMap<String, String>();
     	String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
     	if (null == allOptions) {
-    		return options;
+    		return new HashMap<String, String>();
     	}
-    	String[] parsedOptions = allOptions.split(" ");
-    	for (String keyAndVal : parsedOptions) {
-    		if (!keyAndVal.startsWith("-A")) {
-    			continue;
-    		}
-    		String[] parsedKeyAndVal = keyAndVal.split("=", 2);
-    		if (parsedKeyAndVal.length > 0) {
-    			String key = parsedKeyAndVal[0].substring(2);
-    			if (key.length() < 1) {
-    				continue;
-    			}
-    			if (parsedKeyAndVal.length == 1) {
-    				options.put(key, null);
+    	else {
+    		OptionsParser op = new OptionsParser(allOptions);
+    		return op.parse();
+    	}
+    }
+    
+    /**
+     * Used to parse an apt-style command line string into a map of key/value
+     * pairs.
+     * Parsing ignores errors and simply tries to gobble up as many well-formed
+     * pairs as it can find.
+     */
+    private static class OptionsParser {
+    	final String _s;
+    	int _start; // everything before this is already parsed.
+    	boolean _hasVal; // does the last key found have a value token?
+    	
+    	OptionsParser(String s) {
+    		_s = s;
+    		_start = 0;
+    		_hasVal = false;
+    	}
+    	
+     	public Map<String, String> parse() {
+        	Map<String, String> options = new LinkedHashMap<String, String>();
+        	String key;
+        	while (null != (key = parseKey())) {
+        		String val;
+       			options.put(key, parseVal());
+        	}
+         	return options;
+    	}
+    	
+    	/**
+    	 * Skip until a well-formed key (-Akey[=val]) is found, and
+    	 * return the key.  Set _start to the beginning of the value,
+    	 * or to the first character after the end of the key and
+    	 * delimiter, for a valueless key.  Set _hasVal according to
+    	 * whether a value was found.
+    	 * @return a key, or null if no well-formed keys can be found.
+    	 */
+    	private String parseKey() {
+    		String key;
+    		int spaceAt = -1;
+    		int equalsAt = -1;
+    		
+    		_hasVal = false;
+    		
+    		do {
+	        	_start = _s.indexOf("-A", _start);
+	        	if (_start < 0) {
+	        		return null;
+	        	}
+	    		
+	    		// we found a -A.  The key is everything up to the next '=' or ' ' or EOL.
+	    		_start += 2;
+	    		if (_start >= _s.length()) {
+	    			// it was just a -A, nothing following.
+	    			return null;
+	    		}
+	    		
+	    		spaceAt = _s.indexOf(' ', _start);
+	    		equalsAt = _s.indexOf('=', _start);
+	    		if (spaceAt == _start || equalsAt == _start) {
+	    			// false alarm.  Keep trying.
+	    			++_start;
+	    			continue;
+	    		}
+    		} while (false);
+    		
+    		// We found a legitimate -A with some text after it.
+    		// Where does the key end?
+    		if (equalsAt > 0) {
+    			if (spaceAt < 0 || equalsAt < spaceAt) {
+    				// there is an equals, so there is a value.
+    				key = new String(_s.substring(_start, equalsAt));
+    				_start = equalsAt + 1;
+    				_hasVal = (_start < _s.length());
     			}
     			else {
-    				options.put(key, parsedKeyAndVal[1]);
+    				// the next thing is a space, so this is a valueless key
+    				key = new String(_s.substring(_start, spaceAt));
+    				_start = spaceAt + 1;
     			}
     		}
+    		else {
+	    		if (spaceAt < 0) {
+					// no equals sign and no spaces: a valueless key, up to the end of the string. 
+					key = new String(_s.substring(_start));
+					_start = _s.length();
+	    		}
+	    		else {
+    				// the next thing is a space, so this is a valueless key
+    				key = new String(_s.substring(_start, spaceAt));
+    				_start = spaceAt + 1;
+	    		}
+    		}
+        	return key;
     	}
-    	return options;
+    	
+    	/**
+    	 * A value token is delimited by a space; but spaces inside quoted
+    	 * regions are ignored.  A value may include multiple quoted regions.
+    	 * An unmatched quote is treated as if there was a matching quote at
+    	 * the end of the string.  Quotes are returned as part of the value.
+    	 * @return the value, up to the next nonquoted space or end of string.
+    	 */
+    	private String parseVal() {
+    		if (!_hasVal || _start < 0 || _start >= _s.length()) {
+    			return null;
+    		}
+    		boolean inQuotedRegion = false;
+    		int start = _start;
+    		int end = _start;
+    		while (end < _s.length()) {
+    			char c = _s.charAt(end);
+    			if (c == '"') {
+    				inQuotedRegion = !inQuotedRegion;
+    			}
+    			else if (!inQuotedRegion && c == ' ') {
+    				// end of token.
+    				_start = end + 1;
+    				break;
+    			}
+    			++end;
+    		}
+ 
+    		return new String(_s.substring(start, end));
+    	}
     }
 
 
