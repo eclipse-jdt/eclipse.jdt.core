@@ -14,11 +14,7 @@ package org.eclipse.jdt.apt.core.internal.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -26,11 +22,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
@@ -54,7 +47,6 @@ public final class FactoryPathUtil {
 	private static final String ENABLED = "enabled";
 	
 	private static final String FACTORYPATH_FILE = ".factorypath";
-	private static final String WORKSPACE_SETTINGS_FILE = ".metadata";
 	
 	// four spaces for indent
 	private static final String INDENT = "    ";
@@ -64,7 +56,7 @@ public final class FactoryPathUtil {
 	
 	/**
 	 * Loads a map of factory containers from the factory path for a given
-	 * project. If no factorypath file was created, returns null.
+	 * project. If no factorypath file was found, returns null.
 	 */
 	public static Map<FactoryContainer, Boolean> readFactoryPathFile(IJavaProject jproj) 
 		throws IOException, CoreException
@@ -72,16 +64,14 @@ public final class FactoryPathUtil {
 		String data;
 		// If project is null, use workspace-level data
 		if (jproj == null) {
-			File file = new File(getFileForWorkspace(), WORKSPACE_SETTINGS_FILE);
-			file = new File(file, FACTORYPATH_FILE);
+			File file = getFileForWorkspace();
 			if (!file.exists()) {
 				return null;
 			}
 			data = FileSystemUtil.getContentsOfFile(file);
 		}
 		else {
-			IProject proj = jproj.getProject();
-			IFile ifile = proj.getFile(FACTORYPATH_FILE);
+			IFile ifile = getIFileForProject(jproj);
 			if (!ifile.exists()) {
 				return null;
 			}
@@ -99,21 +89,34 @@ public final class FactoryPathUtil {
 	public static void saveFactoryPathFile(IJavaProject jproj, Map<FactoryContainer, Boolean> containerMap) 
 		throws CoreException, IOException 
 	{
-		String data = FactoryPathUtil.encodeFactoryPath(containerMap);
-		// If project is null, use workspace-level data
-		if (jproj == null) {
-			File file = new File(getFileForWorkspace(), WORKSPACE_SETTINGS_FILE);
-			FileSystemUtil.writeStringToFile(file, data);
+		IFile projFile;
+		File wkspFile;
+		if (jproj != null) {
+			projFile = getIFileForProject(jproj);
+			wkspFile = null;
 		}
 		else {
-			IProject proj = jproj.getProject();
-			IFile file = proj.getFile(FACTORYPATH_FILE);
-			if (containerMap == null) {
-				file.delete(true, null);
-				return;
+			wkspFile = getFileForWorkspace();
+			projFile = null;
+		}
+		
+		if (containerMap != null) {
+			String data = FactoryPathUtil.encodeFactoryPath(containerMap);
+			// If project is null, set workspace-level data
+			if (jproj == null) {
+				FileSystemUtil.writeStringToFile(wkspFile, data);
 			}
-			
-			FileSystemUtil.writeStringToIFile(file, data);
+			else {
+				FileSystemUtil.writeStringToIFile(projFile, data);
+			}
+		}
+		else { // restore defaults by deleting the factorypath file.
+			if (jproj != null) {
+				projFile.delete(true, null);
+			}
+			else {
+				wkspFile.delete();
+			}
 		}
 	}
 	
@@ -199,44 +202,86 @@ public final class FactoryPathUtil {
 	}
 	
 	/**
-	 * Returns all the plugin factory containers that have been registered
-	 * as plugins. Note that this does not take into account any factory
-	 * plugins that have been disabled by the user's configuration
+	 * Returns an ordered list of all the plugin factory containers that have 
+	 * been registered as plugins.  Note that this does not take into account 
+	 * any factory plugins that have been disabled by the user's configuration.
+	 * Ordering is alphabetic by plugin id.
 	 */
 	public static List<PluginFactoryContainer> getAllPluginFactoryContainers()
 	{
-		List<PluginFactoryContainer> factories = new ArrayList<PluginFactoryContainer>();
+		// We want the list of plugins to be uniqued and alphabetically sorted.
+		Map<String, PluginFactoryContainer> containers = 
+			new TreeMap<String, PluginFactoryContainer>();
 	
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
 				"org.eclipse.jdt.apt.core",  //$NON-NLS-1$ - name of plugin that exposes this extension
 				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
 
 		IExtension[] extensions =  extension.getExtensions();
+		// Iterate over all declared extensions of this extension point.  
+		// A single plugin may extend the extension point more than once.
 		for(int i = 0; i < extensions.length; i++) 
 		{
-			PluginFactoryContainer container = null;
 			IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
+			// Iterate over all the factories in a single extension declaration.
+			// An extension may define more than one factory.
 			for(int j = 0; j < configElements.length; j++)
 			{
 				String elementName = configElements[j].getName();
 				if ( "factory".equals( elementName ) ) //$NON-NLS-1$ - name of configElement 
 				{ 
+					String pluginId = extensions[i].getNamespace();
+					PluginFactoryContainer container = containers.get(pluginId);
 					if ( container == null )
 					{
-						container = new PluginFactoryContainer(extensions[i].getNamespace());
-						factories.add( container );
+						// getNamespace() returns the plugin id
+						container = new PluginFactoryContainer(pluginId);
+						containers.put( pluginId, container );
 					}
 					container.addFactoryName( configElements[j].getAttribute("class") );
 				}
 			}
 		}
-		return factories;
+		List<PluginFactoryContainer> list = new ArrayList<PluginFactoryContainer>(containers.values());
+		
+		return list;
 	}
 	
+	/**
+	 * Get a file designator for the workspace-level factory path settings file.
+	 * Typically this is [workspace]/.metadata/plugins/org.eclipse.jdt.apt.core/.factorypath
+	 * @return a java.io.File
+	 */
 	private static File getFileForWorkspace() {
-		URL workspaceUrl = Platform.getInstanceLocation().getURL();
-		File file = new File(workspaceUrl.getPath());
-		return file;
+		return AptPlugin.getPlugin().getStateLocation().append(FACTORYPATH_FILE).toFile();
+	}
+
+	/**
+	 * Get an Eclipse IFile for the project-level factory path settings file.
+	 * Typically this is [project]/.factorypath
+	 * @param jproj must not be null
+	 * @return an Eclipse IFile
+	 */
+	private static IFile getIFileForProject(IJavaProject jproj) {
+		IProject proj = jproj.getProject();
+		return proj.getFile(FACTORYPATH_FILE);
+	}
+
+	/**
+	 * Does a factory path file already exist for the specified project,
+	 * or for the workspace as a whole?
+	 * @param jproj if this is null, check for workspace-level settings.
+	 * @return true if a settings file exists.
+	 */
+	public static boolean doesFactoryPathFileExist(IJavaProject jproj) {
+		if (jproj == null) {
+			File wkspFile = getFileForWorkspace();
+			return wkspFile.exists();
+		}
+		else {
+			IFile projFile = getIFileForProject(jproj);
+			return projFile.exists();
+		}
 	}
 	
 }

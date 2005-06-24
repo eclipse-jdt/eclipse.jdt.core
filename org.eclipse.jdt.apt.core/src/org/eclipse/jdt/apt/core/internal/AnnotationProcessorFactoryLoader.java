@@ -101,7 +101,7 @@ public class AnnotationProcessorFactoryLoader {
     		}
 		}
 		// Load the project
-		List<FactoryContainer> containers = AptConfig.getContainers(jproj);
+		List<FactoryContainer> containers = AptConfig.getEnabledContainers(jproj);
 		factories = loadFactories(containers);
 		_projectsLoaded.add(jproj);
 		_project2Factories.put(jproj, factories);

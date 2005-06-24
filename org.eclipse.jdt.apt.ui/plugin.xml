@@ -7,6 +7,11 @@
             class="org.eclipse.jdt.apt.ui.internal.preferences.AptPreferencePage"
             id="org.eclipse.jdt.apt.ui.preferences.aptPreferences"
             name="Java Annotation Processing"/>
+      <page
+            category="org.eclipse.jdt.apt.ui.preferences.aptPreferences"
+            class="org.eclipse.jdt.apt.ui.internal.preferences.FactoryPathPreferencePage"
+            id="org.eclipse.jdt.apt.ui.preferences.factoryPathPreferences"
+            name="Processor Factory Path"/>
    </extension>
    <extension
          point="org.eclipse.ui.propertyPages">
@@ -29,6 +34,26 @@
                name="nature"
                value="org.eclipse.jdt.core.javanature">
          </filter>
+      </page>
+      <page
+            category="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
+            class="org.eclipse.jdt.apt.ui.internal.preferences.FactoryPathPreferencePage"
+            id="org.eclipse.jdt.apt.ui.propertyPages.factoryPathPreferences"
+            name="Processor Factory Path"
+            objectClass="org.eclipse.core.resources.IProject">
+         <filter
+               name="nature"
+               value="org.eclipse.jdt.core.javanature"/>
+      </page>
+      <page
+            category="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
+            class="org.eclipse.jdt.apt.ui.internal.preferences.FactoryPathPreferencePage"
+            id="org.eclipse.jdt.apt.ui.propertyPages.factoryPathPreferences"
+            name="Processor Factory Path"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
+         <filter
+               name="nature"
+               value="org.eclipse.jdt.core.javanature"/>
       </page>            
    </extension>
 

@@ -41,5 +41,19 @@ public abstract class FactoryContainer
 		return _factoryNames;
 	}
 	
+	@Override
+	public int hashCode() {
+		return getType().hashCode() ^ getId().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof FactoryContainer)) {
+			return false;
+		}
+
+		FactoryContainer other = (FactoryContainer) o;
+		return other.getType() == getType() && other.getId().equals(getId());
+	}
 }
 

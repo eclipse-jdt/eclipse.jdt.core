@@ -38,6 +38,8 @@ public abstract class BaseConfigurationBlock extends OptionsConfigurationBlock {
 		return getKey("org.eclipse.jdt.apt.core", name);
 	}
 	
+	protected abstract String[] getFullBuildDialogStrings(boolean workspaceSettings);
+
 	/*
 	 * Parent class hides this method; re-expose it here. 
 	 */
@@ -48,4 +50,10 @@ public abstract class BaseConfigurationBlock extends OptionsConfigurationBlock {
 	}
 	
 	protected abstract void updateModel(DialogField field);
+
+	/* (non-javadoc)
+	 * Update fields and validate.
+	 * @param changedKey Key that changed, or null, if all changed.
+	 */	
+	protected abstract void validateSettings(Key changedKey, String oldValue, String newValue);
 }

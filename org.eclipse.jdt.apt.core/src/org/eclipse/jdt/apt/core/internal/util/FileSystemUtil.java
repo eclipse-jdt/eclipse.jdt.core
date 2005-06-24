@@ -77,17 +77,22 @@ public final class FileSystemUtil
     }
     
     /**
-     * Stores a string into a file in UTF8 format
+     * Stores a string into an Eclipse file in UTF8 format.  The file
+     * will be created if it does not already exist.
+     * @throws IOException, CoreException
      */
     public static void writeStringToIFile(IFile file, String contents) throws IOException, CoreException {
     	byte[] data = contents.getBytes("UTF8");
     	ByteArrayInputStream input = new ByteArrayInputStream(data);
-    	if (file.exists()) {
-    		file.setContents(input, IResource.FORCE, null);
-    	}
+    	// create with FORCE will overwrite if the file already exists
     	file.create(input, IResource.FORCE, null);
     }
     
+    /**
+     * Stores a string into an ordinary workspace file in UTF8 format.
+     * The file will be created if it does not already exist.
+     * @throws IOException
+     */
     public static void writeStringToFile(File file, String contents) throws IOException {
     	byte[] data = contents.getBytes("UTF8");
     	OutputStream out = new BufferedOutputStream(new FileOutputStream(file));

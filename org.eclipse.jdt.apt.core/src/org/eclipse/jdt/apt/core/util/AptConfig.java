@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.IJavaProject;
  * TODO: synchronization of maps
  * TODO: NLS
  * TODO: rest of settings
+ * TODO: optimize performance on projects that do not have project-specific settings.
  */
 public class AptConfig {
 	/**
@@ -58,7 +59,8 @@ public class AptConfig {
 	}
 	
 	/**
-	 * Used to set initial size of some maps.
+	 * A guess at how many projects in the workspace will have 
+	 * per-project settings for apt.  Used to set initial size of some maps.
 	 */
 	private static final int INITIAL_PROJECTS_GUESS = 5;
 	
@@ -71,8 +73,10 @@ public class AptConfig {
 	private static final String FACTORYPATH_FILE = ".factorypath";
 	
 	/**
-	 * Returns all containers for the provided project, including disabled ones
+	 * Returns all containers for the provided project, including disabled ones.
 	 * @param jproj The java project in question, or null for the workspace
+	 * @return an ordered map, where the key is the container and the value 
+	 * indicates whether the container is enabled.
 	 */
 	public static synchronized Map<FactoryContainer, Boolean> getAllContainers(IJavaProject jproj) {
 		Map<FactoryContainer, Boolean> containers = null;
@@ -103,15 +107,25 @@ public class AptConfig {
 		if (containers == null) {
 			containers = new LinkedHashMap<FactoryContainer, Boolean>();
 		}
-		handlePluginContainers(containers);
+		boolean disableNewPlugins = jproj != null;
+		updatePluginContainers(containers, disableNewPlugins);
 		return new LinkedHashMap(containers);
 	}
 	
 	/**
 	 * Removes missing plugin containers, and adds any plugin containers 
-	 * that were added since the map was originally created.
+	 * that were added since the map was originally created.  The order
+	 * of the original list will be maintained, and new entries will be
+	 * added to the end of the list.
+	 * @param containers the ordered map of containers to be modified.
+	 * The keys in the map are factory containers; the values indicate
+	 * whether the container is enabled.
+	 * @param disableNewPlugins if true, newly discovered plugins will be
+	 * disabled.  If false, they will be enabled or disabled according to
+	 * their setting in the extension declaration.
 	 */
-	private static void handlePluginContainers(Map<FactoryContainer, Boolean> containers) {
+	private static void updatePluginContainers(
+			Map<FactoryContainer, Boolean> containers, boolean disableNewPlugins) {
 		List<PluginFactoryContainer> pluginContainers = FactoryPathUtil.getAllPluginFactoryContainers();
 		
 		// Remove any plugin factories whose plugins we did not find
@@ -125,6 +139,7 @@ public class AptConfig {
 		// Add any plugins which are new since the config was last saved
 		for (PluginFactoryContainer pluginContainer : pluginContainers) {
 			if (!containers.containsKey(pluginContainer)) {
+				//TODO: process "disableNewPlugins"
 				containers.put(pluginContainer, true);
 			}
 		}
@@ -136,9 +151,10 @@ public class AptConfig {
 	 * will not be returned.
 	 * 
 	 * @param jproj The java project in question. 
-	 * @param getDisabled if set, 
+	 * @return an ordered list of all enabled factory containers.
 	 */
-	public static synchronized List<FactoryContainer> getContainers(IJavaProject jproj) {
+	public static synchronized List<FactoryContainer> getEnabledContainers(IJavaProject jproj) {
+		// this map is ordered.
 		Map<FactoryContainer, Boolean> containers = getAllContainers(jproj);
 		List<FactoryContainer> result = new ArrayList<FactoryContainer>(containers.size());
 		for (Map.Entry<FactoryContainer, Boolean> entry : containers.entrySet()) {
@@ -158,7 +174,7 @@ public class AptConfig {
      * remove the key; for that functionality, @see #removeProcessorOption(IJavaProject, String).
      * @return the old value, or null if the option was not previously set.
      */
-    public static String addProcessorOption(IJavaProject jproj, String key, String val) {
+    public static synchronized String addProcessorOption(IJavaProject jproj, String key, String val) {
     	Map<String, String> options = getProcessorOptions(jproj);
     	String old = options.get(key);
     	options.put(key, val);
@@ -174,7 +190,7 @@ public class AptConfig {
      * that is, it should not start with "-A".
      * @return the old value, or null if the option was not previously set.
      */
-    public static String removeProcessorOption(IJavaProject jproj, String key) {
+    public static synchronized String removeProcessorOption(IJavaProject jproj, String key) {
     	Map<String, String> options = getProcessorOptions(jproj);
     	String old = options.get(key);
     	options.remove(key);
@@ -382,10 +398,6 @@ public class AptConfig {
 	}
 	
 	private static synchronized void setString(IJavaProject jproject, String optionName, String value) {
-		// TODO: should we try to determine whether a project has no per-project settings,
-		// and if so, set the workspace settings?  Or, do we want the caller to tell us
-		// explicitly by setting jproject == null in that case?
-		
 		// TODO: when there are listeners, the following two lines will be superfluous:
 		Map options = getOptions(jproject);
 		options.put(optionName, value);
@@ -402,16 +414,32 @@ public class AptConfig {
 	}
 
     /**
-	 * Set the factory containers for a given project or the workspace.
+	 * Set or reset the factory containers for a given project or the workspace.
 	 * @param jproj the java project, or null for the workspace
+	 * @param containers an ordered map whose key is a factory container and
+	 * whose value indicates whether the container's factories are enabled;
+	 * or null, to restore defaults.
 	 */
-	public synchronized void setContainers(IJavaProject jproj, Map<FactoryContainer, Boolean> containers) 
+	public static synchronized void setContainers(IJavaProject jproj, Map<FactoryContainer, Boolean> containers) 
 	throws IOException, CoreException 
 	{
 		FactoryPathUtil.saveFactoryPathFile(jproj, containers);
+		//TODO: we probably want to use the PropertyChangeListener mechanism for this.
 		AnnotationProcessorFactoryLoader.getLoader().reset();
 	}
- 
 
+	/**
+	 * Has an explicit factory path been set for the specified project, or
+	 * is it just defaulting to the workspace settings? 
+	 * @param project
+	 * @return true if there is a project-specific factory path.
+	 */
+	public static boolean hasProjectSpecificFactoryPath(IJavaProject jproj) {
+		if (null == jproj) {
+			// say no, even if workspace-level factory path does exist. 
+			return false;
+		}
+		return FactoryPathUtil.doesFactoryPathFileExist(jproj);
+	}
 	
 }

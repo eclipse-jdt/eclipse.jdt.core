@@ -33,6 +33,10 @@ public class PluginFactoryContainer extends FactoryContainer
 	public String getId() {
 		return id;
 	}
+	
+	public String toString() {
+		return getId();
+	}
 
 	@Override
 	public FactoryType getType() {
