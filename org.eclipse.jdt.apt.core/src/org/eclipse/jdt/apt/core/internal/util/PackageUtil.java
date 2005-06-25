@@ -24,6 +24,7 @@ import com.sun.mirror.declaration.ClassDeclaration;
 import com.sun.mirror.declaration.EnumDeclaration;
 import com.sun.mirror.declaration.InterfaceDeclaration;
 import com.sun.mirror.declaration.PackageDeclaration;
+import com.sun.mirror.declaration.TypeDeclaration;
 
 /**
  * Utility class for dealing with packages, using
@@ -62,8 +63,12 @@ public class PackageUtil {
 		List<ClassDeclaration> classes = new ArrayList<ClassDeclaration>();
 		for (IType type : types) {
 			try {
-				if (type.isClass()) {
-					classes.add((ClassDeclaration)env.getTypeDeclaration(type));
+				// isClass() will return true if TypeDeclaration is an InterfaceDeclaration
+				if (type.isClass() ) {
+					TypeDeclaration td = env.getTypeDeclaration( type );
+					if ( td instanceof ClassDeclaration ) {				
+						classes.add((ClassDeclaration)td);
+					}
 				}
 			}
 			catch (JavaModelException ex) {} // No longer exists, don't return it
@@ -132,8 +137,10 @@ public class PackageUtil {
 		
 		SearchRequestor requestor = new SearchRequestor() {
 			public void acceptSearchMatch(SearchMatch match) {
-				IType type = (IType)match.getElement();
-				types.add(type);
+				if ( match.getElement() instanceof IType ) {
+					IType type = (IType)match.getElement();
+					types.add(type);
+				}
 			}
 		};
 		

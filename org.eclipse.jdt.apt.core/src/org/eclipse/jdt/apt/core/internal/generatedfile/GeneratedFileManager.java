@@ -502,12 +502,43 @@ public class GeneratedFileManager {
 	 *  
 	 *   @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
 	 */
-	private IFolder getGeneratedSourceFolder()
+	public synchronized IFolder getGeneratedSourceFolder()
 	{
 		if ( _generatedSourceFolder == null)
 			return _project.getFolder( GENERATED_SOURCE_FOLDER_NAME );
 		else
 			return _generatedSourceFolder;
+	}
+	
+	
+	// TODO - change this to return an IFolder
+	public synchronized java.io.File getGeneratedOutputFile( IJavaProject jp )
+		 throws JavaModelException, CoreException
+	{
+		IPath outputRoot = null;
+		IFolder f = getGeneratedSourceFolder();
+		if ( f != null && f.exists() )
+		{
+			IClasspathEntry cpe = findProjectSourcePath( jp, f, null );
+			if ( cpe != null )
+				outputRoot = cpe.getOutputLocation();
+		}
+		
+		if ( outputRoot == null )
+			outputRoot = jp.getOutputLocation();
+
+		// output location is relative to the workspace, we want to make it relative to project
+		int segments = outputRoot.matchingFirstSegments( jp.getPath() );
+		outputRoot = outputRoot.removeFirstSegments( segments );
+		
+		// TODO - use getRawLocation() or getLocation()?  sometimes getRawLocation() returns null.  Investigate
+		IPath projectRoot = jp.getProject().getRawLocation();
+		if ( projectRoot == null )
+			projectRoot = jp.getProject().getLocation();
+		
+		java.io.File file = projectRoot.toFile();
+		file = new java.io.File( file, outputRoot.toFile().getPath() );
+		return file;	
 	}
 	
 	//
@@ -802,6 +833,23 @@ public class GeneratedFileManager {
 		_generatedFile2ParentFiles.clear();
 	}
 	
+	private IClasspathEntry findProjectSourcePath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
+		throws JavaModelException
+	{
+		IClasspathEntry[] cp = jp.getRawClasspath();
+		IClasspathEntry searchingFor = 
+			JavaCore.newSourceEntry(folder.getFullPath());
+		IPath searchingForPath = searchingFor.getPath();
+		boolean found = false;
+		for (int i = 0; i < cp.length; i++) 
+		{
+			if (cp[i].getPath().equals( searchingForPath )) 
+			{
+				return cp[i];
+			}
+		}
+		return null;
+	}
 	
 	private void updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
 		throws JavaModelException
@@ -812,7 +860,7 @@ public class GeneratedFileManager {
 		boolean found = false;
 		for (int i = 0; i < cp.length; i++) 
 		{
-			if (cp[i].equals(generatedSourceClasspathEntry)) 
+			if (cp[i].getPath().equals(generatedSourceClasspathEntry.getPath())) 
 			{
 				found = true;
 				break;
@@ -839,7 +887,7 @@ public class GeneratedFileManager {
 		int j = 0;
 		for ( int i=0; i<cp.length; i++ )
 		{
-			if (! cp[i].equals(folderClasspathEntry) )
+			if (! cp[i].getPath().equals(folderClasspathEntry.getPath()) )
 			{
 				cp[j] = cp[i];
 				j++;

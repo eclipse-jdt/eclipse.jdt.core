@@ -17,8 +17,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
-
 
 import com.sun.mirror.apt.Filer;
 
@@ -86,9 +86,26 @@ public class FilerImpl implements Filer {
     public PrintWriter createTextFile(Filer.Location loc, String pkg, File relPath, String charsetName) 
         throws IOException 
     {
-		// TODO: figure out what to do with the loc 
-		// Filer.Location.CLASS_TREE vs Filer.Location.SOURCE_TREE       
-		File f = new File(".");
+    	// TODO - clean this up
+    	File f = null;
+    	GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _env.getProject() );
+    	if ( loc == Filer.Location.CLASS_TREE )
+    	{
+    		try 
+    		{
+    			f = gfm.getGeneratedOutputFile( _env.getJavaProject() );
+    		}
+    		catch ( Exception e )
+    		{
+    			// TODO - stop throwing this exception
+    			e.printStackTrace();
+    			throw new IOException();
+    		}
+    	}
+    	else if ( loc == Filer.Location.SOURCE_TREE )
+    		f = gfm.getGeneratedSourceFolder().getRawLocation().toFile();
+    			
+
 
         if( pkg != null )
             f = new File( f, pkg.replace('.', File.separatorChar) );
