@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -19,6 +20,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.util.CompilationUnitSorter;
 
 /**
@@ -38,11 +42,22 @@ public void setUpSuite() throws Exception {
 	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	this.createFolder("/P/src/p"); //$NON-NLS-1$
 }
+
 private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreException {
-	this.sortUnit(unit, expectedResult, true);
+	this.sortUnit(AST.JLS2, unit, expectedResult, true);
+}
+
+private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult) throws CoreException {
+	this.sortUnit(apiLevel, unit, expectedResult, true);
 }
 
 private void sortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
+	this.sortUnit(AST.JLS2, unit, expectedResult, testPositions);
+}
+private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
+	this.sortUnit(apiLevel, unit, expectedResult, testPositions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9));
+}
+private void oldAPISortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions, Comparator comparator) throws CoreException {
 	String initialSource = unit.getSource();
 	int[] positions = null;
 	int[] initialPositions = null;
@@ -62,7 +77,7 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 		System.arraycopy(positions, 0, initialPositions, 0, length);
 	}
 	ICompilationUnit copy = unit.getWorkingCopy(null);
-	CompilationUnitSorter.sort(copy , positions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9), 0, new NullProgressMonitor());
+	CompilationUnitSorter.sort(copy , positions, comparator, 0, new NullProgressMonitor());
 	String sortedSource = copy.getBuffer().getContents();
 	assertEquals("Different output", expectedResult, sortedSource); //$NON-NLS-1$
 	final int expectedResultLength = expectedResult.length();
@@ -82,7 +97,47 @@ private void sortUnit(ICompilationUnit unit, String expectedResult, boolean test
 		}
 	}
 }
+private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult, boolean testPositions, Comparator comparator) throws CoreException {
 
+	String initialSource = unit.getSource();
+	int[] positions = null;
+	int[] initialPositions = null;
+	ArrayList arrayList = new ArrayList();
+	if (testPositions) {
+		for (int i = 0; i < initialSource.length(); i++) {
+			if (!Character.isWhitespace(initialSource.charAt(i))) {
+				arrayList.add(new Integer(i));
+			}
+		}
+		final int length = arrayList.size();
+		positions = new int[length];
+		for (int i = 0; i < length; i++) {
+			positions[i] = ((Integer) arrayList.get(i)).intValue();
+		}
+		initialPositions = new int[length];
+		System.arraycopy(positions, 0, initialPositions, 0, length);
+	}
+	ICompilationUnit copy = unit.getWorkingCopy(null);
+	CompilationUnitSorter.sort(apiLevel, copy , positions, comparator, 0, new NullProgressMonitor());
+	String sortedSource = copy.getBuffer().getContents();
+	assertEquals("Different output", expectedResult, sortedSource); //$NON-NLS-1$
+	final int expectedResultLength = expectedResult.length();
+	if (testPositions) {
+		for (int i = 0, max = positions.length; i < max; i++) {
+			char mappedChar = ' ';
+			char initial = initialSource.charAt(initialPositions[i]);
+			try {
+				mappedChar = expectedResult.charAt(positions[i]);
+				if (mappedChar != initial) {
+					System.out.println("wrong mapped positions: " + initialPositions[i] + " <-> " + positions[i] + ": expected " + initial + " but was " + mappedChar); //$NON-NLS-1$ //$NON-NLS-2$
+					assertEquals("wrong mapped positions: " + initialPositions[i] + " <-> " + positions[i], initial, mappedChar); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			} catch(StringIndexOutOfBoundsException e) {
+				System.out.println("Out of bounds : (length = " + expectedResultLength + ") " + positions[i]);
+			}
+		}
+	}
+}
 void debug(ICompilationUnit unit, String id) throws JavaModelException {
 	String source = unit.getBuffer().getContents();
 	if (DEBUG) {
@@ -671,7 +726,7 @@ public void test009() throws CoreException {
 			"	}\n" + //$NON-NLS-1$
 			"}\n"; //$NON-NLS-1$
 		ICompilationUnit unit = this.getCompilationUnit("/P/src/p/X.java"); //$NON-NLS-1$
-		sortUnit(unit, expectedResult, false);		
+		sortUnit(unit, expectedResult, false);
 	} finally {
 		this.deleteFile("/P/src/p/X.java"); //$NON-NLS-1$
 	}
@@ -1165,7 +1220,7 @@ public void test019() throws CoreException {
 			"public enum X {\n" + 
 			"	A, B, C, Z;\n" + 
 			"}";
-		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		this.deleteFile("/P/src/X.java");
 	}
@@ -1195,7 +1250,7 @@ public void test020() throws CoreException {
 			"		\n" +
 			"	}\n" +
 			"}";
-		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		this.deleteFile("/P/src/X.java");
 	}
@@ -1241,7 +1296,7 @@ public void test021() throws CoreException {
 			"	\n" +
 			"	public void method2() { }\n" +
 			"}";
-		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		this.deleteFile("/P/src/X.java");
 	}
@@ -1613,7 +1668,7 @@ public void test023() throws CoreException {
 			"	int id() default 0;\n" +
 			"	String name();\n" +
 			"}";
-		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		this.deleteFile("/P/src/X.java");
 	}
@@ -1647,7 +1702,7 @@ public void test024() throws CoreException {
 			"		}\n" +
 			"	}\n" +
 			"}";
-		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		this.deleteFile("/P/src/X.java");
 	}
@@ -1699,7 +1754,7 @@ public void test025() throws CoreException {
 			"		return null;\n" +
 			"	}\n" +
 			"}";
-		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		this.deleteFile("/P/src/X.java");
 	}
@@ -1780,6 +1835,45 @@ public void test027() throws CoreException {
 			"	}\n" +
 			"}";
 		sortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101453
+public void test028() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public final class X\n" +
+			"{\n" +
+			"/** JavaDoc comment2 */\n" +
+			"int j;\n" +
+			"/** JavaDoc comment1 */\n" +
+			"int i;\n" +
+			"}"
+		);
+		String expectedResult = 
+			"public final class X\n" +
+			"{\n" +
+			"/** JavaDoc comment1 */\n" +
+			"int i;\n" +
+			"/** JavaDoc comment2 */\n" +
+			"int j;\n" +
+			"}";
+		oldAPISortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
+				BodyDeclaration bodyDeclaration2 = (BodyDeclaration) o2;
+				Javadoc javadoc1 = bodyDeclaration1.getJavadoc();
+				Javadoc javadoc2 = bodyDeclaration2.getJavadoc();
+				if (javadoc1 != null && javadoc2 != null) {
+					return javadoc1.getComment().compareTo(javadoc2.getComment());
+				}
+				final int sourceStart1 = ((Integer) bodyDeclaration1.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+				final int sourceStart2 = ((Integer) bodyDeclaration2.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+				return sourceStart1 - sourceStart2;
+			}
+		});
 	} finally {
 		this.deleteFile("/P/src/X.java");
 	}

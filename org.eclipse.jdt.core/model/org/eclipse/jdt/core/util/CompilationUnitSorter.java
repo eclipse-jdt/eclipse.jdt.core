@@ -16,6 +16,7 @@ import java.util.Comparator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.core.SortElementsOperation;
 
 /**
@@ -65,7 +66,8 @@ public final class CompilationUnitSorter {
 	public static final String RELATIVE_ORDER = "relativeOrder"; //$NON-NLS-1$
 
 	/**
-	 * Reorders the declarations in the given compilation unit. The caller is
+	 * Reorders the declarations in the given compilation unit according to
+     * JLS2 rules. The caller is
 	 * responsible for arranging in advance that the given compilation unit is
 	 * a working copy, and for saving the changes afterwards.
 	 * <p>
@@ -87,7 +89,7 @@ public final class CompilationUnitSorter {
 	 * </p>
 	 * <p>
 	 * The <code>compare</code> method of the given comparator is passed pairs
-	 * of AST body declarations (subclasses of <code>BodyDeclaration</code>) 
+	 * of JLS2 AST body declarations (subclasses of <code>BodyDeclaration</code>) 
 	 * representing body declarations at the same level. The comparator is
 	 * called on body declarations of nested classes, including anonymous and
 	 * local classes, but always at the same level. Clients need to provide
@@ -143,7 +145,8 @@ public final class CompilationUnitSorter {
 	 * corresponding source positions in the permuted source code string
 	 * (but not necessarily any longer in non-decreasing order).
 	 * @param comparator the comparator capable of ordering 
-	 *   <code>BodyDeclaration</code>s
+	 *   <code>BodyDeclaration</code>s; this comparator is passed AST nodes
+     *   from a JLS2 AST
 	 * @param options bitwise-or of option flags; <code>0</code> for default
 	 * behavior (reserved for future growth)
 	 * @param monitor the progress monitor to notify, or <code>null</code> if
@@ -160,17 +163,162 @@ public final class CompilationUnitSorter {
 	 * or if the given comparator is null.
 	 * @see org.eclipse.jdt.core.dom.BodyDeclaration
 	 * @see #RELATIVE_ORDER
+     * @deprecated Clients should port their code to use the new JLS3 AST API and call
+     *    {@link #sort(int, ICompilationUnit, int[], Comparator, int, IProgressMonitor)
+     *    CompilationUnitSorter.sort(AST.JLS3, compilationUnit, positions, comparator, options, monitor)}
+     *    instead of using this method.
 	 */
 	public static void sort(ICompilationUnit compilationUnit,
 	        int[] positions,
 	        Comparator comparator,
 	        int options,
 	        IProgressMonitor monitor) throws JavaModelException {
-		if (compilationUnit == null || comparator == null) {
-			throw new IllegalArgumentException();
-		}
-		ICompilationUnit[] compilationUnits = new ICompilationUnit[] { compilationUnit };
-		SortElementsOperation operation = new SortElementsOperation(compilationUnits, positions, comparator);
-		operation.runOperation(monitor);
+		sort(AST.JLS2, compilationUnit, positions, comparator, options, monitor);
 	}
+    
+    /**
+     * Reorders the declarations in the given compilation unit according to
+     * the specified AST level. The caller is responsible for arranging in
+     * advance that the given compilation unit is a working copy, and for
+     * saving the changes afterwards.
+     * <p>
+     * <b>Note:</b> Reordering the members within a type declaration might be
+     * more than a cosmetic change and could have potentially serious
+     * repercussions. Firstly, the order in which the fields of a type are
+     * initialized is significant in the Java language; reordering fields
+     * and initializers may result in compilation errors or change the execution
+     * behavior of the code. Secondly, reordering a class's members may affect
+     * how its instances are serialized. This operation should therefore be used
+     * with caution and due concern for potential negative side effects.
+     * </p>
+     * <p>
+     * The optional <code>positions</code> array contains a non-decreasing 
+     * ordered list of character-based source positions within the compilation
+     * unit's source code string. Upon return from this method, the positions in
+     * the array reflect the corresponding new locations in the modified source
+     * code string. Note that this operation modifies the given array in place.
+     * </p>
+     * <p>
+     * The <code>compare</code> method of the given comparator is passed pairs
+     * of body declarations (subclasses of <code>BodyDeclaration</code>) 
+     * representing body declarations at the same level. The nodes are from an
+     * AST of the specified level 
+     * ({@link org.eclipse.jdt.core.dom.ASTParser#newParser(int)}. Clients
+     * will generally specify AST.JLS3 since that will cover all constructs found
+     * in Java 1.0, 1.1, 1.2, 1.3, 1.4, and 1.5 source code.
+     * The comparator is called on body declarations of nested classes, including
+     * anonymous and local classes, but always at the same level. Clients need to provide
+     * a comparator implementation (there is no standard comparator). The
+     * <code>RELATIVE_ORDER</code> property attached to these AST nodes afforts
+     * the comparator a way to preserve the original relative order.
+     * </p>
+     * <p>
+     * The body declarations passed as parameters to the comparator
+     * always carry at least the following minimal signature information:
+     * <br>
+     * <table border="1" width="80%" cellpadding="5">
+     *    <tr>
+     *      <td width="20%"><code>TypeDeclaration</code></td>
+     *      <td width="50%"><code>modifiers, isInterface, name, superclass,
+     *        superInterfaces, typeParameters<br>
+     *        RELATIVE_ORDER property</code></td>
+     *    </tr>
+     *    <tr>
+     *      <td width="20%"><code>FieldDeclaration</code></td>
+     *      <td width="50%"><code>modifiers, type, fragments
+     *        (VariableDeclarationFragments
+     *        with name only)<br>
+     *        RELATIVE_ORDER property</code></td>
+     *    </tr>
+     *    <tr>
+     *      <td width="20%"><code>MethodDeclaration</code></td>
+     *      <td width="50%"><code>modifiers, isConstructor, returnType, name,
+     *        typeParameters, parameters
+     *        (SingleVariableDeclarations with name, type, and modifiers only),
+     *        thrownExceptions<br>
+     *        RELATIVE_ORDER property</code></td>
+     *    </tr>
+     *    <tr>
+     *      <td width="20%"><code>Initializer</code></td>
+     *      <td width="50%"><code>modifiers<br>
+     *        RELATIVE_ORDER property</code></td>
+     *    </tr>
+     *    <tr>
+     *      <td width="20%"><code>AnnotationTypeDeclaration</code></td>
+     *      <td width="50%"><code>modifiers, name<br>
+     *        RELATIVE_ORDER property</code></td>
+     *    </tr>
+     *    <tr>
+     *      <td width="20%"><code>AnnotationTypeMemberDeclaration</code></td>
+     *      <td width="50%"><code>modifiers, name, type, default<br>
+     *        RELATIVE_ORDER property</code></td>
+     *    </tr>
+     *    <tr>
+     *      <td width="20%"><code>EnumDeclaration</code></td>
+     *      <td width="50%"><code>modifiers, name, superInterfaces<br>
+     *        RELATIVE_ORDER property</code></td>
+     *    </tr>
+     *    <tr>
+     *      <td width="20%"><code>EnumConstantDeclaration</code></td>
+     *      <td width="50%"><code>modifiers, name, arguments<br>
+     *        RELATIVE_ORDER property</code></td>
+     *    </tr>
+     * </table>
+     * Clients should not rely on the AST nodes being properly parented or on
+     * having source range information. (Future releases may provide options
+     * for requesting additional information like source positions, full ASTs,
+     * non-recursive sorting, etc.)
+     * </p>
+     *
+     * @param level the AST level; one of the AST LEVEL constants
+     * @param compilationUnit the given compilation unit, which must be a 
+     * working copy
+     * @param positions an array of source positions to map, or 
+     * <code>null</code> if none. If supplied, the positions must 
+     * character-based source positions within the original source code for
+     * the given compilation unit, arranged in non-decreasing order.
+     * The array is updated in place when this method returns to reflect the
+     * corresponding source positions in the permuted source code string
+     * (but not necessarily any longer in non-decreasing order).
+     * @param comparator the comparator capable of ordering 
+     *   <code>BodyDeclaration</code>s; this comparator is passed AST nodes
+     *   from an AST of the specified AST level
+     * @param options bitwise-or of option flags; <code>0</code> for default
+     * behavior (reserved for future growth)
+     * @param monitor the progress monitor to notify, or <code>null</code> if
+     * none
+     * @exception JavaModelException if the compilation unit could not be
+     * sorted. Reasons include:
+     * <ul>
+     * <li> The given compilation unit does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+     * <li> The given compilation unit is not a working copy (INVALID_ELEMENT_TYPES)</li>
+     * <li> A <code>CoreException</code> occurred while accessing the underlying
+     * resource
+     * </ul>
+     * @exception IllegalArgumentException if the given compilation unit is null
+     * or if the given comparator is null, or if <code>level</code> is not one of
+     * the AST JLS level constants.
+     * @see org.eclipse.jdt.core.dom.BodyDeclaration
+     * @see #RELATIVE_ORDER
+     * @since 3.1
+     */
+    public static void sort(int level, ICompilationUnit compilationUnit,
+            int[] positions,
+            Comparator comparator,
+            int options,
+            IProgressMonitor monitor) throws JavaModelException {
+        if (compilationUnit == null || comparator == null) {
+            throw new IllegalArgumentException();
+        }
+        switch (level) {
+        case AST.JLS2 :
+        case AST.JLS3 :
+            break;
+        default :
+            throw new IllegalArgumentException();
+        }
+        ICompilationUnit[] compilationUnits = new ICompilationUnit[] { compilationUnit };
+        SortElementsOperation operation = new SortElementsOperation(level, compilationUnits, positions, comparator);
+        operation.runOperation(monitor);
+    }
 }
