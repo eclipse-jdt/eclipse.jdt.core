@@ -22010,5 +22010,131 @@ public void test763() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101794
+public void test772() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Foo<T> {\n" + 
+			"  public T getIt();\n" + 
+			"}\n" + 
+			"\n" + 
+			"class FooImpl implements Foo {\n" + 
+			"  public String getIt() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public void doIt() {\n" + 
+			"    Object s = new FooImpl().getIt();\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void doIt() {\n" + 
+			"    Object s = new FooImpl().getIt();\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		false,
+		null);
+		String expectedOutput =
+			"  // Method descriptor #18 ()Ljava/lang/Object;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public bridge synthetic Object getIt();\n" + 
+			"    0  aload_0\n" + 
+			"    1  invokevirtual FooImpl.getIt() : java.lang.String  [20]\n" + 
+			"    4  checkcast java.lang.Object [4]\n" + 
+			"    7  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n";
+		
+		try {
+			File f = new File(OUTPUT_DIR + File.separator + "FooImpl.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101794 - variation
+public void test773() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Foo<T extends Exception> {\n" + 
+			"  public T getIt() throws T;\n" + 
+			"}\n" + 
+			"\n" + 
+			"class FooImpl implements Foo {\n" + 
+			"  public NullPointerException getIt() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public void doIt() {\n" + 
+			"    Object s = new FooImpl().getIt();\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public void doIt() {\n" + 
+			"    Object s = new FooImpl().getIt();\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"",
+		null,
+		false,
+		null);
+		String expectedOutput =
+			"  // Method descriptor #18 ()Ljava/lang/Exception;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public bridge synthetic Exception getIt() throws java.lang.Exception;\n" + 
+			"    0  aload_0\n" + 
+			"    1  invokevirtual FooImpl.getIt() : java.lang.NullPointerException  [23]\n" + 
+			"    4  checkcast java.lang.Exception [21]\n" + 
+			"    7  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n";
+		
+		try {
+			File f = new File(OUTPUT_DIR + File.separator + "FooImpl.class");
+			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}	
+}
 }
 
