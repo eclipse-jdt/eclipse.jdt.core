@@ -221,7 +221,8 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
      * expected way ("key" / "value") and the other the Sun way 
      * ("-Akey=value" / ""). 
      * 
-     * Called from constructor.
+     * Called from constructor.  A new Env is constructed for each build pass,
+     * so this will always be up to date with the latest settings.
 	 */
 	private void initOptions(IJavaProject jproj) {
 		Map<String, String> procOptions = AptConfig.getProcessorOptions(jproj);

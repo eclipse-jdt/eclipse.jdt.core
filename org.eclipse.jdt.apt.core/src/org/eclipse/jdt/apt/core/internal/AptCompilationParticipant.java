@@ -42,7 +42,10 @@ import org.eclipse.jdt.core.compiler.PreBuildCompilationResult;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
-
+/**
+ * A singleton object, created by callback through the
+ * org.eclipse.jdt.core.compilationParticipants extension point.
+ */
 public class AptCompilationParticipant implements ICompilationParticipant
 {
 	private static AptCompilationParticipant INSTANCE;
@@ -53,7 +56,8 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	
 	/**
 	 * This class is constructed indirectly, by registering an extension to the 
-	 * org.eclipse.jdt.core.compilationParticipants extension point.
+	 * org.eclipse.jdt.core.compilationParticipants extension point.  Other
+	 * clients should NOT construct this object.
 	 */
 	public AptCompilationParticipant()
 	{

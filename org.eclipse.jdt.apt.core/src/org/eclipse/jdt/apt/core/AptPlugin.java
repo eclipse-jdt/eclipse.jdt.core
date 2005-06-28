@@ -76,8 +76,8 @@ public class AptPlugin extends Plugin {
 	/**
 	 * Convenience wrapper around log(IStatus), to log an exception.
 	 */
-	public static void log(Throwable e) {
-		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, e.getLocalizedMessage(), e)); 
+	public static void log(Throwable e, String message) {
+		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e)); 
 	}
 	
 	private void initDebugTracing() {		

@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.core.util;
 import java.io.IOException;
 import java.util.*;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
@@ -21,6 +22,10 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.INodeChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.NodeChangeEvent;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
@@ -28,11 +33,14 @@ import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IJavaProject;
+import org.osgi.service.prefs.BackingStoreException;
 
 /**
  * Accesses configuration data for APT.
  * Note that some of the code in org.eclipse.jdt.ui reads and writes settings
  * data directly, rather than calling into the methods of this class. 
+ * 
+ * This class is static.  Instances should not be constructed.
  * 
  * Helpful information about the Eclipse preferences mechanism can be found at:
  * http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/platform-core-home/documents/user_settings/faq.html
@@ -43,20 +51,11 @@ import org.eclipse.jdt.core.IJavaProject;
  * TODO: optimize performance on projects that do not have project-specific settings.
  */
 public class AptConfig {
-	/**
-	 * Update the factory list and other apt settings
+	
+	/*
+	 * Hide constructor; this is a static object
 	 */
-	private static class EclipsePreferencesListener implements IEclipsePreferences.IPreferenceChangeListener {
-		/**
-		 * @see org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener#preferenceChange(org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent)
-		 */
-		public void preferenceChange(IEclipsePreferences.PreferenceChangeEvent event) {
-			// Reset our factory loader
-			AnnotationProcessorFactoryLoader.getLoader().reset();
-			
-			// TODO: something, anything
-		}
-	}
+	private AptConfig() {}
 	
 	/**
 	 * A guess at how many projects in the workspace will have 
@@ -65,10 +64,16 @@ public class AptConfig {
 	private static final int INITIAL_PROJECTS_GUESS = 5;
 	
 	/**
-	 * Holds the options maps for each project.
+	 * Holds the options maps for each project.  Use a WeakHashMap so that
+	 * we don't hold on to projects after they've been removed.
+	 * 
+	 * The key is IProject rather than IJavaProject because we need to
+	 * listen for project nodes being removed from the Eclipse preferences 
+	 * tree.  By the time a node is removed, it might not have a valid
+	 * IJavaProject associated with it any more.
 	 */
-	private static Map<IJavaProject, Map<String, String>> _optionsMaps = 
-		new HashMap<IJavaProject, Map<String, String>>(INITIAL_PROJECTS_GUESS);
+	private static Map<IProject, Map<String, String>> _optionsMaps = 
+		new WeakHashMap<IProject, Map<String, String>>(INITIAL_PROJECTS_GUESS);
 	
 	private static final String FACTORYPATH_FILE = ".factorypath";
 	
@@ -353,49 +358,27 @@ public class AptConfig {
     	}
     }
 
+    /**
+     * Flush unsaved preferences and perform any other config-related shutdown.
+     * This is called once, from AptPlugin.shutdown().
+     */
+    public static void dispose() {
+    	try {
+    		new InstanceScope().getNode(AptPlugin.PLUGIN_ID).flush();
+    	}
+    	catch (BackingStoreException e) {
+    		// log failure and continue
+    		AptPlugin.log(e, "Couldn't flush preferences to disk");
+    	}
+    }
 
 	/**
 	 * Initialize preferences lookups, and register change listeners.
-	 * This is called once, from AptPlugin.start().
-	 * TODO: the whole change-listener thing is still just copied and pasted from JDT without comprehension.
+	 * This is called once, from AptPlugin.startup().
 	 */
 	public static void initialize() {
-		/* TODO: figure out listeners - here's some stolen sample code for ideas:
-		
-		// Create lookups
-		preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(AptPlugin.PLUGIN_ID);
-		// Calling this line will cause AptCorePreferenceInitializer to run,
-		// via the runtime.preferences extension point.
-		preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(AptPlugin.PLUGIN_ID);
-
-		// Listen to instance preferences node removal from parent in order to refresh stored one
-		IEclipsePreferences.INodeChangeListener listener = new IEclipsePreferences.INodeChangeListener() {
-			public void added(IEclipsePreferences.NodeChangeEvent event) {
-				// do nothing
-			}
-			public void removed(IEclipsePreferences.NodeChangeEvent event) {
-				if (event.getChild() == preferencesLookup[PREF_INSTANCE]) {
-					preferencesLookup[PREF_INSTANCE] = new InstanceScope().getNode(AptPlugin.PLUGIN_ID);
-					preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
-				}
-			}
-		};
-		((IEclipsePreferences) preferencesLookup[PREF_INSTANCE].parent()).addNodeChangeListener(listener);
-		preferencesLookup[PREF_INSTANCE].addPreferenceChangeListener(new EclipsePreferencesListener());
-
-		// Listen to default preferences node removal from parent in order to refresh stored one
-		listener = new IEclipsePreferences.INodeChangeListener() {
-			public void added(IEclipsePreferences.NodeChangeEvent event) {
-				// do nothing
-			}
-			public void removed(IEclipsePreferences.NodeChangeEvent event) {
-				if (event.getChild() == preferencesLookup[PREF_DEFAULT]) {
-					preferencesLookup[PREF_DEFAULT] = new DefaultScope().getNode(AptPlugin.PLUGIN_ID);
-				}
-			}
-		};
-		((IEclipsePreferences) preferencesLookup[PREF_DEFAULT].parent()).addNodeChangeListener(listener);
-*/
+		// If we cached workspace-level preferences, we would want to install
+		// some change listeners here.  (Cf. per-project code in getOptions()).
 	}
 	
 	/**
@@ -424,14 +407,15 @@ public class AptConfig {
     /**
 	 * Return the apt settings for this project, or the workspace settings
 	 * if they are not overridden by project settings.
-	 * TODO: should jproject be allowed to be NULL?
 	 * TODO: efficiently handle the case of projects that don't have per-project settings
 	 * (e.g., only cache one workspace-wide map, not a separate copy for each project).
 	 * @param jproject
 	 * @return
 	 */
 	private static Map getOptions(IJavaProject jproject) {
-		Map options = _optionsMaps.get(jproject);
+		IProject project = jproject.getProject();
+		assert(null != project);
+		Map options = _optionsMaps.get(project);
 		if (null != options) {
 			return options;
 		}
@@ -441,23 +425,45 @@ public class AptConfig {
 		//service.setDefaultLookupOrder(AptPlugin.PLUGIN_ID, null, lookupOrder);
 		options = new HashMap(AptPreferenceConstants.NSETTINGS);
 		if (jproject != null) {
-			IScopeContext projContext = new ProjectScope(jproject.getProject());
-			IScopeContext[] contexts = new IScopeContext[] { projContext };
+			_optionsMaps.put(project, options);
+			// Load project values into the map
+			ProjectScope projScope = new ProjectScope(project);
+			IScopeContext[] contexts = new IScopeContext[] { projScope };
 			for (String optionName : AptPreferenceConstants.OPTION_NAMES) {
 				String val = service.getString(AptPlugin.PLUGIN_ID, optionName, null, contexts);
 				if (val != null) {
 					options.put(optionName, val);
 				}
 			}
-		}
-		else {
-			// TODO: do we need to handle this case?
-			return null;
+			// Add change listener for this project, so we can update the map later on
+			IEclipsePreferences projPrefs = projScope.getNode(AptPlugin.PLUGIN_ID);
+			ChangeListener listener = new ChangeListener(project);
+			projPrefs.addPreferenceChangeListener(listener);
+			((IEclipsePreferences)projPrefs.parent()).addNodeChangeListener(listener);
 		}
 		
 		return options;
 	}
-
+	
+	private static class ChangeListener implements IPreferenceChangeListener, INodeChangeListener {
+		private final IProject _proj;
+		public ChangeListener(IProject proj) {
+			_proj = proj;
+		}
+		public void preferenceChange(PreferenceChangeEvent event) {
+			// update the changed value in the options map.
+			Map<String, String> options = _optionsMaps.get(_proj);
+			options.put((String)event.getKey(), (String)event.getNewValue());
+		}
+		public void added(NodeChangeEvent event) {
+			// do nothing
+		}
+		public void removed(NodeChangeEvent event) {
+			// clear out the cached options for this project.
+			_optionsMaps.remove(_proj);
+		}
+	}
+	
     private static synchronized String getString(IJavaProject jproject, String optionName) {
 		Map options = getOptions(jproject);
 		return (String)options.get(optionName);
@@ -494,10 +500,6 @@ public class AptConfig {
 		// and if so, set the workspace settings?  Or, do we want the caller to tell us
 		// explicitly by setting jproject == null in that case?
 		
-		// TODO: when there are listeners, the following two lines will be superfluous:
-		Map options = getOptions(jproject);
-		options.put(AptPreferenceConstants.APT_ENABLED, value ? "true" : "false");
-		
 		IScopeContext context;
 		if (null != jproject) {
 			context = new ProjectScope(jproject.getProject());
@@ -510,10 +512,6 @@ public class AptConfig {
 	}
 	
 	private static synchronized void setString(IJavaProject jproject, String optionName, String value) {
-		// TODO: when there are listeners, the following two lines will be superfluous:
-		Map options = getOptions(jproject);
-		options.put(optionName, value);
-		
 		IScopeContext context;
 		if (null != jproject) {
 			context = new ProjectScope(jproject.getProject());
@@ -536,7 +534,8 @@ public class AptConfig {
 	throws IOException, CoreException 
 	{
 		FactoryPathUtil.saveFactoryPathFile(jproj, containers);
-		//TODO: we probably want to use the PropertyChangeListener mechanism for this.
+		// The factory path isn't saved to the Eclipse preference store,
+		// so we can't rely on the ChangeListener mechanism.
 		AnnotationProcessorFactoryLoader.getLoader().reset();
 	}
 
