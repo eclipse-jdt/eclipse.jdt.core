@@ -95,7 +95,9 @@ public class InstanceOfExpression extends OperatorExpression {
 	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#tagAsUnnecessaryCast(Scope,TypeBinding)
 	 */
 	public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
-		scope.problemReporter().unnecessaryInstanceof(this, castType);
+		// null is not instanceof Type, recognize direct scenario
+		if (expression.resolvedType != NullBinding)
+			scope.problemReporter().unnecessaryInstanceof(this, castType);
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 

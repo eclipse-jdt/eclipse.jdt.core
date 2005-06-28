@@ -135,16 +135,17 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 		
 		// check @Override annotation
-		if (this.binding != null) {
+		checkOverride: {
+			if (this.binding == null) break checkOverride;
+			if (scope.compilerOptions().sourceLevel < JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;
-			if ((this.binding.tagBits & TagBits.AnnotationOverride) != 0 
-					&& (bindingModifiers & AccOverriding) == 0) {
-				// claims to override, and doesn't actually do so
-				scope.problemReporter().methodMustOverride(this);
-			} else	if ((this.binding.tagBits & TagBits.AnnotationOverride) == 0 
-						&& (this.binding.declaringClass.modifiers & AccInterface) == 0
-						&& (bindingModifiers & (AccStatic|AccOverriding)) == AccOverriding
-						&& scope.compilerOptions().sourceLevel >= JDK1_5) {
+			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
+			boolean isInterfaceMethod = this.binding.declaringClass.isInterface();
+			if (hasOverrideAnnotation) {
+				if ((bindingModifiers & AccOverriding) == 0 || isInterfaceMethod)
+					// claims to override, and doesn't actually do so
+					scope.problemReporter().methodMustOverride(this);					
+			} else if (!isInterfaceMethod 	&& (bindingModifiers & (AccStatic|AccOverriding)) == AccOverriding) {
 				// actually overrides, but did not claim to do so
 				scope.problemReporter().missingOverrideAnnotation(this);
 			}

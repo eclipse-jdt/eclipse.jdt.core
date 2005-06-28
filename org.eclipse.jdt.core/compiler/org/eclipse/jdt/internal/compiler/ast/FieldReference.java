@@ -283,6 +283,8 @@ public class FieldReference extends Reference implements InvocationSite {
 				codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 				break;
 			default :
+				if (this.genericCast != null)
+					codeStream.checkcast(this.genericCast);				
 				// promote the array reference to the suitable operation type
 				codeStream.generateImplicitConversion(implicitConversion);
 				// generate the increment value (will by itself  be promoted to the operation value)
@@ -346,10 +348,12 @@ public class FieldReference extends Reference implements InvocationSite {
 				}
 			}
 		}
-		codeStream.generateImplicitConversion(implicitConversion);		
+		if (this.genericCast != null)
+			codeStream.checkcast(this.genericCast);
+		codeStream.generateImplicitConversion(this.implicitConversion);		
 		codeStream.generateConstant(
 			postIncrement.expression.constant,
-			implicitConversion);
+			this.implicitConversion);
 		codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 		codeStream.generateImplicitConversion(
 			postIncrement.preAssignImplicitConversion);

@@ -314,14 +314,6 @@ public void boundCannotBeArray(ASTNode location, TypeBinding type) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void boundHasConflictingArguments(ASTNode location, TypeBinding type) {
-	this.handle(
-		IProblem.BoundHasConflictingArguments,
-		new String[] {new String(type.readableName())},
-		new String[] {new String(type.shortReadableName())},
-		location.sourceStart,
-		location.sourceEnd);
-}
 public void boundMustBeAnInterface(ASTNode location, TypeBinding type) {
 	this.handle(
 		IProblem.BoundMustBeAnInterface,
@@ -2515,6 +2507,9 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 		case InheritedNameHidesEnclosingName :
 			id = IProblem.InheritedFieldHidesEnclosingName;
 			break;
+		case EnumStaticFieldInInInitializerContext :
+			id = IProblem.EnumStaticFieldInInInitializerContext;
+			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
 				IProblem.NotVisibleType, // cannot occur in javadoc comments
@@ -2565,6 +2560,9 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 			break;
 		case InheritedNameHidesEnclosingName :
 			id = IProblem.InheritedFieldHidesEnclosingName;
+			break;
+		case EnumStaticFieldInInInitializerContext :
+			id = IProblem.EnumStaticFieldInInInitializerContext;
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
@@ -2641,6 +2639,9 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 			break;
 		case InheritedNameHidesEnclosingName :
 			id = IProblem.InheritedFieldHidesEnclosingName;
+			break;
+		case EnumStaticFieldInInInitializerContext :
+			id = IProblem.EnumStaticFieldInInInitializerContext;
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
@@ -4888,13 +4889,13 @@ public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeReferenc
 		superInterfaceRef.sourceStart,
 		superInterfaceRef.sourceEnd);
 }
-public void superinterfacesCollide(TypeBinding type, TypeDeclaration typeDecl, TypeBinding superType, TypeBinding inheritedSuperType) {
+public void superinterfacesCollide(TypeBinding type, ASTNode decl, TypeBinding superType, TypeBinding inheritedSuperType) {
 	this.handle(
 		IProblem.SuperInterfacesCollide,
 		new String[] {new String(superType.readableName()), new String(inheritedSuperType.readableName()), new String(type.sourceName())},
 		new String[] {new String(superType.shortReadableName()), new String(inheritedSuperType.shortReadableName()), new String(type.sourceName())},
-		typeDecl.sourceStart,
-		typeDecl.sourceEnd);
+		decl.sourceStart,
+		decl.sourceEnd);
 }
 public void superTypeCannotUseWildcard(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());

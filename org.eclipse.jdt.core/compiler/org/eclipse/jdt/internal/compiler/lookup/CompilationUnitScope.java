@@ -416,10 +416,10 @@ private Binding findImport(char[][] compoundName, int length) {
 	ReferenceBinding type;
 	if (binding == null) {
 		if (environment.defaultPackage == null || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
+			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, NotFound);
 		type = findType(compoundName[0], environment.defaultPackage, environment.defaultPackage);
 		if (type == null || !type.isValidBinding())
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
+			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, NotFound);
 		i = 1; // reset to look for member types inside the default package type
 	} else {
 		type = (ReferenceBinding) binding;
@@ -433,7 +433,7 @@ private Binding findImport(char[][] compoundName, int length) {
 		// does not look for inherited member types on purpose, only immediate members
 		type = type.getMemberType(name);
 		if (type == null)
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), NotFound);
+			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, NotFound);
 	}
 	if (!type.canBeSeenBy(fPackage))
 		return new ProblemReferenceBinding(compoundName, type, NotVisible);
@@ -444,10 +444,10 @@ private Binding findSingleImport(char[][] compoundName, boolean findStaticImport
 		// findType records the reference
 		// the name cannot be a package
 		if (environment.defaultPackage == null || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
-			return new ProblemReferenceBinding(compoundName, NotFound);
+			return new ProblemReferenceBinding(compoundName, null, NotFound);
 		ReferenceBinding typeBinding = findType(compoundName[0], environment.defaultPackage, fPackage);
 		if (typeBinding == null)
-			return new ProblemReferenceBinding(compoundName, NotFound);
+			return new ProblemReferenceBinding(compoundName, null, NotFound);
 		return typeBinding;
 	}
 
@@ -463,7 +463,7 @@ private Binding findSingleStaticImport(char[][] compoundName) {
 	if (binding instanceof PackageBinding) {
 		Binding temp = ((PackageBinding) binding).getTypeOrPackage(name);
 		if (temp != null && temp instanceof ReferenceBinding) // must resolve to a member type or field, not a top level type
-			return new ProblemReferenceBinding(compoundName, InvalidTypeForStaticImport);
+			return new ProblemReferenceBinding(compoundName, (ReferenceBinding) temp, InvalidTypeForStaticImport);
 		return binding; // cannot be a package, error is caught in sender
 	}
 

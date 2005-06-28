@@ -3892,7 +3892,6 @@ public class AnnotationTest extends AbstractComparableTest {
                 "X.java",
 				"public interface X {\n" + 
 				"   Zork z;\n" +
-				"	@Override\n" + 
 				"   X clone();\n" + 
 				"}\n",
             },
@@ -5393,4 +5392,30 @@ public class AnnotationTest extends AbstractComparableTest {
 		"Return type for the method is missing\n" + 
 		"----------\n");
     }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=94759
+    public void test168() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"interface I {\n" + 
+				"	@Override I clone();\n" + 
+				"	void foo();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface J extends I {\n" + 
+				"	@Override void foo();\n" + 
+				"}\n",
+           },
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	@Override I clone();\n" + 
+		"	            ^^^^^^^\n" + 
+		"The method clone() of type I must override a superclass method\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	@Override void foo();\n" + 
+		"	               ^^^^^\n" + 
+		"The method foo() of type J must override a superclass method\n" + 
+		"----------\n");
+    }    
 }

@@ -380,8 +380,8 @@ public class CastExpression extends Expression {
 			TypeBinding expressionType = expression.resolveType(scope);
 			if (this.resolvedType != null && expressionType != null) {
 				boolean isLegal = checkCastTypesCompatibility(scope, this.resolvedType, expressionType, this.expression);
-				this.expression.computeConversion(scope, this.resolvedType, expressionType);
 				if (isLegal) {
+					this.expression.computeConversion(scope, this.resolvedType, expressionType);
 					if ((this.bits & UnsafeCastMask) != 0) { // unsafe cast
 						scope.problemReporter().unsafeCast(this, scope);
 					} else if ((this.bits & (UnnecessaryCastMASK|IgnoreNeedForCastCheckMASK)) == UnnecessaryCastMASK) { // unnecessary cast 

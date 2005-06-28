@@ -427,6 +427,8 @@ public class QualifiedNameReference extends NameReference {
 				codeStream.generateStringConcatenationAppend(currentScope, null, expression);
 				break;
 			default :
+				TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
+				if (requiredGenericCast != null) codeStream.checkcast(requiredGenericCast);				
 				// promote the array reference to the suitable operation type
 				codeStream.generateImplicitConversion(implicitConversion);
 				// generate the increment value (will by itself  be promoted to the operation value)
@@ -487,6 +489,9 @@ public class QualifiedNameReference extends NameReference {
 				}
 			}
 		}
+		TypeBinding requiredGenericCast = getGenericCast(this.otherCodegenBindings == null ? 0 : this.otherCodegenBindings.length);
+		if (requiredGenericCast != null) codeStream.checkcast(requiredGenericCast);
+		
 		codeStream.generateImplicitConversion(implicitConversion);		
 		codeStream.generateConstant(
 			postIncrement.expression.constant,

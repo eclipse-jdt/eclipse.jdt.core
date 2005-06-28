@@ -402,6 +402,7 @@ public class BlockScope extends Scope {
 						// must be a type if its the last name, otherwise we have no idea if its a package or type
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
+							null,
 							NotFound);
 					}
 					return new ProblemBinding(
@@ -412,6 +413,7 @@ public class BlockScope extends Scope {
 					if (!binding.isValidBinding())
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
+							null, // TODO should improve
 							binding.problemId());
 					if (!((ReferenceBinding) binding).canBeSeenBy(this))
 						return new ProblemReferenceBinding(
@@ -426,6 +428,7 @@ public class BlockScope extends Scope {
 			// It is illegal to request a PACKAGE from this method.
 			return new ProblemReferenceBinding(
 				CharOperation.subarray(compoundName, 0, currentIndex),
+				null,
 				NotFound);
 		}
 
@@ -439,7 +442,7 @@ public class BlockScope extends Scope {
 			if ((mask & Binding.FIELD) != 0 && (binding = findField(typeBinding, nextName, invocationSite, true /*resolve*/)) != null) {
 				if (!binding.isValidBinding())
 					return new ProblemFieldBinding(
-						((FieldBinding) binding).declaringClass,
+						(FieldBinding)binding,
 						CharOperation.subarray(compoundName, 0, currentIndex),
 						binding.problemId());
 				break; // binding is now a field
@@ -459,6 +462,7 @@ public class BlockScope extends Scope {
 			if (!binding.isValidBinding())
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
+					null, // TODO should improve
 					binding.problemId());
 		}
 		if ((mask & Binding.FIELD) != 0 && (binding instanceof FieldBinding)) {
@@ -466,7 +470,7 @@ public class BlockScope extends Scope {
 			FieldBinding field = (FieldBinding) binding;
 			if (!field.isStatic())
 				return new ProblemFieldBinding(
-					field.declaringClass,
+					field,
 					CharOperation.subarray(compoundName, 0, currentIndex),
 					NonStaticReferenceInStaticContext);
 			return binding;
@@ -506,6 +510,7 @@ public class BlockScope extends Scope {
 						// must be a type if its the last name, otherwise we have no idea if its a package or type
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
+							null,
 							NotFound);
 					}
 					return new ProblemBinding(
@@ -516,6 +521,7 @@ public class BlockScope extends Scope {
 					if (!binding.isValidBinding())
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
+							null, // TODO should improve
 							binding.problemId());
 					if (!((ReferenceBinding) binding).canBeSeenBy(this))
 						return new ProblemReferenceBinding(
@@ -535,12 +541,12 @@ public class BlockScope extends Scope {
 				if ((binding = findField(typeBinding, nextName, invocationSite, true /*resolve*/)) != null) {
 					if (!binding.isValidBinding())
 						return new ProblemFieldBinding(
-							((FieldBinding) binding).declaringClass,
+							(FieldBinding) binding,
 							CharOperation.subarray(compoundName, 0, currentIndex),
 							binding.problemId());
 					if (!((FieldBinding) binding).isStatic())
 						return new ProblemFieldBinding(
-							((FieldBinding) binding).declaringClass,
+							(FieldBinding) binding,
 							CharOperation.subarray(compoundName, 0, currentIndex),
 							NonStaticReferenceInStaticContext);
 					break foundField; // binding is now a field
@@ -553,6 +559,7 @@ public class BlockScope extends Scope {
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
+						null, // TODO should improve
 						binding.problemId());
 			}
 			return binding;

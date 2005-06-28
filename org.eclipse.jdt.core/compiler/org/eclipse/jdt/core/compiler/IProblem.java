@@ -1097,6 +1097,8 @@ public interface IProblem {
 	int IllegalModifierForEnumConstructor = MethodRelated + 760;
 	/** @since 3.1 */
 	int MissingEnumConstantCase = FieldRelated + 761;
+	/** @since 3.1 */ // TODO @since 3.1.1 ?
+	int EnumStaticFieldInInInitializerContext = FieldRelated + 762;
 	
 	/**
 	 * Var args

@@ -468,10 +468,12 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				break;
 			default :
 				// promote the array reference to the suitable operation type
-				codeStream.generateImplicitConversion(implicitConversion);
+				if (this.genericCast != null)
+					codeStream.checkcast(this.genericCast);
+				codeStream.generateImplicitConversion(this.implicitConversion);
 				// generate the increment value (will by itself  be promoted to the operation value)
 				if (expression == IntLiteral.One){ // prefix operation
-					codeStream.generateConstant(expression.constant, implicitConversion);			
+					codeStream.generateConstant(expression.constant, this.implicitConversion);			
 				} else {
 					expression.generateCode(currentScope, codeStream, true);
 				}		
@@ -539,11 +541,13 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						}
 					}
 				}
-				codeStream.generateImplicitConversion(implicitConversion);		
-				codeStream.generateConstant(postIncrement.expression.constant, implicitConversion);
+				if (this.genericCast != null) 
+					codeStream.checkcast(this.genericCast);
+				codeStream.generateImplicitConversion(this.implicitConversion);		
+				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 				codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-				fieldStore(codeStream, fieldBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], false);
+				fieldStore(codeStream, fieldBinding, this.syntheticAccessors == null ? null : this.syntheticAccessors[WRITE], false);
 				// no need for generic cast 
 				return;
 			case Binding.LOCAL : // assigning to a local variable

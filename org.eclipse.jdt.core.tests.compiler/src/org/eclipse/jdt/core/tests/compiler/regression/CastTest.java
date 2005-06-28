@@ -346,7 +346,7 @@ public void test008() {
 			"	public static void main(String[] args) {\n" + 
 			"		boolean b1 = new XM1() instanceof X; // UNnecessary\n" + 
 			"		boolean b2 = new X() instanceof XM1; // necessary\n" + 
-			"		boolean b3 = null instanceof X; // UNnecessary\n" + 
+			"		boolean b3 = null instanceof X;\n" + 
 			"	}\n" + 
 			"	static class XM1 extends X {}\n" + 
 			"}\n"
@@ -356,11 +356,6 @@ public void test008() {
 		"	boolean b1 = new XM1() instanceof X; // UNnecessary\n" + 
 		"	             ^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The expression of type X.XM1 is already an instance of type X\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	boolean b3 = null instanceof X; // UNnecessary\n" + 
-		"	             ^^^^^^^^^^^^^^^^^\n" + 
-		"The expression of type null is already an instance of type X\n" + 
 		"----------\n",
 		null,
 		true,
@@ -1428,6 +1423,26 @@ public void test037() {
 		"Cannot cast from Integer[] to int[]\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101208
+public void test038() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		System.out.println(null instanceof Object);\n" + 
+			"      Zork z;\n" +
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+
 public static Class testClass() {
 	return CastTest.class;
 }
