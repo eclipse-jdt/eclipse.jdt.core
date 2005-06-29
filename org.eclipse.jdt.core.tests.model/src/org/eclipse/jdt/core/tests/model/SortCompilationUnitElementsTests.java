@@ -1878,4 +1878,30 @@ public void test028() throws CoreException {
 		this.deleteFile("/P/src/X.java");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=101885
+public void test029() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public enum X {\n" + 
+			"	Z, A, C, B;\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public enum X {\n" + 
+			"	Z, A, C, B;\n" + 
+			"}";
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
+				BodyDeclaration bodyDeclaration2 = (BodyDeclaration) o2;
+				final int sourceStart1 = ((Integer) bodyDeclaration1.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+				final int sourceStart2 = ((Integer) bodyDeclaration2.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+				return sourceStart1 - sourceStart2;
+			}
+		});
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
 }
