@@ -38,20 +38,33 @@
 	<delete dir="${plugin-dir}" />
 	<mkdir dir="${plugin-dir}" />
 
+	<zip zipfile="${plugin-dir}/aptcore.jar">
+		        <fileset dir="bin" />
+	</zip>
+
 	<echo message="UPDATE ${plugin}_${plugin_version}.jar" />
 	<zip zipfile="${plugin-dir}/${plugin}_${plugin_version}.jar">
 		<fileset dir=".">
-		  <!-- include name="tools.jar" / -->
+		  <include name="tools.jar" /> 
 		  <include name="plugin.xml" />
 		  <include name="plugin.properties" />
 		  <include name="META-INF/**" />
 		  <include name=".options"/>
         </fileset>
-        <fileset dir="bin" />
+	    <fileset dir="${plugin-dir}">
+		  <include name="aptcore.jar"/>
+	    </fileset>
 	</zip>
-	
-	<echo message="UPDATE aptcoresrc.zip" />
-	<zip zipfile="${plugin-dir}/aptcoresrc.zip">
+
+	<echo message="UPDATE ${plugin}_${plugin_version}.jar with aptcore.jar" />
+	<zip zipfile="${plugin-dir}/aptcore_src.zip">
+	    <fileset dir="src" />
+	</zip>		
+
+		
+
+	<echo message="UPDATE aptcore_src.zip" />
+	<zip zipfile="${plugin-dir}/aptcore_src.zip">
 	    <fileset dir="src" />
 	</zip>		
 

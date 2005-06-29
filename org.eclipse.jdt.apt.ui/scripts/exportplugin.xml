@@ -48,8 +48,8 @@
         <fileset dir="bin" />
 	</zip>
 	
-	<echo message="UPDATE ${plugin}.src.zip" />
-	<zip zipfile="${plugin-dir}/${plugin}.src.zip">
+	<echo message="UPDATE aptui_src.zip" />
+	<zip zipfile="${plugin-dir}/aptui_src.zip">
 	    <fileset dir="src" />
 	</zip>		
 
