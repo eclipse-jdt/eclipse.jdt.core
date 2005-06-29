@@ -42,7 +42,7 @@ public void setUpSuite() throws Exception {
 	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	this.createFolder("/P/src/p"); //$NON-NLS-1$
 }
-
+/** @deprecated */
 private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreException {
 	this.sortUnit(AST.JLS2, unit, expectedResult, true);
 }
@@ -50,13 +50,14 @@ private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreE
 private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult) throws CoreException {
 	this.sortUnit(apiLevel, unit, expectedResult, true);
 }
-
+/** @deprecated */
 private void sortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
 	this.sortUnit(AST.JLS2, unit, expectedResult, testPositions);
 }
 private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
 	this.sortUnit(apiLevel, unit, expectedResult, testPositions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9));
 }
+/** @deprecated */
 private void oldAPISortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions, Comparator comparator) throws CoreException {
 	String initialSource = unit.getSource();
 	int[] positions = null;
@@ -1840,6 +1841,7 @@ public void test027() throws CoreException {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101453
+/** @deprecated */
 public void test028() throws CoreException {
 	try {
 		this.createFile(
