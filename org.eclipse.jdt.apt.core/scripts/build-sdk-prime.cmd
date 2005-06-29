@@ -45,10 +45,23 @@ if NOT EXIST "%2" (
 
 @set TEMPDIR=\temp\eclipse_sdk_mod
 
-REM TODO - we want to name the file with something like `date.exe  +%Y_%m_%d_%H_%M_%S`.  Should have used bash.
+@echo Creating working directory %TEMPDIR%
+if exist %TEMPDIR% rm -rf %TEMPDIR%
+mkdir %TEMPDIR%
+cd %TEMPDIR%
+@echo ...done.
+
+REM
+REM  HACKHACK:  the sh scripts generates a .cmd script which will set the variable DATE_SUFFIX
+REM  to the output of the sh command `date  +%Y_%m_%d_%H_%M_%S`.  Yeah, yeah.  I should have 
+REM  used ant for consistency.
+REM
+cd %TEMPDIR%
+sh %ROOT%\org.eclipse.jdt.apt.core\scripts\make_set_date_suffix_cmd.sh
+call set_date_suffix.cmd
+
 @set RC=RC2
-@set SUFFIX=2005_06_28
-@set SDK_APT_ZIP=eclipse-SDK-APT-3.1%RC%-win32_%SUFFIX%.zip
+@set SDK_APT_ZIP=eclipse-SDK-APT-3.1%RC%-win32-%DATE_SUFFIX%.zip
 @set FULL_SDK_APT_ZIP=%TEMPDIR%\%SDK_APT_ZIP%
 
 
@@ -67,18 +80,14 @@ cmd /c ant -f scripts\exportplugin.xml
 cd %ROOT%\org.eclipse.jdt.core
 cmd /c ant -f scripts\exportplugin.xml
 
-@echo ...finsihed building plugins.
+@echo ...finished building plugins.
 
 
 REM
 REM  explode existing zip 
 REM
 
-@echo Creating working directory %TEMPDIR%
-if exist %TEMPDIR% rm -rf %TEMPDIR%
-mkdir %TEMPDIR%
 cd %TEMPDIR%
-@echo ...done.
 
 @echo Exploding existing SDK zip file %FULL_SDK_ZIP%...
 jar xf %FULL_SDK_ZIP%
