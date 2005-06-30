@@ -310,13 +310,15 @@ class DefaultBindingResolver extends BindingResolver {
 	synchronized IVariableBinding getVariableBinding(org.eclipse.jdt.internal.compiler.lookup.VariableBinding variableBinding) {
  		if (variableBinding != null) {
 	 		if (variableBinding.isValidBinding()) {
-				IVariableBinding binding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(variableBinding);
-				if (binding != null) {
+	 			if (variableBinding.type != null) {
+					IVariableBinding binding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(variableBinding);
+					if (binding != null) {
+						return binding;
+					}
+					binding = new VariableBinding(this, variableBinding);
+					this.bindingTables.compilerBindingsToASTBindings.put(variableBinding, binding);
 					return binding;
-				}
-				binding = new VariableBinding(this, variableBinding);
-				this.bindingTables.compilerBindingsToASTBindings.put(variableBinding, binding);
-				return binding;
+	 			}
 	 		} else {
 				/*
 				 * http://dev.eclipse.org/bugs/show_bug.cgi?id=24449
@@ -956,13 +958,15 @@ class DefaultBindingResolver extends BindingResolver {
 									if (declaringClass != null) {
 										FieldBinding exactBinding = declaringClass.getField(tokens[tokens.length - 1], true /*resolve*/);
 										if (exactBinding != null) {
-											IVariableBinding variableBinding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
-											if (variableBinding != null) {
+											if (exactBinding.type != null) {
+												IVariableBinding variableBinding = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
+												if (variableBinding != null) {
+													return variableBinding;
+												}
+												variableBinding = new VariableBinding(this, exactBinding);
+												this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, variableBinding);
 												return variableBinding;
 											}
-											variableBinding = new VariableBinding(this, exactBinding);
-											this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, variableBinding);
-											return variableBinding;
 										}
 									}
 									break;
@@ -1101,13 +1105,15 @@ class DefaultBindingResolver extends BindingResolver {
 									ReferenceBinding declaringClass = problemFieldBinding.declaringClass;
 									FieldBinding exactBinding = declaringClass.getField(problemFieldBinding.name, true /*resolve*/);
 									if (exactBinding != null) {
-										IVariableBinding variableBinding2 = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
-										if (variableBinding2 != null) {
+										if (exactBinding.type != null) {
+											IVariableBinding variableBinding2 = (IVariableBinding) this.bindingTables.compilerBindingsToASTBindings.get(exactBinding);
+											if (variableBinding2 != null) {
+												return variableBinding2;
+											}
+											variableBinding2 = new VariableBinding(this, exactBinding);
+											this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, variableBinding2);
 											return variableBinding2;
 										}
-										variableBinding2 = new VariableBinding(this, exactBinding);
-										this.bindingTables.compilerBindingsToASTBindings.put(exactBinding, variableBinding2);
-										return variableBinding2;
 									}
 									break;
 							}
