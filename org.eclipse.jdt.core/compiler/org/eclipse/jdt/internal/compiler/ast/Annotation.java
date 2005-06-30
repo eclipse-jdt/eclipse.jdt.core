@@ -203,7 +203,7 @@ public abstract class Annotation extends Expression {
 			}
 		}
 		if (isSuppressingWarnings && suppressWarningIrritants != 0) {
-			scope.referenceCompilationUnit().compilationResult.recordSuppressWarnings(suppressWarningIrritants, startSuppresss, endSuppress);
+			scope.referenceCompilationUnit().compilationResult.recordSuppressWarnings(suppressWarningIrritants, startSuppresss, endSuppress, this.sourceStart, this.declarationSourceEnd);
 		}
 	}
 	

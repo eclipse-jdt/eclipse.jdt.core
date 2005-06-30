@@ -34,6 +34,7 @@ package org.eclipse.jdt.internal.compiler;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -63,6 +64,7 @@ public class CompilationResult {
 	
 	long[] suppressWarningIrritants;  // irritant for suppressed warnings
 	long[] suppressWarningPositions; // (start << 32) + end 
+	long[] suppressWarningScopePositions; // (start << 32) + end 
 	int suppressWarningsCount;
 	
 	public CompilationResult(
@@ -133,11 +135,33 @@ public class CompilationResult {
 			int end = problem.getSourceEnd();
 			int problemID = problem.getID();
 			nextSuppress: for (int j = 0, max = this.suppressWarningsCount; j < max; j++) {
-				long position = this.suppressWarningPositions[j];
+				long position = this.suppressWarningScopePositions[j];
 				int startSuppress = (int) (position >>> 32);
 				int endSuppress = (int) position;
 				if (start < startSuppress) continue nextSuppress;
 				if (end > endSuppress) continue nextSuppress;
+				if (ProblemReporter.getIrritant(problemID) == CompilerOptions.NonExternalizedString) {
+					/*
+					 * We don't want to report nls warnings against the 
+					 * suppress warnings tokens.
+					 */
+					long annotationPosition = this.suppressWarningPositions[j];
+					int startAnnot = (int) (annotationPosition >>> 32);
+					int endAnnot = (int) annotationPosition;
+					if (startAnnot <= start && end <= endAnnot) {
+						removed++;
+						problems[i] = null;
+						if (problemsMap != null) problemsMap.remove(problem);
+						continue nextProblem;
+					}
+					if ((ProblemReporter.getIrritant(problemID) & this.suppressWarningIrritants[j]) == 0)
+						continue nextSuppress;
+					// discard suppressed warning
+					removed++;
+					problems[i] = null;
+					if (problemsMap != null) problemsMap.remove(problem);
+					continue nextProblem;
+				}
 				if ((ProblemReporter.getIrritant(problemID) & this.suppressWarningIrritants[j]) == 0)
 					continue nextSuppress;
 				// discard suppressed warning
@@ -422,16 +446,19 @@ public class CompilationResult {
 			this.hasSyntaxError = true;
 	}
 
-	public void recordSuppressWarnings(long irritant, int sourceStart, int sourceEnd) {
+	public void recordSuppressWarnings(long irritant, int scopeStart, int scopeEnd, int sourceStart, int sourceEnd) {
 		if (this.suppressWarningIrritants == null) {
 			this.suppressWarningIrritants = new long[3];
 			this.suppressWarningPositions = new long[3];
+			this.suppressWarningScopePositions = new long[3];
 		} else if (this.suppressWarningIrritants.length == this.suppressWarningsCount) {
 			System.arraycopy(this.suppressWarningIrritants, 0,this.suppressWarningIrritants = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
 			System.arraycopy(this.suppressWarningPositions, 0,this.suppressWarningPositions = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
+			System.arraycopy(this.suppressWarningScopePositions, 0,this.suppressWarningScopePositions = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
 		}
 		this.suppressWarningIrritants[this.suppressWarningsCount] = irritant;
-		this.suppressWarningPositions[this.suppressWarningsCount++] = ((long)sourceStart<<32) + sourceEnd;
+		this.suppressWarningPositions[this.suppressWarningsCount] = ((long)sourceStart<<32) + sourceEnd;
+		this.suppressWarningScopePositions[this.suppressWarningsCount++] = ((long)scopeStart<<32) + scopeEnd;
 	}
 	
 	private void recordTask(IProblem newProblem) {
