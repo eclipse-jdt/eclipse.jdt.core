@@ -60,7 +60,6 @@ public class JavadocFieldReference extends FieldReference {
 				case ProblemReasons.NonStaticReferenceInConstructorInvocation:
 				case ProblemReasons.NonStaticReferenceInStaticContext:
 				case ProblemReasons.InheritedNameHidesEnclosingName : 
-				case ProblemReasons.EnumStaticFieldInInInitializerContext :
 					FieldBinding closestMatch = ((ProblemFieldBinding)fieldBinding).closestMatch;
 					if (closestMatch != null) {
 						fieldBinding = closestMatch; // ignore problem if can reach target field through it

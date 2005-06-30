@@ -26,5 +26,4 @@ public interface ProblemReasons {
 	final int ParameterizedMethodTypeMismatch = 12; // for generic method
 	final int TypeArgumentsForRawGenericMethod = 13; // for generic method
 	final int InvalidTypeForStaticImport = 14;
-	final int EnumStaticFieldInInInitializerContext = 15; // for enum constant/field
 }

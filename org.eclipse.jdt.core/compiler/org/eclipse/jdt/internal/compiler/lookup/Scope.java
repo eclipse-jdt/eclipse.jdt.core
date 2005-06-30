@@ -22,7 +22,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -1371,7 +1370,6 @@ public abstract class Scope
 				boolean insideStaticContext = false;
 				boolean insideConstructorCall = false;
 				boolean insideTypeAnnotation = false;
-				boolean insideInstanceInitializationContext = false;
 				
 				FieldBinding foundField = null;
 				// can be a problem field which is answered if a valid field is not found
@@ -1388,7 +1386,6 @@ public abstract class Scope
 							insideStaticContext |= methodScope.isStatic;
 							insideConstructorCall |= methodScope.isConstructorCall;
 							insideTypeAnnotation = methodScope.insideTypeAnnotation;
-							insideInstanceInitializationContext = !methodScope.isStatic && methodScope.isInsideInitializerOrConstructor();
 							
 							// Fall through... could duplicate the code below to save a cast - questionable optimization
 						case BLOCK_SCOPE :
@@ -1445,16 +1442,6 @@ public abstract class Scope
 														name,
 														NonStaticReferenceInStaticContext);
 											}
-										} else if (enclosingType.isEnum() 
-															&& insideInstanceInitializationContext
-															&& enclosingType == fieldBinding.declaringClass
-															&& fieldBinding.constant() == Constant.NotAConstant) {
-												insideProblem =											
-													new ProblemFieldBinding(
-														fieldBinding, // closest match
-														fieldBinding.declaringClass,
-														name,
-														EnumStaticFieldInInInitializerContext);											
 										}
 										if (enclosingType == fieldBinding.declaringClass || compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 											// found a valid field in the 'immediate' scope (ie. not inherited)

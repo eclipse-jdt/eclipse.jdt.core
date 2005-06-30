@@ -3869,12 +3869,12 @@ the right of e1."
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	VALUE = null;\n" + 
 			"	^^^^^\n" + 
-			"Cannot refer to the static enum field VALUE within an initializer\n" + 
+			"Cannot refer to the static enum field X.VALUE within an initializer\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	ASD = 5;\n" + 
 			"	^^^\n" + 
-			"Cannot refer to the static enum field ASD within an initializer\n" + 
+			"Cannot refer to the static enum field X.ASD within an initializer\n" + 
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101713 - variation
@@ -3895,7 +3895,7 @@ the right of e1."
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	BLEU = null;\n" + 
 			"	^^^^\n" + 
-			"Cannot refer to the static enum field BLEU within an initializer\n" + 
+			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101713 - variation
@@ -3925,9 +3925,92 @@ the right of e1."
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
-			"	BLEU = null;\n" + 
-			"	^^^^\n" + 
-			"Cannot refer to the static enum field BLEU within an initializer\n" + 
+			"	X x = BLEU.BLANC; // ko\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
+			"	X x = BLEU.BLANC; // ko\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"The static field X.BLANC should be accessed in a static way\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	X x2 = BLEU; // ko\n" + 
+			"	       ^^^^\n" + 
+			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 10)\n" + 
+			"	X x = BLEU.BLANC; // ok\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"The static field X.BLANC should be accessed in a static way\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 13)\n" + 
+			"	X dummy = BLEU; // ko\n" + 
+			"	          ^^^^\n" + 
+			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 16)\n" + 
+			"	X x = BLEU.BLANC; // ko\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
+			"----------\n" + 
+			"7. WARNING in X.java (at line 16)\n" + 
+			"	X x = BLEU.BLANC; // ko\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"The static field X.BLANC should be accessed in a static way\n" + 
+			"----------\n" + 
+			"8. ERROR in X.java (at line 17)\n" + 
+			"	X x2 = BLEU; // ko\n" + 
+			"	       ^^^^\n" + 
+			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
 			"----------\n");
 	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102265
+	public void test118() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public enum X {\n" + 
+				"		 one,\n" + 
+				"		 two;\n" + 
+				"		 \n" + 
+				"		 static ArrayList someList;\n" + 
+				"		 \n" + 
+				"		 private X() {\n" + 
+				"		 		 if (someList == null) {\n" + 
+				"		 		 		 someList = new ArrayList();\n" + 
+				"		 		 }\n" + 
+				"		 }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	if (someList == null) {\n" + 
+			"	    ^^^^^^^^\n" + 
+			"Cannot refer to the static enum field X.someList within an initializer\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	someList = new ArrayList();\n" + 
+			"	^^^^^^^^\n" + 
+			"Cannot refer to the static enum field X.someList within an initializer\n" + 
+			"----------\n");
+	}		
+	public void test119() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"	BLEU, BLANC, ROUGE;\n" + 
+				"	final static int CST = 0;\n" + 
+				"    enum Member {\n" + 
+				"    	;\n" + 
+				"        Object obj1 = CST;\n" + 
+				"        Object obj2 = BLEU;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"");
+	}		
 }

@@ -123,8 +123,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				}
 				// check if reading a final blank field
 				FieldBinding fieldBinding;
-				if ((fieldBinding = (FieldBinding) binding).isBlankFinal() 
-						&& currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
+				if ((fieldBinding =  (FieldBinding) binding).isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 					if (!flowInfo.isDefinitelyAssigned(fieldBinding)) {
 						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 					}
@@ -153,27 +152,37 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		
 		bits &= ~RestrictiveFlagMASK; // clear bits
 		bits |= Binding.FIELD;
-		if (!((FieldBinding) binding).isStatic()) {
+		boolean isStatic = fieldBinding.isStatic();
+		if (!isStatic) {
 			// must check for the static status....
 			if (scope.methodScope().isStatic) {
 				scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
-				constant = NotAConstant;
+				this.constant = NotAConstant;
 				return fieldBinding.type;
 			}
 		}
-		constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
+		this.constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
 	
 		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0))
 			scope.problemReporter().deprecatedField(fieldBinding, this);
 	
-		MethodScope ms = scope.methodScope();
+		ReferenceBinding declaringClass = fieldBinding.declaringClass;
+		MethodScope methodScope = scope.methodScope();
+		if (isStatic
+				&& this.constant == NotAConstant
+				&& !methodScope.isStatic
+				&& methodScope.enclosingSourceType() == declaringClass
+				&& declaringClass.isEnum()
+				&& methodScope.isInsideInitializerOrConstructor()) {
+			scope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
+		}		
 		if ((this.bits & IsStrictlyAssignedMASK) == 0
-			&& ms.enclosingSourceType() == fieldBinding.declaringClass
-			&& ms.lastVisibleFieldID >= 0
-			&& fieldBinding.id >= ms.lastVisibleFieldID) {
+			&& methodScope.enclosingSourceType() == declaringClass
+			&& methodScope.lastVisibleFieldID >= 0
+			&& fieldBinding.id >= methodScope.lastVisibleFieldID) {
 			//if the field is static and ms is not .... then it is valid
-			if (!fieldBinding.isStatic() || ms.isStatic)
-				scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());
+			if (!fieldBinding.isStatic() || methodScope.isStatic)
+				scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
 		}
 		//====================================================
 	

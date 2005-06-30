@@ -1030,6 +1030,14 @@ public void enumAbstractMethodMustBeImplemented(AbstractMethodDeclaration method
 		method.sourceStart(),
 		method.sourceEnd());
 }
+public void enumStaticFieldUsedDuringInitialization(FieldBinding field, ASTNode location) {
+	this.handle(
+		IProblem.EnumStaticFieldInInInitializerContext,
+		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
+		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
+		fieldSourceStart(location),
+		fieldSourceEnd(field, location));
+}
 public void enumSwitchCannotTargetField(Reference reference, FieldBinding field) {
 	this.handle(
 			IProblem.EnumSwitchCannotTargetField,
@@ -2507,9 +2515,6 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 		case InheritedNameHidesEnclosingName :
 			id = IProblem.InheritedFieldHidesEnclosingName;
 			break;
-		case EnumStaticFieldInInInitializerContext :
-			id = IProblem.EnumStaticFieldInInInitializerContext;
-			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
 				IProblem.NotVisibleType, // cannot occur in javadoc comments
@@ -2560,9 +2565,6 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 			break;
 		case InheritedNameHidesEnclosingName :
 			id = IProblem.InheritedFieldHidesEnclosingName;
-			break;
-		case EnumStaticFieldInInInitializerContext :
-			id = IProblem.EnumStaticFieldInInInitializerContext;
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
@@ -2639,9 +2641,6 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 			break;
 		case InheritedNameHidesEnclosingName :
 			id = IProblem.InheritedFieldHidesEnclosingName;
-			break;
-		case EnumStaticFieldInInInitializerContext :
-			id = IProblem.EnumStaticFieldInInInitializerContext;
 			break;
 		case ReceiverTypeNotVisible :
 			this.handle(
