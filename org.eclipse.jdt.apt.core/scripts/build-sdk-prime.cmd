@@ -100,7 +100,7 @@ REM
 @echo Copying org.eclipse.jdt.apt.ui plugin jar and source zip...
 copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.ui_1.0.0\org.eclipse.jdt.apt.ui_1.0.0.jar %TEMPDIR%\eclipse\plugins\
 mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\org.eclipse.jdt.apt.ui_1.0.0
-copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.ui_1.0.0\aptui_src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\org.eclipse.jdt.apt.ui_1.0.0\
+copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.ui_1.0.0\aptui_src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.apt.ui_1.0.0\
 @echo ...Done
 
 REM
@@ -118,7 +118,7 @@ REM
 
 @echo Copying aptcore_src.zip...
 mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\org.eclipse.jdt.apt.core_1.0.0\
-copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.core_1.0.0\aptcore_src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\org.eclipse.jdt.apt.core_1.0.0\
+copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.core_1.0.0\aptcore_src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.apt.core_1.0.0\
 @echo ...done.
 
 REM
