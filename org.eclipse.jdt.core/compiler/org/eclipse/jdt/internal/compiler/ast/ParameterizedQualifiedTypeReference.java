@@ -144,7 +144,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				}
 			}				
 			if (typeIsConsistent && currentType.isStatic() && qualifiedType != null && (qualifiedType.isParameterizedType() || qualifiedType.isGenericType())) {
-				scope.problemReporter().staticMemberOfParameterizedType(this, scope.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType));
+				scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType));
 				typeIsConsistent = false;
 			}			
 			// check generic and arity
@@ -198,7 +198,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			    if (isIdentical) {
 			    	qualifiedType = (ReferenceBinding) currentType.erasure();
 			    } else {
-					ParameterizedTypeBinding parameterizedType = scope.createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, qualifiedType);
+					ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), argTypes, qualifiedType);
 					// check argument type compatibility
 					if (checkBounds) // otherwise will do it in Scope.connectTypeVariables() or generic method resolution
 						parameterizedType.boundCheck(scope, args);
@@ -210,13 +210,13 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						return null;
 				if (currentType.isGenericType()) {
 	   			    if (typeIsConsistent && qualifiedType != null && qualifiedType.isParameterizedType()) {
-						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType));
+						scope.problemReporter().parameterizedMemberTypeMissingArguments(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType));
 						typeIsConsistent = false;
 					}
 	   			    qualifiedType = scope.environment().createRawType(currentType, qualifiedType); // raw type
 				} else {
 					qualifiedType = (qualifiedType != null && qualifiedType.isParameterizedType())
-													? scope.createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType)
+													? scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifiedType)
 													: currentType;
 				}
 			}

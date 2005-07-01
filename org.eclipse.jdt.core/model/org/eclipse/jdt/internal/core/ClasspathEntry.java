@@ -1228,7 +1228,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			if (entryPath.equals(projectPath)){
 				// complain if self-referring project entry
 				if (kind == IClasspathEntry.CPE_PROJECT){
-					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, Messages.bind(Messages.classpath_cannotReferToItself, new String[] {entryPath.makeRelative().toString()}));
+					return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, Messages.bind(Messages.classpath_cannotReferToItself, entryPath.makeRelative().toString()));
 				}
 				// tolerate nesting output in src if src==prj
 				continue;

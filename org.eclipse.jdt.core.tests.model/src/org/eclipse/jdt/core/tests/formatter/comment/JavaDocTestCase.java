@@ -439,4 +439,31 @@ public class JavaDocTestCase extends CommentTestCase {
 		final String result = testFormat(input);
 		assertEquals(expected, result);
 	}
+	
+	/**
+	 * [formatting] Javadoc formatting: extra newline with [pre]
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=52921
+	 * <p>
+	 * This test only formats once.
+	 * </p>
+	 */
+	public void testNoExtraNewlineWithPre1() {
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE, DefaultCodeFormatterConstants.TRUE);
+		String input= PREFIX + DELIMITER + INFIX + "<pre>wrap here</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$
+		String expected= PREFIX + DELIMITER + INFIX + "<pre>" + DELIMITER + INFIX + "wrap here" + DELIMITER + INFIX + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$; //$NON-NLS-2$; //$NON-NLS-3$;
+		String result= testFormat(input);
+		assertEquals(expected, result);
+
+		// now re-format several times
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		result= testFormat(result);
+		
+		// XXX: workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=99738
+		String WORKAROUND_BUG_99738= "    ";  //$NON-NLS-1$
+		expected= PREFIX + DELIMITER + INFIX + "<pre>" + DELIMITER + INFIX + WORKAROUND_BUG_99738 + "wrap here" + DELIMITER + INFIX + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$; //$NON-NLS-2$; //$NON-NLS-3$;
+		assertEquals(expected, result);
+	}
+	
 }

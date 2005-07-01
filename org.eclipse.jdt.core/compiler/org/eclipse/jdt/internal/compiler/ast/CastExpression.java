@@ -376,7 +376,7 @@ public class CastExpression extends Expression {
 				&& ((type.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) { // no extra parenthesis around type: ((A))exp
 
 			this.resolvedType = type.resolveType(scope);
-			expression.setExpectedType(this.resolvedType); // needed in case of generic method invocation			
+			//expression.setExpectedType(this.resolvedType); // needed in case of generic method invocation			
 			TypeBinding expressionType = expression.resolveType(scope);
 			if (this.resolvedType != null && expressionType != null) {
 				boolean isLegal = checkCastTypesCompatibility(scope, this.resolvedType, expressionType, this.expression);

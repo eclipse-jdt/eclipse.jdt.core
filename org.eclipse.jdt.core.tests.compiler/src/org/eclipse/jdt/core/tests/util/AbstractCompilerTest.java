@@ -175,6 +175,7 @@ public class AbstractCompilerTest extends TestCase {
 
 	protected Map getCompilerOptions() {
 		Map options = new CompilerOptions().getMap();
+		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
 		if (COMPLIANCE_1_3.equals(this.complianceLevel)) {
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
 			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);

@@ -53,17 +53,21 @@ public class SortElementsOperation extends JavaModelOperation {
 	
 	Comparator comparator;
 	int[] positions;
+    int apiLevel;
 	
 	/**
 	 * Constructor for SortElementsOperation.
+     * 
+     * @param level the AST API level; one of the AST LEVEL constants
 	 * @param elements
 	 * @param positions
 	 * @param comparator
 	 */
-	public SortElementsOperation(IJavaElement[] elements, int[] positions, Comparator comparator) {
+	public SortElementsOperation(int level, IJavaElement[] elements, int[] positions, Comparator comparator) {
 		super(elements);
 		this.comparator = comparator;
-		this.positions = positions;
+        this.positions = positions;
+        this.apiLevel = level;
 	}
 
 	/**
@@ -104,7 +108,7 @@ public class SortElementsOperation extends JavaModelOperation {
 	 */
 	private String processElement(ICompilationUnit unit, char[] source) {
 		CompilerOptions options = new CompilerOptions(unit.getJavaProject().getOptions(true));
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		ASTParser parser = ASTParser.newParser(this.apiLevel);
 		parser.setCompilerOptions(options.getMap());
 		parser.setSource(source);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -153,7 +157,7 @@ public class SortElementsOperation extends JavaModelOperation {
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
 				}
 				return true;
-			}			
+			}
 		});
 		final AST localAst = domUnit.getAST();
 		final ASTRewrite rewriter = ASTRewrite.create(localAst);

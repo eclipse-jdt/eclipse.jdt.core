@@ -36,11 +36,22 @@ static Integer POTENTIAL_MATCH = new Integer(SearchMatch.A_INACCURATE);
 static Integer ERASURE_MATCH = new Integer(SearchPattern.R_ERASURE_MATCH);
 
 /**
+ * Tell whether locators need to resolve or not for current matching node set.
+ */
+public boolean mustResolve;
+
+/**
  * Set of possible matching ast nodes. They need to be resolved
  * to determine if they really match the search pattern.
  */
 SimpleSet possibleMatchingNodesSet = new SimpleSet(7);
 private HashtableOfLong possibleMatchingNodesKeys = new HashtableOfLong(7);
+
+
+public MatchingNodeSet(boolean mustResolvePattern) {
+	super();
+	mustResolve = mustResolvePattern;
+}
 
 public int addMatch(ASTNode node, int matchLevel) {
 	switch (matchLevel) {

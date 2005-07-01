@@ -928,8 +928,8 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 * 	<li><code>KEYWORD</code> - the keyword</li>
 	 * 	<li><code>LABEL_REF</code> - the name of the label</li>
 	 * 	<li><code>LOCAL_VARIABLE_REF</code> - the name of the local variable</li>
-	 * 	<li><code>METHOD_REF</code> - the name of the method</li>
-	 * 	<li><code>METHOD_DECLARATION</code> - the name of the method</li>
+	 * 	<li><code>METHOD_REF</code> - the name of the method (the type simple name for constructor)</li>
+	 * 	<li><code>METHOD_DECLARATION</code> - the name of the method (the type simple name for constructor)</li>
 	 * 	<li><code>VARIABLE_DECLARATION</code> - the name of the variable</li>
 	 *  <li><code>POTENTIAL_METHOD_DECLARATION</code> - the name of the method</li>
 	 * </ul>
@@ -947,7 +947,7 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	
 	
 	/**
-	 * Sets the simple name of the method, field,
+	 * Sets the simple name of the method (type simple name for constructor), field,
 	 * member, or variable relevant in the context, or
 	 * <code>null</code> if none.
 	 * <p>
@@ -1359,37 +1359,52 @@ public final class CompletionProposal extends InternalCompletionProposal {
 			
 			switch(this.completionKind) {
 				case ANONYMOUS_CLASS_DECLARATION:
-					this.parameterNames =  this.findMethodParameterNames(
-							this.declarationPackageName,
-							this.declarationTypeName,
-							CharOperation.lastSegment(this.declarationTypeName, '.'),
-							this.parameterPackageNames,
-							this.parameterTypeNames);
+					try {
+						this.parameterNames = this.findMethodParameterNames(
+								this.declarationPackageName,
+								this.declarationTypeName,
+								CharOperation.lastSegment(this.declarationTypeName, '.'),
+								Signature.getParameterTypes(this.originalSignature == null ? this.signature : this.originalSignature));
+					} catch(IllegalArgumentException e) {
+						// protection for invalid signature
+						if(this.parameterTypeNames != null) {
+							this.parameterNames =  this.createDefaultParameterNames(this.parameterTypeNames.length);
+						} else {
+							this.parameterNames = null;
+						}
+					}
 					break;
 				case METHOD_REF:
-					this.parameterNames =  this.findMethodParameterNames(
-							this.declarationPackageName,
-							this.declarationTypeName,
-							this.name,
-							this.parameterPackageNames,
-							this.parameterTypeNames);
-					//this.parameterNames = this.findMethodParameterNames(
-					//		this.declarationSignature,
-					//		this.name,
-					//		Signature.getParameterTypes(this.getSignature()));
+					try {
+						this.parameterNames = this.findMethodParameterNames(
+								this.declarationPackageName,
+								this.declarationTypeName,
+								this.name,
+								Signature.getParameterTypes(this.originalSignature == null ? this.signature : this.originalSignature));
+					} catch(IllegalArgumentException e) {
+						// protection for invalid signature
+						if(this.parameterTypeNames != null) {
+							this.parameterNames =  this.createDefaultParameterNames(this.parameterTypeNames.length);
+						} else {
+							this.parameterNames = null;
+						}
+					}
 					break;
 				case METHOD_DECLARATION:
-					this.parameterNames =  this.findMethodParameterNames(
-							this.declarationPackageName,
-							this.declarationTypeName,
-							this.name,
-							this.parameterPackageNames,
-							this.parameterTypeNames);
-					//char[][] parameterTypes = Signature.getParameterTypes(this.getSignature();
-					///this.parameterNames = this.findMethodParameterNames(
-					//		this.declarationSignature,
-					//		this.name,
-					//		parameterTypes);
+					try {
+						this.parameterNames = this.findMethodParameterNames(
+								this.declarationPackageName,
+								this.declarationTypeName,
+								this.name,
+								Signature.getParameterTypes(this.originalSignature == null ? this.signature : this.originalSignature));
+					} catch(IllegalArgumentException e) {
+						// protection for invalid signature
+						if(this.parameterTypeNames != null) {
+							this.parameterNames =  this.createDefaultParameterNames(this.parameterTypeNames.length);
+						} else {
+							this.parameterNames = null;
+						}
+					}
 					if(this.parameterNames != null) {
 						this.updateCompletion = true;
 					}
@@ -1437,5 +1452,27 @@ public final class CompletionProposal extends InternalCompletionProposal {
 	 */
 	public int getAccessibility() {
 		return this.accessibility;
+	}
+	
+	/**
+	 * Returns whether this proposal is a constructor.
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 * <li><code>METHOD_REF</code> - return <code>true</code>
+	 * if the referenced method is a constructor</li>
+	 * 	<li><code>METHOD_DECLARATION</code> - return <code>true</code>
+	 * if the declared method is a constructor</li>
+	 * </ul>
+	 * For kinds of completion proposals, this method returns
+	 * <code>false</code>.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if the proposal is a constructor.
+	 * @since 3.1
+	 */
+	public boolean isConstructor() {
+		return this.isConstructor;
 	}
 }

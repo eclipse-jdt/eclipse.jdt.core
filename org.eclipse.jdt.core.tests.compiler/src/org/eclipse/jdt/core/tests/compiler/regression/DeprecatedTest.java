@@ -38,17 +38,17 @@ public void test001() {
 		"    int x = 1;\n" + 
 		"}\n",
 	}, 
-		"----------\n" + 
-		"1. WARNING in p\\B.java (at line 3)\n" + 
-		"	float x = super.x;\n" + 
-		"	      ^\n" + 
-		"The field B.x is hiding a field from type A\n" + 
-		"----------\n" + 
-		"2. WARNING in p\\B.java (at line 3)\n" + 
-		"	float x = super.x;\n" + 
-		"	          ^^^^^^^\n" + 
-		"The field A.x is deprecated\n" + 
-		"----------\n"
+	"----------\n" + 
+	"1. WARNING in p\\B.java (at line 3)\n" + 
+	"	float x = super.x;\n" + 
+	"	      ^\n" + 
+	"The field B.x is hiding a field from type A\n" + 
+	"----------\n" + 
+	"2. WARNING in p\\B.java (at line 3)\n" + 
+	"	float x = super.x;\n" + 
+	"	                ^\n" + 
+	"The field A.x is deprecated\n" + 
+	"----------\n"
 	);
 }
 public void test002() {
@@ -131,7 +131,12 @@ public void test003() {
 		"	new StaticM1().new StaticM2();}\n" + 
 		"	^^^^^^^^^^^^^^\n" + 
 		"Illegal enclosing instance specification for type Top.StaticM1.StaticM2\n" + 
-		"----------\n"	);
+		"----------\n" + 
+		"2. WARNING in p\\Top.java (at line 42)\n" + 
+		"	Object hello(){\n" + 
+		"	       ^^^^^^^\n" + 
+		"The method hello() from the type new Top.StaticM1.StaticM2.NonStaticM3(){} is never used locally\n" + 
+		"----------\n");
 }
 /**
  * Regression test for PR #1G9ES9B

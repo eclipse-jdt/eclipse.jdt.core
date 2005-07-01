@@ -158,6 +158,10 @@ public class MultiProjectTests extends Tests {
 	}
 	
 	public void testRemoveField() throws JavaModelException {
+		Hashtable options = JavaCore.getOptions();
+		options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE); //$NON-NLS-1$
+		JavaCore.setOptions(options);
+
 		//----------------------------
 		//           Step 1
 		//----------------------------

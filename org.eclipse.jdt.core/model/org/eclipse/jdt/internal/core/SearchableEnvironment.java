@@ -101,7 +101,7 @@ public class SearchableEnvironment
 					if (accessRuleSet != null) {
 						// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
 						char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
-						char[] classFileChars = type.getParent().getElementName().toCharArray();
+						char[] classFileChars = type.getElementName().toCharArray();
 						accessRestriction = accessRuleSet.getViolatedRestriction(CharOperation.concatWith(packageChars, classFileChars, '/'));
 					}
 				}

@@ -291,7 +291,8 @@ public class ChangeCollector {
 				typeDelta.superTypes();
 			}
 			if ((newFlags & IJavaElementDelta.F_MODIFIERS) != 0
-					&& this.hierarchy.hasSupertype(type.getElementName())) {
+					&& (this.hierarchy.hasSupertype(type.getElementName())
+						|| type.equals(this.hierarchy.focusType))) {
 				if (typeDelta == null) {
 					typeDelta = new SimpleDelta();
 				}

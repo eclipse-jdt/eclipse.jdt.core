@@ -1644,7 +1644,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-   					} else if (token.equals("syntheticAccess")) { //$NON-NLS-1$
+   					} else if (token.equals("syntheticAccess") //$NON-NLS-1$
+   							|| token.equals("synthetic-access")) { //$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportSyntheticAccessEmulation,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
@@ -1795,7 +1796,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-					} else if (token.equals("unqualifiedField")) { //$NON-NLS-1$
+					} else if (token.equals("unqualifiedField") //$NON-NLS-1$
+							|| token.equals("unqualified-field-access")) { //$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportUnqualifiedFieldAccess,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
@@ -1827,10 +1829,47 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportAnnotationSuperInterface,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
-					} else if (token.equals("enumSwitch")) { //$NON-NLS-1$
+					} else if (token.equals("enumSwitch") //$NON-NLS-1$
+							|| token.equals("incomplete-switch")) { //$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportIncompleteEnumSwitch,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
+					} else if (token.equals("hiding")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportHiddenCatchBlock,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportLocalVariableHiding,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportFieldHiding,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportTypeParameterHiding,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("static-access")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportNonStaticAccessToStatic,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportIndirectStaticAccess,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("unused")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportUnusedLocal, 
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportUnusedParameter,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportUnusedImport,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportUnusedPrivateMember,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 					}

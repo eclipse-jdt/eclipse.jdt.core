@@ -154,11 +154,17 @@ protected void classInstanceCreation(boolean hasClassBody) {
 	// ClassBodyopt produces a null item on the astStak if it produces NO class body
 	// An empty class body produces a 0 on the length stack.....
 
-	int length;
-	if (((length = astLengthStack[astLengthPtr]) == 1)
+	
+	if ((astLengthStack[astLengthPtr] == 1)
 		&& (astStack[astPtr] == null)) {
 
-		if (this.indexOfAssistIdentifier() < 0) {
+		
+		int index;
+		if ((index = this.indexOfAssistIdentifier()) < 0) {
+			super.classInstanceCreation(hasClassBody);
+			return;
+		} else if(this.identifierLengthPtr > -1 &&
+					(this.identifierLengthStack[this.identifierLengthPtr] - 1) != index) {
 			super.classInstanceCreation(hasClassBody);
 			return;
 		}
@@ -168,6 +174,7 @@ protected void classInstanceCreation(boolean hasClassBody) {
 		alloc = new SelectionOnQualifiedAllocationExpression();
 		alloc.sourceEnd = endPosition; //the position has been stored explicitly
 
+		int length;
 		if ((length = expressionLengthStack[expressionLengthPtr--]) != 0) {
 			expressionPtr -= length;
 			System.arraycopy(

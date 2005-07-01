@@ -1087,7 +1087,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		String str = new String(source, nameStart, name.getLength());
 		if (str.indexOf('\n') < 0) { // cannot compare if text contains new line
 			assumeEquals(prefix+"Misplaced name for qualified name: ", str, name.toString());
-		} else {
+		} else if (debug) {
 			System.out.println(prefix+"Name contains new line for qualified name: "+name);
 		}
 	}
@@ -2800,4 +2800,27 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			}
 		}
 	}
+
+	/**
+	 * Bug 99507: [javadoc] Infinit loop in DocCommentParser
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=99507"
+	 */
+	public void testBug99507() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b99507/X.java",
+			"package javadoc.b99507;\n" + 
+			"public class X {\n" + 
+			"}\n" +
+			"/** @param test*/" 
+		);
+		verifyComments(workingCopies[0]);
+	}
+	public void testBug99507b() throws JavaModelException {
+        String source = "/**\n@param country*/";
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(source.toCharArray());
+		parser.createAST(null);
+	}
+	
 }

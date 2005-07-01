@@ -1094,4 +1094,109 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98322
+	public void test018() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X<K extends X.Key> {\n" + 
+			"    public abstract static class Key {\n" + 
+			"         public abstract String getName();\n" + 
+			"    }\n" + 
+			"    public class Holder {}\n" + 
+			"    \n" + 
+			"    void baz(X<K>.Holder h) {} // (LX<TK;>.Holder;)V\n" + 
+			"    void bar(X.Holder h) {} // n/a\n" + 
+			"    void foo(X<Key>.Holder h) {} // (LX<LX$Key;>.Holder;)V\n" + 
+			"}\n",
+		};
+		this.runConformTest(
+			testsSource,
+			"");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 4, methods.length);
+
+			assertEquals("Wrong name", "baz", new String(methods[1].getSelector()));
+			char[] signature = methods[1].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "(LX<TK;>.Holder;)V", new String(signature));
+
+			assertEquals("Wrong name", "bar", new String(methods[2].getSelector()));
+			signature = methods[2].getGenericSignature();
+			assertNull("No signature", signature);
+
+			assertEquals("Wrong name", "foo", new String(methods[3].getSelector()));
+			signature = methods[3].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "(LX<LX$Key;>.Holder;)V", new String(signature));
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100293
+	public void test019() {
+		final String[] testsSource = new String[] {
+			"X.java",
+			"public class X<K extends X.Key> {\n" + 
+			"    public abstract static class Key {\n" + 
+			"         public abstract String getName();\n" + 
+			"    }\n" + 
+			"    public class Holder {}\n" + 
+			"    \n" + 
+			"    X<K>.Holder foo() { return null; }\n" + 
+			"    \n" + 
+			"    static void bar() {\n" + 
+			"    	Object o = new X<Key>().foo();\n" + 
+			"    	class Local<U> {\n" + 
+			"    		X<Key>.Holder field;\n" + 
+			"    		Local<String> foo1() { return null; }\n" + 
+			"    		Local<U> foo2() { return null; }\n" + 
+			"    		Local foo3() { return null; }\n" + 
+			"    	}\n" + 
+			"    }\n" + 
+			"}\n",
+		};
+		this.runConformTest(
+			testsSource,
+			"");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X$1Local.class");
+			IBinaryField[] fields = classFileReader.getFields();
+			assertNotNull("No fields", fields);
+			assertEquals("Wrong size", 1, fields.length);
+
+			assertEquals("Wrong name", "field", new String(fields[0].getName()));
+			char[] signature = fields[0].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "LX<LX$Key;>.Holder;", new String(signature));
+
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 4, methods.length);
+
+			assertEquals("Wrong name", "foo1", new String(methods[1].getSelector()));
+			signature = methods[1].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "()LX$1Local<Ljava/lang/String;>;", new String(signature));
+
+			assertEquals("Wrong name", "foo2", new String(methods[2].getSelector()));
+			signature = methods[2].getGenericSignature();
+			assertNotNull("No signature", signature);
+			assertEquals("Wrong signature", "()LX$1Local<TU;>;", new String(signature));
+
+			assertEquals("Wrong name", "foo3", new String(methods[3].getSelector()));
+			signature = methods[3].getGenericSignature();
+			assertNull("No signature", signature);
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}		
 }

@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.Hashtable;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.core.IJavaProject;
@@ -469,6 +470,36 @@ public class OptionTests extends ModifyingResourceTests {
 		} finally {
 			this.deleteProject("A");
 		}
+	}
+	
+	/*
+	 * Ensures that a classpath variable is still in the preferences after shutdown/restart
+	 * (regression test for bug 98720 [preferences] classpath variables are not exported if the session is closed and restored)
+	 */
+	public void test10() throws CoreException {
+		JavaCore.setClasspathVariable("TEST", new Path("testing"), null);
+		simulateExitRestart();
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IEclipsePreferences preferences = manager.getInstancePreferences();
+		assertEquals(
+			"Should find variable TEST in preferences", 
+			"testing",
+			preferences.get(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST", "null"));
+	}
+
+	/*
+	 * Ensures that a classpath variable is removed from the preferences if set to null
+	 * (regression test for bug 98720 [preferences] classpath variables are not exported if the session is closed and restored)
+	 */
+	public void test11() throws CoreException {
+		JavaCore.setClasspathVariable("TEST", new Path("testing"), null);
+		JavaCore.removeClasspathVariable("TEST", null);
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IEclipsePreferences preferences = manager.getInstancePreferences();
+		assertEquals(
+			"Should not find variable TEST in preferences", 
+			"null",
+			preferences.get(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST", "null"));
 	}
 
 	/**

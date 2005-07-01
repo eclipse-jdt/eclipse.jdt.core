@@ -38,7 +38,9 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
@@ -408,6 +410,10 @@ public class AbstractASTTests extends ModifyingResourceTests {
 				return ((ArrayType) node).resolveBinding();
 			case ASTNode.ASSIGNMENT:
 				return ((Assignment) node).getRightHandSide().resolveTypeBinding();
+			case ASTNode.SIMPLE_TYPE:
+				return ((SimpleType) node).resolveBinding();
+			case ASTNode.QUALIFIED_NAME:
+				return ((QualifiedName) node).resolveBinding();
 			default:
 				throw new Error("Not yet implemented for this type of node: " + node);
 		}
@@ -423,7 +429,7 @@ public class AbstractASTTests extends ModifyingResourceTests {
 	 * Resolve the bindings of the nodes marked with *start?* and *end?*.
 	 */
 	protected IBinding[] resolveBindings(String contents, ICompilationUnit cu) throws JavaModelException {
-		ASTNode[] nodes = buildASTs(contents, cu);
+		ASTNode[] nodes = buildASTs(contents, cu, false /* do not report errors */);
 		if (nodes == null) return null;
 		int length = nodes.length;
 		IBinding[] result = new IBinding[length];

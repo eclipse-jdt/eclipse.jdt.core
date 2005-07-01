@@ -1172,11 +1172,12 @@ class ASTConverter {
 		int problemLength = unit.compilationResult.problemCount;
 		if (problemLength != 0) {
 			IProblem[] resizedProblems = null;
-			final IProblem[] problems = unit.compilationResult.problems;
-			if (problems.length == problemLength) {
+			final IProblem[] problems = unit.compilationResult.getProblems();
+			final int realProblemLength=problems.length;
+			if (realProblemLength == problemLength) {
 				resizedProblems = problems;
 			} else {
-				System.arraycopy(problems, 0, (resizedProblems = new IProblem[problemLength]), 0, problemLength);
+				System.arraycopy(problems, 0, (resizedProblems = new IProblem[realProblemLength]), 0, realProblemLength);
 			}
 			ASTSyntaxErrorPropagator syntaxErrorPropagator = new ASTSyntaxErrorPropagator(resizedProblems);
 			compilationUnit.accept(syntaxErrorPropagator);
@@ -3859,6 +3860,7 @@ class ASTConverter {
 					case TerminalTokens.TokenNameint:
 					case TerminalTokens.TokenNamelong:
 					case TerminalTokens.TokenNameshort:
+					case TerminalTokens.TokenNameboolean:
 						return this.scanner.currentPosition - 1;
 				}
 			}
@@ -4379,8 +4381,15 @@ class ASTConverter {
 								if (annotations != null && indexInAnnotations < annotations.length) {
 									org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 									modifier = convert(annotation);
-									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.scanner.eofPosition);
+									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
+								break;
+							case TerminalTokens.TokenNameCOMMENT_BLOCK :
+							case TerminalTokens.TokenNameCOMMENT_LINE :
+							case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+								break;
+							default :
+								return;
 						}
 						if (modifier != null) {
 							variableDecl.modifiers().add(modifier);
@@ -4447,8 +4456,15 @@ class ASTConverter {
 							if (annotations != null && indexInAnnotations < annotations.length) {
 								org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
 								modifier = convert(annotation);
-								this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.scanner.eofPosition);
+								this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 							}
+							break;
+						case TerminalTokens.TokenNameCOMMENT_BLOCK :
+						case TerminalTokens.TokenNameCOMMENT_LINE :
+						case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+							break;
+						default :
+							return;
 					}
 					if (modifier != null) {
 						variableDecl.modifiers().add(modifier);
@@ -4544,6 +4560,13 @@ class ASTConverter {
 									modifier = convert(annotation);
 									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
+								break;
+							case TerminalTokens.TokenNameCOMMENT_BLOCK :
+							case TerminalTokens.TokenNameCOMMENT_LINE :
+							case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+								break;
+							default :
+								return;
 						}
 						if (modifier != null) {
 							variableDeclarationExpression.modifiers().add(modifier);
@@ -4618,6 +4641,13 @@ class ASTConverter {
 									modifier = convert(annotation);
 									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
+								break;
+							case TerminalTokens.TokenNameCOMMENT_BLOCK :
+							case TerminalTokens.TokenNameCOMMENT_LINE :
+							case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+								break;
+							default :
+								return;
 						}
 						if (modifier != null) {
 							variableDeclarationStatement.modifiers().add(modifier);

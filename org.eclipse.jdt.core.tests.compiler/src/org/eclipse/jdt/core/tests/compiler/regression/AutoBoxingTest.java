@@ -459,8 +459,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	new Y().test(1, 1);\r\n" + 
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new Y().test(1, 1);\n" +
 			"	        ^^^^\n" + 
 			"The method test(Long, int) in the type Y is not applicable for the arguments (int, int)\n" + 
 			"----------\n"
@@ -479,8 +479,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	new Y().test((byte) 1, 1);\r\n" + 
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new Y().test((byte) 1, 1);\n" +
 			"	        ^^^^\n" + 
 			"The method test(Integer, int) in the type Y is not applicable for the arguments (byte, int)\n" + 
 			"----------\n"
@@ -539,13 +539,13 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	new Y().test(1, 1);\r\n" + 
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new Y().test(1, 1);\n" +
 			"	        ^^^^\n" + 
 			"The method test(Integer, int) is ambiguous for the type Y\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\r\n" + 
-			"	new Y().test(new Integer(1), new Integer(1));\r\n" + 
+			"2. ERROR in X.java (at line 4)\n" +
+			"	new Y().test(new Integer(1), new Integer(1));\n" +
 			"	        ^^^^\n" + 
 			"The method test(Integer, int) is ambiguous for the type Y\n" + 
 			"----------\n"
@@ -1067,20 +1067,20 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 1\n" + 
 			"  public static void main(String[] s);\n" + 
-			"     0  new java/lang/Integer [17]\n" + 
+			"     0  new java.lang.Integer [17]\n" + 
 			"     3  dup\n" + 
 			"     4  iconst_1\n" + 
-			"     5  invokespecial java/lang/Integer.<init>(I)V [20]\n" + 
-			"     8  new java/lang/Integer [17]\n" + 
+			"     5  invokespecial java.lang.Integer(int) [20]\n" + 
+			"     8  new java.lang.Integer [17]\n" + 
 			"    11  dup\n" + 
 			"    12  iconst_0\n" + 
-			"    13  invokespecial java/lang/Integer.<init>(I)V [20]\n" + 
+			"    13  invokespecial java.lang.Integer(int) [20]\n" + 
 			"    16  if_acmpne 25\n" + 
-			"    19  getstatic java/lang/System.out Ljava/io/PrintStream; [26]\n" + 
-			"    22  invokevirtual java/io/PrintStream.println()V [31]\n" + 
-			"    25  getstatic java/lang/System.out Ljava/io/PrintStream; [26]\n" + 
+			"    19  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
+			"    22  invokevirtual java.io.PrintStream.println() : void  [31]\n" + 
+			"    25  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
 			"    28  ldc <String \"SUCCESS\"> [33]\n" + 
-			"    30  invokevirtual java/io/PrintStream.print(Ljava/lang/String;)V [37]\n" + 
+			"    30  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [37]\n" + 
 			"    33  return\n";
 			
 		int index = actualOutput.indexOf(expectedOutput);
@@ -1946,8 +1946,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\r\n" + 
-			"	a(new Integer(1), 2);\r\n" + 
+			"1. ERROR in X.java (at line 3)\n" +
+			"	a(new Integer(1), 2);\n" +
 			"	^\n" + 
 			"The method a(int, int) is ambiguous for the type X\n" + 
 			"----------\n"
@@ -2909,13 +2909,13 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\r\n" + 
-			"	int[] ints = (int[]) integers;\r\n" + 
+			"1. ERROR in X.java (at line 4)\n" +
+			"	int[] ints = (int[]) integers;\n" +
 			"	             ^^^^^^^^^^^^^^^^\n" + 
 			"Cannot cast from Integer[] to int[]\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\r\n" + 
-			"	Float[] fs = (Float[]) floats;\r\n" + 
+			"2. ERROR in X.java (at line 6)\n" +
+			"	Float[] fs = (Float[]) floats;\n" +
 			"	             ^^^^^^^^^^^^^^^^\n" + 
 			"Cannot cast from float[] to Float[]\n" + 
 			"----------\n");
@@ -2982,18 +2982,18 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\r\n" + 
-			"	new X().foo(1);\r\n" + 
+			"1. ERROR in X.java (at line 5)\n" +
+			"	new X().foo(1);\n" +
 			"	        ^^^\n" + 
 			"The method foo(int, Object[]) is ambiguous for the type X\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\r\n" + 
-			"	new X().foo(new Integer(1));\r\n" + 
+			"2. ERROR in X.java (at line 6)\n" +
+			"	new X().foo(new Integer(1));\n" +
 			"	        ^^^\n" + 
 			"The method foo(int, Object[]) is ambiguous for the type X\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 7)\r\n" + 
-			"	new X().foo(1, new Integer(1));\r\n" + 
+			"3. ERROR in X.java (at line 7)\n" +
+			"	new X().foo(1, new Integer(1));\n" +
 			"	        ^^^\n" + 
 			"The method foo(int, Object[]) is ambiguous for the type X\n" + 
 			"----------\n"

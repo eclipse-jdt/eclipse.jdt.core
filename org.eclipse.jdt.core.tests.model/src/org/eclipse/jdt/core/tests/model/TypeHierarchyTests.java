@@ -34,7 +34,7 @@ public TypeHierarchyTests(String name) {
 	this.displayName = true;
 }
 static {
-//	TESTS_NAMES= new String[] { "testBinaryTypeHiddenByOtherJar" };
+//	TESTS_NAMES= new String[] { "testGeneric7" };
 }
 public static Test suite() {
 	return buildTestSuite(TypeHierarchyTests.class);
@@ -105,6 +105,17 @@ public void setUpSuite() throws Exception {
 	createFile(
 		"/TypeHierarchy15/src/A.java", 
 		"public class A<E> implements I<E> {\n" +
+		"}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/X99606.java", 
+		"public class X99606 extends Y99606<X99606.Color> {\n" + 
+		"	static class Color {}\n" + 
+		"}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/Y99606.java", 
+		"public class Y99606<T> {\n" + 
 		"}"
 	);
 }
@@ -646,6 +657,10 @@ public void testRegion2() throws JavaModelException {
 		h.getAllTypes()
 	);
 }
+/*
+ * Ensures that a type hierarchy on a region contains anonymous/local types in this region
+ * (regression test for bug 48395 Hierarchy on region misses local classes)
+ */
 public void testRegion3() throws JavaModelException {
 	IPackageFragment pkg = getPackageFragment("TypeHierarchy", "src", "p9");
 	IRegion region = JavaCore.newRegion();
@@ -696,10 +711,40 @@ public void testRegion4() throws CoreException {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
 	}
 }
+
 /*
- * Ensures that a type hierarchy on a region contains anonymous/local types in this region
- * (regression test for bug 48395 Hierarchy on region misses local classes)
+ * Ensures that a type hierarchy on a member type with subtypes in another project is correct
+ * (regression test for bug 101019 RC3: Type Hierarchy does not find implementers/extenders of inner class/interface in other project)
  */
+public void testMemberTypeSubtypeDifferentProject() throws CoreException {
+	try {
+		createJavaProject("P1");
+		createFile(
+			"/P1/X.java",
+			"public class X {\n" +
+			"  public class Member {\n" +
+			"  }\n" +
+			"}"
+			);
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createFile(
+			"/P2/Y.java",
+			"public class Y extends X.Member {\n" +
+			"}"
+		);
+		IType focus = getCompilationUnit("/P1/X.java").getType("X").getType("Member");
+		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null/*no progress*/);
+		assertHierarchyEquals(
+			"Focus: Member [in X [in X.java [in <default> [in <project root> [in P1]]]]]\n" + 
+			"Super types:\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + " [in P1]]]]\n" + 
+			"Sub types:\n" + 
+			"  Y [in Y.java [in <default> [in <project root> [in P2]]]]\n",
+			hierarchy);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
 
 /**
  * Ensures that the superclass can be retrieved for a source type's unqualified superclass.
@@ -960,6 +1005,22 @@ public void testGeneric6() throws CoreException {
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	IType[] subtypes = hierarchy.getSubtypes(type);
 	assertEquals("Unexpected key", "Lutil/Map<TK;TV;>;", subtypes.length < 2 ? null : subtypes[1].getKey());
+}
+/*
+ * Ensures that a hierarchy on a generic type that is extended using a member as a type parameter can be opened
+ * (regression test for bug 99606 Subtype not found if parameterized on inner class)
+ */
+public void testGeneric7() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy15/src/Y99606.java").getType("Y99606");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: Y99606 [in Y99606.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in TypeHierarchy15]]]]\n" + 
+		"Sub types:\n" + 
+		"  X99606 [in X99606.java [in <default> [in src [in TypeHierarchy15]]]]\n",
+		hierarchy
+	);
 }
 /**
  * Ensures the correctness of all classes in a type hierarchy based on a region.

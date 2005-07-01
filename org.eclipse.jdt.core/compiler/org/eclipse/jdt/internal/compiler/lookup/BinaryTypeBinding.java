@@ -60,8 +60,8 @@ public static ReferenceBinding resolveType(ReferenceBinding type, LookupEnvironm
 	if (type.isWildcard())
 		return ((WildcardBinding) type).resolve();
 
-	if (convertGenericToRawType && type.isGenericType()) // raw reference to generic ?
-	    return environment.createRawType(type, type.enclosingType());
+	if (convertGenericToRawType) // raw reference to generic ?
+		return (ReferenceBinding) environment.convertToRawType(type);
 	return type;
 }
 public static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, ParameterizedTypeBinding parameterizedType, int rank) {
@@ -83,7 +83,7 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 						
 		case Binding.GENERIC_TYPE :
 			if (parameterizedType == null) // raw reference to generic ?
-			    return environment.createRawType((ReferenceBinding) type, type.enclosingType());
+				return environment.convertToRawType(type);
 			break;
 			
 		default:			
@@ -140,6 +140,18 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	} else if (binaryType.isMember()) {
 		this.tagBits |= MemberTypeMask;
 	}
+	// need enclosing type to access type variables
+	char[] enclosingTypeName = binaryType.getEnclosingTypeName();
+	if (enclosingTypeName != null) {
+		// attempt to find the enclosing type if it exists in the cache (otherwise - resolve it when requested)
+		this.enclosingType = environment.getTypeFromConstantPoolName(enclosingTypeName, 0, -1, true); // pretend parameterized to avoid raw
+		this.tagBits |= MemberTypeMask;   // must be a member type not a top-level or local type
+		this.tagBits |= 	HasUnresolvedEnclosingType;
+		if (this.enclosingType().isStrictfp())
+			this.modifiers |= AccStrictfp;
+		if (this.enclosingType().isDeprecated())
+			this.modifiers |= AccDeprecatedImplicitly;
+	}	
 }
 
 public FieldBinding[] availableFields() {
@@ -184,19 +196,6 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
 	this.typeVariables = NoTypeVariables;
 	this.superInterfaces = NoSuperInterfaces;
-
-	// need enclosing type to access type variables
-	char[] enclosingTypeName = binaryType.getEnclosingTypeName();
-	if (enclosingTypeName != null) {
-		// attempt to find the enclosing type if it exists in the cache (otherwise - resolve it when requested)
-		this.enclosingType = environment.getTypeFromConstantPoolName(enclosingTypeName, 0, -1, true); // pretend parameterized to avoid raw
-		this.tagBits |= MemberTypeMask;   // must be a member type not a top-level or local type
-		this.tagBits |= 	HasUnresolvedEnclosingType;
-		if (this.enclosingType().isStrictfp())
-			this.modifiers |= AccStrictfp;
-		if (this.enclosingType().isDeprecated())
-			this.modifiers |= AccDeprecatedImplicitly;
-	}
 
 	long sourceLevel = environment.globalOptions.sourceLevel;
 	char[] typeSignature = null;

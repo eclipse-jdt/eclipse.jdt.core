@@ -277,9 +277,8 @@ void checkMethods() {
 				while (index >= 0) matchingInherited[index--] = null; // clear the previous contents of the matching methods
 				MethodBinding currentMethod = current[i];
 				for (int j = 0, length2 = inherited.length; j < length2; j++) {
-					MethodBinding inheritedMethod = inherited[j];
+					MethodBinding inheritedMethod = computeSubstituteMethod(inherited[j], currentMethod);
 					if (inheritedMethod != null) {
-						inheritedMethod = computeSubstituteMethod(inheritedMethod, currentMethod);
 						if (areMethodsEqual(currentMethod, inheritedMethod)) {
 							matchingInherited[++index] = inheritedMethod;
 							inherited[j] = null; // do not want to find it again
@@ -303,11 +302,13 @@ void checkMethods() {
 					if (canSkipInheritedMethods(inheritedMethod, otherInheritedMethod))
 						continue;
 					otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
-					if (areMethodsEqual(inheritedMethod, otherInheritedMethod)) {
-						matchingInherited[++index] = otherInheritedMethod;
-						inherited[j] = null; // do not want to find it again
-					} else {
-						checkForInheritedNameClash(inheritedMethod, otherInheritedMethod);
+					if (otherInheritedMethod != null) {
+						if (areMethodsEqual(inheritedMethod, otherInheritedMethod)) {
+							matchingInherited[++index] = otherInheritedMethod;
+							inherited[j] = null; // do not want to find it again
+						} else {
+							checkForInheritedNameClash(inheritedMethod, otherInheritedMethod);
+						}
 					}
 				}
 			}
@@ -509,15 +510,12 @@ void computeMethods() {
 	}
 }
 MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBinding currentMethod) {
+	if (inheritedMethod == null) return null;
+	if (currentMethod.parameters.length != inheritedMethod.parameters.length) return null; // no match
 	return inheritedMethod;
 }
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	return areReturnTypesEqual(method, inheritedMethod) && areMethodsEqual(method, inheritedMethod);
-}
-public boolean doReturnTypesCollide(MethodBinding method, MethodBinding inheritedMethod) {
-	return method.returnType != inheritedMethod.returnType
-		&& org.eclipse.jdt.core.compiler.CharOperation.equals(method.selector, inheritedMethod.selector)
-		&& method.areParametersEqual(inheritedMethod);
+	return areMethodsEqual(method, inheritedMethod) && areReturnTypesEqual(method, inheritedMethod);
 }
 boolean isAsVisible(MethodBinding newMethod, MethodBinding inheritedMethod) {
 	if (inheritedMethod.modifiers == newMethod.modifiers) return true;

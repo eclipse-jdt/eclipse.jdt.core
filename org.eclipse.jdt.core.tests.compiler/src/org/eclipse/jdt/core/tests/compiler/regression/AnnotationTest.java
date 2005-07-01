@@ -37,8 +37,8 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 143 };
-//		TESTS_RANGE = new int[] { 21, 50 };
+//		TESTS_NUMBERS = new int[] { 166 };
+//		TESTS_RANGE = new int[] { 165, 170 };
 	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
@@ -1145,13 +1145,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(val={false})\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1252,13 +1246,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value={\"Hello\"})\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1300,13 +1288,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=\"Hi\")\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1347,13 +1329,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=(int) 2)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1394,13 +1370,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=(byte) 2)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1441,13 +1411,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=(short) 2)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1488,13 +1452,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=\'@\')\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1535,13 +1493,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=9223372036854775807L)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1582,13 +1534,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=-0.0f)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1630,13 +1576,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=-0.0)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1681,13 +1621,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=@Foo(id=(int) 5))\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 11]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1731,13 +1665,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value=Color.RED)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 9]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1781,13 +1709,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(value={Color.RED})\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 9]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1862,12 +1784,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"      booleans={true},\n" + 
 			"      floats={0.0f},\n" + 
 			"      doubles={-0.0})\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 31]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1943,13 +1860,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"      booleans=true,\n" + 
 			"      floats=0.0f,\n" + 
 			"      doubles=-0.0)\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 31]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -1991,13 +1902,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 0, Locals: 1\n" + 
 			"  @I(names={\"Hello\"})\n" + 
-			"  void foo();\n" + 
-			"    0  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n" + 
-			"}"; 
+			"  void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -2039,12 +1944,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  // Method descriptor #6 ()V\n" +
 			"  // Stack: 0, Locals: 1\n" +
 			"  @I(classes={X,I})\n" +
-			"  public void foo();\n" +
-			"    0  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 7]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 1] local: this index: 0 type: LX;\n"; 
+			"  public void foo();"; 
 			
 		if (actualOutput.indexOf(expectedOutput) == -1) {
 			System.out.println(org.eclipse.jdt.core.tests.util.Util.displayString(actualOutput, 2));
@@ -3560,16 +3460,6 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	public String toString() { return null; }\n" + 
 			"	              ^^^^^^^^^^\n" + 
 			"The method toString() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"8. WARNING in X.java (at line 34)\n" + 
-			"	c = c.getSuperclass();\n" + 
-			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The method getSuperclass() belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n" + 
-			"9. WARNING in X.java (at line 43)\n" + 
-			"	c = c.getSuperclass();\n" + 
-			"	    ^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The method getSuperclass() belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n");
     }            
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291
@@ -4338,7 +4228,7 @@ public class AnnotationTest extends AbstractComparableTest {
             new String[] {
                 "X.java",
     			"public class X {\n" + 
-    			"	@SuppressWarnings(\"unusedPrivate\"//$NON-NLS-1$\n" + 
+    			"	@SuppressWarnings(\"unused\"//$NON-NLS-1$\n" + 
     			"	)\n" + 
     			"	private static final String marker = \"never used mark\"; //$NON-NLS-1$\n" + 
     			"\n" + 
@@ -4475,12 +4365,22 @@ public class AnnotationTest extends AbstractComparableTest {
     			"	Zork z;\n" + 
     			"}\n"
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n",
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 1)\n" + 
+    		"	@SuppressWarnings({\"zork\", \"warningToken\"})//$NON-NLS-1$//$NON-NLS-2$\n" + 
+    		"	                   ^^^^^^\n" + 
+    		"Unhandled warning token zork\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 1)\n" + 
+    		"	@SuppressWarnings({\"zork\", \"warningToken\"})//$NON-NLS-1$//$NON-NLS-2$\n" + 
+    		"	                           ^^^^^^^^^^^^^^\n" + 
+    		"Unhandled warning token warningToken\n" + 
+    		"----------\n" + 
+    		"3. ERROR in X.java (at line 3)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n",
 			null, true, customOptions);
     }          
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=90111 - variation
@@ -4688,7 +4588,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	           ^^^\n" + 
 			"Cannot reference a field before it is defined\n" + 
 			"----------\n");
-    }      
+    }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96631
     public void test146() {
         this.runConformTest(
@@ -4699,5 +4599,798 @@ public class AnnotationTest extends AbstractComparableTest {
 				"}\n",
             },
 			"");
-    }    
+    }
+    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96974
+    public void test147() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings({\"nls\"})\n" +
+				"public class X<T> {\n" +
+				"	 String test= \"\";\n" +
+				"}",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97466
+    public void test148() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" +
+				"	private static void foo() {\n" +
+				"		 @interface Bar {\n" +
+				"			public String bar = \"BUG\";\n" +
+				"		}\n" +
+				"	}\n" +
+				"}",
+            },
+            "----------\n" + 
+    		"1. ERROR in X.java (at line 3)\n" + 
+    		"	@interface Bar {\n" + 
+    		"	           ^^^\n" + 
+    		"The member annotation Bar can only be defined inside a top-level class or interface\n" + 
+    		"----------\n");
+    }
+    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96991
+    public void test149() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	void bar() {\n" + 
+				"		@Annot(foo = zzz)\n" + 
+				"		final int zzz = 0;\n" + 
+				"\n" + 
+				"		@Annot(foo = kkk)\n" + 
+				"		int kkk = 1;\n" + 
+				"\n" + 
+				"	}\n" + 
+				"	@Annot(foo = fff)\n" + 
+				"	final int fff = 0;\n" + 
+				"	\n" + 
+				"	@Annot(foo = Member.ttt)\n" + 
+				"	static class Member {\n" + 
+				"		final static int ttt = 2;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"@interface Annot {\n" + 
+				"	int foo();\n" + 
+				"}\n",
+            },
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	@Annot(foo = kkk)\n" + 
+			"	             ^^^\n" + 
+			"The value for annotation attribute Annot.foo must be a constant expression\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	@Annot(foo = fff)\n" + 
+			"	             ^^^\n" + 
+			"Cannot reference a field before it is defined\n" + 
+			"----------\n");
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98091
+    public void test150() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings(\"assertIdentifier\")\n" + 
+				"class X {}",
+            },
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 1)\n" + 
+    		"	@SuppressWarnings(\"assertIdentifier\")\n" + 
+    		"	                  ^^^^^^^^^^^^^^^^^^\n" + 
+    		"Unhandled warning token assertIdentifier\n" + 
+    		"----------\n");
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test151() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings({\"boxing\"})\n" +
+				"public class X {\n" +
+				"	 static void foo(int i) {}\n" +
+				"	 public static void main(String[] args) {\n" +
+				"		foo(new Integer(0));\n" +
+				"	 }\n" +
+				"}",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test152() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings({\"boxing\"})\n" +
+				"public class X {\n" +
+				"	 static void foo(Integer i) {}\n" +
+				"	 public static void main(String[] args) {\n" +
+				"		foo(0);\n" +
+				"	 }\n" +
+				"}",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test153() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "enum E { A, B, C }\n" +
+				"public class X {\n" +
+				"    @SuppressWarnings({\"incomplete-switch\"})\n" +
+				"	 public static void main(String[] args) {\n" +
+				"		for (E e : E.values()) {\n" +
+				"			switch(e) {\n" +
+				"				case A :\n" +
+				"					System.out.println(e);\n" +
+				"				break;\n" +
+				"			}\n" +
+				"		}\n" +
+				"	 }\n" +
+				"}",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test154() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" +
+				"	 static int i;\n" +
+				"    @SuppressWarnings({\"hiding\"})\n" +
+				"	 public static void main(String[] args) {\n" +
+				"		for (int i = 0, max = args.length; i < max; i++) {\n" +
+				"			System.out.println(args[i]);\n" +
+				"		}\n" +
+				"	 }\n" +
+				"}",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test155() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings({\"hiding\"})\n" +
+	   			"public class X {	\n"+
+    			"	{ int x = \n"+
+    			"		new Object() { 	\n"+
+    			"			int foo() {	\n"+
+    			"				int x = 0;\n" +
+    			"				return x;	\n"+
+    			"			}	\n"+
+    			"		}.foo();	\n"+
+    			"	}	\n"+
+    			"}\n",
+           },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test156() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+	   			"class T {}\n" +
+				"@SuppressWarnings({\"hiding\"})\n" +
+	   			"public class X<T> {\n"+
+    			"}\n",
+           },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test157() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			"public class X {\n" + 
+				"   @SuppressWarnings({\"hiding\"})\n" +
+    			"	public static void main(String[] args) {\n" + 
+    			"		try {\n" + 
+    			"			throw new BX();\n" + 
+    			"		} catch(BX e) {\n" + 
+    			"		} catch(AX e) {\n" + 
+    			"		}\n" + 
+    			"	}\n" + 
+    			"} \n" + 
+				"@SuppressWarnings({\"serial\"})\n" +
+	   			"class AX extends Exception {}\n" + 
+				"@SuppressWarnings({\"serial\"})\n" +
+    			"class BX extends AX {}\n"		
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test158() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			"public class X {\n" + 
+				"   @SuppressWarnings({\"finally\"})\n" +
+    			"	public static void main(String[] args) {\n" + 
+    			"		try {\n" + 
+    			"			throw new AX();\n" + 
+    			"		} finally {\n" +
+    			"			return;\n" +
+    			"		}\n" + 
+    			"	}\n" + 
+    			"} \n" + 
+				"@SuppressWarnings({\"serial\"})\n" +
+	   			"class AX extends Exception {}" 
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test159() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings({\"static-access\"})\n" +
+	   			"public class X extends XZ {\n" + 
+    			"	\n" + 
+    			"	void foo() {\n" + 
+    			"		int j = X.S;\n" + 
+    			"		int k = super.S;\n" + 
+    			"		int l = XZ.S;\n" + 
+    			"		int m = XY.S;\n" + 
+    			"		\n" + 
+    			"		bar();\n" + 
+    			"		X.bar();\n" + 
+    			"		XY.bar();\n" + 
+    			"		XZ.bar();\n" + 
+    			"	}\n" + 
+    			"}\n" + 
+    			"class XY {\n" + 
+    			"	static int S = 10;\n" + 
+    			"	static void bar(){}\n" + 
+    			"}\n" + 
+    			"class XZ extends XY {\n" + 
+    			"}"
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test160() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"@SuppressWarnings(\"static-access\")\n" +
+	   			"public class X {\n" + 
+    			"	void foo() {\n" + 
+    			"		int m = new XY().S;\n" + 
+    			"	}\n" + 
+    			"}\n" + 
+    			"class XY {\n" + 
+    			"	static int S = 10;\n" + 
+    			"}"
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test161() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "@SuppressWarnings(\"unqualified-field-access\")\n" +
+	   			"public class X {\n" + 
+	   			"	int i;\n" +
+    			"	int foo() {\n" + 
+    			"		return i;\n" + 
+    			"	}\n" + 
+    			"}" 
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test162() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "@SuppressWarnings(\"unchecked\")\n" +
+				"public class X<T> {\n" + 
+				"    \n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        AX ax = new AX();\n" + 
+				"        AX ax2 = ax.p;\n" + 
+				"        ax.p = new AX<String>();\n" + 
+				"        ax.q = new AX<String>();\n" + 
+				"        ax.r = new AX<Object>();\n" + 
+				"        System.out.println(ax2);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"class AX <P> {\n" + 
+				"    AX<P> p;\n" + 
+				"    AX<Object> q;\n" + 
+				"    AX<String> r;\n" + 
+				"    BX<String> s;\n" + 
+				"}\n" + 
+				"\n" + 
+				"class BX<Q> {\n" + 
+				"}\n",
+            },
+			"",
+			null,
+			true,
+			options
+		);
+    }
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test163() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "import java.io.*;\n" +
+                "@SuppressWarnings(\"unused\")\n" +
+				"public class X<T> {\n" + 
+				"    \n" + 
+				"    public void foo(int i) throws java.io.IOException {\n" + 
+				"       int j = 0;\n" +
+				"		class C {\n" +
+				"			private void bar() {}\n" + 			
+				"		}\n" +
+				"    }\n" + 
+				"}" 
+            },
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 1)\n" + 
+    		"	import java.io.*;\n" + 
+    		"	       ^^^^^^^\n" + 
+    		"The import java.io is never used\n" + 
+    		"----------\n",
+			null,
+			true,
+			options
+		);
+    }
+    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test164() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+                "@SuppressWarnings({\"synthetic-access\", \"unused\"})\n" +
+				"public class X {\n" + 
+				"    private int i;\n" +
+				"	 private void bar() {}\n" +
+				"    public void foo() {\n" + 
+				"       class C {\n" +
+				"			private void bar() {\n" +
+				"				System.out.println(i);\n" +
+				"				i = 0;\n" +
+				"				bar();\n" +
+				"			}\n" +
+				"		};\n" +
+				"		new C().bar();\n" +
+				"    }\n" + 
+				"}" 
+            },
+            "",
+			null,
+			true,
+			options
+		);
+    }
+    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
+    public void test165() {
+		Map options = this.getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingDeprecatedAnnotation, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotation, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.WARNING);
+		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PRIVATE);
+	    this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"/**\n" +
+				" * @see Y\n" +
+				" */\n" +
+                "@SuppressWarnings(\"deprecation\")\n" +
+				"public class X extends Y {\n" + 
+				"	 /**\n" +
+				"	  * @see Y#foo()\n" +
+				"	  * @see Y#j\n" +
+				"	  */\n" +
+				"    public void foo() {\n" + 
+				"		super.foo();\n" +
+				"    }\n" + 
+				"}",
+				"Y.java",
+				"/**\n" +
+				" * @deprecated\n" +
+				" */\n" +
+				"public class Y {\n" +
+				"	/**\n" +
+				"	 * @deprecated\n" +
+				"	 */\n" +
+				"	public void foo() {}\n" +
+				"	/**\n" +
+				"	 * @deprecated\n" +
+				"	 */\n" +
+				"	public int j;\n" +
+				"}"
+            },
+            "",
+			null,
+			true,
+			options
+		);
+    }
+
+	// check array handling of singleton 
+	public void test166() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"import java.lang.annotation.Inherited;\n" +
+				"\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Inherited()\n" +
+				"@interface ParameterAnnotation {\n" +
+				"	String value() default \"Default\";\n" +
+				"}\n"+
+				"@interface ClassAnnotation {\n" +
+				"	String value() default \"Default\";\n" +
+				"}\n" +
+				"\n" +
+				"enum EnumClass{\n" +
+				"	Value1, Value2, Value3\n" +
+				"}\n" +
+				"\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Inherited()\n" +
+				"@interface ValueAnnotation {\n" +
+				"	String value() default \"Default\";\n" +
+				"	boolean booleanValue() default true;\n" +
+				"	char charValue() default \'q\';\n" +
+				"	byte byteValue() default 123;\n" +
+				"	short shortValue() default 12345;\n" +
+				"	int intValue() default 1234567890;\n" +
+				"	float floatValue() default 12345.6789f;\n" +
+				"	double doubleValue() default 12345.6789;\n" +
+				"	long longValue() default 1234567890123456789l;\n" +
+				"	String stringValue() default \"stringValue\";\n" +
+				"	EnumClass enumValue() default EnumClass.Value1;\n" +
+				"	Class classValue() default EnumClass.class;\n" +
+				"	ClassAnnotation annotationValue() default @ClassAnnotation();\n" +
+				"	boolean[] booleanArrayValue() default {true, false};\n" +
+				"	char[] charArrayValue() default {\'q\', \'m\'};\n" +
+				"	byte[] byteArrayValue() default {123, -123};\n" +
+				"	short[] shortArrayValue() default {12345, -12345};\n" +
+				"	int[] intArrayValue() default {1234567890, -1234567890};\n" +
+				"	float[] floatArrayValue() default {12345.6789f, -12345.6789f};\n" +
+				"	double[] doubleArrayValue() default {12345.6789, -12345.6789};\n" +
+				"	long[] longArrayValue() default {1234567890123456789l, -1234567890123456789l};\n" +
+				"	String[] stringArrayValue() default {\"stringValue\", \"valueString\"};\n" +
+				"	EnumClass[] enumArrayValue() default {EnumClass.Value1, EnumClass.Value2};\n" +
+				"	Class[] classArrayValue() default {X.class, EnumClass.class};\n" +
+				"	ClassAnnotation[] annotationArrayValue() default {@ClassAnnotation(), @ClassAnnotation()};\n" +
+				"}\n" +
+				"\n" +
+				"public class X {\n" +
+				"	@ValueAnnotation(\n" +
+				"		value=\"ValueAnnotation\",\n" +
+				"		booleanValue=true,\n" +
+				"		charValue=\'m\',\n" +
+				"		byteValue=-123,\n" +
+				"		shortValue=-12345,\n" +
+				"		intValue=-1234567890,\n" +
+				"		floatValue=-12345.6789f,\n" +
+				"		doubleValue=-12345.6789,\n" +
+				"		longValue=-1234567890123456789l,\n" +
+				"		stringValue=\"valueString\",\n" +
+				"		enumValue=EnumClass.Value3,\n" +
+				"		classValue=X.class,\n" +
+				"		annotationValue=@ClassAnnotation(value=\"ClassAnnotation\"),\n" +
+				"		booleanArrayValue={\n" +
+				"			false,\n" +
+				"			true\n" +
+				"		},\n" +
+				"		charArrayValue={\n" +
+				"			\'m\',\n" +
+				"			\'q\'\n" +
+				"		},\n" +
+				"		byteArrayValue={\n" +
+				"			-123,\n" +
+				"			123\n" +
+				"		},\n" +
+				"		shortArrayValue={\n" +
+				"			-12345,\n" +
+				"			12345\n" +
+				"		},\n" +
+				"		intArrayValue={\n" +
+				"			-1234567890,\n" +
+				"			1234567890\n" +
+				"		},\n" +
+				"		floatArrayValue={\n" +
+				"			-12345.6789f,\n" +
+				"			12345.6789f\n" +
+				"		},\n" +
+				"		doubleArrayValue={\n" +
+				"			-12345.6789,\n" +
+				"			12345.6789\n" +
+				"		},\n" +
+				"		longArrayValue={\n" +
+				"			-1234567890123456789l,\n" +
+				"			1234567890123456789l\n" +
+				"		},\n" +
+				"		stringArrayValue={\n" +
+				"			\"valueString\",\n" +
+				"			\"stringValue\"\n" +
+				"		},\n" +
+				"		enumArrayValue={\n" +
+				"			EnumClass.Value2,\n" +
+				"			EnumClass.Value1\n" +
+				"		},\n" +
+				"		classArrayValue={\n" +
+				"			EnumClass.class,\n" +
+				"			X.class\n" +
+				"		},\n" +
+				"		annotationArrayValue={\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation1\"),\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation2\")\n" +
+				"		})\n" +
+				"	public String field;\n" +
+				"	@ValueAnnotation(\n" +
+				"		value=\"ValueAnnotation\",\n" +
+				"		booleanValue=true,\n" +
+				"		charValue=\'m\',\n" +
+				"		byteValue=-123,\n" +
+				"		shortValue=-12345,\n" +
+				"		intValue=-1234567890,\n" +
+				"		floatValue=-12345.6789f,\n" +
+				"		doubleValue=-12345.6789,\n" +
+				"		longValue=-1234567890123456789l,\n" +
+				"		stringValue=\"valueString\",\n" +
+				"		enumValue=EnumClass.Value3,\n" +
+				"		classValue=X.class,\n" +
+				"		annotationValue=@ClassAnnotation(value=\"ClassAnnotation\"),\n" +
+				"		booleanArrayValue={\n" +
+				"			false,\n" +
+				"			true\n" +
+				"		},\n" +
+				"		charArrayValue={\n" +
+				"			\'m\',\n" +
+				"			\'q\'\n" +
+				"		},\n" +
+				"		byteArrayValue={\n" +
+				"			-123,\n" +
+				"			123\n" +
+				"		},\n" +
+				"		shortArrayValue={\n" +
+				"			-12345,\n" +
+				"			12345\n" +
+				"		},\n" +
+				"		intArrayValue={\n" +
+				"			-1234567890,\n" +
+				"			1234567890\n" +
+				"		},\n" +
+				"		floatArrayValue={\n" +
+				"			-12345.6789f,\n" +
+				"			12345.6789f\n" +
+				"		},\n" +
+				"		doubleArrayValue={\n" +
+				"			-12345.6789,\n" +
+				"			12345.6789\n" +
+				"		},\n" +
+				"		longArrayValue={\n" +
+				"			-1234567890123456789l,\n" +
+				"			1234567890123456789l\n" +
+				"		},\n" +
+				"		stringArrayValue={\n" +
+				"			\"valueString\",\n" +
+				"			\"stringValue\"\n" +
+				"		},\n" +
+				"		enumArrayValue={\n" +
+				"			EnumClass.Value2,\n" +
+				"			EnumClass.Value1\n" +
+				"		},\n" +
+				"		classArrayValue={\n" +
+				"			EnumClass.class,\n" +
+				"			X.class\n" +
+				"		},\n" +
+				"		annotationArrayValue={\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation1\"),\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation2\")\n" +
+				"		})\n" +
+				"	public X(@ParameterAnnotation(value=\"ParameterAnnotation\") @Deprecated() String param1, @ParameterAnnotation(value=\"ParameterAnnotation\") String param2) {\n" +
+				"	}\n" +
+				"	@ValueAnnotation(\n" +
+				"		value=\"ValueAnnotation\",\n" +
+				"		booleanValue=true,\n" +
+				"		charValue=\'m\',\n" +
+				"		byteValue=-123,\n" +
+				"		shortValue=-12345,\n" +
+				"		intValue=-1234567890,\n" +
+				"		floatValue=-12345.6789f,\n" +
+				"		doubleValue=-12345.6789,\n" +
+				"		longValue=-1234567890123456789l,\n" +
+				"		stringValue=\"valueString\",\n" +
+				"		enumValue=EnumClass.Value3,\n" +
+				"		classValue=X.class,\n" +
+				"		annotationValue=@ClassAnnotation(value=\"ClassAnnotation\"),\n" +
+				"		booleanArrayValue={\n" +
+				"			false,\n" +
+				"			true\n" +
+				"		},\n" +
+				"		charArrayValue={\n" +
+				"			\'m\',\n" +
+				"			\'q\'\n" +
+				"		},\n" +
+				"		byteArrayValue={\n" +
+				"			-123,\n" +
+				"			123\n" +
+				"		},\n" +
+				"		shortArrayValue={\n" +
+				"			-12345,\n" +
+				"			12345\n" +
+				"		},\n" +
+				"		intArrayValue={\n" +
+				"			-1234567890,\n" +
+				"			1234567890\n" +
+				"		},\n" +
+				"		floatArrayValue={\n" +
+				"			-12345.6789f,\n" +
+				"			12345.6789f\n" +
+				"		},\n" +
+				"		doubleArrayValue={\n" +
+				"			-12345.6789,\n" +
+				"			12345.6789\n" +
+				"		},\n" +
+				"		longArrayValue={\n" +
+				"			-1234567890123456789l,\n" +
+				"			1234567890123456789l\n" +
+				"		},\n" +
+				"		stringArrayValue={\n" +
+				"			\"valueString\",\n" +
+				"			\"stringValue\"\n" +
+				"		},\n" +
+				"		enumArrayValue={\n" +
+				"			EnumClass.Value2,\n" +
+				"			EnumClass.Value1\n" +
+				"		},\n" +
+				"		classArrayValue={\n" +
+				"			EnumClass.class,\n" +
+				"			X.class\n" +
+				"		},\n" +
+				"		annotationArrayValue={\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation1\"),\n" +
+				"			@ClassAnnotation(value=\"ClassAnnotation2\")\n" +
+				"		})\n" +
+				"	public void method(@ParameterAnnotation(value=\"ParameterAnnotation\") @Deprecated() String param1, @ParameterAnnotation(value=\"ParameterAnnotation\") String param2){\n" +
+				"	}\n" +
+				"}"
+			},
+		"");
+		
+		try {
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			final byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
+			new ClassFileReader(classFileBytes, "X.java".toCharArray(), true);
+			disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);			
+		} catch (ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+			assertTrue("ClassFormatException", false);
+		} catch (IOException e) {
+			assertTrue("IOException", false);
+		}
+	}    
+    //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99469
+    public void test167() {
+        this.runNegativeTest(
+            new String[] {
+                "X.java",
+				"public class X {\n" + 
+				"	public foo(@Deprecated() String s) {\n" + 
+				"	}\n" + 
+				"}\n",
+           },
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public foo(@Deprecated() String s) {\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Return type for the method is missing\n" + 
+		"----------\n");
+    }
 }

@@ -98,6 +98,21 @@ ArrayBinding createArrayType(int dimensionCount) {
 	return localArrayBindings[length] = new ArrayBinding(this, dimensionCount, scope.environment());
 }
 
+/*
+ * Overriden for code assist. In this case, the constantPoolName() has not been computed yet.
+ * Slam the source name so that the signature is syntactically correct.
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=99686)
+ */
+public char[] genericTypeSignature() {
+	if (this.genericReferenceTypeSignature == null && constantPoolName() == null) {
+		if (isAnonymousType())
+			setConstantPoolName(superclass().sourceName());
+		else
+			setConstantPoolName(sourceName());
+	}
+	return super.genericTypeSignature();
+}
+
 public char[] readableName() /*java.lang.Object,  p.X<T> */ {
     char[] readableName;
 	if (isAnonymousType()) {

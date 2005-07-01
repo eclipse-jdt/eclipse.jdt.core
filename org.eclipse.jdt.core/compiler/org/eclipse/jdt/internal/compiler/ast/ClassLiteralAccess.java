@@ -96,7 +96,7 @@ public class ClassLiteralAccess extends Expression {
 			} else {
 				boxedType = scope.boxing(targetType);
 			}
-		    this.resolvedType = scope.createParameterizedType(classType, new TypeBinding[]{ boxedType }, null/*not a member*/);
+		    this.resolvedType = scope.environment().createParameterizedType(classType, new TypeBinding[]{ boxedType }, null/*not a member*/);
 		} else {
 		    this.resolvedType = classType;
 		}

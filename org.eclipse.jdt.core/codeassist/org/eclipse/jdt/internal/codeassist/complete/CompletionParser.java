@@ -517,7 +517,7 @@ private void buildMoreCompletionContext(Expression expression) {
 					int length = expressionLengthStack[expressionLengthPtr];
 					
 					// search previous arguments if missing
-					if(expressionLengthPtr > 0 && length == 1) {
+					if(this.expressionPtr > 0 && this.expressionLengthPtr > 0 && length == 1) {
 						int start = (int) (identifierPositionStack[selector] >>> 32);
 						if(this.expressionStack[expressionPtr-1] != null && this.expressionStack[expressionPtr-1].sourceStart > start) {
 							length += expressionLengthStack[expressionLengthPtr-1];
@@ -551,7 +551,12 @@ private void buildMoreCompletionContext(Expression expression) {
 								
 								// remove selector 
 								this.identifierPtr--; 
-								this.identifierLengthStack[this.identifierLengthPtr]--;
+								if(this.genericsPtr > -1 && this.genericsLengthPtr > -1 && this.genericsLengthStack[this.genericsLengthPtr] > 0) {
+									// is inside a paremeterized method: bar.<X>.foo
+									this.identifierLengthPtr--;
+								} else {
+									this.identifierLengthStack[this.identifierLengthPtr]--;
+								}
 								// consume the receiver
 								int identifierLength = this.identifierLengthStack[this.identifierLengthPtr];
 								if(this.identifierPtr > -1 && identifierLength > 0 && this.identifierPtr + 1 >= identifierLength) {
@@ -1163,7 +1168,12 @@ private boolean checkInvocation() {
 				
 					// remove selector 
 					this.identifierPtr--; 
-					this.identifierLengthStack[this.identifierLengthPtr]--;
+					if(this.genericsPtr > -1 && this.genericsLengthPtr > -1 && this.genericsLengthStack[this.genericsLengthPtr] > 0) {
+						// is inside a paremeterized method: bar.<X>.foo
+						this.identifierLengthPtr--;
+					} else {
+						this.identifierLengthStack[this.identifierLengthPtr]--;
+					}
 					// consume the receiver
 					messageSend.receiver = this.getUnspecifiedReference();
 					break;
@@ -1216,8 +1226,10 @@ private boolean checkInvocation() {
 				// creates an allocation expression 
 				CompletionOnQualifiedAllocationExpression allocExpr = new CompletionOnQualifiedAllocationExpression();
 				allocExpr.arguments = arguments;
-				pushOnGenericsLengthStack(0);
-				pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
+				if(this.genericsLengthPtr < 0) {
+					pushOnGenericsLengthStack(0);
+					pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
+				}
 				allocExpr.type = super.getTypeReference(0); // we don't want a completion node here, so call super
 				if (invocType == QUALIFIED_ALLOCATION) {
 					allocExpr.enclosingInstance = this.expressionStack[qualifierExprPtr];
@@ -1391,6 +1403,62 @@ private boolean checkRecoveredType() {
 	}
 	return false;
 }
+private void classHeaderExtendsOrImplements(boolean isInterface) {
+	if (currentElement != null
+			&& currentToken == TokenNameIdentifier
+			&& this.cursorLocation+1 >= scanner.startPosition
+			&& this.cursorLocation < scanner.currentPosition){
+			this.pushIdentifier();
+		int index = -1;
+		/* check if current awaiting identifier is the completion identifier */
+		if ((index = this.indexOfAssistIdentifier()) > -1) {
+			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
+			RecoveredType recoveredType = (RecoveredType)currentElement;
+			/* filter out cases where scanner is still inside type header */
+			if (!recoveredType.foundOpeningBrace) {
+				TypeDeclaration type = recoveredType.typeDeclaration;
+				if(!isInterface) {
+					char[][] keywords = new char[Keywords.COUNT][];
+					int count = 0;
+					
+					
+					if(type.superInterfaces == null) {
+						if(type.superclass == null) {
+							keywords[count++] = Keywords.EXTENDS;
+						}
+						keywords[count++] = Keywords.IMPLEMENTS;
+					}
+					
+					System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+					
+					if(count > 0) {
+						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
+							identifierStack[ptr],
+							identifierPositionStack[ptr],
+							keywords);
+						completionOnKeyword.canCompleteEmptyToken = true;
+						type.superclass = completionOnKeyword;
+						type.superclass.bits |= ASTNode.IsSuperType;
+						this.assistNode = completionOnKeyword;
+						this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
+					}
+				} else {
+					if(type.superInterfaces == null) {
+						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
+							identifierStack[ptr],
+							identifierPositionStack[ptr],
+							Keywords.EXTENDS);
+						completionOnKeyword.canCompleteEmptyToken = true;
+						type.superInterfaces = new TypeReference[]{completionOnKeyword};
+						type.superInterfaces[0].bits |= ASTNode.IsSuperType;
+						this.assistNode = completionOnKeyword;
+						this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
+					}
+				}
+			}
+		}
+	}
+}
 /* 
  * Check whether about to shift beyond the completion token.
  * If so, depending on the context, a special node might need to be created
@@ -1556,45 +1624,9 @@ protected void consumeClassBodyopt() {
 protected void consumeClassHeaderName1() {
 	super.consumeClassHeaderName1();
 
-	if (currentElement != null
-		&& currentToken == TokenNameIdentifier
-		&& this.cursorLocation+1 >= scanner.startPosition
-		&& this.cursorLocation < scanner.currentPosition){
-		this.pushIdentifier();
-
-		int index = -1;
-		/* check if current awaiting identifier is the completion identifier */
-		if ((index = this.indexOfAssistIdentifier()) > -1) {
-			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
-			RecoveredType recoveredType = (RecoveredType)currentElement;
-			/* filter out cases where scanner is still inside type header */
-			if (!recoveredType.foundOpeningBrace) {
-				char[][] keywords = new char[Keywords.COUNT][];
-				int count = 0;
-				
-				TypeDeclaration type = recoveredType.typeDeclaration;
-				if(type.superInterfaces == null) {
-					if(type.superclass == null) {
-						keywords[count++] = Keywords.EXTENDS;
-					}
-					keywords[count++] = Keywords.IMPLEMENTS;
-				}
-				
-				System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
-				
-				if(count > 0) {
-					type.superclass = new CompletionOnKeyword1(
-						identifierStack[ptr],
-						identifierPositionStack[ptr],
-						keywords);
-					type.superclass.bits |= ASTNode.IsSuperType;
-					this.assistNode = type.superclass;
-					this.lastCheckPoint = type.superclass.sourceEnd + 1;
-				}
-			}
-		}
-	}
+	classHeaderExtendsOrImplements(false);
 }
+
 protected void consumeClassHeaderExtends() {
 	pushOnElementStack(K_NEXT_TYPEREF_IS_CLASS);
 	super.consumeClassHeaderExtends();
@@ -1866,7 +1898,8 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 }
 protected void consumeInsideCastExpression() {
 	int end = intStack[intPtr--];
-	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST) {
+	boolean isParameterized =(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_CAST);
+	if(isParameterized) {
 		popElement(K_PARAMETERIZED_CAST);
 		
 		if(this.identifierLengthStack[this.identifierLengthPtr] > 0) {
@@ -1879,6 +1912,9 @@ protected void consumeInsideCastExpression() {
 		}
 	}
 	Expression castType = getTypeReference(intStack[intPtr--]);
+	if(isParameterized) {
+		intPtr--;
+	}
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = intStack[intPtr--] + 1;
 	pushOnExpressionStack(castType);
@@ -1893,6 +1929,8 @@ protected void consumeInsideCastExpressionLL1() {
 	pushOnElementStack(K_CAST_STATEMENT);
 }
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
+	popElement(K_PARAMETERIZED_CAST);
+	
 	Expression castType;
 	int end = this.intStack[this.intPtr--];
 
@@ -1900,6 +1938,7 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	TypeReference rightSide = getTypeReference(0);
 
 	castType = computeQualifiedGenericsFromRightSide(rightSide, dim);
+	this.intPtr--;
 	castType.sourceEnd = end - 1;
 	castType.sourceStart = this.intStack[this.intPtr--] + 1;
 	pushOnExpressionStack(castType);
@@ -1927,33 +1966,7 @@ protected void consumeInstanceOfExpressionWithName(int op) {
 protected void consumeInterfaceHeaderName1() {
 	super.consumeInterfaceHeaderName1();
 	
-	if (currentElement != null
-		&& currentToken == TokenNameIdentifier
-		&& this.cursorLocation+1 >= scanner.startPosition
-		&& this.cursorLocation < scanner.currentPosition){
-		this.pushIdentifier();
-		
-		int index = -1;
-		/* check if current awaiting identifier is the completion identifier */
-		if ((index = this.indexOfAssistIdentifier()) > -1) {
-			int ptr = this.identifierPtr - this.identifierLengthStack[this.identifierLengthPtr] + index + 1;
-			RecoveredType recoveredType = (RecoveredType)currentElement;
-			/* filter out cases where scanner is still inside type header */
-			if (!recoveredType.foundOpeningBrace) {
-				TypeDeclaration type = recoveredType.typeDeclaration;
-				if(type.superInterfaces == null) {
-					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
-						identifierStack[ptr],
-						identifierPositionStack[ptr],
-						Keywords.EXTENDS);
-					type.superInterfaces = new TypeReference[]{completionOnKeyword};
-					type.superInterfaces[0].bits |= ASTNode.IsSuperType;
-					this.assistNode = completionOnKeyword;
-					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
-				}
-			}
-		}
-	}
+	classHeaderExtendsOrImplements(true);
 }
 protected void consumeInterfaceHeaderExtends() {
 	super.consumeInterfaceHeaderExtends();
@@ -2486,6 +2499,16 @@ protected void consumeToken(int token) {
 						this.qualifier = -1;
 						this.invocationType = NO_RECEIVER;
 						break;
+					case TokenNameGREATER: // explicit constructor invocation, eg. Fred<X>[(]1, 2)
+					case TokenNameRIGHT_SHIFT: // or fred<X<X>>[(]1, 2) 
+					case TokenNameUNSIGNED_RIGHT_SHIFT: //or Fred<X<X<X>>>[(]1, 2)
+						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SELECTOR) {
+							this.pushOnElementStack(K_SELECTOR_INVOCATION_TYPE, (this.invocationType == QUALIFIED_ALLOCATION) ? QUALIFIED_ALLOCATION : ALLOCATION);
+							this.pushOnElementStack(K_SELECTOR_QUALIFIER, this.qualifier);
+						}
+						this.qualifier = -1;
+						this.invocationType = NO_RECEIVER;
+						break;
 				}
 				break;
 			case TokenNameLBRACE:
@@ -2795,9 +2818,45 @@ protected void consumeTypeArguments() {
 	super.consumeTypeArguments();
 	popElement(K_BINARY_OPERATOR);
 }
+protected void consumeTypeHeaderNameWithTypeParameters() {
+	super.consumeTypeHeaderNameWithTypeParameters();
+	
+	TypeDeclaration typeDecl = (TypeDeclaration)this.astStack[this.astPtr];
+	classHeaderExtendsOrImplements((typeDecl.modifiers & AccInterface) != 0);
+}
 protected void consumeTypeParameters() {
 	super.consumeTypeParameters();
 	popElement(K_BINARY_OPERATOR);
+}
+protected void consumeTypeParameterHeader() {
+	super.consumeTypeParameterHeader();
+	TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
+	if(typeParameter.type != null || (typeParameter.bounds != null && typeParameter.bounds.length > 0)) return;
+	
+	if (assistIdentifier() == null && this.currentToken == TokenNameIdentifier) { // Test below copied from CompletionScanner.getCurrentIdentifierSource()
+		if (cursorLocation < this.scanner.startPosition && this.scanner.currentPosition == this.scanner.startPosition){ // fake empty identifier got issued
+			this.pushIdentifier();					
+		} else if (cursorLocation+1 >= this.scanner.startPosition && cursorLocation < this.scanner.currentPosition){
+			this.pushIdentifier();
+		} else {
+			return;
+		}
+	} else {
+		return;
+	}
+
+	CompletionOnKeyword1 keyword = new CompletionOnKeyword1(
+		identifierStack[this.identifierPtr],
+		identifierPositionStack[this.identifierPtr],
+		Keywords.EXTENDS);
+	keyword.canCompleteEmptyToken = true;
+	typeParameter.type = keyword;
+	
+	this.identifierPtr--;
+	this.identifierLengthPtr--;
+	
+	this.assistNode = typeParameter.type;
+	this.lastCheckPoint = typeParameter.type.sourceEnd + 1;
 }
 protected void consumeTypeParameters1() {
 	super.consumeTypeParameter1();
@@ -2833,11 +2892,13 @@ protected void consumeWildcard() {
 		return;
 	}
 	Wildcard wildcard = (Wildcard) this.genericsStack[this.genericsPtr];
-	wildcard.kind = Wildcard.EXTENDS;
-	wildcard.bound = new CompletionOnKeyword1(
+	CompletionOnKeyword1 keyword = new CompletionOnKeyword1(
 		identifierStack[this.identifierPtr],
 		identifierPositionStack[this.identifierPtr],
 		new char[][]{Keywords.EXTENDS, Keywords.SUPER} );
+	keyword.canCompleteEmptyToken = true;
+	wildcard.kind = Wildcard.EXTENDS;
+	wildcard.bound = keyword;
 	
 	this.identifierPtr--;
 	this.identifierLengthPtr--;

@@ -189,18 +189,19 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 		}
 
 		// index isn't cached, consider reusing an existing index file
+		String containerPathString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 		if (reuseExistingFile) {
 			File indexFile = new File(indexLocation);
 			if (indexFile.exists()) { // check before creating index so as to avoid creating a new empty index if file is missing
 				try {
-					index = new Index(indexLocation, containerPath.toString(), true /*reuse index file*/); //$NON-NLS-1$
+					index = new Index(indexLocation, containerPathString, true /*reuse index file*/); //$NON-NLS-1$
 					indexes.put(indexLocation, index);
 					return index;
 				} catch (IOException e) {
 					// failed to read the existing file or its no longer compatible
 					if (currentIndexState != REBUILDING_STATE) { // rebuild index if existing file is corrupt, unless the index is already being rebuilt
 						if (VERBOSE)
-							Util.verbose("-> cannot reuse existing index: "+indexLocation+" path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+							Util.verbose("-> cannot reuse existing index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
 						rebuildIndex(indexLocation, containerPath);
 						return null;
 					} 
@@ -216,13 +217,13 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 		if (createIfMissing) {
 			try {
 				if (VERBOSE)
-					Util.verbose("-> create empty index: "+indexLocation+" path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-				index = new Index(indexLocation, containerPath.toString(), false /*do not reuse index file*/); //$NON-NLS-1$
+					Util.verbose("-> create empty index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
+				index = new Index(indexLocation, containerPathString, false /*do not reuse index file*/); //$NON-NLS-1$
 				indexes.put(indexLocation, index);
 				return index;
 			} catch (IOException e) {
 				if (VERBOSE)
-					Util.verbose("-> unable to create empty index: "+indexLocation+" path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+					Util.verbose("-> unable to create empty index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
 				// The file could not be created. Possible reason: the project has been deleted.
 				return null;
 			}
@@ -423,6 +424,7 @@ private void rebuildIndex(String indexLocation, IPath containerPath) {
  */
 public synchronized Index recreateIndex(IPath containerPath) {
 	// only called to over write an existing cached index...
+	String containerPathString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 	try {
 		// Path is already canonical
 		String indexLocation = computeIndexLocation(containerPath);
@@ -431,15 +433,15 @@ public synchronized Index recreateIndex(IPath containerPath) {
 		ReadWriteMonitor monitor = index == null ? null : index.monitor;
 
 		if (VERBOSE)
-			Util.verbose("-> recreating index: "+indexLocation+" for path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
-		index = new Index(indexLocation, containerPath.toString(), false /*reuse index file*/); //$NON-NLS-1$
+			Util.verbose("-> recreating index: "+indexLocation+" for path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
+		index = new Index(indexLocation, containerPathString, false /*reuse index file*/); //$NON-NLS-1$
 		this.indexes.put(indexLocation, index);
 		index.monitor = monitor;
 		return index;
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
 		if (VERBOSE) {
-			Util.verbose("-> failed to recreate index for path: "+containerPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.verbose("-> failed to recreate index for path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
 			e.printStackTrace();
 		}
 		return null;

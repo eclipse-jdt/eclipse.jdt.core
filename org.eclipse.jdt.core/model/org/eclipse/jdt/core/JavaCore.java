@@ -72,6 +72,8 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
+import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -466,7 +468,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
-	 * @since 3.0
+	 * @since 3.1
 	 */
 	public static final String COMPILER_PB_INVALID_JAVADOC_TAGS__DEPRECATED_REF = PLUGIN_ID + ".compiler.problem.invalidJavadocTagsDeprecatedRef"; //$NON-NLS-1$
 	/**
@@ -1551,7 +1553,7 @@ public final class JavaCore extends Plugin {
 	public static String[] getClasspathVariableNames() {
 		return JavaModelManager.getJavaModelManager().variableNames();
 	}
-	
+
 	/**
 	 * Returns an immutable list containing the subset of registered
 	 * listeners that have requested notification of at least one of
@@ -1916,7 +1918,7 @@ public final class JavaCore extends Plugin {
 	 *
 	 * COMPILER / Reporting Unchecked Type Operation
 	 *    When enabled, the compiler will issue an error or a warning whenever an operation involves generic types, and potentially
-	 *    invalidates type safety since involving raw types (e.g. invoking #foo(X<String>) with arguments  (X)).
+	 *    invalidates type safety since involving raw types (e.g. invoking #foo(X&lt;String&gt;) with arguments  (X)).
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
@@ -2685,9 +2687,59 @@ public final class JavaCore extends Plugin {
 					// else indexes were not ready: catch the exception so that jars are still refreshed
 				}
 				
+				// check if the build state version number has changed since last session
+				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
+				QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
+				IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+				String versionNumber = null;
+				try {
+					versionNumber = root.getPersistentProperty(qName);
+				} catch (CoreException e) {
+					// could not read version number: consider it is new
+				}
+				final JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+				String newVersionNumber = Byte.toString(State.VERSION);
+				if (!newVersionNumber.equals(versionNumber)) {
+					// build state version number has changed: touch every projects to force a rebuild
+					if (JavaBuilder.DEBUG)
+						System.out.println("Build state version number has changed"); //$NON-NLS-1$
+					IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+						public void run(IProgressMonitor progressMonitor2) throws CoreException {
+							IJavaProject[] projects = null;
+							try {
+								projects = model.getJavaProjects();
+							} catch (JavaModelException e) {
+								// could not get Java projects: ignore
+							}
+							if (projects != null) {
+								for (int i = 0, length = projects.length; i < length; i++) {
+									IJavaProject project = projects[i];
+									try {
+										if (JavaBuilder.DEBUG)
+											System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
+										project.getProject().touch(progressMonitor2);
+									} catch (CoreException e) {
+										// could not touch this project: ignore
+									}
+								}
+							}
+						}
+					};
+					try {
+						ResourcesPlugin.getWorkspace().run(runnable, progressMonitor);
+					} catch (CoreException e) {
+						// could not touch all projects
+					}
+					try {
+						root.setPersistentProperty(qName, newVersionNumber);
+					} catch (CoreException e) {
+						Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
+					}
+				}
+				
 				// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
 				try {
-					JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(
+					model.refreshExternalArchives(
 						null/*refresh all projects*/, 
 						progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 1) // 1% of the time is spent in jar refresh
 					);
@@ -2702,7 +2754,6 @@ public final class JavaCore extends Plugin {
 			}
 		};
 		job.setPriority(Job.SHORT);
-		job.setSystem(true); // not triggered by the user, thus it is a system job
 		job.schedule(2000);	 // wait for the startup activity to calm down
 		
 	}

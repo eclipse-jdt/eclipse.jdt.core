@@ -178,8 +178,6 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 			this.binding.setConstant(NotAConstant);
 			// allow to recursivelly target the binding....
 			// the correct constant is harmed if correctly computed at the end of this method
-			
-			resolveAnnotations(scope, this.annotations, this.binding);
 		}
 
 		if (variableType == null) {
@@ -232,6 +230,9 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 						: NotAConstant);
 			}
 		}
+		// only resolve annotation at the end, for constant to be positionned before (96991)
+		if (this.binding != null)
+			resolveAnnotations(scope, this.annotations, this.binding);
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

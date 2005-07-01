@@ -430,7 +430,7 @@ public class BlockScope extends Scope {
 		}
 
 		// know binding is now a ReferenceBinding
-		binding = convertToRawType((ReferenceBinding) binding);
+		binding = environment().convertToRawType((ReferenceBinding) binding);
 		while (currentIndex < length) {
 			ReferenceBinding typeBinding = (ReferenceBinding) binding;
 			char[] nextName = compoundName[currentIndex++];
@@ -646,7 +646,7 @@ public class BlockScope extends Scope {
 
 		// use 'this' if possible
 		if (!currentMethodScope.isStatic && !currentMethodScope.isConstructorCall) {
-			if (sourceType == targetEnclosingType || (!onlyExactMatch && sourceType.findSuperTypeErasingTo(targetEnclosingType) != null)) {
+			if (sourceType == targetEnclosingType || (!onlyExactMatch && sourceType.findSuperTypeWithSameErasure(targetEnclosingType) != null)) {
 				return EmulationPathToImplicitThis; // implicit this is good enough
 			}
 		}
@@ -666,7 +666,7 @@ public class BlockScope extends Scope {
 				// reject allocation and super constructor call
 				if (denyEnclosingArgInConstructorCall
 						&& currentMethodScope.isConstructorCall 
-						&& (sourceType == targetEnclosingType || (!onlyExactMatch && sourceType.findSuperTypeErasingTo(targetEnclosingType) != null))) {
+						&& (sourceType == targetEnclosingType || (!onlyExactMatch && sourceType.findSuperTypeWithSameErasure(targetEnclosingType) != null))) {
 					return NoEnclosingInstanceInConstructorCall;
 				}
 				return new Object[] { syntheticArg };
@@ -685,7 +685,7 @@ public class BlockScope extends Scope {
 				if (enclosingArgument != null) {
 					FieldBinding syntheticField = sourceType.getSyntheticField(enclosingArgument);
 					if (syntheticField != null) {
-						if (syntheticField.type == targetEnclosingType || (!onlyExactMatch && ((ReferenceBinding)syntheticField.type).findSuperTypeErasingTo(targetEnclosingType) != null))
+						if (syntheticField.type == targetEnclosingType || (!onlyExactMatch && ((ReferenceBinding)syntheticField.type).findSuperTypeWithSameErasure(targetEnclosingType) != null))
 							return new Object[] { syntheticField };
 					}
 				}
@@ -718,7 +718,7 @@ public class BlockScope extends Scope {
 
 				//done?
 				if (currentType == targetEnclosingType
-					|| (!onlyExactMatch && currentType.findSuperTypeErasingTo(targetEnclosingType) != null))	break;
+					|| (!onlyExactMatch && currentType.findSuperTypeWithSameErasure(targetEnclosingType) != null))	break;
 
 				if (currentMethodScope != null) {
 					currentMethodScope = currentMethodScope.enclosingMethodScope();
@@ -742,7 +742,7 @@ public class BlockScope extends Scope {
 				currentType = currentEnclosingType;
 			}
 			if (currentType == targetEnclosingType
-				|| (!onlyExactMatch && currentType.findSuperTypeErasingTo(targetEnclosingType) != null)) {
+				|| (!onlyExactMatch && currentType.findSuperTypeWithSameErasure(targetEnclosingType) != null)) {
 				return path;
 			}
 		}

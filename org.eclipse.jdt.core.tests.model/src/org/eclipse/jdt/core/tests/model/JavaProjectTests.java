@@ -64,7 +64,7 @@ public static Test suite() {
 		String className = JavaProjectTests.class.getName();
 		System.err.println("WARNING: only a subset of "+className+" tests will be run...");
 		TestSuite suite = new Suite(className);
-		suite.addTest(new JavaProjectTests("testUserLibrary"));
+		suite.addTest(new JavaProjectTests("testPackageFragmentPackageInfoClass"));
 		return suite;
 	}
 	TestSuite suite = new Suite(JavaProjectTests.class.getName());
@@ -101,6 +101,7 @@ public static Test suite() {
 	suite.addTest(new JavaProjectTests("testPackageFragmentRenameAndCreate"));
 	suite.addTest(new JavaProjectTests("testFolderWithDotName"));
 	suite.addTest(new JavaProjectTests("testPackageFragmentNonJavaResources"));
+	suite.addTest(new JavaProjectTests("testPackageFragmentPackageInfoClass"));
 	suite.addTest(new JavaProjectTests("testPackageFragmentRootNonJavaResources"));
 	suite.addTest(new JavaProjectTests("testAddNonJavaResourcePackageFragmentRoot"));
 	suite.addTest(new JavaProjectTests("testFindPackageFragmentRootFromClasspathEntry"));
@@ -145,7 +146,7 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 	// get resources of source package fragment root at project level
 	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectTests", "");
 	Object[] resources = root.getNonJavaResources();
-	assertEquals("incorrect number of non java resources", 2, resources.length); // .classpath and .project files
+	assertEquals("incorrect number of non java resources", 3, resources.length); // .classpath and .project files + .settings folder
 	assertTrue("resource should be an IFile",  resources[0] instanceof IFile);
 	IFile resource = (IFile)resources[0];
 	IPath newPath = root.getUnderlyingResource().getFullPath().append("TestNonJavaResource.abc");
@@ -162,6 +163,7 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 			"incorrect non java resources", 
 			"/JavaProjectTests/.classpath\n" +
 			"/JavaProjectTests/.project\n" +
+			"/JavaProjectTests/.settings\n" +
 			"/JavaProjectTests/TestNonJavaResource.abc",
 			(IResource[])resources);
 	} finally {
@@ -732,6 +734,26 @@ public void testPackageFragmentNonJavaResources() throws JavaModelException {
 	assertEquals("incorrect number of non java resources (test case 7)", 0, resources.length);
 	
 }
+
+/*
+ * Ensures that the package-info.class file doesn't appear as a child of a package if proj=src
+ * (regression test for bug 99654 [5.0] JavaModel returns both IClassFile and ICompilationUnit for package-info.java)
+ */
+public void testPackageFragmentPackageInfoClass() throws CoreException {
+	try {
+		createJavaProject("P");
+		createFolder("/P/p1");
+		IPackageFragment pkg = getPackage("/P/p1");
+		pkg.open(null);
+		createFile("/P/p1/package-info.class", "");
+		assertResources(
+			"Unexpected resources of /P/p1",
+			"",
+			(IResource[]) pkg.getNonJavaResources());
+	} finally {
+		deleteProject("P");
+	}
+}
 /**
  * Tests that after a package "foo" has been renamed into "bar", it is possible to recreate
  * a "foo" package.
@@ -774,7 +796,7 @@ public void testPackageFragmentRootNonJavaResources() throws JavaModelException 
 	// source package fragment root with resources
 	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectTests", "");
 	Object[] resources = root.getNonJavaResources();
-	assertEquals("incorrect number of non java resources (test case 1)", 2, resources.length);
+	assertEquals("incorrect number of non java resources (test case 1)", 3, resources.length); // .classpath and .project files + .settings folder
 
 	// source package fragment root without resources
  	root = getPackageFragmentRoot("JavaProjectSrcTests", "src");

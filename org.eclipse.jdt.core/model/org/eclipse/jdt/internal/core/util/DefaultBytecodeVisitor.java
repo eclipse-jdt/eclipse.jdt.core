@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IBytecodeVisitor;
@@ -26,6 +27,7 @@ import org.eclipse.jdt.core.util.OpcodeStringValues;
  */
 public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private static final String EMPTY_CLASS_NAME = "\"\""; //$NON-NLS-1$
+	private static final String EMPTY_LOCAL_NAME = ""; //$NON-NLS-1$
 	private static final int T_BOOLEAN = 4;
 	private static final int T_CHAR = 5;
 	private static final int T_FLOAT = 6;
@@ -115,10 +117,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _aload_1(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_1],
 			getLocalVariableName(pc, 1)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -127,10 +129,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _aload_2(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_2],
 			getLocalVariableName(pc, 2)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -139,10 +141,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _aload_3(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD_3],
 			getLocalVariableName(pc, 3)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -151,10 +153,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _aload(int pc, int index) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ALOAD],
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, true)
+		}));
 		writeNewLine();
 	}
 
@@ -164,11 +166,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	public void _anewarray(int pc, int index, IConstantPoolEntry constantClass) {
 		dumpPcNumber(pc);
 		buffer
-			.append(Messages.bind(Messages.classformat_anewarray, (new String[] {
+			.append(Messages.bind(Messages.classformat_anewarray, new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ANEWARRAY],
 				Integer.toString(index),
 				returnConstantClassName(constantClass)
-			})));
+			}));
 		writeNewLine();
 	}
 
@@ -195,10 +197,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _astore_0(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_0],
 			getLocalVariableName(pc, 0)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -207,13 +209,17 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _astore_1(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_1],
 			getLocalVariableName(pc, 1)
-		})));
+		}));
 		writeNewLine();
 	}
 	private String getLocalVariableName(int pc, int index) {
+		return getLocalVariableName(pc, index, false);
+	}
+	
+	private String getLocalVariableName(int pc, int index, boolean showIndex) {
         int nextPC = pc + 1;
         switch(index) {
             case 0 :
@@ -229,11 +235,20 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
             final ILocalVariableTableEntry entry = this.localVariableTableEntries[i];
             final int startPC = entry.getStartPC();
             if (entry.getIndex() == index && (startPC <= nextPC) && ((startPC + entry.getLength()) > nextPC)) {
-                return new String(entry.getName());
+            	final StringBuffer stringBuffer = new StringBuffer();
+            	if (showIndex) {
+            		stringBuffer.append(' ').append(index);
+            	}
+            	stringBuffer.append(' ').append('[').append(entry.getName()).append(']');
+            	return String.valueOf(stringBuffer);
             }
         }
-		String localVariableName = Messages.bind(Messages.disassembler_localvariablename, (new String[] {Integer.toString(index)})); 
-		return localVariableName;
+    	if (showIndex) {
+        	final StringBuffer stringBuffer = new StringBuffer();
+        	stringBuffer.append(' ').append(index);
+         	return String.valueOf(stringBuffer);
+    	}
+        return EMPTY_LOCAL_NAME;
 	}
 
 	/**
@@ -241,10 +256,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _astore_2(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_2],
 			getLocalVariableName(pc, 2)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -253,10 +268,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _astore_3(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE_3],
 			getLocalVariableName(pc, 3)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -265,10 +280,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _astore(int pc, int index) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ASTORE],
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, true)
+		}));
 		writeNewLine();
 	}
 
@@ -334,11 +349,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	public void _checkcast(int pc, int index, IConstantPoolEntry constantClass) {
 		dumpPcNumber(pc);
 		buffer
-			.append(Messages.bind(Messages.classformat_checkcast, (new String[] {
+			.append(Messages.bind(Messages.classformat_checkcast, new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.CHECKCAST],
 				Integer.toString(index),
 				returnConstantClassName(constantClass)
-			})));
+			}));
 		writeNewLine();
 	}
 
@@ -446,10 +461,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _dload_0(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load,new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_0],
 			getLocalVariableName(pc, 0)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -458,10 +473,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _dload_1(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_1],
 			getLocalVariableName(pc, 1)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -470,10 +485,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _dload_2(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_2],
 			getLocalVariableName(pc, 2)
-		})));
+		}));
 		writeNewLine();
 	}
 	
@@ -482,10 +497,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _dload_3(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD_3],
 			getLocalVariableName(pc, 3)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -494,10 +509,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _dload(int pc, int index) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DLOAD],
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, true)
+		}));
 		writeNewLine();
 	}
 
@@ -542,10 +557,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _dstore_0(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_0],
 			getLocalVariableName(pc, 0)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -554,10 +569,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _dstore_1(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_1],
 			getLocalVariableName(pc, 1)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -566,10 +581,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _dstore_2(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_2],
 			getLocalVariableName(pc, 2)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -578,10 +593,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _dstore_3(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE_3],
 			getLocalVariableName(pc, 3)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -590,10 +605,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _dstore(int pc, int index) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.DSTORE],
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, true)
+		}));
 		writeNewLine();
 	}
 
@@ -773,10 +788,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _fload_0(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_0],
 			getLocalVariableName(pc, 0)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -785,10 +800,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _fload_1(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_1],
 			getLocalVariableName(pc, 1)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -797,10 +812,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _fload_2(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_2],
 			getLocalVariableName(pc, 2)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -809,10 +824,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _fload_3(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD_3],
 			getLocalVariableName(pc, 3)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -821,10 +836,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _fload(int pc, int index) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FLOAD],
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, true)
+		}));
 		writeNewLine();
 	}
 
@@ -869,10 +884,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _fstore_0(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store,new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_0],
 			getLocalVariableName(pc, 0)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -881,10 +896,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _fstore_1(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_1],
 			getLocalVariableName(pc, 1)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -893,10 +908,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _fstore_2(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_2],
 			getLocalVariableName(pc, 2)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -905,10 +920,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _fstore_3(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE_3],
 			getLocalVariableName(pc, 3)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -917,10 +932,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _fstore(int pc, int index) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.FSTORE],
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, true)
+		}));
 		writeNewLine();
 	}
 
@@ -938,13 +953,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _getfield(int pc, int index, IConstantPoolEntry constantFieldref) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_getfield, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_getfield, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GETFIELD],
 			Integer.toString(index),
 			returnDeclaringClassName(constantFieldref),
 			new String(constantFieldref.getFieldName()),
-			new String(constantFieldref.getFieldDescriptor())
-		})));
+			returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))
+		}));
 		writeNewLine();
 	}
 
@@ -953,13 +968,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _getstatic(int pc, int index, IConstantPoolEntry constantFieldref) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_getstatic, (new String[] {
-			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GETSTATIC],
-			Integer.toString(index),
-			returnDeclaringClassName(constantFieldref),
-			new String(constantFieldref.getFieldName()),
-			new String(constantFieldref.getFieldDescriptor())
-		})));
+		buffer.append(Messages.bind(Messages.classformat_getstatic, new String[] {
+				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.GETSTATIC],
+				Integer.toString(index),
+				returnDeclaringClassName(constantFieldref),
+				new String(constantFieldref.getFieldName()),
+				returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))
+			}));
 		writeNewLine();
 	}
 
@@ -1328,12 +1343,12 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _iinc(int pc, int index, int _const) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_iinc, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_iinc, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.IINC],
 			Integer.toString(index),
 			Integer.toString(_const),
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, false)
+		}));
 		writeNewLine();
 	}
 
@@ -1342,10 +1357,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _iload_0(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_0],
 			getLocalVariableName(pc, 0)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1354,10 +1369,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _iload_1(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_1],
 			getLocalVariableName(pc, 1)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1366,10 +1381,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _iload_2(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_2],
 			getLocalVariableName(pc, 2)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1378,10 +1393,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _iload_3(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD_3],
 			getLocalVariableName(pc, 3)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1390,10 +1405,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _iload(int pc, int index) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ILOAD],
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, true)
+		}));
 		writeNewLine();
 	}
 
@@ -1420,11 +1435,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _instanceof(int pc, int index, IConstantPoolEntry constantClass) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_instanceof, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_instanceof, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INSTANCEOF],
 			Integer.toString(index),
 			returnConstantClassName(constantClass)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1438,27 +1453,17 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		IConstantPoolEntry constantInterfaceMethodref) {
 
 		dumpPcNumber(pc);
-		if (isCompact()) {
-			buffer.append(Messages.bind(Messages.classformat_invokeinterface_compact, (new String[] {
-				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEINTERFACE],
-				Integer.toString(index),
-				Integer.toString(nargs),
-				Util.toString(
-					constantInterfaceMethodref.getClassName(),
-					constantInterfaceMethodref.getMethodName(),
-					constantInterfaceMethodref.getMethodDescriptor(),
-					true)
-			})));
-		} else {
-			buffer.append(Messages.bind(Messages.classformat_invokeinterface, (new String[] {
-					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEINTERFACE],
-					Integer.toString(index),
-					Integer.toString(nargs),
-					returnDeclaringClassName(constantInterfaceMethodref),
-					new String(constantInterfaceMethodref.getMethodName()),
-					new String(constantInterfaceMethodref.getMethodDescriptor()),
-			})));
-		}
+		buffer.append(Messages.bind(Messages.classformat_invokeinterface, new String[] {
+			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEINTERFACE],
+			Integer.toString(index),
+			Integer.toString(nargs),
+			Util.toString(
+				constantInterfaceMethodref.getClassName(),
+				constantInterfaceMethodref.getMethodName(),
+				constantInterfaceMethodref.getMethodDescriptor(),
+				true,
+				isCompact())
+		}));
 		writeNewLine();
 	}
 
@@ -1467,25 +1472,16 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _invokespecial(int pc, int index, IConstantPoolEntry constantMethodref) {
 		dumpPcNumber(pc);
-		if (isCompact()) {
-			buffer.append(Messages.bind(Messages.classformat_invokespecial_compact, (new String[] {
-				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESPECIAL],
-				Integer.toString(index),
-				Util.toString(
-					constantMethodref.getClassName(),
-					constantMethodref.getMethodName(),
-					constantMethodref.getMethodDescriptor(),
-					true)
-			})));
-		} else {
-			buffer.append(Messages.bind(Messages.classformat_invokespecial, (new String[] {
-					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESPECIAL],
-					Integer.toString(index),
-					returnDeclaringClassName(constantMethodref),
-					new String(constantMethodref.getMethodName()),
-					new String(constantMethodref.getMethodDescriptor()),
-			})));
-		}
+		buffer.append(Messages.bind(Messages.classformat_invokespecial, new String[] {
+			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESPECIAL],
+			Integer.toString(index),
+			Util.toString(
+				constantMethodref.getClassName(),
+				constantMethodref.getMethodName(),
+				constantMethodref.getMethodDescriptor(),
+				true,
+				isCompact())
+		}));
 		writeNewLine();
 	}
 
@@ -1494,25 +1490,16 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _invokestatic(int pc, int index, IConstantPoolEntry constantMethodref) {
 		dumpPcNumber(pc);
-		if (isCompact()) {
-			buffer.append(Messages.bind(Messages.classformat_invokestatic_compact, (new String[] {
-				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESTATIC],
-				Integer.toString(index),
-				Util.toString(
-					constantMethodref.getClassName(),
-					constantMethodref.getMethodName(),
-					constantMethodref.getMethodDescriptor(),
-					true)
-			})));
-		} else {
-			buffer.append(Messages.bind(Messages.classformat_invokestatic, (new String[] {
-				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESTATIC],
-				Integer.toString(index),
-				returnDeclaringClassName(constantMethodref),
-				new String(constantMethodref.getMethodName()),
-				new String(constantMethodref.getMethodDescriptor()),
-			})));
-		}
+		buffer.append(Messages.bind(Messages.classformat_invokestatic, new String[] {
+			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKESTATIC],
+			Integer.toString(index),
+			Util.toString(
+				constantMethodref.getClassName(),
+				constantMethodref.getMethodName(),
+				constantMethodref.getMethodDescriptor(),
+				true,
+				isCompact())
+		}));
 		writeNewLine();
 	}
 
@@ -1521,25 +1508,16 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _invokevirtual(int pc, int index, IConstantPoolEntry constantMethodref) {
 		dumpPcNumber(pc);
-		if (isCompact()) {
-			buffer.append(Messages.bind(Messages.classformat_invokevirtual_compact, (new String[] {
-				OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEVIRTUAL],
-				Integer.toString(index),
-				Util.toString(
-					constantMethodref.getClassName(),
-					constantMethodref.getMethodName(),
-					constantMethodref.getMethodDescriptor(),
-					true)
-			})));
-		} else {
-			buffer.append(Messages.bind(Messages.classformat_invokevirtual, (new String[] {
-					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEVIRTUAL],
-					Integer.toString(index),
-					returnDeclaringClassName(constantMethodref),
-					new String(constantMethodref.getMethodName()),
-					new String(constantMethodref.getMethodDescriptor()),
-			})));
-		}
+		buffer.append(Messages.bind(Messages.classformat_invokevirtual,new String[] {
+			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.INVOKEVIRTUAL],
+			Integer.toString(index),
+			Util.toString(
+				constantMethodref.getClassName(),
+				constantMethodref.getMethodName(),
+				constantMethodref.getMethodDescriptor(),
+				true,
+				isCompact())
+		}));
 		writeNewLine();
 	}
 
@@ -1593,10 +1571,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _istore_0(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_0],
 			getLocalVariableName(pc, 0)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1605,10 +1583,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _istore_1(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_1],
 			getLocalVariableName(pc, 1)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1617,10 +1595,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _istore_2(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_2],
 			getLocalVariableName(pc, 2)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1629,10 +1607,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _istore_3(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE_3],
 			getLocalVariableName(pc, 3)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1641,10 +1619,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _istore(int pc, int index) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.ISTORE],
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, true)
+		}));
 		writeNewLine();
 	}
 
@@ -1794,32 +1772,32 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		dumpPcNumber(pc);
 		switch (constantPoolEntry.getKind()) {
 			case IConstantPoolConstant.CONSTANT_Float :
-				buffer.append(Messages.bind(Messages.classformat_ldc_w_float, (new String[] {
+				buffer.append(Messages.bind(Messages.classformat_ldc_w_float, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC_W],
 					Integer.toString(index),
 					Float.toString(constantPoolEntry.getFloatValue())
-				})));
+				}));
 				break;
 			case IConstantPoolConstant.CONSTANT_Integer :
-				buffer.append(Messages.bind(Messages.classformat_ldc_w_integer, (new String[] {
+				buffer.append(Messages.bind(Messages.classformat_ldc_w_integer, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC_W],
 					Integer.toString(index),
 					Integer.toString(constantPoolEntry.getIntegerValue())
-				})));
+				}));
 				break;
 			case IConstantPoolConstant.CONSTANT_String :
-				buffer.append(Messages.bind(Messages.classformat_ldc_w_string, (new String[] {
+				buffer.append(Messages.bind(Messages.classformat_ldc_w_string, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC_W],
 					Integer.toString(index),
 					constantPoolEntry.getStringValue()
-				})));
+				}));
 				break;
 			case IConstantPoolConstant.CONSTANT_Class :
-				buffer.append(Messages.bind(Messages.classformat_ldc_w_class, (new String[] {
+				buffer.append(Messages.bind(Messages.classformat_ldc_w_class, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC_W],
 					Integer.toString(index),
 					returnConstantClassName(constantPoolEntry)
-				})));
+				}));
 		}
 		writeNewLine();
 	}
@@ -1831,32 +1809,32 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		dumpPcNumber(pc);
 		switch (constantPoolEntry.getKind()) {
 			case IConstantPoolConstant.CONSTANT_Float :
-				buffer.append(Messages.bind(Messages.classformat_ldc_w_float, (new String[] {
+				buffer.append(Messages.bind(Messages.classformat_ldc_w_float, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC],
 					Integer.toString(index),
 					Float.toString(constantPoolEntry.getFloatValue())
-				})));
+				}));
 				break;
 			case IConstantPoolConstant.CONSTANT_Integer :
-				buffer.append(Messages.bind(Messages.classformat_ldc_w_integer, (new String[] {
+				buffer.append(Messages.bind(Messages.classformat_ldc_w_integer, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC],
 					Integer.toString(index),
 					Integer.toString(constantPoolEntry.getIntegerValue())
-				})));
+				}));
 				break;
 			case IConstantPoolConstant.CONSTANT_String :
-				buffer.append(Messages.bind(Messages.classformat_ldc_w_string, (new String[] {
+				buffer.append(Messages.bind(Messages.classformat_ldc_w_string, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC],
 					Integer.toString(index),
 					constantPoolEntry.getStringValue()
-				})));
+				}));
 				break;
 			case IConstantPoolConstant.CONSTANT_Class :
-				buffer.append(Messages.bind(Messages.classformat_ldc_w_class, (new String[] {
+				buffer.append(Messages.bind(Messages.classformat_ldc_w_class, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC],
 					Integer.toString(index),
 					returnConstantClassName(constantPoolEntry)
-				})));
+				}));
 		}
 		writeNewLine();
 	}
@@ -1868,18 +1846,18 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		dumpPcNumber(pc);
 		switch (constantPoolEntry.getKind()) {
 			case IConstantPoolConstant.CONSTANT_Long :
-				buffer.append(Messages.bind(Messages.classformat_ldc2_w_long, (new String[] {
+				buffer.append(Messages.bind(Messages.classformat_ldc2_w_long, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC2_W],
 					Integer.toString(index),
 					Long.toString(constantPoolEntry.getLongValue())
-				})));
+				}));
 				break;
 			case IConstantPoolConstant.CONSTANT_Double :
-				buffer.append(Messages.bind(Messages.classformat_ldc2_w_double, (new String[] {
+				buffer.append(Messages.bind(Messages.classformat_ldc2_w_double, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LDC2_W],
 					Integer.toString(index),
 					Double.toString(constantPoolEntry.getDoubleValue())
-				})));
+				}));
 		}
 		writeNewLine();
 	}
@@ -1898,10 +1876,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _lload_0(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_0],
 			getLocalVariableName(pc, 0)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1910,10 +1888,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _lload_1(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_1],
 			getLocalVariableName(pc, 1)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1922,10 +1900,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _lload_2(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_2],
 			getLocalVariableName(pc, 2)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1934,10 +1912,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _lload_3(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD_3],
 			getLocalVariableName(pc, 3)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -1946,10 +1924,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _lload(int pc, int index) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_load, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_load, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LLOAD],
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, true)
+		}));
 		writeNewLine();
 	}
 
@@ -2041,10 +2019,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _lstore_0(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_0],
 			getLocalVariableName(pc, 0)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -2053,10 +2031,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _lstore_1(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_1],
 			getLocalVariableName(pc, 1)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -2065,10 +2043,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _lstore_2(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_2],
 			getLocalVariableName(pc, 2)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -2077,10 +2055,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _lstore_3(int pc) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE_3],
 			getLocalVariableName(pc, 3)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -2089,10 +2067,10 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _lstore(int pc, int index) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_store, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_store, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.LSTORE],
-			getLocalVariableName(pc, index)
-		})));
+			getLocalVariableName(pc, index, true)
+		}));
 		writeNewLine();
 	}
 
@@ -2150,12 +2128,12 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		int dimensions,
 		IConstantPoolEntry constantClass) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_multianewarray, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_multianewarray, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.MULTIANEWARRAY],
 			Integer.toString(index),
 			returnConstantClassName(constantClass),
 			appendDimensions(dimensions)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -2164,11 +2142,11 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _new(int pc, int index, IConstantPoolEntry constantClass) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_new, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_new, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEW],
 			Integer.toString(index),
 			returnConstantClassName(constantClass)
-		})));
+		}));
 		writeNewLine();
 	}
 
@@ -2179,52 +2157,52 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		dumpPcNumber(pc);
 		switch(atype) {
 			case T_BOOLEAN :
-				this.buffer.append(Messages.bind(Messages.classformat_newarray_boolean, (new String[] {
+				this.buffer.append(Messages.bind(Messages.classformat_newarray_boolean, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEWARRAY],
 					Integer.toString(atype)
-				})));
+				}));
 				break;
 			case T_CHAR :
-				this.buffer.append(Messages.bind(Messages.classformat_newarray_char, (new String[] {
+				this.buffer.append(Messages.bind(Messages.classformat_newarray_char, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEWARRAY],
 					Integer.toString(atype)
-				})));
+				}));
 				break;
 			case T_FLOAT :
-				this.buffer.append(Messages.bind(Messages.classformat_newarray_float, (new String[] {
+				this.buffer.append(Messages.bind(Messages.classformat_newarray_float, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEWARRAY],
 					Integer.toString(atype)
-				})));
+				}));
 				break;
 			case T_DOUBLE :
-				this.buffer.append(Messages.bind(Messages.classformat_newarray_double, (new String[] {
+				this.buffer.append(Messages.bind(Messages.classformat_newarray_double, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEWARRAY],
 					Integer.toString(atype)
-				})));
+				}));
 				break;
 			case T_BYTE :
-				this.buffer.append(Messages.bind(Messages.classformat_newarray_byte, (new String[] {
+				this.buffer.append(Messages.bind(Messages.classformat_newarray_byte, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEWARRAY],
 					Integer.toString(atype)
-				})));
+				}));
 				break;
 			case T_SHORT :
-				this.buffer.append(Messages.bind(Messages.classformat_newarray_short, (new String[] {
+				this.buffer.append(Messages.bind(Messages.classformat_newarray_short, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEWARRAY],
 					Integer.toString(atype)
-				})));
+				}));
 				break;
 			case T_INT :
-				this.buffer.append(Messages.bind(Messages.classformat_newarray_int, (new String[] {
+				this.buffer.append(Messages.bind(Messages.classformat_newarray_int, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEWARRAY],
 					Integer.toString(atype)
-				})));
+				}));
 				break;
 			case T_LONG :
-				this.buffer.append(Messages.bind(Messages.classformat_newarray_long, (new String[] {
+				this.buffer.append(Messages.bind(Messages.classformat_newarray_long, new String[] {
 					OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.NEWARRAY],
 					Integer.toString(atype)
-				})));
+				}));
 		}
 		writeNewLine();
 	}
@@ -2261,13 +2239,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _putfield(int pc, int index, IConstantPoolEntry constantFieldref) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_putfield, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_putfield, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.PUTFIELD],
 			Integer.toString(index),
 			returnDeclaringClassName(constantFieldref),
 			new String(constantFieldref.getFieldName()),
-			new String(constantFieldref.getFieldDescriptor())
-		})));
+			returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))
+		}));
 		writeNewLine();
 	}
 
@@ -2276,13 +2254,13 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	 */
 	public void _putstatic(int pc, int index, IConstantPoolEntry constantFieldref) {
 		dumpPcNumber(pc);
-		buffer.append(Messages.bind(Messages.classformat_putstatic, (new String[] {
+		buffer.append(Messages.bind(Messages.classformat_putstatic, new String[] {
 			OpcodeStringValues.BYTECODE_NAMES[IOpcodeMnemonics.PUTSTATIC],
 			Integer.toString(index),
 			returnDeclaringClassName(constantFieldref),
 			new String(constantFieldref.getFieldName()),
-			new String(constantFieldref.getFieldDescriptor())
-		})));
+			returnClassName(Signature.toCharArray(constantFieldref.getFieldDescriptor()))
+		}));
 		writeNewLine();
 	}
 
@@ -2464,6 +2442,9 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 
 	private String returnConstantClassName(IConstantPoolEntry constantClass) {
 		char[] classInfoName = constantClass.getClassInfoName();
+		return returnClassName(classInfoName);
+	}
+	private String returnClassName(char[] classInfoName) {
 		if (classInfoName.length == 0) {
 			return EMPTY_CLASS_NAME;
 		} else if (isCompact()) {
@@ -2471,22 +2452,14 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			if (lastIndexOfSlash != -1) {
 				return new String(classInfoName, lastIndexOfSlash + 1, classInfoName.length - lastIndexOfSlash - 1);
 			}
-			return new String(classInfoName);
-		} else {
-			return new String(classInfoName);
 		}
+		CharOperation.replace(classInfoName, '/', '.');
+		return new String(classInfoName);
 	}
 
 	private String returnDeclaringClassName(IConstantPoolEntry constantRef) {
-		if (isCompact()) {
-			char[] className = constantRef.getClassName();
-			int lastIndexOfSlash = CharOperation.lastIndexOf('/', className);
-			if (lastIndexOfSlash != -1) {
-				return new String(className, lastIndexOfSlash + 1, className.length - lastIndexOfSlash - 1);
-			}
-			return new String(constantRef.getClassName());
-		}
-		return new String(constantRef.getClassName());
+		final char[] className = constantRef.getClassName();
+		return returnClassName(className);
 	}
 
 	private void writeNewLine() {

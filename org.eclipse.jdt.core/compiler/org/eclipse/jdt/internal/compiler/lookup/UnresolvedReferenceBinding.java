@@ -49,17 +49,7 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 		}
 	}
 	if (convertGenericToRawType) {
-		boolean rawEnclosing = false;
-		ReferenceBinding targetEnclosingType = targetType.enclosingType();
-		if (targetEnclosingType != null && targetEnclosingType.isGenericType()) { // convert to raw type since wasn't parameterized
-			rawEnclosing = true;
-			targetEnclosingType = environment.createRawType(targetEnclosingType, targetEnclosingType.enclosingType());
-		}
-		if (targetType.isGenericType()) { // raw reference to generic ?
-		    return environment.createRawType(targetType, targetEnclosingType);
-		} else if (rawEnclosing) {
-			return environment.createParameterizedType(targetType, null, targetEnclosingType);
-		}
+		targetType = (ReferenceBinding) environment.convertToRawType(targetType);
 	}
 	return targetType;
 }

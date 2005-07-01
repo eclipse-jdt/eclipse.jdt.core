@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.IOException;
 import java.util.List;
 
 import junit.framework.Test;
@@ -18,7 +19,9 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
 
@@ -36,8 +39,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 182, 183 };
-//		TESTS_NAMES = new String[] {"test0177"};
+//		TESTS_NUMBERS = new int[] { 192 };
+//		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverter15Test.class);
@@ -544,6 +547,13 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
 		assertTrue("Not a variable declaration statement", node.getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT);
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1,  fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression initializer  = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		ITypeBinding binding = initializer.resolveTypeBinding();
+		assertNotNull("No binding", binding);
 		Type type = statement.getType();
 		assertTrue("Not a parameterized type", type.getNodeType() == ASTNode.PARAMETERIZED_TYPE);
 		ParameterizedType parameterizedType = (ParameterizedType) type;
@@ -5509,5 +5519,258 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	String expectedSource = "map= new Map<String, Number>() {\n" +
 			"	}";
     	checkSourceRange(fragment, expectedSource, contents);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=97841
+	 */
+	public void test0184() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"public class X {\n" +
+			"	java.util.Map<String, Number> map= new java.util.Map<String, Number>() {\n" +
+			"	};\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy,
+    			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+    	FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+    	List fragments = fieldDeclaration.fragments();
+    	assertEquals("Wrong size", 1, fragments.size());
+    	VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+    	Expression initializer = fragment.getInitializer();
+    	assertNotNull("No initializer", initializer);
+    	ITypeBinding binding = initializer.resolveTypeBinding();
+    	assertNotNull("No binding", binding);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98086
+	 */
+	public void test0185() throws JavaModelException {
+		final ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0185", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		assertEquals("Wrong setting", JavaCore.WARNING, sourceUnit.getJavaProject().getOption(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, true));
+		final ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		final CompilationUnit compilationUnit = (CompilationUnit) result;
+	   	assertProblemsSize(compilationUnit, 0);
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98086
+	 */
+	public void test0186() throws JavaModelException {
+		final ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0186", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		assertEquals("Wrong setting", JavaCore.WARNING, sourceUnit.getJavaProject().getOption(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, true));
+		final ASTNode result = runJLS3Conversion(sourceUnit, true, true);
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		final CompilationUnit compilationUnit = (CompilationUnit) result;
+	   	assertProblemsSize(compilationUnit, 1, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>");
+	}
+	
+	/*
+	 * Ensures that the binding key of a parameterized type can be computed when it contains a reference to a type variable.
+	 * (regression test for bug 98259 NPE computing ITypeBinding#getKey())
+	 */
+	public void test0187() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"public class X {\n" +
+			"	<T> /*start*/Y<T>/*end*/ foo() {\n" +
+			"      return null;" +
+			"	};\n" +
+			"}\n" +
+			"class Y<E> {\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy,
+    			false);
+    	ParameterizedType type = (ParameterizedType) node;
+    	assertBindingEquals(
+    		"LX~Y<LX;:1TT;>;",
+    		type.resolveBinding());
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=98473
+	 */
+	public void test0188() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	class Counter<T, /*start*/L extends List<T>/*end*/> {\n" +
+			"		private L _attribute;\n" +
+			"	}\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy);
+    	assertEquals("Not a type parameter", ASTNode.TYPE_PARAMETER, node.getNodeType());
+    	ITypeBinding typeBinding = ((TypeParameter) node).resolveBinding();
+    	assertNotNull("No binding", typeBinding);
+    	assertFalse("Cannot be top level", typeBinding.isTopLevel());
+    	assertFalse("A class", typeBinding.isClass());
+    	assertFalse("An interface", typeBinding.isInterface());
+    	assertTrue("Not a type variable", typeBinding.isTypeVariable());
+	}
+
+	public void test0189() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
+			addLibrary(project, "lib.jar", "src.zip", new String[] {
+				"/P1/p/I1.java",
+				"package p;\n" + 
+				"public class I1<E> {\n" + 
+				"}",
+				"/P1/p/I2.java",
+				"package p;\n" + 
+				"public interface I2<K, V> {\n" + 
+				"	interface I3<K,V> {}\n" + 
+				"	I1<I2.I3<K, V>> foo();\n" + 
+				"}",
+				"/P1/p/X.java",
+				"package p;\n" + 
+				"public class X<K,V>  implements I2<K,V> {\n" + 
+				"	public I1<I2.I3<K,V>> foo() {\n" + 
+				"		return null;\n" + 
+				"	}	\n" + 
+				"}"
+			}, "1.5");
+			this.workingCopy = getWorkingCopy("/P1/p1/Y.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				"package p1;\n" +
+				"import p.*;\n" + 
+				"public abstract class Y implements I2 {\n" + 
+				"	public I1 foo() {\n" + 
+				"		return /*start*/bar().foo()/*end*/;\n" + 
+				"	}\n" + 
+				"	private X bar() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}",
+				this.workingCopy);
+			MethodInvocation method = (MethodInvocation) node;
+			IMethodBinding methodBinding = method.resolveMethodBinding();
+			assertBindingEquals(
+				"Lp/X;.foo()Lp/I1<Lp/I2$I3<TK;TV;>;>;",
+				methodBinding.getMethodDeclaration());
+		} finally {
+			deleteProject("P1");
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99355
+	public void test0190() throws CoreException, IOException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	final String contents =
+			"class Container<T> {\n" +
+			"	private final T m_t;\n" +
+			"\n" +
+			"	public Container(T t) {\n" +
+			"		m_t = t;\n" +
+			"	}\n" +
+			"\n" +
+			"	T get() {\n" +
+			"		return m_t;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class GenericContainer {\n" +
+			"	private final Container<?> m_c;\n" +
+			"\n" +
+			"	public GenericContainer(Container<?> c) {\n" +
+			"		m_c = c;\n" +
+			"	}\n" +
+			"\n" +
+			"	public Container<?> getC() {\n" +
+			"		return m_c;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	GenericContainer createContainer() {\n" +
+			"		final Container<String> innerContainer = new Container<String>(\"hello\");\n" +
+			"		final Container<Container<String>> outerContainer = new Container<Container<String>>(\n" +
+			"				innerContainer);\n" +
+			"		return new GenericContainer(outerContainer);\n" +
+			"	}\n" +
+			"\n" +
+			"	void method() {\n" +
+			"		final GenericContainer createContainer = createContainer();\n" +
+			"		/*start*/@SuppressWarnings(\"unchecked\")\n" +
+			"		final Container<Container<String>> c = (Container<Container<String>>) createContainer.getC();/*end*/\n" +
+			"		final Container<String> container = c.get();\n" +
+			"		final String string = container.get();\n" +
+			"	}\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy);
+    	assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+    	VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+    	List modifiers = statement.modifiers();
+    	assertEquals("Wrong size", 2, modifiers.size());
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99510
+	public void test0191() throws CoreException, IOException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0191", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode node = runConversion(AST.JLS3, sourceUnit, true);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		node = getASTNode(unit, 0, 0, 0);
+		assertNotNull("No node", node);
+		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+		List fragments = statement.fragments();
+		assertEquals("Wrong size", 1, fragments.size());
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+		Expression initializer = fragment.getInitializer();
+		assertNotNull("No initializer", initializer);
+		assertEquals("Not a cast expression", ASTNode.CAST_EXPRESSION, initializer.getNodeType());
+		CastExpression castExpression = (CastExpression) initializer;
+		Type type = castExpression.getType();
+		ITypeBinding typeBinding = type.resolveBinding();
+		assertNotNull("No binding", typeBinding);
+		Expression expression = castExpression.getExpression();
+		ITypeBinding typeBinding2 = expression.resolveTypeBinding();
+		assertNotNull("No binding", typeBinding2);
+		assertTrue("Not cast compatible", typeBinding2.isCastCompatible(typeBinding));
+	}
+
+	// Wrong ParameterizedTypeBinding yields null type declaration result
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100584
+	public void test0192() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"public class X<E> {\n" + 
+			"	public static class InnerClass {\n" + 
+			"		static class InnerInnerClass {\n" + 
+			"			/*start*/X.WrongInnerClass/*end*/.InnerInnerClass m;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}";
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	if (bindings[0] != null) {
+	   		// should not get here if patch 100584 applied
+		   	try {
+		   		bindings[0].toString();
+		   		fail("should get an exception if bug 100584 present");
+		   		// which means that the code would now return a non null, 
+		   		// erroneous binding, yet able to respond to toString
+		   	} catch (Throwable t) {/* absorb quietly */}
+	   	}
+	   	assertTrue("should yield a null, not a malformed binding", 
+	   			bindings[0] == null);
 	}
 }

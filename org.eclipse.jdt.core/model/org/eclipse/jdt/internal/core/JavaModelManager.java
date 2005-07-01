@@ -609,10 +609,29 @@ public class JavaModelManager implements ISaveParticipant {
 		if (folder == null) {
 			return null;
 		}
+		IJavaElement element;
 		if (project == null) {
 			project = JavaCore.create(folder.getProject());
+			element = determineIfOnClasspath(folder, project);
+			if (element == null) {
+				// walk all projects and find one that have the given folder on its classpath
+				IJavaProject[] projects;
+				try {
+					projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
+				} catch (JavaModelException e) {
+					return null;
+				}
+				for (int i = 0, length = projects.length; i < length; i++) {
+					project = projects[i];
+					element = determineIfOnClasspath(folder, project);
+					if (element != null)
+						break;
+				}
+			}
+		} else {
+			element = determineIfOnClasspath(folder, project);
 		}
-		IJavaElement element = determineIfOnClasspath(folder, project);
+		
 		if (conflictsWithOutputLocation(folder.getFullPath(), (JavaProject)project)
 		 	|| (folder.getName().indexOf('.') >= 0 
 		 		&& !(element instanceof IPackageFragmentRoot))) {
@@ -1508,11 +1527,18 @@ public class JavaModelManager implements ISaveParticipant {
 			int primaryLength = primaryWCs == null ? 0 : primaryWCs.length;
 			int size = workingCopyToInfos.size(); // note size is > 0 otherwise pathToPerWorkingCopyInfos would be null
 			ICompilationUnit[] result = new ICompilationUnit[primaryLength + size];
+			int index = 0;
 			if (primaryWCs != null) {
-				System.arraycopy(primaryWCs, 0, result, 0, primaryLength);
+				for (int i = 0; i < primaryLength; i++) {
+					ICompilationUnit primaryWorkingCopy = primaryWCs[i];
+					ICompilationUnit workingCopy = new CompilationUnit((PackageFragment) primaryWorkingCopy.getParent(), primaryWorkingCopy.getElementName(), owner);
+					if (!workingCopyToInfos.containsKey(workingCopy))
+						result[index++] = primaryWorkingCopy;
+				}
+				if (index != primaryLength)
+					System.arraycopy(result, 0, result = new ICompilationUnit[index+size], 0, index);
 			}
 			Iterator iterator = workingCopyToInfos.values().iterator();
-			int index = primaryLength;
 			while(iterator.hasNext()) {
 				result[index++] = ((JavaModelManager.PerWorkingCopyInfo)iterator.next()).getWorkingCopy();
 			}
@@ -1612,6 +1638,9 @@ public class JavaModelManager implements ISaveParticipant {
 					paths.add(path);
 				}
 			}
+			/* TODO (frederic) put back when JDT/UI dummy project will be thrown away...
+			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=97524
+			 *
 			if (javaProject.equals(javaProjectToInit)) {
 				if (paths == null) {
 					paths = new HashSet();
@@ -1619,7 +1648,16 @@ public class JavaModelManager implements ISaveParticipant {
 				}
 				paths.add(containerToInit);
 			}
+			*/
 		}
+		// TODO (frederic) remove following block when JDT/UI dummy project will be thrown away...
+		HashSet containerPaths = (HashSet) allContainerPaths.get(javaProjectToInit);
+		if (containerPaths == null) {
+			containerPaths = new HashSet();
+			allContainerPaths.put(javaProjectToInit, containerPaths);
+		}
+		containerPaths.add(containerToInit);
+		// end block
 		
 		// mark all containers as being initialized
 		this.containerInitializationInProgress.set(allContainerPaths);
@@ -1906,16 +1944,27 @@ public class JavaModelManager implements ISaveParticipant {
 					String varName = propertyName.substring(variablePrefixLength);
 					String propertyValue = preferences.get(propertyName, null);
 					if (propertyValue != null) {
-						IPath varPath = new Path(propertyValue.trim());
+						String pathString = propertyValue.trim();
+						
+						if (CP_ENTRY_IGNORE.equals(pathString)) {
+							// cleanup old preferences
+							preferences.remove(propertyName); 
+							continue;
+						}
+						
+						// add variable to table
+						IPath varPath = new Path(pathString);
 						this.variables.put(varName, varPath); 
 						this.previousSessionVariables.put(varName, varPath);
-						preferences.remove(propertyName); // cleanup old preferences
 					}
 				} else if (propertyName.startsWith(CP_CONTAINER_PREFERENCES_PREFIX)){
 					String propertyValue = preferences.get(propertyName, null);
 					if (propertyValue != null) {
+						// cleanup old preferences
+						preferences.remove(propertyName); 
+						
+						// recreate container
 						recreatePersistedContainer(propertyName, propertyValue, true/*add to container values*/);
-						preferences.remove(propertyName); // cleanup old preferences
 					}
 				}
 			}
@@ -2406,15 +2455,22 @@ public class JavaModelManager implements ISaveParticipant {
 		}
 	
 		ArrayList vStats= null; // lazy initialized
-		for (Iterator iter =  this.perProjectInfos.values().iterator(); iter.hasNext();) {
-			try {
-				PerProjectInfo info = (PerProjectInfo) iter.next();
-				saveState(info, context);
-				info.rememberExternalLibTimestamps();
-			} catch (CoreException e) {
-				if (vStats == null)
-					vStats= new ArrayList();
-				vStats.add(e.getStatus());
+		ArrayList values = null;
+		synchronized(this.perProjectInfos) {
+			values = new ArrayList(this.perProjectInfos.values());
+		}
+		if (values != null) {
+			Iterator iterator = values.iterator();
+			while (iterator.hasNext()) {
+				try {
+					PerProjectInfo info = (PerProjectInfo) iterator.next();
+					saveState(info, context);
+					info.rememberExternalLibTimestamps();
+				} catch (CoreException e) {
+					if (vStats == null)
+						vStats= new ArrayList();
+					vStats.add(e.getStatus());
+				}
 			}
 		}
 		if (vStats != null) {
@@ -2843,6 +2899,17 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 			// discard obsoleted information about previous session
 			this.previousSessionVariables.remove(variableName);
+		}
+	
+		String variableKey = CP_VARIABLE_PREFERENCES_PREFIX+variableName;
+		if (variablePath == null)
+			getInstancePreferences().remove(variableKey);
+		else
+			getInstancePreferences().put(variableKey, variablePath.toString());
+		try {
+			getInstancePreferences().flush();
+		} catch (BackingStoreException e) {
+			// ignore exception
 		}
 	}
 	

@@ -90,13 +90,7 @@ public int match(TypeReference node, MatchingNodeSet nodeSet) { // interested in
 }
 
 protected int matchLevel(ImportReference importRef) {
-	// Compare prefix also for static import
-	if (!importRef.onDemand || importRef.isStatic())
-		return matchLevelForTokens(importRef.tokens);
-
-	return matchesName(this.pattern.pkgName, CharOperation.concatWith(importRef.tokens, '.'))
-		? ACCURATE_MATCH
-		: IMPOSSIBLE_MATCH;
+	return matchLevelForTokens(importRef.tokens);
 }
 protected int matchLevelForTokens(char[][] tokens) {
 	if (this.pattern.pkgName == null) return ACCURATE_MATCH;

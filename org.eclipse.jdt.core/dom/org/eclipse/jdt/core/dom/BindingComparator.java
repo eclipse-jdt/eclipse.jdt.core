@@ -168,16 +168,12 @@ class BindingComparator {
 			return true;
 		}
 	}
-	// TODO (olivier) should optimize to use switch(binding.kind()) & modifier bitmask comparisons
 	static boolean isEqual(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding, org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding2, HashSet visitedTypes) {
 		if (typeBinding == typeBinding2)
 			return true;
 		if (typeBinding == null || typeBinding2 == null)
 			return false;
 
-		if (visitedTypes.contains(typeBinding)) return true;
-		visitedTypes.add(typeBinding);
-		
 		switch (typeBinding.kind()) {
 			case Binding.BASE_TYPE :
 				if (!typeBinding2.isBaseType()) {
@@ -213,6 +209,9 @@ class BindingComparator {
 					&& wildcardBinding.boundKind == wildcardBinding2.boundKind;
 				
 			case Binding.TYPE_PARAMETER :
+				if (visitedTypes.contains(typeBinding)) return true;
+				visitedTypes.add(typeBinding);
+				
 				if (!(typeBinding2.isTypeVariable())) {
 					return false;
 				}

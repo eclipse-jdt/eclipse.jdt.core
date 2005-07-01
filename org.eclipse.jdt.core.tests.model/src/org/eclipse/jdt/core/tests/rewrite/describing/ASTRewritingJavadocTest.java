@@ -712,6 +712,28 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
+	public void testTagRemove4() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("/**\n");			
+		buf.append(" * @author xy\n");
+		buf.append(" */\n");
+		buf.append("package test1;\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("package-info.java", buf.toString(), false, null);			
+
+		CompilationUnit astRoot= createAST3(cu);
+
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+	
+		rewrite.remove(astRoot.getPackage().getJavadoc(), null);
+
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		assertEqualString(preview, buf.toString());
+	}
+	
 	public void testTagRemoveInsert() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();

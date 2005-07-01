@@ -63,7 +63,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	// TESTS_NAMES = new String[] { "testSuppressWarnings1" };
+	// TESTS_NAMES = new String[] { "testTwoProjectsWithDifferentCompliances" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 	//TESTS_NUMBERS = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -110,7 +110,7 @@ public void setUp() throws Exception {
 }
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+	IJavaProject javaProject = createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 	createFolder("/Reconciler/src/p1");
 	createFolder("/Reconciler/src/p2");
 	createFile(
@@ -122,7 +122,8 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}"
 	);
-	IJavaProject javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+	javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+	javaProject = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 	addLibrary(
 		javaProject, 
 		"lib15.jar", 
@@ -156,6 +157,7 @@ public void setUpSuite() throws Exception {
 		}, 
 		JavaCore.VERSION_1_5
 	);
+	javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 }
 private void setUp15WorkingCopy() throws JavaModelException {
 	setUp15WorkingCopy("Reconciler15/src/p1/X.java", new WorkingCopyOwner() {});
@@ -231,7 +233,7 @@ public void testAccessRestriction2() throws CoreException, IOException {
 				"}",
 			},
 			new String[] {
-				"**/*.class"
+				"**/*"
 			},
 			null,
 			"1.4"
@@ -260,7 +262,7 @@ public void testAccessRestriction3() throws CoreException {
 		
 		createJavaProject("P2", new String[] {}, new String[] {}, null, null, new String[] {"/P1"}, null, null, new boolean[] {true}, "", null, null, null, "1.4");
 		
-		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[] {"/P2"}, null, new String[][] {new String[] {"**/X.java"}}, false/*don't combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, "1.4");
+		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[] {"/P2"}, null, new String[][] {new String[] {"**/X"}}, false/*don't combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, "1.4");
 		setUpWorkingCopy("/P3/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
 			"Unexpected problems", 
@@ -283,7 +285,7 @@ public void testAccessRestriction4() throws CoreException {
 		
 		createJavaProject("P2", new String[] {}, new String[] {}, null, null, new String[] {"/P1"}, null, null, new boolean[] {true}, "", null, null, null, "1.4");
 		
-		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[] {"/P2"}, null, new String[][] {new String[] {"**/X.java"}}, true/*combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, "1.4");
+		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[] {"/P2"}, null, new String[][] {new String[] {"**/X"}}, true/*combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, "1.4");
 		setUpWorkingCopy("/P3/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
 			"Unexpected problems", 
@@ -1878,6 +1880,46 @@ public void testBug60689() throws JavaModelException {
 	testCU = this.workingCopy.reconcile(AST.JLS2, true, null, null);
 	assertNotNull("We should have a comment!", testCU.getCommentList());
 	assertEquals("We should have one comment!", 1, testCU.getCommentList().size());
+}
+/*
+ * Ensures that a working copy in a 1.4 project that references a 1.5 project can be reconciled without error.
+ * (regression test for bug 98434 A non-1.5 project with 1.5 projects in the classpath does not show methods with generics)
+ */
+public void testTwoProjectsWithDifferentCompliances() throws CoreException {
+	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
+	try {
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createFolder("/P1/p");
+		createFile(
+			"/P1/p/X.java",
+			"package p;\n" +
+			"public class X {\n" +
+			"  void foo(Class<String> c) {\n" +
+			"  }\n" +
+			"}"
+		);
+		
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "", "1.4");
+		createFolder("/P2/p");
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		this.workingCopy = getWorkingCopy("/P2/p/Y.java", "", owner, this.problemRequestor);
+		setWorkingCopyContents(
+			"package p;\n" +
+			"public class Y {\n" +
+			"  void bar(Class c) {\n" +
+			"    new X().foo(c);\n" +
+			"  }\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force pb detection*/, owner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProjects(new String[] {"P1", "P2"});
+	}
 }
 /*
  * Ensures that a method that has a type parameter with bound can be overriden in another working copy.

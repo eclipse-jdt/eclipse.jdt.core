@@ -328,8 +328,8 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				if (isMethodUseDeprecated(binding, scope))
 					scope.problemReporter().deprecatedMethod(binding, this);
 				checkInvocationArguments(scope, null, receiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
-				if (binding.isPrivate()) {
-					binding.original().modifiers |= AccPrivateUsed;
+				if (binding.isPrivate() || receiverType.isLocalType()) {
+					binding.original().modifiers |= AccLocallyUsed;
 				}				
 			} else {
 				if (binding.declaringClass == null)

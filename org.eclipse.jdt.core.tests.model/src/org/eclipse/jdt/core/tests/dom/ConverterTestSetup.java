@@ -133,7 +133,257 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		return parser.createAST(null);
 	}
 
+	class NullBindingVerifier extends ASTVisitor {
+
+		public void endVisit(ArrayAccess node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(ArrayCreation node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(ArrayInitializer node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(Assignment node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(BooleanLiteral node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(CastExpression node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(CharacterLiteral node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(ClassInstanceCreation node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(ConditionalExpression node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(FieldAccess node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(InfixExpression node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(InstanceofExpression node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(MarkerAnnotation node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(MethodInvocation node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(NormalAnnotation node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(NullLiteral node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(NumberLiteral node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(ParenthesizedExpression node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(PostfixExpression node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(PrefixExpression node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(SingleMemberAnnotation node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(StringLiteral node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(SuperFieldAccess node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(SuperMethodInvocation node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(ThisExpression node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(TypeLiteral node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(VariableDeclarationExpression node) {
+			assertNotNull(node+" should have a binding", node.resolveTypeBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(AnnotationTypeDeclaration node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(AnnotationTypeMemberDeclaration node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(AnonymousClassDeclaration node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(ArrayType node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(EnumDeclaration node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(ImportDeclaration node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(MemberRef node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(MethodDeclaration node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(MethodRef node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(PackageDeclaration node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(ParameterizedType node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(PrimitiveType node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(QualifiedName node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(QualifiedType node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(SimpleName node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(SimpleType node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(SingleVariableDeclaration node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(TypeDeclaration node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(TypeDeclarationStatement node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(TypeParameter node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(VariableDeclarationFragment node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+		public void endVisit(WildcardType node) {
+			assertNotNull(node+" should have a binding", node.resolveBinding());
+			super.endVisit(node);
+		}
+
+	}
 	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
+
+		// Create parser
 		ASTParser parser;
 		if (checkJLS2) {
 			parser = ASTParser.newParser(AST_INTERNAL_JLS2);
@@ -145,23 +395,57 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
-		return parser.createAST(null);
+		
+		// Parse compilation unit
+		ASTNode result = parser.createAST(null);
+		
+		// Verify we get a compilation unit node and that binding are correct
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		if (resolveBindings && compilationUnit.getProblems().length == 0) {
+			compilationUnit.accept(new NullBindingVerifier());
+		}
+		return result;
 	}
 	
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, int position, boolean resolveBindings) {
+
+		// Create parser
 		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(unit);
 		parser.setFocalPosition(position);
 		parser.setResolveBindings(resolveBindings);
-		return parser.createAST(null);
+
+		// Parse compilation unit
+		ASTNode result = parser.createAST(null);
+		
+		// Verify we get a compilation unit node and that binding are correct
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		if (resolveBindings && compilationUnit.getProblems().length == 0) {
+			compilationUnit.accept(new NullBindingVerifier());
+		}
+		return result;
 	}
 
 	public ASTNode runConversion(int astLevel, IClassFile classFile, int position, boolean resolveBindings) {
+
+		// Create parser
 		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(classFile);
 		parser.setFocalPosition(position);
 		parser.setResolveBindings(resolveBindings);
-		return parser.createAST(null);
+
+		// Parse compilation unit
+		ASTNode result = parser.createAST(null);
+		
+		// Verify we get a compilation unit node and that binding are correct
+		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
+		CompilationUnit compilationUnit = (CompilationUnit) result;
+		if (resolveBindings && compilationUnit.getProblems().length == 0) {
+			compilationUnit.accept(new NullBindingVerifier());
+		}
+		return result;
 	}
 	
 	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project) {

@@ -2008,7 +2008,11 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 
 	this.getstatic(syntheticFieldBinding);
 	this.dup();
-	this.ifnonnull(nullLabel);
+	this.ifnull(nullLabel);
+	final int stackSizeForIf = this.stackDepth;
+	this.areturn();
+	nullLabel.place();
+	this.stackDepth = stackSizeForIf;
 	this.pop();
 	ReferenceBinding enumBinding = (ReferenceBinding) methodBinding.targetEnumType;
 	char[] signature = "()".toCharArray(); //$NON-NLS-1$
@@ -2017,7 +2021,7 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 	this.invoke(OPC_invokestatic, 0, 1, enumBinding.constantPoolName(), TypeConstants.VALUES, signature);
 	this.arraylength();
 	this.newarray(INT_ARRAY);
-	this.putstatic(syntheticFieldBinding);
+	this.astore_0();
 	final FieldBinding[] fields = enumBinding.fields();
 	if (fields != null) {
 		for (int i = 0, max = fields.length; i < max; i++) {
@@ -2025,7 +2029,7 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 			if ((fieldBinding.getAccessFlags() & IConstants.AccEnum) != 0) {
 				final Label endLabel = new Label(this);
 				final ExceptionLabel anyExceptionHandler = new ExceptionLabel(this, BaseTypes.LongBinding /* represents NoSuchFieldError*/);
-				this.getstatic(syntheticFieldBinding);
+				this.aload_0();
 				this.getstatic(fieldBinding);
 				this.invokeEnumOrdinal(enumBinding.constantPoolName());
 				this.generateInlinedValue(fieldBinding.id);
@@ -2042,8 +2046,9 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 			}
 		}
 	}
-	this.getstatic(syntheticFieldBinding);
-	nullLabel.place();
+	this.aload_0();
+	this.dup();
+	this.putstatic(syntheticFieldBinding);
 	areturn();
 }
 public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessBinding) {

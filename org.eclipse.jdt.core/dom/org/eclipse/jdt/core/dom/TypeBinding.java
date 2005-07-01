@@ -374,22 +374,27 @@ class TypeBinding implements ITypeBinding {
 	}
 	
 	private JavaElement getUnresolvedJavaElement() {
-		if (this.binding == null) 
+		return getUnresolvedJavaElement(this.binding);
+	}
+	private JavaElement getUnresolvedJavaElement(org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding ) {
+		if (typeBinding == null) 
 			return null;
-		switch (this.binding.kind()) {
+		switch (typeBinding.kind()) {
 			case Binding.ARRAY_TYPE :
+				typeBinding = ((ArrayBinding) typeBinding).leafComponentType();
+				return getUnresolvedJavaElement(typeBinding);
 			case Binding.BASE_TYPE :
 			case Binding.WILDCARD_TYPE :
 				return null;
 			default :
-				if (this.binding.isCapture()) 
+				if (typeBinding.isCapture()) 
 					return null;
 		}
 		ReferenceBinding referenceBinding;
-		if (this.binding.isParameterizedType() || this.binding.isRawType())
-			referenceBinding = (ReferenceBinding) this.binding.erasure();
+		if (typeBinding.isParameterizedType() || typeBinding.isRawType())
+			referenceBinding = (ReferenceBinding) typeBinding.erasure();
 		else
-			referenceBinding = (ReferenceBinding) this.binding;
+			referenceBinding = (ReferenceBinding) typeBinding;
 		char[] fileName = referenceBinding.getFileName();
 		if (Util.isClassFileName(fileName)) {
 			ClassFile classFile = (ClassFile) getClassFile(fileName);
@@ -913,7 +918,10 @@ class TypeBinding implements ITypeBinding {
 		};
 		Scope scope = this.resolver.scope();
 		if (scope == null) return false;
-		return expression.checkCastTypesCompatibility(scope, this.binding, ((TypeBinding) type).binding, null);
+		org.eclipse.jdt.internal.compiler.lookup.TypeBinding expressionType = ((TypeBinding) type).binding;
+		// simulate capture in case checked binding did not properly get extracted from a reference
+		expressionType = expressionType.capture(scope, 0);
+		return expression.checkCastTypesCompatibility(scope, this.binding, expressionType, null);
 	}
 
 	/*
@@ -988,7 +996,7 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#isInterface()
 	 */
 	public boolean isInterface() {
-		return this.binding.isInterface();
+		return this.binding.isInterface() && !this.binding.isTypeVariable() && !this.binding.isWildcard();
 	}
 
 	/*

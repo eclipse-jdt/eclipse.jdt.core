@@ -70,6 +70,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -105,7 +106,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 608, 609 };
+//		TESTS_NUMBERS =  new int[] { 611 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -3350,16 +3351,17 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 	}
 	
+
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=48502
 	 */
-	public void _test0514() throws JavaModelException {
+	public void test0514() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0514", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 	}
-	
+
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=49204
 	 */
@@ -4633,7 +4635,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=58436
 	 */
-	public void _test0543() throws JavaModelException {
+	public void test0543() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0543", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
@@ -6435,6 +6437,96 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			assertNotNull("No binding", variableBinding);
 			IJavaElement javaElement = variableBinding.getJavaElement();
 			assertNotNull("No java element", javaElement);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=98088
+	 */
+	public void test0610() throws JavaModelException {
+		final ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0610", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		final ASTNode result = runConversion(AST.JLS3, sourceUnit, true);
+		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
+		CompilationUnit unit = (CompilationUnit) result;
+		assertProblemsSize(unit, 1, "The type Test is deprecated");
+	}
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=96698
+	 */
+	public void test0611() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"abstract class SearchPattern {\n" +
+				"}\n" +
+				"class InternalSearchPattern extends SearchPattern {\n" +
+				"	boolean mustResolve;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	public static final int POSSIBLE_MATCH = 0;\n" +
+				"	public static final int ACCURATE_MATCH = 1;\n" +
+				"	\n" +
+				"	public void foo(SearchPattern pattern) {\n" +
+				"		int declarationLevel = ((InternalSearchPattern) pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;\n" +
+				"		System.out.println(declarationLevel);\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 2, 2, 0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
+			List fragments = statement.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			Expression expression = fragment.getInitializer();
+			checkSourceRange(expression, "((InternalSearchPattern) pattern).mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH", contents);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	public void test0612() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"    void foo(boolean[]value) {\n" +
+				"    }\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			List parameters = methodDeclaration.parameters();
+			assertEquals("Wrong size", 1, parameters.size());
+			SingleVariableDeclaration variableDeclaration = (SingleVariableDeclaration) parameters.get(0);
+			checkSourceRange(variableDeclaration, "boolean[]value", contents);
+			Type type = variableDeclaration.getType();
+			checkSourceRange(type, "boolean[]", contents);
+			assertTrue("Not an array type", type.isArrayType());
+			ArrayType arrayType = (ArrayType) type;
+			Type componentType = arrayType.getComponentType();
+			assertTrue("Not a primitive type", componentType.isPrimitiveType());
+			PrimitiveType primitiveType = (PrimitiveType) componentType;
+			assertEquals("Not boolean", PrimitiveType.BOOLEAN, primitiveType.getPrimitiveTypeCode());
+			checkSourceRange(primitiveType, "boolean", contents);
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();

@@ -671,6 +671,25 @@ protected void assertDeltas(String message, String expected) {
 				"1.4"
 			);
 	}
+	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, String projectOutput, String compliance) throws CoreException {
+		return 
+			createJavaProject(
+				projectName, 
+				sourceFolders, 
+				libraries, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				projects, 
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no exported project*/, 
+				projectOutput, 
+				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				compliance
+			);
+		}
 	protected IJavaProject createJavaProject(final String projectName, final String[] sourceFolders, final String[] libraries, final String[] projects, final boolean[] exportedProjects, final String projectOutput, final String[] sourceOutputs, final String[][] inclusionPatterns, final String[][] exclusionPatterns, final String compliance) throws CoreException {
 		return
 		this.createJavaProject(
@@ -1844,6 +1863,11 @@ protected void assertDeltas(String message, String expected) {
 			}
 			javaProject.setRawClasspath(classpath, null);
 		}
+		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
+		javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
+		javaProject.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
+		javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
 		return javaProject;
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {

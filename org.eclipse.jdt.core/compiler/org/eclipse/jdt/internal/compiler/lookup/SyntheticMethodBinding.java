@@ -199,9 +199,9 @@ public class SyntheticMethodBinding extends MethodBinding {
 		
 	    this.declaringClass = declaringClass;
 	    this.selector = overridenMethodToBridge.selector;
-	    this.modifiers = overridenMethodToBridge.modifiers | AccBridge | AccSynthetic;
+	    // amongst other, clear the AccGenericSignature, so as to ensure no remains of original inherited persist (101794)
+	    this.modifiers = (overridenMethodToBridge.modifiers | AccBridge | AccSynthetic) & ~(AccAbstract | AccNative | AccGenericSignature);
 		this.tagBits |= TagBits.AnnotationResolved;
-	    this.modifiers &= ~(AccAbstract | AccNative);
 	    this.returnType = overridenMethodToBridge.returnType;
 	    this.parameters = overridenMethodToBridge.parameters;
 	    this.thrownExceptions = overridenMethodToBridge.thrownExceptions;

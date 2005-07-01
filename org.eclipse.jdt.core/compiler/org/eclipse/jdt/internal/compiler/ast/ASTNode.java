@@ -187,13 +187,13 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		boolean isRawMemberInvocation = !method.isStatic() 
 				&& !receiverType.isUnboundWildcard() 
 				&& method.declaringClass.isRawType() 
-				&& (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType());
+				&& method.hasSubstitutedParameters();
 		
 		MethodBinding rawOriginalGenericMethod = null;
 		if (!isRawMemberInvocation) {
 			if (method instanceof ParameterizedGenericMethodBinding) {
 				ParameterizedGenericMethodBinding paramMethod = (ParameterizedGenericMethodBinding) method;
-				if (paramMethod.isUnchecked || (paramMethod.isRaw && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType()))) {
+				if (paramMethod.isUnchecked || (paramMethod.isRaw && method.hasSubstitutedParameters())) {
 					rawOriginalGenericMethod = method.original();
 				}
 			}
@@ -253,7 +253,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		}
 		if (unsafeWildcardInvocation) {
 		    scope.problemReporter().wildcardInvocation((ASTNode)invocationSite, receiverType, method, argumentTypes);
-		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && (method.hasSubstitutedParameters() || method.hasSubstitutedReturnType())) {
+		} else if (!method.isStatic() && !receiverType.isUnboundWildcard() && method.declaringClass.isRawType() && method.hasSubstitutedParameters()) {
 		    scope.problemReporter().unsafeRawInvocation((ASTNode)invocationSite, method);
 		} else if (rawOriginalGenericMethod != null) {
 		    scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method);
@@ -267,14 +267,14 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	* An access in the same compilation unit is allowed.
 	*/
 	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope, boolean isStrictlyAssigned) {
-
-		if (!isStrictlyAssigned && field.isPrivate() && !scope.isDefinedInField(field)) {
+	
+		if (!isStrictlyAssigned && (field.isPrivate() || (field.declaringClass != null && field.declaringClass.isLocalType())) && !scope.isDefinedInField(field)) {
 			// ignore cases where field is used from within inside itself 
-			field.modifiers |= AccPrivateUsed;
+			field.modifiers |= AccLocallyUsed;
 		}
-
+	
 		if (!field.isViewedAsDeprecated()) return false;
-
+	
 		// inside same unit - no report
 		if (scope.isDefinedInSameUnit(field.declaringClass)) return false;
 		
@@ -293,9 +293,9 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	*/
 	public final boolean isMethodUseDeprecated(MethodBinding method, Scope scope) {
 
-		if (method.isPrivate() && !scope.isDefinedInMethod(method)) {
+		if ((method.isPrivate() || method.declaringClass.isLocalType()) && !scope.isDefinedInMethod(method)) {
 			// ignore cases where method is used from within inside itself (e.g. direct recursions)
-			method.original().modifiers |= AccPrivateUsed;
+			method.original().modifiers |= AccLocallyUsed;
 		}
 		
 		if (!method.isViewedAsDeprecated()) return false;
@@ -321,17 +321,18 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	/* Answer true if the type use is considered deprecated.
 	* An access in the same compilation unit is allowed.
 	*/
-	public final boolean isTypeUseDeprecated(TypeBinding type, Scope scope) {		
+	public final boolean isTypeUseDeprecated(TypeBinding type, Scope scope) {
+
 		if (type.isArrayType())
 			type = ((ArrayBinding) type).leafComponentType;
 		if (type.isBaseType())
 			return false;
 
-		ReferenceBinding refType = (ReferenceBinding) type;		
+		ReferenceBinding refType = (ReferenceBinding) type;
 
-		if (refType.isPrivate() && !scope.isDefinedInType(refType)) {
+		if ((refType.isPrivate() /*|| refType.isLocalType()*/) && !scope.isDefinedInType(refType)) {
 			// ignore cases where type is used from within inside itself 
-			((ReferenceBinding)refType.erasure()).modifiers |= AccPrivateUsed;
+			((ReferenceBinding)refType.erasure()).modifiers |= AccLocallyUsed;
 		}
 		
 		if (refType.hasRestrictedAccess()) {
@@ -461,8 +462,9 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 		TypeBinding[] annotationTypes = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
 			Annotation annotation = annotations[i];
-			annotation.recipient = recipient;			
-			annotationTypes[i] = annotation.resolveType(scope);		
+			annotation.recipient = recipient;
+			annotationTypes[i] = annotation.resolveType(scope);
+			
 			// null if receipient is a package binding
 			if( instances != null )				
 				instances[i] = annotation.getCompilerAnnotation();
@@ -483,8 +485,6 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 				scope.problemReporter().duplicateAnnotation(annotations[i]);
 			}
 		}
-		
-		
 	}
 	
 	public int sourceStart() {

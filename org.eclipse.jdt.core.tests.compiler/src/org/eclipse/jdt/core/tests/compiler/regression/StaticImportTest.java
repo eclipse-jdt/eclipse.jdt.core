@@ -28,6 +28,7 @@ public class StaticImportTest extends AbstractComparableTest {
 		return StaticImportTest.class;
 	}
 
+
 	public void test001() {
 		this.runConformTest(
 			new String[] {
@@ -238,42 +239,42 @@ public class StaticImportTest extends AbstractComparableTest {
 				"	static class ZMember {}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 3)\n" + 
-			"	import static p2.Z.Zint;\n" + 
-			"	              ^^^^^^^^^\n" + 
-			"The import p2.Z.Zint cannot be resolved\n" + 
-			"----------\n" + 
-			"2. ERROR in p\\X.java (at line 4)\n" + 
-			"	import static p2.Z.ZMember;\n" + 
-			"	              ^^^^^^^^^^^^\n" + 
-			"The type p2.Z.ZMember is not visible\n" + 
-			"----------\n" + 
-			"3. ERROR in p\\X.java (at line 6)\n" + 
-			"	int x = y(1);\n" + 
-			"	        ^\n" + 
-			"The method y(int) from the type Y is not visible\n" + 
-			"----------\n" + 
-			"4. ERROR in p\\X.java (at line 7)\n" + 
-			"	int y = Yint;\n" + 
-			"	        ^^^^\n" + 
-			"The field Yint is not visible\n" + 
-			"----------\n" + 
-			"5. ERROR in p\\X.java (at line 8)\n" + 
-			"	int z = Zint;\n" + 
-			"	        ^^^^\n" + 
-			"Zint cannot be resolved\n" + 
-			"----------\n" + 
-			"6. ERROR in p\\X.java (at line 9)\n" + 
-			"	void m1(YMember m) {}\n" + 
-			"	        ^^^^^^^\n" + 
-			"The type YMember is not visible\n" + 
-			"----------\n" + 
-			"7. ERROR in p\\X.java (at line 10)\n" + 
-			"	void m2(ZMember m) {}\n" + 
-			"	        ^^^^^^^\n" + 
-			"ZMember cannot be resolved to a type\n" + 
-			"----------\n");
+		"----------\n" + 
+		"1. ERROR in p\\X.java (at line 3)\n" + 
+		"	import static p2.Z.Zint;\n" + 
+		"	              ^^^^^^^^^\n" + 
+		"The import p2.Z.Zint cannot be resolved\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\X.java (at line 4)\n" + 
+		"	import static p2.Z.ZMember;\n" + 
+		"	              ^^^^^^^^^^^^\n" + 
+		"The type p2.Z.ZMember is not visible\n" + 
+		"----------\n" + 
+		"3. ERROR in p\\X.java (at line 6)\n" + 
+		"	int x = y(1);\n" + 
+		"	        ^\n" + 
+		"The method y(int) from the type Y is not visible\n" + 
+		"----------\n" + 
+		"4. ERROR in p\\X.java (at line 7)\n" + 
+		"	int y = Yint;\n" + 
+		"	        ^^^^\n" + 
+		"The field Y.Yint is not visible\n" + 
+		"----------\n" + 
+		"5. ERROR in p\\X.java (at line 8)\n" + 
+		"	int z = Zint;\n" + 
+		"	        ^^^^\n" + 
+		"Zint cannot be resolved\n" + 
+		"----------\n" + 
+		"6. ERROR in p\\X.java (at line 9)\n" + 
+		"	void m1(YMember m) {}\n" + 
+		"	        ^^^^^^^\n" + 
+		"The type YMember is not visible\n" + 
+		"----------\n" + 
+		"7. ERROR in p\\X.java (at line 10)\n" + 
+		"	void m2(ZMember m) {}\n" + 
+		"	        ^^^^^^^\n" + 
+		"ZMember cannot be resolved to a type\n" + 
+		"----------\n");
 	}
 
 	public void test006() { // test non static member types
@@ -645,7 +646,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"1. ERROR in bug\\A.java (at line 4)\n" + 
 			"	private B b2 = b;\n" + 
 			"	               ^\n" + 
-			"The field b is not visible\n" + 
+			"The field C.b is not visible\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. WARNING in bug\\B.java (at line 2)\n" + 
@@ -657,7 +658,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"1. WARNING in bug\\C.java (at line 3)\n" + 
 			"	private static B b;\n" + 
 			"	                 ^\n" + 
-			"The private field C.b is never read locally\n" + 
+			"The field C.b is never read locally\n" + 
 			"----------\n");
 	}
 
@@ -1082,8 +1083,8 @@ public class StaticImportTest extends AbstractComparableTest {
 			""
 		);
 	}
-	
-		//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95909
+
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=95909
 	public void test031() {
 		this.runNegativeTest(
 			new String[] {
@@ -1105,5 +1106,152 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	              ^^^^^^^^\n" + 
 			"pondArea cannot be resolved\n" + 
 			"----------\n");
+	}
+
+	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	public void test032() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.A.*;\n" + 
+				"import static p.B.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {foo();}\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;" +
+				"public class A {\n" + 
+				"	public static void foo() {System.out.print(false);}\n" + 
+				"}\n",
+				"p/B.java",
+				"package p;" +
+				"public class B extends A {\n" + 
+				"	public static void foo() {System.out.print(true);}\n" + 
+				"}\n"
+			},
+			"true");
+	}
+
+	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	public void test032b() {
+		this.runNegativeTest(
+			new String[] {
+				"X2.java",
+				"import static p2.A.*;\n" + 
+				"import static p2.B.*;\n" + 
+				"public class X2 { void test() {foo();} }\n",
+				"p2/A.java",
+				"package p2;" +
+				"public class A {\n" + 
+				"	public static void foo() {}\n" + 
+				"}\n",
+				"p2/B.java",
+				"package p2;" +
+				"public class B {\n" + 
+				"	public static void foo() {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X2.java (at line 3)\r\n" + 
+			"	public class X2 { void test() {foo();} }\r\n" + 
+			"	                               ^^^\n" + 
+			"The method foo() is ambiguous for the type X2\n" + 
+			"----------\n"
+			// reference to foo is ambiguous, both method foo() in p.B and method foo() in p.A match
+		);
+	}
+
+	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	public void test032c() {
+		this.runConformTest(
+			new String[] {
+				"X3.java",
+				"import static p3.A.*;\n" + 
+				"import static p3.B.foo;\n" + 
+				"public class X3 {\n" + 
+				"	public static void main(String[] args) {foo();}\n" + 
+				"}\n",
+				"p3/A.java",
+				"package p3;" +
+				"public class A {\n" + 
+				"	public static void foo() {System.out.print(false);}\n" + 
+				"}\n",
+				"p3/B.java",
+				"package p3;" +
+				"public class B {\n" + 
+				"	public static void foo() {System.out.print(true);}\n" + 
+				"}\n"
+			},
+			"true");
+	}
+
+	//http://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	public void test032d() {
+		this.runConformTest(
+			new String[] {
+				"X4.java",
+				"import static p4.A.foo;\n" + 
+				"import static p4.B.*;\n" + 
+				"public class X4 {\n" + 
+				"	public static void main(String[] args) {foo();}\n" + 
+				"}\n",
+				"p4/A.java",
+				"package p4;" +
+				"public class A {\n" + 
+				"	public static void foo() {System.out.print(true);}\n" + 
+				"}\n",
+				"p4/B.java",
+				"package p4;" +
+				"public class B extends A {\n" + 
+				"	public static void foo() {System.out.print(false);}\n" + 
+				"}\n"
+			},
+			"true");
+	}
+
+	public void test033() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static p.A.*;\n" + 
+				"import static p.B.*;\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {foo(\"aa\");}\n" + 
+				"}\n",
+				"p/A.java",
+				"package p;" +
+				"public class A {\n" + 
+				"	public static <U> void foo(U u) {System.out.print(false);}\n" + 
+				"}\n",
+				"p/B.java",
+				"package p;" +
+				"public class B extends A {\n" + 
+				"	public static <V> void foo(String s) {System.out.print(true);}\n" + 
+				"}\n"
+			},
+			"true");
+	}
+
+	public void test033b() {
+		this.runConformTest(
+			new String[] {
+				"X2.java",
+				"import static p2.A.*;\n" + 
+				"import static p2.B.*;\n" + 
+				"public class X2 {\n" + 
+				"	public static void main(String[] args) {foo(\"aa\");}\n" + 
+				"}\n",
+				"p2/A.java",
+				"package p2;" +
+				"public class A {\n" + 
+				"	public static <U> void foo(String s) {System.out.print(true);}\n" + 
+				"}\n",
+				"p2/B.java",
+				"package p2;" +
+				"public class B extends A {\n" + 
+				"	public static <V> void foo(V v) {System.out.print(false);}\n" + 
+				"}\n"
+			},
+			"true");
 	}
 }

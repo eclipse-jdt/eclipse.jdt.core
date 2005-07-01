@@ -26,6 +26,7 @@ protected boolean isCaseSensitive;
 protected boolean isEquivalentMatch;
 protected boolean isErasureMatch;
 protected boolean mustResolve;
+protected boolean mayBeGeneric;
 
 // match to report
 SearchMatch match = null;

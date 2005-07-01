@@ -441,19 +441,19 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	
 	public Hashtable getExternalLibTimeStamps() {
 		if (this.externalTimeStamps == null) {
-			this.externalTimeStamps = new Hashtable();
-			File timestamps = getTimeStampsFile();
+			Hashtable timeStamps = new Hashtable();
+			File timestampsFile = getTimeStampsFile();
 			DataInputStream in = null;
 			try {
-				in = new DataInputStream(new BufferedInputStream(new FileInputStream(timestamps)));
+				in = new DataInputStream(new BufferedInputStream(new FileInputStream(timestampsFile)));
 				int size = in.readInt();
 				while (size-- > 0) {
 					String key = in.readUTF();
 					long timestamp = in.readLong();
-					this.externalTimeStamps.put(Path.fromPortableString(key), new Long(timestamp));
+					timeStamps.put(Path.fromPortableString(key), new Long(timestamp));
 				}
 			} catch (IOException e) {
-				if (timestamps.exists())
+				if (timestampsFile.exists())
 					Util.log(e, "Unable to read external time stamps"); //$NON-NLS-1$
 			} finally {
 				if (in != null) {
@@ -464,6 +464,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 					}
 				}
 			}
+			this.externalTimeStamps = timeStamps;
 		}
 		return this.externalTimeStamps;
 	}

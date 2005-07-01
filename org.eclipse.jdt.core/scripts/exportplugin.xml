@@ -82,8 +82,8 @@
 	</zip>
 
 	<delete file="${plugin-dir}/jdtCompilerAdapter.jar"/>
-	<echo message="UPDATE jdtcoresrc.zip" />
-	<zip zipfile="${plugin-dir}/jdtcoresrc.zip">
+	<echo message="UPDATE src.zip" />
+	<zip zipfile="${plugin-dir}/src.zip">
         <fileset file="component.xml"/>	
 	    <fileset dir="batch" />
 	    <fileset dir="codeassist" />

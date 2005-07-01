@@ -16,24 +16,10 @@ import java.util.List;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeParameter;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.search.SearchMatch;
-import org.eclipse.jdt.core.search.SearchParticipant;
-import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.core.search.TypeNameRequestor;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.search.*;
 
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
@@ -57,9 +43,9 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug75816";
-//		TESTS_NAMES = new String[] { "testBug82208_SearchAllTypeNames_CLASS" };
-//		TESTS_NUMBERS = new int[] { 79860, 80918, 91078 };
+//		TESTS_PREFIX =  "testBug97547";
+//		TESTS_NAMES = new String[] { "testBug83304" };
+//		TESTS_NUMBERS = new int[] { 99600 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -77,6 +63,12 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	IJavaSearchScope getJavaSearchScopeBugs(String packageName, boolean addSubpackages) throws JavaModelException {
 		if (packageName == null) return getJavaSearchScopeBugs();
 		return getJavaSearchPackageScope("JavaSearchBugs", packageName, addSubpackages);
+	}
+	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
+		if (this.wcOwner == null) {
+			this.wcOwner = new WorkingCopyOwner() {};
+		}
+		return getWorkingCopy(path, source, this.wcOwner, null/*don't compute problems*/);
 	}
 	protected void search(IJavaElement element, int limitTo) throws CoreException {
 		search(element, limitTo, EXACT_RULE, getJavaSearchScopeBugs(), resultCollector);
@@ -1373,7 +1365,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
-	 * Test fix for bug 82088: [search][javadoc] Method parameter types references not found in @see/@link tags
+	 * Bug 82088: [search][javadoc] Method parameter types references not found in @see/@link tags
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82088"
 	 */
 	public void testBug82088method() throws CoreException {
@@ -2643,7 +2635,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
-	 * Test fix for bug 89848: [search] does not find method references in anonymous class of imported jarred plugin
+	 * Bug 89848: [search] does not find method references in anonymous class of imported jarred plugin
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=89848"
 	 */
 	public void testBug89848() throws CoreException {
@@ -2848,6 +2840,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"g5.m.def.Multiple\n" + 
 			"g5.m.def.Single\n" + 
 			"java.io.Serializable\n" + 
+			"java.lang.CharSequence\n" + 
 			"java.lang.Class\n" + 
 			"java.lang.CloneNotSupportedException\n" + 
 			"java.lang.Comparable\n" + 
@@ -2964,6 +2957,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"g5.m.def.Multiple\n" + 
 			"g5.m.def.Single\n" + 
 			"java.io.Serializable\n" + 
+			"java.lang.CharSequence\n" + 
 			"java.lang.Class\n" + 
 			"java.lang.CloneNotSupportedException\n" + 
 			"java.lang.Comparable\n" + 
@@ -3059,6 +3053,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"b87627.List\n" + 
 			"b92944.B92944_I\n" + 
 			"java.io.Serializable\n" + 
+			"java.lang.CharSequence\n" + 
 			"java.lang.Comparable\n" +
 			"java.lang.annotation.Annotation", // Annotation is an interface in java.lang
 			requestor);
@@ -3158,6 +3153,36 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		index= source.indexOf(str, index)+str.length();
 		assertEquals("Invalid offset for last match", index, ((SearchMatch)collector.matches.get(2)).getOffset());
 		assertEquals("Invalid length for last match", 2, ((SearchMatch)collector.matches.get(2)).getLength());
+	}
+
+	/**
+	 * Bug 94160: [1.5][search] Generic method in superclass does not exist
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=94160"
+	 */
+	public void testBug94160() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b94160/Test.java",
+			"package b94160;\n" + 
+			"public class Test {\n" + 
+			"	<T> List<T> generateList(Class<T> clazz) {\n" + 
+			"		return new ArrayList<T>();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class CTest extends Test {\n" + 
+			"	private List<String> myList = generateList(String.class);\n" + 
+			"	CTest() {\n" + 
+			"		myList = new ArrayList<String>();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface List<E> {}\n" + 
+			"class ArrayList<E> implements List<E> {}"
+		);
+		IType type = workingCopies[0].getType("CTest");
+		IField field = type.getField("myList");
+		new SearchEngine(this.workingCopies).searchDeclarationsOfSentMessages(field, resultCollector, null);
+		assertSearchResults(
+			"src/b94160/Test.java List<T> b94160.Test.generateList(Class<T>) [generateList(Class<T> clazz)] EXACT_MATCH"
+		);
 	}
 
 	/**
@@ -3301,5 +3326,387 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		TestCollector referencesCollector = new TestCollector();
 		search(field, REFERENCES, getJavaSearchScopeBugs(), referencesCollector);
 		assertEquals("Problem with occurences or references number of matches: ", occurencesCollector.matches.size()-1, referencesCollector.matches.size());
+	}
+
+	/**
+	 * Bug 97087: [1.5][search] Can't find reference of generic class's constructor.
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97087"
+	 */
+	public void testBug97087() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		this.resultCollector.showRule = true;
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97087/Bug.java",
+			"package b97087;\n" + 
+			"public class Bug<Type> {\n" + 
+			"    Bug(){}\n" + 
+			"}\n" + 
+			"class Foo extends Bug<String>{\n" + 
+			"    Foo(){}\n" + 
+			"}\n" +
+			"class Bar extends Bug<Exception>{\n" + 
+			"    Bar(){super();}\n" + 
+			"}"
+		);
+		IType type = workingCopies[0].getType("Bug");
+		IMethod method= type.getMethods()[0];
+		search(method, REFERENCES, SearchPattern.R_ERASURE_MATCH);
+		assertSearchResults(
+			"src/b97087/Bug.java b97087.Foo() [Foo] EXACT_MATCH\n" + 
+			"src/b97087/Bug.java b97087.Bar() [super()] ERASURE_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 96761: [1.5][search] Search for declarations of generic method finds non-overriding method
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=96761"
+	 */
+	public void testBug96761() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96761/Generic.java",
+			"package b96761;\n" + 
+			"public class Generic<G> {\n" + 
+			"	void take(G g) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Impl extends Generic<RuntimeException> {\n" + 
+			"	void take(InterruptedException g) {\n" + 
+			"	}\n" + 
+			"	void take(RuntimeException g) {\n" + 
+			"	}\n" + 
+			"}"
+		);
+		IType type = workingCopies[0].getType("Generic");
+		IMethod method= type.getMethods()[0];
+		search(method, REFERENCES);
+		assertSearchResults(""); // Expect no result
+	}
+
+	/**
+	 * Bug 96763: [1.5][search] Search for method declarations does not find overridden method with different signature
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=96763"
+	 */
+	public void testBug96763() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96763/Test.java",
+			"package b96763;\n" + 
+			"class Test<T> {\n" + 
+			"    public void first(Exception num) {}\n" + 
+			"    public void second(T t) {}\n" + 
+			"}\n" + 
+			"class Sub extends Test<Exception> {\n" + 
+			"    public void first(Exception num) {}\n" + 
+			"    public void second(Exception t) {}\n" + 
+			"}\n"
+		);
+		IMethod method = workingCopies[0].getType("Sub").getMethods()[0];
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		this.discard = false;
+		assertSearchResults(
+			"src/b96763/Test.java void b96763.Test.first(Exception) [first] EXACT_MATCH\n" + 
+			"src/b96763/Test.java void b96763.Sub.first(Exception) [first] EXACT_MATCH"
+		);
+	}
+	public void testBug96763b() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		IMethod method = workingCopies[0].getType("Sub").getMethods()[1];
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		assertSearchResults(
+			"src/b96763/Test.java void b96763.Test.second(T) [second] EXACT_MATCH\n" + 
+			"src/b96763/Test.java void b96763.Sub.second(Exception) [second] EXACT_MATCH"
+		);
+	}
+	public void testBug96763d() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b96763/Test.java",
+			"package b96763;\n" + 
+			"public class Test<T> {\n" + 
+			"	void methodT(T t) {}\n" + 
+			"}\n" + 
+			"class Sub<X> extends Test<X> {\n" + 
+			"	void methodT(X x) {} // overrides Super#methodT(T)\n" + 
+			"}\n"
+		);
+		IMethod method = workingCopies[0].getType("Sub").getMethods()[0];
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE);
+		assertSearchResults(
+			"src/b96763/Test.java void b96763.Test.methodT(T) [methodT] EXACT_MATCH\n" + 
+			"src/b96763/Test.java void b96763.Sub.methodT(X) [methodT] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 97322: [search] Search for method references sometimes reports potential match with differing argument count
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97322"
+	 */
+	public void testBug97322() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97322/Test.java",
+			"package b97322;\n" + 
+			"class Test {\n" + 
+			"	static void myMethod(int a, String b) {}\n" + 
+			"	void call() {\n" + 
+			"		myMethod(12);\n" + 
+			"	}\n" + 
+			"}"
+		);
+		IType type = workingCopies[0].getType("Test");
+		IMethod method= type.getMethods()[0];
+		search(method, REFERENCES);
+		assertSearchResults(""); // Expect no result
+	}
+
+	/**
+	 * Bug 97547: [search] Package search does not find references in member types import clause
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97547"
+	 */
+	public void testBug97547() throws CoreException {
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97547/IX.java",
+			"package b97547;\n" + 
+			"public interface IX {\n" + 
+			"	public interface IX1 {}\n" + 
+			"}"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97547/X.java",
+			"package b97547;\n" + 
+			"import b97547.IX.*;\n" + 
+			"class X {\n" + 
+			"	IX x;\n" + 
+			"}"
+		);
+		IPackageDeclaration[] packages = workingCopies[0].getPackageDeclarations();
+		assertTrue("Invalid number of packages declaration!", packages!=null && packages.length==1);
+		search(packages[0], REFERENCES);
+		assertSearchResults(
+			"src/b97547/X.java [b97547] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 97606: [1.5][search] Raw type reference is reported as exact match for qualified names
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97606"
+	 */
+	public void testBug97606() throws CoreException {
+		workingCopies = new ICompilationUnit[4];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/L.java",
+			"package b97606.pack.def;\n" + 
+			"public interface L<E> {}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/LL.java",
+			"package b97606.pack.def;\n" + 
+			"public class LL<E> implements L<E> {\n" + 
+			"	public Object clone() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/K.java",
+			"package b97606.pack.ref;\n" + 
+			"public interface K {}\n"
+		);
+		workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/X.java",
+			"package b97606.pack.ref;\n" + 
+			"public class X implements K {\n" + 
+			"	private b97606.pack.def.LL sg;\n" + 
+			"	protected synchronized b97606.pack.def.L<K> getSG() {\n" + 
+			"		return (sg != null) \n" + 
+			"			? (b97606.pack.def.L) sg.clone()\n" + 
+			"			: null;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IPath pathDef = new Path("/JavaSearchBugs/src/b97606/pack/def");
+		IPath pathRef = new Path("/JavaSearchBugs/src/b97606/pack/ref");
+		try {
+			createFolder(pathDef);
+			createFolder(pathRef);
+			workingCopies[0].commitWorkingCopy(true, null);
+			workingCopies[1].commitWorkingCopy(true, null);
+			workingCopies[2].commitWorkingCopy(true, null);
+			workingCopies[3].commitWorkingCopy(true, null);
+			this.resultCollector.showRule = true;
+			IType type = workingCopies[0].getType("L");
+			search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH);
+			assertSearchResults(
+				"src/b97606/pack/def/LL.java b97606.pack.def.LL [L] ERASURE_MATCH\n" + 
+				"src/b97606/pack/ref/X.java b97606.pack.def.L<K> b97606.pack.ref.X.getSG() [b97606.pack.def.L] ERASURE_MATCH\n" + 
+				"src/b97606/pack/ref/X.java b97606.pack.def.L<K> b97606.pack.ref.X.getSG() [b97606.pack.def.L] ERASURE_RAW_MATCH"
+			);
+		}
+		finally {
+			deleteFolder(pathDef);
+			deleteFolder(pathRef);
+		}
+	}
+	public void testBug97606b() throws CoreException {
+		workingCopies = new ICompilationUnit[4];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/L.java",
+			"package b97606.pack.def;\n" + 
+			"public interface L<E> {}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/def/LL.java",
+			"package b97606.pack.def;\n" + 
+			"public class LL<E> implements L<E> {\n" + 
+			"	public Object clone() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/K.java",
+			"package b97606.pack.ref;\n" + 
+			"public interface K {}\n"
+		);
+		workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b97606/pack/ref/X.java",
+			"package b97606.pack.ref;\n" + 
+			"import b97606.pack.def.*;\n" + 
+			"public class X implements K {\n" + 
+			"	private LL sg;\n" + 
+			"	protected synchronized L<K> getSG() {\n" + 
+			"		return (sg != null) \n" + 
+			"			? (L) sg.clone()\n" + 
+			"			: null;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IPath pathDef = new Path("/JavaSearchBugs/src/b97606/pack/def");
+		IPath pathRef = new Path("/JavaSearchBugs/src/b97606/pack/ref");
+		try {
+			createFolder(pathDef);
+			createFolder(pathRef);
+			workingCopies[0].commitWorkingCopy(true, null);
+			workingCopies[1].commitWorkingCopy(true, null);
+			workingCopies[2].commitWorkingCopy(true, null);
+			workingCopies[3].commitWorkingCopy(true, null);
+			this.resultCollector.showRule = true;
+			IType type = workingCopies[0].getType("L");
+			search(type, REFERENCES, SearchPattern.R_ERASURE_MATCH);
+			assertSearchResults(
+				"src/b97606/pack/def/LL.java b97606.pack.def.LL [L] ERASURE_MATCH\n" + 
+				"src/b97606/pack/ref/X.java L<K> b97606.pack.ref.X.getSG() [L] ERASURE_MATCH\n" + 
+				"src/b97606/pack/ref/X.java L<K> b97606.pack.ref.X.getSG() [L] ERASURE_RAW_MATCH"
+			);
+		}
+		finally {
+			deleteFolder(pathDef);
+			deleteFolder(pathRef);
+		}
+	}
+
+	/**
+	 * Bug 97614: [1.5][search] Refactoring: renaming of field of a (complex) parametrized type does not replace all occurrences
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=97614"
+	 */
+	public void testBug97614() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b97614/W.java",
+			"package b97614;\n" + 
+			"public class W {\n" + 
+			"	private final Map<String, Y<?, ? extends b97614.X.XX<?, ?>, ? >> m1 = null;     // (a)\n" + 
+			"	public void getStore(final Object o) {\n" + 
+			"		m1.get(o);     // (b)\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface Map<K, V> {\n" + 
+			"	V get(Object k);\n" + 
+			"}"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b97614/X.java",
+			"package b97614;\n" + 
+			"import java.io.Serializable;\n" + 
+			"public interface X<T extends X<T, U, V>, \n" + 
+			"				   U extends X.XX<T, V>, \n" + 
+			"				   V extends X.XY> {\n" + 
+			"	public interface XX<TT extends X<TT, ?, UU>, \n" + 
+			"	                   UU extends X.XY> \n" + 
+			"			extends	Serializable {\n" + 
+			"	}\n" + 
+			"	public interface XY extends Serializable {\n" + 
+			"	}\n" + 
+			"}"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b97614/Y.java",
+			"package b97614;\n" + 
+			"public class Y<T extends X<T, U, V>, U extends X.XX<T, V>, V extends X.XY> {\n" + 
+			"}\n"
+		);
+		IField field = workingCopies[0].getType("W").getField("m1");
+		search(field, REFERENCES);
+		assertSearchResults(
+			"src/b97614/W.java void b97614.W.getStore(Object) [m1] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 98378: [search] does not find method references in anonymous class of imported jarred plugin
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=98378"
+	 */
+	public void testBug98378() throws CoreException {
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b98378/X.java",
+			"package b98378;\n" + 
+			"public class  X implements java.lang.CharSequence {\n" + 
+			"	public int length() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b98378/Y.java",
+			"package b98378;\n" + 
+			"public class Y {\n" + 
+			"	public int length() {\n" + 
+			"		return -1;\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		String jclPath = getExternalJCLPathString("1.5");
+		IType type = getClassFile("JavaSearchBugs", jclPath, "java.lang", "CharSequence.class").getType();
+		IMethod method = type.getMethod("length", new String[] {});
+		search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type, this.wcOwner));
+		this.discard = false;
+		assertSearchResults(
+			jclPath + " int java.lang.CharSequence.length() EXACT_MATCH\n" + 
+			jclPath + " int java.lang.String.length() EXACT_MATCH"
+		);
+	}
+	public void testBug98378b() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+		String jclPath = getExternalJCLPathString("1.5");
+		IType type = getClassFile("JavaSearchBugs", jclPath, "java.lang", "CharSequence.class").getType();
+		IMethod method = type.getMethod("length", new String[] {});
+		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchEngine.createHierarchyScope(type, this.wcOwner));
+		assertSearchResults(
+			"src/b98378/X.java int b98378.X.length() [length] EXACT_MATCH\n" + 
+			jclPath + " int java.lang.CharSequence.length() EXACT_MATCH\n" + 
+			jclPath + " int java.lang.String.length() EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * Bug 99600: [search] Java model exception on "Move to new file" on inner type with inner type
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=99600"
+	 */
+	public void testBug99600() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b99600/Test.java",
+			"package b99600;\n" + 
+			"public class Test {\n" + 
+			"	public class C1 {}\n" + 
+			"	public class C2 {\n" + 
+			"		class C3 {\n" + 
+			"			int foo(C1 c) { return 0; }\n" + 
+			"		}\n" + 
+			"		public void foo(C1 c, int i) {\n" + 
+			"			new C3().foo(c);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("Test").getType("C2");
+		new SearchEngine(this.workingCopies).searchDeclarationsOfSentMessages(type, resultCollector, null);
+		assertSearchResults(
+			"src/b99600/Test.java int b99600.Test$C2$C3.foo(C1) [foo(C1 c)] EXACT_MATCH"
+		);
 	}
 }

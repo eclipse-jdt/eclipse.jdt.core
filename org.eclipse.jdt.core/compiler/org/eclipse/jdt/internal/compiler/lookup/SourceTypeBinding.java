@@ -384,7 +384,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 		synthField = new SyntheticFieldBinding(
 			fieldName,
 			scope.createArrayType(BaseTypes.IntBinding,1),
-			AccPrivate | AccStatic | AccSynthetic | AccFinal,
+			AccPrivate | AccStatic | AccSynthetic,
 			this,
 			Constant.NotAConstant,
 			synthetics[FIELD_EMUL].size());
@@ -527,12 +527,12 @@ public void collectSubstitutes(Scope currentScope, TypeBinding otherType, Map su
 		case CONSTRAINT_EQUAL :
 		case CONSTRAINT_EXTENDS :
 			equivalent = this;
-	        otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeErasingTo(this);
+	        otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeWithSameErasure(this);
 	        if (otherEquivalent == null) return;
 	        break;
 		case CONSTRAINT_SUPER :
         default:
-	        equivalent = this.findSuperTypeErasingTo((ReferenceBinding)(otherType.erasure()));
+	        equivalent = this.findSuperTypeWithSameErasure(otherType);
 	        if (equivalent == null) return;
 	        otherEquivalent = (ReferenceBinding) otherType;
 	        break;
@@ -901,7 +901,7 @@ public FieldBinding getSyntheticField(ReferenceBinding targetEnclosingType, bool
 		while (accessFields.hasNext()) {
 			field = (FieldBinding) accessFields.next();
 			if (CharOperation.prefixEquals(TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX, field.name)
-				&& ((ReferenceBinding) field.type).findSuperTypeErasingTo(targetEnclosingType) != null)
+				&& ((ReferenceBinding) field.type).findSuperTypeWithSameErasure(targetEnclosingType) != null)
 					return field;
 		}
 	}
@@ -981,8 +981,8 @@ public FieldBinding getUpdatedFieldBinding(FieldBinding targetField, ReferenceBi
 		this.synthetics[RECEIVER_TYPE_EMUL].put(targetField, fieldMap);
 	}
 	FieldBinding updatedField = (FieldBinding) fieldMap.get(newDeclaringClass);
-	if (updatedField == null){		
-		updatedField = new FieldBinding( targetField, newDeclaringClass);
+	if (updatedField == null){
+		updatedField = new FieldBinding(targetField, newDeclaringClass);
 		fieldMap.put(newDeclaringClass, updatedField);
 	}
 	return updatedField;
@@ -1000,7 +1000,7 @@ public MethodBinding getUpdatedMethodBinding(MethodBinding targetMethod, Referen
 	}
 	MethodBinding updatedMethod = (MethodBinding) methodMap.get(newDeclaringClass);
 	if (updatedMethod == null){
-		updatedMethod = new MethodBinding(targetMethod, newDeclaringClass);	
+		updatedMethod = new MethodBinding(targetMethod, newDeclaringClass);
 		methodMap.put(newDeclaringClass, updatedMethod);
 	}
 	return updatedMethod;
@@ -1045,24 +1045,13 @@ public MethodBinding[] methods() {
 
 						TypeVariableBinding[] vars = method.typeVariables;
 						TypeVariableBinding[] vars2 = method2.typeVariables;
-						boolean equalTypeVarLength = vars.length == vars2.length;
 						boolean equalTypeVars = vars == vars2;
 						MethodBinding subMethod = method2;
-						if (!equalTypeVars && equalTypeVarLength) {
-							LookupEnvironment env = this.scope.environment();
-							int varsLength = vars.length;
-							notEqual : for (int v = 0; v < varsLength; v++) {
-								if (!vars[v].isInterchangeableWith(env, vars2[v])) {
-									equalTypeVars = false;
-									break notEqual;
-								}
+						if (!equalTypeVars) {
+							MethodBinding temp = method.computeSubstitutedMethod(method2, this.scope.environment());
+							if (temp != null) {
 								equalTypeVars = true;
-							}
-							if (equalTypeVars) {
-								// must substitute to detect cases like:
-								//   <T1 extends X<T1>> void dup() {}
-								//   <T2 extends X<T2>> Object dup() {return null;}
-								subMethod = new ParameterizedGenericMethodBinding(method2, vars, env);
+								subMethod = temp;
 							}
 						}
 						boolean equalParams = method.areParametersEqual(subMethod);
@@ -1180,7 +1169,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 				FieldDeclaration fieldDecl = fieldDecls[f];
 				TypeBinding fieldType = 
 					fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT
-						? initializationScope.convertToRawType(this) // enum constant is implicitly of declaring enum type
+						? initializationScope.environment().convertToRawType(this) // enum constant is implicitly of declaring enum type
 						: fieldDecl.type.resolveType(initializationScope, true /* check bounds*/);
 				field.type = fieldType;
 				field.modifiers &= ~AccUnresolved;

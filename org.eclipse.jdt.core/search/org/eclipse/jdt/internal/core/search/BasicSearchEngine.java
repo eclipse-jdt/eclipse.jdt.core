@@ -186,7 +186,7 @@ public class BasicSearchEngine {
 				SubProgressMonitor subMonitor= monitor==null ? null : new SubProgressMonitor(monitor, 1000);
 				if (subMonitor != null) subMonitor.beginTask("", 1000); //$NON-NLS-1$
 				try {
-					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_indexing, (new String[] {participant.getDescription()}))); 
+					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_indexing, new String[] {participant.getDescription()})); 
 					participant.beginSearching();
 					requestor.enterParticipant(participant);
 					PathCollector pathCollector = new PathCollector();
@@ -197,7 +197,7 @@ public class BasicSearchEngine {
 					if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	
 					// locate index matches if any (note that all search matches could have been issued during index querying)
-					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_matching, (new String[] {participant.getDescription()}))); 
+					if (subMonitor != null) subMonitor.subTask(Messages.bind(Messages.engine_searching_matching, new String[] {participant.getDescription()})); 
 					String[] indexMatchPaths = pathCollector.getPaths();
 					pathCollector = null; // release
 					int indexMatchLength = indexMatchPaths == null ? 0 : indexMatchPaths.length;
@@ -385,6 +385,9 @@ public class BasicSearchEngine {
 		
 		if (patternTypeName != null) {
 			int matchMode = matchRule - (isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
+			if (!isCaseSensitive) {
+				patternTypeName = CharOperation.toLowerCase(patternTypeName);
+			}
 			switch(matchMode) {
 				case SearchPattern.R_EXACT_MATCH :
 					return CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
@@ -539,16 +542,10 @@ public class BasicSearchEngine {
 						&& !workingCopyPaths.contains(documentPath)) { // filter out working copies
 					if (access != null) {
 						// Compute document relative path
-						int pos = documentPath.lastIndexOf('.');
-						char[] extension = null;
-						if (pos >= 0 && pos > documentPath.lastIndexOf('/')) {
-							extension = documentPath.substring(pos).toCharArray();
-						}
-						int pkgLength = record.pkg==null ? 0 : record.pkg.length+1;
+						int pkgLength = (record.pkg==null || record.pkg.length==0) ? 0 : record.pkg.length+1;
 						int nameLength = record.simpleName==null ? 0 : record.simpleName.length;
-						int extLength = extension==null ? 0 : extension.length;
-						char[] path = new char[pkgLength+nameLength+extLength];
-						pos = 0;
+						char[] path = new char[pkgLength+nameLength];
+						int pos = 0;
 						if (pkgLength > 0) {
 							System.arraycopy(record.pkg, 0, path, pos, pkgLength-1);
 							CharOperation.replace(path, '.', '/');
@@ -558,9 +555,6 @@ public class BasicSearchEngine {
 						if (nameLength > 0) {
 							System.arraycopy(record.simpleName, 0, path, pos, nameLength);
 							pos += nameLength;
-							if (extLength > 0) {
-								System.arraycopy(extension, 0, path, pos, extLength);
-							}
 						}
 						// Update access restriction if path is not empty
 						if (pos > 0) {
@@ -771,15 +765,10 @@ public class BasicSearchEngine {
 					AccessRestriction accessRestriction = null;
 					if (access != null) {
 						// Compute document relative path
-						int pos = documentPath.lastIndexOf('.');
-						char[] extension = null;
-						if (pos >= 0 && pos > documentPath.lastIndexOf('/'))
-							extension = documentPath.substring(pos).toCharArray();
-						int qualificationLength = record.qualification == null ? 0 : record.qualification.length + 1;
+						int qualificationLength = (record.qualification == null || record.qualification.length == 0) ? 0 : record.qualification.length + 1;
 						int nameLength = record.simpleName == null ? 0 : record.simpleName.length;
-						int extLength = extension == null ? 0 : extension.length;
-						char[] path = new char[qualificationLength + nameLength + extLength];
-						pos = 0;
+						char[] path = new char[qualificationLength + nameLength];
+						int pos = 0;
 						if (qualificationLength > 0) {
 							System.arraycopy(record.qualification, 0, path, pos, qualificationLength - 1);
 							CharOperation.replace(path, '.', '/');
@@ -789,8 +778,6 @@ public class BasicSearchEngine {
 						if (nameLength > 0) {
 							System.arraycopy(record.simpleName, 0, path, pos, nameLength);
 							pos += nameLength;
-							if (extLength > 0)
-								System.arraycopy(extension, 0, path, pos, extLength);
 						}
 						// Update access restriction if path is not empty
 						if (pos > 0) {

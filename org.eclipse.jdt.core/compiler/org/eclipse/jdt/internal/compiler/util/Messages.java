@@ -71,7 +71,7 @@ public final class Messages {
 	private static String[] nlSuffixes;
 	private static final String EXTENSION = ".properties"; //$NON-NLS-1$
 
-	private static final String BUNDLE_NAME = "org.eclipse.jdt.internal.compiler.util.messages";//$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.jdt.internal.compiler.messages";//$NON-NLS-1$
 
 	private Messages() {
 		// Do not instantiate

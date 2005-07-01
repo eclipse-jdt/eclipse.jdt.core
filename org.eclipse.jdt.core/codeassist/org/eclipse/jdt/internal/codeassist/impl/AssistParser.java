@@ -74,10 +74,15 @@ public abstract class AssistParser extends Parser {
 	protected static final int K_METHOD_DELIMITER = ASSIST_PARSER + 3; // whether we are inside a method declaration
 	protected static final int K_FIELD_INITIALIZER_DELIMITER = ASSIST_PARSER + 4; // whether we are inside a field initializer
 	protected static final int K_ATTRIBUTE_VALUE_DELIMITER = ASSIST_PARSER + 5; // whether we are inside a annotation attribute valuer
+	protected static final int K_ENUM_CONSTANT_DELIMITER = ASSIST_PARSER + 6; // whether we are inside a field initializer
 	
 	// selector constants
 	protected static final int THIS_CONSTRUCTOR = -1;
 	protected static final int SUPER_CONSTRUCTOR = -2;
+	
+	// enum constant constants
+	protected static final int NO_BODY = 0;
+	protected static final int WITH_BODY = 1;
 	
 	protected boolean isFirst = false;
 
@@ -279,6 +284,29 @@ protected void consumeEnterMemberValue() {
 	super.consumeEnterMemberValue();
 	pushOnElementStack(K_ATTRIBUTE_VALUE_DELIMITER, this.identifierPtr);
 }
+protected void consumeEnumConstantHeader() {
+	if(this.currentToken == TokenNameLBRACE) {
+		popElement(K_ENUM_CONSTANT_DELIMITER);
+		pushOnElementStack(K_ENUM_CONSTANT_DELIMITER, WITH_BODY);
+		pushOnElementStack(K_FIELD_INITIALIZER_DELIMITER);
+		pushOnElementStack(K_TYPE_DELIMITER);
+	}
+	super.consumeEnumConstantHeader();
+}
+protected void consumeEnumConstantHeaderName() {
+	super.consumeEnumConstantHeaderName();
+	pushOnElementStack(K_ENUM_CONSTANT_DELIMITER);
+}
+protected void consumeEnumConstantWithClassBody() {
+	popElement(K_TYPE_DELIMITER);
+	popElement(K_FIELD_INITIALIZER_DELIMITER);
+	popElement(K_ENUM_CONSTANT_DELIMITER);
+	super.consumeEnumConstantWithClassBody();
+}
+protected void consumeEnumConstantNoClassBody() {
+	popElement(K_ENUM_CONSTANT_DELIMITER);
+	super.consumeEnumConstantNoClassBody();
+}
 protected void consumeEnumHeader() {
 	super.consumeEnumHeader();
 	pushOnElementStack(K_TYPE_DELIMITER);
@@ -296,7 +324,17 @@ protected void consumeForceNoDiet() {
 	// if we are not in a method (ie. we are not in a local variable initializer)
 	// then we are entering a field initializer
 	if (!isInsideMethod()) {
-		pushOnElementStack(K_FIELD_INITIALIZER_DELIMITER);
+		if(topKnownElementKind(ASSIST_PARSER) != K_ENUM_CONSTANT_DELIMITER) {
+			if(topKnownElementKind(ASSIST_PARSER, 2) != K_ENUM_CONSTANT_DELIMITER) {
+				pushOnElementStack(K_FIELD_INITIALIZER_DELIMITER);
+			}
+		} else {
+			int info = topKnownElementInfo(ASSIST_PARSER);
+			if(info != NO_BODY) {
+				pushOnElementStack(K_FIELD_INITIALIZER_DELIMITER);
+			}
+		}
+		
 	}
 }
 protected void consumeInterfaceHeader() {
@@ -674,6 +712,13 @@ protected void consumeToken(int token) {
 						break;
 					case TokenNamesuper: // explicit constructor invocation, eg. super(1, 2)
 						this.pushOnElementStack(K_SELECTOR, SUPER_CONSTRUCTOR);
+						break;
+					case TokenNameGREATER: // explicit constructor invocation, eg. Fred<X>[(]1, 2)
+					case TokenNameRIGHT_SHIFT: // or fred<X<X>>[(]1, 2) 
+					case TokenNameUNSIGNED_RIGHT_SHIFT: //or Fred<X<X<X>>>[(]1, 2)
+						if(this.identifierPtr > -1) {
+							this.pushOnElementStack(K_SELECTOR, this.identifierPtr);
+						}
 						break;
 				}
 				break;
@@ -1418,7 +1463,8 @@ public void recoveryTokenCheck() {
 			if(currentElement != oldElement && !isInsideAttributeValue()) {
 				if(oldElement instanceof RecoveredInitializer
 					|| oldElement instanceof RecoveredMethod
-					|| (oldElement instanceof RecoveredBlock && oldElement.parent instanceof RecoveredInitializer)) {
+					|| (oldElement instanceof RecoveredBlock && oldElement.parent instanceof RecoveredInitializer)
+					|| (oldElement instanceof RecoveredBlock && oldElement.parent instanceof RecoveredMethod)) {
 					popUntilElement(K_METHOD_DELIMITER);
 					popElement(K_METHOD_DELIMITER);
 				} else if(oldElement instanceof RecoveredType) {

@@ -79,7 +79,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					case Binding.TYPE_PARAMETER :
 						// should be: if no expected type, then assume Object
 						// actually it rather seems to handle the returned variable case by expecting its erasure instead
-						upperBound = ((TypeVariableBinding)substitutedReturnType).upperBound();
+						upperBound = Scope.substitute(methodSubstitute, ((TypeVariableBinding)substitutedReturnType).upperBound());
 						break;
 					case Binding.BASE_TYPE :
 						if (substitutedReturnType == VoidBinding) {
@@ -462,7 +462,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 */
 	public MethodBinding tiebreakMethod() {
 		if (this.tiebreakMethod == null) {
-			this.tiebreakMethod = new ParameterizedGenericMethodBinding(this.originalMethod, (RawTypeBinding)null, this.environment);
+			this.tiebreakMethod = this.isRaw ? this : new ParameterizedGenericMethodBinding(this.originalMethod, (RawTypeBinding)null, this.environment);
 		} 
 		return this.tiebreakMethod;
 	}	

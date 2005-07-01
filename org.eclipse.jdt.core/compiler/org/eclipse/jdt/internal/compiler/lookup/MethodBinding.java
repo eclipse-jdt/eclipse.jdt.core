@@ -243,7 +243,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		ReferenceBinding declaringErasure = (ReferenceBinding) declaringClass.erasure();
 		int depth = 0;
 		do {
-			if (currentType.findSuperTypeErasingTo(declaringErasure) != null) {
+			if (currentType.findSuperTypeWithSameErasure(declaringErasure) != null) {
 				if (invocationSite.isSuperAccess()){
 					return true;
 				}
@@ -255,7 +255,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 					if (depth > 0) invocationSite.setDepth(depth);
 					return true; // see 1FMEPDL - return invocationSite.isTypeAccess();
 				}
-				if (currentType == receiverErasure || ((ReferenceBinding)receiverErasure).findSuperTypeErasingTo(currentType) != null){
+				if (currentType == receiverErasure || ((ReferenceBinding)receiverErasure).findSuperTypeWithSameErasure(currentType) != null){
 					if (depth > 0) invocationSite.setDepth(depth);
 					return true;
 				}
@@ -311,6 +311,20 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		if (declaringPackage != type.fPackage) return false;
 	} while ((type = type.superclass()) != null);
 	return false;
+}
+MethodBinding computeSubstitutedMethod(MethodBinding method, LookupEnvironment env) {
+	TypeVariableBinding[] vars = this.typeVariables;
+	TypeVariableBinding[] vars2 = method.typeVariables;
+	if (vars.length != vars2.length)
+		return null;
+	for (int v = vars.length; --v >= 0;)
+		if (!vars[v].isInterchangeableWith(env, vars2[v]))
+			return null;
+
+	// must substitute to detect cases like:
+	//   <T1 extends X<T1>> void dup() {}
+	//   <T2 extends X<T2>> Object dup() {return null;}
+	return new ParameterizedGenericMethodBinding(method, vars, env);
 }
 /*
  * declaringUniqueKey dot selector genericSignature
@@ -616,8 +630,8 @@ public final boolean isPrivate() {
 
 /* Answer true if the receiver has private visibility and is used locally
 */
-public final boolean isPrivateUsed() {
-	return (modifiers & AccPrivateUsed) != 0;
+public final boolean isUsed() {
+	return (modifiers & AccLocallyUsed) != 0;
 }
 
 /* Answer true if the receiver has protected visibility

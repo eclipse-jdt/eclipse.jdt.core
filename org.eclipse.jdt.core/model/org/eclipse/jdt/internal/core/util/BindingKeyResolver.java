@@ -66,14 +66,14 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	int wildcardRank;
 	
-	BindingKeyResolver outerMostResolver;
+	CompilationUnitDeclaration outerMostParsedUnit;
 	
-	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank, BindingKeyResolver outerMostResolver) {
+	private BindingKeyResolver(BindingKeyParser parser, Compiler compiler, LookupEnvironment environment, int wildcardRank, CompilationUnitDeclaration outerMostParsedUnit) {
 		super(parser);
 		this.compiler = compiler;
 		this.environment = environment;
 		this.wildcardRank = wildcardRank;
-		this.outerMostResolver = outerMostResolver;
+		this.outerMostParsedUnit = outerMostParsedUnit;
 	}
 	
 	public BindingKeyResolver(String key) {
@@ -100,8 +100,16 @@ public class BindingKeyResolver extends BindingKeyParser {
 		this.dimension = brakets.length;
 	}
 	
+	public void consumeBaseType(char[] baseTypeSig) {
+		this.compoundName = new char[][] {getKey().toCharArray()};
+		TypeBinding baseTypeBinding = getBaseTypeBinding(baseTypeSig);
+		if (baseTypeBinding != null) {
+			this.typeBinding = baseTypeBinding;
+		}
+	}
+	
 	public void consumeCapture(final int position) {
-		CompilationUnitDeclaration outerParsedUnit = this.outerMostResolver == null ? this.parsedUnit : this.outerMostResolver.parsedUnit;
+		CompilationUnitDeclaration outerParsedUnit = this.outerMostParsedUnit == null ? this.parsedUnit : this.outerMostParsedUnit;
 		if (outerParsedUnit == null) return;
 		final Binding wildcardBinding = ((BindingKeyResolver) this.types.get(0)).compilerBinding;
 		class CaptureFinder extends ASTVisitor {
@@ -256,7 +264,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	public void consumeParameterizedType(char[] simpleTypeName, boolean isRaw) {
 		TypeBinding[] arguments = getTypeBindingArguments();
 		if (simpleTypeName != null) {
-			// parameterized member type
+			// parameterized member type with parameterized enclosing type
 			this.genericType = this.genericType.getMemberType(simpleTypeName);
 			if (!isRaw)
 				this.typeBinding = this.environment.createParameterizedType(this.genericType, arguments, (ReferenceBinding) this.typeBinding);
@@ -264,9 +272,11 @@ public class BindingKeyResolver extends BindingKeyParser {
 				// raw type
 				this.typeBinding = this.environment.createRawType(this.genericType, (ReferenceBinding) this.typeBinding);
 		} else {
-			// parameterized top level type
+			// parameterized top level type or parameterized member type with raw enclosing type
 			this.genericType = (ReferenceBinding) this.typeBinding;
-			this.typeBinding = this.environment.createParameterizedType(this.genericType, arguments, null);
+			ReferenceBinding enclosing = this.genericType.enclosingType();
+			if (enclosing != null) enclosing = (ReferenceBinding) this.environment.convertToRawType(enclosing);
+			this.typeBinding = this.environment.createParameterizedType(this.genericType, arguments, enclosing);
 		}
 	}
 	
@@ -288,7 +298,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	
 	public void consumeRawType() {
 		if (this.typeBinding == null) return;
-		this.typeBinding = this.environment.createRawType((ReferenceBinding) this.typeBinding, null/*no enclosing type*/);
+		this.typeBinding = this.environment.createRawType((ReferenceBinding) this.typeBinding, this.typeBinding.enclosingType());
 	}
 	public void consumeSecondaryType(char[] simpleTypeName) {
 		if (this.parsedUnit == null) return;
@@ -301,14 +311,6 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public void consumeTopLevelType() {
-		if (this.compoundName.length == 1 && this.compoundName[0].length == 1) {
-			// case of base type
- 			TypeBinding baseTypeBinding = getBaseTypeBinding(this.compoundName[0]);
- 			if (baseTypeBinding != null) {
-				this.typeBinding = baseTypeBinding;
-				return;
- 			}
-		}
 		this.parsedUnit = getCompilationUnitDeclaration();
 		if (this.parsedUnit != null && this.compiler != null) {
 			this.compiler.process(this.parsedUnit, this.compiler.totalUnits+1); // noop if unit has already been resolved
@@ -328,7 +330,14 @@ public class BindingKeyResolver extends BindingKeyParser {
 		}
 	}
 	
-	public void consumeTypeVariable(char[] typeVariableName) {
+	public void consumeTypeVariable(char[] position, char[] typeVariableName) {
+		if (position.length > 0) {
+			int pos = Integer.parseInt(new String(position));
+			MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).methods();
+			if (methods != null && pos < methods.length) {
+				this.methodBinding = methods[pos];
+			}
+		}
 	 	TypeVariableBinding[] typeVariableBindings = this.methodBinding != null ? this.methodBinding.typeVariables() : this.typeBinding.typeVariables();
 	 	for (int i = 0, length = typeVariableBindings.length; i < length; i++) {
 			TypeVariableBinding typeVariableBinding = typeVariableBindings[i];
@@ -467,7 +476,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 	
 	public BindingKeyParser newParser() {
-		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank, this.outerMostResolver == null ? this : this.outerMostResolver);
+		return new BindingKeyResolver(this, this.compiler, this.environment, this.rank, this.outerMostParsedUnit == null ? this.parsedUnit : this.outerMostParsedUnit);
 	}
 	 
 	public String toString() {

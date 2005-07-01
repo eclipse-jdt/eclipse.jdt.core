@@ -90,7 +90,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test021" };
+//		TESTS_NAMES = new String[] { "test069" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -209,7 +209,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			MarkerInfo[] markerInfos = createMarkerInfos(pathAndSources);
 			copies = createWorkingCopies(markerInfos, this.owner);
 			BindingResolver resolver = new BindingResolver(markerInfos);
-			resolveASTs(copies, expectedKeys == null ? new String[0] : expectedKeys, resolver, getJavaProject("P"), this.owner);
+			resolveASTs(copies, expectedKeys == null ? new String[0] : expectedKeys, resolver, copies.length > 0 ? copies[0].getJavaProject() : getJavaProject("P"), this.owner);
 			return resolver;
 		} finally {
 			discardWorkingCopies(copies);
@@ -1404,6 +1404,132 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"Lp1/X;&Lp1/Y<!Lp1/Y;*83;>;",
 			}
 		);
+	}
+
+	/*
+	 * Ensures that a parameterized type binding with a type variable of the current's method in its arguments can be created using its key in batch creation.
+	 * (regression test for bug 97902 NPE on Open Declaration on reference to generic type)
+	 */
+	public void test065() throws CoreException {
+		assertRequestedBindingFound(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" + 
+				"  <T> void foo(/*start*/Y<T>/*end*/ y) {\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"class Y<E> {\n" + 
+				"}",
+			}, 
+			"Lp1/X~Y<Lp1/X;:1TT;>;"
+		);
+	}
+
+	/*
+	 * Ensures that the compilation with a owner is used instead of a primary working copy when looking up a type.
+	 * (regression test for bug 97542 ASTParser#createASTs does not correctly resolve bindings in working copies)
+	 */
+	public void test066() throws CoreException {
+		ICompilationUnit primaryWorkingCopy = null;
+		ICompilationUnit ownedWorkingcopy = null;
+		try {
+			// primary working copy with no method foo()
+			primaryWorkingCopy = getCompilationUnit("/P/p1/X.java");
+			primaryWorkingCopy.becomeWorkingCopy(null/*no pb requestor*/, null/*no progress*/);
+			primaryWorkingCopy.getBuffer().setContents(
+				"package p1;\n" +
+				"public class X {\n" +
+				"}"
+			);
+			primaryWorkingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+			
+			// working copy for the test's owner with a method foo()
+			ownedWorkingcopy = getWorkingCopy(
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {}\n" +
+				"}",
+				this.owner,
+				false/*don't compute problems*/
+			);
+			
+			// create bindings
+			assertRequestedBindingFound(
+				new String[] {
+					"/P/p1/Y.java",
+					"package p1;\n" +
+					"public class Y {\n" + 
+					"  void bar() {\n" +
+					"    /*start*/new X().foo()/*end*/;\n" +
+					"}",
+				}, 
+				"Lp1/X;.foo()V"
+			);
+		} finally {
+			if (primaryWorkingCopy != null)
+				primaryWorkingCopy.discardWorkingCopy();
+			if (ownedWorkingcopy != null)
+				ownedWorkingcopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * Ensures that the declaring class of a member parameterized type binding with a raw enclosing type is correct
+	 */
+	public void test067() throws CoreException {
+		ITypeBinding[] bindings = createTypeBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X<K, V> {\n" +
+				"  public class Y<K1, V1> {\n" +
+				"  }\n" +
+				"  /*start*/Y<K, V>/*end*/ field;\n" +
+				"}"
+			}, 
+			new String[] {"Lp1/X$Y<Lp1/X;:TK;Lp1/X;:TV;>;"}
+		);
+		assertBindingEquals(
+			"Lp1/X<>;",
+			bindings.length == 0 ? null : bindings[0].getDeclaringClass()
+		);
+	}
+
+	/*
+	 * Ensures that a raw member type can be created using its key in batch creation.
+	 */
+	public void test068() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+			addLibrary(project, "lib.jar", "src.zip", new String[] {
+				"/P1/p/X.java",
+				"package p;\n" +
+				"public class X<K, V> {\n" +
+				"  public static class Member<K1, V1> {\n" +
+				"  }\n" +
+				"}",
+				"/P1/p/Y.java",
+				"package p;\n" +
+				"public class Y {\n" +
+				"  void foo(X.Member x) {\n" +
+				"  }\n" +
+				"}",
+			}, "1.5");
+			assertRequestedBindingFound(
+				new String[] {
+					"/P1/p1/Z.java",
+					"package p1;\n" +
+					"public class Z extends p.Y {\n" +
+					"  /*start*/p.X.Member/*end*/ field;\n" +
+					"}"
+				}, 
+				"Lp/X$Member<>;"
+			);
+		} finally {
+			deleteProject("P1");
+		}
 	}
 
 }

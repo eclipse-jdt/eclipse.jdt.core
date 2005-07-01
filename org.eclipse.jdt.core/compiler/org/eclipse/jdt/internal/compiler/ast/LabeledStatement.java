@@ -83,6 +83,9 @@ public class LabeledStatement extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		
+		if ((bits & IsReachableMASK) == 0) {
+			return;
+		}		
 		int pc = codeStream.position;
 		if (targetLabel != null) {
 			targetLabel.initialize(codeStream);

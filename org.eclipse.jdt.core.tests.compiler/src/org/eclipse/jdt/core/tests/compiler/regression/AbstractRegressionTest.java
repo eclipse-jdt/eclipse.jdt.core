@@ -304,25 +304,38 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				requestor, 
 				problemFactory);
 		batchCompiler.options.produceReferenceInfo = true;
-		batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
-		if (!requestor.hasErrors) {
-			String sourceFile = testFiles[0];
+		Throwable exception = null;
+		try {
+			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
+		} catch(RuntimeException e){
+			exception = e;
+			throw e;
+		} catch(Error e) {
+			exception = e;
+			throw e;
+		} finally {
 
-			// Compute class name by removing ".java" and replacing slashes with dots
-			String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
-
-			boolean passed = 
-				this.verifier.verifyClassFilesThrowingError(
-					sourceFile, 
-					className, 
-					expectedSuccessOutputString,
-					this.classpaths, 
-					null, 
-					vmArguments);
-			assertTrue(this.verifier.failureReason, // computed by verifyClassFiles(...) action
-					passed);
-		} else {
-			assertTrue("Unexpected problems: " + requestor.problemLog, false);
+			if (!requestor.hasErrors) {
+				String sourceFile = testFiles[0];
+	
+				// Compute class name by removing ".java" and replacing slashes with dots
+				String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
+	
+				boolean passed = 
+					this.verifier.verifyClassFilesThrowingError(
+						sourceFile, 
+						className, 
+						expectedSuccessOutputString,
+						this.classpaths, 
+						null, 
+						vmArguments);
+				if (exception == null)
+					assertTrue(this.verifier.failureReason, // computed by verifyClassFiles(...) action
+						passed);
+			} else {
+				if (exception == null)
+					assertTrue("Unexpected problems: " + requestor.problemLog, false);
+			}
 		}
 	}
 	/**
@@ -387,20 +400,31 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 				options,
 				requestor, problemFactory);
 		batchCompiler.options.produceReferenceInfo = true;
-		batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
-		String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
-		String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);
-		if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
-			System.out.println(getClass().getName() + '#' + getName());
-			System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
-			for (int i = 0; i < testFiles.length; i += 2) {
-				System.out.print(testFiles[i]);
-				System.out.println(" ["); //$NON-NLS-1$
-				System.out.println(testFiles[i + 1]);
-				System.out.println("]"); //$NON-NLS-1$
+		Throwable exception = null;
+		try {
+			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
+		} catch(RuntimeException e){
+			exception = e;
+			throw e;
+		} catch(Error e) {
+			exception = e;
+			throw e;
+		} finally {
+			String computedProblemLog = Util.convertToIndependantLineDelimiter(requestor.problemLog.toString());
+			String platformIndependantExpectedLog = Util.convertToIndependantLineDelimiter(expectedProblemLog);
+			if (!platformIndependantExpectedLog.equals(computedProblemLog)) {
+				System.out.println(getClass().getName() + '#' + getName());
+				System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
+				for (int i = 0; i < testFiles.length; i += 2) {
+					System.out.print(testFiles[i]);
+					System.out.println(" ["); //$NON-NLS-1$
+					System.out.println(testFiles[i + 1]);
+					System.out.println("]"); //$NON-NLS-1$
+				}
 			}
+			if (exception == null)
+				assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
 		}
-		assertEquals("Invalid problem log ", platformIndependantExpectedLog, computedProblemLog);
 	}
 	protected void setUp() throws Exception {
 		super.setUp();

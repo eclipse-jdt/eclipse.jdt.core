@@ -43,7 +43,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-static final byte VERSION = 0x0011; // added discouraged access rules
+public static final byte VERSION = 0x0013; // added timestamps to external jars
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -197,10 +197,10 @@ void removeQualifiedTypeName(String qualifiedTypeNameToRemove) {
 
 static State read(IProject project, DataInputStream in) throws IOException {
 	if (JavaBuilder.DEBUG)
-		System.out.println("About to read state..."); //$NON-NLS-1$
+		System.out.println("About to read state " + project.getName()); //$NON-NLS-1$
 	if (VERSION != in.readByte()) {
 		if (JavaBuilder.DEBUG)
-			System.out.println("Found non-compatible state version... answered null"); //$NON-NLS-1$
+			System.out.println("Found non-compatible state version... answered null for " + project.getName()); //$NON-NLS-1$
 		return null;
 	}
 
@@ -244,7 +244,7 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(), readRestriction(in));
 				break;
 			case EXTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), readRestriction(in));
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), in.readLong(), readRestriction(in));
 				break;
 			case INTERNAL_JAR :
 				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())), readRestriction(in));
@@ -426,6 +426,7 @@ void write(DataOutputStream out) throws IOException {
 			if (jar.resource == null) {
 				out.writeByte(EXTERNAL_JAR);
 				out.writeUTF(jar.zipFilename);
+				out.writeLong(jar.lastModified());
 			} else {
 				out.writeByte(INTERNAL_JAR);
 				out.writeUTF(jar.resource.getFullPath().toString());

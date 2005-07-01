@@ -76,11 +76,14 @@ public class ParameterizedMethodBinding extends MethodBinding {
 			for (int i = 0; i < length; i++) {
 				TypeVariableBinding originalVariable = originalVariables[i];
 				TypeVariableBinding substitutedVariable = substitutedVariables[i];
-				substitutedVariable.superclass = (ReferenceBinding) Scope.substitute(substitution, originalVariable.superclass);
+				TypeBinding substitutedSuperclass = Scope.substitute(substitution, originalVariable.superclass);
+				substitutedVariable.superclass = (ReferenceBinding) (substitutedSuperclass.isArrayType() 
+							? parameterizedDeclaringClass.environment.getType(JAVA_LANG_OBJECT)
+							: substitutedSuperclass);
 				substitutedVariable.superInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);
 				if (originalVariable.firstBound != null) {
 					substitutedVariable.firstBound = originalVariable.firstBound == originalVariable.superclass
-						? substitutedVariable.superclass
+						? substitutedSuperclass // could be array type
 						: substitutedVariable.superInterfaces[0];
 				}
 			}
@@ -109,7 +112,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		method.parameters = originalMethod.parameters;
 		method.thrownExceptions = originalMethod.thrownExceptions;
 		ReferenceBinding genericClassType = scope.getJavaLangClass();
-		method.returnType = scope.createParameterizedType(
+		method.returnType = scope.environment().createParameterizedType(
 			genericClassType,
 			new TypeBinding[] {  scope.environment().createWildcard(genericClassType, 0, receiverType.erasure(), null /*no extra bound*/, Wildcard.EXTENDS) },
 			null);

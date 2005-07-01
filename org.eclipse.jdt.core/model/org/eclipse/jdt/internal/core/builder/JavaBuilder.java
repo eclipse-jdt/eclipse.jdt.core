@@ -133,9 +133,6 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 
 		if (isWorthBuilding()) {
 			if (kind == FULL_BUILD) {
-				// ensure external jars are consistent (a full build is a way users will try to have the external jars change noticed)
-				// see also https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
-				this.javaProject.getJavaModel().refreshExternalArchives(new IJavaElement[] {this.javaProject}, monitor);
 				buildAll();
 			} else {
 				if ((this.lastState = getLastState(currentProject)) == null) {
@@ -180,7 +177,7 @@ protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) thro
 	} catch (MissingClassFileException e) {
 		// do not log this exception since its thrown to handle aborted compiles because of missing class files
 		if (DEBUG)
-			System.out.println(Messages.bind(Messages.build_incompleteClassPath, (new String[] {e.missingClassFile}))); 
+			System.out.println(Messages.bind(Messages.build_incompleteClassPath, e.missingClassFile)); 
 		IMarker marker = currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
 		marker.setAttribute(IMarker.MESSAGE, Messages.bind(Messages.build_incompleteClassPath, e.missingClassFile)); 
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);

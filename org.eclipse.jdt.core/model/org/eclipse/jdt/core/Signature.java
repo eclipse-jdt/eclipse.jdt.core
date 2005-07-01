@@ -1016,6 +1016,24 @@ public static int getTypeSignatureKind(char[] typeSignature) {
 		throw new IllegalArgumentException();
 	}
 	char c = typeSignature[0];
+	if (c == C_GENERIC_START) {
+		int count = 1;
+		for (int i = 1, length = typeSignature.length; i < length; i++) {
+			switch (typeSignature[i]) {
+				case 	C_GENERIC_START:
+					count++;
+					break;
+				case C_GENERIC_END:
+					count--;
+					break;
+			}
+			if (count == 0) {
+				if (i+1 < length)
+					c = typeSignature[i+1]; 
+				break;
+			}
+		}
+	}
 	switch (c) {
 		case C_ARRAY :
 			return ARRAY_TYPE_SIGNATURE;
@@ -1062,6 +1080,24 @@ public static int getTypeSignatureKind(String typeSignature) {
 		throw new IllegalArgumentException();
 	}
 	char c = typeSignature.charAt(0);
+	if (c == C_GENERIC_START) {
+		int count = 1;
+		for (int i = 1, length = typeSignature.length(); i < length; i++) {
+			switch (typeSignature.charAt(i)) {
+				case 	C_GENERIC_START:
+					count++;
+					break;
+				case C_GENERIC_END:
+					count--;
+					break;
+			}
+			if (count == 0) {
+				if (i+1 < length)
+					c = typeSignature.charAt(i+1); 
+				break;
+			}
+		}
+	}
 	switch (c) {
 		case C_ARRAY :
 			return ARRAY_TYPE_SIGNATURE;
@@ -1085,7 +1121,7 @@ public static int getTypeSignatureKind(String typeSignature) {
 		case C_EXTENDS :
 			return WILDCARD_TYPE_SIGNATURE;
 		case C_CAPTURE :
-			return CAPTURE_TYPE_SIGNATURE;			
+			return CAPTURE_TYPE_SIGNATURE;
 		default :
 			throw new IllegalArgumentException();
 	}
@@ -2398,15 +2434,32 @@ private static int appendCaptureTypeSignature(char[] string, int start, boolean 
  * @see Util#scanArrayTypeSignature(char[], int)
  */
 private static int appendArrayTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer, boolean isVarArgs) {
+	int length = string.length;
 	// need a minimum 2 char
-	if (start >= string.length - 1) {
+	if (start >= length - 1) {
 		throw new IllegalArgumentException();
 	}
 	char c = string[start];
 	if (c != C_ARRAY) { //$NON-NLS-1$
 		throw new IllegalArgumentException();
 	}
-	int e = appendTypeSignature(string, start + 1, fullyQualifyTypeNames, buffer);
+	
+	int index = start;
+	c = string[++index];
+	while(c == C_ARRAY) {
+		// need a minimum 2 char
+		if (index >= length - 1) {
+			throw new IllegalArgumentException();
+		}
+		c = string[++index];
+	}
+	
+	int e = appendTypeSignature(string, index, fullyQualifyTypeNames, buffer);
+	
+	for(int i = 1, dims = index - start; i < dims; i++) {
+		buffer.append('[').append(']');
+	}
+	
 	if (isVarArgs) {
 		buffer.append('.').append('.').append('.');
 	} else {

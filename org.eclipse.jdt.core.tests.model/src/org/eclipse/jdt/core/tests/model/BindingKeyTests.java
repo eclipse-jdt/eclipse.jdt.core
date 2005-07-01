@@ -418,4 +418,70 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		);
 	}
 
+	/*
+	 * Generic secondary type
+	 * (regression test for bug 96858 IllegalArgumentException in Signature)
+	 */
+	public void test038() {
+		assertBindingKeySignatureEquals(
+			"<T:U:>Lp1.Y;",
+			"Lp1/X~Y<TT;TU;>;"
+		);
+	}
+
+	/*
+	 * Base type
+	 * (regression test for bug 97187 [rendering] Shows Single Char for primitve Types)
+	 */
+	public void test039() {
+		assertBindingKeySignatureEquals(
+			"Z",
+			"Z"
+		);
+	}
+	
+	/*
+	 * Parameterized method with argument nested in another argument
+	 * (regression test for bug 97275 method reference should not contain type variable anymore)
+	 */
+	public void test040() {
+		assertBindingKeySignatureEquals(
+			"<T:Ljava.lang.Object;>(Ljava.util.List<Ljava.lang.String;>;Ljava.lang.Integer;)V",
+			"Lp1/X;.foo<T:Ljava/lang/Object;>(Ljava/util/List<TT;>;Ljava/lang/Integer;)V%<Ljava/lang/String;>)"
+		);
+	}
+	
+	/*
+	 * Parameterized method with argument nested in another argument as a wilcard bound
+	 * (regression test for bug 97814 Incorrect resolved information on hover)
+	 */
+	public void test041() {
+		assertBindingKeySignatureEquals(
+			"<T:Ljava.lang.Object;>(LY<-Ljava.lang.NullPointerException;>;Ljava.lang.NullPointerException;)V",
+			"LX~Z;.foo<T:Ljava/lang/Object;>(LY<-TT;>;TT;)V%<Ljava/lang/NullPointerException;>"
+		);
+	}
+
+	/*
+	 * Parameterized method with argument nested in another argument as an array
+	 * (regression test for bug 97814 Incorrect resolved information on hover)
+	 */
+	public void test042() {
+		assertBindingKeySignatureEquals(
+			"<T:Ljava.lang.Object;>([Ljava.lang.NullPointerException;Ljava.lang.NullPointerException;)V",
+			"LX~Z;.foo<T:Ljava/lang/Object;>([TT;TT;)V%<Ljava/lang/NullPointerException;>"
+		);
+	}
+
+	/*
+	 * Parameterized type binding with a type variable of the current's method in its arguments
+	 * (regression test for bug 97902 NPE on Open Declaration on reference to generic type)
+	 */
+	public void test043() {
+		assertBindingKeySignatureEquals(
+			"Lp1.Y<TT;>;",
+			"Lp1/X~Y<Lp1/X;:40TT;>;"
+		);
+	}
+
 }

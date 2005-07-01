@@ -60,6 +60,16 @@ public class CompletionOnMessageSend extends MessageSend {
 
 		output.append("<CompleteOnMessageSend:"); //$NON-NLS-1$
 		if (!receiver.isImplicitThis()) receiver.printExpression(0, output).append('.'); //$NON-NLS-1$
+		if (this.typeArguments != null) {
+			output.append('<');//$NON-NLS-1$
+			int max = typeArguments.length - 1;
+			for (int j = 0; j < max; j++) {
+				typeArguments[j].print(0, output);
+				output.append(", ");//$NON-NLS-1$
+			}
+			typeArguments[max].print(0, output);
+			output.append('>');
+		}
 		output.append(selector).append('('); //$NON-NLS-1$
 		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {

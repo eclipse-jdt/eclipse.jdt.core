@@ -311,6 +311,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 						if (currentField.declarationSourceStart == ((FieldDeclaration) previousMergedNode).declarationSourceStart) {
 							// we create a multi field declaration
 							mergedNodes.set(mergedNodes.size() - 1, new MultiFieldDeclaration(new FieldDeclaration[]{ (FieldDeclaration)previousMergedNode, currentField}));
+						} else {
+							mergedNodes.add(currentNode);
 						}
 					} else {
 						mergedNodes.add(currentNode);
@@ -1328,6 +1330,28 @@ public class CodeFormatterVisitor extends ASTVisitor {
 					if (numberOfParens > 0) {
 						manageOpeningParenthesizedExpression(currentMessageSend, numberOfParens);
 					}
+					TypeReference[] typeArguments = currentMessageSend.typeArguments;
+					if (typeArguments != null) {
+							this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_type_arguments); 
+							if (this.preferences.insert_space_after_opening_angle_bracket_in_type_arguments) {
+								this.scribe.space();
+							}
+							int length = typeArguments.length;
+							for (int j = 0; j < length - 1; j++) {
+								typeArguments[j].traverse(this, scope);
+								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_type_arguments);
+								if (this.preferences.insert_space_after_comma_in_type_arguments) {
+									this.scribe.space();
+								}				
+							}
+							typeArguments[length - 1].traverse(this, scope);
+							if (isClosingGenericToken()) {
+								this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_type_arguments); 
+							}
+							if (this.preferences.insert_space_after_closing_angle_bracket_in_type_arguments) {
+								this.scribe.space();
+							}
+					}
 					ASTNode[] arguments = currentMessageSend.arguments;
 					this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
 					this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_method_invocation);
@@ -1987,16 +2011,15 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			int token;
 			while ((token = this.localScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameRBRACKET://166 
+					case TerminalTokens.TokenNameRBRACKET:
 						dimensions++;
 						break;
-					case TerminalTokens.TokenNameIdentifier ://90						
-					case TerminalTokens.TokenNameLBRACE ://90						
-					case TerminalTokens.TokenNameLPAREN :
-					case TerminalTokens.TokenNameCOMMA ://90
-					case TerminalTokens.TokenNameEQUAL ://167
-					case TerminalTokens.TokenNameSEMICOLON ://64
-					case TerminalTokens.TokenNameRPAREN : //86
+					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TerminalTokens.TokenNameCOMMENT_LINE :
+					case TerminalTokens.TokenNameLBRACKET :
+						break;
+					default:
 						return dimensions;
 				}
 			}
@@ -2475,7 +2498,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
 			}
-			this.scribe.printQualifiedReference(arrayQualifiedTypeReference.sourceEnd);
+			this.scribe.printArrayQualifiedReference(arrayQualifiedTypeReference.tokens.length, arrayQualifiedTypeReference.sourceEnd);
 			int dimensions = getDimensions();
 			if (dimensions != 0) {
 				for (int i = 0; i < dimensions; i++) {
@@ -2500,7 +2523,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			if (numberOfParens > 0) {
 				manageOpeningParenthesizedExpression(arrayQualifiedTypeReference, numberOfParens);
 			}
-			this.scribe.printQualifiedReference(arrayQualifiedTypeReference.sourceEnd);
+			this.scribe.printArrayQualifiedReference(arrayQualifiedTypeReference.tokens.length, arrayQualifiedTypeReference.sourceEnd);
 			int dimensions = getDimensions();
 			if (dimensions != 0) {
 				for (int i = 0; i < dimensions; i++) {

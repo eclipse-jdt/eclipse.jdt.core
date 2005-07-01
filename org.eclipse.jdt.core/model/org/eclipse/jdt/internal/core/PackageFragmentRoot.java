@@ -825,7 +825,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 	IPath path = getPath();
 	if (getJavaProject().getElementName().equals(path.segment(0))) {
 	    if (path.segmentCount() == 1) {
-	buffer.append("<project root>"); //$NON-NLS-1$
+			buffer.append("<project root>"); //$NON-NLS-1$
 	    } else {
 			buffer.append(path.removeFirstSegments(1).makeRelative());
 	    }

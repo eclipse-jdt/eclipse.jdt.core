@@ -47,6 +47,7 @@ public static Test suite() {
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInterface"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileInInterface2"));
 	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistForClassFileWithDollar"));
+	suite.addTest(new SnippetCompletionTests("testCodeSnippetAssistInsideNumber"));
 	
 	return suite;
 }
@@ -282,6 +283,26 @@ public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelExcept
 		"element:varX    completion:varX    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
 		"element:varY    completion:varY    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
 		"element:void    completion:void    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) ,
+		requestor.getResults());
+}
+
+public void testCodeSnippetAssistInsideNumber() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass.class");
+	IType type = cf.getType();
+	
+	String snippet = 
+		"new double[] {1.2, 3.\n";
+		
+	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
+	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
+	int[] modifiers = {CompilerModifiers.AccDefault, IConstants.AccFinal};
+	
+	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
+	
+	assertEquals(
+		"should have 0 completions",
+		"",
 		requestor.getResults());
 }
 

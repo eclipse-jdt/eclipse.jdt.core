@@ -57,11 +57,7 @@ public DocumentElementParser(
 	super(new ProblemReporter(
 		DefaultErrorHandlingPolicies.exitAfterAllProblems(), 
 		options, 
-		problemFactory) {
-		public void record(IProblem problem, CompilationResult unitResult) {
-			requestor.acceptProblem(problem);
-		}
-	},
+		problemFactory),
 	false);
 	this.requestor = requestor;
 	intArrayStack = new int[30][];

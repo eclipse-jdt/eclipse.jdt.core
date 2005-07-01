@@ -350,6 +350,78 @@ private PackageBinding computePackageFrom(char[][] constantPoolName) {
 	return packageBinding;
 }
 
+public TypeBinding convertToRawType(TypeBinding type) {
+
+	int dimension;
+	TypeBinding originalType;
+	switch(type.kind()) {
+		case Binding.BASE_TYPE :
+		case Binding.TYPE_PARAMETER:
+		case Binding.WILDCARD_TYPE:
+		case Binding.RAW_TYPE:
+			return type;
+		case Binding.ARRAY_TYPE:
+			dimension = type.dimensions();
+			originalType = type.leafComponentType();
+			break;
+		default:
+			dimension = 0;
+			originalType = type;
+	}
+	boolean needToConvert;
+	switch (originalType.kind()) {
+		case Binding.BASE_TYPE :
+			return type;
+		case Binding.GENERIC_TYPE :
+			needToConvert = true;
+			break;
+		case Binding.PARAMETERIZED_TYPE :
+			ParameterizedTypeBinding paramType = (ParameterizedTypeBinding) originalType;
+			needToConvert = paramType.type.isGenericType(); // only recursive call to enclosing type can find parameterizedType with arguments
+			break;
+		default :
+			needToConvert = false;
+			break;
+	}
+	ReferenceBinding originalEnclosing = originalType.enclosingType();
+	TypeBinding convertedType;
+	if (originalEnclosing == null) {
+		convertedType = needToConvert ? createRawType((ReferenceBinding)originalType.erasure(), null) : originalType;
+	} else {
+		ReferenceBinding convertedEnclosing;
+		switch (originalEnclosing.kind()) {
+			case Binding.GENERIC_TYPE :
+			case Binding.PARAMETERIZED_TYPE :
+				if (needToConvert || ((ReferenceBinding)originalType).isStatic()) {
+					convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing);
+				} else {
+					convertedEnclosing = originalEnclosing;
+				}
+				break;
+			case Binding.RAW_TYPE :
+				needToConvert |= !((ReferenceBinding)originalType).isStatic();
+			default :
+				convertedEnclosing = originalEnclosing;
+				break;
+		}
+		ReferenceBinding originalGeneric = (ReferenceBinding) originalType.erasure();
+		if (needToConvert) {
+			convertedType = createRawType(originalGeneric, convertedEnclosing);
+		} else if (originalEnclosing != convertedEnclosing) {
+			if (originalGeneric.isStatic())
+				convertedType = createParameterizedType(originalGeneric, null, convertedEnclosing);
+			else 
+				convertedType = createRawType(originalGeneric, convertedEnclosing);
+		} else {
+			convertedType = originalType;
+		}
+	}
+	if (originalType != convertedType) {
+		return dimension > 0 ? (TypeBinding)createArrayType(convertedType, dimension) : convertedType;
+	}
+	return type;
+}
+
 /* Used to guarantee array type identity.
 */
 public ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
@@ -399,11 +471,15 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 	// resolve any array bindings which reference the unresolvedType
 	ReferenceBinding cachedType = packageBinding.getType0(binaryBinding.compoundName[binaryBinding.compoundName.length - 1]);
 	if (cachedType != null) { // update reference to unresolved binding after having read classfile (knows whether generic for raw conversion)
-		// TODO (kent) suspect the check below is no longer required, since we should not be requesting a binary which is already in the cache
-		if (cachedType.isBinaryBinding()) // sanity check before the cast... at this point the cache should ONLY contain unresolved types
-			return (BinaryTypeBinding) cachedType;
-
-		((UnresolvedReferenceBinding) cachedType).setResolvedType(binaryBinding, this);
+		if (cachedType instanceof UnresolvedReferenceBinding) {
+			((UnresolvedReferenceBinding) cachedType).setResolvedType(binaryBinding, this);
+		} else {
+			if (cachedType.isBinaryBinding()) // sanity check... at this point the cache should ONLY contain unresolved types
+				return (BinaryTypeBinding) cachedType;
+			// it is possible with a large number of source files (exceeding AbstractImageBuilder.MAX_AT_ONCE) that a member type can be in the cache as an UnresolvedType,
+			// but because its enclosingType is resolved while its created (call to BinaryTypeBinding constructor), its replaced with a source type
+			return null;
+		}
 	}
 
 	packageBinding.addType(binaryBinding);
@@ -705,9 +781,9 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 	} else if (binding == TheNotFoundType) {
 		problemReporter.isClassPathCorrect(compoundName, null);
 		return null; // will not get here since the above error aborts the compilation
-	} else if (!isParameterized && binding.isGenericType()) {
+	} else if (!isParameterized) {
 	    // check raw type, only for resolved types
-        binding = createRawType(binding, binding.enclosingType());
+        binding = (ReferenceBinding)convertToRawType(binding);
 	}
 	return binding;
 }
@@ -810,7 +886,11 @@ TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariableBindi
 	// type must be a ReferenceBinding at this point, cannot be a BaseTypeBinding or ArrayTypeBinding
 	ReferenceBinding actualType = (ReferenceBinding) type;
 	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, actualType);
-	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, null);
+	ReferenceBinding actualEnclosing = actualType.enclosingType();
+	if (actualEnclosing != null) { // convert needed if read some static member type
+		actualEnclosing = (ReferenceBinding) convertToRawType(actualEnclosing);
+	}
+	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, actualEnclosing);
 
 	while (wrapper.signature[wrapper.start] == '.') {
 		wrapper.start++; // skip '.'

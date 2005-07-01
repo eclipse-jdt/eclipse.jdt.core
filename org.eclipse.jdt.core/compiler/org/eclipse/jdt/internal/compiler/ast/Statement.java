@@ -57,6 +57,7 @@ public abstract class Statement extends ASTNode {
 			}
 
 			ArrayBinding varArgsType = (ArrayBinding) params[varArgIndex]; // parameterType has to be an array type
+			ArrayBinding codeGenVarArgsType = (ArrayBinding) binding.original().parameters[varArgIndex].erasure();
 			int elementsTypeID = varArgsType.elementsType().id;
 			int argLength = arguments == null ? 0 : arguments.length;
 
@@ -65,7 +66,7 @@ public abstract class Statement extends ASTNode {
 				// called with (argLength - lastIndex) elements : foo(1, 2) or foo(1, 2, 3, 4)
 				// need to gen elements into an array, then gen each remaining element into created array
 				codeStream.generateInlinedValue(argLength - varArgIndex);
-				codeStream.newArray(varArgsType); // create a mono-dimensional array
+				codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
 				for (int i = varArgIndex; i < argLength; i++) {
 					codeStream.dup();
 					codeStream.generateInlinedValue(i - varArgIndex);
@@ -84,7 +85,7 @@ public abstract class Statement extends ASTNode {
 					// right number but not directly compatible or too many arguments - wrap extra into array
 					// need to gen elements into an array, then gen each remaining element into created array
 					codeStream.generateInlinedValue(1);
-					codeStream.newArray(varArgsType); // create a mono-dimensional array
+					codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
 					codeStream.dup();
 					codeStream.generateInlinedValue(0);
 					arguments[varArgIndex].generateCode(currentScope, codeStream, true);
@@ -94,7 +95,7 @@ public abstract class Statement extends ASTNode {
 				// scenario: foo(1) --> foo(1, new int[0])
 				// generate code for an empty array of parameterType
 				codeStream.generateInlinedValue(0);
-				codeStream.newArray(varArgsType); // create a mono-dimensional array
+				codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
 			}
 		} else if (arguments != null) { // standard generation for method arguments
 			for (int i = 0, max = arguments.length; i < max; i++)

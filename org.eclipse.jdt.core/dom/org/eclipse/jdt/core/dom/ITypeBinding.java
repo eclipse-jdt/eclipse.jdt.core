@@ -221,7 +221,11 @@ public interface ITypeBinding extends IBinding {
 	 * if it has bounds and java.lang.Object if it does not.</li>
 	 * <li>For captures ({@link #isCapture()})
 	 * - returns the binding for the erasure of the leftmost bound
-	 * if it has bounds and java.lang.Object if it does not.</li>	 
+	 * if it has bounds and java.lang.Object if it does not.</li>
+	 * <li>For array types ({@link #isArray()}) - returns an array type of
+	 * the same dimension ({@link #getDimensions()}) as this type
+	 * binding for which the element type is the erasure of the element type
+	 * ({@link #getElementType()}) of this type binding.</li>
 	 * <li>For all other type bindings - returns the identical binding.</li>
 	 * </ul>
 	 *
@@ -590,7 +594,11 @@ public interface ITypeBinding extends IBinding {
 	 * Returns whether this type is cast compatible with the given type,
 	 * as specified in section 5.5 of <em>The Java Language 
 	 * Specification, Third Edition</em> (JLS3).
-	 * 
+	 * <p>
+	 * NOTE: The cast compatibility check performs backwards. 
+	 * When testing whether type B can be cast to type A, one would use:
+	 * <code>A.isCastCompatible(B)</code>
+	 * </p>
 	 * @param type the type to check compatibility against
 	 * @return <code>true</code> if this type is cast compatible with the
 	 * given type, and <code>false</code> otherwise

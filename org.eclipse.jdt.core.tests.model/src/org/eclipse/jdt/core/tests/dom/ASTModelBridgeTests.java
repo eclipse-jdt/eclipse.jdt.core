@@ -70,6 +70,11 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB,JCL15_SRC", "/P/lib"}, "bin", "1.5");
+		project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
 		addLibrary(
 			project, 
 			"lib.jar",
@@ -151,6 +156,47 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			element
 		);
 		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing an array type is correct.
+	 */
+	public void testArrayType1() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/Object[]/*end*/ field;\n" +
+			"}"
+		);
+		IBinding binding = ((ArrayType) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+
+	/*
+	 * Ensures that the IJavaElement of an IBinding representing an array type of base type null.
+	 * (regression test for bug 100142
+	  	CCE when calling ITypeBinding#getJavaElement() on char[][]
+	 */
+	public void testArrayType2() throws JavaModelException {
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  /*start*/char[][]/*end*/ field;\n" +
+			"}"
+		);
+		IBinding binding = ((ArrayType) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"<null>",
+			element
+		);
 	}
 
 	/*

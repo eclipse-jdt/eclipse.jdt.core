@@ -47,6 +47,7 @@ public boolean isTypeReference() {
 	return binding instanceof ReferenceBinding;
 }
 public void setActualReceiverType(ReferenceBinding receiverType) {
+	if (receiverType == null) return; // error scenario only
 	this.actualReceiverType = receiverType;
 }
 public void setDepth(int depth) {

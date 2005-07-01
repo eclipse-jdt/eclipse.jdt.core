@@ -324,12 +324,9 @@ public class DeltaProcessor {
 						for (int i = 0; i < length; i++) {
 							IProject project = projectsToTouch[i];
 							
-							// reset the corresponding project built state, since the builder would miss this change
-							if (JavaBuilder.DEBUG)
-								System.out.println("Clearing last state for project with external jar changed: " + project); //$NON-NLS-1$						
-							DeltaProcessor.this.manager.setLastBuiltState(project, null /*no state*/);
-							
 							// touch to force a build of this project
+							if (JavaBuilder.DEBUG)
+								System.out.println("Touching project " + project.getName() + " due to external jar file change"); //$NON-NLS-1$ //$NON-NLS-2$
 							project.touch(progressMonitor);
 						}
 					}

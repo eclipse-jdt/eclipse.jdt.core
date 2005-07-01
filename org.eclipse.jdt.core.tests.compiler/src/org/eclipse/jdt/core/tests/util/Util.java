@@ -187,8 +187,14 @@ public static void createJar(String[] pathsAndContents, Map options, String jarP
 public static void createJar(String[] pathsAndContents, String jarPath, String compliance) throws IOException {
 	Map options = new HashMap();
 	options.put(CompilerOptions.OPTION_Compliance, compliance);
-	options.put(CompilerOptions.OPTION_Source, compliance);	
-	options.put(CompilerOptions.OPTION_TargetPlatform, compliance);	
+	options.put(CompilerOptions.OPTION_Source, compliance);
+	options.put(CompilerOptions.OPTION_TargetPlatform, compliance);
+	// Ignore options with new defaults (since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=76530)
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.IGNORE);
 	createJar(pathsAndContents, options, jarPath);
 }
 public static void createFile(String path, String contents) throws IOException {

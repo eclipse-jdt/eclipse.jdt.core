@@ -8143,4 +8143,814 @@ public void test0187(){
 			expectedReplacedSource,
 			"full ast");
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=80432
+ */
+public void test0188(){
+	String str =
+		"public class Test {\n" + 
+		"  void foo() {\n" + 
+		"    for(;;) {\n" + 
+		"      bar(toto.\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "toto.";
+	int cursorLocation = str.indexOf("toto.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:toto.>";
+	expectedParentNodeToString = "bar(<CompleteOnName:toto.>)";
+	completionIdentifier = "";
+	expectedReplacedSource = "toto.";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void foo() {\n" + 
+		"    {\n" + 
+		"      bar(<CompleteOnName:toto.>);\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
+ */
+public void test0189(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    zzz.<String>foo(new Runtime());\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "Runtime";
+	int cursorLocation = str.indexOf("Runtime") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnType:Runtime>";
+	expectedParentNodeToString = "zzz.foo(new <CompleteOnType:Runtime>())";
+	completionIdentifier = "Runtime";
+	expectedReplacedSource = "Runtime";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    zzz.foo(new <CompleteOnType:Runtime>());\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
+ */
+public void test0190(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    zzz.<String>foo(var);\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "var";
+	int cursorLocation = str.indexOf("var") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:var>";
+	expectedParentNodeToString = "zzz.foo(<CompleteOnName:var>)";
+	completionIdentifier = "var";
+	expectedReplacedSource = "var";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    zzz.foo(<CompleteOnName:var>);\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
+ */
+public void test0191(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    zzz.<String>foo();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "foo(";
+	int cursorLocation = str.indexOf("foo(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnMessageSend:zzz.foo()>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "foo(";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    <CompleteOnMessageSend:zzz.foo()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
+ */
+public void test0192(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    zzz.<String>foo();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "fo";
+	int cursorLocation = str.indexOf("fo") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:fo>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "fo";
+	expectedReplacedSource = "foo";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    <CompleteOnName:fo>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
+ */
+public void test0193(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    new Foo<X>();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = ">(";
+	int cursorLocation = str.indexOf(">(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new Foo<X>()>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    <CompleteOnAllocationExpression:new Foo<X>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
+ */
+public void test0194(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    new Foo<X<X>>();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = ">(";
+	int cursorLocation = str.indexOf(">(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new Foo<X<X>>()>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    <CompleteOnAllocationExpression:new Foo<X<X>>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
+ */
+public void test0195(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    new Foo<X<X<X>>>();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = ">(";
+	int cursorLocation = str.indexOf(">(") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new Foo<X<X<X>>>()>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    <CompleteOnAllocationExpression:new Foo<X<X<X>>>()>;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0196(){
+	String str =
+		"public class Test<T> ext{\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "ext";
+	int cursorLocation = str.indexOf("ext") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ext";
+	String expectedReplacedSource = "ext";
+	String expectedUnitDisplayString =
+		"public class Test<T> extends <CompleteOnKeyword:ext> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0197(){
+	String str =
+		"public class Test<T> imp{\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "imp";
+	int cursorLocation = str.indexOf("imp") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:imp>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "imp";
+	String expectedReplacedSource = "imp";
+	String expectedUnitDisplayString =
+		"public class Test<T> extends <CompleteOnKeyword:imp> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0198(){
+	String str =
+		"public class Test<T> extends X ext {\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "X ext";
+	int cursorLocation = str.indexOf("X ext") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ext";
+	String expectedReplacedSource = "ext";
+	String expectedUnitDisplayString =
+		"public class Test<T> extends <CompleteOnKeyword:ext> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0199(){
+	String str =
+		"public class Test<T> extends X imp {\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "X imp";
+	int cursorLocation = str.indexOf("X imp") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:imp>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "imp";
+	String expectedReplacedSource = "imp";
+	String expectedUnitDisplayString =
+		"public class Test<T> extends <CompleteOnKeyword:imp> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0200(){
+	String str =
+		"public interface Test<T> ext{\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "ext";
+	int cursorLocation = str.indexOf("ext") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:ext>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "ext";
+	String expectedReplacedSource = "ext";
+	String expectedUnitDisplayString =
+		"public interface Test<T> extends <CompleteOnKeyword:ext> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+ */
+public void test0201(){
+	String str =
+		"public interface Test<T> imp{\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "imp";
+	int cursorLocation = str.indexOf("imp") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnKeyword:imp>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "imp";
+	String expectedReplacedSource = "imp";
+	String expectedUnitDisplayString =
+		"public interface Test<T> extends <CompleteOnKeyword:imp> {\n" + 
+		"  {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=100302
+ */
+public void test0202(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    for (Entry entry : (Set<Entry>) var) {\n" + 
+		"      entry.\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "entry.";
+	int cursorLocation = str.indexOf("entry.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:entry.>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "entry.";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    Entry entry;\n" + 
+		"    {\n" + 
+		"      <CompleteOnName:entry.>;\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=100302
+ */
+public void test0203(){
+	String str =
+		"public class Test {\n" + 
+		"  void bar() {\n" + 
+		"    for (Entry entry : (ZZZ<YYY>.Set<Entry>) var) {\n" + 
+		"      entry.\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String completeBehind = "entry.";
+	int cursorLocation = str.indexOf("entry.") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:entry.>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "";
+	expectedReplacedSource = "entry.";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  void bar() {\n" + 
+		"    Entry entry;\n" + 
+		"    {\n" + 
+		"      <CompleteOnName:entry.>;\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
 }

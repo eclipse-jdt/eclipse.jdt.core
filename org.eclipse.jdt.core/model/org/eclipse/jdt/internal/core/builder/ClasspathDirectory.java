@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public class ClasspathDirectory extends ClasspathLocation {
 
@@ -98,7 +99,8 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 		if (reader != null) {
 			if (this.accessRuleSet == null)
 				return new NameEnvironmentAnswer(reader, null);
-			return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(qualifiedBinaryFileName.toCharArray()));
+			String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
+			return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()));
 		}
 	} catch (Exception e) {
 		// handle the case when the project is the output folder and the top-level package is a linked folder
@@ -112,7 +114,8 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 						if (reader != null) {
 							if (this.accessRuleSet == null)
 								return new NameEnvironmentAnswer(reader, null);
-							return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(qualifiedBinaryFileName.toCharArray()));
+							String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
+							return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()));
 						}
 					} catch (Exception ignored) { // treat as if class file is missing
 					}

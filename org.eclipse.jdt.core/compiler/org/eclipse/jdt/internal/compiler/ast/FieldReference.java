@@ -535,7 +535,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		}
 		TypeBinding receiverErasure = this.receiverType.erasure();
 		if (receiverErasure instanceof ReferenceBinding) {
-			ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeErasingTo((ReferenceBinding)fieldBinding.declaringClass.erasure());
+			ReferenceBinding match = ((ReferenceBinding)receiverErasure).findSuperTypeWithSameErasure(fieldBinding.declaringClass);
 			if (match == null) {
 				this.receiverType = fieldBinding.declaringClass; // handle indirect inheritance thru variable secondary bound
 			}

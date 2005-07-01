@@ -2050,7 +2050,8 @@ AnnotationTypeBody ::= '{' AnnotationTypeMemberDeclarationsopt '}'
 AnnotationTypeMemberDeclarationsopt ::= $empty
 /.$putCase consumeEmptyAnnotationTypeMemberDeclarationsopt() ; $break ./
 /:$compliance 1.5:/
-AnnotationTypeMemberDeclarationsopt -> AnnotationTypeMemberDeclarations
+AnnotationTypeMemberDeclarationsopt ::= NestedType AnnotationTypeMemberDeclarations
+/.$putCase consumeAnnotationTypeMemberDeclarationsopt() ; $break ./
 /:$readableName AnnotationTypeMemberDeclarations:/
 /:$compliance 1.5:/
 

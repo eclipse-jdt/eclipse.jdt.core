@@ -55,30 +55,36 @@ public class TypeVariableBinding extends ReferenceBinding {
 		boolean hasSubstitution = substitution != null;
 		if (!(argumentType instanceof ReferenceBinding || argumentType.isArrayType()))
 			return TypeConstants.MISMATCH;	
-		
+		// special case for re-entrant source types (selection, code assist, etc)...
+		// can request additional types during hierarchy walk that are found as source types that also 'need' to connect their hierarchy
+		if (this.superclass == null)
+			return TypeConstants.OK;
+
 		if (argumentType.isWildcard()) {
 			WildcardBinding wildcard = (WildcardBinding) argumentType;
 			switch(wildcard.boundKind) {
 				case Wildcard.EXTENDS :
-					ReferenceBinding superclassBound = (ReferenceBinding)Scope.substitute(substitution, this.superclass());
+					ReferenceBinding superclassBound = hasSubstitution ? (ReferenceBinding)Scope.substitute(substitution, this.superclass) : this.superclass;
 					TypeBinding wildcardBound = wildcard.bound;
 					boolean isArrayBound = wildcardBound.isArrayType();
 					if (!wildcardBound.isInterface()) {
-						if (isArrayBound) {
-							if (!wildcardBound.isCompatibleWith(superclassBound))
-								return TypeConstants.MISMATCH;
-						} else {
-							ReferenceBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeErasingTo((ReferenceBinding)superclassBound.erasure());
-							if (match != null) {
-								if (!match.isIntersectingWith(superclassBound)) {
+						if (superclassBound.id != T_JavaLangObject) {
+							if (isArrayBound) {
+								if (!wildcardBound.isCompatibleWith(superclassBound))
+									return TypeConstants.MISMATCH;
+							} else {
+								ReferenceBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeWithSameErasure(superclassBound);
+								if (match != null) {
+									if (!match.isIntersectingWith(superclassBound)) {
+										return TypeConstants.MISMATCH;
+									}
+								} else {
 									return TypeConstants.MISMATCH;
 								}
-							} else {
-								return TypeConstants.MISMATCH;
 							}
 						}
 					}
-					ReferenceBinding[] superInterfaceBounds = Scope.substitute(substitution, this.superInterfaces());
+					ReferenceBinding[] superInterfaceBounds = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces) : this.superInterfaces;
 					int length = superInterfaceBounds.length;
 					boolean mustImplement = isArrayBound || ((ReferenceBinding)wildcardBound).isFinal();
 					for (int i = 0; i < length; i++) {
@@ -87,7 +93,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 							if (!wildcardBound.isCompatibleWith(superInterfaceBound))
 									return TypeConstants.MISMATCH;
 						} else {
-							ReferenceBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeErasingTo((ReferenceBinding)superInterfaceBound.erasure());
+							ReferenceBinding match = ((ReferenceBinding)wildcardBound).findSuperTypeWithSameErasure(superInterfaceBound);
 							if (match != null) {
 								if (!match.isIntersectingWith(superInterfaceBound)) {
 									return TypeConstants.MISMATCH;
@@ -116,7 +122,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 			}
 			if (argumentType instanceof ReferenceBinding) {
 				ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
-				TypeBinding match = referenceArgument.findSuperTypeErasingTo((ReferenceBinding)substitutedSuperType.erasure());
+				TypeBinding match = referenceArgument.findSuperTypeWithSameErasure(substitutedSuperType);
 				if (match != null){
 					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
 					if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
@@ -131,7 +137,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 			}
 			if (argumentType instanceof ReferenceBinding) {
 				ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
-				TypeBinding match = referenceArgument.findSuperTypeErasingTo((ReferenceBinding)substitutedSuperType.erasure());
+				TypeBinding match = referenceArgument.findSuperTypeWithSameErasure(substitutedSuperType);
 				if (match != null){
 					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
 					if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
@@ -212,17 +218,34 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 	/*
 	 * declaringUniqueKey : genericTypeSignature
-	 * p.X<T> { ... } --> Lp/X<TT;>;:TT;
+	 * p.X<T> { ... } --> Lp/X;:TT;
+	 * p.X { <T> void foo() {...} } --> Lp/X;.foo()V:TT;
 	 */
 	public char[] computeUniqueKey(boolean isLeaf) {
-		char[] declaringKey = this.declaringElement.computeUniqueKey(false/*not a leaf*/);
-		int declaringLength = declaringKey.length;
-		char[] sig = genericTypeSignature();
-		int sigLength = sig.length;
-		char[] uniqueKey = new char[declaringLength + 1 + sigLength];
-		System.arraycopy(declaringKey, 0, uniqueKey, 0, declaringLength);
-		uniqueKey[declaringLength] = ':';
-		System.arraycopy(sig, 0, uniqueKey, declaringLength+1, sigLength);
+		StringBuffer buffer = new StringBuffer();
+		Binding declaring = this.declaringElement;
+		if (!isLeaf && declaring.kind() == Binding.METHOD) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=97902
+			MethodBinding methodBinding = (MethodBinding) declaring;
+			ReferenceBinding declaringClass = methodBinding.declaringClass;
+			buffer.append(declaringClass.computeUniqueKey(false/*not a leaf*/));
+			buffer.append(':');
+			MethodBinding[] methods = declaringClass.methods();
+			if (methods != null)
+				for (int i = 0, length = methods.length; i < length; i++) {
+					MethodBinding binding = methods[i];
+					if (binding == methodBinding) {
+						buffer.append(i);
+						break;
+					}
+				}
+		} else {
+			buffer.append(declaring.computeUniqueKey(false/*not a leaf*/));
+			buffer.append(':');			
+		}
+		buffer.append(genericTypeSignature());
+		int length = buffer.length();
+		char[] uniqueKey = new char[length];
+		buffer.getChars(0, length, uniqueKey, 0);
 		return uniqueKey;
 	}
 	/**
@@ -238,93 +261,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    return this.superclass; // java/lang/Object
 	}	
 
-/**
- * Find supertype which erases to a given well-known type, or null if not found
- * (using id avoids triggering the load of well-known type: 73740)
- * NOTE: only works for erasures of well-known types, as random other types may share
- * same id though being distincts.
- * Override super-method since erasure() is answering firstBound (first supertype) already
- */
-public ReferenceBinding findSuperTypeErasingTo(int erasureId, boolean erasureIsClass) {
-
-//    if (this.id == erasureId) return this; // no ID for type variable
-    ReferenceBinding currentType = this;
-    // iterate superclass to avoid recording interfaces if searched supertype is class
-    if (erasureIsClass) {
-		while ((currentType = currentType.superclass()) != null) { 
-			if (currentType.id == erasureId || currentType.erasure().id == erasureId) return currentType;
-		}    
-		return null;
-    }
-	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-	int lastPosition = -1;
-	do {
-		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
-			if (++lastPosition == interfacesToVisit.length)
-				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-			interfacesToVisit[lastPosition] = itsInterfaces;
-		}
-	} while ((currentType = currentType.superclass()) != null);
-			
-	for (int i = 0; i <= lastPosition; i++) {
-		ReferenceBinding[] interfaces = interfacesToVisit[i];
-		for (int j = 0, length = interfaces.length; j < length; j++) {
-			if ((currentType = interfaces[j]).id == erasureId || currentType.erasure().id == erasureId)
-				return currentType;
-
-			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
-			}
-		}
-	}
-	return null;
-}
-/**
- * Find supertype which erases to a given type, or null if not found
- * Override super-method since erasure() is answering firstBound (first supertype) already
- */
-public ReferenceBinding findSuperTypeErasingTo(ReferenceBinding erasure) {
-
-    if (this == erasure) return this;
-    ReferenceBinding currentType = this;
-    if (!erasure.isInterface()) {
-		while ((currentType = currentType.superclass()) != null) {
-			if (currentType == erasure || currentType.erasure() == erasure) return currentType;
-		}
-		return null;
-    }
-	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[5][];
-	int lastPosition = -1;
-	do {
-		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
-			if (++lastPosition == interfacesToVisit.length)
-				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-			interfacesToVisit[lastPosition] = itsInterfaces;
-		}
-	} while ((currentType = currentType.superclass()) != null);
-			
-	for (int i = 0; i <= lastPosition; i++) {
-		ReferenceBinding[] interfaces = interfacesToVisit[i];
-		for (int j = 0, length = interfaces.length; j < length; j++) {
-			if ((currentType = interfaces[j]) == erasure || currentType.erasure() == erasure)
-				return currentType;
-
-			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
-				if (++lastPosition == interfacesToVisit.length)
-					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
-				interfacesToVisit[lastPosition] = itsInterfaces;
-			}
-		}
-	}
-	return null;
-}
-	
 	/**
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>

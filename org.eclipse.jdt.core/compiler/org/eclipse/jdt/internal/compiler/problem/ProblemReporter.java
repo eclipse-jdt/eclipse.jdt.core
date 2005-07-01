@@ -376,8 +376,8 @@ public void cannotAssignToFinalField(FieldBinding field, ASTNode location) {
 		new String[] {
 			(field.declaringClass == null ? "array" : new String(field.declaringClass.shortReadableName())), //$NON-NLS-1$
 			new String(field.shortReadableName())},
-		location.sourceStart,
-		location.sourceEnd);
+		fieldSourceStart(location),
+		fieldSourceEnd(field, location));
 }
 public void cannotAssignToFinalLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[] { new String(local.readableName())};
@@ -723,8 +723,8 @@ public void deprecatedField(FieldBinding field, ASTNode location) {
 		IProblem.UsingDeprecatedField,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-		location.sourceStart,
-		location.sourceEnd);
+		fieldSourceStart(location),
+		fieldSourceEnd(field, location));
 }
 public void deprecatedMethod(MethodBinding method, ASTNode location) {
 	if (method.isConstructor()) {
@@ -857,8 +857,8 @@ public void duplicateInitializationOfBlankFinalField(FieldBinding field, Referen
 		IProblem.DuplicateBlankFinalFieldInitialization,
 		arguments,
 		arguments,
-		reference.sourceStart,
-		reference.sourceEnd);
+		fieldSourceStart(reference),
+		fieldSourceEnd(field, reference));
 }
 public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[] { new String(local.readableName())};
@@ -971,7 +971,7 @@ public void duplicateNestedType(TypeDeclaration typeDecl) {
 		typeDecl.sourceStart,
 		typeDecl.sourceEnd);
 }
-public void duplicateSuperinterface(SourceTypeBinding type, TypeDeclaration typeDecl, ReferenceBinding superType) {
+public void duplicateSuperinterface(SourceTypeBinding type, TypeReference reference, ReferenceBinding superType) {
 	this.handle(
 		IProblem.DuplicateSuperInterface,
 		new String[] {
@@ -980,8 +980,8 @@ public void duplicateSuperinterface(SourceTypeBinding type, TypeDeclaration type
 		new String[] {
 			new String(superType.shortReadableName()),
 			new String(type.sourceName())},
-		typeDecl.sourceStart,
-		typeDecl.sourceEnd);
+		reference.sourceStart,
+		reference.sourceEnd);
 }
 public void duplicateTargetInTargetAnnotation(TypeBinding annotationType, NameReference reference) {
 	String name = 	new String(reference.fieldBinding().name);
@@ -1122,7 +1122,7 @@ public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 			fieldDecl.sourceEnd);
 	}
 }
-private int fieldLocation(FieldBinding field, ASTNode node) {
+private int fieldSourceEnd(FieldBinding field, ASTNode node) {
 	if (node instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) node;
 		FieldBinding[] bindings = ref.otherBindings;
@@ -1132,6 +1132,13 @@ private int fieldLocation(FieldBinding field, ASTNode node) {
 					return (int) ref.sourcePositions[i + 1]; // first position is for the primary field
 	}
 	return node.sourceEnd;
+}
+private int fieldSourceStart(ASTNode node) {
+	if (node instanceof FieldReference) {
+		FieldReference fieldReference = (FieldReference) node;
+		return (int) (fieldReference.nameSourcePosition >> 32);
+	}
+	return node.sourceStart;
 }
 public void fieldsOrThisBeforeConstructorInvocation(ThisReference reference) {
 	this.handle(
@@ -2100,8 +2107,8 @@ public void indirectAccessToStaticField(ASTNode location, FieldBinding field){
 		IProblem.IndirectAccessToStaticField,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-		location.sourceStart,
-		fieldLocation(field, location));
+		fieldSourceStart(location),
+		fieldSourceEnd(field, location));
 }
 public void indirectAccessToStaticMethod(ASTNode location, MethodBinding method) {
 	this.handle(
@@ -2479,6 +2486,7 @@ public void invalidExpressionAsStatement(Expression expression){
 public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 	int id = IProblem.UndefinedField;
 	FieldBinding field = fieldRef.binding;
+	final int sourceStart= (int) (fieldRef.nameSourcePosition >> 32);
 	switch (field.problemId()) {
 		case NotFound :
 			id = IProblem.UndefinedField;
@@ -2488,8 +2496,13 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 */
 			break;
 		case NotVisible :
-			id = IProblem.NotVisibleField;
-			break;
+			this.handle(
+				IProblem.NotVisibleField,
+				new String[] {new String(fieldRef.token), new String(field.declaringClass.readableName())},
+				new String[] {new String(fieldRef.token), new String(field.declaringClass.shortReadableName())},
+				sourceStart,
+				fieldRef.sourceEnd);			
+			return;
 		case Ambiguous :
 			id = IProblem.AmbiguousField;
 			break;
@@ -2522,7 +2535,7 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 		id,
 		arguments,
 		arguments,
-		fieldRef.sourceStart,
+		sourceStart,
 		fieldRef.sourceEnd);
 }
 public void invalidField(NameReference nameRef, FieldBinding field) {
@@ -2532,8 +2545,15 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 			id = IProblem.UndefinedField;
 			break;
 		case NotVisible :
-			id = IProblem.NotVisibleField;
-			break;
+			char[] name = field.readableName();
+			name = CharOperation.lastSegment(name, '.');
+			this.handle(
+				IProblem.NotVisibleField,
+				new String[] {new String(name), new String(field.declaringClass.readableName())},
+				new String[] {new String(name), new String(field.declaringClass.shortReadableName())},
+				nameRef.sourceStart,
+				nameRef.sourceEnd);				
+			return;
 		case Ambiguous :
 			id = IProblem.AmbiguousField;
 			break;
@@ -2602,8 +2622,14 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 */
 			break;
 		case NotVisible :
-			id = IProblem.NotVisibleField;
-			break;
+			String fieldName = new String(nameRef.tokens[index]);
+			this.handle(
+				IProblem.NotVisibleField,
+				new String[] {fieldName, new String(field.declaringClass.readableName())},
+				new String[] {fieldName, new String(field.declaringClass.shortReadableName())},
+				nameRef.sourceStart, 
+				(int) nameRef.sourcePositions[index]);				
+			return;
 		case Ambiguous :
 			id = IProblem.AmbiguousField;
 			break;
@@ -3976,7 +4002,7 @@ public void needToEmulateFieldAccess(FieldBinding field, ASTNode location, boole
 			: IProblem.NeedToEmulateFieldWriteAccess,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-		location.sourceStart,
+		fieldSourceStart(location),
 		location.sourceEnd);
 }
 public void needToEmulateMethodAccess(
@@ -4097,8 +4123,8 @@ public void nonStaticAccessToStaticField(ASTNode location, FieldBinding field) {
 		IProblem.NonStaticAccessToStaticField,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-		location.sourceStart,
-		fieldLocation(field, location));
+		fieldSourceStart(location),
+		fieldSourceEnd(field, location));
 }
 public void nonStaticAccessToStaticMethod(ASTNode location, MethodBinding method) {
 	this.handle(
@@ -4795,8 +4821,8 @@ public void staticFieldAccessToNonStaticVariable(ASTNode location, FieldBinding 
 		IProblem.NonStaticFieldFromStaticInvocation,
 		arguments,
 		arguments,
-		location.sourceStart,
-		fieldLocation(field, location)); 
+		fieldSourceStart(location),
+		fieldSourceEnd(field, location)); 
 }
 public void staticInheritedMethodConflicts(SourceTypeBinding type, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
 	this.handle(
@@ -4862,7 +4888,7 @@ public void superinterfaceMustBeAnInterface(SourceTypeBinding type, TypeReferenc
 		superInterfaceRef.sourceStart,
 		superInterfaceRef.sourceEnd);
 }
-public void superinterfacesCollide(ReferenceBinding type, TypeDeclaration typeDecl, ReferenceBinding superType, ReferenceBinding inheritedSuperType) {
+public void superinterfacesCollide(TypeBinding type, TypeDeclaration typeDecl, TypeBinding superType, TypeBinding inheritedSuperType) {
 	this.handle(
 		IProblem.SuperInterfacesCollide,
 		new String[] {new String(superType.readableName()), new String(inheritedSuperType.readableName()), new String(type.sourceName())},
@@ -5104,8 +5130,8 @@ public void uninitializedBlankFinalField(FieldBinding binding, ASTNode location)
 		IProblem.UninitializedBlankFinalField,
 		arguments,
 		arguments,
-		location.sourceStart,
-		fieldLocation(binding, location));
+		fieldSourceStart(location),
+		fieldSourceEnd(binding, location));
 }
 public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode location) {
 	String[] arguments = new String[] {new String(binding.readableName())};
@@ -5252,7 +5278,7 @@ public void unsafeRawFieldAssignment(FieldBinding rawField, TypeBinding expressi
 		        new String(expressionType.readableName()), new String(rawField.name), new String(rawField.declaringClass.readableName()), new String(rawField.declaringClass.erasure().readableName()) },
 		new String[] { 
 		        new String(expressionType.shortReadableName()), new String(rawField.name), new String(rawField.declaringClass.shortReadableName()), new String(rawField.declaringClass.erasure().shortReadableName()) },
-		location.sourceStart,
+		fieldSourceStart(location),
 		location.sourceEnd);    
 }
 public void unsafeRawGenericMethodInvocation(ASTNode location, MethodBinding rawMethod) {

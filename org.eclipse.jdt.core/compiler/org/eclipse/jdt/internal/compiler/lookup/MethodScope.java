@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -54,8 +53,6 @@ public class MethodScope extends BlockScope {
 	
 	// inner-emulation
 	public SyntheticArgumentBinding[] extraSyntheticArguments;
-	
-	public CompilerOptions options;
 	
 	public MethodScope(ClassScope parent, ReferenceContext context, boolean isStatic) {
 

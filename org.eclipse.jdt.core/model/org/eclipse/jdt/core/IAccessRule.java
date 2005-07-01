@@ -31,10 +31,13 @@ import org.eclipse.core.runtime.IPath;
  * Note this is different from inclusion and exclusion patterns on source classpath entries, 
  * where a source file that is excluded is not even compiled.
  * Files patterns look like relative file paths with wildcards and are interpreted relative 
- * to each entry's path. 
+ * to each entry's path.
  * File patterns are case-sensitive and they can contain '**', '*' or '?' wildcards (see 
  * {@link IClasspathEntry#getExclusionPatterns()} for the full description
  * of their syntax and semantics).
+ * Note that file patterns must not include the file extension. 
+ * <code>com/xyz/tests/MyClass</code> is a valid file pattern, whereas 
+ * <code>com/xyz/tests/MyClass.class</code> is not valid.
  * </p>
  * <p>
  * For example, if one of the entry path is <code>/Project/someLib.jar</code>, 

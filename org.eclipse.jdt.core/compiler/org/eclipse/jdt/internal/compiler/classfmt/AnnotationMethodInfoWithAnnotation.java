@@ -20,6 +20,15 @@ public class AnnotationMethodInfoWithAnnotation extends AnnotationMethodInfo{
 		super(methodInfo.reference, methodInfo.constantPoolOffsets, methodInfo.structOffset);
 		annotations = anno;
 		defaultValue = methodInfo.defaultValue;
+
+		accessFlags = methodInfo.accessFlags;
+		attributeBytes = methodInfo.attributeBytes;		
+		descriptor = methodInfo.descriptor; 
+		exceptionNames = methodInfo.exceptionNames;
+		name = methodInfo.name;
+		signature = methodInfo.signature;
+		signatureUtf8Offset = methodInfo.signatureUtf8Offset;
+		tagBits = methodInfo.tagBits;
 	}
 	
 	void initialize() {

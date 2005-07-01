@@ -352,12 +352,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"	                                                  ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from A to T\n" + 
 			"----------\n" + 
-			"4. WARNING in ALL.java (at line 10)\n" + 
-			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
-			"	                                                         ^^^^^^^^^^^\n" + 
-			"Type safety: The method foo() belongs to the raw type X. References to generic type X<U> should be parameterized\n" + 
-			"----------\n" + 
-			"5. ERROR in ALL.java (at line 10)\n" + 
+			"4. ERROR in ALL.java (at line 10)\n" + 
 			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
 			"	                                                         ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to T\n" + 
@@ -423,12 +418,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from A to T\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. WARNING in W.java (at line 1)\n" + 
-			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
-			"	                                                         ^^^^^^^^^^^\n" + 
-			"Type safety: The method foo() belongs to the raw type X. References to generic type X<U> should be parameterized\n" + 
-			"----------\n" + 
-			"2. ERROR in W.java (at line 1)\n" + 
+			"1. ERROR in W.java (at line 1)\n" + 
 			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
 			"	                                                         ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to T\n" + 
@@ -497,12 +487,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Type mismatch: cannot convert from A to T\n" + 
 			"----------\n" + 
 			"----------\n" + 
-			"1. WARNING in W.java (at line 1)\n" + 
-			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
-			"	                                                         ^^^^^^^^^^^\n" + 
-			"Type safety: The method foo() belongs to the raw type X. References to generic type X<U> should be parameterized\n" + 
-			"----------\n" + 
-			"2. ERROR in W.java (at line 1)\n" + 
+			"1. ERROR in W.java (at line 1)\n" + 
 			"	class W<T> extends X { @Override public T foo() { return super.foo(); } }\n" + 
 			"	                                                         ^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to T\n" + 
@@ -1048,6 +1033,22 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 
 	public void test016() { // 73971
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	<E extends A> void m(E e) { System.out.print(\"A=\"+e.getClass()); }\n" + 
+				"	<E extends B> void m(E e) { System.out.print(\"B=\"+e.getClass()); }\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new X().m(new A());\n" +
+				"		new X().m(new B());\n" + 
+				"	}\n" + 
+				"}\n" +
+				"class A {}\n" + 
+				"class B extends A {}\n"
+			},
+			"A=class AB=class B"
+		);
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2358,8 +2359,13 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"abstract class E<A, B> extends C<A> implements I<B> {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\r\n" + 
-			"	abstract class E<A, B> extends C<A> implements I<B> {}\r\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X { void test(E<Integer,Integer> e) { e.id(new Integer(1)); } }\n" + 
+			"	                                                     ^^\n" + 
+			"The method id(Integer) is ambiguous for the type E<Integer,Integer>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	abstract class E<A, B> extends C<A> implements I<B> {}\n" + 
 			"	               ^\n" + 
 			"Name clash: The method id(A) of type C<A> has the same erasure as id(B) of type I<B> but does not override it\n" + 
 			"----------\n"
@@ -2417,6 +2423,117 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\r\n" + 
 			"	m.id(new Integer(111));\r\n" + 
+			"	  ^^\n" + 
+			"The method id(Integer) is ambiguous for the type M<Integer,Integer>\n" + 
+			"----------\n"
+			// reference to id is ambiguous, both method id(A) in C<java.lang.Integer> and method id(B) in M<java.lang.Integer,java.lang.Integer> match
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97161
+	public void test043a() {
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import static p.Y.*;\n" +
+				"import static p.Z.*;\n" +
+				"public class X {\n" +
+				"	Y data = null;\n" +
+				"	public X() { foo(data.l); }\n" +
+				"}\n",
+				"p/Y.java",
+				"package p;\n" +
+				"import java.util.List;\n" +
+				"public class Y {\n" +
+				"	List l = null;\n" +
+				"	public static <T> void foo(T... e) {}\n" +
+				"}\n",
+				"p/Z.java",
+				"package p;\n" +
+				"import java.util.List;\n" +
+				"public class Z {\n" +
+				"	public static <T> void foo(List<T>... e) {}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\X.java (at line 6)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List...) of the generic method foo(List<T>...) of type Z\n" + 
+			"----------\n" + 
+			"2. WARNING in p\\X.java (at line 6)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	                 ^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+			"----------\n"
+			// unchecked conversion warnings
+		);
+		this.runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import static p.Y.*;\n" +
+				"public class X {\n" +
+				"	Y data = null;\n" +
+				"	public X() { foo(data.l); }\n" +
+				"}\n",
+				"p/Y.java",
+				"package p;\n" +
+				"import java.util.List;\n" +
+				"public class Y {\n" +
+				"	List l = null;\n" +
+				"	public static <T> void foo(T... e) {}\n" +
+				"	public static <T> void foo(List<T>... e) {}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in p\\X.java (at line 5)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	             ^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation foo(List...) of the generic method foo(List<T>...) of type Y\n" + 
+			"----------\n" + 
+			"2. WARNING in p\\X.java (at line 5)\n" + 
+			"	public X() { foo(data.l); }\n" + 
+			"	                 ^^^^^^\n" + 
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<T>\n" + 
+			"----------\n"
+			// unchecked conversion warnings
+		);
+	}
+
+	public void test043b() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	void test(M<Integer,Integer> m) {\n" +
+				"		m.id(new Integer(111), new Integer(112));\n" +
+				"	}\n" +
+				"}\n" +
+				"abstract class C<T1 extends Number> { public <U1 extends Number> void id(T1 x, U1 u) {} }\n" +
+				"interface I<T2> { }\n" +
+				"abstract class E<T3 extends Number, T4> extends C<T3> implements I<T4> {}\n" +
+				"class M<T5 extends Number, T6> extends E<T5, T6> { public <U2 extends Number> void id(T5 b, U2 u) {} }\n"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	void test(M<Integer,Integer> m) {\n" +
+				"		m.id(new Integer(111));\n" +
+				"	}\n" +
+				"}\n" +
+				"abstract class C<T1 extends Number> { public void id(T1 x) {} }\n" +
+				"interface I<T2> { void id(T2 x); }\n" +
+				"abstract class E<T3 extends Number, T4> extends C<T3> implements I<T4> {}\n" +
+				"class M<T5 extends Number, T6> extends E<T5, T6> { public void id(T6 b) {} }\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	m.id(new Integer(111));\n" + 
 			"	  ^^\n" + 
 			"The method id(Integer) is ambiguous for the type M<Integer,Integer>\n" + 
 			"----------\n"
@@ -2715,25 +2832,18 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
 	public void test050() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
-				"		 public static <S extends A> S foo() { \n" + 
-				"		     System.out.print(\"A\"); \n" + 
-				"		     return null; \n" + 
-				"		  }\n" + 
-				"		 public static <N extends B> N foo() { \n" + 
-				"		     System.out.print(\"B\");\n" + 
-				"		     return null; \n" + 
-				"		 }\n" + 
+				"		 public static <S extends A> S foo() { System.out.print(\"A\"); return null; }\n" + 
+				"		 public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" + 
 				"		 public static void main(String[] args) {\n" + 
 				"		 	X.<A>foo();\n" + 
 				"		 	X.<B>foo();\n" + 
-				"		 	X o = new X();\n" + 
-				"		    o.<B>foo();\n" + 
+				"		 	new X().<B>foo();\n" + 
 				"		 }\n" + 
 				"}\n" + 
 				"class A {}\n" + 
@@ -2741,30 +2851,33 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			"ABB"
 		);
-// TODO (philippe) we get BBB
-//		this.runConformTest(
-//			new String[] {
-//				"X.java",
-//				"public class X {\n" + 
-//				"		 public static <S extends A> void foo() { \n" + 
-//				"		     System.out.print(\"A\"); \n" + 
-//				"		  }\n" + 
-//				"		 public static <N extends B> N foo() { \n" + 
-//				"		     System.out.print(\"B\");\n" + 
-//				"		     return null; \n" + 
-//				"		 }\n" + 
-//				"		 public static void main(String[] args) {\n" + 
-//				"		 	X.foo();\n" + 
-//				"		 	X.<B>foo();\n" + 
-//				"		 	X o = new X();\n" + 
-//				"		    o.<B>foo();\n" + 
-//				"		 }\n" + 
-//				"}\n" + 
-//				"class A {}\n" + 
-//				"class B {}\n"
-//			},
-//			"ABB"
-//		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"		 public static <S extends A> void foo() { System.out.print(\"A\"); }\n" + 
+				"		 public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" + 
+				"		 static void test () {\n" + 
+				"		 	X.foo();\n" + 
+				"		 	foo();\n" + 
+				"		 }\n" + 
+				"}\n" + 
+				"class A {}\n" + 
+				"class B {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\r\n" + 
+			"	X.foo();\r\n" + 
+			"	  ^^^\n" + 
+			"The method foo() is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\r\n" + 
+			"	foo();\r\n" + 
+			"	^^^\n" + 
+			"The method foo() is ambiguous for the type X\n" + 
+			"----------\n"
+			// both references are ambiguous
+		);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
@@ -3362,6 +3475,337 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class C implements B { public void f(String x) {} }\n"
 			},
 			"1"
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97809
+	public void test056() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"   public static String bind(String message, Object binding) { return null; }\n" + 
+				"   public static String bind(String message, Object[] bindings) { return null; }\n" + 
+				"}\n" + 
+				"class Y extends X {\n" + 
+				"   public static String bind(String message, Object binding) { return null; }\n" + 
+				"   public static String bind(String message, Object[] bindings) { return null; }\n" + 
+				"}\n" + 
+				"class Z {\n" + 
+				"   void bar() { Y.bind(\"\", new String[] {\"\"}); }\n" + 
+				"}\n"
+			},
+			"");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84035
+	public void test057() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"   public static void main(String[] args) {\n" + 
+				"   	A<Integer> x = new A<Integer>();\n" + 
+				"   	B<Integer> y = new B<Integer>();\n" + 
+				"   	new X().print(x);\n" + 
+				"   	new X().print(y);\n" + 
+				"	}\n" +
+				"	public <T extends IA<?>> void print(T a) { System.out.print(1); }\n" +
+				"	public <T extends IB<?>> void print(T a) { System.out.print(2); }\n" +
+				"}\n" +
+				"interface IA<E> {}\n" + 
+				"interface IB<E> extends IA<E> {}\n" + 
+				"class A<E> implements IA<E> {}\n" + 
+				"class B<E> implements IB<E> {}\n"
+			},
+			"12");
+		this.runConformTest(
+			new String[] {
+				"XX.java",
+				"public class XX {\n" + 
+				"   public static void main(String[] args) {\n" + 
+				"   	A<Integer> x = new A<Integer>();\n" + 
+				"   	B<Integer> y = new B<Integer>();\n" + 
+				"   	print(x);\n" + 
+				"   	print(y);\n" + 
+				"	}\n" +
+				"	public static <T extends IA<?>> void print(T a) { System.out.print(3); }\n" +
+				"	public static <T extends IB<?>> void print(T a) { System.out.print(4); }\n" +
+				"}\n" +
+				"interface IA<E> {}\n" + 
+				"interface IB<E> extends IA<E> {}\n" + 
+				"class A<E> implements IA<E> {}\n" + 
+				"class B<E> implements IB<E> {}\n"
+			},
+			"34");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
+	public void test058() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X <B extends Number> {\n" + 
+				"   public static void main(String[] args) {\n" + 
+				"   	X<Integer> x = new X<Integer>();\n" + 
+				"   	x.aaa(null);\n" + 
+				"   	x.aaa(15);\n" + 
+				"	}\n" +
+				"	<T> T aaa(T t) { System.out.print('T'); return null; }\n" +
+				"	void aaa(B b) { System.out.print('B'); }\n" +
+				"}\n"
+			},
+			"BB");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<A> {\n" + 
+				"   void test() {\n" + 
+				"   	new X<Object>().foo(\"X\");\n" + 
+				"   	new X<Object>().foo2(\"X\");\n" + 
+				"   }\n" + 
+				"	<T> T foo(T t) {return null;}\n" +
+				"	void foo(A a) {}\n" +
+				"	<T> T foo2(T t) {return null;}\n" +
+				"	<T> void foo2(A a) {}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	new X<Object>().foo(\"X\");\r\n" + 
+			"	                ^^^\n" + 
+			"The method foo(String) is ambiguous for the type X<Object>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\r\n" + 
+			"	new X<Object>().foo2(\"X\");\r\n" + 
+			"	                ^^^^\n" + 
+			"The method foo2(String) is ambiguous for the type X<Object>\n" + 
+			"----------\n"
+			// both references are ambiguous
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<A> extends Y<A> {\n" + 
+				"   void test() {\n" + 
+				"   	new X<Object>().foo(\"X\");\n" + 
+				"   	new X<Object>().foo2(\"X\");\n" + 
+				"   }\n" + 
+				"	<T> T foo(T t) {return null;}\n" +
+				"	<T> T foo2(T t) {return null;}\n" +
+				"}\n" +
+				"class Y<A> {\n" +
+				"	void foo(A a) {}\n" +
+				"	<T> void foo2(A a) {}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\r\n" + 
+			"	new X<Object>().foo(\"X\");\r\n" + 
+			"	                ^^^\n" + 
+			"The method foo(String) is ambiguous for the type X<Object>\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\r\n" + 
+			"	new X<Object>().foo2(\"X\");\r\n" + 
+			"	                ^^^^\n" + 
+			"The method foo2(String) is ambiguous for the type X<Object>\n" + 
+			"----------\n"
+			// both references are ambiguous
+		);
+	}
+
+	public void test059() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {new B().foo(\"aa\");}\n" + 
+				"}\n" +
+				"class A { <U> void foo(U u) {System.out.print(false);} }\n" + 
+				"class B extends A { <V> void foo(String s) {System.out.print(true);} }\n"
+			},
+			"true");
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {new B().foo(\"aa\");}\n" + 
+				"}\n" +
+				"class A { <U> void foo(String s) {System.out.print(true);} }\n" + 
+				"class B extends A { <V> void foo(V v) {System.out.print(false);} }\n"
+			},
+			"true");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90619
+	public void test060() {
+		this.runConformTest(
+			new String[] {
+				"I.java",
+				"import java.util.Iterator;\n" +
+				"public interface I {\n" +
+				"	void method(Iterator<Object> iter);\n" +
+				"	public static class TestClass implements I {\n" +
+				"		public void method(Iterator iter) {}\n" +
+				"	}\n" +
+				"}"
+			},
+			""
+		);
+		this.runConformTest(
+			new String[] {
+				"I2.java",
+				"import java.util.Iterator;\n" +
+				"public interface I2 {\n" +
+				"	void method(Iterator<Object>[] iter);\n" +
+				"	public static class TestClass implements I2 {\n" +
+				"		public void method(Iterator[] iter) {}\n" +
+				"	}\n" +
+				"}"
+			},
+			""
+		);
+		this.runNegativeTest(
+			new String[] {
+				"I3.java",
+				"import java.util.Iterator;\n" +
+				"public interface I3 {\n" +
+				"	void method(Iterator<Object>[] iter);\n" +
+				"	public static class TestClass implements I3 {\n" +
+				"		public void method(Iterator[][] iter) {}\n" +
+				"	}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in I3.java (at line 4)\r\n" + 
+			"	public static class TestClass implements I3 {\r\n" + 
+			"	                    ^^^^^^^^^\n" + 
+			"The type I3.TestClass must implement the inherited abstract method I3.method(Iterator<Object>[])\n" + 
+			"----------\n"
+			// does not override abstract method method(java.util.Iterator<java.lang.Object>[]) in I3
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99106
+	public void test061() {
+		this.runNegativeTest(
+			new String[] {
+				"Try.java",
+				"public class Try {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		Ex<String> ex = new Ex<String>();\n" +
+				"		ex.one(\"eclipse\", new Integer(1));\n" +
+				"		ex.two(new Integer(1));\n" +
+				"		ex.three(\"eclipse\");\n" +
+				"		ex.four(\"eclipse\");\n" +
+				"		System.out.print(',');\n" +
+				"		Ex ex2 = ex;\n" +
+				"		ex2.one(\"eclipse\", new Integer(1));\n" + // unchecked warning
+				"		ex2.two(new Integer(1));\n" + // unchecked warning
+				"		ex2.three(\"eclipse\");\n" + // unchecked warning
+				"		ex2.four(\"eclipse\");\n" + // unchecked warning
+				"	}\n" +
+				"}\n" +
+				"class Top<TC> {\n" +
+				"	<TM> void one(TC cTop, TM mTop) { System.out.print(-1); }\n" +
+				"	<TM> void two(TM mTop) { System.out.print(-2); }\n" +
+				"	void three(TC cTop) { System.out.print(-3); }\n" +
+				"	<TM> void four(TC cTop) { System.out.print(-4); }\n" +
+				"}\n" +
+				"class Ex<C> extends Top<C> {\n" +
+				"	@Override <M> void one(C cEx, M mEx) { System.out.print(1); }\n" +
+				"	@Override <M> void two(M mEx) { System.out.print(2); }\n" +
+				"	@Override void three(C cEx) { System.out.print(3); }\n" +
+				"	@Override <M> void four(C cEx) { System.out.print(4); }\n" +
+				"}"				
+			},
+			"----------\n" + 
+			"1. WARNING in Try.java (at line 10)\n" + 
+			"	ex2.one(\"eclipse\", new Integer(1));\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method one(Object, Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in Try.java (at line 11)\n" + 
+			"	ex2.two(new Integer(1));\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method two(Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in Try.java (at line 12)\n" + 
+			"	ex2.three(\"eclipse\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method three(Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n" + 
+			"4. WARNING in Try.java (at line 13)\n" + 
+			"	ex2.four(\"eclipse\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method four(Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n"
+		);
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99106
+	public void test062() {
+		this.runNegativeTest(
+			new String[] {
+				"Errors.java",
+				"public class Errors {\n" +
+				"	void foo() {\n" +
+				"		Ex<String> ex = new Ex<String>();\n" +
+				"		ex.proof(\"eclipse\");\n" +
+				"		ex.five(\"eclipse\");\n" +
+				"		ex.six(\"eclipse\");\n" +
+				"		Ex ex2 = ex;\n" +
+				"		ex2.proof(\"eclipse\");\n" +
+				"		ex2.five(\"eclipse\");\n" +
+				"		ex2.six(\"eclipse\");\n" +
+				"	}\n" +
+				"}\n" +
+				"class Top<TC> {\n" +
+				"	<TM> void proof(Object cTop) {}\n" +
+				"	<TM> void five(TC cTop) {}\n" +
+				"	void six(TC cTop) {}\n" +
+				"}\n" +
+				"class Ex<C> extends Top<C> {\n" +
+				"	@Override void proof(Object cTop) {}\n" +
+				"	@Override void five(C cEx) {}\n" +
+				"	@Override <M> void six(C cEx) {}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in Errors.java (at line 6)\n" + 
+			"	ex.six(\"eclipse\");\n" + 
+			"	   ^^^\n" + 
+			"The method six(String) is ambiguous for the type Ex<String>\n" + 
+			"----------\n" + 
+			"2. WARNING in Errors.java (at line 9)\n" + 
+			"	ex2.five(\"eclipse\");\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The method five(Object) belongs to the raw type Ex. References to generic type Ex<C> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in Errors.java (at line 10)\n" + 
+			"	ex2.six(\"eclipse\");\n" + 
+			"	    ^^^\n" + 
+			"The method six(Object) is ambiguous for the type Ex\n" + 
+			"----------\n" + 
+			"4. ERROR in Errors.java (at line 21)\n" + 
+			"	@Override <M> void six(C cEx) {}\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"The method six(C) of type Ex<C> must override a superclass method\n" + 
+			"----------\n" + 
+			"5. ERROR in Errors.java (at line 21)\n" + 
+			"	@Override <M> void six(C cEx) {}\n" + 
+			"	                   ^^^^^^^^^^\n" + 
+			"Name clash: The method six(C) of type Ex<C> has the same erasure as six(TC) of type Top<TC> but does not override it\n" + 
+			"----------\n"
+			// we disagree about the ambiguous errors on lines 5, 9 & 20, see the message sends to proof()
+			// 5: reference to five is ambiguous, both method <TM>five(TC) in Top<java.lang.String> and method five(C) in Ex<java.lang.String> match
+			// 6: reference to six is ambiguous, both method six(TC) in Top<java.lang.String> and method <M>six(C) in Ex<java.lang.String> match
+			// 9: reference to five is ambiguous, both method <TM>five(TC) in Top and method five(C) in Ex match
+			// 9: warning: [unchecked] unchecked call to <TM>five(TC) as a member of the raw type Top
+			// 10: reference to six is ambiguous, both method six(TC) in Top and method <M>six(C) in Ex match
+			// 10: warning: [unchecked] unchecked call to six(TC) as a member of the raw type Top
+			// 20: method does not override a method from its superclass
+			// 21: method does not override a method from its superclass
 		);
 	}
 }

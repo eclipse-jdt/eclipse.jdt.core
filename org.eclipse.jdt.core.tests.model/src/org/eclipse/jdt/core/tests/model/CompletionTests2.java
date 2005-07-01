@@ -148,30 +148,11 @@ protected static void assertResults(String expected, String actual) {
 		throw c;
 	}
 }
-
+static {
+//	TESTS_NAMES = new String[] { "testBug96950" };
+}
 public static Test suite() {
-	TestSuite suite = new Suite(CompletionTests2.class.getName());
-	
-	suite.addTest(new CompletionTests2("testBug29832"));
-	suite.addTest(new CompletionTests2("testBug33560"));
-	suite.addTest(new CompletionTests2("testBug79288"));
-	suite.addTest(new CompletionTests2("testBug91772"));
-	suite.addTest(new CompletionTests2("testBug93891"));
-	suite.addTest(new CompletionTests2("testAccessRestriction1"));
-	suite.addTest(new CompletionTests2("testAccessRestriction2"));
-	suite.addTest(new CompletionTests2("testAccessRestriction3"));
-	suite.addTest(new CompletionTests2("testAccessRestriction4"));
-	suite.addTest(new CompletionTests2("testAccessRestriction5"));
-	suite.addTest(new CompletionTests2("testAccessRestriction6"));
-	suite.addTest(new CompletionTests2("testAccessRestriction7"));
-	suite.addTest(new CompletionTests2("testAccessRestriction8"));
-	suite.addTest(new CompletionTests2("testAccessRestriction9"));
-	suite.addTest(new CompletionTests2("testAccessRestriction10"));
-	suite.addTest(new CompletionTests2("testAccessRestriction11"));
-	suite.addTest(new CompletionTests2("testAccessRestriction12"));
-	suite.addTest(new CompletionTests2("testAccessRestriction13"));
-	suite.addTest(new CompletionTests2("testAccessRestriction14"));
-	return suite;
+	return buildTestSuite(CompletionTests2.class);
 }
 
 File createFile(File parent, String name, String content) throws IOException {
@@ -2205,4 +2186,64 @@ public void testAccessRestriction14() throws Exception {
 //		JavaCore.setOptions(oldOptions);
 //	}
 //}
+public void testBug96950() throws Exception {
+	try {
+		// create variable
+		JavaCore.setClasspathVariables(
+			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+			null);
+
+		// create P1
+		this.createJavaProject(
+			"P1",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			 "bin");
+		this.createFile(
+				"/P1/src/Taratata.java",
+				"public class Taratata {\n"+
+				"}");
+		
+		// create P2
+		this.createJavaProject(
+			"P2",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			null,
+			null,
+			new String[]{"/P1"},
+			new String[][]{{}},
+			new String[][]{{"**/*"}},
+			new boolean[]{false},
+			"bin",
+			null,
+			null,
+			null,
+			"1.4");
+		this.createFile(
+				"/P2/src/BreakRules.java",
+				"public class BreakRules {\n"+
+				"	Tara\n"+
+				"}");
+		
+		waitUntilIndexesReady();
+		
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P2", "src", "", "BreakRules.java");
+		
+		String str = cu.getSource();
+		String completeBehind = "Tara";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+		
+		assertResults(
+			"Tara[POTENTIAL_METHOD_DECLARATION]{Tara, LBreakRules;, ()V, Tara, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("P1");
+		this.deleteProject("P2");
+	}
+}
 }

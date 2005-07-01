@@ -14,4 +14,5 @@ public interface CompletionOnKeyword {
 	
 	char[] getToken();
 	char[][] getPossibleKeywords();
+	boolean canCompleteEmptyToken();
 }

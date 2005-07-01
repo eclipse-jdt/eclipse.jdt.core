@@ -7014,4 +7014,591 @@ public void test0220() throws JavaModelException {
 		}
 	}
 }
+public void test0221() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0221/AType.java",
+				"package test0221;\n"+
+				"\n"+
+				"public class AType<T> {\n"+
+				"}");
+		
+
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0221/Test.java",
+	            "package test0221;\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "  AType<? extends ATy\n"+
+	            "}",
+            	"ATy");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"AType[TYPE_REF]{AType, test0221, Ltest0221.AType;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=96918
+ */
+public void test0222() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0222/AType.java",
+				"package test0222;\n"+
+				"\n"+
+				"public class AType<T> {\n"+
+				"}");
+		
+
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0222/Test.java",
+	            "package test0222;\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "	void foo() {\n" +
+	            "	  AType<? \n" +
+	            "	}\n" +
+	            "}",
+            	"? ");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+		assertResults(
+				"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"super[KEYWORD]{super, null, null, super, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=97307
+ */
+public void test0223() throws JavaModelException {
+	ICompilationUnit paramClass1 = null;
+	try {
+		paramClass1 = getWorkingCopy(
+				"/Completion/src3/test0223/AType.java",
+				"package test0223;\n"+
+				"\n"+
+				"public class AType {\n"+
+				"  public static final int VAR = 0;\n"+
+				"}");
+		
+
+
+		CompletionResult result = complete(
+	            "/Completion/src3/test0223/Test.java",
+	            "package test0223;\n" +
+	            "\n" +
+	            "import static test0223.AType.va\n" +
+	            "\n" +
+	            "public class Test {\n" +
+	            "}",
+	            true, // show positions
+            	"AType.va");
+	    
+	
+	    assertResults(
+	            "expectedTypesSignatures=null\n" +
+	            "expectedTypesKeys=null",
+	            result.context);
+	
+	    int end = result.cursorLocation;
+		int start = end - "test0223.AType.va".length();
+		
+		assertResults(
+				"VAR[FIELD_REF]{test0223.AType.VAR;, Ltest0223.AType;, I, VAR, null, ["+start+", "+end+"], " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+				result.proposals);
+	} finally {
+		if(paramClass1 != null) {
+			paramClass1.discardWorkingCopy();
+		}
+	}
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85384
+ */
+public void test0224() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0224/Test.java",
+            "package test0224;\n" +
+            "\n" +
+            "public class Test<T ext> {\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+	
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85384
+ */
+public void test0225() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0225/Test.java",
+            "package test0225;\n" +
+            "\n" +
+            "public class Test<T ext\n" +
+            "",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+	
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85384
+ */
+public void test0226() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0226/Test.java",
+            "package test0226;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "  public <T ext> void foo() {}\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+	
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=85384
+ */
+public void test0227() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0227/Test.java",
+            "package test0227;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "  public <T ext\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+	
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=97801
+ */
+public void test0228() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0228/Test.java",
+            "package test0228;\n" +
+            "\n" +
+            "public class Test {\n" +
+            "	void foo() {\n" +
+            "	  Test.clas \n" +
+            "	}\n" +
+            "}",
+        	".clas");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0228/Test;>;, class, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=97801
+ */
+public void test0229() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0229/Test.java",
+            "package test0229;\n" +
+            "\n" +
+            "public class Test<T> {\n" +
+            "	void foo() {\n" +
+            "	  Test.clas \n" +
+            "	}\n" +
+            "}",
+        	".clas");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest0229/Test;>;, class, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=96944
+public void test0230() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0230/Test.java",
+            "package test0230;\n" +
+            "\n" +
+            "public class Test<ZT> {\n" +
+            "  void foo() {\n"+
+            "    new ZT\n"+
+            "  }\n"+
+            "}",
+        	"ZT");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=96944
+public void test0231() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0231/Test.java",
+            "package test0231;\n" +
+            "\n" +
+            "public class Test<ZT> {\n" +
+            "  void foo() {\n"+
+            "    ZT var = new ZT\n"+
+            "  }\n"+
+            "}",
+        	"ZT");
+    
+
+    assertResults(
+            "expectedTypesSignatures={TZT;}\n" +
+            "expectedTypesKeys={Ltest0231/Test;:TZT;}",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=96944
+public void test0232() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0232/Test.java",
+            "package test0232;\n" +
+            "\n" +
+            "public class Test<ZT> {\n" +
+            "  void foo() {\n"+
+            "    ZT var = new \n"+
+            "  }\n"+
+            "}",
+        	"new ");
+    
+
+    assertResults(
+            "expectedTypesSignatures={TZT;}\n" +
+            "expectedTypesKeys={Ltest0232/Test;:TZT;}",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82560
+public void test0233() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0233/Test0233Z.java",
+            "package test0233;\n" +
+            "\n" +
+            "public class Test0233Z<ZT> {\n" +
+            "  void bar() {\n"+
+            "    zzz.<String>foo(new Test0233Z());\n"+
+            "  }\n"+
+            "  <T> void foo(Object o) {\n"+
+            "  }\n"+
+            "}",
+        	"Test0233Z");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"Test0233Z<ZT>[TYPE_REF]{Test0233Z, test0233, Ltest0233.Test0233Z<TZT;>;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97860
+public void test0234() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0234/Test.java",
+            "package test0234;\n" +
+            "\n" +
+            "public class Test<ZT> {\n" +
+            "  void foo() {\n"+
+            "    ZT.c\n"+
+            "  }\n"+
+            "}",
+        	"ZT.c");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=97860
+public void test0235() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0235/Test.java",
+            "package test0235;\n" +
+            "\n" +
+            "public class Test<ZT> {\n" +
+            "  void foo() throws ZT.c {\n"+
+            "  }\n"+
+            "}",
+        	"ZT.c");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94641
+public void test0236() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0236/Test.java",
+            "package test0236;\n" +
+            "\n" +
+            "public class Test<ZT> {\n" +
+            "  void foo() {\n"+
+            "    new Test<String>();\n"+
+            "  }\n"+
+            "}",
+        	">(");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"Test[METHOD_REF<CONSTRUCTOR>]{, Ltest0236.Test<Ljava.lang.String;>;, ()V, Test, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test<java.lang.String>[ANONYMOUS_CLASS_DECLARATION]{, Ltest0236.Test<Ljava.lang.String;>;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0237() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0237/Test.java",
+            "package test0237;\n" +
+            "\n" +
+            "public class Test<ZT> ext {\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0238() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0238/Test.java",
+            "package test0238;\n" +
+            "\n" +
+            "public class Test<ZT> imp {\n" +
+            "}",
+        	"imp");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"implements[KEYWORD]{implements, null, null, implements, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0239() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0239/Test.java",
+            "package test0239;\n" +
+            "\n" +
+            "public class Test<ZT> extends Object ext {\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0240() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0204/Test.java",
+            "package test0240;\n" +
+            "\n" +
+            "public class Test<ZT> extends Object imp {\n" +
+            "}",
+        	"imp");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"implements[KEYWORD]{implements, null, null, implements, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0241() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0241/Test.java",
+            "package test0241;\n" +
+            "\n" +
+            "public interface Test<ZT> ext {\n" +
+            "}",
+        	"ext");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"extends[KEYWORD]{extends, null, null, extends, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94907
+public void test0242() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/test0242/Test.java",
+            "package test0242;\n" +
+            "\n" +
+            "public interface Test<ZT> imp {\n" +
+            "}",
+        	"imp");
+    
+
+    assertResults(
+            "expectedTypesSignatures=null\n" +
+            "expectedTypesKeys=null",
+            result.context);
+
+	assertResults(
+			"",
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99686
+	public void test0243() throws JavaModelException {
+		CompletionResult result = complete(
+			"/Completion/src3/test0243/X.java",
+			"package test0243;\n" + 
+			"public class X {\n" + 
+			"	void test() {\n" + 
+			"		foo(new Object() {}).b\n" + 
+			"	}\n" + 
+			"	<T> Y<T> foo(T t) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y<T> {\n" + 
+			"	T bar() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}",
+			"foo(new Object() {}).b");
+
+		assertResults(
+			"bar[METHOD_REF]{bar(), Ltest0243.Y<LObject;>;, ()LObject;, bar, null, 29}", 
+			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100009
+public void test0244() throws JavaModelException {
+		CompletionResult result = complete(
+			"/Completion/src3/test0244/X.java",
+			"package test0244;\n" + 
+			"import generics.*;\n" + 
+			"public class X extends ZAGenericType {\n" + 
+			"	foo\n" +  
+			"}",
+			"foo");
+
+		assertResults(
+			"foo[POTENTIAL_METHOD_DECLARATION]{foo, Ltest0244.X;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"foo[METHOD_DECLARATION]{public Object foo(Object t), Lgenerics.ZAGenericType;, (Ljava.lang.Object;)Ljava.lang.Object;, foo, (t), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED) + "}\n" +
+			"foo[METHOD_DECLARATION]{public Object foo(ZAGenericType var), Lgenerics.ZAGenericType;, (Lgenerics.ZAGenericType;)Ljava.lang.Object;, foo, (var), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
 }

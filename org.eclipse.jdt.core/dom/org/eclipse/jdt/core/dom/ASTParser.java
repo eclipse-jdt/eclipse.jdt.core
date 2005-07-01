@@ -224,19 +224,28 @@ public class ASTParser {
 	   
 	/**
 	 * Sets the compiler options to be used when parsing.
-     * <p>
-     * The compiler options default to {@link JavaCore#getOptions()}.
-     * </p>
-     * <p>
-     * Note that {@link #setSource(IClassFile)},
-     * {@link #setSource(ICompilationUnit)},
-     * and {@link #setProject(IJavaProject)} reset the compiler options
-     * based on the Java project.
-     * </p>
+	 * <p>
+	 * Note that {@link #setSource(IClassFile)},
+	 * {@link #setSource(ICompilationUnit)},
+	 * and {@link #setProject(IJavaProject)} reset the compiler options
+	 * based on the Java project. In other cases, compiler options default
+	 * to {@link JavaCore#getOptions()}. In either case, and especially
+	 * in the latter, the caller should carefully weight the consequences of
+	 * allowing compiler options to be defaulted as opposed to being
+	 * explicitly specified for the <code>ASTParser</code> instance.
+	 * For instance, there is a compiler option called "Source Compatibility Mode"
+	 * which determines which JDK level the source code is expected to meet.
+	 * If you specify "1.4", then "assert" is treated as a keyword and disallowed
+	 * as an identifier; if you specify "1.3", then "assert" is allowed as an
+	 * identifier. So this particular setting has a major bearing on what is
+	 * considered syntactically legal. By explicitly specifying the setting,
+	 * the client control exactly how the parser works. On the other hand,
+	 * allowing default settings means the parsing behaves like other JDT tools.
+	 * </p>
 	 * 
 	 * @param options the table of options (key type: <code>String</code>;
 	 * value type: <code>String</code>), or <code>null</code>
-     * to set it back to the default
+	 * to set it back to the default
 	 */
 	public void setCompilerOptions(Map options) {
 	   if (options == null) {
@@ -528,21 +537,24 @@ public class ASTParser {
 	}
 	
 	/**
-     * Sets the Java project used when resolving bindings.
-     * This method automatically sets the compiler
-     * options based on the given project:
-     * <pre>
-     * setCompilerOptions(project.getOptions(true));
-     * </pre>
-     * This setting is used in conjunction with <code>setSource(char[])</code>.
-     * For the purposes of resolving bindings, types declared in the
+	 * Sets the Java project used when resolving bindings.
+	 * This method automatically sets the compiler
+	 * options based on the given project:
+	 * <pre>
+	 * setCompilerOptions(project.getOptions(true));
+	 * </pre>
+	 * See {@link #setCompilerOptions(Map)} for a discussion of
+	 * the pros and cons of using these options vs specifying 
+	 * compiler options explicitly.
+	 * This setting is used in conjunction with <code>setSource(char[])</code>.
+	 * For the purposes of resolving bindings, types declared in the
 	 * source string will hide types by the same name available
-     * through the classpath of the given project.
-     * Defaults to none (<code>null</code>).
-     * 
+	 * through the classpath of the given project.
+	 * Defaults to none (<code>null</code>).
+	 * 
 	 * @param project the Java project used to resolve names, or 
 	 *    <code>null</code> if none
-     */
+	 */
 	public void setProject(IJavaProject project) {
 		this.project = project;
 		if (project != null) {
