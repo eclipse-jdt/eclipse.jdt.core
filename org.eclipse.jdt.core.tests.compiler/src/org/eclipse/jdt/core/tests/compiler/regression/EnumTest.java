@@ -4032,7 +4032,8 @@ the right of e1."
 				"}\n"
 			},
 			"");
-	}		
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102213
 	public void test120() {
 		this.runNegativeTest(
 			new String[] {

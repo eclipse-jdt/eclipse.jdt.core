@@ -3311,21 +3311,21 @@ public class JavadocBugsTest extends JavadocTest {
 					"	int i9 = A.i202f;\n" + 
 					"}\n" },
 			"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	int i0 = A.i0009;\n" + 
-				"	         ^^^^^^^\n" + 
-				"The field A.i0009 is deprecated\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 3)\n" + 
-				"	int i1 = A.i000a;\n" + 
-				"	         ^^^^^^^\n" + 
-				"The field A.i000a is deprecated\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	int i3 = A.i000c;\n" + 
-				"	         ^^^^^^^\n" + 
-				"The field A.i000c is deprecated\n" + 
-				"----------\n"
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int i0 = A.i0009;\n" + 
+			"	           ^^^^^\n" + 
+			"The field A.i0009 is deprecated\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	int i1 = A.i000a;\n" + 
+			"	           ^^^^^\n" + 
+			"The field A.i000a is deprecated\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	int i3 = A.i000c;\n" + 
+			"	           ^^^^^\n" + 
+			"The field A.i000c is deprecated\n" + 
+			"----------\n"
 		);
 	}
 	public void testBug77510disabled() {
@@ -3369,21 +3369,21 @@ public class JavadocBugsTest extends JavadocTest {
 					"	int i9 = A.i202f;\n" + 
 					"}\n" },
 			"----------\n" + 
-				"1. ERROR in X.java (at line 2)\n" + 
-				"	int i0 = A.i0009;\n" + 
-				"	         ^^^^^^^\n" + 
-				"The field A.i0009 is deprecated\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 3)\n" + 
-				"	int i1 = A.i000a;\n" + 
-				"	         ^^^^^^^\n" + 
-				"The field A.i000a is deprecated\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	int i3 = A.i000c;\n" + 
-				"	         ^^^^^^^\n" + 
-				"The field A.i000c is deprecated\n" + 
-				"----------\n"
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int i0 = A.i0009;\n" + 
+			"	           ^^^^^\n" + 
+			"The field A.i0009 is deprecated\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	int i1 = A.i000a;\n" + 
+			"	           ^^^^^\n" + 
+			"The field A.i000a is deprecated\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	int i3 = A.i000c;\n" + 
+			"	           ^^^^^\n" + 
+			"The field A.i000c is deprecated\n" + 
+			"----------\n"
 		);
 	}
 	
