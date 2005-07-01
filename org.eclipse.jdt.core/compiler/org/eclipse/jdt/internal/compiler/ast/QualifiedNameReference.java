@@ -58,7 +58,23 @@ public class QualifiedNameReference extends NameReference {
 				lastFieldBinding = (FieldBinding) binding;
 				if (needValue) {
 					manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, this.actualReceiverType, 0, flowInfo);
-				}				// check if final blank field
+				}
+				if (this.indexOfFirstFieldBinding == 1) { // was an implicit reference to the first field binding
+					ReferenceBinding declaringClass = lastFieldBinding.declaringClass;
+					// check if accessing enum static field in initializer					
+					if (declaringClass.isEnum()) {
+						MethodScope methodScope = currentScope.methodScope();
+						SourceTypeBinding sourceType = methodScope.enclosingSourceType();
+						if (lastFieldBinding.isStatic()
+								&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+								&& lastFieldBinding.constant() == NotAConstant
+								&& !methodScope.isStatic
+								&& methodScope.isInsideInitializerOrConstructor()) {
+							currentScope.problemReporter().enumStaticFieldUsedDuringInitialization(lastFieldBinding, this);
+						}
+					}				
+				}				
+				// check if final blank field
 				if (lastFieldBinding.isBlankFinal()
 				    && this.otherBindings != null // the last field binding is only assigned
 	 				&& currentScope.allowBlankFinalFieldAssignment(lastFieldBinding)) {
@@ -200,14 +216,27 @@ public class QualifiedNameReference extends NameReference {
 				if (needValue) {
 					manageSyntheticAccessIfNecessary(currentScope, (FieldBinding) binding, this.actualReceiverType, 0, flowInfo);
 				}
-				// check if reading a final blank field
-				FieldBinding fieldBinding;
-					if ((fieldBinding = (FieldBinding) binding).isBlankFinal()
-						&& (indexOfFirstFieldBinding == 1)
-					// was an implicit reference to the first field binding
-						&& currentScope.allowBlankFinalFieldAssignment(fieldBinding)
-						&& (!flowInfo.isDefinitelyAssigned(fieldBinding))) {
-					currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
+				if (this.indexOfFirstFieldBinding == 1) { // was an implicit reference to the first field binding
+					FieldBinding fieldBinding = (FieldBinding) binding;
+					ReferenceBinding declaringClass = fieldBinding.declaringClass;
+					// check if accessing enum static field in initializer					
+					if (declaringClass.isEnum()) {
+						MethodScope methodScope = currentScope.methodScope();
+						SourceTypeBinding sourceType = methodScope.enclosingSourceType();
+						if (fieldBinding.isStatic()
+								&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+								&& fieldBinding.constant() == NotAConstant
+								&& !methodScope.isStatic
+								&& methodScope.isInsideInitializerOrConstructor()) {
+							currentScope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
+						}
+					}				
+					// check if reading a final blank field
+					if (fieldBinding.isBlankFinal()
+							&& currentScope.allowBlankFinalFieldAssignment(fieldBinding)
+							&& !flowInfo.isDefinitelyAssigned(fieldBinding)) {
+						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
+					}
 				}
 				break;
 			case Binding.LOCAL : // reading a local variable
@@ -257,22 +286,13 @@ public class QualifiedNameReference extends NameReference {
 	public TypeBinding checkFieldAccess(BlockScope scope) {
 		FieldBinding fieldBinding = (FieldBinding) binding;
 		MethodScope methodScope = scope.methodScope();
-		ReferenceBinding declaringClass = fieldBinding.declaringClass;
-		if (this.indexOfFirstFieldBinding == 1 && methodScope.enclosingSourceType() == declaringClass) {
-			// check static enum field inside initializer
-			if (fieldBinding.isStatic()
-					&& fieldBinding.constant() == NotAConstant
-					&& !methodScope.isStatic
-					&& declaringClass.isEnum()
-					&& methodScope.isInsideInitializerOrConstructor()) {
-				scope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
-			}								
-			// check for forward references
-			if (methodScope.lastVisibleFieldID >= 0
-					&& fieldBinding.id >= methodScope.lastVisibleFieldID
-					&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
-				scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());
-			}
+		// check for forward references
+		if (this.indexOfFirstFieldBinding == 1
+				&& methodScope.enclosingSourceType() == fieldBinding.declaringClass
+				&& methodScope.lastVisibleFieldID >= 0
+				&& fieldBinding.id >= methodScope.lastVisibleFieldID
+				&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
+			scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
 		}
 		bits &= ~RestrictiveFlagMASK; // clear bits
 		bits |= Binding.FIELD;
@@ -867,23 +887,14 @@ public class QualifiedNameReference extends NameReference {
 					if (binding instanceof FieldBinding) {
 						FieldBinding fieldBinding = (FieldBinding) binding;
 						MethodScope methodScope = scope.methodScope();
-							ReferenceBinding declaringClass = fieldBinding.declaringClass;
+						ReferenceBinding declaringClass = fieldBinding.declaringClass;
+						// check for forward references
 						if (this.indexOfFirstFieldBinding == 1
-								&& methodScope.enclosingSourceType() == declaringClass) {
-							// check static enum field inside initializer
-							if (fieldBinding.isStatic()
-									&& fieldBinding.constant() == NotAConstant
-									&& !methodScope.isStatic
-									&& declaringClass.isEnum()
-									&& methodScope.isInsideInitializerOrConstructor()) {
-								scope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
-							}								
-							// check for forward references
-							if (methodScope.lastVisibleFieldID >= 0
-									&& fieldBinding.id >= methodScope.lastVisibleFieldID
-									&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
-								scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());
-							}
+								&& methodScope.enclosingSourceType() == declaringClass
+								&& methodScope.lastVisibleFieldID >= 0
+								&& fieldBinding.id >= methodScope.lastVisibleFieldID
+								&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
+							scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
 						}
 						if (!fieldBinding.isStatic() 
 								&& this.indexOfFirstFieldBinding == 1

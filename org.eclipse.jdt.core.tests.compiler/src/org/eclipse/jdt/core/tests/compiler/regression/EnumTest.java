@@ -720,17 +720,17 @@ public class EnumTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	case MX.BLEU : break;\n" + 
-			"	     ^^^^^^^\n" + 
+			"	        ^^^^\n" + 
 			"The enum constant X.MX.BLEU reference cannot be qualified in a case label\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	case MX.BLANC : break;\n" + 
-			"	     ^^^^^^^^\n" + 
+			"	        ^^^^^\n" + 
 			"The enum constant X.MX.BLANC reference cannot be qualified in a case label\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	case MX.ROUGE : break;\n" + 
-			"	     ^^^^^^^^\n" + 
+			"	        ^^^^^\n" + 
 			"The enum constant X.MX.ROUGE reference cannot be qualified in a case label\n" + 
 			"----------\n");
 	}
@@ -1827,7 +1827,7 @@ public class EnumTest extends AbstractComparableTest {
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
 			"	case X.D:\n" + 
-			"	     ^^^\n" + 
+			"	       ^\n" + 
 			"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" + 
 			"----------\n");
 	}
@@ -3151,7 +3151,7 @@ blocks, or instance variable initializer expressions of an enum constant e1
 to refer to itself or an enum constant of the same type that is declared to
 the right of e1."
 	*/
-	public void _test100() {
+	public void test100() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3160,7 +3160,7 @@ the right of e1."
 				"	anEnumValue {\n" + 
 				"		private final X thisOne = anEnumValue;\n" + 
 				"\n" + 
-				"		String getMessage() {\n" + 
+				"		@Override String getMessage() {\n" + 
 				"			return \"Here is what thisOne gets assigned: \" + thisOne;\n" + 
 				"		}\n" + 
 				"	};\n" + 
@@ -3174,7 +3174,12 @@ the right of e1."
 				"\n" + 
 				"}\n",
 			},
-			"should reject as invalid ref to non-constant");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	private final X thisOne = anEnumValue;\n" + 
+			"	                          ^^^^^^^^^^^\n" + 
+			"Cannot refer to the static enum field X.anEnumValue within an initializer\n" + 
+			"----------\n");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91761
 	public void test101() {
@@ -3871,10 +3876,20 @@ the right of e1."
 			"	^^^^^\n" + 
 			"Cannot refer to the static enum field X.VALUE within an initializer\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	VALUE = null;\n" + 
+			"	^^^^^\n" + 
+			"The final field X.VALUE cannot be assigned\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 9)\n" + 
 			"	ASD = 5;\n" + 
 			"	^^^\n" + 
 			"Cannot refer to the static enum field X.ASD within an initializer\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 10)\n" + 
+			"	X.VALUE = null;\n" + 
+			"	  ^^^^^\n" + 
+			"The final field X.VALUE cannot be assigned\n" + 
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101713 - variation
@@ -3896,6 +3911,11 @@ the right of e1."
 			"	BLEU = null;\n" + 
 			"	^^^^\n" + 
 			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	BLEU = null;\n" + 
+			"	^^^^\n" + 
+			"The final field X.BLEU cannot be assigned\n" + 
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101713 - variation
@@ -3926,12 +3946,12 @@ the right of e1."
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
+			"	      ^^^^\n" + 
 			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 6)\n" + 
 			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
+			"	           ^^^^^\n" + 
 			"The static field X.BLANC should be accessed in a static way\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 7)\n" + 
@@ -3941,7 +3961,7 @@ the right of e1."
 			"----------\n" + 
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	X x = BLEU.BLANC; // ok\n" + 
-			"	      ^^^^^^^^^^\n" + 
+			"	           ^^^^^\n" + 
 			"The static field X.BLANC should be accessed in a static way\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 13)\n" + 
@@ -3951,12 +3971,12 @@ the right of e1."
 			"----------\n" + 
 			"6. ERROR in X.java (at line 16)\n" + 
 			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
+			"	      ^^^^\n" + 
 			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 16)\n" + 
 			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
+			"	           ^^^^^\n" + 
 			"The static field X.BLANC should be accessed in a static way\n" + 
 			"----------\n" + 
 			"8. ERROR in X.java (at line 17)\n" + 
@@ -4013,4 +4033,45 @@ the right of e1."
 			},
 			"");
 	}		
+	public void test120() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"\n" + 
+				"	A() {\n" + 
+				"		final X a = A;\n" + 
+				"		final X a2 = B.A;\n" + 
+				"		@Override void foo() {\n" + 
+				"			System.out.println(String.valueOf(a));\n" + 
+				"			System.out.println(String.valueOf(a2));\n" + 
+				"		}\n" + 
+				"	},\n" + 
+				"	B() {\n" + 
+				"		@Override void foo(){}\n" + 
+				"	};\n" + 
+				"	abstract void foo();\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		A.foo();\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	final X a = A;\n" + 
+			"	            ^\n" + 
+			"Cannot refer to the static enum field X.A within an initializer\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	final X a2 = B.A;\n" + 
+			"	             ^\n" + 
+			"Cannot refer to the static enum field X.B within an initializer\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	final X a2 = B.A;\n" + 
+			"	               ^\n" + 
+			"The static field X.A should be accessed in a static way\n" + 
+			"----------\n");
+	}			
 }

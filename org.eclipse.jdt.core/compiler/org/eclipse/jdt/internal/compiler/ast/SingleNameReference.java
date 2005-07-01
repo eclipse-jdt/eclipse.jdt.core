@@ -69,9 +69,22 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			case Binding.FIELD : // assigning to a field
 				manageSyntheticAccessIfNecessary(currentScope, flowInfo, false /*write-access*/);
 	
+				FieldBinding fieldBinding = (FieldBinding) binding;
+				ReferenceBinding declaringClass = fieldBinding.declaringClass;
+				// check if accessing enum static field in initializer
+				if (declaringClass.isEnum()) {
+					MethodScope methodScope = currentScope.methodScope();
+					SourceTypeBinding sourceType = currentScope.enclosingSourceType();
+					if (fieldBinding.isStatic()
+							&& this.constant == NotAConstant
+							&& !methodScope.isStatic
+							&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+							&& methodScope.isInsideInitializerOrConstructor()) {
+						currentScope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
+					}
+				}					
 				// check if assigning a final field
-				FieldBinding fieldBinding;
-				if ((fieldBinding = (FieldBinding) binding).isFinal()) {
+				if (fieldBinding.isFinal()) {
 					// inside a context where allowed
 					if (!isCompound && fieldBinding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 						if (flowInfo.isPotentiallyAssigned(fieldBinding)) {
@@ -121,9 +134,22 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				if (valueRequired) {
 					manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 				}
+				FieldBinding fieldBinding = (FieldBinding) binding;
+				ReferenceBinding declaringClass = fieldBinding.declaringClass;
+				// check if accessing enum static field in initializer
+				if (declaringClass.isEnum()) {
+					MethodScope methodScope = currentScope.methodScope();
+					SourceTypeBinding sourceType = currentScope.enclosingSourceType();
+					if (fieldBinding.isStatic()
+							&& this.constant == NotAConstant
+							&& !methodScope.isStatic
+							&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+							&& methodScope.isInsideInitializerOrConstructor()) {
+						currentScope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
+					}
+				}				
 				// check if reading a final blank field
-				FieldBinding fieldBinding;
-				if ((fieldBinding =  (FieldBinding) binding).isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
+				if (fieldBinding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 					if (!flowInfo.isDefinitelyAssigned(fieldBinding)) {
 						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 					}
@@ -152,10 +178,11 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		
 		bits &= ~RestrictiveFlagMASK; // clear bits
 		bits |= Binding.FIELD;
+		MethodScope methodScope = scope.methodScope();
 		boolean isStatic = fieldBinding.isStatic();
 		if (!isStatic) {
 			// must check for the static status....
-			if (scope.methodScope().isStatic) {
+			if (methodScope.isStatic) {
 				scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
 				this.constant = NotAConstant;
 				return fieldBinding.type;
@@ -166,18 +193,8 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0))
 			scope.problemReporter().deprecatedField(fieldBinding, this);
 	
-		ReferenceBinding declaringClass = fieldBinding.declaringClass;
-		MethodScope methodScope = scope.methodScope();
-		if (isStatic
-				&& this.constant == NotAConstant
-				&& !methodScope.isStatic
-				&& methodScope.enclosingSourceType() == declaringClass
-				&& declaringClass.isEnum()
-				&& methodScope.isInsideInitializerOrConstructor()) {
-			scope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
-		}		
 		if ((this.bits & IsStrictlyAssignedMASK) == 0
-			&& methodScope.enclosingSourceType() == declaringClass
+			&& methodScope.enclosingSourceType() == fieldBinding.declaringClass
 			&& methodScope.lastVisibleFieldID >= 0
 			&& fieldBinding.id >= methodScope.lastVisibleFieldID) {
 			//if the field is static and ms is not .... then it is valid
