@@ -1216,4 +1216,29 @@ public class VarargsTest extends AbstractComparableTest {
 			},
 			"1");
 	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102631
+	// TODO (kent) reenable once addressed
+	public void _test033() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void f(boolean b, Object... o) {\n" + 
+				"		System.out.print(\"f(boolean, Object...)\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void f(Object... o) {\n" + 
+				"		System.out.print(\"f(Object...)\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X a = new X();\n" + 
+				"		a.f(true);\n" + 
+				"		a.f(true, \"foobar\");\n" + 
+				"		a.f(\"foo\", \"bar\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"f(boolean, Object...)f(boolean, Object...)f(Object...)");
+	}	
 }
