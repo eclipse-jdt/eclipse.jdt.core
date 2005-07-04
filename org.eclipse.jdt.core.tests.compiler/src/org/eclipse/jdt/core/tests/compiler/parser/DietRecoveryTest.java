@@ -6221,4 +6221,48 @@ public void test111() {
 		expectedCompletionDietUnitToString,
 		testName);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100797
+public void test112() {
+	String s = 
+		"public class X {\n"+
+		"  public void foo()\n"+
+		"    try {			\n"+
+		"    }  catch (Exception e) {\n"+
+ 		"     bar(\"blabla\");\n"+
+		"      throw new Exception(prefix  \"bloblo\");\n"+
+		"    }\n"+
+		"  }\n"+
+		"}\n";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,		
+		expectedCompletionDietUnitToString,
+		testName);
+}
 }
