@@ -31,15 +31,20 @@ package org.eclipse.jdt.internal.compiler;
  * declaring types and any other types used to locate such fields or methods.
  */
 
-import org.eclipse.jdt.core.compiler.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-
-import java.util.*;
 
 public class CompilationResult {
 	
@@ -62,8 +67,10 @@ public class CompilationResult {
 	public boolean hasInconsistentToplevelHierarchies = false; // record the fact some toplevel types have inconsistent hierarchies
 	public boolean hasSyntaxError = false;
 	
+	public int nonNlsWarningsCounter = 0;
 	long[] suppressWarningIrritants;  // irritant for suppressed warnings
-	long[] suppressWarningPositions; // (start << 32) + end 
+	long[] annotationPositions; // (start << 32) + end 
+	int annotationPositionsCount;
 	long[] suppressWarningScopePositions; // (start << 32) + end 
 	int suppressWarningsCount;
 	
@@ -126,6 +133,12 @@ public class CompilationResult {
 	public void discardSuppressedWarnings() {
 
 		if (this.suppressWarningsCount == 0) return;
+		if (this.nonNlsWarningsCounter != 0 && this.annotationPositionsCount != 0) {
+			if (this.annotationPositionsCount != this.annotationPositions.length) {
+				System.arraycopy(this.annotationPositions, 0, this.annotationPositions = new long[this.annotationPositionsCount], 0, this.annotationPositionsCount);
+			}
+			Arrays.sort(this.annotationPositions);
+		}
 		int removed = 0;
 		nextProblem: for (int i = 0, length = this.problemCount; i < length; i++) {
 			IProblem problem = this.problems[i];
@@ -140,28 +153,6 @@ public class CompilationResult {
 				int endSuppress = (int) position;
 				if (start < startSuppress) continue nextSuppress;
 				if (end > endSuppress) continue nextSuppress;
-				if (ProblemReporter.getIrritant(problemID) == CompilerOptions.NonExternalizedString) {
-					/*
-					 * We don't want to report nls warnings against the 
-					 * suppress warnings tokens.
-					 */
-					long annotationPosition = this.suppressWarningPositions[j];
-					int startAnnot = (int) (annotationPosition >>> 32);
-					int endAnnot = (int) annotationPosition;
-					if (startAnnot <= start && end <= endAnnot) {
-						removed++;
-						problems[i] = null;
-						if (problemsMap != null) problemsMap.remove(problem);
-						continue nextProblem;
-					}
-					if ((ProblemReporter.getIrritant(problemID) & this.suppressWarningIrritants[j]) == 0)
-						continue nextSuppress;
-					// discard suppressed warning
-					removed++;
-					problems[i] = null;
-					if (problemsMap != null) problemsMap.remove(problem);
-					continue nextProblem;
-				}
 				if ((ProblemReporter.getIrritant(problemID) & this.suppressWarningIrritants[j]) == 0)
 					continue nextSuppress;
 				// discard suppressed warning
@@ -169,6 +160,28 @@ public class CompilationResult {
 				problems[i] = null;
 				if (problemsMap != null) problemsMap.remove(problem);
 				continue nextProblem;
+			}
+			if (this.nonNlsWarningsCounter != 0 && problemID == IProblem.NonExternalizedStringLiteral) {
+				// filter out non-nls warnings inside annotations
+				final long problemPositions = ((long)start<<32) + end;
+				int annotationPositionsIndex = Arrays.binarySearch(this.annotationPositions, problemPositions );
+				if (annotationPositionsIndex < 0) {
+					int insertionPoint = -annotationPositionsIndex - 2;
+					insertionPoint = Math.max(0, insertionPoint);
+					for (int j = insertionPoint, max = this.annotationPositionsCount; j < max; j++) {
+						long annotationPosition = this.annotationPositions[j];
+						final int annotationStart = (int) (annotationPosition >>> 32);
+						final int annotationEnd = (int) annotationPosition;
+						if (annotationStart <= start && end <= annotationEnd) {
+							this.nonNlsWarningsCounter--;
+							removed++;
+							problems[i] = null;
+							if (problemsMap != null) problemsMap.remove(problem);
+							continue nextProblem;							
+						}
+						if (annotationStart > end) continue nextProblem;
+					}
+				}
 			}
 		}
 		if (removed > 0) {
@@ -425,10 +438,13 @@ public class CompilationResult {
 
 	public void record(IProblem newProblem, ReferenceContext referenceContext) {
 
-		//new Exception("VERBOSE PROBLEM REPORTING").printStackTrace();		
-		if (newProblem.getID() == IProblem.Task) {
-			recordTask(newProblem);
-			return;
+		//new Exception("VERBOSE PROBLEM REPORTING").printStackTrace();
+		switch(newProblem.getID()) {
+			case IProblem.Task :
+				recordTask(newProblem);
+				return;
+			case IProblem.NonExternalizedStringLiteral :
+				this.nonNlsWarningsCounter++;
 		}
 		if (problemCount == 0) {
 			problems = new IProblem[5];
@@ -446,21 +462,28 @@ public class CompilationResult {
 			this.hasSyntaxError = true;
 	}
 
-	public void recordSuppressWarnings(long irritant, int scopeStart, int scopeEnd, int sourceStart, int sourceEnd) {
+	public void recordSuppressWarnings(long irritant, int scopeStart, int scopeEnd) {
 		if (this.suppressWarningIrritants == null) {
 			this.suppressWarningIrritants = new long[3];
-			this.suppressWarningPositions = new long[3];
 			this.suppressWarningScopePositions = new long[3];
 		} else if (this.suppressWarningIrritants.length == this.suppressWarningsCount) {
 			System.arraycopy(this.suppressWarningIrritants, 0,this.suppressWarningIrritants = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
-			System.arraycopy(this.suppressWarningPositions, 0,this.suppressWarningPositions = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
 			System.arraycopy(this.suppressWarningScopePositions, 0,this.suppressWarningScopePositions = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
 		}
 		this.suppressWarningIrritants[this.suppressWarningsCount] = irritant;
-		this.suppressWarningPositions[this.suppressWarningsCount] = ((long)sourceStart<<32) + sourceEnd;
 		this.suppressWarningScopePositions[this.suppressWarningsCount++] = ((long)scopeStart<<32) + scopeEnd;
 	}
 	
+	public void recordAnnotationPositions(int annotationStart, int annotationEnd) {
+		if (this.annotationPositions == null) {
+			this.annotationPositions = new long[3];
+			this.annotationPositionsCount = 0;
+		} else if (this.annotationPositions.length == this.annotationPositionsCount) {
+			System.arraycopy(this.annotationPositions, 0,this.annotationPositions = new long[2*this.annotationPositionsCount], 0, this.annotationPositionsCount);
+		}
+		this.annotationPositions[this.annotationPositionsCount++] = ((long)annotationStart<<32) + annotationEnd;
+	}
+
 	private void recordTask(IProblem newProblem) {
 		if (this.taskCount == 0) {
 			this.tasks = new IProblem[5];

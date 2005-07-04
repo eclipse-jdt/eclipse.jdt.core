@@ -37,9 +37,10 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 172 };
+//		TESTS_NUMBERS = new int[] { 176 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
+
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
 		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
@@ -5523,19 +5524,108 @@ public class AnnotationTest extends AbstractComparableTest {
     			"}"
             },
             "----------\n" + 
-    		"1. WARNING in X.java (at line 4)\n" + 
-    		"	@Annot(\"serial\")\n" + 
-    		"	       ^^^^^^^^\n" + 
-    		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
-    		"----------\n" + 
-    		"2. WARNING in X.java (at line 5)\n" + 
+    		"1. WARNING in X.java (at line 5)\n" + 
     		"	public class X extends Exception {\n" + 
     		"	             ^\n" + 
     		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
     		"----------\n" + 
-    		"3. WARNING in X.java (at line 9)\n" + 
+    		"2. WARNING in X.java (at line 9)\n" + 
     		"	String s2 = \"Hello2\"; \n" + 
     		"	            ^^^^^^^^\n" + 
+    		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+    		"----------\n",
+			null, true, customOptions);
+    }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    public void test174() {
+    	Map customOptions = getCompilerOptions();
+    	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
+        final String source = "@interface Annot {\n" +
+    			"    int value() default 0;\n" +
+    			"}\n" +
+    			"@interface Annot2 {\n" +
+    			"    String value();\n" +
+    			"}\n" +
+    			"@Annot(value=5)\n" + 
+    			"public class X {\n" +
+    			"   @Annot2(value=\"nls\")\n" + 
+    			"	String s = null; \n" +
+    			"   @SuppressWarnings(\"serial\")\n" + 
+    			"	String s2 = \"Hello2\"; \n" +
+    			"}";
+		this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			source
+            },
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 12)\n" + 
+    		"	String s2 = \"Hello2\"; \n" + 
+    		"	            ^^^^^^^^\n" + 
+    		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+    		"----------\n",
+			null, true, customOptions);
+    }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    public void test175() {
+    	Map customOptions = getCompilerOptions();
+    	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
+        final String source = "@interface Annot {\n" +
+    			"    int value() default 0;\n" +
+    			"}\n" +
+    			"@interface Annot2 {\n" +
+    			"    String value();\n" +
+    			"}\n" +
+    			"@Annot(value=5)\n" + 
+    			"public class X {\n" +
+    			"   @Annot2(value=\"nls\") String s = \"value\"; \n" +
+    			"   @SuppressWarnings(\"serial\")\n" + 
+    			"	String s2 = \"Hello2\"; \n" +
+    			"}";
+		this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			source
+            },
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 9)\n" + 
+    		"	@Annot2(value=\"nls\") String s = \"value\"; \n" + 
+    		"	                                ^^^^^^^\n" + 
+    		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 11)\n" + 
+    		"	String s2 = \"Hello2\"; \n" + 
+    		"	            ^^^^^^^^\n" + 
+    		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+    		"----------\n",
+			null, true, customOptions);
+    }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97220
+    public void test176() {
+    	Map customOptions = getCompilerOptions();
+    	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
+        final String source = "@interface Annot {\n" +
+    			"    int value() default 0;\n" +
+    			"}\n" +
+    			"@interface Annot2 {\n" +
+    			"    String value();\n" +
+    			"}\n" +
+    			"@Annot(value=5)\n" + 
+    			"public class X {\n" +
+    			"   @Annot2(value=\"nls\") String s = \"value\"; \n" +
+    			"   @SuppressWarnings({\"serial\", \"nls\"})\n" + 
+    			"	String s2 = \"Hello2\"; \n" +
+    			"	@Annot(value=5) void foo() {}\n" + 
+    			"}";
+		this.runNegativeTest(
+            new String[] {
+                "X.java",
+    			source
+            },
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 9)\n" + 
+    		"	@Annot2(value=\"nls\") String s = \"value\"; \n" + 
+    		"	                                ^^^^^^^\n" + 
     		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
     		"----------\n",
 			null, true, customOptions);
