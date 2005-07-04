@@ -42,15 +42,25 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		}
 	}
 	
-	public void resolve(ClassScope scope) {
+	private void internalResolve(Scope scope, boolean staticContext) {
 	    // detect variable/type name collisions
 		if (this.binding != null) {
-			Scope outerScope = scope.parent;
-			Binding existingType = outerScope.getBinding(this.name, Binding.TYPE, this, false);
-			if (existingType != null && this.binding != existingType && existingType.isValidBinding()) {
+			Binding existingType = scope.parent.getBinding(this.name, Binding.TYPE, this, false);
+			if (existingType != null 
+					&& this.binding != existingType 
+					&& existingType.isValidBinding()
+					&& (existingType.kind() != Binding.TYPE_PARAMETER || !staticContext)) {
 				scope.problemReporter().typeHiding(this, existingType);
 			}
 		}
+	}
+	
+	public void resolve(BlockScope scope) {
+		internalResolve(scope, scope.methodScope().isStatic);
+	}
+	
+	public void resolve(ClassScope scope) {
+		internalResolve(scope, scope.enclosingSourceType().isStatic());
 	}
 
 	/* (non-Javadoc)

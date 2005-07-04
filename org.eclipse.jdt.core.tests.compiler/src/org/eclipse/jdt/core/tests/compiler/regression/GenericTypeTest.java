@@ -9017,7 +9017,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 15)\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public <Type> Type myMethod(Object obj, Class type) {\n" + 
+			"	        ^^^^\n" + 
+			"The type parameter Type is hiding the type Type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
 			"	return new MyClass().myMethod(this, IMyInterface.class);\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to IMyInterface\n" + 
@@ -9222,12 +9227,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"		
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public abstract <T extends Exception> T bar(T t);\n" + 
+			"	                 ^\n" + 
+			"The type parameter T is hiding the type T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
 			"	x.<Exception>bar(null);\n" + 
 			"	             ^^^\n" + 
 			"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 14)\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
 			"	X<R> xr = new X<R>(){  \n" + 
 			"	              ^^^^^^\n" + 
 			"The type new X<R>(){} must implement the inherited abstract method X<R>.bar(T)\n" + 
@@ -9355,12 +9365,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"		
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public abstract <T extends Exception> T bar(T t);\n" + 
+			"	                 ^\n" + 
+			"The type parameter T is hiding the type T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	x.<Exception>bar(null);\n" + 
 			"	             ^^^\n" + 
 			"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 10)\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
 			"	public <T extends Exception> T bar(T t) { return t; }\n" + 
 			"	                               ^^^^^^^^\n" + 
 			"The method bar(T) of type new X<R>(){} should be tagged with @Override since it actually overrides a superclass method\n" + 
@@ -21799,23 +21814,13 @@ public void test757() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\r\n" + 
-		"	static class EntryMap<K, V> {\r\n" + 
-		"	                      ^\n" + 
-		"The type parameter K is hiding the type K\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 2)\r\n" + 
-		"	static class EntryMap<K, V> {\r\n" + 
-		"	                         ^\n" + 
-		"The type parameter V is hiding the type V\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 12)\r\n" + 
-		"	EntryMap<K,V>.Entry entry = internalGet(key);\r\n" + 
+		"1. WARNING in X.java (at line 12)\n" + 
+		"	EntryMap<K,V>.Entry entry = internalGet(key);\n" + 
 		"	                            ^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The expression of type X.EntryMap.Entry needs unchecked conversion to conform to X.EntryMap<K,V>.Entry\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 14)\r\n" + 
-		"	Zork z;\r\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
@@ -21842,28 +21847,18 @@ public void test758() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\r\n" + 
-		"	static class EntryMap<K, V> {\r\n" + 
-		"	                      ^\n" + 
-		"The type parameter K is hiding the type K\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 2)\r\n" + 
-		"	static class EntryMap<K, V> {\r\n" + 
-		"	                         ^\n" + 
-		"The type parameter V is hiding the type V\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 12)\r\n" + 
-		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\r\n" + 
+		"1. WARNING in X.java (at line 12)\n" + 
+		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\n" + 
 		"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from X.EntryMap.Entry to X.EntryMap.Entry\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 12)\r\n" + 
-		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\r\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\n" + 
 		"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The expression of type X.EntryMap.Entry needs unchecked conversion to conform to X.EntryMap<K,V>.Entry\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 14)\r\n" + 
-		"	Zork z;\r\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
@@ -22307,6 +22302,70 @@ public void test773() {
 		} catch (IOException e) {
 			assertTrue(false);
 		}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98532
+public void test774() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	static class StaticInnerNoParam {\n" + 
+			"		T x;\n" + 
+			"	}\n" + 
+			"	class NonStaticInnerParam<T> {}	\n" + 
+			"	static class StaticInnerParam<T> {	}\n" + 
+			"	<T> void foo(T t) {}\n" + 
+			"	static <T> void bar(T t) {}\n" + 
+			"	<T> X(T t) {}\n" + 
+			"	\n" + 
+			"	class U {}\n" + 
+			"	<U> void foo2(U t) {}\n" + 
+			"	static <U> void bar2(U t) {}\n" + 
+			"	class NonStaticInnerParam2<U> {}	\n" + 
+			"	static class StaticInnerParam2<U> {}	\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	T x;\n" + 
+		"	^\n" + 
+		"Cannot make a static reference to the non-static type T\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	class NonStaticInnerParam<T> {}	\n" + 
+		"	                          ^\n" + 
+		"The type parameter T is hiding the type T\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 7)\n" + 
+		"	<T> void foo(T t) {}\n" + 
+		"	 ^\n" + 
+		"The type parameter T is hiding the type T\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 9)\n" + 
+		"	<T> X(T t) {}\n" + 
+		"	 ^\n" + 
+		"The type parameter T is hiding the type T\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 12)\n" + 
+		"	<U> void foo2(U t) {}\n" + 
+		"	 ^\n" + 
+		"The type parameter U is hiding the type X<T>.U\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 13)\n" + 
+		"	static <U> void bar2(U t) {}\n" + 
+		"	        ^\n" + 
+		"The type parameter U is hiding the type X<T>.U\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 14)\n" + 
+		"	class NonStaticInnerParam2<U> {}	\n" + 
+		"	                           ^\n" + 
+		"The type parameter U is hiding the type X<T>.U\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 15)\n" + 
+		"	static class StaticInnerParam2<U> {}	\n" + 
+		"	                               ^\n" + 
+		"The type parameter U is hiding the type X<T>.U\n" + 
+		"----------\n");
 }
 }
 
