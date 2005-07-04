@@ -302,11 +302,11 @@ public class ConditionalExpression extends OperatorExpression {
 					valueIfTrueType = unboxedIfTrueType;
 					valueIfFalseType = unboxedIfFalseType;
 				} else if (valueIfTrueType.isBaseType()) {
-					if ((valueIfTrueType == NullBinding) == valueIfFalseType.isBaseType()) {  // bool ? null : 12 --> Integer
+					if ((valueIfTrueType == NullBinding) && valueIfFalseType.isBaseType()) {  // bool ? null : 12 --> Integer
 						valueIfFalseType = env.computeBoxingType(valueIfFalseType);
 					}
 				} else if (valueIfFalseType.isBaseType()) {
-					if ((valueIfFalseType == NullBinding) == valueIfTrueType.isBaseType()) {  // bool ? 12 : null --> Integer
+					if ((valueIfFalseType == NullBinding) && valueIfTrueType.isBaseType()) {  // bool ? 12 : null --> Integer
 						valueIfTrueType = env.computeBoxingType(valueIfTrueType);
 					}
 				}
@@ -395,13 +395,20 @@ public class ConditionalExpression extends OperatorExpression {
 			return this.resolvedType = DoubleBinding;
 		}
 		// Type references (null null is already tested)
-		if ((valueIfTrueType.isBaseType() && valueIfTrueType != NullBinding)
-				|| (valueIfFalseType.isBaseType() && valueIfFalseType != NullBinding)) {
-			scope.problemReporter().conditionalArgumentsIncompatibleTypes(
-				this,
-				valueIfTrueType,
-				valueIfFalseType);
-			return null;
+		if (valueIfTrueType.isBaseType() && valueIfTrueType != NullBinding) {
+			if (use15specifics) {
+				valueIfTrueType = env.computeBoxingType(valueIfTrueType);
+			} else {
+				scope.problemReporter().conditionalArgumentsIncompatibleTypes(this, valueIfTrueType, valueIfFalseType);
+				return null;
+			}
+		} else if (valueIfFalseType.isBaseType() && valueIfFalseType != NullBinding) {
+			if (use15specifics) {
+				valueIfFalseType = env.computeBoxingType(valueIfFalseType);
+			} else {
+				scope.problemReporter().conditionalArgumentsIncompatibleTypes(this, valueIfTrueType, valueIfFalseType);
+				return null;
+			}
 		}
 		if (valueIfFalseType.isCompatibleWith(valueIfTrueType)) {
 			valueIfTrue.computeConversion(scope, valueIfTrueType, originalValueIfTrueType);
@@ -417,8 +424,8 @@ public class ConditionalExpression extends OperatorExpression {
 		if (use15specifics) {
 			TypeBinding commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
 			if (commonType != null) {
-				valueIfTrue.computeConversion(scope, commonType, valueIfTrueType);
-				valueIfFalse.computeConversion(scope, commonType, valueIfFalseType);
+				valueIfTrue.computeConversion(scope, commonType, originalValueIfTrueType);
+				valueIfFalse.computeConversion(scope, commonType, originalValueIfFalseType);
 				return this.resolvedType = commonType.capture(scope, this.sourceEnd);
 			}
 		}

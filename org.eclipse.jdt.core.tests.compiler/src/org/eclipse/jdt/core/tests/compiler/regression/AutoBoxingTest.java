@@ -3256,5 +3256,19 @@ public void test108() {
 		},
 		"1");
 }
-	
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100043
+public void test109() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int foo = 0;\n" + 
+			"		String bar = \"zero\";\n" + 
+			"		System.out.println((foo != 0) ? foo : bar);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"zero");
+}
 }
