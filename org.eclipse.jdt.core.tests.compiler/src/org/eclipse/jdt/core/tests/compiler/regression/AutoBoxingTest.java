@@ -3271,4 +3271,21 @@ public void test109() {
 		},
 		"zero");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100043 - variation
+public void test110() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"    	if (new Boolean(true) ? true : new Boolean(false)) {\n" + 
+			"    		System.out.print(\"SUCCESS\");\n" + 
+			"    	} else {\n" + 
+			"    		System.out.print(\"FAILED\");\n" + 
+			"    	}\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
 }
