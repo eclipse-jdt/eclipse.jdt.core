@@ -64,8 +64,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 			WildcardBinding wildcard = (WildcardBinding) argumentType;
 			switch(wildcard.boundKind) {
 				case Wildcard.EXTENDS :
-					ReferenceBinding superclassBound = hasSubstitution ? (ReferenceBinding)Scope.substitute(substitution, this.superclass) : this.superclass;
 					TypeBinding wildcardBound = wildcard.bound;
+					if (wildcardBound == this) 
+						return TypeConstants.OK;
+					ReferenceBinding superclassBound = hasSubstitution ? (ReferenceBinding)Scope.substitute(substitution, this.superclass) : this.superclass;
 					boolean isArrayBound = wildcardBound.isArrayType();
 					if (!wildcardBound.isInterface()) {
 						if (superclassBound.id != T_JavaLangObject) {

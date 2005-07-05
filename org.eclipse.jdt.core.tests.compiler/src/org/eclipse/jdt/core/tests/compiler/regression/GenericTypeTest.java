@@ -22367,5 +22367,17 @@ public void test774() {
 		"The type parameter U is hiding the type X<T>.U\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100153
+public void test775() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends X<T>> {\n" + 
+			"	void foo1(X<? extends T> x) {}\n" + 
+			"	void foo2(X<? super T> x) {}\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
