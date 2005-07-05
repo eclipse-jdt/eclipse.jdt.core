@@ -1175,6 +1175,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "T", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong key", "Ltest0037/X;:TT;", typeBinding.getKey());
 		SimpleName simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "T", simpleName.getIdentifier());
@@ -1195,6 +1196,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "U", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong key", "Ltest0037/X;:TU;", typeBinding.getKey());
 		simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "U", simpleName.getIdentifier());
@@ -1252,6 +1254,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong isTopLevel", false, typeBinding.isTopLevel());
 		assertEquals("Wrong isUpperbound", false, typeBinding.isUpperbound());
 		assertEquals("Wrong isTypeVariable", true, typeBinding.isTypeVariable());
+		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong isWildcardType", false, typeBinding.isWildcardType());
 		ITypeBinding typeBinding2 = type.resolveBinding();
 		assertEquals("Wrong name", "X", typeBinding2.getName());
@@ -1414,6 +1417,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, typeParametersBindings.length);
 		ITypeBinding typeBinding = typeParametersBindings[0];
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong fully qualified name", "Z", typeBinding.getQualifiedName());
 	}
 	
@@ -2647,6 +2651,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertEquals("Wrong name", "E", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		assertTrue("Not from source", typeBinding.isFromSource());
 		ASTNode node2 = compilationUnit.findDeclaringNode(typeBinding);
 		assertNotNull("No declaring node", node2);
 		ASTNode node3 = compilationUnit.findDeclaringNode(typeBinding.getKey());
@@ -4979,6 +4984,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type type = singleVariableDeclaration.getType();
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		assertTrue("Not from source", typeBinding.isFromSource());
 		final ITypeBinding declaringClass = typeBinding.getDeclaringClass();
 		assertNotNull("No declaring class", declaringClass);
 		assertTrue("Not a generic class", declaringClass.isGenericType());
@@ -5008,6 +5014,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type type = singleVariableDeclaration.getType();
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		assertTrue("Not from source", typeBinding.isFromSource());
 		final IMethodBinding methodBinding = typeBinding.getDeclaringMethod();
 		assertNotNull("No declaring method", methodBinding);
 		assertEquals("Wrong name", "foo", methodBinding.getName());
@@ -5131,8 +5138,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a parameterized binding", typeBinding.isParameterizedType());
 		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
 		assertEquals("Wrong size", 1, typeArguments.length);
-		assertTrue("Not a capture binding", typeArguments[0].isCapture());
-		assertNotNull("No wildcard", typeArguments[0].getWildcard());
+		final ITypeBinding typeBinding2 = typeArguments[0];
+		assertTrue("Not a capture binding", typeBinding2.isCapture());
+		assertTrue("Not from source", typeBinding2.isFromSource());
+		assertNotNull("No wildcard", typeBinding2.getWildcard());
 	}
 
 	public void test0169() throws CoreException {
@@ -5168,10 +5177,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
 		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
 		assertEquals("Wrong size", 2, typeArguments.length);
-		ITypeBinding typeBinding2 = typeArguments[0];
+		final ITypeBinding typeBinding2 = typeArguments[0];
 		assertTrue("Not a capture binding", typeBinding2.isCapture());
 		ITypeBinding wildcardBinding = typeBinding2.getWildcard();
 		assertNotNull("No wildcard binding", wildcardBinding);
+		assertTrue("Not from source", typeBinding2.isFromSource());
 		assertTrue("Not a wildcard", wildcardBinding.isWildcardType());
 	}
 
@@ -5197,10 +5207,11 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
 		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
 		assertEquals("Wrong size", 2, typeArguments.length);
-		ITypeBinding typeBinding2 = typeArguments[0];
+		final ITypeBinding typeBinding2 = typeArguments[0];
 		assertTrue("Not a capture binding", typeBinding2.isCapture());
 		ITypeBinding wildcardBinding = typeBinding2.getWildcard();
 		assertNotNull("No wildcard binding", wildcardBinding);
+		assertTrue("Not from source", typeBinding2.isFromSource());
 		assertTrue("Not a wildcard", wildcardBinding.isWildcardType());
 	}
 	/*
@@ -5620,6 +5631,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertFalse("A class", typeBinding.isClass());
     	assertFalse("An interface", typeBinding.isInterface());
     	assertTrue("Not a type variable", typeBinding.isTypeVariable());
+		assertTrue("Not from source", typeBinding.isFromSource());
 	}
 
 	public void test0189() throws CoreException, IOException {
