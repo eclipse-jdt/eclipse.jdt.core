@@ -30,8 +30,6 @@ package org.eclipse.jdt.internal.compiler;
  * specific fields and methods which were referenced, but does contain their 
  * declaring types and any other types used to locate such fields or methods.
  */
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -66,11 +64,7 @@ public class CompilationResult {
 	public char[] fileName;
 	public boolean hasInconsistentToplevelHierarchies = false; // record the fact some toplevel types have inconsistent hierarchies
 	public boolean hasSyntaxError = false;
-	
-	public int nonNlsWarningsCounter = 0;
 	long[] suppressWarningIrritants;  // irritant for suppressed warnings
-	long[] annotationPositions; // (start << 32) + end 
-	int annotationPositionsCount;
 	long[] suppressWarningScopePositions; // (start << 32) + end 
 	int suppressWarningsCount;
 	
@@ -133,12 +127,6 @@ public class CompilationResult {
 	public void discardSuppressedWarnings() {
 
 		if (this.suppressWarningsCount == 0) return;
-		if (this.nonNlsWarningsCounter != 0 && this.annotationPositionsCount != 0) {
-			if (this.annotationPositionsCount != this.annotationPositions.length) {
-				System.arraycopy(this.annotationPositions, 0, this.annotationPositions = new long[this.annotationPositionsCount], 0, this.annotationPositionsCount);
-			}
-			Arrays.sort(this.annotationPositions);
-		}
 		int removed = 0;
 		nextProblem: for (int i = 0, length = this.problemCount; i < length; i++) {
 			IProblem problem = this.problems[i];
@@ -160,28 +148,6 @@ public class CompilationResult {
 				problems[i] = null;
 				if (problemsMap != null) problemsMap.remove(problem);
 				continue nextProblem;
-			}
-			if (this.nonNlsWarningsCounter != 0 && problemID == IProblem.NonExternalizedStringLiteral) {
-				// filter out non-nls warnings inside annotations
-				final long problemPositions = ((long)start<<32) + end;
-				int annotationPositionsIndex = Arrays.binarySearch(this.annotationPositions, problemPositions );
-				if (annotationPositionsIndex < 0) {
-					int insertionPoint = -annotationPositionsIndex - 2;
-					insertionPoint = Math.max(0, insertionPoint);
-					for (int j = insertionPoint, max = this.annotationPositionsCount; j < max; j++) {
-						long annotationPosition = this.annotationPositions[j];
-						final int annotationStart = (int) (annotationPosition >>> 32);
-						final int annotationEnd = (int) annotationPosition;
-						if (annotationStart <= start && end <= annotationEnd) {
-							this.nonNlsWarningsCounter--;
-							removed++;
-							problems[i] = null;
-							if (problemsMap != null) problemsMap.remove(problem);
-							continue nextProblem;							
-						}
-						if (annotationStart > end) continue nextProblem;
-					}
-				}
 			}
 		}
 		if (removed > 0) {
@@ -439,12 +405,9 @@ public class CompilationResult {
 	public void record(IProblem newProblem, ReferenceContext referenceContext) {
 
 		//new Exception("VERBOSE PROBLEM REPORTING").printStackTrace();
-		switch(newProblem.getID()) {
-			case IProblem.Task :
+		if(newProblem.getID() == IProblem.Task) {
 				recordTask(newProblem);
 				return;
-			case IProblem.NonExternalizedStringLiteral :
-				this.nonNlsWarningsCounter++;
 		}
 		if (problemCount == 0) {
 			problems = new IProblem[5];
@@ -472,16 +435,6 @@ public class CompilationResult {
 		}
 		this.suppressWarningIrritants[this.suppressWarningsCount] = irritant;
 		this.suppressWarningScopePositions[this.suppressWarningsCount++] = ((long)scopeStart<<32) + scopeEnd;
-	}
-	
-	public void recordAnnotationPositions(int annotationStart, int annotationEnd) {
-		if (this.annotationPositions == null) {
-			this.annotationPositions = new long[3];
-			this.annotationPositionsCount = 0;
-		} else if (this.annotationPositions.length == this.annotationPositionsCount) {
-			System.arraycopy(this.annotationPositions, 0,this.annotationPositions = new long[2*this.annotationPositionsCount], 0, this.annotationPositionsCount);
-		}
-		this.annotationPositions[this.annotationPositionsCount++] = ((long)annotationStart<<32) + annotationEnd;
 	}
 
 	private void recordTask(IProblem newProblem) {

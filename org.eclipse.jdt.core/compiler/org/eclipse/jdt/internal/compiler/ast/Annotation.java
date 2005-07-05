@@ -280,7 +280,7 @@ public abstract class Annotation extends Expression {
 		long tagBits = detectStandardAnnotation(scope, annotationType, valueAttribute);
 
 		// record annotation positions in the compilation result
-		scope.referenceCompilationUnit().compilationResult.recordAnnotationPositions(this.sourceStart, this.declarationSourceEnd);
+		scope.referenceCompilationUnit().compilationResult.recordSuppressWarnings(CompilerOptions.NonExternalizedString, this.sourceStart, this.declarationSourceEnd);
 		if (this.recipient != null) {
 			if (tagBits != 0) {
 				// tag bits onto recipient
