@@ -1237,12 +1237,16 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 14)\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	public static <X extends Comparable< ? super X>> int compareTo(final X first, final X firstPrime)\n" + 
+			"	               ^\n" + 
+			"The type parameter X is hiding the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
 			"	*  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
 			"	                          ^^^^^^^^^\n" + 
 			"Javadoc: Bound mismatch: The generic method compareTo(X, X) of type ComparableUtils is not applicable for the arguments (Object, Object) since the type Object is not a valid substitute for the bounded parameter <X extends Comparable<? super X>>\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 
 	/**
