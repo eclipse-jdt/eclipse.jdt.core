@@ -1275,6 +1275,19 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101387
+	public void test050b() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<I, C extends I> {}\n" + 
+				"class Y extends X<Y.M, Y.N> {\n" + 
+				"	static class M {}\n" + 
+				"	static class N extends M {}\n" + 
+				"}\n"
+			},
+			"");
+	}
 	public void test051() {
 		this.runConformTest(
 			new String[] {
