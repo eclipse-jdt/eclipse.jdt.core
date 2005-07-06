@@ -106,6 +106,37 @@ public class DebugEvaluationTest extends EvaluationTest {
 			.append("\"");
 		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
 	}
+	public void compileAndDeploy15(String source, String className) {
+		resetEnv(); // needed to reinitialize the caches
+		File directory = new File(SOURCE_DIRECTORY);
+		if (!directory.exists()) {
+			if (!directory.mkdir()) {
+				System.out.println("Could not create " + SOURCE_DIRECTORY);
+				return;
+			}
+		}
+		String fileName = SOURCE_DIRECTORY + File.separator + className + ".java";
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+			writer.write(source);
+			writer.flush();
+			writer.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		StringBuffer buffer = new StringBuffer();
+		buffer
+			.append("\"")
+			.append(fileName)
+			.append("\" -d \"")
+			.append(EvaluationSetup.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY)
+			.append("\" -nowarn -1.5 -g -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(SOURCE_DIRECTORY)
+			.append("\"");
+		org.eclipse.jdt.internal.compiler.batch.Main.compile(buffer.toString());
+	}
 	/**
 	 * Generate local variable attribute for these tests.
 	 */
@@ -3779,5 +3810,62 @@ public void testNegative004() {
 	assertEquals("Unexpected errors",
 		"The final field System.out cannot be assigned|",
 		buffer == null ? "none" : buffer.toString());
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=102778
+ */
+public void test063() {
+	if (!this.complianceLevel.equals(COMPLIANCE_1_5)) return;
+	try {
+		String sourceA63 =
+			"public class A63 {\n" +
+			"  public static void bar() {\n" +
+			"  }\n" +
+			"}";
+		compileAndDeploy15(sourceA63, "A63");
+
+		String userCode = "new A63().bar();";
+		JDIStackFrame stackFrame =
+			new JDIStackFrame(this.jdiVM, this, userCode, "A63", "bar", -1);
+
+		DebugRequestor requestor = new DebugRequestor();
+		char[] snippet = ("int[] tab = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" +
+				"int sum = 0;\n" +
+				"for (int i : tab) {\n" +
+				"	sum += i;\n" +
+				"}\n" +
+				"sum").toCharArray();
+		Map compilerOpts = getCompilerOptions();
+		compilerOpts.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+		compilerOpts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+		compilerOpts.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_2);
+
+		try {
+			context.evaluate(
+				snippet,
+				stackFrame.localVariableTypeNames(),
+				stackFrame.localVariableNames(),
+				stackFrame.localVariableModifiers(),
+				stackFrame.declaringTypeName(),
+				stackFrame.isStatic(),
+				stackFrame.isConstructorCall(),
+				getEnv(),
+				compilerOpts,
+				requestor,
+				getProblemFactory());
+		} catch (InstallException e) {
+			assertTrue("No targetException " + e.getMessage(), false);
+		}
+		assertTrue(
+			"Should get one result but got " + (requestor.resultIndex + 1),
+			requestor.resultIndex == 0);
+		EvaluationResult result = requestor.results[0];
+		assertTrue("Code snippet should not have problems", !result.hasProblems());
+		assertTrue("Result should have a value", result.hasValue());
+		assertEquals("Value", "45".toCharArray(), result.getValueDisplayString());
+		assertEquals("Type", "int".toCharArray(), result.getValueTypeName());
+	} finally {
+		removeTempClass("A62");
+	}
 }
 }

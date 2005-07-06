@@ -23,12 +23,12 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
  */
 public class CodeSnippetParser extends Parser implements EvaluationConstants {
 	int codeSnippetStart, codeSnippetEnd;
+	EvaluationContext evaluationContext;
 	boolean hasRecoveredOnExpression;
-	int problemCountBeforeRecovery = 0;
 	int lastStatement = -1; // end of last top level statement
 	int lineSeparatorLength;
 
-	EvaluationContext evaluationContext;
+	int problemCountBeforeRecovery = 0;
 /**
  * Creates a new code snippet parser.
  */
@@ -145,6 +145,11 @@ protected void consumeEmptyStatement() {
 	/* recovery */
 	recordLastStatementIfNeeded();
 }
+protected void consumeEnhancedForStatement() {
+	super.consumeEnhancedForStatement();
+	/* recovery */
+	recordLastStatementIfNeeded();	
+}
 protected void consumeExpressionStatement() {
 	super.consumeExpressionStatement();
 	/* recovery */
@@ -245,6 +250,7 @@ protected void consumeLocalVariableDeclarationStatement() {
 	/* recovery */
 	recordLastStatementIfNeeded();
 }
+
 /**
  * In case emulating local variables, wrap the (recovered) statements inside a 
  * try statement so as to achieve local state commiting (copy local vars back to fields).
@@ -374,7 +380,6 @@ protected void consumeMethodInvocationSuper() {
 	m.receiver = new CodeSnippetSuperReference(m.sourceStart, this.endPosition, this.evaluationContext);
 	pushOnExpressionStack(m);
 }
-
 protected void consumePrimaryNoNewArrayThis() {
 	// PrimaryNoNewArray ::= 'this'
 
@@ -679,6 +684,7 @@ private void recordLastStatementIfNeeded() {
 		this.lastStatement = this.scanner.startPosition;
 	}
 }
+
 protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 	if (!isDietParse) {
 		this.scanner.initialPosition = this.lastStatement;
@@ -687,7 +693,6 @@ protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 	}
 	super.reportSyntaxErrors(isDietParse, oldFirstToken);
 }
-
 /*
  * A syntax error was detected. If a method is being parsed, records the number of errors and
  * attempts to restart from the last statement by going for an expression.
