@@ -851,7 +851,7 @@ public interface IProblem {
 	int JavadocInvalidParamTagName = Javadoc + Internal + 519;
 	/** @since 3.1 */
 	int JavadocInvalidParamTagTypeParameter = Javadoc + Internal + 469;
-	/** @since 3.1 */
+	/** @since 3.2 */
 	int JavadocNonStaticTypeFromStaticInvocation = Javadoc + Internal + 468;
 
 	/**
