@@ -38,7 +38,7 @@ public class JavadocTest_1_3 extends JavadocTest {
 //		TESTS_NAMES = new String[] {
 //			"testBug70892conform1", "testBug70892conform2"
 //		};
-//		TESTS_NUMBERS = new int[] { 21 };
+//		TESTS_NUMBERS = new int[] { 101283 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -2798,6 +2798,214 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"	public <T extends Object> Class<T> foo(Class<T> stuffClass) {\r\n" + 
 			"	                                             ^\n" + 
 			"Syntax error, parameterized types are only available if source level is 5.0\n" + 
+			"----------\n"
+		);
+	}
+
+	/**
+	 * Bug 101283: [1.5][javadoc] Javadoc validation raises missing implementation in compiler
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=101283"
+	 */
+	public void testBug101283a() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T, F> {\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @param <T>  \n" + 
+				"	 * @param <F>\n" + 
+				"	 */\n" + 
+				"	static class Entry<L, R> {\n" + 
+				"		// empty\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T, F> {\n" + 
+			"	               ^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	* @param <T>  \n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	* @param <F>\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	static class Entry<L, R> {\n" + 
+			"	                   ^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug101283b() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T, F> {\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @see T Variable \n" + 
+				"	 * @see F Variable\n" + 
+				"	 */\n" + 
+				"	static class Entry<L, R> {\n" + 
+				"		// empty\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T, F> {\n" + 
+			"	               ^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	* @see T Variable \n" + 
+			"	       ^\n" + 
+			"Javadoc: T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	* @see F Variable\n" + 
+			"	       ^\n" + 
+			"Javadoc: F cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	static class Entry<L, R> {\n" + 
+			"	                   ^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug101283c() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T, F> {\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @param <T>  \n" + 
+				"	 * @param <F>\n" + 
+				"	 */\n" + 
+				"	class Entry<L, R> {\n" + 
+				"		// empty\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T, F> {\n" + 
+			"	               ^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	* @param <T>  \n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	* @param <F>\n" + 
+			"	         ^^^\n" + 
+			"Javadoc: Invalid param tag name\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	class Entry<L, R> {\n" + 
+			"	            ^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug101283d() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T, F> {\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @see T Variable \n" + 
+				"	 * @see F Variable\n" + 
+				"	 */\n" + 
+				"	class Entry<L, R> {\n" + 
+				"		// empty\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public class X<T, F> {\n" + 
+			"	               ^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	* @see T Variable \n" + 
+			"	       ^\n" + 
+			"Javadoc: T cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	* @see F Variable\n" + 
+			"	       ^\n" + 
+			"Javadoc: F cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	class Entry<L, R> {\n" + 
+			"	            ^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 5.0\n" + 
+			"----------\n"
+		);
+	}
+	// Verify that ProblemReasons.InheritedNameHidesEnclosingName is not reported as Javadoc error
+	public void testBug101283g() {
+		reportMissingJavadocTags = CompilerOptions.DISABLED;
+		runNegativeTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" + 
+				"public class X {\n" + 
+				"	int foo() { return 0; }\n" + 
+				"	class XX extends X2 {\n" + 
+				"		int bar() {\n" + 
+				"			return foo();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class X2 {\n" + 
+				"	int foo() {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"}\n",
+				"test/Y.java",
+				"package test;\n" + 
+				"public class Y {\n" + 
+				"	int foo;\n" + 
+				"	class YY extends Y2 {\n" + 
+				"	/**\n" + 
+				"	 *  @see #foo\n" + 
+				"	 */\n" + 
+				"		int bar() {\n" + 
+				"			return foo;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Y2 {\n" + 
+				"	int foo;\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in test\\X.java (at line 6)\r\n" + 
+			"	return foo();\r\n" + 
+			"	       ^^^\n" + 
+			"The method foo is defined in an inherited type and an enclosing scope\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in test\\Y.java (at line 9)\r\n" + 
+			"	return foo;\r\n" + 
+			"	       ^^^\n" + 
+			"The field foo is defined in an inherited type and an enclosing scope \n" + 
 			"----------\n"
 		);
 	}

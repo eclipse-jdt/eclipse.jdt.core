@@ -270,6 +270,12 @@ public class Javadoc extends ASTNode {
 				scope.problemReporter().javadocInvalidValueReference(alloc.sourceStart, alloc.sourceEnd, modifiers);
 			}
 		}
+		
+		// Verify that there's no type variable reference
+		// (javadoc does not accept them and this is not a referenced bug or requested enhancement)
+		if (reference.resolvedType != null && reference.resolvedType.isTypeVariable()) {
+			scope.problemReporter().javadocInvalidReference(reference.sourceStart, reference.sourceEnd);
+		}
 	}
 
 	/*
@@ -402,14 +408,15 @@ public class Javadoc extends ASTNode {
 					if (paramBindind.isTypeVariable()) {
 						// Verify duplicated tags
 						boolean duplicate = false;
-						for (int j = 0; j < maxBindings && !duplicate; j++) {
+						for (int j = 0; j < i && !duplicate; j++) {
 							if (bindings[j] == param.resolvedType) {
 								scope.problemReporter().javadocDuplicatedParamTag(param.token, param.sourceStart, param.sourceEnd, modifiers);
 								duplicate = true;
 							}
 						}
 						if (!duplicate) {
-							bindings[maxBindings++] = (TypeVariableBinding) param.resolvedType;
+							bindings[i] = (TypeVariableBinding) param.resolvedType;
+							maxBindings++;
 						}
 					} else {
 						scope.problemReporter().javadocUndeclaredParamTagName(param.token, param.sourceStart, param.sourceEnd, modifiers);
@@ -418,18 +425,25 @@ public class Javadoc extends ASTNode {
 			}
 
 			// Look for undocumented type parameters
-			if (reportMissing) {
-				for (int i = 0; i < typeParametersLength; i++) {
-					TypeParameter parameter = parameters[i];
-					boolean found = false;
-					for (int j = 0; j < maxBindings && !found; j++) {
-						if (parameter.binding == bindings[j]) {
-							found = true;
-						}
+			for (int i = 0; i < typeParametersLength; i++) {
+				TypeParameter parameter = parameters[i];
+				boolean found = false;
+				for (int j = 0; j < paramTypeParamLength && !found; j++) {
+					if (parameter.binding == bindings[j]) {
+						found = true;
+						bindings[j] = null;
 					}
-					if (!found) {
-						scope.problemReporter().javadocMissingParamTag(parameter.name, parameter.sourceStart, parameter.sourceEnd, modifiers);
-					}
+				}
+				if (!found && reportMissing) {
+					scope.problemReporter().javadocMissingParamTag(parameter.name, parameter.sourceStart, parameter.sourceEnd, modifiers);
+				}
+			}
+			
+			// Report invalid param
+			for (int i=0; i<paramTypeParamLength; i++) {
+				if (bindings[i] != null) {
+					JavadocSingleTypeReference param = this.paramTypeParameters[i];
+					scope.problemReporter().javadocUndeclaredParamTagName(param.token, param.sourceStart, param.sourceEnd, modifiers);
 				}
 			}
 		}

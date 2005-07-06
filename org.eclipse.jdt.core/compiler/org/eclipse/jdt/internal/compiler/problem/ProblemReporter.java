@@ -585,6 +585,7 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocInheritedMethodHidesEnclosingName:
 		case IProblem.JavadocInheritedFieldHidesEnclosingName:
 		case IProblem.JavadocInheritedNameHidesEnclosingTypeName:
+		case IProblem.JavadocNonStaticTypeFromStaticInvocation:
 		case IProblem.JavadocGenericMethodTypeArgumentMismatch:
 		case IProblem.JavadocNonGenericMethod:
 		case IProblem.JavadocIncorrectArityForParameterizedMethod:
@@ -1426,6 +1427,7 @@ public static long getIrritant(int problemID) {
 		case IProblem.JavadocInheritedMethodHidesEnclosingName:
 		case IProblem.JavadocInheritedFieldHidesEnclosingName:
 		case IProblem.JavadocInheritedNameHidesEnclosingTypeName:
+		case IProblem.JavadocNonStaticTypeFromStaticInvocation:
 		case IProblem.JavadocGenericMethodTypeArgumentMismatch:
 		case IProblem.JavadocNonGenericMethod:
 		case IProblem.JavadocIncorrectArityForParameterizedMethod:
@@ -3441,9 +3443,6 @@ public void javadocInvalidField(int sourceStart, int sourceEnd, Binding fieldBin
 		case Ambiguous :
 			id = IProblem.JavadocAmbiguousField;
 			break;
-		case InheritedNameHidesEnclosingName :
-			id = IProblem.JavadocInheritedFieldHidesEnclosingName;
-			break;
 		case NoError : // 0
 		default :
 			needImplementation(); // want to fail to see why we were here...
@@ -3505,9 +3504,6 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 			break;
 		case Ambiguous :
 			id = IProblem.JavadocAmbiguousMethod;
-			break;
-		case InheritedNameHidesEnclosingName :
-			id = IProblem.JavadocInheritedMethodHidesEnclosingName;
 			break;
 		case ParameterBoundMismatch :
 			problemMethod = (ProblemMethodBinding) method;
@@ -3674,6 +3670,9 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 			case InheritedNameHidesEnclosingName :
 				id = IProblem.JavadocInheritedNameHidesEnclosingTypeName;
 				break;
+			case NonStaticReferenceInStaticContext :
+				id = IProblem.JavadocNonStaticTypeFromStaticInvocation;
+			    break;
 			case NoError : // 0
 			default :
 				needImplementation(); // want to fail to see why we were here...
