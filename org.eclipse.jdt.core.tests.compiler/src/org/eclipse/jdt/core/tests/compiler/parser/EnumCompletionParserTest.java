@@ -799,4 +799,43 @@ public void test0013(){
 			expectedReplacedSource,
 	"diet ast");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100868
+public void test0014(){
+	String str =
+		"public enum Enum1 {\n"+
+		"  A {\n"+
+		"    tos\n"+
+		"  };\n"+
+		"}\n";
+
+	String completeBehind = "tos";
+	int cursorLocation = str.indexOf("tos") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnType:tos>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "tos";
+	String expectedReplacedSource = "tos";
+	String expectedUnitDisplayString =
+		"public enum Enum1 {\n" + 
+		"  A() {\n" + 
+		"    <CompleteOnType:tos>;\n" + 
+		"    () {\n" + 
+		"      super();\n" + 
+		"    }\n" + 
+		"  },\n" + 
+		"  public Enum1() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+}
 }
