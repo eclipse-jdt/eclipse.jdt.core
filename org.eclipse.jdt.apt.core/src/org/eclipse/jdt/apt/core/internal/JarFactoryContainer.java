@@ -86,7 +86,9 @@ public class JarFactoryContainer extends FactoryContainer
             }
             jarFile.close();
         }
-        catch (IOException e) {
+        catch (IOException e) {	
+        	// TODO:  log this exception
+        	e.printStackTrace();
             return classNames;
         }
         return classNames;

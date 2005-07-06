@@ -168,7 +168,17 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		catch( Exception e )
 		{
+			// TODO:  log this stack trace
 			e.printStackTrace();
+		}
+		catch ( NoClassDefFoundError ncdfe )
+		{
+			// **DO NOT REMOVE THIS CATCH BLOCK***
+			// This error indicates a problem with the factory path specified 
+			// by the project, and it needs to be caught and reported!
+			
+			// TODO:  log this error
+			ncdfe.printStackTrace();
 		}
 		return f;
 	}
@@ -198,7 +208,7 @@ public class AnnotationProcessorFactoryLoader {
 		if ( urlList.size() > 0 )
 		{
 			URL[] urls = urlList.toArray(new URL[urlList.size()]);
-			cl = new URLClassLoader( urls );
+			cl = new URLClassLoader( urls, AnnotationProcessorFactoryLoader.class.getClassLoader() );
 		}
 		return cl;
 	}
