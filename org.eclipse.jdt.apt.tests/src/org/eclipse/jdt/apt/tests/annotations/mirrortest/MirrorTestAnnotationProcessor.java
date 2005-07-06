@@ -54,7 +54,7 @@ public class MirrorTestAnnotationProcessor implements AnnotationProcessor {
 			testPackageImpl();
 		}
 		catch (Throwable t) {
-			if (ERROR == null) {
+			if (ERROR == NO_ERRORS) {
 				ERROR = t.toString();
 			}
 			t.printStackTrace();

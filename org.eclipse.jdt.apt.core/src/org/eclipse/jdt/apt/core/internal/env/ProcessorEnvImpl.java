@@ -621,7 +621,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		if (type != null) {
 			TypeDeclarationImpl typeDecl = (TypeDeclarationImpl)getTypeDeclaration(type);
 			ITypeBinding binding = typeDecl.getDeclarationBinding();
-			return new PackageDeclarationImpl(binding.getPackage(), typeDecl, this, true);
+			return new PackageDeclarationImpl(binding.getPackage(), typeDecl, this, true, pkgFrags);
 		}
 
 		// No classes or source files found

@@ -68,7 +68,7 @@ public class APTDispatch
 		IWorkspace w = ResourcesPlugin.getWorkspace();
 		try
 		{	
-			// need to do something here to avoid the "Invalid Begin Rule..." errors.  Not sure what is correct.
+			// TODO: need to do something here to avoid the "Invalid Begin Rule..." errors.  Not sure what is correct.
 			IResource r;
 			r = w.getRoot();
 			

@@ -12,17 +12,31 @@
 package org.eclipse.jdt.apt.core.internal.declaration;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.PackageUtil;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 
-import com.sun.mirror.declaration.*;
+import com.sun.mirror.declaration.AnnotationMirror;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import com.sun.mirror.declaration.ClassDeclaration;
+import com.sun.mirror.declaration.EnumDeclaration;
+import com.sun.mirror.declaration.InterfaceDeclaration;
+import com.sun.mirror.declaration.Modifier;
+import com.sun.mirror.declaration.PackageDeclaration;
+import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.SourcePosition;
 
@@ -36,15 +50,33 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 	 * @see TypeDeclarationImpl#getPackage()
 	 */
 	private final TypeDeclarationImpl _typeDecl;
+	
+	private IPackageFragment[] _pkgFragments;
+	
     public PackageDeclarationImpl(
 			final IPackageBinding binding, 
 			final TypeDeclarationImpl typeDecl, 
 			final ProcessorEnvImpl env,
 			final boolean hideSourcePosition)
     {
+        this(binding, 
+        	 typeDecl, 
+        	 env, 
+        	 hideSourcePosition, 
+        	 PackageUtil.getPackageFragments(binding.getName(), env));
+    }
+    
+    public PackageDeclarationImpl(
+			final IPackageBinding binding, 
+			final TypeDeclarationImpl typeDecl, 
+			final ProcessorEnvImpl env,
+			final boolean hideSourcePosition,
+			final IPackageFragment[] pkgFragments)
+    {
         super(binding, env);   
 		_typeDecl = typeDecl;
 		_hideSourcePosition = hideSourcePosition;
+		_pkgFragments = pkgFragments;
     }
 
     public IPackageBinding getPackageBinding(){ return (IPackageBinding)_binding; }
@@ -72,15 +104,52 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     }
 
     public Collection<ClassDeclaration> getClasses() {
-		return PackageUtil.getClasses(this, _env);
+    	List<IType> types = getTypesInPackage(_pkgFragments);
+		List<ClassDeclaration> classes = new ArrayList<ClassDeclaration>();
+		for (IType type : types) {
+			try {
+				// isClass() will return true if TypeDeclaration is an InterfaceDeclaration
+				if (type.isClass()) {
+					TypeDeclaration td = _env.getTypeDeclaration( type );
+					if ( td instanceof ClassDeclaration ) {				
+						classes.add((ClassDeclaration)td);
+					}
+				}
+			}
+			catch (JavaModelException ex) {} // No longer exists, don't return it
+		}
+		
+		return classes;
     }
 
     public Collection<EnumDeclaration> getEnums() {
-		return PackageUtil.getEnums(this, _env);
+    	List<IType> types = getTypesInPackage(_pkgFragments);
+		List<EnumDeclaration> enums = new ArrayList<EnumDeclaration>();
+		for (IType type : types) {
+			try {
+				if (type.isEnum()) {
+					enums.add((EnumDeclaration)_env.getTypeDeclaration(type));
+				}
+			}
+			catch (JavaModelException ex) {} // No longer exists, don't return it
+		}
+		
+		return enums;
     }
 
     public Collection<InterfaceDeclaration> getInterfaces() {
-		return PackageUtil.getInterfaces(this, _env);
+    	List<IType> types = getTypesInPackage(_pkgFragments);
+		List<InterfaceDeclaration> interfaces = new ArrayList<InterfaceDeclaration>();
+		for (IType type : types) {
+			try {
+				if (type.isInterface()) {
+					interfaces.add((InterfaceDeclaration)_env.getTypeDeclaration(type));
+				}
+			}
+			catch (JavaModelException ex) {} // No longer exists, don't return it
+		}
+		
+		return interfaces;
     }
 
     public String getDocComment()
@@ -134,5 +203,31 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 	public IPackageBinding getDeclarationBinding(){ return (IPackageBinding)_binding; }
 
     boolean isFromSource(){ return _typeDecl.isFromSource(); }
+	
+	private static List<IType> getTypesInPackage(final IPackageFragment[] fragments) {
+		List<IType> types = new ArrayList<IType>();
+		try {
+			// Get all top-level classes -- ignore local, member, and anonymous classes
+			for (IPackageFragment fragment : fragments) {
+				for (IClassFile classFile : fragment.getClassFiles()) {
+					IType type = classFile.getType();
+					if (! (type.isLocal() || type.isMember() || type.isAnonymous()) ) {
+						types.add(type);
+					}
+				}
+				for (ICompilationUnit compUnit : fragment.getCompilationUnits()) {
+					for (IType type : compUnit.getTypes()) {
+						if (! (type.isLocal() || type.isMember() || type.isAnonymous()) ) {
+							types.add(type);
+						}
+					}
+				}
+			}
+		}
+		catch (JavaModelException jme) {
+			// Ignore -- project is in a bad state. This will get recalled if necessary
+		}
+		return types;
+	}
    
 }
