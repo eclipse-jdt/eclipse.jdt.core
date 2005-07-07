@@ -22392,5 +22392,33 @@ public void test775() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103023
+public void test776() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X<T extends Comparable<? super T>> {\n" + 
+			"\n" + 
+			"    abstract class Foo<E> implements I<Foo<? extends E>> {}\n" + 
+			"\n" + 
+			"    abstract class Bar<E> implements I<Bar<? extends E>> {}\n" + 
+			"\n" + 
+			"    public void bar(List<Foo<T>> f, List<Bar<T>> b) {\n" + 
+			"	foo(f, b);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    <C> void foo(List<? extends C> f, List<? extends C> b) {\n" + 
+			"	System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"    public static void main(String... args) {\n" + 
+			"	new X().bar(null, null);\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"interface I<U> {}\n",
+		},
+		"SUCCESS");
+}
 }
 

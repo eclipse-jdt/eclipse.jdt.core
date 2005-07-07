@@ -2893,7 +2893,7 @@ public abstract class Scope
 			nextTypeCheck:	for (int j = 0; j < typeLength; j++) {
 				TypeBinding type = types[j];
 				for (int k = 0; k < lubTypeLength; k++) {
-					if (lubTypes[k] == type) continue nextTypeCheck; // type found, jump to next one
+					if (lubTypes[k] == type || lubTypes[k].isEquivalentTo(type)) continue nextTypeCheck; // type found, jump to next one 
 				}
 				continue nextLubCheck; // type not found in current lubTypes
 			}
