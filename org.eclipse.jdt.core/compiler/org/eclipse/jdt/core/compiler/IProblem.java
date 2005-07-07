@@ -851,6 +851,8 @@ public interface IProblem {
 	int JavadocInvalidParamTagName = Javadoc + Internal + 519;
 	/** @since 3.1 */
 	int JavadocInvalidParamTagTypeParameter = Javadoc + Internal + 469;
+	/** @since 3.2 */
+	int JavadocNonStaticTypeFromStaticInvocation = Javadoc + Internal + 468;
 
 	/**
 	 * Generics
@@ -1097,6 +1099,8 @@ public interface IProblem {
 	int IllegalModifierForEnumConstructor = MethodRelated + 760;
 	/** @since 3.1 */
 	int MissingEnumConstantCase = FieldRelated + 761;
+	/** @since 3.2 */ // TODO need to fix 3.1.1 contribution (inline this constant on client side)
+	int EnumStaticFieldInInInitializerContext = FieldRelated + 762;
 	
 	/**
 	 * Var args

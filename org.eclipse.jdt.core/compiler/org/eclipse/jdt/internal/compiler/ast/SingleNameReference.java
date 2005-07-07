@@ -69,9 +69,22 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			case Binding.FIELD : // assigning to a field
 				manageSyntheticAccessIfNecessary(currentScope, flowInfo, false /*write-access*/);
 	
+				FieldBinding fieldBinding = (FieldBinding) binding;
+				ReferenceBinding declaringClass = fieldBinding.declaringClass;
+				// check if accessing enum static field in initializer
+				if (declaringClass.isEnum()) {
+					MethodScope methodScope = currentScope.methodScope();
+					SourceTypeBinding sourceType = currentScope.enclosingSourceType();
+					if (fieldBinding.isStatic()
+							&& this.constant == NotAConstant
+							&& !methodScope.isStatic
+							&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+							&& methodScope.isInsideInitializerOrConstructor()) {
+						currentScope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
+					}
+				}					
 				// check if assigning a final field
-				FieldBinding fieldBinding;
-				if ((fieldBinding = (FieldBinding) binding).isFinal()) {
+				if (fieldBinding.isFinal()) {
 					// inside a context where allowed
 					if (!isCompound && fieldBinding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 						if (flowInfo.isPotentiallyAssigned(fieldBinding)) {
@@ -121,10 +134,22 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				if (valueRequired) {
 					manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 				}
+				FieldBinding fieldBinding = (FieldBinding) binding;
+				ReferenceBinding declaringClass = fieldBinding.declaringClass;
+				// check if accessing enum static field in initializer
+				if (declaringClass.isEnum()) {
+					MethodScope methodScope = currentScope.methodScope();
+					SourceTypeBinding sourceType = currentScope.enclosingSourceType();
+					if (fieldBinding.isStatic()
+							&& this.constant == NotAConstant
+							&& !methodScope.isStatic
+							&& (sourceType == declaringClass || sourceType.superclass == declaringClass) // enum constant body
+							&& methodScope.isInsideInitializerOrConstructor()) {
+						currentScope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);
+					}
+				}				
 				// check if reading a final blank field
-				FieldBinding fieldBinding;
-				if ((fieldBinding = (FieldBinding) binding).isBlankFinal() 
-						&& currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
+				if (fieldBinding.isBlankFinal() && currentScope.allowBlankFinalFieldAssignment(fieldBinding)) {
 					if (!flowInfo.isDefinitelyAssigned(fieldBinding)) {
 						currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
 					}
@@ -153,27 +178,28 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		
 		bits &= ~RestrictiveFlagMASK; // clear bits
 		bits |= Binding.FIELD;
-		if (!((FieldBinding) binding).isStatic()) {
+		MethodScope methodScope = scope.methodScope();
+		boolean isStatic = fieldBinding.isStatic();
+		if (!isStatic) {
 			// must check for the static status....
-			if (scope.methodScope().isStatic) {
+			if (methodScope.isStatic) {
 				scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
-				constant = NotAConstant;
+				this.constant = NotAConstant;
 				return fieldBinding.type;
 			}
 		}
-		constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
+		this.constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
 	
 		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0))
 			scope.problemReporter().deprecatedField(fieldBinding, this);
 	
-		MethodScope ms = scope.methodScope();
 		if ((this.bits & IsStrictlyAssignedMASK) == 0
-			&& ms.enclosingSourceType() == fieldBinding.declaringClass
-			&& ms.lastVisibleFieldID >= 0
-			&& fieldBinding.id >= ms.lastVisibleFieldID) {
+			&& methodScope.enclosingSourceType() == fieldBinding.declaringClass
+			&& methodScope.lastVisibleFieldID >= 0
+			&& fieldBinding.id >= methodScope.lastVisibleFieldID) {
 			//if the field is static and ms is not .... then it is valid
-			if (!fieldBinding.isStatic() || ms.isStatic)
-				scope.problemReporter().forwardReference(this, 0, scope.enclosingSourceType());
+			if (!fieldBinding.isStatic() || methodScope.isStatic)
+				scope.problemReporter().forwardReference(this, 0, methodScope.enclosingSourceType());
 		}
 		//====================================================
 	
@@ -468,10 +494,12 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				break;
 			default :
 				// promote the array reference to the suitable operation type
-				codeStream.generateImplicitConversion(implicitConversion);
+				if (this.genericCast != null)
+					codeStream.checkcast(this.genericCast);
+				codeStream.generateImplicitConversion(this.implicitConversion);
 				// generate the increment value (will by itself  be promoted to the operation value)
 				if (expression == IntLiteral.One){ // prefix operation
-					codeStream.generateConstant(expression.constant, implicitConversion);			
+					codeStream.generateConstant(expression.constant, this.implicitConversion);			
 				} else {
 					expression.generateCode(currentScope, codeStream, true);
 				}		
@@ -539,11 +567,13 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						}
 					}
 				}
-				codeStream.generateImplicitConversion(implicitConversion);		
-				codeStream.generateConstant(postIncrement.expression.constant, implicitConversion);
+				if (this.genericCast != null) 
+					codeStream.checkcast(this.genericCast);
+				codeStream.generateImplicitConversion(this.implicitConversion);		
+				codeStream.generateConstant(postIncrement.expression.constant, this.implicitConversion);
 				codeStream.sendOperator(postIncrement.operator, this.implicitConversion & COMPILE_TYPE_MASK);
 				codeStream.generateImplicitConversion(postIncrement.preAssignImplicitConversion);
-				fieldStore(codeStream, fieldBinding, syntheticAccessors == null ? null : syntheticAccessors[WRITE], false);
+				fieldStore(codeStream, fieldBinding, this.syntheticAccessors == null ? null : this.syntheticAccessors[WRITE], false);
 				// no need for generic cast 
 				return;
 			case Binding.LOCAL : // assigning to a local variable

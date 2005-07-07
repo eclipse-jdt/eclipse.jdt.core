@@ -57,7 +57,7 @@ public abstract class Statement extends ASTNode {
 			}
 
 			ArrayBinding varArgsType = (ArrayBinding) params[varArgIndex]; // parameterType has to be an array type
-			ArrayBinding codeGenVarArgsType = (ArrayBinding) binding.original().parameters[varArgIndex].erasure();
+			ArrayBinding codeGenVarArgsType = (ArrayBinding) binding.parameters[varArgIndex].erasure();
 			int elementsTypeID = varArgsType.elementsType().id;
 			int argLength = arguments == null ? 0 : arguments.length;
 

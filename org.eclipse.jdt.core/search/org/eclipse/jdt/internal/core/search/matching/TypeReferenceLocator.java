@@ -199,7 +199,7 @@ protected void matchReportImportRef(ImportReference importRef, Binding binding, 
 		}
 		if (typeBinding instanceof ProblemReferenceBinding) {
 			ProblemReferenceBinding pbBinding = (ProblemReferenceBinding) typeBinding;
-			typeBinding = pbBinding.original;
+			typeBinding = pbBinding.closestMatch;
 			lastIndex = pbBinding.compoundName.length - 1;
 		}
 		// try to match all enclosing types for which the token matches as well.
@@ -298,7 +298,7 @@ protected void matchReportReference(QualifiedNameReference qNameRef, IJavaElemen
 	}
 	if (typeBinding instanceof ProblemReferenceBinding) {
 		ProblemReferenceBinding pbBinding = (ProblemReferenceBinding) typeBinding;
-		typeBinding = pbBinding.original;
+		typeBinding = pbBinding.closestMatch;
 		lastIndex = pbBinding.compoundName.length - 1;
 	}
 
@@ -341,7 +341,7 @@ protected void matchReportReference(QualifiedTypeReference qTypeRef, IJavaElemen
 		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
 	if (typeBinding instanceof ProblemReferenceBinding) {
 		ProblemReferenceBinding pbBinding = (ProblemReferenceBinding) typeBinding;
-		typeBinding = pbBinding.original;
+		typeBinding = pbBinding.closestMatch;
 		lastIndex = pbBinding.compoundName.length - 1;
 	}
 
@@ -475,7 +475,7 @@ protected void reportDeclaration(ASTNode reference, IJavaElement element, MatchL
 		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
 	if (typeBinding == null || typeBinding instanceof BaseTypeBinding) return;
 	if (typeBinding instanceof ProblemReferenceBinding) {
-		ReferenceBinding original = ((ProblemReferenceBinding) typeBinding).original;
+		ReferenceBinding original = ((ProblemReferenceBinding) typeBinding).closestMatch;
 		if (original == null) return; // original may not be set (bug 71279)
 		typeBinding = original;
 	}
@@ -537,7 +537,7 @@ public int resolveLevel(Binding binding) {
 	if (typeBinding instanceof ArrayBinding)
 		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
 	if (typeBinding instanceof ProblemReferenceBinding)
-		typeBinding = ((ProblemReferenceBinding) typeBinding).original;
+		typeBinding = ((ProblemReferenceBinding) typeBinding).closestMatch;
 
 	if (((InternalSearchPattern) this.pattern).focus instanceof IType && typeBinding instanceof ReferenceBinding) {
 		IPackageFragment pkg = ((IType) ((InternalSearchPattern) this.pattern).focus).getPackageFragment();
@@ -553,7 +553,7 @@ protected int resolveLevel(NameReference nameRef) {
 
 	if (nameRef instanceof SingleNameReference) {
 		if (binding instanceof ProblemReferenceBinding)
-			binding = ((ProblemReferenceBinding) binding).original;
+			binding = ((ProblemReferenceBinding) binding).closestMatch;
 		if (binding instanceof ReferenceBinding)
 			return resolveLevelForType((ReferenceBinding) binding);
 		return binding == null || binding instanceof ProblemBinding ? INACCURATE_MATCH : IMPOSSIBLE_MATCH;
@@ -600,7 +600,7 @@ protected int resolveLevel(TypeReference typeRef) {
 	if (typeBinding instanceof ArrayBinding)
 		typeBinding = ((ArrayBinding) typeBinding).leafComponentType;
 	if (typeBinding instanceof ProblemReferenceBinding)
-		typeBinding = ((ProblemReferenceBinding) typeBinding).original;
+		typeBinding = ((ProblemReferenceBinding) typeBinding).closestMatch;
 
 	if (typeRef instanceof SingleTypeReference) {
 		return resolveLevelForType(typeBinding);

@@ -37,7 +37,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	static {
 //		TESTS_PREFIX = "testBug95521";
 //		TESTS_NAMES = new String[] { "testBug83127a" };
-//		TESTS_NUMBERS = new int[] { 83804 };
+//		TESTS_NUMBERS = new int[] { 101283 };
 //		TESTS_RANGE = new int[] { 23, -1 };
 	}
 	public static Test suite() {
@@ -1237,12 +1237,16 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"}"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 14)\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	public static <X extends Comparable< ? super X>> int compareTo(final X first, final X firstPrime)\n" + 
+			"	               ^\n" + 
+			"The type parameter X is hiding the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
 			"	*  {@link ComparableUtils#compareTo(Object, Object)}.\n" + 
 			"	                          ^^^^^^^^^\n" + 
 			"Javadoc: Bound mismatch: The generic method compareTo(X, X) of type ComparableUtils is not applicable for the arguments (Object, Object) since the type Object is not a valid substitute for the bounded parameter <X extends Comparable<? super X>>\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 
 	/**
@@ -1870,6 +1874,257 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"    public <T extends Object> Class<T> foo(Class<T> stuffClass) {\n" + 
 				"    	return null;\n" + 
 				"    }\n" + 
+				"}\n"
+			}
+		);
+	}
+
+	/**
+	 * Bug 101283: [1.5][javadoc] Javadoc validation raises missing implementation in compiler
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=101283"
+	 */
+	public void testBug101283a() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T, F> {\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @param <T>  \n" + 
+				"	 * @param <F>\n" + 
+				"	 */\n" + 
+				"	static class Entry<L, R> {\n" + 
+				"		// empty\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	* @param <T>  \n" + 
+			"	          ^\n" + 
+			"Javadoc: Parameter T is not declared\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	* @param <F>\n" + 
+			"	          ^\n" + 
+			"Javadoc: Parameter F is not declared\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	static class Entry<L, R> {\n" + 
+			"	                   ^\n" + 
+			"Javadoc: Missing tag for parameter L\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	static class Entry<L, R> {\n" + 
+			"	                      ^\n" + 
+			"Javadoc: Missing tag for parameter R\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug101283b() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T, F> {\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @see T Variable \n" + 
+				"	 * @see F Variable\n" + 
+				"	 */\n" + 
+				"	static class Entry<L, R> {\n" + 
+				"		// empty\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	* @see T Variable \n" + 
+			"	       ^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	* @see F Variable\n" + 
+			"	       ^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	static class Entry<L, R> {\n" + 
+			"	                   ^\n" + 
+			"Javadoc: Missing tag for parameter L\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	static class Entry<L, R> {\n" + 
+			"	                      ^\n" + 
+			"Javadoc: Missing tag for parameter R\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug101283c() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T, F> {\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @param <T>  \n" + 
+				"	 * @param <F>\n" + 
+				"	 */\n" + 
+				"	class Entry<L, R> {\n" + 
+				"		// empty\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	* @param <T>  \n" + 
+			"	          ^\n" + 
+			"Javadoc: Parameter T is not declared\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	* @param <F>\n" + 
+			"	          ^\n" + 
+			"Javadoc: Parameter F is not declared\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	class Entry<L, R> {\n" + 
+			"	            ^\n" + 
+			"Javadoc: Missing tag for parameter L\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	class Entry<L, R> {\n" + 
+			"	               ^\n" + 
+			"Javadoc: Missing tag for parameter R\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug101283d() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T, F> {\n" + 
+				"\n" + 
+				"	/**\n" + 
+				"	 * @see T Variable \n" + 
+				"	 * @see F Variable\n" + 
+				"	 */\n" + 
+				"	class Entry<L, R> {\n" + 
+				"		// empty\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	* @see T Variable \n" + 
+			"	       ^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	* @see F Variable\n" + 
+			"	       ^\n" + 
+			"Javadoc: Invalid reference\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 7)\n" + 
+			"	class Entry<L, R> {\n" + 
+			"	            ^\n" + 
+			"Javadoc: Missing tag for parameter L\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 7)\n" + 
+			"	class Entry<L, R> {\n" + 
+			"	               ^\n" + 
+			"Javadoc: Missing tag for parameter R\n" + 
+			"----------\n"
+		);
+	}
+	// Verify duplicate test case: bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=102735
+	public void testBug101283e() {
+		reportMissingJavadocTags = CompilerOptions.DISABLED;
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public interface Test<V, R extends Component<?>, C extends\n" + 
+				"Test<V, R, C>> extends Control<SelectModel<V>, C>\n" + 
+				"{\n" + 
+				"	public interface ValueRepresentationStrategy<VV, RR extends Component<?>> extends ComponentFactory<VV, RR>\n" + 
+				"	{\n" + 
+				"		/**This value must be equal to the ID of the component returned by the {@link\n" + 
+				"		ComponentFactory#createComponent(V)} method.*/\n" + 
+				"		public String getID(final VV value);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Component<T> {}\n" + 
+				"interface Control<U, V> {}\n" + 
+				"class SelectModel<V> {}\n" + 
+				"interface ComponentFactory <U, V> {\n" +
+				"	public void createComponent(V v);\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 7)\n" + 
+			"	ComponentFactory#createComponent(V)} method.*/\n" + 
+			"	                                 ^\n" + 
+			"Javadoc: Cannot make a static reference to the non-static type variable V\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug101283f() {
+		reportMissingJavadocTags = CompilerOptions.DISABLED;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"public interface Test<V, R extends Component<?>, C extends\n" + 
+				"Test<V, R, C>> extends Control<SelectModel<V>, C>\n" + 
+				"{\n" + 
+				"	public interface ValueRepresentationStrategy<VV, RR extends Component<?>> extends ComponentFactory<VV, RR>\n" + 
+				"	{\n" + 
+				"		/**This value must be equal to the ID of the component returned by the {@link\n" + 
+				"		ComponentFactory#createComponent(Object)} method.*/\n" + 
+				"		public String getID(final VV value);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Component<T> {}\n" + 
+				"interface Control<U, V> {}\n" + 
+				"class SelectModel<V> {}\n" + 
+				"interface ComponentFactory <U, V> {\n" +
+				"	public void createComponent(V v);\n" +
+				"}\n"
+			}
+		);
+	}
+	// Verify that ProblemReasons.InheritedNameHidesEnclosingName is not reported as Javadoc error
+	public void testBug101283g() {
+		reportMissingJavadocTags = CompilerOptions.DISABLED;
+		runConformTest(
+			new String[] {
+				"test/X.java",
+				"package test;\n" + 
+				"public class X {\n" + 
+				"	int foo() { return 0; }\n" + 
+				"	class XX extends X2 {\n" + 
+				"		int bar() {\n" + 
+				"			return foo();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class X2 {\n" + 
+				"	int foo() {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"}\n",
+				"test/Y.java",
+				"package test;\n" + 
+				"public class Y {\n" + 
+				"	int foo;\n" + 
+				"	class YY extends Y2 {\n" + 
+				"	/**\n" + 
+				"	 *  @see #foo\n" + 
+				"	 */\n" + 
+				"		int bar() {\n" + 
+				"			return foo;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class Y2 {\n" + 
+				"	int foo;\n" + 
 				"}\n"
 			}
 		);

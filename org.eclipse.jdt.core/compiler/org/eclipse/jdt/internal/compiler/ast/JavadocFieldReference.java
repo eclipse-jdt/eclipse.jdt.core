@@ -65,7 +65,8 @@ public class JavadocFieldReference extends FieldReference {
 						fieldBinding = closestMatch; // ignore problem if can reach target field through it
 					}
 			}
-		}			
+		}
+		// When there's no valid field binding, try to resolve possible method reference without parenthesis
 		if (!fieldBinding.isValidBinding() || !(fieldBinding instanceof FieldBinding)) {
 			if (this.receiverType instanceof ReferenceBinding) {
 				ReferenceBinding refBinding = (ReferenceBinding) this.receiverType;
@@ -75,12 +76,15 @@ public class JavadocFieldReference extends FieldReference {
 				} else {
 					switch (methodBindings.length) {
 						case 0:
+							// no method was found: report problem
 							scope.problemReporter().javadocInvalidField(this.sourceStart, this.sourceEnd, fieldBinding, this.receiverType, scope.getDeclarationModifiers());
 							break;
 						case 1:
+							// one method binding was found: store binding in specific field
 							this.methodBinding = methodBindings[0];
 							break;
 						default:
+							// several method binding were found: store first binding in specific field and report ambiguous error
 							this.methodBinding = methodBindings[0];
 							scope.problemReporter().javadocAmbiguousMethodReference(this.sourceStart, this.sourceEnd, fieldBinding, scope.getDeclarationModifiers());
 							break;

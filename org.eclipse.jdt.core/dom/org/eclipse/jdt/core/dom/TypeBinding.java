@@ -988,6 +988,28 @@ class TypeBinding implements ITypeBinding {
 			} else {
 				return !referenceBinding.isBinaryBinding();
 			}
+		} else if (isTypeVariable()) {
+			final TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+			final Binding declaringElement = typeVariableBinding.declaringElement;
+			if (declaringElement instanceof MethodBinding) {
+				MethodBinding methodBinding = (MethodBinding) declaringElement;
+				return !methodBinding.declaringClass.isBinaryBinding();
+			} else {
+				final org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement;
+				if (typeBinding instanceof ReferenceBinding) {
+					return !((ReferenceBinding) typeBinding).isBinaryBinding();
+				} else if (typeBinding instanceof ArrayBinding) {
+					final ArrayBinding arrayBinding = (ArrayBinding) typeBinding;
+					final org.eclipse.jdt.internal.compiler.lookup.TypeBinding leafComponentType = arrayBinding.leafComponentType;
+					if (leafComponentType instanceof ReferenceBinding) {
+						return !((ReferenceBinding) leafComponentType).isBinaryBinding();
+					}
+				}
+			}
+			
+		} else if (isCapture()) {
+			CaptureBinding captureBinding = (CaptureBinding) this.binding;
+			return !captureBinding.sourceType.isBinaryBinding();
 		}
 		return false;
 	}

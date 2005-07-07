@@ -556,13 +556,16 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 			invocationSite.setFieldIndex(currentIndex);
  			if (binding == null) {
 	 			if (currentIndex == length) // must be a type if its the last name, otherwise we have no idea if its a package or type
-					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), NotFound);
+					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null, NotFound);
 				else
 					return new ProblemBinding(CharOperation.subarray(compoundName, 0, currentIndex), NotFound);
  			}
  			if (binding instanceof ReferenceBinding) {
 	 			if (!binding.isValidBinding())
-					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
+					return new ProblemReferenceBinding(
+									CharOperation.subarray(compoundName, 0, currentIndex), 
+									null, // TODO should improve
+									binding.problemId());
 	 			if (!this.canBeSeenByForCodeSnippet((ReferenceBinding) binding, receiverType))
 					return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), (ReferenceBinding) binding, NotVisible);
 	 			break foundType;
@@ -571,7 +574,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		}
 
 		// It is illegal to request a PACKAGE from this method.
-		return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), NotFound);
+		return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null, NotFound);
 	}
 
 	// know binding is now a ReferenceBinding
@@ -581,19 +584,22 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		invocationSite.setFieldIndex(currentIndex);
 		if ((binding = findFieldForCodeSnippet(typeBinding, nextName, invocationSite)) != null) {
 			if (!binding.isValidBinding())
-				return new ProblemFieldBinding(((FieldBinding)binding).declaringClass, CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
+				return new ProblemFieldBinding((FieldBinding)binding, CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
 			break; // binding is now a field
 		}
 		if ((binding = findMemberType(nextName, typeBinding)) == null)
 			return new ProblemBinding(CharOperation.subarray(compoundName, 0, currentIndex), typeBinding, NotFound);
 		 if (!binding.isValidBinding())
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), binding.problemId());
+			return new ProblemReferenceBinding(
+								CharOperation.subarray(compoundName, 0, currentIndex), 
+								null, // TODO should improve
+								binding.problemId());
 	}
 
 	if ((mask & Binding.FIELD) != 0 && (binding instanceof FieldBinding)) { // was looking for a field and found a field
 		FieldBinding field = (FieldBinding) binding;
 		if (!field.isStatic())
-			return new ProblemFieldBinding(field.declaringClass, CharOperation.subarray(compoundName, 0, currentIndex), NonStaticReferenceInStaticContext);
+			return new ProblemFieldBinding(field, CharOperation.subarray(compoundName, 0, currentIndex), NonStaticReferenceInStaticContext);
 		return binding;
 	}
 	if ((mask & Binding.TYPE) != 0 && (binding instanceof ReferenceBinding)) { // was looking for a type and found a type

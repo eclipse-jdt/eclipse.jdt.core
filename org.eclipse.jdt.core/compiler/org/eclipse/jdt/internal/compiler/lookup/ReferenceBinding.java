@@ -523,7 +523,7 @@ public ReferenceBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 	int lastPosition = -1;
 	do {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces && itsInterfaces != null) { // can be null while connecting hierarchies
+		if (itsInterfaces != NoSuperInterfaces) {
 			if (++lastPosition == interfacesToVisit.length)
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 			interfacesToVisit[lastPosition] = itsInterfaces;
@@ -628,7 +628,7 @@ public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 					return true;
 		}
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces && itsInterfaces != null) { // can be null while connecting hierarchies
+		if (itsInterfaces != NoSuperInterfaces) {
 			if (++lastPosition == interfacesToVisit.length)
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 			interfacesToVisit[lastPosition] = itsInterfaces;

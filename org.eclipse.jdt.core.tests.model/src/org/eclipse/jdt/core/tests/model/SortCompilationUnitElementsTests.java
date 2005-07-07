@@ -42,7 +42,7 @@ public void setUpSuite() throws Exception {
 	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	this.createFolder("/P/src/p"); //$NON-NLS-1$
 }
-
+/** @deprecated */
 private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreException {
 	this.sortUnit(AST.JLS2, unit, expectedResult, true);
 }
@@ -50,13 +50,14 @@ private void sortUnit(ICompilationUnit unit, String expectedResult) throws CoreE
 private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult) throws CoreException {
 	this.sortUnit(apiLevel, unit, expectedResult, true);
 }
-
+/** @deprecated */
 private void sortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
 	this.sortUnit(AST.JLS2, unit, expectedResult, testPositions);
 }
 private void sortUnit(int apiLevel, ICompilationUnit unit, String expectedResult, boolean testPositions) throws CoreException {
 	this.sortUnit(apiLevel, unit, expectedResult, testPositions, new DefaultJavaElementComparator(1,2,3,4,5,6,7,8,9));
 }
+/** @deprecated */
 private void oldAPISortUnit(ICompilationUnit unit, String expectedResult, boolean testPositions, Comparator comparator) throws CoreException {
 	String initialSource = unit.getSource();
 	int[] positions = null;
@@ -1840,6 +1841,7 @@ public void test027() throws CoreException {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101453
+/** @deprecated */
 public void test028() throws CoreException {
 	try {
 		this.createFile(
@@ -1869,6 +1871,32 @@ public void test028() throws CoreException {
 				if (javadoc1 != null && javadoc2 != null) {
 					return javadoc1.getComment().compareTo(javadoc2.getComment());
 				}
+				final int sourceStart1 = ((Integer) bodyDeclaration1.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+				final int sourceStart2 = ((Integer) bodyDeclaration2.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
+				return sourceStart1 - sourceStart2;
+			}
+		});
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=101885
+public void test029() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"public enum X {\n" + 
+			"	Z, A, C, B;\n" + 
+			"}"
+		);
+		String expectedResult = 
+			"public enum X {\n" + 
+			"	Z, A, C, B;\n" + 
+			"}";
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
+				BodyDeclaration bodyDeclaration2 = (BodyDeclaration) o2;
 				final int sourceStart1 = ((Integer) bodyDeclaration1.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
 				final int sourceStart2 = ((Integer) bodyDeclaration2.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
 				return sourceStart1 - sourceStart2;

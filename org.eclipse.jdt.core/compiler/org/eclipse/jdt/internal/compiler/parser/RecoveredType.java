@@ -45,7 +45,12 @@ public class RecoveredType extends RecoveredStatement implements TerminalTokens,
 public RecoveredType(TypeDeclaration typeDeclaration, RecoveredElement parent, int bracketBalance){
 	super(typeDeclaration, parent, bracketBalance);
 	this.typeDeclaration = typeDeclaration;
-	this.foundOpeningBrace = !bodyStartsAtHeaderEnd();
+	if(typeDeclaration.allocation != null && typeDeclaration.allocation.type == null) {
+		// an enum constant body can not exist if there is no opening brace
+		this.foundOpeningBrace = true;
+	} else {
+		this.foundOpeningBrace = !bodyStartsAtHeaderEnd();
+	}
 	this.insideEnumConstantPart = typeDeclaration.kind() == IGenericType.ENUM_DECL;
 	if(this.foundOpeningBrace) {
 		this.bracketBalance++;
@@ -414,7 +419,8 @@ public TypeDeclaration updatedTypeDeclaration(){
  */
 public void updateFromParserState(){
 
-	if(this.bodyStartsAtHeaderEnd()){
+	// anymous type and enum constant doesn't need to be updated
+	if(this.bodyStartsAtHeaderEnd() && typeDeclaration.allocation == null){
 		Parser parser = this.parser();
 		/* might want to recover implemented interfaces */
 		// protection for bugs 15142

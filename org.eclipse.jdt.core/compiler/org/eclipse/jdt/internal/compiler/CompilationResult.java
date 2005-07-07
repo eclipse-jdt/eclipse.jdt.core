@@ -30,15 +30,19 @@ package org.eclipse.jdt.internal.compiler;
  * specific fields and methods which were referenced, but does contain their 
  * declaring types and any other types used to locate such fields or methods.
  */
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-
-import java.util.*;
 
 public class CompilationResult {
 	
@@ -60,9 +64,8 @@ public class CompilationResult {
 	public char[] fileName;
 	public boolean hasInconsistentToplevelHierarchies = false; // record the fact some toplevel types have inconsistent hierarchies
 	public boolean hasSyntaxError = false;
-	
 	long[] suppressWarningIrritants;  // irritant for suppressed warnings
-	long[] suppressWarningPositions; // (start << 32) + end 
+	long[] suppressWarningScopePositions; // (start << 32) + end 
 	int suppressWarningsCount;
 	
 	public CompilationResult(
@@ -133,7 +136,7 @@ public class CompilationResult {
 			int end = problem.getSourceEnd();
 			int problemID = problem.getID();
 			nextSuppress: for (int j = 0, max = this.suppressWarningsCount; j < max; j++) {
-				long position = this.suppressWarningPositions[j];
+				long position = this.suppressWarningScopePositions[j];
 				int startSuppress = (int) (position >>> 32);
 				int endSuppress = (int) position;
 				if (start < startSuppress) continue nextSuppress;
@@ -401,10 +404,10 @@ public class CompilationResult {
 
 	public void record(IProblem newProblem, ReferenceContext referenceContext) {
 
-		//new Exception("VERBOSE PROBLEM REPORTING").printStackTrace();		
-		if (newProblem.getID() == IProblem.Task) {
-			recordTask(newProblem);
-			return;
+		//new Exception("VERBOSE PROBLEM REPORTING").printStackTrace();
+		if(newProblem.getID() == IProblem.Task) {
+				recordTask(newProblem);
+				return;
 		}
 		if (problemCount == 0) {
 			problems = new IProblem[5];
@@ -422,18 +425,18 @@ public class CompilationResult {
 			this.hasSyntaxError = true;
 	}
 
-	public void recordSuppressWarnings(long irritant, int sourceStart, int sourceEnd) {
+	public void recordSuppressWarnings(long irritant, int scopeStart, int scopeEnd) {
 		if (this.suppressWarningIrritants == null) {
 			this.suppressWarningIrritants = new long[3];
-			this.suppressWarningPositions = new long[3];
+			this.suppressWarningScopePositions = new long[3];
 		} else if (this.suppressWarningIrritants.length == this.suppressWarningsCount) {
 			System.arraycopy(this.suppressWarningIrritants, 0,this.suppressWarningIrritants = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
-			System.arraycopy(this.suppressWarningPositions, 0,this.suppressWarningPositions = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
+			System.arraycopy(this.suppressWarningScopePositions, 0,this.suppressWarningScopePositions = new long[2*this.suppressWarningsCount], 0, this.suppressWarningsCount);
 		}
 		this.suppressWarningIrritants[this.suppressWarningsCount] = irritant;
-		this.suppressWarningPositions[this.suppressWarningsCount++] = ((long)sourceStart<<32) + sourceEnd;
+		this.suppressWarningScopePositions[this.suppressWarningsCount++] = ((long)scopeStart<<32) + scopeEnd;
 	}
-	
+
 	private void recordTask(IProblem newProblem) {
 		if (this.taskCount == 0) {
 			this.tasks = new IProblem[5];

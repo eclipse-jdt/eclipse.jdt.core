@@ -30,7 +30,7 @@ public class LookupEnvironment implements BaseTypes, ProblemReasons, TypeConstan
 	final static int CHECK_AND_SET_IMPORTS = 2;
 	final static int CONNECT_TYPE_HIERARCHY = 3;
 	static final ProblemPackageBinding TheNotFoundPackage = new ProblemPackageBinding(CharOperation.NO_CHAR, NotFound);
-	static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(CharOperation.NO_CHAR, NotFound);
+	static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(CharOperation.NO_CHAR, null, NotFound);
 	
 	/**
 	 * Map from typeBinding -> accessRestriction rule
@@ -274,35 +274,35 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 		case TypeIds.T_int :
 			boxedType = getType(JAVA_LANG_INTEGER);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_INTEGER, NotFound);				
+			return new ProblemReferenceBinding(	JAVA_LANG_INTEGER, null, NotFound);				
 		case TypeIds.T_byte :
 			boxedType = getType(JAVA_LANG_BYTE);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_BYTE, NotFound);				
+			return new ProblemReferenceBinding(	JAVA_LANG_BYTE, null, NotFound);				
 		case TypeIds.T_short :
 			boxedType = getType(JAVA_LANG_SHORT);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_SHORT, NotFound);				
+			return new ProblemReferenceBinding(	JAVA_LANG_SHORT, null, NotFound);				
 		case TypeIds.T_char :
 			boxedType = getType(JAVA_LANG_CHARACTER);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_CHARACTER, NotFound);				
+			return new ProblemReferenceBinding(	JAVA_LANG_CHARACTER, null, NotFound);				
 		case TypeIds.T_long :
 			boxedType = getType(JAVA_LANG_LONG);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_LONG, NotFound);				
+			return new ProblemReferenceBinding(	JAVA_LANG_LONG, null, NotFound);				
 		case TypeIds.T_float :
 			boxedType = getType(JAVA_LANG_FLOAT);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_FLOAT, NotFound);				
+			return new ProblemReferenceBinding(	JAVA_LANG_FLOAT, null, NotFound);				
 		case TypeIds.T_double :
 			boxedType = getType(JAVA_LANG_DOUBLE);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_DOUBLE, NotFound);				
+			return new ProblemReferenceBinding(	JAVA_LANG_DOUBLE, null, NotFound);				
 		case TypeIds.T_boolean :
 			boxedType = getType(JAVA_LANG_BOOLEAN);
 			if (boxedType != null) return boxedType;
-			return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, NotFound);				
+			return new ProblemReferenceBinding(	JAVA_LANG_BOOLEAN, null, NotFound);				
 	}
 	// allow indirect unboxing conversion for wildcards and type parameters
 	switch (type.kind()) {
@@ -744,7 +744,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 
 	// compoundName refers to a nested type incorrectly (for example, package1.A$B)
 	if (referenceBinding.isNestedType())
-		return new ProblemReferenceBinding(compoundName, InternalNameProvided);
+		return new ProblemReferenceBinding(compoundName, referenceBinding, InternalNameProvided);
 	return referenceBinding;
 }
 private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, ReferenceBinding genericType) {

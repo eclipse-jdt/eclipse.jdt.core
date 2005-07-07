@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 
 /*
  * Converts a binding key into a signature 
@@ -223,7 +224,9 @@ public class KeyToSignature extends BindingKeyParser {
 			StringBuffer typeParametersSig = new StringBuffer();
 			typeParametersSig.append('<');
 			for (int i = 0; i < length; i++) {
-				char[] typeParameterSig = Signature.createTypeParameterSignature((char[]) this.typeParameters.get(i), CharOperation.NO_CHAR_CHAR);
+				char[] typeParameterSig = Signature.createTypeParameterSignature(
+						(char[]) this.typeParameters.get(i), 
+						new char[][]{ ConstantPool.ObjectSignature });
 				typeParametersSig.append(typeParameterSig);
 				// TODO (jerome) add type parameter bounds in binding key
 			}

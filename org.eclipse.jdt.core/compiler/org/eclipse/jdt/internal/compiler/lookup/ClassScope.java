@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 public class ClassScope extends Scope {
 	
 	public TypeDeclaration referenceContext;
-	private TypeReference superTypeReference;
+	public TypeReference superTypeReference;
 
 	private final static char[] IncompleteHierarchy = new char[] {'h', 'a', 's', ' ', 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', ' ', 'h', 'i', 'e', 'r', 'a', 'r', 'c', 'h', 'y'};
 
@@ -646,8 +646,6 @@ public class ClassScope extends Scope {
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != NoSuperInterfaces) {
-				if (itsInterfaces == null)
-					return; // in code assist cases when source types are added late, may not be finished connecting hierarchy
 				if (interfacesToVisit == null)
 					interfacesToVisit = new ReferenceBinding[5][];
 				if (++lastPosition == interfacesToVisit.length)
@@ -670,8 +668,6 @@ public class ClassScope extends Scope {
 						needToTag = true;
 						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
 						if (itsInterfaces != NoSuperInterfaces) {
-							if (itsInterfaces == null)
-								return; // in code assist cases when source types are added late, may not be finished connecting hierarchy
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 							interfacesToVisit[lastPosition] = itsInterfaces;
@@ -813,6 +809,7 @@ public class ClassScope extends Scope {
 	*/
 	private boolean connectSuperInterfaces() {
 		SourceTypeBinding sourceType = referenceContext.binding;
+		sourceType.superInterfaces = NoSuperInterfaces;
 		if (referenceContext.superInterfaces == null) {
 			if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
 				ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
@@ -820,13 +817,10 @@ public class ClassScope extends Scope {
 				sourceType.superInterfaces = new ReferenceBinding[] { annotationType };
 				return !foundCycle;
 			}
-			sourceType.superInterfaces = NoSuperInterfaces;
 			return true;
 		}
-		if (sourceType.id == T_JavaLangObject) { // already handled the case of redefining java.lang.Object
-			sourceType.superInterfaces = NoSuperInterfaces;
+		if (sourceType.id == T_JavaLangObject) // already handled the case of redefining java.lang.Object
 			return true;
-		}
 
 		boolean noProblems = true;
 		int length = referenceContext.superInterfaces.length;
@@ -914,8 +908,6 @@ public class ClassScope extends Scope {
 			if (count != length)
 				System.arraycopy(interfaceBindings, 0, interfaceBindings = new ReferenceBinding[count], 0, count);
 			sourceType.superInterfaces = interfaceBindings;
-		} else {
-			sourceType.superInterfaces = NoSuperInterfaces;
 		}
 		return noProblems;
 	}
@@ -1007,17 +999,18 @@ public class ClassScope extends Scope {
 			return true;
 		}
 
-		if (superType.isMemberType()) {
-			ReferenceBinding current = superType.enclosingType();
-			do {
-				if (current.isHierarchyBeingConnected()) {
-					problemReporter().hierarchyCircularity(sourceType, current, reference);
-					sourceType.tagBits |= HierarchyHasProblems;
-					current.tagBits |= HierarchyHasProblems;
-					return true;
-				}
-			} while ((current = current.enclosingType()) != null);
-		}
+// No longer believe this code is necessary, since we changed supertype lookup to use TypeReference resolution
+//		if (superType.isMemberType()) {
+//			ReferenceBinding current = superType.enclosingType();
+//			do {
+//				if (current.isHierarchyBeingConnected()) {
+//					problemReporter().hierarchyCircularity(sourceType, current, reference);
+//					sourceType.tagBits |= HierarchyHasProblems;
+//					current.tagBits |= HierarchyHasProblems;
+//					return true;
+//				}
+//			} while ((current = current.enclosingType()) != null);
+//		}
 
 		if (superType.isBinaryBinding()) {
 			// force its superclass & superinterfaces to be found... 2 possibilities exist - the source type is included in the hierarchy of:

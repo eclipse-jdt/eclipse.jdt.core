@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
@@ -156,6 +157,11 @@ public class SortElementsOperation extends JavaModelOperation {
 					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(bodyDeclaration.getStartPosition()));
 				}
+				List enumConstants = enumDeclaration.enumConstants();
+				for (Iterator iter = enumConstants.iterator(); iter.hasNext();) {
+					EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) iter.next();
+					enumConstantDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, new Integer(enumConstantDeclaration.getStartPosition()));
+				}				
 				return true;
 			}
 		});
@@ -243,7 +249,7 @@ public class SortElementsOperation extends JavaModelOperation {
 					for (int i = 0; i < length; i++) {
 						listRewrite.replace((ASTNode) bodyDeclarations.get(i), rewriter.createMoveTarget((ASTNode) myCopy.get(i)), null);
 					}
-				}				
+				}
 				listRewrite = rewriter.getListRewrite(enumDeclaration, EnumDeclaration.ENUM_CONSTANTS_PROPERTY);
 				List enumConstants = enumDeclaration.enumConstants();
 				length = enumConstants.size();

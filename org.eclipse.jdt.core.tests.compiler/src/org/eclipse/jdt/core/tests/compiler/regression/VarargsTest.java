@@ -1163,4 +1163,82 @@ public class VarargsTest extends AbstractComparableTest {
 			"class java.lang.Float\n" + 
 			"class java.awt.Point");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102181
+	public void test031() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Test<String> t = new Tester();\n" + 
+				"		t.method(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static abstract class Test<A> {\n" + 
+				"		abstract void method(A... args);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static class Tester extends Test<String> {\n" + 
+				"\n" + 
+				"		@Override void method(String... args) {\n" + 
+				"			call(args);\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		void call(String[] args) {\n" + 
+				"			for (String str : args)\n" + 
+				"				System.out.println(str);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102278
+	public void test032() {
+		this.runConformTest(
+			new String[] {
+				"Functor.java",
+				"public class Functor<T> {\n" + 
+				"	public void func(T... args) {\n" + 
+				"		// do noting;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public static void main(String... args) {\n" + 
+				"		Functor<String> functor = new Functor<String>() {\n" + 
+				"			public void func(String... args) {\n" + 
+				"				System.out.println(args.length);\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		functor.func(\"Hello!\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"1");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102631
+	// TODO (kent) reenable once addressed
+	public void _test033() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void f(boolean b, Object... o) {\n" + 
+				"		System.out.print(\"f(boolean, Object...)\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	void f(Object... o) {\n" + 
+				"		System.out.print(\"f(Object...)\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X a = new X();\n" + 
+				"		a.f(true);\n" + 
+				"		a.f(true, \"foobar\");\n" + 
+				"		a.f(\"foo\", \"bar\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"f(boolean, Object...)f(boolean, Object...)f(Object...)");
+	}	
 }

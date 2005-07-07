@@ -775,13 +775,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"	System.out.println((int)f);\n" + 
 			"	                   ^^^^^^\n" + 
 			"Cannot cast from Float to int\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 4)\n" + 
-			"	System.out.println((int)f);\n" + 
-			"	                        ^\n" + 
-			"The expression of type Float is unboxed into int\n" + 
-			"----------\n"
-		);
+			"----------\n");
 	}
 
 	public void test019() { // cast expression
@@ -796,23 +790,17 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n",
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	System.out.println((Integer) 0);\n" + 
-			"	                             ^\n" + 
-			"The expression of type int is boxed into Integer\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	System.out.println((Float) 0);\n" + 
-			"	                   ^^^^^^^^^\n" + 
-			"Cannot cast from int to Float\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 4)\n" + 
-			"	System.out.println((Float) 0);\n" + 
-			"	                           ^\n" + 
-			"The expression of type int is boxed into Float\n" + 
-			"----------\n"
-		);
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	System.out.println((Integer) 0);\n" + 
+		"	                             ^\n" + 
+		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	System.out.println((Float) 0);\n" + 
+		"	                   ^^^^^^^^^\n" + 
+		"Cannot cast from int to Float\n" + 
+		"----------\n");
 	}
 
 	public void test020() { // binary expression
@@ -1471,7 +1459,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 4)\n" + 
 			"	++b;\n" + 
 			"	  ^\n" + 
-			"The expression of type Byte is unboxed into byte\n" + 
+			"The expression of type Byte is unboxed into int\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 5)\n" + 
 			"	foo(0);\n" + 
@@ -3154,4 +3142,150 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 	}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779
+public void test105() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"final class Pair<F, S> {\n" + 
+			"	public F first;\n" + 
+			"	public S second;\n" + 
+			"\n" + 
+			"	public static <F, S> Pair<F, S> create(F f, S s) {\n" + 
+			"		return new Pair<F, S>(f, s);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public Pair(final F f, final S s) {\n" + 
+			"		first = f;\n" + 
+			"		second = s;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public void a() {\n" + 
+			"		Pair<Integer, Integer> p = Pair.create(1, 3);\n" + 
+			"		// p.first -= 1; // should be rejected ?\n" + 
+			"		p.first--;\n" + 
+			"		--p.first;\n" + 
+			"		p.first = p.first - 1;\n" + 
+			"		System.out.println(p.first);\n" +
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		new X().a();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"-2");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
+public void test106() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class XSuper<T> {\n" + 
+			"	T value;\n" + 
+			"}\n" + 
+			"public class X extends XSuper<Integer>{\n" + 
+			"	public void a() {\n" + 
+			"		value--;\n" + 
+			"		--value;\n" + 
+			"		value -= 1;\n" + 
+			"		value = value - 1;\n" + 
+			"		System.out.println(value);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		X x = new X();\n" +
+			"		x.value = 5;\n" +
+			"		x.a();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"1");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
+public void test107() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class XSuper<T> {\n" + 
+			"	T value;\n" + 
+			"}\n" + 
+			"public class X extends XSuper<Integer>{\n" + 
+			"	public void a() {\n" + 
+			"		this.value--;\n" + 
+			"		--this.value;\n" + 
+			"		this.value -= 1;\n" + 
+			"		this.value = this.value - 1;\n" + 
+			"		System.out.println(this.value);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		X x = new X();\n" +
+			"		x.value = 5;\n" +
+			"		x.a();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"1");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
+public void test108() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class XSuper<T> {\n" + 
+			"	T value;\n" + 
+			"}\n" + 
+			"public class X extends XSuper<Integer>{\n" + 
+			"	public static void a(X x) {\n" + 
+			"		x.value--;\n" + 
+			"		--x.value;\n" + 
+			"		x.value -= 1;\n" + 
+			"		x.value = x.value - 1;\n" + 
+			"		System.out.println(x.value);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		X x = new X();\n" +
+			"		x.value = 5;\n" +
+			"		a(x);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"1");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100043
+public void test109() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int foo = 0;\n" + 
+			"		String bar = \"zero\";\n" + 
+			"		System.out.println((foo != 0) ? foo : bar);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"zero");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100043 - variation
+public void test110() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    public static void main(String args[]) {\n" + 
+			"    	if (new Boolean(true) ? true : new Boolean(false)) {\n" + 
+			"    		System.out.print(\"SUCCESS\");\n" + 
+			"    	} else {\n" + 
+			"    		System.out.print(\"FAILED\");\n" + 
+			"    	}\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
 }

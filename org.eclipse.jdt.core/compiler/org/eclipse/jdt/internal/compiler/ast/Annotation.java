@@ -278,6 +278,9 @@ public abstract class Annotation extends Expression {
 		}
 		// recognize standard annotations ?
 		long tagBits = detectStandardAnnotation(scope, annotationType, valueAttribute);
+
+		// record annotation positions in the compilation result
+		scope.referenceCompilationUnit().compilationResult.recordSuppressWarnings(CompilerOptions.NonExternalizedString, this.sourceStart, this.declarationSourceEnd);
 		if (this.recipient != null) {
 			if (tagBits != 0) {
 				// tag bits onto recipient
@@ -293,7 +296,7 @@ public abstract class Annotation extends Expression {
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							TypeDeclaration typeDeclaration =  sourceType.scope.referenceContext;
 							recordSuppressWarnings(scope, typeDeclaration.declarationSourceStart, typeDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
-						}							
+						}
 						break;
 					case Binding.METHOD :
 						MethodBinding sourceMethod = (MethodBinding) this.recipient;
@@ -302,7 +305,7 @@ public abstract class Annotation extends Expression {
 							sourceType = (SourceTypeBinding) sourceMethod.declaringClass;
 							AbstractMethodDeclaration methodDeclaration = sourceType.scope.referenceContext.declarationOf(sourceMethod);
 							recordSuppressWarnings(scope, methodDeclaration.declarationSourceStart, methodDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
-						}						
+						}
 						break;
 					case Binding.FIELD :
 						FieldBinding sourceField = (FieldBinding) this.recipient;

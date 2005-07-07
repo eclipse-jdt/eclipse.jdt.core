@@ -1275,6 +1275,19 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101387
+	public void test050b() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<I, C extends I> {}\n" + 
+				"class Y extends X<Y.M, Y.N> {\n" + 
+				"	static class M {}\n" + 
+				"	static class N extends M {}\n" + 
+				"}\n"
+			},
+			"");
+	}
 	public void test051() {
 		this.runConformTest(
 			new String[] {
@@ -2382,7 +2395,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	ax.p = new AX<String>();\n" + 
-			"	^^^^\n" + 
+			"	   ^\n" + 
 			"Type safety: The field p from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n",
 		null,
@@ -2661,27 +2674,27 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"class BX<Q> {\n" + 
 				"}\n",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	ax.p = new AX<String>();\n" + 
-		"	^^^^\n" + 
-		"Type safety: The field p from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	ax.q = new AX<String>();\n" + 
-		"	^^^^\n" + 
-		"Type safety: The field q from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
-		"	ax.r = new AX<Object>();\n" + 
-		"	^^^^\n" + 
-		"Type safety: The field r from the raw type AX is assigned a value of type AX<Object>. References to generic type AX<P> should be parameterized\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 9)\n" + 
-		"	ax.s = new AX<String>();\n" + 
-		"	       ^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from AX<String> to BX\n" + 
-		"----------\n",
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	ax.p = new AX<String>();\n" + 
+			"	   ^\n" + 
+			"Type safety: The field p from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	ax.q = new AX<String>();\n" + 
+			"	   ^\n" + 
+			"Type safety: The field q from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 8)\n" + 
+			"	ax.r = new AX<Object>();\n" + 
+			"	   ^\n" + 
+			"Type safety: The field r from the raw type AX is assigned a value of type AX<Object>. References to generic type AX<P> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 9)\n" + 
+			"	ax.s = new AX<String>();\n" + 
+			"	       ^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from AX<String> to BX\n" + 
+			"----------\n",
 		null,
 		true,
 		customOptions);		
@@ -9017,7 +9030,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 15)\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public <Type> Type myMethod(Object obj, Class type) {\n" + 
+			"	        ^^^^\n" + 
+			"The type parameter Type is hiding the type Type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 15)\n" + 
 			"	return new MyClass().myMethod(this, IMyInterface.class);\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to IMyInterface\n" + 
@@ -9222,12 +9240,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"		
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	public abstract <T extends Exception> T bar(T t);\n" + 
+			"	                 ^\n" + 
+			"The type parameter T is hiding the type T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
 			"	x.<Exception>bar(null);\n" + 
 			"	             ^^^\n" + 
 			"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 14)\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
 			"	X<R> xr = new X<R>(){  \n" + 
 			"	              ^^^^^^\n" + 
 			"The type new X<R>(){} must implement the inherited abstract method X<R>.bar(T)\n" + 
@@ -9355,12 +9378,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"		
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	public abstract <T extends Exception> T bar(T t);\n" + 
+			"	                 ^\n" + 
+			"The type parameter T is hiding the type T\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
 			"	x.<Exception>bar(null);\n" + 
 			"	             ^^^\n" + 
 			"The method bar(Exception) of raw type X is no longer generic; it cannot be parameterized with arguments <Exception>\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 10)\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
 			"	public <T extends Exception> T bar(T t) { return t; }\n" + 
 			"	                               ^^^^^^^^\n" + 
 			"The method bar(T) of type new X<R>(){} should be tagged with @Override since it actually overrides a superclass method\n" + 
@@ -11606,7 +11634,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X5.java (at line 1)\n" + 
 			"	class X5 <T extends Y & Comparable<X5>> {}\n" + 
 			"	                        ^^^^^^^^^^\n" + 
-			"Bound conflict: Comparable<X5> is inherited with conflicting arguments\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<X5> and Comparable<Y>\n" + 
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <X5> and <Y>
 		);
@@ -11618,10 +11646,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"abstract class Z implements Comparable<Z> {}",
 			},
 			"----------\n" + 
-			"1. ERROR in X6.java (at line 1)\r\n" + 
-			"	class X6 <T extends Y & Comparable<X6>> {}\r\n" + 
+			"1. ERROR in X6.java (at line 1)\n" + 
+			"	class X6 <T extends Y & Comparable<X6>> {}\n" + 
 			"	                        ^^^^^^^^^^\n" + 
-			"Bound conflict: Comparable<X6> is inherited with conflicting arguments\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<X6> and Comparable<Z>\n" + 
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <X6> and <Y>
 		);
@@ -11633,10 +11661,10 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"abstract class Z implements Comparable<Z> {}",
 			},
 			"----------\n" + 
-			"1. ERROR in X7.java (at line 1)\r\n" + 
-			"	class X7 <T extends Comparable<Z> & Comparable<X7>> {}\r\n" + 
+			"1. ERROR in X7.java (at line 1)\n" + 
+			"	class X7 <T extends Comparable<Z> & Comparable<X7>> {}\n" + 
 			"	                                    ^^^^^^^^^^\n" + 
-			"Bound conflict: Comparable<X7> is inherited with conflicting arguments\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<X7> and Comparable<Z>\n" + 
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <Z> and <X7>
 		);
@@ -15934,7 +15962,7 @@ public void test500(){
 			"----------\n" + 
 			"3. WARNING in X.java (at line 17)\n" + 
 			"	c.t= Boolean.TRUE; // javac: warning: [unchecked] unchecked call\n" + 
-			"	^^^\n" + 
+			"	  ^\n" + 
 			"Type safety: The field t from the raw type Cell is assigned a value of type Boolean. References to generic type Cell<T> should be parameterized\n" + 
 			"----------\n");
 	}		
@@ -21388,7 +21416,7 @@ public void test741() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98538
-public void _test742() {
+public void test742() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -21396,79 +21424,53 @@ public void _test742() {
 			"\n" + 
 			" public class X {\n" + 
 			" \n" + 
-			"	/**Subclasses are parameterized by their own type*/\n" + 
-			"	private static abstract class SelfType<T extends SelfType<T>>{\n" + 
-			"		public abstract T getThis();\n" + 
+			"	static abstract class SelfType<T extends SelfType<T>>{\n" + 
 			"	}\n" + 
 			" \n" + 
-			"	/**Supertype inherits directly from the parameterized SelfType*/\n" + 
-			"	private static class SuperType extends SelfType<SuperType>{\n" + 
-			"		@Override\n" + 
-			"		public SuperType getThis(){\n" + 
-			"			return this;\n" + 
-			"		}\n" + 
+			"	static class SuperType extends SelfType<SuperType>{\n" + 
 			"	}\n" + 
 			" \n" + 
-			"	/**Subtype inherits indirectly from the parameterized SelfType*/\n" + 
-			"	private static class SubType extends SuperType{}\n" + 
+			"	static class SubType extends SuperType{}\n" + 
 			" \n" + 
-			"	/**Creates a list containing a single SelfType*/\n" + 
-			"	public static <T extends SelfType<T>> List<T> makeSingletonList(T t){\n" + 
+			"	static <T extends SelfType<T>> List<T> makeSingletonList(T t){\n" + 
 			"		return Collections.singletonList(t);\n" + 
 			"	}\n" + 
 			" \n" + 
-			"	/**\n" + 
-			"	 * Creates a list containing a single SelfType, allowing the list\'s\n" + 
-			"	 * element-type to be a supertype of the type of its single element\n" + 
-			"	 */\n" + 
-			"	public static <T extends SelfType<T>,S extends T> List<T> makeSingletonList2(S s){\n" + 
-			"		return Collections.singletonList((T)s);\n" + 
+			"	static <T extends SelfType<T>,S extends T> List<T> makeSingletonList2(S s){\n" + 
+			"		return Collections.singletonList((T)s); // #0\n" + 
 			"	}\n" + 
 			" \n" + 
 			"	public static void main(String[] args){\n" + 
-			"		/*making lists of super types works fine ...*/\n" + 
-			"		makeSingletonList(new SuperType());\n" + 
-			"		List<SuperType> lsup = makeSingletonList(new SuperType());\n" + 
-			" \n" + 
-			"		/*but we can\'t make a list of sub types; seems weird ...*/\n" + 
-			"		List<SubType> lsub = makeSingletonList(new SubType()); //ERROR\n" + 
-			"		\n" + 
-			"		/*can\'t even call it w/o assigning the return value:*/\n" + 
-			"		makeSingletonList(new SubType()); //ERROR\n" + 
-			" \n" + 
-			" \n" + 
-			"		/*so instead, we should be able to make lists of super type containing sub type elements*/\n" + 
-			"		makeSingletonList2(new SubType()); //ERROR\n" + 
-			"		/*even if we assign the return value:*/\n" + 
-			"		lsup = makeSingletonList2(new SubType()); // ERROR (eclipse is okay with this though)\n" + 
-			"		/*this still doesn\'t work either:*/\n" + 
-			"		lsub = makeSingletonList2(new SubType()); // ERROR\n" + 
-			" \n" + 
-			"		/*we can make lists of super type this way though*/\n" + 
-			"		makeSingletonList2(new SuperType()); // (eclipse doesn\'t like this though)\n" + 
-			"		/*also ok if we assign the return value*/\n" + 
-			"		lsup = makeSingletonList2(new SuperType());\n" + 
+			"		makeSingletonList(new SuperType()); // #1 - OK\n" + 
+			"		List<SuperType> lsup = makeSingletonList(new SuperType()); // #2 - OK\n" + 
+			"		List<SubType> lsub = makeSingletonList(new SubType()); // #3 - ERROR\n" + 
+			"		makeSingletonList(new SubType()); // #4 - ERROR\n" + 
+			" 		makeSingletonList2(new SubType()); // #5 - ERROR\n" + 
+			"		lsup = makeSingletonList2(new SubType()); // #6 - OK\n" + 
+			"		lsub = makeSingletonList2(new SubType()); // #7 - ERROR\n" + 
+			"		makeSingletonList2(new SuperType()); // #8 - OK\n" + 
+			"		lsup = makeSingletonList2(new SuperType()); // #9 - OK\n" + 
 			"	}\n" + 
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 40)\n" + 
-		"	List<SubType> lsub = makeSingletonList(new SubType()); //ERROR\n" + 
+		"1. ERROR in X.java (at line 24)\n" + 
+		"	List<SubType> lsub = makeSingletonList(new SubType()); // #3 - ERROR\n" + 
 		"	                     ^^^^^^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The generic method makeSingletonList(T) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 43)\n" + 
-		"	makeSingletonList(new SubType()); //ERROR\n" + 
+		"2. ERROR in X.java (at line 25)\n" + 
+		"	makeSingletonList(new SubType()); // #4 - ERROR\n" + 
 		"	^^^^^^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The generic method makeSingletonList(T) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 47)\n" + 
-		"	makeSingletonList2(new SubType()); //ERROR\n" + 
+		"3. ERROR in X.java (at line 26)\n" + 
+		"	makeSingletonList2(new SubType()); // #5 - ERROR\n" + 
 		"	^^^^^^^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The generic method makeSingletonList2(S) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 51)\n" + 
-		"	lsub = makeSingletonList2(new SubType()); // ERROR\n" + 
+		"4. ERROR in X.java (at line 28)\n" + 
+		"	lsub = makeSingletonList2(new SubType()); // #7 - ERROR\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The generic method makeSingletonList2(S) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
 		"----------\n");
@@ -21825,23 +21827,13 @@ public void test757() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\r\n" + 
-		"	static class EntryMap<K, V> {\r\n" + 
-		"	                      ^\n" + 
-		"The type parameter K is hiding the type K\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 2)\r\n" + 
-		"	static class EntryMap<K, V> {\r\n" + 
-		"	                         ^\n" + 
-		"The type parameter V is hiding the type V\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 12)\r\n" + 
-		"	EntryMap<K,V>.Entry entry = internalGet(key);\r\n" + 
+		"1. WARNING in X.java (at line 12)\n" + 
+		"	EntryMap<K,V>.Entry entry = internalGet(key);\n" + 
 		"	                            ^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The expression of type X.EntryMap.Entry needs unchecked conversion to conform to X.EntryMap<K,V>.Entry\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 14)\r\n" + 
-		"	Zork z;\r\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
@@ -21868,28 +21860,18 @@ public void test758() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\r\n" + 
-		"	static class EntryMap<K, V> {\r\n" + 
-		"	                      ^\n" + 
-		"The type parameter K is hiding the type K\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 2)\r\n" + 
-		"	static class EntryMap<K, V> {\r\n" + 
-		"	                         ^\n" + 
-		"The type parameter V is hiding the type V\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 12)\r\n" + 
-		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\r\n" + 
+		"1. WARNING in X.java (at line 12)\n" + 
+		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\n" + 
 		"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from X.EntryMap.Entry to X.EntryMap.Entry\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 12)\r\n" + 
-		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\r\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\n" + 
 		"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The expression of type X.EntryMap.Entry needs unchecked conversion to conform to X.EntryMap<K,V>.Entry\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 14)\r\n" + 
-		"	Zork z;\r\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
@@ -22009,6 +21991,204 @@ public void test763() {
 			"}\n",
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100527
+public void test764() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			" \n" + 
+			"interface IIfClosure {}\n" + 
+			" \n" + 
+			"public class X {\n" + 
+			"    public X(String label, HashMap<String,Object> bindings) {\n" + 
+			"        this(label, bindings, (List<IIfClosure>)Collections.emptyList());\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public X(String label, HashMap<String,Object> bindings, Collection<IIfClosure> coll) {\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\r\n" + 
+		"	this(label, bindings, (List<IIfClosure>)Collections.emptyList());\r\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot cast from List<Object> to List<IIfClosure>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98379
+public void test765() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"    static <T extends X> T f1() throws Exception{\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"    static <U extends X> U f2() throws Exception {\n" + 
+			"        return f1();\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99453
+public void test766() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"interface Cloneable<T extends Cloneable<T>> {\n" + 
+			"	public T clone();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface CloneableMap<K, V extends Cloneable<V>> extends Map<K, V>, Cloneable<CloneableMap<K, V>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C<T extends C<T>> extends Cloneable<T> {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		CloneableMap<String, C<?>> map = null;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	CloneableMap<String, C<?>> map = null;\n" + 
+		"	                     ^\n" + 
+		"Bound mismatch: The type C<?> is not a valid substitute for the bounded parameter <V extends Cloneable<V>> of the type CloneableMap<K,V>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99453 - variation
+public void test767() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"interface Cloneable<T extends Cloneable<T>> {\n" + 
+			"	public T clone();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface CloneableMap<K, V extends Cloneable<V>> extends Map<K, V>, Cloneable<CloneableMap<K, V>> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends Cloneable<C> {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	void foo() {\n" + 
+			"		CloneableMap<String, C> map = null;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100619
+public void test768() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<T extends Runnable, U extends Runnable & T>  T foo1() { return null; }\n" + 
+			"	<T extends Y<Object>, U extends Z & T>  T foo2() { return null; }\n" + 
+			"	<T extends Y<Object>, U extends T & Z>  T foo3() { return null; }\n" + 
+			"	<T extends Y<Object>, U extends W & Z>  T foo4() { return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Y<T> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Z extends Y<String> {}\n" + 
+			"interface W extends Y<Object> {}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	<T extends Runnable, U extends Runnable & T>  T foo1() { return null; }\n" + 
+		"	                                          ^\n" + 
+		"The type T is not an interface; it cannot be specified as a bounded parameter\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	<T extends Y<Object>, U extends Z & T>  T foo2() { return null; }\n" + 
+		"	                                    ^\n" + 
+		"The type T is not an interface; it cannot be specified as a bounded parameter\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	<T extends Y<Object>, U extends W & Z>  T foo4() { return null; }\n" + 
+		"	                                    ^\n" + 
+		"The interface Y cannot be implemented more than once with different arguments: Y<String> and Y<Object>\n" + 
+		"----------\n");
+}
+public void test769() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class XSuper<T> {\n" + 
+			"	T value;\n" + 
+			"}\n" + 
+			"public class X extends XSuper<String>{\n" + 
+			"	public void a() {\n" + 
+			"		value += 1;\n" + 
+			"		value = value + 1;\n" + 
+			"		System.out.println(value);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		X x = new X();\n" +
+			"		x.value = \"[\";\n" +
+			"		x.a();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"[11");
+}
+public void test770() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class XSuper<T> {\n" + 
+			"	T value;\n" + 
+			"}\n" + 
+			"public class X extends XSuper<String>{\n" + 
+			"	public void a() {\n" + 
+			"		this.value += 1;\n" + 
+			"		this.value = this.value + 1;\n" + 
+			"		System.out.println(this.value);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		X x = new X();\n" +
+			"		x.value = \"[\";\n" +
+			"		x.a();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"[11");
+}
+public void test771() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class XSuper<T> {\n" + 
+			"	T value;\n" + 
+			"}\n" + 
+			"public class X extends XSuper<String>{\n" + 
+			"	public static void a(X x) {\n" + 
+			"		x.value += 1;\n" + 
+			"		x.value = x.value + 1;\n" + 
+			"		System.out.println(x.value);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		X x = new X();\n" +
+			"		x.value = \"[\";\n" +
+			"		a(x);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"[11");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101794
 public void test772() {
@@ -22135,6 +22315,82 @@ public void test773() {
 		} catch (IOException e) {
 			assertTrue(false);
 		}	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98532
+public void test774() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	static class StaticInnerNoParam {\n" + 
+			"		T x;\n" + 
+			"	}\n" + 
+			"	class NonStaticInnerParam<T> {}	\n" + 
+			"	static class StaticInnerParam<T> {	}\n" + 
+			"	<T> void foo(T t) {}\n" + 
+			"	static <T> void bar(T t) {}\n" + 
+			"	<T> X(T t) {}\n" + 
+			"	\n" + 
+			"	class U {}\n" + 
+			"	<U> void foo2(U t) {}\n" + 
+			"	static <U> void bar2(U t) {}\n" + 
+			"	class NonStaticInnerParam2<U> {}	\n" + 
+			"	static class StaticInnerParam2<U> {}	\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	T x;\n" + 
+		"	^\n" + 
+		"Cannot make a static reference to the non-static type T\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	class NonStaticInnerParam<T> {}	\n" + 
+		"	                          ^\n" + 
+		"The type parameter T is hiding the type T\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 7)\n" + 
+		"	<T> void foo(T t) {}\n" + 
+		"	 ^\n" + 
+		"The type parameter T is hiding the type T\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 9)\n" + 
+		"	<T> X(T t) {}\n" + 
+		"	 ^\n" + 
+		"The type parameter T is hiding the type T\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 12)\n" + 
+		"	<U> void foo2(U t) {}\n" + 
+		"	 ^\n" + 
+		"The type parameter U is hiding the type X<T>.U\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 13)\n" + 
+		"	static <U> void bar2(U t) {}\n" + 
+		"	        ^\n" + 
+		"The type parameter U is hiding the type X<T>.U\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 14)\n" + 
+		"	class NonStaticInnerParam2<U> {}	\n" + 
+		"	                           ^\n" + 
+		"The type parameter U is hiding the type X<T>.U\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 15)\n" + 
+		"	static class StaticInnerParam2<U> {}	\n" + 
+		"	                               ^\n" + 
+		"The type parameter U is hiding the type X<T>.U\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100153
+public void test775() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T extends X<T>> {\n" + 
+			"	void foo1(X<? extends T> x) {}\n" + 
+			"	void foo2(X<? super T> x) {}\n" + 
+			"}\n",
+		},
+		"");
 }
 }
 

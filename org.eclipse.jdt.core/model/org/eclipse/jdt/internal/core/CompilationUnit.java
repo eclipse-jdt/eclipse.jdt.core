@@ -579,7 +579,7 @@ public ICompilationUnit getCompilationUnit() {
 public char[] getContents() {
 	try {
 		IBuffer buffer = this.getBuffer();
-		return buffer == null ? null : buffer.getCharacters();
+		return buffer == null ? CharOperation.NO_CHAR : buffer.getCharacters();
 	} catch (JavaModelException e) {
 		return CharOperation.NO_CHAR;
 	}
