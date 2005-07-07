@@ -2,11 +2,11 @@
 Eclipse APT Project - Developer Setup Instructions
 ==================================================
 
-1.  Install Eclipse 3.1 SDK version.  Usually, the latest RC version is good.
+1.  Install Eclipse SDK 3.1.
 
 2.  Launch eclipse, creating a new Workspace.  Say "C:\AptWorkspace". 
 
-3.  Install JREs for the eclipse.  You'll need to register a 1.4 & a 1.5 JRE.  To add JREs:
+3.  Install JREs for eclipse.  You'll need to register a 1.4 & a 1.5 JRE.  To add JREs:
 
     a. go to "Window menu, and then choose "Preferences | Java | Installed JREs".
     b. click the add button and install the 1.4 JRE.  Make this the default JRE. 
@@ -15,6 +15,10 @@ Eclipse APT Project - Developer Setup Instructions
 4.  Now you need to check out the various CVS projects from the eclipse CVS server.
 
     a.  Configure your eclipse to point to the eclipse CVS repository:
+        Open the "CVS Repository Exploring" Perspective. 
+        Then right-click in the CVS Repositories frame and select New->Repository Location.
+        Fill in the following values:
+    
         Host:             dev.eclipse.org
         Repository path:  /home/eclipse
         User:             anonymous
@@ -27,25 +31,44 @@ Eclipse APT Project - Developer Setup Instructions
         org.eclipse.jdt.apt.tests
         org.eclipse.jdt.apt.ui
         org.eclipse.test.performance
+        
+        To do this, open the :pserver:anonymous... node, and then 
+        the HEAD node. Right-click on the folders as named above, and select
+        "Check out". This will copy all the files to your local machine.
 
-    c.  Refresh the branches.  Right-click the "branches" node, and then click refresh branches.  Select the following projects to be scanned for tags:
+    c.  Refresh the branches.  Right-click the top-level "Branches" node 
+        (adjacent to "HEAD"), and then select "Refresh Branches..."
+        Select the following projects to be scanned for tags:
 
+        org.eclipse.jdt.core
         org.eclipse.jdt.core.tests.builder
         org.eclipse.jdt.core.tests.compiler
         org.eclipse.jdt.core.tests.model
         org.eclipse.jdt.core.tests.performance
-        org.eclipse.jdt.core
 
     d.  Check out APT branch revisions of the following projects :
+        Under Branches, there will now be an "APT" branch. 
+        Open that and select the following nodes:
 
         org.eclipse.jdt.core.tests.builder
         org.eclipse.jdt.core.tests.compiler
         org.eclipse.jdt.core.tests.model
         org.eclipse.jdt.core.tests.performance
         org.eclipse.jdt.core
+        
+        Then right-click each of them and select "Check out". This will take
+        some time as all the files are copied to your local machine.
+        
+        You can now switch back to the "Java" Perspective.
 
-5.  Copy tools.jar from the 1.5 JDK into the org.eclipse.jdt.apt.core project, and then right-click the project and choose "refresh". 
+5.  Copy the file tools.jar from the 1.5 JDK (%JDK_1.5_HOME%/lib/tools.jar) 
+    into the root of the org.eclipse.jdt.apt.core project, 
+    and then right-click that project and choose "Refresh". 
 
-6.  Ensure that the workspace builds. 
+6.  Ensure that the workspace builds with no problems that are error level.
+    You will see a few warnings depending on the strictness of your warning
+    settins.
 
-7.  If you want to export the plugin, then you can run the ant script at org.eclipse.jdt.apt.core/scripts/exportplugin.xml
+7.  If you want to export the plugin, then you can run the ant script at 
+    org.eclipse.jdt.apt.core/scripts/exportplugin.xml
+    
