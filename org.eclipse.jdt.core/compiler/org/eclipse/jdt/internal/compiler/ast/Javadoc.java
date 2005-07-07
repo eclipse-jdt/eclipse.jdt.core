@@ -398,7 +398,6 @@ public class Javadoc extends ASTNode {
 		// Otherwise verify that all param tags match type parameters
 		} else if (typeVariables.length == typeParametersLength) {
 			TypeVariableBinding[] bindings = new TypeVariableBinding[paramTypeParamLength];
-			int maxBindings = 0;
 
 			// Scan all @param tags
 			for (int i = 0; i < paramTypeParamLength; i++) {
@@ -416,7 +415,6 @@ public class Javadoc extends ASTNode {
 						}
 						if (!duplicate) {
 							bindings[i] = (TypeVariableBinding) param.resolvedType;
-							maxBindings++;
 						}
 					} else {
 						scope.problemReporter().javadocUndeclaredParamTagName(param.token, param.sourceStart, param.sourceEnd, modifiers);
