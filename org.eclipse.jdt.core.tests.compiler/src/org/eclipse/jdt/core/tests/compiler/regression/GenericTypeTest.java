@@ -2395,7 +2395,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	ax.p = new AX<String>();\n" + 
-			"	   ^\n" + 
+			"	^^^^\n" + 
 			"Type safety: The field p from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n",
 		null,
@@ -2677,17 +2677,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	ax.p = new AX<String>();\n" + 
-			"	   ^\n" + 
+			"	^^^^\n" + 
 			"Type safety: The field p from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	ax.q = new AX<String>();\n" + 
-			"	   ^\n" + 
+			"	^^^^\n" + 
 			"Type safety: The field q from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	ax.r = new AX<Object>();\n" + 
-			"	   ^\n" + 
+			"	^^^^\n" + 
 			"Type safety: The field r from the raw type AX is assigned a value of type AX<Object>. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
@@ -15962,7 +15962,7 @@ public void test500(){
 			"----------\n" + 
 			"3. WARNING in X.java (at line 17)\n" + 
 			"	c.t= Boolean.TRUE; // javac: warning: [unchecked] unchecked call\n" + 
-			"	  ^\n" + 
+			"	^^^\n" + 
 			"Type safety: The field t from the raw type Cell is assigned a value of type Boolean. References to generic type Cell<T> should be parameterized\n" + 
 			"----------\n");
 	}		

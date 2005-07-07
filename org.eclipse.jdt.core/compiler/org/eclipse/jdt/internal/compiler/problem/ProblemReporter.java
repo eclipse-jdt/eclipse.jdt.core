@@ -24,6 +24,14 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 
 public class ProblemReporter extends ProblemHandler implements ProblemReasons {
+
+	/** These constants will be defined on IProblem in 3.2 branch, but are only internal in 3.1 maintenance
+	 * stream so as not to compromise source compatibility with 3.1.0.
+	 */
+	/** @since 3.2 */
+	private final static int JavadocNonStaticTypeFromStaticInvocation = IProblem.Javadoc + IProblem.Internal + 468;
+	/** @since 3.2 */ 
+	private final static int EnumStaticFieldInInInitializerContext = IProblem.FieldRelated + 762;
 	
 	public ReferenceContext referenceContext;
 	
@@ -585,7 +593,7 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocInheritedMethodHidesEnclosingName:
 		case IProblem.JavadocInheritedFieldHidesEnclosingName:
 		case IProblem.JavadocInheritedNameHidesEnclosingTypeName:
-		case IProblem.JavadocNonStaticTypeFromStaticInvocation:
+		case ProblemReporter.JavadocNonStaticTypeFromStaticInvocation: // internal problem ID in 3.1 maintenance branch
 		case IProblem.JavadocGenericMethodTypeArgumentMismatch:
 		case IProblem.JavadocNonGenericMethod:
 		case IProblem.JavadocIncorrectArityForParameterizedMethod:
@@ -1034,7 +1042,7 @@ public void enumAbstractMethodMustBeImplemented(AbstractMethodDeclaration method
 }
 public void enumStaticFieldUsedDuringInitialization(FieldBinding field, ASTNode location) {
 	this.handle(
-		IProblem.EnumStaticFieldInInInitializerContext,
+		ProblemReporter.EnumStaticFieldInInInitializerContext, // internal problem ID in 3.1 maintenance branch
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
 		fieldSourceStart(field, location),
@@ -1124,44 +1132,26 @@ public void fieldHiding(FieldDeclaration fieldDecl, Binding hiddenVariable) {
 			fieldDecl.sourceEnd);
 	}
 }
+
 private int fieldSourceEnd(FieldBinding field, ASTNode node) {
 	if (node instanceof QualifiedNameReference) {
 		QualifiedNameReference ref = (QualifiedNameReference) node;
-		if (ref.binding == field) {
-			return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1]);
-		}
-		FieldBinding[] otherFields = ref.otherBindings;
-		if (otherFields != null) {
-			int offset = ref.indexOfFirstFieldBinding == 1 ? 1 : ref.indexOfFirstFieldBinding - 1;
-			for (int i = 0, length = otherFields.length; i < length; i++) {
-				if (otherFields[i] == field)
-					return (int) (ref.sourcePositions[i + offset]);
-			}
-		}
-	}	
+		FieldBinding[] bindings = ref.otherBindings;
+		if (bindings != null)
+			for (int i = bindings.length; --i >= 0;)
+				if (bindings[i] == field)
+					return (int) ref.sourcePositions[i + 1]; // first position is for the primary field
+	}
 	return node.sourceEnd;
 }
 private int fieldSourceStart(FieldBinding field, ASTNode node) {
 	if (node instanceof FieldReference) {
 		FieldReference fieldReference = (FieldReference) node;
 		return (int) (fieldReference.nameSourcePosition >> 32);
-	} else 	if (node instanceof QualifiedNameReference) {
-		QualifiedNameReference ref = (QualifiedNameReference) node;
-		if (ref.binding == field) {
-			return (int) (ref.sourcePositions[ref.indexOfFirstFieldBinding-1] >> 32);
-		}
-		FieldBinding[] otherFields = ref.otherBindings;
-		if (otherFields != null) {
-			int offset = ref.indexOfFirstFieldBinding == 1 ? 1 : ref.indexOfFirstFieldBinding - 1;
-			for (int i = 0, length = otherFields.length; i < length; i++) {
-				if (otherFields[i] == field)
-					return (int) (ref.sourcePositions[i + offset] >> 32);
-			}
-		}
 	}
-
 	return node.sourceStart;
 }
+
 public void fieldsOrThisBeforeConstructorInvocation(ThisReference reference) {
 	this.handle(
 		IProblem.ThisSuperDuringConstructorInvocation,
@@ -1427,7 +1417,7 @@ public static long getIrritant(int problemID) {
 		case IProblem.JavadocInheritedMethodHidesEnclosingName:
 		case IProblem.JavadocInheritedFieldHidesEnclosingName:
 		case IProblem.JavadocInheritedNameHidesEnclosingTypeName:
-		case IProblem.JavadocNonStaticTypeFromStaticInvocation:
+		case ProblemReporter.JavadocNonStaticTypeFromStaticInvocation:  // internal problem ID in 3.1 maintenance branch
 		case IProblem.JavadocGenericMethodTypeArgumentMismatch:
 		case IProblem.JavadocNonGenericMethod:
 		case IProblem.JavadocIncorrectArityForParameterizedMethod:
@@ -3671,7 +3661,7 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 				id = IProblem.JavadocInheritedNameHidesEnclosingTypeName;
 				break;
 			case NonStaticReferenceInStaticContext :
-				id = IProblem.JavadocNonStaticTypeFromStaticInvocation;
+				id = ProblemReporter.JavadocNonStaticTypeFromStaticInvocation; // internal problem ID in 3.1 maintenance branch
 			    break;
 			case NoError : // 0
 			default :
@@ -5207,13 +5197,17 @@ public void unnecessaryInstanceof(InstanceOfExpression instanceofExpression, Typ
 		instanceofExpression.sourceEnd);
 }
 public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) {
+	int end = reference.sourceEnd;
+	if (reference instanceof QualifiedNameReference) {
+		QualifiedNameReference qref = (QualifiedNameReference) reference;
+		end = (int) qref.sourcePositions[0];
+	}
 	this.handle(
 		IProblem.UnqualifiedFieldAccess,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-		fieldSourceStart(field, reference),
-		fieldSourceEnd(field, reference)); 
-
+		reference.sourceStart,
+		end);
 }
 public void unreachableCatchBlock(ReferenceBinding exceptionType, ASTNode location) {
 	this.handle(

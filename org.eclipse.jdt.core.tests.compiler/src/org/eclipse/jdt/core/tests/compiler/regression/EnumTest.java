@@ -720,17 +720,17 @@ public class EnumTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	case MX.BLEU : break;\n" + 
-			"	        ^^^^\n" + 
+			"	     ^^^^^^^\n" + 
 			"The enum constant X.MX.BLEU reference cannot be qualified in a case label\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	case MX.BLANC : break;\n" + 
-			"	        ^^^^^\n" + 
+			"	     ^^^^^^^^\n" + 
 			"The enum constant X.MX.BLANC reference cannot be qualified in a case label\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 9)\n" + 
 			"	case MX.ROUGE : break;\n" + 
-			"	        ^^^^^\n" + 
+			"	     ^^^^^^^^\n" + 
 			"The enum constant X.MX.ROUGE reference cannot be qualified in a case label\n" + 
 			"----------\n");
 	}
@@ -1827,7 +1827,7 @@ public class EnumTest extends AbstractComparableTest {
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
 			"	case X.D:\n" + 
-			"	       ^\n" + 
+			"	     ^^^\n" + 
 			"The field X.D cannot be referenced from an enum case label; only enum constants can be used in enum switch\n" + 
 			"----------\n");
 	}
@@ -3888,7 +3888,7 @@ the right of e1."
 			"----------\n" + 
 			"4. ERROR in X.java (at line 10)\n" + 
 			"	X.VALUE = null;\n" + 
-			"	  ^^^^^\n" + 
+			"	^^^^^^^\n" + 
 			"The final field X.VALUE cannot be assigned\n" + 
 			"----------\n");
 	}	
@@ -3944,15 +3944,15 @@ the right of e1."
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
 			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^\n" + 
-			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 6)\n" + 
-			"	X x = BLEU.BLANC; // ko\n" + 
-			"	           ^^^^^\n" + 
+			"	      ^^^^^^^^^^\n" + 
 			"The static field X.BLANC should be accessed in a static way\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	X x = BLEU.BLANC; // ko\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 7)\n" + 
 			"	X x2 = BLEU; // ko\n" + 
@@ -3961,7 +3961,7 @@ the right of e1."
 			"----------\n" + 
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	X x = BLEU.BLANC; // ok\n" + 
-			"	           ^^^^^\n" + 
+			"	      ^^^^^^^^^^\n" + 
 			"The static field X.BLANC should be accessed in a static way\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 13)\n" + 
@@ -3969,15 +3969,15 @@ the right of e1."
 			"	          ^^^^\n" + 
 			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
 			"----------\n" + 
-			"6. ERROR in X.java (at line 16)\n" + 
+			"6. WARNING in X.java (at line 16)\n" + 
 			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^\n" + 
-			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
-			"----------\n" + 
-			"7. WARNING in X.java (at line 16)\n" + 
-			"	X x = BLEU.BLANC; // ko\n" + 
-			"	           ^^^^^\n" + 
+			"	      ^^^^^^^^^^\n" + 
 			"The static field X.BLANC should be accessed in a static way\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 16)\n" + 
+			"	X x = BLEU.BLANC; // ko\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
 			"----------\n" + 
 			"8. ERROR in X.java (at line 17)\n" + 
 			"	X x2 = BLEU; // ko\n" + 
@@ -4064,15 +4064,15 @@ the right of e1."
 			"	            ^\n" + 
 			"Cannot refer to the static enum field X.A within an initializer\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
+			"2. WARNING in X.java (at line 5)\n" + 
 			"	final X a2 = B.A;\n" + 
-			"	             ^\n" + 
-			"Cannot refer to the static enum field X.B within an initializer\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 5)\n" + 
-			"	final X a2 = B.A;\n" + 
-			"	               ^\n" + 
+			"	             ^^^\n" + 
 			"The static field X.A should be accessed in a static way\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	final X a2 = B.A;\n" + 
+			"	             ^^^\n" + 
+			"Cannot refer to the static enum field X.B within an initializer\n" + 
 			"----------\n");
 	}			
 }
