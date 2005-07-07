@@ -86,12 +86,30 @@ public abstract class AbstractMethodDeclaration
 				return;
 			}
 			boolean used = this.binding.isAbstract() || this.binding.isNative();
+			boolean init = false;
 			for (int i = 0, length = this.arguments.length; i < length; i++) {
 				Argument argument = this.arguments[i];
 				argument.bind(this.scope, this.binding.parameters[i], used);
 				if (argument.annotations != null) {
-					this.binding.tagBits |= TagBits.HasParameterAnnotations;
-				}
+					this.binding.tagBits |= TagBits.HasParameterAnnotations;					
+					if( !init )
+					{
+						init = true;
+						// parameter annotation starts at index 1 since we are packing both
+						// method and parameter annotation into one 2D array.
+						final IAnnotationInstance[][] newExtMods = new IAnnotationInstance[length+1][]; 
+						final int extModLen = this.binding.extendedModifiers.length;
+						if(extModLen == 1){
+							newExtMods[0] = this.binding.extendedModifiers[0];						
+						}
+						else
+							newExtMods[0] = TypeConstants.NoAnnotations;
+						this.binding.extendedModifiers = newExtMods;
+						for(int eIndex = 1; eIndex <= length; eIndex ++)
+							newExtMods[eIndex] = TypeConstants.NoAnnotations;						
+					}					
+					this.binding.extendedModifiers[i+1] = argument.binding.getAnnotations();
+				}				
 			}
 		}
 	}
