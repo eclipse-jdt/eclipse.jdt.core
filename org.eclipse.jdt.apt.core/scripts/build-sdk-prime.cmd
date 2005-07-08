@@ -60,7 +60,7 @@ cd %TEMPDIR%
 sh %ROOT%\org.eclipse.jdt.apt.core\scripts\make_set_date_suffix_cmd.sh
 call set_date_suffix.cmd
 
-@set RC=RC2
+@set RC=
 @set SDK_APT_ZIP=eclipse-SDK-APT-3.1%RC%-win32-%DATE_SUFFIX%.zip
 @set FULL_SDK_APT_ZIP=%TEMPDIR%\%SDK_APT_ZIP%
 
@@ -99,7 +99,7 @@ REM
 
 @echo Copying org.eclipse.jdt.apt.ui plugin jar and source zip...
 copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.ui_1.0.0\org.eclipse.jdt.apt.ui_1.0.0.jar %TEMPDIR%\eclipse\plugins\
-mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\org.eclipse.jdt.apt.ui_1.0.0
+mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.apt.ui_1.0.0\
 copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.ui_1.0.0\aptui_src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.apt.ui_1.0.0\
 @echo ...Done
 
@@ -117,7 +117,7 @@ REM copy apt-core src.zip to SDK's directory
 REM
 
 @echo Copying aptcore_src.zip...
-mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\org.eclipse.jdt.apt.core_1.0.0\
+mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.apt.core_1.0.0\
 copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.core_1.0.0\aptcore_src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.apt.core_1.0.0\
 @echo ...done.
 
