@@ -46,7 +46,8 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
             	ICompilationUnit parentCompilationUnit = _env.getCompilationUnit();
                 FileGenerationResult result  = gfm.generateFileDuringReconcile( 
                     parentCompilationUnit, _typeName, contents, parentCompilationUnit.getOwner(), null, null );
-				_env.addGeneratedFile(result.getFile(), result.isModified());
+				if ( result != null )
+					_env.addGeneratedFile(result.getFile(), result.isModified());
             }
             else if ( phase == ProcessorEnvImpl.Phase.BUILD)	
             {

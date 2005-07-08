@@ -146,7 +146,7 @@ public class GeneratedFileManager {
 
 			IFolder folder = ensureGeneratedSourceFolder( javaProject, progressMonitor );
 			
-			IFile file = getIFileForTypeName( typeName, javaProject, progressMonitor );
+			IFile file = getIFileForTypeName( typeName, javaProject, true, progressMonitor );
 
 			
 			byte[] bytes;
@@ -247,6 +247,11 @@ public class GeneratedFileManager {
 			String contents, WorkingCopyOwner workingCopyOwner,
 			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor ) 
 	{
+		// BUGZILLA 103183 - reconcile-path disabled until type-generation in reconcile is turned on
+		if ( true )
+			return null;
+		
+		
 		ICompilationUnit workingCopy = null;
 		FileGenerationResult result = null;
 		try 
@@ -447,20 +452,24 @@ public class GeneratedFileManager {
 	 * @param typeName
 	 * @return
 	 */
-	private IFile getIFileForTypeName( String typeName, IJavaProject javaProject, IProgressMonitor progressMonitor )
+	private IFile getIFileForTypeName( String typeName, IJavaProject javaProject, boolean create, IProgressMonitor progressMonitor)
 	    throws CoreException
 	{
 		// split the type name into its parts
 		String[] parts = typeName.split( "\\.");
 		
-		IFolder folder = ensureGeneratedSourceFolder( javaProject, progressMonitor );
+		IFolder folder;
+		if ( create )
+			folder = ensureGeneratedSourceFolder( javaProject, progressMonitor );
+		else
+			folder = getGeneratedSourceFolder();
 		
 		//  create folders for the package parts
 		int i = 0;
 		for ( ;i < parts.length - 1; i++ )
 		{
 			folder = folder.getFolder( parts[i] );
-			if ( !folder.exists() )
+			if ( create && !folder.exists() )
 				folder.create( true, false, null );
 		}
 	
@@ -547,7 +556,7 @@ public class GeneratedFileManager {
 	private ICompilationUnit getCachedWorkingCopy( ICompilationUnit parentCompilationUnit, String typeName )
 		throws CoreException
 	{
-		IFile derivedFile = getIFileForTypeName( typeName, parentCompilationUnit.getJavaProject(), null /*progressMonitor*/ );
+		IFile derivedFile = getIFileForTypeName( typeName, parentCompilationUnit.getJavaProject(), false, null /*progressMonitor*/ );
 		ICompilationUnit workingCopy = (ICompilationUnit) _generatedFile2WorkingCopy.get( derivedFile );
 		if ( workingCopy != null )
 			addEntryToWorkingCopyMaps( parentCompilationUnit, workingCopy );
@@ -566,7 +575,7 @@ public class GeneratedFileManager {
 		//
 		// create folder for generated source files
 		//
-		IFolder folder = ensureGeneratedSourceFolder(jp, progressMonitor );
+		IFolder folder = ensureGeneratedSourceFolder( jp, progressMonitor );
 
 		// 
 		//  figure out package part of type & file name
@@ -604,6 +613,7 @@ public class GeneratedFileManager {
 			makeReadOnly( cu, false );
 		}
 
+		
 		//
 		//  TODO:  can we call getWorkingCopy here?
 		//

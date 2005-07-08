@@ -18,10 +18,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -60,19 +60,22 @@ public class APTDispatch
 	{
 		
 		APTDispatchRunnable runnable;
+		ISchedulingRule schedulingRule;
 		if ( file != null )
+		{
 			 runnable = new APTDispatchRunnable( file, javaProj, factories );
+			 schedulingRule = javaProj.getResource();
+		}
 		else
+		{
 			runnable = new APTDispatchRunnable( compilationUnit, javaProj, factories );
+			schedulingRule = null;
+		}
 		
-		IWorkspace w = ResourcesPlugin.getWorkspace();
 		try
-		{	
-			// TODO: need to do something here to avoid the "Invalid Begin Rule..." errors.  Not sure what is correct.
-			IResource r;
-			r = w.getRoot();
-			
-			w.run( runnable, r, IWorkspace.AVOID_UPDATE, null );
+		{
+			IWorkspace w = ResourcesPlugin.getWorkspace();
+			w.run( runnable, schedulingRule, IWorkspace.AVOID_UPDATE, null );
 		}
 		catch( CoreException ce )
 		{

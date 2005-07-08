@@ -109,8 +109,14 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				f = _file;
 			else
 				f = (IFile)_compilationUnit.getResource();
-			Set<IFile> deletedFiles = cleanupAllGeneratedFilesForParent( f );
-
+			
+			// BUGZILLA 103183 - reconcile-path disabled until type-generation in reconcile is turned on
+			Set<IFile> deletedFiles;
+			if ( _file != null )
+				deletedFiles = cleanupAllGeneratedFilesForParent( f );
+			else
+				deletedFiles = Collections.<IFile>emptySet();
+			
 			if ( deletedFiles.size() == 0 )
 				_result =  EMPTY_APT_RESULT;
 			else
@@ -216,8 +222,14 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			
 			// any files that were generated for this parent on the last
 			// run, but are no longer generated should be removed
-			Set<IFile> deletedFiles = cleanupNoLongerGeneratedFiles( processorEnv.getFile(), lastGeneratedFiles, allGeneratedFiles, gfm );
-
+			
+			// BUGZILLA 103183 - reconcile-path disabled until type-generation in reconcile is turned on
+			Set<IFile> deletedFiles;
+			if( processorEnv.getPhase() == ProcessorEnvImpl.Phase.BUILD )
+				deletedFiles = cleanupNoLongerGeneratedFiles( processorEnv.getFile(), lastGeneratedFiles, allGeneratedFiles, gfm );
+			else
+				deletedFiles = Collections.<IFile>emptySet();
+			
 			APTResult result = new APTResult( modifiedFiles, 
 											  deletedFiles, 
 											  processorEnv.getTypeDependencies(), 

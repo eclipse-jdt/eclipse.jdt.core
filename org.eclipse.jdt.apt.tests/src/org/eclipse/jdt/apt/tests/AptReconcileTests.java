@@ -39,7 +39,8 @@ public class AptReconcileTests extends ModifyingResourceTests
 		return new TestSuite(AptReconcileTests.class);
 	}
 	
-	public void testGeneratedFile() throws Throwable
+	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
+	public void disabled_testGeneratedFile() throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
 		try
@@ -121,7 +122,8 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 *   generates a file that should fix an error in the parent file.
 	 * @throws Throwable
 	 */
-	public void testNestedGeneratedFile() throws Throwable
+	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
+	public void disabled_testNestedGeneratedFile() throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
 		try
@@ -197,8 +199,8 @@ public class AptReconcileTests extends ModifyingResourceTests
 		}
 	}
 
-	
-	public void testStopGeneratingFileInReconciler() throws Exception
+	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
+	public void disabled_testStopGeneratingFileInReconciler() throws Exception
 	{
 		String fname = TEST_FOLDER + "/A.java";
 		try
@@ -289,7 +291,8 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 * Tests that when a working copy is discarded, we clean up any cached data in the
 	 * GeneratedFileManager.
 	 */
-	public void testDiscardParentWorkingCopy()
+	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
+	public void disabled_testDiscardParentWorkingCopy()
 	 	throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
