@@ -1113,6 +1113,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			this.nameEnvironment.cleanup();
 		manager.flushZipFiles();
 		this.bindings = null;
+		this.patternLocator.clear();
 	}
 }
 /**
@@ -2012,9 +2013,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	
 	// Clear handle cache
 	this.methodHandles = null;
-	this.bindings.removeKey(this.pattern);
 	this.patternLocator.mustResolve = locatorMustResolve;
-	this.patternLocator.clear();
 }
 /**
  * Visit the given field declaration and report the nodes that match exactly the
