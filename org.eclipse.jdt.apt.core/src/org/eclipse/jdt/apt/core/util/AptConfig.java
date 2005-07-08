@@ -29,8 +29,6 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
-import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
-import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IJavaProject;
 import org.osgi.service.prefs.BackingStoreException;
@@ -58,12 +56,6 @@ public class AptConfig {
 	private AptConfig() {}
 	
 	/**
-	 * A guess at how many projects in the workspace will have 
-	 * per-project settings for apt.  Used to set initial size of some maps.
-	 */
-	private static final int INITIAL_PROJECTS_GUESS = 5;
-	
-	/**
 	 * Holds the options maps for each project.  Use a WeakHashMap so that
 	 * we don't hold on to projects after they've been removed.
 	 * 
@@ -73,9 +65,7 @@ public class AptConfig {
 	 * IJavaProject associated with it any more.
 	 */
 	private static Map<IProject, Map<String, String>> _optionsMaps = 
-		new WeakHashMap<IProject, Map<String, String>>(INITIAL_PROJECTS_GUESS);
-	
-	private static final String FACTORYPATH_FILE = ".factorypath";
+		new WeakHashMap<IProject, Map<String, String>>();
 	
 	/**
 	 * Returns all containers for the provided project, including disabled ones.
@@ -84,70 +74,7 @@ public class AptConfig {
 	 * indicates whether the container is enabled.
 	 */
 	public static synchronized Map<FactoryContainer, Boolean> getAllContainers(IJavaProject jproj) {
-		Map<FactoryContainer, Boolean> containers = null;
-		if (jproj != null) {
-			try {
-				containers = FactoryPathUtil.readFactoryPathFile(jproj);
-			}
-			catch (CoreException ce) {
-				ce.printStackTrace();
-			}
-			catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-		}
-		// Workspace if no project data was found
-		if (containers == null) {
-			try {
-				containers = FactoryPathUtil.readFactoryPathFile(null);
-			}
-			catch (CoreException ce) {
-				ce.printStackTrace();
-			}
-			catch (IOException ioe) {
-				ioe.printStackTrace();
-			}
-		}
-		// if no project and no workspace data was found, we'll get the defaults
-		if (containers == null) {
-			containers = new LinkedHashMap<FactoryContainer, Boolean>();
-		}
-		boolean disableNewPlugins = jproj != null;
-		updatePluginContainers(containers, disableNewPlugins);
-		return new LinkedHashMap(containers);
-	}
-	
-	/**
-	 * Removes missing plugin containers, and adds any plugin containers 
-	 * that were added since the map was originally created.  The order
-	 * of the original list will be maintained, and new entries will be
-	 * added to the end of the list.
-	 * @param containers the ordered map of containers to be modified.
-	 * The keys in the map are factory containers; the values indicate
-	 * whether the container is enabled.
-	 * @param disableNewPlugins if true, newly discovered plugins will be
-	 * disabled.  If false, they will be enabled or disabled according to
-	 * their setting in the extension declaration.
-	 */
-	private static void updatePluginContainers(
-			Map<FactoryContainer, Boolean> containers, boolean disableNewPlugins) {
-		List<PluginFactoryContainer> pluginContainers = FactoryPathUtil.getAllPluginFactoryContainers();
-		
-		// Remove any plugin factories whose plugins we did not find
-		for (Iterator<FactoryContainer> containerIter = containers.keySet().iterator(); containerIter.hasNext(); ) {
-			FactoryContainer container = containerIter.next();
-			if (container.getType() == FactoryType.PLUGIN && !pluginContainers.contains(container)) {
-				containerIter.remove();
-			}
-		}
-		
-		// Add any plugins which are new since the config was last saved
-		for (PluginFactoryContainer pluginContainer : pluginContainers) {
-			if (!containers.containsKey(pluginContainer)) {
-				//TODO: process "disableNewPlugins"
-				containers.put(pluginContainer, true);
-			}
-		}
+		return FactoryPathUtil.getAllContainers(jproj);
 	}
 	
 	/**
@@ -160,7 +87,7 @@ public class AptConfig {
 	 */
 	public static synchronized List<FactoryContainer> getEnabledContainers(IJavaProject jproj) {
 		// this map is ordered.
-		Map<FactoryContainer, Boolean> containers = getAllContainers(jproj);
+		Map<FactoryContainer, Boolean> containers = FactoryPathUtil.getAllContainers(jproj);
 		List<FactoryContainer> result = new ArrayList<FactoryContainer>(containers.size());
 		for (Map.Entry<FactoryContainer, Boolean> entry : containers.entrySet()) {
 			if (entry.getValue()) {
@@ -551,6 +478,15 @@ public class AptConfig {
 			return false;
 		}
 		return FactoryPathUtil.doesFactoryPathFileExist(jproj);
+	}
+
+	/**
+	 * Get a factory path corresponding to the default values: if jproj is
+	 * non-null, return the current workspace factory path; if jproj is null,
+	 * return the default list of plugin factories.
+	 */
+	public static Map<FactoryContainer, Boolean> getDefaultFactoryPath(IJavaProject jproj) {
+		return FactoryPathUtil.getDefaultFactoryPath(jproj);
 	}
 	
 }

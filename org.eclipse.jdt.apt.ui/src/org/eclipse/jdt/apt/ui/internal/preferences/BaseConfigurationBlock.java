@@ -37,8 +37,28 @@ public abstract class BaseConfigurationBlock extends OptionsConfigurationBlock {
 	protected static Key getAptCoreKey(String name) {
 		return getKey("org.eclipse.jdt.apt.core", name);
 	}
-	
-	protected abstract String[] getFullBuildDialogStrings(boolean workspaceSettings);
+
+	/**
+	 * Provide the strings needed to ask the user whether to rebuild.
+	 * Derived classes can override this to change the strings, or to
+	 * return null, in which case the dialog will not be shown and the
+	 * rebuild will not be triggered.
+	 * @param workspaceSettings true if workspace settings have changed,
+	 * false if only project-specific settings have changed.
+	 * @return an array whose first entry is the dialog title, and whose 
+	 * second entry is a query asking the user whether to rebuild.
+	 */
+	protected String[] getFullBuildDialogStrings(boolean workspaceSettings) {
+		String[] strings= new String[2];
+		strings[0] = "Annotation Processing Settings Changed";
+		if (workspaceSettings) {
+			strings[1]= "The annotation processing settings have changed. A full rebuild is required for changes to take effect. Do the full build now?";
+		}
+		else {
+			strings[1]= "The annotation processing settings have changed. A rebuild of the project is required for changes to take effect. Do the project build now?";
+		}
+		return strings;
+	}
 
 	/*
 	 * Parent class hides this method; re-expose it here. 

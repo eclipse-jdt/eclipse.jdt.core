@@ -28,74 +28,35 @@
 
    <extension
          point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
-      <factory
-         class="org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotationProcessorFactory"
-         enableDefault="true">
-      </factory>
-   </extension>
-   
-   <extension
-         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
-      <factory
-         class="org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldWildcardAnnotationProcessorFactory"
-         enableDefault="true">
-      </factory>
-   </extension>
-
-   <extension
-         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
-      <factory
-         class="org.eclipse.jdt.apt.tests.annotations.extradependency.ExtraDependencyAnnotationProcessorFactory"
-         enableDefault="true">
-      </factory>
-   </extension>
-
-   <extension
-         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
-      <factory
-         class="org.eclipse.jdt.apt.tests.annotations.noop.NoOpAnnotationProcessorFactory"
-         enableDefault="true">
-      </factory>
-   </extension>
-   
-   <extension
-         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
-      <factory
-         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorTestAnnotationProcessorFactory"
-         enableDefault="true">
-      </factory>
-   </extension>
-
-   <extension
-         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
-      <factory
-         class="org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotationProcessorFactory"
-         enableDefault="true">
-      </factory>
-   </extension>
-   
-   <extension
-         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
-      <factory
-         class="org.eclipse.jdt.apt.tests.annotations.readannotation.ReadAnnotationProcessorFactory"
-         enableDefault="true">
-      </factory>
-   </extension>
-
-   <extension
-         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
-      <factory
-         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationTestAnnotationProcessorFactory"
-         enableDefault="true">
-      </factory>
-   </extension>
-
-   <extension
-         point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
-      <factory
-         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestAnnotationProcessorFactory"
-         enableDefault="true">
-      </factory>
+      <factories enableDefault="true">
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotationProcessorFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldWildcardAnnotationProcessorFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.extradependency.ExtraDependencyAnnotationProcessorFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.noop.NoOpAnnotationProcessorFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorTestAnnotationProcessorFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotationProcessorFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.readannotation.ReadAnnotationProcessorFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationTestAnnotationProcessorFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestAnnotationProcessorFactory">
+	      </factory>
+	   </factories>
    </extension>
 
 </plugin>

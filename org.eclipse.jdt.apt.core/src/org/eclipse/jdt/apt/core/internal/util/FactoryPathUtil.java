@@ -207,44 +207,64 @@ public final class FactoryPathUtil {
 	 * any factory plugins that have been disabled by the user's configuration.
 	 * Ordering is alphabetic by plugin id.
 	 */
-	public static List<PluginFactoryContainer> getAllPluginFactoryContainers()
+	public static Map<FactoryContainer, Boolean> getAllPluginFactoryContainers()
 	{
+		class PluginContents {
+			public final PluginFactoryContainer fc;
+			public final boolean b;
+			public PluginContents(PluginFactoryContainer fc, boolean b) {
+				this.fc = fc;
+				this.b = b;
+			}
+		}
+		
 		// We want the list of plugins to be uniqued and alphabetically sorted.
-		Map<String, PluginFactoryContainer> containers = 
-			new TreeMap<String, PluginFactoryContainer>();
+		Map<String, PluginContents> plugins = 
+			new TreeMap<String, PluginContents>();
 	
-		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
-				"org.eclipse.jdt.apt.core",  //$NON-NLS-1$ - name of plugin that exposes this extension
+		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(
+				AptPlugin.PLUGIN_ID, // name of plugin that exposes this extension point
 				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
 
-		IExtension[] extensions =  extension.getExtensions();
 		// Iterate over all declared extensions of this extension point.  
-		// A single plugin may extend the extension point more than once.
-		for(int i = 0; i < extensions.length; i++) 
+		// A single plugin may extend the extension point more than once, although it's not recommended.
+		for (IExtension extension : extensionPoint.getExtensions())
 		{
-			IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-			// Iterate over all the factories in a single extension declaration.
-			// An extension may define more than one factory.
-			for(int j = 0; j < configElements.length; j++)
+			// getNamespace() returns the plugin id
+			String pluginId = extension.getNamespace();
+			// Iterate over the children of the extension to find one named "factories".
+			for(IConfigurationElement factories : extension.getConfigurationElements())
 			{
-				String elementName = configElements[j].getName();
-				if ( "factory".equals( elementName ) ) //$NON-NLS-1$ - name of configElement 
-				{ 
-					String pluginId = extensions[i].getNamespace();
-					PluginFactoryContainer container = containers.get(pluginId);
-					if ( container == null )
-					{
-						// getNamespace() returns the plugin id
-						container = new PluginFactoryContainer(pluginId);
-						containers.put( pluginId, container );
+				if (!"factories".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement 
+					continue;
+				}
+				// Get enableDefault.  If the attribute is missing, default to true.
+				String enableDefaultStr = factories.getAttribute("enableDefault");
+				boolean enableDefault = true;
+				if ("false".equals(enableDefaultStr)) {
+					enableDefault = false;
+				}
+				// Iterate over the children of the "factories" element to find all the ones named "factory".
+				for (IConfigurationElement factory : factories.getChildren()) {
+					if (!"factory".equals(factory.getName())) {
+						continue;
 					}
-					container.addFactoryName( configElements[j].getAttribute("class") );
+					PluginContents pc = plugins.get(pluginId);
+					if ( pc == null )
+					{
+						PluginFactoryContainer fc = new PluginFactoryContainer(pluginId);
+						pc = new PluginContents(fc, enableDefault);
+						plugins.put( pluginId, pc );
+					}
+					pc.fc.addFactoryName( factory.getAttribute("class") );
 				}
 			}
 		}
-		List<PluginFactoryContainer> list = new ArrayList<PluginFactoryContainer>(containers.values());
-		
-		return list;
+		Map<FactoryContainer, Boolean> map = new LinkedHashMap<FactoryContainer, Boolean>();
+		for (PluginContents pc : plugins.values()) {
+			map.put(pc.fc, new Boolean(pc.b));
+		}
+		return map;
 	}
 	
 	/**
@@ -281,6 +301,94 @@ public final class FactoryPathUtil {
 		else {
 			IFile projFile = getIFileForProject(jproj);
 			return projFile.exists();
+		}
+	}
+
+	/**
+	 * Get a factory path corresponding to the default values: if jproj is
+	 * non-null, return the current workspace factory path; if jproj is null,
+	 * return the default list of plugin factories.
+	 */
+	public static Map<FactoryContainer, Boolean> getDefaultFactoryPath(IJavaProject jproj) {
+		if (jproj != null) {
+			return getAllContainers(null);
+		}
+		else {
+			return getAllPluginFactoryContainers();
+		}
+	}
+
+	/**
+	 * Returns all containers for the provided project, including disabled ones.
+	 * @param jproj The java project in question, or null for the workspace
+	 * @return an ordered map, where the key is the container and the value 
+	 * indicates whether the container is enabled.
+	 */
+	public static synchronized Map<FactoryContainer, Boolean> getAllContainers(IJavaProject jproj) {
+		Map<FactoryContainer, Boolean> containers = null;
+		boolean foundPerProjFile = false;
+		if (jproj != null) {
+			try {
+				containers = readFactoryPathFile(jproj);
+				foundPerProjFile = (containers != null);
+			}
+			catch (CoreException ce) {
+				ce.printStackTrace();
+			}
+			catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+		// Workspace if no project data was found
+		if (containers == null) {
+			try {
+				containers = readFactoryPathFile(null);
+			}
+			catch (CoreException ce) {
+				ce.printStackTrace();
+			}
+			catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+		}
+		// if no project and no workspace data was found, we'll get the defaults
+		if (containers == null) {
+			containers = new LinkedHashMap<FactoryContainer, Boolean>();
+		}
+		boolean disableNewPlugins = (jproj != null) && foundPerProjFile;
+		updatePluginContainers(containers, disableNewPlugins);
+		return new LinkedHashMap(containers);
+	}
+	
+	/**
+	 * Removes missing plugin containers, and adds any plugin containers 
+	 * that were added since the map was originally created.  The order
+	 * of the original list will be maintained, and new entries will be
+	 * added to the end of the list.
+	 * @param containers the ordered map of containers to be modified.
+	 * The keys in the map are factory containers; the values indicate
+	 * whether the container is enabled.
+	 * @param disableNewPlugins if true, newly discovered plugins will be
+	 * disabled.  If false, they will be enabled or disabled according to
+	 * their setting in the extension declaration.
+	 */
+	private static void updatePluginContainers(
+			Map<FactoryContainer, Boolean> containers, boolean disableNewPlugins) {
+		Map<FactoryContainer, Boolean> pluginContainers = getAllPluginFactoryContainers();
+		
+		// Remove any plugin factories whose plugins we did not find
+		for (Iterator<FactoryContainer> containerIter = containers.keySet().iterator(); containerIter.hasNext(); ) {
+			FactoryContainer container = containerIter.next();
+			if (container.getType() == FactoryType.PLUGIN && !pluginContainers.containsKey(container)) {
+				containerIter.remove();
+			}
+		}
+		
+		// Add any plugins which are new since the config was last saved
+		for (Map.Entry<FactoryContainer, Boolean> entry : pluginContainers.entrySet()) {
+			if (!containers.containsKey(entry.getKey())) {
+				containers.put(entry.getKey(), disableNewPlugins ? Boolean.FALSE : entry.getValue());
+			}
 		}
 	}
 	

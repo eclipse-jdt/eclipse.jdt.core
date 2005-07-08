@@ -13,7 +13,7 @@
    <element name="extension">
       <complexType>
          <sequence>
-            <element ref="factory" minOccurs="1" maxOccurs="unbounded"/>
+            <element ref="factories"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -42,6 +42,23 @@
       </complexType>
    </element>
 
+   <element name="factories">
+      <complexType>
+         <sequence>
+            <element ref="factory" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="enableDefault" type="boolean">
+            <annotation>
+               <documentation>
+                  true if this processor should be enabled by default.  This value
+may be overridden via the annotation processing configuration settings.  If not
+present this value defaults to true.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
    <element name="factory">
       <complexType>
          <attribute name="class" type="string">
@@ -58,14 +75,6 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="enableDefault" type="string" use="required">
-            <annotation>
-               <documentation>
-                  true if this processor should be enabled by default.  This value
-may be overridden via the annotation processing configuration settings.                  
-               </documentation>
-            </annotation>
-         </attribute>
       </complexType>
    </element>
 
@@ -74,7 +83,7 @@ may be overridden via the annotation processing configuration settings.
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         3.1
+         3.2
       </documentation>
    </annotation>
 

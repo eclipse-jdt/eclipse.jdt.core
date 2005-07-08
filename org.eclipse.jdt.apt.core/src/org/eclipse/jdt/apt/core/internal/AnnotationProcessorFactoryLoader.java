@@ -11,31 +11,17 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
-import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -51,9 +37,6 @@ public class AnnotationProcessorFactoryLoader {
     private static final String[] AUTOLOAD_SERVICES = {
         "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory"
     };
-	
-    /** All plugin factories available from this install of eclipse */
-	private static List<AnnotationProcessorFactory> PLUGIN_FACTORIES;
 	
 	/** map of plugin names -> factories */
 	private static final HashMap<String, AnnotationProcessorFactory> PLUGIN_FACTORY_MAP = new HashMap<String, AnnotationProcessorFactory>();
@@ -79,8 +62,6 @@ public class AnnotationProcessorFactoryLoader {
     
     private AnnotationProcessorFactoryLoader() {
     	loadPluginFactoryMap();
-    	List<PluginFactoryContainer> pluginContainers = FactoryPathUtil.getAllPluginFactoryContainers();
-    	setPluginAnnotationProcessorFactories( pluginContainers );
     }
     
     /**
@@ -110,12 +91,7 @@ public class AnnotationProcessorFactoryLoader {
     }
     
     
-	private static void setPluginAnnotationProcessorFactories( List<PluginFactoryContainer> containers )
-	{
-		PLUGIN_FACTORIES = loadFactories( containers );
-	}
-    
-	private static List<AnnotationProcessorFactory> loadFactories( List<? extends FactoryContainer> containers )
+	private static List<AnnotationProcessorFactory> loadFactories( List<FactoryContainer> containers )
 	{
 		List<AnnotationProcessorFactory> factories = new ArrayList(containers.size());
 		ClassLoader classLoader = _createClassLoader( containers );
@@ -225,61 +201,41 @@ public class AnnotationProcessorFactoryLoader {
 	private void loadPluginFactoryMap() {
 		assert PLUGIN_FACTORY_MAP.size() == 0 : "loadPluginFactoryMap() called more than once";
 
-		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
-				"org.eclipse.jdt.apt.core",  //$NON-NLS-1$ - namecls of plugin that exposes this extension
-				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
-		IExtension[] extensions =  extension.getExtensions();
-		// for all extensions of this point...
-		for(int i = 0; i < extensions.length; i++){
-			IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-			// for all config elements named "factory"
-			for(int j = 0; j < configElements.length; j++){
-				String elementName = configElements[j].getName();
-				if (!("factory".equals(elementName))) { //$NON-NLS-1$ - name of configElement
-					continue;
-				}
-				try {
-					Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
-					if (execExt instanceof AnnotationProcessorFactory){
-						PLUGIN_FACTORY_MAP.put( execExt.getClass().getName(), (AnnotationProcessorFactory)execExt );
-					}
-				} catch(CoreException e) {
-						e.printStackTrace();
-				}
-			}
-		}
-	}
-	
-	private List<FactoryContainer> getPluginFactoryContainers()
-	{
-		List<FactoryContainer> factories = new ArrayList<FactoryContainer>();
-	
-		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(
-				"org.eclipse.jdt.apt.core",  //$NON-NLS-1$ - name of plugin that exposes this extension
+		// TODO: what follows is extremely similar to FactoryPathUtil#getAllPluginFactoryContainers().
+		// Surely there is some way to share that code?  The main difference is that there we don't 
+		// want to instantiate the actual factories, and here we do.
+		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(
+				AptPlugin.PLUGIN_ID, // name of plugin that exposes this extension point
 				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
 
-		IExtension[] extensions =  extension.getExtensions();
-		for(int i = 0; i < extensions.length; i++) 
+		// Iterate over all declared extensions of this extension point.  
+		// A single plugin may extend the extension point more than once, although it's not recommended.
+		for (IExtension extension : extensionPoint.getExtensions())
 		{
-			PluginFactoryContainer container = null;
-			IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-			for(int j = 0; j < configElements.length; j++)
+			// Iterate over the children of the extension to find one named "factories".
+			for(IConfigurationElement factories : extension.getConfigurationElements())
 			{
-				String elementName = configElements[j].getName();
-				if ( "factory".equals( elementName ) ) //$NON-NLS-1$ - name of configElement 
-				{ 
-					if ( container == null )
-					{
-						container = new PluginFactoryContainer(extensions[i].getNamespace());
-						factories.add( container );
+				if (!"factories".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement 
+					continue;
+				}
+				// Iterate over the children of the "factories" element to find all the ones named "factory".
+				for (IConfigurationElement factory : factories.getChildren()) {
+					if (!"factory".equals(factory.getName())) {
+						continue;
 					}
-					container.addFactoryName( configElements[j].getAttribute("class") );
+					try {
+						Object execExt = factory.createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
+						if (execExt instanceof AnnotationProcessorFactory){
+							PLUGIN_FACTORY_MAP.put( execExt.getClass().getName(), (AnnotationProcessorFactory)execExt );
+						}
+					} catch(CoreException e) {
+							e.printStackTrace();
+					}
 				}
 			}
 		}
-		return factories;
 	}
-  
+	
     /**
      * Given a jar file, get the names of any AnnotationProcessorFactory
      * implementations it offers.  The information is based on the Sun

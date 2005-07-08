@@ -12,10 +12,7 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -25,11 +22,14 @@ import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.ui.util.CoreUtility;
 import org.eclipse.jdt.internal.ui.util.PixelConverter;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.*;
 import org.eclipse.jdt.ui.wizards.BuildPathDialogAccess;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -77,7 +77,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	}
 
 	private class FactoryPathAdapter implements IListAdapter, IDialogFieldListener {
-
 		/**
 		 * Can't remove a selection that contains a plugin.
 		 */
@@ -103,12 +102,24 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
         }
 
 		public void dialogFieldChanged(DialogField field) {
-        	updateModel(field);
         }
 
         public void doubleClicked(ListDialogField field) {
         }
 	}
+	
+	/**
+	 * The factory path at the time this pref pane was launched.
+	 * Use this to see if anything changed at save time.
+	 */
+	private Map<FactoryContainer, Boolean> fOriginalPath;
+	
+	/**
+	 * True if the pref pane is for a project and project-specific
+	 * settings were enabled when the pane was initialized.
+	 * Use this to see if anything changed at save time.
+	 */
+	private boolean fOriginallyProjectSpecific;
 	
 	private final IJavaProject fJProj;
 
@@ -180,6 +191,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		int buttonBarWidth= fPixelConverter.convertWidthInCharsToPixels(24);
 		fFactoryPathList.setButtonsMinWidth(buttonBarWidth);
 		
+		cacheOriginalValues();
 		initListContents();
 
 		//TODO: enable help
@@ -188,22 +200,26 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	}
 
 	/**
-	 * 
+	 * (Re-)initialize the contents of the list control to the currently saved factory path.
+	 * This relies on the cached values being correct (@see #cacheOriginalValues()).
 	 */
 	private void initListContents() {
-		Map<FactoryContainer, Boolean> containers = AptConfig.getAllContainers(fJProj);
-		for (Map.Entry<FactoryContainer, Boolean> e : containers.entrySet()) {
+		fFactoryPathList.removeAllElements();
+		for (Map.Entry<FactoryContainer, Boolean> e : fOriginalPath.entrySet()) {
 			FactoryContainer fc = (FactoryContainer)e.getKey();
 			fFactoryPathList.addElement(fc);
 			fFactoryPathList.setChecked(fc, ((Boolean)e.getValue()).booleanValue());
 		}
 	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.ui.preferences.OptionsConfigurationBlock#getFullBuildDialogStrings(boolean)
+	
+	/**
+	 * Save reference copies of the settings, so we can see if anything changed.
+	 * This must stay in sync with the actual saved values for the rebuild logic
+	 * to work; so be sure to call this any time you save (eg in performApply()).
 	 */
-	protected String[] getFullBuildDialogStrings(boolean workspaceSettings) {
-		return null; // TODO: figure this out.
+	private void cacheOriginalValues() {
+		fOriginalPath = AptConfig.getAllContainers(fJProj);
+		fOriginallyProjectSpecific = AptConfig.hasProjectSpecificFactoryPath(fJProj);
 	}
 
 	//TODO: figure out how to edit an existing jar file - see LibrariesWorkbookPage for example
@@ -225,20 +241,25 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#updateModel(org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField)
 	 */
 	protected void updateModel(DialogField field) {
+		// We don't use IEclipsePreferences for this pane, so no need to do anything.
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#validateSettings(org.eclipse.jdt.internal.ui.preferences.OptionsConfigurationBlock.Key, java.lang.String, java.lang.String)
 	 */
 	protected void validateSettings(Key changedKey, String oldValue, String newValue) {
+		// Nothing to validate.
 	}
 	
-	private void saveContainers() {
+	private void saveSettings() {
 		Map<FactoryContainer, Boolean> containers;
-		// If the entire configuration block control is disabled in a project 
-		// properties dialog, it's because the per-project settings checkbox 
-		// is unchecked.  To save that state, we need to delete the settings file.
-		if ((fJProj == null) || fBlockControl.isEnabled()) {
+		if ((fJProj != null) && !fBlockControl.isEnabled()) {
+			// We're in a project properties pane but the entire configuration 
+			// block control is disabled.  That means the per-project settings checkbox 
+			// is unchecked.  To save that state, we'll delete the settings file.
+			containers = null;
+		}
+		else {
 			List listElems = fFactoryPathList.getElements();
 			containers = new LinkedHashMap<FactoryContainer, Boolean>();
 			int count = fFactoryPathList.getSize();
@@ -247,9 +268,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 				Boolean enabled = fFactoryPathList.isChecked(fc);
 				containers.put(fc, new Boolean(enabled));
 			}
-		}
-		else {
-			containers = null;
 		}
 		
 		try {
@@ -264,35 +282,104 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			e.printStackTrace();
 		}
 	}
-
-	public boolean performOk() {
-		// TODO: if the project-specific settings is checked.
-		if (true) {
-			saveContainers();
-		}
-		return super.performOk();
-	}
 	
+	/**
+	 * If per-project, restore list contents to current workspace settings;
+	 * the per-project settings checkbox will be cleared for us automatically.
+	 * If workspace, restore list contents to factory-default settings.
+	 */
 	public void performDefaults() {
-		try {
-			AptConfig.setContainers(fJProj, null);
+		Map<FactoryContainer, Boolean> defaults = AptConfig.getDefaultFactoryPath(fJProj);
+		fFactoryPathList.removeAllElements();
+		for (Map.Entry<FactoryContainer, Boolean> e : defaults.entrySet()) {
+			FactoryContainer fc = (FactoryContainer)e.getKey();
+			fFactoryPathList.addElement(fc);
+			fFactoryPathList.setChecked(fc, ((Boolean)e.getValue()).booleanValue());
 		}
-		catch (IOException e) {
-			// TODO: what?
-			e.printStackTrace();
-		}
-		catch (CoreException e) {
-			// TODO: what?
-			e.printStackTrace();
-		}
-		initListContents();
-
 		super.performDefaults();
 	}
 	
-	public boolean performApply() {
-		saveContainers();
-		return super.performApply();
+	/**
+	 * If there are changed settings, save them and ask user whether to rebuild.
+	 * This is called by performOk() and performApply().
+	 * @param container null when called from performApply().
+	 */
+	protected boolean processChanges(IWorkbenchPreferenceContainer container) {
+		if (!settingsChanged()) {
+			return true;
+		}
+		
+		int response= 1; // "NO" rebuild unless we put up the dialog.
+		String[] strings= getFullBuildDialogStrings(fProject == null);
+		if (strings != null) {
+			MessageDialog dialog= new MessageDialog(
+					getShell(), 
+					strings[0], 
+					null, 
+					strings[1], 
+					MessageDialog.QUESTION, 
+					new String[] { 
+						IDialogConstants.YES_LABEL, 
+						IDialogConstants.NO_LABEL, 
+						IDialogConstants.CANCEL_LABEL 
+					}, 
+					2);
+			response= dialog.open();
+		}
+		if (response == 0 || response == 1) { // "YES" or "NO" - either way, save.
+			saveSettings();
+			if (container == null) {
+				// we're doing an Apply, so update the reference values.
+				cacheOriginalValues();
+			}
+		}
+		if (response == 0) { // "YES", rebuild
+			if (container != null) {
+				// build after dialog exits
+				container.registerUpdateJob(CoreUtility.getBuildJob(fProject));
+			} else {
+				// build immediately
+				CoreUtility.getBuildJob(fProject).schedule();
+			}
+		} else if (response != 1) { // "CANCEL" - no save, no rebuild.
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * @return true if settings or project-specificness changed since
+	 * the pane was launched - that is, if there is anything to save.
+	 */
+	private boolean settingsChanged() {
+		boolean isProjectSpecific= (fJProj != null) && fBlockControl.getEnabled();
+		if (fOriginallyProjectSpecific ^ isProjectSpecific) {
+			// the project-specificness changed.
+			return true;
+		} else if ((fJProj != null) && !isProjectSpecific) {
+			// no project specific data, and there never was, so nothing could have changed.
+			return false;
+		}
+		int count = fFactoryPathList.getSize();
+		if (fOriginalPath.size() != count) {
+			// something was added or removed
+			return true;
+		}
+		// now we know both lists are the same size
+		Iterator<Map.Entry<FactoryContainer, Boolean>> iOriginal = fOriginalPath.entrySet().iterator();
+		for (int i = 0; i < count; ++i) {
+			Map.Entry<FactoryContainer, Boolean> entry = iOriginal.next();
+			Boolean wasEnabled = entry.getValue();
+			FactoryContainer fc = (FactoryContainer)fFactoryPathList.getElement(i);
+			if (!fc.equals(entry.getKey())) {
+				return true;
+			}
+			Boolean isEnabled = fFactoryPathList.isChecked(fc);
+			if (isEnabled ^ wasEnabled) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 }
