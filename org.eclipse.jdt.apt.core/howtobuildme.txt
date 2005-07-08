@@ -6,11 +6,11 @@ Eclipse APT Project - Developer Setup Instructions
 
 2.  Launch eclipse, creating a new Workspace.  Say "C:\AptWorkspace". 
 
-3.  Install JREs for eclipse.  You'll need to register a 1.4 & a 1.5 JRE.  To add JREs:
+3.  Install a 1.5 JRE for eclipse.  To add it to Eclipse:
 
     a. go to "Window menu, and then choose "Preferences | Java | Installed JREs".
-    b. click the add button and install the 1.4 JRE.  Make this the default JRE. 
-    c. click the add button and install the 1.5 JRE.  You will need to name this "JRE 1.5.0".
+    b. click the add button and install the 1.5 JRE.  You will need to name this "JRE 1.5.0".
+       Make this the default JRE.
 
 4.  Now you need to check out the various CVS projects from the eclipse CVS server.
 

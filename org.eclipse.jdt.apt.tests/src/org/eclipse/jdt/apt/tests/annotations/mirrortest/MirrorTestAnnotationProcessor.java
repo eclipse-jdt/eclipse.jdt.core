@@ -69,7 +69,6 @@ public class MirrorTestAnnotationProcessor implements AnnotationProcessor {
 		PackageDeclaration pkg = typeDecl.getPackage();
 		assertEquals("Package", CodeExample.CODE_PACKAGE, pkg.getQualifiedName());
 		
-		// TODO: test the actual contents, not just sizes of the results
 		Collection<FieldDeclaration> fields = typeDecl.getFields();
 		assertEquals("Number of fields: " + fields, 3, fields.size());
 		
