@@ -1,4 +1,0 @@
-/*
-*			// another comment
-*/
-int i;

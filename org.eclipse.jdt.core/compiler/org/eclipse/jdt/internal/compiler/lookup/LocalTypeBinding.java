@@ -63,18 +63,17 @@ public void addInnerEmulationDependent(BlockScope dependentScope, boolean wasEnc
 	//  System.out.println("Adding dependency: "+ new String(scope.enclosingType().readableName()) + " --> " + new String(this.readableName()));
 }
 public char[] computeUniqueKey(boolean isLeaf) {
-	StringBuffer buffer = new StringBuffer();
-	buffer.append(outermostEnclosingType().computeUniqueKey(isLeaf));
-	
-	// innsert $sourceStart
-	int semicolon = buffer.lastIndexOf(";"); //$NON-NLS-1$
-	buffer.insert(semicolon, '$');
-	semicolon = buffer.lastIndexOf(";"); //$NON-NLS-1$
-	buffer.insert(semicolon, this.sourceStart);
-	int length = buffer.length();
-	char[] uniqueKey = new char[length];
-	buffer.getChars(0, length, uniqueKey, 0);
-	return uniqueKey;
+	char[] outerKey = outermostEnclosingType().computeUniqueKey(isLeaf);
+	int semicolon = CharOperation.lastIndexOf(';', outerKey);
+
+	// insert $sourceStart
+	return CharOperation.concat(
+		CharOperation.concat(
+			CharOperation.subarray(outerKey, 0, semicolon),
+			String.valueOf(
+			this.sourceStart).toCharArray(),
+			'$'),
+		CharOperation.subarray(outerKey, semicolon, outerKey.length));
 }
 
 public char[] constantPoolName() /* java/lang/Object */ {
