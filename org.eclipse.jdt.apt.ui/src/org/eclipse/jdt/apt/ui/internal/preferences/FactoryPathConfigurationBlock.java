@@ -158,6 +158,9 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	public void buttonPressed(int index) {
 		if (index == IDX_ADDEXTJAR) { // add new
 			FactoryContainer[] newEntries= openExtJarFileDialog(null);
+			if (null == newEntries) {
+				return;
+			}
 			int insertAt;
 			List selectedElements= fFactoryPathList.getSelectedElements();
 			if (selectedElements.size() == 1) {
