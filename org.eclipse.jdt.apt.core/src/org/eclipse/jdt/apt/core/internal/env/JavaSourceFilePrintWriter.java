@@ -16,6 +16,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.generatedfile.FileGenerationResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -39,9 +40,9 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
             String contents = _sw.toString();
             super.close();
             GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager(_env.getProject());
-            ProcessorEnvImpl.Phase phase = _env.getPhase();
+            Phase phase = _env.getPhase();
 		
-            if ( phase == ProcessorEnvImpl.Phase.RECONCILE )
+            if ( phase == Phase.RECONCILE )
             {
             	ICompilationUnit parentCompilationUnit = _env.getCompilationUnit();
                 FileGenerationResult result  = gfm.generateFileDuringReconcile( 
@@ -49,7 +50,7 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 				if ( result != null )
 					_env.addGeneratedFile(result.getFile(), result.isModified());
             }
-            else if ( phase == ProcessorEnvImpl.Phase.BUILD)	
+            else if ( phase == Phase.BUILD)	
             {
 				FileGenerationResult result = gfm.generateFileDuringBuild( _env.getFile(), _env.getJavaProject(), _typeName, contents, null /* progress monitor */, _charsetName );
 				_env.addGeneratedFile( result.getFile(), result.isModified());

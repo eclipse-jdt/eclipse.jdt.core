@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
+import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImplNoBinding;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
@@ -95,10 +96,7 @@ import com.sun.mirror.util.Types;
 public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 										 EclipseAnnotationProcessorEnvironment
 {	
-	
 	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
-
-    public enum Phase { RECONCILE, BUILD };
 
     private final CompilationUnit _astCompilationUnit;
     private final ICompilationUnit _compilationUnit;   

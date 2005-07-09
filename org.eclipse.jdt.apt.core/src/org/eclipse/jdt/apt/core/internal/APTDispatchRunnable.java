@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
@@ -225,7 +226,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			
 			// BUGZILLA 103183 - reconcile-path disabled until type-generation in reconcile is turned on
 			Set<IFile> deletedFiles;
-			if( processorEnv.getPhase() == ProcessorEnvImpl.Phase.BUILD )
+			if( processorEnv.getPhase() == Phase.BUILD )
 				deletedFiles = cleanupNoLongerGeneratedFiles( processorEnv.getFile(), lastGeneratedFiles, allGeneratedFiles, gfm );
 			else
 				deletedFiles = Collections.<IFile>emptySet();

@@ -21,7 +21,7 @@ import com.sun.mirror.apt.AnnotationProcessorEnvironment;
  */
 public interface EclipseAnnotationProcessorEnvironment extends
 		AnnotationProcessorEnvironment 
-{
+{	
 	/**
 	 * @return the root of the fully flushed out DOM/AST of the file that is currently being processed.	 
 	 *         This AST will not contain any binding information. 
@@ -32,6 +32,12 @@ public interface EclipseAnnotationProcessorEnvironment extends
 	 * @return a messager for registering diagnostics.
 	 */
 	EclipseMessager getMessager();
+	
+	/**	
+	 * @return the current processing phase. Either
+	 * @link{Phase.RECONCILE} or @link{Phase.BUILD}
+	 */
+	Phase getPhase();
 	
 	/**
 	 * Add a type dependency on the type named <code>fullyQualifiedTypeName</code>
