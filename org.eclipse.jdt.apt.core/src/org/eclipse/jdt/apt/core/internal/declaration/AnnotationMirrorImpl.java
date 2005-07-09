@@ -94,12 +94,11 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 			if( astNode == null )
 				astNode = annotation;
 			
-			final int offset = astNode.getStartPosition();
-			// TODO: waiting on new API Bugzilla #97766
+			final int offset = astNode.getStartPosition();			
 			return new SourcePositionImpl(astNode.getStartPosition(),
 										  astNode.getLength(),
 						                  unit.lineNumber(offset),
-						                  0,//unit.columnNumber(offset), 
+						                  unit.columnNumber(offset), 
 						                  _annotated);
 		}
 		return null;

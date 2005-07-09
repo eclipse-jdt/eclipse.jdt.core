@@ -163,12 +163,11 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 			final ASTNode node = getRangeNode();
 			if( node == null ) return null;			       
             final CompilationUnit unit = getCompilationUnit();
-            final int start = node.getStartPosition();
-    		//TODO: waiting on new API Bugzilla #97766
+            final int start = node.getStartPosition();    		
             return new SourcePositionImpl(start,
 					node.getLength(),
 					unit.lineNumber(start),
-					0,//unit.columnNumber(start),
+					unit.columnNumber(start),
 					this);
         }
         return null;

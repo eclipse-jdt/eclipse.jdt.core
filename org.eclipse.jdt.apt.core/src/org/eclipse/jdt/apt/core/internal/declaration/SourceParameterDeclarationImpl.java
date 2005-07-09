@@ -76,12 +76,11 @@ public class SourceParameterDeclarationImpl extends ParameterDeclarationImpl imp
 		final ASTNode node = getAstNode();
 		if( node == null ) return null;
         final CompilationUnit unit = _executable.getCompilationUnit();
-        final int offset = node.getStartPosition();
-		//TODO: waiting on new API Bugzilla #97766
+        final int offset = node.getStartPosition();		
         return new SourcePositionImpl(node.getStartPosition(),
                                       node.getLength(),
                                       unit.lineNumber(offset),
-                                      0,//unit.columnNumber(offset),
+                                      unit.columnNumber(offset),
                                       this);
     }
     

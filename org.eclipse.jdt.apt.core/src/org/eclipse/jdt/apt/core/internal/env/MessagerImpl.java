@@ -138,10 +138,8 @@ public class MessagerImpl implements Messager, EclipseMessager
     	final IFile currentResource = _env.getFile();
     	int offset = 0;    	
     	if( currentResource.equals(resource) ){
-    		final CompilationUnit unit = _env.getAstCompilationUnit();
-    		//TODO: waiting on new API Bugzilla #97766
-    		//offset = unit.getPosition(pos.line(), pos.column() );
-    		offset = 0;
+    		final CompilationUnit unit = _env.getAstCompilationUnit();    		
+    		offset = unit.getPosition(pos.line(), pos.column() );
     	}    	
     	_env.addProblem(resource, offset, -1, severity, msg, pos.line() );   
     }

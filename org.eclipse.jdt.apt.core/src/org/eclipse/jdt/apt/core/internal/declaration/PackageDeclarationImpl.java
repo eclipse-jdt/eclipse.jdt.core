@@ -171,12 +171,11 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 			final CompilationUnit unit = _typeDecl.getCompilationUnit();
 			final ASTNode node = unit.findDeclaringNode(getDeclarationBinding());
 			if( node == null ) return null;
-			final int start = node.getStartPosition();
-			//TODO: waiting on new API Bugzilla #97766
+			final int start = node.getStartPosition();		
 	        return new SourcePositionImpl(start,
 										  node.getLength(),
 	                                      unit.lineNumber(start),
-	                                      0,//unit.columnNumber(start),
+	                                      unit.columnNumber(start),
 	                                      this);			
 		}
 		return null;

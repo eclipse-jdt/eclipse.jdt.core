@@ -120,12 +120,11 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 		
         final CompilationUnit unit = getCompilationUnit();
 		if( unit == null ) return null;		
-		final int offset = astNode.getStartPosition();
-		//TODO: waiting on new API Bugzilla #97766
+		final int offset = astNode.getStartPosition();		
         return new SourcePositionImpl(astNode.getStartPosition(),
 									  astNode.getLength(),
                                       unit.lineNumber(offset),
-                                      0,//unit.columnNumber(offset),
+                                      unit.columnNumber(offset),
                                       this);
     }
 	

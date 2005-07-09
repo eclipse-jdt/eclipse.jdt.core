@@ -109,12 +109,11 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements Typ
 			final ASTNode node = getAstNode();  
 			if( node == null ) return null;
             final CompilationUnit unit = getCompilationUnit();
-            final int offset = node.getStartPosition();
-    		//TODO: waiting on new API Bugzilla #97766
+            final int offset = node.getStartPosition();    		
             return new SourcePositionImpl(offset, 
             		                      node.getLength(), 
             							  unit.lineNumber(offset), 
-            							  0,//unit.columnNumber(offset),
+            							  unit.columnNumber(offset),
             							  this);
         }
         else
