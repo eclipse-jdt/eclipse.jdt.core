@@ -67,6 +67,25 @@ public class AptConfig {
 	private static Map<IProject, Map<String, String>> _optionsMaps = 
 		new WeakHashMap<IProject, Map<String, String>>();
 	
+	
+	/**
+	 * Add factory containers to the list for a project.  If the container
+	 * is already in the project's list, it will remain but will take on
+	 * the new value of the 'enabled' attribute.
+	 * The resulting list will be saved to the appropriate settings file.
+	 * If there is an error accessing the file an exception will be thrown.
+	 * @param jproj a project, or null for the workspace list.
+	 * @param adds a map of factory containers to add to the list.  The value
+	 * indicates whether the container's factories are to be enabled.
+	 */
+	public static synchronized void addContainers(
+			IJavaProject jproj, Map<FactoryContainer, Boolean> adds) 
+			throws IOException, CoreException {
+		Map<FactoryContainer, Boolean> existing = FactoryPathUtil.getAllContainers(jproj);
+		existing.putAll(adds);
+		setContainers(jproj, existing);
+	}
+	
 	/**
 	 * Returns all containers for the provided project, including disabled ones.
 	 * @param jproj The java project in question, or null for the workspace
@@ -97,6 +116,21 @@ public class AptConfig {
 		return result;
 	}
 	    
+	/**
+	 * Remove a processor factory container from the list for a project.  
+	 * The resulting list will be saved to the appropriate settings file.
+	 * If there is an error accessing the file an exception will be thrown.
+	 * @param jproj a project, or null for the workspace list.
+	 * @param container a factory container.
+	 */
+	public static synchronized void removeContainer(
+			IJavaProject jproj, FactoryContainer container) 
+			throws IOException, CoreException {
+		Map<FactoryContainer, Boolean> existing = FactoryPathUtil.getAllContainers(jproj);
+		existing.remove(container);
+		setContainers(jproj, existing);
+	}
+	
 	/**
      * Add the equivalent of -Akey=val to the list of processor options.
      * @param key must be a nonempty string.  It should only include the key;

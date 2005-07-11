@@ -23,6 +23,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Collections;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -43,7 +46,8 @@ public class TestUtil
 {
 
 	/**
-	 * creates the annotation jar.  Returns the java.io.File of the jar that was created.
+	 * creates the annotation jar.  
+	 * @return the java.io.File of the jar that was created.
 	 */
 	public static File createAndAddAnnotationJar( IJavaProject project )
 		throws IOException, JavaModelException
@@ -54,55 +58,67 @@ public class TestUtil
 		IPath projectPath = getProjectPath( project );
 		File jarFile = new File( projectPath.toFile(), "Classes.jar" );
 		String classesJarPath = jarFile.getAbsolutePath();
-		TestUtil.createAnnotationJar( classesJarPath );
+		FileFilter filter = new PackageFileFilter(
+				ANNOTATIONS_PKG, getPluginClassesDir());
+		Map<File, FileFilter> files = Collections.singletonMap(
+				new File(getPluginClassesDir()), filter);
+		zip( classesJarPath, files );
 		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/, 
 			null /*srcAttachmentPathRoot*/, true );
 		return new File(classesJarPath);
 	}
 	
-	public static void createAnnotationJar(String jarPath)
-		throws IOException
+	/**
+	 * Creates an annotation jar containing annotations and processors
+	 * from the "external.annotations" package, and adds it to the project.
+	 * Classes will be found under [project]/binext, and manifest will be
+	 * drawn from [project]/srcext/META-INF.  
+	 * This jar is meant to represent an annotation jar file not 
+	 * wrapped within a plugin.  Note that adding a jar to a project makes
+	 * its classes visible to the compiler but does NOT automatically cause 
+	 * its annotation processors to be loaded.
+	 * @return the java.io.File of the jar that was created.
+	 */
+	public static File createAndAddExternalAnnotationJar( 
+			IJavaProject project  )
+		throws IOException, JavaModelException
 	{
-		//
-		// This filter only accepts classes in the package ANNOTATIONS_PKG.
-		// This way, we can jar up these files and have them available to the
-		// project
-		// so code can reference types in there.
-		//
-		FileFilter filter = new FileFilter()
-		{
-			public boolean accept(File pathname)
-			{
-				IPath f = new Path( pathname.getAbsolutePath() );
-
-				int nsegments = f.matchingFirstSegments( new Path(
-					getPluginClassesDir() ) );
-				boolean ok = true;
-				int min = Math.min( f.segmentCount() - nsegments,
-					ANNOTATIONS_PKG_PARTS.length );
-				for( int i = nsegments, j = 0; j < min; i++, j++ )
-				{
-					if( !f.segment( i ).equals( ANNOTATIONS_PKG_PARTS[j] ) )
-					{
-						ok = false;
-						break;
-					}
-				}
-				return ok;
-			}
-		};
-		zip( new File( getPluginClassesDir() ), jarPath, filter );
+		IPath projectPath = getProjectPath( project );
+		File jarFile = new File( projectPath.toFile(), "ClassesExt.jar" );
+		String classesJarPath = jarFile.getAbsolutePath();
+		FileFilter classFilter = new PackageFileFilter(
+				EXTANNOTATIONS_PKG, getPluginExtClassesDir());
+		FileFilter manifestFilter = new PackageFileFilter(
+				"META-INF", getPluginExtSrcDir());
+		Map<File, FileFilter> files = new HashMap<File, FileFilter>(2);
+		files.put(new File( getPluginExtClassesDir() ), classFilter);
+		files.put(new File( getPluginExtSrcDir() ), manifestFilter);
+		zip( classesJarPath, files );
+		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/, 
+			null /*srcAttachmentPathRoot*/, true );
+		return new File(classesJarPath);
 	}
-
+	
 	public static IPath getProjectPath( IJavaProject project )
 	{
 		return project.getResource().getLocation();
 	}
 	
-	
 	public static String getPluginClassesDir()
 	{
 		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/bin" ) )
+			.getAbsolutePath();
+	}
+
+	public static String getPluginExtClassesDir()
+	{
+		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/binext" ) )
+			.getAbsolutePath();
+	}
+
+	public static String getPluginExtSrcDir()
+	{
+		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/srcext" ) )
 			.getAbsolutePath();
 	}
 
@@ -120,7 +136,15 @@ public class TestUtil
 		}
 	}
 
-	public static void zip(File rootDir, String zipPath, FileFilter filter)
+	/**
+	 * Create a zip file and add contents.
+	 * @param zipPath the zip file
+	 * @param input a map of root directories and corresponding filters.  Each
+	 * root directory will be searched, and any files that pass the filter will
+	 * be added to the zip file.
+	 * @throws IOException
+	 */
+	public static void zip(String zipPath, Map<File, FileFilter> input)
 		throws IOException
 	{
 		ZipOutputStream zip = null;
@@ -128,7 +152,9 @@ public class TestUtil
 		{
 			zip = new ZipOutputStream( new FileOutputStream( zipPath ) );
 			// +1 for last slash
-			zip( rootDir, zip, rootDir.getPath().length() + 1, filter ); 
+			for (Map.Entry<File, FileFilter> e : input.entrySet()) {
+				zip( zip, e.getKey(), e.getKey().getPath().length() + 1, e.getValue() );
+			}
 		}
 		finally
 		{
@@ -138,8 +164,8 @@ public class TestUtil
 			}
 		}
 	}
-
-	private static void zip(File dir, ZipOutputStream zip, int rootPathLength,
+	
+	private static void zip(ZipOutputStream zip, File dir, int rootPathLength,
 		FileFilter filter) throws IOException
 	{
 		String[] list = dir.list();
@@ -153,7 +179,7 @@ public class TestUtil
 				{
 					if( file.isDirectory() )
 					{
-						zip( file, zip, rootPathLength, filter );
+						zip( zip, file, rootPathLength, filter );
 					}
 					else
 					{
@@ -267,9 +293,46 @@ public class TestUtil
 	}
 	
 	
-	public static final String		ANNOTATIONS_PKG			= "org.eclipse.jdt.apt.tests.annotations";
+	private static class PackageFileFilter implements FileFilter {
+		private final String[] _packageParts;
+		private final Path _binDir;
+		
+		/**
+		 * Select only those files under a certain package.
+		 * @param packageSubset a partial package name, such as 
+		 * "org.eclipse.jdt.apt.tests.annotations".
+		 * @param binDir the absolute path of the directory 
+		 * in which the compiled classes are to be found.
+		 */
+		public PackageFileFilter(String packageSubset, String binDir) {
+			_packageParts = packageSubset.split("\\.");
+			_binDir = new Path(binDir);
+		}
+		
+		public boolean accept(File pathname)
+		{
+			IPath f = new Path( pathname.getAbsolutePath() );
 
-	public static final String[]	ANNOTATIONS_PKG_PARTS	= ANNOTATIONS_PKG
-																.split( "\\." );
+			int nsegments = f.matchingFirstSegments( _binDir );
+			boolean ok = true;
+			int min = Math.min( f.segmentCount() - nsegments,
+					_packageParts.length );
+			for( int i = nsegments, j = 0; j < min; i++, j++ )
+			{
+				if( !f.segment( i ).equals( _packageParts[j] ) )
+				{
+					ok = false;
+					break;
+				}
+			}
+			return ok;
+		}
+	}
+	
+	public static final String ANNOTATIONS_PKG = 
+		"org.eclipse.jdt.apt.tests.annotations";
+
+	public static final String EXTANNOTATIONS_PKG = 
+		"org.eclipse.jdt.apt.tests.external.annotations";
 
 }
