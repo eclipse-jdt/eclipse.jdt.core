@@ -177,4 +177,6 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 	public ProcessorEnvImpl getEnvironment(){
 		return _env;
 	}
+	
+	public String toString(){ return _value == null ? "" : _value.toString();  }
 }

@@ -42,6 +42,7 @@ public class TestAll extends TestCase {
 		suite.addTest(PreferencesTests.suite());
 		suite.addTest(MirrorDeclarationTests.suite());
 		suite.addTest(MirrorUtilTests.suite());
+		suite.addTest(AnnotationValueConversionTests.suite());
 	
 		return suite;
 		

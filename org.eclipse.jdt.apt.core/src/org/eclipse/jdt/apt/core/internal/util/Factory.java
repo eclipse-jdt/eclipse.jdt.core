@@ -14,10 +14,13 @@ package org.eclipse.jdt.apt.core.internal.util;
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.type.AnnotationType;
+import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.InterfaceType;
+import com.sun.mirror.type.PrimitiveType;
 import com.sun.mirror.type.TypeMirror;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
@@ -164,7 +167,9 @@ public class Factory
 													 ProcessorEnvImpl env)
     {
         if( domValue == null ) return null;
-		final Object converted = convertDOMValueToMirrorValue(domValue, null, decl, decl, env);		
+        boolean needBoxing = decl.getReturnType() instanceof ArrayType;		
+		final Object converted = convertDOMValueToMirrorValue(domValue, null, decl, decl, env, decl.getReturnType());
+		
         return createAnnotationValue(converted, null, -1, decl, env);
     }
 	
@@ -179,13 +184,26 @@ public class Factory
 	public static AnnotationValue createAnnotationMemberValue(Object domValue,
 															  String elementName,
 															  AnnotationMirrorImpl anno, 														
-															  ProcessorEnvImpl env)
+															  ProcessorEnvImpl env,
+															  TypeMirror expectedType)
 	{
 		if( domValue == null ) return null;
-		final Object converted = convertDOMValueToMirrorValue(domValue, elementName, anno, anno.getAnnotatedDeclaration(), env);
+		final Object converted = convertDOMValueToMirrorValue(
+				domValue, elementName, anno, 
+				anno.getAnnotatedDeclaration(), env, expectedType);
 		return createAnnotationValue(converted, elementName, -1, anno, env);		
 	}
 	
+	/**
+	 * @param convertedValue value in mirror form.
+	 * @param name the name of the annotation member or null for default value 
+	 * @param index the number indicate the source order of the annotation member value 
+	 *              in the annotation instance.
+	 * @param mirror either {@link AnnotationMirrorImpl } or {@link AnnotationElementDeclarationImpl}
+	 * @param env
+	 * @param needBoxing whether the expected type of the member value is an array or not.
+	 * @return
+	 */
 	private static AnnotationValue createAnnotationValue(Object convertedValue, 
 														 String name,
 														 int index,
@@ -212,33 +230,44 @@ public class Factory
      * annotation element declaration where the default value originates
      * if <code>domValue</code> is an annotation, then <code>decl</code>
      * is the declaration that it annotates.
+     * @param expectedType the declared type of the member value.
+     * @param needBoxing <code>true</code> indicate an array should be returned. 
      */
     private static Object convertDOMValueToMirrorValue(Object domValue, 
 													   String name,	
 													   EclipseMirrorImpl parent,
 													   DeclarationImpl decl, 
-													   ProcessorEnvImpl env)
+													   ProcessorEnvImpl env,
+													   TypeMirror expectedType)
     {
         if( domValue == null ) return null;		
-        else if(domValue instanceof Boolean   ||
-				domValue instanceof Byte      ||
-				domValue instanceof Character ||
-				domValue instanceof Double    || 
-				domValue instanceof Float     ||
-				domValue instanceof Integer   ||
-				domValue instanceof Long      ||
-				domValue instanceof Short     ||
-				domValue instanceof String ) 
-			return domValue;
+        
+        final Object returnValue;
+        if( domValue instanceof Boolean   ||
+			domValue instanceof Byte      ||
+			domValue instanceof Character ||
+			domValue instanceof Double    || 
+			domValue instanceof Float     ||
+			domValue instanceof Integer   ||
+			domValue instanceof Long      ||
+			domValue instanceof Short     ||
+			domValue instanceof String ) 
+			returnValue = domValue;
+        
         else if( domValue instanceof IVariableBinding )
 		{
-			return Factory.createDeclaration((IVariableBinding)domValue, env);			
+        	returnValue = Factory.createDeclaration((IVariableBinding)domValue, env);			
 		}
         else if (domValue instanceof Object[])
 		{
 			final Object[] elements = (Object[])domValue;
 			final int len = elements.length;
             final List<AnnotationValue> annoValues = new ArrayList<AnnotationValue>(len);
+            final TypeMirror leaf; 
+            if( expectedType instanceof ArrayType )
+            	leaf = ((ArrayType)expectedType).getComponentType();
+            else
+            	leaf = expectedType; // doing our best here.
 			for( int i=0; i<len; i++ ){				
                 if( elements[i] == null ) continue;
                 // can't have multi-dimensional array.
@@ -246,7 +275,7 @@ public class Factory
                 else if( elements[i] instanceof Object[] )
                     return null;
 
-				Object o = convertDOMValueToMirrorValue( elements[i], name, parent, decl, env );
+				Object o = convertDOMValueToMirrorValue( elements[i], name, parent, decl, env, leaf );
 				assert( !( o instanceof IResolvedAnnotation ) ) : "Unexpected return value from convertDomValueToMirrorValue! o.getClass().getName() = " + o.getClass().getName();
 				
 				final AnnotationValue annoValue = createAnnotationValue(o, name, i, parent, env);
@@ -257,15 +286,188 @@ public class Factory
 		}
 		// caller should have caught this case.
         else if( domValue instanceof ITypeBinding )
-			return Factory.createTypeMirror((ITypeBinding)domValue, env);
+			returnValue = Factory.createTypeMirror((ITypeBinding)domValue, env);
 		
         else if( domValue instanceof IResolvedAnnotation )
 		{
-			return Factory.createAnnotationMirror((IResolvedAnnotation)domValue, decl, env);
+			returnValue = Factory.createAnnotationMirror((IResolvedAnnotation)domValue, decl, env);
 		}
+        else	        
+			// should never reach this point
+			throw new IllegalStateException("cannot build annotation value object from " + domValue);
         
-		// should never reach this point
-		throw new IllegalStateException("cannot build annotation value object from " + domValue);
+        return performNecessaryTypeConversion(expectedType, returnValue, name, parent, env);
+    }
+    
+    /**
+     * Apply type conversion according to JLS 5.1.2 and 5.1.3 and / or auto-boxing.
+     * @param expectedType the expected type
+     * @param value the value where conversion may be applied to
+     * @param name name of the member value
+     * @param parent the of the annotation of the member value
+     * @param env 
+     * @return the value matching the expected type or itself if no conversion can be applied.
+     */
+    private static Object performNecessaryTypeConversion(final TypeMirror expectedType,
+	    											     final Object value,
+	    											     final String name,
+	    											     final EclipseMirrorImpl parent,
+	    											     final ProcessorEnvImpl env)
+    {
+    	if(expectedType == null )return value;
+    	// apply widening or narrowing primitive type conversion based on JLS 5.1.2 and 5.1.3
+    	if( expectedType instanceof PrimitiveType )
+    	{    	
+    		// widening byte -> short, int, long, float or double
+    		// narrowing byte -> char
+    		if( value instanceof Byte )
+    		{
+    			final byte b = ((Byte)value).byteValue();
+    			switch( ((PrimitiveType)expectedType).getKind() )
+    			{
+    			case CHAR:
+    				return new Character((char)b);
+    			case SHORT:
+    				return new Short((short)b);
+    			case INT:
+    				return new Integer((short)b);
+    			case LONG:
+    				return new Long((long)b);
+    			case FLOAT:
+    				return new Float((float)b);
+    			case DOUBLE:
+    				return new Double((double)b);
+    			default:
+    				// it is either already correct or it is completely wrong,
+    				// which doesn't really matter what's returned
+    				return value;
+    			}
+    		}
+    		// widening short -> int, long, float, or double 
+    		// narrowing short -> byte or char
+    		else if( value instanceof Short )
+    		{
+    			final short s = ((Short)value).shortValue();
+    			switch( ((PrimitiveType)expectedType).getKind() )
+    			{
+    			case BYTE:
+    				return new Byte((byte)s);
+    			case CHAR:
+    				return new Character((char)s);  
+    			case INT:
+    				return new Integer((int)s ); 
+    			case LONG:
+    				return new Long((long)s);
+    			case FLOAT:
+    				return new Float((float)s);
+    			case DOUBLE:
+    				return new Double((double)s);
+    			default:
+    				// it is either already correct or it is completely wrong,
+    				// which doesn't really matter what's returned
+    				return value;
+    			}
+    		}
+    		// widening char -> int, long, float, or double 
+    		// narrowing char -> byte or short
+    		else if( value instanceof Character )
+    		{
+    			final char c = ((Character)value).charValue();
+    			switch( ((PrimitiveType)expectedType).getKind() )
+    			{
+    			case INT:
+    				return new Integer((int)c ); 
+    			case LONG:
+    				return new Long((long)c);
+    			case FLOAT:
+    				return new Float((float)c);
+    			case DOUBLE:
+    				return new Double((double)c);
+    			case BYTE:
+    				return new Byte((byte)c);
+    			case SHORT:
+    				return new Short((short)c);  
+    			
+    			default:
+    				// it is either already correct or it is completely wrong,
+    				// which doesn't really matter what's returned
+    				return value;
+    			}
+    		}
+    		
+    		// widening int -> long, float, or double 
+    		// narrowing int -> byte, short, or char 
+    		else if( value instanceof Integer )
+    		{
+    			final int i = ((Integer)value).intValue();
+    			switch( ((PrimitiveType)expectedType).getKind() )
+    			{    		
+    			case LONG:
+    				return new Long((long)i);
+    			case FLOAT:
+    				return new Float((float)i);
+    			case DOUBLE:
+    				return new Double((double)i);
+    			case BYTE:
+    				return new Byte((byte)i);
+    			case SHORT:
+    				return new Short((short)i);  
+    			case CHAR:
+    				return new Character((char)i);
+    			default:
+    				// it is either already correct or it is completely wrong,
+    				// which doesn't really matter what's returned
+    				return value;
+    			}
+    		}
+    		// widening long -> float or double
+    		else if( value instanceof Long )
+    		{
+    			final long l = ((Long)value).longValue();
+    			switch( ((PrimitiveType)expectedType).getKind() )
+    			{
+    			case FLOAT:
+    				return new Float((float)l);
+    			case DOUBLE:
+    				return new Double((double)l);    		
+    			default:
+    				// it is either already correct or it is completely wrong,
+    				// which doesn't really matter what's returned
+    				return value;
+    			}
+    		}
+    		
+    		// widening float -> double    		 
+    		else if( value instanceof Float )
+    		{
+    			final float f = ((Float)value).floatValue();
+    			switch( ((PrimitiveType)expectedType).getKind() )
+    			{    			
+    			case DOUBLE:
+    				return new Double((double)f);    		
+    			default:
+    				// it is either already correct or it is completely wrong,
+    				// which doesn't really matter what's returned
+    				return value;
+    			}
+    		}
+    		else // boolean or double case. Nothing we can do here.
+    			return value;
+    	}
+    	// handle auto-boxing
+    	else if( expectedType instanceof ArrayType)
+    	{
+    		final TypeMirror componentType = ((ArrayType)expectedType).getComponentType();
+    		Object converted = value;
+    		// if it is an error case, will just leave it as is.
+    		if( !(componentType instanceof ArrayType ) )    		
+    			converted = performNecessaryTypeConversion(componentType, value, name, parent, env);
+    		
+    		final AnnotationValue annoValue = createAnnotationValue(converted, name, 0, parent, env);
+        	return Collections.singletonList(annoValue);
+    	}
+    	else // no change
+    		return value;
     }
 
     public static InterfaceType createErrorInterfaceType(final ITypeBinding binding)

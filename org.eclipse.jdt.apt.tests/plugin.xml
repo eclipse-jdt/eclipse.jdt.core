@@ -56,6 +56,9 @@
 	      <factory
 	         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestAnnotationProcessorFactory">
 	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.valueconversion.ValueConversionProcessorFactory">
+	      </factory>
 	   </factories>
    </extension>
 

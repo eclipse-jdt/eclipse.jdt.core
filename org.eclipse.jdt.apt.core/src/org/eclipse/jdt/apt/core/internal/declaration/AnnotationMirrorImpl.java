@@ -73,12 +73,17 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
              if( name == null ) continue;
              IMethodBinding elementMethod = pair.getMemberBinding();            
              if( elementMethod != null ){
+            	 final ITypeBinding retType = elementMethod.getReturnType();            
                  final DeclarationImpl mirrorDecl = Factory.createDeclaration(elementMethod, _env);
-                 final AnnotationValue annoValue = 
-					 Factory.createAnnotationMemberValue(pair.getValue(), name, this, _env);
-                 if( mirrorDecl.kind() == EclipseMirrorImpl.MirrorKind.ANNOTATION_ELEMENT  &&
-                     annoValue != null )
-                     result.put( (AnnotationTypeElementDeclaration)mirrorDecl, annoValue);
+                 if( mirrorDecl != null && mirrorDecl.kind() == EclipseMirrorImpl.MirrorKind.ANNOTATION_ELEMENT  )
+                 {
+                	 final AnnotationTypeElementDeclaration elementDecl = 
+                		 (AnnotationTypeElementDeclaration)mirrorDecl;
+                	 final AnnotationValue annoValue = 
+    					 Factory.createAnnotationMemberValue(pair.getValue(), name, this, _env, elementDecl.getReturnType());
+                	 if( annoValue != null )
+                		 result.put( elementDecl, annoValue);
+                 }
              }
 		}
         return result;
