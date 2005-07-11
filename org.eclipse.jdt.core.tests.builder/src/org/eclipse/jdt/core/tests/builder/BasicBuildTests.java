@@ -128,21 +128,21 @@ public class BasicBuildTests extends Tests {
 			Object priority = marker.getAttribute(IMarker.PRIORITY);
 			String message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertTrue("Wrong message", message.startsWith("TODO "));
-			assertNotNull("No task marker", priority);
+			assertNotNull("No task priority", priority);
 			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_NORMAL), priority);
 
 			marker = markers[1];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertTrue("Wrong message", message.startsWith("FIXME "));
-			assertNotNull("No task marker", priority);
+			assertNotNull("No task priority", priority);
 			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_HIGH), priority);
 
 			marker = markers[2];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertTrue("Wrong message", message.startsWith("XXX "));
-			assertNotNull("No task marker", priority);
+			assertNotNull("No task priority", priority);
 			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_LOW), priority);
 		} catch (CoreException e) {
 			assertTrue(false);
