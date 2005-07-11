@@ -483,6 +483,34 @@ public class TestingEnvironment {
 		return new Problem[0];
 	}
 	
+	
+	/**
+	 * Return all problems with the specified element.
+	 */
+	public IMarker[] getTaskMarkersFor(IPath path){
+		IResource resource = null;
+		if(path.equals(getWorkspaceRootPath())){
+			resource = getWorkspace().getRoot();
+		} else {
+			IProject p = getProject(path);
+			if(p != null && path.equals(p.getFullPath())) {
+				resource = getProject(path.lastSegment());
+			} else if(path.getFileExtension() == null) {
+				resource = getWorkspace().getRoot().getFolder(path);
+			} else {
+				resource = getWorkspace().getRoot().getFile(path);
+			}
+		}
+		try {
+			if (resource != null) {
+				return resource.findMarkers(IJavaModelMarker.TASK_MARKER, true, IResource.DEPTH_INFINITE);
+			}
+		} catch(CoreException e){
+			// ignore
+		}
+		return new IMarker[0];
+	}
+	
 	/** Return the path of the package
 	 * with the given name.  A workspace must be open, and
 	 * the package must exist.
