@@ -10,11 +10,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import java.util.Map;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
 public class GenericsCompletionParserTest extends AbstractCompletionTest {
 public GenericsCompletionParserTest(String testName) {
 	super(testName);
 }
-
+protected Map getCompilerOptions() {
+	Map options = super.getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
+	return options;
+}
 public void test0001(){
 	String str =
 		"public class X  <T extends Z<Y>. {\n" +
@@ -8940,6 +8950,80 @@ public void test0203(){
 		"    {\n" + 
 		"      <CompleteOnName:entry.>;\n" + 
 		"    }\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=103148
+ */
+public void test0204(){
+	String str =
+		"public class Test {\n"+
+		"	public enum MyEnum { A };\n"+
+		"	public static void foo() {\n"+
+		"		EnumSet.<MyEnum>of(MyEnum.A);\n"+
+		"		zzz\n"+
+		"	}\n"+
+		"}\n";
+
+	String completeBehind = "zzz";
+	int cursorLocation = str.indexOf("zzz") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<NONE>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "<NONE>";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public enum MyEnum {\n" + 
+		"    A(),\n" + 
+		"    <clinit>() {\n" + 
+		"    }\n" + 
+		"    public MyEnum() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public static void foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	checkDietParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+	"diet ast");
+	
+	expectedCompletionNodeToString = "<CompleteOnName:zzz>";
+	expectedParentNodeToString = "<NONE>";
+	completionIdentifier = "zzz";
+	expectedReplacedSource = "zzz";
+	expectedUnitDisplayString =
+		"public class Test {\n" + 
+		"  public enum MyEnum {\n" + 
+		"    A(),\n" + 
+		"    <clinit>() {\n" + 
+		"    }\n" + 
+		"    public MyEnum() {\n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public static void foo() {\n" + 
+		"    <CompleteOnName:zzz>;\n" + 
 		"  }\n" + 
 		"}\n";
 
