@@ -110,6 +110,11 @@ public class FactoryLoaderTests extends Tests {
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		assertFalse(LoaderTestAnnotationProcessor.isLoaded());
+		
+		// This file will be locked until GC takes care of unloading
+		// the annotation processor classes.
+		_extJar.deleteOnExit();
+		_extJar = null;
 	}
 	
 

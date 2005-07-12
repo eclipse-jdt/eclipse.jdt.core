@@ -83,8 +83,7 @@ public class TestUtil
 			IJavaProject project  )
 		throws IOException, JavaModelException
 	{
-		IPath projectPath = getProjectPath( project );
-		File jarFile = new File( projectPath.toFile(), "ClassesExt.jar" );
+		File jarFile = File.createTempFile("org.eclipse.jdt.apt.tests.TestUtil", ".jar");
 		String classesJarPath = jarFile.getAbsolutePath();
 		FileFilter classFilter = new PackageFileFilter(
 				EXTANNOTATIONS_PKG, getPluginExtClassesDir());
