@@ -658,6 +658,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		buf.append("    public void foo() {\n");
 		buf.append("        new Inner();\n");
 		buf.append("        new <A>Inner();\n");
+		buf.append("        new<A>Inner();\n");
 		buf.append("        new <A, A>Inner();\n");
 		buf.append("    }\n");
 		buf.append("}\n");	
@@ -673,7 +674,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
 		Block block= methodDecl.getBody();
 		List statements= block.statements();
-		assertTrue("Number of statements not 3", statements.size() == 3);
+		assertTrue("Number of statements not 3", statements.size() == 4);
 		{ // add type argument
 			ExpressionStatement stmt= (ExpressionStatement) statements.get(0);
 			ClassInstanceCreation creation= (ClassInstanceCreation) stmt.getExpression();
@@ -690,9 +691,15 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 			List typeArgs= creation.typeArguments();
 			rewrite.remove((ASTNode) typeArgs.get(0), null);
 		}
-		
-		{ // add type argument to existing
+		{ // remove type argument
 			ExpressionStatement stmt= (ExpressionStatement) statements.get(2);
+			ClassInstanceCreation creation= (ClassInstanceCreation) stmt.getExpression();
+
+			List typeArgs= creation.typeArguments();
+			rewrite.remove((ASTNode) typeArgs.get(0), null);
+		}
+		{ // add type argument to existing
+			ExpressionStatement stmt= (ExpressionStatement) statements.get(3);
 			ClassInstanceCreation creation= (ClassInstanceCreation) stmt.getExpression();
 
 			Type newTypeArg= ast.newSimpleType(ast.newSimpleName("String"));
@@ -708,6 +715,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		buf.append("public class E<A> {\n");
 		buf.append("    public void foo() {\n");
 		buf.append("        new <A> Inner();\n");
+		buf.append("        new Inner();\n");
 		buf.append("        new Inner();\n");
 		buf.append("        new <A, A, String>Inner();\n");
 		buf.append("    }\n");

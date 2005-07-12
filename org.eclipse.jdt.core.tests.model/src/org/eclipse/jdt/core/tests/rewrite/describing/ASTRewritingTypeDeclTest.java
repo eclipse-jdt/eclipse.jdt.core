@@ -562,6 +562,8 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("class F {}\n");
 		buf.append("class G <T> extends A {}\n");
 		buf.append("class H <T> {}\n");
+		buf.append("class I<T> extends A {}\n");
+		buf.append("class J<T>extends A {}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
 		CompilationUnit astRoot= createAST3(cu);
@@ -577,7 +579,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			typeParameter.setName(ast.newSimpleName("X"));
 			listRewrite.insertFirst(typeParameter, null);
 		}
-		for (int i= 2; i < 4; i++) {
+		for (int i= 2; i < 6; i++) {
 			// remove type parameter
 			TypeDeclaration typeDecl= (TypeDeclaration) types.get(i);
 			rewrite.remove((ASTNode) typeDecl.typeParameters().get(0), null);
@@ -590,6 +592,8 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("class F<X> {}\n");
 		buf.append("class G extends A {}\n");
 		buf.append("class H {}\n");	
+		buf.append("class I extends A {}\n");
+		buf.append("class J extends A {}\n");
 		assertEqualString(preview, buf.toString());
 	}
 	
