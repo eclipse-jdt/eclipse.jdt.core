@@ -420,7 +420,7 @@ public abstract class Scope
 			typeVariable.firstBound = superRefType; // first bound used to compute erasure
 			TypeReference[] boundRefs = typeParameter.bounds;
 			if (boundRefs != null) {
-				for (int j = 0, k = boundRefs.length; j < k; j++) {
+				for (int j = 0, boundLength = boundRefs.length; j < boundLength; j++) {
 					typeRef = boundRefs[j];
 					superType = this.kind == METHOD_SCOPE
 						? typeRef.resolveType((BlockScope)this, false)
@@ -445,13 +445,24 @@ public abstract class Scope
 					}
 					// check against superclass
 					if (typeVariable.firstBound == typeVariable.superclass) {
-						ReferenceBinding match = typeVariable.superclass.findSuperTypeWithSameErasure(superType);
-						if (match != null && match != superType) {
-							problemReporter().superinterfacesCollide(superType.erasure(), typeRef, superType, match);
-							typeVariable.tagBits |= HierarchyHasProblems;
-							noProblems = false;
-							continue nextVariable;
-						}						
+						types[1] = typeVariable.superclass;
+						TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
+						if (mecs != null) {
+							nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
+								TypeBinding mec = mecs[k];
+								if (mec == null) continue nextCandidate;
+								Set invalidInvocations = (Set)invocations.get(mec);
+								int invalidSize = invalidInvocations.size();
+								if (invalidSize > 1) {
+									TypeBinding[] collisions;
+									invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
+									problemReporter().superinterfacesCollide(collisions[0].erasure(), typeRef, collisions[1], collisions[0]); // swap collisions since mec types got swapped
+									typeVariable.tagBits |= HierarchyHasProblems;
+									noProblems = false;
+									continue nextVariable;
+								}
+							}			
+						}
 					}
 					// check against superinterfaces
 					for (int index = typeVariable.superInterfaces.length; --index >= 0;) {
