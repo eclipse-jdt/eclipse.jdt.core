@@ -8,7 +8,7 @@ Eclipse APT Project - Developer Setup Instructions
 
 3.  Install a 1.5 JRE for eclipse.  To add it to Eclipse:
 
-    a. go to "Window menu, and then choose "Preferences | Java | Installed JREs".
+    a. go to the "Window" menu, and then choose "Preferences | Java | Installed JREs".
     b. click the add button and install the 1.5 JRE.  You will need to name this "JRE 1.5.0".
        Make this the default JRE.
 
