@@ -3094,7 +3094,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	class Y extends X implements AX<Thread> {}\n" + 
 			"	      ^\n" + 
-			"The interface AX cannot be implemented more than once with different arguments: AX<Thread> and AX<String>\n" + 
+			"The interface AX cannot be implemented more than once with different arguments: AX<String> and AX<Thread>\n" + 
 			"----------\n");
 	}		
 	public void test110() {
@@ -3110,7 +3110,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	class Y extends X implements AX<Thread> {}\n" + 
 			"	      ^\n" + 
-			"The interface AX cannot be implemented more than once with different arguments: AX<Thread> and AX\n" + 
+			"The interface AX cannot be implemented more than once with different arguments: AX and AX<Thread>\n" + 
 			"----------\n");		
 	}		
 	public void test111() {
@@ -3126,7 +3126,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	class Y extends X implements AX {}\n" + 
 			"	      ^\n" + 
-			"The interface AX cannot be implemented more than once with different arguments: AX and AX<Object>\n" + 
+			"The interface AX cannot be implemented more than once with different arguments: AX<Object> and AX\n" + 
 			"----------\n");		
 	}		
 	// test member types
@@ -11634,7 +11634,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X5.java (at line 1)\n" + 
 			"	class X5 <T extends Y & Comparable<X5>> {}\n" + 
 			"	                        ^^^^^^^^^^\n" + 
-			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<X5> and Comparable<Y>\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<Y> and Comparable<X5>\n" + 
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <X5> and <Y>
 		);
@@ -11649,7 +11649,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X6.java (at line 1)\n" + 
 			"	class X6 <T extends Y & Comparable<X6>> {}\n" + 
 			"	                        ^^^^^^^^^^\n" + 
-			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<X6> and Comparable<Z>\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<Z> and Comparable<X6>\n" + 
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <X6> and <Y>
 		);
@@ -20900,7 +20900,7 @@ public void test720() {
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	class XSub extends XSuper implements Foo<Integer> {}\n" + 
 		"	      ^^^^\n" + 
-		"The interface Foo cannot be implemented more than once with different arguments: Foo<Integer> and Foo\n" + 
+		"The interface Foo cannot be implemented more than once with different arguments: Foo and Foo<Integer>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 8)\n" + 
 		"	public class X implements Bar, Foo {}\n" + 
@@ -22115,7 +22115,12 @@ public void test768() {
 		"	                                    ^\n" + 
 		"The type T is not an interface; it cannot be specified as a bounded parameter\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 5)\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	<T extends Y<Object>, U extends T & Z>  T foo3() { return null; }\n" + 
+		"	                                    ^\n" + 
+		"The interface Y cannot be implemented more than once with different arguments: Y<Object> and Y<String>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
 		"	<T extends Y<Object>, U extends W & Z>  T foo4() { return null; }\n" + 
 		"	                                    ^\n" + 
 		"The interface Y cannot be implemented more than once with different arguments: Y<String> and Y<Object>\n" + 
@@ -22419,6 +22424,111 @@ public void test776() {
 			"interface I<U> {}\n",
 		},
 		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103472
+public void test777() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public interface B<T> {\n" + 
+			"		public T a();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public interface C extends B {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class D implements B<Integer> {\n" + 
+			"		public Integer a() {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	// Illegal\n" + 
+			"	public class E implements B<Integer>, C {\n" + 
+			"		public Integer a() {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	// why is this allowed?\n" + 
+			"	public class F extends D implements C {\n" + 
+			"		public Integer a() {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public interface G<T> {\n" + 
+			"		public void a(T pArg);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public interface H extends G {\n" + 
+			"		public Object b();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class I implements G<Integer> {\n" + 
+			"		public void a(Integer pInt) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	// Illegal. Huh?\n" + 
+			"	public class J extends I implements G {\n" + 
+			"		public Integer a() {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\r\n" + 
+		"	public class E implements B<Integer>, C {\r\n" + 
+		"	             ^\n" + 
+		"The interface B cannot be implemented more than once with different arguments: X.B and X.B<Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 23)\r\n" + 
+		"	public class F extends D implements C {\r\n" + 
+		"	             ^\n" + 
+		"The interface B cannot be implemented more than once with different arguments: X.B<Integer> and X.B\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 24)\r\n" + 
+		"	public Integer a() {\r\n" + 
+		"	               ^^^\n" + 
+		"The method a() of type X.F should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 43)\r\n" + 
+		"	public class J extends I implements G {\r\n" + 
+		"	             ^\n" + 
+		"The interface G cannot be implemented more than once with different arguments: X.G<Integer> and X.G\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103472 - variation
+public void test778() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	interface B<T> {}\n" + 
+			"\n" + 
+			"	interface C extends B {}\n" + 
+			"\n" + 
+			"	class D implements B<Integer> {}\n" + 
+			"\n" + 
+			"	class F extends D implements C {}\n" + 
+			"	\n" + 
+			"	class V<U extends D & C> {}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	class F extends D implements C {}\n" + 
+		"	      ^\n" + 
+		"The interface B cannot be implemented more than once with different arguments: X.B<Integer> and X.B\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	class V<U extends D & C> {}\n" + 
+		"	                      ^\n" + 
+		"The interface B cannot be implemented more than once with different arguments: X.B<Integer> and X.B\n" + 
+		"----------\n");
 }
 }
 

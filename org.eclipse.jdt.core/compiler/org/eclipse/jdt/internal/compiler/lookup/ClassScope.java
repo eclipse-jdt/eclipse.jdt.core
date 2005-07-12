@@ -868,13 +868,25 @@ public class ClassScope extends Scope {
 				ReferenceBinding superInterface =  interfaceBindings[i];
 				// check against superclass
 				if (!sourceType.isInterface()) {
-					ReferenceBinding match = sourceType.superclass.findSuperTypeWithSameErasure(superInterface);
-					if (match != null && match != superInterface) {
-						problemReporter().superinterfacesCollide(superInterface.erasure(), referenceContext, superInterface, match);
-						sourceType.tagBits |= HierarchyHasProblems;
-						noProblems = false;
-						continue nextInterface;
-					}
+					types[0] = sourceType.superclass;
+					types[1] = superInterface;
+					TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
+					if (mecs != null) {
+						nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
+							TypeBinding mec = mecs[k];
+							if (mec == null) continue nextCandidate;
+							Set invalidInvocations = (Set)invocations.get(mec);
+							int invalidSize = invalidInvocations.size();
+							if (invalidSize > 1) {
+								TypeBinding[] collisions;
+								invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
+								problemReporter().superinterfacesCollide(collisions[0].erasure(), referenceContext, collisions[0], collisions[1]);
+								sourceType.tagBits |= HierarchyHasProblems;
+								noProblems = false;
+								continue nextInterface;
+							}
+						}					
+					}					
 				}
 				// check against other super-interfaces
 				types[0] = superInterface;
