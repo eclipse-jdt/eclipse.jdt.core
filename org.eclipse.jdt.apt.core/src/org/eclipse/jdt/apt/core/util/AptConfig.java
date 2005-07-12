@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -30,7 +31,9 @@ import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
@@ -184,14 +187,52 @@ public class AptConfig {
      * The value part can contain spaces, if it is quoted: -Afoo="bar baz".
      */
     public static Map<String, String> getProcessorOptions(IJavaProject jproj) {
+    	Map<String,String> options;
     	String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
     	if (null == allOptions) {
-    		return new HashMap<String, String>();
+    		options = new HashMap<String, String>();
     	}
     	else {
     		OptionsParser op = new OptionsParser(allOptions);
-    		return op.parse();
+    		options = op.parse();
     	}
+    	
+    	// Add sourcepath and classpath variables
+    	try {
+    		IClasspathEntry[] classpathEntries = jproj.getResolvedClasspath(true);
+    		StringBuilder classpathSB = new StringBuilder();
+    		StringBuilder sourcepathSB = new StringBuilder();
+    		boolean firstCP = true;
+    		boolean firstSP = true;
+    		for (IClasspathEntry entry : classpathEntries) {
+    			int kind = entry.getEntryKind();
+    			if (kind == IClasspathEntry.CPE_LIBRARY) {
+	    			if (firstCP) {
+	    				firstCP = false;
+	    			}
+	    			else {
+	    				classpathSB.append(File.pathSeparatorChar);
+	    			}
+	    			classpathSB.append(entry.getPath().toFile().getAbsolutePath());
+    			}
+    			else if (kind == IClasspathEntry.CPE_SOURCE) {
+    				if (firstSP) {
+    					firstSP = false;
+    				}
+    				else {
+    					sourcepathSB.append(File.separatorChar);
+    				}
+    				sourcepathSB.append(entry.getPath().toFile().getAbsolutePath());
+    			}
+    		}
+    		options.put("classpath",classpathSB.toString());
+    		options.put("sourcepath", sourcepathSB.toString());
+    	}
+    	catch (JavaModelException jme) {
+    		AptPlugin.log(jme, "Could not get the classpath");
+    	}
+    	
+    	return options;
     }
     
     /**

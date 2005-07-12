@@ -147,4 +147,21 @@ public class PreferencesTests extends Tests {
 		AptConfig.removeProcessorOption(jproj, "anOptionThatDoesn'tExist");
 	}
 	
+	/**
+	 * Test the config API for classpath and sourcepath options.
+	 * We expect to find both available and filled in
+	 */
+	public void testClassAndSourcepathOptions() throws Exception {
+		IJavaProject jproj = env.getJavaProject( getProjectName() );
+		Map<String,String> options = AptConfig.getProcessorOptions(jproj);
+		
+		String classpath = options.get("classpath");
+		assertNotNull(classpath);
+		assertTrue(classpath.length() > 0);
+		
+		String sourcepath = options.get("sourcepath");
+		assertNotNull(sourcepath);
+		assertTrue(sourcepath.length() > 0);
+	}
+	
 }
