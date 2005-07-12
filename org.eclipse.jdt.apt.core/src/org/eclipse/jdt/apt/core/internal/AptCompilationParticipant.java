@@ -94,6 +94,15 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		
 		if ( buildFiles == null || buildFiles.length == 0 )
 			return EMPTY_PRE_BUILD_COMPILATION_RESULT;
+		
+		// Don't dispatch on pre-1.5 project. They cannot legally have annotations
+		String javaVersion = javaProject.getOption("org.eclipse.jdt.core.compiler.source", true);
+		
+		// Check for 1.3 or 1.4, as we don't want this to break in the future when 1.6
+		// is a possibility
+		if ("1.3".equals(javaVersion) || "1.4".equals(javaVersion)) {
+			return EMPTY_PRE_BUILD_COMPILATION_RESULT;
+		}
 
 		HashSet<IFile> newFiles = new HashSet<IFile>();
 		HashSet<IFile> deletedFiles = new HashSet<IFile>();

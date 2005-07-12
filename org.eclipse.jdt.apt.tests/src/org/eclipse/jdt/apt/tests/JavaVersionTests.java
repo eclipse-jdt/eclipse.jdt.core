@@ -23,21 +23,24 @@ import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorTestAnnotationProc
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
-public class MirrorTests extends Tests {
+/**
+ * Test that processors do not get invoked on pre-1.5 projects
+ */
+public class JavaVersionTests extends Tests {
 	
-	public MirrorTests(final String name) {
+	public JavaVersionTests(final String name) {
 		super( name );
 	}
 
 	public static Test suite() {
-		return new TestSuite( MirrorTests.class );
+		return new TestSuite( JavaVersionTests.class );
 	}
 
 	public void setUp() throws Exception {
 		super.setUp();
 		
 		// project will be deleted by super-class's tearDown() method
-		IPath projectPath = env.addProject( getProjectName(), "1.5" ); //$NON-NLS-1$
+		IPath projectPath = env.addProject( getProjectName(), "1.4" ); //$NON-NLS-1$
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 		fullBuild( projectPath );
 
@@ -52,7 +55,7 @@ public class MirrorTests extends Tests {
 	}
 	
 	public static String getProjectName() {
-		return MirrorTests.class.getName() + "Project";
+		return JavaVersionTests.class.getName() + "Project";
 	}
 
 	public IPath getSourcePath() {
@@ -81,13 +84,8 @@ public class MirrorTests extends Tests {
 				code );
 
 		fullBuild( project.getFullPath() );
-
-		expectingNoProblems();
 		
-		assertTrue("Processor was not run", MirrorTestAnnotationProcessor._processRun);
-		
-		assertEquals(MirrorTestAnnotationProcessor.NO_ERRORS, 
-					 MirrorTestAnnotationProcessor.ERROR);
+		assertFalse("Processor was run", MirrorTestAnnotationProcessor._processRun);
 	}
 	
 }

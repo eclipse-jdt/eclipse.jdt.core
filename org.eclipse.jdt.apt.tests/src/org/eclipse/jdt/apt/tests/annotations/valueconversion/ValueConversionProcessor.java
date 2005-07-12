@@ -11,7 +11,6 @@
 package org.eclipse.jdt.apt.tests.annotations.valueconversion;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -97,6 +96,7 @@ public class ValueConversionProcessor implements AnnotationProcessor {
 					assertValueTypeMatch(name, value.getValue(), expectedType);
 				}	
 				else{
+					@SuppressWarnings("unused")
 					final Class expectedElementType;
 					if( "chars".equals(name) )
 						expectedElementType = Character.class;
@@ -138,6 +138,7 @@ public class ValueConversionProcessor implements AnnotationProcessor {
 	}
 			
 	
+	@SuppressWarnings("unused")
 	private void assertArrayValueTypeMatch(final String name, final Object value, final Class expectedElementType)
 	{	
 		TestCase.assertEquals(

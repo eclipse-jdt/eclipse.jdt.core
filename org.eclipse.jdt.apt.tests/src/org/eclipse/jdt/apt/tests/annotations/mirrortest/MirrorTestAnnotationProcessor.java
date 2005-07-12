@@ -35,6 +35,9 @@ public class MirrorTestAnnotationProcessor implements AnnotationProcessor {
 	/** Used by the test harness to verify that no errors were encountered **/
 	public static String ERROR = NO_ERRORS;
 	
+	/** Used by the test harness to determine if the processor was ever triggered **/
+	public static boolean _processRun = false;
+	
 	private final AnnotationProcessorEnvironment env;
 	
 	public MirrorTestAnnotationProcessor(AnnotationProcessorEnvironment env) {
@@ -42,6 +45,7 @@ public class MirrorTestAnnotationProcessor implements AnnotationProcessor {
 	}
 
 	public void process() {
+		_processRun = true;
 		try {
 			Collection<TypeDeclaration> decls = env.getSpecifiedTypeDeclarations();
 			TypeDeclaration decl = null;
