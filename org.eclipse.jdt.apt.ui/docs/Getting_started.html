@@ -1,0 +1,49 @@
+<html>
+<head>
+<title>Getting started with APT in Eclipse</title>
+</head>
+
+<body>
+<h1>Getting Started</h2>
+<h2>APT in Eclipse</h3>
+
+<p>
+The APT plugin adds Java 5 annotation processing support to Eclipse, by running annotation
+processors written to use the 
+<a href="http://java.sun.com/j2se/1.5.0/docs/guide/apt/mirror/index.html">Mirror APIs</a>
+inside Eclipse.
+<p>
+These annotation processors will then get triggered as you type inside Eclipse, provide
+errors and warnings directly inside the editor, and producing normal build artifacts
+just as if you were running Sun's apt tool from the commandline.
+
+<p>
+For more detailed information about how the plugin works, 
+you can view the <a href="http://www.eclipse.org/jdt/apt/index.html">JDT-APT project web site</a>.
+</p>
+
+<h3>Turning on Annotation Processing</h3>
+You must have your project's compiler configured to use Java 5.0-level compliance
+in the preferences, under Java->Compiler:
+<p>
+<img src="compiler_dialog.png">
+<p>
+Next you need to enable annotation processing under Java->Compiler->Annotation Processing:
+<p>
+<img src="annotation_processing.png">
+<p>
+In this dialog you can also specify the generated source directory if desired,
+and provide any processor options that are necessary.
+<p>
+Note that "-Aclasspath" and "-Asourcepath" options are automatically passed
+to all your processors by eclipse, so it is unnecessary to provide those.
+
+<h3>Adding Annotation Processors</h3>
+You can add annotation processors to your project under Java->Compiler->Annotation Processing->Factory Path:
+
+<p>
+<img src="factory_path.png">
+<p>
+
+
+
