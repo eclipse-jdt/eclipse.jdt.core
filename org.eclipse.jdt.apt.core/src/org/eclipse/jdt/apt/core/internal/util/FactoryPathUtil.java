@@ -333,10 +333,10 @@ public final class FactoryPathUtil {
 				foundPerProjFile = (containers != null);
 			}
 			catch (CoreException ce) {
-				ce.printStackTrace();
+				AptPlugin.log(ce, "Could not get factory containers for project: " + jproj);
 			}
 			catch (IOException ioe) {
-				ioe.printStackTrace();
+				AptPlugin.log(ioe, "Could not get factory containers for project: " + jproj);
 			}
 		}
 		// Workspace if no project data was found
@@ -345,10 +345,10 @@ public final class FactoryPathUtil {
 				containers = readFactoryPathFile(null);
 			}
 			catch (CoreException ce) {
-				ce.printStackTrace();
+				AptPlugin.log(ce, "Could not get factory containers for project: " + jproj);
 			}
 			catch (IOException ioe) {
-				ioe.printStackTrace();
+				AptPlugin.log(ioe, "Could not get factory containers for project: " + jproj);
 			}
 		}
 		// if no project and no workspace data was found, we'll get the defaults

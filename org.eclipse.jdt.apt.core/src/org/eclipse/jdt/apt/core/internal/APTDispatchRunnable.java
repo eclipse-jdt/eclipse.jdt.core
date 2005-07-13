@@ -240,7 +240,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 			// log unclaimed annotations.
 		} catch (Throwable t) {
-			t.printStackTrace();
+			AptPlugin.log(t, "Unexpected failure running APT");
 		}
 		return EMPTY_APT_RESULT;
 	}
@@ -273,8 +273,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				}
 				catch ( CoreException ce )
 				{
-					// TODO - handle this exception nicely
-					ce.printStackTrace();
+					AptPlugin.log(ce, "Could not clean up generated files");
 				}
 			}
 		}

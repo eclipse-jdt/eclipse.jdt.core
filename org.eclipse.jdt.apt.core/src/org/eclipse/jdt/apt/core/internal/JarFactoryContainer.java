@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.eclipse.jdt.apt.core.AptPlugin;
+
 public class JarFactoryContainer extends FactoryContainer
 {
 	private File _jarFile;
@@ -87,8 +89,7 @@ public class JarFactoryContainer extends FactoryContainer
             jarFile.close();
         }
         catch (IOException e) {	
-        	// TODO:  log this exception
-        	e.printStackTrace();
+        	AptPlugin.log(e, "Could not get service names from jar: " + jar);
             return classNames;
         }
         return classNames;

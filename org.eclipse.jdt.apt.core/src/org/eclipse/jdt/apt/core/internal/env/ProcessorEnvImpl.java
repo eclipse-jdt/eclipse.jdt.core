@@ -33,6 +33,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
@@ -188,8 +189,8 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 			}
 			catch( Exception e )
 			{
+				AptPlugin.log(e, "Failure constructing processor environment");
 				// TODO:  propagate these exceptions out of APTDispatch
-				e.printStackTrace();
 			}
 			_source = source;
 			assert _source != null : "missing source";

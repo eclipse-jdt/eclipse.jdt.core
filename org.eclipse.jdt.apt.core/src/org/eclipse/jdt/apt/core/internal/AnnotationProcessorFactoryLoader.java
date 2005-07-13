@@ -144,8 +144,7 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		catch( Exception e )
 		{
-			// TODO:  log this stack trace
-			e.printStackTrace();
+			AptPlugin.log(e, "Unexpected failure to load APF: " + factoryName);
 		}
 		catch ( NoClassDefFoundError ncdfe )
 		{
@@ -153,8 +152,7 @@ public class AnnotationProcessorFactoryLoader {
 			// This error indicates a problem with the factory path specified 
 			// by the project, and it needs to be caught and reported!
 			
-			// TODO:  log this error
-			ncdfe.printStackTrace();
+			AptPlugin.log(ncdfe, "Could not find APF: " + factoryName);
 		}
 		return f;
 	}
@@ -174,8 +172,7 @@ public class AnnotationProcessorFactoryLoader {
 				}
 				catch ( MalformedURLException mue )
 				{
-					// TODO:  log this exception
-					mue.printStackTrace();
+					AptPlugin.log(mue, "Could not create ClassLoader for " + jfc);
 				}
 			}
 		}
@@ -229,7 +226,7 @@ public class AnnotationProcessorFactoryLoader {
 							PLUGIN_FACTORY_MAP.put( execExt.getClass().getName(), (AnnotationProcessorFactory)execExt );
 						}
 					} catch(CoreException e) {
-							e.printStackTrace();
+							AptPlugin.log(e, "Could not load factory: " + factory);
 					}
 				}
 			}
@@ -286,7 +283,7 @@ public class AnnotationProcessorFactoryLoader {
         }
         catch (IOException e) {
             if (VERBOSE_LOAD) {
-                System.err.println("\tUnable to extract provider names from \"" + jar + "\"; skipping because of: " + e);
+                AptPlugin.log(e, "\tUnable to extract provider names from \"" + jar);
             }
             return classNames;
         }

@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IElementChangedListener;
@@ -75,8 +76,7 @@ public class ElementChangedListener implements IElementChangedListener
 					} 
 					catch (JavaModelException e) 
 					{
-						// TODO handle this exception
-						e.printStackTrace();
+						AptPlugin.log(e, "Failure processing delta: " + delta);
 					}		
 				}
 			}

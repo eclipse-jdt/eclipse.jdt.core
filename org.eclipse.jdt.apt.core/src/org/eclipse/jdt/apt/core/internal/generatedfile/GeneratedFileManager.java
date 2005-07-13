@@ -38,6 +38,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -207,7 +208,7 @@ public class GeneratedFileManager {
 		}
 		catch ( Throwable t )
 		{
-			t.printStackTrace();
+			AptPlugin.log(t, "Could not generate file for type: " + typeName);
 		}
 		
 		return null;
@@ -294,11 +295,11 @@ public class GeneratedFileManager {
 		} 
 		catch (JavaModelException jme) 
 		{
-			jme.printStackTrace();
+			AptPlugin.log(jme, "Could not generate file for type: " + typeName);
 		} 
 		catch (CoreException ce) 
 		{
-			ce.printStackTrace();
+			AptPlugin.log(ce, "Could not generate file for type: " + typeName);
 		}
 		return new FileGenerationResult((IFile)workingCopy.getResource(), true);
 	}
@@ -895,8 +896,8 @@ public class GeneratedFileManager {
 			}
 			catch( JavaModelException jme )
 			{
+				AptPlugin.log(jme, "Could not discard working copy");
 				// TODO:  deal with this
-				jme.printStackTrace();
 			}
 		}
 	}
@@ -1006,7 +1007,7 @@ public class GeneratedFileManager {
 				}
 				catch ( CoreException ce )
 				{
-					ce.printStackTrace();
+					AptPlugin.log(ce, "Could not delete generated files");
 				}
 			}
 		}

@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -107,8 +108,8 @@ public class ScannerUtil {
 		}
 		catch( Exception e )
 		{
+			AptPlugin.log(e, "Failure scanning source: \n" + new String(source));
 			// TODO:  deal with this exception
-			e.printStackTrace();
 			return false;
 		}
 	}

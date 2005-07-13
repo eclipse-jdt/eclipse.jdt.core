@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -79,8 +80,7 @@ public class APTDispatch
 		}
 		catch( CoreException ce )
 		{
-			// TODO:  deal with this exception
-			ce.printStackTrace();
+			AptPlugin.log(ce, "Could not run APT");
 		}
 			
 		return runnable.getResult();

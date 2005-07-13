@@ -16,6 +16,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.generatedfile.FileGenerationResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
@@ -63,17 +64,18 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
         catch ( JavaModelException jme )
         {
             // TODO:  handle this exception in a nicer way.
-            jme.printStackTrace();
+            AptPlugin.log(jme, "Unexpected failure closing the JavaSourceFilePrintWriter");
             throw new RuntimeException( jme );
         }
         catch ( CoreException ce )
         {
             // TODO:  handle this exception
-            ce.printStackTrace();
+            AptPlugin.log(ce, "Unexpected failure closing the JavaSourceFilePrintWriter");
             throw new RuntimeException( ce );
         }
         catch( UnsupportedEncodingException use )
         {
+        	AptPlugin.log(use, "Could not encode");
         	// TODO: handle this exception
         	throw new RuntimeException( use );
         }

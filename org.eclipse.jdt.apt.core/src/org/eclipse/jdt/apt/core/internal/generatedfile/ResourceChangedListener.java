@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.apt.core.AptPlugin;
 
 public class ResourceChangedListener implements IResourceChangeListener 
 {
@@ -38,8 +39,8 @@ public class ResourceChangedListener implements IResourceChangeListener
 			}
 			catch ( CoreException ce )
 			{
+				AptPlugin.log(ce, "Error during resource change for " + event);
 				// TODO:  handle exception here.
-				ce.printStackTrace();
 			}
 		}
 		else if ( event.getType() == IResourceChangeEvent.PRE_CLOSE )

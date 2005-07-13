@@ -77,6 +77,10 @@ public class AptPlugin extends Plugin {
 	 * Convenience wrapper around log(IStatus), to log an exception.
 	 */
 	public static void log(Throwable e, String message) {
+		// TODO: before ship, remove this printing. Instead just log
+		System.err.println(message);
+		e.printStackTrace();
+		
 		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e)); 
 	}
 	

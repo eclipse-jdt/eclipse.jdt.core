@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -177,7 +178,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		}
 		catch ( Throwable t )
 		{
-			t.printStackTrace();
+			AptPlugin.log(t, "Failure processing");
 		}	
 		return new PostReconcileCompilationResult(problems);
 	}

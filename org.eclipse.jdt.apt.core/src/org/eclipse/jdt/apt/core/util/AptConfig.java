@@ -229,7 +229,7 @@ public class AptConfig {
     		options.put("sourcepath", sourcepathSB.toString());
     	}
     	catch (JavaModelException jme) {
-    		AptPlugin.log(jme, "Could not get the classpath");
+    		AptPlugin.log(jme, "Could not get the classpath for project: " + jproj);
     	}
     	
     	return options;

@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 
@@ -98,7 +99,7 @@ public class FilerImpl implements Filer {
     		catch ( Exception e )
     		{
     			// TODO - stop throwing this exception
-    			e.printStackTrace();
+    			AptPlugin.log(e, "Failure getting the output file");
     			throw new IOException();
     		}
     	}
