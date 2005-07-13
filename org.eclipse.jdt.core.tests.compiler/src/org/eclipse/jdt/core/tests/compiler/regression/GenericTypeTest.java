@@ -22530,5 +22530,50 @@ public void test778() {
 		"The interface B cannot be implemented more than once with different arguments: X.B<Integer> and X.B\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103227
+public void test779() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.AbstractList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	private static class Entry {\n" + 
+			"		public void doIt(final List<? extends String> args) {\n" + 
+			"			List<String> list = new AbstractList<String>() {\n" + 
+			"				@Override public int size() { return 0; }\n" + 
+			"				@Override public String get(int i) { return args.get(i); }\n" + 
+			"			};\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Entry().doIt(null);\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103227 - variation
+public void test780() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	long foo(List<? extends Long> list) {\n" + 
+			"		return list.get(0);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<Long> list = new ArrayList<Long>();\n" + 
+			"		list.add(123L);\n" + 
+			"		System.out.println(new X().foo(list));\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"123");
+}
 }
 
