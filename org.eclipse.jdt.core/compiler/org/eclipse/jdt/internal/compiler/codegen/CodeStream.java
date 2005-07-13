@@ -2165,8 +2165,9 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 			this.dreturn();
 			break;
 		default :
-			if (targetMethod.returnType != accessMethod.returnType)
-				this.checkcast(accessMethod.returnType); // for bridge methods
+			TypeBinding accessErasure = accessMethod.returnType.erasure();
+			if (!targetMethod.returnType.isCompatibleWith(accessErasure))
+				this.checkcast(accessErasure); // for bridge methods
 			this.areturn();
 	}
 }
