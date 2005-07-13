@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
+import org.eclipse.jdt.internal.compiler.util.Util;
+
 public class BooleanConstant extends Constant {
 
 	boolean value;
@@ -24,7 +26,9 @@ public class BooleanConstant extends Constant {
 
 	public String stringValue() {
 		//spec 15.17.11
-		return Boolean.toString(value);
+		String s = Util.toBoolean(value).toString();
+		if (s == null) return "null"; //$NON-NLS-1$
+		return s;
 	}
 
 	public String toString(){

@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.ShortConstant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class FieldInfo extends ClassFileStruct implements AttributeNamesConstants, IBinaryField, Comparable, TypeIds {
 	private int accessFlags;
@@ -239,7 +240,7 @@ public Object getWrappedConstantValue() {
 					this.wrappedConstantValue = new Double(fieldConstant.doubleValue());
 					break;
 				case T_boolean :
-					this.wrappedConstantValue = Boolean.valueOf(fieldConstant.booleanValue());
+					this.wrappedConstantValue = Util.toBoolean(fieldConstant.booleanValue());
 					break;
 				case T_long :
 					this.wrappedConstantValue = new Long(fieldConstant.longValue());
