@@ -35,13 +35,6 @@
    </application>
 </extension>
 
-<!-- =================================================================================== -->
-<!-- Extension: Docs                                                           -->
-<!-- =================================================================================== -->
-<extension
-      point="org.eclipse.help.toc">
-   <toc file="toc.xml" primary="true"/>
-</extension>
 <extension
       point="org.eclipse.core.runtime.preferences">
    <initializer class="org.eclipse.jdt.apt.core.internal.util.AptCorePreferenceInitializer"/>

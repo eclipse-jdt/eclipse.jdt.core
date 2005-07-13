@@ -59,5 +59,13 @@
                value="org.eclipse.jdt.core.javanature"/>
       </page>            
    </extension>
+   
+<!-- =================================================================================== -->
+<!-- Extension: Docs                                                                     -->
+<!-- =================================================================================== -->
+<extension
+      point="org.eclipse.help.toc">
+   <toc file="toc.xml" primary="true"/>
+</extension>
 
 </plugin>
