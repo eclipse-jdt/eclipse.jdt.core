@@ -22235,8 +22235,7 @@ public void test772() {
 			"  public bridge synthetic Object getIt();\n" + 
 			"    0  aload_0\n" + 
 			"    1  invokevirtual FooImpl.getIt() : java.lang.String  [20]\n" + 
-			"    4  checkcast java.lang.Object [4]\n" + 
-			"    7  areturn\n" + 
+			"    4  areturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n";
 		
@@ -22298,8 +22297,7 @@ public void test773() {
 			"  public bridge synthetic Exception getIt() throws java.lang.Exception;\n" + 
 			"    0  aload_0\n" + 
 			"    1  invokevirtual FooImpl.getIt() : java.lang.NullPointerException  [23]\n" + 
-			"    4  checkcast java.lang.Exception [21]\n" + 
-			"    7  areturn\n" + 
+			"    4  areturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n";
 		
@@ -22554,6 +22552,36 @@ public void test779() {
 			"}\n",
 		},
 		"SUCCESS");
+	
+	String expectedOutput =
+			"  // Method descriptor #29 (I)Ljava/lang/Object;\n" + 
+			"  // Stack: 2, Locals: 2\n" + 
+			"  public bridge synthetic Object get(int arg);\n" + 
+			"    0  aload_0\n" + 
+			"    1  iload_1\n" + 
+			"    2  invokevirtual X$1.get(int) : java.lang.String  [37]\n" + 
+			"    5  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n";
+	
+	// check no unnecessary checkcast on bridge method for X$1
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X$1.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103227 - variation
 public void test780() {
