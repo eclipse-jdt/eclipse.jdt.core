@@ -14,20 +14,22 @@ package org.eclipse.jdt.apt.core.internal.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.apt.core.AptPlugin;
-import org.eclipse.jdt.apt.core.internal.FactoryContainer;
-import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
+import org.eclipse.jdt.apt.core.FactoryContainer;
+import org.eclipse.jdt.apt.core.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
-import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.util.FactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -176,25 +178,39 @@ public final class FactoryPathUtil {
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				Element element = (Element)node;
 				String kindString = element.getAttribute(KIND);
+				// deprecated container type "JAR" is now "EXTJAR"
+				if ("JAR".equals(kindString)) {
+					kindString = "EXTJAR";
+				}
 				String idString = element.getAttribute(ID);
 				String enabledString = element.getAttribute(ENABLED);
 				FactoryType kind = FactoryType.valueOf(kindString);
 				FactoryContainer container = null;
 				switch (kind) {
 				
-				case (JAR) :
-					container = new JarFactoryContainer(new File(idString));
+				case WKSPJAR :
+					container = FactoryPath.newWkspJarFactoryContainer(new Path(idString));
+					break;
+					
+				case EXTJAR :
+					container = FactoryPath.newExtJarFactoryContainer(new File(idString));
+					break;
+					
+				case VARJAR :
+					container = FactoryPath.newVarJarFactoryContainer(new Path(idString));
 					break;
 				
-				case (PLUGIN) :
-					container = new PluginFactoryContainer(idString);
+				case PLUGIN :
+					container = FactoryPath.newPluginFactoryContainer(idString);
 					break;
 					
 				default :
 					throw new IllegalStateException("Unrecognized kind: " + kind + ". Original string: " + kindString); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				
-				result.put(container, new Boolean(enabledString));
+				if (null != container) {
+					result.put(container, new Boolean(enabledString));
+				}
 			}
 		}
 		

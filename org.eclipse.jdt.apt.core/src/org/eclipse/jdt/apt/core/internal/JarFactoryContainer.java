@@ -11,11 +11,7 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -23,23 +19,25 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.eclipse.jdt.apt.core.FactoryContainer;
 import org.eclipse.jdt.apt.core.AptPlugin;
 
-public class JarFactoryContainer extends FactoryContainer
+/**
+ * Represents a jar file that contains annotation processor factories.
+ * The factories are listed in the jar's META-INF/services folder, in
+ * a file named com.sun.mirror.apt.AnnotationProcessorFactory.
+ */
+public abstract class JarFactoryContainer extends FactoryContainer
 {
-	private File _jarFile;
-
-	public JarFactoryContainer( File jarFile )
-	{
-		_jarFile = jarFile.getAbsoluteFile();
+	public URL getJarFileURL() throws MalformedURLException { 
+		return getJarFile().toURL(); 
 	}
 	
+	protected abstract File getJarFile();
+		
+	@Override
 	protected List<String> loadFactoryNames() { 
-		return getServiceClassnamesFromJar( _jarFile );
-	}
-	
-	public String getId() {
-		return _jarFile.getPath();
+		return getServiceClassnamesFromJar( getJarFile() );
 	}
 	
 	/**
@@ -56,7 +54,7 @@ public class JarFactoryContainer extends FactoryContainer
      * @param jar the jar file.
      * @return a list, possibly empty, of fully qualified classnames to be instantiated.
      */
-    private List<String> getServiceClassnamesFromJar(File jar)
+    protected static List<String> getServiceClassnamesFromJar(File jar)
     {
         List<String> classNames = new ArrayList<String>();
         JarFile jarFile;
@@ -64,49 +62,57 @@ public class JarFactoryContainer extends FactoryContainer
             jarFile = new JarFile(jar);
 
             for (String providerName : AUTOLOAD_SERVICES) {
+            	// Get the service provider def file out of the jar.
                 JarEntry provider = jarFile.getJarEntry(providerName);
                 if (provider == null) {
                     continue;
                 }
-                // Extract classnames from this text file.
+                // Extract classnames from the service provider def file.
                 InputStream is = jarFile.getInputStream(provider);
-                BufferedReader rd;
-                rd = new BufferedReader(new InputStreamReader(is, "UTF-8")); //$NON-NLS-1$
-                for (String line = rd.readLine(); line != null; line = rd.readLine()) {
-                    // hack off any comments
-                    int iComment = line.indexOf('#');
-                    if (iComment >= 0) {
-                        line = line.substring(0, iComment);
-                    }
-                    // add the first non-whitespace token to the list
-                    final String[] tokens = line.split("\\s", 2); //$NON-NLS-1$
-                    if (tokens[0].length() > 0) {
-                        classNames.add(tokens[0]);
-                    }
-                }
-                rd.close();
+                readServiceProvider(is, classNames);
             }
             jarFile.close();
         }
         catch (IOException e) {	
-        	AptPlugin.log(e, "Could not get service names from jar: " + jar); //$NON-NLS-1$
+        	AptPlugin.log(e, "Unable to read annotation processor service names from jar file " + jar); //$NON-NLS-1$
             return classNames;
         }
         return classNames;
     }
+    
+    /**
+     * Read service classnames from a service provider definition.
+     * @param is an input stream corresponding to a Sun-style service provider
+     * definition file, e.g., one of the files named in AUTOLOAD_SERVICES.
+     * @param classNames a list to which the classes named in is will be added.
+     */
+    protected static void readServiceProvider(InputStream is, List<String> classNames) {
+    	try {
+	        BufferedReader rd;
+	        rd = new BufferedReader(new InputStreamReader(is, "UTF-8")); //$NON-NLS-1$
+	        for (String line = rd.readLine(); line != null; line = rd.readLine()) {
+	            // hack off any comments
+	            int iComment = line.indexOf('#');
+	            if (iComment >= 0) {
+	                line = line.substring(0, iComment);
+	            }
+	            // add the first non-whitespace token to the list
+	            final String[] tokens = line.split("\\s", 2); //$NON-NLS-1$
+	            if (tokens[0].length() > 0) {
+	                classNames.add(tokens[0]);
+	            }
+	        }
+	        rd.close();
+    	}
+    	catch (IOException e) {
+    		AptPlugin.log(e, "Error reading annotation processor jar file");
+    	}
+    }
 	
-	public URL getJarFileURL() throws MalformedURLException { 
-		return _jarFile.toURL(); 
-	}
-		
     /** List of jar file entries that specify autoloadable service providers */
     private static final String[] AUTOLOAD_SERVICES = {
         "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory" //$NON-NLS-1$
     };
 	
-	@Override
-	public FactoryType getType() {
-		return FactoryType.JAR;
-	}
 }
 

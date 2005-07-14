@@ -15,13 +15,15 @@ package org.eclipse.jdt.apt.core.internal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.apt.core.FactoryContainer;
+
 public class PluginFactoryContainer extends FactoryContainer
 {
 	/** The label of the plug that owns this factory container.  */
 	private final String id;
 	
-	public PluginFactoryContainer(final String className) {
-		this.id = className;
+	public PluginFactoryContainer(final String pluginId) {
+		this.id = pluginId;
 	}
 	
 	public void addFactoryName( String n ) {

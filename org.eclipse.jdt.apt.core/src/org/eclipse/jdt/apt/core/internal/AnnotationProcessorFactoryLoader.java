@@ -21,8 +21,9 @@ import java.util.jar.JarFile;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.apt.core.AptPlugin;
-import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
-import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.core.FactoryContainer;
+import org.eclipse.jdt.apt.core.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.util.FactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
@@ -35,7 +36,7 @@ public class AnnotationProcessorFactoryLoader {
 	
 	/** List of jar file entries that specify autoloadable service providers */
     private static final String[] AUTOLOAD_SERVICES = {
-        "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory" //$NON-NLS-1$
+        "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory"
     };
 	
 	/** map of plugin names -> factories */
@@ -82,7 +83,7 @@ public class AnnotationProcessorFactoryLoader {
     		}
 		}
 		// Load the project
-		List<FactoryContainer> containers = AptConfig.getEnabledContainers(jproj);
+		List<FactoryContainer> containers = FactoryPath.getEnabledContainers(jproj);
 		factories = loadFactories(containers);
 		_projectsLoaded.add(jproj);
 		_project2Factories.put(jproj, factories);
@@ -127,8 +128,9 @@ public class AnnotationProcessorFactoryLoader {
 		AnnotationProcessorFactory apf = PLUGIN_FACTORY_MAP.get( factoryName );
 		if ( apf == null ) 
 		{
-			AptPlugin.log(new Exception(), "could not find AnnotationProcessorFactory " + //$NON-NLS-1$
-					factoryName + " from available factories defined by plugins" ); //$NON-NLS-1$
+			// TODO:  log error somewhere
+			System.err.println("could not find AnnotationProcessorFactory " + 
+					factoryName + " from available factories defined by plugins" );
 		}
 		return apf;
 	}
@@ -143,15 +145,14 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		catch( Exception e )
 		{
-			AptPlugin.log(e, "Unexpected failure to load APF: " + factoryName); //$NON-NLS-1$
+			AptPlugin.log(e, "Could not load annotation processor factory " + factoryName);
 		}
 		catch ( NoClassDefFoundError ncdfe )
 		{
 			// **DO NOT REMOVE THIS CATCH BLOCK***
 			// This error indicates a problem with the factory path specified 
 			// by the project, and it needs to be caught and reported!
-			
-			AptPlugin.log(ncdfe, "Could not find APF: " + factoryName); //$NON-NLS-1$
+			AptPlugin.log(ncdfe, "Could not load annotation processor factory " + factoryName);
 		}
 		return f;
 	}
@@ -161,7 +162,7 @@ public class AnnotationProcessorFactoryLoader {
 		ArrayList<URL> urlList = new ArrayList<URL>( containers.size() );
 		for ( FactoryContainer fc : containers ) 
 		{
-			if ( fc.getType() == FactoryType.JAR  )
+			if ( fc instanceof JarFactoryContainer  )
 			{
 				JarFactoryContainer jfc = (JarFactoryContainer) fc;
 				try
@@ -195,7 +196,7 @@ public class AnnotationProcessorFactoryLoader {
 	 * do a full rediscovery.
 	 */
 	private void loadPluginFactoryMap() {
-		assert PLUGIN_FACTORY_MAP.size() == 0 : "loadPluginFactoryMap() called more than once"; //$NON-NLS-1$
+		assert PLUGIN_FACTORY_MAP.size() == 0 : "loadPluginFactoryMap() called more than once";
 
 		// TODO: what follows is extremely similar to FactoryPathUtil#getAllPluginFactoryContainers().
 		// Surely there is some way to share that code?  The main difference is that there we don't 
@@ -216,7 +217,7 @@ public class AnnotationProcessorFactoryLoader {
 				}
 				// Iterate over the children of the "factories" element to find all the ones named "factory".
 				for (IConfigurationElement factory : factories.getChildren()) {
-					if (!"factory".equals(factory.getName())) { //$NON-NLS-1$
+					if (!"factory".equals(factory.getName())) {
 						continue;
 					}
 					try {
@@ -225,7 +226,7 @@ public class AnnotationProcessorFactoryLoader {
 							PLUGIN_FACTORY_MAP.put( execExt.getClass().getName(), (AnnotationProcessorFactory)execExt );
 						}
 					} catch(CoreException e) {
-							AptPlugin.log(e, "Could not load factory: " + factory); //$NON-NLS-1$
+							e.printStackTrace();
 					}
 				}
 			}
@@ -261,7 +262,7 @@ public class AnnotationProcessorFactoryLoader {
                 // Extract classnames from this text file.
                 InputStream is = jarFile.getInputStream(provider);
                 BufferedReader rd;
-                rd = new BufferedReader(new InputStreamReader(is, "UTF-8")); //$NON-NLS-1$
+                rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
                 for (String line = rd.readLine(); line != null; line = rd.readLine()) {
                     // hack off any comments
                     int iComment = line.indexOf('#');
@@ -269,10 +270,10 @@ public class AnnotationProcessorFactoryLoader {
                         line = line.substring(0, iComment);
                     }
                     // add the first non-whitespace token to the list
-                    final String[] tokens = line.split("\\s", 2); //$NON-NLS-1$
+                    final String[] tokens = line.split("\\s", 2);
                     if (tokens[0].length() > 0) {
                         if (VERBOSE_LOAD) {
-                            System.err.println("Found provider classname: " + tokens[0]); //$NON-NLS-1$
+                            System.err.println("Found provider classname: " + tokens[0]);
                         }
                         classNames.add(tokens[0]);
                     }
@@ -282,7 +283,7 @@ public class AnnotationProcessorFactoryLoader {
         }
         catch (IOException e) {
             if (VERBOSE_LOAD) {
-                AptPlugin.log(e, "\tUnable to extract provider names from \"" + jar); //$NON-NLS-1$
+                System.err.println("\tUnable to extract provider names from \"" + jar + "\"; skipping because of: " + e);
             }
             return classNames;
         }

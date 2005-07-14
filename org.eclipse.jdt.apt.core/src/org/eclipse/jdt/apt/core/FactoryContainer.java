@@ -10,14 +10,20 @@
  *******************************************************************************/
 
 
-package org.eclipse.jdt.apt.core.internal;
+package org.eclipse.jdt.apt.core;
 
 import java.util.List;
 
+/**
+ * An entity that contains annotation processor factories.
+ */
 public abstract class FactoryContainer
 {
 	public enum FactoryType {
-		PLUGIN, JAR;
+		PLUGIN,  // Eclipse plugin 
+		EXTJAR,  // external jar file (not in workspace)
+		WKSPJAR, // jar file within workspace
+		VARJAR;  // external jar file referenced by classpath variable
 	}
 	
 	/**	

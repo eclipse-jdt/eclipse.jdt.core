@@ -10,10 +10,6 @@
  *    
  *******************************************************************************/
 
-// TODO: this class gets constructed and called from JDT Core.  So it needs to
-// be 1.4-compliant, and to contain the "switch" to disable the rest of the code
-// if we are running on 1.4 and/or if tools.jar is unavailable. - WHarley 3/05
-
 package org.eclipse.jdt.apt.core.internal;
 
 import java.util.Collection;

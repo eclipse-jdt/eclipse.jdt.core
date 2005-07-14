@@ -14,13 +14,14 @@ package org.eclipse.jdt.apt.ui.internal.preferences;
 import java.io.IOException;
 import java.util.*;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.core.AptPlugin;
-import org.eclipse.jdt.apt.core.internal.FactoryContainer;
-import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
-import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.core.FactoryContainer;
+import org.eclipse.jdt.apt.core.util.FactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.util.CoreUtility;
@@ -45,21 +46,25 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	private static final int IDX_UP= 0;
 	private static final int IDX_DOWN= 1;
 	//
-	private static final int IDX_ADDEXTJAR= 3;
-	private static final int IDX_REMOVE= 4;
+	private static final int IDX_ADDJAR= 3;
+	private static final int IDX_ADDEXTJAR= 4;
+	private static final int IDX_ADDVAR= 5;
+	private static final int IDX_REMOVE= 6;
 	//
-	private static final int IDX_ENABLEALL= 6;
-	private static final int IDX_DISABLEALL= 7;
+	private static final int IDX_ENABLEALL= 8;
+	private static final int IDX_DISABLEALL= 9;
 
 	private final static String[] buttonLabels = { 
-		Messages.getString("FactoryPathConfigurationBlock.0"),                   // 0 //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.1"),                 // 1 //$NON-NLS-1$
-		null,                   // 2
-		Messages.getString("FactoryPathConfigurationBlock.2"),  // 3 //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.3"),               // 4 //$NON-NLS-1$
-		null,                   // 5
-		Messages.getString("FactoryPathConfigurationBlock.4"),           // 6 //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.5")           // 7 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.0"),                    // 0 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.1"),                  // 1 //$NON-NLS-1$
+		null,                    // 2
+		Messages.getString("FactoryPathConfigurationBlock.2"),           // 3 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.3"),  // 4 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.4"),       // 5 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.5"),                // 6 //$NON-NLS-1$
+		null,                    // 7
+		Messages.getString("FactoryPathConfigurationBlock.6"),            // 8 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.7")            // 9 //$NON-NLS-1$
 	};
 
 	private PixelConverter fPixelConverter;
@@ -94,7 +99,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		}
 
         public void customButtonPressed(ListDialogField field, int index) {
-        	buttonPressed(index);
+        	FactoryPathConfigurationBlock.this.customButtonPressed(index);
         }
 
         public void selectionChanged(ListDialogField field) {
@@ -142,12 +147,12 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		
 		fFactoryPathList= new CheckedListDialogField(adapter, buttonLabels, new LabelProvider());
 		fFactoryPathList.setDialogFieldListener(adapter);
-		fFactoryPathList.setLabelText(Messages.getString("FactoryPathConfigurationBlock.6"));   //$NON-NLS-1$
-		fFactoryPathList.setUpButtonIndex(0);
-		fFactoryPathList.setDownButtonIndex(1);
-		fFactoryPathList.setRemoveButtonIndex(4);
-		fFactoryPathList.setCheckAllButtonIndex(6);
-		fFactoryPathList.setUncheckAllButtonIndex(7);		
+		fFactoryPathList.setLabelText(Messages.getString("FactoryPathConfigurationBlock.8"));   //$NON-NLS-1$
+		fFactoryPathList.setUpButtonIndex(IDX_UP);
+		fFactoryPathList.setDownButtonIndex(IDX_DOWN);
+		fFactoryPathList.setRemoveButtonIndex(IDX_REMOVE);
+		fFactoryPathList.setCheckAllButtonIndex(IDX_ENABLEALL);
+		fFactoryPathList.setUncheckAllButtonIndex(IDX_DISABLEALL);		
 	}
 
 	/**
@@ -156,23 +161,41 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * this method is for the rest, e.g., Add External Jar.
 	 * @param index
 	 */
-	public void buttonPressed(int index) {
-		if (index == IDX_ADDEXTJAR) { // add new
-			FactoryContainer[] newEntries= openExtJarFileDialog(null);
-			if (null == newEntries) {
-				return;
-			}
-			int insertAt;
-			List selectedElements= fFactoryPathList.getSelectedElements();
-			if (selectedElements.size() == 1) {
-				insertAt= fFactoryPathList.getIndexOfElement(selectedElements.get(0)) + 1;
-			} else {
-				insertAt= fFactoryPathList.getSize();
-			}
-			for (int i = 0; i < newEntries.length; ++i) {
-				fFactoryPathList.addElement(newEntries[i], insertAt + i);
-				fFactoryPathList.setChecked(newEntries[i], true);
-			}
+	public void customButtonPressed(int index) {
+		FactoryContainer[] newEntries = null;
+		switch (index) {
+		case IDX_ADDJAR: // add jars in project
+			newEntries= openJarFileDialog(null);
+			addEntries(newEntries);
+			break;
+			
+		case IDX_ADDEXTJAR: // add external jars
+			newEntries= openExtJarFileDialog(null);
+			addEntries(newEntries);
+			break;
+			
+		case IDX_ADDVAR: // add jar from classpath variable
+			newEntries= openVariableSelectionDialog(null);
+			addEntries(newEntries);
+			break;
+		}
+		
+	}
+	
+	private void addEntries(FactoryContainer[] entries) {
+		if (null == entries) {
+			return;
+		}
+		int insertAt;
+		List selectedElements= fFactoryPathList.getSelectedElements();
+		if (selectedElements.size() == 1) {
+			insertAt= fFactoryPathList.getIndexOfElement(selectedElements.get(0)) + 1;
+		} else {
+			insertAt= fFactoryPathList.getSize();
+		}
+		for (int i = 0; i < entries.length; ++i) {
+			fFactoryPathList.addElement(entries[i], insertAt + i);
+			fFactoryPathList.setChecked(entries[i], true);
 		}
 	}
 	
@@ -222,8 +245,30 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * to work; so be sure to call this any time you save (eg in performApply()).
 	 */
 	private void cacheOriginalValues() {
-		fOriginalPath = AptConfig.getAllContainers(fJProj);
-		fOriginallyProjectSpecific = AptConfig.hasProjectSpecificFactoryPath(fJProj);
+		fOriginalPath = FactoryPath.getAllContainers(fJProj);
+		fOriginallyProjectSpecific = FactoryPath.hasProjectSpecificFactoryPath(fJProj);
+	}
+	
+	private FactoryContainer[] openJarFileDialog(FactoryContainer existing) {
+		IWorkspaceRoot root= fJProj.getProject().getWorkspace().getRoot();
+		if (existing == null) {
+			// TODO: instantiate existingPaths, to prevent duplicate entries.
+			IPath[] existingPaths = new IPath[] {};
+			IPath[] selected= BuildPathDialogAccess.chooseJAREntries(getShell(), fJProj.getPath(), existingPaths);
+			if (selected != null) {
+				ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
+				for (int i= 0; i < selected.length; i++) {
+					// verify that the path points to an actual resource.
+					//TODO: how to handle missing jars?
+					IResource resource= root.findMember(selected[i]);
+					if (resource instanceof IFile) {
+						res.add(FactoryPath.newWkspJarFactoryContainer(selected[i]));
+					}
+				}
+				return (FactoryContainer[]) res.toArray(new FactoryContainer[res.size()]);
+			}
+		} 		
+		return null;
 	}
 
 	//TODO: figure out how to edit an existing jar file - see LibrariesWorkbookPage for example
@@ -233,7 +278,32 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			if (selected != null) {
 				ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
 				for (int i= 0; i < selected.length; i++) {
-					res.add(new JarFactoryContainer(selected[i].toFile()));
+					res.add(FactoryPath.newExtJarFactoryContainer(selected[i].toFile()));
+				}
+				return (FactoryContainer[]) res.toArray(new FactoryContainer[res.size()]);
+			}
+		} 		
+		return null;
+	}
+	
+	/*
+	 * Helper method to get rid of unchecked conversion warning
+	 */
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
+	private List<FactoryContainer> getListContents() {
+		List<FactoryContainer> contents= fFactoryPathList.getElements();
+		return contents;
+	}
+	
+	private FactoryContainer[] openVariableSelectionDialog(FactoryContainer existing) {
+		if (existing == null) {
+			// TODO: instantiate existingPaths, to prevent duplicate entries.
+			IPath[] existingPaths = new IPath[] {};
+			IPath[] selected= BuildPathDialogAccess.chooseVariableEntries(getShell(), existingPaths);
+			if (selected != null) {
+				ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
+				for (int i= 0; i < selected.length; i++) {
+					res.add(FactoryPath.newVarJarFactoryContainer(selected[i]));
 				}
 				return (FactoryContainer[]) res.toArray(new FactoryContainer[res.size()]);
 			}
@@ -275,15 +345,15 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		}
 		
 		try {
-			AptConfig.setContainers(fJProj, containers);
+			FactoryPath.setContainers(fJProj, containers);
 		}
 		catch (IOException e) {
 			// TODO: what?
-			AptPlugin.log(e, "Failed to save the factory path"); //$NON-NLS-1$
+			e.printStackTrace();
 		}
 		catch (CoreException e) {
 			// TODO: what?
-			AptPlugin.log(e, "Failed to save the factory path"); //$NON-NLS-1$
+			e.printStackTrace();
 		}
 	}
 	
@@ -293,7 +363,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * If workspace, restore list contents to factory-default settings.
 	 */
 	public void performDefaults() {
-		Map<FactoryContainer, Boolean> defaults = AptConfig.getDefaultFactoryPath(fJProj);
+		Map<FactoryContainer, Boolean> defaults = FactoryPath.getDefaultFactoryPath(fJProj);
 		fFactoryPathList.removeAllElements();
 		for (Map.Entry<FactoryContainer, Boolean> e : defaults.entrySet()) {
 			FactoryContainer fc = (FactoryContainer)e.getKey();
