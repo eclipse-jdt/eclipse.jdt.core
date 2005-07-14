@@ -1220,7 +1220,7 @@ public class GeneratedFileManager {
 			}
 			catch( CoreException ce )
 			{
-				AptPlugin.log( ce, "Error occurred deleting old generated src folder " + srcFolder.getName() );
+				AptPlugin.log( ce, "Error occurred deleting old generated src folder " + srcFolder.getName() ); //$NON-NLS-1$
 			}
 		}
 	}
@@ -1265,6 +1265,6 @@ public class GeneratedFileManager {
 	
 	private static boolean _initialized = false;
 	
-	private static final String DEFAULT_GENERATED_SOURCE_FOLDER_NAME = "__generated_src";
+	private static final String DEFAULT_GENERATED_SOURCE_FOLDER_NAME = "__generated_src"; //$NON-NLS-1$
 	
 }
