@@ -1110,6 +1110,10 @@ private boolean isLocalDeclaration() {
 	}
 	return false;
 }
+protected void parse() {
+	this.diet = true;
+	super.parse();
+}
 /*
  * Investigate one entire unit.
  */
