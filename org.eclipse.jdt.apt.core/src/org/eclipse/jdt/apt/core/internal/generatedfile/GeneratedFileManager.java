@@ -936,22 +936,67 @@ public class GeneratedFileManager {
 		throws JavaModelException
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
-		IClasspathEntry generatedSourceClasspathEntry = 
-			JavaCore.newSourceEntry(folder.getFullPath());
 		boolean found = false;
+		IPath path = folder.getFullPath();
 		for (int i = 0; i < cp.length; i++) 
 		{
-			if (cp[i].getPath().equals(generatedSourceClasspathEntry.getPath())) 
+			if (cp[i].getPath().equals( path )) 
 			{
 				found = true;
 				break;
 			}
 		}
+		
 		if (!found) 
 		{
+			// update exclusion patterns
+			ArrayList<IPath> exclusions = new ArrayList<IPath>();
+			for ( int i = 0; i< cp.length; i++ )
+			{
+				if ( cp[i].getPath().isPrefixOf( path ) )
+				{
+					// exclusion patterns must be project-relative paths, and must end with a "/"
+					IPath projectRelativePath = folder.getProjectRelativePath().addTrailingSeparator();
+					
+					// path is contained in an existing source path, so update existing paths's exclusion patterns				
+					IPath[] oldExclusions = cp[i].getExclusionPatterns();
+
+					// don't add if exclusion pattern already contains src dir
+					boolean add = true;
+					for ( int j = 0; j < oldExclusions.length; j++ )
+						if ( oldExclusions[j].equals( projectRelativePath ) )
+							add = false;
+					
+					if ( add )
+					{
+						IPath[] newExclusions;
+						if ( cp[i].getExclusionPatterns() == null )
+							newExclusions = new IPath[1];
+						else
+						{
+							newExclusions = new IPath[ oldExclusions.length + 1 ];
+							System.arraycopy( oldExclusions, 0, newExclusions, 0, oldExclusions.length );
+						}
+						newExclusions[ newExclusions.length - 1 ] = projectRelativePath;
+						cp[i] = JavaCore.newSourceEntry(cp[i].getPath(), cp[i].getInclusionPatterns(), newExclusions, cp[i].getOutputLocation(), cp[i].getExtraAttributes());
+					}
+					
+				}
+				else if ( path.isPrefixOf( cp[i].getPath() ))
+				{
+					// new source path contains an existing source path, so add an exclusion pattern for it
+					exclusions.add( cp[i].getPath().addTrailingSeparator() );
+				}
+			}
+			
+			IPath[] exclusionPatterns = exclusions.toArray( new IPath[exclusions.size()] );
+			IClasspathEntry generatedSourceClasspathEntry = 
+				JavaCore.newSourceEntry(folder.getFullPath(), exclusionPatterns );
+			
 			IClasspathEntry[] newCp = new IClasspathEntry[cp.length + 1];
 			System.arraycopy(cp, 0, newCp, 0, cp.length);
 			newCp[newCp.length - 1] = generatedSourceClasspathEntry;
+			
 			jp.setRawClasspath(newCp, progressMonitor );
 		}
 	}
@@ -960,22 +1005,50 @@ public class GeneratedFileManager {
 		throws JavaModelException
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
-		IClasspathEntry folderClasspathEntry = 
-			JavaCore.newSourceEntry(folder.getFullPath());		
+
+		IPath workspaceRelativePath = folder.getFullPath();
+		IPath projectRelativePath = folder.getProjectRelativePath().addTrailingSeparator();
+
 		
-		// remove entries that are for the specified folder.  Account for 
-		// multiple entries.
+		// remove entries that are for the specified folder, account for 
+		// multiple entries, and clean up any exclusion entries to the 
+		// folder being removed.
 		int j = 0;
 		for ( int i=0; i<cp.length; i++ )
 		{
-			if (! cp[i].getPath().equals(folderClasspathEntry.getPath()) )
+			if (! cp[i].getPath().equals( workspaceRelativePath ) )
 			{
-				cp[j] = cp[i];
+			
+				// see if we added the generated source dir as an exclusion pattern to some other entry
+				IPath[] oldExclusions = cp[i].getExclusionPatterns();
+				int m = 0;
+				for ( int k = 0; k < oldExclusions.length; k++ )
+				{
+					if ( !oldExclusions[k].equals( projectRelativePath ) )
+					{
+						oldExclusions[m] = oldExclusions[k];
+						m++;
+					}
+				}
+				
+				if ( oldExclusions.length == m )
+				{
+					// no exclusions changed, so we do't need to create a new entry
+					cp[j] = cp[i];
+				}
+				else
+				{
+					// we've removed some exclusion, so create a new entry
+					IPath[] newExclusions = new IPath[ m ];
+					System.arraycopy( oldExclusions, 0, newExclusions, 0, m );
+					cp[j] = JavaCore.newSourceEntry( cp[i].getPath(), cp[i].getInclusionPatterns(), newExclusions, cp[i].getOutputLocation(), cp[i].getExtraAttributes() );
+				}
+				
 				j++;
 			}
 		}
 		
-		// now copy into new array
+		// now copy updated classpath entries into new array
 		IClasspathEntry[] newCp = new IClasspathEntry[ j ];
 		System.arraycopy( cp, 0, newCp, 0, j);
 		jp.setRawClasspath( newCp, progressMonitor );
