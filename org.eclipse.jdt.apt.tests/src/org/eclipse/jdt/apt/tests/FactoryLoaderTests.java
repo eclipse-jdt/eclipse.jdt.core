@@ -21,9 +21,8 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.core.internal.FactoryContainer;
-import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
-import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.core.FactoryContainer;
+import org.eclipse.jdt.apt.core.util.FactoryPath;
 import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
@@ -91,10 +90,10 @@ public class FactoryLoaderTests extends Tests {
 		
 		// add _extJar to the factory list and rebuild.
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
-		FactoryContainer jarContainer = new JarFactoryContainer(_extJar);
+		FactoryContainer jarContainer = FactoryPath.newExtJarFactoryContainer(_extJar);
 		Map<FactoryContainer, Boolean> containers = new LinkedHashMap<FactoryContainer, Boolean>(1);
 		containers.put(jarContainer, true);
-		AptConfig.addContainers(jproj, containers);
+		FactoryPath.addContainers(jproj, containers);
 		
 		// rebuild and verify that the processor was loaded
 		LoaderTestAnnotationProcessor.clearLoaded();
@@ -103,7 +102,7 @@ public class FactoryLoaderTests extends Tests {
 		assertTrue(LoaderTestAnnotationProcessor.isLoaded());
 		
 		// remove _extJar from the factory list.
-		AptConfig.removeContainer(jproj, jarContainer);
+		FactoryPath.removeContainer(jproj, jarContainer);
 		
 		// rebuild and verify that the processor was not loaded.
 		LoaderTestAnnotationProcessor.clearLoaded();

@@ -22,12 +22,12 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.core.internal.FactoryContainer;
-import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
+import org.eclipse.jdt.apt.core.FactoryContainer;
+import org.eclipse.jdt.apt.core.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
-import org.eclipse.jdt.apt.core.internal.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.core.util.FactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -74,7 +74,7 @@ public class PreferencesTests extends Tests {
 	public void testFactoryPathEncodingAndDecoding() throws Exception {
 		//encode
 		Map<FactoryContainer, Boolean> factories = new LinkedHashMap<FactoryContainer, Boolean>();
-		FactoryContainer jarFactory = new JarFactoryContainer(new File("C:/test.jar"));
+		FactoryContainer jarFactory = FactoryPath.newExtJarFactoryContainer(new File("C:/test.jar"));
 		FactoryContainer pluginFactory = new PluginFactoryContainer("com.bea.ap.plugin");
 		factories.put(jarFactory, true);
 		factories.put(pluginFactory, false);
@@ -90,7 +90,7 @@ public class PreferencesTests extends Tests {
 			FactoryContainer container = entry.getKey();
 			if (index == 0) {
 				// jar
-				assertEquals(FactoryType.JAR, container.getType());
+				assertEquals(FactoryType.EXTJAR, container.getType());
 				assertEquals(Boolean.TRUE, entry.getValue());
 			}
 			else {
@@ -106,7 +106,7 @@ public class PreferencesTests extends Tests {
 	
 	private static final String serializedFactories = 
 		"<factorypath>\n" + 
-		"    <factorypathentry kind=\"JAR\" id=\"C:\\test.jar\" enabled=\"true\"/>\n" + 
+		"    <factorypathentry kind=\"EXTJAR\" id=\"C:\\test.jar\" enabled=\"true\"/>\n" + 
 		"    <factorypathentry kind=\"PLUGIN\" id=\"com.bea.ap.plugin\" enabled=\"false\"/>\n" + 
 		"</factorypath>\n";
 	
