@@ -55,16 +55,16 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	private static final int IDX_DISABLEALL= 9;
 
 	private final static String[] buttonLabels = { 
-		Messages.getString("FactoryPathConfigurationBlock.0"),                    // 0 //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.1"),                  // 1 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.0"),  // 0  //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.1"),  // 1  //$NON-NLS-1$
 		null,                    // 2
-		Messages.getString("FactoryPathConfigurationBlock.2"),           // 3 //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.3"),  // 4 //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.4"),       // 5 //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.5"),                // 6 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.2"),  // 3  //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.3"),  // 4  //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.4"),  // 5  //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.5"),  // 6  //$NON-NLS-1$
 		null,                    // 7
-		Messages.getString("FactoryPathConfigurationBlock.6"),            // 8 //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.7")            // 9 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.6"),  // 8  //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.7")   // 9  //$NON-NLS-1$
 	};
 
 	private PixelConverter fPixelConverter;
