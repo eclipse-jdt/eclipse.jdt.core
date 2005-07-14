@@ -17,7 +17,6 @@ package org.eclipse.jdt.apt.core.util;
 public class AptPreferenceConstants {
 	public static final String APT_STRING_BASE = "org.eclipse.jdt.apt"; //$NON-NLS-1$
 	public static final String APT_ENABLED = APT_STRING_BASE + ".aptEnabled"; //$NON-NLS-1$
-	public static final String APT_GENBINDIR = APT_STRING_BASE + ".genBinDir"; //$NON-NLS-1$
 	public static final String APT_GENSRCDIR = APT_STRING_BASE + ".genSrcDir"; //$NON-NLS-1$
 	public static final String APT_PROCESSOROPTIONS = APT_STRING_BASE + ".processorOptions"; //$NON-NLS-1$
 
@@ -30,7 +29,6 @@ public class AptPreferenceConstants {
 	 */
 	public static final String[] OPTION_NAMES = {
 		APT_ENABLED,
-		APT_GENBINDIR,
 		APT_GENSRCDIR,
 		APT_PROCESSOROPTIONS
 	};
