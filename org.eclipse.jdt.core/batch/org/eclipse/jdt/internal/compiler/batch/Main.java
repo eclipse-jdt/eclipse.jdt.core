@@ -2530,6 +2530,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					// exit?
 					if (Main.this.systemExitWhenFinished && !Main.this.proceedOnError && (localErrorCount > 0)) {
 						Main.this.logger.endLoggingSource();
+						Main.this.logger.endLoggingSources();
 						Main.this.logger.printStats(Main.this);
 						Main.this.logger.flush();
 						Main.this.logger.close();
