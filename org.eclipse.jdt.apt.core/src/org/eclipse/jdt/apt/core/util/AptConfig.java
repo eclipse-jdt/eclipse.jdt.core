@@ -13,7 +13,12 @@ package org.eclipse.jdt.apt.core.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
@@ -30,6 +35,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -456,6 +462,16 @@ public class AptConfig {
 			// update the changed value in the options map.
 			Map<String, String> options = _optionsMaps.get(_proj);
 			options.put((String)event.getKey(), (String)event.getNewValue());
+			
+			// handle change to generated source directory
+			if ( AptPreferenceConstants.APT_GENSRCDIR.equals( event.getKey() ) ) {
+
+				if ( event.getNewValue() != null && ! event.getNewValue().equals( event.getOldValue())) {
+					GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _proj );
+					gfm.setGeneratedSourceFolderName( (String)event.getNewValue() );
+				}
+			}
+			
 		}
 		public void added(NodeChangeEvent event) {
 			// do nothing
@@ -466,7 +482,7 @@ public class AptConfig {
 		}
 	}
 	
-    private static synchronized String getString(IJavaProject jproject, String optionName) {
+    public static synchronized String getString(IJavaProject jproject, String optionName) {
 		Map options = getOptions(jproject);
 		return (String)options.get(optionName);
 	}

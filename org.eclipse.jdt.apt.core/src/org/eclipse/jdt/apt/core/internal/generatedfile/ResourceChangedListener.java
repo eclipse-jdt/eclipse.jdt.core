@@ -66,6 +66,10 @@ public class ResourceChangedListener implements IResourceChangeListener
 		{
 			IResource r = delta.getResource();
 			IProject project = r.getProject();
+			
+			if ( project == null ) 
+				return true;
+			
 			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( project );
 			
 			if ( delta.getKind() == IResourceDelta.REMOVED && r instanceof IFile)
