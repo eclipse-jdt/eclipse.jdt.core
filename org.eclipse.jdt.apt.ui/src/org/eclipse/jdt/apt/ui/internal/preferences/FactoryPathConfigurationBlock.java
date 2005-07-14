@@ -17,6 +17,7 @@ import java.util.*;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.JarFactoryContainer;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -51,14 +52,14 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	private static final int IDX_DISABLEALL= 7;
 
 	private final static String[] buttonLabels = { 
-		"Up",                   // 0
-		"Down",                 // 1
+		Messages.getString("FactoryPathConfigurationBlock.0"),                   // 0 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.1"),                 // 1 //$NON-NLS-1$
 		null,                   // 2
-		"Add External Jar...",  // 3
-		"Remove",               // 4
+		Messages.getString("FactoryPathConfigurationBlock.2"),  // 3 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.3"),               // 4 //$NON-NLS-1$
 		null,                   // 5
-		"Enable All",           // 6
-		"Disable All"           // 7
+		Messages.getString("FactoryPathConfigurationBlock.4"),           // 6 //$NON-NLS-1$
+		Messages.getString("FactoryPathConfigurationBlock.5")           // 7 //$NON-NLS-1$
 	};
 
 	private PixelConverter fPixelConverter;
@@ -141,7 +142,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		
 		fFactoryPathList= new CheckedListDialogField(adapter, buttonLabels, new LabelProvider());
 		fFactoryPathList.setDialogFieldListener(adapter);
-		fFactoryPathList.setLabelText("Plugins and jars that contain annotation processors:");  
+		fFactoryPathList.setLabelText(Messages.getString("FactoryPathConfigurationBlock.6"));   //$NON-NLS-1$
 		fFactoryPathList.setUpButtonIndex(0);
 		fFactoryPathList.setDownButtonIndex(1);
 		fFactoryPathList.setRemoveButtonIndex(4);
@@ -278,11 +279,11 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		}
 		catch (IOException e) {
 			// TODO: what?
-			e.printStackTrace();
+			AptPlugin.log(e, "Failed to save the factory path"); //$NON-NLS-1$
 		}
 		catch (CoreException e) {
 			// TODO: what?
-			e.printStackTrace();
+			AptPlugin.log(e, "Failed to save the factory path"); //$NON-NLS-1$
 		}
 	}
 	

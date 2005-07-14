@@ -51,15 +51,15 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		
 		fAptEnabledField= new SelectionButtonDialogField(SWT.CHECK);
 		fAptEnabledField.setDialogFieldListener(adapter);
-		fAptEnabledField.setLabelText("Enable annotation processing"); 
+		fAptEnabledField.setLabelText(Messages.getString("AptConfigurationBlock.0"));  //$NON-NLS-1$
 		
 		fGenSrcDirField = new StringDialogField();
 		fGenSrcDirField.setDialogFieldListener(adapter);
-		fGenSrcDirField.setLabelText("Generated source directory:");
+		fGenSrcDirField.setLabelText(Messages.getString("AptConfigurationBlock.1")); //$NON-NLS-1$
 		
 		fProcessorOptionsField = new StringDialogField();
 		fProcessorOptionsField.setDialogFieldListener(adapter);
-		fProcessorOptionsField.setLabelText("Processor options (-Akey=val):");
+		fProcessorOptionsField.setLabelText(Messages.getString("AptConfigurationBlock.2")); //$NON-NLS-1$
 
 		updateControls();
 	}
@@ -106,9 +106,9 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		boolean aptEnabled= Boolean.valueOf(getValue(KEY_APTENABLED)).booleanValue();
 		fAptEnabledField.setSelection(aptEnabled);
 		String str= getValue(KEY_GENSRCDIR);
-		fGenSrcDirField.setText(str == null ? "" : str);
+		fGenSrcDirField.setText(str == null ? "" : str); //$NON-NLS-1$
 		str= getValue(KEY_PROCESSOROPTIONS);
-		fProcessorOptionsField.setText(str == null ? "" : str);
+		fProcessorOptionsField.setText(str == null ? "" : str); //$NON-NLS-1$
 	}	
 	
 	protected final void updateModel(DialogField field) {

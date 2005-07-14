@@ -49,6 +49,6 @@ public class AptUIPlugin extends AbstractUIPlugin {
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
-		return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.apt.ui", path);
+		return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.apt.ui", path); //$NON-NLS-1$
 	}
 }

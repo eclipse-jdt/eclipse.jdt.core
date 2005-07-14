@@ -25,10 +25,10 @@ public class AptPreferencePage extends BasePreferencePage {
 
 	public AptPreferencePage() {
 		setPreferenceStore(AptUIPlugin.getDefault().getPreferenceStore());
-		setDescription("Java annotation processing preferences:"); 
+		setDescription(Messages.getString("AptPreferencePage.0"));  //$NON-NLS-1$
 		
 		// only used when page is shown programatically
-		setTitle("AptPreferencePageTitle");		 
+		setTitle(Messages.getString("AptPreferencePage.1"));		  //$NON-NLS-1$
 	}
 
 	/*

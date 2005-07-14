@@ -35,7 +35,7 @@ public abstract class BaseConfigurationBlock extends OptionsConfigurationBlock {
 	}
 	
 	protected static Key getAptCoreKey(String name) {
-		return getKey("org.eclipse.jdt.apt.core", name);
+		return getKey("org.eclipse.jdt.apt.core", name); //$NON-NLS-1$
 	}
 
 	/**
@@ -50,12 +50,12 @@ public abstract class BaseConfigurationBlock extends OptionsConfigurationBlock {
 	 */
 	protected String[] getFullBuildDialogStrings(boolean workspaceSettings) {
 		String[] strings= new String[2];
-		strings[0] = "Annotation Processing Settings Changed";
+		strings[0] = Messages.getString("BaseConfigurationBlock.1"); //$NON-NLS-1$
 		if (workspaceSettings) {
-			strings[1]= "The annotation processing settings have changed. A full rebuild is required for changes to take effect. Do the full build now?";
+			strings[1]= Messages.getString("BaseConfigurationBlock.2"); //$NON-NLS-1$
 		}
 		else {
-			strings[1]= "The annotation processing settings have changed. A rebuild of the project is required for changes to take effect. Do the project build now?";
+			strings[1]= Messages.getString("BaseConfigurationBlock.3"); //$NON-NLS-1$
 		}
 		return strings;
 	}
