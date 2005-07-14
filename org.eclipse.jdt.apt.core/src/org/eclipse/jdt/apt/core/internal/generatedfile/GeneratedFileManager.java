@@ -1000,59 +1000,7 @@ public class GeneratedFileManager {
 			jp.setRawClasspath(newCp, progressMonitor );
 		}
 	}
-	
-	private void removeFromProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
-		throws JavaModelException
-	{
-		IClasspathEntry[] cp = jp.getRawClasspath();
 
-		IPath workspaceRelativePath = folder.getFullPath();
-		IPath projectRelativePath = folder.getProjectRelativePath().addTrailingSeparator();
-
-		
-		// remove entries that are for the specified folder, account for 
-		// multiple entries, and clean up any exclusion entries to the 
-		// folder being removed.
-		int j = 0;
-		for ( int i=0; i<cp.length; i++ )
-		{
-			if (! cp[i].getPath().equals( workspaceRelativePath ) )
-			{
-			
-				// see if we added the generated source dir as an exclusion pattern to some other entry
-				IPath[] oldExclusions = cp[i].getExclusionPatterns();
-				int m = 0;
-				for ( int k = 0; k < oldExclusions.length; k++ )
-				{
-					if ( !oldExclusions[k].equals( projectRelativePath ) )
-					{
-						oldExclusions[m] = oldExclusions[k];
-						m++;
-					}
-				}
-				
-				if ( oldExclusions.length == m )
-				{
-					// no exclusions changed, so we do't need to create a new entry
-					cp[j] = cp[i];
-				}
-				else
-				{
-					// we've removed some exclusion, so create a new entry
-					IPath[] newExclusions = new IPath[ m ];
-					System.arraycopy( oldExclusions, 0, newExclusions, 0, m );
-					cp[j] = JavaCore.newSourceEntry( cp[i].getPath(), cp[i].getInclusionPatterns(), newExclusions, cp[i].getOutputLocation(), cp[i].getExtraAttributes() );
-				}
-				
-				j++;
-			}
-		}
-		
-		// now copy updated classpath entries into new array
-		IClasspathEntry[] newCp = new IClasspathEntry[ j ];
-		System.arraycopy( cp, 0, newCp, 0, j);
-		jp.setRawClasspath( newCp, progressMonitor );
-	}
 	
 	public void projectClosed()
 	{
