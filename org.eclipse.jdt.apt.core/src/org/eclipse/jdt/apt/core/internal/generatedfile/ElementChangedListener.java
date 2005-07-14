@@ -76,7 +76,7 @@ public class ElementChangedListener implements IElementChangedListener
 					} 
 					catch (JavaModelException e) 
 					{
-						AptPlugin.log(e, "Failure processing delta: " + delta);
+						AptPlugin.log(e, "Failure processing delta: " + delta); //$NON-NLS-1$
 					}		
 				}
 			}

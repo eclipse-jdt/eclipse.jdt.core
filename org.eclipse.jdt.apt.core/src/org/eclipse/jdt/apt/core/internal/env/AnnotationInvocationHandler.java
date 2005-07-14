@@ -38,25 +38,25 @@ public class AnnotationInvocationHandler implements InvocationHandler
         final String methodName = method.getName();
         if( args == null || args.length == 0 )
         {
-            if( methodName.equals("hashCode") )
+            if( methodName.equals("hashCode") ) //$NON-NLS-1$
                 return new Integer( _instance.hashCode() );
-            if( methodName.equals("toString") )
+            if( methodName.equals("toString") ) //$NON-NLS-1$
                 return _instance.toString();
         }
-        else if( args.length == 1 && methodName.equals("equals") )
+        else if( args.length == 1 && methodName.equals("equals") ) //$NON-NLS-1$
         {
             return new Boolean( _instance.equals( args[0] ) );
         }
         if( args != null && args.length != 0 )
-            throw new NoSuchMethodException("method " + method.getName() + formatArgs(args) + " does not exists");
+            throw new NoSuchMethodException("method " + method.getName() + formatArgs(args) + " does not exists"); //$NON-NLS-1$ //$NON-NLS-2$
         final String c_methodName = method.getName();
         final IMethodBinding methodBinding = _instance.getMethodBinding(c_methodName);
         if( methodBinding == null )
-            throw new NoSuchMethodException("method " + method.getName() + "() does not exists");
+            throw new NoSuchMethodException("method " + method.getName() + "() does not exists"); //$NON-NLS-1$ //$NON-NLS-2$
 
         final ITypeBinding retType = methodBinding.getReturnType();
         // type of annotation member is java.lang.Class
-        if( retType.isClass() && "java.lang.Class".equals(retType.getQualifiedName()) ){
+        if( retType.isClass() && "java.lang.Class".equals(retType.getQualifiedName()) ){ //$NON-NLS-1$
             // need to figure out the class that's being accessed
             final ITypeBinding[] classTypes = _instance.getMemberValueTypeBinding(c_methodName);
             TypeMirror mirrorType = null;
@@ -70,7 +70,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
         else if( retType.isArray() ){
             final ITypeBinding leafType = retType.getElementType();
             // type of annotation member is java.lang.Class[]
-            if( leafType.isClass() && "java.lang.Class".equals(leafType.getQualifiedName()) ){
+            if( leafType.isClass() && "java.lang.Class".equals(leafType.getQualifiedName()) ){ //$NON-NLS-1$
                 final ITypeBinding[] classTypes = _instance.getMemberValueTypeBinding(c_methodName);
                 final Collection<TypeMirror> mirrorTypes;
                 if( classTypes == null || classTypes.length == 0 )
@@ -99,7 +99,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
         builder.append('(');
         for( int i=0; i<args.length; i++ )
         {
-            if( i > 0 ) builder.append(", ");
+            if( i > 0 ) builder.append(", "); //$NON-NLS-1$
             builder.append(args[i].getClass().getName());
         }
 

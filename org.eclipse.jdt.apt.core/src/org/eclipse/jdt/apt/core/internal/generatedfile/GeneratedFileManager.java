@@ -160,7 +160,7 @@ public class GeneratedFileManager {
 
 			
 			byte[] bytes;
-			if ( charsetName == null || charsetName == "" )
+			if ( charsetName == null || charsetName == "" ) //$NON-NLS-1$
 				bytes = contents.getBytes();
 			else
 				bytes = contents.getBytes( charsetName );
@@ -208,7 +208,7 @@ public class GeneratedFileManager {
 		}
 		catch ( Throwable t )
 		{
-			AptPlugin.log(t, "Could not generate file for type: " + typeName);
+			AptPlugin.log(t, "Could not generate file for type: " + typeName); //$NON-NLS-1$
 		}
 		
 		return null;
@@ -295,11 +295,11 @@ public class GeneratedFileManager {
 		} 
 		catch (JavaModelException jme) 
 		{
-			AptPlugin.log(jme, "Could not generate file for type: " + typeName);
+			AptPlugin.log(jme, "Could not generate file for type: " + typeName); //$NON-NLS-1$
 		} 
 		catch (CoreException ce) 
 		{
-			AptPlugin.log(ce, "Could not generate file for type: " + typeName);
+			AptPlugin.log(ce, "Could not generate file for type: " + typeName); //$NON-NLS-1$
 		}
 		return new FileGenerationResult((IFile)workingCopy.getResource(), true);
 	}
@@ -419,7 +419,7 @@ public class GeneratedFileManager {
 			Set<IFile> parents = _generatedFile2ParentFiles.get( generatedFile );
 		
 			// this can be empty, but it shouldn't be null here unless parentFile was never a parent of generatedFile
-			if ( parents == null ) throw new RuntimeException("unexpected null value for parents set for file " + generatedFile);
+			if ( parents == null ) throw new RuntimeException("unexpected null value for parents set for file " + generatedFile); //$NON-NLS-1$
 		
 			if (parents == null || parents.size() == 0) 
 				delete = true;
@@ -485,7 +485,7 @@ public class GeneratedFileManager {
 	    throws CoreException
 	{
 		// split the type name into its parts
-		String[] parts = typeName.split( "\\.");
+		String[] parts = typeName.split( "\\."); //$NON-NLS-1$
 		
 		IFolder folder;
 		if ( create )
@@ -502,7 +502,7 @@ public class GeneratedFileManager {
 				folder.create( true, false, null );
 		}
 	
-		String fileName = parts[i] + ".java";		
+		String fileName = parts[i] + ".java"; //$NON-NLS-1$		
 		IFile file = folder.getFile( fileName );
 		return file;
 	}
@@ -625,12 +625,12 @@ public class GeneratedFileManager {
 		{
 		    pkgName = typeName.substring( 0, idx );
 		    fname = 
-				typeName.substring(idx + 1, typeName.length()) + ".java";
+				typeName.substring(idx + 1, typeName.length()) + ".java"; //$NON-NLS-1$
 		}
 		else
 		{
-			pkgName = "";
-			fname = typeName + ".java";
+			pkgName = ""; //$NON-NLS-1$
+			fname = typeName + ".java"; //$NON-NLS-1$
 		}
 
 		//
@@ -758,8 +758,8 @@ public class GeneratedFileManager {
 			if ( cu != null )
 			{
 				//assert( cu.equals( workingCopy ) ) : "unexpected different instances of working copy for the same type";
-				if ( !cu.equals(workingCopy) ) throw new RuntimeException( "unexpected different instances of working copy for the same type" );
-				if ( parents == null || parents.size() < 1 ) throw new RuntimeException( "Unexpected size of open-parents set.  Expected size >= 0");
+				if ( !cu.equals(workingCopy) ) throw new RuntimeException( "unexpected different instances of working copy for the same type" ); //$NON-NLS-1$
+				if ( parents == null || parents.size() < 1 ) throw new RuntimeException( "Unexpected size of open-parents set.  Expected size >= 0"); //$NON-NLS-1$
 			}
 			else
 			{
@@ -819,10 +819,10 @@ public class GeneratedFileManager {
 			// assertions
 			if (derivedFiles == null)
 				throw new RuntimeException(
-					"derivedFiles is null and it shouldn't be");
+					"derivedFiles is null and it shouldn't be"); //$NON-NLS-1$
 			if (!derivedFiles.contains(generatedFile))
 				throw new RuntimeException(
-					"derivedFiles does not contain fileToDelete");
+					"derivedFiles does not contain fileToDelete"); //$NON-NLS-1$
 
 			derivedFiles.remove(generatedFile);
 		
@@ -831,9 +831,9 @@ public class GeneratedFileManager {
 
 			// assertions
 			if (parents == null)
-				throw new RuntimeException(" parents is null and it shouldn't be");
+				throw new RuntimeException(" parents is null and it shouldn't be"); //$NON-NLS-1$
 			if (!parents.contains(parentFile))
-				throw new RuntimeException("parents set does not contain parent");
+				throw new RuntimeException("parents set does not contain parent"); //$NON-NLS-1$
 
 			parents.remove(parentFile);
 		}
@@ -854,8 +854,8 @@ public class GeneratedFileManager {
 			Set<IFile> parents = _generatedWorkingCopy2OpenParentFiles.get( workingCopy );
 
 			// TODO:  change these to assertions
-			if ( parents == null ) throw new RuntimeException( "parents == null and it shouldnt");
-			if ( ! parents.contains( parentFile )) throw new RuntimeException("parents set should contain parentCompilationUnit");
+			if ( parents == null ) throw new RuntimeException( "parents == null and it shouldnt"); //$NON-NLS-1$
+			if ( ! parents.contains( parentFile )) throw new RuntimeException("parents set should contain parentCompilationUnit"); //$NON-NLS-1$
 		
 			// remove entry from parents _derivedWorkingCopy2OpenParentFiles
 			parents.remove( parentFile );
@@ -896,7 +896,7 @@ public class GeneratedFileManager {
 			}
 			catch( JavaModelException jme )
 			{
-				AptPlugin.log(jme, "Could not discard working copy");
+				AptPlugin.log(jme, "Could not discard working copy"); //$NON-NLS-1$
 				// TODO:  deal with this
 			}
 		}
@@ -1028,7 +1028,7 @@ public class GeneratedFileManager {
 				}
 				catch ( CoreException ce )
 				{
-					AptPlugin.log(ce, "Could not delete generated files");
+					AptPlugin.log(ce, "Could not delete generated files"); //$NON-NLS-1$
 				}
 			}
 		}
@@ -1134,6 +1134,6 @@ public class GeneratedFileManager {
 	
 	private static boolean _initialized = false;
 	
-	private static final String GENERATED_SOURCE_FOLDER_NAME = "__generated_src";
+	private static final String GENERATED_SOURCE_FOLDER_NAME = "__generated_src"; //$NON-NLS-1$
 
 }

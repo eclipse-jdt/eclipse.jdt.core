@@ -28,7 +28,7 @@ public class AptPlugin extends Plugin {
 	 */
 	public static final int STATUS_EXCEPTION = 1;
 	public static final int STATUS_NOTOOLSJAR = 2;
-	public static final String ERRTXT_NOTOOLSJAR = "Could not find tools.jar in plugin directory: org.eclipse.jdt.apt.core will not load";
+	public static final String ERRTXT_NOTOOLSJAR = Messages.getString("AptPlugin.0"); //$NON-NLS-1$
 	
 	private static AptPlugin thePlugin = null; // singleton object
 	
@@ -90,5 +90,5 @@ public class AptPlugin extends Plugin {
 	}
 	
 	public static boolean DEBUG = false;
-	public final static String APT_DEBUG_OPTION = AptPlugin.PLUGIN_ID + "/debug";
+	public final static String APT_DEBUG_OPTION = AptPlugin.PLUGIN_ID + "/debug"; //$NON-NLS-1$
 }

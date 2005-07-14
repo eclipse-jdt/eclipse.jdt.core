@@ -108,29 +108,29 @@ public class ScannerUtil {
 		}
 		catch( Exception e )
 		{
-			AptPlugin.log(e, "Failure scanning source: \n" + new String(source));
+			AptPlugin.log(e, "Failure scanning source: \n" + new String(source)); //$NON-NLS-1$
 			// TODO:  deal with this exception
 			return false;
 		}
 	}
 	
 	private static final String[] SINGLE_BYTE_ENCODING_ARRAY = {
-		"ASCII",
-		"Cp1250",
-		"Cp1251",
-		"Cp1252",
-		"Cp1253",
-		"Cp1254",
-		"Cp1257",
-		"ISO8859_1",
-		"ISO8859_2",
-		"ISO8859_4",
-		"ISO8859_5",
-		"ISO8859_7",
-		"ISO8859_9",
-		"ISO8859_13",
-		"ISO8859_15",
-		"UTF8"
+		"ASCII", //$NON-NLS-1$
+		"Cp1250", //$NON-NLS-1$
+		"Cp1251", //$NON-NLS-1$
+		"Cp1252", //$NON-NLS-1$
+		"Cp1253", //$NON-NLS-1$
+		"Cp1254", //$NON-NLS-1$
+		"Cp1257", //$NON-NLS-1$
+		"ISO8859_1", //$NON-NLS-1$
+		"ISO8859_2", //$NON-NLS-1$
+		"ISO8859_4", //$NON-NLS-1$
+		"ISO8859_5", //$NON-NLS-1$
+		"ISO8859_7", //$NON-NLS-1$
+		"ISO8859_9", //$NON-NLS-1$
+		"ISO8859_13", //$NON-NLS-1$
+		"ISO8859_15", //$NON-NLS-1$
+		"UTF8" //$NON-NLS-1$
 	};
 	
 	private static final Set<String> SINGLE_BYTE_ENCODINGS = 

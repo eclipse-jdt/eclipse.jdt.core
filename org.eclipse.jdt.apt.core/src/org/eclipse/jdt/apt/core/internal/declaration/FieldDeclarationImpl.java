@@ -15,7 +15,7 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
     public FieldDeclarationImpl(final IVariableBinding binding, final ProcessorEnvImpl env)
     {
         super(binding, env);
-        assert binding.isField() : "binding doesn't represent a field";
+        assert binding.isField() : "binding doesn't represent a field"; //$NON-NLS-1$
     }
     
     public void accept(DeclarationVisitor visitor)
@@ -49,7 +49,7 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
     {
 		final IVariableBinding field = getDeclarationBinding();
         final String name = field.getName();
-        return name == null ? "" : name;
+        return name == null ? "" : name; //$NON-NLS-1$
     }
 
     public TypeMirror getType()

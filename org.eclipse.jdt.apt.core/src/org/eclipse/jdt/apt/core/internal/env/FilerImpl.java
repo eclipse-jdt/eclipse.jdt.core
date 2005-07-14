@@ -62,7 +62,7 @@ public class FilerImpl implements Filer {
     public OutputStream createClassFile(String name) throws IOException 
     {
 		_generatedClassFiles = true;
-        throw new UnsupportedOperationException( "Not Yet Implemented" );
+        throw new UnsupportedOperationException( "Not Yet Implemented" ); //$NON-NLS-1$
     }
 	
 	public boolean hasGeneratedClassFile(){ return _generatedClassFiles; }
@@ -99,7 +99,7 @@ public class FilerImpl implements Filer {
     		catch ( Exception e )
     		{
     			// TODO - stop throwing this exception
-    			AptPlugin.log(e, "Failure getting the output file");
+    			AptPlugin.log(e, "Failure getting the output file"); //$NON-NLS-1$
     			throw new IOException();
     		}
     	}
@@ -136,7 +136,7 @@ public class FilerImpl implements Filer {
     public OutputStream createBinaryFile(Filer.Location loc, String pkg, File relPath)
         throws IOException 
     {
-        throw new UnsupportedOperationException( "Not yet implemented");
+        throw new UnsupportedOperationException( "Not yet implemented"); //$NON-NLS-1$
     }
 	
     

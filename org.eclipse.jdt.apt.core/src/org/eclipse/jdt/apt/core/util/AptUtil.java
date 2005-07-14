@@ -45,10 +45,10 @@ public final class AptUtil {
 				if (anno.equals(fullyQualifiedAnnotation)) {
 					return factory;
 				}
-				else if ("*".equals(anno)) {
+				else if ("*".equals(anno)) { //$NON-NLS-1$
 						return factory;
 				}
-				else if (anno.endsWith("*")) {
+				else if (anno.endsWith("*")) { //$NON-NLS-1$
 					final String prefix = anno.substring(0,
 							anno.length() - 2);
 					if (fullyQualifiedAnnotation.startsWith(prefix)) {

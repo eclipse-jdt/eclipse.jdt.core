@@ -89,8 +89,8 @@ public class TypesUtil implements Types
 			return (ArrayType)Factory.createTypeMirror(arrayType, _env); 
         }
 		
-        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." +
-                                                    " Found " + componentType.getClass().getName());
+        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
+                                                    " Found " + componentType.getClass().getName()); //$NON-NLS-1$
                                                 
     }
 
@@ -152,15 +152,15 @@ public class TypesUtil implements Types
 			final String[] argKeys = numArgs == 0 ? NO_ARGS : new String[numArgs];
 			for( int i=0; i<numArgs; i++ ){		
 				final ITypeBinding binding = getTypeBinding(typeArgs[i]);
-				assert binding != null : "failed to get binding mirror type";
+				assert binding != null : "failed to get binding mirror type"; //$NON-NLS-1$
 				argKeys[i] = binding.getKey();
 			}
 			
 			final ITypeBinding[] typeParams = memberBinding.getTypeParameters();
 			final int numTypeParams = typeParams == null ? 0 : typeParams.length;
 			if( numTypeParams != numArgs )
-				throw new IllegalArgumentException("type, " + memberBinding + ", require " + numTypeParams + " type arguments " +
-                        "but found " + numArgs );	
+				throw new IllegalArgumentException("type, " + memberBinding + ", require " + numTypeParams + " type arguments " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        "but found " + numArgs ); //$NON-NLS-1$
 			
 			final String typeKey = BindingKey.createParameterizedTypeBindingKey(memberBinding.getKey(), argKeys);
 			final ITypeBinding resultBinding = _env.getTypeBinding(typeKey);
@@ -168,7 +168,7 @@ public class TypesUtil implements Types
 		}
 		else{ 
 			if( numArgs != 0 )
-				throw new IllegalArgumentException("type, " + memberBinding + " is not a generic type and cannot have type arguments.");
+				throw new IllegalArgumentException("type, " + memberBinding + " is not a generic type and cannot have type arguments."); //$NON-NLS-1$ //$NON-NLS-2$
 			// simple case, turning a non-generic TypeDeclaration into a DeclaredType
 			return (DeclaredType)decl;
 		}	
@@ -209,8 +209,8 @@ public class TypesUtil implements Types
             return m_erasure;
         }
 
-        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." +
-                                                    " Found " + t.getClass().getName());	
+        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
+                                                    " Found " + t.getClass().getName());	 //$NON-NLS-1$
 	}
 
     public PrimitiveType getPrimitiveType(PrimitiveType.Kind kind)
@@ -227,7 +227,7 @@ public class TypesUtil implements Types
             case LONG:    return _env.getLongType();
             case SHORT:   return _env.getShortType();
           
-            default: throw new IllegalStateException("unknown primitive kind : " + kind);
+            default: throw new IllegalStateException("unknown primitive kind : " + kind); //$NON-NLS-1$
         }
     }
 
@@ -237,8 +237,8 @@ public class TypesUtil implements Types
         if( tparam instanceof TypeParameterDeclarationImpl)
             return (TypeVariable) tparam;
 
-        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." +
-                                                    " Found " + tparam.getClass().getName());
+        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
+                                                    " Found " + tparam.getClass().getName()); //$NON-NLS-1$
     }
 
     public VoidType getVoidType()
@@ -267,7 +267,7 @@ public class TypesUtil implements Types
             boundKind = Signature.C_SUPER;
         }
         else
-            throw new IllegalArgumentException("Wildcard can only have a upper bound, a lower bound or be unbounded.");
+            throw new IllegalArgumentException("Wildcard can only have a upper bound, a lower bound or be unbounded."); //$NON-NLS-1$
 
 		final String wildcardkey = BindingKey.createWilcardTypeBindingKey(boundKey, boundKind);
 		final ITypeBinding wildcard = _env.getTypeBinding(wildcardkey);
@@ -319,8 +319,8 @@ public class TypesUtil implements Types
             }
         }
 
-        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." +
-                                                    " Found " + type.getClass().getName());
+        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
+                                                    " Found " + type.getClass().getName()); //$NON-NLS-1$
     }
 
     /**
@@ -334,7 +334,7 @@ public class TypesUtil implements Types
         if( type instanceof EclipseMirrorImpl ){           
             return ((TypeDeclarationImpl)type).getTypeBinding();
         }
-        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." +
-                                                    " Found " + type.getClass().getName());
+        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
+                                                    " Found " + type.getClass().getName()); //$NON-NLS-1$
     } 
 }

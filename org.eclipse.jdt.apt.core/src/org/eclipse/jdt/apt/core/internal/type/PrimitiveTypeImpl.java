@@ -35,24 +35,24 @@ public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorImpl
     public PrimitiveType.Kind getKind()
     {
 		final String name = getTypeBinding().getName();
-		if( "int".equals(name) )
+		if( "int".equals(name) ) //$NON-NLS-1$
 			return PrimitiveType.Kind.INT; 
-		else if( "byte".equals(name) )
+		else if( "byte".equals(name) ) //$NON-NLS-1$
 			return PrimitiveType.Kind.BYTE;
-		else if( "short".equals(name) )
+		else if( "short".equals(name) ) //$NON-NLS-1$
 			return PrimitiveType.Kind.SHORT;
-		else if( "char".equals(name) )
+		else if( "char".equals(name) ) //$NON-NLS-1$
 			return PrimitiveType.Kind.CHAR;
-		else if( "long".equals(name) )
+		else if( "long".equals(name) ) //$NON-NLS-1$
 			return PrimitiveType.Kind.LONG;
-		else if( "float".equals(name) )
+		else if( "float".equals(name) ) //$NON-NLS-1$
 			return PrimitiveType.Kind.FLOAT;
-		else if( "double".equals(name) )
+		else if( "double".equals(name) ) //$NON-NLS-1$
 			return PrimitiveType.Kind.DOUBLE;
-		else if( "boolean".equals(name))
+		else if( "boolean".equals(name)) //$NON-NLS-1$
 			return PrimitiveType.Kind.BOOLEAN;
 		else
-			throw new IllegalStateException("unrecognized primitive type " + _binding);
+			throw new IllegalStateException("unrecognized primitive type " + _binding); //$NON-NLS-1$
     }
     
     public String toString(){ return _binding.getName(); }

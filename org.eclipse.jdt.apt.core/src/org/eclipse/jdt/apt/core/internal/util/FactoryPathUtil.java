@@ -40,16 +40,16 @@ import org.xml.sax.SAXException;
  */
 public final class FactoryPathUtil {
 	
-	private static final String FACTORYPATH_TAG = "factorypath";
-	private static final String FACTORYPATH_ENTRY_TAG = "factorypathentry";
-	private static final String KIND = "kind";
-	private static final String ID = "id";
-	private static final String ENABLED = "enabled";
+	private static final String FACTORYPATH_TAG = "factorypath"; //$NON-NLS-1$
+	private static final String FACTORYPATH_ENTRY_TAG = "factorypathentry"; //$NON-NLS-1$
+	private static final String KIND = "kind"; //$NON-NLS-1$
+	private static final String ID = "id"; //$NON-NLS-1$
+	private static final String ENABLED = "enabled"; //$NON-NLS-1$
 	
-	private static final String FACTORYPATH_FILE = ".factorypath";
+	private static final String FACTORYPATH_FILE = ".factorypath"; //$NON-NLS-1$
 	
 	// four spaces for indent
-	private static final String INDENT = "    ";
+	private static final String INDENT = "    "; //$NON-NLS-1$
 
 	// Private c-tor to prevent construction
 	private FactoryPathUtil() {}
@@ -128,18 +128,18 @@ public final class FactoryPathUtil {
 	 */
 	public static String encodeFactoryPath(Map<FactoryContainer, Boolean> factories) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<").append(FACTORYPATH_TAG).append(">\n");
+		sb.append("<").append(FACTORYPATH_TAG).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		for (Map.Entry<FactoryContainer, Boolean> entry : factories.entrySet()) {
 			FactoryContainer container = entry.getKey();
 			Boolean enabled = entry.getValue();
 			sb.append(INDENT);
-			sb.append("<");
-			sb.append(FACTORYPATH_ENTRY_TAG).append(" ");
-			sb.append(KIND).append("=\"").append(container.getType()).append("\" ");
-			sb.append(ID).append("=\"").append(container.getId()).append("\" ");
-			sb.append(ENABLED).append("=\"").append(enabled).append("\"/>\n");
+			sb.append("<"); //$NON-NLS-1$
+			sb.append(FACTORYPATH_ENTRY_TAG).append(" "); //$NON-NLS-1$
+			sb.append(KIND).append("=\"").append(container.getType()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(ID).append("=\"").append(container.getId()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(ENABLED).append("=\"").append(enabled).append("\"/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		sb.append("</").append(FACTORYPATH_TAG).append(">\n");
+		sb.append("</").append(FACTORYPATH_TAG).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		
 		return sb.toString();
 	}
@@ -158,17 +158,17 @@ public final class FactoryPathUtil {
 			
 		}
 		catch (SAXException e) {
-			throw new IOException("Unable to parse: " + e);
+			throw new IOException("Unable to parse: " + e); //$NON-NLS-1$
 		}
 		catch (ParserConfigurationException e) {
-			throw new IOException("Unable to get parser: " + e);
+			throw new IOException("Unable to get parser: " + e); //$NON-NLS-1$
 		}
 		finally {
 			reader.close();
 		}
 		
 		if (!fpElement.getNodeName().equalsIgnoreCase(FACTORYPATH_TAG)) {
-			throw new IOException("Incorrect file format. File must begin with " + FACTORYPATH_TAG);
+			throw new IOException("Incorrect file format. File must begin with " + FACTORYPATH_TAG); //$NON-NLS-1$
 		}
 		NodeList nodes = fpElement.getElementsByTagName(FACTORYPATH_ENTRY_TAG);
 		for (int i=0; i < nodes.getLength(); i++) {
@@ -191,7 +191,7 @@ public final class FactoryPathUtil {
 					break;
 					
 				default :
-					throw new IllegalStateException("Unrecognized kind: " + kind + ". Original string: " + kindString);
+					throw new IllegalStateException("Unrecognized kind: " + kind + ". Original string: " + kindString); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				
 				result.put(container, new Boolean(enabledString));
@@ -239,14 +239,14 @@ public final class FactoryPathUtil {
 					continue;
 				}
 				// Get enableDefault.  If the attribute is missing, default to true.
-				String enableDefaultStr = factories.getAttribute("enableDefault");
+				String enableDefaultStr = factories.getAttribute("enableDefault"); //$NON-NLS-1$
 				boolean enableDefault = true;
-				if ("false".equals(enableDefaultStr)) {
+				if ("false".equals(enableDefaultStr)) { //$NON-NLS-1$
 					enableDefault = false;
 				}
 				// Iterate over the children of the "factories" element to find all the ones named "factory".
 				for (IConfigurationElement factory : factories.getChildren()) {
-					if (!"factory".equals(factory.getName())) {
+					if (!"factory".equals(factory.getName())) { //$NON-NLS-1$
 						continue;
 					}
 					PluginContents pc = plugins.get(pluginId);
@@ -256,7 +256,7 @@ public final class FactoryPathUtil {
 						pc = new PluginContents(fc, enableDefault);
 						plugins.put( pluginId, pc );
 					}
-					pc.fc.addFactoryName( factory.getAttribute("class") );
+					pc.fc.addFactoryName( factory.getAttribute("class") ); //$NON-NLS-1$
 				}
 			}
 		}
@@ -333,10 +333,10 @@ public final class FactoryPathUtil {
 				foundPerProjFile = (containers != null);
 			}
 			catch (CoreException ce) {
-				AptPlugin.log(ce, "Could not get factory containers for project: " + jproj);
+				AptPlugin.log(ce, "Could not get factory containers for project: " + jproj); //$NON-NLS-1$
 			}
 			catch (IOException ioe) {
-				AptPlugin.log(ioe, "Could not get factory containers for project: " + jproj);
+				AptPlugin.log(ioe, "Could not get factory containers for project: " + jproj); //$NON-NLS-1$
 			}
 		}
 		// Workspace if no project data was found
@@ -345,10 +345,10 @@ public final class FactoryPathUtil {
 				containers = readFactoryPathFile(null);
 			}
 			catch (CoreException ce) {
-				AptPlugin.log(ce, "Could not get factory containers for project: " + jproj);
+				AptPlugin.log(ce, "Could not get factory containers for project: " + jproj); //$NON-NLS-1$
 			}
 			catch (IOException ioe) {
-				AptPlugin.log(ioe, "Could not get factory containers for project: " + jproj);
+				AptPlugin.log(ioe, "Could not get factory containers for project: " + jproj); //$NON-NLS-1$
 			}
 		}
 		// if no project and no workspace data was found, we'll get the defaults

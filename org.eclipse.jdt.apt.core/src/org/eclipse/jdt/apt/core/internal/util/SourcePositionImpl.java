@@ -42,7 +42,7 @@ public class SourcePositionImpl implements SourcePosition
         _line = line;
         _column = column;
         _decl = decl;
-        assert decl != null : "missing declaration [decl] == null.";
+        assert decl != null : "missing declaration [decl] == null."; //$NON-NLS-1$
     }
 	
 	public SourcePositionImpl(final int startingOffset,
@@ -56,7 +56,7 @@ public class SourcePositionImpl implements SourcePosition
         _line = line;
         _column = column;
         _decl = decl;
-        assert decl != null : "missing declaration [decl] == null.";
+        assert decl != null : "missing declaration [decl] == null."; //$NON-NLS-1$
 	}
 	
 	public SourcePositionImpl(final int startingOffset,
@@ -70,7 +70,7 @@ public class SourcePositionImpl implements SourcePosition
         _line = line;
         _column = column;
         _decl = decl;
-        assert decl != null : "missing declaration [decl] == null.";
+        assert decl != null : "missing declaration [decl] == null."; //$NON-NLS-1$
 	}
     
     public int line(){ return _line; }
@@ -101,14 +101,14 @@ public class SourcePositionImpl implements SourcePosition
     public String toString()
     {
     	StringBuilder buffer = new StringBuilder();
-    	buffer.append("offset = ");
-    	buffer.append(_startingOffset);
-    	buffer.append(" line = ");
-    	buffer.append( _line );
-    	buffer.append(" column = ");
-    	buffer.append( _column );
-    	buffer.append(" length = ");
-    	buffer.append( _length );
+    	buffer.append("offset = "); //$NON-NLS-1$
+    	buffer.append(_startingOffset); //$NON-NLS-1$
+    	buffer.append(" line = "); //$NON-NLS-1$
+    	buffer.append( _line ); //$NON-NLS-1$
+    	buffer.append(" column = "); //$NON-NLS-1$
+    	buffer.append( _column ); //$NON-NLS-1$
+    	buffer.append(" length = "); //$NON-NLS-1$
+    	buffer.append( _length ); //$NON-NLS-1$
     	
     	return buffer.toString();
     }

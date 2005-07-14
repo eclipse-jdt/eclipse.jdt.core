@@ -80,7 +80,7 @@ public class APTDispatch
 		}
 		catch( CoreException ce )
 		{
-			AptPlugin.log(ce, "Could not run APT");
+			AptPlugin.log(ce, "Could not run APT"); //$NON-NLS-1$
 		}
 			
 		return runnable.getResult();

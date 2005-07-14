@@ -32,7 +32,7 @@ public class EnumDeclarationImpl extends ClassDeclarationImpl implements EnumDec
     public EnumDeclarationImpl(final ITypeBinding binding, final ProcessorEnvImpl env)
     {
         super(binding, env);
-        assert binding.isEnum() : "binding is not an enum.";
+        assert binding.isEnum() : "binding is not an enum."; //$NON-NLS-1$
     }
 
     public void accept(DeclarationVisitor visitor)

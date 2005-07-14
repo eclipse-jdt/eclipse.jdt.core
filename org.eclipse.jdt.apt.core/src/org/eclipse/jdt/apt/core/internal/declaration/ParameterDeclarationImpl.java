@@ -31,7 +31,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
  */
 public abstract class ParameterDeclarationImpl extends DeclarationImpl implements ParameterDeclaration
 {
-    static final String ARG = "arg";
+    static final String ARG = "arg"; //$NON-NLS-1$
 	/** this executable that this parameter came from */
 	protected final ExecutableDeclarationImpl _executable;
 	/** thie parameter is the <code>_paramIndex</code>th in <code>_executable</code> */
@@ -51,8 +51,8 @@ public abstract class ParameterDeclarationImpl extends DeclarationImpl implement
 		super(type, env);
 		_executable = executable;
 		_paramIndex = index;
-        assert _executable != null : "missing executable";
-        assert _paramIndex >= 0 : "invalid param index " + _paramIndex;
+        assert _executable != null : "missing executable"; //$NON-NLS-1$
+        assert _paramIndex >= 0 : "invalid param index " + _paramIndex; //$NON-NLS-1$
     }
 
     public void accept(DeclarationVisitor visitor)
@@ -110,5 +110,5 @@ public abstract class ParameterDeclarationImpl extends DeclarationImpl implement
         return builder.toString();
     }
 	
-	public IBinding getDeclarationBinding(){ throw new UnsupportedOperationException("should never be called"); }   
+	public IBinding getDeclarationBinding(){ throw new UnsupportedOperationException("should never be called"); } //$NON-NLS-1$   
 }

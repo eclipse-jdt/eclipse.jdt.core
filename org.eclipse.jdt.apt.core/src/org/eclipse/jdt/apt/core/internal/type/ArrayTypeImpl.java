@@ -29,7 +29,7 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl
         _arrayBinding = binding;
 		_env = env;
         assert _arrayBinding != null && _arrayBinding.isArray();
-        assert env != null : "missing environment";
+        assert env != null : "missing environment"; //$NON-NLS-1$
     }
 
     public void accept(TypeVisitor visitor)
@@ -52,7 +52,7 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl
 			final String componentKey = BindingKey.createArrayTypeBindingKey(leaf.getKey(), dimension - 1);
 			componentType = _env.getTypeBinding(componentKey);
             if( componentType == null )
-				throw new IllegalStateException("unknown component type for " + _arrayBinding);
+				throw new IllegalStateException("unknown component type for " + _arrayBinding); //$NON-NLS-1$
         }
 
         final TypeMirror mirror = Factory.createTypeMirror(componentType, _env);

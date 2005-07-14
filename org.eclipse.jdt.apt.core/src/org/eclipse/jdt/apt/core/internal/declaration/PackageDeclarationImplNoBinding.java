@@ -71,7 +71,7 @@ public class PackageDeclarationImplNoBinding implements PackageDeclaration {
 
 	public String getSimpleName() {
 		String components = getQualifiedName();
-		int dotIndex = components.indexOf(".");
+		int dotIndex = components.indexOf("."); //$NON-NLS-1$
 		if (dotIndex < 0)
 			return components;
 		return components.substring(dotIndex + 1);

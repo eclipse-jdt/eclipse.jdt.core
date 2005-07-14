@@ -31,7 +31,7 @@ public class AptCorePreferenceInitializer extends AbstractPreferenceInitializer 
 		// TODO see JavaCorePreferenceInitializer for what this should do
 		// Store default values to default preferences
 	 	IEclipsePreferences defaultPreferences = new DefaultScope().getNode(AptPlugin.PLUGIN_ID);
-	 	defaultPreferences.put(AptPreferenceConstants.APT_ENABLED, "true");
+	 	defaultPreferences.put(AptPreferenceConstants.APT_ENABLED, "true"); //$NON-NLS-1$
 	 	
 	 	// Following initializers are not necessary because they correspond to default-default:
 	 	// defaultPreferences.put(AptPreferenceConstants.APT_GENSRCDIR, "");

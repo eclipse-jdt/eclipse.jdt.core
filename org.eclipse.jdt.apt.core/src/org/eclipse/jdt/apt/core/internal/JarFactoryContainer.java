@@ -71,7 +71,7 @@ public class JarFactoryContainer extends FactoryContainer
                 // Extract classnames from this text file.
                 InputStream is = jarFile.getInputStream(provider);
                 BufferedReader rd;
-                rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                rd = new BufferedReader(new InputStreamReader(is, "UTF-8")); //$NON-NLS-1$
                 for (String line = rd.readLine(); line != null; line = rd.readLine()) {
                     // hack off any comments
                     int iComment = line.indexOf('#');
@@ -79,7 +79,7 @@ public class JarFactoryContainer extends FactoryContainer
                         line = line.substring(0, iComment);
                     }
                     // add the first non-whitespace token to the list
-                    final String[] tokens = line.split("\\s", 2);
+                    final String[] tokens = line.split("\\s", 2); //$NON-NLS-1$
                     if (tokens[0].length() > 0) {
                         classNames.add(tokens[0]);
                     }
@@ -89,7 +89,7 @@ public class JarFactoryContainer extends FactoryContainer
             jarFile.close();
         }
         catch (IOException e) {	
-        	AptPlugin.log(e, "Could not get service names from jar: " + jar);
+        	AptPlugin.log(e, "Could not get service names from jar: " + jar); //$NON-NLS-1$
             return classNames;
         }
         return classNames;
@@ -101,7 +101,7 @@ public class JarFactoryContainer extends FactoryContainer
 		
     /** List of jar file entries that specify autoloadable service providers */
     private static final String[] AUTOLOAD_SERVICES = {
-        "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory"
+        "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory" //$NON-NLS-1$
     };
 	
 	@Override

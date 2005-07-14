@@ -42,8 +42,8 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
 
     DeclarationImpl(final IBinding binding, final ProcessorEnvImpl env)
     {
-        assert binding != null : "binding cannot be null";
-        assert env != null : "missing environment";
+        assert binding != null : "binding cannot be null"; //$NON-NLS-1$
+        assert env != null : "missing environment"; //$NON-NLS-1$
         _binding = binding;
         _env = env;
     }

@@ -42,7 +42,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 	public void printError(ASTNode node, String msg)
 	{
 		if( node == null )
-			throw new IllegalArgumentException("'node' cannot be null");
+			throw new IllegalArgumentException("'node' cannot be null"); //$NON-NLS-1$
 		final int start = node.getStartPosition();
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
 		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.Error, msg, line );
@@ -66,7 +66,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 	public void printNotice(ASTNode node, String msg)
 	{
 		if( node == null )
-			throw new IllegalArgumentException("'node' cannot be null");
+			throw new IllegalArgumentException("'node' cannot be null"); //$NON-NLS-1$
 		final int start = node.getStartPosition();
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
 		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.Info, msg, line );
@@ -90,7 +90,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 	public void printWarning(ASTNode node, String msg)
 	{
 		if( node == null )
-			throw new IllegalArgumentException("'node' cannot be null");
+			throw new IllegalArgumentException("'node' cannot be null"); //$NON-NLS-1$
 		final int start = node.getStartPosition();
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
 		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.Warning, msg, line );
@@ -110,7 +110,7 @@ public class MessagerImpl implements Messager, EclipseMessager
         final int end   = pos.getEndingOffset();
         final IFile resource = pos.getResource();
         if( resource == null ){
-			throw new IllegalStateException("missing resource");            
+			throw new IllegalStateException("missing resource"); //$NON-NLS-1$            
         }
         else{          
           _env.addProblem(resource, pos.getStartingOffset(), pos.getEndingOffset(), 

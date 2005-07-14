@@ -99,7 +99,7 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements Typ
 		return Factory.createDeclaration(owner, _env);
 		
 	*/	
-        throw new UnsupportedOperationException("Need version 1.44 of jdt.core.dom.ITypeBinding.java. tyeung@bea.com");
+        throw new UnsupportedOperationException("Need version 1.44 of jdt.core.dom.ITypeBinding.java. tyeung@bea.com"); //$NON-NLS-1$
     }
 
     public SourcePosition getPosition()

@@ -114,7 +114,7 @@ public abstract class AnnotationScanner {
 					break;
 					
 				default :
-					throw new IllegalStateException("Unhandled state: " + state);
+					throw new IllegalStateException("Unhandled state: " + state);  //$NON-NLS-1$
 				}
 			}
 			c = getNext();

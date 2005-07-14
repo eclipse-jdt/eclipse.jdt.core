@@ -165,7 +165,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
     {
 		// if we are in reconcile, file will be null & compilationUnit will be valid
 		// if we are in build, file will not be null & compilationUnit will be null
-        assert ( phase == Phase.RECONCILE && compilationUnit != null && file == null ) || ( phase == Phase.BUILD && compilationUnit == null && file != null ) : "Unexpected phase value.  Use Phase.RECONCILE instead of " + phase;
+        assert ( phase == Phase.RECONCILE && compilationUnit != null && file == null ) || ( phase == Phase.BUILD && compilationUnit == null && file != null ) : "Unexpected phase value.  Use Phase.RECONCILE instead of " + phase; //$NON-NLS-1$
 
         _phase = phase;
         
@@ -189,14 +189,14 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 			}
 			catch( Exception e )
 			{
-				AptPlugin.log(e, "Failure constructing processor environment");
+				AptPlugin.log(e, "Failure constructing processor environment"); //$NON-NLS-1$
 				// TODO:  propagate these exceptions out of APTDispatch
 			}
 			_source = source;
-			assert _source != null : "missing source";
+			assert _source != null : "missing source"; //$NON-NLS-1$
 		}
 
-		assert ( _source == null && _compilationUnit != null ) || ( _source != null && _compilationUnit == null ) : "Unexpected values for _compilationUnit and _source!";
+		assert ( _source == null && _compilationUnit != null ) || ( _source != null && _compilationUnit == null ) : "Unexpected values for _compilationUnit and _source!"; //$NON-NLS-1$
 		ASTNode node = createDietAST( unitName, javaProj, _compilationUnit, _source );
 		_astCompilationUnit = (org.eclipse.jdt.core.dom.CompilationUnit) node;
 
@@ -232,12 +232,12 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 			_options.put(entry.getKey(), entry.getValue());
 			String sunStyle;
 			if (entry.getValue() != null) {
-				sunStyle = "-A" + entry.getKey() + "=" + entry.getValue();
+				sunStyle = "-A" + entry.getKey() + "=" + entry.getValue(); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else {
-				sunStyle = "-A" + entry.getKey();
+				sunStyle = "-A" + entry.getKey(); //$NON-NLS-1$
 			}
-			_options.put(sunStyle, "");
+			_options.put(sunStyle, ""); //$NON-NLS-1$
 		}
 	}
 
@@ -340,7 +340,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
             binding = ((org.eclipse.jdt.core.dom.PackageDeclaration)node).resolveBinding();
             break;
         default:
-            throw new UnsupportedOperationException("unknown node type: " + node.getNodeType());
+            throw new UnsupportedOperationException("unknown node type: " + node.getNodeType()); //$NON-NLS-1$
         }
 
         if(binding != null)
@@ -350,7 +350,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 
     private Map<ASTNode, List<Annotation>> findASTNodesWithAnnotataion()
     {
-        throw new UnsupportedOperationException("e-mail tyeung@bea.com if you need this now.");
+        throw new UnsupportedOperationException("e-mail tyeung@bea.com if you need this now."); //$NON-NLS-1$
     }
 
     private static final class AnnotatedNodeVisitor extends ASTVisitor
@@ -540,14 +540,14 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
     public Map<String, String> getOptions()
     {
         final HashMap<String, String> options = new HashMap<String, String>(_options);
-		options.put("phase", getPhase().toString());
+		options.put("phase", getPhase().toString()); //$NON-NLS-1$
 		return options;
     }
 
     public PackageDeclaration getPackage(String name)
     {
 		if (name == null)
-			throw new IllegalArgumentException("name cannot be null");
+			throw new IllegalArgumentException("name cannot be null"); //$NON-NLS-1$
 
 		checkValid();
         IPackageFragment[] pkgFrags = PackageUtil.getPackageFragments(name, this);
@@ -590,7 +590,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 					// Need to grab the first one that's not an inner class,
 					// as eclipse has trouble parsing inner class files
 					for (IClassFile tempClassFile : classFiles) {
-						if (tempClassFile.getElementName().indexOf("$") < 0) {
+						if (tempClassFile.getElementName().indexOf("$") < 0) { //$NON-NLS-1$
 							classFile = tempClassFile;
 							break OUTER;
 						}
@@ -899,7 +899,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 			}
 			else{
 				final ITypeBinding type = getDeclaringClass(binding);
-				assert type.isTopLevel() : "type must be top-level type";
+				assert type.isTopLevel() : "type must be top-level type"; //$NON-NLS-1$
 				final String qname = type.getQualifiedName();
 				final String pathname = qname.replace('.', File.separatorChar);
 				final IPath path = Path.fromOSString(pathname);
@@ -923,7 +923,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	 */
 	private ITypeBinding getDeclaringClass(final IBinding binding)
 	{
-		assert binding != null : "binding cannot be null";
+		assert binding != null : "binding cannot be null"; //$NON-NLS-1$
 		ITypeBinding aTypeBinding = null;
 		switch( binding.getKind() )
 		{
@@ -937,7 +937,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 			aTypeBinding = ((IVariableBinding)binding).getDeclaringClass();
 			break;
 		default:
-			throw new IllegalStateException("unrecognized binding type " +  binding.getKind());
+			throw new IllegalStateException("unrecognized binding type " +  binding.getKind()); //$NON-NLS-1$
 		}
 		if(aTypeBinding == null ) return null;
 		while( !aTypeBinding.isTopLevel() ){
@@ -1005,7 +1005,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	private void checkValid()
 	{
 		if( _isClosed )
-			throw new IllegalStateException("Environment has expired");
+			throw new IllegalStateException("Environment has expired"); //$NON-NLS-1$
 	}	
     
     private int getUniqueProblemId(){ return _problemId++ ;}    
@@ -1130,7 +1130,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
     	private EndingOffsetFinder(int[] offsets)
     	{
     		if(offsets == null)
-    			throw new IllegalArgumentException("argument cannot be null.");
+    			throw new IllegalArgumentException("argument cannot be null."); //$NON-NLS-1$
     		// sort the array first
     		Arrays.sort(offsets);
     	
@@ -1243,41 +1243,41 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 			public void acceptBinding(String bindingKey, IBinding binding)
 			{
 				if( binding.getKind() == IBinding.TYPE ){
-					if( "boolean".equals(binding.getName()) )
+					if( "boolean".equals(binding.getName()) ) //$NON-NLS-1$
 						_primitives[0] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( "byte".equals(binding.getName()) )
+					else if( "byte".equals(binding.getName()) ) //$NON-NLS-1$
 						_primitives[1] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( "char".equals(binding.getName()) )
+					else if( "char".equals(binding.getName()) ) //$NON-NLS-1$
 						_primitives[2] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( "double".equals(binding.getName()) )
+					else if( "double".equals(binding.getName()) ) //$NON-NLS-1$
 						_primitives[3] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( "float".equals(binding.getName()) )
+					else if( "float".equals(binding.getName()) ) //$NON-NLS-1$
 						_primitives[4] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( "int".equals(binding.getName()) )
+					else if( "int".equals(binding.getName()) ) //$NON-NLS-1$
 						_primitives[5] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( "long".equals(binding.getName()) )
+					else if( "long".equals(binding.getName()) ) //$NON-NLS-1$
 						_primitives[6] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( "short".equals(binding.getName()) )
+					else if( "short".equals(binding.getName()) ) //$NON-NLS-1$
 						_primitives[7] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( "void".equals(binding.getName()) )
+					else if( "void".equals(binding.getName()) ) //$NON-NLS-1$
 						_voidType = new VoidTypeImpl( (ITypeBinding)binding );
 					else
-						System.err.println("got unexpected type " + binding.getName());
+						System.err.println("got unexpected type " + binding.getName()); //$NON-NLS-1$
 				}
 				else
-					System.err.println("got unexpected binding " + binding.getClass().getName() + binding );
+					System.err.println("got unexpected binding " + binding.getClass().getName() + binding ); //$NON-NLS-1$
 			}
 		}
 
-		final String[] keys = { BindingKey.createTypeBindingKey("boolean"),
-				BindingKey.createTypeBindingKey("byte"),
-				BindingKey.createTypeBindingKey("char"),
-				BindingKey.createTypeBindingKey("double"),
-				BindingKey.createTypeBindingKey("float"),
-				BindingKey.createTypeBindingKey("int"),
-				BindingKey.createTypeBindingKey("long"),
-				BindingKey.createTypeBindingKey("short"),
-				BindingKey.createTypeBindingKey("void")};
+		final String[] keys = { BindingKey.createTypeBindingKey("boolean"), //$NON-NLS-1$
+				BindingKey.createTypeBindingKey("byte"), //$NON-NLS-1$
+				BindingKey.createTypeBindingKey("char"), //$NON-NLS-1$
+				BindingKey.createTypeBindingKey("double"), //$NON-NLS-1$
+				BindingKey.createTypeBindingKey("float"), //$NON-NLS-1$
+				BindingKey.createTypeBindingKey("int"), //$NON-NLS-1$
+				BindingKey.createTypeBindingKey("long"), //$NON-NLS-1$
+				BindingKey.createTypeBindingKey("short"), //$NON-NLS-1$
+				BindingKey.createTypeBindingKey("void")}; //$NON-NLS-1$
 
 		final PrimitiveBindingRequestor requestor = new PrimitiveBindingRequestor();
 		final ASTParser parser = ASTParser.newParser(AST.JLS3);

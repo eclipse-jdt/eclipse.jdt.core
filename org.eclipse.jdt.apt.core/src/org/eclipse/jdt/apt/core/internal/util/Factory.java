@@ -66,7 +66,7 @@ public class Factory
         else if( binding.isClass() )
             mirror = new ClassDeclarationImpl(binding, env);
         else
-            throw new IllegalStateException("cannot create type declaration from " + binding);
+            throw new IllegalStateException("cannot create type declaration from " + binding); //$NON-NLS-1$
 
         return mirror;
     }
@@ -81,7 +81,7 @@ public class Factory
     		final ITypeBinding typeBinding = (ITypeBinding)binding;
         	if( typeBinding.isAnonymous() || typeBinding.isArray() || 
     			typeBinding.isWildcardType() || typeBinding.isPrimitive() )       
-                throw new IllegalStateException("failed to create declaration from " + binding);
+                throw new IllegalStateException("failed to create declaration from " + binding); //$NON-NLS-1$
             return createReferenceType(typeBinding, env);
         case IBinding.VARIABLE:
         	final IVariableBinding varBinding = (IVariableBinding)binding;            
@@ -99,7 +99,7 @@ public class Factory
             else
                 return new MethodDeclarationImpl(method, env);             
         default:
-            throw new IllegalStateException("failed to create declaration from " + binding);
+            throw new IllegalStateException("failed to create declaration from " + binding); //$NON-NLS-1$
         }     
     }
 
@@ -108,26 +108,26 @@ public class Factory
         if( binding == null ) return null;        
 
 		if( binding.isPrimitive() ){
-			if( "int".equals(binding.getName()) )
+			if( "int".equals(binding.getName()) ) //$NON-NLS-1$
 				return env.getIntType(); 
-			else if( "byte".equals(binding.getName()) )
+			else if( "byte".equals(binding.getName()) ) //$NON-NLS-1$
 				return env.getByteType();
-			else if( "short".equals(binding.getName()) )
+			else if( "short".equals(binding.getName()) ) //$NON-NLS-1$
 				return env.getShortType();
-			else if( "char".equals(binding.getName()) )
+			else if( "char".equals(binding.getName()) ) //$NON-NLS-1$
 				return env.getCharType();
-			else if( "long".equals(binding.getName()) )
+			else if( "long".equals(binding.getName()) ) //$NON-NLS-1$
 				return env.getLongType();
-			else if( "float".equals(binding.getName()) )
+			else if( "float".equals(binding.getName()) ) //$NON-NLS-1$
 				return env.getFloatType();
-			else if( "double".equals(binding.getName()) )
+			else if( "double".equals(binding.getName()) ) //$NON-NLS-1$
 				return env.getDoubleType();
-			else if( "boolean".equals(binding.getName()))
+			else if( "boolean".equals(binding.getName())) //$NON-NLS-1$
 				return env.getBooleanType();
-			else if( "void".equals(binding.getName()) )
+			else if( "void".equals(binding.getName()) ) //$NON-NLS-1$
 				return env.getVoidType();
 			else
-				throw new IllegalStateException("unrecognized primitive type: " + binding);
+				throw new IllegalStateException("unrecognized primitive type: " + binding); //$NON-NLS-1$
         }
         else if( binding.isArray() )
             return new ArrayTypeImpl(binding, env);
@@ -276,7 +276,7 @@ public class Factory
                     return null;
 
 				Object o = convertDOMValueToMirrorValue( elements[i], name, parent, decl, env, leaf );
-				assert( !( o instanceof IResolvedAnnotation ) ) : "Unexpected return value from convertDomValueToMirrorValue! o.getClass().getName() = " + o.getClass().getName();
+				assert( !( o instanceof IResolvedAnnotation ) ) : "Unexpected return value from convertDomValueToMirrorValue! o.getClass().getName() = " + o.getClass().getName(); //$NON-NLS-1$
 				
 				final AnnotationValue annoValue = createAnnotationValue(o, name, i, parent, env);
                 if( annoValue != null )
@@ -294,7 +294,7 @@ public class Factory
 		}
         else	        
 			// should never reach this point
-			throw new IllegalStateException("cannot build annotation value object from " + domValue);
+			throw new IllegalStateException("cannot build annotation value object from " + domValue); //$NON-NLS-1$
         
         return performNecessaryTypeConversion(expectedType, returnValue, name, parent, env);
     }

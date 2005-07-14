@@ -23,7 +23,7 @@ public class VoidTypeImpl implements VoidType, EclipseMirrorImpl
 	private final ITypeBinding _binding;
 
     public VoidTypeImpl(final ITypeBinding  binding){
-		assert binding != null : "missing binding";
+		assert binding != null : "missing binding"; //$NON-NLS-1$
 		_binding = binding;
 	}
     
@@ -33,7 +33,7 @@ public class VoidTypeImpl implements VoidType, EclipseMirrorImpl
         visitor.visitVoidType(this);
     }
 
-    public String toString(){ return "void"; }
+    public String toString(){ return "void"; } //$NON-NLS-1$
 	
 	public ITypeBinding getTypeBinding(){return _binding;}
 

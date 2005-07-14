@@ -26,7 +26,7 @@ public class AnnotationDeclarationImpl extends InterfaceDeclarationImpl implemen
     public AnnotationDeclarationImpl(final ITypeBinding binding, final ProcessorEnvImpl env)
     {
         super(binding, env);
-        assert binding.isAnnotation() : "binding does not represent a annotation ";
+        assert binding.isAnnotation() : "binding does not represent a annotation "; //$NON-NLS-1$
     }
 
     public void accept(DeclarationVisitor visitor)

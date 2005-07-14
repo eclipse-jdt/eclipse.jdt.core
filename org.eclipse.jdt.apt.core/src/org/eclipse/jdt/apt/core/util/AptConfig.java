@@ -225,11 +225,11 @@ public class AptConfig {
     				sourcepathSB.append(entry.getPath().toFile().getAbsolutePath());
     			}
     		}
-    		options.put("classpath",classpathSB.toString());
-    		options.put("sourcepath", sourcepathSB.toString());
+    		options.put("classpath",classpathSB.toString()); //$NON-NLS-1$
+    		options.put("sourcepath", sourcepathSB.toString()); //$NON-NLS-1$
     	}
     	catch (JavaModelException jme) {
-    		AptPlugin.log(jme, "Could not get the classpath for project: " + jproj);
+    		AptPlugin.log(jme, "Could not get the classpath for project: " + jproj); //$NON-NLS-1$
     	}
     	
     	return options;
@@ -278,7 +278,7 @@ public class AptConfig {
     		_hasVal = false;
     		
     		do {
-	        	_start = _s.indexOf("-A", _start);
+	        	_start = _s.indexOf("-A", _start); //$NON-NLS-1$
 	        	if (_start < 0) {
 	        		return null;
 	        	}
@@ -370,7 +370,7 @@ public class AptConfig {
     	}
     	catch (BackingStoreException e) {
     		// log failure and continue
-    		AptPlugin.log(e, "Couldn't flush preferences to disk");
+    		AptPlugin.log(e, "Couldn't flush preferences to disk"); //$NON-NLS-1$
     	}
     }
 
@@ -403,7 +403,7 @@ public class AptConfig {
 	
 	private static synchronized boolean getBoolean(IJavaProject jproject, String optionName) {
 		Map options = getOptions(jproject);
-		return "true".equals(options.get(optionName));
+		return "true".equals(options.get(optionName)); //$NON-NLS-1$
 	}
 	
     /**
@@ -483,14 +483,14 @@ public class AptConfig {
     	for (Map.Entry<String, String> entry : options.entrySet()) {
     		if (firstEntry) {
     			firstEntry = false;
-        		sb.append("-A");
+        		sb.append("-A"); //$NON-NLS-1$
     		}
     		else {
-    			sb.append(" -A");
+    			sb.append(" -A"); //$NON-NLS-1$
     		}
     		sb.append(entry.getKey());
     		if (entry.getValue() != null) {
-    			sb.append("=");
+    			sb.append("="); //$NON-NLS-1$
     			sb.append(entry.getValue());
     		}
     	}

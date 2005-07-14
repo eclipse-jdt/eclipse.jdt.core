@@ -49,8 +49,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 		_domAnnotation = annotationAstNode;
         _env = env;
         _annotated = decl;
-        assert _domAnnotation != null : "annotation node missing.";
-        assert _annotated   != null : "missing the declaration that is annotated with this annotation.";
+        assert _domAnnotation != null : "annotation node missing."; //$NON-NLS-1$
+        assert _annotated   != null : "missing the declaration that is annotated with this annotation."; //$NON-NLS-1$
     }
 	
     public AnnotationType getAnnotationType()
@@ -162,7 +162,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 		else if( value instanceof ITypeBinding )
 			return new ITypeBinding[]{ (ITypeBinding)value };
 		else
-			throw new IllegalStateException("value = " + value + " resolvedType = " + resolvedType );
+			throw new IllegalStateException("value = " + value + " resolvedType = " + resolvedType ); //$NON-NLS-1$ //$NON-NLS-2$
 		
 	}
 
@@ -316,7 +316,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
                         Array.setShort( array, i, s.shortValue() );
                     }
                     else {
-                        throw new IllegalStateException("unrecognized primitive type: "  + componentType );
+                        throw new IllegalStateException("unrecognized primitive type: "  + componentType ); //$NON-NLS-1$
                     }
                 }
                 else{
@@ -360,7 +360,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 		final org.eclipse.jdt.core.dom.Annotation anno = getAstNode();
 		if( anno != null ){
 			if( anno.isSingleMemberAnnotation() ){
-				if( "value".equals(name) )
+				if( "value".equals(name) ) //$NON-NLS-1$
 					return ((SingleMemberAnnotation)anno).getValue();
 			}
 			else if( anno.isNormalAnnotation() ){

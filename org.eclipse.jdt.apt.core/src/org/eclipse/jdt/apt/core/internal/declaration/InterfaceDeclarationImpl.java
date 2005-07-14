@@ -26,7 +26,7 @@ public class InterfaceDeclarationImpl extends TypeDeclarationImpl implements Int
     public InterfaceDeclarationImpl(final ITypeBinding binding, final ProcessorEnvImpl env)
     {
         super(binding, env);
-        assert binding.isInterface() : "binding does not represents an interface.";
+        assert binding.isInterface() : "binding does not represents an interface."; //$NON-NLS-1$
     }
 
     public void accept(DeclarationVisitor visitor)

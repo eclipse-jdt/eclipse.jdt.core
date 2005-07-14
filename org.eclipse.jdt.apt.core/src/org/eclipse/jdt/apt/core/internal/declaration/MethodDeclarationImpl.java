@@ -27,7 +27,7 @@ public class MethodDeclarationImpl extends ExecutableDeclarationImpl implements 
                                  final ProcessorEnvImpl env)
     {
         super(binding, env);
-        assert !binding.isConstructor() : "binding does not represent a method.";
+        assert !binding.isConstructor() : "binding does not represent a method."; //$NON-NLS-1$
     }
 
     public TypeMirror getReturnType()
@@ -57,7 +57,7 @@ public class MethodDeclarationImpl extends ExecutableDeclarationImpl implements 
             buffer.append('<');
             for(int i=0; i<typeParams.length; i++ ){
                 if( i != 0 )
-                    buffer.append(", ");
+                    buffer.append(", "); //$NON-NLS-1$
                 buffer.append(typeParams[i]);
             }
             buffer.append('>');
@@ -71,7 +71,7 @@ public class MethodDeclarationImpl extends ExecutableDeclarationImpl implements 
         int i=0;
         for( ParameterDeclaration param : getParameters() ){
             if( i++ != 0 )
-                buffer.append(", ");
+                buffer.append(", "); //$NON-NLS-1$
             buffer.append(param);
         }
         buffer.append(')');

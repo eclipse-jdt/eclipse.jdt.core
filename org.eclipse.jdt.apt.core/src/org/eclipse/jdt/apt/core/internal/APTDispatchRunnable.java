@@ -66,7 +66,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		_file = file;
 		_javaProject = javaProject;
 		_factories = factories;
-		_phaseName =  "build";
+		_phaseName =  "build"; //$NON-NLS-1$
 		_fileName =  _file.toString();
 	}
 
@@ -76,7 +76,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		_file = null;
 		_javaProject = javaProject;
 		_factories = factories;
-		_phaseName =  "reconcile";
+		_phaseName =  "reconcile"; //$NON-NLS-1$
 		_fileName =  _compilationUnit.getResource().toString();
 	}
 	
@@ -84,7 +84,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	
 	public void run(IProgressMonitor monitor) 
 	{
-		assert( _file == null || _compilationUnit == null ) : "Either _file should be null or _compilationUnit should be null.";		
+		assert( _file == null || _compilationUnit == null ) : "Either _file should be null or _compilationUnit should be null."; //$NON-NLS-1$	
 		
 		//
 		//  bail-out early if there aren't factories, or if there aren't any annotation instances
@@ -98,10 +98,10 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			{			
 				String msg;
 				if ( _factories == null || _factories.size() == 0 )
-					msg = "no AnnotationProcessoryFactory instances registered.";
+					msg = "no AnnotationProcessoryFactory instances registered."; //$NON-NLS-1$
 				else
-					msg = "no annotation instances in file.";
-				trace( "run():  leaving early because there are " + msg );
+					msg = "no annotation instances in file."; //$NON-NLS-1$
+				trace( "run():  leaving early because there are " + msg ); //$NON-NLS-1$
 			}
 			
 			
@@ -151,13 +151,13 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		try {
 			if (factories.size() == 0)
 			{
-				if ( AptPlugin.DEBUG ) trace( "runAPT: leaving early because there are no factories");
+				if ( AptPlugin.DEBUG ) trace( "runAPT: leaving early because there are no factories"); //$NON-NLS-1$
 				return EMPTY_APT_RESULT;
 			}
 				
 			if ( ! processorEnv.getFile().exists() )
 			{
-				if ( AptPlugin.DEBUG ) trace( "runAPT: leaving early because file doesn't exist");
+				if ( AptPlugin.DEBUG ) trace( "runAPT: leaving early because file doesn't exist"); //$NON-NLS-1$
 				return EMPTY_APT_RESULT;
 			}				
 		
@@ -166,7 +166,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			
 			if (annotationDecls.isEmpty())
 			{
-				if ( AptPlugin.DEBUG ) trace( "runAPT:  leaving early because annotationDecls is empty" );
+				if ( AptPlugin.DEBUG ) trace( "runAPT:  leaving early because annotationDecls is empty" ); //$NON-NLS-1$
 				return EMPTY_APT_RESULT;
 			}
 
@@ -188,7 +188,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 							.getProcessorFor(factoryDecls, processorEnv);
 					if (processor != null)
 					{
-						if ( AptPlugin.DEBUG ) trace( "runAPT: invoking processor " + processor.getClass().getName() );
+						if ( AptPlugin.DEBUG ) trace( "runAPT: invoking processor " + processor.getClass().getName() ); //$NON-NLS-1$
 						processor.process();
 					}
 				}
@@ -240,7 +240,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 			// log unclaimed annotations.
 		} catch (Throwable t) {
-			AptPlugin.log(t, "Unexpected failure running APT");
+			AptPlugin.log(t, "Unexpected failure running APT"); //$NON-NLS-1$
 		}
 		return EMPTY_APT_RESULT;
 	}
@@ -265,7 +265,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			IFile f = files[i];
 			if ( ! newGeneratedFiles.contains( f ) )
 			{
-				if ( AptPlugin.DEBUG ) trace( "runAPT:  File " + f + " is no longer a generated file for " + parent );
+				if ( AptPlugin.DEBUG ) trace( "runAPT:  File " + f + " is no longer a generated file for " + parent ); //$NON-NLS-1$ //$NON-NLS-2$
 				try
 				{
 					if ( gfm.deleteGeneratedFile( f, parent, null ) )
@@ -273,7 +273,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				}
 				catch ( CoreException ce )
 				{
-					AptPlugin.log(ce, "Could not clean up generated files");
+					AptPlugin.log(ce, "Could not clean up generated files"); //$NON-NLS-1$
 				}
 			}
 		}
@@ -344,10 +344,10 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 		for (Iterator<String> it = supportedTypes.iterator(); it.hasNext();) {
 			final String typeName = it.next();
-			if (typeName.equals("*")) {
+			if (typeName.equals("*")) { //$NON-NLS-1$
 				declarations.clear();
 				return Collections.emptySet();
-			} else if (typeName.endsWith("*")) {
+			} else if (typeName.endsWith("*")) { //$NON-NLS-1$
 				final String prefix = typeName.substring(0,
 						typeName.length() - 2);
 				for (Iterator<Map.Entry<String, AnnotationTypeDeclaration>> entries = declarations
@@ -376,8 +376,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	{
 		if (AptPlugin.DEBUG)
 		{
-			s = "[ phase = " + _phaseName + ", file = " + _fileName +" ]  " + s;
-			System.out.println( "[" + APTDispatch.class.getName() + "][ thread= " + Thread.currentThread().getName() + " ]"+ s );
+			s = "[ phase = " + _phaseName + ", file = " + _fileName +" ]  " + s; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			System.out.println( "[" + APTDispatch.class.getName() + "][ thread= " + Thread.currentThread().getName() + " ]"+ s ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
 	

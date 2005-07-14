@@ -68,7 +68,7 @@ public final class FileSystemUtil
     			out.write(buffer, 0, len);
     		}
     		out.close();
-    		String s = new String(out.toByteArray(), "UTF8");
+    		String s = new String(out.toByteArray(), "UTF8"); //$NON-NLS-1$
     		return s;
     	}
     	finally {
@@ -82,7 +82,7 @@ public final class FileSystemUtil
      * @throws IOException, CoreException
      */
     public static void writeStringToIFile(IFile file, String contents) throws IOException, CoreException {
-    	byte[] data = contents.getBytes("UTF8");
+    	byte[] data = contents.getBytes("UTF8"); //$NON-NLS-1$
     	ByteArrayInputStream input = new ByteArrayInputStream(data);
     	if (file.exists()) {
     		file.setContents(input, true, false, null);
@@ -99,7 +99,7 @@ public final class FileSystemUtil
      * @throws IOException
      */
     public static void writeStringToFile(File file, String contents) throws IOException {
-    	byte[] data = contents.getBytes("UTF8");
+    	byte[] data = contents.getBytes("UTF8"); //$NON-NLS-1$
     	OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
     	try {
     		for (byte b : data) {

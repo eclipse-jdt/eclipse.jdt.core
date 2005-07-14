@@ -23,7 +23,7 @@ public class ConstructorDeclarationImpl extends ExecutableDeclarationImpl implem
     public ConstructorDeclarationImpl(final IMethodBinding binding, ProcessorEnvImpl env)
     {
         super(binding, env);
-        assert binding.isConstructor() : "binding does not represent a constructor";
+        assert binding.isConstructor() : "binding does not represent a constructor"; //$NON-NLS-1$
     }
 
     public void accept(DeclarationVisitor visitor)
@@ -43,7 +43,7 @@ public class ConstructorDeclarationImpl extends ExecutableDeclarationImpl implem
         int i=0;
         for( ParameterDeclaration param : getParameters() ){
             if( i++ != 0 )
-                buffer.append(", ");
+                buffer.append(", "); //$NON-NLS-1$
             buffer.append(param);
         }
         buffer.append(')');

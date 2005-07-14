@@ -58,24 +58,24 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
             }
             else
             {
-                assert false : "Unexpected phase value: " + phase ;
+                assert false : "Unexpected phase value: " + phase ; //$NON-NLS-1$
             }
         }
         catch ( JavaModelException jme )
         {
             // TODO:  handle this exception in a nicer way.
-            AptPlugin.log(jme, "Unexpected failure closing the JavaSourceFilePrintWriter");
+            AptPlugin.log(jme, "Unexpected failure closing the JavaSourceFilePrintWriter"); //$NON-NLS-1$
             throw new RuntimeException( jme );
         }
         catch ( CoreException ce )
         {
             // TODO:  handle this exception
-            AptPlugin.log(ce, "Unexpected failure closing the JavaSourceFilePrintWriter");
+            AptPlugin.log(ce, "Unexpected failure closing the JavaSourceFilePrintWriter"); //$NON-NLS-1$
             throw new RuntimeException( ce );
         }
         catch( UnsupportedEncodingException use )
         {
-        	AptPlugin.log(use, "Could not encode");
+        	AptPlugin.log(use, "Could not encode"); //$NON-NLS-1$
         	// TODO: handle this exception
         	throw new RuntimeException( use );
         }

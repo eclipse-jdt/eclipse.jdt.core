@@ -191,7 +191,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     {
         IPackageBinding pkg = getPackageBinding();
         final String[] components = pkg.getNameComponents();
-        if( components == null || components.length == 0 ) return "";
+        if( components == null || components.length == 0 ) return ""; //$NON-NLS-1$
         return components[components.length - 1];
     }
 

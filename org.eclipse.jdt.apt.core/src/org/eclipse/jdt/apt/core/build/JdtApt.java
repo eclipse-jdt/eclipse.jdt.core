@@ -33,45 +33,45 @@ import org.apache.tools.ant.types.Path;
  */
 public class JdtApt extends Java {
 
-	private static final String APP_CLASSNAME = "org.eclipse.core.launcher.Main";
-    private static final String APP_PLUGIN = "org.eclipse.jdt.apt.core.aptBuild";
+	private static final String APP_CLASSNAME = "org.eclipse.core.launcher.Main"; //$NON-NLS-1$
+    private static final String APP_PLUGIN = "org.eclipse.jdt.apt.core.aptBuild"; //$NON-NLS-1$
     
     private File workspace;
     private File startupJar;
     
     public void setWorkspace(File file) {
         if(!file.exists()) {
-            throw new BuildException("Workspace does not exist: " + file);
+            throw new BuildException(Messages.getString("JdtApt.0") + file); //$NON-NLS-1$
         }
         workspace = file;
     }
 
     public void setEclipseHome(File file) {
         if(!file.exists()) {
-            throw new BuildException("Eclipse not found in eclipse home: " + file);
+            throw new BuildException(Messages.getString("JdtApt.1") + file); //$NON-NLS-1$
         }
-        startupJar = new File(file, "startup.jar");
+        startupJar = new File(file, "startup.jar"); //$NON-NLS-1$
         if(!startupJar.exists()) {
-            throw new BuildException("Could not find startup.jar in the eclipse directory: " + file);
+            throw new BuildException(Messages.getString("JdtApt.2") + file); //$NON-NLS-1$
         }
     }
     
     public void execute() throws BuildException {
 	    if(workspace == null) {
-	        throw new BuildException("Must set a workspace");
+	        throw new BuildException("Must set a workspace"); //$NON-NLS-1$
 	    }
 	    if(startupJar == null) {
-	        throw new BuildException("Must set eclipse home");
+	        throw new BuildException("Must set eclipse home"); //$NON-NLS-1$
 	    }
 	    
         setFork(true);
         setLogError(true);
         setClasspath(new Path(null, startupJar.getAbsolutePath()));
         setClassname(APP_CLASSNAME);
-        createArg().setValue("-noupdate");
-        createArg().setValue("-application");
+        createArg().setValue("-noupdate"); //$NON-NLS-1$
+        createArg().setValue("-application"); //$NON-NLS-1$
         createArg().setValue(APP_PLUGIN);
-        createArg().setValue("-data");
+        createArg().setValue("-data"); //$NON-NLS-1$
         createArg().setValue(workspace.getAbsolutePath());
         super.execute();
 	}

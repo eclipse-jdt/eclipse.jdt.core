@@ -39,7 +39,7 @@ public class ResourceChangedListener implements IResourceChangeListener
 			}
 			catch ( CoreException ce )
 			{
-				AptPlugin.log(ce, "Error during resource change for " + event);
+				AptPlugin.log(ce, "Error during resource change for " + event); //$NON-NLS-1$
 				// TODO:  handle exception here.
 			}
 		}

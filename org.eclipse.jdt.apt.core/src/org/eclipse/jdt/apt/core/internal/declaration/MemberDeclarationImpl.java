@@ -91,7 +91,7 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
         				return getDocComment((BodyDeclaration)parent);
         			
         		}
-        		return "";
+        		return ""; //$NON-NLS-1$
         	}  
         }
         return null;
@@ -100,7 +100,7 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
     private String getDocComment(final BodyDeclaration decl)
     {
     	final Javadoc javaDoc = ((BodyDeclaration)decl).getJavadoc();
-        if( javaDoc == null ) return "";
+        if( javaDoc == null ) return ""; //$NON-NLS-1$
         return javaDoc.toString();
     }
 	
@@ -181,7 +181,7 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
      */
     List<org.eclipse.jdt.core.dom.Annotation> getAnnotations()
     {
-        assert isFromSource() : "Declaration did not come from source.";
+        assert isFromSource() : "Declaration did not come from source."; //$NON-NLS-1$
         final BodyDeclaration decl = (BodyDeclaration)getAstNode(); 
 		if( decl == null ) return Collections.emptyList();
         final List<IExtendedModifier> extMods = decl.modifiers();

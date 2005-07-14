@@ -63,8 +63,8 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 		_parent = element;     
 		_name = null;
 		_index = index;
-        assert _env != null : "missing environment";
-		assert _parent != null : "missing element";
+        assert _env != null : "missing environment"; //$NON-NLS-1$
+		assert _parent != null : "missing element"; //$NON-NLS-1$
     }
 	
 	/**
@@ -87,8 +87,8 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 		_parent = annotation;        
 		_name = name;
 		_index = index;
-        assert _env != null : "missing environment";
-		assert _parent != null : "missing element";
+        assert _env != null : "missing environment"; //$NON-NLS-1$
+		assert _parent != null : "missing element"; //$NON-NLS-1$
 	}
 	
     public SourcePosition getPosition()
@@ -178,5 +178,5 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 		return _env;
 	}
 	
-	public String toString(){ return _value == null ? "" : _value.toString();  }
+	public String toString(){ return _value == null ? "" : _value.toString();  } //$NON-NLS-1$
 }

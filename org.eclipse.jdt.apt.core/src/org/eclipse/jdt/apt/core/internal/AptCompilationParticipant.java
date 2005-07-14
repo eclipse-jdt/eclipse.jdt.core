@@ -97,11 +97,11 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			return EMPTY_PRE_BUILD_COMPILATION_RESULT;
 		
 		// Don't dispatch on pre-1.5 project. They cannot legally have annotations
-		String javaVersion = javaProject.getOption("org.eclipse.jdt.core.compiler.source", true);
+		String javaVersion = javaProject.getOption("org.eclipse.jdt.core.compiler.source", true); //$NON-NLS-1$
 		
 		// Check for 1.3 or 1.4, as we don't want this to break in the future when 1.6
 		// is a possibility
-		if ("1.3".equals(javaVersion) || "1.4".equals(javaVersion)) {
+		if ("1.3".equals(javaVersion) || "1.4".equals(javaVersion)) { //$NON-NLS-1$ //$NON-NLS-2$
 			return EMPTY_PRE_BUILD_COMPILATION_RESULT;
 		}
 
@@ -178,7 +178,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		}
 		catch ( Throwable t )
 		{
-			AptPlugin.log(t, "Failure processing");
+			AptPlugin.log(t, "Failure processing"); //$NON-NLS-1$
 		}	
 		return new PostReconcileCompilationResult(problems);
 	}
@@ -202,7 +202,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	}
 
     private AnnotationProcessorFactoryLoader _factoryLoader;
-    private final static String DOT_JAVA = ".java";
+    private final static String DOT_JAVA = ".java"; //$NON-NLS-1$
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 
 		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap() );

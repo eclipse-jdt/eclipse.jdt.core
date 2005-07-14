@@ -31,7 +31,7 @@ public class WildcardTypeImpl implements WildcardType
         _binding = binding;
 		_env = env;
         assert _binding != null && _binding.isWildcardType();
-        assert env != null : "missing environment";
+        assert env != null : "missing environment"; //$NON-NLS-1$
     }
     
     public void accept(TypeVisitor visitor)

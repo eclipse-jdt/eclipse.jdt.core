@@ -23,7 +23,7 @@ public class EnumConstantDeclarationImpl extends FieldDeclarationImpl implements
     public EnumConstantDeclarationImpl(IVariableBinding binding, ProcessorEnvImpl env)
     {
         super(binding, env);
-        assert binding.isEnumConstant() : "binding does not represent an enum constant";
+        assert binding.isEnumConstant() : "binding does not represent an enum constant"; //$NON-NLS-1$
     }
 
     public void accept(DeclarationVisitor visitor)
