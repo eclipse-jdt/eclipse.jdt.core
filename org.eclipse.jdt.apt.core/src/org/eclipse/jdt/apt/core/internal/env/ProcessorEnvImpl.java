@@ -127,11 +127,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	// void type and the primitive types will be null if the '_file'
 	// is outside of the workspace.
 	private VoidTypeImpl _voidType;
-	private PrimitiveTypeImpl[] _primitives;
-	
-	/** used to create unique problem id */
-	private int _problemId = 0;
-	
+	private PrimitiveTypeImpl[] _primitives;	
 
     /**
      * Mapping model compilation unit to dom compilation unit.
@@ -1045,8 +1041,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		if( _isClosed )
 			throw new IllegalStateException("Environment has expired"); //$NON-NLS-1$
 	}	
-    
-    private int getUniqueProblemId(){ return _problemId++ ;}    
+       
     
     /**
      * 
@@ -1062,7 +1057,8 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
     				int end,
                     APTProblem.Severity severity, 
                     String msg, 
-                    int line)
+                    int line,
+                    String[] arguments)
     {
     	// not going to post any markers to resource outside of the one we are currently 
     	// processing during reconcile phase.
@@ -1071,7 +1067,7 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
     	if(resource == null)
     		resource = _file;
     	final APTProblem newProblem = 
-        	new APTProblem(getUniqueProblemId(), msg, severity, resource, start, end, line);
+        	new APTProblem(msg, severity, resource, start, end, line, arguments);
     	List<IProblem> problems = _allProblems.get(resource);
     	if( problems == null ){
     		problems = new ArrayList<IProblem>(4);

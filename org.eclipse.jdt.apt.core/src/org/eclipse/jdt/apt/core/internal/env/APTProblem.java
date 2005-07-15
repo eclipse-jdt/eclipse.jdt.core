@@ -11,13 +11,13 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.compiler.IProblem;
 
 public class APTProblem implements IProblem 
 {
 	public static enum Severity{ Error, Warning, Info};
-	public static final String[] NO_ARGS = new String[0];
-	private final int _id;
+	private static final String[] NO_ARGS = new String[0];
 	private final Severity _severity;
 	private int _startingOffset;
 	private int _endingOffset;
@@ -25,27 +25,30 @@ public class APTProblem implements IProblem
 	private IFile _resource;
 	private final String _message;
 	
-	APTProblem(final int id, 
-			   final String msg, 
+	// May be null
+	private final String[] _arguments;
+	
+	APTProblem(final String msg, 
 			   final Severity severity, 
 			   final IFile file, 
 			   final int startingOffset,
 			   final int endingOffset,
-			   final int line){
-		_id = id;
+			   final int line,
+			   final String[] arguments){
 		_message = msg;
 		_severity = severity;
 		_startingOffset = startingOffset;
 		_endingOffset = endingOffset;
 		_line = line;
 		_resource = file;
+		_arguments = arguments;
 	}	
    
 	public int getID() {
-		return _id;
+		return EclipseMessager.APT_PROBLEM_ID;
 	}
 	public String[] getArguments() {	
-		return NO_ARGS;
+		return _arguments == null ? NO_ARGS : (String[])_arguments.clone();
 	}
 	
 	public String getMessage() {	
