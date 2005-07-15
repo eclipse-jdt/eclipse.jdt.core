@@ -105,7 +105,7 @@ public abstract class JarFactoryContainer extends FactoryContainer
 	        rd.close();
     	}
     	catch (IOException e) {
-    		AptPlugin.log(e, "Error reading annotation processor jar file");
+    		AptPlugin.log(e, "Error reading annotation processor jar file"); //$NON-NLS-1$
     	}
     }
 	

@@ -11,24 +11,54 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import org.eclipse.osgi.util.NLS;
 
-public class Messages {
+public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.jdt.apt.ui.internal.preferences.messages"; //$NON-NLS-1$
-
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-			.getBundle(BUNDLE_NAME);
 
 	private Messages() {
 	}
 
-	public static String getString(String key) {
-		// TODO Auto-generated method stub
-		try {
-			return RESOURCE_BUNDLE.getString(key);
-		} catch (MissingResourceException e) {
-			return '!' + key + '!';
-		}
+	static {
+		// initialize resource bundle
+		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
+
+	public static String AptConfigurationBlock_enable;
+
+	public static String AptConfigurationBlock_generatedSrcDir;
+
+	public static String AptConfigurationBlock_options;
+
+	public static String FactoryPathConfigurationBlock_up;
+
+	public static String FactoryPathConfigurationBlock_down;
+
+	public static String FactoryPathConfigurationBlock_addJars;
+
+	public static String FactoryPathConfigurationBlock_addExternalJars;
+
+	public static String FactoryPathConfigurationBlock_addVariable;
+
+	public static String FactoryPathConfigurationBlock_remove;
+
+	public static String FactoryPathConfigurationBlock_enableAll;
+
+	public static String FactoryPathConfigurationBlock_disableAll;
+
+	public static String FactoryPathConfigurationBlock_pluginsAndJars;
+
+	public static String FactoryPathPreferencePage_factoryPath;
+
+	public static String FactoryPathPreferencePage_preferences;
+
+	public static String AptPreferencePage_preferences;
+
+	public static String AptPreferencePage_preferencesTitle;
+
+	public static String BaseConfigurationBlock_settingsChanged;
+
+	public static String BaseConfigurationBlock_fullRebuildRequired;
+
+	public static String BaseConfigurationBlock_rebuildRequired;
 }

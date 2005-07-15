@@ -51,15 +51,15 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		
 		fAptEnabledField= new SelectionButtonDialogField(SWT.CHECK);
 		fAptEnabledField.setDialogFieldListener(adapter);
-		fAptEnabledField.setLabelText(Messages.getString("AptConfigurationBlock.0"));  //$NON-NLS-1$
+		fAptEnabledField.setLabelText(Messages.AptConfigurationBlock_enable);
 		
 		fGenSrcDirField = new StringDialogField();
 		fGenSrcDirField.setDialogFieldListener(adapter);
-		fGenSrcDirField.setLabelText(Messages.getString("AptConfigurationBlock.1")); //$NON-NLS-1$
+		fGenSrcDirField.setLabelText(Messages.AptConfigurationBlock_generatedSrcDir);
 		
 		fProcessorOptionsField = new StringDialogField();
 		fProcessorOptionsField.setDialogFieldListener(adapter);
-		fProcessorOptionsField.setLabelText(Messages.getString("AptConfigurationBlock.2")); //$NON-NLS-1$
+		fProcessorOptionsField.setLabelText(Messages.AptConfigurationBlock_options);
 
 		updateControls();
 	}

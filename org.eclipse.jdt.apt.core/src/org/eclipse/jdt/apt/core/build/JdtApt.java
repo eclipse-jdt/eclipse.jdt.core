@@ -41,18 +41,18 @@ public class JdtApt extends Java {
     
     public void setWorkspace(File file) {
         if(!file.exists()) {
-            throw new BuildException(Messages.getString("JdtApt.0") + file); //$NON-NLS-1$
+            throw new BuildException(Messages.JdtApt_noWorkspace + file);
         }
         workspace = file;
     }
 
     public void setEclipseHome(File file) {
         if(!file.exists()) {
-            throw new BuildException(Messages.getString("JdtApt.1") + file); //$NON-NLS-1$
+            throw new BuildException(Messages.JdtApt_noEclipse + file);
         }
         startupJar = new File(file, "startup.jar"); //$NON-NLS-1$
         if(!startupJar.exists()) {
-            throw new BuildException(Messages.getString("JdtApt.2") + file); //$NON-NLS-1$
+            throw new BuildException(Messages.JdtApt_noStartupJar + file);
         }
     }
     

@@ -28,7 +28,7 @@ public class AptPlugin extends Plugin {
 	 */
 	public static final int STATUS_EXCEPTION = 1;
 	public static final int STATUS_NOTOOLSJAR = 2;
-	public static final String ERRTXT_NOTOOLSJAR = Messages.getString("AptPlugin.0"); //$NON-NLS-1$
+	public static final String ERRTXT_NOTOOLSJAR = Messages.AptPlugin_couldNotFindToolsDotJar;
 	
 	private static AptPlugin thePlugin = null; // singleton object
 	

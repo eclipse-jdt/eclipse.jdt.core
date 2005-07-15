@@ -36,7 +36,7 @@ public class AnnotationProcessorFactoryLoader {
 	
 	/** List of jar file entries that specify autoloadable service providers */
     private static final String[] AUTOLOAD_SERVICES = {
-        "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory"
+        "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory" //$NON-NLS-1$
     };
 	
 	/** map of plugin names -> factories */
@@ -129,8 +129,8 @@ public class AnnotationProcessorFactoryLoader {
 		if ( apf == null ) 
 		{
 			// TODO:  log error somewhere
-			System.err.println("could not find AnnotationProcessorFactory " + 
-					factoryName + " from available factories defined by plugins" );
+			System.err.println("could not find AnnotationProcessorFactory " +  //$NON-NLS-1$
+					factoryName + " from available factories defined by plugins" ); //$NON-NLS-1$
 		}
 		return apf;
 	}
@@ -145,14 +145,14 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		catch( Exception e )
 		{
-			AptPlugin.log(e, "Could not load annotation processor factory " + factoryName);
+			AptPlugin.log(e, "Could not load annotation processor factory " + factoryName); //$NON-NLS-1$
 		}
 		catch ( NoClassDefFoundError ncdfe )
 		{
 			// **DO NOT REMOVE THIS CATCH BLOCK***
 			// This error indicates a problem with the factory path specified 
 			// by the project, and it needs to be caught and reported!
-			AptPlugin.log(ncdfe, "Could not load annotation processor factory " + factoryName);
+			AptPlugin.log(ncdfe, "Could not load annotation processor factory " + factoryName); //$NON-NLS-1$
 		}
 		return f;
 	}
@@ -196,7 +196,7 @@ public class AnnotationProcessorFactoryLoader {
 	 * do a full rediscovery.
 	 */
 	private void loadPluginFactoryMap() {
-		assert PLUGIN_FACTORY_MAP.size() == 0 : "loadPluginFactoryMap() called more than once";
+		assert PLUGIN_FACTORY_MAP.size() == 0 : "loadPluginFactoryMap() called more than once"; //$NON-NLS-1$
 
 		// TODO: what follows is extremely similar to FactoryPathUtil#getAllPluginFactoryContainers().
 		// Surely there is some way to share that code?  The main difference is that there we don't 
@@ -217,7 +217,7 @@ public class AnnotationProcessorFactoryLoader {
 				}
 				// Iterate over the children of the "factories" element to find all the ones named "factory".
 				for (IConfigurationElement factory : factories.getChildren()) {
-					if (!"factory".equals(factory.getName())) {
+					if (!"factory".equals(factory.getName())) { //$NON-NLS-1$
 						continue;
 					}
 					try {
@@ -262,7 +262,7 @@ public class AnnotationProcessorFactoryLoader {
                 // Extract classnames from this text file.
                 InputStream is = jarFile.getInputStream(provider);
                 BufferedReader rd;
-                rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                rd = new BufferedReader(new InputStreamReader(is, "UTF-8")); //$NON-NLS-1$
                 for (String line = rd.readLine(); line != null; line = rd.readLine()) {
                     // hack off any comments
                     int iComment = line.indexOf('#');
@@ -270,10 +270,10 @@ public class AnnotationProcessorFactoryLoader {
                         line = line.substring(0, iComment);
                     }
                     // add the first non-whitespace token to the list
-                    final String[] tokens = line.split("\\s", 2);
+                    final String[] tokens = line.split("\\s", 2); //$NON-NLS-1$
                     if (tokens[0].length() > 0) {
                         if (VERBOSE_LOAD) {
-                            System.err.println("Found provider classname: " + tokens[0]);
+                            System.err.println("Found provider classname: " + tokens[0]); //$NON-NLS-1$
                         }
                         classNames.add(tokens[0]);
                     }
@@ -283,7 +283,7 @@ public class AnnotationProcessorFactoryLoader {
         }
         catch (IOException e) {
             if (VERBOSE_LOAD) {
-                System.err.println("\tUnable to extract provider names from \"" + jar + "\"; skipping because of: " + e);
+                System.err.println("\tUnable to extract provider names from \"" + jar + "\"; skipping because of: " + e); //$NON-NLS-1$ //$NON-NLS-2$
             }
             return classNames;
         }

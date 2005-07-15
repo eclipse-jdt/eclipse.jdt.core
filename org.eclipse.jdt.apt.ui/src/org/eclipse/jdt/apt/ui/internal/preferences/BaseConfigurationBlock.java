@@ -50,12 +50,12 @@ public abstract class BaseConfigurationBlock extends OptionsConfigurationBlock {
 	 */
 	protected String[] getFullBuildDialogStrings(boolean workspaceSettings) {
 		String[] strings= new String[2];
-		strings[0] = Messages.getString("BaseConfigurationBlock.1"); //$NON-NLS-1$
+		strings[0] = Messages.BaseConfigurationBlock_settingsChanged;
 		if (workspaceSettings) {
-			strings[1]= Messages.getString("BaseConfigurationBlock.2"); //$NON-NLS-1$
+			strings[1]= Messages.BaseConfigurationBlock_fullRebuildRequired;
 		}
 		else {
-			strings[1]= Messages.getString("BaseConfigurationBlock.3"); //$NON-NLS-1$
+			strings[1]= Messages.BaseConfigurationBlock_rebuildRequired;
 		}
 		return strings;
 	}

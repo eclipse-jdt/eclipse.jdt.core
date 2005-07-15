@@ -55,16 +55,16 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	private static final int IDX_DISABLEALL= 9;
 
 	private final static String[] buttonLabels = { 
-		Messages.getString("FactoryPathConfigurationBlock.0"),  // 0  //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.1"),  // 1  //$NON-NLS-1$
+		Messages.FactoryPathConfigurationBlock_up,
+		Messages.FactoryPathConfigurationBlock_down,
 		null,                    // 2
-		Messages.getString("FactoryPathConfigurationBlock.2"),  // 3  //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.3"),  // 4  //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.4"),  // 5  //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.5"),  // 6  //$NON-NLS-1$
+		Messages.FactoryPathConfigurationBlock_addJars,
+		Messages.FactoryPathConfigurationBlock_addExternalJars,
+		Messages.FactoryPathConfigurationBlock_addVariable,
+		Messages.FactoryPathConfigurationBlock_remove,
 		null,                    // 7
-		Messages.getString("FactoryPathConfigurationBlock.6"),  // 8  //$NON-NLS-1$
-		Messages.getString("FactoryPathConfigurationBlock.7")   // 9  //$NON-NLS-1$
+		Messages.FactoryPathConfigurationBlock_enableAll,
+		Messages.FactoryPathConfigurationBlock_disableAll
 	};
 
 	private PixelConverter fPixelConverter;
@@ -147,7 +147,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		
 		fFactoryPathList= new CheckedListDialogField(adapter, buttonLabels, new LabelProvider());
 		fFactoryPathList.setDialogFieldListener(adapter);
-		fFactoryPathList.setLabelText(Messages.getString("FactoryPathConfigurationBlock.8"));   //$NON-NLS-1$
+		fFactoryPathList.setLabelText(Messages.FactoryPathConfigurationBlock_pluginsAndJars);
 		fFactoryPathList.setUpButtonIndex(IDX_UP);
 		fFactoryPathList.setDownButtonIndex(IDX_DOWN);
 		fFactoryPathList.setRemoveButtonIndex(IDX_REMOVE);

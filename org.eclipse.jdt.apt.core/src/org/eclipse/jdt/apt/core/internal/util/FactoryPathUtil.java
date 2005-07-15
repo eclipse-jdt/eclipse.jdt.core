@@ -179,8 +179,8 @@ public final class FactoryPathUtil {
 				Element element = (Element)node;
 				String kindString = element.getAttribute(KIND);
 				// deprecated container type "JAR" is now "EXTJAR"
-				if ("JAR".equals(kindString)) {
-					kindString = "EXTJAR";
+				if ("JAR".equals(kindString)) { //$NON-NLS-1$
+					kindString = "EXTJAR"; //$NON-NLS-1$
 				}
 				String idString = element.getAttribute(ID);
 				String enabledString = element.getAttribute(ENABLED);
