@@ -391,6 +391,9 @@ public class AptConfig {
 		public void preferenceChange(PreferenceChangeEvent event) {
 			// update the changed value in the options map.
 			Map<String, String> options = _optionsMaps.get(_proj);
+			if (null == options) {
+				return;
+			}
 			options.put((String)event.getKey(), (String)event.getNewValue());
 			
 			// handle change to generated source directory
