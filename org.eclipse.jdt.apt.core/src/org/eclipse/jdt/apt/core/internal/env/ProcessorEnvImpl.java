@@ -27,9 +27,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -47,15 +47,7 @@ import org.eclipse.jdt.apt.core.internal.util.PackageUtil;
 import org.eclipse.jdt.apt.core.internal.util.TypesUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
-import org.eclipse.jdt.core.BindingKey;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -98,6 +90,13 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 										 EclipseAnnotationProcessorEnvironment
 {	
 	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
+
+	/** delimiter of path variables in -A values, e.g., %ROOT%/foo */
+	private static final char PATHVAR_DELIM = '%';
+	/** regex to identify substituted token in path variables */
+	private static final String PATHVAR_TOKEN = "^%[^%/\\\\ ]+%.*"; //$NON-NLS-1$
+	/** path variable meaning "workspace root" */
+	private static final String PATHVAR_ROOT = "%ROOT%"; //$NON-NLS-1$
 
     private final CompilationUnit _astCompilationUnit;
     private final ICompilationUnit _compilationUnit;   
@@ -229,10 +228,11 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		
 		// Add configured options
 		for (Map.Entry<String, String> entry : procOptions.entrySet()) {
-			_options.put(entry.getKey(), entry.getValue());
+			String value = resolveVarPath(entry.getValue());
+			_options.put(entry.getKey(), value);
 			String sunStyle;
-			if (entry.getValue() != null) {
-				sunStyle = "-A" + entry.getKey() + "=" + entry.getValue(); //$NON-NLS-1$ //$NON-NLS-2$
+			if (value != null) {
+				sunStyle = "-A" + entry.getKey() + "=" + value; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			else {
 				sunStyle = "-A" + entry.getKey(); //$NON-NLS-1$
@@ -241,8 +241,46 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		}
 	}
 
-
-
+	/**
+	 * If the value starts with a path variable such as %ROOT%, replace it with
+	 * the absolute path.
+	 * @param value the value of a -Akey=value command option
+	 */
+	private String resolveVarPath(String value) {
+		if (value == null) {
+			return null;
+		}
+		// is there a token to substitute?
+		if (!Pattern.matches(PATHVAR_TOKEN, value)) {
+			return value;
+		}
+		IPath path = new Path(value);
+		String firstToken = path.segment(0);
+		// If it matches %ROOT%/project, it is a project-relative path.
+		if (PATHVAR_ROOT.equals(firstToken)) {
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			IResource proj = root.findMember(path.segment(1));
+			if (proj == null) {
+				return value;
+			}
+			// all is well; do the substitution
+			IPath relativePath = path.removeFirstSegments(2);
+			IPath absoluteProjPath = proj.getLocation();
+			IPath absoluteResPath = absoluteProjPath.append(relativePath);
+			return absoluteResPath.toOSString();
+		}
+		
+		// otherwise it's a classpath-var-based path.
+		String cpvName = firstToken.substring(1, firstToken.length() - 1);
+		IPath cpvPath = JavaCore.getClasspathVariable(cpvName);
+		if (cpvPath != null) {
+			IPath resolved = cpvPath.append(path.removeFirstSegments(1));
+			return resolved.toOSString();
+		}
+		else {
+			return value;
+		}
+	}
 
 	/**
 	 *  This should create an AST without imports or method-body statements

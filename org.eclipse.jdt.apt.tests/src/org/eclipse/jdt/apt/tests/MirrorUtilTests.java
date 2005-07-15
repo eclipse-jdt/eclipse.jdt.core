@@ -19,8 +19,10 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestCodeExample;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -53,9 +55,11 @@ public class MirrorUtilTests extends Tests {
 		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
 		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
 
-		TestUtil.createAndAddAnnotationJar( env.getJavaProject( projectPath ) );
+		IJavaProject jproj = env.getJavaProject(projectPath);
+		TestUtil.createAndAddAnnotationJar( jproj );
 		
 		IProject project = env.getProject( getProjectName() );
+		addEnvOptions(jproj);
 		IPath srcRoot = getSourcePath();
 		String code = MirrorUtilTestCodeExample.CODE;
 		env.addClass(srcRoot, MirrorUtilTestCodeExample.CODE_PACKAGE, MirrorUtilTestCodeExample.CODE_CLASS_NAME, code);
@@ -63,6 +67,18 @@ public class MirrorUtilTests extends Tests {
 		assertNoUnexpectedProblems();
 	}
 	
+	/**
+	 * Add options which the AnnotationProcessorEnvironment should see.
+	 * The options will be verified within the processor code.
+	 */
+	private void addEnvOptions(IJavaProject jproj) {
+		for (int i = 0; i < MirrorUtilTestAnnotationProcessor.ENV_KEYS.length; ++i) {
+			AptConfig.addProcessorOption(jproj, 
+					MirrorUtilTestAnnotationProcessor.ENV_KEYS[i], 
+					MirrorUtilTestAnnotationProcessor.ENV_VALUES[i]);
+		}
+	}
+
 	/**
 	 * 
 	 */

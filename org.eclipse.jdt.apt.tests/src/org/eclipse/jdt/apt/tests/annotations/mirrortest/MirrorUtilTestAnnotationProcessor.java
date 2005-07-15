@@ -12,6 +12,9 @@
 
 package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
+import java.io.File;
+import java.util.Map;
+
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.FieldDeclaration;
@@ -25,6 +28,49 @@ public class MirrorUtilTestAnnotationProcessor implements AnnotationProcessor
 	/** Used by the test harness to verify that no errors were encountered **/
 	public static String ERROR = NO_ERRORS;
 
+	// Environment options test cases
+		// no-translation cases
+	public static final int EC_NORMAL = 0;
+	public static final int EC_NORMALPATH = 1;
+	public static final int EC_BOGUSCPVAR = 2;
+	public static final int EC_BADPROJ = 3;
+		// end of no-translation cases
+	public static final int EC_NUM_NOTRANSLATIONCASES = 4;
+		// expected-translation cases
+	public static final int EC_CPVAR = 4;
+	public static final int EC_CPVARPATH = 5;
+	public static final int EC_CPVARFILE = 6;
+	public static final int EC_PROJ = 7;
+	public static final int EC_PROJFILE = 8;
+	
+	private static final String ENVPREFIX = "apt.tests.annotations.mirrortest.";
+	public static final String[] ENV_KEYS = {
+			// no-translation
+		ENVPREFIX + "normal",
+		ENVPREFIX + "normalPath",
+		ENVPREFIX + "boguscpvar",
+		ENVPREFIX + "badProj",
+			// expected-translation
+		ENVPREFIX + "cpvar",
+		ENVPREFIX + "cpvarPath",
+		ENVPREFIX + "cpvarFile",
+		ENVPREFIX + "proj",
+		ENVPREFIX + "projFile"
+	};
+	public static final String[] ENV_VALUES = {
+			// no-translation
+		"normal",
+		"normal\\foo.bar",
+		"%NOSUCH\\VARNAME%",
+		"%ROOT%\\someOtherProject\\foo\\nonexistent.txt",
+			// expected-translation
+		"%ECLIPSE_HOME%",
+		"%ECLIPSE_HOME%\\plugins",
+		"%ECLIPSE_HOME%\\plugins\\org.eclipse.jdt.core_3.1.0.jar",
+		"%ROOT%\\org.eclipse.jdt.apt.tests.MirrorUtilTestsProject",
+		"%ROOT%\\org.eclipse.jdt.apt.tests.MirrorUtilTestsProject\\.classpath"
+	};
+	
 	public AnnotationProcessorEnvironment env;
 	
 	public MirrorUtilTestAnnotationProcessor(AnnotationProcessorEnvironment env)
@@ -35,6 +81,7 @@ public class MirrorUtilTestAnnotationProcessor implements AnnotationProcessor
 	public void process()
 	{
 		testHidesOverrides();
+		testEnvOptions();
 	}
 	
 	@SuppressWarnings("unused")
@@ -135,5 +182,34 @@ public class MirrorUtilTestAnnotationProcessor implements AnnotationProcessor
 		
     	//hides negative test
 		assertTrue("Expect B.field to not hide C.field", !env.getDeclarationUtils().hides(field_B, field_C));
+	}
+	
+	private void testEnvOptions() {
+		Map<String, String> options = env.getOptions();
+		// no-translation cases should be unchanged
+		for (int i = 0; i < EC_NUM_NOTRANSLATIONCASES; ++i) {
+			assertEquals(ENV_KEYS[i], options.get(ENV_KEYS[i]), ENV_VALUES[i]);
+		}
+		// translation cases should be changed
+		for (int i = EC_NUM_NOTRANSLATIONCASES; i < ENV_KEYS.length; ++i) {
+			assertTrue(ENV_KEYS[i], !ENV_VALUES[i].equals(options.get(ENV_KEYS[i])) );
+		}
+		// the files should exist at the specified absolute location
+		String name = options.get(ENV_KEYS[EC_CPVARFILE]);
+		File file;
+		if (name == null) {
+			fail(ENV_KEYS[EC_CPVARFILE] + " was not in options map");
+		} else {
+			file = new File(name);
+			assertTrue(ENV_KEYS[EC_CPVARFILE] + " was not found", file != null && file.exists());
+		}
+		
+		name = options.get(ENV_KEYS[EC_PROJFILE]);
+		if (name == null) {
+			fail(ENV_KEYS[EC_PROJFILE] + " was not in options map");
+		} else {
+			file = new File(name);
+			assertTrue(ENV_KEYS[EC_PROJFILE] + " was not found", file != null && file.exists());
+		}
 	}
 }
