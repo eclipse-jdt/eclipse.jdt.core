@@ -414,6 +414,19 @@ public class AptConfig {
 		}
 	}
 	
+	/**
+	 * Helper method to get a single preference setting, e.g., APT_GENSRCDIR.    
+	 * This is a different level of abstraction than the processor -A settings!
+	 * The -A settings are all contained within one single preference setting, 
+	 * APT_PROCESSOROPTIONS.  Use @see #getProcessorOptions(IJavaProject) to 
+	 * get the -A settings; use @see #getOptions(IJavaProject) to get all the 
+	 * preference settings as a map; and use this helper method to get a single 
+	 * preference setting.
+	 * 
+	 * @param jproject the project, or null for workspace.
+	 * @param optionName a preference constant from @see AptPreferenceConstants.
+	 * @return
+	 */
     public static synchronized String getString(IJavaProject jproject, String optionName) {
 		Map options = getOptions(jproject);
 		return (String)options.get(optionName);
