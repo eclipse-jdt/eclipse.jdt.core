@@ -267,7 +267,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	
 		if (!isStrictlyAssigned && (field.isPrivate() || (field.declaringClass != null && field.declaringClass.isLocalType())) && !scope.isDefinedInField(field)) {
 			// ignore cases where field is used from within inside itself 
-			field.modifiers |= AccLocallyUsed;
+			field.original().modifiers |= AccLocallyUsed;
 		}
 	
 		if (!field.isViewedAsDeprecated()) return false;
