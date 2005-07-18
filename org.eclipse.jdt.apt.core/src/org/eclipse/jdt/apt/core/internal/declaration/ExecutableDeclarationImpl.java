@@ -68,7 +68,6 @@ public abstract class ExecutableDeclarationImpl extends MemberDeclarationImpl im
         if( paramTypes == null || paramTypes.length == 0 )
             return Collections.emptyList();
 
-        final ITypeBinding declaringClass = methodBinding.getDeclaringClass();
         final List<ParameterDeclaration> result = new ArrayList<ParameterDeclaration>(paramTypes.length);
 
         if( isFromSource() ){

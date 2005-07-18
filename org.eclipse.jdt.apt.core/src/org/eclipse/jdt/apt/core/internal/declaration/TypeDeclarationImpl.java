@@ -132,14 +132,14 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
     public DeclaredType getContainingType()
     {
         final ITypeBinding outer = getTypeBinding().getDeclaringClass();
-        return (DeclaredType)Factory.createReferenceType(outer, _env);
+        return Factory.createReferenceType(outer, _env);
     }
 
     public TypeDeclaration getDeclaration()
     {
         final ITypeBinding declBinding = getDeclarationBinding();
         if( declBinding == _binding ) return this;
-        else return (TypeDeclaration)Factory.createReferenceType(declBinding, _env);
+        else return Factory.createReferenceType(declBinding, _env);
     }
     
     public Collection<InterfaceType> getSuperinterfaces()

@@ -233,9 +233,9 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	private void initListContents() {
 		fFactoryPathList.removeAllElements();
 		for (Map.Entry<FactoryContainer, Boolean> e : fOriginalPath.entrySet()) {
-			FactoryContainer fc = (FactoryContainer)e.getKey();
+			FactoryContainer fc = e.getKey();
 			fFactoryPathList.addElement(fc);
-			fFactoryPathList.setChecked(fc, ((Boolean)e.getValue()).booleanValue());
+			fFactoryPathList.setChecked(fc, e.getValue());
 		}
 	}
 	
@@ -265,7 +265,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 						res.add(FactoryPath.newWkspJarFactoryContainer(selected[i]));
 					}
 				}
-				return (FactoryContainer[]) res.toArray(new FactoryContainer[res.size()]);
+				return res.toArray(new FactoryContainer[res.size()]);
 			}
 		} 		
 		return null;
@@ -280,7 +280,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 				for (int i= 0; i < selected.length; i++) {
 					res.add(FactoryPath.newExtJarFactoryContainer(selected[i].toFile()));
 				}
-				return (FactoryContainer[]) res.toArray(new FactoryContainer[res.size()]);
+				return res.toArray(new FactoryContainer[res.size()]);
 			}
 		} 		
 		return null;
@@ -305,7 +305,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 				for (int i= 0; i < selected.length; i++) {
 					res.add(FactoryPath.newVarJarFactoryContainer(selected[i]));
 				}
-				return (FactoryContainer[]) res.toArray(new FactoryContainer[res.size()]);
+				return res.toArray(new FactoryContainer[res.size()]);
 			}
 		} 		
 		return null;
@@ -334,7 +334,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			containers = null;
 		}
 		else {
-			List listElems = fFactoryPathList.getElements();
 			containers = new LinkedHashMap<FactoryContainer, Boolean>();
 			int count = fFactoryPathList.getSize();
 			for (int i = 0; i < count; ++i) {
@@ -366,9 +365,9 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		Map<FactoryContainer, Boolean> defaults = FactoryPath.getDefaultFactoryPath(fJProj);
 		fFactoryPathList.removeAllElements();
 		for (Map.Entry<FactoryContainer, Boolean> e : defaults.entrySet()) {
-			FactoryContainer fc = (FactoryContainer)e.getKey();
+			FactoryContainer fc = e.getKey();
 			fFactoryPathList.addElement(fc);
-			fFactoryPathList.setChecked(fc, ((Boolean)e.getValue()).booleanValue());
+			fFactoryPathList.setChecked(fc, e.getValue());
 		}
 		super.performDefaults();
 	}

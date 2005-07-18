@@ -66,7 +66,7 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements Typ
 
         final Collection<ReferenceType> result = new ArrayList<ReferenceType>(4);
         for( ITypeBinding bound : bounds ){
-            final ReferenceType type = (ReferenceType)Factory.createReferenceType(bound, _env);
+            final ReferenceType type = Factory.createReferenceType(bound, _env);
              if( type != null )
                 result.add(type);
         }

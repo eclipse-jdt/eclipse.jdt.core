@@ -638,6 +638,9 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 		if (compUnit != null) {
 			try {
 				IType[] types = compUnit.getAllTypes();
+				if (types.length > 0) {
+					type = types[0];
+				}
 			}
 			catch (JavaModelException e) {}
 		}
@@ -774,7 +777,6 @@ public class ProcessorEnvImpl implements AnnotationProcessorEnvironment,
 	{
 		if( type == null ) return;
 		typeBindings.add(type);
-		final ITypeBinding[] nestedTypes = type.getDeclaredTypes();
 		for( ITypeBinding nestedType : type.getDeclaredTypes() ) {
 			typeBindings.add(nestedType);
 			getTypeBindings(nestedType, typeBindings);

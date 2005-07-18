@@ -56,7 +56,7 @@ public class SourceParameterDeclarationImpl extends ParameterDeclarationImpl imp
 	
 	public Collection<Modifier> getModifiers()
 	{
-		final SingleVariableDeclaration paramDecl = (SingleVariableDeclaration)getAstNode();
+		final SingleVariableDeclaration paramDecl = getAstNode();
 		if( paramDecl == null ) return Collections.emptyList();
 		final List<IExtendedModifier> extMods = paramDecl.modifiers();
         if( extMods == null || extMods.isEmpty() ) return Collections.emptyList();      

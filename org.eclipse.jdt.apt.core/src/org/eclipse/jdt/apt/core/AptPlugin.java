@@ -46,11 +46,15 @@ public class AptPlugin extends Plugin {
 	 */
 	private void checkToolsJar() {
 		boolean foundToolsJar = true;
+		InputStream is = null;
 		try {
-			InputStream is = thePlugin.openStream(new Path(TOOLSJARNAME));
+			is = thePlugin.openStream(new Path(TOOLSJARNAME));
 		}
 		catch (IOException e) {
 			foundToolsJar = false;
+		}
+		finally {
+			try {if (is != null) is.close();} catch (IOException ioe) {}
 		}
 		if (!foundToolsJar) {
 			log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_NOTOOLSJAR, ERRTXT_NOTOOLSJAR, null));

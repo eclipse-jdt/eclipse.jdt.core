@@ -72,8 +72,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 			 final String name = pair.getName();
              if( name == null ) continue;
              IMethodBinding elementMethod = pair.getMemberBinding();            
-             if( elementMethod != null ){
-            	 final ITypeBinding retType = elementMethod.getReturnType();            
+             if( elementMethod != null ){           
                  final DeclarationImpl mirrorDecl = Factory.createDeclaration(elementMethod, _env);
                  if( mirrorDecl != null && mirrorDecl.kind() == EclipseMirrorImpl.MirrorKind.ANNOTATION_ELEMENT  )
                  {
@@ -273,7 +272,6 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 			final Object[] elements = (Object[])value;
 			assert targetType.isArray();
             final Class componentType = targetType.getComponentType();
-            final char componentTypeName = componentType.getName().charAt(0);
             final int length = elements.length;;
             final Object array = Array.newInstance(componentType, length);
             if( length == 0) return array;

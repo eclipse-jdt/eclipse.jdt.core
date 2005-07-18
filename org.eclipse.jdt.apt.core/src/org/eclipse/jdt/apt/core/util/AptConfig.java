@@ -192,7 +192,6 @@ public class AptConfig {
         	Map<String, String> options = new LinkedHashMap<String, String>();
         	String key;
         	while (null != (key = parseKey())) {
-        		String val;
        			options.put(key, parseVal());
         	}
          	return options;
@@ -394,7 +393,7 @@ public class AptConfig {
 			if (null == options) {
 				return;
 			}
-			options.put((String)event.getKey(), (String)event.getNewValue());
+			options.put(event.getKey(), (String)event.getNewValue());
 			
 			// handle change to generated source directory
 			if ( AptPreferenceConstants.APT_GENSRCDIR.equals( event.getKey() ) ) {

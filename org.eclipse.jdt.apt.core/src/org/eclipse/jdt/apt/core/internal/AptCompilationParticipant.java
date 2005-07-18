@@ -168,7 +168,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			APTResult result = APTDispatch.runAPTDuringReconcile( factories, cu, javaProject );
 			Map<IFile, List<IProblem>> allproblems = result.getProblems();			
 			
-			final List<IProblem> problemList = allproblems.get((IFile)cu.getResource());
+			final List<IProblem> problemList = allproblems.get(cu.getResource());
 			if( problemList != null && !problemList.isEmpty())
 				problems = problemList.toArray(new IProblem[problemList.size()]);	
 		}

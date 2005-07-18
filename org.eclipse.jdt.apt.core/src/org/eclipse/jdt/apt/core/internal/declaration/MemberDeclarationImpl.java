@@ -99,7 +99,7 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
     
     private String getDocComment(final BodyDeclaration decl)
     {
-    	final Javadoc javaDoc = ((BodyDeclaration)decl).getJavadoc();
+    	final Javadoc javaDoc = decl.getJavadoc();
         if( javaDoc == null ) return ""; //$NON-NLS-1$
         return javaDoc.toString();
     }

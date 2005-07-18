@@ -166,8 +166,7 @@ public class Factory
 													 AnnotationElementDeclarationImpl decl, 
 													 ProcessorEnvImpl env)
     {
-        if( domValue == null ) return null;
-        boolean needBoxing = decl.getReturnType() instanceof ArrayType;		
+        if( domValue == null ) return null;		
 		final Object converted = convertDOMValueToMirrorValue(domValue, null, decl, decl, env, decl.getReturnType());
 		
         return createAnnotationValue(converted, null, -1, decl, env);
@@ -328,15 +327,15 @@ public class Factory
     			case CHAR:
     				return new Character((char)b);
     			case SHORT:
-    				return new Short((short)b);
+    				return new Short(b);
     			case INT:
-    				return new Integer((short)b);
+    				return new Integer(b);
     			case LONG:
-    				return new Long((long)b);
+    				return new Long(b);
     			case FLOAT:
-    				return new Float((float)b);
+    				return new Float(b);
     			case DOUBLE:
-    				return new Double((double)b);
+    				return new Double(b);
     			default:
     				// it is either already correct or it is completely wrong,
     				// which doesn't really matter what's returned
@@ -355,13 +354,13 @@ public class Factory
     			case CHAR:
     				return new Character((char)s);  
     			case INT:
-    				return new Integer((int)s ); 
+    				return new Integer(s); 
     			case LONG:
-    				return new Long((long)s);
+    				return new Long(s);
     			case FLOAT:
-    				return new Float((float)s);
+    				return new Float(s);
     			case DOUBLE:
-    				return new Double((double)s);
+    				return new Double(s);
     			default:
     				// it is either already correct or it is completely wrong,
     				// which doesn't really matter what's returned
@@ -376,13 +375,13 @@ public class Factory
     			switch( ((PrimitiveType)expectedType).getKind() )
     			{
     			case INT:
-    				return new Integer((int)c ); 
+    				return new Integer(c); 
     			case LONG:
-    				return new Long((long)c);
+    				return new Long(c);
     			case FLOAT:
-    				return new Float((float)c);
+    				return new Float(c);
     			case DOUBLE:
-    				return new Double((double)c);
+    				return new Double(c);
     			case BYTE:
     				return new Byte((byte)c);
     			case SHORT:
@@ -403,11 +402,11 @@ public class Factory
     			switch( ((PrimitiveType)expectedType).getKind() )
     			{    		
     			case LONG:
-    				return new Long((long)i);
+    				return new Long(i);
     			case FLOAT:
-    				return new Float((float)i);
+    				return new Float(i);
     			case DOUBLE:
-    				return new Double((double)i);
+    				return new Double(i);
     			case BYTE:
     				return new Byte((byte)i);
     			case SHORT:
@@ -427,9 +426,9 @@ public class Factory
     			switch( ((PrimitiveType)expectedType).getKind() )
     			{
     			case FLOAT:
-    				return new Float((float)l);
+    				return new Float(l);
     			case DOUBLE:
-    				return new Double((double)l);    		
+    				return new Double(l);    		
     			default:
     				// it is either already correct or it is completely wrong,
     				// which doesn't really matter what's returned
@@ -444,7 +443,7 @@ public class Factory
     			switch( ((PrimitiveType)expectedType).getKind() )
     			{    			
     			case DOUBLE:
-    				return new Double((double)f);    		
+    				return new Double(f);    		
     			default:
     				// it is either already correct or it is completely wrong,
     				// which doesn't really matter what's returned

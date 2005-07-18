@@ -174,7 +174,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( processorEnv.getFile() );
 			
 			for (int i = 0, size = factories.size(); i < size; i++) {
-				final AnnotationProcessorFactory factory = (AnnotationProcessorFactory) factories.get(i);
+				final AnnotationProcessorFactory factory = factories.get(i);
 				Set<AnnotationTypeDeclaration> factoryDecls = getAnnotations(factory, annotationDecls);
 				boolean done = false;
 				if( factoryDecls != null ){
@@ -288,8 +288,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			final Map<String, AnnotationTypeDeclaration> declarations,
 			final ProcessorEnvImpl env) {
 		for (int i = 0, size = factories.size(); i < size; i++) {
-			final AnnotationProcessorFactory factory = (AnnotationProcessorFactory) factories
-					.get(i);
+			final AnnotationProcessorFactory factory = factories.get(i);
 			final Set<AnnotationTypeDeclaration> factoryDecls = getAnnotations(
 					factory, declarations);
 			final AnnotationProcessor processor = factory.getProcessorFor(
@@ -305,7 +304,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			CompilationUnit astCompilationUnit, ProcessorEnvImpl env) {
 		final List<Annotation> instances = new ArrayList<Annotation>();
 		final AnnotationVisitor visitor = new AnnotationVisitor(instances);
-		astCompilationUnit.accept(new AnnotationVisitor(instances));
+		astCompilationUnit.accept(visitor);
 		final Map<String, AnnotationTypeDeclaration> decls = new HashMap<String, AnnotationTypeDeclaration>();
 		for (int i = 0, size = instances.size(); i < size; i++) {
 			final Annotation instance = instances.get(i);
@@ -356,7 +355,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 							.next();
 					final String key = entry.getKey();
 					if (key.startsWith(prefix)) {
-						fDecls.add((AnnotationTypeDeclaration) entry.getValue());
+						fDecls.add(entry.getValue());
 						entries.remove();
 					}
 				}

@@ -164,7 +164,7 @@ public class TypesUtil implements Types
 			
 			final String typeKey = BindingKey.createParameterizedTypeBindingKey(memberBinding.getKey(), argKeys);
 			final ITypeBinding resultBinding = _env.getTypeBinding(typeKey);
-			return (DeclaredType)Factory.createReferenceType(resultBinding, _env);
+			return Factory.createReferenceType(resultBinding, _env);
 		}
 		else{ 
 			if( numArgs != 0 )

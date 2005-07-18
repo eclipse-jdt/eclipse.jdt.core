@@ -161,10 +161,8 @@ public class GeneratedFileManager {
 		throws CoreException, UnsupportedEncodingException
 	{
 		try
-		{		
-			IProject project = javaProject.getProject();
-
-			IFolder folder = ensureGeneratedSourceFolder( javaProject, progressMonitor );
+		{
+			ensureGeneratedSourceFolder( javaProject, progressMonitor );
 			
 			IFile file = getIFileForTypeName( typeName, javaProject, true, progressMonitor );
 
@@ -618,7 +616,7 @@ public class GeneratedFileManager {
 		
 		synchronized( this )
 		{
-			workingCopy = (ICompilationUnit) _generatedFile2WorkingCopy.get( derivedFile );
+			workingCopy = _generatedFile2WorkingCopy.get( derivedFile );
 		}
 		
 		if ( workingCopy != null )
@@ -631,8 +629,7 @@ public class GeneratedFileManager {
 			String contents, WorkingCopyOwner workingCopyOwner,
 			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor)
 		throws CoreException, JavaModelException
-	{	
-		IProject project = parentCompilationUnit.getResource().getProject();
+	{
 		IJavaProject jp = parentCompilationUnit.getJavaProject();
 
 		//
@@ -777,7 +774,7 @@ public class GeneratedFileManager {
 
 		synchronized( this )
 		{
-			ICompilationUnit cu = (ICompilationUnit)_generatedFile2WorkingCopy.get( generatedFile );
+			ICompilationUnit cu = _generatedFile2WorkingCopy.get( generatedFile );
 			Set<IFile> parents = _generatedWorkingCopy2OpenParentFiles.get( workingCopy);
 		
 			if ( cu != null )
@@ -946,7 +943,6 @@ public class GeneratedFileManager {
 		IClasspathEntry searchingFor = 
 			JavaCore.newSourceEntry(folder.getFullPath());
 		IPath searchingForPath = searchingFor.getPath();
-		boolean found = false;
 		for (int i = 0; i < cp.length; i++) 
 		{
 			if (cp[i].getPath().equals( searchingForPath )) 
