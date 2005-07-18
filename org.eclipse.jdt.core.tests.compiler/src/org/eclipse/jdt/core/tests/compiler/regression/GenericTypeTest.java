@@ -22603,5 +22603,123 @@ public void test780() {
 		},
 		"123");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104109
+public void test781() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"    public static <E, T extends E & Comparable<? super T>> Foo<E> doIt(T t) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    interface Foo<E> {\n" + 
+			"        boolean ok(E e);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104082
+public void test782() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.reflect.*;\n" + 
+			"import java.util.*;\n" + 
+			"\n" + 
+			"interface StoredObject {\n" + 
+			"	String getUid();\n" + 
+			"	String getName();\n" + 
+			"	String getDescription();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface GraphDiagramNode // extends Comparable\n" + 
+			"{\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X<ObjectType extends StoredObject, ParentType extends StoredObject> implements GraphDiagramNode {\n" + 
+			"	private final JccsGraphDiagramModel model;\n" + 
+			"	private final X<? extends ParentType, ?> parent;\n" + 
+			"	private final ObjectType object;\n" + 
+			"\n" + 
+			"	public class JccsGraphDiagramModel {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public interface GraphDiagramModel {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class Dependency {\n" + 
+			"\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public X(JccsGraphDiagramModel argModel, X<? extends ParentType, ?> argParent, ObjectType argObject) {\n" + 
+			"		model = argModel;\n" + 
+			"		parent = argParent;\n" + 
+			"		object = argObject;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected <ChildType extends StoredObject> Collection<? extends X<ChildType, ? super ObjectType>> createChildren(\n" + 
+			"			Iterator<ChildType> argData, Class<? extends X<ChildType, ? super ObjectType>> argChildNodeClass,\n" + 
+			"			Class<? extends StoredObject> argInterface) {\n" + 
+			"		Collection<X<ChildType, ? super ObjectType>> output = new LinkedList<X<ChildType, ? super ObjectType>>();\n" + 
+			"\n" + 
+			"		try {\n" + 
+			"			while (argData.hasNext()) {\n" + 
+			"				ChildType next = argData.next();\n" + 
+			"				Constructor<? extends X<ChildType, ? super ObjectType>> constructor = argChildNodeClass.getConstructor(\n" + 
+			"						JccsGraphDiagramModel.class, getClass(), argInterface);\n" + 
+			"\n" + 
+			"				output.add(constructor.newInstance(model, this, next));\n" + 
+			"			}\n" + 
+			"		} catch (Exception x) {\n" + 
+			"			x.printStackTrace();\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return output;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104167
+public void test783() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"  private static class B{\n" + 
+			"    private int foo; //incorrectly identified as unused\n" + 
+			"  }\n" + 
+			"  void bar(B b){\n" + 
+			"    if (b.foo == 0)\n" + 
+			"      return;\n" + 
+			"  }\n" + 
+			"  Zork z;\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104082 - variation
+public void test784() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T, U> {\n" + 
+			"	X<? extends U, ?> parent;\n" + 
+			"\n" + 
+			"	public X(X<? extends U, ?> parent) {\n" + 
+			"		this.parent = parent;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
