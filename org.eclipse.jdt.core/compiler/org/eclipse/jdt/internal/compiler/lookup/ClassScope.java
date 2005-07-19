@@ -692,7 +692,7 @@ public class ClassScope extends Scope {
 		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & HasNoMemberTypes) == 0);
 	}
 	// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
-	private void  checkParameterizedTypeBounds() {
+	public void  checkParameterizedTypeBounds() {
 		TypeReference superclass = referenceContext.superclass;
 		if (superclass != null) {
 			superclass.checkBounds(this);
@@ -709,6 +709,12 @@ public class ClassScope extends Scope {
 				typeParameters[i].checkBounds(this);
 			}
 		}
+		// propagate to member types
+		ReferenceBinding[] memberTypes = referenceContext.binding.memberTypes;
+		if (memberTypes != null && memberTypes != NoMemberTypes) {
+			for (int i = 0, size = memberTypes.length; i < size; i++)
+				 ((SourceTypeBinding) memberTypes[i]).scope.checkParameterizedTypeBounds();
+		}		
 	}
 
 	private void connectMemberTypes() {
@@ -935,8 +941,6 @@ public class ClassScope extends Scope {
 			if (noProblems && sourceType.isHierarchyInconsistent())
 				problemReporter().hierarchyHasProblems(sourceType);
 		}
-		// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
-		checkParameterizedTypeBounds();
 		connectMemberTypes();
 		try {
 			checkForInheritedMemberTypes(sourceType);
