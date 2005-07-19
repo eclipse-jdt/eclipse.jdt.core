@@ -280,7 +280,6 @@ public class Visitors {
     		return internalVisit(node);
     	}
     	
-    	@SuppressWarnings("unchecked")
     	private boolean internalVisit(ASTNode node) {
     		// terminate the search.
     		if( _result != null ) return false;
@@ -303,8 +302,7 @@ public class Visitors {
     			else {
     				BodyDeclaration declaration = (BodyDeclaration)node;
     				extendedModifiers = declaration.modifiers();
-    			}
-    			Annotation anno = null;
+    			}    			
     			for (IExtendedModifier modifier : extendedModifiers) {
     				// found what we came to look for.
     				if( modifier == _anno ){
@@ -351,7 +349,7 @@ public class Visitors {
     	public EndingOffsetFinder(int[] offsets)
     	{
     		if(offsets == null)
-    			throw new IllegalArgumentException("argument cannot be null.");
+    			throw new IllegalArgumentException("argument cannot be null."); //$NON-NLS-1$
     		// sort the array first
     		Arrays.sort(offsets);
     	
