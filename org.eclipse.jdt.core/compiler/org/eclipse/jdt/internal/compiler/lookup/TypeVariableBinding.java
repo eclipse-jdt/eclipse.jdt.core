@@ -60,7 +60,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		if (this.superclass == null)
 			return TypeConstants.OK;
 
-		if (argumentType.isWildcard()) {
+		if (argumentType.isWildcard() && !argumentType.isIntersectionType()) {
 			WildcardBinding wildcard = (WildcardBinding) argumentType;
 			switch(wildcard.boundKind) {
 				case Wildcard.EXTENDS :

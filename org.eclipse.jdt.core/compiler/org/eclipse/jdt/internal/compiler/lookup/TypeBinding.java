@@ -200,6 +200,12 @@ public boolean isInterface() {
 public boolean isIntersectingWith(TypeBinding otherType) {
     return this == otherType;
 }
+/**
+ * Returns true if the current type denotes an intersection type: Number & Comparable<?>
+ */
+public boolean isIntersectionType() {
+	return false;
+}
 public final boolean isLocalType() {
 	return (tagBits & IsLocalType) != 0;
 }
