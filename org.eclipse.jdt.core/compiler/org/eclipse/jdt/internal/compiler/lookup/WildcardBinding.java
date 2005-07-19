@@ -350,6 +350,13 @@ public class WildcardBinding extends ReferenceBinding {
     }
     
     /**
+     * Returns true if the current type denotes an intersection type: Number & Comparable<?>
+     */
+    public boolean isIntersectionType() {
+    	return this.otherBounds != null;
+    }
+    
+    /**
 	 * Returns true if the type is a wildcard
 	 */
 	public boolean isUnboundWildcard() {

@@ -22839,5 +22839,57 @@ public void test789() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103485
+public void test790() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<T extends Comparable<T>> boolean isGreater(T t1, T t2) {\n" + 
+			"		return t1.compareTo(t2) > 0 ? true : false; \n" + 
+			"	}\n" + 
+			"\n" + 
+			"	void method1(Integer i, Double d) {\n" + 
+			"		if (isGreater(i, d)) \n" + 
+			"			System.out.println(\"GREATER\");\n" + 
+			"		else\n" + 
+			"			System.out.println(\"LOWER\");\n" + 
+			"	}\n" + 
+			"	void method2(Integer i, Double d) {\n" + 
+			"		Comparable<? extends Number> c1= i;\n" + 
+			"		Comparable<? extends Number> c2= d;\n" + 
+			"		isGreater(c1, c2);\n" + 
+			"	}	\n" + 
+			"	void method3(Integer i, Double d) {\n" + 
+			"		Comparable c1= i;\n" + 
+			"		Comparable c2= d;\n" + 
+			"		isGreater(c1, c2);\n" + 
+			"	}	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Integer i = 1;\n" + 
+			"		Double d = 2.0;\n" + 
+			"		new X().method1(i, d);\n" + 
+			"		new X().method2(i, d);\n" + 
+			"		new X().method3(i, d);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if (isGreater(i, d)) \n" + 
+		"	    ^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Number&Comparable<?>, Number&Comparable<?>) since the type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
+		"	isGreater(c1, c2);\n" + 
+		"	^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Comparable<? extends Number>, Comparable<? extends Number>) since the type Comparable<? extends Number> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 20)\n" + 
+		"	isGreater(c1, c2);\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation isGreater(Comparable, Comparable) of the generic method isGreater(T, T) of type X\n" + 
+		"----------\n");
+}
 }
 
