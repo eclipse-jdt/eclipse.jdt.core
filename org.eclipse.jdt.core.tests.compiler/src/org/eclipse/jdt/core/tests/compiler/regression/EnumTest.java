@@ -4075,4 +4075,33 @@ the right of e1."
 			"The static field X.A should be accessed in a static way\n" + 
 			"----------\n");
 	}			
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92165
+	public void test121() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n" + 
+				"\n" + 
+				"	UNKNOWN();\n" + 
+				"\n" + 
+				"	private static String error;\n" + 
+				"\n" + 
+				"	{\n" + 
+				"		error = \"error\";\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	private static String error;\n" + 
+			"	                      ^^^^^\n" + 
+			"The field X.error is never read locally\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 8)\n" + 
+			"	error = \"error\";\n" + 
+			"	^^^^^\n" + 
+			"Cannot refer to the static enum field X.error within an initializer\n" + 
+			"----------\n");
+	}				
 }
