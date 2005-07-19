@@ -30,11 +30,12 @@ import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl.AnnotationVisitor;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
+import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
 import org.eclipse.jdt.apt.core.util.ScannerUtil;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -301,7 +302,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	}
 
 	private static Map<String, AnnotationTypeDeclaration> getAnnotationTypeDeclarations(
-			CompilationUnit astCompilationUnit, ProcessorEnvImpl env) {
+			CompilationUnit astCompilationUnit, BaseProcessorEnv env) {
 		final List<Annotation> instances = new ArrayList<Annotation>();
 		final AnnotationVisitor visitor = new AnnotationVisitor(instances);
 		astCompilationUnit.accept(visitor);

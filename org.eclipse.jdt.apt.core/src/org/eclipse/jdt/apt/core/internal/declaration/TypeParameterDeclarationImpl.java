@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -36,7 +36,7 @@ import com.sun.mirror.util.TypeVisitor;
 public class TypeParameterDeclarationImpl extends DeclarationImpl implements TypeParameterDeclaration, TypeVariable
 {
     public TypeParameterDeclarationImpl(final ITypeBinding binding,
-                                        final ProcessorEnvImpl env)
+                                        final BaseProcessorEnv env)
     {
 		super(binding, env);
 		assert binding.isTypeVariable();
@@ -149,5 +149,5 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements Typ
 	
 	public ITypeBinding getDeclarationBinding(){ return (ITypeBinding) _binding; }
 
-    boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }   
+	public boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }   
 }

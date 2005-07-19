@@ -14,7 +14,7 @@ package org.eclipse.jdt.apt.core.internal.type;
 import com.sun.mirror.type.VoidType;
 import com.sun.mirror.util.TypeVisitor;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
@@ -39,5 +39,5 @@ public class VoidTypeImpl implements VoidType, EclipseMirrorImpl
 
     public MirrorKind kind(){ return MirrorKind.TYPE_VOID; }
 	
-	public ProcessorEnvImpl getEnvironment(){ return null; }
+	public BaseProcessorEnv getEnvironment(){ return null; }
 }

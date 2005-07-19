@@ -17,7 +17,7 @@ import com.sun.mirror.util.SourcePosition;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
@@ -30,7 +30,7 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 	 * or an annotation method, which indicates that this is its default value.
 	 */
 	private EclipseMirrorImpl _parent;
-	private final ProcessorEnvImpl _env;
+	private final BaseProcessorEnv _env;
 	/** the annotation value */
 	private final Object _value;
 	/** 
@@ -55,7 +55,7 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
     public AnnotationValueImpl( final Object value,
 								final int index,
 								final AnnotationElementDeclarationImpl element,								
-								final ProcessorEnvImpl env)
+								final BaseProcessorEnv env)
     {
 	
         _value = value;
@@ -80,8 +80,9 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 								final String name,
 								final int index,
 								final AnnotationMirrorImpl annotation,
-								final ProcessorEnvImpl env)
+								final BaseProcessorEnv env)
 	{
+		assert value != null : "value is null"; //$NON-NLS-1$
 		_value = value;
         _env = env;		
 		_parent = annotation;        
@@ -174,7 +175,7 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 
     public MirrorKind kind(){ return MirrorKind.ANNOTATION_VALUE; }
 	
-	public ProcessorEnvImpl getEnvironment(){
+	public BaseProcessorEnv getEnvironment(){
 		return _env;
 	}
 	

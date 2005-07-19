@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -30,7 +30,7 @@ import com.sun.mirror.util.TypeVisitor;
 
 public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDeclaration, ClassType
 {
-    public ClassDeclarationImpl(final ITypeBinding binding, final ProcessorEnvImpl env)
+    public ClassDeclarationImpl(final ITypeBinding binding, final BaseProcessorEnv env)
     {
         super(binding, env);
         // Enum types return false for isClass().

@@ -11,7 +11,7 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 
 import com.sun.mirror.declaration.ConstructorDeclaration;
@@ -20,7 +20,7 @@ import com.sun.mirror.util.DeclarationVisitor;
 
 public class ConstructorDeclarationImpl extends ExecutableDeclarationImpl implements ConstructorDeclaration
 {
-    public ConstructorDeclarationImpl(final IMethodBinding binding, ProcessorEnvImpl env)
+    public ConstructorDeclarationImpl(final IMethodBinding binding, BaseProcessorEnv env)
     {
         super(binding, env);
         assert binding.isConstructor() : "binding does not represent a constructor"; //$NON-NLS-1$

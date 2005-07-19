@@ -24,7 +24,7 @@ import com.sun.mirror.util.TypeVisitor;
 import java.util.Collection;
 import java.util.Collections;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 
 /**
  * This is the error type marker
@@ -54,7 +54,7 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
 
     public MirrorKind kind(){ return MirrorKind.TYPE_ERROR; }
 	
-	public ProcessorEnvImpl getEnvironment(){ return null; }
+	public BaseProcessorEnv getEnvironment(){ return null; }
 
     public static final class ErrorClass extends ErrorType implements ClassType
     {

@@ -15,7 +15,7 @@ import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.TypeVisitor;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -23,8 +23,8 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl
 {
     private final ITypeBinding _arrayBinding;
-	private final ProcessorEnvImpl _env;
-    public ArrayTypeImpl(final ITypeBinding binding, ProcessorEnvImpl env)
+	private final BaseProcessorEnv _env;
+    public ArrayTypeImpl(final ITypeBinding binding, BaseProcessorEnv env)
     {
         _arrayBinding = binding;
 		_env = env;
@@ -76,5 +76,5 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl
 
     public MirrorKind kind(){ return MirrorKind.TYPE_ARRAY; }
 	
-	public ProcessorEnvImpl getEnvironment(){ return _env; }
+	public BaseProcessorEnv getEnvironment(){ return _env; }
 }

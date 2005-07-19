@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.PackageUtil;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.IClassFile;
@@ -56,7 +56,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     public PackageDeclarationImpl(
 			final IPackageBinding binding, 
 			final TypeDeclarationImpl typeDecl, 
-			final ProcessorEnvImpl env,
+			final BaseProcessorEnv env,
 			final boolean hideSourcePosition)
     {
         this(binding, 
@@ -69,7 +69,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     public PackageDeclarationImpl(
 			final IPackageBinding binding, 
 			final TypeDeclarationImpl typeDecl, 
-			final ProcessorEnvImpl env,
+			final BaseProcessorEnv env,
 			final boolean hideSourcePosition,
 			final IPackageFragment[] pkgFragments)
     {
@@ -171,7 +171,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 			final CompilationUnit unit = _typeDecl.getCompilationUnit();
 			final ASTNode node = unit.findDeclaringNode(getDeclarationBinding());
 			if( node == null ) return null;
-			final int start = node.getStartPosition();		
+			final int start = node.getStartPosition();			
 	        return new SourcePositionImpl(start,
 										  node.getLength(),
 	                                      unit.lineNumber(start),
@@ -201,7 +201,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 	
 	public IPackageBinding getDeclarationBinding(){ return (IPackageBinding)_binding; }
 
-    boolean isFromSource(){ return _typeDecl.isFromSource(); }
+	public boolean isFromSource(){ return _typeDecl.isFromSource(); }
 	
 	private static List<IType> getTypesInPackage(final IPackageFragment[] fragments) {
 		List<IType> types = new ArrayList<IType>();

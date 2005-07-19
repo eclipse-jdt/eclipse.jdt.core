@@ -1,9 +1,9 @@
 package org.eclipse.jdt.apt.core.internal.util;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -19,7 +19,7 @@ public class PackageUtil {
 	
 	public static IPackageFragment[] getPackageFragments(
 			final String packageName, 
-			final ProcessorEnvImpl env) {
+			final BaseProcessorEnv env) {
 		
 		IJavaProject project = env.getJavaProject();
 		List<IPackageFragment> packages = new ArrayList<IPackageFragment>();

@@ -18,12 +18,12 @@ import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.TypeVisitor;
 import java.util.Collection;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class AnnotationDeclarationImpl extends InterfaceDeclarationImpl implements AnnotationTypeDeclaration, AnnotationType
 {    
-    public AnnotationDeclarationImpl(final ITypeBinding binding, final ProcessorEnvImpl env)
+    public AnnotationDeclarationImpl(final ITypeBinding binding, final BaseProcessorEnv env)
     {
         super(binding, env);
         assert binding.isAnnotation() : "binding does not represent a annotation "; //$NON-NLS-1$

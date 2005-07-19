@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.*;
@@ -39,12 +39,12 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 {
     /**The ast node that correspond to the annotation.*/
     private final IResolvedAnnotation _domAnnotation;
-    private final ProcessorEnvImpl _env;
+    private final BaseProcessorEnv _env;
     /** the declaration that is annotated by this annotation or the annotation element declaration
      *  if this is (part of) a default value*/
     private final DeclarationImpl _annotated;
     
-    public AnnotationMirrorImpl(IResolvedAnnotation annotationAstNode, DeclarationImpl decl, ProcessorEnvImpl env)
+    public AnnotationMirrorImpl(IResolvedAnnotation annotationAstNode, DeclarationImpl decl, BaseProcessorEnv env)
     {
 		_domAnnotation = annotationAstNode;
         _env = env;
@@ -230,6 +230,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
         }
         return null;
     }
+    
+    public IResolvedAnnotation getResolvedAnnotaion(){return _domAnnotation; }
 
     public Object getReflectionValue(String memberName, Method method)
         throws Throwable
@@ -377,7 +379,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 
     CompilationUnit getCompilationUnit() { return _annotated.getCompilationUnit(); }
 
-	public ProcessorEnvImpl getEnvironment(){ return _env; }
+	public BaseProcessorEnv getEnvironment(){ return _env; }
 	
 	public IFile getResouce()
 	{ 	return _annotated.getResource(); }

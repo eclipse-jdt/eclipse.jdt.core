@@ -18,12 +18,12 @@ import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.TypeVisitor;
 import java.util.Collection;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class InterfaceDeclarationImpl extends TypeDeclarationImpl implements InterfaceDeclaration, InterfaceType
 {
-    public InterfaceDeclarationImpl(final ITypeBinding binding, final ProcessorEnvImpl env)
+    public InterfaceDeclarationImpl(final ITypeBinding binding, final BaseProcessorEnv env)
     {
         super(binding, env);
         assert binding.isInterface() : "binding does not represents an interface."; //$NON-NLS-1$

@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.*;
 
@@ -28,7 +28,7 @@ import com.sun.mirror.util.SourcePosition;
 
 public abstract class MemberDeclarationImpl extends DeclarationImpl implements MemberDeclaration, EclipseMirrorImpl
 {
-    MemberDeclarationImpl(final IBinding binding, ProcessorEnvImpl env)
+    MemberDeclarationImpl(final IBinding binding, BaseProcessorEnv env)
     {
         super(binding, env);
     }

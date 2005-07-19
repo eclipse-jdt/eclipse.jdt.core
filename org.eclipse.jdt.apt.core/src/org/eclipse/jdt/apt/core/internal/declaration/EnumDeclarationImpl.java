@@ -22,14 +22,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 
 public class EnumDeclarationImpl extends ClassDeclarationImpl implements EnumDeclaration, EnumType
 {
-    public EnumDeclarationImpl(final ITypeBinding binding, final ProcessorEnvImpl env)
+    public EnumDeclarationImpl(final ITypeBinding binding, final BaseProcessorEnv env)
     {
         super(binding, env);
         assert binding.isEnum() : "binding is not an enum."; //$NON-NLS-1$

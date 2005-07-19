@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -30,7 +30,7 @@ import com.sun.mirror.util.DeclarationVisitor;
 
 public abstract class ExecutableDeclarationImpl extends MemberDeclarationImpl implements ExecutableDeclaration
 {
-    public ExecutableDeclarationImpl(final IMethodBinding binding, final ProcessorEnvImpl env)
+    public ExecutableDeclarationImpl(final IMethodBinding binding, final BaseProcessorEnv env)
     {     
         super(binding, env);
     }
@@ -66,24 +66,13 @@ public abstract class ExecutableDeclarationImpl extends MemberDeclarationImpl im
         final IMethodBinding methodBinding = getDeclarationBinding();
         final ITypeBinding[] paramTypes = methodBinding.getParameterTypes();
         if( paramTypes == null || paramTypes.length == 0 )
-            return Collections.emptyList();
-
-        final List<ParameterDeclaration> result = new ArrayList<ParameterDeclaration>(paramTypes.length);
-
-        if( isFromSource() ){
-
-            for( int i=0; i<paramTypes.length; i++ ){
-                final ITypeBinding type = paramTypes[i];
-                final ParameterDeclaration param = new SourceParameterDeclarationImpl(this, type, i, _env);
-                result.add(param);
-            }
-        }
-        else{
-            for( int i=0; i<paramTypes.length; i++ ){
-                final ITypeBinding type = paramTypes[i];
-                final ParameterDeclaration param = new BinaryParameterDeclarationImpl(this, type, i, _env);
-                result.add(param);
-            }
+            return Collections.emptyList();        
+        final List<ParameterDeclaration> result = new ArrayList<ParameterDeclaration>(paramTypes.length);        
+        
+        for( int i=0; i<paramTypes.length; i++ ){
+            final ITypeBinding type = paramTypes[i];
+            final ParameterDeclaration param = Factory.createParameterDeclaration(this, i, type, _env);
+            result.add(param);
         }
 
         return result;
@@ -117,7 +106,7 @@ public abstract class ExecutableDeclarationImpl extends MemberDeclarationImpl im
         return (IMethodBinding)_binding;
     }
 
-    boolean isFromSource()
+    public boolean isFromSource()
     {
         final ITypeBinding type = getDeclarationBinding().getDeclaringClass();
         return ( type != null && type.isFromSource() );

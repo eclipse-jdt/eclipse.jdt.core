@@ -1,6 +1,6 @@
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -12,7 +12,7 @@ import com.sun.mirror.util.DeclarationVisitor;
 
 public class FieldDeclarationImpl extends MemberDeclarationImpl implements FieldDeclaration
 {
-    public FieldDeclarationImpl(final IVariableBinding binding, final ProcessorEnvImpl env)
+    public FieldDeclarationImpl(final IVariableBinding binding, final BaseProcessorEnv env)
     {
         super(binding, env);
         assert binding.isField() : "binding doesn't represent a field"; //$NON-NLS-1$
@@ -73,7 +73,7 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
 
     public MirrorKind kind(){ return MirrorKind.FIELD; }
 
-    boolean isFromSource()
+    public boolean isFromSource()
     {
         final ITypeBinding type = getDeclarationBinding().getDeclaringClass();
         return ( type != null && type.isFromSource() );

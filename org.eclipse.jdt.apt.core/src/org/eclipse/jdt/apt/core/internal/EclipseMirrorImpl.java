@@ -11,79 +11,15 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.env.EclipseMirrorObject;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 
-public interface EclipseMirrorImpl
-{
-    public enum MirrorKind
-    {
-        CONSTRUCTOR{
-            public boolean isType(){ return false; }
-        },
-        METHOD{
-            public boolean isType(){ return false; }
-        },
-        ANNOTATION_ELEMENT{
-            public boolean isType(){ return false; }
-        },
-        FIELD{
-            public boolean isType(){ return false; }
-        },
-        ENUM_CONSTANT{
-            public boolean isType(){ return false; }
-        },
-        ANNOTATION_VALUE{
-            public boolean isType(){ return false; }
-        },
-        ANNOTATION_MIRROR{
-            public boolean isType(){ return false; }
-        },
-        TYPE_ANNOTATION{
-            public boolean isType(){ return true; }
-        },
-        TYPE_INTERFACE{
-            public boolean isType(){ return true; }
-        },
-        TYPE_CLASS{
-            public boolean isType(){ return true; }
-        },
-        TYPE_ENUM{
-            public boolean isType(){ return true; }
-        },
-        TYPE_ARRAY{
-            public boolean isType(){ return true; }
-        },
-        TYPE_WILDCARD{
-            public boolean isType(){ return true; }
-        },
-        TYPE_VOID{
-            public boolean isType(){ return true; }
-        },
-        TYPE_PRIMITIVE{
-            public boolean isType(){ return true; }
-        },
-        TYPE_PARAMETER_VARIABLE{
-            public boolean isType(){ return true; }
-        },
-        TYPE_ERROR{
-            public boolean isType(){ return true; }
-        },
-        FORMAL_PARAMETER{
-            public boolean isType(){ return false; }
-        },
-        PACKAGE{
-            public boolean isType(){ return false; }
-        };
-
-        public abstract boolean isType();
-    }
-
-    public MirrorKind kind();
-	
+public interface EclipseMirrorImpl extends EclipseMirrorObject
+{	
 	/**
 	 * @return the processor environment associated with the object.
 	 * return null for primitive, void and error type. 
 	 */
-	public ProcessorEnvImpl getEnvironment();
+	public BaseProcessorEnv getEnvironment();
 
 } 

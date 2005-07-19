@@ -1,0 +1,629 @@
+/*******************************************************************************
+ * Copyright (c) 2005 BEA Systems Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    tyeung@bea.com - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.jdt.apt.core.internal.env;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.apt.core.env.Phase;
+import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImplNoBinding;
+import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.type.PrimitiveTypeImpl;
+import org.eclipse.jdt.apt.core.internal.type.VoidTypeImpl;
+import org.eclipse.jdt.apt.core.internal.util.DeclarationsUtil;
+import org.eclipse.jdt.apt.core.internal.util.Factory;
+import org.eclipse.jdt.apt.core.internal.util.PackageUtil;
+import org.eclipse.jdt.apt.core.internal.util.TypesUtil;
+import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotatedNodeVisitor;
+import org.eclipse.jdt.apt.core.util.EclipseMessager;
+import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTRequestor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+
+import com.sun.mirror.apt.AnnotationProcessorEnvironment;
+import com.sun.mirror.apt.AnnotationProcessorListener;
+import com.sun.mirror.apt.Filer;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import com.sun.mirror.declaration.Declaration;
+import com.sun.mirror.declaration.PackageDeclaration;
+import com.sun.mirror.declaration.TypeDeclaration;
+import com.sun.mirror.util.Declarations;
+import com.sun.mirror.util.Types;
+
+/**
+ * Base annotation processor environment that supports type system navigation.
+ * No support for problem registration as well as type generation.
+ *  
+ * @author tyeung
+ */
+public class BaseProcessorEnv implements AnnotationProcessorEnvironment 
+{
+	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
+	
+	protected final CompilationUnit _astCompilationUnit;
+	protected final Phase _phase;
+	protected final IFile _file;
+	protected final IJavaProject _javaProject;
+	
+	/**
+     * Mapping model compilation unit to dom compilation unit.
+     * The assumption here is that once the client examine some binding from some file, 
+     * it will continue to examine other bindings from came from that same file.
+     */
+    protected final Map<ICompilationUnit, CompilationUnit> _modelCompUnit2astCompUnit;
+	/**
+	 * Mapping (source) top-level type binding to the compilation unit that defines it.
+	 */
+    protected final Map<ITypeBinding, ICompilationUnit> _typeBinding2ModelCompUnit;
+    // void type and the primitive types will be null if the '_file'
+	// is outside of the workspace.
+	private VoidTypeImpl _voidType;
+	private PrimitiveTypeImpl[] _primitives;
+	
+	public BaseProcessorEnv(CompilationUnit astCompilationUnit,
+						    IFile file,
+						    IJavaProject javaProj,
+							Phase phase )
+	{
+		_astCompilationUnit = astCompilationUnit;
+		_file = file;
+		_javaProject = javaProj;
+		_phase = phase;
+		
+		_modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
+		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
+		initPrimitives(javaProj);
+	}
+	
+	public Types getTypeUtils()
+    {
+		return new TypesUtil(this);
+    }
+	
+	public Declarations getDeclarationUtils()
+    {
+        return new DeclarationsUtil();
+    }
+	
+	public void addListener(AnnotationProcessorListener listener) {
+		throw new UnsupportedOperationException("Not supported!"); //$NON-NLS-1$
+	}
+	
+	public void removeListener(AnnotationProcessorListener listener) {
+		throw new UnsupportedOperationException("Not supported!"); //$NON-NLS-1$
+	}
+	
+	/**
+     * @return the list of all named type declarations in compilation unit associated with
+     *         this environment.
+     * This implementation is different from the API specification that it does not return
+     * all included types in the universe.
+     */
+    public Collection<TypeDeclaration> getTypeDeclarations()
+    {
+    	final List<ITypeBinding> bindings = getTypeBindings();
+		if( bindings.isEmpty() )
+			return Collections.emptyList();
+		final List<TypeDeclaration> mirrorDecls = new ArrayList<TypeDeclaration>(bindings.size());
+
+		for( ITypeBinding binding : bindings ){
+			final TypeDeclaration mirrorDecl = Factory.createReferenceType(binding, this);
+			if( mirrorDecl != null )
+				mirrorDecls.add(mirrorDecl);
+		}
+
+		return mirrorDecls;
+    }
+    
+    private List<ITypeBinding> getTypeBindings()
+	{
+    	final List<AbstractTypeDeclaration> declTypes = _astCompilationUnit.types();
+		if( declTypes == null || declTypes.isEmpty() )
+			return Collections.emptyList();
+		final List<ITypeBinding> typeBindings = new ArrayList<ITypeBinding>(declTypes.size());
+
+		for( AbstractTypeDeclaration decl : declTypes ){
+			getTypeBindings(decl.resolveBinding(), typeBindings);
+		}
+		return typeBindings;
+	}
+    
+    /**
+	 * Add <code>type</code> and all its declared nested type(s) to <code>types</code>
+	 * @param type the container type
+	 * @param typeBindings upon return, contains all the nested types within <code>type</code>
+	 *        and the type itself.
+	 */
+	private void getTypeBindings(final ITypeBinding type, final List<ITypeBinding> typeBindings)
+	{
+		if( type == null ) return;
+		typeBindings.add(type);
+		for( ITypeBinding nestedType : type.getDeclaredTypes() ) {
+			typeBindings.add(nestedType);
+			getTypeBindings(nestedType, typeBindings);
+		}
+	}
+    
+    public Collection<TypeDeclaration> getSpecifiedTypeDeclarations()
+    {
+        return getTypeDeclarations();
+    }
+    
+    public Collection<Declaration> getDeclarationsAnnotatedWith(AnnotationTypeDeclaration a)
+    {
+    	 final ITypeBinding annotationType = TypesUtil.getTypeBinding(a);
+         if( annotationType == null  || !annotationType.isAnnotation()) return Collections.emptyList();
+         final List<IBinding> annotatedDecls = getBindingsAnnotatedWith(annotationType);
+         if( annotatedDecls.isEmpty() ) return Collections.emptyList();
+         final Collection<Declaration> results = new ArrayList<Declaration>(annotatedDecls.size());
+         for( IBinding annotatedDecl : annotatedDecls ){
+             Declaration mirrorDecl = Factory.createDeclaration(annotatedDecl, this);
+             if( mirrorDecl != null )
+                 results.add(mirrorDecl);
+        }
+        return results;
+    }
+
+    private List<IBinding> getBindingsAnnotatedWith(final ITypeBinding annotationType)
+    {
+        final Map<ASTNode, List<Annotation>> astNode2Anno = new HashMap<ASTNode, List<Annotation>>();
+		_astCompilationUnit.accept( new AnnotatedNodeVisitor(astNode2Anno) );
+		if( astNode2Anno.isEmpty() )
+			return Collections.emptyList();
+		final List<IBinding> annotatedBindings = new ArrayList<IBinding>();
+		for(Map.Entry<ASTNode, List<Annotation>> entry : astNode2Anno.entrySet() ){
+			final ASTNode node = entry.getKey();
+			for( Annotation anno : entry.getValue() ){
+				final IBinding resolvedTypeBinding = anno.resolveTypeBinding();
+				if( annotationType.isEqualTo(resolvedTypeBinding) )
+                    getBinding(node, annotatedBindings);
+			}
+		}
+        return annotatedBindings;
+
+    }
+
+	/**
+	 * @param node the ast node in question
+	 * @param bindings the list to be populated.
+	 *        adding the binding(s) corresponding to the ast node to this list.
+	 */
+	public static void getBinding(ASTNode node, List<IBinding> bindings)
+	{
+		if( node == null ) return;
+        IBinding binding = null;
+		switch( node.getNodeType() )
+		{
+		case ASTNode.FIELD_DECLARATION:
+			final List<VariableDeclarationFragment> fragments =
+                ((org.eclipse.jdt.core.dom.FieldDeclaration)node).fragments();
+			for( VariableDeclarationFragment frag : fragments ){
+				final IBinding fieldBinding = frag.resolveBinding();
+				if( fieldBinding != null )
+					bindings.add(fieldBinding);
+			}
+            return;
+
+		case ASTNode.ENUM_CONSTANT_DECLARATION:
+            binding = ((org.eclipse.jdt.core.dom.EnumConstantDeclaration)node).resolveVariable();
+            break;
+        case ASTNode.METHOD_DECLARATION:
+            binding = ((org.eclipse.jdt.core.dom.MethodDeclaration)node).resolveBinding();
+			break;
+        case ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION:
+            binding = ((AnnotationTypeMemberDeclaration)node).resolveBinding();
+            break;
+        case ASTNode.TYPE_DECLARATION:
+        case ASTNode.ANNOTATION_TYPE_DECLARATION:
+        case ASTNode.ENUM_DECLARATION:
+            binding = ((AbstractTypeDeclaration)node).resolveBinding();
+            break;
+        case ASTNode.SINGLE_VARIABLE_DECLARATION:
+            binding = ((SingleVariableDeclaration)node).resolveBinding();
+            break;
+        case ASTNode.PACKAGE_DECLARATION:
+            binding = ((org.eclipse.jdt.core.dom.PackageDeclaration)node).resolveBinding();
+            break;
+        default:
+            throw new UnsupportedOperationException("unknown node type: " + node.getNodeType()); //$NON-NLS-1$
+        }
+
+        if(binding != null)
+            bindings.add(binding);
+        return;
+	}
+	
+	
+	
+	/**
+     * @param binding must be correspond to a type, method or field declaration.
+     * @return the ast node the corresponds to the declaration of the given binding.
+     *         Return null if none is found.
+     */
+    public ASTNode getASTNodeForBinding(final IBinding binding)
+    {
+    	final CompilationUnit astUnit = getCompilationUnitForBinding(binding);
+		if( astUnit == null ) return null;
+		return astUnit.findDeclaringNode(binding.getKey());
+    }
+    
+    public Map<String, String> getOptions(){ return Collections.emptyMap(); };
+    
+    // does not generated dependencies
+    public TypeDeclaration getTypeDeclaration(String name)
+    {	
+    	if( name == null ) return null;
+		// get rid of the generics parts.
+		final int index = name.indexOf('<');
+		if( index != -1 )
+			name = name.substring(0, index);
+
+		// first look into the current compilation unit
+		final String typeKey = BindingKey.createTypeBindingKey(name);
+		final ASTNode node = _astCompilationUnit.findDeclaringNode(typeKey);
+		ITypeBinding typeBinding = null;
+		if( node != null ){
+			final int nodeType = node.getNodeType();
+			if( nodeType == ASTNode.TYPE_DECLARATION ||
+				nodeType == ASTNode.ANNOTATION_TYPE_DECLARATION ||
+				nodeType == ASTNode.ENUM_DECLARATION )
+			typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
+		}
+		if( typeBinding != null )
+			return Factory.createReferenceType(typeBinding, this);
+
+		// then go search for it else where.
+		typeBinding = getTypeBinding(typeKey);
+		if( typeBinding != null ){			
+			return Factory.createReferenceType(typeBinding, this);
+		}
+
+		return null;
+    }
+    
+    /**
+	 * @param key the key to a type binding, could be reference type, array or primitive.
+	 * @return the binding corresponding to the given key or null if none is found.
+	 */
+	public ITypeBinding getTypeBinding(final String key)
+	{
+		class BindingRequestor extends ASTRequestor
+		{
+			private ITypeBinding _result = null;
+			public void acceptBinding(String bindingKey, IBinding binding)
+			{
+				if( binding != null && binding.getKind() == IBinding.TYPE )
+					_result = (ITypeBinding)binding;
+			}
+		}
+
+		final BindingRequestor requestor = new BindingRequestor();
+		final ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setResolveBindings(true);
+		parser.setProject(_javaProject);
+		parser.createASTs(NO_UNIT, new String[]{key}, requestor, null);
+		return requestor._result;
+	}
+	
+	public TypeDeclaration getTypeDeclaration(final IType type) {
+		if (type == null) return null;
+		String name = type.getFullyQualifiedName();
+		return getTypeDeclaration(name);
+	}
+    
+	public PackageDeclaration getPackage(String name)
+    {
+		if (name == null)
+			throw new IllegalArgumentException("name cannot be null"); //$NON-NLS-1$		
+        IPackageFragment[] pkgFrags = PackageUtil.getPackageFragments(name, this);
+
+		// No packages found, null expected
+		if (pkgFrags.length == 0)
+			return null;
+
+		// If there are no source or class files, we'll need to return
+		// a special implementation of the package decl that expects
+		// no declarations inside it
+		boolean containsNoJavaResources = true;
+		for (IPackageFragment pkg : pkgFrags) {
+			try {
+				if (pkg.containsJavaResources()) {
+					containsNoJavaResources = false;
+					break;
+				}
+			}
+			catch (JavaModelException e) {}
+		}
+		if (containsNoJavaResources)
+			return new PackageDeclarationImplNoBinding(pkgFrags, this);
+
+		// We should be able to create a class or
+		// source file from one of the packages.
+		ICompilationUnit compUnit = null;
+		IClassFile classFile = null;
+
+		OUTER:
+		for (IPackageFragment pkg : pkgFrags) {
+			try {
+				ICompilationUnit[] compUnits = pkg.getCompilationUnits();
+				if (compUnits.length > 0) {
+					compUnit = compUnits[0];
+					break;
+				}
+				IClassFile[] classFiles = pkg.getClassFiles();
+				if (classFiles.length > 0) {
+					// Need to grab the first one that's not an inner class,
+					// as eclipse has trouble parsing inner class files
+					for (IClassFile tempClassFile : classFiles) {
+						if (tempClassFile.getElementName().indexOf("$") < 0) { //$NON-NLS-1$
+							classFile = tempClassFile;
+							break OUTER;
+						}
+					}
+				}
+			}
+			catch (JavaModelException e) {}
+		}
+
+		IType type = null;
+		if (compUnit != null) {
+			try {
+				IType[] types = compUnit.getAllTypes();
+				if (types.length > 0) {
+					type = types[0];
+				}
+			}
+			catch (JavaModelException e) {}
+		}
+		else if (classFile != null) {
+			try {
+				type = classFile.getType();
+			}
+			catch (JavaModelException e) {}
+		}
+
+		// Given a type, we can construct a package declaration impl from it,
+		// but we must hide the fact that it came from a real declaration,
+		// as the client requested it without that context
+		if (type != null) {
+			TypeDeclarationImpl typeDecl = (TypeDeclarationImpl)getTypeDeclaration(type);
+			ITypeBinding binding = typeDecl.getDeclarationBinding();
+			return new PackageDeclarationImpl(binding.getPackage(), typeDecl, this, true, pkgFrags);
+		}
+
+		// No classes or source files found
+		return new PackageDeclarationImplNoBinding(pkgFrags, this);
+    }
+    
+	/**
+     * @param binding must be correspond to a type, method or field declaration.
+     * @return the compilation unit that contains the declaration of the given binding.
+     */
+    public CompilationUnit getCompilationUnitForBinding(final IBinding binding)
+    {
+        assert binding.getKind() == IBinding.TYPE ||
+               binding.getKind() == IBinding.METHOD ||
+               binding.getKind() == IBinding.VARIABLE ;
+        ASTNode node = getAstCompilationUnit().findDeclaringNode(binding);
+        if( node != null ) return getAstCompilationUnit();
+        else{
+			final IMember member = (IMember)binding.getJavaElement();
+			final ICompilationUnit unit;
+			if( member != null ){
+				unit = member.getCompilationUnit();
+			}
+			else{
+				final ITypeBinding typeBinding = getDeclaringClass(binding);
+				if( _typeBinding2ModelCompUnit.get(typeBinding) != null )
+					unit = _typeBinding2ModelCompUnit.get(typeBinding);
+				else{
+					final String qname = typeBinding.getQualifiedName();
+					final String pathname = qname.replace('.', File.separatorChar);
+					final IPath path = Path.fromOSString(pathname);
+					try{
+						unit = (ICompilationUnit)_javaProject.findElement(path);
+						_typeBinding2ModelCompUnit.put(typeBinding, unit);
+					}
+					catch(JavaModelException e){
+						throw new IllegalStateException(e);
+					}
+				}
+			}
+			if( unit == null ) return null;
+
+            final CompilationUnit astUnit = _modelCompUnit2astCompUnit.get(unit);
+            if( astUnit != null ) return astUnit;
+            else{
+                // Note: very expensive operation. we are re-compiling a file with binding information.
+                final ASTParser parser =  ASTParser.newParser(AST.JLS3);
+                parser.setResolveBindings(true);
+                parser.setSource(unit);
+				parser.setFocalPosition(0);
+                CompilationUnit resultUnit = (CompilationUnit)parser.createAST(null);
+                _modelCompUnit2astCompUnit.put(unit, resultUnit);
+                return resultUnit;
+            }
+        }
+    }
+    
+    public Filer getFiler(){ 
+    	throw new UnsupportedOperationException("Not supported!"); //$NON-NLS-1$
+    }    
+
+    public EclipseMessager getMessager(){ 
+    	throw new UnsupportedOperationException("Not supported!"); //$NON-NLS-1$
+    }
+    
+    /**
+	 * @param bindin a type, method or field binding.
+	 * @return the top-level type binding that declares <code>binding</code>
+	 * 	       or itself if it is already one.
+	 */
+	protected ITypeBinding getDeclaringClass(final IBinding binding)
+	{
+		assert binding != null : "binding cannot be null"; //$NON-NLS-1$
+		ITypeBinding aTypeBinding = null;
+		switch( binding.getKind() )
+		{
+		case IBinding.TYPE:
+			aTypeBinding = (ITypeBinding)binding;
+			break;
+		case IBinding.METHOD:
+			aTypeBinding = ((IMethodBinding)binding).getDeclaringClass();
+			break;
+		case IBinding.VARIABLE:
+			aTypeBinding = ((IVariableBinding)binding).getDeclaringClass();
+			break;
+		default:
+			throw new IllegalStateException("unrecognized binding type " +  binding.getKind()); //$NON-NLS-1$
+		}
+		if(aTypeBinding == null ) return null;
+		while( !aTypeBinding.isTopLevel() ){
+			aTypeBinding = aTypeBinding.getDeclaringClass();
+		}
+		return aTypeBinding;
+	}
+	
+	/**
+	 * @param binding must be correspond to a type, method or field declaration
+	 * @return the file that contains the declaration of given binding.
+	 */
+	public IFile getDeclaringFileForBinding(final IBinding binding)
+	{
+		assert binding.getKind() == IBinding.TYPE ||
+		       binding.getKind() == IBinding.METHOD ||
+		       binding.getKind() == IBinding.VARIABLE ;
+		// check to see whether it is in the current file.
+		ASTNode node = getAstCompilationUnit().findDeclaringNode(binding);
+		if( node != null ) return _file;
+		else{
+			final IMember member = (IMember)binding.getJavaElement();
+			if( member != null ){
+				final ICompilationUnit unit = member.getCompilationUnit();
+				return (IFile)unit.getResource();
+			}
+			else{
+				final ITypeBinding type = getDeclaringClass(binding);
+				assert type.isTopLevel() : "type must be top-level type"; //$NON-NLS-1$
+				final String qname = type.getQualifiedName();
+				final String pathname = qname.replace('.', File.separatorChar);
+				final IPath path = Path.fromOSString(pathname);
+				try{
+					// the element would be a compilation unit.
+					final IJavaElement element = _javaProject.findElement(path);
+					if( element == null ) return null;
+					return (IFile)element.getResource();
+				}
+				catch(JavaModelException e){
+					throw new IllegalStateException(e);
+				}
+			}
+		}
+	}
+	
+	private void initPrimitives(final IJavaProject project)
+	{
+		if(_primitives != null ) return;
+		_primitives = new PrimitiveTypeImpl[8];
+		class PrimitiveBindingRequestor extends ASTRequestor
+		{
+			public void acceptBinding(String bindingKey, IBinding binding)
+			{
+				if( binding.getKind() == IBinding.TYPE ){
+					if( ITypeConstants.BOOLEAN.equals(binding.getName()) ) 
+						_primitives[0] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( ITypeConstants.BYTE.equals(binding.getName()) )
+						_primitives[1] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( ITypeConstants.CHAR.equals(binding.getName()) )
+						_primitives[2] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( ITypeConstants.DOUBLE.equals(binding.getName()) ) 
+						_primitives[3] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( ITypeConstants.FLOAT.equals(binding.getName()) ) 
+						_primitives[4] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( ITypeConstants.INT.equals(binding.getName()) ) 
+						_primitives[5] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( ITypeConstants.LONG.equals(binding.getName()) ) 
+						_primitives[6] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( ITypeConstants.SHORT.equals(binding.getName()) ) 
+						_primitives[7] = new PrimitiveTypeImpl( (ITypeBinding)binding );
+					else if( ITypeConstants.VOID.equals(binding.getName()) ) 
+						_voidType = new VoidTypeImpl( (ITypeBinding)binding );
+					else
+						System.err.println("got unexpected type " + binding.getName()); //$NON-NLS-1$
+				}
+				else
+					System.err.println("got unexpected binding " + binding.getClass().getName() + binding );  //$NON-NLS-1$
+			}
+		}
+
+		final String[] keys = { BindingKey.createTypeBindingKey(ITypeConstants.BOOLEAN),
+				BindingKey.createTypeBindingKey(ITypeConstants.BYTE),
+				BindingKey.createTypeBindingKey(ITypeConstants.CHAR),
+				BindingKey.createTypeBindingKey(ITypeConstants.DOUBLE),
+				BindingKey.createTypeBindingKey(ITypeConstants.FLOAT),
+				BindingKey.createTypeBindingKey(ITypeConstants.INT),
+				BindingKey.createTypeBindingKey(ITypeConstants.LONG),
+				BindingKey.createTypeBindingKey(ITypeConstants.SHORT),
+				BindingKey.createTypeBindingKey(ITypeConstants.VOID)};
+
+		final PrimitiveBindingRequestor requestor = new PrimitiveBindingRequestor();
+		final ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setProject(project);
+		parser.setResolveBindings(true);
+		parser.createASTs(NO_UNIT, keys, requestor, null);
+	}
+	
+	public PrimitiveTypeImpl getBooleanType(){ return _primitives[0]; }
+	public PrimitiveTypeImpl getByteType(){ return _primitives[1]; }
+	public PrimitiveTypeImpl getCharType(){ return _primitives[2]; }
+	public PrimitiveTypeImpl getDoubleType(){ return _primitives[3]; }
+	public PrimitiveTypeImpl getFloatType(){ return _primitives[4]; }
+	public PrimitiveTypeImpl getIntType(){ return _primitives[5]; }
+	public PrimitiveTypeImpl getLongType(){ return _primitives[6]; }
+	public PrimitiveTypeImpl getShortType(){ return _primitives[7]; }
+	public VoidTypeImpl getVoidType(){ return _voidType; }
+	
+	public CompilationUnit  getAstCompilationUnit()    { return _astCompilationUnit; }
+	public Phase            getPhase()                 { return _phase; }
+    public IFile            getFile()                  { return _file; }
+    public IProject         getProject()               { return _javaProject.getProject(); }
+	public IJavaProject		getJavaProject()		   { return _javaProject; }
+}

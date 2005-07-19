@@ -21,7 +21,7 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.AnnotationInvocationHandler;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -38,9 +38,9 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
 {
 	/** the type binding corresponding to this declaration */
     final IBinding _binding;
-    final ProcessorEnvImpl _env;
+    final BaseProcessorEnv _env;
 
-    DeclarationImpl(final IBinding binding, final ProcessorEnvImpl env)
+    DeclarationImpl(final IBinding binding, final BaseProcessorEnv env)
     {
         assert binding != null : "binding cannot be null"; //$NON-NLS-1$
         assert env != null : "missing environment"; //$NON-NLS-1$
@@ -179,7 +179,7 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
      * @return true iff this declaration came from a source file.
      *         Return false otherwise.
      */
-    abstract boolean isFromSource();
+    public abstract boolean isFromSource();
         
     /**
      * @return the ast node that corresponding to this declaration.
@@ -212,5 +212,5 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
         return null;
     }
 	
-	public ProcessorEnvImpl getEnvironment(){ return _env; }
+	public BaseProcessorEnv getEnvironment(){ return _env; }
 } 

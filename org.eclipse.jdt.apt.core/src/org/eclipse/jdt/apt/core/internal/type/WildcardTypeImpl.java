@@ -16,17 +16,18 @@ import com.sun.mirror.type.WildcardType;
 import com.sun.mirror.util.TypeVisitor;
 import java.util.Collection;
 import java.util.Collections;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl.MirrorKind;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+
+import org.eclipse.jdt.apt.core.env.EclipseMirrorObject.MirrorKind;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class WildcardTypeImpl implements WildcardType
 {
     private final ITypeBinding _binding;
-	private final ProcessorEnvImpl _env;
+	private final BaseProcessorEnv _env;
 
-    public WildcardTypeImpl(ITypeBinding binding, ProcessorEnvImpl env)
+    public WildcardTypeImpl(ITypeBinding binding, BaseProcessorEnv env)
     {
         _binding = binding;
 		_env = env;
@@ -77,5 +78,5 @@ public class WildcardTypeImpl implements WildcardType
 
     public ITypeBinding getWildcardBinding(){ return _binding; }
 	
-	public ProcessorEnvImpl getEnvironment(){ return _env; }
+	public BaseProcessorEnv getEnvironment(){ return _env; }
 }

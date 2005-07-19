@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
@@ -33,7 +33,7 @@ public class BinaryParameterDeclarationImpl extends ParameterDeclarationImpl imp
     public BinaryParameterDeclarationImpl(ExecutableDeclarationImpl executable, 
 										  ITypeBinding typeBinding,
                                           int index,
-                                          ProcessorEnvImpl env)
+                                          BaseProcessorEnv env)
     {
         super(executable, typeBinding, index, env);      
     }
@@ -59,7 +59,7 @@ public class BinaryParameterDeclarationImpl extends ParameterDeclarationImpl imp
         return false;
     }
 	
-	boolean isFromSource(){ return false; }
+	public boolean isFromSource(){ return false; }
 
     ASTNode getAstNode(){ return null; }
 

@@ -17,7 +17,7 @@ import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.DeclarationVisitor;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -46,7 +46,7 @@ public abstract class ParameterDeclarationImpl extends DeclarationImpl implement
     public ParameterDeclarationImpl(ExecutableDeclarationImpl executable, 
 									ITypeBinding type, 
 									int index,
-									ProcessorEnvImpl env)
+									BaseProcessorEnv env)
     {	
 		super(type, env);
 		_executable = executable;

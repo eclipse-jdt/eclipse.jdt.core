@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -49,7 +49,7 @@ public class SourceParameterDeclarationImpl extends ParameterDeclarationImpl imp
     public SourceParameterDeclarationImpl(ExecutableDeclarationImpl executable, 
 										  ITypeBinding type, 
 										  int index,
-										  ProcessorEnvImpl env)
+										  BaseProcessorEnv env)
     {	
 		super(executable, type, index, env);	
     }
@@ -93,7 +93,7 @@ public class SourceParameterDeclarationImpl extends ParameterDeclarationImpl imp
         return false;
     }
   	
-	boolean isFromSource(){ return true; }
+	public boolean isFromSource(){ return true; }
 
     SingleVariableDeclaration getAstNode()
     {

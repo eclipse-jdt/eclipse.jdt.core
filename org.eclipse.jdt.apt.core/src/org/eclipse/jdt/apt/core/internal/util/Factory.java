@@ -28,17 +28,21 @@ import org.eclipse.jdt.apt.core.internal.declaration.AnnotationDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationElementDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationValueImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.BinaryParameterDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.ClassDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.ConstructorDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.DeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.EnumConstantDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.EnumDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ExecutableDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.FieldDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.InterfaceDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.MethodDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ParameterDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.SourceParameterDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeParameterDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.type.ArrayTypeImpl;
 import org.eclipse.jdt.apt.core.internal.type.ErrorType;
 import org.eclipse.jdt.apt.core.internal.type.WildcardTypeImpl;
@@ -47,10 +51,12 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 
 public class Factory
 {
-    public static TypeDeclarationImpl createReferenceType(ITypeBinding binding, ProcessorEnvImpl env)
+    public static TypeDeclarationImpl createReferenceType(ITypeBinding binding, BaseProcessorEnv env)
     {
         if(binding == null || binding.isNullType()) return null;        
         TypeDeclarationImpl mirror = null;
@@ -71,7 +77,7 @@ public class Factory
         return mirror;
     }
 
-    public static DeclarationImpl createDeclaration(IBinding binding, ProcessorEnvImpl env)
+    public static DeclarationImpl createDeclaration(IBinding binding, BaseProcessorEnv env)
     {
         if(binding == null) return null;
        
@@ -103,7 +109,7 @@ public class Factory
         }     
     }
 
-    public static TypeMirror createTypeMirror(ITypeBinding binding, ProcessorEnvImpl env)
+    public static TypeMirror createTypeMirror(ITypeBinding binding, BaseProcessorEnv env)
     {		
         if( binding == null ) return null;        
 
@@ -139,6 +145,37 @@ public class Factory
         else
             return createReferenceType(binding, env);       
     }
+    
+    public static ParameterDeclarationImpl createParameterDeclaration(
+    		final SingleVariableDeclaration param,
+    		final BaseProcessorEnv env )
+    {
+    	// the parent of a parameter is always the method itself.
+		final MethodDeclaration method = (MethodDeclaration)param.getParent();	
+		final List<SingleVariableDeclaration> params = method.parameters();
+		int index = -1;
+		int counter = 0;
+		for( SingleVariableDeclaration p : params ){
+			if( p == param )
+				index = counter;
+			counter ++;
+		}
+		final ExecutableDeclarationImpl exec = 
+			(ExecutableDeclarationImpl)Factory.createDeclaration(method.resolveBinding(), env);
+		return createParameterDeclaration(exec, index, param.getType().resolveBinding(), env);		
+    }
+    
+    public static ParameterDeclarationImpl createParameterDeclaration(final ExecutableDeclarationImpl exec,
+    																  final int paramIndex,
+    																  final ITypeBinding type,
+    																  final BaseProcessorEnv env )
+    {
+    	if( exec.isFromSource() )
+    		return new SourceParameterDeclarationImpl(exec, type, paramIndex, env);
+    	else
+    		return new BinaryParameterDeclarationImpl(exec, type, paramIndex, env);
+    }
+   
   
     /**
      * @param annotation the ast node.
@@ -148,7 +185,7 @@ public class Factory
      */
     public static AnnotationMirror createAnnotationMirror(final IResolvedAnnotation annotation,
                                                           final DeclarationImpl annotated,
-                                                          final ProcessorEnvImpl env)
+                                                          final BaseProcessorEnv env)
     {
         return new AnnotationMirrorImpl(annotation, annotated, env);		
     }
@@ -164,7 +201,7 @@ public class Factory
 	 */
     public static AnnotationValue createDefaultValue(Object domValue, 
 													 AnnotationElementDeclarationImpl decl, 
-													 ProcessorEnvImpl env)
+													 BaseProcessorEnv env)
     {
         if( domValue == null ) return null;		
 		final Object converted = convertDOMValueToMirrorValue(domValue, null, decl, decl, env, decl.getReturnType());
@@ -183,7 +220,7 @@ public class Factory
 	public static AnnotationValue createAnnotationMemberValue(Object domValue,
 															  String elementName,
 															  AnnotationMirrorImpl anno, 														
-															  ProcessorEnvImpl env,
+															  BaseProcessorEnv env,
 															  TypeMirror expectedType)
 	{
 		if( domValue == null ) return null;
@@ -207,7 +244,7 @@ public class Factory
 														 String name,
 														 int index,
 														 EclipseMirrorImpl mirror, 
-														 ProcessorEnvImpl env)	
+														 BaseProcessorEnv env)	
 	{
 		if( convertedValue == null ) return null;
 		if( mirror instanceof AnnotationMirrorImpl )
@@ -231,13 +268,14 @@ public class Factory
      * is the declaration that it annotates.
      * @param expectedType the declared type of the member value.
      * @param needBoxing <code>true</code> indicate an array should be returned. 
+     * @return the converted annotation value or null if the conversion failed
      */
     private static Object convertDOMValueToMirrorValue(Object domValue, 
 													   String name,	
 													   EclipseMirrorImpl parent,
 													   DeclarationImpl decl, 
-													   ProcessorEnvImpl env,
-													   TypeMirror expectedType)
+													   BaseProcessorEnv env,
+													   TypeMirror expectedType)													   
     {
         if( domValue == null ) return null;		
         
@@ -274,8 +312,12 @@ public class Factory
                 else if( elements[i] instanceof Object[] )
                     return null;
 
-				Object o = convertDOMValueToMirrorValue( elements[i], name, parent, decl, env, leaf );
-				assert( !( o instanceof IResolvedAnnotation ) ) : "Unexpected return value from convertDomValueToMirrorValue! o.getClass().getName() = " + o.getClass().getName(); //$NON-NLS-1$
+				Object o = convertDOMValueToMirrorValue( elements[i], name, parent, decl, env, leaf );				
+				if( o == null ) 
+					return null; 
+				assert( !( o instanceof IResolvedAnnotation ) ) : 
+					"Unexpected return value from convertDomValueToMirrorValue! o.getClass().getName() = " //$NON-NLS-1$
+					+ o.getClass().getName(); 
 				
 				final AnnotationValue annoValue = createAnnotationValue(o, name, i, parent, env);
                 if( annoValue != null )
@@ -293,8 +335,8 @@ public class Factory
 		}
         else	        
 			// should never reach this point
-			throw new IllegalStateException("cannot build annotation value object from " + domValue); //$NON-NLS-1$
-        
+			throw new IllegalStateException("cannot build annotation value object from " + domValue); //$NON-NLS-1$       
+
         return performNecessaryTypeConversion(expectedType, returnValue, name, parent, env);
     }
     
@@ -311,7 +353,7 @@ public class Factory
 	    											     final Object value,
 	    											     final String name,
 	    											     final EclipseMirrorImpl parent,
-	    											     final ProcessorEnvImpl env)
+	    											     final BaseProcessorEnv env)
     {
     	if(expectedType == null )return value;
     	// apply widening or narrowing primitive type conversion based on JLS 5.1.2 and 5.1.3

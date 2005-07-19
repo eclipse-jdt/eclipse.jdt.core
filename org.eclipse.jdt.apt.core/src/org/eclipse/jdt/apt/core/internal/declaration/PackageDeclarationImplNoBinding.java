@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.IPackageFragment;
 
 import com.sun.mirror.declaration.AnnotationMirror;
@@ -24,9 +24,9 @@ import com.sun.mirror.util.SourcePosition;
 public class PackageDeclarationImplNoBinding implements PackageDeclaration {
 	
 	private final IPackageFragment[] fragments;
-	private final ProcessorEnvImpl env;
+	private final BaseProcessorEnv env;
 	
-	public PackageDeclarationImplNoBinding(final IPackageFragment[] fragments, ProcessorEnvImpl env) {
+	public PackageDeclarationImplNoBinding(final IPackageFragment[] fragments, BaseProcessorEnv env) {
 		this.fragments = fragments;
 		this.env = env;
 	}

@@ -14,7 +14,7 @@ package org.eclipse.jdt.apt.core.internal.type;
 import com.sun.mirror.type.PrimitiveType;
 import com.sun.mirror.util.TypeVisitor;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorImpl
@@ -71,5 +71,5 @@ public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorImpl
 		}
 	}
 	
-	public ProcessorEnvImpl getEnvironment(){ return null; }
+	public BaseProcessorEnv getEnvironment(){ return null; }
 }

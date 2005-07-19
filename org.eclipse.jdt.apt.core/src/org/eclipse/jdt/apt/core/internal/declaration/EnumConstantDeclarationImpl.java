@@ -15,12 +15,12 @@ import com.sun.mirror.declaration.EnumConstantDeclaration;
 import com.sun.mirror.declaration.EnumDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 
 public class EnumConstantDeclarationImpl extends FieldDeclarationImpl implements EnumConstantDeclaration
 {
-    public EnumConstantDeclarationImpl(IVariableBinding binding, ProcessorEnvImpl env)
+    public EnumConstantDeclarationImpl(IVariableBinding binding, BaseProcessorEnv env)
     {
         super(binding, env);
         assert binding.isEnumConstant() : "binding does not represent an enum constant"; //$NON-NLS-1$

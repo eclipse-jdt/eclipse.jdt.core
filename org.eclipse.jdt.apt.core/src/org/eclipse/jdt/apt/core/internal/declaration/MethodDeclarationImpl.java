@@ -16,7 +16,7 @@ import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.DeclarationVisitor;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 public class MethodDeclarationImpl extends ExecutableDeclarationImpl implements MethodDeclaration
 {
     public MethodDeclarationImpl(final IMethodBinding binding,                                 
-                                 final ProcessorEnvImpl env)
+                                 final BaseProcessorEnv env)
     {
         super(binding, env);
         assert !binding.isConstructor() : "binding does not represent a method."; //$NON-NLS-1$

@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -33,7 +33,7 @@ import com.sun.mirror.util.TypeVisitor;
 public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implements TypeDeclaration, DeclaredType, ReferenceType
 {
     public TypeDeclarationImpl(final ITypeBinding binding,
-                               final ProcessorEnvImpl env)
+                               final BaseProcessorEnv env)
     {
         super(binding, env);
     }
@@ -194,5 +194,5 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
 		return binding.getQualifiedName();    
     }
 
-    boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }
+    public boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }
 }

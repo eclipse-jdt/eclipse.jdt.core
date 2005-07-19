@@ -19,7 +19,7 @@ import com.sun.mirror.util.DeclarationVisitor;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
@@ -28,7 +28,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 public class AnnotationElementDeclarationImpl extends MethodDeclarationImpl implements AnnotationTypeElementDeclaration
 {
     public AnnotationElementDeclarationImpl(final IMethodBinding binding,
-                                            final ProcessorEnvImpl env)
+                                            final BaseProcessorEnv env)
     {
         super(binding, env);
     }

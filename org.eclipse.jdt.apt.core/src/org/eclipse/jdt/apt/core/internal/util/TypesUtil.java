@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.apt.core.internal.util;
 
+import com.sun.mirror.declaration.PackageDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.ArrayType;
@@ -25,25 +26,27 @@ import com.sun.mirror.util.Types;
 import java.util.Collection;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.NonEclipseImplementationException;
+import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeParameterDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.type.ArrayTypeImpl;
 import org.eclipse.jdt.apt.core.internal.type.PrimitiveTypeImpl;
 import org.eclipse.jdt.apt.core.internal.type.VoidTypeImpl;
 import org.eclipse.jdt.apt.core.internal.type.WildcardTypeImpl;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class TypesUtil implements Types
 {	
 	private static final String[] NO_ARGS = new String[0];
-    private final ProcessorEnvImpl _env;
+    private final BaseProcessorEnv _env;
 	
 	public static void main(String[] args){}
 
-    public TypesUtil(ProcessorEnvImpl env){
+    public TypesUtil(BaseProcessorEnv env){
         _env = env;
         assert env != null : "null environment."; //$NON-NLS-1$
     }
@@ -295,6 +298,19 @@ public class TypesUtil implements Types
 
         return b1.isSubTypeCompatible(b2);
     }
+    
+    public static IPackageBinding getPackageBinding(PackageDeclaration pkg)
+    	throws NonEclipseImplementationException
+    {	
+        if(pkg == null) return null;
+        if( pkg instanceof EclipseMirrorImpl ){
+            final PackageDeclarationImpl impl = (PackageDeclarationImpl)pkg;
+            return impl.getPackageBinding();
+        }
+
+        throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
+                                                    " Found " + pkg.getClass().getName()); //$NON-NLS-1$
+    }  
 
     /**
      * @return the binding correspond to the given type.
