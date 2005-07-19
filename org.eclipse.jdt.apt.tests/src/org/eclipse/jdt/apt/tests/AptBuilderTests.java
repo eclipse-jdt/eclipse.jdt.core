@@ -56,17 +56,18 @@ public class AptBuilderTests extends Tests
 	
 	public static String getProjectName()
 	{
-		return AptBuilderTests.class.getName() + "Project";
+		return AptBuilderTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public IPath getSourcePath()
 	{
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" );
+		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}
 	
+	@SuppressWarnings("nls")
 	public void testGeneratedFileInBuilder() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -109,6 +110,7 @@ public class AptBuilderTests extends Tests
 	/**
 	 *  This test makes sure we run apt on generated files during build
 	 */
+	@SuppressWarnings("nls")
 	public void testNestedGeneratedFileInBuilder() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -156,6 +158,7 @@ public class AptBuilderTests extends Tests
 	 *   an annotation processor looks up a type by name.  We also test that expected
 	 *   build output is there because of the dependency.
 	 */
+	@SuppressWarnings("nls")
 	public void testExtraDependencies()
 	{
 		String codeA = "package p1.p2.p3.p4;\n"
@@ -277,6 +280,7 @@ public class AptBuilderTests extends Tests
 	 *   Test that we do not recompile generated files that are
 	 *   not changed even as their parent is modified.
 	 */
+	@SuppressWarnings("nls")
 	public void testCaching()
 	{
 		String code = "package p1;\n"
@@ -338,6 +342,7 @@ public class AptBuilderTests extends Tests
 	 * This test makes sure that we delete generated files when the parent file 
 	 * is deleted.  We also make sure that multi-parent support is working.
 	 */
+	@SuppressWarnings("nls")
 	public void testDeletedParentFile() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
@@ -396,6 +401,7 @@ public class AptBuilderTests extends Tests
 		internalTestStopGeneratingFileInBuilder( false );
 	}
 	
+	@SuppressWarnings("nls")
 	private void internalTestStopGeneratingFileInBuilder( boolean fullBuild )
 	{
 		IProject project = env.getProject( getProjectName() );

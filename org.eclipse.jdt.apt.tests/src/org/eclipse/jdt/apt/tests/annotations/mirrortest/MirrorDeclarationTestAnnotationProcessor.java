@@ -45,9 +45,10 @@ import com.sun.mirror.type.AnnotationType;
 import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.ReferenceType;
 
+@SuppressWarnings("nls")
 public class MirrorDeclarationTestAnnotationProcessor implements AnnotationProcessor {
 	
-	public static final String NO_ERRORS = "NO ERRORS";
+	public static final String NO_ERRORS = "NO ERRORS"; //$NON-NLS-1$
 	
 	/** Used by the test harness to verify that no errors were encountered **/
 	public static String ERROR = NO_ERRORS;
@@ -64,10 +65,10 @@ public class MirrorDeclarationTestAnnotationProcessor implements AnnotationProce
 			TypeDeclaration testClass = null;
 			ClassDeclaration testClassDec = null;
 			for(TypeDeclaration decl : decls) {
-	            if(decl.toString().endsWith("DeclarationTestClass")) {
+	            if(decl.toString().endsWith("DeclarationTestClass")) { //$NON-NLS-1$
 	            	testClass = decl;
 	            }
-	            if(decl.toString().endsWith("ClassDec")) {
+	            if(decl.toString().endsWith("ClassDec")) { //$NON-NLS-1$
 	            	testClassDec = (ClassDeclaration)decl;
 	            }
 			}

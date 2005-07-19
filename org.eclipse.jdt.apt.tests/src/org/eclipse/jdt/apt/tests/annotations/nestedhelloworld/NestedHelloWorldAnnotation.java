@@ -14,5 +14,5 @@ package org.eclipse.jdt.apt.tests.annotations.nestedhelloworld;
 
 public @interface NestedHelloWorldAnnotation
 {
-	String value() default "";
+	String value() default ""; //$NON-NLS-1$
 }

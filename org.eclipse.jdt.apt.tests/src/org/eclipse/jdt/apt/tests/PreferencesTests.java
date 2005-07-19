@@ -61,12 +61,12 @@ public class PreferencesTests extends Tests {
 	}
 	
 	public static String getProjectName() {
-		return PreferencesTests.class.getName() + "Project";
+		return PreferencesTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public IPath getSourcePath() {
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" );
+		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}
@@ -74,8 +74,8 @@ public class PreferencesTests extends Tests {
 	public void testFactoryPathEncodingAndDecoding() throws Exception {
 		//encode
 		Map<FactoryContainer, Boolean> factories = new LinkedHashMap<FactoryContainer, Boolean>();
-		FactoryContainer jarFactory = FactoryPath.newExtJarFactoryContainer(new File("C:/test.jar"));
-		FactoryContainer pluginFactory = new PluginFactoryContainer("com.bea.ap.plugin");
+		FactoryContainer jarFactory = FactoryPath.newExtJarFactoryContainer(new File("C:/test.jar")); //$NON-NLS-1$
+		FactoryContainer pluginFactory = new PluginFactoryContainer("com.bea.ap.plugin"); //$NON-NLS-1$
 		factories.put(jarFactory, true);
 		factories.put(pluginFactory, false);
 		String xml = FactoryPathUtil.encodeFactoryPath(factories);
@@ -97,13 +97,14 @@ public class PreferencesTests extends Tests {
 				// plugin
 				assertEquals(FactoryType.PLUGIN, container.getType());
 				assertEquals(Boolean.FALSE, entry.getValue());
-				assertEquals("com.bea.ap.plugin", container.getId());
+				assertEquals("com.bea.ap.plugin", container.getId()); //$NON-NLS-1$
 			}
 			
 			index++;
 		}
 	}
 	
+	@SuppressWarnings("nls")
 	private static final String serializedFactories = 
 		"<factorypath>\n" + 
 		"    <factorypathentry kind=\"EXTJAR\" id=\"C:\\test.jar\" enabled=\"true\"/>\n" + 
@@ -114,6 +115,7 @@ public class PreferencesTests extends Tests {
 	 * Test the config API for settings other than factory path
 	 * @throws Exception
 	 */
+	@SuppressWarnings("nls")
 	public void testSimpleConfigApi() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		
@@ -151,6 +153,7 @@ public class PreferencesTests extends Tests {
 	 * Test the config API for classpath and sourcepath options.
 	 * We expect to find both available and filled in
 	 */
+	@SuppressWarnings("nls")
 	public void testClassAndSourcepathOptions() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		Map<String,String> options = AptConfig.getProcessorOptions(jproj);

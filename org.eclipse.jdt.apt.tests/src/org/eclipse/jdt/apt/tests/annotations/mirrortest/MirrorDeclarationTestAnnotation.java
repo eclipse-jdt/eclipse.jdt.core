@@ -13,6 +13,6 @@
 package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
 public @interface MirrorDeclarationTestAnnotation {
-	String s() default "bob";
+	String s() default "bob"; //$NON-NLS-1$
 	int value() default 3;
 }

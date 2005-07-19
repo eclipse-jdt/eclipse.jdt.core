@@ -23,6 +23,6 @@ public class HelloWorldWildcardAnnotationProcessorFactory extends
 
 	
 	public Collection<String> supportedAnnotationTypes() {
-		return Collections.singletonList("org.eclipse.jdt.apt.tests.annotations.helloworld.*");
+		return Collections.singletonList("org.eclipse.jdt.apt.tests.annotations.helloworld.*"); //$NON-NLS-1$
 	}
 }

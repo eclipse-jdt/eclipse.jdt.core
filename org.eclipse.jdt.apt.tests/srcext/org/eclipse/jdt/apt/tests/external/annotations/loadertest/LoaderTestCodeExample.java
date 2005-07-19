@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.tests.external.annotations.loadertest;
 /**
  * Code example used to test the annotation processor factory loader.
  */
+@SuppressWarnings("nls")
 public class LoaderTestCodeExample {
 	public static final String CODE_PACKAGE = "loadertestpackage";
 	public static final String CODE_CLASS_NAME = "LoaderTestClass";

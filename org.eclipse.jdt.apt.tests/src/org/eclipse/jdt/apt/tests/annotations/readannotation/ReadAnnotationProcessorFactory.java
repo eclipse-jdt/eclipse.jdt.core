@@ -41,6 +41,6 @@ public class ReadAnnotationProcessorFactory implements
 	
 	private static ArrayList<String> annotations = new ArrayList<String>();	
 	{
-		annotations.add("trigger.MyMarkerAnnotation");		
+		annotations.add("trigger.MyMarkerAnnotation");		 //$NON-NLS-1$
 	}
 }

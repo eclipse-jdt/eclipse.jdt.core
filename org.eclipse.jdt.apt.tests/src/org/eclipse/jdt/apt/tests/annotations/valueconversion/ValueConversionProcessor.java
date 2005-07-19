@@ -26,14 +26,15 @@ import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.type.AnnotationType;
 
 public class ValueConversionProcessor implements AnnotationProcessor {
-
-	public static String ERROR = "";
+	
+	public static String ERROR = ""; //$NON-NLS-1$
 	private final AnnotationProcessorEnvironment _env;
 	public ValueConversionProcessor(AnnotationProcessorEnvironment env)
 	{
 		_env = env;
 	}
 	
+	@SuppressWarnings("nls")
 	public void process() 
 	{
 		try{
@@ -132,21 +133,21 @@ public class ValueConversionProcessor implements AnnotationProcessor {
 	private void assertValueTypeMatch(final String name, final Object value, final Class expectedType)
 	{
 		TestCase.assertEquals(
-				"value type mismatch for member " + name, 
+				"value type mismatch for member " + name,  //$NON-NLS-1$
 				expectedType, 
 				value.getClass());
 	}
 			
 	
-	@SuppressWarnings("unused")
+	@SuppressWarnings("unused") //$NON-NLS-1$
 	private void assertArrayValueTypeMatch(final String name, final Object value, final Class expectedElementType)
 	{	
 		TestCase.assertEquals(
-				"annotation value type mismatch", 
+				"annotation value type mismatch",  //$NON-NLS-1$
 				List.class.getName(), 
 				value.getClass().getName());
 		
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings("unchecked") //$NON-NLS-1$
 		final List<AnnotationValue> values = (List<AnnotationValue>)value;
 		for( AnnotationValue av : values )
 			assertValueTypeMatch(name, av.getValue(), expectedElementType );

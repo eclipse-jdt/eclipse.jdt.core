@@ -14,5 +14,5 @@ package org.eclipse.jdt.apt.tests.annotations.extradependency;
 
 public @interface ExtraDependencyAnnotation
 {
-	String value() default "";
+	String value() default "";  //$NON-NLS-1$
 }

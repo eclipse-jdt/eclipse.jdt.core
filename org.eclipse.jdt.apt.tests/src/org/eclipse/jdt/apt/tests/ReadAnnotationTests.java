@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 public class ReadAnnotationTests extends Tests 
 {
+	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 	private int counter = 0;
 	private String projectName = null;
 	public ReadAnnotationTests(final String name) {
@@ -42,7 +43,7 @@ public class ReadAnnotationTests extends Tests
 	}
 	
 	public String getUniqueProjectName(){
-		projectName = ReadAnnotationTests.class.getName() + "Project" + counter;
+		projectName = ReadAnnotationTests.class.getName() + "Project" + counter; //$NON-NLS-1$
 		counter ++;
 		return projectName;
 	}
@@ -50,21 +51,21 @@ public class ReadAnnotationTests extends Tests
 
 	public IPath getSourcePath() {
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" );
+		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}
 	
 	public IPath getBinaryPath(){
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "binary" );
+		IFolder srcFolder = project.getFolder( "binary" ); //$NON-NLS-1$
 		IPath lib = srcFolder.getFullPath();
 		return lib;
 	}
 	
 	public IPath getOutputPath(){
 		IProject project = env.getProject( getProjectName() );
-		IFolder binFolder = project.getFolder( "bin" );
+		IFolder binFolder = project.getFolder( "bin" ); //$NON-NLS-1$
 		IPath bin = binFolder.getFullPath();
 		return bin;
 	}
@@ -139,7 +140,7 @@ public class ReadAnnotationTests extends Tests
 	
 	private IProject setupTest() throws Exception
 	{				
-		ReadAnnotationProcessor.ERROR = "";
+		ReadAnnotationProcessor.ERROR = EMPTY_STRING; //$NON-NLS-1$
 		// project will be deleted by super-class's tearDown() method
 		IPath projectPath = env.addProject( getUniqueProjectName(), "1.5" ); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$ 
@@ -166,7 +167,7 @@ public class ReadAnnotationTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals("", ReadAnnotationProcessor.ERROR);
+		assertEquals(EMPTY_STRING, ReadAnnotationProcessor.ERROR);
 	}
 
 	/**
@@ -179,7 +180,7 @@ public class ReadAnnotationTests extends Tests
 		IProject project = setupTest();
 		final File jar = 
 			TestUtil.getFileInPlugin(AptTestsPlugin.getDefault(), 
-									 new Path("/src/org/eclipse/jdt/apt/tests/annotations/readannotation/lib/question.jar"));
+									 new Path("/src/org/eclipse/jdt/apt/tests/annotations/readannotation/lib/question.jar")); //$NON-NLS-1$
 		final String path = jar.getAbsolutePath();
 		env.addExternalJar(project.getFullPath(), path);
 				
@@ -188,6 +189,6 @@ public class ReadAnnotationTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 
-		assertEquals("", ReadAnnotationProcessor.ERROR);
+		assertEquals(EMPTY_STRING, ReadAnnotationProcessor.ERROR);
 	}	
 }

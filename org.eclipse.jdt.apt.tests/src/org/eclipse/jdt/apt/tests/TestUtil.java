@@ -56,7 +56,7 @@ public class TestUtil
 		//   add annotations jar as part of the project
 		//
 		IPath projectPath = getProjectPath( project );
-		File jarFile = new File( projectPath.toFile(), "Classes.jar" );
+		File jarFile = new File( projectPath.toFile(), "Classes.jar" ); //$NON-NLS-1$
 		String classesJarPath = jarFile.getAbsolutePath();
 		FileFilter filter = new PackageFileFilter(
 				ANNOTATIONS_PKG, getPluginClassesDir());
@@ -83,12 +83,12 @@ public class TestUtil
 			IJavaProject project  )
 		throws IOException, JavaModelException
 	{
-		File jarFile = File.createTempFile("org.eclipse.jdt.apt.tests.TestUtil", ".jar");
+		File jarFile = File.createTempFile("org.eclipse.jdt.apt.tests.TestUtil", ".jar");  //$NON-NLS-1$//$NON-NLS-2$
 		String classesJarPath = jarFile.getAbsolutePath();
 		FileFilter classFilter = new PackageFileFilter(
 				EXTANNOTATIONS_PKG, getPluginExtClassesDir());
 		FileFilter manifestFilter = new PackageFileFilter(
-				"META-INF", getPluginExtSrcDir());
+				"META-INF", getPluginExtSrcDir()); //$NON-NLS-1$
 		Map<File, FileFilter> files = new HashMap<File, FileFilter>(2);
 		files.put(new File( getPluginExtClassesDir() ), classFilter);
 		files.put(new File( getPluginExtSrcDir() ), manifestFilter);
@@ -105,19 +105,19 @@ public class TestUtil
 	
 	public static String getPluginClassesDir()
 	{
-		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/bin" ) )
+		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/bin" ) ) //$NON-NLS-1$
 			.getAbsolutePath();
 	}
 
 	public static String getPluginExtClassesDir()
 	{
-		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/binext" ) )
+		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/binext" ) ) //$NON-NLS-1$
 			.getAbsolutePath();
 	}
 
 	public static String getPluginExtSrcDir()
 	{
-		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/srcext" ) )
+		return getFileInPlugin( AptTestsPlugin.getDefault(), new Path( "/srcext" ) ) //$NON-NLS-1$
 			.getAbsolutePath();
 	}
 
@@ -304,7 +304,7 @@ public class TestUtil
 		 * in which the compiled classes are to be found.
 		 */
 		public PackageFileFilter(String packageSubset, String binDir) {
-			_packageParts = packageSubset.split("\\.");
+			_packageParts = packageSubset.split("\\."); //$NON-NLS-1$
 			_binDir = new Path(binDir);
 		}
 		
@@ -329,9 +329,9 @@ public class TestUtil
 	}
 	
 	public static final String ANNOTATIONS_PKG = 
-		"org.eclipse.jdt.apt.tests.annotations";
+		"org.eclipse.jdt.apt.tests.annotations"; //$NON-NLS-1$
 
 	public static final String EXTANNOTATIONS_PKG = 
-		"org.eclipse.jdt.apt.tests.external.annotations";
+		"org.eclipse.jdt.apt.tests.external.annotations"; //$NON-NLS-1$
 
 }

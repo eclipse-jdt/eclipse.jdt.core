@@ -40,6 +40,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	}
 	
 	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
+	@SuppressWarnings("nls")
 	public void disabled_testGeneratedFile() throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
@@ -123,6 +124,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 * @throws Throwable
 	 */
 	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
+	@SuppressWarnings("nls")
 	public void disabled_testNestedGeneratedFile() throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
@@ -200,6 +202,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	}
 
 	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
+	@SuppressWarnings("nls")
 	public void disabled_testStopGeneratingFileInReconciler() throws Exception
 	{
 		String fname = TEST_FOLDER + "/A.java";
@@ -292,6 +295,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 * GeneratedFileManager.
 	 */
 	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
+	@SuppressWarnings("nls")
 	public void disabled_testDiscardParentWorkingCopy()
 	 	throws Throwable
 	{
@@ -337,6 +341,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 		}	
 	}
 
+	@SuppressWarnings("nls")
 	public void setUp() throws Exception 
 	{
 		try 
@@ -416,10 +421,10 @@ public class AptReconcileTests extends ModifyingResourceTests
 
 	protected ProblemRequestor	_problemRequestor;
 
-	public static final String	TEST_PROJECT	= AptReconcileTests.class.getName() + "Project";
-
-	public static final String	TEST_FOLDER		= "/" + TEST_PROJECT
-													+ "/src/test";
+	public static final String	TEST_PROJECT	= AptReconcileTests.class.getName() + "Project"; //$NON-NLS-1$
+	
+	public static final String	TEST_FOLDER		= "/" + TEST_PROJECT //$NON-NLS-1$
+													+ "/src/test"; //$NON-NLS-1$
 	
 	private File				_classesJarFile;
 

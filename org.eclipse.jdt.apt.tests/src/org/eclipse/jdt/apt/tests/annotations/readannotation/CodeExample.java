@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.readannotation;
 
+@SuppressWarnings("nls")
 public class CodeExample {
 	
 	public static final String PACKAGE_QUESTION = "question";

@@ -40,6 +40,6 @@ public class ValueConversionProcessorFactory implements
 	
 	private static ArrayList<String> annotations = new ArrayList<String>();	
 	{
-		annotations.add("sample.Test.Annotation");		
+		annotations.add("sample.Test.Annotation");		 //$NON-NLS-1$
 	}
 }

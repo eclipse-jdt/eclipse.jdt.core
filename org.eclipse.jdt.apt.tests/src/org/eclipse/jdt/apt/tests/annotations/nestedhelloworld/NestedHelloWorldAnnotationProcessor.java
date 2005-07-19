@@ -29,12 +29,13 @@ public class NestedHelloWorldAnnotationProcessor extends
 
 	public String getCode() { return CODE; }
 	
+	@SuppressWarnings("nls")
 	private final String CODE = 
 		"package " + getPackageName() + ";" + "\n" + 
 		"@" + HelloWorldAnnotation.class.getName() + "\n" + 
 		"public class NestedHelloWorldAnnotationGeneratedClass " + "\n" +
 		"{  }";
 		
-		public String getPackageName() { return "nested.hello.world.generatedclass.pkg"; }
-		public String getTypeName() { return "NestedHelloWorldAnnotationGeneratedClass"; }
+		public String getPackageName() { return "nested.hello.world.generatedclass.pkg"; } //$NON-NLS-1$
+		public String getTypeName() { return "NestedHelloWorldAnnotationGeneratedClass"; } //$NON-NLS-1$
 }

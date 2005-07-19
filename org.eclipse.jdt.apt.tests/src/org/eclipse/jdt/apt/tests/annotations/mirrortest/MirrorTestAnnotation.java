@@ -20,5 +20,5 @@ package org.eclipse.jdt.apt.tests.annotations.mirrortest;
  */
 public @interface MirrorTestAnnotation {
 
-	String value() default "";
+	String value() default ""; //$NON-NLS-1$
 }

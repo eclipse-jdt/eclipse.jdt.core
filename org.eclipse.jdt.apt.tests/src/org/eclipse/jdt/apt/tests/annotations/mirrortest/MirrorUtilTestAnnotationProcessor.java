@@ -21,6 +21,7 @@ import com.sun.mirror.declaration.FieldDeclaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 
+@SuppressWarnings("nls")
 public class MirrorUtilTestAnnotationProcessor implements AnnotationProcessor
 {
 	public static final String NO_ERRORS = "NO ERRORS";

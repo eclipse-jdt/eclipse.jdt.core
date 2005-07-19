@@ -28,9 +28,10 @@ import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.util.Declarations;
 
+@SuppressWarnings("nls")
 public class MirrorTestAnnotationProcessor implements AnnotationProcessor {
 	
-	public static final String NO_ERRORS = "NO ERRORS";
+	public static final String NO_ERRORS = "NO ERRORS"; //$NON-NLS-1$
 	
 	/** Used by the test harness to verify that no errors were encountered **/
 	public static String ERROR = NO_ERRORS;

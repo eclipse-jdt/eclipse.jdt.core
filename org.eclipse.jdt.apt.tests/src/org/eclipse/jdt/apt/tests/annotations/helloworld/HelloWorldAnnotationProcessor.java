@@ -33,7 +33,7 @@ public class HelloWorldAnnotationProcessor implements AnnotationProcessor
 		{
 			Filer f = getEnvironment().getFiler();
 			PrintWriter pw = f
-				.createSourceFile( getPackageName() + "." + getTypeName() );
+				.createSourceFile( getPackageName() + "." + getTypeName() ); //$NON-NLS-1$
 			pw.print( getCode() );
 			pw.close();
 		}
@@ -49,15 +49,16 @@ public class HelloWorldAnnotationProcessor implements AnnotationProcessor
 	}
 
 	public String getCode() { return CODE; }
-	public String getPackageName() { return "generatedfilepackage"; }
-	public String getTypeName() { return "GeneratedFileTest"; }
+	public String getPackageName() { return "generatedfilepackage"; } //$NON-NLS-1$
+	public String getTypeName() { return "GeneratedFileTest"; } //$NON-NLS-1$
 
 	AnnotationProcessorEnvironment	_env;
 
-	protected final static String	PACKAGE_NAME	= "";
+	protected final static String	PACKAGE_NAME	= ""; //$NON-NLS-1$
 
-	protected final static String	TYPE_NAME		= "";
+	protected final static String	TYPE_NAME		= ""; //$NON-NLS-1$
 
+	@SuppressWarnings("nls")
 	protected String	CODE			= "package "
 														+ getPackageName()
 														+ ";"

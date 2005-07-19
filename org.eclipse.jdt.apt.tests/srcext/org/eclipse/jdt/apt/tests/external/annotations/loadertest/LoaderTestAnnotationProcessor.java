@@ -24,7 +24,7 @@ import com.sun.mirror.apt.Filer;
 public class LoaderTestAnnotationProcessor implements AnnotationProcessor {
 	
 	private static String getClassName() {
-		return getPackageName() + "." + getTypeName();
+		return getPackageName() + "." + getTypeName(); //$NON-NLS-1$
 	}
 	
 	private final AnnotationProcessorEnvironment _env;
@@ -35,7 +35,7 @@ public class LoaderTestAnnotationProcessor implements AnnotationProcessor {
 	 * depend on sharing a classloader.
 	 */
 	public static boolean isLoaded() {
-		return "loaded".equals(System.getProperty(getClassName()));
+		return "loaded".equals(System.getProperty(getClassName())); //$NON-NLS-1$
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class LoaderTestAnnotationProcessor implements AnnotationProcessor {
 	}
 
 	public LoaderTestAnnotationProcessor(AnnotationProcessorEnvironment env) {
-		System.setProperty(getClassName(), "loaded");
+		System.setProperty(getClassName(), "loaded"); //$NON-NLS-1$
 		_env = env;
 	}
 
@@ -76,13 +76,14 @@ public class LoaderTestAnnotationProcessor implements AnnotationProcessor {
 	}
 	
 	protected static String getPackageName() {
-		return "generatedfilepackage"; 
+		return "generatedfilepackage";  //$NON-NLS-1$
 	}
 	
 	protected static String getTypeName() { 
-		return "LoadFactoryFromJarTest"; 
+		return "LoadFactoryFromJarTest";  //$NON-NLS-1$
 	}
 
+	@SuppressWarnings("nls")
 	protected final static String CODE			= 
 		"package " + getPackageName() + ";\n" +
 		"public class "	+ getTypeName()	+ "\n"	+ 

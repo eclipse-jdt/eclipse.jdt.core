@@ -71,12 +71,12 @@ public class FactoryLoaderTests extends Tests {
 }
 	
 	public static String getProjectName() {
-		return FactoryLoaderTests.class.getName() + "Project";
+		return FactoryLoaderTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public IPath getSourcePath() {
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" );
+		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}

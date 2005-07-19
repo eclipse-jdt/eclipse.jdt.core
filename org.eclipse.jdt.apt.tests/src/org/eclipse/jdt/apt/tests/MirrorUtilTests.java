@@ -85,22 +85,22 @@ public class MirrorUtilTests extends Tests {
 	private void assertNoUnexpectedProblems() {
 		Problem[] problems = env.getProblems();
 		for (Problem problem : problems) {
-			if (problem.getMessage().startsWith("The field DeclarationsTestClass")) {
+			if (problem.getMessage().startsWith("The field DeclarationsTestClass")) { //$NON-NLS-1$
 				continue;
 			}
-			fail("Found unexpected problem: " + problem);
+			fail("Found unexpected problem: " + problem); //$NON-NLS-1$
 		}
 	}
 	
 	public static String getProjectName()
 	{
-		return MirrorUtilTests.class.getName() + "Project";
+		return MirrorUtilTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public IPath getSourcePath()
 	{
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" );
+		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}

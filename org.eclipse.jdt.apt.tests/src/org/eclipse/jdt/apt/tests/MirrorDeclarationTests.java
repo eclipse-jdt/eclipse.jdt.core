@@ -64,13 +64,13 @@ public class MirrorDeclarationTests extends Tests {
 	
 	public static String getProjectName()
 	{
-		return MirrorDeclarationTests.class.getName() + "Project";
+		return MirrorDeclarationTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public IPath getSourcePath()
 	{
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" );
+		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}

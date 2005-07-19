@@ -15,5 +15,5 @@ package org.eclipse.jdt.apt.tests.external.annotations.loadertest;
  * Used to test whether this annotation processor is successfully loaded.
  */
 public @interface LoaderTestAnnotation {
-	String value() default "";
+	String value() default ""; //$NON-NLS-1$
 }

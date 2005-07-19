@@ -58,9 +58,9 @@ public class PerfTests extends Tests
 		IPath path = root.getLocation();
 		File destRoot = path.toFile();
 		
-		URL platformURL = Platform.getBundle("org.eclipse.jdt.apt.tests").getEntry("/");
+		URL platformURL = Platform.getBundle("org.eclipse.jdt.apt.tests").getEntry("/");  //$NON-NLS-1$//$NON-NLS-2$
 		File f = new File(Platform.asLocalURL(platformURL).getFile());
-		f = new File(f, "perf-test-project.zip");
+		f = new File(f, "perf-test-project.zip"); //$NON-NLS-1$
 
 		
 		//InputStream in = PerfTests.class.getClassLoader().getResourceAsStream("perf-test-project.zip");
@@ -74,11 +74,11 @@ public class PerfTests extends Tests
 		}
 		
 		// project will be deleted by super-class's tearDown() method
-		projectPath = env.addProject( "org.eclipse.jdt.core", "1.4" ); //$NON-NLS-1$
+		projectPath = env.addProject( "org.eclipse.jdt.core", "1.4" ); //$NON-NLS-1$ //$NON-NLS-2$
 		
-		System.out.println("Performing full build...");
+		System.out.println("Performing full build..."); //$NON-NLS-1$
 		fullBuild( projectPath );
-		System.out.println("Completed build.");
+		System.out.println("Completed build."); //$NON-NLS-1$
 		
 		assertNoUnexpectedProblems();
 		
@@ -88,10 +88,11 @@ public class PerfTests extends Tests
 	 * JDT Core has one warning on the use of IWorkingCopy, and a number
 	 * of TODOs, XXXs and FIXMEs.
 	 */
+	@SuppressWarnings("nls")
 	private void assertNoUnexpectedProblems() {
 		Problem[] problems = env.getProblems();
 		for (Problem problem : problems) {
-			if (problem.getMessage().startsWith("TODO") ||
+			if (problem.getMessage().startsWith("TODO") || 
 				problem.getMessage().startsWith("XXX") ||
 				problem.getMessage().startsWith("FIXME")) {
 				continue;
@@ -106,17 +107,18 @@ public class PerfTests extends Tests
 	
 	public static String getProjectName()
 	{
-		return PerfTests.class.getName() + "Project";
+		return PerfTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public IPath getSourcePath()
 	{
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" );
+		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}
 	
+	@SuppressWarnings("nls")
 	public void testBuilding() throws Throwable {
 		IProject proj = env.getProject(projectPath);
 		IJavaProject jproj = JavaCore.create(proj); // doesn't actually create anything

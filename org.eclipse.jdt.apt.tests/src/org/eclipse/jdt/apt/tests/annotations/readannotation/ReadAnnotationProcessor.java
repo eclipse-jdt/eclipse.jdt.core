@@ -26,15 +26,17 @@ import com.sun.mirror.declaration.TypeDeclaration;
 
 public class ReadAnnotationProcessor implements AnnotationProcessor
 {
+	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 	private static final String[] NO_ANNOTATIONS = new String[0];
 	AnnotationProcessorEnvironment	_env;
-	public static String ERROR = "";
+	public static String ERROR = EMPTY_STRING; 
 	
 	public ReadAnnotationProcessor(AnnotationProcessorEnvironment env)
 	{
 		_env = env;
 	}
 
+	@SuppressWarnings("nls")
 	public void process()
 	{	
 		try{			
@@ -162,7 +164,7 @@ public class ReadAnnotationProcessor implements AnnotationProcessor
 	private void assertAnnotation(final String[] expected, Collection<AnnotationMirror> annotations)
 	{
 		final int expectedLen = expected.length;		
-		TestCase.assertEquals("annotation number mismatch", expected.length, annotations.size());
+		TestCase.assertEquals("annotation number mismatch", expected.length, annotations.size()); //$NON-NLS-1$
 		
 		final HashSet<String> expectedSet = new HashSet<String>(expectedLen * 4 / 3 + 1);
 		for( int i=0; i<expectedLen; i++ )
@@ -171,7 +173,7 @@ public class ReadAnnotationProcessor implements AnnotationProcessor
 		int counter = 0;
 		for( AnnotationMirror mirror : annotations ){
 			if( counter >= expectedLen )
-				TestCase.assertEquals("", mirror.toString());
+				TestCase.assertEquals(EMPTY_STRING, mirror.toString());
 			else{
 				final String mirrorToString = mirror.toString();
 				final boolean contains = expectedSet.contains(mirrorToString);
@@ -179,7 +181,7 @@ public class ReadAnnotationProcessor implements AnnotationProcessor
 					System.err.println(mirrorToString);
 					System.err.println(expectedSet);
 				}
-				TestCase.assertTrue("unexpected annotation " + mirrorToString, contains);
+				TestCase.assertTrue("unexpected annotation " + mirrorToString, contains); //$NON-NLS-1$
 				expectedSet.remove(mirrorToString);
 			}
 			counter ++;

@@ -57,12 +57,12 @@ public class APITests extends Tests {
 	}
 	
 	public static String getProjectName() {
-		return APITests.class.getName() + "Project";
+		return APITests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public IPath getSourcePath() {
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" );
+		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}
@@ -77,7 +77,7 @@ public class APITests extends Tests {
 		
 		// Check getting an annotation with a wildcard
 		factory = 
-			AptUtil.getFactoryForAnnotation(HelloWorldAnnotation.class.getName() + "qwerty", jproj);
+			AptUtil.getFactoryForAnnotation(HelloWorldAnnotation.class.getName() + "qwerty", jproj); //$NON-NLS-1$
 		assertEquals(factory.getClass(), HelloWorldWildcardAnnotationProcessorFactory.class);
 	}
 	

@@ -40,7 +40,7 @@ public class RegressionTests extends Tests {
 
 	public static String getProjectName()
 	{
-		return RegressionTests.class.getName() + "Project";
+		return RegressionTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public void setUp() throws Exception
@@ -51,10 +51,11 @@ public class RegressionTests extends Tests {
 	/**
 	 * Bugzilla 104032: NPE when deleting project that has APT settings.
 	 */
+	@SuppressWarnings("nls")
 	public void testBugzilla104032() throws Exception
 	{
 		// set up project with unique name
-		final String projName = RegressionTests.class.getName() + "104032.Project";
+		final String projName = RegressionTests.class.getName() + "104032.Project"; //$NON-NLS-1$
 		IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 

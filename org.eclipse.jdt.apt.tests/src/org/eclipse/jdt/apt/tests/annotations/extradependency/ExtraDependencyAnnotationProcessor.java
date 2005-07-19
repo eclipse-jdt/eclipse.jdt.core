@@ -25,7 +25,7 @@ public class ExtraDependencyAnnotationProcessor implements AnnotationProcessor
 
 	public void process()
 	{
-		_env.getTypeDeclaration( "p1.p2.p3.p4.C" );
+		_env.getTypeDeclaration( "p1.p2.p3.p4.C" ); //$NON-NLS-1$
 	}
 
 	AnnotationProcessorEnvironment	_env;

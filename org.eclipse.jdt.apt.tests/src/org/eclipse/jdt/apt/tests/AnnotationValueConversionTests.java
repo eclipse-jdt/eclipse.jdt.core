@@ -37,7 +37,7 @@ public class AnnotationValueConversionTests extends Tests
 	}
 	
 	public String getUniqueProjectName(){
-		projectName = AnnotationValueConversionTests.class.getName() + "Project" + counter;
+		projectName = AnnotationValueConversionTests.class.getName() + "Project" + counter; //$NON-NLS-1$
 		counter ++;
 		return projectName;
 	}
@@ -45,28 +45,28 @@ public class AnnotationValueConversionTests extends Tests
 
 	public IPath getSourcePath() {
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" );
+		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}
 	
 	public IPath getBinaryPath(){
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "binary" );
+		IFolder srcFolder = project.getFolder( "binary" ); //$NON-NLS-1$
 		IPath lib = srcFolder.getFullPath();
 		return lib;
 	}
 	
 	public IPath getOutputPath(){
 		IProject project = env.getProject( getProjectName() );
-		IFolder binFolder = project.getFolder( "bin" );
+		IFolder binFolder = project.getFolder( "bin" ); //$NON-NLS-1$
 		IPath bin = binFolder.getFullPath();
 		return bin;
 	}
 	
 	private IProject setupTest() throws Exception
 	{				
-		ValueConversionProcessor.ERROR = "";
+		ValueConversionProcessor.ERROR = ""; //$NON-NLS-1$
 		// project will be deleted by super-class's tearDown() method
 		IPath projectPath = env.addProject( getUniqueProjectName(), "1.5" ); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$ 
@@ -84,6 +84,7 @@ public class AnnotationValueConversionTests extends Tests
 	 * Test conversion on byte. No boxing testing.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("nls")
 	public void testByteConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -125,6 +126,7 @@ public class AnnotationValueConversionTests extends Tests
 	 * Test conversion on short. No boxing testing.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("nls")
 	public void testShortConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -167,6 +169,7 @@ public class AnnotationValueConversionTests extends Tests
 	 * Test conversion on char. No boxing testing.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("nls")
 	public void testCharConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -209,6 +212,7 @@ public class AnnotationValueConversionTests extends Tests
 	 * Test conversion on int. No boxing testing.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("nls")
 	public void testIntConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -251,6 +255,7 @@ public class AnnotationValueConversionTests extends Tests
 	 * Test conversion on long. No boxing testing.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("nls")
 	public void testLongConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -285,6 +290,7 @@ public class AnnotationValueConversionTests extends Tests
 	 * Test conversion on Float. No boxing testing.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("nls")
 	public void testFloatConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -317,6 +323,7 @@ public class AnnotationValueConversionTests extends Tests
 	 * Test conversion on double. No boxing testing.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("nls")
 	public void testDoubleConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -347,6 +354,7 @@ public class AnnotationValueConversionTests extends Tests
 	 * Test conversion on double. No boxing testing.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("nls")
 	public void testAutoBoxing() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	
@@ -389,6 +397,7 @@ public class AnnotationValueConversionTests extends Tests
 	 * Test conversion on double. No boxing testing.
 	 * @throws Exception
 	 */
+	@SuppressWarnings("nls")
 	public void testArrayElementConversion() throws Exception {
 		// reset the error reset the error;
 		IProject project = setupTest();	

@@ -12,6 +12,7 @@
 
 package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
+@SuppressWarnings("nls")
 public class MirrorDeclarationCodeExample
 {
 	public static final String CODE_PACKAGE = "mirrortestpackage";

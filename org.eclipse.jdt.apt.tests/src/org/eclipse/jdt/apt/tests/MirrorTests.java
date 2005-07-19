@@ -52,12 +52,12 @@ public class MirrorTests extends Tests {
 	}
 	
 	public static String getProjectName() {
-		return MirrorTests.class.getName() + "Project";
+		return MirrorTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
 	public IPath getSourcePath() {
 		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" );
+		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}
@@ -84,7 +84,7 @@ public class MirrorTests extends Tests {
 
 		expectingNoProblems();
 		
-		assertTrue("Processor was not run", MirrorTestAnnotationProcessor._processRun);
+		assertTrue("Processor was not run", MirrorTestAnnotationProcessor._processRun); //$NON-NLS-1$
 		
 		assertEquals(MirrorTestAnnotationProcessor.NO_ERRORS, 
 					 MirrorTestAnnotationProcessor.ERROR);
