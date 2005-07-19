@@ -48,6 +48,15 @@ import org.eclipse.text.edits.TextEdit;
  * be cloned first to ensures that the added nodes have the correct owning AST.
  * </p>
  * <p>
+ * There can be any number of AST nodes owned by a single AST instance that are
+ * unparented. Each of these nodes is the root of a separate little tree of nodes.
+ * The method <code>ASTNode.getRoot()</code> navigates from any node to the root
+ * of the tree that it is contained in. Ordinarily, an AST instance has one main
+ * tree (rooted at a <code>CompilationUnit</code>), with newly-created nodes appearing
+ * as additional roots until they are parented somewhere under the main tree.
+ * One can navigate from any node to its AST instance, but not conversely.
+ * </p>
+ * <p>
  * The class {@link ASTParser} parses a string
  * containing a Java source code and returns an abstract syntax tree
  * for it. The resulting nodes carry source ranges relating the node back to
@@ -1529,11 +1538,6 @@ public final class AST {
 	 * Creates an unparented compilation unit node owned by this AST.
 	 * The compilation unit initially has no package declaration, no
 	 * import declarations, and no type declarations.
-	 * <p>
-	 * Note that the new compilation unit is <b>not</b> automatically
-	 * made the root node of this AST. This must be done explicitly
-	 * by calling <code>setRoot</code>.
-	 * </p>
 	 * 
 	 * @return the new unparented compilation unit node
 	 */
