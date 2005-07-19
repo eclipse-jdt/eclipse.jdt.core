@@ -197,7 +197,9 @@ public void completeTypeBindings() {
 	stepCompleted = CONNECT_TYPE_HIERARCHY;
 
 	for (int i = this.lastCompletedUnitIndex + 1; i <= this.lastUnitIndex; i++) {
-		(this.unitBeingCompleted = this.units[i]).scope.buildFieldsAndMethods();
+		CompilationUnitScope unitScope = (this.unitBeingCompleted = this.units[i]).scope;
+		unitScope.checkParameterizedTypeBounds();
+		unitScope.buildFieldsAndMethods();
 		this.units[i] = null; // release unnecessary reference to the parsed unit
 	}
 	stepCompleted = BUILD_FIELDS_AND_METHODS;
@@ -247,6 +249,7 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean 
 
 	(this.unitBeingCompleted = parsedUnit).scope.checkAndSetImports();
 	parsedUnit.scope.connectTypeHierarchy();
+	parsedUnit.scope.checkParameterizedTypeBounds();	
 	if (buildFieldsAndMethods)
 		parsedUnit.scope.buildFieldsAndMethods();
 	this.unitBeingCompleted = null;

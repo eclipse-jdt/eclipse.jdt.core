@@ -30,8 +30,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 711 };
+//		TESTS_NAMES = new String[] { "test788" };
+//		TESTS_NUMBERS = new int[] { 788 };
 //		TESTS_RANGE = new int[] { 514, -1 };
 	}
 	public static Test suite() {
@@ -22792,7 +22792,7 @@ public void test787() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994
 // TODO (kent) reenable once addressed
-public void _test788() {
+public void test788() {
 	this.runConformTest(
 		new String[] {
 			"test/A.java",

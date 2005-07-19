@@ -179,6 +179,10 @@ void checkAndSetImports() {
 		System.arraycopy(resolvedImports, 0, resolvedImports = new ImportBinding[index], 0, index);
 	imports = resolvedImports;
 }
+void checkParameterizedTypeBounds() {
+	for (int i = 0, length = topLevelTypes.length; i < length; i++)
+		topLevelTypes[i].scope.checkParameterizedTypeBounds();
+}
 /*
  * INTERNAL USE-ONLY
  * Innerclasses get their name computed as they are generated, since some may not
