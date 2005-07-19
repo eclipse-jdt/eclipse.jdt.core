@@ -20128,10 +20128,15 @@ public void test694() {
 		"----------\n" + 
 		"4. ERROR in X.java (at line 3)\n" + 
 		"	X<? extends X<? extends X<String>>> x2;\n" + 
+		"	  ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends X<? extends X<String>> is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 3)\n" + 
+		"	X<? extends X<? extends X<String>>> x2;\n" + 
 		"	              ^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type ? extends X<String> is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 3)\n" + 
+		"6. ERROR in X.java (at line 3)\n" + 
 		"	X<? extends X<? extends X<String>>> x2;\n" + 
 		"	                          ^^^^^^\n" + 
 		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
@@ -22716,6 +22721,119 @@ public void test784() {
 			"\n" + 
 			"	public X(X<? extends U, ?> parent) {\n" + 
 			"		this.parent = parent;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528
+public void test785() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"    <T extends Collection<? extends Number>> T getLonger(T t1, T t2) {\n" + 
+			"        return t1.size() > t2.size() ? t1 : t2;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    void m(HashSet<?> list, ArrayList<?> set) {\n" + 
+			"        getLonger(list, set);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	getLonger(list, set);\n" + 
+		"	^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method getLonger(T, T) of type X is not applicable for the arguments (AbstractCollection<? extends Object>&Cloneable&Serializable, AbstractCollection<? extends Object>&Cloneable&Serializable) since the type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends Number>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528 - variation
+public void test786() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"    <T extends Collection<? extends Object>> T getLonger(T t1, T t2) {\n" + 
+			"        return t1.size() > t2.size() ? t1 : t2;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    void m(HashSet<?> list, ArrayList<?> set) {\n" + 
+			"        getLonger(list, set);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528 - variation
+public void test787() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X<U> {\n" + 
+			"    <T extends Collection<? extends U>> T getLonger(T t1, T t2) {\n" + 
+			"        return t1.size() > t2.size() ? t1 : t2;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    void m(HashSet<?> list, ArrayList<?> set) {\n" + 
+			"        getLonger(list, set);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\r\n" + 
+		"	getLonger(list, set);\r\n" + 
+		"	^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method getLonger(T, T) of type X<U> is not applicable for the arguments (AbstractCollection<? extends Object>&Cloneable&Serializable, AbstractCollection<? extends Object>&Cloneable&Serializable) since the type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends U>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994
+// TODO (kent) reenable once addressed
+public void _test788() {
+	this.runConformTest(
+		new String[] {
+			"test/A.java",
+			"package test;\n" + 
+			"\n" + 
+			"public class A<C extends java.nio.channels.Channel>\n" + 
+			"{\n" + 
+			"	class B\n" + 
+			"		extends A<java.nio.channels.SocketChannel>\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"}\n",
+			"java/nio/channels/spi/AbstractSelectableChannel.java",
+			"package java.nio.channels.spi;\n" + 
+			"\n" + 
+			"public abstract class AbstractSelectableChannel\n" + 
+			"	extends java.nio.channels.SelectableChannel\n" + 
+			"{\n" + 
+			"}\n", 
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994 - variation (change ordering of files should have no effect)
+public void test789() {
+	this.runConformTest(
+		new String[] {
+			"java/nio/channels/spi/AbstractSelectableChannel.java",
+			"package java.nio.channels.spi;\n" + 
+			"\n" + 
+			"public abstract class AbstractSelectableChannel\n" + 
+			"	extends java.nio.channels.SelectableChannel\n" + 
+			"{\n" + 
+			"}\n", 
+			"test/A.java",
+			"package test;\n" + 
+			"\n" + 
+			"public class A<C extends java.nio.channels.Channel>\n" + 
+			"{\n" + 
+			"	class B\n" + 
+			"		extends A<java.nio.channels.SocketChannel>\n" + 
+			"	{\n" + 
 			"	}\n" + 
 			"}\n",
 		},

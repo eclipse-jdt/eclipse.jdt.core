@@ -485,6 +485,7 @@ public boolean isTypeArgumentIntersecting(TypeBinding otherArgument) {
 							return true;
 						}
 					} else if (upperBound1 != null) {
+						if (upperBound1.isTypeVariable()) return true;
 						if (lowerBound2 != null) {
 							return lowerBound2.isCompatibleWith(upperBound1);
 				
@@ -496,9 +497,13 @@ public boolean isTypeArgumentIntersecting(TypeBinding otherArgument) {
 									return upperBound2.isCompatibleWith(upperBound1);
 								}
 								return true;
-							} else if (upperBound2.isInterface()) {
-								if (upperBound1.isArrayType() || ((upperBound1 instanceof ReferenceBinding) && ((ReferenceBinding)upperBound1).isFinal())) {
-									return upperBound1.isCompatibleWith(upperBound2);
+							} else {
+								if (upperBound2.isInterface()) {
+									if (upperBound1.isArrayType() || ((upperBound1 instanceof ReferenceBinding) && ((ReferenceBinding)upperBound1).isFinal())) {
+										return upperBound1.isCompatibleWith(upperBound2);
+									}
+								} else {
+									return upperBound1.isCompatibleWith(upperBound2);									
 								}
 							}
 							return true;
@@ -549,12 +554,14 @@ public boolean isTypeArgumentIntersecting(TypeBinding otherArgument) {
 			}
 	}
 }
+
 /**
  * Returns true if the type was declared as a type variable
  */
 public boolean isTypeVariable() {
     return false;
 }
+
 /**
  * Returns true if wildcard type of the form '?' (no bound)
  */
