@@ -341,57 +341,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		return astUnit.findDeclaringNode(binding.getKey());
     }
 
-     /**
-     * @param binding must be correspond to a type, method or field declaration.
-     * @return the compilation unit that contains the declaration of the given binding.
-     */
-    public CompilationUnit getCompilationUnitForBinding(final IBinding binding)
-    {
-        assert binding.getKind() == IBinding.TYPE ||
-               binding.getKind() == IBinding.METHOD ||
-               binding.getKind() == IBinding.VARIABLE ;
-        ASTNode node = getAstCompilationUnit().findDeclaringNode(binding);
-        if( node != null ) return getAstCompilationUnit();
-        else{
-			final IMember member = (IMember)binding.getJavaElement();
-			final ICompilationUnit unit;
-			if( member != null ){
-				unit = member.getCompilationUnit();
-			}
-			else{
-				final ITypeBinding typeBinding = getDeclaringClass(binding);
-				if( _typeBinding2ModelCompUnit.get(typeBinding) != null )
-					unit = _typeBinding2ModelCompUnit.get(typeBinding);
-				else{
-					final String qname = typeBinding.getQualifiedName();
-					final String pathname = qname.replace('.', File.separatorChar);
-					final IPath path = Path.fromOSString(pathname);
-					try{
-						unit = (ICompilationUnit)_javaProject.findElement(path);
-						_typeBinding2ModelCompUnit.put(typeBinding, unit);
-					}
-					catch(JavaModelException e){
-						throw new IllegalStateException(e);
-					}
-				}
-			}
-			if( unit == null ) return null;
-
-            final CompilationUnit astUnit = _modelCompUnit2astCompUnit.get(unit);
-            if( astUnit != null ) return astUnit;
-            else{
-                // Note: very expensive operation. we are re-compiling a file with binding information.
-                final ASTParser parser =  ASTParser.newParser(AST.JLS3);
-                parser.setResolveBindings(true);
-                parser.setSource(unit);
-				parser.setFocalPosition(0);
-                CompilationUnit resultUnit = (CompilationUnit)parser.createAST(null);
-                _modelCompUnit2astCompUnit.put(unit, resultUnit);
-                return resultUnit;
-            }
-        }
-    }
-
 	/**
 	 * @param binding must be correspond to a type, method or field declaration
 	 * @return the file that contains the declaration of given binding.
@@ -483,7 +432,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		_isClosed = true;
     }
 
-	private void checkValid()
+	/* package */ void checkValid()
 	{
 		if( _isClosed )
 			throw new IllegalStateException("Environment has expired"); //$NON-NLS-1$
@@ -507,6 +456,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
                     int line,
                     String[] arguments)
     {
+    	checkValid();
     	// not going to post any markers to resource outside of the one we are currently 
     	// processing during reconcile phase.
     	if( _phase == Phase.RECONCILE && resource != null && !resource.equals(_file) )

@@ -47,6 +47,7 @@ public class FilerImpl implements Filer {
      */
     public PrintWriter createSourceFile(String typeName) throws IOException 
     {
+    	_env.checkValid();
         return new JavaSourceFilePrintWriter( typeName, new StringWriter(), _env, null /* charset */ ); 
     }
 
@@ -61,6 +62,7 @@ public class FilerImpl implements Filer {
      */
     public OutputStream createClassFile(String name) throws IOException 
     {
+    	_env.checkValid();
 		_generatedClassFiles = true;
         throw new UnsupportedOperationException( "Not Yet Implemented" ); //$NON-NLS-1$
     }
@@ -87,6 +89,8 @@ public class FilerImpl implements Filer {
     public PrintWriter createTextFile(Filer.Location loc, String pkg, File relPath, String charsetName) 
         throws IOException 
     {
+    	_env.checkValid();
+    	
     	// TODO - clean this up
     	File f = null;
     	GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _env.getProject() );
@@ -136,6 +140,7 @@ public class FilerImpl implements Filer {
     public OutputStream createBinaryFile(Filer.Location loc, String pkg, File relPath)
         throws IOException 
     {
+    	_env.checkValid();
         throw new UnsupportedOperationException( "Not yet implemented"); //$NON-NLS-1$
     }
 	

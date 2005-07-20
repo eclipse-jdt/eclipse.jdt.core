@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 
 public class APTProblem implements IProblem 
 {
-	public static enum Severity{ Error, Warning, Info};
+	public static enum Severity{ ERROR, WARNING, INFO};
 	private static final String[] NO_ARGS = new String[0];
 	private final Severity _severity;
 	private int _startingOffset;
@@ -42,11 +42,18 @@ public class APTProblem implements IProblem
 		_line = line;
 		_resource = file;
 		_arguments = arguments;
-	}	
-   
-	public int getID() {
-		return EclipseMessager.APT_PROBLEM_ID;
 	}
+
+	public int getID() {
+		// If we have arguments, then we're quick-fixable
+		if (_arguments != null) {
+			return EclipseMessager.APT_QUICK_FIX_PROBLEM_ID;
+		}
+		else {
+			return EclipseMessager.APT_PROBLEM_ID;
+		}
+	}
+	
 	public String[] getArguments() {	
 		return _arguments == null ? NO_ARGS : (String[])_arguments.clone();
 	}
@@ -84,10 +91,10 @@ public class APTProblem implements IProblem
 	}
 	
 	public boolean isError() {
-		return _severity == Severity.Error;
+		return _severity == Severity.ERROR;
 	}
 	
 	public boolean isWarning() {
-		return _severity == Severity.Warning;
+		return _severity == Severity.WARNING;
 	}
 }

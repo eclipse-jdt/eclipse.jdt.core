@@ -29,14 +29,14 @@ public class MessagerImpl implements Messager, EclipseMessager
         _env = env;
     }
     
-    public void printError(SourcePosition pos, String msg, String... arguments)
+    public void printError(SourcePosition pos, String msg, String[] arguments)
     {
     	if( pos == null )
     		printError(msg);
     	else if( pos instanceof SourcePositionImpl )
-            print((SourcePositionImpl)pos, APTProblem.Severity.Error, msg, arguments);
+            print((SourcePositionImpl)pos, APTProblem.Severity.ERROR, msg, arguments);
     	else
-    		print(pos, APTProblem.Severity.Error, msg, arguments);
+    		print(pos, APTProblem.Severity.ERROR, msg, arguments);
     }
 	
 	public void printError(ASTNode node, String msg)
@@ -45,22 +45,22 @@ public class MessagerImpl implements Messager, EclipseMessager
 			throw new IllegalArgumentException("'node' cannot be null"); //$NON-NLS-1$
 		final int start = node.getStartPosition();
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.Error, msg, line, null );
+		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.ERROR, msg, line, null );
 	}
 
     public void printError(String msg)
     {
-        print(APTProblem.Severity.Error, msg, null);
+        print(APTProblem.Severity.ERROR, msg, null);
     }
 
-    public void printNotice(SourcePosition pos, String msg, String... arguments)
+    public void printNotice(SourcePosition pos, String msg, String[] arguments)
     {
         if( pos instanceof SourcePositionImpl )
-            print((SourcePositionImpl)pos, APTProblem.Severity.Info, msg, arguments);
+            print((SourcePositionImpl)pos, APTProblem.Severity.INFO, msg, arguments);
 		else if (pos == null )
 			printNotice(msg);
 		else
-    		print(pos, APTProblem.Severity.Info, msg, arguments);
+    		print(pos, APTProblem.Severity.INFO, msg, arguments);
     }
 	
 	public void printNotice(ASTNode node, String msg)
@@ -69,22 +69,22 @@ public class MessagerImpl implements Messager, EclipseMessager
 			throw new IllegalArgumentException("'node' cannot be null"); //$NON-NLS-1$
 		final int start = node.getStartPosition();
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.Info, msg, line, null );
+		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.INFO, msg, line, null );
 	}
 
     public void printNotice(String msg)
     {
-       print(APTProblem.Severity.Info, msg, null);
+       print(APTProblem.Severity.INFO, msg, null);
     }
 
-    public void printWarning(SourcePosition pos, String msg, String... arguments)
+    public void printWarning(SourcePosition pos, String msg, String[] arguments)
     {		
         if( pos instanceof SourcePositionImpl )
-            print((SourcePositionImpl)pos, APTProblem.Severity.Warning, msg, arguments);
+            print((SourcePositionImpl)pos, APTProblem.Severity.WARNING, msg, arguments);
 		else if (pos == null )
 			printWarning(msg); 
 		else
-    		print(pos, APTProblem.Severity.Warning, msg, arguments);
+    		print(pos, APTProblem.Severity.WARNING, msg, arguments);
     }
 	
 	public void printWarning(ASTNode node, String msg)
@@ -93,24 +93,66 @@ public class MessagerImpl implements Messager, EclipseMessager
 			throw new IllegalArgumentException("'node' cannot be null"); //$NON-NLS-1$
 		final int start = node.getStartPosition();
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.Warning, msg, line, null);
+		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.WARNING, msg, line, null);
 	}
 
     public void printWarning(String msg)
     {
-        print(APTProblem.Severity.Warning, msg, null);
+        print(APTProblem.Severity.WARNING, msg, null);
     }
     
     public void printError(SourcePosition pos, String msg) {
-		printError(pos, msg, (String[])null);
+		printError(pos, msg, null);
 	}
 
 	public void printWarning(SourcePosition pos, String msg) {
-		printWarning(pos, msg, (String[])null);
+		printWarning(pos, msg, null);
 	}
 
 	public void printNotice(SourcePosition pos, String msg) {
-		printNotice(pos, msg, (String[])null);
+		printNotice(pos, msg, null);
+	}
+	
+	public void printFixableError(SourcePosition pos, String msg, String... arguments) {
+		if (arguments == null) {
+			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+		}
+		printError(pos, msg, arguments);
+	}
+	
+	public void printFixableWarning(SourcePosition pos, String msg, String... arguments) {
+		if (arguments == null) {
+			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+		}
+		printWarning(pos, msg, arguments);
+	}
+	
+	public void printFixableNotice(SourcePosition pos, String msg, String... arguments) {
+		if (arguments == null) {
+			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+		}
+		printNotice(pos, msg, arguments);
+	}
+	
+	public void printFixableError(String msg, String... arguments) {
+		if (arguments == null) {
+			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+		}
+		print(APTProblem.Severity.ERROR, msg, arguments);
+	}
+	
+	public void printFixableWarning(String msg, String... arguments) {
+		if (arguments == null) {
+			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+		}
+		print(APTProblem.Severity.WARNING, msg, arguments);
+	}
+	
+	public void printFixableNotice(String msg, String... arguments) {
+		if (arguments == null) {
+			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+		}
+		print(APTProblem.Severity.INFO, msg, arguments);
 	}
   
     private void print(SourcePositionImpl pos,
