@@ -24,7 +24,7 @@ import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
-public class MirrorUtilTestAnnotationProcessorFactory extends EclipseAnnotationProcessorFactory 
+public class MirrorUtilTestAnnotationProcessorFactory implements EclipseAnnotationProcessorFactory 
 {
 
 	public Collection<String> supportedOptions()
