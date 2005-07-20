@@ -39,7 +39,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 192 };
+//		TESTS_NUMBERS = new int[] { 194 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -5784,5 +5784,59 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	   	}
 	   	assertTrue("should yield a null, not a malformed binding", 
 	   			bindings[0] == null);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=104492
+	public void test0193() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        byte[] b1 = new byte[0];\n" +
+			"        byte[] b2 = new byte[0];\n" +
+			"        for (byte[] bs : new byte[][] { b1, b2 }) {}\n" +
+			"    }\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit unit = (CompilationUnit) node;
+    	node = getASTNode(unit, 0, 0, 2);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
+    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
+    	SingleVariableDeclaration singleVariableDeclaration = forStatement.getParameter();
+    	assertEquals("Should be 0", 0, singleVariableDeclaration.getExtraDimensions());
+    	Type type = singleVariableDeclaration.getType();
+    	assertEquals("Not an array type", ASTNode.ARRAY_TYPE, type.getNodeType());
+    	ArrayType arrayType = (ArrayType) type;
+    	assertEquals("Should be 1", 1, arrayType.getDimensions());
+    }
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=104492
+	public void test0194() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        byte[] b1 = new byte[0];\n" +
+			"        byte[] b2 = new byte[0];\n" +
+			"        for (byte[] bs/*comment*/ [ /*comment*/ ]: new byte[][][] { new byte[][] { b1, b2 }}) {}\n" +
+			"    }\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit unit = (CompilationUnit) node;
+    	node = getASTNode(unit, 0, 0, 2);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
+    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
+    	SingleVariableDeclaration singleVariableDeclaration = forStatement.getParameter();
+    	assertEquals("Should be 1", 1, singleVariableDeclaration.getExtraDimensions());
+    	Type type = singleVariableDeclaration.getType();
+    	assertEquals("Not an array type", ASTNode.ARRAY_TYPE, type.getNodeType());
+    	ArrayType arrayType = (ArrayType) type;
+    	assertEquals("Should be 1", 1, arrayType.getDimensions());
 	}
 }
