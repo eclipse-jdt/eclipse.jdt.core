@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Hashtable;
 
 import junit.framework.*;
@@ -122,6 +124,19 @@ public class BasicBuildTests extends Tests {
 		fullBuild(projectPath);
 		IMarker[] markers = env.getTaskMarkersFor(pathToA);
 		assertEquals("Wrong size", 3, markers.length);
+		Arrays.sort(markers, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				IMarker marker1 = (IMarker) o1;
+				IMarker marker2 = (IMarker) o2;
+				try {
+					final int start1 = ((Integer) marker1.getAttribute(IMarker.CHAR_START)).intValue();
+					final int start2 = ((Integer) marker2.getAttribute(IMarker.CHAR_START)).intValue();
+					return start1 - start2;
+				} catch (CoreException e) {
+					return 0;
+				}
+			}
+		});
 		
 		try {
 			IMarker marker = markers[0];
