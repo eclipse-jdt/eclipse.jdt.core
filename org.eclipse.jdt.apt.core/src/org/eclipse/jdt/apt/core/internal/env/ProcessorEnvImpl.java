@@ -127,11 +127,10 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 			final ICompilationUnit compilationUnit, final char[] source,
 			final IFile file, final IJavaProject javaProj, final Phase phase) {
 		super(astCompilationUnit, file, javaProj, phase);
-		// if we are in reconcile, file will be null & compilationUnit will be
-		// valid
+		// if we are in reconcile, compilationUnit will be valid
 		// if we are in build, file will not be null & compilationUnit will be
 		// null
-		assert (phase == Phase.RECONCILE && compilationUnit != null && file == null) ||
+		assert (phase == Phase.RECONCILE && compilationUnit != null) ||
 				(phase == Phase.BUILD && compilationUnit == null && file != null) : 
 				"Unexpected phase value " //$NON-NLS-1$
 				+ phase;
