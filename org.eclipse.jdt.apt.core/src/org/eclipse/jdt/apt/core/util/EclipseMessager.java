@@ -23,16 +23,16 @@ public interface EclipseMessager extends Messager
 	/**
 	 * Problem ID for APT problems that do not have quick fixes
 	 */
-	public static final int APT_PROBLEM_ID = 0x80889999;
+	public static final int APT_PROBLEM_ID = /*TODO: switch to IProblem.ExternalProblemNotFixable*/ 901;
 	
 	/** 
 	 * Problem ID for APT problems that have quick fixes.
 	 * If an APT plugin wants to write a quick-fix for their problems,
 	 * they should look for this ID.
 	 * 
-	 * TODO add pointer to methods that add arguments
+	 * @see org.eclipse.jdt.ui.text.java.IQuickAssistProcessor
 	 */
-	public static final int APT_QUICK_FIX_PROBLEM_ID = 0x80889998;
+	public static final int APT_QUICK_FIX_PROBLEM_ID = /* TODO: switch to IProblem.ExternalProblemFixable*/ 900;
 	
 	
 	/**
