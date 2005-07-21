@@ -12,6 +12,7 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.internal.ui.preferences.OptionsConfigurationBlock;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
@@ -35,7 +36,7 @@ public abstract class BaseConfigurationBlock extends OptionsConfigurationBlock {
 	}
 	
 	protected static Key getAptCoreKey(String name) {
-		return getKey("org.eclipse.jdt.apt.core", name); //$NON-NLS-1$
+		return getKey(AptPlugin.PLUGIN_ID, name);
 	}
 
 	/**
@@ -60,17 +61,16 @@ public abstract class BaseConfigurationBlock extends OptionsConfigurationBlock {
 		return strings;
 	}
 
-	/*
-	 * Parent class hides this method; re-expose it here. 
-	 */
-	protected abstract Control createContents(Composite parent);
-
 	public BaseConfigurationBlock(IStatusChangeListener context, IProject project, Key[] keys, IWorkbenchPreferenceContainer container) {
 		super(context, project, keys, container);
 	}
 	
-	protected abstract void updateModel(DialogField field);
+	/* Increase visibility from declaration in superclass */
+	@Override
+	protected abstract Control createContents(Composite parent);
 
+	protected abstract void updateModel(DialogField field);
+	
 	/* (non-javadoc)
 	 * Update fields and validate.
 	 * @param changedKey Key that changed, or null, if all changed.

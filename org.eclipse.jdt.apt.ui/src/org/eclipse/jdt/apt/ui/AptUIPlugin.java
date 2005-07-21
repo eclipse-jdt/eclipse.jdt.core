@@ -12,6 +12,9 @@ public class AptUIPlugin extends AbstractUIPlugin {
 	//The shared instance.
 	private static AptUIPlugin plugin;
 	
+	// The plugin ID
+	public static final String PLUGIN_ID = "org.eclipse.jdt.apt.ui"; //$NON-NLS-1$
+	
 	/**
 	 * The constructor.
 	 */
@@ -49,6 +52,6 @@ public class AptUIPlugin extends AbstractUIPlugin {
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
-		return AbstractUIPlugin.imageDescriptorFromPlugin("org.eclipse.jdt.apt.ui", path); //$NON-NLS-1$
+		return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 }

@@ -61,4 +61,8 @@ public class Messages extends NLS {
 	public static String BaseConfigurationBlock_fullRebuildRequired;
 
 	public static String BaseConfigurationBlock_rebuildRequired;
+
+	public static String AptConfigurationBlock_classpathAddedAutomaticallyNote;
+
+	public static String AptConfigurationBlock_warningIgnoredOptions;
 }

@@ -12,7 +12,9 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
+import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
 import org.eclipse.jdt.internal.ui.util.PixelConverter;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
@@ -24,6 +26,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 public class AptConfigurationBlock extends BaseConfigurationBlock {
@@ -64,6 +67,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		updateControls();
 	}
 	
+	@Override
 	protected Control createContents(Composite parent) {
 		setShell(parent.getShell());
 		
@@ -87,21 +91,56 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fProcessorOptionsField.doFillIntoGrid(composite, 2);
 		((GridData) fProcessorOptionsField.getTextControl(null).getLayoutData()).grabExcessHorizontalSpace= true;
 
+		Label description= new Label(composite, SWT.WRAP);
+		description.setText(Messages.AptConfigurationBlock_classpathAddedAutomaticallyNote); 
+		GridData gd= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		gd.horizontalSpan= 2;
+		gd.widthHint= fPixelConverter.convertWidthInCharsToPixels(60);
+		description.setLayoutData(gd);
+
 		Dialog.applyDialogFont(composite);
+		
+		validateSettings(null, null, null);
 		
 		return composite;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.ui.preferences.OptionsConfigurationBlock#validateSettings(java.lang.String, java.lang.String)
+	/**
+	 * Call after updating key values, to warn user if new values are invalid.
+	 * @param changedKey may be null, e.g. if called from createContents.
+	 * @param oldValue may be null
+	 * @param newValue may be null
 	 */
+	@Override
 	protected void validateSettings(Key changedKey, String oldValue, String newValue) {
-		// no validation
+		IStatus status = null;
+		
+		if (changedKey == KEY_PROCESSOROPTIONS) {
+			status = validateProcessorOptions(newValue);
+		}
+
+		if (null != status) {
+			fContext.statusChanged(status);
+		}
 	}	
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.ui.preferences.OptionsConfigurationBlock#updateControls()
+	/**
+	 * @param newValue
+	 * @return
 	 */
+	private IStatus validateProcessorOptions(String newValue) {
+		if (newValue != null && (newValue.contains("-Aclasspath") || newValue.contains("-Asourcepath"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			return new StatusInfo(IStatus.WARNING, Messages.AptConfigurationBlock_warningIgnoredOptions);
+		}
+		else {
+			return new StatusInfo();
+		}
+	}
+
+	/**
+	 * Update the UI based on the values presently stored in the keys.
+	 */
+	@Override
 	protected void updateControls() {
 		boolean aptEnabled= Boolean.valueOf(getValue(KEY_APTENABLED)).booleanValue();
 		fAptEnabledField.setSelection(aptEnabled);
@@ -112,13 +151,22 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	}	
 	
 	protected final void updateModel(DialogField field) {
-
+		String newVal = null;
+		Key key = null;
+		
 		if (field == fAptEnabledField) {
-			setValue(KEY_APTENABLED, fAptEnabledField.isSelected());
+			key = KEY_APTENABLED;
+			newVal = String.valueOf(fAptEnabledField.isSelected());
 		} else if (field == fGenSrcDirField) {
-			setValue(KEY_GENSRCDIR, fGenSrcDirField.getText());
+			key = KEY_GENSRCDIR;
+			newVal = fGenSrcDirField.getText();
 		} else if (field == fProcessorOptionsField) {
-			setValue(KEY_PROCESSOROPTIONS, fProcessorOptionsField.getText());
+			key = KEY_PROCESSOROPTIONS;
+			newVal = fProcessorOptionsField.getText();
+		}
+		if (key != null) {
+			String oldVal = setValue(key, newVal);
+			validateSettings(key, oldVal, newVal);
 		}
 	}
 	
