@@ -22891,5 +22891,25 @@ public void test790() {
 		"Type safety: Unchecked invocation isGreater(Comparable, Comparable) of the generic method isGreater(T, T) of type X\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104655
+public void test791() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  <Sup, E1 extends Sup, E2 extends Sup> Sup method1(boolean b, E1 e1, E2 e2) {\n" + 
+			"    if (b)\n" + 
+			"      return e1;\n" + 
+			"    else\n" + 
+			"      return e2;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  <Sup, E1 extends Sup, E2 extends Sup> Sup method2(boolean b, E1 e1, E2 e2) {\n" + 
+			"    return b ? e1 : e2;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
