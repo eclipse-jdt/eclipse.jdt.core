@@ -23,7 +23,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.FactoryContainer;
@@ -61,23 +62,28 @@ public final class FactoryPathUtil {
 	 * project. If no factorypath file was found, returns null.
 	 */
 	public static Map<FactoryContainer, Boolean> readFactoryPathFile(IJavaProject jproj) 
-		throws IOException, CoreException
+		throws CoreException
 	{
-		String data;
-		// If project is null, use workspace-level data
-		if (jproj == null) {
-			File file = getFileForWorkspace();
-			if (!file.exists()) {
-				return null;
+		String data = null;
+		try {
+			// If project is null, use workspace-level data
+			if (jproj == null) {
+				File file = getFileForWorkspace();
+				if (!file.exists()) {
+					return null;
+				}
+				data = FileSystemUtil.getContentsOfFile(file);
 			}
-			data = FileSystemUtil.getContentsOfFile(file);
+			else {
+				IFile ifile = getIFileForProject(jproj);
+				if (!ifile.exists()) {
+					return null;
+				}
+				data = FileSystemUtil.getContentsOfIFile(ifile);
+			}
 		}
-		else {
-			IFile ifile = getIFileForProject(jproj);
-			if (!ifile.exists()) {
-				return null;
-			}
-			data = FileSystemUtil.getContentsOfIFile(ifile);
+		catch (IOException e) {
+			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_ioException, e));
 		}
 		
 		return FactoryPathUtil.decodeFactoryPath(data);
@@ -89,7 +95,7 @@ public final class FactoryPathUtil {
 	 * is deleted.
 	 */
 	public static void saveFactoryPathFile(IJavaProject jproj, Map<FactoryContainer, Boolean> containerMap) 
-		throws CoreException, IOException 
+		throws CoreException 
 	{
 		IFile projFile;
 		File wkspFile;
@@ -102,23 +108,28 @@ public final class FactoryPathUtil {
 			projFile = null;
 		}
 		
-		if (containerMap != null) {
-			String data = FactoryPathUtil.encodeFactoryPath(containerMap);
-			// If project is null, set workspace-level data
-			if (jproj == null) {
-				FileSystemUtil.writeStringToFile(wkspFile, data);
+		try {
+			if (containerMap != null) {
+				String data = FactoryPathUtil.encodeFactoryPath(containerMap);
+				// If project is null, set workspace-level data
+				if (jproj == null) {
+					FileSystemUtil.writeStringToFile(wkspFile, data);
+				}
+				else {
+					FileSystemUtil.writeStringToIFile(projFile, data);
+				}
 			}
-			else {
-				FileSystemUtil.writeStringToIFile(projFile, data);
+			else { // restore defaults by deleting the factorypath file.
+				if (jproj != null) {
+					projFile.delete(true, null);
+				}
+				else {
+					wkspFile.delete();
+				}
 			}
 		}
-		else { // restore defaults by deleting the factorypath file.
-			if (jproj != null) {
-				projFile.delete(true, null);
-			}
-			else {
-				wkspFile.delete();
-			}
+		catch (IOException e) {
+			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_ioException, e));
 		}
 	}
 	
@@ -147,7 +158,7 @@ public final class FactoryPathUtil {
 	}
 	
 	public static Map<FactoryContainer, Boolean> decodeFactoryPath(final String xmlFactoryPath) 
-		throws IOException
+		throws CoreException
 	{
 		Map<FactoryContainer, Boolean> result = new LinkedHashMap<FactoryContainer, Boolean>();
 		StringReader reader = new StringReader(xmlFactoryPath);
@@ -159,18 +170,22 @@ public final class FactoryPathUtil {
 			fpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 			
 		}
+		catch (IOException e) {
+			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_ioException, e));
+		}
 		catch (SAXException e) {
-			throw new IOException("Unable to parse: " + e); //$NON-NLS-1$
+			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_couldNotParse, e));
 		}
 		catch (ParserConfigurationException e) {
-			throw new IOException("Unable to get parser: " + e); //$NON-NLS-1$
+			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_parserConfigError, e));
 		}
 		finally {
 			reader.close();
 		}
 		
 		if (!fpElement.getNodeName().equalsIgnoreCase(FACTORYPATH_TAG)) {
-			throw new IOException("Incorrect file format. File must begin with " + FACTORYPATH_TAG); //$NON-NLS-1$
+			IOException e = new IOException("Incorrect file format. File must begin with " + FACTORYPATH_TAG); //$NON-NLS-1$
+			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_ioException, e));
 		}
 		NodeList nodes = fpElement.getElementsByTagName(FACTORYPATH_ENTRY_TAG);
 		for (int i=0; i < nodes.getLength(); i++) {
@@ -351,9 +366,6 @@ public final class FactoryPathUtil {
 			catch (CoreException ce) {
 				AptPlugin.log(ce, "Could not get factory containers for project: " + jproj); //$NON-NLS-1$
 			}
-			catch (IOException ioe) {
-				AptPlugin.log(ioe, "Could not get factory containers for project: " + jproj); //$NON-NLS-1$
-			}
 		}
 		// Workspace if no project data was found
 		if (containers == null) {
@@ -362,9 +374,6 @@ public final class FactoryPathUtil {
 			}
 			catch (CoreException ce) {
 				AptPlugin.log(ce, "Could not get factory containers for project: " + jproj); //$NON-NLS-1$
-			}
-			catch (IOException ioe) {
-				AptPlugin.log(ioe, "Could not get factory containers for project: " + jproj); //$NON-NLS-1$
 			}
 		}
 		// if no project and no workspace data was found, we'll get the defaults

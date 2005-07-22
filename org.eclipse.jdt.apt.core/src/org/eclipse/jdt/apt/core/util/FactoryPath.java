@@ -46,7 +46,7 @@ public final class FactoryPath {
 	 */
 	public static synchronized void addContainers(
 			IJavaProject jproj, Map<FactoryContainer, Boolean> adds) 
-			throws IOException, CoreException {
+			throws CoreException {
 		Map<FactoryContainer, Boolean> existing = FactoryPathUtil.getAllContainers(jproj);
 		existing.putAll(adds);
 		setContainers(jproj, existing);
@@ -152,7 +152,7 @@ public final class FactoryPath {
 	 */
 	public static synchronized void removeContainer(
 			IJavaProject jproj, FactoryContainer container) 
-			throws IOException, CoreException {
+			throws CoreException {
 		Map<FactoryContainer, Boolean> existing = FactoryPathUtil.getAllContainers(jproj);
 		existing.remove(container);
 		setContainers(jproj, existing);
@@ -166,7 +166,7 @@ public final class FactoryPath {
 	 * or null, to restore defaults.
 	 */
 	public static synchronized void setContainers(IJavaProject jproj, Map<FactoryContainer, Boolean> containers) 
-	throws IOException, CoreException 
+	throws CoreException 
 	{
 		FactoryPathUtil.saveFactoryPathFile(jproj, containers);
 		// The factory path isn't saved to the Eclipse preference store,

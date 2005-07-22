@@ -11,7 +11,6 @@
 
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
-import java.io.IOException;
 import java.util.*;
 
 import org.eclipse.core.resources.IFile;
@@ -22,6 +21,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.FactoryContainer;
 import org.eclipse.jdt.apt.core.util.FactoryPath;
+import org.eclipse.jdt.apt.ui.internal.util.ExceptionHandler;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.util.CoreUtility;
@@ -346,13 +346,10 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		try {
 			FactoryPath.setContainers(fJProj, containers);
 		}
-		catch (IOException e) {
-			// TODO: what?
-			e.printStackTrace();
-		}
 		catch (CoreException e) {
-			// TODO: what?
-			e.printStackTrace();
+			final String title = Messages.FactoryPathConfigurationBlock_unableToSaveFactorypath_title;
+			final String message = Messages.FactoryPathConfigurationBlock_unableToSaveFactorypath_message;
+			ExceptionHandler.handle(e, fBlockControl.getShell(), title, message);
 		}
 	}
 	

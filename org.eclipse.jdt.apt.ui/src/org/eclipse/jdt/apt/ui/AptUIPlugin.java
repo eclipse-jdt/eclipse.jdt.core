@@ -1,6 +1,10 @@
 package org.eclipse.jdt.apt.ui;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -15,6 +19,12 @@ public class AptUIPlugin extends AbstractUIPlugin {
 	// The plugin ID
 	public static final String PLUGIN_ID = "org.eclipse.jdt.apt.ui"; //$NON-NLS-1$
 	
+	/**
+	 * Status IDs for system log entries.  Must be unique per plugin.
+	 */
+	public static final int STATUS_EXCEPTION = 1;
+	public static final int INTERNAL_ERROR = 2;
+
 	/**
 	 * The constructor.
 	 */
@@ -44,6 +54,18 @@ public class AptUIPlugin extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	public static IWorkbenchWindow getActiveWorkbenchWindow() {
+		return getDefault().getWorkbench().getActiveWorkbenchWindow();
+	}
+	
+	public static Shell getActiveWorkbenchShell() {
+		 IWorkbenchWindow window= getActiveWorkbenchWindow();
+		 if (window != null) {
+		 	return window.getShell();
+		 }
+		 return null;
+	}
+	
 	/**
 	 * Returns an image descriptor for the image file at the given
 	 * plug-in relative path.
@@ -54,4 +76,13 @@ public class AptUIPlugin extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
+	
+	public static void log(IStatus status) {
+		getDefault().getLog().log(status);
+	}
+	
+	public static void log(Throwable e) {
+		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, Messages.AptUIPlugin_exceptionThrown, e)); 
+	}
+	
 }
