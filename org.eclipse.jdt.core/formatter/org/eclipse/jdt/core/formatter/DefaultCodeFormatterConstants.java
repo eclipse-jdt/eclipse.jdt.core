@@ -808,7 +808,7 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a new line after the opening brace in an array initializer
+	 * FORMATTER / Option to insert a new line after an annotation
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
