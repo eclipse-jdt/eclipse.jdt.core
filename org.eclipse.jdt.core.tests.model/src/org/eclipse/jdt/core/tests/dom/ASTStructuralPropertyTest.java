@@ -79,6 +79,21 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			public void postVisit(ASTNode node) {
 				StructuralPropertyDescriptor me = node.getLocationInParent();
 				assertTrue(me != null || (node == root));
+                ASTNode p = node.getParent();
+                if (p != null) {
+                    List parentProperties = p.structuralPropertiesForType();
+                    boolean foundMe = false;
+                    for (Iterator it = parentProperties.iterator(); it
+                            .hasNext();) {
+                        StructuralPropertyDescriptor prop = 
+                            (StructuralPropertyDescriptor) it.next();
+                        if (me == prop || prop.getId().equals(me.getId())) {
+                            foundMe = true;
+                            break;
+                        }
+                    }
+                    assertTrue(foundMe);
+                }
 			}
 		};
 		root.accept(v);
