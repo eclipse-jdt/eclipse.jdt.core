@@ -22911,5 +22911,18 @@ public void test791() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104649
+public void test792() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"	void shouldcompile() {\n" + 
+			"		java.util.Collections.max(null);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
