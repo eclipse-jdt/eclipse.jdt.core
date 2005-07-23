@@ -118,34 +118,40 @@ public class TypeVariableBinding extends ReferenceBinding {
 		}
 		boolean unchecked = false;
 		if (this.superclass.id != T_JavaLangObject) {
-			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superclass) : this.superclass;
-			if (!argumentType.isCompatibleWith(substitutedSuperType)) {
-			    return TypeConstants.MISMATCH;
-			}
-			if (argumentType instanceof ReferenceBinding) {
-				ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
-				TypeBinding match = referenceArgument.findSuperTypeWithSameErasure(substitutedSuperType);
-				if (match != null){
-					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
-					if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
-						unchecked = true;
+			TypeBinding superType = this.superclass;
+			if (superType != argumentType) { // check identity before substituting (104649)
+				TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, superType) : superType;
+				if (!argumentType.isCompatibleWith(substitutedSuperType)) {
+				    return TypeConstants.MISMATCH;
 				}
-			} 
+				if (argumentType instanceof ReferenceBinding) {
+					ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
+					TypeBinding match = referenceArgument.findSuperTypeWithSameErasure(substitutedSuperType);
+					if (match != null){
+						// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
+						if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
+							unchecked = true;
+					}
+				} 
+			}
 		}
 	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces[i]) : this.superInterfaces[i];
-			if (!argumentType.isCompatibleWith(substitutedSuperType)) {
-			    return TypeConstants.MISMATCH;
-			}
-			if (argumentType instanceof ReferenceBinding) {
-				ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
-				TypeBinding match = referenceArgument.findSuperTypeWithSameErasure(substitutedSuperType);
-				if (match != null){
-					// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
-					if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
-						unchecked = true;
+	    	TypeBinding superType = this.superInterfaces[i];
+	    	if (superType != argumentType) { // check identity before substituting (104649)
+				TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, superType) : superType;
+				if (!argumentType.isCompatibleWith(substitutedSuperType)) {
+				    return TypeConstants.MISMATCH;
 				}
-			}
+				if (argumentType instanceof ReferenceBinding) {
+					ReferenceBinding referenceArgument = (ReferenceBinding) argumentType;
+					TypeBinding match = referenceArgument.findSuperTypeWithSameErasure(substitutedSuperType);
+					if (match != null){
+						// Enum#RAW is not a substitute for <E extends Enum<E>> (86838)
+						if (match.isRawType() && (substitutedSuperType.isGenericType()||substitutedSuperType.isBoundParameterizedType()))
+							unchecked = true;
+					}
+				}
+	    	}
 	    }
 	    return unchecked ? TypeConstants.UNCHECKED : TypeConstants.OK;
 	}
