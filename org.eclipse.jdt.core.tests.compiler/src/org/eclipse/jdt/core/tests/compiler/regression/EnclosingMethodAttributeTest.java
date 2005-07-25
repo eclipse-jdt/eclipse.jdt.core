@@ -83,7 +83,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			assertTrue("IOException", false);
 		}
 		
-		String expectedOutput = "  Enclosing Method: #23  #25 X.foo()Ljava/lang/Object;\n";
+		String expectedOutput = "Enclosing Method: #24  #27 X.foo()Ljava/lang/Object;\n";
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -135,7 +135,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			assertTrue("IOException", false);
 		}
 		
-		String expectedOutput = " Enclosing Method: #25  #29 X$1MyLocal$A$Member.foo()Ljava/lang/Object;\n";
+		String expectedOutput = "  Enclosing Method: #26  #31 X$1MyLocal$A$Member.foo()Ljava/lang/Object;\n";
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
