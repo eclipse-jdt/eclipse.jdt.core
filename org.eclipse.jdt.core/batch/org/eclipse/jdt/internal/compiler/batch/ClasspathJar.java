@@ -23,16 +23,17 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 public class ClasspathJar extends ClasspathLocation {
 	
-ZipFile zipFile;
-boolean closeZipFileAtEnd;
-Hashtable packageCache;
+private File file;
+private ZipFile zipFile;
+private boolean closeZipFileAtEnd;
+private Hashtable packageCache;
 
 public ClasspathJar(File file) throws IOException {
-	this(new ZipFile(file), true, null);
+	this(file, true, null);
 }
-public ClasspathJar(ZipFile zipFile, boolean closeZipFileAtEnd, AccessRuleSet accessRuleSet) {
+public ClasspathJar(File file, boolean closeZipFileAtEnd, AccessRuleSet accessRuleSet) {
 	super(accessRuleSet);
-	this.zipFile = zipFile;
+	this.file = file;
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
 }
 
@@ -48,6 +49,9 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 		// treat as if class file is missing
 	}
 	return null;
+}
+public void initialize() throws IOException {
+	this.zipFile = new ZipFile(this.file);
 }
 public boolean isPackage(String qualifiedPackageName) {
 	if (this.packageCache != null)
@@ -75,10 +79,11 @@ public boolean isPackage(String qualifiedPackageName) {
 public void reset() {
 	if (this.zipFile != null && this.closeZipFileAtEnd) {
 		try { 
-			this.zipFile.close(); 
+			this.zipFile.close();
 		} catch(IOException e) {
 			// ignore
 		}
+		this.zipFile = null;
 	}
 	this.packageCache = null;
 }
