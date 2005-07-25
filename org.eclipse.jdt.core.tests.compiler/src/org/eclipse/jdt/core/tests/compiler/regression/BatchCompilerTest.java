@@ -1972,6 +1972,25 @@ public void test032(){
         "5 problems (5 warnings)",
         false);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104664
+public void test033(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp \"" + OUTPUT_DIR
+        + "\"" + File.pathSeparator
+        + " -repeat 2 -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "[repetition 1/2]\n" + 
+        "[repetition 2/2]\n",
+        "",
+        true);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
