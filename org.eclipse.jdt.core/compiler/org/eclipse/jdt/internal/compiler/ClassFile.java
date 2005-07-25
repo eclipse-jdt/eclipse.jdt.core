@@ -603,7 +603,8 @@ public class ClassFile
 			attributeNumber++;
 		}
 		if (targetJDK >= ClassFileConstants.JDK1_5
-				&& (this.referenceBinding.isAnonymousType() || this.referenceBinding.isLocalType())) {
+				&& this.referenceBinding.isNestedType()
+				&& !this.referenceBinding.isMemberType()) {
 			// add enclosing method attribute (1.5 mode only)
 			if (contentsOffset + 10 >= contents.length) {
 				resizeContents(10);
