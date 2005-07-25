@@ -69,33 +69,6 @@ public boolean containsKey(float key) {
 	}
 	return false;
 }
-/** Gets the object associated with the specified key in the
- * hashtable.
- * @param key <CODE>float</CODE> the specified key
- * @return int the element for the key or -1 if the key is not
- *  defined in the hash table.
- */
-public int get(float key) {
-	if (key == 0.0f) {
-		for (int i = 0, max = elementSize; i < max; i++) {
-			if (keyTable[i] == 0.0f) {
-				int value1 = Float.floatToIntBits(key);
-				int value2 = Float.floatToIntBits(keyTable[i]);
-				if (value1 == -2147483648 && value2 == -2147483648)
-					return valueTable[i];
-				if (value1 == 0 && value2 == 0)
-					return valueTable[i];
-			}
-		}
-	} else {
-		for (int i = 0, max = elementSize; i < max; i++) {
-			if (keyTable[i] == key) {
-				return valueTable[i];
-			}
-		}
-	}
-	return -1;
-}
 /**
  * Puts the specified element into the hashtable, using the specified
  * key.  The element may be retrieved by doing a get() with the same key.
@@ -114,6 +87,43 @@ public int put(float key, int value) {
 	valueTable[elementSize] = value;
 	elementSize++;
 	return value;
+}
+/**
+ * Puts the specified element into the hashtable, using the specified
+ * key.  The element may be retrieved by doing a get() with the same key.
+ * 
+ * @param key <CODE>float</CODE> the specified key in the hashtable
+ * @param value <CODE>int</CODE> the specified element
+ * @return int value
+ */
+public int putIfAbsent(float key, int value) {
+	if (key == 0.0f) {
+		for (int i = 0, max = elementSize; i < max; i++) {
+			if (keyTable[i] == 0.0f) {
+				int value1 = Float.floatToIntBits(key);
+				int value2 = Float.floatToIntBits(keyTable[i]);
+				if (value1 == -2147483648 && value2 == -2147483648)
+					return valueTable[i];
+				if (value1 == 0 && value2 == 0)
+					return valueTable[i];
+			}
+		}
+	} else {
+		for (int i = 0, max = elementSize; i < max; i++) {
+			if (keyTable[i] == key) {
+				return valueTable[i];
+			}
+		}
+	}
+	if (elementSize == keyTable.length) {
+		// resize
+		System.arraycopy(keyTable, 0, (keyTable = new float[elementSize * 2]), 0, elementSize);
+		System.arraycopy(valueTable, 0, (valueTable = new int[elementSize * 2]), 0, elementSize);
+	}
+	keyTable[elementSize] = key;
+	valueTable[elementSize] = value;
+	elementSize++;
+	return -value; // negative when added, assumes value is > 0
 }
 /**
  * Converts to a rather lengthy String.

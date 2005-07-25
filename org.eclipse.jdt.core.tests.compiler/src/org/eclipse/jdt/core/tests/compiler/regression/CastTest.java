@@ -81,9 +81,9 @@ public void test001() {
 		"     3  astore_1 [c1]\n" + 
 		"     4  aload_1 [c1]\n" + 
 		"     5  astore_2 [c2]\n" + 
-		"     6  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-		"     9  ldc <String \"SUCCESS\"> [23]\n" + 
-		"    11  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [29]\n" + 
+		"     6  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+		"     9  ldc <String \"SUCCESS\"> [22]\n" + 
+		"    11  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
 		"    14  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 3]\n" + 
@@ -1297,15 +1297,15 @@ public void test034() {
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 4\n" + 
 		"  public static void main(String[] args);\n" + 
-		"     0  new java.util.ArrayList [17]\n" + 
+		"     0  new java.util.ArrayList [16]\n" + 
 		"     3  dup\n" + 
 		"     4  invokespecial java.util.ArrayList() [18]\n" + 
 		"     7  astore_1 [list]\n" + 
-		"     8  new java.util.ArrayList [17]\n" + 
+		"     8  new java.util.ArrayList [16]\n" + 
 		"    11  dup\n" + 
 		"    12  invokespecial java.util.ArrayList() [18]\n" + 
 		"    15  astore_1 [list]\n" + 
-		"    16  new java.util.ArrayList [17]\n" + 
+		"    16  new java.util.ArrayList [16]\n" + 
 		"    19  dup\n" + 
 		"    20  invokespecial java.util.ArrayList() [18]\n" + 
 		"    23  astore_2 [alist]\n" + 
@@ -1313,9 +1313,9 @@ public void test034() {
 		"    25  astore_3 [list2]\n" + 
 		"    26  aload_2 [alist]\n" + 
 		"    27  astore_3 [list2]\n" + 
-		"    28  getstatic java.lang.System.out : java.io.PrintStream [24]\n" + 
-		"    31  ldc <String \"SUCCESS\"> [26]\n" + 
-		"    33  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [32]\n" + 
+		"    28  getstatic java.lang.System.out : java.io.PrintStream [19]\n" + 
+		"    31  ldc <String \"SUCCESS\"> [25]\n" + 
+		"    33  invokevirtual java.io.PrintStream.println(java.lang.String) : void [27]\n" + 
 		"    36  return\n" + 
 		"      Line numbers:\n" + 
 		"        [pc: 0, line: 6]\n" + 

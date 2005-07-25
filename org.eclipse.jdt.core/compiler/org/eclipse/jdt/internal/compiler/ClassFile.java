@@ -626,7 +626,7 @@ public class ClassFile
 			if (this.referenceBinding instanceof LocalTypeBinding) {
 				MethodBinding methodBinding = ((LocalTypeBinding) this.referenceBinding).enclosingMethod;
 				if (methodBinding != null) {
-					int enclosingMethodIndex = constantPool.literalIndexForMethod(methodBinding.selector, methodBinding.signature());
+					int enclosingMethodIndex = constantPool.literalIndexForNameAndType(methodBinding.selector, methodBinding.signature());
 					methodIndexByte1 = (byte) (enclosingMethodIndex >> 8);
 					methodIndexByte2 = (byte) enclosingMethodIndex;
 				}
@@ -2861,7 +2861,7 @@ public class ClassFile
 	 * @return char[]
 	 */
 	public char[] fileName() {
-		return constantPool.UTF8Cache.returnKeyFor(1);
+		return constantPool.UTF8Cache.returnKeyFor(2);
 	}
 
 	private void generateAnnotation(Annotation annotation, int attributeOffset) {

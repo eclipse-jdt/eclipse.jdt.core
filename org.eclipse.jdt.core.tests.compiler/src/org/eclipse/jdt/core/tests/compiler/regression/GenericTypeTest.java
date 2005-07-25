@@ -2873,23 +2873,23 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"  // Method descriptor #25 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
-			"     0  new X [2]\n" + 
+			"     0  new X [1]\n" + 
 			"     3  dup\n" + 
-			"     4  new BX [27]\n" + 
+			"     4  new BX [26]\n" + 
 			"     7  dup\n" + 
 			"     8  invokespecial BX() [28]\n" + 
-			"    11  invokespecial X(AX) [30]\n" + 
+			"    11  invokespecial X(AX) [29]\n" + 
 			"    14  astore_1 [x]\n" + 
 			"    15  aload_1 [x]\n" + 
-			"    16  getfield X.t : AX [17]\n" + 
-			"    19  checkcast BX [27]\n" + 
-			"    22  ldc <String \"SUCC\"> [32]\n" + 
-			"    24  invokevirtual BX.foo(java.lang.Object) : void  [36]\n" + 
+			"    16  getfield X.t : AX [16]\n" + 
+			"    19  checkcast BX [26]\n" + 
+			"    22  ldc <String \"SUCC\"> [31]\n" + 
+			"    24  invokevirtual BX.foo(java.lang.Object) : void [33]\n" + 
 			"    27  aload_1 [x]\n" + 
-			"    28  getfield X.t : AX [17]\n" + 
-			"    31  checkcast BX [27]\n" + 
-			"    34  ldc <String \"ESS\"> [38]\n" + 
-			"    36  invokevirtual BX.bar(java.lang.Object) : void  [41]\n" + 
+			"    28  getfield X.t : AX [16]\n" + 
+			"    31  checkcast BX [26]\n" + 
+			"    34  ldc <String \"ESS\"> [37]\n" + 
+			"    36  invokevirtual BX.bar(java.lang.Object) : void [39]\n" + 
 			"    39  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
@@ -5824,12 +5824,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"     5  astore_1 [i]\n" + 
 			"     6  goto 10\n" + 
 			"     9  return\n" + 
-			"    10  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
+			"    10  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 			"    13  aload_1 [i]\n" + 
-			"    14  invokevirtual java.io.PrintStream.println(java.lang.Object) : void  [27]\n" + 
-			"    17  getstatic java.lang.System.out : java.io.PrintStream [21]\n" + 
-			"    20  ldc <String \"SUCCESS\"> [29]\n" + 
-			"    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void  [32]\n" + 
+			"    14  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [22]\n" + 
+			"    17  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
+			"    20  ldc <String \"SUCCESS\"> [28]\n" + 
+			"    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void [30]\n" + 
 			"    25  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 5]\n" + 
@@ -13842,25 +13842,25 @@ public void test500(){
 			"  // Method descriptor #25 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
-			"     0  new X [2]\n" + 
+			"     0  new X [1]\n" + 
 			"     3  dup\n" + 
-			"     4  new BX [27]\n" + 
+			"     4  new BX [26]\n" + 
 			"     7  dup\n" + 
 			"     8  invokespecial BX() [28]\n" + 
-			"    11  invokespecial X(AX) [30]\n" + 
+			"    11  invokespecial X(AX) [29]\n" + 
 			"    14  astore_1 [x]\n" + 
-			"    15  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
+			"    15  getstatic java.lang.System.out : java.io.PrintStream [31]\n" + 
 			"    18  aload_1 [x]\n" + 
-			"    19  getfield X.t : AX [17]\n" + 
-			"    22  checkcast BX [27]\n" + 
-			"    25  getfield BX.ax : java.lang.Object [40]\n" + 
-			"    28  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [46]\n" + 
-			"    31  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
+			"    19  getfield X.t : AX [16]\n" + 
+			"    22  checkcast BX [26]\n" + 
+			"    25  getfield BX.ax : java.lang.Object [37]\n" + 
+			"    28  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [41]\n" + 
+			"    31  getstatic java.lang.System.out : java.io.PrintStream [31]\n" + 
 			"    34  aload_1 [x]\n" + 
-			"    35  getfield X.t : AX [17]\n" + 
-			"    38  checkcast BX [27]\n" + 
-			"    41  getfield BX.bx : java.lang.Object [49]\n" + 
-			"    44  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [46]\n" + 
+			"    35  getfield X.t : AX [16]\n" + 
+			"    38  checkcast BX [26]\n" + 
+			"    41  getfield BX.bx : java.lang.Object [47]\n" + 
+			"    44  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [41]\n" + 
 			"    47  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
@@ -13924,27 +13924,27 @@ public void test500(){
 			"  // Method descriptor #25 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 2\n" + 
 			"  public static void main(String[] args);\n" + 
-			"     0  new X [2]\n" + 
+			"     0  new X [1]\n" + 
 			"     3  dup\n" + 
-			"     4  new BX [27]\n" + 
+			"     4  new BX [26]\n" + 
 			"     7  dup\n" + 
 			"     8  invokespecial BX() [28]\n" + 
-			"    11  invokespecial X(AX) [30]\n" + 
+			"    11  invokespecial X(AX) [29]\n" + 
 			"    14  astore_1 [x]\n" + 
-			"    15  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
+			"    15  getstatic java.lang.System.out : java.io.PrintStream [31]\n" + 
 			"    18  aload_1 [x]\n" + 
-			"    19  invokevirtual X.self() : X  [40]\n" + 
-			"    22  getfield X.t : AX [17]\n" + 
-			"    25  checkcast BX [27]\n" + 
-			"    28  getfield BX.ax : java.lang.Object [44]\n" + 
-			"    31  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [50]\n" + 
-			"    34  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
+			"    19  invokevirtual X.self() : X [37]\n" + 
+			"    22  getfield X.t : AX [16]\n" + 
+			"    25  checkcast BX [26]\n" + 
+			"    28  getfield BX.ax : java.lang.Object [41]\n" + 
+			"    31  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [45]\n" + 
+			"    34  getstatic java.lang.System.out : java.io.PrintStream [31]\n" + 
 			"    37  aload_1 [x]\n" + 
-			"    38  invokevirtual X.self() : X  [40]\n" + 
-			"    41  getfield X.t : AX [17]\n" + 
-			"    44  checkcast BX [27]\n" + 
-			"    47  getfield BX.bx : java.lang.Object [53]\n" + 
-			"    50  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [50]\n" + 
+			"    38  invokevirtual X.self() : X [37]\n" + 
+			"    41  getfield X.t : AX [16]\n" + 
+			"    44  checkcast BX [26]\n" + 
+			"    47  getfield BX.bx : java.lang.Object [51]\n" + 
+			"    50  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [45]\n" + 
 			"    53  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
@@ -14011,7 +14011,7 @@ public void test500(){
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
 			"    0  aload_0 [this]\n" + 
-			"    1  invokespecial java.lang.Object() [13]\n" + 
+			"    1  invokespecial java.lang.Object() [12]\n" + 
 			"    4  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
@@ -14023,18 +14023,18 @@ public void test500(){
 			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [27]\n" + 
-			"     3  new X [2]\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+			"     3  new X [1]\n" + 
 			"     6  dup\n" + 
 			"     7  invokespecial X() [28]\n" + 
-			"    10  getfield X.e : XA [30]\n" + 
+			"    10  getfield X.e : XA [29]\n" + 
 			"    13  pop\n" + 
-			"    14  getstatic XAB.CONST : XB [36]\n" + 
-			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [42]\n" + 
-			"    20  new X [2]\n" + 
+			"    14  getstatic XAB.CONST : XB [31]\n" + 
+			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+			"    20  new X [1]\n" + 
 			"    23  dup\n" + 
 			"    24  invokespecial X() [28]\n" + 
-			"    27  invokevirtual X.foo() : void  [45]\n" + 
+			"    27  invokevirtual X.foo() : void [43]\n" + 
 			"    30  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 10]\n" + 
@@ -14046,12 +14046,12 @@ public void test500(){
 			"  // Method descriptor #10 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [27]\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
 			"     3  aload_0 [this]\n" + 
-			"     4  getfield X.e : XA [30]\n" + 
+			"     4  getfield X.e : XA [29]\n" + 
 			"     7  pop\n" + 
-			"     8  getstatic XB.CONST : XB [50]\n" + 
-			"    11  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [42]\n" + 
+			"     8  getstatic XB.CONST : XB [48]\n" + 
+			"    11  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 14]\n" + 
@@ -14112,7 +14112,7 @@ public void test500(){
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
 			"    0  aload_0 [this]\n" + 
-			"    1  invokespecial java.lang.Object() [9]\n" + 
+			"    1  invokespecial java.lang.Object() [8]\n" + 
 			"    4  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
@@ -14137,18 +14137,18 @@ public void test500(){
 			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [27]\n" + 
-			"     3  new X [2]\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
+			"     3  new X [1]\n" + 
 			"     6  dup\n" + 
 			"     7  invokespecial X() [28]\n" + 
-			"    10  invokevirtual X.e() : XA  [30]\n" + 
+			"    10  invokevirtual X.e() : XA [29]\n" + 
 			"    13  pop\n" + 
-			"    14  getstatic XAB.CONST : XB [36]\n" + 
-			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [42]\n" + 
-			"    20  new X [2]\n" + 
+			"    14  getstatic XAB.CONST : XB [31]\n" + 
+			"    17  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
+			"    20  new X [1]\n" + 
 			"    23  dup\n" + 
 			"    24  invokespecial X() [28]\n" + 
-			"    27  invokevirtual X.foo() : void  [45]\n" + 
+			"    27  invokevirtual X.foo() : void [43]\n" + 
 			"    30  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 10]\n" + 
@@ -14160,12 +14160,12 @@ public void test500(){
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public void foo();\n" + 
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [27]\n" + 
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
 			"     3  aload_0 [this]\n" + 
-			"     4  invokevirtual X.e() : XA  [30]\n" + 
+			"     4  invokevirtual X.e() : XA [29]\n" + 
 			"     7  pop\n" + 
-			"     8  getstatic XB.CONST : XB [50]\n" + 
-			"    11  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [42]\n" + 
+			"     8  getstatic XB.CONST : XB [48]\n" + 
+			"    11  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [37]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 14]\n" + 
@@ -14234,7 +14234,7 @@ public void test500(){
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public X();\n" + 
 			"    0  aload_0 [this]\n" + 
-			"    1  invokespecial java.lang.Object() [13]\n" + 
+			"    1  invokespecial java.lang.Object() [12]\n" + 
 			"    4  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 7]\n" + 
@@ -14246,10 +14246,10 @@ public void test500(){
 			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
 			"  public static void main(String[] args);\n" + 
-			"     0  new X [2]\n" + 
+			"     0  new X [1]\n" + 
 			"     3  dup\n" + 
 			"     4  invokespecial X() [22]\n" + 
-			"     7  invokevirtual X.foo() : void  [25]\n" + 
+			"     7  invokevirtual X.foo() : void [23]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 10]\n" + 
@@ -14260,17 +14260,17 @@ public void test500(){
 			"  // Method descriptor #10 ()V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
 			"  public void foo();\n" + 
-			"     0  new X$1 [29]\n" + 
+			"     0  new X$1 [28]\n" + 
 			"     3  dup\n" + 
 			"     4  aload_0 [this]\n" + 
-			"     5  invokespecial X$1(X) [32]\n" + 
-			"     8  invokevirtual X$1.run() : void  [35]\n" + 
-			"    11  getstatic java.lang.System.out : java.io.PrintStream [41]\n" + 
+			"     5  invokespecial X$1(X) [30]\n" + 
+			"     8  invokevirtual X$1.run() : void [33]\n" + 
+			"    11  getstatic java.lang.System.out : java.io.PrintStream [36]\n" + 
 			"    14  aload_0 [this]\n" + 
-			"    15  getfield X.e : XA [43]\n" + 
+			"    15  getfield X.e : XA [42]\n" + 
 			"    18  pop\n" + 
-			"    19  getstatic XB.CONST : XB [49]\n" + 
-			"    22  invokevirtual java.io.PrintStream.print(java.lang.Object) : void  [55]\n" + 
+			"    19  getstatic XB.CONST : XB [44]\n" + 
+			"    22  invokevirtual java.io.PrintStream.print(java.lang.Object) : void [50]\n" + 
 			"    25  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 13]\n" + 
@@ -14283,7 +14283,7 @@ public void test500(){
 			"        [pc: 0, pc: 26] local: this index: 0 type: X<E>\n" + 
 			"\n" + 
 			"  Inner classes:\n" + 
-			"    [inner class info: #29 X$1, outer class info: #0\n" + 
+			"    [inner class info: #28 X$1, outer class info: #0\n" + 
 			"     inner name: #0, accessflags: 18 private final ]\n" + 
 			"}";
 		
@@ -22239,7 +22239,7 @@ public void test772() {
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public bridge synthetic Object getIt();\n" + 
 			"    0  aload_0\n" + 
-			"    1  invokevirtual FooImpl.getIt() : java.lang.String  [20]\n" + 
+			"    1  invokevirtual FooImpl.getIt() : java.lang.String [19]\n" + 
 			"    4  areturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n";
@@ -22301,7 +22301,7 @@ public void test773() {
 			"  // Stack: 1, Locals: 1\n" + 
 			"  public bridge synthetic Exception getIt() throws java.lang.Exception;\n" + 
 			"    0  aload_0\n" + 
-			"    1  invokevirtual FooImpl.getIt() : java.lang.NullPointerException  [23]\n" + 
+			"    1  invokevirtual FooImpl.getIt() : java.lang.NullPointerException [22]\n" + 
 			"    4  areturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n";
@@ -22559,15 +22559,15 @@ public void test779() {
 		"SUCCESS");
 	
 	String expectedOutput =
-			"  // Method descriptor #29 (I)Ljava/lang/Object;\n" + 
-			"  // Stack: 2, Locals: 2\n" + 
-			"  public bridge synthetic Object get(int arg);\n" + 
-			"    0  aload_0\n" + 
-			"    1  iload_1\n" + 
-			"    2  invokevirtual X$1.get(int) : java.lang.String  [37]\n" + 
-			"    5  areturn\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 1]\n";
+		"  // Method descriptor #31 (I)Ljava/lang/Object;\n" + 
+		"  // Stack: 2, Locals: 2\n" + 
+		"  public bridge synthetic Object get(int arg);\n" + 
+		"    0  aload_0\n" + 
+		"    1  iload_1\n" + 
+		"    2  invokevirtual X$1.get(int) : java.lang.String [36]\n" + 
+		"    5  areturn\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 1]\n";
 	
 	// check no unnecessary checkcast on bridge method for X$1
 	try {

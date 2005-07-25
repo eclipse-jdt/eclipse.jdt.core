@@ -3334,7 +3334,12 @@ final public void invokeinterface(MethodBinding methodBinding) {
 	}
 	position += 3;
 	bCodeStream[classFileOffset++] = OPC_invokeinterface;
-	writeUnsignedShort(constantPool.literalIndex(methodBinding));
+	writeUnsignedShort(
+		constantPool.literalIndexForMethod(
+			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.selector,
+			methodBinding.signature(),
+			true));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == T_double) || (id == T_long))
 			argCount += 2;
@@ -3402,7 +3407,12 @@ final public void invokespecial(MethodBinding methodBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_invokespecial;
-	writeUnsignedShort(constantPool.literalIndex(methodBinding));
+	writeUnsignedShort(
+		constantPool.literalIndexForMethod(
+			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.selector,
+			methodBinding.signature(),
+			false));
 	if (methodBinding.isConstructor() && methodBinding.declaringClass.isNestedType()) {
 		// enclosing instances
 		TypeBinding[] syntheticArgumentTypes = methodBinding.declaringClass.syntheticEnclosingInstanceTypes();
@@ -3454,7 +3464,12 @@ final public void invokestatic(MethodBinding methodBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_invokestatic;
-	writeUnsignedShort(constantPool.literalIndex(methodBinding));
+	writeUnsignedShort(
+		constantPool.literalIndexForMethod(
+			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.selector,
+			methodBinding.signature(),
+			false));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == T_double) || (id == T_long))
 			argCount += 2;
@@ -3873,7 +3888,12 @@ final public void invokevirtual(MethodBinding methodBinding) {
 	}
 	position++;
 	bCodeStream[classFileOffset++] = OPC_invokevirtual;
-	writeUnsignedShort(constantPool.literalIndex(methodBinding));
+	writeUnsignedShort(
+		constantPool.literalIndexForMethod(
+			methodBinding.constantPoolDeclaringClass().constantPoolName(),
+			methodBinding.selector,
+			methodBinding.signature(),
+			false));
 	for (int i = methodBinding.parameters.length - 1; i >= 0; i--)
 		if (((id = methodBinding.parameters[i].id) == T_double) || (id == T_long))
 			argCount += 2;

@@ -59,21 +59,6 @@ public boolean containsKey(long key) {
 	}
 	return false;
 }
-/** Gets the object associated with the specified key in the
- * hashtable.
- * @param key <CODE>long</CODE> the specified key
- * @return int the element for the key or -1 if the key is not
- *  defined in the hash table.
- */
-public int get(long key) {
-	int index = hash(key);
-	while ((keyTable[index] != 0) || ((keyTable[index] == 0) &&(valueTable[index] != 0))) {
-		if (keyTable[index] == key)
-			return valueTable[index];
-		index = (index + 1) % keyTable.length;
-	}
-	return -1;
-}
 /**
  * Return a hashcode for the value of the key parameter.
  * @param key long
@@ -105,6 +90,30 @@ public int put(long key, int value) {
 		rehash();
 	}
 	return value;
+}
+/**
+ * Puts the specified element into the hashtable, using the specified
+ * key.  The element may be retrieved by doing a get() with the same key.
+ * 
+ * @param key <CODE>long</CODE> the specified key in the hashtable
+ * @param value <CODE>int</CODE> the specified element
+ * @return int value
+ */
+public int putIfAbsent(long key, int value) {
+	int index = hash(key);
+	while ((keyTable[index] != 0) || ((keyTable[index] == 0) && (valueTable[index] != 0))) {
+		if (keyTable[index] == key)
+			return valueTable[index];
+		index = (index + 1) % keyTable.length;
+	}
+	keyTable[index] = key;
+	valueTable[index] = value;
+
+	// assumes the threshold is never equal to the size of the table
+	if (++elementSize > threshold) {
+		rehash();
+	}
+	return -value; // negative when added, assumes value is > 0
 }
 /**
  * Rehashes the content of the table into a bigger table.

@@ -1640,7 +1640,7 @@ public void test044() {
 	}
 	
 	String expectedOutput = 
-		"     1  invokevirtual java.lang.String[].clone() : java.lang.Object  [21]\n";
+		"     1  invokevirtual java.lang.String[].clone() : java.lang.Object [16]\n";
 		
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {

@@ -2174,7 +2174,6 @@ public class Util {
 			if (includeReturnType) {
 				char[] rts = Signature.getReturnType(methodSignature);
 				appendTypeSignature(rts, 0 , buffer, compact);
-				buffer.append(' ');
 			}
 		}
 		return String.valueOf(buffer);
