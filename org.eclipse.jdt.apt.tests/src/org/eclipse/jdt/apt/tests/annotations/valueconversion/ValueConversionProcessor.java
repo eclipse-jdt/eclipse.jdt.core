@@ -17,7 +17,9 @@ import java.util.Map;
 import junit.framework.ComparisonFailure;
 import junit.framework.TestCase;
 
-import com.sun.mirror.apt.AnnotationProcessor;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
+
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
@@ -25,13 +27,11 @@ import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.type.AnnotationType;
 
-public class ValueConversionProcessor implements AnnotationProcessor {
+public class ValueConversionProcessor extends BaseProcessor {
 	
-	public static String ERROR = ""; //$NON-NLS-1$
-	private final AnnotationProcessorEnvironment _env;
 	public ValueConversionProcessor(AnnotationProcessorEnvironment env)
 	{
-		_env = env;
+		super(env);
 	}
 	
 	@SuppressWarnings("nls")
@@ -121,11 +121,15 @@ public class ValueConversionProcessor implements AnnotationProcessor {
 			}
 		}
 		catch( ComparisonFailure failure ){			
-			ERROR = failure.getMessage();
+			if (!ProcessorTestStatus.hasErrors()) {
+				ProcessorTestStatus.failWithoutException(failure.toString());
+			}
 			throw failure;
 		}
 		catch( junit.framework.AssertionFailedError error ){
-			ERROR = error.getMessage();
+			if (!ProcessorTestStatus.hasErrors()) {
+				ProcessorTestStatus.failWithoutException(error.toString());
+			}
 			throw error;
 		}
 	}

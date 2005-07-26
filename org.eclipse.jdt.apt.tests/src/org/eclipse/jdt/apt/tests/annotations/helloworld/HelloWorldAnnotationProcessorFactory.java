@@ -12,26 +12,18 @@
 
 package org.eclipse.jdt.apt.tests.annotations.helloworld;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
+
+import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
-public class HelloWorldAnnotationProcessorFactory implements
-AnnotationProcessorFactory 
-{
-
-	public Collection<String> supportedOptions() {
-		return Collections.emptyList();
-	}
-
-	public Collection<String> supportedAnnotationTypes() {
-		return annotations;
+public class HelloWorldAnnotationProcessorFactory extends BaseFactory {
+	
+	public HelloWorldAnnotationProcessorFactory() {
+		super(HelloWorldAnnotation.class.getName());
 	}
 
 	public AnnotationProcessor getProcessorFor(
@@ -41,9 +33,4 @@ AnnotationProcessorFactory
 		return new HelloWorldAnnotationProcessor( env );
 	}
 	
-	private static ArrayList<String> annotations = new ArrayList<String>();
-	
-	{
-		annotations.add( HelloWorldAnnotation.class.getName() );
-	}
 }

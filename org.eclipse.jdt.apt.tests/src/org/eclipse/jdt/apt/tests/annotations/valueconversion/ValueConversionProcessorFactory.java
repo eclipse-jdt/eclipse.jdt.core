@@ -10,25 +10,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.valueconversion;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
+
+import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
-public class ValueConversionProcessorFactory implements 
-	AnnotationProcessorFactory{
+public class ValueConversionProcessorFactory extends BaseFactory {
 
-	public Collection<String> supportedOptions() {
-		return Collections.emptyList();
-	}
-
-	public Collection<String> supportedAnnotationTypes() {
-		return annotations;
+	public ValueConversionProcessorFactory() {
+		super("sample.Test.Annotation"); 
 	}
 
 	public AnnotationProcessor getProcessorFor(
@@ -36,10 +29,5 @@ public class ValueConversionProcessorFactory implements
 			AnnotationProcessorEnvironment env) 
 	{
 		return new ValueConversionProcessor( env );
-	}
-	
-	private static ArrayList<String> annotations = new ArrayList<String>();	
-	{
-		annotations.add("sample.Test.Annotation");		 //$NON-NLS-1$
 	}
 }

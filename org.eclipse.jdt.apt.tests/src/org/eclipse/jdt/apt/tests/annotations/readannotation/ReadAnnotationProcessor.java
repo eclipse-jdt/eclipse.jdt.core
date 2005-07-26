@@ -16,7 +16,9 @@ import java.util.HashSet;
 import junit.framework.ComparisonFailure;
 import junit.framework.TestCase;
 
-import com.sun.mirror.apt.AnnotationProcessor;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
+
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.FieldDeclaration;
@@ -24,16 +26,13 @@ import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 
-public class ReadAnnotationProcessor implements AnnotationProcessor
+public class ReadAnnotationProcessor extends BaseProcessor
 {
-	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 	private static final String[] NO_ANNOTATIONS = new String[0];
-	AnnotationProcessorEnvironment	_env;
-	public static String ERROR = EMPTY_STRING; 
 	
 	public ReadAnnotationProcessor(AnnotationProcessorEnvironment env)
 	{
-		_env = env;
+		super(env);
 	}
 
 	@SuppressWarnings("nls")
@@ -152,11 +151,15 @@ public class ReadAnnotationProcessor implements AnnotationProcessor
 			}
 		}
 		catch( ComparisonFailure failure ){			
-			ERROR = failure.getMessage();
+			if (!ProcessorTestStatus.hasErrors()) {
+				ProcessorTestStatus.failWithoutException(failure.toString());
+			}
 			throw failure;
 		}
 		catch( junit.framework.AssertionFailedError error ){
-			ERROR = error.getMessage();
+			if (!ProcessorTestStatus.hasErrors()) {
+				ProcessorTestStatus.failWithoutException(error.toString());
+			}
 			throw error;
 		}
 	}
@@ -173,7 +176,7 @@ public class ReadAnnotationProcessor implements AnnotationProcessor
 		int counter = 0;
 		for( AnnotationMirror mirror : annotations ){
 			if( counter >= expectedLen )
-				TestCase.assertEquals(EMPTY_STRING, mirror.toString());
+				TestCase.assertEquals("", mirror.toString()); //$NON-NLS-1$
 			else{
 				final String mirrorToString = mirror.toString();
 				final boolean contains = expectedSet.contains(mirrorToString);
@@ -186,10 +189,5 @@ public class ReadAnnotationProcessor implements AnnotationProcessor
 			}
 			counter ++;
 		}
-	}
-
-	public AnnotationProcessorEnvironment getEnvironment()
-	{
-		return _env;
 	}
 }

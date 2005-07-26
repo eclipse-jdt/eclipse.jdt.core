@@ -12,29 +12,19 @@
 
 package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
 
-import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
-import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorFactory;
+import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
-public class MirrorDeclarationTestAnnotationProcessorFactory implements EclipseAnnotationProcessorFactory 
+public class MirrorDeclarationTestAnnotationProcessorFactory extends BaseFactory 
 {
-
-	public Collection<String> supportedOptions()
-	{
-		return Collections.emptyList();
-	}
-
-	public Collection<String> supportedAnnotationTypes()
-	{
-		return annotations;
+	
+	public MirrorDeclarationTestAnnotationProcessorFactory() {
+		super(MirrorDeclarationTestAnnotation.class.getName());
 	}
 
 	public AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> atds, AnnotationProcessorEnvironment env)
@@ -42,13 +32,5 @@ public class MirrorDeclarationTestAnnotationProcessorFactory implements EclipseA
 		return new MirrorDeclarationTestAnnotationProcessor(env);
 	}
 
-	public AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> atds, EclipseAnnotationProcessorEnvironment env) 
-	{
-		return new MirrorDeclarationTestAnnotationProcessor(env);
-	}
 
-	private static ArrayList<String> annotations = new ArrayList<String>();
-	{
-		annotations.add( MirrorDeclarationTestAnnotation.class.getName() );
-	}
 }

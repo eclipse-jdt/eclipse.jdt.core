@@ -15,19 +15,17 @@ package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 import java.io.File;
 import java.util.Map;
 
-import com.sun.mirror.apt.AnnotationProcessor;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
+
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.FieldDeclaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 
 @SuppressWarnings("nls")
-public class MirrorUtilTestAnnotationProcessor implements AnnotationProcessor
+public class MirrorUtilTestAnnotationProcessor extends BaseProcessor
 {
-	public static final String NO_ERRORS = "NO ERRORS";
-	
-	/** Used by the test harness to verify that no errors were encountered **/
-	public static String ERROR = NO_ERRORS;
 
 	// Environment options test cases
 		// no-translation cases
@@ -72,11 +70,9 @@ public class MirrorUtilTestAnnotationProcessor implements AnnotationProcessor
 		"%ROOT%\\org.eclipse.jdt.apt.tests.MirrorUtilTestsProject\\.classpath"
 	};
 	
-	public AnnotationProcessorEnvironment env;
-	
 	public MirrorUtilTestAnnotationProcessor(AnnotationProcessorEnvironment env)
 	{
-		this.env = env;
+		super(env);
 	}
 
 	public void process()
@@ -85,40 +81,6 @@ public class MirrorUtilTestAnnotationProcessor implements AnnotationProcessor
 		testEnvOptions();
 	}
 	
-	@SuppressWarnings("unused")
-	private void assertEquals(String reason, Object expected, Object actual) {
-		if (expected == actual)
-			return;
-		if (expected != null && expected.equals(actual))
-			return;
-		fail("Expected " + expected + ", but saw " + actual + ". Reason: " + reason);
-	}
-
-	@SuppressWarnings("unused")
-	private void assertEquals(String reason, String expected, String actual) {
-		if (expected == actual)
-			return;
-		if (expected != null && expected.equals(actual))
-			return;
-		fail("Expected " + expected + ", but saw " + actual + ". Reason: " + reason);
-	}
-	
-	@SuppressWarnings("unused")
-	private void assertEquals(String reason, int expected, int actual) {
-		if (expected == actual)
-			return;
-		fail("Expected " + expected + ", but saw " + actual + ". Reason: " + reason);
-	}
-	
-	private void assertTrue(String reason, boolean expected) {
-		if (!expected)
-			fail(reason);
-	}
-	
-	private void fail(final String reason) {
-		ERROR = reason;
-		throw new IllegalStateException("Failed during test: " + reason);
-	}
 
 	@SuppressWarnings("unused")
 	private void testHidesOverrides()
@@ -132,7 +94,7 @@ public class MirrorUtilTestAnnotationProcessor implements AnnotationProcessor
 		TypeDeclaration type_I = null;
 		TypeDeclaration type_J = null;
 		TypeDeclaration type_K = null;
-		for(TypeDeclaration type : env.getTypeDeclarations())
+		for(TypeDeclaration type : _env.getTypeDeclarations())
 		{
 			if(type.toString().endsWith("EnvTestClass"))
 				type_EnvTestClass = type;
@@ -169,48 +131,48 @@ public class MirrorUtilTestAnnotationProcessor implements AnnotationProcessor
 		FieldDeclaration field_K = type_K.getFields().iterator().next();
 
 		//overrides positive tests
-		assertTrue("Expect B.method() to override A.method()", env.getDeclarationUtils().overrides(method_B, method_A));
-		assertTrue("Expect K.method() to override I.method()", env.getDeclarationUtils().overrides(method_K, method_I));
+		ProcessorTestStatus.assertTrue("Expect B.method() to override A.method()", _env.getDeclarationUtils().overrides(method_B, method_A));
+		ProcessorTestStatus.assertTrue("Expect K.method() to override I.method()", _env.getDeclarationUtils().overrides(method_K, method_I));
 		
 		//overrides negative tests
-		assertTrue("Expect B.method() to not override C.method()", !env.getDeclarationUtils().overrides(method_B, method_C));
-    	assertTrue("Expect D.method(String s) to not override A.method()", !env.getDeclarationUtils().overrides(method_D, method_A));
+		ProcessorTestStatus.assertTrue("Expect B.method() to not override C.method()", !_env.getDeclarationUtils().overrides(method_B, method_C));
+    	ProcessorTestStatus.assertTrue("Expect D.method(String s) to not override A.method()", !_env.getDeclarationUtils().overrides(method_D, method_A));
 		
 		//hides positive tests
-		assertTrue("Expect B.field to hide A.field", env.getDeclarationUtils().hides(field_B, field_A));
-		assertTrue("Expect D.field to hide A.field", env.getDeclarationUtils().hides(field_D, field_A));
-		assertTrue("Expect K.field to hide I.field", env.getDeclarationUtils().hides(field_K, field_I));
+		ProcessorTestStatus.assertTrue("Expect B.field to hide A.field", _env.getDeclarationUtils().hides(field_B, field_A));
+		ProcessorTestStatus.assertTrue("Expect D.field to hide A.field", _env.getDeclarationUtils().hides(field_D, field_A));
+		ProcessorTestStatus.assertTrue("Expect K.field to hide I.field", _env.getDeclarationUtils().hides(field_K, field_I));
 		
     	//hides negative test
-		assertTrue("Expect B.field to not hide C.field", !env.getDeclarationUtils().hides(field_B, field_C));
+		ProcessorTestStatus.assertTrue("Expect B.field to not hide C.field", !_env.getDeclarationUtils().hides(field_B, field_C));
 	}
 	
 	private void testEnvOptions() {
-		Map<String, String> options = env.getOptions();
+		Map<String, String> options = _env.getOptions();
 		// no-translation cases should be unchanged
 		for (int i = 0; i < EC_NUM_NOTRANSLATIONCASES; ++i) {
-			assertEquals(ENV_KEYS[i], options.get(ENV_KEYS[i]), ENV_VALUES[i]);
+			ProcessorTestStatus.assertEquals(ENV_KEYS[i], options.get(ENV_KEYS[i]), ENV_VALUES[i]);
 		}
 		// translation cases should be changed
 		for (int i = EC_NUM_NOTRANSLATIONCASES; i < ENV_KEYS.length; ++i) {
-			assertTrue(ENV_KEYS[i], !ENV_VALUES[i].equals(options.get(ENV_KEYS[i])) );
+			ProcessorTestStatus.assertTrue(ENV_KEYS[i], !ENV_VALUES[i].equals(options.get(ENV_KEYS[i])) );
 		}
 		// the files should exist at the specified absolute location
 		String name = options.get(ENV_KEYS[EC_CPVARFILE]);
 		File file;
 		if (name == null) {
-			fail(ENV_KEYS[EC_CPVARFILE] + " was not in options map");
+			ProcessorTestStatus.fail(ENV_KEYS[EC_CPVARFILE] + " was not in options map");
 		} else {
 			file = new File(name);
-			assertTrue(ENV_KEYS[EC_CPVARFILE] + " was not found", file != null && file.exists());
+			ProcessorTestStatus.assertTrue(ENV_KEYS[EC_CPVARFILE] + " was not found", file != null && file.exists());
 		}
 		
 		name = options.get(ENV_KEYS[EC_PROJFILE]);
 		if (name == null) {
-			fail(ENV_KEYS[EC_PROJFILE] + " was not in options map");
+			ProcessorTestStatus.fail(ENV_KEYS[EC_PROJFILE] + " was not in options map");
 		} else {
 			file = new File(name);
-			assertTrue(ENV_KEYS[EC_PROJFILE] + " was not found", file != null && file.exists());
+			ProcessorTestStatus.assertTrue(ENV_KEYS[EC_PROJFILE] + " was not found", file != null && file.exists());
 		}
 	}
 }

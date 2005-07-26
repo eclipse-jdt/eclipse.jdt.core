@@ -13,19 +13,8 @@
 package org.eclipse.jdt.apt.tests.annotations.noop;
 
 import com.sun.mirror.apt.AnnotationProcessor;
-import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 
 public class NoOpAnnotationProcessor implements AnnotationProcessor
 {
-
-	public NoOpAnnotationProcessor(AnnotationProcessorEnvironment env)
-	{
-		_env = env;
-	}
-
-	public void process()
-	{
-	}
-
-	AnnotationProcessorEnvironment	_env;
+	public void process(){}
 }

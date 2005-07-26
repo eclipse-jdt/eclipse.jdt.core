@@ -10,26 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.readannotation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
+
+import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
-public class ReadAnnotationProcessorFactory implements
-	AnnotationProcessorFactory 
+public class ReadAnnotationProcessorFactory extends BaseFactory
 {
 
-	public Collection<String> supportedOptions() {
-		return Collections.emptyList();
-	}
-
-	public Collection<String> supportedAnnotationTypes() {
-		return annotations;
+	public ReadAnnotationProcessorFactory() {
+		super("trigger.MyMarkerAnnotation"); //$NON-NLS-1$
 	}
 
 	public AnnotationProcessor getProcessorFor(
@@ -39,8 +32,4 @@ public class ReadAnnotationProcessorFactory implements
 		return new ReadAnnotationProcessor( env );
 	}
 	
-	private static ArrayList<String> annotations = new ArrayList<String>();	
-	{
-		annotations.add("trigger.MyMarkerAnnotation");		 //$NON-NLS-1$
-	}
 }

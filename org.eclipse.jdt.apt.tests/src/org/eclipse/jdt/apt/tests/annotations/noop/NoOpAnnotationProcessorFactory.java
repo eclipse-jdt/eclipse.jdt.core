@@ -12,38 +12,25 @@
 
 package org.eclipse.jdt.apt.tests.annotations.noop;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Set;
+
+import org.eclipse.jdt.apt.tests.annotations.BaseFactory;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
-public class NoOpAnnotationProcessorFactory implements
-AnnotationProcessorFactory 
+public class NoOpAnnotationProcessorFactory extends BaseFactory 
 {
-
-	public Collection<String> supportedOptions() {
-		return Collections.emptyList();
-	}
-
-	public Collection<String> supportedAnnotationTypes() {
-		return annotations;
+	
+	public NoOpAnnotationProcessorFactory() {
+		super(NoOpAnnotation.class.getName());
 	}
 
 	public AnnotationProcessor getProcessorFor(
 			Set<AnnotationTypeDeclaration> atds,
 			AnnotationProcessorEnvironment env) 
 	{
-		return new NoOpAnnotationProcessor( env );
-	}
-	
-	private static ArrayList<String> annotations = new ArrayList<String>();
-	
-	{
-		annotations.add( NoOpAnnotation.class.getName() );
+		return new NoOpAnnotationProcessor();
 	}
 }

@@ -19,15 +19,14 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.readannotation.CodeExample;
-import org.eclipse.jdt.apt.tests.annotations.readannotation.ReadAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class ReadAnnotationTests extends Tests 
 {
-	private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 	private int counter = 0;
 	private String projectName = null;
 	public ReadAnnotationTests(final String name) {
@@ -140,7 +139,7 @@ public class ReadAnnotationTests extends Tests
 	
 	private IProject setupTest() throws Exception
 	{				
-		ReadAnnotationProcessor.ERROR = EMPTY_STRING; //$NON-NLS-1$
+		ProcessorTestStatus.reset();
 		// project will be deleted by super-class's tearDown() method
 		IPath projectPath = env.addProject( getUniqueProjectName(), "1.5" ); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$ 
@@ -167,7 +166,7 @@ public class ReadAnnotationTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals(EMPTY_STRING, ReadAnnotationProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 
 	/**
@@ -189,6 +188,6 @@ public class ReadAnnotationTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 
-		assertEquals(EMPTY_STRING, ReadAnnotationProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}	
 }

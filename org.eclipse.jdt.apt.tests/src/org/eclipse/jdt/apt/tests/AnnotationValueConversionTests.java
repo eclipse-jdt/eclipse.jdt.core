@@ -16,7 +16,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.tests.annotations.valueconversion.ValueConversionProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -66,7 +66,7 @@ public class AnnotationValueConversionTests extends Tests
 	
 	private IProject setupTest() throws Exception
 	{				
-		ValueConversionProcessor.ERROR = ""; //$NON-NLS-1$
+		ProcessorTestStatus.reset();
 		// project will be deleted by super-class's tearDown() method
 		IPath projectPath = env.addProject( getUniqueProjectName(), "1.5" ); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$ 
@@ -119,7 +119,7 @@ public class AnnotationValueConversionTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals("", ValueConversionProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
 	/**
@@ -162,7 +162,7 @@ public class AnnotationValueConversionTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals("", ValueConversionProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
 	/**
@@ -205,7 +205,7 @@ public class AnnotationValueConversionTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals("", ValueConversionProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
 	/**
@@ -248,7 +248,7 @@ public class AnnotationValueConversionTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals("", ValueConversionProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
 	/**
@@ -283,7 +283,7 @@ public class AnnotationValueConversionTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals("", ValueConversionProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
 	/**
@@ -316,7 +316,7 @@ public class AnnotationValueConversionTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals("", ValueConversionProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
 	/**
@@ -347,7 +347,7 @@ public class AnnotationValueConversionTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals("", ValueConversionProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}	
 	
 	/**
@@ -390,7 +390,7 @@ public class AnnotationValueConversionTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals("", ValueConversionProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}	
 	
 	/**
@@ -433,6 +433,6 @@ public class AnnotationValueConversionTests extends Tests
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		
-		assertEquals("", ValueConversionProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}	
 }

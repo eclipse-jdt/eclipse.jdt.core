@@ -6,23 +6,20 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    mkaufman@bea.com - initial API and implementation
+ *    jgarms@bea.com - initial API and implementation
  *    
  *******************************************************************************/
+package org.eclipse.jdt.apt.tests.annotations;
 
-package org.eclipse.jdt.apt.tests.annotations.extradependency;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-
+import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 
-public class ExtraDependencyAnnotationProcessor extends BaseProcessor {
+public abstract class BaseProcessor implements AnnotationProcessor {
 
-	public ExtraDependencyAnnotationProcessor(AnnotationProcessorEnvironment env) {
-		super(env);
+	protected final AnnotationProcessorEnvironment _env;
+	
+	public BaseProcessor(final AnnotationProcessorEnvironment env) {
+		_env = env;
 	}
 
-	public void process() {
-		_env.getTypeDeclaration( "p1.p2.p3.p4.C" ); //$NON-NLS-1$
-	}
 }

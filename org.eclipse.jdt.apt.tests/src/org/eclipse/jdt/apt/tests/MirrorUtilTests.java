@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorUtilTestCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
@@ -41,6 +42,8 @@ public class MirrorUtilTests extends Tests {
 	
 	public void setUp() throws Exception
 	{
+		ProcessorTestStatus.reset();
+		
 		super.setUp();
 
 		env.resetWorkspace();
@@ -107,16 +110,6 @@ public class MirrorUtilTests extends Tests {
 	
 	public void testMirrorUtils() throws Exception
 	{
-		//tests are embedded in the AnnotationProcessor
-//		for(String error : MirrorUtilTestAnnotationProcessor.TEST_ERRORS) {
-	//		System.out.println(error);
-		//}
-
-	//	assertEquals(0, MirrorUtilTestAnnotationProcessor.TEST_ERRORS.size());
-		
-		
-		//tests are embedded in the AnnotationProcessor
-		assertEquals(MirrorUtilTestAnnotationProcessor.NO_ERRORS, MirrorUtilTestAnnotationProcessor.ERROR);
-
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 }

@@ -18,8 +18,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-
-import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationTestAnnotationProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorDeclarationCodeExample;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -38,6 +37,8 @@ public class MirrorDeclarationTests extends Tests {
 	
 	public void setUp() throws Exception
 	{
+		ProcessorTestStatus.reset();
+		
 		super.setUp();
 
 		env.resetWorkspace();
@@ -77,7 +78,6 @@ public class MirrorDeclarationTests extends Tests {
 	
 	public void testMirrorDeclaration() throws Exception
 	{
-		//tests are embedded in the AnnotationProcessor
-		assertEquals(MirrorDeclarationTestAnnotationProcessor.NO_ERRORS, MirrorDeclarationTestAnnotationProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 }

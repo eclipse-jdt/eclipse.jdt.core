@@ -18,6 +18,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.CodeExample;
 import org.eclipse.jdt.apt.tests.annotations.mirrortest.MirrorTestAnnotationProcessor;
 import org.eclipse.jdt.core.tests.builder.Tests;
@@ -34,6 +35,9 @@ public class MirrorTests extends Tests {
 	}
 
 	public void setUp() throws Exception {
+		
+		ProcessorTestStatus.reset();
+		
 		super.setUp();
 		
 		// project will be deleted by super-class's tearDown() method
@@ -86,8 +90,7 @@ public class MirrorTests extends Tests {
 		
 		assertTrue("Processor was not run", MirrorTestAnnotationProcessor._processRun); //$NON-NLS-1$
 		
-		assertEquals(MirrorTestAnnotationProcessor.NO_ERRORS, 
-					 MirrorTestAnnotationProcessor.ERROR);
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	
 }
