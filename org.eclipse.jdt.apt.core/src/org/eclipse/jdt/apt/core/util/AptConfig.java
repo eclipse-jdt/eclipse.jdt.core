@@ -45,9 +45,7 @@ import org.osgi.service.prefs.BackingStoreException;
  * Helpful information about the Eclipse preferences mechanism can be found at:
  * http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/platform-core-home/documents/user_settings/faq.html
  * 
- * TODO: synchronization of maps
- * TODO: NLS
- * TODO: rest of settings
+ * TODO: check synchronization of maps
  * TODO: optimize performance on projects that do not have project-specific settings.
  */
 public class AptConfig {

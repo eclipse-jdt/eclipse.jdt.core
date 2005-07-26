@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.FactoryContainer;
 import org.eclipse.jdt.apt.core.util.FactoryPath;
 import org.eclipse.jdt.apt.ui.internal.util.ExceptionHandler;
@@ -249,11 +250,51 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		fOriginallyProjectSpecific = FactoryPath.hasProjectSpecificFactoryPath(fJProj);
 	}
 	
+	/*
+	 * Helper method to get rid of unchecked conversion warning
+	 */
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
+	private List<FactoryContainer> getListContents() {
+		List<FactoryContainer> contents= fFactoryPathList.getElements();
+		return contents;
+	}
+	
+	/**
+	 * Get all the containers of a certain type currently on the list.
+	 * The format of the returned paths will depend on the container type:
+	 * for EXTJAR it will be an absolute path; for WKSPJAR it will be a
+	 * path relative to the workspace root; for VARJAR it will be a path
+	 * whose first segment is the name of a classpath variable.
+	 * @param type may not be PLUGIN
+	 * @return an array, possibly empty (but never null)
+	 */
+	private IPath[] getExistingPaths(FactoryContainer.FactoryType type) {
+		if (type == FactoryContainer.FactoryType.PLUGIN) {
+			throw new IllegalArgumentException();
+		}
+		List<FactoryContainer> all = getListContents();
+		// find out how many entries there are of this type
+		int countType = 0;
+		for (FactoryContainer fc : all) {
+			if (fc.getType() == type) {
+				++countType;
+			}
+		}
+		// create an array of paths, one per entry of this type 
+		IPath[] some = new IPath[countType];
+		int i = 0;
+		for (FactoryContainer fc : all) {
+			if (fc.getType() == type) {
+				some[i++] = new Path(fc.getId());
+			}
+		}
+		return some;
+	}
+	
 	private FactoryContainer[] openJarFileDialog(FactoryContainer existing) {
 		IWorkspaceRoot root= fJProj.getProject().getWorkspace().getRoot();
 		if (existing == null) {
-			// TODO: instantiate existingPaths, to prevent duplicate entries.
-			IPath[] existingPaths = new IPath[] {};
+			IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.WKSPJAR);
 			IPath[] selected= BuildPathDialogAccess.chooseJAREntries(getShell(), fJProj.getPath(), existingPaths);
 			if (selected != null) {
 				ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
@@ -286,19 +327,9 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		return null;
 	}
 	
-	/*
-	 * Helper method to get rid of unchecked conversion warning
-	 */
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
-	private List<FactoryContainer> getListContents() {
-		List<FactoryContainer> contents= fFactoryPathList.getElements();
-		return contents;
-	}
-	
 	private FactoryContainer[] openVariableSelectionDialog(FactoryContainer existing) {
 		if (existing == null) {
-			// TODO: instantiate existingPaths, to prevent duplicate entries.
-			IPath[] existingPaths = new IPath[] {};
+			IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.VARJAR);
 			IPath[] selected= BuildPathDialogAccess.chooseVariableEntries(getShell(), existingPaths);
 			if (selected != null) {
 				ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();

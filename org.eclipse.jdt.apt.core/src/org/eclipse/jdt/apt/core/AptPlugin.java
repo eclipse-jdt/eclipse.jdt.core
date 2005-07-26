@@ -28,6 +28,7 @@ public class AptPlugin extends Plugin {
 	 */
 	public static final int STATUS_EXCEPTION = 1;
 	public static final int STATUS_NOTOOLSJAR = 2;
+	public static final int STATUS_CANTLOADPLUGINFACTORY = 3;
 	public static final String ERRTXT_NOTOOLSJAR = Messages.AptPlugin_couldNotFindToolsDotJar;
 	
 	private static AptPlugin thePlugin = null; // singleton object

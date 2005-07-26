@@ -128,9 +128,9 @@ public class AnnotationProcessorFactoryLoader {
 		AnnotationProcessorFactory apf = PLUGIN_FACTORY_MAP.get( factoryName );
 		if ( apf == null ) 
 		{
-			// TODO:  log error somewhere
-			System.err.println("could not find AnnotationProcessorFactory " +  //$NON-NLS-1$
-					factoryName + " from available factories defined by plugins" ); //$NON-NLS-1$
+			String s = "could not find AnnotationProcessorFactory " +  //$NON-NLS-1$
+				factoryName + " from available factories defined by plugins"; //$NON-NLS-1$
+			AptPlugin.log(new Status(IStatus.WARNING, AptPlugin.PLUGIN_ID, AptPlugin.STATUS_NOTOOLSJAR, s, null));
 		}
 		return apf;
 	}
