@@ -30,8 +30,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 711 };
+//		TESTS_NAMES = new String[] { "test788" };
+//		TESTS_NUMBERS = new int[] { 788 };
 //		TESTS_RANGE = new int[] { 514, -1 };
 	}
 	public static Test suite() {
@@ -2395,7 +2395,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	ax.p = new AX<String>();\n" + 
-			"	   ^\n" + 
+			"	^^^^\n" + 
 			"Type safety: The field p from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n",
 		null,
@@ -2677,17 +2677,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	ax.p = new AX<String>();\n" + 
-			"	   ^\n" + 
+			"	^^^^\n" + 
 			"Type safety: The field p from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	ax.q = new AX<String>();\n" + 
-			"	   ^\n" + 
+			"	^^^^\n" + 
 			"Type safety: The field q from the raw type AX is assigned a value of type AX<String>. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	ax.r = new AX<Object>();\n" + 
-			"	   ^\n" + 
+			"	^^^^\n" + 
 			"Type safety: The field r from the raw type AX is assigned a value of type AX<Object>. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
@@ -3094,7 +3094,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	class Y extends X implements AX<Thread> {}\n" + 
 			"	      ^\n" + 
-			"The interface AX cannot be implemented more than once with different arguments: AX<Thread> and AX<String>\n" + 
+			"The interface AX cannot be implemented more than once with different arguments: AX<String> and AX<Thread>\n" + 
 			"----------\n");
 	}		
 	public void test110() {
@@ -3110,7 +3110,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	class Y extends X implements AX<Thread> {}\n" + 
 			"	      ^\n" + 
-			"The interface AX cannot be implemented more than once with different arguments: AX<Thread> and AX\n" + 
+			"The interface AX cannot be implemented more than once with different arguments: AX and AX<Thread>\n" + 
 			"----------\n");		
 	}		
 	public void test111() {
@@ -3126,7 +3126,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	class Y extends X implements AX {}\n" + 
 			"	      ^\n" + 
-			"The interface AX cannot be implemented more than once with different arguments: AX and AX<Object>\n" + 
+			"The interface AX cannot be implemented more than once with different arguments: AX<Object> and AX\n" + 
 			"----------\n");		
 	}		
 	// test member types
@@ -11634,7 +11634,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X5.java (at line 1)\n" + 
 			"	class X5 <T extends Y & Comparable<X5>> {}\n" + 
 			"	                        ^^^^^^^^^^\n" + 
-			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<X5> and Comparable<Y>\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<Y> and Comparable<X5>\n" + 
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <X5> and <Y>
 		);
@@ -11649,7 +11649,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X6.java (at line 1)\n" + 
 			"	class X6 <T extends Y & Comparable<X6>> {}\n" + 
 			"	                        ^^^^^^^^^^\n" + 
-			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<X6> and Comparable<Z>\n" + 
+			"The interface Comparable cannot be implemented more than once with different arguments: Comparable<Z> and Comparable<X6>\n" + 
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <X6> and <Y>
 		);
@@ -15962,7 +15962,7 @@ public void test500(){
 			"----------\n" + 
 			"3. WARNING in X.java (at line 17)\n" + 
 			"	c.t= Boolean.TRUE; // javac: warning: [unchecked] unchecked call\n" + 
-			"	  ^\n" + 
+			"	^^^\n" + 
 			"Type safety: The field t from the raw type Cell is assigned a value of type Boolean. References to generic type Cell<T> should be parameterized\n" + 
 			"----------\n");
 	}		
@@ -20128,10 +20128,15 @@ public void test694() {
 		"----------\n" + 
 		"4. ERROR in X.java (at line 3)\n" + 
 		"	X<? extends X<? extends X<String>>> x2;\n" + 
+		"	  ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends X<? extends X<String>> is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 3)\n" + 
+		"	X<? extends X<? extends X<String>>> x2;\n" + 
 		"	              ^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type ? extends X<String> is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
 		"----------\n" + 
-		"5. ERROR in X.java (at line 3)\n" + 
+		"6. ERROR in X.java (at line 3)\n" + 
 		"	X<? extends X<? extends X<String>>> x2;\n" + 
 		"	                          ^^^^^^\n" + 
 		"Bound mismatch: The type String is not a valid substitute for the bounded parameter <T extends X<T>> of the type X<T>\n" + 
@@ -20900,7 +20905,7 @@ public void test720() {
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	class XSub extends XSuper implements Foo<Integer> {}\n" + 
 		"	      ^^^^\n" + 
-		"The interface Foo cannot be implemented more than once with different arguments: Foo<Integer> and Foo\n" + 
+		"The interface Foo cannot be implemented more than once with different arguments: Foo and Foo<Integer>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 8)\n" + 
 		"	public class X implements Bar, Foo {}\n" + 
@@ -22115,7 +22120,12 @@ public void test768() {
 		"	                                    ^\n" + 
 		"The type T is not an interface; it cannot be specified as a bounded parameter\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 5)\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	<T extends Y<Object>, U extends T & Z>  T foo3() { return null; }\n" + 
+		"	                                    ^\n" + 
+		"The interface Y cannot be implemented more than once with different arguments: Y<Object> and Y<String>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
 		"	<T extends Y<Object>, U extends W & Z>  T foo4() { return null; }\n" + 
 		"	                                    ^\n" + 
 		"The interface Y cannot be implemented more than once with different arguments: Y<String> and Y<Object>\n" + 
@@ -22230,8 +22240,7 @@ public void test772() {
 			"  public bridge synthetic Object getIt();\n" + 
 			"    0  aload_0\n" + 
 			"    1  invokevirtual FooImpl.getIt() : java.lang.String  [20]\n" + 
-			"    4  checkcast java.lang.Object [4]\n" + 
-			"    7  areturn\n" + 
+			"    4  areturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n";
 		
@@ -22293,8 +22302,7 @@ public void test773() {
 			"  public bridge synthetic Exception getIt() throws java.lang.Exception;\n" + 
 			"    0  aload_0\n" + 
 			"    1  invokevirtual FooImpl.getIt() : java.lang.NullPointerException  [23]\n" + 
-			"    4  checkcast java.lang.Exception [21]\n" + 
-			"    7  areturn\n" + 
+			"    4  areturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n";
 		
@@ -22388,6 +22396,530 @@ public void test775() {
 			"public class X<T extends X<T>> {\n" + 
 			"	void foo1(X<? extends T> x) {}\n" + 
 			"	void foo2(X<? super T> x) {}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103023
+public void test776() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X<T extends Comparable<? super T>> {\n" + 
+			"\n" + 
+			"    abstract class Foo<E> implements I<Foo<? extends E>> {}\n" + 
+			"\n" + 
+			"    abstract class Bar<E> implements I<Bar<? extends E>> {}\n" + 
+			"\n" + 
+			"    public void bar(List<Foo<T>> f, List<Bar<T>> b) {\n" + 
+			"	foo(f, b);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    <C> void foo(List<? extends C> f, List<? extends C> b) {\n" + 
+			"	System.out.println(\"SUCCESS\");\n" + 
+			"    }\n" + 
+			"    public static void main(String... args) {\n" + 
+			"	new X().bar(null, null);\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"interface I<U> {}\n",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103472
+public void test777() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public interface B<T> {\n" + 
+			"		public T a();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public interface C extends B {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class D implements B<Integer> {\n" + 
+			"		public Integer a() {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	// Illegal\n" + 
+			"	public class E implements B<Integer>, C {\n" + 
+			"		public Integer a() {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	// why is this allowed?\n" + 
+			"	public class F extends D implements C {\n" + 
+			"		public Integer a() {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public interface G<T> {\n" + 
+			"		public void a(T pArg);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public interface H extends G {\n" + 
+			"		public Object b();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class I implements G<Integer> {\n" + 
+			"		public void a(Integer pInt) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	// Illegal. Huh?\n" + 
+			"	public class J extends I implements G {\n" + 
+			"		public Integer a() {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\r\n" + 
+		"	public class E implements B<Integer>, C {\r\n" + 
+		"	             ^\n" + 
+		"The interface B cannot be implemented more than once with different arguments: X.B and X.B<Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 23)\r\n" + 
+		"	public class F extends D implements C {\r\n" + 
+		"	             ^\n" + 
+		"The interface B cannot be implemented more than once with different arguments: X.B<Integer> and X.B\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 24)\r\n" + 
+		"	public Integer a() {\r\n" + 
+		"	               ^^^\n" + 
+		"The method a() of type X.F should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 43)\r\n" + 
+		"	public class J extends I implements G {\r\n" + 
+		"	             ^\n" + 
+		"The interface G cannot be implemented more than once with different arguments: X.G<Integer> and X.G\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103472 - variation
+public void test778() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	interface B<T> {}\n" + 
+			"\n" + 
+			"	interface C extends B {}\n" + 
+			"\n" + 
+			"	class D implements B<Integer> {}\n" + 
+			"\n" + 
+			"	class F extends D implements C {}\n" + 
+			"	\n" + 
+			"	class V<U extends D & C> {}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	class F extends D implements C {}\n" + 
+		"	      ^\n" + 
+		"The interface B cannot be implemented more than once with different arguments: X.B<Integer> and X.B\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	class V<U extends D & C> {}\n" + 
+		"	                      ^\n" + 
+		"The interface B cannot be implemented more than once with different arguments: X.B<Integer> and X.B\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103227
+public void test779() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.AbstractList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	private static class Entry {\n" + 
+			"		public void doIt(final List<? extends String> args) {\n" + 
+			"			List<String> list = new AbstractList<String>() {\n" + 
+			"				@Override public int size() { return 0; }\n" + 
+			"				@Override public String get(int i) { return args.get(i); }\n" + 
+			"			};\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Entry().doIt(null);\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+	
+	String expectedOutput =
+			"  // Method descriptor #29 (I)Ljava/lang/Object;\n" + 
+			"  // Stack: 2, Locals: 2\n" + 
+			"  public bridge synthetic Object get(int arg);\n" + 
+			"    0  aload_0\n" + 
+			"    1  iload_1\n" + 
+			"    2  invokevirtual X$1.get(int) : java.lang.String  [37]\n" + 
+			"    5  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n";
+	
+	// check no unnecessary checkcast on bridge method for X$1
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X$1.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103227 - variation
+public void test780() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	long foo(List<? extends Long> list) {\n" + 
+			"		return list.get(0);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<Long> list = new ArrayList<Long>();\n" + 
+			"		list.add(123L);\n" + 
+			"		System.out.println(new X().foo(list));\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"123");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104109
+public void test781() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"\n" + 
+			"    public static <E, T extends E & Comparable<? super T>> Foo<E> doIt(T t) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    interface Foo<E> {\n" + 
+			"        boolean ok(E e);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104082
+public void test782() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.reflect.*;\n" + 
+			"import java.util.*;\n" + 
+			"\n" + 
+			"interface StoredObject {\n" + 
+			"	String getUid();\n" + 
+			"	String getName();\n" + 
+			"	String getDescription();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface GraphDiagramNode // extends Comparable\n" + 
+			"{\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X<ObjectType extends StoredObject, ParentType extends StoredObject> implements GraphDiagramNode {\n" + 
+			"	private final JccsGraphDiagramModel model;\n" + 
+			"	private final X<? extends ParentType, ?> parent;\n" + 
+			"	private final ObjectType object;\n" + 
+			"\n" + 
+			"	public class JccsGraphDiagramModel {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public interface GraphDiagramModel {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class Dependency {\n" + 
+			"\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public X(JccsGraphDiagramModel argModel, X<? extends ParentType, ?> argParent, ObjectType argObject) {\n" + 
+			"		model = argModel;\n" + 
+			"		parent = argParent;\n" + 
+			"		object = argObject;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected <ChildType extends StoredObject> Collection<? extends X<ChildType, ? super ObjectType>> createChildren(\n" + 
+			"			Iterator<ChildType> argData, Class<? extends X<ChildType, ? super ObjectType>> argChildNodeClass,\n" + 
+			"			Class<? extends StoredObject> argInterface) {\n" + 
+			"		Collection<X<ChildType, ? super ObjectType>> output = new LinkedList<X<ChildType, ? super ObjectType>>();\n" + 
+			"\n" + 
+			"		try {\n" + 
+			"			while (argData.hasNext()) {\n" + 
+			"				ChildType next = argData.next();\n" + 
+			"				Constructor<? extends X<ChildType, ? super ObjectType>> constructor = argChildNodeClass.getConstructor(\n" + 
+			"						JccsGraphDiagramModel.class, getClass(), argInterface);\n" + 
+			"\n" + 
+			"				output.add(constructor.newInstance(model, this, next));\n" + 
+			"			}\n" + 
+			"		} catch (Exception x) {\n" + 
+			"			x.printStackTrace();\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		return output;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104167
+public void test783() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"  private static class B{\n" + 
+			"    private int foo; //incorrectly identified as unused\n" + 
+			"  }\n" + 
+			"  void bar(B b){\n" + 
+			"    if (b.foo == 0)\n" + 
+			"      return;\n" + 
+			"  }\n" + 
+			"  Zork z;\n" +
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104082 - variation
+public void test784() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T, U> {\n" + 
+			"	X<? extends U, ?> parent;\n" + 
+			"\n" + 
+			"	public X(X<? extends U, ?> parent) {\n" + 
+			"		this.parent = parent;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528
+public void test785() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"    <T extends Collection<? extends Number>> T getLonger(T t1, T t2) {\n" + 
+			"        return t1.size() > t2.size() ? t1 : t2;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    void m(HashSet<?> list, ArrayList<?> set) {\n" + 
+			"        getLonger(list, set);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	getLonger(list, set);\n" + 
+		"	^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method getLonger(T, T) of type X is not applicable for the arguments (AbstractCollection<? extends Object>&Cloneable&Serializable, AbstractCollection<? extends Object>&Cloneable&Serializable) since the type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends Number>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528 - variation
+public void test786() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"    <T extends Collection<? extends Object>> T getLonger(T t1, T t2) {\n" + 
+			"        return t1.size() > t2.size() ? t1 : t2;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    void m(HashSet<?> list, ArrayList<?> set) {\n" + 
+			"        getLonger(list, set);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528 - variation
+public void test787() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X<U> {\n" + 
+			"    <T extends Collection<? extends U>> T getLonger(T t1, T t2) {\n" + 
+			"        return t1.size() > t2.size() ? t1 : t2;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    void m(HashSet<?> list, ArrayList<?> set) {\n" + 
+			"        getLonger(list, set);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\r\n" + 
+		"	getLonger(list, set);\r\n" + 
+		"	^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method getLonger(T, T) of type X<U> is not applicable for the arguments (AbstractCollection<? extends Object>&Cloneable&Serializable, AbstractCollection<? extends Object>&Cloneable&Serializable) since the type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends U>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994
+// TODO (kent) reenable once addressed
+public void test788() {
+	this.runConformTest(
+		new String[] {
+			"test/A.java",
+			"package test;\n" + 
+			"\n" + 
+			"public class A<C extends java.nio.channels.Channel>\n" + 
+			"{\n" + 
+			"	class B\n" + 
+			"		extends A<java.nio.channels.SocketChannel>\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"}\n",
+			"java/nio/channels/spi/AbstractSelectableChannel.java",
+			"package java.nio.channels.spi;\n" + 
+			"\n" + 
+			"public abstract class AbstractSelectableChannel\n" + 
+			"	extends java.nio.channels.SelectableChannel\n" + 
+			"{\n" + 
+			"}\n", 
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994 - variation (change ordering of files should have no effect)
+public void test789() {
+	this.runConformTest(
+		new String[] {
+			"java/nio/channels/spi/AbstractSelectableChannel.java",
+			"package java.nio.channels.spi;\n" + 
+			"\n" + 
+			"public abstract class AbstractSelectableChannel\n" + 
+			"	extends java.nio.channels.SelectableChannel\n" + 
+			"{\n" + 
+			"}\n", 
+			"test/A.java",
+			"package test;\n" + 
+			"\n" + 
+			"public class A<C extends java.nio.channels.Channel>\n" + 
+			"{\n" + 
+			"	class B\n" + 
+			"		extends A<java.nio.channels.SocketChannel>\n" + 
+			"	{\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103485
+public void test790() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	<T extends Comparable<T>> boolean isGreater(T t1, T t2) {\n" + 
+			"		return t1.compareTo(t2) > 0 ? true : false; \n" + 
+			"	}\n" + 
+			"\n" + 
+			"	void method1(Integer i, Double d) {\n" + 
+			"		if (isGreater(i, d)) \n" + 
+			"			System.out.println(\"GREATER\");\n" + 
+			"		else\n" + 
+			"			System.out.println(\"LOWER\");\n" + 
+			"	}\n" + 
+			"	void method2(Integer i, Double d) {\n" + 
+			"		Comparable<? extends Number> c1= i;\n" + 
+			"		Comparable<? extends Number> c2= d;\n" + 
+			"		isGreater(c1, c2);\n" + 
+			"	}	\n" + 
+			"	void method3(Integer i, Double d) {\n" + 
+			"		Comparable c1= i;\n" + 
+			"		Comparable c2= d;\n" + 
+			"		isGreater(c1, c2);\n" + 
+			"	}	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Integer i = 1;\n" + 
+			"		Double d = 2.0;\n" + 
+			"		new X().method1(i, d);\n" + 
+			"		new X().method2(i, d);\n" + 
+			"		new X().method3(i, d);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	if (isGreater(i, d)) \n" + 
+		"	    ^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Number&Comparable<?>, Number&Comparable<?>) since the type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
+		"	isGreater(c1, c2);\n" + 
+		"	^^^^^^^^^\n" + 
+		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Comparable<? extends Number>, Comparable<? extends Number>) since the type Comparable<? extends Number> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 20)\n" + 
+		"	isGreater(c1, c2);\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation isGreater(Comparable, Comparable) of the generic method isGreater(T, T) of type X\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104655
+public void test791() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  <Sup, E1 extends Sup, E2 extends Sup> Sup method1(boolean b, E1 e1, E2 e2) {\n" + 
+			"    if (b)\n" + 
+			"      return e1;\n" + 
+			"    else\n" + 
+			"      return e2;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  <Sup, E1 extends Sup, E2 extends Sup> Sup method2(boolean b, E1 e1, E2 e2) {\n" + 
+			"    return b ? e1 : e2;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104649
+public void test792() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"	void shouldcompile() {\n" + 
+			"		java.util.Collections.max(null);\n" + 
+			"	}\n" + 
 			"}\n",
 		},
 		"");

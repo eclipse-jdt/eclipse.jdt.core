@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -39,6 +38,10 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 		 * @return a normalized path for file based classpath entries
 		 */
 		String normalizedPath();
+		/**
+		 * Initialize the entry
+		 */
+		void initialize() throws IOException;
 	}
 /*
 	classPathNames is a collection is Strings representing the full path of each class path
@@ -49,53 +52,61 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 	this(classpathNames, initialFileNames, encoding, null);
 }
 public FileSystem(String[] classpathNames, String[] initialFileNames, String encoding, int[] classpathDirectoryModes) {
-	int classpathSize = classpathNames.length;
+	final int classpathSize = classpathNames.length;
 	this.classpaths = new Classpath[classpathSize];
-	int problemsOccured = 0;
+	int counter = 0;
 	for (int i = 0; i < classpathSize; i++) {
-		this.classpaths[i] = getClasspath(classpathNames[i], encoding,
+		Classpath classpath = getClasspath(classpathNames[i], encoding,
 					classpathDirectoryModes == null ? 0
 							: classpathDirectoryModes[i], null);
-		if (this.classpaths[i] == null)
-			problemsOccured++;
+		try {
+			classpath.initialize();
+			this.classpaths[counter++] = classpath;
+		} catch (IOException e) {
+			// ignore
+		}
 	}
-	if (problemsOccured > 0) {
-		Classpath[] newPaths = new Classpath[classpathSize - problemsOccured];
-		for (int i = 0, current = 0; i < classpathSize; i++)
-			if (this.classpaths[i] != null) {
-				newPaths[current] = this.classpaths[i];
-			}
-		classpathSize = newPaths.length;
-		this.classpaths = newPaths;
+	if (counter != classpathSize) {
+		System.arraycopy(this.classpaths, 0, (this.classpaths = new Classpath[counter]), 0, counter);
 	}
 	initializeKnownFileNames(initialFileNames);
 }
-FileSystem(Classpath[] classpaths, String[] initialFileNames) {
-	this.classpaths = classpaths;
+FileSystem(Classpath[] paths, String[] initialFileNames) {
+	final int length = paths.length;
+	int counter = 0;
+	this.classpaths = new FileSystem.Classpath[length];
+	for (int i = 0; i < length; i++) {
+		final Classpath classpath = paths[i];
+		try {
+			classpath.initialize();
+			this.classpaths[counter++] = classpath;
+		} catch(IOException exception) {
+			// ignore
+		}
+	}
+	if (counter != length) {
+		// should not happen
+		System.arraycopy(this.classpaths, 0, (this.classpaths = new FileSystem.Classpath[counter]), 0, counter);
+	}
 	initializeKnownFileNames(initialFileNames);
 }
 static Classpath getClasspath(String classpathName, String encoding,
 		int classpathDirectoryMode, AccessRuleSet accessRuleSet) {
 	Classpath result = null;
-	try {
-			File file = new File(convertPathSeparators(classpathName));
-			if (file.isDirectory()) {
-				if (file.exists()) {
-					result = new ClasspathDirectory(file, encoding,
-							classpathDirectoryMode, accessRuleSet);
-				}
-			} else {
-				String lowercaseClasspathName = classpathName.toLowerCase();
-				if (lowercaseClasspathName.endsWith(SUFFIX_STRING_jar)
-						|| lowercaseClasspathName.endsWith(SUFFIX_STRING_zip)) {
-					result = new ClasspathJar(new ZipFile(file), true,
-							accessRuleSet);
-					// will throw an IOException if file does not exist
-				}
-			}
-		} catch (IOException e) {
-			// result = null; -- this is already the case
+	File file = new File(convertPathSeparators(classpathName));
+	if (file.isDirectory()) {
+		if (file.exists()) {
+			result = new ClasspathDirectory(file, encoding,
+					classpathDirectoryMode, accessRuleSet);
 		}
+	} else {
+		String lowercaseClasspathName = classpathName.toLowerCase();
+		if (lowercaseClasspathName.endsWith(SUFFIX_STRING_jar)
+				|| lowercaseClasspathName.endsWith(SUFFIX_STRING_zip)) {
+			result = new ClasspathJar(file, true, accessRuleSet);
+			// will throw an IOException if file does not exist
+		}
+	}
 	return result;
 }
 private void initializeKnownFileNames(String[] initialFileNames) {
@@ -174,7 +185,7 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	return null;
 }
 public ClasspathJar getClasspathJar(File file) throws IOException {
-	return new ClasspathJar(new ZipFile(file), true, null);
+	return new ClasspathJar(file, true, null);
 }
 public boolean isPackage(char[][] compoundName, char[] packageName) {
 	String qualifiedPackageName = new String(CharOperation.concatWith(compoundName, packageName, '/'));

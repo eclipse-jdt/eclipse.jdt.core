@@ -545,38 +545,41 @@ public abstract class Expression extends Statement {
 	 * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
 	 * Also check unsafe type operations.
 	 */ 
-	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
+	public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding compileTimeType) {
 
-		if (runtimeTimeType == null || compileTimeType == null)
+		if (runtimeType == null || compileTimeType == null)
 			return;
 		if (this.implicitConversion != 0) return; // already set independantly
-
+		
 		// it is possible for a Byte to be unboxed to a byte & then converted to an int
 		// but it is not possible for a byte to become Byte & then assigned to an Integer,
 		// or to become an int before boxed into an Integer
-		if (runtimeTimeType != NullBinding && runtimeTimeType.isBaseType()) {
+		if (runtimeType != NullBinding && runtimeType.isBaseType()) {
 			if (!compileTimeType.isBaseType()) {
 				TypeBinding unboxedType = scope.environment().computeBoxingType(compileTimeType);
 				this.implicitConversion = UNBOXING;
-				scope.problemReporter().autoboxing(this, compileTimeType, runtimeTimeType);
+				scope.problemReporter().autoboxing(this, compileTimeType, runtimeType);
 				compileTimeType = unboxedType;
 			}
 		} else {
 			if (compileTimeType != NullBinding && compileTimeType.isBaseType()) {
-				TypeBinding boxedType = scope.environment().computeBoxingType(runtimeTimeType);
-				if (boxedType == runtimeTimeType) // Object o = 12;
+				TypeBinding boxedType = scope.environment().computeBoxingType(runtimeType);
+				if (boxedType == runtimeType) // Object o = 12;
 					boxedType = compileTimeType; 
 				this.implicitConversion = BOXING | (boxedType.id << 4) + compileTimeType.id;
 				scope.problemReporter().autoboxing(this, compileTimeType, scope.environment().computeBoxingType(boxedType));
 				return;
 			}
 		}
-
-		switch (runtimeTimeType.id) {
+		int compileTimeTypeID, runtimeTypeID;
+		if ((compileTimeTypeID = compileTimeType.id) == NoId) { // e.g. ? extends String  ==> String (103227)
+			compileTimeTypeID = compileTimeType.erasure().id == T_JavaLangString ? T_JavaLangString : T_JavaLangObject;
+		}		
+		switch (runtimeTypeID = runtimeType.id) {
 			case T_byte :
 			case T_short :
 			case T_char :
-				this.implicitConversion |= (T_int << 4) + compileTimeType.id;
+				this.implicitConversion |= (T_int << 4) + compileTimeTypeID;
 				break;
 			case T_JavaLangString :
 			case T_float :
@@ -584,7 +587,7 @@ public abstract class Expression extends Statement {
 			case T_double :
 			case T_int : //implicitConversion may result in i2i which will result in NO code gen
 			case T_long :
-				this.implicitConversion |= (runtimeTimeType.id << 4) + compileTimeType.id;
+				this.implicitConversion |= (runtimeTypeID << 4) + compileTimeTypeID;
 				break;
 			default : // regular object ref
 //				if (compileTimeType.isRawType() && runtimeTimeType.isBoundParameterizedType()) {

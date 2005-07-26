@@ -692,7 +692,7 @@ public class ClassScope extends Scope {
 		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & HasNoMemberTypes) == 0);
 	}
 	// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
-	private void  checkParameterizedTypeBounds() {
+	public void  checkParameterizedTypeBounds() {
 		TypeReference superclass = referenceContext.superclass;
 		if (superclass != null) {
 			superclass.checkBounds(this);
@@ -709,6 +709,12 @@ public class ClassScope extends Scope {
 				typeParameters[i].checkBounds(this);
 			}
 		}
+		// propagate to member types
+		ReferenceBinding[] memberTypes = referenceContext.binding.memberTypes;
+		if (memberTypes != null && memberTypes != NoMemberTypes) {
+			for (int i = 0, size = memberTypes.length; i < size; i++)
+				 ((SourceTypeBinding) memberTypes[i]).scope.checkParameterizedTypeBounds();
+		}		
 	}
 
 	private void connectMemberTypes() {
@@ -868,13 +874,25 @@ public class ClassScope extends Scope {
 				ReferenceBinding superInterface =  interfaceBindings[i];
 				// check against superclass
 				if (!sourceType.isInterface()) {
-					ReferenceBinding match = sourceType.superclass.findSuperTypeWithSameErasure(superInterface);
-					if (match != null && match != superInterface) {
-						problemReporter().superinterfacesCollide(superInterface.erasure(), referenceContext, superInterface, match);
-						sourceType.tagBits |= HierarchyHasProblems;
-						noProblems = false;
-						continue nextInterface;
-					}
+					types[0] = sourceType.superclass;
+					types[1] = superInterface;
+					TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
+					if (mecs != null) {
+						nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
+							TypeBinding mec = mecs[k];
+							if (mec == null) continue nextCandidate;
+							Set invalidInvocations = (Set)invocations.get(mec);
+							int invalidSize = invalidInvocations.size();
+							if (invalidSize > 1) {
+								TypeBinding[] collisions;
+								invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
+								problemReporter().superinterfacesCollide(collisions[0].erasure(), referenceContext, collisions[0], collisions[1]);
+								sourceType.tagBits |= HierarchyHasProblems;
+								noProblems = false;
+								continue nextInterface;
+							}
+						}					
+					}					
 				}
 				// check against other super-interfaces
 				types[0] = superInterface;
@@ -923,8 +941,6 @@ public class ClassScope extends Scope {
 			if (noProblems && sourceType.isHierarchyInconsistent())
 				problemReporter().hierarchyHasProblems(sourceType);
 		}
-		// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
-		checkParameterizedTypeBounds();
 		connectMemberTypes();
 		try {
 			checkForInheritedMemberTypes(sourceType);

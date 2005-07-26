@@ -1254,4 +1254,29 @@ public class StaticImportTest extends AbstractComparableTest {
 			},
 			"true");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104198
+	public void test034() {
+		this.runConformTest(
+			new String[] {
+				"test/AbstractTest.java",
+				"package test;\n" +
+				"public abstract class AbstractTest<Z> {\n" + 
+				"  \n" + 
+				"  public abstract MyEnum m(Z z);\n" + 
+				"  \n" + 
+				"  public enum MyEnum {\n" + 
+				"    A,B\n" + 
+				"  }\n" + 
+				"}\n",
+				"test/X.java",
+				"package test;\n" +
+				"import static test.AbstractTest.MyEnum.*;\n" +
+				"public class X extends AbstractTest<String> {\n" + 
+				"  @Override public MyEnum m(String s) {\n" + 
+				"    return A;\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			"");
+	}	
 }

@@ -3808,4 +3808,96 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// 21: method does not override a method from its superclass
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104551
+	public void test063() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface IStructuredContentProvider<I, E extends I> {\n" + 
+				"    public E[] getElements(I inputElement);\n" + 
+				"    public E[] getChildren(E parent);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X implements IStructuredContentProvider {\n" + 
+				"// eclipse error: The type X must implement the inherited\n" + 
+				"// abstract method IStructuredContentProvider.getChildren(I)\n" + 
+				"\n" + 
+				"    public Object[] getElements(Object inputElement) {\n" + 
+				"        // eclipse error: The return type is incompatible with\n" + 
+				"        // IStructuredContentProvider.getElements(Object)\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public Object[] getChildren(Object parent) {\n" + 
+				"        // eclipse error: Name clash: The method getChildren(Object) of type\n" + 
+				"        // X has the same erasure as getChildren(E) of type\n" + 
+				"        // IStructuredContentProvider<I,E> but does not override it\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104551 - variation
+	public void test064() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface IStructuredContentProvider<I, E extends I> {\n" + 
+				"    public E[] getElements(I inputElement);\n" + 
+				"    public E[] getChildren(E parent);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X implements IStructuredContentProvider<Object,Object> {\n" + 
+				"// eclipse error: The type X must implement the inherited\n" + 
+				"// abstract method IStructuredContentProvider.getChildren(I)\n" + 
+				"\n" + 
+				"    public Object[] getElements(Object inputElement) {\n" + 
+				"        // eclipse error: The return type is incompatible with\n" + 
+				"        // IStructuredContentProvider.getElements(Object)\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public Object[] getChildren(Object parent) {\n" + 
+				"        // eclipse error: Name clash: The method getChildren(Object) of type\n" + 
+				"        // X has the same erasure as getChildren(E) of type\n" + 
+				"        // IStructuredContentProvider<I,E> but does not override it\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104551 - variation
+	public void test065() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"interface IStructuredContentProvider<I, E extends List<String>> {\n" + 
+				"    public E[] getElements(I inputElement);\n" + 
+				"    public E[] getChildren(E parent);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X implements IStructuredContentProvider {\n" + 
+				"// eclipse error: The type X must implement the inherited\n" + 
+				"// abstract method IStructuredContentProvider.getChildren(I)\n" + 
+				"\n" + 
+				"    public List[] getElements(Object inputElement) {\n" + 
+				"        // eclipse error: The return type is incompatible with\n" + 
+				"        // IStructuredContentProvider.getElements(Object)\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public List[] getChildren(List parent) {\n" + 
+				"        // eclipse error: Name clash: The method getChildren(Object) of type\n" + 
+				"        // X has the same erasure as getChildren(E) of type\n" + 
+				"        // IStructuredContentProvider<I,E> but does not override it\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"");
+	}	
 }

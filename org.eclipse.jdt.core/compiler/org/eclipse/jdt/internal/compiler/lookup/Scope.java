@@ -420,7 +420,7 @@ public abstract class Scope
 			typeVariable.firstBound = superRefType; // first bound used to compute erasure
 			TypeReference[] boundRefs = typeParameter.bounds;
 			if (boundRefs != null) {
-				for (int j = 0, k = boundRefs.length; j < k; j++) {
+				for (int j = 0, boundLength = boundRefs.length; j < boundLength; j++) {
 					typeRef = boundRefs[j];
 					superType = this.kind == METHOD_SCOPE
 						? typeRef.resolveType((BlockScope)this, false)
@@ -445,13 +445,24 @@ public abstract class Scope
 					}
 					// check against superclass
 					if (typeVariable.firstBound == typeVariable.superclass) {
-						ReferenceBinding match = typeVariable.superclass.findSuperTypeWithSameErasure(superType);
-						if (match != null && match != superType) {
-							problemReporter().superinterfacesCollide(superType.erasure(), typeRef, superType, match);
-							typeVariable.tagBits |= HierarchyHasProblems;
-							noProblems = false;
-							continue nextVariable;
-						}						
+						types[1] = typeVariable.superclass;
+						TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
+						if (mecs != null) {
+							nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
+								TypeBinding mec = mecs[k];
+								if (mec == null) continue nextCandidate;
+								Set invalidInvocations = (Set)invocations.get(mec);
+								int invalidSize = invalidInvocations.size();
+								if (invalidSize > 1) {
+									TypeBinding[] collisions;
+									invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
+									problemReporter().superinterfacesCollide(collisions[0].erasure(), typeRef, collisions[1], collisions[0]); // swap collisions since mec types got swapped
+									typeVariable.tagBits |= HierarchyHasProblems;
+									noProblems = false;
+									continue nextVariable;
+								}
+							}			
+						}
 					}
 					// check against superinterfaces
 					for (int index = typeVariable.superInterfaces.length; --index >= 0;) {
@@ -2893,7 +2904,7 @@ public abstract class Scope
 			nextTypeCheck:	for (int j = 0; j < typeLength; j++) {
 				TypeBinding type = types[j];
 				for (int k = 0; k < lubTypeLength; k++) {
-					if (lubTypes[k] == type) continue nextTypeCheck; // type found, jump to next one
+					if (lubTypes[k] == type || lubTypes[k].isEquivalentTo(type)) continue nextTypeCheck; // type found, jump to next one 
 				}
 				continue nextLubCheck; // type not found in current lubTypes
 			}
@@ -2990,7 +3001,7 @@ public abstract class Scope
 			};
 		} else {
 			ArrayList typesToVisit = new ArrayList(5);
-			TypeBinding firstErasure = firstType.erasure();
+			TypeBinding firstErasure = firstType.isTypeVariable() ? firstType : firstType.erasure();
 			if (firstErasure != firstType) {
 				Set someInvocations = new HashSet(1);
 				someInvocations.add(firstType);
@@ -3013,7 +3024,7 @@ public abstract class Scope
 				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 				for (int j = 0, count = itsInterfaces.length; j < count; j++) {
 					TypeBinding itsInterface = itsInterfaces[j];
-					TypeBinding itsInterfaceErasure = itsInterface.erasure();
+					TypeBinding itsInterfaceErasure = itsInterface.isTypeVariable() ? itsInterface : itsInterface.erasure();
 					if (!typesToVisit.contains(itsInterfaceErasure)) {
 						if (itsInterfaceErasure != itsInterface) {
 							Set someInvocations = new HashSet(1);
@@ -3026,7 +3037,7 @@ public abstract class Scope
 				}
 				TypeBinding itsSuperclass = currentType.superclass();
 				if (itsSuperclass != null) {
-					TypeBinding itsSuperclassErasure = itsSuperclass.erasure();
+					TypeBinding itsSuperclassErasure = itsSuperclass.isTypeVariable() ? itsSuperclass : itsSuperclass.erasure();
 					if (!typesToVisit.contains(itsSuperclassErasure)) {
 						if (itsSuperclassErasure != itsSuperclass) {
 							Set someInvocations = new HashSet(1);
@@ -3042,7 +3053,8 @@ public abstract class Scope
 			erasedSuperTypes = new TypeBinding[superLength];
 			int rank = 0;
 			for (Iterator iter = typesToVisit.iterator(); iter.hasNext();) {
-				erasedSuperTypes[rank++] = ((TypeBinding)iter.next()).erasure();
+				TypeBinding type = (TypeBinding)iter.next();
+				erasedSuperTypes[rank++] = type.isTypeVariable() ? type : type.erasure();
 			}
 		}
 		// intersecting first type supertypes with other types' ones, nullifying non matching supertypes

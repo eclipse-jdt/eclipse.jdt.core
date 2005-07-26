@@ -2055,6 +2055,7 @@ public final class JavaCore extends Plugin {
 	 *    will be detected for either tag "ToDo" or "#ToDo"). Respectively, a tag ending with a letter or digit cannot be followed
 	 *    by a letter or digit to be recognized ("ToDofoo" will not be recognized as a task for tag "ToDo", but "ToDo:foo" will
 	 *    be detected either for tag "ToDo" or "ToDo:").
+	 *    Note: the tasks are ordered, and the first matching tag will be selected; e.g. "TODO,TODO!" will match "TODO!" against "TODO" first.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.taskTags"
 	 *     - possible values:   { "&lt;tag&gt;[,&lt;tag&gt;]*" } where &lt;tag&gt; is a String without any wild-card or leading/trailing spaces 
 	 *     - default:           "TODO,FIXME,XXX"

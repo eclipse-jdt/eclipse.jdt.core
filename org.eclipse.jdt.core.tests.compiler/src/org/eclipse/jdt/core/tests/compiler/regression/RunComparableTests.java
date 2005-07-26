@@ -38,6 +38,7 @@ public class RunComparableTests extends junit.framework.TestCase {
 		ALL_CLASSES.add(EnumTest.class);
 		ALL_CLASSES.add(MethodVerifyTest.class);
 		ALL_CLASSES.add(AnnotationTest.class);
+		ALL_CLASSES.add(EnclosingMethodAttributeTest.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -119,6 +120,9 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 		}
 	}
 	return null;
+}
+public void initialize() throws IOException {
+	// nothing to do
 }
 public boolean isPackage(String qualifiedPackageName) {
 	return directoryList(qualifiedPackageName) != null;
