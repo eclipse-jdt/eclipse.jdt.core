@@ -106,12 +106,17 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		HashMap<IFile, Set<String>> newDependencies = new HashMap<IFile, Set<String>>();
 		HashMap<IFile, List<IProblem>> problems = new HashMap<IFile, List<IProblem>>(4);
 		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject );
+		boolean sourcePathChanged = false;
 		for ( int i = 0; i < buildFiles.length; i++ )
 		{
 			APTResult result = APTDispatch.runAPTDuringBuild( 
 					factories, 
 					buildFiles[i], 
 					javaProject );
+			
+			// see if APT updated a project's source path
+			sourcePathChanged |= result.getSourcePathChanged();
+			
 			newFiles.addAll( result.getNewFiles() );			
 			deletedFiles.addAll( result.getDeletedFiles() );
 			newDependencies.put( buildFiles[i], result.getNewDependencies() );	
@@ -123,7 +128,13 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			if ( newFiles.contains( df ) )
 				deletedFiles.remove( df );
 
-		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), newDependencies, problems ); 
+		//
+		// Bugzilla 103745.  When the patch to o.e.jdt.core is commited to CVS, 
+		// then we can uncomment the following line and remove the one after 
+		// that
+		//
+		//return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), newDependencies, problems, sourcePathChanged );
+		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), newDependencies, problems );
 	}
 	
 	/** 
@@ -201,8 +212,14 @@ public class AptCompilationParticipant implements ICompilationParticipant
     private final static String DOT_JAVA = ".java"; //$NON-NLS-1$
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 
+		//
+		// Bugzilla 103745.  When the patch to o.e.jdt.core is commited to CVS, 
+		// then we can uncomment the following line and remove the one after 
+		// that
+		//
+		//new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap(), false );
 		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap() );
-
+		
 	private final static CompilationParticipantResult GENERIC_COMPILATION_RESULT = 
 		new CompilationParticipantResult();
 

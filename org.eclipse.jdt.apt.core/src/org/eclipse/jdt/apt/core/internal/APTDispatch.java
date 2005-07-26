@@ -99,24 +99,28 @@ public class APTDispatch
 			_deletedFiles = Collections.emptySet();
 			_newDependencies = Collections.emptySet();
 			_newProblems = Collections.emptyMap();
+			_sourcePathChanged = false;
 		}
-		APTResult( Set<IFile> newFiles, Set<IFile> deletedFiles, Set<String> deps, Map<IFile, List<IProblem>> problems )
+		APTResult( Set<IFile> newFiles, Set<IFile> deletedFiles, Set<String> deps, Map<IFile, List<IProblem>> problems, boolean sourcePathChanged )
 		{
 			_newFiles = newFiles;
 			_newDependencies = deps;
 			_deletedFiles = deletedFiles;
 			_newProblems = problems;
+			_sourcePathChanged = sourcePathChanged;
 		}
 		
 		private final Set<IFile> _newFiles;
 		private final Set<IFile> _deletedFiles;
 		private final Set<String> _newDependencies;
 		private final Map<IFile, List<IProblem>> _newProblems;
+		private final boolean _sourcePathChanged;
 		
 		Set<IFile> getNewFiles() { return _newFiles; }
 		Set<IFile> getDeletedFiles() { return _deletedFiles; }
 		Set<String> getNewDependencies() { return _newDependencies; }
 		Map<IFile, List<IProblem>> getProblems(){return _newProblems;}
+		boolean getSourcePathChanged() { return _sourcePathChanged; }
 	}
 
 	

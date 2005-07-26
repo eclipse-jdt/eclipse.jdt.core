@@ -55,6 +55,10 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
             {
 				FileGenerationResult result = gfm.generateFileDuringBuild( _env.getFile(), _env.getJavaProject(), _typeName, contents, null /* progress monitor */, _charsetName );
 				_env.addGeneratedFile( result.getFile(), result.isModified());
+				
+				// don't set to false, we don't want to overwrite a previous iteration setting it to true
+				if ( result.getSourcePathChanged() )
+					_env.setSourcePathChanged( true );
             }
             else
             {

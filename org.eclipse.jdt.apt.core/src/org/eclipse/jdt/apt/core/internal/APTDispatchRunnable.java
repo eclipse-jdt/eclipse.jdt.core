@@ -125,7 +125,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				_result = new APTResult( Collections.<IFile>emptySet(), 
 										 deletedFiles, 
 										 Collections.<String>emptySet(),
-										 Collections.<IFile, List<IProblem>>emptyMap() );
+										 Collections.<IFile, List<IProblem>>emptyMap(), false );
 		}
 		else
 		{
@@ -235,7 +235,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			APTResult result = new APTResult( modifiedFiles, 
 											  deletedFiles, 
 											  processorEnv.getTypeDependencies(), 
-											  processorEnv.getProblems() );
+											  processorEnv.getProblems(), processorEnv.getSourcePathChanged() );
 			processorEnv.close();
 			return result;
 

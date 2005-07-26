@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -38,6 +39,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
@@ -162,11 +164,10 @@ public class GeneratedFileManager {
 	{
 		try
 		{
-			ensureGeneratedSourceFolder( javaProject, progressMonitor );
+			boolean updatededSourcePath = ensureGeneratedSourceFolder( javaProject, progressMonitor );
 			
-			IFile file = getIFileForTypeName( typeName, javaProject, true, progressMonitor );
+			IFile file = getIFileForTypeName( typeName, javaProject, progressMonitor );
 
-			
 			byte[] bytes;
 			if ( charsetName == null || charsetName == "" ) //$NON-NLS-1$
 				bytes = contents.getBytes();
@@ -178,6 +179,7 @@ public class GeneratedFileManager {
 			
 			if ( !file.exists() )
 			{
+				createFoldersForFile( file );
 				file.create( is, true, progressMonitor );
 			}
 			else
@@ -212,7 +214,7 @@ public class GeneratedFileManager {
 			makeReadOnly( file, true );
 			
 			addEntryToFileMaps( parentFile, file );
-			return new FileGenerationResult(file, contentsDiffer);
+			return new FileGenerationResult(file, contentsDiffer, updatededSourcePath);
 		}
 		catch ( Throwable t )
 		{
@@ -287,7 +289,10 @@ public class GeneratedFileManager {
 						workingCopyOwner, problemRequestor,  progressMonitor);
 				workingCopy.reconcile(AST.JLS3, true, workingCopyOwner,
 						progressMonitor);
-				result = new FileGenerationResult((IFile)workingCopy.getResource(), true);
+				
+				// TODO:  pass in correct flag for source-patch changed.  This is probably not going to matter.  Per 103183, we will either 
+				// disable reconcile-time generation, or do it without any modifications, so we shouldn't have to worry about this.   
+				result = new FileGenerationResult((IFile)workingCopy.getResource(), true, false);
 			}
 			else
 			{
@@ -296,7 +301,7 @@ public class GeneratedFileManager {
 				//  Update working copy's buffer with the contents of the type 
 				// 
 				boolean modified = updateWorkingCopy( contents, workingCopy, workingCopyOwner, progressMonitor );
-				result = new FileGenerationResult((IFile)workingCopy.getResource(), modified);
+				result = new FileGenerationResult((IFile)workingCopy.getResource(), modified, false);
 			}
 			
 			return result;
@@ -309,7 +314,7 @@ public class GeneratedFileManager {
 		{
 			AptPlugin.log(ce, "Could not generate file for type: " + typeName); //$NON-NLS-1$
 		}
-		return new FileGenerationResult((IFile)workingCopy.getResource(), true);
+		return new FileGenerationResult((IFile)workingCopy.getResource(), true, false);
 	}
 
 	
@@ -489,46 +494,61 @@ public class GeneratedFileManager {
 	 * @param typeName
 	 * @return
 	 */
-	private IFile getIFileForTypeName( String typeName, IJavaProject javaProject, boolean create, IProgressMonitor progressMonitor)
+	private IFile getIFileForTypeName( String typeName, IJavaProject javaProject, IProgressMonitor progressMonitor)
 	    throws CoreException
 	{
 		// split the type name into its parts
 		String[] parts = typeName.split( "\\."); //$NON-NLS-1$
 		
-		IFolder folder;
-		if ( create )
-			folder = ensureGeneratedSourceFolder( javaProject, progressMonitor );
-		else
-			folder = getGeneratedSourceFolder();
-		
-		//  create folders for the package parts
-		int i = 0;
-		for ( ;i < parts.length - 1; i++ )
-		{
+		IFolder folder = getGeneratedSourceFolder();
+		for ( int i = 0; i < parts.length - 1; i++ )
 			folder = folder.getFolder( parts[i] );
-			if ( create && !folder.exists() )
-				folder.create( true, false, null );
-		}
-	
-		String fileName = parts[i] + ".java"; //$NON-NLS-1$		
+		
+		// the last part of the type name is the file name
+		String fileName = parts[parts.length - 1] + ".java"; //$NON-NLS-1$		
 		IFile file = folder.getFile( fileName );
 		return file;
+	}
+	
+	/** 
+	 * given an IFile, this will make sure that the intermediate folders
+	 * are created. 
+	 */
+	private void createFoldersForFile( IFile f )
+	    throws CoreException
+	{
+		String[] parts = f.getProjectRelativePath().segments();
+		IContainer c = f.getProject();
+
+		IFolder folder = c.getFolder( new Path( parts[0] ) );
+		if ( !folder.exists() )
+			folder.create( true, false, null );
+		
+		for ( int i = 1; i < parts.length - 1; i++ )
+		{
+			folder = folder.getFolder( parts[i] );
+			if ( !folder.exists() )
+				folder.create( true, false, null );
+		}
 	}
 	
 	/**
 	 *  Creates the generated source folder if it doesn't exist, and adds it as a source path
 	 *  to the project.  To access the generated source folder, but not have it be created
-	 *  or added as a source path, use getGeneratedSourceFolder()
+	 *  or added as a source path, use getGeneratedSourceFolder().  
+	 *  
+	 *  @return true if the generatedSourceFolder is added to the project's classpath entries,
+	 *  false if it is not added to the project's classpath entries.  
 	 *  
 	 *  @see #getGeneratedSourceFolder()
 	 */
-	private IFolder ensureGeneratedSourceFolder( IJavaProject javaProject, IProgressMonitor progressMonitor )
+	private boolean ensureGeneratedSourceFolder( IJavaProject javaProject, IProgressMonitor progressMonitor )
 		throws CoreException
 	{
 		synchronized( this )
 		{
 			if ( _generatedSourceFolder != null )
-				return _generatedSourceFolder;
+				return false;
 		}
 		
 		// don't take any locks in while creating the folder, since we are doing file-system operations
@@ -540,12 +560,12 @@ public class GeneratedFileManager {
 		//
 		// make sure __generated_src dir is on the cp if not already
 		//
-		updateProjectClasspath( javaProject, srcFolder, progressMonitor );
+		boolean addedToSourcePath = updateProjectClasspath( javaProject, srcFolder, progressMonitor );
 		
 		synchronized ( this )
 		{
 			_generatedSourceFolder = srcFolder;
-			return _generatedSourceFolder;
+			return addedToSourcePath;
 		}
 	}
 	
@@ -611,7 +631,7 @@ public class GeneratedFileManager {
 	private ICompilationUnit getCachedWorkingCopy( ICompilationUnit parentCompilationUnit, String typeName )
 		throws CoreException
 	{
-		IFile derivedFile = getIFileForTypeName( typeName, parentCompilationUnit.getJavaProject(), false, null /*progressMonitor*/ );
+		IFile derivedFile = getIFileForTypeName( typeName, parentCompilationUnit.getJavaProject(), null /*progressMonitor*/ );
 		ICompilationUnit workingCopy= null;
 		
 		synchronized( this )
@@ -635,8 +655,9 @@ public class GeneratedFileManager {
 		//
 		// create folder for generated source files
 		//
-		IFolder folder = ensureGeneratedSourceFolder( jp, progressMonitor );
-
+		ensureGeneratedSourceFolder( jp, progressMonitor );
+		IFolder folder = getGeneratedSourceFolder();
+		
 		// 
 		//  figure out package part of type & file name
 		//
@@ -951,7 +972,7 @@ public class GeneratedFileManager {
 		return null;
 	}
 	
-	private void updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
+	private boolean updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
 		throws JavaModelException
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
@@ -1018,6 +1039,9 @@ public class GeneratedFileManager {
 			
 			jp.setRawClasspath(newCp, progressMonitor );
 		}
+		
+		// return true if we updated the project's classpath entries
+		return !found;
 	}
 
 	private void removeFromProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
