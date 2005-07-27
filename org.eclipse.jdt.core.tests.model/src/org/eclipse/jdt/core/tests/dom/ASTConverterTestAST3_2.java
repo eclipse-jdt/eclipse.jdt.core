@@ -92,7 +92,7 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.tests.model.CancelCounter;
 import org.eclipse.jdt.core.tests.model.Canceler;
 import org.eclipse.jdt.core.tests.model.ReconcilerTests;
-
+import org.eclipse.jdt.core.tests.util.Util;
 public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	
 	public void setUpSuite() throws Exception {
@@ -106,7 +106,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 611 };
+//		TESTS_NUMBERS =  new int[] { 614 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -6586,6 +6586,29 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			SimpleName simpleName = (SimpleName) expression2;
 			IBinding binding2 = simpleName.resolveBinding();
 			assertNull("Got a binding", binding2);			
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=105192
+	public void test0614() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+		    String contents =
+		    	"class T { void m() { for (i=0, j=0; i<10; i++, j++) ; }}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", false/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			final String expectedOutput = "class T {\n" +
+					"  void m(){\n" +
+					"    for (i=0, j=0; i < 10; i++, j++)     ;\n" +
+					"  }\n" +
+					"}\n";
+			assertEquals("Wrong output", Util.convertToIndependantLineDelimiter(expectedOutput), Util.convertToIndependantLineDelimiter(node.toString()));	
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();

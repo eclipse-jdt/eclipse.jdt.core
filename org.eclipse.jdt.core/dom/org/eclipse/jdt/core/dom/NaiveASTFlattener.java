@@ -639,6 +639,7 @@ class NaiveASTFlattener extends ASTVisitor {
 		for (Iterator it = node.initializers().iterator(); it.hasNext(); ) {
 			Expression e = (Expression) it.next();
 			e.accept(this);
+			if (it.hasNext()) buffer.append(", ");//$NON-NLS-1$
 		}
 		this.buffer.append("; ");//$NON-NLS-1$
 		if (node.getExpression() != null) {
@@ -648,6 +649,7 @@ class NaiveASTFlattener extends ASTVisitor {
 		for (Iterator it = node.updaters().iterator(); it.hasNext(); ) {
 			Expression e = (Expression) it.next();
 			e.accept(this);
+			if (it.hasNext()) buffer.append(", ");//$NON-NLS-1$
 		}
 		this.buffer.append(") ");//$NON-NLS-1$
 		node.getBody().accept(this);
