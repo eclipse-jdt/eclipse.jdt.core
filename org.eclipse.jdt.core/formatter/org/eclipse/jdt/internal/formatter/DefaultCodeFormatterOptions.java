@@ -2293,7 +2293,7 @@ public class DefaultCodeFormatterOptions {
 		this.keep_then_statement_on_same_line = false;
 		this.number_of_empty_lines_to_preserve = 1;
 		this.put_empty_statement_on_new_line = true;
-		this.tab_size = 4;
+		this.tab_size = 8;
 		this.page_width = 80;
 		this.tab_char = SPACE;
 		this.use_tabs_only_for_leading_indentations = false;
