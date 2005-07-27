@@ -46,14 +46,16 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 
 	private static final int IDX_UP= 0;
 	private static final int IDX_DOWN= 1;
-	//
+	// 2
 	private static final int IDX_ADDJAR= 3;
 	private static final int IDX_ADDEXTJAR= 4;
 	private static final int IDX_ADDVAR= 5;
-	private static final int IDX_REMOVE= 6;
-	//
-	private static final int IDX_ENABLEALL= 8;
-	private static final int IDX_DISABLEALL= 9;
+	// 6
+	private static final int IDX_EDIT= 7;
+	private static final int IDX_REMOVE= 8;
+	// 9
+	private static final int IDX_ENABLEALL= 10;
+	private static final int IDX_DISABLEALL= 11;
 
 	private final static String[] buttonLabels = { 
 		Messages.FactoryPathConfigurationBlock_up,
@@ -62,8 +64,10 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		Messages.FactoryPathConfigurationBlock_addJars,
 		Messages.FactoryPathConfigurationBlock_addExternalJars,
 		Messages.FactoryPathConfigurationBlock_addVariable,
+		null,                    // 6
+		Messages.FactoryPathConfigurationBlock_edit,
 		Messages.FactoryPathConfigurationBlock_remove,
-		null,                    // 7
+		null,                    // 9
 		Messages.FactoryPathConfigurationBlock_enableAll,
 		Messages.FactoryPathConfigurationBlock_disableAll
 	};
@@ -83,35 +87,28 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		}
 	}
 
+	/**
+	 * Event handler for factory path list control
+	 */
 	private class FactoryPathAdapter implements IListAdapter, IDialogFieldListener {
-		/**
-		 * Can't remove a selection that contains a plugin.
-		 */
-		private boolean canRemove(ListDialogField field) {
-			List selected= fFactoryPathList.getSelectedElements();
-			boolean containsPlugin= false;
-			for (Object o : selected) {
-				if (((FactoryContainer)o).getType() == FactoryContainer.FactoryType.PLUGIN) {
-					containsPlugin = true;
-					break;
-				}
-			}
-			return !containsPlugin;
-		}
-
         public void customButtonPressed(ListDialogField field, int index) {
         	FactoryPathConfigurationBlock.this.customButtonPressed(index);
         }
 
         public void selectionChanged(ListDialogField field) {
-        	boolean enableRemove = canRemove(field);
+        	boolean enableRemove = canRemove();
         	field.enableButton(IDX_REMOVE, enableRemove);
+        	boolean enableEdit = canEdit();
+        	field.enableButton(IDX_EDIT, enableEdit);
         }
 
 		public void dialogFieldChanged(DialogField field) {
         }
 
         public void doubleClicked(ListDialogField field) {
+        	if (canEdit()) {
+        		editSelectedItem();
+        	}
         }
 	}
 	
@@ -179,10 +176,43 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			newEntries= openVariableSelectionDialog(null);
 			addEntries(newEntries);
 			break;
+			
+		case IDX_EDIT: // edit selected item
+			if (canEdit()) {
+				editSelectedItem();
+			}
+			break;
 		}
 		
 	}
 	
+	/**
+	 * Can't remove a selection that contains a plugin.
+	 */
+	private boolean canRemove() {
+		List selected= fFactoryPathList.getSelectedElements();
+		boolean containsPlugin= false;
+		for (Object o : selected) {
+			if (((FactoryContainer)o).getType() == FactoryContainer.FactoryType.PLUGIN) {
+				containsPlugin = true;
+				break;
+			}
+		}
+		return !containsPlugin;
+	}
+	
+	/**
+	 * Can only edit a single item at a time.  Can't edit plugins.
+	 */
+	private boolean canEdit() {
+		List selected= fFactoryPathList.getSelectedElements();
+		if (selected.size() != 1) {
+			return false;
+		}
+		FactoryContainer fc = (FactoryContainer)selected.get(0);
+		return (fc.getType() != FactoryContainer.FactoryType.PLUGIN);
+	}
+
 	private void addEntries(FactoryContainer[] entries) {
 		if (null == entries) {
 			return;
@@ -200,6 +230,37 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		}
 	}
 	
+	/**
+	 * Edit the item selected.
+	 * Precondition: exactly one item is selected in the list,
+	 * and it is an editable item (not a plugin).
+	 * @param field a listbox of FactoryContainers.
+	 */
+	private void editSelectedItem() {
+		List selected= fFactoryPathList.getSelectedElements();
+		if (selected.size() != 1) {
+			return;
+		}
+		FactoryContainer original = (FactoryContainer)selected.get(0);
+		FactoryContainer[] edited = null;
+		switch (original.getType()) {
+		case PLUGIN:
+			return;
+		case EXTJAR:
+			edited= openExtJarFileDialog(original);
+			break;
+		case VARJAR:
+			edited= openVariableSelectionDialog(original);
+			break;
+		case WKSPJAR:
+			edited= openJarFileDialog(original);
+			break;
+		}
+		if (edited != null && edited.length > 0) {
+			fFactoryPathList.replaceElement(original, edited[0]);
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#createContents(org.eclipse.swt.widgets.Composite)
 	 */
@@ -266,9 +327,11 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * path relative to the workspace root; for VARJAR it will be a path
 	 * whose first segment is the name of a classpath variable.
 	 * @param type may not be PLUGIN
+	 * @param ignore null, or an item to not put on the list (used when
+	 * editing an existing item).
 	 * @return an array, possibly empty (but never null)
 	 */
-	private IPath[] getExistingPaths(FactoryContainer.FactoryType type) {
+	private IPath[] getExistingPaths(FactoryContainer.FactoryType type, FactoryContainer ignore) {
 		if (type == FactoryContainer.FactoryType.PLUGIN) {
 			throw new IllegalArgumentException();
 		}
@@ -276,7 +339,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		// find out how many entries there are of this type
 		int countType = 0;
 		for (FactoryContainer fc : all) {
-			if (fc.getType() == type) {
+			if (fc.getType() == type && fc != ignore) {
 				++countType;
 			}
 		}
@@ -284,62 +347,96 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		IPath[] some = new IPath[countType];
 		int i = 0;
 		for (FactoryContainer fc : all) {
-			if (fc.getType() == type) {
+			if (fc.getType() == type && fc != ignore) {
 				some[i++] = new Path(fc.getId());
 			}
 		}
 		return some;
 	}
-	
-	private FactoryContainer[] openJarFileDialog(FactoryContainer existing) {
+
+	/**
+	 * @param original null, or an existing list entry to be edited
+	 * @return a list of additional factory containers to be added
+	 */
+	private FactoryContainer[] openJarFileDialog(FactoryContainer original) {
 		IWorkspaceRoot root= fJProj.getProject().getWorkspace().getRoot();
-		if (existing == null) {
-			IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.WKSPJAR);
-			IPath[] selected= BuildPathDialogAccess.chooseJAREntries(getShell(), fJProj.getPath(), existingPaths);
-			if (selected != null) {
-				ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
-				for (int i= 0; i < selected.length; i++) {
-					// verify that the path points to an actual resource.
-					//TODO: how to handle missing jars?
-					IResource resource= root.findMember(selected[i]);
-					if (resource instanceof IFile) {
-						res.add(FactoryPath.newWkspJarFactoryContainer(selected[i]));
-					}
-				}
-				return res.toArray(new FactoryContainer[res.size()]);
+		IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.WKSPJAR, original);
+		if (original == null) {
+			IPath[] results= BuildPathDialogAccess.chooseJAREntries(getShell(), fJProj.getPath(), existingPaths);
+			if (results == null) {
+				return null;
 			}
-		} 		
-		return null;
+			ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
+			for (int i= 0; i < results.length; i++) {
+				IResource resource= root.findMember(results[i]);
+				if (resource instanceof IFile) {
+					res.add(FactoryPath.newWkspJarFactoryContainer(results[i]));
+				}
+				//TODO: handle missing jars
+			}
+			return res.toArray(new FactoryContainer[res.size()]);
+		}
+		else {
+			IPath result= BuildPathDialogAccess.configureJAREntry(getShell(), new Path(original.getId()), existingPaths);
+			if (result == null) {
+				return null;
+			}
+			IResource resource= root.findMember(result);
+			if (resource instanceof IFile) {
+				FactoryContainer[] edited = new FactoryContainer[1];
+				edited[0]= FactoryPath.newWkspJarFactoryContainer(result);
+				return edited;
+			}
+			//TODO: handle missing jars
+			return null;
+ 		}
 	}
 
-	//TODO: figure out how to edit an existing jar file - see LibrariesWorkbookPage for example
 	private FactoryContainer[] openExtJarFileDialog(FactoryContainer existing) {
 		if (existing == null) {
 			IPath[] selected= BuildPathDialogAccess.chooseExternalJAREntries(getShell());
-			if (selected != null) {
-				ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
-				for (int i= 0; i < selected.length; i++) {
-					res.add(FactoryPath.newExtJarFactoryContainer(selected[i].toFile()));
-				}
-				return res.toArray(new FactoryContainer[res.size()]);
+			if (selected == null) {
+				return null;
 			}
-		} 		
-		return null;
+			ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
+			for (int i= 0; i < selected.length; i++) {
+				res.add(FactoryPath.newExtJarFactoryContainer(selected[i].toFile()));
+			}
+			return res.toArray(new FactoryContainer[res.size()]);
+		}
+		else {
+			IPath result= BuildPathDialogAccess.configureExternalJAREntry(getShell(), new Path(existing.getId()));
+			if (result == null) {
+				return null;
+			}
+			FactoryContainer[] edited= new FactoryContainer[1];
+			edited[0]= FactoryPath.newExtJarFactoryContainer(result.toFile());
+			return edited;
+		}
 	}
 	
-	private FactoryContainer[] openVariableSelectionDialog(FactoryContainer existing) {
-		if (existing == null) {
-			IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.VARJAR);
+	private FactoryContainer[] openVariableSelectionDialog(FactoryContainer original) {
+		IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.VARJAR, original);
+		if (original == null) {
 			IPath[] selected= BuildPathDialogAccess.chooseVariableEntries(getShell(), existingPaths);
-			if (selected != null) {
-				ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
-				for (int i= 0; i < selected.length; i++) {
-					res.add(FactoryPath.newVarJarFactoryContainer(selected[i]));
-				}
-				return res.toArray(new FactoryContainer[res.size()]);
+			if (selected == null) {
+				return null;
 			}
-		} 		
-		return null;
+			ArrayList<FactoryContainer> res= new ArrayList<FactoryContainer>();
+			for (int i= 0; i < selected.length; i++) {
+				res.add(FactoryPath.newVarJarFactoryContainer(selected[i]));
+			}
+			return res.toArray(new FactoryContainer[res.size()]);
+		}
+		else {
+			IPath result= BuildPathDialogAccess.configureVariableEntry(getShell(), new Path(original.getId()), existingPaths);
+			if (result == null) {
+				return null;
+			}
+			FactoryContainer[] edited= new FactoryContainer[1];
+			edited[0]= FactoryPath.newVarJarFactoryContainer(result);
+			return edited;
+		}
 	}
 		
 	/* (non-Javadoc)
@@ -353,7 +450,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#validateSettings(org.eclipse.jdt.internal.ui.preferences.OptionsConfigurationBlock.Key, java.lang.String, java.lang.String)
 	 */
 	protected void validateSettings(Key changedKey, String oldValue, String newValue) {
-		// Nothing to validate.
+		// TODO: validate that all the specified factory containers exist?
 	}
 	
 	private void saveSettings() {

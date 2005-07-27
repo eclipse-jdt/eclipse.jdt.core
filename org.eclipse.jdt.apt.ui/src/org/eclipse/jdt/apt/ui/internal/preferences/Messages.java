@@ -69,4 +69,6 @@ public class Messages extends NLS {
 	public static String FactoryPathConfigurationBlock_unableToSaveFactorypath_title;
 
 	public static String FactoryPathConfigurationBlock_unableToSaveFactorypath_message;
+
+	public static String FactoryPathConfigurationBlock_edit;
 }
