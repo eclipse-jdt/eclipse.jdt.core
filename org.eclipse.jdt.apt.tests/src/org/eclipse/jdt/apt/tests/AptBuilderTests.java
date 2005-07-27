@@ -18,6 +18,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -39,7 +40,10 @@ public class AptBuilderTests extends Tests
 	{
 		super.setUp();
 		
+		//
+		// create a project with a source directory named "src"
 		// project will be deleted by super-class's tearDown() method
+		//
 		IPath projectPath = env.addProject( getProjectName(), "1.5" ); //$NON-NLS-1$
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 		fullBuild( projectPath );
@@ -52,6 +56,22 @@ public class AptBuilderTests extends Tests
 
 		TestUtil.createAndAddAnnotationJar( env
 			.getJavaProject( projectPath ) );
+		
+		
+		//
+		// project will be deleted by super-class's tearDown() method
+		// create a project with a src directory as the project root directory
+		//
+		projectPath = env.addProject( getProjectName_ProjectRootAsSrcDir(), "1.5" ); //$NON-NLS-1$
+		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
+		fullBuild( projectPath );
+
+		// remove old package fragment root so that names don't collide
+		env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
+
+		TestUtil.createAndAddAnnotationJar( env
+			.getJavaProject( projectPath ) );
+		
 	}
 	
 	public static String getProjectName()
@@ -59,19 +79,44 @@ public class AptBuilderTests extends Tests
 		return AptBuilderTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
 
-	public IPath getSourcePath()
+	public static String getProjectName_ProjectRootAsSrcDir()
 	{
-		IProject project = env.getProject( getProjectName() );
-		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
-		IPath srcRoot = srcFolder.getFullPath();
-		return srcRoot;
+		return AptBuilderTests.class.getName() + "NoSrcProject"; //$NON-NLS-1$
+	}
+	
+	public IPath getSourcePath( String projectName )
+	{
+		if ( getProjectName_ProjectRootAsSrcDir().equals( projectName) )
+			return new Path( "/" + getProjectName_ProjectRootAsSrcDir() );
+		else
+		{
+			IProject project = env.getProject( getProjectName() );
+			IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
+			IPath srcRoot = srcFolder.getFullPath();
+			return srcRoot;
+		}
+	}
+	
+	
+	public void testGeneratedFileInBuilder() throws Exception
+	{
+		_testGeneratedFileInBuilder( getProjectName() );
+	}
+	
+	/**
+	 *  Regresses Buzilla 103745 & 95661
+	 */
+	// enable after Bugzilla 103745  is fixed
+	public void disabled_testGeneratedFileInBuilder_ProjectRootAsSourceDir() throws Exception
+	{
+		_testGeneratedFileInBuilder( getProjectName_ProjectRootAsSrcDir() );
 	}
 	
 	@SuppressWarnings("nls")
-	public void testGeneratedFileInBuilder() throws Exception
+	private void _testGeneratedFileInBuilder( String projectName )
 	{
-		IProject project = env.getProject( getProjectName() );
-		IPath srcRoot = getSourcePath();
+		IProject project = env.getProject( projectName );
+		IPath srcRoot = getSourcePath( projectName );
 		
 		String code = "package p1;\n"
 			+ "//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
@@ -114,7 +159,7 @@ public class AptBuilderTests extends Tests
 	public void testNestedGeneratedFileInBuilder() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
-		IPath srcRoot = getSourcePath();
+		IPath srcRoot = getSourcePath( getProjectName() );
 		
 		String code = "package p1;\n"
 			+ "//import org.eclipse.jdt.apt.tests.annotations.nestedhelloworld.NestedHelloWorldAnnotation;"
@@ -180,7 +225,7 @@ public class AptBuilderTests extends Tests
 			+  "public class E { }";
 		
 		IProject project = env.getProject( getProjectName() );
-		IPath srcRoot = getSourcePath();
+		IPath srcRoot = getSourcePath( getProjectName() );
 		
 		env.addClass( srcRoot, "p1.p2.p3.p4", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			codeA );
@@ -313,7 +358,7 @@ public class AptBuilderTests extends Tests
 			+ "\n";
 		
 		IProject project = env.getProject( getProjectName() );
-		IPath srcRoot = getSourcePath();
+		IPath srcRoot = getSourcePath( getProjectName() );
 		
 		env.addClass( srcRoot, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			code );
@@ -346,7 +391,7 @@ public class AptBuilderTests extends Tests
 	public void testDeletedParentFile() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
-		IPath srcRoot = getSourcePath();
+		IPath srcRoot = getSourcePath( getProjectName() );
 
 		String a1Code = "package p1; " + "\n"
 			+ "import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n"
@@ -405,7 +450,7 @@ public class AptBuilderTests extends Tests
 	private void internalTestStopGeneratingFileInBuilder( boolean fullBuild )
 	{
 		IProject project = env.getProject( getProjectName() );
-		IPath srcRoot = getSourcePath();
+		IPath srcRoot = getSourcePath( getProjectName() );
 		
 		String code = "package p1;\n"
 			+ "//import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;"
