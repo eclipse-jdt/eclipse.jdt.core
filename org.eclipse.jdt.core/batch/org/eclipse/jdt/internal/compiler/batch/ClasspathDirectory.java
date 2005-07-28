@@ -136,4 +136,7 @@ public String toString() {
 public String normalizedPath() {
 	return this.path;
 }
+public String getPath() {
+	return this.path;
+}
 }

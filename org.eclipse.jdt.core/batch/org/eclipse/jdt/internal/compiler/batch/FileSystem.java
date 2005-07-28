@@ -39,6 +39,13 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 		 */
 		String normalizedPath();
 		/**
+		 * Return the path for file based classpath entries. This is an absolute path
+		 * ending with a file separator for directories, an absolute path including the '.jar'
+		 * (resp. '.zip') extension for jar (resp. zip) files.
+		 * @return the path for file based classpath entries
+		 */
+		String getPath();
+		/**
 		 * Initialize the entry
 		 */
 		void initialize() throws IOException;
