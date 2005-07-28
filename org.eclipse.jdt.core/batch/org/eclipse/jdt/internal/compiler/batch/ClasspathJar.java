@@ -88,10 +88,13 @@ public void reset() {
 	this.packageCache = null;
 }
 public String toString() {
-	return "Classpath for jar file " + this.zipFile.getName(); //$NON-NLS-1$
+	return "Classpath for jar file " + this.file.getPath(); //$NON-NLS-1$
 }
 public String normalizedPath(){
-	String rawName = this.zipFile.getName();
+	String rawName = this.file.getPath();
 	return rawName.substring(0, rawName.lastIndexOf('.'));
+}
+public String getPath(){
+	return this.file.getPath();
 }
 }
