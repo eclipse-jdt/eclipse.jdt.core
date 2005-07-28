@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
+   <extension-point id="aptQuickFixProvider" name="APT Quick Fix Provider" schema="schema/aptQuickFixProvider.exsd"/>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
@@ -66,6 +67,17 @@
 <extension
       point="org.eclipse.help.toc">
    <toc file="toc.xml" primary="true"/>
+</extension>
+
+<!-- =================================================================================== -->
+<!-- Extension: QuickFixProcessor                                                                     -->
+<!-- =================================================================================== -->
+<extension
+      point="org.eclipse.jdt.ui.quickFixProcessors">
+   <quickFixProcessor
+         class="org.eclipse.jdt.apt.ui.internal.quickfix.APTQuickFixProcessor"
+         id="org.eclipse.jdt.apt.ui.internal.quickfix.APTQuickFixProcessor"
+         name="APTQuickFixProcessor"/>
 </extension>
 
 </plugin>

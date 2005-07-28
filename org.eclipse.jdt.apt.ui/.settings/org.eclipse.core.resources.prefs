@@ -1,5 +1,6 @@
-#Thu Jul 21 11:58:56 PDT 2005
+#Thu Jul 28 10:31:48 PDT 2005
 eclipse.preferences.version=1
 encoding//src/org/eclipse/jdt/apt/ui/internal/preferences/messages.properties=8859_1
+encoding//src/org/eclipse/jdt/apt/ui/internal/quickfix/messages.properties=8859_1
 encoding//src/org/eclipse/jdt/apt/ui/internal/util/messages.properties=8859_1
 encoding//src/org/eclipse/jdt/apt/ui/messages.properties=8859_1
