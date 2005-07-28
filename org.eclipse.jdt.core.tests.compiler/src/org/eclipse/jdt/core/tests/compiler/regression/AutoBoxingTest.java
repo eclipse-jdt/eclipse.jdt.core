@@ -3288,4 +3288,28 @@ public void test110() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105524
+public void test111() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Wrapper< T >\n" + 
+			"{\n" + 
+			"    public T value;\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X\n" + 
+			"{\n" + 
+			"    public static void main( final String[ ] args )\n" + 
+			"    {\n" + 
+			"        final Wrapper< Integer > wrap = new Wrapper< Integer >( );\n" + 
+			"        wrap.value = 0;\n" + 
+			"        wrap.value = wrap.value + 1; // works\n" + 
+			"        wrap.value++; // throws VerifyError\n" + 
+			"        wrap.value += 1; // throws VerifyError\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}
 }
