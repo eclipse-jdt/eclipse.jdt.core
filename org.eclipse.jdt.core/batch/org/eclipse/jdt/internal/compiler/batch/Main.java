@@ -2049,6 +2049,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					token = tokenizer.nextToken();
 					if (token.equals(File.pathSeparator)) {
 						switch (state) {
+						case start:
+							break;
 						case readyToClose:
 						case readyToCloseEndingWithRules:
 						case readyToCloseOrOtherEntry:
