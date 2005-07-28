@@ -54,7 +54,7 @@ public abstract class AnnotationScanner {
 				// Handle the character based on state
 				switch (state) {
 				
-				case (NORMAL) :
+				case NORMAL :
 					if (c == '@')
 						return true;
 					if (c == '/') {
@@ -68,7 +68,7 @@ public abstract class AnnotationScanner {
 					}
 					break;
 					
-				case (SEEN_SLASH) :
+				case SEEN_SLASH :
 					if (c == '*') {
 						state = IN_COMMENT;
 					}
@@ -80,13 +80,13 @@ public abstract class AnnotationScanner {
 					}
 					break;
 				
-				case (IN_COMMENT) :
+				case IN_COMMENT :
 					if (c == '*') {
 						state = IN_COMMENT_SEEN_STAR;
 					}
 					break;
 				
-				case (IN_COMMENT_SEEN_STAR) :
+				case IN_COMMENT_SEEN_STAR :
 					if (c == '/') {
 						state = NORMAL;
 					}
@@ -95,19 +95,19 @@ public abstract class AnnotationScanner {
 					}
 					break;
 					
-				case (IN_SINGLE_LINE_COMMENT) :
+				case IN_SINGLE_LINE_COMMENT :
 					if (c == '\n' || c == '\r') {
 						state = NORMAL;
 					}
 					break;
 					
-				case (IN_SINGLE_QUOTE) :
+				case IN_SINGLE_QUOTE :
 					if (c == '\'') {
 						state = NORMAL;
 					}
 					break;
 					
-				case (IN_DOUBLE_QUOTE) :
+				case IN_DOUBLE_QUOTE :
 					if (c == '\"') {
 						state = NORMAL;
 					}
