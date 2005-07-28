@@ -517,12 +517,15 @@ public interface IProblem {
 	int NullSourceString = Syntax + Internal + 258;
 	int UnterminatedString = Syntax + Internal + 259;
 	int UnterminatedComment = Syntax + Internal + 260;
+	int NonExternalizedStringLiteral = Internal + 261;
 	/** @since 3.1 */
 	int InvalidDigit = Syntax + Internal + 262;	
 	/** @since 3.1 */
 	int InvalidLowSurrogate = Syntax + Internal + 263;
 	/** @since 3.1 */
 	int InvalidHighSurrogate = Syntax + Internal + 264;
+	/** @since 3.2 */
+	int UnnecessaryNONNLSTag = Internal + 265;
 
 	// type related problems
 	/** @since 3.1 */
@@ -705,7 +708,6 @@ public interface IProblem {
 	// code snippet support
 	int CodeSnippetMissingClass = Internal + 420;
 	int CodeSnippetMissingMethod = Internal + 421;
-	int NonExternalizedStringLiteral = Internal + 261;
 	int CannotUseSuperInCodeSnippet = Internal + 422;
 	
 	//constant pool

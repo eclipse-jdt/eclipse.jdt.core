@@ -54,7 +54,7 @@ public class CaptureBinding extends TypeVariableBinding {
 
 	public String debugName() {
 		if (this.wildcard != null) {
-			return String.valueOf(TypeConstants.WILDCARD_CAPTURE_NAME) + this.wildcard.debugName(); //$NON-NLS-1$
+			return String.valueOf(TypeConstants.WILDCARD_CAPTURE_NAME) + this.wildcard.debugName();
 		}
 		return super.debugName();
 	}

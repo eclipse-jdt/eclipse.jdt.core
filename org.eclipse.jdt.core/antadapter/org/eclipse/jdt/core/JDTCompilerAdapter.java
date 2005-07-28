@@ -300,7 +300,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=97744
 			 */
 			// Fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=96605
-			// cmd.createArgument().setValue("-verbose"); //$NON-NLS-1$
+			// cmd.createArgument().setValue("-verbose");
 			/*
 			 * extra option allowed by the Eclipse compiler
 			 */

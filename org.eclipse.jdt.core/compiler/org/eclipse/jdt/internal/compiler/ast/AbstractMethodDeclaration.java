@@ -331,7 +331,7 @@ public abstract class AbstractMethodDeclaration
 		
 		TypeParameter[] typeParams = typeParameters();
 		if (typeParams != null) {
-			output.append('<');//$NON-NLS-1$
+			output.append('<');
 			int max = typeParams.length - 1;
 			for (int j = 0; j < max; j++) {
 				typeParams[j].print(0, output);
@@ -372,7 +372,7 @@ public abstract class AbstractMethodDeclaration
 				this.statements[i].printStatement(indent, output); 
 			}
 		}
-		output.append('\n'); //$NON-NLS-1$
+		output.append('\n');
 		printIndent(indent == 0 ? 0 : indent - 1, output).append('}');
 		return output;
 	}

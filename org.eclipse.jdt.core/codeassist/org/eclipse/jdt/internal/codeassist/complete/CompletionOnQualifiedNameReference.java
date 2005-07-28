@@ -49,7 +49,7 @@ public StringBuffer printExpression(int indent, StringBuffer output) {
 	output.append("<CompleteOnName:"); //$NON-NLS-1$
 	for (int i = 0; i < tokens.length; i++) {
 		output.append(tokens[i]);
-		output.append('.'); //$NON-NLS-1$
+		output.append('.');
 	}
 	output.append(completionIdentifier).append('>'); 
 	return output;

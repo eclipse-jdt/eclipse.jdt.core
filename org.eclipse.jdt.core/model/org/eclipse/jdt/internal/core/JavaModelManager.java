@@ -2604,9 +2604,9 @@ public class JavaModelManager implements ISaveParticipant {
 //				if (previousPath != null){
 //					if (CP_RESOLVE_VERBOSE){
 //						Util.verbose(
-//							"CPVariable INIT - reentering access to variable during its initialization, will see previous value\n" + //$NON-NLS-1$
-//							"	variable: "+ variableName + '\n' + //$NON-NLS-1$
-//							"	previous value: " + previousPath); //$NON-NLS-1$
+//							"CPVariable INIT - reentering access to variable during its initialization, will see previous value\n" +
+//							"	variable: "+ variableName + '\n' +
+//							"	previous value: " + previousPath);
 //					}
 //					this.variablePut(variableName, previousPath); // replace value so reentering calls are seeing old value
 //				}

@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 
 public class NLSLine {
 
-	private List elements;
+	public List elements;
 
 	public NLSLine() {
 		this.elements = new ArrayList();
@@ -28,13 +28,6 @@ public class NLSLine {
 	 */
 	public void add(StringLiteral element) {
 		this.elements.add(element);
-	}
-	
-	/**
-	 * returns an Iterator over NLSElements
-	 */
-	public Iterator iterator() {
-		return this.elements.iterator();
 	}
 	
 	public StringLiteral get(int index) {
@@ -53,6 +46,10 @@ public class NLSLine {
 		return this.elements.size();
 	}
 	
+	public void clear() {
+		this.elements.clear();
+	}
+	
 	public String toString() {
 		StringBuffer result= new StringBuffer();
 		for (Iterator iter= iterator(); iter.hasNext(); ) {
@@ -61,5 +58,12 @@ public class NLSLine {
 			result.append("\n"); //$NON-NLS-1$
 		}
 		return result.toString();
+	}
+
+	/**
+	 * returns an Iterator over NLSElements
+	 */
+	public Iterator iterator() {
+		return this.elements.iterator();
 	}
 }

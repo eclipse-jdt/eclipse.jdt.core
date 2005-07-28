@@ -10,28 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
+import java.text.NumberFormat;
+
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.*;
-import org.eclipse.jdt.core.util.ClassFormatException;
-import org.eclipse.jdt.core.util.IClassFileAttribute;
-import org.eclipse.jdt.core.util.IClassFileReader;
-import org.eclipse.jdt.core.util.ICodeAttribute;
-import org.eclipse.jdt.core.util.IConstantPoolConstant;
-import org.eclipse.jdt.core.util.IConstantPoolEntry;
-import org.eclipse.jdt.core.util.IConstantValueAttribute;
-import org.eclipse.jdt.core.util.IExceptionAttribute;
-import org.eclipse.jdt.core.util.IExceptionTableEntry;
-import org.eclipse.jdt.core.util.IFieldInfo;
-import org.eclipse.jdt.core.util.IInnerClassesAttribute;
-import org.eclipse.jdt.core.util.IInnerClassesAttributeEntry;
-import org.eclipse.jdt.core.util.ILineNumberAttribute;
-import org.eclipse.jdt.core.util.ILocalVariableAttribute;
-import org.eclipse.jdt.core.util.ILocalVariableTableEntry;
-import org.eclipse.jdt.core.util.IMethodInfo;
-import org.eclipse.jdt.core.util.IModifierConstants;
-import org.eclipse.jdt.core.util.ISourceAttribute;
 
 /**
  * Disassembler of .class files. It generates an output in the Writer that looks close to
@@ -489,7 +473,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append(Messages.disassembler_sourceattributeheader); 
 				buffer.append(sourceAttribute.getSourceFileName());
 			}
-			String versionNumber = VERSION_UNKNOWN;//$NON-NLS-1$
+			String versionNumber = VERSION_UNKNOWN;
 			if (minorVersion == 3 && majorVersion == 45) {
 				versionNumber = JavaCore.VERSION_1_1;
 			} else if (minorVersion == 0 && majorVersion == 46) {
@@ -667,11 +651,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(Messages.classformat_classformatexception);
 			writeNewLine(buffer, lineSeparator, tabNumber + 1);
 		}
-		int exceptionTableLength = codeAttribute.getExceptionTableLength();
+		final int exceptionTableLength = codeAttribute.getExceptionTableLength();
 		if (exceptionTableLength != 0) {
 			final int tabNumberForExceptionAttribute = tabNumber + 2;
 			dumpTab(tabNumberForExceptionAttribute, buffer);
-			IExceptionTableEntry[] exceptionTableEntries = codeAttribute.getExceptionTable();
+			final IExceptionTableEntry[] exceptionTableEntries = codeAttribute.getExceptionTable();
 			buffer.append(Messages.disassembler_exceptiontableheader); 
 			writeNewLine(buffer, lineSeparator, tabNumberForExceptionAttribute + 1);
 			for (int i = 0; i < exceptionTableLength - 1; i++) {
@@ -709,8 +693,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				}));
 			writeNewLine(buffer, lineSeparator, 0);
 		}
-		ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
-		int lineAttributeLength = lineNumberAttribute == null ? 0 : lineNumberAttribute.getLineNumberTableLength();
+		final ILineNumberAttribute lineNumberAttribute = codeAttribute.getLineNumberAttribute();
+		final int lineAttributeLength = lineNumberAttribute == null ? 0 : lineNumberAttribute.getLineNumberTableLength();
 		if (lineAttributeLength != 0) {
 			int tabNumberForLineAttribute = tabNumber + 2;
 			dumpTab(tabNumberForLineAttribute, buffer);
@@ -731,8 +715,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					Integer.toString(lineattributesEntries[lineAttributeLength - 1][1])
 				}));
 		} 
-		ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
-		int localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
+		final ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
+		final int localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
 		if (localVariableAttributeLength != 0) {
 			int tabNumberForLocalVariableAttribute = tabNumber + 2;
 			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
@@ -771,8 +755,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					new String(returnClassName(typeName, '.', mode))
 				}));
 		} 
-		ILocalVariableTypeTableAttribute localVariableTypeAttribute= getLocalVariableTypeAttribute(codeAttribute);
-		int localVariableTypeTableLength = localVariableTypeAttribute == null ? 0 : localVariableTypeAttribute.getLocalVariableTypeTableLength();
+		final ILocalVariableTypeTableAttribute localVariableTypeAttribute= (ILocalVariableTypeTableAttribute) getAttribute(IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE, codeAttribute);
+		final int localVariableTypeTableLength = localVariableTypeAttribute == null ? 0 : localVariableTypeAttribute.getLocalVariableTypeTableLength();
 		if (localVariableTypeTableLength != 0) {
 			int tabNumberForLocalVariableAttribute = tabNumber + 2;
 			writeNewLine(buffer, lineSeparator, tabNumberForLocalVariableAttribute);
@@ -810,7 +794,21 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					Integer.toString(index),
 					new String(returnClassName(typeName, '.', mode))
 				}));
-		} 
+		}
+		final int length = codeAttribute.getAttributesCount();
+		if (length != 0) {
+			IClassFileAttribute[] attributes = codeAttribute.getAttributes();
+			for (int i = 0; i < length; i++) {
+				IClassFileAttribute attribute = attributes[i];
+				if (CharOperation.equals(attribute.getAttributeName(), IAttributeNamesConstants.STACK_MAP_TABLE)) {
+					disassemble((StackMapTableAttribute) attribute, buffer, lineSeparator, tabNumber + 1);
+				} else if (attribute != lineNumberAttribute
+						&& attribute != localVariableAttribute
+						&& attribute != localVariableTypeAttribute) {
+					disassemble(attribute, buffer, lineSeparator, tabNumber + 1);
+				}
+			}
+		}		
 	}
 
 	private void disassemble(IConstantPool constantPool, StringBuffer buffer, String lineSeparator, int tabNumber) {
@@ -939,12 +937,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			.append(Messages.disassembler_constantpoolindex) 
 			.append(enclosingMethodAttribute.getMethodNameAndTypeIndex())
 			.append(" ")//$NON-NLS-1$
-			.append(enclosingMethodAttribute.getEnclosingClass()); //$NON-NLS-1$
+			.append(enclosingMethodAttribute.getEnclosingClass());
 		if (enclosingMethodAttribute.getMethodNameAndTypeIndex() != 0) {
 			buffer
 				.append(".")//$NON-NLS-1$
-				.append(enclosingMethodAttribute.getMethodName()) //$NON-NLS-1$
-				.append(enclosingMethodAttribute.getMethodDescriptor()); //$NON-NLS-1$
+				.append(enclosingMethodAttribute.getMethodName())
+				.append(enclosingMethodAttribute.getMethodDescriptor());
 		}
 	}
 	
@@ -1208,6 +1206,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 	}
 
+
+	private void disassemble(StackMapTableAttribute attribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		buffer.append(Messages.bind(Messages.disassembler_stackmaptableattributeheader,
+			new String[] {
+				Long.toString(attribute.getAttributeLength()),
+				getBytesAsString(attribute.getBytes(), lineSeparator, tabNumber)
+			}));
+	}
+
 	private void disassembleAsModifier(IAnnotation annotation, StringBuffer buffer, String lineSeparator, int tabNumber) {
 		final char[] typeName = CharOperation.replaceOnCopy(annotation.getTypeName(), '/', '.');
 		buffer.append('@').append(Signature.toCharArray(typeName)).append('(');
@@ -1271,7 +1279,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					case IConstantPoolConstant.CONSTANT_Utf8:
 						value = "\"" + decodeStringValue(constantPoolEntry.getUtf8Value()) + "\"";//$NON-NLS-1$//$NON-NLS-2$
 				}
-				buffer.append(value); //$NON-NLS-1$
+				buffer.append(value);
 				break;
 			case IAnnotationComponentValue.ENUM_TAG:
 				final char[] typeName = CharOperation.replaceOnCopy(annotationComponentValue.getEnumConstantTypeName(), '/', '.');
@@ -1317,6 +1325,52 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		for (int i = 0, max = annotations.length; i < max; i++) {
 			disassembleAsModifier(annotations[i], buffer, lineSeparator, tabNumber + 1);
 		}
+	}
+
+	private String getBytesAsString(final byte[] bytes, final String lineSeparator, final int tabNumber) {
+		StringBuffer buffer = new StringBuffer();
+		NumberFormat format = NumberFormat.getInstance();
+		format.setMaximumIntegerDigits(3);
+		format.setMinimumIntegerDigits(3);
+		final int length = bytes.length;
+		if (length == 0) {
+			return "{}"; //$NON-NLS-1$
+		} else {
+			buffer.append('{');
+			writeNewLine(buffer, lineSeparator, tabNumber + 2);
+			String hexString = Integer.toHexString(bytes[0] & 0xFF);
+			switch(hexString.length()) {
+				case 1 :
+					buffer.append('0');
+					break;
+			}
+			buffer.append(hexString).append(' ');
+			hexString = Integer.toHexString(bytes[1] & 0xFF);
+			switch(hexString.length()) {
+				case 1 :
+					buffer.append('0');
+					break;
+			}
+			buffer.append(hexString);
+			for (int i = 2; i < length; i++) {
+				if ((i - 2) % 11 == 0) {
+					writeNewLine(buffer, lineSeparator, tabNumber + 2);
+				} else {
+					buffer.append(' ');
+				}
+				final int currentByte = bytes[i] & 0xFF;
+				hexString = Integer.toHexString(currentByte).toUpperCase();
+				switch(hexString.length()) {
+					case 1 :
+						buffer.append('0');
+						break;
+				}
+				buffer.append(hexString).append('(').append(format.format(currentByte)).append(')');
+			}
+			writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			buffer.append('}');
+		}
+		return String.valueOf(buffer);
 	}
 
 	private void disassembleTypeMembers(IClassFileReader classFileReader, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
@@ -1372,11 +1426,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			return null;
 	}
-	private ILocalVariableTypeTableAttribute getLocalVariableTypeAttribute(ICodeAttribute codeAttribute) {
+	
+	private IClassFileAttribute getAttribute(final char[] attributeName, final ICodeAttribute codeAttribute) {
 		IClassFileAttribute[] attributes = codeAttribute.getAttributes();
 		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), IAttributeNamesConstants.LOCAL_VARIABLE_TYPE_TABLE)) {
-				return (ILocalVariableTypeTableAttribute) attributes[i];
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
 			}
 		}
 		return null;

@@ -217,7 +217,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 		printIndent(indent, output);
 		if (qualification != null) qualification.printExpression(0, output).append('.');
 		if (typeArguments != null) {
-			output.append('<');//$NON-NLS-1$
+			output.append('<');
 			int max = typeArguments.length - 1;
 			for (int j = 0; j < max; j++) {
 				typeArguments[j].print(0, output);

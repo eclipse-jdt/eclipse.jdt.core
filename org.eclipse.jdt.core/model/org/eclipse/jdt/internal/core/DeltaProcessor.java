@@ -1672,7 +1672,7 @@ public class DeltaProcessor {
 //					}
 //				} catch (JavaModelException e) {
 //					if (project.getProject().isAccessible()) {
-//						Util.log(e, "Could not save classpath for "+ project.getPath()); //$NON-NLS-1$
+//						Util.log(e, "Could not save classpath for "+ project.getPath());
 //					}
 //				}
 				break;

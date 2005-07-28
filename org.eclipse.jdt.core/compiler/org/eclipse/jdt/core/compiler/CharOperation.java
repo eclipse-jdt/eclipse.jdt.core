@@ -1425,7 +1425,142 @@ public final class CharOperation {
 				return i;
 		return -1;
 	}
+	
+	/**
+	 * Answers the first index in the array for which the toBeFound array is a matching
+	 * subarray following the case rule. Answers -1 if no match is found.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = { 'c' }
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    result => 2
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = { 'e' }
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param toBeFound the subarray to search
+	 * @param array the array to be searched
+	 * @param isCaseSensitive flag to know if the matching should be case sensitive
+	 * @return the first index in the array for which the toBeFound array is a matching
+	 * subarray following the case rule, -1 otherwise
+	 * @throws NullPointerException if array is null or toBeFound is null
+	 */
+	public static final int indexOf(char[] toBeFound, char[] array, boolean isCaseSensitive) {
+		return indexOf(toBeFound, array, isCaseSensitive, 0);
+	}
 
+	/**
+	 * Answers the first index in the array for which the toBeFound array is a matching
+	 * subarray following the case rule starting at the index start. Answers -1 if no match is found.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = { 'c' }
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    result => 2
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = { 'e' }
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param toBeFound the subarray to search
+	 * @param array the array to be searched
+	 * @param isCaseSensitive flag to know if the matching should be case sensitive
+	 * @param start the starting index 
+	 * @return the first index in the array for which the toBeFound array is a matching
+	 * subarray following the case rule starting at the index start, -1 otherwise
+	 * @throws NullPointerException if array is null or toBeFound is null
+	 */
+	public static final int indexOf(final char[] toBeFound, final char[] array, final boolean isCaseSensitive, final int start) {
+		return indexOf(toBeFound, array, isCaseSensitive, start, array.length);
+	}
+
+	/**
+	 * Answers the first index in the array for which the toBeFound array is a matching
+	 * subarray following the case rule starting at the index start. Answers -1 if no match is found.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = { 'c' }
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    result => 2
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = { 'e' }
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param toBeFound the subarray to search
+	 * @param array the array to be searched
+	 * @param isCaseSensitive flag to know if the matching should be case sensitive
+	 * @param start the starting index (inclusive)
+	 * @param end the end index (exclusive)
+	 * @return the first index in the array for which the toBeFound array is a matching
+	 * subarray following the case rule starting at the index start, -1 otherwise
+	 * @throws NullPointerException if array is null or toBeFound is null
+	 */
+	public static final int indexOf(final char[] toBeFound, final char[] array, final boolean isCaseSensitive, final int start, final int end) {
+		final int arrayLength = end;
+		final int toBeFoundLength = toBeFound.length;
+		if (toBeFoundLength > arrayLength) return -1;
+		if (toBeFoundLength == 0) return 0;
+		if (toBeFoundLength == arrayLength) {
+			if (isCaseSensitive) {
+				for (int i = start; i < arrayLength; i++) {
+					if (array[i] != toBeFound[i]) return -1;
+				}
+				return 0;
+			} else {
+				for (int i = start; i < arrayLength; i++) {
+					if (Character.toLowerCase(array[i]) != Character.toLowerCase(toBeFound[i])) return -1;
+				}
+				return 0;
+			}
+		}
+		if (isCaseSensitive) {
+			arrayLoop: for (int i = start, max = arrayLength - toBeFoundLength; i < max; i++) {
+				if (array[i] == toBeFound[0]) {
+					for (int j = 1; j < toBeFoundLength; j++) {
+						if (array[i + j] != toBeFound[j]) continue arrayLoop;
+					}
+					return i;
+				}
+			}
+		} else {
+			arrayLoop: for (int i = start, max = arrayLength - toBeFoundLength; i < max; i++) {
+				if (Character.toLowerCase(array[i]) == Character.toLowerCase(toBeFound[0])) {
+					for (int j = 1; j < toBeFoundLength; j++) {
+						if (Character.toLowerCase(array[i + j]) != Character.toLowerCase(toBeFound[j])) continue arrayLoop;
+					}
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+	
 	/**
 	 * Answers the first index in the array for which the corresponding character is
 	 * equal to toBeFound starting the search at index start.

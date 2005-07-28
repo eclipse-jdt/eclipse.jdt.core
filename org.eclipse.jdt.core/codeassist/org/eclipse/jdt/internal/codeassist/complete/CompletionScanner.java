@@ -133,8 +133,8 @@ public int getNextToken() throws InvalidInputException {
 						//checkNonExternalizedString();
 						if (this.recordLineSeparator) {
 							pushLineSeparator();
-						} else {
-							this.currentLine = null;
+						} else if (this.currentLine != null) {
+							this.currentLine.clear();
 						}
 					}
 					isWhiteSpace = 
@@ -613,8 +613,8 @@ public int getNextToken() throws InvalidInputException {
 										} else {
 											pushLineSeparator();
 										}
-									} else {
-										this.currentLine = null;
+									} else if (this.currentLine != null) {
+										this.currentLine.clear();
 									}
 								}
 								if (this.tokenizeComments) {
@@ -659,8 +659,8 @@ public int getNextToken() throws InvalidInputException {
 										if (!isUnicode) {
 											pushLineSeparator();
 										}
-									} else {
-										this.currentLine = null;
+									} else if (this.currentLine != null) {
+										this.currentLine.clear();
 									}
 								}
 								isUnicode = false;
@@ -689,8 +689,8 @@ public int getNextToken() throws InvalidInputException {
 											if (!isUnicode) {
 												pushLineSeparator();
 											}
-										} else {
-											this.currentLine = null;
+										} else if (this.currentLine != null) {
+											this.currentLine.clear();
 										}
 									}
 									star = this.currentCharacter == '*';

@@ -41,7 +41,7 @@ class NodeEventHandler {
 	 */
 	void preRemoveChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
 		// do nothing
-		// System.out.println("DEL1 " + property); //$NON-NLS-1$
+		// System.out.println("DEL1 " + property);
 	}
 	
 	/**
@@ -56,7 +56,7 @@ class NodeEventHandler {
 	 */
 	void postRemoveChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
 		// do nothing
-		// System.out.println("DEL2 " + property); //$NON-NLS-1$
+		// System.out.println("DEL2 " + property);
 	}
 	
 	/**
@@ -73,7 +73,7 @@ class NodeEventHandler {
 	 */
 	void preReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
 		// do nothing
-		// System.out.println("REP1 " + property); //$NON-NLS-1$
+		// System.out.println("REP1 " + property);
 	}
 	
 	/**
@@ -89,7 +89,7 @@ class NodeEventHandler {
 	 */
 	void postReplaceChildEvent(ASTNode node, ASTNode child, ASTNode newChild, StructuralPropertyDescriptor property) {
 		// do nothing
-		// System.out.println("REP2 " + property); //$NON-NLS-1$
+		// System.out.println("REP2 " + property);
 	}
 	
 	/**
@@ -108,7 +108,7 @@ class NodeEventHandler {
 	 */
 	void preAddChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
 		// do nothing
-		// System.out.println("ADD1 " + property); //$NON-NLS-1$
+		// System.out.println("ADD1 " + property);
 	}
 	
 	/**
@@ -123,7 +123,7 @@ class NodeEventHandler {
 	 */
 	void postAddChildEvent(ASTNode node, ASTNode child, StructuralPropertyDescriptor property) {
 		// do nothing
-		// System.out.println("ADD2 " + property); //$NON-NLS-1$
+		// System.out.println("ADD2 " + property);
 	}
 	
 	/**
@@ -138,7 +138,7 @@ class NodeEventHandler {
 	 */
 	void preValueChangeEvent(ASTNode node, SimplePropertyDescriptor property) {
 		// do nothing
-		// System.out.println("MOD1 " + property); //$NON-NLS-1$
+		// System.out.println("MOD1 " + property);
 	}
 
 	/**
@@ -153,7 +153,7 @@ class NodeEventHandler {
 	 */
 	void postValueChangeEvent(ASTNode node, SimplePropertyDescriptor property) {
 		// do nothing
-		// System.out.println("MOD2 " + property); //$NON-NLS-1$
+		// System.out.println("MOD2 " + property);
 	}
 	
 	/**
@@ -167,7 +167,7 @@ class NodeEventHandler {
 	 */
 	void preCloneNodeEvent(ASTNode node) {
 		// do nothing
-		// System.out.println("CLONE1"); //$NON-NLS-1$
+		// System.out.println("CLONE1");
 	}
 
 	/**
@@ -182,7 +182,7 @@ class NodeEventHandler {
 	 */
 	void postCloneNodeEvent(ASTNode node, ASTNode clone) {
 		// do nothing
-		// System.out.println("CLONE2"); //$NON-NLS-1$
+		// System.out.println("CLONE2");
 	}
 	
 }

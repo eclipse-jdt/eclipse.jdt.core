@@ -120,7 +120,7 @@ public class Indents {
 			} else if (isIndentChar(c)) {
 				spaceEquivalents++;
 			} else {
-				// Assert.isTrue(false, "Line does not have requested number of indents"); //$NON-NLS-1$
+				// Assert.isTrue(false, "Line does not have requested number of indents");
 				start= i;
 				break; 
 			}

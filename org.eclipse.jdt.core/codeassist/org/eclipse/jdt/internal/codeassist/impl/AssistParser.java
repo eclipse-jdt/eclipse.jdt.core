@@ -1078,7 +1078,12 @@ public void initialize() {
 	this.flushElementStack();
 	this.previousIdentifierPtr = -1;
 }
-
+public void initialize(boolean initializeNLS) {
+	super.initialize(initializeNLS);
+	this.flushAssistState();
+	this.flushElementStack();
+	this.previousIdentifierPtr = -1;
+}
 public abstract void initializeScanner();
 protected boolean isIndirectlyInsideFieldInitialization(){
 	int i = elementPtr;

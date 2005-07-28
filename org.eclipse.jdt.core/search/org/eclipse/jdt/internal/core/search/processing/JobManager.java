@@ -90,7 +90,7 @@ public abstract class JobManager implements Runnable {
 				while (this.processingThread != null && this.executing){
 					try {
 						if (VERBOSE)
-							Util.verbose("-> waiting end of current background job - " + currentJob); //$NON-NLS-1$ //$NON-NLS-2$
+							Util.verbose("-> waiting end of current background job - " + currentJob); //$NON-NLS-1$
 						Thread.sleep(50);
 					} catch(InterruptedException e){
 						// ignore

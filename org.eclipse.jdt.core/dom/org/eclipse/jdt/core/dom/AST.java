@@ -458,7 +458,7 @@ public final class AST {
 			// guard against concurrent access by a reader doing lazy init
 			if (this.disableEvents > 0) {
 				// doing lazy init OR already processing an event
-				// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+				// System.out.println("[BOUNCE DEL]");
 				return;
 			} else {
 				disableEvents();
@@ -487,7 +487,7 @@ public final class AST {
 			// guard against concurrent access by a reader doing lazy init
 			if (this.disableEvents > 0) {
 				// doing lazy init OR already processing an event
-				// System.out.println("[BOUNCE DEL]"); //$NON-NLS-1$
+				// System.out.println("[BOUNCE DEL]");
 				return;
 			} else {
 				disableEvents();
@@ -517,7 +517,7 @@ public final class AST {
 			// guard against concurrent access by a reader doing lazy init
 			if (this.disableEvents > 0) {
 				// doing lazy init OR already processing an event
-				// System.out.println("[BOUNCE REP]"); //$NON-NLS-1$
+				// System.out.println("[BOUNCE REP]");
 				return;
 			} else {
 				disableEvents();
@@ -547,7 +547,7 @@ public final class AST {
 			// guard against concurrent access by a reader doing lazy init
 			if (this.disableEvents > 0) {
 				// doing lazy init OR already processing an event
-				// System.out.println("[BOUNCE REP]"); //$NON-NLS-1$
+				// System.out.println("[BOUNCE REP]");
 				return;
 			} else {
 				disableEvents();
@@ -576,7 +576,7 @@ public final class AST {
 			// guard against concurrent access by a reader doing lazy init
 			if (this.disableEvents > 0) {
 				// doing lazy init OR already processing an event
-				// System.out.println("[BOUNCE ADD]"); //$NON-NLS-1$
+				// System.out.println("[BOUNCE ADD]");
 				return;
 			} else {
 				disableEvents();
@@ -605,7 +605,7 @@ public final class AST {
 			// guard against concurrent access by a reader doing lazy init
 			if (this.disableEvents > 0) {
 				// doing lazy init OR already processing an event
-				// System.out.println("[BOUNCE ADD]"); //$NON-NLS-1$
+				// System.out.println("[BOUNCE ADD]");
 				return;
 			} else {
 				disableEvents();
@@ -634,7 +634,7 @@ public final class AST {
 			// guard against concurrent access by a reader doing lazy init
 			if (this.disableEvents > 0) {
 				// doing lazy init OR already processing an event
-				// System.out.println("[BOUNCE CHANGE]"); //$NON-NLS-1$
+				// System.out.println("[BOUNCE CHANGE]");
 				return;
 			} else {
 				disableEvents();
@@ -663,7 +663,7 @@ public final class AST {
 			// guard against concurrent access by a reader doing lazy init
 			if (this.disableEvents > 0) {
 				// doing lazy init OR already processing an event
-				// System.out.println("[BOUNCE CHANGE]"); //$NON-NLS-1$
+				// System.out.println("[BOUNCE CHANGE]");
 				return;
 			} else {
 				disableEvents();
@@ -689,7 +689,7 @@ public final class AST {
 			// guard against concurrent access by a reader doing lazy init
 			if (this.disableEvents > 0) {
 				// doing lazy init OR already processing an event
-				// System.out.println("[BOUNCE CLONE]"); //$NON-NLS-1$
+				// System.out.println("[BOUNCE CLONE]");
 				return;
 			} else {
 				disableEvents();
@@ -716,7 +716,7 @@ public final class AST {
 			// guard against concurrent access by a reader doing lazy init
 			if (this.disableEvents > 0) {
 				// doing lazy init OR already processing an event
-				// System.out.println("[BOUNCE CLONE]"); //$NON-NLS-1$
+				// System.out.println("[BOUNCE CLONE]");
 				return;
 			} else {
 				disableEvents();

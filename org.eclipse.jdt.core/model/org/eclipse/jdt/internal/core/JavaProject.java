@@ -147,12 +147,12 @@ public class JavaProject
 			return null;
 
 //		if (JavaModelManager.VERBOSE) {
-//			System.out.println("JAVA MODEL - Canonicalizing " + externalPath.toString()); //$NON-NLS-1$
+//			System.out.println("JAVA MODEL - Canonicalizing " + externalPath.toString());
 //		}
 
 		if (IS_CASE_SENSITIVE) {
 //			if (JavaModelManager.VERBOSE) {
-//				System.out.println("JAVA MODEL - Canonical path is original path (file system is case sensitive)"); //$NON-NLS-1$
+//				System.out.println("JAVA MODEL - Canonical path is original path (file system is case sensitive)");
 //			}
 			return externalPath;
 		}
@@ -162,7 +162,7 @@ public class JavaProject
 		if (workspace == null) return externalPath; // protection during shutdown (30487)
 		if (workspace.getRoot().findMember(externalPath) != null) {
 //			if (JavaModelManager.VERBOSE) {
-//				System.out.println("JAVA MODEL - Canonical path is original path (member of workspace)"); //$NON-NLS-1$
+//				System.out.println("JAVA MODEL - Canonical path is original path (member of workspace)");
 //			}
 			return externalPath;
 		}
@@ -174,7 +174,7 @@ public class JavaProject
 		} catch (IOException e) {
 			// default to original path
 //			if (JavaModelManager.VERBOSE) {
-//				System.out.println("JAVA MODEL - Canonical path is original path (IOException)"); //$NON-NLS-1$
+//				System.out.println("JAVA MODEL - Canonical path is original path (IOException)");
 //			}
 			return externalPath;
 		}
@@ -184,7 +184,7 @@ public class JavaProject
 		if (canonicalLength == 0) {
 			// the java.io.File canonicalization failed
 //			if (JavaModelManager.VERBOSE) {
-//				System.out.println("JAVA MODEL - Canonical path is original path (canonical path is empty)"); //$NON-NLS-1$
+//				System.out.println("JAVA MODEL - Canonical path is original path (canonical path is empty)");
 //			}
 			return externalPath;
 		} else if (externalPath.isAbsolute()) {
@@ -197,7 +197,7 @@ public class JavaProject
 				result = canonicalPath.removeFirstSegments(canonicalLength - externalLength);
 			} else {
 //				if (JavaModelManager.VERBOSE) {
-//					System.out.println("JAVA MODEL - Canonical path is original path (canonical path is " + canonicalPath.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+//					System.out.println("JAVA MODEL - Canonical path is original path (canonical path is " + canonicalPath.toString() + ")");
 //				}
 				return externalPath;
 			}
@@ -208,7 +208,7 @@ public class JavaProject
 			result = result.setDevice(null);
 		} 
 //		if (JavaModelManager.VERBOSE) {
-//			System.out.println("JAVA MODEL - Canonical path is " + result.toString()); //$NON-NLS-1$
+//			System.out.println("JAVA MODEL - Canonical path is " + result.toString());
 //		}
 		return result;
 	}
@@ -1670,7 +1670,7 @@ public class JavaProject
 			case IResource.FOLDER:
 				return new PackageFragmentRoot(resource, this);
 			case IResource.PROJECT:
-				return new PackageFragmentRoot(resource, this); //$NON-NLS-1$
+				return new PackageFragmentRoot(resource, this);
 			default:
 				return null;
 		}

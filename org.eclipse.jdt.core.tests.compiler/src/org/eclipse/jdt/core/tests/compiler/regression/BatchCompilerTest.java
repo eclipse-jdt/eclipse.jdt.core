@@ -1767,13 +1767,11 @@ public void test032(){
 	        "	           ^^\n" + 
 	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
 	        "----------\n" + 
-	        "----------\n" + 
 	        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
 	        " (at line 27)\n" + 
 	        "	return l1;\n" + 
 	        "	       ^^\n" + 
 	        "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
-	        "----------\n" + 
 	        "----------\n" + 
 	        "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
 	        " (at line 33)\n" + 
@@ -1781,13 +1779,11 @@ public void test032(){
 	        "	       ^^^^^^^^^^^^^^\n" + 
 	        "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
 	        "----------\n" + 
-	        "----------\n" + 
 	        "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
 	        " (at line 58)\n" + 
 	        "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
 	        "	                ^^\n" + 
 	        "The local variable l1 is never read\n" + 
-	        "----------\n" + 
 	        "----------\n" + 
 	        "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
 	        " (at line 58)\n" + 
@@ -1941,13 +1937,11 @@ public void test032(){
         "	           ^^\n" + 
         "Type safety: The expression of type Y needs unchecked conversion to conform to Y<?,? extends X.XX<?,?>,? extends X.XY>\n" + 
         "----------\n" + 
-        "----------\n" + 
         "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
         " (at line 27)\n" + 
         "	return l1;\n" + 
         "	       ^^\n" + 
         "Type safety: The expression of type Y needs unchecked conversion to conform to Y<T,U,V>\n" + 
-        "----------\n" + 
         "----------\n" + 
         "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
         " (at line 33)\n" + 
@@ -1955,13 +1949,11 @@ public void test032(){
         "	       ^^^^^^^^^^^^^^\n" + 
         "Type safety: The cast from TT to X.XX<?,X.XY> is actually checking against the erased type X<T,U,V>.XX\n" + 
         "----------\n" + 
-        "----------\n" + 
         "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
         " (at line 58)\n" + 
         "	final XX<?, XY> l1 = (XX<?, XY>) i.getKey();\n" + 
         "	                ^^\n" + 
         "The local variable l1 is never read\n" + 
-        "----------\n" + 
         "----------\n" + 
         "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "p" + File.separator + "Z.java\n" + 
         " (at line 58)\n" + 

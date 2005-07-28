@@ -3202,6 +3202,10 @@ public void initialize() {
 	super.initialize();
 	this.initializeForBlockStatements();
 }
+public void initialize(boolean initializeNLS) {
+	super.initialize(initializeNLS);
+	this.initializeForBlockStatements();
+}
 /*
  * Initializes the state of the parser that is about to go for BlockStatements.
  */
@@ -3507,12 +3511,12 @@ public  String toString() {
 	String s = ""; //$NON-NLS-1$
 	s = s + "elementKindStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
-		s = s + String.valueOf(elementKindStack[i]) + ","; //$NON-NLS-1$ //$NON-NLS-2$
+		s = s + String.valueOf(elementKindStack[i]) + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 	s = s + "elementInfoStack : int[] = {"; //$NON-NLS-1$
 	for (int i = 0; i <= elementPtr; i++) {
-		s = s + String.valueOf(elementInfoStack[i]) + ","; //$NON-NLS-1$ //$NON-NLS-2$
+		s = s + String.valueOf(elementInfoStack[i]) + ","; //$NON-NLS-1$
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 	return s + super.toString();

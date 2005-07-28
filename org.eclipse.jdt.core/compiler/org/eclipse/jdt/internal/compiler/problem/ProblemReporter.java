@@ -1272,6 +1272,7 @@ public static long getIrritant(int problemID) {
 			return CompilerOptions.AccessEmulation;
 
 		case IProblem.NonExternalizedStringLiteral :
+		case IProblem.UnnecessaryNONNLSTag :
 			return CompilerOptions.NonExternalizedString;
 
 		case IProblem.UseAssertAsAnIdentifier :
@@ -4426,7 +4427,7 @@ public void parseError(
 	}
 	//extract the literal when it's a literal  
 	if (isLiteral(currentToken) ||
-		isIdentifier(currentToken)) { //$NON-NLS-1$
+		isIdentifier(currentToken)) {
 			errorTokenName = new String(currentTokenSource);
 	}
 
@@ -4941,7 +4942,7 @@ private void syntaxError(
 	String eTokenName;
 	if (isKeyword(currentKind) ||
 		isLiteral(currentKind) ||
-		isIdentifier(currentKind)) { //$NON-NLS-1$
+		isIdentifier(currentKind)) {
 			eTokenName = new String(currentTokenSource);
 	} else {
 		eTokenName = errorTokenName;
@@ -5205,6 +5206,14 @@ public void unnecessaryInstanceof(InstanceOfExpression instanceofExpression, Typ
 		new String[]{ new String(expressionType.shortReadableName()), new String(checkType.shortReadableName())},
 		instanceofExpression.sourceStart,
 		instanceofExpression.sourceEnd);
+}
+public void unnecessaryNONNLSTags(int sourceStart, int sourceEnd) {
+	this.handle(
+		IProblem.UnnecessaryNONNLSTag,
+		NoArgument,
+		NoArgument,
+		sourceStart,
+		sourceEnd);	
 }
 public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) {
 	this.handle(

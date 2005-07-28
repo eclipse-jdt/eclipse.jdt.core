@@ -180,6 +180,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long MissingDeprecatedAnnotation = ASTNode.Bit43L;
 	public static final long DiscouragedReference = ASTNode.Bit44L;
 	public static final long UnhandledWarningToken = ASTNode.Bit45L;
+	public static final long UselessNLSTag = ASTNode.Bit46L;
 	
 	// TODO (olivier) remove once http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21540 is fixed
 	private static final int IntMissingSerialVersion = (int) (MissingSerialVersion >>> 32);

@@ -2021,7 +2021,7 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c != Signature.C_ARRAY) { //$NON-NLS-1$
+		if (c != Signature.C_ARRAY) {
 			throw new IllegalArgumentException();
 		}
 		
@@ -2420,7 +2420,7 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c != Signature.C_ARRAY) { //$NON-NLS-1$
+		if (c != Signature.C_ARRAY) {
 			throw new IllegalArgumentException();
 		}
 		
@@ -2454,7 +2454,7 @@ public class Util {
 			throw new IllegalArgumentException();
 		}
 		char c = string[start];
-		if (c != Signature.C_CAPTURE) { //$NON-NLS-1$
+		if (c != Signature.C_CAPTURE) {
 			throw new IllegalArgumentException();
 		}
 		return scanTypeBoundSignature(string, start + 1);

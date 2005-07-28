@@ -378,7 +378,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 	if (synthetics[FIELD_EMUL] == null)
 		synthetics[FIELD_EMUL] = new HashMap(5);
 
-	SyntheticFieldBinding synthField = (SyntheticFieldBinding) synthetics[FIELD_EMUL].get(key); //$NON-NLS-1$
+	SyntheticFieldBinding synthField = (SyntheticFieldBinding) synthetics[FIELD_EMUL].get(key);
 	if (synthField == null) {
 		synthField = new SyntheticFieldBinding(
 			fieldName,
@@ -1467,7 +1467,7 @@ public String toString() {
 		if (methods != NoMethods) {
 			buffer.append("\n/*   methods   */"); //$NON-NLS-1$
 			for (int i = 0, length = methods.length; i < length; i++)
-				buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$ //$NON-NLS-2$
+				buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$
 		}
 	} else {
 		buffer.append("NULL METHODS"); //$NON-NLS-1$
@@ -1477,7 +1477,7 @@ public String toString() {
 		if (memberTypes != NoMemberTypes) {
 			buffer.append("\n/*   members   */"); //$NON-NLS-1$
 			for (int i = 0, length = memberTypes.length; i < length; i++)
-				buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE"); //$NON-NLS-1$ //$NON-NLS-2$
+				buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE"); //$NON-NLS-1$
 		}
 	} else {
 		buffer.append("NULL MEMBER TYPES"); //$NON-NLS-1$

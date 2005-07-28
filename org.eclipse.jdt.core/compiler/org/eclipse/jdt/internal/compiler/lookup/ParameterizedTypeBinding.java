@@ -203,7 +203,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		        if (typeBinding instanceof CaptureBinding)
 		        	captureSourceType = ((CaptureBinding) typeBinding).sourceType;
 		    }
-		    sig.append('>'); //$NON-NLS-1$
+		    sig.append('>');
 		}
 		sig.append(';');
 		if (captureSourceType != null && captureSourceType != this.type) {
@@ -317,7 +317,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			    for (int i = 0, length = this.arguments.length; i < length; i++) {
 			        sig.append(this.arguments[i].genericTypeSignature());
 			    }
-			    sig.append('>'); //$NON-NLS-1$
+			    sig.append('>');
 			}
 			sig.append(';');
 			int sigLength = sig.length();
@@ -982,7 +982,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (methods != NoMethods) {
 				buffer.append("\n/*   methods   */"); //$NON-NLS-1$
 				for (int i = 0, length = methods.length; i < length; i++)
-					buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$ //$NON-NLS-2$
+					buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$
 			}
 		} else {
 			buffer.append("NULL METHODS"); //$NON-NLS-1$
@@ -990,12 +990,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	
 //		if (memberTypes != null) {
 //			if (memberTypes != NoMemberTypes) {
-//				buffer.append("\n/*   members   */"); //$NON-NLS-1$
+//				buffer.append("\n/*   members   */");
 //				for (int i = 0, length = memberTypes.length; i < length; i++)
-//					buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE"); //$NON-NLS-1$ //$NON-NLS-2$
+//					buffer.append('\n').append((memberTypes[i] != null) ? memberTypes[i].toString() : "NULL TYPE");
 //			}
 //		} else {
-//			buffer.append("NULL MEMBER TYPES"); //$NON-NLS-1$
+//			buffer.append("NULL MEMBER TYPES");
 //		}
 	
 		buffer.append("\n\n"); //$NON-NLS-1$

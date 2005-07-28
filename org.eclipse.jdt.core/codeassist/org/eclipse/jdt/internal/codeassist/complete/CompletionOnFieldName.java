@@ -18,7 +18,7 @@ public class CompletionOnFieldName extends FieldDeclaration {
 	private static final char[] FAKENAMESUFFIX = " ".toCharArray(); //$NON-NLS-1$
 	public char[] realName;
 	public CompletionOnFieldName(char[] name, int sourceStart, int sourceEnd) {
-		super(CharOperation.concat(name, FAKENAMESUFFIX), sourceStart, sourceEnd); //$NON-NLS-1$
+		super(CharOperation.concat(name, FAKENAMESUFFIX), sourceStart, sourceEnd);
 		this.realName = name;
 	}
 	

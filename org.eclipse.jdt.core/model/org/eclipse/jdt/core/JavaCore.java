@@ -3894,21 +3894,21 @@ public final class JavaCore extends Plugin {
 //					if (previousContainer != null) {
 //						if (JavaModelManager.CP_RESOLVE_VERBOSE){
 //							StringBuffer buffer = new StringBuffer();
-//							buffer.append("CPContainer INIT - reentering access to project container during its initialization, will see previous value\n"); //$NON-NLS-1$ 
-//							buffer.append("	project: " + affectedProject.getElementName() + '\n'); //$NON-NLS-1$
-//							buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
-//							buffer.append("	previous value: "); //$NON-NLS-1$
+//							buffer.append("CPContainer INIT - reentering access to project container during its initialization, will see previous value\n"); 
+//							buffer.append("	project: " + affectedProject.getElementName() + '\n');
+//							buffer.append("	container path: " + containerPath + '\n');
+//							buffer.append("	previous value: ");
 //							buffer.append(previousContainer.getDescription());
-//							buffer.append(" {\n"); //$NON-NLS-1$
+//							buffer.append(" {\n");
 //							IClasspathEntry[] entries = previousContainer.getClasspathEntries();
 //							if (entries != null){
 //								for (int j = 0; j < entries.length; j++){
-//									buffer.append(" 		"); //$NON-NLS-1$
+//									buffer.append(" 		");
 //									buffer.append(entries[j]); 
 //									buffer.append('\n'); 
 //								}
 //							}
-//							buffer.append(" 	}"); //$NON-NLS-1$
+//							buffer.append(" 	}");
 //							Util.verbose(buffer.toString());
 //						}
 //						JavaModelManager.getJavaModelManager().containerPut(affectedProject, containerPath, previousContainer); 

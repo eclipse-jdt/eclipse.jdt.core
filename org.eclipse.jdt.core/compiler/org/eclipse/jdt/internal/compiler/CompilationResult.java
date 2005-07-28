@@ -471,7 +471,7 @@ public class CompilationResult {
 			buffer.append("No COMPILED type\n");  //$NON-NLS-1$
 		}
 		if (problems != null){
-			buffer.append(this.problemCount).append(" PROBLEM(s) detected \n"); //$NON-NLS-1$//$NON-NLS-2$
+			buffer.append(this.problemCount).append(" PROBLEM(s) detected \n"); //$NON-NLS-1$
 			for (int i = 0; i < this.problemCount; i++){
 				buffer.append("\t - ").append(this.problems[i]).append('\n'); //$NON-NLS-1$
 			}

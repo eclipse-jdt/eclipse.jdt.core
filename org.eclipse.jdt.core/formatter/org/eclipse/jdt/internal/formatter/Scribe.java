@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
@@ -119,7 +120,7 @@ public class Scribe {
 			// resize
 			resize();
 		}
-		addOptimizedReplaceEdit(start, end - start + 1, EMPTY_STRING); //$NON-NLS-1$
+		addOptimizedReplaceEdit(start, end - start + 1, EMPTY_STRING);
 	}
 
 	public final void addInsertEdit(int insertPosition, String insertedString) {
@@ -570,7 +571,7 @@ public class Scribe {
 					// check that we are on the same line
 					int lineIndexForComment = Arrays.binarySearch(this.lineEnds, start);
 					if (lineIndexForComment == index) {
-						return indexOf(Scanner.TAG_PREFIX.toCharArray(), this.scanner.source, start, currentLineEnd) != -1;
+						return CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, start) != -1;
 					}
 				}
 			}
@@ -583,33 +584,6 @@ public class Scribe {
 		this.numberOfIndentations++;
 	}	
 
-	private int indexOf(char[] toBeFound, char[] source, int start, int end) {
-		if (toBeFound == null || source == null) {
-			throw new IllegalArgumentException();
-		}
-		int toBeFoundLength = toBeFound.length;
-		if (end < start || (end - start + 1) < toBeFoundLength) {
-			return -1;
-		}
-		int indexInSource = 0;
-		for (int i = start; i < end; i++) {
-			if (source[i] == toBeFound[indexInSource]) {
-				int j = i + 1;
-				indexInSource++;
-				loop: for (; j < end && indexInSource < toBeFoundLength; j++) {
-					if (toBeFound[indexInSource] != source[j]) {
-						break loop;
-					}
-					indexInSource++;
-				}
-				if (j == i + toBeFoundLength) {
-					return i;
-				}
-				indexInSource = 0;
-			}
-		}
-		return -1;
-	}
 	/**
 	 * @param compilationUnitSource
 	 */
@@ -987,7 +961,7 @@ public class Scribe {
 	private void printCommentLine(char[] s) {
 		int currentTokenStartPosition = this.scanner.getCurrentTokenStartPosition();
 		int currentTokenEndPosition = this.scanner.getCurrentTokenEndPosition() + 1;
-		if (indexOf(Scanner.TAG_PREFIX.toCharArray(), this.scanner.source, currentTokenStartPosition, currentTokenEndPosition) != -1) {
+		if (CharOperation.indexOf(Scanner.TAG_PREFIX, this.scanner.source, true, currentTokenStartPosition) != -1) {
 			this.nlsTagCounter = 0;
 		}
 		this.scanner.resetTo(currentTokenStartPosition, currentTokenEndPosition - 1);

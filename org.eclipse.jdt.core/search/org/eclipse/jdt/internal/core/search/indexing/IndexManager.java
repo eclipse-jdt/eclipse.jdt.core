@@ -194,7 +194,7 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 			File indexFile = new File(indexLocation);
 			if (indexFile.exists()) { // check before creating index so as to avoid creating a new empty index if file is missing
 				try {
-					index = new Index(indexLocation, containerPathString, true /*reuse index file*/); //$NON-NLS-1$
+					index = new Index(indexLocation, containerPathString, true /*reuse index file*/);
 					indexes.put(indexLocation, index);
 					return index;
 				} catch (IOException e) {
@@ -218,7 +218,7 @@ public synchronized Index getIndex(IPath containerPath, String indexLocation, bo
 			try {
 				if (VERBOSE)
 					Util.verbose("-> create empty index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
-				index = new Index(indexLocation, containerPathString, false /*do not reuse index file*/); //$NON-NLS-1$
+				index = new Index(indexLocation, containerPathString, false /*do not reuse index file*/);
 				indexes.put(indexLocation, index);
 				return index;
 			} catch (IOException e) {
@@ -434,14 +434,14 @@ public synchronized Index recreateIndex(IPath containerPath) {
 
 		if (VERBOSE)
 			Util.verbose("-> recreating index: "+indexLocation+" for path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
-		index = new Index(indexLocation, containerPathString, false /*reuse index file*/); //$NON-NLS-1$
+		index = new Index(indexLocation, containerPathString, false /*reuse index file*/);
 		this.indexes.put(indexLocation, index);
 		index.monitor = monitor;
 		return index;
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
 		if (VERBOSE) {
-			Util.verbose("-> failed to recreate index for path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
+			Util.verbose("-> failed to recreate index for path: "+containerPathString); //$NON-NLS-1$
 			e.printStackTrace();
 		}
 		return null;

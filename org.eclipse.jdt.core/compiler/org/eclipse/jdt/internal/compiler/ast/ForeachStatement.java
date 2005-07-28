@@ -314,7 +314,7 @@ public class ForeachStatement extends Statement {
 			output.append(';');
 		} else {
 			output.append('\n');
-			this.action.printStatement(tab + 1, output); //$NON-NLS-1$
+			this.action.printStatement(tab + 1, output);
 		}
 		return output;
 	}

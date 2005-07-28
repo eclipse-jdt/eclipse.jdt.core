@@ -223,6 +223,13 @@ public class CommentRecorderParser extends Parser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initialize()
 	 */
+	public void initialize(boolean initializeNLS) {
+		super.initialize(initializeNLS);
+		this.commentPtr = -1;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#initialize()
+	 */
 	public void initialize() {
 		super.initialize();
 		this.commentPtr = -1;

@@ -380,12 +380,12 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 		output.append(" {"); //$NON-NLS-1$
 		if (constructorCall != null) {
 			output.append('\n');
-			constructorCall.printStatement(indent, output); //$NON-NLS-1$ //$NON-NLS-2$
+			constructorCall.printStatement(indent, output);
 		}
 		if (statements != null) {
 			for (int i = 0; i < statements.length; i++) {
 				output.append('\n');
-				statements[i].printStatement(indent, output); //$NON-NLS-1$
+				statements[i].printStatement(indent, output);
 			}
 		}
 		output.append('\n');

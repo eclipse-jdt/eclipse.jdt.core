@@ -285,9 +285,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(unitSource, begin, end - begin + 1);
 			
-			this.parameters.put(VALUE, String.valueOf(buffer)); //$NON-NLS-1$
-			this.parameters.put(SOURCE_START, Integer.toString(startPosition - begin)); //$NON-NLS-1$
-			this.parameters.put(SOURCE_END, Integer.toString(endPosition - begin)); //$NON-NLS-1$
+			this.parameters.put(VALUE, String.valueOf(buffer));
+			this.parameters.put(SOURCE_START, Integer.toString(startPosition - begin));
+			this.parameters.put(SOURCE_END, Integer.toString(endPosition - begin));
 		}
 
 		private String getFieldName(int id) {
@@ -447,7 +447,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void logNoClasspath() {
 			if (isXml) {
 				this.parameters.clear();
-				this.parameters.put(MESSAGE, Main.bind("configure.noClasspath")); //$NON-NLS-1$//$NON-NLS-2$
+				this.parameters.put(MESSAGE, Main.bind("configure.noClasspath")); //$NON-NLS-1$
 				this.printTag(ERROR_TAG, this.parameters, true, true);
 			}
 			this.printlnErr(Main.bind("configure.noClasspath")); //$NON-NLS-1$
@@ -459,7 +459,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void logNumberOfClassFilesGenerated(int exportedClassFilesCounter) {
 			if (isXml) {
 				this.parameters.clear();
-				this.parameters.put(VALUE, new Integer(exportedClassFilesCounter)); //$NON-NLS-1$
+				this.parameters.put(VALUE, new Integer(exportedClassFilesCounter));
 				this.printTag(NUMBER_OF_CLASSFILES, this.parameters, true, true);
 			}
 			if (exportedClassFilesCounter == 1) {
@@ -593,10 +593,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						if (problem != null) {
 							currentMain.globalProblemsCount++;
 							this.logProblem(problem, localErrorCount, currentMain.globalProblemsCount, unitSource);
+							localErrorCount++;							
 							if (problem.isError()) {
 								errors++;
 								currentMain.globalErrorsCount++;
-								localErrorCount++;
 							} else if (problem.getID() == IProblem.Task) {
 								currentMain.globalTasksCount++;
 								tasks++;
@@ -635,9 +635,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						if (problems[i] != null) {
 							currentMain.globalProblemsCount++;
 							this.logProblem(problems[i], localErrorCount, currentMain.globalProblemsCount, unitSource);
+							localErrorCount++;
 							if (problems[i].isError()) {
 								currentMain.globalErrorsCount++;
-								localErrorCount++;
 							} else {
 								currentMain.globalWarningsCount++;
 							}
@@ -718,7 +718,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * @param usage
 		 */
 		public void logUsage(String usage) {
-			this.printlnOut(usage); //$NON-NLS-1$//$NON-NLS-2$
+			this.printlnOut(usage);
 		}
 
 		/**
@@ -740,7 +740,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void logWrongJDK() {
 			if (isXml) {
 				parameters.clear();
-				parameters.put(MESSAGE, Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$//$NON-NLS-2$
+				parameters.put(MESSAGE, Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
 				this.printTag(ERROR, parameters, true, true);				
 			}
 			this.printlnErr(Main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
@@ -881,15 +881,15 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.log.println(XML_DTD_DECLARATION);
 						this.tab = 0;
 						parameters.clear();
-						parameters.put(COMPILER_NAME, Main.bind("compiler.name")); //$NON-NLS-1$//$NON-NLS-2$
-						parameters.put(COMPILER_VERSION, Main.bind("compiler.version")); //$NON-NLS-1$//$NON-NLS-2$
-						parameters.put(COMPILER_COPYRIGHT, Main.bind("compiler.copyright")); //$NON-NLS-1$//$NON-NLS-2$
+						parameters.put(COMPILER_NAME, Main.bind("compiler.name")); //$NON-NLS-1$
+						parameters.put(COMPILER_VERSION, Main.bind("compiler.version")); //$NON-NLS-1$
+						parameters.put(COMPILER_COPYRIGHT, Main.bind("compiler.copyright")); //$NON-NLS-1$
 						this.printTag(COMPILER, parameters, true, false);
 					} else {
-						this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$//$NON-NLS-2$
+						this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$
 					}
 				} else {
-					this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$//$NON-NLS-2$
+					this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$
 				}
 			} catch (FileNotFoundException e) {
 				throw new InvalidInputException(Main.bind("configure.cannotOpenLog")); //$NON-NLS-1$
@@ -1093,7 +1093,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					startNewToken = true;
 				}
 			} else if (token.equals("\"")) { //$NON-NLS-1$
-				if (!insideQuotes && startNewToken) { //$NON-NLS-1$
+				if (!insideQuotes && startNewToken) {
 					if (count == arguments.length)
 						System.arraycopy(arguments, 0, (arguments = new String[count * 2]), 0, count);
 					arguments[count++] = ""; //$NON-NLS-1$
@@ -1134,7 +1134,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 //				if (this.verbose) {
 //					System.out.println(new CompilerOptions(this.options));
 //				}
-				if (this.showProgress) this.logger.compiling(); //$NON-NLS-1$
+				if (this.showProgress) this.logger.compiling();
 				for (int i = 0; i < this.repetitions; i++) {
 					this.globalProblemsCount = 0;
 					this.globalErrorsCount = 0;
@@ -1401,7 +1401,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				continue;
 			}
 			if (currentArg.equals("-classpath") //$NON-NLS-1$
-				|| currentArg.equals("-cp")) { //$NON-NLS-1$ //$NON-NLS-2$
+				|| currentArg.equals("-cp")) { //$NON-NLS-1$
 				mode = InsideClasspath;
 				continue;
 			}
@@ -2130,7 +2130,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					Main.bind("configure.directoryNotExist", currentArg)); //$NON-NLS-1$
 			FileFinder finder = new FileFinder();
 			try {
-				finder.find(dir, SUFFIX_STRING_JAVA, this.verbose); //$NON-NLS-1$
+				finder.find(dir, SUFFIX_STRING_JAVA, this.verbose);
 			} catch (Exception e) {
 				throw new InvalidInputException(Main.bind("configure.IOError", currentArg)); //$NON-NLS-1$
 			}
@@ -2196,7 +2196,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			// no user classpath specified.
 			String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 			if ((classProp == null) || (classProp.length() == 0)) {
-				this.logger.logNoClasspath(); //$NON-NLS-1$
+				this.logger.logNoClasspath();
 			}
 			else {
 				StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
@@ -2222,7 +2222,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			 */
 			 String javaversion = System.getProperty("java.version");//$NON-NLS-1$
 			 if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
-				this.logger.logWrongJDK(); //$NON-NLS-1$
+				this.logger.logWrongJDK();
 				this.proceed = false;
 				return;
 			 }
@@ -2553,7 +2553,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		String defaultEncoding = (String) this.options.get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(defaultEncoding)) //$NON-NLS-1$
-			defaultEncoding = null; //$NON-NLS-1$
+			defaultEncoding = null;
 
 		for (int i = 0; i < fileCount; i++) {
 			char[] charName = this.filenames[i].toCharArray();
@@ -2660,7 +2660,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					} catch (IOException e) {
 						String fileName = this.destinationPath + relativeStringName;
 						e.printStackTrace();
-						this.logger.logNoClassFileCreated(fileName); //$NON-NLS-1$
+						this.logger.logNoClassFileCreated(fileName);
 					}
 					this.exportedClassFilesCounter++;
 				}
@@ -2712,7 +2712,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		this.logger.flush();
 	}
 	public void printVersion() {
-		this.logger.logVersion();  //$NON-NLS-1$
+		this.logger.logVersion();
 		this.logger.flush();
 	}
 }

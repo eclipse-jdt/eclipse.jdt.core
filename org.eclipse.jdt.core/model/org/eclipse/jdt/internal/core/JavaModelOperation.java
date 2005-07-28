@@ -62,7 +62,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 
 	public static final String HAS_MODIFIED_RESOURCE_ATTR = "hasModifiedResource"; //$NON-NLS-1$
 	public static final String TRUE = "true"; //$NON-NLS-1$
-	//public static final String FALSE = "false"; //$NON-NLS-1$
+	//public static final String FALSE = "false";
 		
 	/**
 	 * The elements this operation operates on,

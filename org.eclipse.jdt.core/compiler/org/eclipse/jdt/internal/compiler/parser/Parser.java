@@ -13,12 +13,15 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -329,7 +332,7 @@ private static void buildFileForCompliance(
 			}
 		}
 
-		buildFileForTable(file, result); //$NON-NLS-1$
+		buildFileForTable(file, result);
 	}
 private final static void buildFileForTable(String filename, byte[] bytes) throws java.io.IOException {
 	java.io.FileOutputStream stream = new java.io.FileOutputStream(filename);
@@ -894,25 +897,11 @@ public void checkComment() {
 		}
 	}
 }
-protected void checkNonExternalizedStringLiteral() {
-	if (this.scanner.wasNonExternalizedStringLiteral) {
-		StringLiteral[] literals = this.scanner.nonNLSStrings;
-		// could not reproduce, but this is the only NPE
-		// added preventive null check see PR 9035
-		if (literals != null) {
-			for (int i = 0, max = literals.length; i < max; i++) {
-				problemReporter().nonExternalizedStringLiteral(literals[i]);
-			}
-		}
-		this.scanner.wasNonExternalizedStringLiteral = false;
-	}
-}
 protected void checkNonNLSAfterBodyEnd(int declarationEnd){
 	if(this.scanner.currentPosition - 1 <= declarationEnd) {
 		this.scanner.eofPosition = declarationEnd < Integer.MAX_VALUE ? declarationEnd + 1 : declarationEnd;
 		try {
 			while(this.scanner.getNextToken() != TokenNameEOF){/*empty*/}
-			checkNonExternalizedStringLiteral();
 		} catch (InvalidInputException e) {
 			// Nothing to do
 		}
@@ -6696,7 +6685,6 @@ protected void consumeSwitchLabels() {
 protected void consumeToken(int type) {
 	/* remember the last consumed value */
 	/* try to minimize the number of build values */
-	checkNonExternalizedStringLiteral();
 //	// clear the commentPtr of the scanner in case we read something different from a modifier
 //	switch(type) {
 //		case TokenNameabstract :
@@ -7616,7 +7604,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 			System.out.println("--------------------------");		 //$NON-NLS-1$
 			System.out.println(this.compilationUnit);		
 			System.out.println("----------------------------------"); //$NON-NLS-1$
-		}		
+		}
 	} else {
 		if (this.diet & VERBOSE_RECOVERY){
 			System.out.print(Messages.parser_regularParse); 
@@ -8046,7 +8034,7 @@ public void goForCompilationUnit(){
 	this.firstToken = TokenNamePLUS_PLUS ;
 	this.scanner.foundTaskCount = 0;
 	this.scanner.recordLineSeparator = true;
-	this.scanner.currentLine= null;
+	if (this.scanner.currentLine != null) this.scanner.currentLine.clear();
 }
 public void goForExpression() {
 	//tells the scanner to go for an expression parsing
@@ -8122,6 +8110,9 @@ protected void ignoreExpressionAssignment() {
 	problemReporter().arrayConstantsOnlyInArrayInitializers(arrayInitializer.sourceStart, arrayInitializer.sourceEnd); 	
 }
 public void initialize() {
+	this.initialize(false);
+}
+public void initialize(boolean initializeNLS) {
 	//positionning the parser for a new compilation unit
 	//avoiding stack reallocation and all that....
 	this.astPtr = -1;
@@ -8161,9 +8152,11 @@ public void initialize() {
 	this.scanner.commentPtr = -1;
 	this.scanner.foundTaskCount = 0;
 	this.scanner.eofPosition = Integer.MAX_VALUE;
-	this.scanner.wasNonExternalizedStringLiteral = false;
+	this.scanner.unnecessaryNONNLSTags = null;
 	this.scanner.nonNLSStrings = null;
-	this.scanner.currentLine = null;	
+	if (initializeNLS && this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/) {
+		this.scanner.currentLine = new NLSLine();
+	}
 
 	resetModifiers();
 
@@ -8192,7 +8185,7 @@ public void initializeScanner(){
 	this.scanner = new Scanner(
 		false /*comment*/, 
 		false /*whitespace*/, 
-		this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/, 
+		false, /* will be set in initialize(boolean) */ 
 		this.options.sourceLevel /*sourceLevel*/, 
 		this.options.complianceLevel /*complianceLevel*/, 
 		this.options.taskTags/*taskTags*/,
@@ -8252,7 +8245,8 @@ protected boolean moveRecoveryCheckpoint() {
 	/* if about to restart, then no need to shift token */
 	if (this.restartRecovery){
 		this.lastIgnoredToken = -1;
-		this.scanner.currentLine = null;
+		if (this.scanner.currentLine != null) this.scanner.currentLine.clear();
+		this.scanner.insideRecovery = true;		
 		return true;
 	}
 	
@@ -8274,7 +8268,7 @@ protected boolean moveRecoveryCheckpoint() {
 	
 	if (this.nextIgnoredToken == TokenNameEOF) { // no more recovery after this point
 		if (this.currentToken == TokenNameEOF) { // already tried one iteration on EOF
-			this.scanner.currentLine = null;
+			if (this.scanner.currentLine != null) this.scanner.currentLine.clear();
 			return false;
 		}
 	}
@@ -8285,7 +8279,7 @@ protected boolean moveRecoveryCheckpoint() {
 	this.scanner.currentPosition = pos;
 	this.scanner.commentPtr = -1;
 	this.scanner.foundTaskCount = 0;
-	this.scanner.currentLine = null;
+	if (this.scanner.currentLine != null) this.scanner.currentLine.clear();
 
 	return true;
 
@@ -8493,10 +8487,10 @@ protected void parse() {
 		} while (act <= NUM_RULES);
 	}
 	endParse(act);
-	
+	reportNonExternalizedStringLiterals();
 	if (this.reportSyntaxErrorIsRequired && this.hasError) {
 		reportSyntaxErrors(isDietParse, oldFirstToken);
-	}
+	}	
 	if (DEBUG) System.out.println("-- EXIT FROM PARSE METHOD --");  //$NON-NLS-1$
 }
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit) {
@@ -8631,7 +8625,7 @@ public CompilationUnitDeclaration parse(
 	CompilationUnitDeclaration unit;
 	try {
 		/* automaton initialization */
-		initialize();
+		initialize(true);
 		goForCompilationUnit();
 
 		/* scanners initialization */
@@ -8713,7 +8707,6 @@ public void parse(
 	}	
 }
 // A P I
-
 public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 	//only parse the method body of md
 	//fill out method statements
@@ -9113,6 +9106,52 @@ public void recoveryTokenCheck() {
 	}
 	this.ignoreNextOpeningBrace = false;
 }
+protected void reportNonExternalizedStringLiterals() {
+	final Set nonNLSStrings = this.scanner.nonNLSStrings;
+	final int nonNLSStringsSize = nonNLSStrings == null ? 0 : nonNLSStrings.size();
+	if (nonNLSStringsSize != 0) {
+		StringLiteral[] literals = new StringLiteral[nonNLSStringsSize];
+		nonNLSStrings.toArray(literals);
+		Arrays.sort(literals, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				StringLiteral literal1 = (StringLiteral) o1;
+				StringLiteral literal2 = (StringLiteral) o2;
+				return literal1.sourceStart - literal2.sourceStart;
+			}
+		});
+		for (int i = 0; i < nonNLSStringsSize; i++) {
+			problemReporter().nonExternalizedStringLiteral(literals[i]);
+		}
+	}
+	final Set unnecessaryNONNLSTags = this.scanner.unnecessaryNONNLSTags;
+	final int unnecessaryNONNLSTagsSize = unnecessaryNONNLSTags == null ? 0 : unnecessaryNONNLSTags.size();
+	if (unnecessaryNONNLSTagsSize != 0) {
+		NLSTag[] tags = new NLSTag[unnecessaryNONNLSTagsSize];
+		unnecessaryNONNLSTags.toArray(tags);
+		// filter out all used nls tags
+		ArrayList arrayList = new ArrayList();
+		for (int i = 0; i < unnecessaryNONNLSTagsSize; i++) {
+			NLSTag tag = tags[i];
+			if ((tag.bits & NLSTag.UNUSED) != 0) {
+				arrayList.add(tag);
+			}
+		}
+		Collections.sort(arrayList, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				NLSTag tag1 = (NLSTag) o1;
+				NLSTag tag2 = (NLSTag) o1;
+				return tag1.start - tag2.start;
+			}
+		});
+		for (int i = 0, max = arrayList.size(); i < max; i++) {
+			NLSTag tag = (NLSTag) arrayList.get(i); 
+			problemReporter().unnecessaryNONNLSTags(tag.start, tag.end);
+		}
+	}
+	this.scanner.nonNLSStrings = null;
+	this.scanner.unnecessaryNONNLSTags = null;
+	this.scanner.currentLine = null;
+}
 // A P I
 protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 	if(this.referenceContext instanceof MethodDeclaration) {
@@ -9206,7 +9245,9 @@ protected void resetStacks() {
 	this.listLength = 0;
 	this.listTypeParameterLength = 0;
 	// Fix for http://dev.eclipse.org/bugs/show_bug.cgi?id=29365
-	if (this.scanner != null) this.scanner.currentLine = null;
+	if (this.scanner != null && this.scanner.currentLine != null) {
+		this.scanner.currentLine.clear();
+	}
 	
 	this.genericsIdentifiersLengthPtr = -1;
 	this.genericsLengthPtr = -1;

@@ -38,8 +38,8 @@ public TypeBinding[] genericTypeArguments() {
 }
 
 public TypeBinding resolveType(BlockScope scope) {
-		scope.problemReporter().cannotUseSuperInCodeSnippet(this.sourceStart, this.sourceEnd); //$NON-NLS-1$
-		return null;
+	scope.problemReporter().cannotUseSuperInCodeSnippet(this.sourceStart, this.sourceEnd);
+	return null;
 }
 public boolean isSuperAccess(){
 	return false;

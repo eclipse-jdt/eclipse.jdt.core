@@ -48,8 +48,6 @@ public class DocumentElementParser extends Parser {
 	int[][] intArrayStack;
 	int intArrayPtr;
 	
-	CompilerOptions options;
-	
 public DocumentElementParser(
 	final IDocumentElementRequestor requestor, 
 	IProblemFactory problemFactory,
@@ -1089,7 +1087,12 @@ public CompilationUnitDeclaration endParse(int act) {
 	}
 	return super.endParse(act);
 }
-
+public void initialize(boolean initializeNLS) {
+	//positionning the parser for a new compilation unit
+	//avoiding stack reallocation and all that....
+	super.initialize(initializeNLS);
+	intArrayPtr = -1;
+}
 public void initialize() {
 	//positionning the parser for a new compilation unit
 	//avoiding stack reallocation and all that....
@@ -1120,7 +1123,7 @@ protected void parse() {
 public void parseCompilationUnit(ICompilationUnit unit) {
 	char[] regionSource = unit.getContents();
 	try {
-		initialize();
+		initialize(true);
 		goForCompilationUnit();
 		referenceContext =
 			compilationUnit = 
