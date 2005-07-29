@@ -53,15 +53,14 @@ cd %TEMPDIR%
 
 REM
 REM  HACKHACK:  the sh scripts generates a .cmd script which will set the variable DATE_SUFFIX
-REM  to the output of the sh command `date  +%Y_%m_%d_%H_%M_%S`.  Yeah, yeah.  I should have 
+REM  to the output of the sh command `date  +%Y%m%d-%H%M`.  Yeah, yeah.  I should have 
 REM  used ant for consistency.
 REM
 cd %TEMPDIR%
 sh %ROOT%\org.eclipse.jdt.apt.core\scripts\make_set_date_suffix_cmd.sh
 call set_date_suffix.cmd
 
-@set RC=
-@set SDK_APT_ZIP=eclipse-SDK-APT-3.1%RC%-win32-%DATE_SUFFIX%.zip
+@set SDK_APT_ZIP=eclipse-SDK-APT-%DATE_SUFFIX%-win32.zip
 @set FULL_SDK_APT_ZIP=%TEMPDIR%\%SDK_APT_ZIP%
 
 
