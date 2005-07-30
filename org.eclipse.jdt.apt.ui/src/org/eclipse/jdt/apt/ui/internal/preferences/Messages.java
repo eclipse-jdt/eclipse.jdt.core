@@ -71,4 +71,28 @@ public class Messages extends NLS {
 	public static String FactoryPathConfigurationBlock_unableToSaveFactorypath_message;
 
 	public static String FactoryPathConfigurationBlock_edit;
+
+	public static String AptConfigurationBlock_add;
+
+	public static String AptConfigurationBlock_edit;
+
+	public static String AptConfigurationBlock_remove;
+
+	public static String AptConfigurationBlock_key;
+
+	public static String AptConfigurationBlock_value;
+
+	public static String ProcessorOptionInputDialog_newProcessorOption;
+
+	public static String ProcessorOptionInputDialog_editProcessorOption;
+
+	public static String ProcessorOptionInputDialog_key;
+
+	public static String ProcessorOptionInputDialog_value;
+
+	public static String ProcessorOptionInputDialog_emptyKey;
+
+	public static String ProcessorOptionInputDialog_keyAlreadyInUse;
+
+	public static String ProcessorOptionInputDialog_equalsSignNotValid;
 }

@@ -127,7 +127,7 @@ public class AptConfig {
     		options = new HashMap<String, String>();
     	}
     	else {
-    		OptionsParser op = new OptionsParser(allOptions);
+    		ProcessorOptionsParser op = new ProcessorOptionsParser(allOptions);
     		options = op.parse();
     	}
     	
@@ -175,12 +175,12 @@ public class AptConfig {
      * Parsing ignores errors and simply tries to gobble up as many well-formed
      * pairs as it can find.
      */
-    private static class OptionsParser {
+    public static class ProcessorOptionsParser {
     	final String _s;
     	int _start; // everything before this is already parsed.
     	boolean _hasVal; // does the last key found have a value token?
     	
-    	OptionsParser(String s) {
+    	public ProcessorOptionsParser(String s) {
     		_s = s;
     		_start = 0;
     		_hasVal = false;
@@ -436,7 +436,7 @@ public class AptConfig {
      * space-delimited.  The result resembles the apt command line.
      * @param options a map containing zero or more key/value or key/null pairs.
      */
-    private static String serializeProcessorOptions(Map<String, String> options) {
+    public static String serializeProcessorOptions(Map<String, String> options) {
     	StringBuilder sb = new StringBuilder();
     	boolean firstEntry = true;
     	for (Map.Entry<String, String> entry : options.entrySet()) {

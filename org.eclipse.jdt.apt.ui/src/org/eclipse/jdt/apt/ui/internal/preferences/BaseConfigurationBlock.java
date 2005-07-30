@@ -12,6 +12,9 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.core.runtime.preferences.IScopeContext;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.internal.ui.preferences.OptionsConfigurationBlock;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
@@ -65,6 +68,23 @@ public abstract class BaseConfigurationBlock extends OptionsConfigurationBlock {
 		super(context, project, keys, container);
 	}
 	
+	/* TODO: temporary fix for Bugzilla 105623.  When OptionsConfigurationBlock#performDefaults()
+	 * is fixed, remove this overriding method. */
+	@Override
+	public void performDefaults() {
+		IScopeContext defaultScope= (fProject == null) ? new DefaultScope() : new InstanceScope();
+		for (int i= 0; i < fAllKeys.length; i++) {
+			Key curr= fAllKeys[i];
+			String defValue= curr.getStoredValue(defaultScope, null);
+			setValue(curr, defValue);
+		}
+		
+		settingsUpdated();
+		updateControls();
+		validateSettings(null, null, null);
+	}
+
+
 	/* Increase visibility from declaration in superclass */
 	@Override
 	protected abstract Control createContents(Composite parent);
