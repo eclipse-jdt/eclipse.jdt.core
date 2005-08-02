@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
+import java.util.Map;
+
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -18,6 +20,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.osgi.service.prefs.BackingStoreException;
@@ -36,7 +39,7 @@ public class OptionTests extends ModifyingResourceTests {
 		super(name);
 	}
 	static {
-//		TESTS_NUMBERS = new int[] { 4 };
+//		TESTS_NUMBERS = new int[] { 100393 };
 //		TESTS_RANGE = new int[] { 4, -1 };
 	}
 	public static Test suite() {
@@ -503,8 +506,8 @@ public class OptionTests extends ModifyingResourceTests {
 	}
 
 	/**
-	 * Test fix for bug 68993: [Preferences] IAE when opening project preferences
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=68993">68993</a>
+	 * Bug 68993: [Preferences] IAE when opening project preferences
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=68993"
 	 */
 	public void testBug68993() throws CoreException, BackingStoreException {
 		try {
@@ -538,8 +541,8 @@ public class OptionTests extends ModifyingResourceTests {
 	}
 
 	/**
-	 * Test fix for bug 72214: [Preferences] IAE when opening project preferences
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=72214">72214</a>
+	 * Bug 72214: [Preferences] IAE when opening project preferences
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=72214"
 	 */
 	public void testBug72214() throws CoreException, BackingStoreException {
 		// Remove JavaCore instance prefs
@@ -551,5 +554,31 @@ public class OptionTests extends ModifyingResourceTests {
 		// verify that JavaCore preferences have been reset
 		assertFalse("JavaCore preferences should have been reset", preferences == manager.getInstancePreferences());
 		assertEquals("JavaCore preferences should have been resotred!", size, JavaCore.getOptions().size());
+	}
+
+	/**
+	 * Bug 100393: Defaults for compiler errors/warnings settings
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=100393"
+	 */
+	public void testBug100393() throws CoreException, BackingStoreException {
+		// Get default compiler options
+		Map options = new CompilerOptions().getMap();
+
+		// verify that CompilerOptions default preferences for modified options
+		assertEquals("Invalid default for "+CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING, options.get(CompilerOptions.OPTION_ReportUnusedLocal));
+		assertEquals("Invalid default for "+CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING, options.get(CompilerOptions.OPTION_ReportUnusedPrivateMember));
+		assertEquals("Invalid default for "+CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE, options.get(CompilerOptions.OPTION_ReportFieldHiding));
+		assertEquals("Invalid default for "+CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE, options.get(CompilerOptions.OPTION_ReportLocalVariableHiding));
+	}
+	public void testBug100393b() throws CoreException, BackingStoreException {
+		// Get JavaCore default preferences
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IEclipsePreferences preferences = manager.getDefaultPreferences();
+
+		// verify that JavaCore default preferences for modified options
+		assertEquals("Invalid default for "+JavaCore.COMPILER_PB_UNUSED_LOCAL, "warning", preferences.get(JavaCore.COMPILER_PB_UNUSED_LOCAL, "null"));
+		assertEquals("Invalid default for "+JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, "warning", preferences.get(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, "null"));
+		assertEquals("Invalid default for "+JavaCore.COMPILER_PB_FIELD_HIDING, "ignore", preferences.get(JavaCore.COMPILER_PB_FIELD_HIDING, "null"));
+		assertEquals("Invalid default for "+JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, "ignore", preferences.get(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, "null"));
 	}
 }
