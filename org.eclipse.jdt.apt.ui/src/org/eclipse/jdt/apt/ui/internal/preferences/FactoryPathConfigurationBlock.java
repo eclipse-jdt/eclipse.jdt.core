@@ -277,6 +277,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		LayoutUtil.doDefaultLayout(fBlockControl, new DialogField[] { fFactoryPathList }, true, SWT.DEFAULT, SWT.DEFAULT);
 		LayoutUtil.setHorizontalGrabbing(fFactoryPathList.getListControl(null));
 
+		fFactoryPathList.enableButton(IDX_ADDJAR, (fJProj != null));
 		int buttonBarWidth= fPixelConverter.convertWidthInCharsToPixels(24);
 		fFactoryPathList.setButtonsMinWidth(buttonBarWidth);
 		
@@ -355,10 +356,15 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	}
 
 	/**
+	 * Add or edit a project-relative jar file.  Only possible when editing
+	 * project properties; this method is disabled in workspace prefs.
 	 * @param original null, or an existing list entry to be edited
 	 * @return a list of additional factory containers to be added
 	 */
 	private FactoryContainer[] openJarFileDialog(FactoryContainer original) {
+		if (fJProj == null) {
+			return null;
+		}
 		IWorkspaceRoot root= fJProj.getProject().getWorkspace().getRoot();
 		IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.WKSPJAR, original);
 		if (original == null) {
@@ -438,7 +444,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			return edited;
 		}
 	}
-		
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#updateModel(org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField)
 	 */
