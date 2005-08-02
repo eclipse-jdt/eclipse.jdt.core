@@ -81,7 +81,7 @@ public class AptConfig {
     	if (key == null || key.length() < 1) {
     		return null;
     	}
-    	Map<String, String> options = getProcessorOptions(jproj);
+    	Map<String, String> options = getRawProcessorOptions(jproj);
     	String old = options.get(key);
     	options.put(key, val);
     	String serializedOptions = serializeProcessorOptions(options);
@@ -97,7 +97,7 @@ public class AptConfig {
      * @return the old value, or null if the option was not previously set.
      */
     public static synchronized String removeProcessorOption(IJavaProject jproj, String key) {
-    	Map<String, String> options = getProcessorOptions(jproj);
+    	Map<String, String> options = getRawProcessorOptions(jproj);
     	String old = options.get(key);
     	options.remove(key);
     	String serializedOptions = serializeProcessorOptions(options);
@@ -106,14 +106,14 @@ public class AptConfig {
     }
     
 	/**
-     * Get the options that are the equivalent of the -A command line options
-     * for apt.  The -A and = are stripped out, so (key, value) is the
-     * equivalent of -Akey=value.  
+     * Get the options that are presented to annotation processors by the
+     * AnnotationProcessorEnvironment.  The -A and = are stripped out, so 
+     * (key, value) is the equivalent of -Akey=value.
      * 
-     * The implementation of this at present relies on persisting all the options
-     * in one string that is the equivalent of the apt command line, e.g.,
-     * "-Afoo=bar -Aquux=baz", and then parsing the string into a map in this
-     * routine. 
+     * The options returned by this method include -Aclasspath and -Asourcepath, 
+     * which are set programmatically but are not directly editable, are not 
+     * displayed in the configuration GUI, and are not persisted to the
+     * preference store.
      * 
      * @param jproj a project, or null to query the workspace-wide setting.
      * @return a mutable, possibly empty, map of (key, value) pairs.  
@@ -122,14 +122,7 @@ public class AptConfig {
      */
     public static Map<String, String> getProcessorOptions(IJavaProject jproj) {
     	Map<String,String> options;
-    	String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
-    	if (null == allOptions) {
-    		options = new HashMap<String, String>();
-    	}
-    	else {
-    		ProcessorOptionsParser op = new ProcessorOptionsParser(allOptions);
-    		options = op.parse();
-    	}
+    	options = getRawProcessorOptions(jproj);
     	
     	// Add sourcepath and classpath variables
     	try {
@@ -168,6 +161,39 @@ public class AptConfig {
     	
     	return options;
     }
+
+	/**
+     * Get the options that are presented to annotation processors by the
+     * AnnotationProcessorEnvironment.  The -A and = are stripped out, so 
+     * (key, value) is the equivalent of -Akey=value.
+     * 
+     * This method differs from getProcessorOptions in that the options returned 
+     * by this method do NOT include any programmatically set options.  This 
+     * method returns only the options that are persisted to the preference
+     * store and that are displayed in the configuration GUI.
+     * 
+     * The implementation of this at present relies on persisting all the options
+     * in one string that is the equivalent of the apt command line, e.g.,
+     * "-Afoo=bar -Aquux=baz", and then parsing the string into a map in this
+     * routine. 
+     * 
+     * @param jproj a project, or null to query the workspace-wide setting.
+     * @return a mutable, possibly empty, map of (key, value) pairs.  
+     * The value part of a pair may be null (equivalent to "-Akey").
+     * The value part can contain spaces, if it is quoted: -Afoo="bar baz".
+     */
+	public static Map<String, String> getRawProcessorOptions(IJavaProject jproj) {
+		Map<String, String> options;
+		String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
+    	if (null == allOptions) {
+    		options = new HashMap<String, String>();
+    	}
+    	else {
+    		ProcessorOptionsParser op = new ProcessorOptionsParser(allOptions);
+    		options = op.parse();
+    	}
+		return options;
+	}
     
     /**
      * Used to parse an apt-style command line string into a map of key/value
@@ -470,6 +496,7 @@ public class AptConfig {
 		}
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
 		node.putBoolean(optionName, value);
+		flushPreference(optionName, node);
 	}
 	
 	private static synchronized void setString(IJavaProject jproject, String optionName, String value) {
@@ -482,6 +509,16 @@ public class AptConfig {
 		}
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
 		node.put(optionName, value);
+		flushPreference(optionName, node);
+	}
+
+	private static void flushPreference(String optionName, IEclipsePreferences node) {
+		try {
+			node.flush();
+		}
+		catch (BackingStoreException e){
+			AptPlugin.log(e, "Failed to save preference: " + optionName); //$NON-NLS-1$
+		}
 	}
 	
 }
