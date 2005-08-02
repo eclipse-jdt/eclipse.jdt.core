@@ -12,28 +12,19 @@
 
 package org.eclipse.jdt.apt.tests.jdtcoretests;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
-import org.eclipse.jdt.core.tests.RunBuilderTests;
-import org.eclipse.jdt.core.tests.RunCompilerTests;
-import org.eclipse.jdt.core.tests.RunDOMTests;
-import org.eclipse.jdt.core.tests.RunFormatterTests;
-import org.eclipse.jdt.core.tests.RunJDTCoreTests;
-import org.eclipse.jdt.core.tests.RunModelTests;
+public class AllJdtCoreTests extends org.eclipse.jdt.core.tests.RunJDTCoreTests {
 
-//
-//  BUGZILLA 101144
-// 
-// This code should look like this when bug 101144 is fixed:
-//
-// public class AllJdtCoreTests extends org.eclipse.jdt.core.tests.RunJDTCoreTests {
-//
-//    public AllJdtCoreTests(String testName) { super(testName); }
-// }
-//
+    public AllJdtCoreTests(String testName) { super(testName); }
+ }
 
+/*
+ * NOTE - sometimes, we have observed failures that were resolved by changing
+ * the order in which the jdt-core tests are run.  If you ever get weird errors
+ * in the jdt-core tests, then you may want to experiment with changing this class
+ * to be something like the following.  
+ * 
+ *
 public class AllJdtCoreTests extends TestCase {
 	
 	public AllJdtCoreTests(String testName) 
@@ -52,5 +43,5 @@ public class AllJdtCoreTests extends TestCase {
 			return suite;
 		}
 }
-	
+	*/
 
