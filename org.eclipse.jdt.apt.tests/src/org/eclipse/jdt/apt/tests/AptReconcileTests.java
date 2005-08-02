@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -39,9 +40,8 @@ public class AptReconcileTests extends ModifyingResourceTests
 		return new TestSuite(AptReconcileTests.class);
 	}
 	
-	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
 	@SuppressWarnings("nls")
-	public void disabled_testGeneratedFile() throws Throwable
+	public void testGeneratedFile() throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
 		try
@@ -123,7 +123,8 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 *   generates a file that should fix an error in the parent file.
 	 * @throws Throwable
 	 */
-	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
+	// This stopped working when reconcile changed to be in-memory only.  We should investigate why this stopped 
+	// (I think it is consistent with the reconcile/build model, just need to convince myself it is true.) 
 	@SuppressWarnings("nls")
 	public void disabled_testNestedGeneratedFile() throws Throwable
 	{
@@ -201,9 +202,9 @@ public class AptReconcileTests extends ModifyingResourceTests
 		}
 	}
 
-	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
+
 	@SuppressWarnings("nls")
-	public void disabled_testStopGeneratingFileInReconciler() throws Exception
+	public void testStopGeneratingFileInReconciler() throws Exception
 	{
 		String fname = TEST_FOLDER + "/A.java";
 		try
@@ -294,9 +295,8 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 * Tests that when a working copy is discarded, we clean up any cached data in the
 	 * GeneratedFileManager.
 	 */
-	// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
-	@SuppressWarnings("nls")
-	public void disabled_testDiscardParentWorkingCopy()
+	@SuppressWarnings("nls")	
+	public void testDiscardParentWorkingCopy()
 	 	throws Throwable
 	{
 		String fname = TEST_FOLDER + "/A.java";
@@ -355,11 +355,23 @@ public class AptReconcileTests extends ModifyingResourceTests
 					"bin", "1.5" );
 			project.getProject().refreshLocal( IResource.DEPTH_INFINITE, null );
 			
+			// make sure generated source folder exists in the project.  This is necessary
+			// for reconcile-time type-generation to work
+			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( project.getProject() );
+			gfm.ensureGeneratedSourceFolder( null /* progress monitor */ );
+			
+			
 			_classesJarFile = TestUtil.createAndAddAnnotationJar( project );
 
 			IFolder testFolder = createFolder( TEST_FOLDER );
 			if ( !testFolder.exists() )
 				testFolder.create( true, false, null );
+			
+			// disable auto-build.  We don't want build-time type-generation interfering with
+			// our reconcile tests.
+			String key = ResourcesPlugin.PREF_AUTO_BUILDING;
+			boolean value = false;
+			ResourcesPlugin.getPlugin().getPluginPreferences().setValue(key, value);
 		} 
 		catch ( Exception t ) 
 		{

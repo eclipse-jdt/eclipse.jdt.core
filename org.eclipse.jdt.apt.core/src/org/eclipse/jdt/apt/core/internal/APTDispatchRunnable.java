@@ -27,7 +27,6 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.apt.core.AptPlugin;
-import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
@@ -112,12 +111,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			else
 				f = (IFile)_compilationUnit.getResource();
 			
-			// BUGZILLA 103183 - reconcile-path disabled until type-generation in reconcile is turned on
-			Set<IFile> deletedFiles;
-			if ( _file != null )
-				deletedFiles = cleanupAllGeneratedFilesForParent( f );
-			else
-				deletedFiles = Collections.<IFile>emptySet();
+			Set<IFile> deletedFiles = cleanupAllGeneratedFilesForParent( f, _compilationUnit );
 			
 			if ( deletedFiles.size() == 0 )
 				_result =  EMPTY_APT_RESULT;
@@ -226,11 +220,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			// run, but are no longer generated should be removed
 			
 			// BUGZILLA 103183 - reconcile-path disabled until type-generation in reconcile is turned on
-			Set<IFile> deletedFiles;
-			if( processorEnv.getPhase() == Phase.BUILD )
-				deletedFiles = cleanupNoLongerGeneratedFiles( processorEnv.getFile(), lastGeneratedFiles, allGeneratedFiles, gfm );
-			else
-				deletedFiles = Collections.<IFile>emptySet();
+			Set<IFile> deletedFiles = cleanupNoLongerGeneratedFiles( processorEnv.getFile(), processorEnv.getCompilationUnit(), lastGeneratedFiles, allGeneratedFiles, gfm );
 			
 			APTResult result = new APTResult( modifiedFiles, 
 											  deletedFiles, 
@@ -246,15 +236,15 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		return EMPTY_APT_RESULT;
 	}
 
-	private Set<IFile> cleanupAllGeneratedFilesForParent( IFile parent )
+	private Set<IFile> cleanupAllGeneratedFilesForParent( IFile parent, ICompilationUnit parentCompilationUnit )
 	{
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( parent.getProject() );
 		Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( parent );
-		return cleanupNoLongerGeneratedFiles( parent, lastGeneratedFiles, Collections.<IFile>emptySet(), gfm );
+		return cleanupNoLongerGeneratedFiles( parent, parentCompilationUnit, lastGeneratedFiles, Collections.<IFile>emptySet(), gfm );
 	}
 	
 	private Set<IFile> cleanupNoLongerGeneratedFiles( 
-		IFile parent, Set<IFile> lastGeneratedFiles, Set<IFile> newGeneratedFiles,
+		IFile parentFile, ICompilationUnit parentCompilationUnit, Set<IFile> lastGeneratedFiles, Set<IFile> newGeneratedFiles,
 		GeneratedFileManager gfm )
 	{
 		HashSet<IFile> deletedFiles = new HashSet<IFile>();
@@ -266,11 +256,19 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			IFile f = files[i];
 			if ( ! newGeneratedFiles.contains( f ) )
 			{
-				if ( AptPlugin.DEBUG ) trace( "runAPT:  File " + f + " is no longer a generated file for " + parent ); //$NON-NLS-1$ //$NON-NLS-2$
+				if ( AptPlugin.DEBUG ) trace( "runAPT:  File " + f + " is no longer a generated file for " + parentFile ); //$NON-NLS-1$ //$NON-NLS-2$
 				try
 				{
-					if ( gfm.deleteGeneratedFile( f, parent, null ) )
-						deletedFiles.add( f );
+					if ( parentCompilationUnit == null )
+					{
+						if ( gfm.deleteGeneratedFile( f, parentFile, null ) )
+							deletedFiles.add( f );
+					}
+					else 
+					{
+						if ( gfm.deleteGeneratedTypeInMemory( f, parentCompilationUnit, null ) )
+							deletedFiles.add( f );
+					}
 				}
 				catch ( CoreException ce )
 				{

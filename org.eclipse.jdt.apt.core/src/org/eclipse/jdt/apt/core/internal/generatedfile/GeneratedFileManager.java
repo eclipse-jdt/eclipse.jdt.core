@@ -121,10 +121,17 @@ public class GeneratedFileManager {
 		JavaCore.addElementChangedListener( new ElementChangedListener(), mask );
 	}
 	
+	/**
+	 *  Returns a list of the generated file managers for all projects.  
+	 */
 	public static synchronized List<GeneratedFileManager> getGeneratedFileManagers() {
 		return new ArrayList(MANAGERS_MAP.values());
 	}
 	
+	/**
+	 *  returns a generated file manager instance for the specified project.  If one doesn't
+	 *  already exist, then one will be created. 
+	 */
 	public static synchronized GeneratedFileManager getGeneratedFileManager(final IProject project) 
 	{
 		if ( project == null )
@@ -142,20 +149,25 @@ public class GeneratedFileManager {
 	}
 
 	/**
-	 * Return the file and a flag indicating if the content was modified.
+	 * Invoked when a file is generated during a build.  The generated file and intermediate 
+	 * directories will be created if they don't  exist.  This method takes file-system locks, 
+	 * and assumes that the calling method has at some point acquired a workspace-level 
+	 * resource lock.
 	 * 
-	 * @param parentFile
-	 * @param typeName
-	 * @param contents
-	 * @param progressMonitor
-	 * @param charsetName
+	 * @param parentFile the parent of the type being generated
+	 * @param typeName the dot-separated java type name of the type being generated
+	 * @param contents the java code contents of the new type .
+	 * @param progressMonitor a progres monitor.  This may be null.
+	 * @param charsetName the character set to use when creating the new file.  This can be null 
+	 * or the empty string, in which case the platform default encoding will be used.
+	 *  
 	 * @return - the newly created IFile along with whether it was modified
+	 * 
 	 * @throws CoreException
 	 * @throws UnsupportedEncodingException
 	 */
 	public FileGenerationResult generateFileDuringBuild(
 			IFile parentFile,
-			IJavaProject javaProject,
 			String typeName, 
 			String contents, 
 			IProgressMonitor progressMonitor,
@@ -164,9 +176,9 @@ public class GeneratedFileManager {
 	{
 		try
 		{
-			boolean updatededSourcePath = ensureGeneratedSourceFolder( javaProject, progressMonitor );
+			boolean updatededSourcePath = ensureGeneratedSourceFolder( progressMonitor );
 			
-			IFile file = getIFileForTypeName( typeName, javaProject, progressMonitor );
+			IFile file = getIFileForTypeName( typeName );
 
 			byte[] bytes;
 			if ( charsetName == null || charsetName == "" ) //$NON-NLS-1$
@@ -251,42 +263,58 @@ public class GeneratedFileManager {
 	}
 		
 	/**
-	 * TODO:  figure out how to create a working copy with a client-specified character set
+	 * This function generates a type "in-memory" by creating or updating a working copy with the
+	 * specified contents.   The generated-source folder must be configured correctly for this to 
+	 * work. This method takes no locks, so it is safe to call when holding fine-grained resource 
+	 * locks (e.g., during some reconcile paths).  Since this only works on an in-memory working 
+	 * copy of the type, the IFile for the generated type may not exist on disk.  Likewise, the
+	 * corresponding package directories of type-name may not exist on disk.   
 	 * 
+	 * TODO:  figure out how to create a working copy with a client-specified character se
 	 * 
-	 * @param parentCompilationUnit
-	 * @param typeName
-	 * @param contents
-	 * @param workingCopyOwner
-	 * @param problemRequestor
-	 * @param progressMonitor
-	 * @return
+	 * @param parentCompilationUnit - the parent compilation unit. 
+	 * @param typeName - the dot-separated java type name for the new type
+	 * @param contents - the contents of the new type
+	 * @param workingCopyOwner - the working copy owner.  This may be null.  If null, parentCompilationUnit.getOwner() 
+	 * will be used.  
+	 * @param problemRequestor - this may be null. 
+	 * @param progressMonitor - this may be null
+	 * 
+	 * @return The FileGenerationResult.  This will return null if the generated source folder
+	 * is not configured.
+	 * 
+	 * @see #ensureGeneratedSourceFolder(IProgressMonitor)
 	 */
 	public  FileGenerationResult generateFileDuringReconcile(
 			ICompilationUnit parentCompilationUnit, String typeName,
 			String contents, WorkingCopyOwner workingCopyOwner,
 			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor ) 
-	{
-		// BUGZILLA 103183 - reconcile-path disabled until type-generation in reconcile is turned on
-		if ( true )
+	{		
+		// type-generation during reconcile only works if the generated source
+		// folder is created and added to the project's source path. 
+		if ( ! isGeneratedSourceFolderConfigured() )
 			return null;
-		
 		
 		ICompilationUnit workingCopy = null;
 		FileGenerationResult result = null;
+		IFile parentFile = (IFile)parentCompilationUnit.getResource();
 		try 
 		{
 			//
 			// get working copy (either from cache or create a new one)
 			//
-			workingCopy = getCachedWorkingCopy( parentCompilationUnit, typeName );
+			workingCopy = getCachedWorkingCopy( parentFile, typeName );
+			
+			if ( workingCopyOwner == null )
+				workingCopyOwner = parentCompilationUnit.getOwner();
 			
 			if ( workingCopy == null )
 			{
 				// create a new working copy
 				workingCopy = createNewWorkingCopy(  
-						parentCompilationUnit,  typeName, contents,  
+						parentFile,  typeName, contents,  
 						workingCopyOwner, problemRequestor,  progressMonitor);
+								
 				workingCopy.reconcile(AST.JLS3, true, workingCopyOwner,
 						progressMonitor);
 				
@@ -310,14 +338,16 @@ public class GeneratedFileManager {
 		{
 			AptPlugin.log(jme, "Could not generate file for type: " + typeName); //$NON-NLS-1$
 		} 
-		catch (CoreException ce) 
-		{
-			AptPlugin.log(ce, "Could not generate file for type: " + typeName); //$NON-NLS-1$
-		}
 		return new FileGenerationResult((IFile)workingCopy.getResource(), true, false);
 	}
 
 	
+	/**
+	 *  returns true if the specified file is a generated file (i.e., it has one or more parent files)
+	 *  
+	 *  @param f the file in question
+	 *  @return true
+	 */
 	public synchronized boolean isGeneratedFile( IFile f )
 	{
 		Set<IFile> s = _generatedFile2ParentFiles.get( f ); 
@@ -327,6 +357,15 @@ public class GeneratedFileManager {
 			return true;
 	}
 	
+	/**
+	 *  returns true if the specified file is a parent  file (i.e., it has one or more generated files)  
+	 *  
+	 *  @param f - the file in question
+	 *  @return true if the file is a parent, false otherwise
+	 *  
+	 *  @see #getGeneratedFilesForParent(IFile)
+	 *  @see #isGeneratedFile(IFile)
+	 */
 	public synchronized boolean isParentFile( IFile f )
 	{
 		Set<IFile> s = _parentFile2GeneratedFiles.get( f );
@@ -337,6 +376,16 @@ public class GeneratedFileManager {
 	}
 	
 
+	/**
+	 * returns true if the specified folder is the source folder used where
+	 * generated files are placed. 
+	 * 
+	 * @param folder - the folder to determine if it is the generated source folder
+	 * @return true if it is the generated source folder, false otherwise.  
+	 * 
+	 * @see #getGeneratedSourceFolder()
+	 * @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
+	 */
 	public boolean isGeneratedSourceFolder( IFolder folder )
 	{
 		// use getGeneratedSourceFolder() here.  Bad things can happen if we try to 
@@ -350,10 +399,12 @@ public class GeneratedFileManager {
 	
 	
 	/**
-	 * 
 	 * @param parent - the parent file that you want to get generated files for
 	 * @return Set of IFile instances that are the files known to be generated
 	 * by this parent
+	 * 
+	 * @see #isParentFile(IFile)
+	 * @see #isGeneratedFile(IFile)
 	 */
 	public synchronized Set<IFile> getGeneratedFilesForParent( IFile parent )
 	{
@@ -367,17 +418,31 @@ public class GeneratedFileManager {
 	}
 	
 	
+
 	/**
-	 *  Invoked whenever we need to discard a generated working copy
+	 * 	Invoked whenever we potentially need to discard a generated working copy. 
+	 *  Note that the generated working copy may not necessarily be discarded.  It 
+	 *  will only be discarded if specified parent file is the only open parent file
+	 *  for the specified Generated file.  If there are other parent open parent files, 
+	 *  then the working copy for the generated file will remain open, but the link between
+	 *  the generated file's working copy and its open parent file will be discarded. 
+	 *  
+	 * @param generatedFile - the generated file that we potentially want to discard
+	 * @param parentFile - the parent file for the generated file
+	 * @throws JavaModelException 
 	 */
-	public void discardGeneratedWorkingCopy( IFile derivedFile, IFile parentFile )
+	public void discardGeneratedWorkingCopy( IFile generatedFile, IFile parentFile )
 		throws JavaModelException
 	{
-		removeFromWorkingCopyMaps( derivedFile, parentFile );
+		removeFromWorkingCopyMaps( generatedFile, parentFile );
 	}
 
 	/**
-	 *  Invoked whenever a parent working copy has been discarded
+	 *  Invoked whenever a parent working copy has been discarded.
+	 *  
+	 *  @param parentFile.  The parent file whose working copy has been discarded
+	 *  @throws JavaModelException if there is a problem discarding any working copies 
+	 *  generated by the parent.
 	 */
 	public void parentWorkingCopyDiscarded( IFile parentFile )
 		throws JavaModelException
@@ -418,7 +483,12 @@ public class GeneratedFileManager {
 
 	/**
 	 *  Invoked whenever we need to delete a generated file (e.g., the parent file has been deleted,
-	 *  or a parent stops generating a specific child)
+	 *  or a parent stops generating a specific child).  Note that the generated file will only 
+	 *  be deleted if the specified parent file is the only parent of the specified generated file. 
+	 *  If there are other parents, then the generated file will not be deleted, but the link associating
+	 *  the parent and the generated file will be removed (i.e., the the generated file will no longer consider
+	 *  the parent file a "parent").
+	 *  
 	 */
 	public boolean deleteGeneratedFile(IFile generatedFile, IFile parentFile, IProgressMonitor progressMonitor )
 		throws CoreException
@@ -444,8 +514,79 @@ public class GeneratedFileManager {
 		return delete;
 	}
 	
+
+	/**
+	 *  Invoked whenever a previously-generated file is removed during reconcile.  We put an empty buffer in the contents 
+	 *  of the working copy.  This effectively makes the type go away from the in-memory type system.  A subsequent
+	 *  build is necessary to actually remove the file from disk, and to actually remove references in the
+	 *  the generated file manager's state. 
+	 *  
+	 * @param generatedFile - the generated file whose working-copy buffer we want to be the empty string. 
+	 * @param parentWorkingCopy - the parent working copy. 
+	 * @param progressMonitor - a progress monitor
+	 * 
+	 * @return return true if the working-copy's buffer is set to the empty-string, false otherwise. 
+	 * 
+	 * @throws JavaModelException
+	 */
+	public boolean deleteGeneratedTypeInMemory(IFile generatedFile, ICompilationUnit parentWorkingCopy, IProgressMonitor progressMonitor )
+		throws JavaModelException
+	{		
+		
+		// see if this is the only parent for this generated file
+		boolean remove = false;
+		IFile parentFile = (IFile) parentWorkingCopy.getResource();
+		ICompilationUnit workingCopy = null;
+		synchronized ( this )
+		{
+			// see if this generated file has any other parent files.  
+			Set<IFile> parentFiles = _generatedFile2ParentFiles.get( generatedFile );
+
+			assert( parentFiles != null && parentFiles.contains( parentFile ) ) : "Unexpected state in GeneratedFileManager"; //$NON-NLS-1$
+			
+			if ( parentFiles.size() == 1 && parentFiles.contains( parentFile ) )
+			{
+				workingCopy = _generatedFile2WorkingCopy.get( generatedFile );
+				remove = true;
+			}
+			else
+				remove = false;
+		}
+
+		if ( remove )
+		{
+			// we don't need to remove entries from any maps.  That will happen after 
+			// the user saves & builds. 
+			
+			if ( workingCopy != null )
+			{
+				updateWorkingCopy( "", workingCopy, workingCopy.getOwner(), progressMonitor ); //$NON-NLS-1$
+				return true;
+			}
+			else
+			{
+				// we don't have a cached working copy, so call generateWorkingCopyDuringReconcile and create an empty-stringed working copy
+				// for the type that was generated during build.
+				String typeName =  getTypeNameForDerivedFile( generatedFile );
+				WorkingCopyOwner workingCopyOwner = parentWorkingCopy.getOwner();
+				generateFileDuringReconcile( parentWorkingCopy, typeName, "", workingCopyOwner, null, progressMonitor ); //$NON-NLS-1$
+			}
+		}
+		
+		return remove;
+	}
+	
+	/**
+	 * Invoked whenever a generated file has been deleted.  This method will
+	 * clean up any in-memory state about the previously generated file. 
+	 * 
+	 * @param generatedFile - the generated file that has been deleted
+	 * @param progressMonitor - progress monitor.  this can be null. 
+	 *
+	 * @throws JavaModelException if there is an exception when discarding an open working copy for the generated file
+	 */
 	public void generatedFileDeleted( IFile generatedFile,  IProgressMonitor progressMonitor )
-		throws JavaModelException, CoreException
+		throws JavaModelException
 	{
 		Set<IFile> parentFiles;
 		synchronized( this )
@@ -491,11 +632,8 @@ public class GeneratedFileManager {
 	/**
 	 * Given a typename a.b.c, this will return the IFile for the 
 	 * type name, where the IFile is in the GENERATED_SOURCE_FOLDER_NAME.
-	 * @param typeName
-	 * @return
 	 */
-	private IFile getIFileForTypeName( String typeName, IJavaProject javaProject, IProgressMonitor progressMonitor)
-	    throws CoreException
+	private IFile getIFileForTypeName( String typeName )
 	{
 		// split the type name into its parts
 		String[] parts = typeName.split( "\\."); //$NON-NLS-1$
@@ -535,14 +673,20 @@ public class GeneratedFileManager {
 	/**
 	 *  Creates the generated source folder if it doesn't exist, and adds it as a source path
 	 *  to the project.  To access the generated source folder, but not have it be created
-	 *  or added as a source path, use getGeneratedSourceFolder().  
+	 *  or added as a source path, use getGeneratedSourceFolder().  Note that this method 
+	 *  will take a resource lock if the generated source folder needs to be created on disk, 
+	 *  and it will take a java model lock if the project's source paths need to be updated.
+	 *  Care should be taken when calling this method to ensure that locking behavior is correct.    
+	 *  
+	 *  @param progressMonitor the progress monitor.  This can be null. 
 	 *  
 	 *  @return true if the generatedSourceFolder is added to the project's classpath entries,
 	 *  false if it is not added to the project's classpath entries.  
 	 *  
 	 *  @see #getGeneratedSourceFolder()
+	 *  @see #isGeneratedSourceFolderConfigured()
 	 */
-	private boolean ensureGeneratedSourceFolder( IJavaProject javaProject, IProgressMonitor progressMonitor )
+	public boolean ensureGeneratedSourceFolder( IProgressMonitor progressMonitor )
 		throws CoreException
 	{
 		synchronized( this )
@@ -560,7 +704,7 @@ public class GeneratedFileManager {
 		//
 		// make sure __generated_src dir is on the cp if not already
 		//
-		boolean addedToSourcePath = updateProjectClasspath( javaProject, srcFolder, progressMonitor );
+		boolean addedToSourcePath = updateProjectClasspath( _javaProject, srcFolder, progressMonitor );
 		
 		synchronized ( this )
 		{
@@ -569,56 +713,65 @@ public class GeneratedFileManager {
 		}
 	}
 	
-	/**
-	 *  Will return an IFolder corresponding to the generated source folder name.  The result
-	 *  IFolder may not exist and may not necessarily be on the java project's classpath. 
-	 *  To ensure that the generated source folder is created and added to as source path
-	 *  to the project, call ensureGeneratedSourceFolder().
-	 *  
-	 *   @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
+	/** 
+	 * @return true if the generated soruce folder has been created and added to the project's source path, false otherwise
+	 * 
+	 * @see #getGeneratedSourceFolder()
+	 * @see #getGeneratedSourceFolderName()
+	 * @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
 	 */
-	public synchronized IFolder getGeneratedSourceFolder()
+	public boolean isGeneratedSourceFolderConfigured()
 	{
-		//
-		// don't set _generatedSourceFolder in here, let that happen in 
-		// ensureGeneratedSourceFolder. we use a non-null _generatedSourceFolder 
-		// as an indicator that as an indicator that the folder has been created
-		// and added to the project's source path.
-		//
-			
-		if ( _generatedSourceFolder != null)
-			return _generatedSourceFolder;
-		else
-			// OK to call getFolder while holding a lock.  getFolder() doesn't take any locks - Mike K.
-			return _project.getFolder( _generatedSourceFolderName );
+		// if _generatedSourceFolder is non-null, then it has been
+		// created and added to the project's classpath
+		synchronized( this )
+		{
+			return ( _generatedSourceFolder != null );
+		}
 	}
 	
 	
-	// TODO - change this to return an IFolder
-	public java.io.File getGeneratedOutputFile( IJavaProject jp )
-		 throws JavaModelException, CoreException
+	/**
+	 * This method will return the binary output location for the generated source folder.
+	 * If the generated-source folder is not configured (i.e., not created or not added to
+	 * the project's source path, then this method will return the default binary output
+	 * location for the project. 
+	 * 
+	 * TODO - change this to return an IFolder
+	 *
+	 * @return the java.io.File corresponding to the binary output location for the
+	 * generated source folder.  
+	 * 
+	 * @throws JavaModelException
+	 * 
+	 * @see #getGeneratedSourceFolder()
+	 * @see #isGeneratedSourceFolderConfigured()
+	 * @see #ensureGeneratedSourceFolder(IProgressMonitor)
+	 */
+	public java.io.File getGeneratedSourceFolderOutputLocation()
+		 throws JavaModelException 
 	{
 		IPath outputRoot = null;
 		IFolder f = getGeneratedSourceFolder();
 		if ( f != null && f.exists() )
 		{
-			IClasspathEntry cpe = findProjectSourcePath( jp, f, null );
+			IClasspathEntry cpe = findProjectSourcePath( _javaProject, f, null );
 			if ( cpe != null )
 				outputRoot = cpe.getOutputLocation();
 		}
 		
 		// no output root, so get project's default output location
 		if ( outputRoot == null )
-			outputRoot = jp.getOutputLocation();
+			outputRoot = _javaProject.getOutputLocation();
 
 		// output location is relative to the workspace, we want to make it relative to project
-		int segments = outputRoot.matchingFirstSegments( jp.getPath() );
+		int segments = outputRoot.matchingFirstSegments( _javaProject.getPath() );
 		outputRoot = outputRoot.removeFirstSegments( segments );
 		
 		// TODO - use getRawLocation() or getLocation()?  sometimes getRawLocation() returns null.  Investigate
-		IPath projectRoot = jp.getProject().getRawLocation();
+		IPath projectRoot = _javaProject.getProject().getRawLocation();
 		if ( projectRoot == null )
-			projectRoot = jp.getProject().getLocation();
+			projectRoot = _javaProject.getProject().getLocation();
 		
 		java.io.File file = projectRoot.toFile();
 		file = new java.io.File( file, outputRoot.toFile().getPath() );
@@ -628,10 +781,9 @@ public class GeneratedFileManager {
 	//
 	//  check cache to see if we already have a working copy
 	//
-	private ICompilationUnit getCachedWorkingCopy( ICompilationUnit parentCompilationUnit, String typeName )
-		throws CoreException
+	private ICompilationUnit getCachedWorkingCopy( IFile parentFile, String typeName )
 	{
-		IFile derivedFile = getIFileForTypeName( typeName, parentCompilationUnit.getJavaProject(), null /*progressMonitor*/ );
+		IFile derivedFile = getIFileForTypeName( typeName );
 		ICompilationUnit workingCopy= null;
 		
 		synchronized( this )
@@ -640,22 +792,16 @@ public class GeneratedFileManager {
 		}
 		
 		if ( workingCopy != null )
-			addEntryToWorkingCopyMaps( parentCompilationUnit, workingCopy );
+			addEntryToWorkingCopyMaps( parentFile, workingCopy );
 
 		return workingCopy;
 	}
 	
-	private ICompilationUnit createNewWorkingCopy(ICompilationUnit parentCompilationUnit, String typeName,
+	private ICompilationUnit createNewWorkingCopy(IFile parentFile, String typeName,
 			String contents, WorkingCopyOwner workingCopyOwner,
 			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor)
-		throws CoreException, JavaModelException
+		throws JavaModelException
 	{
-		IJavaProject jp = parentCompilationUnit.getJavaProject();
-
-		//
-		// create folder for generated source files
-		//
-		ensureGeneratedSourceFolder( jp, progressMonitor );
 		IFolder folder = getGeneratedSourceFolder();
 		
 		// 
@@ -679,57 +825,31 @@ public class GeneratedFileManager {
 		//
 		//  create compilation unit
 		//
-		IPackageFragmentRoot root = jp.getPackageFragmentRoot(folder);
-		IPackageFragment pkgFragment = 
-			root.createPackageFragment( pkgName, true, null );
-		
+		IPackageFragmentRoot root = _javaProject.getPackageFragmentRoot(folder);
+		IPackageFragment pkgFragment = 	root.getPackageFragment(pkgName );
 		ICompilationUnit cu = pkgFragment.getCompilationUnit( fname );
-		if ( cu == null || ! cu.getResource().exists() )
-		{
-		    cu = pkgFragment.createCompilationUnit(
-			    fname, contents, true, progressMonitor );
-		}
-		else
-		{
-			makeReadOnly( cu, false );
-		}
 
-		
 		//
-		//  TODO:  can we call getWorkingCopy here?
+		// BecomeWorkingCopyOperation shouldn't take any resource locks to run, so we should be thread-safe here
 		//
 		cu.becomeWorkingCopy(problemRequestor, progressMonitor);
 		ICompilationUnit workingCopy = cu;
 		
 		//
+		//  update working copy
+		//
+		updateWorkingCopy( contents, workingCopy, workingCopyOwner, progressMonitor );
+
+		
+		//
 		// update maps
 		//
-		addEntryToWorkingCopyMaps( parentCompilationUnit, workingCopy );
+		addEntryToWorkingCopyMaps( parentFile, workingCopy );
 		
-		// we save this here since the resource has to exist on disk
-		workingCopy.commitWorkingCopy( true, progressMonitor );
-		
-		//
-		// make the file derived so that it is not checked into source control.
-		//
-		makeDerived( workingCopy );
-		
-		//
-		// make working copy read-only
-		//
-		makeReadOnly( workingCopy, true );
 
-
-		return workingCopy;
-		
+		return workingCopy;	
 	}
 
-	private void makeReadOnly( ICompilationUnit cu, boolean readOnly )
-		throws CoreException
-	{
-		IResource r = cu.getResource();
-		makeReadOnly( r, readOnly );
-	}
 	
 	/**
 	 *  make the compilation unit read-only
@@ -745,15 +865,6 @@ public class GeneratedFileManager {
 			ra.setReadOnly( readOnly );
 			r.setResourceAttributes(ra);
 		}
-	}
-	
-	private void makeDerived( ICompilationUnit cu )
-		throws CoreException
-	{
-		IResource r = cu.getResource();
-		if ( r.exists() )
-			r.setDerived( true );
-
 	}
 	
 	/**
@@ -787,9 +898,8 @@ public class GeneratedFileManager {
 		return true;
 	}
 	
-	private void addEntryToWorkingCopyMaps( ICompilationUnit parentCompilationUnit, ICompilationUnit workingCopy )
+	private void addEntryToWorkingCopyMaps( IFile parentFile, ICompilationUnit workingCopy )
 	{
-		IFile parentFile = (IFile) parentCompilationUnit.getResource();
 		IFile generatedFile = (IFile) workingCopy.getResource();
 		addEntryToFileMaps( parentFile, generatedFile );
 
@@ -843,7 +953,7 @@ public class GeneratedFileManager {
 	}
 	
 	private void removeFromFileMaps( IFile generatedFile, IFile parentFile ) 
-	    throws CoreException 
+	    throws JavaModelException 
 	{
 		boolean discardWorkingCopy;
 		synchronized( this )
@@ -972,6 +1082,9 @@ public class GeneratedFileManager {
 		return null;
 	}
 	
+	/**
+	 * returns true if we updated the classpath, false otherwise
+	 */
 	private boolean updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
 		throws JavaModelException
 	{
@@ -1039,7 +1152,7 @@ public class GeneratedFileManager {
 			
 			jp.setRawClasspath(newCp, progressMonitor );
 		}
-		
+
 		// return true if we updated the project's classpath entries
 		return !found;
 	}
@@ -1096,10 +1209,23 @@ public class GeneratedFileManager {
 		jp.setRawClasspath( newCp, progressMonitor );
 	}
 	
+	/**
+	 * invoked when a project is closed.  This will discard any open working-copies
+	 * of generated files.
+	 */
 	public void projectClosed()
 	{
 		clearWorkingCopyMaps();
 	}
+	
+	/**
+	 * invoked whenever a project is cleaned.  This will remove any state kept about
+	 * generated files for the given project.  If the deleteFiles flag is specified, 
+	 * then the contents of the generated source folder will be deleted. 
+	 *
+	 * @param deleteFiles true if the contents of the generated source folder are to be
+	 * deleted, false otherwise.
+	 */
 	
 	public void projectClean( boolean deleteFiles )
 	{
@@ -1129,7 +1255,10 @@ public class GeneratedFileManager {
 	}
 	
 	/**
-	 * Inovked when a project has been deleted
+	 * Inovked when a project has been deleted.  This will remove this generated file manager
+	 * from the static map of projects->generated file managers, and this will flush any known
+	 * in-memory state tracking generated files.  This will not delete any of the project's generated files
+	 * from disk.  
 	 */
 	public void projectDeleted()
 	{
@@ -1150,10 +1279,10 @@ public class GeneratedFileManager {
 	}
 	
 	/**
-	 *  Invoked when the generated source folder has been deleted.
+	 *  Invoked when the generated source folder has been deleted.  This will 
+	 *  flush any in-memory state tracking generated files. 
 	 */
 	public void generatedSourceFolderDeleted()
-		throws CoreException
 	{
 		// jdt-core will remove the generated source folder from the java 
 		// project's classpath, so we'll just clean out our maps. 
@@ -1198,8 +1327,38 @@ public class GeneratedFileManager {
 	}
 	
 	/**
+	 *  Will return an IFolder corresponding to the generated source folder name.  The result
+	 *  IFolder may not exist and may not necessarily be on the java project's classpath. 
+	 *  To ensure that the generated source folder is created and added to as source path
+	 *  to the project, call ensureGeneratedSourceFolder().
+	 *  
+	 *   @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
+	 *   @see #isGeneratedSourceFolderConfigured()
+	 *   @see #getGeneratedSourceFolderName()
+	 */
+	public synchronized IFolder getGeneratedSourceFolder()
+	{
+		//
+		// don't set _generatedSourceFolder in here, let that happen in 
+		// ensureGeneratedSourceFolder. we use a non-null _generatedSourceFolder 
+		// as an indicator that as an indicator that the folder has been created
+		// and added to the project's source path.
+		//
+			
+		if ( _generatedSourceFolder != null)
+			return _generatedSourceFolder;
+		else
+			// OK to call getFolder while holding a lock.  getFolder() doesn't take any locks - Mike K.
+			return _project.getFolder( _generatedSourceFolderName );
+	}
+	
+	/**
 	 * returns the name of the folder for generated source files.  The name is relative
 	 * to the project root.
+	 * 
+	 * @see #getGeneratedSourceFolder()
+	 * @see #ensureGeneratedSourceFolder(IJavaProject, IProgressMonitor)
+	 * @see #isGeneratedSourceFolderConfigured()
 	 */
 	public synchronized String getGeneratedSourceFolderName() 
 	{ 
@@ -1208,7 +1367,20 @@ public class GeneratedFileManager {
 
 	
 	/**
-	 * sets the name of the generated soruce folder 
+	 * Sets the name of the generated soruce folder.  The source folder will not be created 
+	 * and will not be added to the project's source paths (i.e., after a call to
+	 * setGeneratedSourceFolderName, isGeneratedSourceFolderConfigured() will return false.)  
+	 * To properly have the new generated source folder configured, call #ensureGeneratedSourceFolder(). 
+	 * 
+	 * @param s The string name of the new generated source folder.  This should be relative 
+	 * to the project root.  Absolute paths are not supported.  The specified string should be 
+	 * a valid folder name for the file system, and should not be an existing source folder for the 
+	 * project.  
+	 * 
+	 * @see #getGeneratedSourceFolder()
+	 * @see #getGeneratedSourceFolderName()
+	 * @see #ensureGeneratedSourceFolder(IProgressMonitor)
+	 * @see #isGeneratedSourceFolderConfigured()
 	 */
 	public void setGeneratedSourceFolderName( String s ) 
 	{
@@ -1236,7 +1408,8 @@ public class GeneratedFileManager {
 			try
 			{
 				removeFromProjectClasspath( _javaProject, srcFolder, null );
-				srcFolder.delete( true,false, null );
+				if ( srcFolder.exists() )
+					srcFolder.delete( true,false, null );
 			}
 			catch( CoreException ce )
 			{

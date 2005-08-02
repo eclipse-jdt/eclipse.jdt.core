@@ -98,7 +98,7 @@ public class FilerImpl implements Filer {
     	{
     		try 
     		{
-    			f = gfm.getGeneratedOutputFile( _env.getJavaProject() );
+    			f = gfm.getGeneratedSourceFolderOutputLocation();
     		}
     		catch ( Exception e )
     		{
