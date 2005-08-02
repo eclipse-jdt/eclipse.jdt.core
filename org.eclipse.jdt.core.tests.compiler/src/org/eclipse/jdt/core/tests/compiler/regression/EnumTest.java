@@ -4103,5 +4103,27 @@ the right of e1."
 			"	^^^^^\n" + 
 			"Cannot refer to the static enum field X.error within an initializer\n" + 
 			"----------\n");
-	}				
+	}
+	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105592
+	public void test122() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public enum State {\n" +
+				"		NORMAL\n" +
+				"	}\n" +
+				"	public void foo() {\n" +
+				"		State state = State.NORMAL;\n" +
+				"		switch (state) {\n" +
+				"		case (NORMAL) :\n" +
+				"			System.out.println(State.NORMAL);\n" +
+				"			break;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}"
+			},
+			"");
+	}
 }

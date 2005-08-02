@@ -50,7 +50,8 @@ public static Test suite() {
 	standardTests.add(XLargeTest.class);
 	standardTests.add(InternalScannerTest.class);
 	standardTests.add(ConditionalExpressionTest.class);
-	standardTests.add(ExternalizeStringLiteralsTest.class);
+	// TODO (olivier) enable again after 3.2M1
+	// standardTests.add(ExternalizeStringLiteralsTest.class);
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
 		standardTests.add(JavadocTest.ALL_CLASSES.get(i));

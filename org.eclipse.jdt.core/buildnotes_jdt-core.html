@@ -41,12 +41,15 @@
 <p><hr><h1>
 Eclipse Platform Build Notes<br>
 Java Development Tooling Core</h1>
-Eclipse SDK 3.2M1 - ?th August 2005
+Eclipse SDK 3.2M1 - 2nd August 2005
 <br>Project org.eclipse.jdt.core v_602
 (<a href="http://dev.eclipse.org/viewcvs/index.cgi/org.eclipse.jdt.core/?only_with_tag=v_602">cvs</a>).
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>The compiler won't report anymore unnecessary non nls tags (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48976">48976</a> for details).<br>
+This will be reverted after 3.2M1 build.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
@@ -65,15 +68,11 @@ Eclipse SDK 3.2M1 - 2nd August 2005
 <h2>
 What's new in this drop</h2>
 <ul>
-<li>When enabling the check for usage of non-externalized string literals, the compiler can now detect unnecessary non nls tags (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48976">48976</a> for details).<br>
-This is customizable to error/warning/ignore in the compiler preference page. By default it is ignored.</li>
 <li>The Java conventions built-in code formatter profile has been updated to reflect the tab size at 8.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48976">48976</a>
-Remove superfluous $NON-NLS comments
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=104765">104765</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=104765">104765</a>
 Tab width error in Java Conventions [built-in]
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=105192">105192</a>
 NaiveASTFlattener incorrectly renders a for statement with multiple initializers or multiple updaters
