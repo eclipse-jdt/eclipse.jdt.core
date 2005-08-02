@@ -107,6 +107,12 @@ public PatternLocator(SearchPattern pattern) {
 	this.matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
 	this.mustResolve = ((InternalSearchPattern)pattern).mustResolve;
 }
+/*
+ * Clear caches
+ */
+protected void clear() {
+	// nothing to clear by default
+}
 /* (non-Javadoc)
  * Modify PatternLocator.qualifiedPattern behavior:
  * do not add star before simple name pattern when qualification pattern is null.
@@ -651,7 +657,6 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 	int impossible = this.isErasureMatch ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
 
 	// pattern has type parameter(s) or type argument(s)
-	boolean isRawType = type.isRawType();
 	if (type.isGenericType()) {
 		// Binding is generic, get its type variable(s)
 		TypeVariableBinding[] typeVariables = null;
@@ -669,14 +674,16 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 		}
 		// TODO (frederic) do we need to verify each parameter?
 		return level; // we can't do better
-	} else if (isRawType) {
+	} else if (type.isRawType()) {
 		return level; // raw type always match
-	} else if (!type.isParameterizedType()) {
-		// Standard types (ie. neither generic nor parameterized nor raw types)
-		// cannot match pattern with type parameters or arguments
-		return (patternTypeArguments[depth]==null || patternTypeArguments[depth].length==0) ? level : IMPOSSIBLE_MATCH;
 	} else {
-		ParameterizedTypeBinding paramTypeBinding = (ParameterizedTypeBinding) type;
+		TypeBinding leafType = type.leafComponentType();
+		if (!leafType.isParameterizedType()) {
+			// Standard types (ie. neither generic nor parameterized nor raw types)
+			// cannot match pattern with type parameters or arguments
+			return (patternTypeArguments[depth]==null || patternTypeArguments[depth].length==0) ? level : IMPOSSIBLE_MATCH;
+		}
+		ParameterizedTypeBinding paramTypeBinding = (ParameterizedTypeBinding) leafType;
 
 		// Compare arguments only if there ones on both sides
 		if (patternTypeArguments[depth] != null && patternTypeArguments[depth].length > 0 &&
@@ -765,31 +772,21 @@ protected int resolveLevelForType (char[] simpleNamePattern,
 				// If pattern is not exact then match fails
 				if (patternTypeArgHasAnyChars) return impossible;
 
-				// Get reference binding
-				ReferenceBinding refBinding = null;
-				if (argTypeBinding.isArrayType()) {
-					TypeBinding leafBinding = ((ArrayBinding) argTypeBinding).leafComponentType;
-					if (!leafBinding.isBaseType()) {
-						refBinding = (ReferenceBinding) leafBinding;
-					}
-				} else if (!argTypeBinding.isBaseType()) {
-					refBinding = (ReferenceBinding) argTypeBinding;
-				}
 				// Scan hierarchy
-				if (refBinding != null) {
-					refBinding = refBinding.superclass();
-					while (refBinding != null) {
-						if (CharOperation.equals(patternTypeArgument, refBinding.shortReadableName(), this.isCaseSensitive) ||
-							CharOperation.equals(patternTypeArgument, refBinding.readableName(), this.isCaseSensitive)) {
-							// found name in hierarchy => match
+				TypeBinding leafTypeBinding = argTypeBinding.leafComponentType();
+				if (leafTypeBinding.isBaseType()) return impossible;
+				ReferenceBinding refBinding = ((ReferenceBinding) leafTypeBinding).superclass();
+				while (refBinding != null) {
+					if (CharOperation.equals(patternTypeArgument, refBinding.shortReadableName(), this.isCaseSensitive) ||
+						CharOperation.equals(patternTypeArgument, refBinding.readableName(), this.isCaseSensitive)) {
+						// found name in hierarchy => match
+						continue nextTypeArgument;
+					} else if (refBinding.isLocalType() || refBinding.isMemberType()) {
+						// for local or member type, verify also source name (bug 81084)
+						if (CharOperation.match(patternTypeArgument, refBinding.sourceName(), this.isCaseSensitive))
 							continue nextTypeArgument;
-						} else if (refBinding.isLocalType() || refBinding.isMemberType()) {
-							// for local or member type, verify also source name (bug 81084)
-							if (CharOperation.match(patternTypeArgument, refBinding.sourceName(), this.isCaseSensitive))
-								continue nextTypeArgument;
-						}
-						refBinding = refBinding.superclass();
 					}
+					refBinding = refBinding.superclass();
 				}
 				return impossible;
 			}
