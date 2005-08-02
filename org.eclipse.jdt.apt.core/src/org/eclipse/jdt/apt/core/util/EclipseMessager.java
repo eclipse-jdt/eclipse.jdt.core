@@ -67,49 +67,94 @@ public interface EclipseMessager extends Messager
 	
 	/**
 	 * Print an error including the given arguments for use
-	 * in quick-fixes. These arguments will show up in the problem
-	 * arguments passed during quick-fix operation, with an ID
-	 * defined by EclipseMessager.APT_QUICK_FIX_PROBLEM_ID.
+	 * in quick-fixes. Any APT Quick Fix processors (@see IAPTQuickFixProcessor)
+	 * registered with the provided pluginId and errorId will
+	 * then get called if the user attempt to quick-fix that error.
+	 * 
+	 * @param pos position of the error
+	 * @param msg message to display to the user
+	 * @param pluginId plugin which will provide an apt quick fix processor
+	 *        for this error. Cannot be null.
+	 * @param errorId a plugin-provided error code which will be meaningful
+	 *        to the quick fix processor (e.g. "invalidAnnotationValue", etc.)
+	 *        Cannot be null.
 	 */
-	void printFixableError(SourcePosition pos, String msg, String... arguments);
+	void printFixableError(SourcePosition pos, String msg, String pluginId, String errorId);
 	
 	/**
-	 * Print an warning including the given arguments for use
-	 * in quick-fixes. These arguments will show up in the problem
-	 * arguments passed during quick-fix operation, with an ID
-	 * defined by EclipseMessager.APT_QUICK_FIX_PROBLEM_ID.
+	 * Print a warning including the given arguments for use
+	 * in quick-fixes. Any APT Quick Fix processors (@see IAPTQuickFixProcessor)
+	 * registered with the provided pluginId and errorId will
+	 * then get called if the user attempt to quick-fix that warning.
+	 * 
+	 * @param pos position of the error
+	 * @param msg message to display to the user
+	 * @param pluginId plugin which will provide an apt quick fix processor
+	 *        for this error. Cannot be null.
+	 * @param errorId a plugin-provided error code which will be meaningful
+	 *        to the quick fix processor (e.g. "invalidAnnotationValue", etc.)
+	 *        Cannot be null.
 	 */
-	void printFixableWarning(SourcePosition pos, String msg, String... arguments);
+	void printFixableWarning(SourcePosition pos, String msg, String pluginId, String errorId);
 	
 	/**
 	 * Print a notice including the given arguments for use
-	 * in quick-fixes. These arguments will show up in the problem
-	 * arguments passed during quick-fix operation, with an ID
-	 * defined by EclipseMessager.APT_QUICK_FIX_PROBLEM_ID.
+	 * in quick-fixes. Any APT Quick Fix processors (@see IAPTQuickFixProcessor)
+	 * registered with the provided pluginId and errorId will
+	 * then get called if the user attempt to quick-fix that notice.
+	 * 
+	 * @param pos position of the error
+	 * @param msg message to display to the user
+	 * @param pluginId plugin which will provide an apt quick fix processor
+	 *        for this error. Cannot be null.
+	 * @param errorId a plugin-provided error code which will be meaningful
+	 *        to the quick fix processor (e.g. "invalidAnnotationValue", etc.)
+	 *        Cannot be null.
 	 */
-	void printFixableNotice(SourcePosition pos, String msg, String... arguments);
+	void printFixableNotice(SourcePosition pos, String msg, String pluginId, String errorId);
 	
 	/**
 	 * Print an error including the given arguments for use
-	 * in quick-fixes. These arguments will show up in the problem
-	 * arguments passed during quick-fix operation, with an ID
-	 * defined by EclipseMessager.APT_QUICK_FIX_PROBLEM_ID.
+	 * in quick-fixes. Any APT Quick Fix processors (@see IAPTQuickFixProcessor)
+	 * registered with the provided pluginId and errorId will
+	 * then get called if the user attempt to quick-fix that error.
+	 * 
+	 * @param msg message to display to the user
+	 * @param pluginId plugin which will provide an apt quick fix processor
+	 *        for this error. Cannot be null.
+	 * @param errorId a plugin-provided error code which will be meaningful
+	 *        to the quick fix processor (e.g. "invalidAnnotationValue", etc.)
+	 *        Cannot be null.
 	 */
-	void printFixableError(String msg, String... arguments);
+	void printFixableError(String msg, String pluginId, String errorId);
 	
 	/**
-	 * Print an warning including the given arguments for use
-	 * in quick-fixes. These arguments will show up in the problem
-	 * arguments passed during quick-fix operation, with an ID
-	 * defined by EclipseMessager.APT_QUICK_FIX_PROBLEM_ID.
+	 * Print a warning including the given arguments for use
+	 * in quick-fixes. Any APT Quick Fix processors (@see IAPTQuickFixProcessor)
+	 * registered with the provided pluginId and errorId will
+	 * then get called if the user attempt to quick-fix that warning.
+	 * 
+	 * @param msg message to display to the user
+	 * @param pluginId plugin which will provide an apt quick fix processor
+	 *        for this error. Cannot be null.
+	 * @param errorId a plugin-provided error code which will be meaningful
+	 *        to the quick fix processor (e.g. "invalidAnnotationValue", etc.)
+	 *        Cannot be null.
 	 */
-	void printFixableWarning(String msg, String... arguments);
+	void printFixableWarning(String msg, String pluginID, String errorId);
 	
 	/**
 	 * Print a notice including the given arguments for use
-	 * in quick-fixes. These arguments will show up in the problem
-	 * arguments passed during quick-fix operation, with an ID
-	 * defined by EclipseMessager.APT_QUICK_FIX_PROBLEM_ID.
+	 * in quick-fixes. Any APT Quick Fix processors (@see IAPTQuickFixProcessor)
+	 * registered with the provided pluginId and errorId will
+	 * then get called if the user attempt to quick-fix that notice.
+	 * 
+	 * @param msg message to display to the user
+	 * @param pluginId plugin which will provide an apt quick fix processor
+	 *        for this error. Cannot be null.
+	 * @param errorId a plugin-provided error code which will be meaningful
+	 *        to the quick fix processor (e.g. "invalidAnnotationValue", etc.)
+	 *        Cannot be null.
 	 */
-	void printFixableNotice(String msg, String... arguments);
+	void printFixableNotice(String msg, String pluginID, String errorId);
 }

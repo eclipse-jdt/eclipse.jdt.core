@@ -113,46 +113,64 @@ public class MessagerImpl implements Messager, EclipseMessager
 		printNotice(pos, msg, null);
 	}
 	
-	public void printFixableError(SourcePosition pos, String msg, String... arguments) {
-		if (arguments == null) {
-			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+	public void printFixableError(SourcePosition pos, String msg, String pluginId, String errorId) {
+		if (pluginId == null) {
+			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
 		}
-		printError(pos, msg, arguments);
+		if (errorId == null) {
+			throw new IllegalArgumentException("errorId cannot be null"); //$NON-NLS-1$
+		}
+		printError(pos, msg, new String[] {pluginId, errorId});
 	}
 	
-	public void printFixableWarning(SourcePosition pos, String msg, String... arguments) {
-		if (arguments == null) {
-			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+	public void printFixableWarning(SourcePosition pos, String msg, String pluginId, String errorId) {
+		if (pluginId == null) {
+			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
 		}
-		printWarning(pos, msg, arguments);
+		if (errorId == null) {
+			throw new IllegalArgumentException("errorId cannot be null"); //$NON-NLS-1$
+		}
+		printWarning(pos, msg, new String[] {pluginId, errorId});
 	}
 	
-	public void printFixableNotice(SourcePosition pos, String msg, String... arguments) {
-		if (arguments == null) {
-			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+	public void printFixableNotice(SourcePosition pos, String msg, String pluginId, String errorId) {
+		if (pluginId == null) {
+			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
 		}
-		printNotice(pos, msg, arguments);
+		if (errorId == null) {
+			throw new IllegalArgumentException("errorId cannot be null"); //$NON-NLS-1$
+		}
+		printNotice(pos, msg, new String[] {pluginId, errorId});
 	}
 	
-	public void printFixableError(String msg, String... arguments) {
-		if (arguments == null) {
-			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+	public void printFixableError(String msg, String pluginId, String errorId) {
+		if (pluginId == null) {
+			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
 		}
-		print(APTProblem.Severity.ERROR, msg, arguments);
+		if (errorId == null) {
+			throw new IllegalArgumentException("errorId cannot be null"); //$NON-NLS-1$
+		}
+		print(APTProblem.Severity.ERROR, msg, new String[] {pluginId, errorId});
 	}
 	
-	public void printFixableWarning(String msg, String... arguments) {
-		if (arguments == null) {
-			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+	public void printFixableWarning(String msg, String pluginId, String errorId) {
+		if (pluginId == null) {
+			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
 		}
-		print(APTProblem.Severity.WARNING, msg, arguments);
+		if (errorId == null) {
+			throw new IllegalArgumentException("errorId cannot be null"); //$NON-NLS-1$
+		}
+		print(APTProblem.Severity.WARNING, msg, new String[] {pluginId, errorId});
 	}
 	
-	public void printFixableNotice(String msg, String... arguments) {
-		if (arguments == null) {
-			throw new IllegalArgumentException("Arguments cannot be null"); //$NON-NLS-1$
+	public void printFixableNotice(String msg, String pluginId, String errorId) {
+		if (pluginId == null) {
+			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
 		}
-		print(APTProblem.Severity.INFO, msg, arguments);
+		if (errorId == null) {
+			throw new IllegalArgumentException("errorId cannot be null"); //$NON-NLS-1$
+		}
+		print(APTProblem.Severity.INFO, msg, new String[] {pluginId, errorId});
 	}
   
     private void print(SourcePositionImpl pos,
