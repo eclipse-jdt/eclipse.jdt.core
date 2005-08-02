@@ -12,6 +12,7 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -64,7 +65,28 @@ public class FilerImpl implements Filer {
     {
     	_env.checkValid();
 		_generatedClassFiles = true;
-        throw new UnsupportedOperationException( "Not Yet Implemented" ); //$NON-NLS-1$
+    	GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _env.getProject() );
+    	File f = null;
+    	
+    	try 
+    	{
+    		f = gfm.getGeneratedSourceFolderOutputLocation();
+    	}
+    	catch ( Exception e )
+    	{
+    		// TODO - stop throwing this exception
+    		AptPlugin.log(e, "Failure getting the output file"); //$NON-NLS-1$
+    		throw new IOException();
+    	}
+    	
+    	f = new File( f, name.replace( '.', File.separatorChar ) + ".class" ); //$NON-NLS-1$
+  
+        // REVIEW: for no apparent reason it is sometimes necessary to create the
+        // parent dir, else an IOException occurs creating f..
+        File p = f.getParentFile();
+        FileSystemUtil.mkdirs( p );
+    	
+        return new FileOutputStream( f );
     }
 	
 	public boolean hasGeneratedClassFile(){ return _generatedClassFiles; }
@@ -90,37 +112,7 @@ public class FilerImpl implements Filer {
         throws IOException 
     {
     	_env.checkValid();
-    	
-    	// TODO - clean this up
-    	File f = null;
-    	GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _env.getProject() );
-    	if ( loc == Filer.Location.CLASS_TREE )
-    	{
-    		try 
-    		{
-    			f = gfm.getGeneratedSourceFolderOutputLocation();
-    		}
-    		catch ( Exception e )
-    		{
-    			// TODO - stop throwing this exception
-    			AptPlugin.log(e, "Failure getting the output file"); //$NON-NLS-1$
-    			throw new IOException();
-    		}
-    	}
-    	else if ( loc == Filer.Location.SOURCE_TREE )
-    		f = gfm.getGeneratedSourceFolder().getRawLocation().toFile();
-    			
-
-
-        if( pkg != null )
-            f = new File( f, pkg.replace('.', File.separatorChar) );
-
-        f = new File( f, relPath.getPath() );
-
-        // REVIEW: for no apparent reason it is sometimes necessary to create the
-        // parent dir, else an IOException occurs creating f..
-        File p = f.getParentFile();
-        FileSystemUtil.mkdirs( p );
+    	File f = getOutputFileForLocation( loc, pkg, relPath );
         return charsetName == null ? new PrintWriter( f ) : new PrintWriter( f, charsetName );
     }
 
@@ -141,8 +133,43 @@ public class FilerImpl implements Filer {
         throws IOException 
     {
     	_env.checkValid();
-        throw new UnsupportedOperationException( "Not yet implemented"); //$NON-NLS-1$
+    	File f = getOutputFileForLocation( loc, pkg, relPath );
+    	return new FileOutputStream( f );
     }
 	
+    private File getOutputFileForLocation( Filer.Location loc, String pkg, File relPath )
+    	throws IOException
+    {
+    	GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _env.getProject() );
+    	File f = null;
+    	if ( loc == Filer.Location.CLASS_TREE )
+    	{
+    		try 
+    		{
+    			f = gfm.getGeneratedSourceFolderOutputLocation();
+    		}
+    		catch ( Exception e )
+    		{
+    			// TODO - stop throwing this exception
+    			AptPlugin.log(e, "Failure getting the output file"); //$NON-NLS-1$
+    			throw new IOException();
+    		}
+    	}
+    	else if ( loc == Filer.Location.SOURCE_TREE )
+    		f = gfm.getGeneratedSourceFolder().getRawLocation().toFile();
+    	
+        if( pkg != null )
+            f = new File( f, pkg.replace('.', File.separatorChar) );
+
+        f = new File( f, relPath.getPath() );
+    	
+        // REVIEW: for no apparent reason it is sometimes necessary to create the
+        // parent dir, else an IOException occurs creating f..
+        File p = f.getParentFile();
+        FileSystemUtil.mkdirs( p );
+        
+    	return f;
+    }
+    
     
 }
