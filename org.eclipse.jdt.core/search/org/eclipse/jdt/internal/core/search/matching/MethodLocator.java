@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.HashMap;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
@@ -29,11 +31,20 @@ protected boolean isDeclarationOfReferencedMethodsPattern;
 //extra reference info
 public char[][][] allSuperDeclaringTypeNames;
 
+//method declarations which parameters verification fail
+private HashMap methodDeclarationsWithInvalidParam = new HashMap();
+
 public MethodLocator(MethodPattern pattern) {
 	super(pattern);
 
 	this.pattern = pattern;
 	this.isDeclarationOfReferencedMethodsPattern = this.pattern instanceof DeclarationOfReferencedMethodsPattern;
+}
+/*
+ * Clear caches
+ */
+protected void clear() {
+	this.methodDeclarationsWithInvalidParam = new HashMap();
 }
 public void initializePolymorphicSearch(MatchLocator locator) {
 	try {
@@ -48,51 +59,6 @@ public void initializePolymorphicSearch(MatchLocator locator) {
 	} catch (JavaModelException e) {
 		// inaccurate matches will be found
 	}
-}
-/*
- * Return whether a method may override a method in super classes erasures or not.
- */
-private boolean isErasureMethodOverride(ReferenceBinding type, MethodBinding method) {
-	if (type == null) return false;
-
-	// matches superclass
-	if (!type.isInterface() && !CharOperation.equals(type.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
-		ReferenceBinding superClass = type.superclass();
-		if (superClass.isParameterizedType()) {
-			TypeBinding erasure = ((ParameterizedTypeBinding)superClass).erasure();
-			if (erasure instanceof ReferenceBinding) {
-				MethodBinding[] methods = superClass.getMethods(this.pattern.selector);
-				int length = methods.length;
-				for (int i = 0; i<length; i++) {
-					if (methods[i].areParametersEqual(method)) return true;
-				}
-			}
-		}
-		if (isErasureMethodOverride(superClass, method)) {
-			return true;
-		}
-	}
-
-	// matches interfaces
-	ReferenceBinding[] interfaces = type.superInterfaces();
-	if (interfaces == null) return false;
-	int iLength = interfaces.length;
-	for (int i = 0; i<iLength; i++) {
-		if (interfaces[i].isParameterizedType()) {
-			TypeBinding erasure = ((ParameterizedTypeBinding)interfaces[i]).erasure();
-			if (erasure instanceof ReferenceBinding) {
-				MethodBinding[] methods = ((ReferenceBinding)erasure).getMethods(this.pattern.selector);
-				int length = methods.length;
-				for (int j = 0; j<length; j++) {
-					if (methods[i].areParametersEqual(method)) return true;
-				}
-			}
-		}
-		if (isErasureMethodOverride(interfaces[i], method)) {
-			return true;
-		}
-	}
-	return false;
 }
 /*
  * Return whether a type name is in pattern all super declaring types names.
@@ -159,6 +125,7 @@ public int match(MethodDeclaration node, MatchingNodeSet nodeSet) {
 						nodeSet.mustResolve = true;
 						resolve = true;
 					}
+					this.methodDeclarationsWithInvalidParam.put(node, null);
 				} else {
 					return IMPOSSIBLE_MATCH;
 				}
@@ -287,6 +254,54 @@ protected int matchMethod(MethodBinding method, boolean skipImpossibleArg) {
 
 	return level;
 }
+private boolean matchOverriddenMethod(ReferenceBinding type, MethodBinding method, MethodBinding matchMethod) {
+	if (type == null) return false;
+
+	// matches superclass
+	if (!type.isInterface() && !CharOperation.equals(type.compoundName, TypeConstants.JAVA_LANG_OBJECT)) {
+		ReferenceBinding superClass = type.superclass();
+		if (superClass.isParameterizedType()) {
+			MethodBinding[] methods = superClass.getMethods(this.pattern.selector);
+			int length = methods.length;
+			for (int i = 0; i<length; i++) {
+				if (methods[i].areParametersEqual(method)) {
+					if (matchMethod == null) {
+						if (methodParametersEqualsPattern(methods[i].original())) return true;
+					} else {
+						if (methods[i].original().areParametersEqual(matchMethod)) return true;
+					}
+				}
+			}
+		}
+		if (matchOverriddenMethod(superClass, method, matchMethod)) {
+			return true;
+		}
+	}
+
+	// matches interfaces
+	ReferenceBinding[] interfaces = type.superInterfaces();
+	if (interfaces == null) return false;
+	int iLength = interfaces.length;
+	for (int i = 0; i<iLength; i++) {
+		if (interfaces[i].isParameterizedType()) {
+			MethodBinding[] methods = interfaces[i].getMethods(this.pattern.selector);
+			int length = methods.length;
+			for (int j = 0; j<length; j++) {
+				if (methods[i].areParametersEqual(method)) {
+					if (matchMethod == null) {
+						if (methodParametersEqualsPattern(methods[i].original())) return true;
+					} else {
+						if (methods[i].original().areParametersEqual(matchMethod)) return true;
+					}
+				}
+			}
+		}
+		if (matchOverriddenMethod(interfaces[i], method, matchMethod)) {
+			return true;
+		}
+	}
+	return false;
+}
 /**
  * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchReportReference(org.eclipse.jdt.internal.compiler.ast.ASTNode, org.eclipse.jdt.core.IJavaElement, Binding, int, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
  */
@@ -406,40 +421,59 @@ void matchReportReference(MessageSend messageSend, MatchLocator locator, MethodB
 		locator.report(match);
 	}
 }
-protected int referenceType() {
-	return IJavaElement.METHOD;
+/*
+ * Return whether method parameters are equals to pattern ones.
+ */
+private boolean methodParametersEqualsPattern(MethodBinding method) {
+	TypeBinding[] methodParameters = method.parameters;
+
+	int length = methodParameters.length;
+	if (length != this.pattern.parameterSimpleNames.length) return false;
+
+	for (int i = 0; i < length; i++) {
+		char[] paramQualifiedName = qualifiedPattern(this.pattern.parameterSimpleNames[i], this.pattern.parameterQualifications[i]);
+		if (!CharOperation.match(paramQualifiedName, methodParameters[i].readableName(), this.isCaseSensitive)) {
+			return false;
+		}
+	}
+	return true;
 }
 public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, int length, MatchLocator locator) {
 	if (elementBinding != null) {
 		MethodBinding methodBinding = (MethodBinding) elementBinding;
-		// Redo arguments verif as in this case previous filter may accept different ones
-		boolean equals = true;
-		if (this.pattern.parameterSimpleNames != null) {
-			int paramLength = this.pattern.parameterSimpleNames.length;
-			for (int i=0; equals && i<paramLength; i++) {
-				int level = resolveLevelForType(this.pattern.parameterSimpleNames[i], this.pattern.parameterQualifications[i], methodBinding.parameters[i]);
-				if (level == IMPOSSIBLE_MATCH) equals = false;
+		// If method parameters verification was not valid, then try to see if method arguments can match a method in hierarchy
+		if (this.methodDeclarationsWithInvalidParam.containsKey(reference)) {
+			// First see if this reference has already been resolved => report match if validated
+			Boolean report = (Boolean) this.methodDeclarationsWithInvalidParam.get(reference);
+			if (report != null) {
+				if (report.booleanValue()) {
+					return super.newDeclarationMatch(reference, element, elementBinding, accuracy, length, locator);
+				}
+				return null;
 			}
-		}
-		// If arguments are not equals then try to see if method arguments can match erasures in hierarchy
-		if (!equals && this.pattern.findDeclarations && this.mayBeGeneric) {
-			if (isErasureMethodOverride(methodBinding.declaringClass, methodBinding)) {
+			if (matchOverriddenMethod(methodBinding.declaringClass, methodBinding, null)) {
+				this.methodDeclarationsWithInvalidParam.put(reference, Boolean.TRUE);
 				return super.newDeclarationMatch(reference, element, elementBinding, accuracy, length, locator);
 			}
 			if (isTypeInSuperDeclaringTypeNames(methodBinding.declaringClass.compoundName)) {
 				MethodBinding patternBinding = locator.getMethodBinding(this.pattern);
 				if (patternBinding != null) {
-					patternBinding = patternBinding.original();
-					if (!isErasureMethodOverride(patternBinding.declaringClass, patternBinding)) {
+					if (!matchOverriddenMethod(patternBinding.declaringClass, patternBinding, methodBinding)) {
+						this.methodDeclarationsWithInvalidParam.put(reference, Boolean.FALSE);
 						return null;
 					}
 				}
+				this.methodDeclarationsWithInvalidParam.put(reference, Boolean.TRUE);
 				return super.newDeclarationMatch(reference, element, elementBinding, accuracy, length, locator);
 			}
+			this.methodDeclarationsWithInvalidParam.put(reference, Boolean.FALSE);
 			return null;
 		}
 	}
 	return super.newDeclarationMatch(reference, element, elementBinding, accuracy, length, locator);
+}
+protected int referenceType() {
+	return IJavaElement.METHOD;
 }
 protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locator, SimpleSet knownMethods) throws CoreException {
 	ReferenceBinding declaringClass = methodBinding.declaringClass;
