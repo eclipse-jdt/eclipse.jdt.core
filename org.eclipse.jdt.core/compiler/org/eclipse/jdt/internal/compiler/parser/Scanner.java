@@ -2266,13 +2266,12 @@ protected void parseTags(boolean hasLineComment) {
 		if (this.nonNLSStrings == null) this.nonNLSStrings = new HashSet();
 		this.nonNLSStrings.addAll(line.elements);
 	} else {
-		final int currentTokenStart = getCurrentTokenStartPosition();
 		if (linePtr < 0) {
 			int i = 0;
 			while (Character.isWhitespace(this.source[i])) {
 				i++;
 			}
-			if (currentTokenStart == i) {
+			if (getCurrentTokenStartPosition() == i) {
 				// the whole line is commented out
 				return;
 			}
@@ -2281,7 +2280,7 @@ protected void parseTags(boolean hasLineComment) {
 			while (Character.isWhitespace(this.source[i])) {
 				i++;
 			}
-			if (currentTokenStart == i) {
+			if (getCurrentTokenStartPosition() == i) {
 				// the whole line is commented out
 				return;
 			}
