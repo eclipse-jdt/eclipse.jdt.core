@@ -2268,13 +2268,23 @@ protected void parseTags(boolean hasLineComment) {
 	} else {
 		final int currentTokenStart = getCurrentTokenStartPosition();
 		if (linePtr < 0) {
-			if (currentTokenStart == 0) {
+			int i = 0;
+			while (Character.isWhitespace(this.source[i])) {
+				i++;
+			}
+			if (currentTokenStart == i) {
 				// the whole line is commented out
 				return;
 			}
-		} else if (currentTokenStart == (lineEnds[linePtr] + 1)) {
-			// the whole line is commented out
-			return;
+		} else {
+			int i = this.lineEnds[this.linePtr] + 1; 
+			while (Character.isWhitespace(this.source[i])) {
+				i++;
+			}
+			if (currentTokenStart == i) {
+				// the whole line is commented out
+				return;
+			}
 		}
 		char[] s = getCurrentTokenSource();
 		int pos = CharOperation.indexOf(TAG_PREFIX, s, true);
