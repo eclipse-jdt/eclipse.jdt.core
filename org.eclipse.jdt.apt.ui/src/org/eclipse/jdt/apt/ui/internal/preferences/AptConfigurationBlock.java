@@ -18,13 +18,22 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.apt.core.util.AptConfig.ProcessorOptionsParser;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
 import org.eclipse.jdt.internal.ui.util.PixelConverter;
 import org.eclipse.jdt.internal.ui.wizards.IStatusChangeListener;
-import org.eclipse.jdt.internal.ui.wizards.dialogfields.*;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.IListAdapter;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.ListDialogField;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogField;
+import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -61,6 +70,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private static final int IDX_EDIT= 1;
 	private static final int IDX_REMOVE= 2;
 	
+	private final IJavaProject fJProj;
+
 	private SelectionButtonDialogField fAptEnabledField;
 	private StringDialogField fGenSrcDirField;
 	private ListDialogField fProcessorOptionsField;
@@ -155,35 +166,10 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		}
 	}
 
-	/*
-	 * Helper to eliminate unchecked-conversion warning
-	 */
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
-	private List<ProcessorOption> getListElements() {
-		return fProcessorOptionsField.getElements();
-	}
-	
-	/*
-	 * Helper to eliminate unchecked-conversion warning
-	 */
-	@SuppressWarnings("unchecked") //$NON-NLS-1$
-	private List<ProcessorOption> getListSelection() {
-		return fProcessorOptionsField.getSelectedElements();
-	}
-	
-	private void editOrAddProcessorOption(ProcessorOption original) {
-		ProcessorOptionInputDialog dialog= new ProcessorOptionInputDialog(getShell(), original, getListElements());
-		if (dialog.open() == Window.OK) {
-			if (original != null) {
-				fProcessorOptionsField.replaceElement(original, dialog.getResult());
-			} else {
-				fProcessorOptionsField.addElement(dialog.getResult());
-			}
-		}
-	}
-	
 	public AptConfigurationBlock(IStatusChangeListener context, IProject project, IWorkbenchPreferenceContainer container) {
 		super(context, project, getAllKeys(), container);
+		
+		fJProj = JavaCore.create(project);
 		
 		UpdateAdapter adapter= new UpdateAdapter();
 		
@@ -218,6 +204,33 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			fProcessorOptionsField.selectFirstElement();
 		} else {
 			fProcessorOptionsField.enableButton(IDX_EDIT, false);
+		}
+	}
+	
+	/*
+	 * Helper to eliminate unchecked-conversion warning
+	 */
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
+	private List<ProcessorOption> getListElements() {
+		return fProcessorOptionsField.getElements();
+	}
+	
+	/*
+	 * Helper to eliminate unchecked-conversion warning
+	 */
+	@SuppressWarnings("unchecked") //$NON-NLS-1$
+	private List<ProcessorOption> getListSelection() {
+		return fProcessorOptionsField.getSelectedElements();
+	}
+	
+	private void editOrAddProcessorOption(ProcessorOption original) {
+		ProcessorOptionInputDialog dialog= new ProcessorOptionInputDialog(getShell(), original, getListElements());
+		if (dialog.open() == Window.OK) {
+			if (original != null) {
+				fProcessorOptionsField.replaceElement(original, dialog.getResult());
+			} else {
+				fProcessorOptionsField.addElement(dialog.getResult());
+			}
 		}
 	}
 	
@@ -272,12 +285,34 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		if (changedKey == KEY_PROCESSOROPTIONS) {
 			status = validateProcessorOptions(newValue);
 		}
+		else if (changedKey == KEY_GENSRCDIR) {
+			status = validateGenSrcDir(newValue);
+		}
 
 		if (null != status) {
 			fContext.statusChanged(status);
 		}
 	}	
 	
+	/**
+	 * Validate "generated source directory" setting.  It must be a valid
+	 * pathname relative to a project, and must not be a source directory.
+	 * @param dirName
+	 * @return
+	 */
+	private IStatus validateGenSrcDir(String dirName) {
+		Path path= new Path(dirName);
+		if (path == null || 
+				path.isAbsolute() || 
+				path.isEmpty() || 
+				!path.isValidPath(dirName) ||
+				!dirName.trim().equals(dirName)) {
+			return new StatusInfo(IStatus.ERROR, Messages.AptConfigurationBlock_genSrcDirMustBeValidRelativePath);
+		}
+		// TODO: how can we tell whether dirName points to a "normal" src directory?
+		return new StatusInfo();
+	}
+
 	/**
 	 * @param newValue
 	 * @return
@@ -304,6 +339,9 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		unpackProcessorOptions(str);
 	}	
 	
+	/**
+	 * Update the values stored in the keys based on the UI.
+	 */
 	protected final void updateModel(DialogField field) {
 		String newVal = null;
 		Key key = null;

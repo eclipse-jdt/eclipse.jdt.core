@@ -95,4 +95,6 @@ public class Messages extends NLS {
 	public static String ProcessorOptionInputDialog_keyAlreadyInUse;
 
 	public static String ProcessorOptionInputDialog_equalsSignNotValid;
+
+	public static String AptConfigurationBlock_genSrcDirMustBeValidRelativePath;
 }

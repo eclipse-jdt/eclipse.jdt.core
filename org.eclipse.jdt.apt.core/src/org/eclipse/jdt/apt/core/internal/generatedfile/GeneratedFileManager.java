@@ -102,9 +102,8 @@ public class GeneratedFileManager {
 		_javaProject = JavaCore.create( _project );
 		
 		// get generated source dir from config 
+		// default value is set in org.eclipse.jdt.apt.core.internal.util.AptCorePreferenceInitializer
 		_generatedSourceFolderName = AptConfig.getString( _javaProject, AptPreferenceConstants.APT_GENSRCDIR);
-		if ( _generatedSourceFolderName == null )
-			_generatedSourceFolderName = DEFAULT_GENERATED_SOURCE_FOLDER_NAME;
 	}
 
 	private static void init()
@@ -714,7 +713,7 @@ public class GeneratedFileManager {
 	}
 	
 	/** 
-	 * @return true if the generated soruce folder has been created and added to the project's source path, false otherwise
+	 * @return true if the generated source folder has been created and added to the project's source path, false otherwise
 	 * 
 	 * @see #getGeneratedSourceFolder()
 	 * @see #getGeneratedSourceFolderName()
@@ -1457,7 +1456,5 @@ public class GeneratedFileManager {
 	
 	
 	private static boolean _initialized = false;
-	
-	private static final String DEFAULT_GENERATED_SOURCE_FOLDER_NAME = "__generated_src"; //$NON-NLS-1$
 	
 }

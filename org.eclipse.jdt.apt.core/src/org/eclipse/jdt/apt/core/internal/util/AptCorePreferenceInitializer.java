@@ -22,6 +22,8 @@ import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
  */
 public class AptCorePreferenceInitializer extends AbstractPreferenceInitializer {
 
+	private static final String DEFAULT_GENERATED_SOURCE_FOLDER_NAME = "__generated_src"; //$NON-NLS-1$
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
 	 */
@@ -31,10 +33,8 @@ public class AptCorePreferenceInitializer extends AbstractPreferenceInitializer 
 		// Store default values to default preferences
 	 	IEclipsePreferences defaultPreferences = new DefaultScope().getNode(AptPlugin.PLUGIN_ID);
 	 	defaultPreferences.put(AptPreferenceConstants.APT_ENABLED, "true"); //$NON-NLS-1$
-	 	
-	 	// Following initializers are not necessary because they correspond to default-default:
-	 	// defaultPreferences.put(AptPreferenceConstants.APT_GENSRCDIR, "");
-	 	// defaultPreferences.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, "");
+	 	defaultPreferences.put(AptPreferenceConstants.APT_GENSRCDIR, DEFAULT_GENERATED_SOURCE_FOLDER_NAME);
+	 	defaultPreferences.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, ""); //$NON-NLS-1$
 	}
 
 }
