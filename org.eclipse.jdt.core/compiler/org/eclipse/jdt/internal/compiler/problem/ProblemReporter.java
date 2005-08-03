@@ -5209,14 +5209,13 @@ public void unnecessaryInstanceof(InstanceOfExpression instanceofExpression, Typ
 }
 public void unnecessaryNONNLSTags(int sourceStart, int sourceEnd) {
 	// TODO (olivier) enable again after 3.2M1
-	if (false) {
-		this.handle(
-			IProblem.UnnecessaryNONNLSTag,
-			NoArgument,
-			NoArgument,
-			sourceStart,
-			sourceEnd);
-	}
+	if (true) return;
+	this.handle(
+		IProblem.UnnecessaryNONNLSTag,
+		NoArgument,
+		NoArgument,
+		sourceStart,
+		sourceEnd);
 }
 public void unqualifiedFieldAccess(NameReference reference, FieldBinding field) {
 	this.handle(
