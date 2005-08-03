@@ -113,16 +113,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug93880_15a"));
-		suite.addTest(new ASTConverterJavadocTest("testBug93880_15b"));
-		suite.addTest(new ASTConverterJavadocTest("testBug93880_15c"));
-		suite.addTest(new ASTConverterJavadocTest("testBug93880_15d"));
-		suite.addTest(new ASTConverterJavadocTest("testBug93880_15e"));
-		suite.addTest(new ASTConverterJavadocTest("testBug93880_14a"));
-		suite.addTest(new ASTConverterJavadocTest("testBug93880_14b"));
-		suite.addTest(new ASTConverterJavadocTest("testBug93880_14c"));
-		suite.addTest(new ASTConverterJavadocTest("testBug93880_14d"));
-		suite.addTest(new ASTConverterJavadocTest("testBug93880_14e"));
+		suite.addTest(new ASTConverterJavadocTest("testBug100041"));
 		return suite;
 	}
 
@@ -2822,5 +2813,165 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		parser.setSource(source.toCharArray());
 		parser.createAST(null);
 	}
-	
+
+	/**
+	 * Bug 100041: [javadoc] Infinit loop in DocCommentParser
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=100041"
+	 */
+	public void testBug100041() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b100041/X.java",
+			"package javadoc.b100041;\n" + 
+			"class X {\n" +
+			"	static Object object;\n" +
+			"	static void foo() {\n" +
+			"		/**\n" +
+			"		 * javadoc comment.\n" +
+			"		 */\n" +
+			"		if (object instanceof String) {\n" +
+			"			final String clr = null;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}"
+		);
+		CompilationUnit compilUnit = verifyComments(workingCopies[0]);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Get comment
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+			Comment comment = (Comment) unitComments.get(0);
+			int commentStart = comment.getStartPosition();
+			int commentEnd = commentStart+comment.getLength();
+
+			// Get local variable declaration
+			ASTNode node = getASTNode(compilUnit, 0, 1, 0);
+			assertEquals("Expected if statement for node: "+node, ASTNode.IF_STATEMENT, node.getNodeType());
+			IfStatement ifStatement = (IfStatement) node;
+			assertTrue("Invalid start position for IfStatement: "+ifStatement, ifStatement.getStartPosition() > commentEnd);
+			Statement statement  = ifStatement.getThenStatement();
+			assertEquals("Expected block for node: "+statement, ASTNode.BLOCK, statement.getNodeType());
+			Block block = (Block) statement;
+			assertTrue("Invalid start position for Block: "+block, block.getStartPosition() > commentEnd);
+			List statements = block.statements();
+			assertEquals("Invalid number of statements for block: "+block, 1, statements.size());
+			statement = (Statement) statements.get(0);
+			assertEquals("Expected variable declaration statement for node: "+statement, ASTNode.VARIABLE_DECLARATION_STATEMENT, statement.getNodeType());
+			VariableDeclarationStatement varDecl = (VariableDeclarationStatement) statement;
+			assertTrue("Invalid start position for : VariableDeclarationStatement"+varDecl, varDecl.getStartPosition() > commentEnd);
+		}
+	}
+	public void testBug100041b() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b100041/X.java",
+			"package javadoc.b100041;\n" + 
+			"class X {\n" +
+			"	static Object object;\n" +
+			"	static void foo() {\n" +
+			"		/**\n" +
+			"		 * javadoc comment.\n" +
+			"		 */\n" +
+			"		if (object instanceof String)\n" +
+			"			return;\n" +
+			"	}\n" +
+			"}"
+		);
+		CompilationUnit compilUnit = verifyComments(workingCopies[0]);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Get comment
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+			Comment comment = (Comment) unitComments.get(0);
+			int commentStart = comment.getStartPosition();
+			int commentEnd = commentStart+comment.getLength();
+
+			// Get local variable declaration
+			ASTNode node = getASTNode(compilUnit, 0, 1, 0);
+			assertEquals("Expected if statement for node: "+node, ASTNode.IF_STATEMENT, node.getNodeType());
+			IfStatement ifStatement = (IfStatement) node;
+			assertTrue("Invalid start position for IfStatement: "+ifStatement, ifStatement.getStartPosition() > commentEnd);
+			Statement statement  = ifStatement.getThenStatement();
+			assertEquals("Expected block for node: "+statement, ASTNode.RETURN_STATEMENT, statement.getNodeType());
+			ReturnStatement returnStatement = (ReturnStatement) statement;
+			assertTrue("Invalid start position for Block: "+returnStatement, returnStatement.getStartPosition() > commentEnd);
+		}
+	}
+	public void testBug100041c() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b100041/Z.java",
+			"package javadoc.b100041;\n" + 
+			"public class Z {\n" + 
+			"	/** C1 */\n" + 
+			"	class Z1 {}\n" + 
+			"	/** C2 */\n" + 
+			"	Z1 z1;\n" + 
+			"	/** C3 */\n" + 
+			"	public static void foo(Object object) {\n" + 
+			"		/** C4 */\n" + 
+			"		class ZZ {\n" + 
+			"			/** C5 */\n" + 
+			"			ZZ zz;\n" + 
+			"			/** C6 */\n" + 
+			"			public void bar() {}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		CompilationUnit compilUnit = verifyComments(workingCopies[0]);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Get comments
+			List unitComments = compilUnit.getCommentList();
+			int size = unitComments.size();
+			assertEquals("Wrong number of comments", 6, size);
+			Javadoc[] javadocs = new Javadoc[size];
+			Iterator iterator = unitComments.iterator();
+			for (int i=0; i<size; i++) {
+				Comment comment = (Comment) iterator.next();
+				assertEquals("Expect javadoc for comment: "+comment, ASTNode.JAVADOC, comment.getNodeType());
+				javadocs[i] = (Javadoc) comment;
+			}
+
+			// Verify member type declaration start
+			ASTNode node = getASTNode(compilUnit, 0, 0);
+			assertEquals("Expected type declaration for node: "+node, ASTNode.TYPE_DECLARATION, node.getNodeType());
+			TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+			int javadocStart = javadocs[0].getStartPosition();
+			assertEquals("Invalid start position for TypeDeclaration: "+typeDeclaration, typeDeclaration.getStartPosition(), javadocStart);
+
+			// Verify field declaration start
+			node = getASTNode(compilUnit, 0, 1);
+			assertEquals("Expected field declaration for node: "+node, ASTNode.FIELD_DECLARATION, node.getNodeType());
+			FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			javadocStart = javadocs[1].getStartPosition();
+			assertEquals("Invalid start position for FieldDeclaration: "+fieldDeclaration, fieldDeclaration.getStartPosition(), javadocStart);
+
+			// Verify method declaration start
+			node = getASTNode(compilUnit, 0, 2);
+			assertEquals("Expected method declaration for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			javadocStart = javadocs[2].getStartPosition();
+			assertEquals("Invalid start position for MethodDeclaration: "+methodDeclaration, methodDeclaration.getStartPosition(), javadocStart);
+
+			// Verify local type declaration start
+			node = getASTNode(compilUnit, 0, 2, 0);
+			assertEquals("Expected type declaration for node: "+node, ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType());
+			typeDeclaration = (TypeDeclaration) ((TypeDeclarationStatement) node).getDeclaration();
+			javadocStart = javadocs[3].getStartPosition();
+			assertEquals("Invalid start position for TypeDeclaration: "+typeDeclaration, typeDeclaration.getStartPosition(), javadocStart);
+
+			// Verify field declaration start
+			List bodyDeclarations = typeDeclaration.bodyDeclarations();
+			node = (ASTNode) bodyDeclarations.get(0);
+			assertEquals("Expected field declaration for node: "+node, ASTNode.FIELD_DECLARATION, node.getNodeType());
+			fieldDeclaration = (FieldDeclaration) node;
+			javadocStart = javadocs[4].getStartPosition();
+			assertEquals("Invalid start position for FieldDeclaration: "+fieldDeclaration, fieldDeclaration.getStartPosition(), javadocStart);
+
+			// Verify method declaration start
+			node = (ASTNode) bodyDeclarations.get(1);
+			assertEquals("Expected method declaration for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
+			methodDeclaration = (MethodDeclaration) node;
+			javadocStart = javadocs[5].getStartPosition();
+			assertEquals("Invalid start position for MethodDeclaration: "+methodDeclaration, methodDeclaration.getStartPosition(), javadocStart);
+		}
+	}
 }
