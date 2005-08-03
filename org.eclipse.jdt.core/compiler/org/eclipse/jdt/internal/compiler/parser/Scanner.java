@@ -2266,24 +2266,16 @@ protected void parseTags(boolean hasLineComment) {
 		if (this.nonNLSStrings == null) this.nonNLSStrings = new HashSet();
 		this.nonNLSStrings.addAll(line.elements);
 	} else {
-		if (linePtr < 0) {
-			int i = 0;
-			while (Character.isWhitespace(this.source[i])) {
-				i++;
-			}
-			if (getCurrentTokenStartPosition() == i) {
-				// the whole line is commented out
-				return;
-			}
-		} else {
-			int i = this.lineEnds[this.linePtr] + 1; 
-			while (Character.isWhitespace(this.source[i])) {
-				i++;
-			}
-			if (getCurrentTokenStartPosition() == i) {
-				// the whole line is commented out
-				return;
-			}
+		int position = 0;
+		if (linePtr >= 0) {
+			position = this.lineEnds[this.linePtr] + 1; 
+		}
+		while (Character.isWhitespace(this.source[position])) {
+			position++;
+		}
+		if (getCurrentTokenStartPosition() == position) {
+			// the whole line is commented out
+			return;
 		}
 		char[] s = getCurrentTokenSource();
 		int pos = CharOperation.indexOf(TAG_PREFIX, s, true);
