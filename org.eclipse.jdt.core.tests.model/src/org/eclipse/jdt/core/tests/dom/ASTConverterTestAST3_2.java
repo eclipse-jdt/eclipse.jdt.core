@@ -106,7 +106,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 614 };
+//		TESTS_NUMBERS =  new int[] { 615 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -6614,4 +6614,57 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=100041
+	 */
+	public void test0615() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"class X {\n" +
+				"	static Object object;\n" +
+				"	static void foo() {\n" +
+				"		/**\n" +
+				"		 * javadoc comment.\n" +
+				"		 */\n" +
+				"		if (object instanceof String) {\n" +
+				"			final String clr = null;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 1, 0);
+			assertNotNull("No node", node);
+			assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
+			IfStatement ifStatement = (IfStatement) node;
+			String expectedSource = "if (object instanceof String) {\n" +
+			"			final String clr = null;\n" +
+			"		}";
+			checkSourceRange(ifStatement, expectedSource, contents);
+			Statement statement = ifStatement.getThenStatement();
+			assertNotNull("No then statement", statement);
+			assertEquals("not a block", ASTNode.BLOCK, statement.getNodeType());
+			Block block = (Block) statement;
+			expectedSource = "{\n" +
+			"			final String clr = null;\n" +
+			"		}";
+			checkSourceRange(block, expectedSource, contents);
+			List statements = block.statements();
+			assertEquals("Wrong size", 1, statements.size());
+			Statement statement2 = (Statement) statements.get(0);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement2.getNodeType());
+			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement2;
+			checkSourceRange(variableDeclarationStatement, "final String clr = null;", contents);
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}	
 }
