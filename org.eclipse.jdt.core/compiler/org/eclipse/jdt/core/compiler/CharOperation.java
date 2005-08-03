@@ -1420,10 +1420,7 @@ public final class CharOperation {
 	 * @throws NullPointerException if array is null
 	 */
 	public static final int indexOf(char toBeFound, char[] array) {
-		for (int i = 0; i < array.length; i++)
-			if (toBeFound == array[i])
-				return i;
-		return -1;
+		return indexOf(toBeFound, array, 0);
 	}
 	
 	/**
@@ -1540,7 +1537,7 @@ public final class CharOperation {
 			}
 		}
 		if (isCaseSensitive) {
-			arrayLoop: for (int i = start, max = arrayLength - toBeFoundLength; i < max; i++) {
+			arrayLoop: for (int i = start, max = arrayLength - toBeFoundLength + 1; i < max; i++) {
 				if (array[i] == toBeFound[0]) {
 					for (int j = 1; j < toBeFoundLength; j++) {
 						if (array[i + j] != toBeFound[j]) continue arrayLoop;
@@ -1549,7 +1546,7 @@ public final class CharOperation {
 				}
 			}
 		} else {
-			arrayLoop: for (int i = start, max = arrayLength - toBeFoundLength; i < max; i++) {
+			arrayLoop: for (int i = start, max = arrayLength - toBeFoundLength + 1; i < max; i++) {
 				if (Character.toLowerCase(array[i]) == Character.toLowerCase(toBeFound[0])) {
 					for (int j = 1; j < toBeFoundLength; j++) {
 						if (Character.toLowerCase(array[i + j]) != Character.toLowerCase(toBeFound[j])) continue arrayLoop;
