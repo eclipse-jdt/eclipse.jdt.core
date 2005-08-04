@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -250,6 +251,7 @@ private  Map notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set n
 
 	java.util.Iterator it = cps.iterator();
 	Map ifiles2problems = new HashMap();
+	boolean classpathChanged = false;
 	while ( it.hasNext() ) {
 		ICompilationParticipant p = ( ICompilationParticipant ) it.next();
 
@@ -271,10 +273,17 @@ private  Map notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set n
 			
 			mergeMaps( pbcr.getNewDependencies(), extraDependencies );
 			mergeMaps( pbcr.getProblems(), ifiles2problems );
+			
+			classpathChanged  |= pbcr.getProjectClasspathChanged();
 		}
 	}
 	
 	if ( newFiles.size() > 0 ) {
+		
+		// if project classpath has changed, then we need to reset the name environments
+		if ( classpathChanged )
+			resetNameEnvironment();
+		
 		Set newFiles_2 = new HashSet();
 		Set deletedFiles_2 = new HashSet();
 		ICompilationUnit[] newFileArray = ifileSet2SourceFileArray( newFiles );
@@ -379,7 +388,30 @@ private SourceFile[] ifileSet2SourceFileArray( Set ifiles ) {
 	return sf;
 }
 
+private void resetNameEnvironment() {
+	
+	SimpleLookupTable binaryLocationsPerProject = new SimpleLookupTable(3);
+	NameEnvironment newNameEnvironment = null; 
+	try {
+		newNameEnvironment = new NameEnvironment(this.javaBuilder.workspaceRoot, this.javaBuilder.javaProject, binaryLocationsPerProject);
+	}
+	catch( CoreException ce ) {
+		// TODO:  log exception
+		ce.printStackTrace();
+	}
+	
+	if ( newNameEnvironment != null ) {
+		this.nameEnvironment.cleanup();
+		this.javaBuilder.binaryLocationsPerProject = new SimpleLookupTable(3);
+		this.javaBuilder.nameEnvironment = newNameEnvironment;
+		this.nameEnvironment = this.javaBuilder.nameEnvironment;
+		this.sourceLocations = this.nameEnvironment.sourceLocations;
+		this.compiler = newCompiler();
+	}
+}
+
 private SourceFile[] updateSourceUnits( SourceFile[] units, Set newFiles, Set deletedFiles ) {
+	
 	if ( newFiles.size() == 0 && deletedFiles.size() == 0 )
 		return units;
 	else if ( deletedFiles.size() == 0 ) {

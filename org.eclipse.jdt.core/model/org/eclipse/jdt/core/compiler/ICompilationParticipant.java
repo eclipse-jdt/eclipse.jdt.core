@@ -58,4 +58,11 @@ public interface ICompilationParticipant {
 	 * a flag indicating an event fired before a clean operation 
 	 */
 	public static final int CLEAN_EVENT          = 16;
+	
+	/**
+	 * a flag indicating an event fired when there is a catastrophic build 
+	 * failure, such as a broken classpath.
+	 */
+	public static final int BROKEN_CLASSPATH_BUILD_FAILURE_EVENT = 32;
+	
 }
