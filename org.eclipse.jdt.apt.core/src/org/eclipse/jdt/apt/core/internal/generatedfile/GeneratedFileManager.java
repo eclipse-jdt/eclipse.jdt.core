@@ -754,7 +754,7 @@ public class GeneratedFileManager {
 		IFolder f = getGeneratedSourceFolder();
 		if ( f != null && f.exists() )
 		{
-			IClasspathEntry cpe = findProjectSourcePath( _javaProject, f, null );
+			IClasspathEntry cpe = findProjectSourcePath( _javaProject, f );
 			if ( cpe != null )
 				outputRoot = cpe.getOutputLocation();
 		}
@@ -1066,7 +1066,16 @@ public class GeneratedFileManager {
 		}
 	}
 	
-	private IClasspathEntry findProjectSourcePath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
+	/**
+	 * Given a java project, this function will determine if the specified
+	 * folder is a source folder of the java project. 
+	 * 
+	 * @param jp - the java project
+	 * @param folder - the folder that you want to see if it is a classpath entry for the java project
+	 * @return
+	 * @throws JavaModelException
+	 */
+	public static IClasspathEntry findProjectSourcePath( IJavaProject jp, IFolder folder )
 		throws JavaModelException
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
@@ -1156,7 +1165,10 @@ public class GeneratedFileManager {
 		return !found;
 	}
 
-	private void removeFromProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
+	/** 
+	 * removes a classpath entry from the project 
+	 */
+	public static void removeFromProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
 		throws JavaModelException
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();

@@ -22,12 +22,18 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.compiler.BrokenClasspathBuildFailureEvent;
+import org.eclipse.jdt.core.compiler.BrokenClasspathBuildFailureResult;
 import org.eclipse.jdt.core.compiler.CompilationParticipantEvent;
 import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
 import org.eclipse.jdt.core.compiler.ICompilationParticipant;
@@ -77,6 +83,8 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			return postReconcileNotify( (PostReconcileCompilationEvent) cpe );
 		else if ( cpe.getKind() == ICompilationParticipant.CLEAN_EVENT )
 			return cleanNotify( cpe );
+		else if ( cpe.getKind() == ICompilationParticipant.BROKEN_CLASSPATH_BUILD_FAILURE_EVENT)
+			return brokenClasspathBuildFailureNotify( (BrokenClasspathBuildFailureEvent) cpe );
 		else 
 			return GENERIC_COMPILATION_RESULT;		
 	}
@@ -198,6 +206,35 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		
 		return GENERIC_COMPILATION_RESULT;
 	}
+	
+	private BrokenClasspathBuildFailureResult brokenClasspathBuildFailureNotify( BrokenClasspathBuildFailureEvent event )
+	{
+		try
+		{
+			IJavaProject jp = event.getJavaProject();
+			IProject p = jp.getProject();
+			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
+			IFolder folder = gfm.getGeneratedSourceFolder();
+			
+			folder.refreshLocal( IResource.DEPTH_INFINITE, null );
+			IClasspathEntry classpathEntry = GeneratedFileManager.findProjectSourcePath( jp, folder );
+			if ( classpathEntry != null && !folder.exists() )
+			{
+				// the generated source folder is part of the classpath, but it doesn't exist on disk
+				// try to fix this by creating the generated source folder. 
+				GeneratedFileManager.removeFromProjectClasspath( jp, folder, null );
+				gfm.ensureGeneratedSourceFolder( null );
+			}
+		}
+		catch ( CoreException ce )
+		{
+			AptPlugin.log( ce, "Failure trying to fix catastrophic build failure"); //$NON-NLS-1$
+		}
+		
+		return new BrokenClasspathBuildFailureResult();
+	}
+	
+	
 	
 	public boolean doesParticipateInProject(IJavaProject project) {
 		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( project );
