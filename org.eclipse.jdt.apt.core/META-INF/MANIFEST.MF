@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: APT UI
+Bundle-Name: JDT APT Core
 Bundle-SymbolicName: org.eclipse.jdt.apt.core; singleton:=true
 Bundle-Version: 3.1.0.apt01
 Bundle-ClassPath: aptcore.jar,
@@ -26,3 +26,4 @@ Require-Bundle: org.eclipse.jdt.core,
  org.apache.ant
 Bundle-Activator: org.eclipse.jdt.apt.core.AptPlugin
 Eclipse-AutoStart: true
+Bundle-Vendor: Eclipse.org

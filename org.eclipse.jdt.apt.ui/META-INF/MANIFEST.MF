@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: APT UI
+Bundle-Name: JDT APT UI
 Bundle-SymbolicName: org.eclipse.jdt.apt.ui; singleton:=true
 Bundle-Version: 3.1.0.apt01
 Bundle-Activator: org.eclipse.jdt.apt.ui.AptUIPlugin
@@ -13,3 +13,4 @@ Require-Bundle: org.eclipse.jdt.apt.core,
  org.eclipse.core.resources
 Eclipse-AutoStart: true
 Export-Package: org.eclipse.jdt.apt.ui.quickfix
+Bundle-Vendor: Eclipse.org
