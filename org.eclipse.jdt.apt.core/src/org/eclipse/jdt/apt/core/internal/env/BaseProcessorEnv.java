@@ -77,6 +77,15 @@ import com.sun.mirror.util.Types;
 public class BaseProcessorEnv implements AnnotationProcessorEnvironment 
 {
 	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
+	private static final int BOOLEAN_INDEX = 0;
+	private static final int BYTE_INDEX = 1;
+	private static final int CHAR_INDEX = 2;
+	private static final int DOUBLE_INDEX = 3;
+	private static final int FLOAT_INDEX = 4;
+	private static final int INT_INDEX = 5;
+	private static final int LONG_INDEX = 6;
+	private static final int SHORT_INDEX = 7;
+	private static final int VOID_INDEX = 8;
 	
 	protected final CompilationUnit _astCompilationUnit;
 	protected final Phase _phase;
@@ -110,7 +119,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		
 		_modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
 		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
-		initPrimitives(javaProj);
+		initPrimitives(astCompilationUnit.getAST());
 	}
 	
 	public Types getTypeUtils()
@@ -295,22 +304,25 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		final int index = name.indexOf('<');
 		if( index != -1 )
 			name = name.substring(0, index);
-
-		// first look into the current compilation unit
-		final String typeKey = BindingKey.createTypeBindingKey(name);
-		final ASTNode node = _astCompilationUnit.findDeclaringNode(typeKey);
-		ITypeBinding typeBinding = null;
-		if( node != null ){
-			final int nodeType = node.getNodeType();
-			if( nodeType == ASTNode.TYPE_DECLARATION ||
-				nodeType == ASTNode.ANNOTATION_TYPE_DECLARATION ||
-				nodeType == ASTNode.ENUM_DECLARATION )
-			typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
+		
+		// first see if it is one of the well known types.
+		ITypeBinding typeBinding = _astCompilationUnit.getAST().resolveWellKnownType(name);
+		String typeKey = BindingKey.createTypeBindingKey(name);
+		if(typeBinding == null){
+			// then look into the current compilation unit			
+			final ASTNode node = _astCompilationUnit.findDeclaringNode(typeKey);			
+			if( node != null ){
+				final int nodeType = node.getNodeType();
+				if( nodeType == ASTNode.TYPE_DECLARATION ||
+					nodeType == ASTNode.ANNOTATION_TYPE_DECLARATION ||
+					nodeType == ASTNode.ENUM_DECLARATION )
+				typeBinding = ((AbstractTypeDeclaration)node).resolveBinding();
+			}
 		}
 		if( typeBinding != null )
 			return Factory.createReferenceType(typeBinding, this);
 
-		// then go search for it else where.
+		// finally go search for it in the universe.
 		typeBinding = getTypeBinding(typeKey);
 		if( typeBinding != null ){			
 			return Factory.createReferenceType(typeBinding, this);
@@ -559,66 +571,65 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 	}
 	
-	private void initPrimitives(final IJavaProject project)
+	private void initPrimitives(final AST ast)
 	{
 		if(_primitives != null ) return;
 		_primitives = new PrimitiveTypeImpl[8];
-		class PrimitiveBindingRequestor extends ASTRequestor
-		{
-			public void acceptBinding(String bindingKey, IBinding binding)
-			{
-				if( binding.getKind() == IBinding.TYPE ){
-					if( ITypeConstants.BOOLEAN.equals(binding.getName()) ) 
-						_primitives[0] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( ITypeConstants.BYTE.equals(binding.getName()) )
-						_primitives[1] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( ITypeConstants.CHAR.equals(binding.getName()) )
-						_primitives[2] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( ITypeConstants.DOUBLE.equals(binding.getName()) ) 
-						_primitives[3] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( ITypeConstants.FLOAT.equals(binding.getName()) ) 
-						_primitives[4] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( ITypeConstants.INT.equals(binding.getName()) ) 
-						_primitives[5] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( ITypeConstants.LONG.equals(binding.getName()) ) 
-						_primitives[6] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( ITypeConstants.SHORT.equals(binding.getName()) ) 
-						_primitives[7] = new PrimitiveTypeImpl( (ITypeBinding)binding );
-					else if( ITypeConstants.VOID.equals(binding.getName()) ) 
-						_voidType = new VoidTypeImpl( (ITypeBinding)binding );
-					else
-						System.err.println("got unexpected type " + binding.getName()); //$NON-NLS-1$
-				}
-				else
-					System.err.println("got unexpected binding " + binding.getClass().getName() + binding );  //$NON-NLS-1$
-			}
-		}
-
-		final String[] keys = { BindingKey.createTypeBindingKey(ITypeConstants.BOOLEAN),
-				BindingKey.createTypeBindingKey(ITypeConstants.BYTE),
-				BindingKey.createTypeBindingKey(ITypeConstants.CHAR),
-				BindingKey.createTypeBindingKey(ITypeConstants.DOUBLE),
-				BindingKey.createTypeBindingKey(ITypeConstants.FLOAT),
-				BindingKey.createTypeBindingKey(ITypeConstants.INT),
-				BindingKey.createTypeBindingKey(ITypeConstants.LONG),
-				BindingKey.createTypeBindingKey(ITypeConstants.SHORT),
-				BindingKey.createTypeBindingKey(ITypeConstants.VOID)};
-
-		final PrimitiveBindingRequestor requestor = new PrimitiveBindingRequestor();
-		final ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setProject(project);
-		parser.setResolveBindings(true);
-		parser.createASTs(NO_UNIT, keys, requestor, null);
+		// boolean
+		ITypeBinding binding = ast.resolveWellKnownType(ITypeConstants.BOOLEAN);		
+		if( binding == null )
+			throw new IllegalStateException("fail to locate " + ITypeConstants.BOOLEAN); //$NON-NLS-1$
+		_primitives[BOOLEAN_INDEX] = new PrimitiveTypeImpl(binding);		
+		// byte
+		binding = ast.resolveWellKnownType(ITypeConstants.BYTE);
+		if( binding == null )
+			throw new IllegalStateException("fail to locate " + ITypeConstants.BYTE); //$NON-NLS-1$
+		_primitives[BYTE_INDEX] = new PrimitiveTypeImpl(binding);
+		// char
+		binding = ast.resolveWellKnownType(ITypeConstants.CHAR);
+		if( binding == null )
+			throw new IllegalStateException("fail to locate " + ITypeConstants.BYTE); //$NON-NLS-1$
+		_primitives[CHAR_INDEX] = new PrimitiveTypeImpl(binding);
+		// double
+		binding = ast.resolveWellKnownType(ITypeConstants.DOUBLE);
+		if( binding == null )
+			throw new IllegalStateException("fail to locate " + ITypeConstants.BYTE); //$NON-NLS-1$
+		_primitives[DOUBLE_INDEX] = new PrimitiveTypeImpl(binding);
+		// float
+		binding = ast.resolveWellKnownType(ITypeConstants.FLOAT);
+		if( binding == null )
+			throw new IllegalStateException("fail to locate " + ITypeConstants.BYTE); //$NON-NLS-1$
+		_primitives[FLOAT_INDEX] = new PrimitiveTypeImpl(binding);
+		// int
+		binding = ast.resolveWellKnownType(ITypeConstants.INT);
+		if( binding == null )
+			throw new IllegalStateException("fail to locate " + ITypeConstants.BYTE); //$NON-NLS-1$
+		_primitives[INT_INDEX] = new PrimitiveTypeImpl(binding);
+		// long
+		binding = ast.resolveWellKnownType(ITypeConstants.LONG);
+		if( binding == null )
+			throw new IllegalStateException("fail to locate " + ITypeConstants.BYTE); //$NON-NLS-1$
+		_primitives[LONG_INDEX] = new PrimitiveTypeImpl(binding);
+		// short
+		binding = ast.resolveWellKnownType(ITypeConstants.SHORT);
+		if( binding == null )
+			throw new IllegalStateException("fail to locate " + ITypeConstants.BYTE); //$NON-NLS-1$
+		_primitives[SHORT_INDEX] = new PrimitiveTypeImpl(binding);
+		// void
+		binding = ast.resolveWellKnownType(ITypeConstants.VOID);
+		if( binding == null )
+			throw new IllegalStateException("fail to locate " + ITypeConstants.BYTE); //$NON-NLS-1$
+		_voidType = new VoidTypeImpl(binding);
 	}
 	
-	public PrimitiveTypeImpl getBooleanType(){ return _primitives[0]; }
-	public PrimitiveTypeImpl getByteType(){ return _primitives[1]; }
-	public PrimitiveTypeImpl getCharType(){ return _primitives[2]; }
-	public PrimitiveTypeImpl getDoubleType(){ return _primitives[3]; }
-	public PrimitiveTypeImpl getFloatType(){ return _primitives[4]; }
-	public PrimitiveTypeImpl getIntType(){ return _primitives[5]; }
-	public PrimitiveTypeImpl getLongType(){ return _primitives[6]; }
-	public PrimitiveTypeImpl getShortType(){ return _primitives[7]; }
+	public PrimitiveTypeImpl getBooleanType(){ return _primitives[BOOLEAN_INDEX]; }
+	public PrimitiveTypeImpl getByteType(){ return _primitives[BYTE_INDEX]; }
+	public PrimitiveTypeImpl getCharType(){ return _primitives[CHAR_INDEX]; }
+	public PrimitiveTypeImpl getDoubleType(){ return _primitives[DOUBLE_INDEX]; }
+	public PrimitiveTypeImpl getFloatType(){ return _primitives[FLOAT_INDEX]; }
+	public PrimitiveTypeImpl getIntType(){ return _primitives[INT_INDEX]; }
+	public PrimitiveTypeImpl getLongType(){ return _primitives[LONG_INDEX]; }
+	public PrimitiveTypeImpl getShortType(){ return _primitives[SHORT_INDEX]; }
 	public VoidTypeImpl getVoidType(){ return _voidType; }
 	
 	public CompilationUnit  getAstCompilationUnit()    { return _astCompilationUnit; }

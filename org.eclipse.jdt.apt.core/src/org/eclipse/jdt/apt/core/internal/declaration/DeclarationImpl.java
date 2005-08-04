@@ -71,8 +71,8 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
 		final int len = annoInstances == null ? 0 : annoInstances.length;
         if( len == 0 ) return null;
         for( IResolvedAnnotation annoInstance :  annoInstances){
-            final ITypeBinding binding = annoInstance.getAnnotationType();
-            if(binding.isAnnotation() ){
+            final ITypeBinding binding = annoInstance.getAnnotationType();            
+            if( binding != null && binding.isAnnotation() ){
                 final String curTypeName = binding.getQualifiedName();
                 if( annoTypeName.equals(curTypeName) ){
                     final AnnotationMirrorImpl annoMirror =
