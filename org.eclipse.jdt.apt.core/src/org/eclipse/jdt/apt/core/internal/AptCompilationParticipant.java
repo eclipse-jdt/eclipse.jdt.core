@@ -128,13 +128,8 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			if ( newFiles.contains( df ) )
 				deletedFiles.remove( df );
 
-		//
-		// Bugzilla 103745.  When the patch to o.e.jdt.core is commited to CVS, 
-		// then we can uncomment the following line and remove the one after 
-		// that
-		//
-		//return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), newDependencies, problems, sourcePathChanged );
-		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), newDependencies, problems );
+		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), newDependencies, problems, sourcePathChanged );
+		
 	}
 	
 	/** 
@@ -212,13 +207,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
     private final static String DOT_JAVA = ".java"; //$NON-NLS-1$
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 
-		//
-		// Bugzilla 103745.  When the patch to o.e.jdt.core is commited to CVS, 
-		// then we can uncomment the following line and remove the one after 
-		// that
-		//
-		//new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap(), false );
-		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap() );
+		new PreBuildCompilationResult( new IFile[0], new IFile[0], Collections.emptyMap(), Collections.emptyMap(), false );
 		
 	private final static CompilationParticipantResult GENERIC_COMPILATION_RESULT = 
 		new CompilationParticipantResult();
