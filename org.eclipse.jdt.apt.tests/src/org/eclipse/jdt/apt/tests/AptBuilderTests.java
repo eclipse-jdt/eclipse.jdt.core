@@ -106,8 +106,7 @@ public class AptBuilderTests extends Tests
 	/**
 	 *  Regresses Buzilla 103745 & 95661
 	 */
-	// enable after Bugzilla 103745  is fixed
-	public void disabled_testGeneratedFileInBuilder_ProjectRootAsSourceDir() throws Exception
+	public void testGeneratedFileInBuilder_ProjectRootAsSourceDir() throws Exception
 	{
 		_testGeneratedFileInBuilder( getProjectName_ProjectRootAsSrcDir() );
 	}
