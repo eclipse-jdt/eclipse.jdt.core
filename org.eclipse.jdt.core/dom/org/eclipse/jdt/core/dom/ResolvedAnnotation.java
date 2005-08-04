@@ -42,7 +42,10 @@ class ResolvedAnnotation implements IResolvedAnnotation
 	public ITypeBinding getAnnotationType() {
 		final ITypeBinding binding = 
 			this.bindingResolver.getTypeBinding(this.internalAnnotation.getAnnotationType());
-		return binding.isAnnotation() ? binding : null;
+		if( binding == null || !binding.isAnnotation() ) 
+			return null;
+		else
+			return binding;		 
 	}
 	
 	public IResolvedMemberValuePair[] getDeclaredMemberValuePairs() {

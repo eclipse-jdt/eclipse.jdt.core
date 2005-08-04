@@ -197,7 +197,12 @@ class CompilationUnitResolver extends Compiler {
 		for (int i = 0; i < keyLength; i++) {
 			BindingKeyResolver resolver = new BindingKeyResolver(bindingKeys[i], this, this.lookupEnvironment);
 			resolver.parse(true/*pause after fully qualified name*/);
-			CompilationUnitDeclaration parsedUnit = resolver.getCompilationUnitDeclaration();
+			// If it doesn't have a type name, then it is either an array type, package or base type,
+			// which will definitely not have a compilation unit. 
+			// Short circuiting it early will speed up perf particularly becase the call 
+			// will go crack jars. (theodora)
+			CompilationUnitDeclaration parsedUnit = resolver.hasTypeName() ? 
+					resolver.getCompilationUnitDeclaration() : null;
 			if (parsedUnit != null) {
 				char[] fileName = parsedUnit.compilationResult.getFileName();
 				Object existing = this.requestedKeys.get(fileName);

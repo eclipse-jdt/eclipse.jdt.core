@@ -291,13 +291,9 @@ public final class Messages extends NLS {
 	public static String classformat_new;
 	public static String classformat_iinc;
 	public static String classformat_invokespecial;
-	public static String classformat_invokespecial_compact;
 	public static String classformat_invokeinterface;
-	public static String classformat_invokeinterface_compact;
 	public static String classformat_invokestatic;
-	public static String classformat_invokestatic_compact;
 	public static String classformat_invokevirtual;
-	public static String classformat_invokevirtual_compact;
 	public static String classformat_getfield;
 	public static String classformat_getstatic;
 	public static String classformat_putstatic;
