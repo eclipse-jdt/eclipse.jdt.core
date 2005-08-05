@@ -210,7 +210,7 @@ public class Scanner implements TerminalTokens {
 	public static final char TAG_POSTFIX= '$';
 	public static final int TAG_POSTFIX_LENGTH= 1;
 	public Set nonNLSStrings = null;
-	public Set unnecessaryNONNLSTags = null;
+	public Set unnecessaryNLSTags = null;
 
 	// generic support
 	public boolean returnOnlyGreater = false;
@@ -2280,7 +2280,7 @@ protected void parseTags(boolean hasLineComment) {
 		char[] s = getCurrentTokenSource();
 		int pos = CharOperation.indexOf(TAG_PREFIX, s, true);
 		if (pos != -1) {
-			if (this.unnecessaryNONNLSTags == null) this.unnecessaryNONNLSTags = new HashSet();
+			if (this.unnecessaryNLSTags == null) this.unnecessaryNLSTags = new HashSet();
 			while (pos != -1) {
 				int start = pos + TAG_PREFIX_LENGTH;
 				int end = CharOperation.indexOf(TAG_POSTFIX, s, start);
@@ -2295,12 +2295,12 @@ protected void parseTags(boolean hasLineComment) {
 					if (line != null && line.exists(i)) {
 						line.set(i, null);
 						final NLSTag tag = new NLSTag(pos + this.getCurrentTokenStartPosition(), this.getCurrentTokenStartPosition() + end, NLSTag.USED);
-						if (!this.unnecessaryNONNLSTags.add(tag)) {
-							this.unnecessaryNONNLSTags.remove(tag);
-							this.unnecessaryNONNLSTags.add(tag);
+						if (!this.unnecessaryNLSTags.add(tag)) {
+							this.unnecessaryNLSTags.remove(tag);
+							this.unnecessaryNLSTags.add(tag);
 						}
 					} else {
-						this.unnecessaryNONNLSTags.add(new NLSTag(pos + this.getCurrentTokenStartPosition(), this.getCurrentTokenStartPosition() + end));
+						this.unnecessaryNLSTags.add(new NLSTag(pos + this.getCurrentTokenStartPosition(), this.getCurrentTokenStartPosition() + end));
 					}
 				}
 				pos = CharOperation.indexOf(TAG_PREFIX, s, true, start);

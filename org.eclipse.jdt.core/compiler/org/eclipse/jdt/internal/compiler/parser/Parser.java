@@ -8153,7 +8153,7 @@ public void initialize(boolean initializeNLS) {
 	this.scanner.commentPtr = -1;
 	this.scanner.foundTaskCount = 0;
 	this.scanner.eofPosition = Integer.MAX_VALUE;
-	this.scanner.unnecessaryNONNLSTags = null;
+	this.scanner.unnecessaryNLSTags = null;
 	this.scanner.nonNLSStrings = null;
 	if (initializeNLS && this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/) {
 		this.scanner.currentLine = new NLSLine();
@@ -9124,14 +9124,14 @@ protected void reportNonExternalizedStringLiterals() {
 			problemReporter().nonExternalizedStringLiteral(literals[i]);
 		}
 	}
-	final Set unnecessaryNONNLSTags = this.scanner.unnecessaryNONNLSTags;
-	final int unnecessaryNONNLSTagsSize = unnecessaryNONNLSTags == null ? 0 : unnecessaryNONNLSTags.size();
-	if (unnecessaryNONNLSTagsSize != 0) {
-		NLSTag[] tags = new NLSTag[unnecessaryNONNLSTagsSize];
-		unnecessaryNONNLSTags.toArray(tags);
+	final Set unnecessaryNLSTags = this.scanner.unnecessaryNLSTags;
+	final int unnecessaryNLSTagsSize = unnecessaryNLSTags == null ? 0 : unnecessaryNLSTags.size();
+	if (unnecessaryNLSTagsSize != 0) {
+		NLSTag[] tags = new NLSTag[unnecessaryNLSTagsSize];
+		unnecessaryNLSTags.toArray(tags);
 		// filter out all used nls tags
 		ArrayList arrayList = new ArrayList();
-		for (int i = 0; i < unnecessaryNONNLSTagsSize; i++) {
+		for (int i = 0; i < unnecessaryNLSTagsSize; i++) {
 			NLSTag tag = tags[i];
 			if ((tag.bits & NLSTag.UNUSED) != 0) {
 				arrayList.add(tag);
@@ -9146,11 +9146,11 @@ protected void reportNonExternalizedStringLiterals() {
 		});
 		for (int i = 0, max = arrayList.size(); i < max; i++) {
 			NLSTag tag = (NLSTag) arrayList.get(i); 
-			problemReporter().unnecessaryNONNLSTags(tag.start, tag.end);
+			problemReporter().unnecessaryNLSTags(tag.start, tag.end);
 		}
 	}
 	this.scanner.nonNLSStrings = null;
-	this.scanner.unnecessaryNONNLSTags = null;
+	this.scanner.unnecessaryNLSTags = null;
 	this.scanner.currentLine = null;
 }
 // A P I

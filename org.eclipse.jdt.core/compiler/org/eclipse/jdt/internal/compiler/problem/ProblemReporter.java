@@ -5207,7 +5207,7 @@ public void unnecessaryInstanceof(InstanceOfExpression instanceofExpression, Typ
 		instanceofExpression.sourceStart,
 		instanceofExpression.sourceEnd);
 }
-public void unnecessaryNONNLSTags(int sourceStart, int sourceEnd) {
+public void unnecessaryNLSTags(int sourceStart, int sourceEnd) {
 	// TODO (olivier) enable again after 3.2M1
 	if (true) return;
 	this.handle(
