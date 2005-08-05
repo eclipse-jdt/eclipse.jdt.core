@@ -2321,9 +2321,7 @@ public final void pushLineSeparator() {
 	// cr 000D
 	if (this.currentCharacter == '\r') {
 		int separatorPos = this.currentPosition - 1;
-		//TODO (olivier) david - why the following line was "if ((this.linePtr > 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;" ?
 		if ((this.linePtr >= 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;
-		//System.out.println("CR-" + separatorPos);
 		int length = this.lineEnds.length;
 		if (++this.linePtr >=  length)
 			System.arraycopy(this.lineEnds, 0, this.lineEnds = new int[length + INCREMENT], 0, length);
@@ -2349,9 +2347,7 @@ public final void pushLineSeparator() {
 				this.lineEnds[this.linePtr] = this.currentPosition - 1;
 			} else {
 				int separatorPos = this.currentPosition - 1;
-				//TODO (olivier) david - why the following line was "if ((this.linePtr > 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;" ?
 				if ((this.linePtr >= 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;
-				// System.out.println("LF-" + separatorPos);
 				int length = this.lineEnds.length;
 				if (++this.linePtr >=  length)
 					System.arraycopy(this.lineEnds, 0, this.lineEnds = new int[length + INCREMENT], 0, length);

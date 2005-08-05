@@ -879,7 +879,7 @@ public class TypeDeclaration
 		}
 		if (fields != null) {
 			for (int fieldI = 0; fieldI < fields.length; fieldI++) {
-				if (fields[fieldI] != null) { // TODO (olivier) should improve to deal with enumconstants using ',' separator
+				if (fields[fieldI] != null) {
 					output.append('\n');
 					fields[fieldI].print(indent + 1, output);
 				}
