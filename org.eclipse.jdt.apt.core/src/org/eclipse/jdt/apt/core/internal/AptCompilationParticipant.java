@@ -70,23 +70,29 @@ public class AptCompilationParticipant implements ICompilationParticipant
 
 	public CompilationParticipantResult notify( CompilationParticipantEvent cpe )
 	{	
-		if (!AptConfig.isEnabled(cpe.getJavaProject()))
+        // We need to clean even if we have been disabled. This allows
+		// us to remove our generated source files if we get disabled
+        if ( cpe.getKind() == ICompilationParticipant.CLEAN_EVENT ) {
+            return cleanNotify( cpe );
+        }
+        else if (!AptConfig.isEnabled(cpe.getJavaProject())) {
 			return GENERIC_COMPILATION_RESULT;
-		
-		if ( cpe == null )
+        }
+        else if ( cpe == null ) {
 			return GENERIC_COMPILATION_RESULT;
-
-		else if ( cpe.getKind() == ICompilationParticipant.PRE_BUILD_EVENT )
+		}
+		else if ( cpe.getKind() == ICompilationParticipant.PRE_BUILD_EVENT ) {
 			return preBuildNotify( (PreBuildCompilationEvent) cpe );
-		
-		else if ( cpe.getKind() == ICompilationParticipant.POST_RECONCILE_EVENT )
+		}
+		else if ( cpe.getKind() == ICompilationParticipant.POST_RECONCILE_EVENT ) {
 			return postReconcileNotify( (PostReconcileCompilationEvent) cpe );
-		else if ( cpe.getKind() == ICompilationParticipant.CLEAN_EVENT )
-			return cleanNotify( cpe );
-		else if ( cpe.getKind() == ICompilationParticipant.BROKEN_CLASSPATH_BUILD_FAILURE_EVENT)
+		}
+		else if ( cpe.getKind() == ICompilationParticipant.BROKEN_CLASSPATH_BUILD_FAILURE_EVENT) {
 			return brokenClasspathBuildFailureNotify( (BrokenClasspathBuildFailureEvent) cpe );
-		else 
-			return GENERIC_COMPILATION_RESULT;		
+		}
+		else {
+			return GENERIC_COMPILATION_RESULT;
+		}
 	}
 		
 	private CompilationParticipantResult preBuildNotify( PreBuildCompilationEvent pbce )

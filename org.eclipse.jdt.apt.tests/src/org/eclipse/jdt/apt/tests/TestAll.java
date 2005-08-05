@@ -33,8 +33,7 @@ public class TestAll extends TestCase {
 	{
 		TestSuite suite = new TestSuite();
 		
-		// BUGZILLA 103183 - disabled until type-generation in reconcile is turned on
-		//suite.addTest(AptReconcileTests.suite());
+		suite.addTest(AptReconcileTests.suite());
 		suite.addTest(AptBuilderTests.suite() );
 		suite.addTest(APITests.suite());
 		suite.addTest(MirrorTests.suite());

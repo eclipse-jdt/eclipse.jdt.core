@@ -20,6 +20,8 @@ import java.util.WeakHashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
+import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.IScopeContext;
@@ -401,34 +403,46 @@ public class AptConfig {
 			ChangeListener listener = new ChangeListener(project);
 			projPrefs.addPreferenceChangeListener(listener);
 			((IEclipsePreferences)projPrefs.parent()).addNodeChangeListener(listener);
+            AptPlugin.getPlugin().getPluginPreferences().addPropertyChangeListener(listener);
 		}
 		
 		return options;
 	}
 	
-	private static class ChangeListener implements IPreferenceChangeListener, INodeChangeListener {
+	private static class ChangeListener implements IPreferenceChangeListener, INodeChangeListener, IPropertyChangeListener {
 		private final IProject _proj;
 		public ChangeListener(IProject proj) {
 			_proj = proj;
 		}
 		public void preferenceChange(PreferenceChangeEvent event) {
-			// update the changed value in the options map.
-			Map<String, String> options = _optionsMaps.get(_proj);
-			if (null == options) {
-				return;
-			}
-			options.put(event.getKey(), (String)event.getNewValue());
-			
-			// handle change to generated source directory
-			if ( AptPreferenceConstants.APT_GENSRCDIR.equals( event.getKey() ) ) {
-
-				if ( event.getNewValue() != null && ! event.getNewValue().equals( event.getOldValue())) {
-					GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _proj );
-					gfm.setGeneratedSourceFolderName( (String)event.getNewValue() );
-				}
-			}
-			
+            changePreference(event.getKey(), (String)event.getNewValue(), (String)event.getOldValue());
 		}
+        
+        public void propertyChange(PropertyChangeEvent event) {
+            changePreference(event.getProperty(), (String)event.getNewValue(), (String)event.getOldValue());
+            
+        }
+        
+        private void changePreference(String key, String newValue, String oldValue)
+        {
+            
+            // update the changed value in the options map.
+            Map<String, String> options = _optionsMaps.get(_proj);
+            if (null == options) {
+                return;
+            }
+            options.put(key, newValue);
+            
+            // handle change to generated source directory
+            if ( AptPreferenceConstants.APT_GENSRCDIR.equals( key ) ) {
+
+                if ( newValue != null && ! newValue.equals( oldValue)) {
+                    GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _proj );
+                    gfm.setGeneratedSourceFolderName( newValue );
+                }
+            }  
+        }
+        
 		public void added(NodeChangeEvent event) {
 			// do nothing
 		}
