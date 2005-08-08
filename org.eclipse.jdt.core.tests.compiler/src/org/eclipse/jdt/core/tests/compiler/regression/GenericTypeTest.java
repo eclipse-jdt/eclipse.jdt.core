@@ -23045,5 +23045,36 @@ public void test797() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106284
+public void test798() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.math.BigDecimal;\n" + 
+			"\n" + 
+			"public class X\n" + 
+			"{\n" + 
+			"    private static <T extends Comparable<? super T>> T max(T... elems)\n" + 
+			"    {\n" + 
+			"        T max=null;\n" + 
+			"        for (T elem : elems)\n" + 
+			"            if (max == null || max.compareTo(elem) < 0)\n" + 
+			"                max=elem;\n" + 
+			"        return max;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void main(String[] args)\n" + 
+			"    {\n" + 
+			"        System.out.println(max(1, 2.0, new BigDecimal(Math.PI)));\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 16)\n" + 
+		"	System.out.println(max(1, 2.0, new BigDecimal(Math.PI)));\n" + 
+		"	                   ^^^\n" + 
+		"Bound mismatch: The generic method max(T...) of type X is not applicable for the arguments (Number&Comparable<?>...) since the type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<? super T>>\n" + 
+		"----------\n");
+}
 }
 
