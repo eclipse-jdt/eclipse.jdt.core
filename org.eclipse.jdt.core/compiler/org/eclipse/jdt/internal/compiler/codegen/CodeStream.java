@@ -1798,7 +1798,7 @@ public void generateSyntheticEnclosingInstanceValues(
 		ASTNode invocationSite) {
 
 	// supplying enclosing instance for the anonymous type's superclass
-	ReferenceBinding checkedTargetType = targetType.isAnonymousType() ? targetType.superclass() : targetType;
+	ReferenceBinding checkedTargetType = targetType.isAnonymousType() ? (ReferenceBinding)targetType.superclass().erasure() : targetType;
 	boolean hasExtraEnclosingInstance = enclosingInstance != null;
 	if (hasExtraEnclosingInstance 
 			&& (!checkedTargetType.isNestedType() || checkedTargetType.isStatic())) {

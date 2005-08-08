@@ -22977,5 +22977,73 @@ public void test794() {
 		"The type of the expression must be an array type but it resolved to List<Integer>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106297
+public void test795() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> { \n" + 
+			"		 class B {\n" + 
+			"			 B() {\n" + 
+			"				 System.out.println(\"SUCCESS\");\n" + 
+			"			 }\n" + 
+			"		 }\n" + 
+			"		 static { \n" + 
+			"		 		 new X<String>().new B() {};\n" + 
+			"		 }\n" + 
+			"		 public static void main(String[] args) {\n" + 
+			"			\n" + 
+			"		}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106297 - variation
+public void test796() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> { \n" + 
+			"		 class B {\n" + 
+			"			 B(T t) {\n" + 
+			"				 System.out.println(\"SUCCESS\");\n" + 
+			"			 }\n" + 
+			"		 }\n" + 
+			"		 static { \n" + 
+			"		 		 new X<String>().new B(12) {};\n" + 
+			"		 }\n" + 
+			"		 public static void main(String[] args) {\n" + 
+			"			\n" + 
+			"		}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	new X<String>().new B(12) {};\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The constructor X<String>.B(int) is undefined\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106297 - variation
+public void test797() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> { \n" + 
+			"		 class B {\n" + 
+			"			 B() {\n" + 
+			"				 System.out.println(\"SUCCESS\");\n" + 
+			"			 }\n" + 
+			"		 }\n" + 
+			"		 static { \n" + 
+			"		 		 new X<String>().new B();\n" + 
+			"		 }\n" + 
+			"		 public static void main(String[] args) {\n" + 
+			"			\n" + 
+			"		}\n" + 
+			"}\n",
+		},
+		"SUCCESS");
+}
 }
 
