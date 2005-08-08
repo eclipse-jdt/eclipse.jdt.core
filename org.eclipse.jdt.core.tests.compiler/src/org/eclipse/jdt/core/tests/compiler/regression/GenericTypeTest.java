@@ -22924,6 +22924,59 @@ public void test792() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105635
+public void test793() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X { \n" +
+			"	public java.util.List<Integer> i,j[],k;\n" +
+			"	void m() {\n" +
+			"		  i[0] = null;\n" +
+			"		  j[0] = null;\n" +
+			"		  k[0] = null;\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	i[0] = null;\n" + 
+		"	^^^^\n" + 
+		"The type of the expression must be an array type but it resolved to List<Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	k[0] = null;\n" + 
+		"	^^^^\n" + 
+		"The type of the expression must be an array type but it resolved to List<Integer>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105635
+public void test794() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"class X { \n" +
+			"	public List<Integer> i,j[],k;\n" +
+			"	void m() {\n" +
+			"		  i[0] = null;\n" +
+			"		  j[0] = null;\n" +
+			"		  k[0] = null;\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	i[0] = null;\n" + 
+		"	^^^^\n" + 
+		"The type of the expression must be an array type but it resolved to List<Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	k[0] = null;\n" + 
+		"	^^^^\n" + 
+		"The type of the expression must be an array type but it resolved to List<Integer>\n" + 
+		"----------\n");
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106297
 public void test795() {
 	this.runConformTest(

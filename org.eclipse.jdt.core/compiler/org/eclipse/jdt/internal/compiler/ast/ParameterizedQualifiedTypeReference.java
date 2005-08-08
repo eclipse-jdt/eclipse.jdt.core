@@ -56,10 +56,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		}
 	}
 	public TypeReference copyDims(int dim){
-		//return a type reference copy of me with some dimensions
-		//warning : the new type ref has a null binding
-		this.dimensions = dim;
-		return this;
+		return new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, dim, this.sourcePositions);
 	}	
 	
 	/**
