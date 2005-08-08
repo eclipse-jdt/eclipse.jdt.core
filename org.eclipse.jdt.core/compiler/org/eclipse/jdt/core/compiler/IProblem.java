@@ -525,7 +525,7 @@ public interface IProblem {
 	/** @since 3.1 */
 	int InvalidHighSurrogate = Syntax + Internal + 264;
 	/** @since 3.2 */
-	int UnnecessaryNONNLSTag = Internal + 265;
+	int UnnecessaryNLSTag = Internal + 265;
 
 	// type related problems
 	/** @since 3.1 */

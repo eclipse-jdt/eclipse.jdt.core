@@ -1272,7 +1272,7 @@ public static long getIrritant(int problemID) {
 			return CompilerOptions.AccessEmulation;
 
 		case IProblem.NonExternalizedStringLiteral :
-		case IProblem.UnnecessaryNONNLSTag :
+		case IProblem.UnnecessaryNLSTag :
 			return CompilerOptions.NonExternalizedString;
 
 		case IProblem.UseAssertAsAnIdentifier :
@@ -5211,7 +5211,7 @@ public void unnecessaryNLSTags(int sourceStart, int sourceEnd) {
 	// TODO (olivier) enable again after 3.2M1
 	if (true) return;
 	this.handle(
-		IProblem.UnnecessaryNONNLSTag,
+		IProblem.UnnecessaryNLSTag,
 		NoArgument,
 		NoArgument,
 		sourceStart,
