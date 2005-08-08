@@ -34,7 +34,7 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public byte[] bCodeStream;
 	public int pcToSourceMapSize;
 	public int[] pcToSourceMap = new int[24];
-	public int lastEntryPC; // last entry recorded
+	public int lastEntryPC; // last entry recorded 
 	public int[] lineSeparatorPositions;
 	public int position; // So when first set can be incremented
 	public int classFileOffset;
