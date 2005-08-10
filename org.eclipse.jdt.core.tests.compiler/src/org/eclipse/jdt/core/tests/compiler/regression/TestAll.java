@@ -31,7 +31,6 @@ public static Test suite() {
 //	standardTests.addAll(JavadocTest.allTestClasses);
 	standardTests.add(ArrayTest.class);
 	standardTests.add(AssignmentTest.class);
-	standardTests.add(BatchCompilerTest.class);
 	standardTests.add(BooleanTest.class);
 	standardTests.add(CastTest.class);
 	standardTests.add(ClassFileComparatorTest.class);
@@ -89,6 +88,7 @@ public static Test suite() {
 		tests_1_5.add(GenericTypeSignatureTest.class);
 		tests_1_5.add(InternalHexFloatTest.class);
 		tests_1_5.add(JavadocTest_1_5.class);
+		tests_1_5.add(BatchCompilerTest.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
