@@ -583,6 +583,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public int logProblems(IProblem[] problems, char[] unitSource, Main currentMain) {
 			final int count = problems.length;
 			int localErrorCount = 0;
+			int localProblemCount = 0;
 			if (count != 0) {
 				if (this.isXml) {
 					int errors = 0;
@@ -592,9 +593,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						IProblem problem = problems[i];
 						if (problem != null) {
 							currentMain.globalProblemsCount++;
-							this.logProblem(problem, localErrorCount, currentMain.globalProblemsCount, unitSource);
-							localErrorCount++;							
+							this.logProblem(problem, localProblemCount, currentMain.globalProblemsCount, unitSource);
+							localProblemCount++;
 							if (problem.isError()) {
+								localErrorCount++;							
 								errors++;
 								currentMain.globalErrorsCount++;
 							} else if (problem.getID() == IProblem.Task) {
@@ -634,9 +636,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					for (int i = 0; i < count; i++) {
 						if (problems[i] != null) {
 							currentMain.globalProblemsCount++;
-							this.logProblem(problems[i], localErrorCount, currentMain.globalProblemsCount, unitSource);
-							localErrorCount++;
+							this.logProblem(problems[i], localProblemCount, currentMain.globalProblemsCount, unitSource);
+							localProblemCount++;
 							if (problems[i].isError()) {
+								localErrorCount++;
 								currentMain.globalErrorsCount++;
 							} else {
 								currentMain.globalWarningsCount++;
