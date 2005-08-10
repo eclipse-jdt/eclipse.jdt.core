@@ -270,7 +270,7 @@ public class CodeByteStream {
 			throw new IllegalArgumentException();
 		int temp= value;
 		int numBits= 0;
-		while (temp != 0) {
+		while (temp != 0) { // log2(N) is also the rank of highest bit set
 			temp >>>= 1;
 			++numBits;
 		}
