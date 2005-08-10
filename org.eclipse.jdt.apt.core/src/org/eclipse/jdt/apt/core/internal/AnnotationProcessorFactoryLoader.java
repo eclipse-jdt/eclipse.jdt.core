@@ -38,20 +38,28 @@ public class AnnotationProcessorFactoryLoader {
     private static final String[] AUTOLOAD_SERVICES = {
         "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory" //$NON-NLS-1$
     };
-	
-	/** map of plugin names -> factories */
-	private static final HashMap<String, AnnotationProcessorFactory> PLUGIN_FACTORY_MAP = new HashMap<String, AnnotationProcessorFactory>();
-	
-	/** Loader instance -- holds all workspace and project data */
+    
+    private static boolean VERBOSE_LOAD = false;
+    
+    /** Loader instance -- holds all workspace and project data */
 	private static AnnotationProcessorFactoryLoader LOADER;
 	
-	private static boolean VERBOSE_LOAD = false;
 	
 	// Members -- workspace and project data	
 	
-	private final Map<IJavaProject, List<AnnotationProcessorFactory>> _project2Factories = new HashMap<IJavaProject, List<AnnotationProcessorFactory>>();
+	/** map of plugin names -> factories */
+	private final HashMap<String, AnnotationProcessorFactory> _pluginFactoryMap = 
+		new HashMap<String, AnnotationProcessorFactory>();
+	
+	private final Map<IJavaProject, List<AnnotationProcessorFactory>> _project2Factories = 
+		new HashMap<IJavaProject, List<AnnotationProcessorFactory>>();
+	
 	private final Set<IJavaProject> _projectsLoaded = new HashSet<IJavaProject>();
-
+	
+    private final Map<IJavaProject, ClassLoader> _classLoaderMap = 
+    	new HashMap<IJavaProject, ClassLoader>();
+    
+    
 	/** 
 	 * Singleton
 	 */
@@ -84,18 +92,24 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		// Load the project
 		List<FactoryContainer> containers = FactoryPath.getEnabledContainers(jproj);
-		factories = loadFactories(containers);
+		factories = loadFactories(containers, jproj);
 		_projectsLoaded.add(jproj);
 		_project2Factories.put(jproj, factories);
 		return factories;
     	
     }
     
+    public ClassLoader getClassLoaderForJavaProject(IJavaProject project)
+    {
+        return _classLoaderMap.get(project);
+    }
     
-	private static List<AnnotationProcessorFactory> loadFactories( List<FactoryContainer> containers )
+    
+	private List<AnnotationProcessorFactory> loadFactories( List<FactoryContainer> containers, IJavaProject project )
 	{
 		List<AnnotationProcessorFactory> factories = new ArrayList(containers.size());
 		ClassLoader classLoader = _createClassLoader( containers );
+        _classLoaderMap.put(project, classLoader);
 		for ( FactoryContainer fc : containers )
 		{
 			List<AnnotationProcessorFactory> f = loadFactoryClasses( fc, classLoader );
@@ -105,7 +119,7 @@ public class AnnotationProcessorFactoryLoader {
 		return factories;
 	}
 	
-	private static List<AnnotationProcessorFactory> loadFactoryClasses( FactoryContainer fc, ClassLoader classLoader )
+	private List<AnnotationProcessorFactory> loadFactoryClasses( FactoryContainer fc, ClassLoader classLoader )
 	{
 		List<String> factoryNames = fc.getFactoryNames();
 		List<AnnotationProcessorFactory> factories = new ArrayList<AnnotationProcessorFactory>( factoryNames.size() ); 
@@ -123,9 +137,9 @@ public class AnnotationProcessorFactoryLoader {
 		return factories;
 	}
 	
-	private static AnnotationProcessorFactory loadFactoryFromPlugin( String factoryName )
+	private AnnotationProcessorFactory loadFactoryFromPlugin( String factoryName )
 	{
-		AnnotationProcessorFactory apf = PLUGIN_FACTORY_MAP.get( factoryName );
+		AnnotationProcessorFactory apf = _pluginFactoryMap.get( factoryName );
 		if ( apf == null ) 
 		{
 			String s = "could not find AnnotationProcessorFactory " +  //$NON-NLS-1$
@@ -135,7 +149,7 @@ public class AnnotationProcessorFactoryLoader {
 		return apf;
 	}
 
-	private static AnnotationProcessorFactory loadFactoryFromClassLoader( String factoryName, ClassLoader cl )
+	private AnnotationProcessorFactory loadFactoryFromClassLoader( String factoryName, ClassLoader cl )
 	{
 		AnnotationProcessorFactory f = null;
 		try
@@ -157,7 +171,7 @@ public class AnnotationProcessorFactoryLoader {
 		return f;
 	}
 	
-	private static ClassLoader _createClassLoader( Collection<? extends FactoryContainer> containers )
+	private ClassLoader _createClassLoader( Collection<? extends FactoryContainer> containers )
 	{
 		ArrayList<URL> urlList = new ArrayList<URL>( containers.size() );
 		for ( FactoryContainer fc : containers ) 
@@ -182,7 +196,7 @@ public class AnnotationProcessorFactoryLoader {
 		{
 			URL[] urls = urlList.toArray(new URL[urlList.size()]);
 			cl = new URLClassLoader( urls, AnnotationProcessorFactoryLoader.class.getClassLoader() );
-		}
+        }
 		return cl;
 	}
 	
@@ -196,7 +210,7 @@ public class AnnotationProcessorFactoryLoader {
 	 * do a full rediscovery.
 	 */
 	private void loadPluginFactoryMap() {
-		assert PLUGIN_FACTORY_MAP.size() == 0 : "loadPluginFactoryMap() called more than once"; //$NON-NLS-1$
+		assert _pluginFactoryMap.size() == 0 : "loadPluginFactoryMap() called more than once"; //$NON-NLS-1$
 
 		// TODO: what follows is extremely similar to FactoryPathUtil#getAllPluginFactoryContainers().
 		// Surely there is some way to share that code?  The main difference is that there we don't 
@@ -223,7 +237,7 @@ public class AnnotationProcessorFactoryLoader {
 					try {
 						Object execExt = factory.createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
 						if (execExt instanceof AnnotationProcessorFactory){
-							PLUGIN_FACTORY_MAP.put( execExt.getClass().getName(), (AnnotationProcessorFactory)execExt );
+							_pluginFactoryMap.put( execExt.getClass().getName(), (AnnotationProcessorFactory)execExt );
 						}
 					} catch(CoreException e) {
 							e.printStackTrace();
@@ -247,7 +261,7 @@ public class AnnotationProcessorFactoryLoader {
      * @param jar the jar file.
      * @return a list, possibly empty, of fully qualified classnames to be instantiated.
      */
-    private static List<String> _getServiceClassnamesFromJar(File jar)
+    private List<String> _getServiceClassnamesFromJar(File jar)
     {
         List<String> classNames = new ArrayList<String>();
         JarFile jarFile = null;

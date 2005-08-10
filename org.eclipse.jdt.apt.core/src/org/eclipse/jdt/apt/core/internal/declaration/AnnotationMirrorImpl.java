@@ -20,11 +20,25 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IResolvedAnnotation;
+import org.eclipse.jdt.core.dom.IResolvedMemberValuePair;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MemberValuePair;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
+import org.eclipse.jdt.core.dom.TypeLiteral;
 
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
@@ -262,7 +276,11 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
             final ITypeBinding declaringClass = varBinding.getDeclaringClass();
             if( declaringClass != null ){
                 final String className = new String( declaringClass.getBinaryName() );
-                final Class clazz = value.getClass().getClassLoader().loadClass( className );
+
+                IJavaProject project = declaringClass.getJavaElement().getJavaProject();
+                ClassLoader classLoader = AnnotationProcessorFactoryLoader.getLoader().getClassLoaderForJavaProject(project);
+                Class clazz = classLoader.loadClass(className);
+         
                 final Field returnedField = clazz.getField( varBinding.getName() );
                 if( returnedField.getType() != targetType )
                     throw new ClassCastException( targetType.getName() );
