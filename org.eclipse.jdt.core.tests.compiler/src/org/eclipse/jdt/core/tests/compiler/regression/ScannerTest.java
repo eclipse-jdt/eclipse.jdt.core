@@ -25,8 +25,16 @@ public class ScannerTest extends AbstractRegressionTest {
 	public ScannerTest(String name) {
 		super(name);
 	}
+	// Static initializer to specify tests subset using TESTS_* static variables
+	// All specified tests which does not belong to the class are skipped...
+	static {
+//		TESTS_NAMES = new String[] { "test000" };
+//		TESTS_NUMBERS = new int[] { 41 };
+//		TESTS_RANGE = new int[] { 11, -1 };
+	}
+	
 	public static Test suite() {
-		return setupSuite(testClass());
+		return buildTestSuite(testClass());
 	}
 
 	public static Class testClass() {
@@ -734,6 +742,124 @@ public class ScannerTest extends AbstractRegressionTest {
 					"\\u007d"
 				},
 				"1true");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106403
+	public void test036() {
+		try {
+			IScanner s = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
+			char[] source = { ';', ' ' };
+			s.setSource(source);
+			s.resetTo(0, 0);
+			int token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameSEMICOLON, token);
+			char[] tokenSource = s.getCurrentTokenSource();
+			assertEquals("wront size", 1, tokenSource.length);
+			assertEquals("Wrong character", ';', tokenSource[0]);
+			token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameEOF, token);
+		} catch (InvalidInputException e) {
+			assertTrue("Should not happen", false);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106403
+	public void test037() {
+		try {
+			IScanner s = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
+			char[] source = { ';', ' ' };
+			s.setSource(source);
+			int token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameSEMICOLON, token);
+			char[] tokenSource = s.getCurrentTokenSource();
+			assertEquals("wront size", 1, tokenSource.length);
+			assertEquals("Wrong character", ';', tokenSource[0]);
+			token = s.getNextToken();
+			tokenSource = s.getCurrentTokenSource();
+			assertEquals("wront size", 1, tokenSource.length);
+			assertEquals("Wrong character", ' ', tokenSource[0]);
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, token);
+			token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameEOF, token);
+		} catch (InvalidInputException e) {
+			assertTrue("Should not happen", false);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106403
+	public void test038() {
+		try {
+			IScanner s = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
+			char[] source = { ';', ' ' };
+			s.setSource(source);
+			s.resetTo(0, 1);
+			int token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameSEMICOLON, token);
+			char[] tokenSource = s.getCurrentTokenSource();
+			assertEquals("wront size", 1, tokenSource.length);
+			assertEquals("Wrong character", ';', tokenSource[0]);
+			token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, token);
+			tokenSource = s.getCurrentTokenSource();
+			assertEquals("wront size", 1, tokenSource.length);
+			assertEquals("Wrong character", ' ', tokenSource[0]);
+			token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameEOF, token);
+		} catch (InvalidInputException e) {
+			assertTrue("Should not happen", false);
+		}
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106403
+	public void test039() {
+		try {
+			IScanner s = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
+			char[] source = { ';', ' ' };
+			s.setSource(source);
+			s.resetTo(1, 1);
+			int token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameWHITESPACE, token);
+			char[] tokenSource = s.getCurrentTokenSource();
+			assertEquals("wront size", 1, tokenSource.length);
+			assertEquals("Wrong character", ' ', tokenSource[0]);
+			token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameEOF, token);
+		} catch (InvalidInputException e) {
+			assertTrue("Should not happen", false);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106403
+	public void test040() {
+		try {
+			IScanner s = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
+			char[] source = { ';', ' ' };
+			s.setSource(source);
+			s.resetTo(2, 1);
+			int token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameEOF, token);
+		} catch (InvalidInputException e) {
+			assertTrue("Should not happen", false);
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106403
+	public void test041() {
+		try {
+			IScanner s = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
+			char[] source = "\\u003B\\u0020".toCharArray();
+			assertEquals("wrong size", 12, source.length);
+			s.setSource(source);
+			s.resetTo(0, 5);
+			int token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameSEMICOLON, token);
+			char[] tokenSource = s.getRawTokenSource();
+			assertEquals("wront size", 6, tokenSource.length);
+			assertEquals("Wrong character", "\\u003B", new String(tokenSource));
+			token = s.getNextToken();
+			assertEquals("Wrong token", ITerminalSymbols.TokenNameEOF, token);
+		} catch (InvalidInputException e) {
+			assertTrue("Should not happen", false);
+		}
 	}
 }
 
