@@ -34,6 +34,7 @@ import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.service.prefs.BackingStoreException;
 
@@ -112,10 +113,17 @@ public class AptConfig {
      * AnnotationProcessorEnvironment.  The -A and = are stripped out, so 
      * (key, value) is the equivalent of -Akey=value.
      * 
-     * The options returned by this method include -Aclasspath and -Asourcepath, 
-     * which are set programmatically but are not directly editable, are not 
-     * displayed in the configuration GUI, and are not persisted to the
-     * preference store.
+     * This method returns some options which are set programmatically but 
+     * are not directly editable, are not displayed in the configuration GUI, 
+     * and are not persisted to the preference store.  This is meant to
+     * emulate the behavior of Sun's apt command-line tool, which passes
+     * most of its command line options to the processor environment.  The
+     * programmatically set options are:
+     *  -classpath [set to Java build path]
+     *  -s [set to generated src dir]
+     *  -d [set to binary output dir]
+     *  -target [set to compiler target version]
+     *  -source [set to compiler source version]
      * 
      * @param jproj a project, or null to query the workspace-wide setting.
      * @return a mutable, possibly empty, map of (key, value) pairs.  
@@ -125,6 +133,10 @@ public class AptConfig {
     public static Map<String, String> getProcessorOptions(IJavaProject jproj) {
     	Map<String,String> options;
     	options = getRawProcessorOptions(jproj);
+    	if (jproj == null) {
+    		// there are no programmatically set options at the workspace level
+    		return options;
+    	}
     	
     	// Add sourcepath and classpath variables
     	try {
@@ -154,8 +166,15 @@ public class AptConfig {
     				sourcepathSB.append(entry.getPath().toFile().getAbsolutePath());
     			}
     		}
-    		options.put("classpath",classpathSB.toString()); //$NON-NLS-1$
-    		options.put("sourcepath", sourcepathSB.toString()); //$NON-NLS-1$
+    		options.put("-classpath",classpathSB.toString()); //$NON-NLS-1$
+    		options.put("-sourcepath", sourcepathSB.toString()); //$NON-NLS-1$
+    		options.put("-s", getString(jproj, AptPreferenceConstants.APT_GENSRCDIR)); //$NON-NLS-1$
+    		String binDir = jproj.getOutputLocation().toString();
+    		options.put("-d", binDir); //$NON-NLS-1$
+    		String target = jproj.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true);
+    		options.put("-target", target); //$NON-NLS-1$
+    		String source = jproj.getOption(JavaCore.COMPILER_SOURCE, true);
+    		options.put("-source", source); //$NON-NLS-1$
     	}
     	catch (JavaModelException jme) {
     		AptPlugin.log(jme, "Could not get the classpath for project: " + jproj); //$NON-NLS-1$

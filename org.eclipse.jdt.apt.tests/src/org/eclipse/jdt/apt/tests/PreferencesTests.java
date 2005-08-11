@@ -26,6 +26,7 @@ import org.eclipse.jdt.apt.core.FactoryContainer;
 import org.eclipse.jdt.apt.core.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.apt.core.util.FactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Tests;
@@ -149,21 +150,33 @@ public class PreferencesTests extends Tests {
 	}
 	
 	/**
-	 * Test the config API for classpath and sourcepath options.
-	 * We expect to find both available and filled in
+	 * Test the config API for automatically generated options.
 	 */
 	@SuppressWarnings("nls")
-	public void testClassAndSourcepathOptions() throws Exception {
+	public void testAutomaticOptions() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		Map<String,String> options = AptConfig.getProcessorOptions(jproj);
 		
-		String classpath = options.get("classpath");
+		String classpath = options.get("-classpath");
 		assertNotNull(classpath);
 		assertTrue(classpath.length() > 0);
 		
-		String sourcepath = options.get("sourcepath");
+		String sourcepath = options.get("-sourcepath");
 		assertNotNull(sourcepath);
 		assertTrue(sourcepath.length() > 0);
+		
+		String target = options.get("-target");
+		assertEquals(target, "1.5");
+		
+		String source = options.get("-source");
+		assertEquals(source, "1.5");
+		
+		String bindir = options.get("-d");
+		assertEquals(bindir, "/org.eclipse.jdt.apt.tests.PreferencesTestsProject/bin");
+		
+		String gensrcdirAuto = options.get("-s");
+		String gensrcdirSet = AptConfig.getString(jproj, AptPreferenceConstants.APT_GENSRCDIR);
+		assertEquals(gensrcdirAuto, gensrcdirSet);
 	}
 	
 }
