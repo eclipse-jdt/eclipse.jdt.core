@@ -3954,7 +3954,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	x = identity(x);\n" + 
 			"	    ^^^^^^^^\n" + 
-			"Bound mismatch: The generic method identity(X<P>) of type X<T> is not applicable for the arguments (X<capture-of ? extends X>) since the type capture-of ? extends X is not a valid substitute for the bounded parameter <P extends AX>\n" + 
+			"Bound mismatch: The generic method identity(X<P>) of type X<T> is not applicable for the arguments (X<capture-of ? extends X>). The inferred type capture-of ? extends X is not a valid substitute for the bounded parameter <P extends AX>\n" + 
 			"----------\n");
 	}			
 	public void test143() {
@@ -4144,7 +4144,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	new X().foo(args, new ArrayList<String>());\n" + 
 			"	        ^^^\n" + 
-			"Bound mismatch: The generic method foo(T[], List<T>) of type X is not applicable for the arguments (String[], List<String>) since the type String is not a valid substitute for the bounded parameter <T extends X>\n" + 
+			"Bound mismatch: The generic method foo(T[], List<T>) of type X is not applicable for the arguments (String[], ArrayList<String>). The inferred type String is not a valid substitute for the bounded parameter <T extends X>\n" + 
 			"----------\n");
 	}			
 	public void test151() {
@@ -4166,7 +4166,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	new X<Object>(args, new ArrayList<String>());\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Bound mismatch: The generic constructor X(T[], List<T>) of type X<E> is not applicable for the arguments (String[], List<String>) since the type String is not a valid substitute for the bounded parameter <T extends X>\n" + 
+			"Bound mismatch: The generic constructor X(T[], List<T>) of type X<E> is not applicable for the arguments (String[], ArrayList<String>). The inferred type String is not a valid substitute for the bounded parameter <T extends X>\n" + 
 			"----------\n");
 	}
 	// 60556
@@ -5159,7 +5159,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	System.out.println(new X().<String, X>foo(\"SUCCESS\", null));\n" + 
 			"	                                      ^^^\n" + 
-			"Bound mismatch: The generic method foo(T, U) of type X is not applicable for the arguments (String, X) since the type X is not a valid substitute for the bounded parameter <U extends String>\n" + 
+			"Bound mismatch: The generic method foo(T, U) of type X is not applicable for the arguments (String, null). The inferred type X is not a valid substitute for the bounded parameter <U extends String>\n" + 
 			"----------\n");
 	}			
 	// invalid type argument arity for parameterized message send
@@ -11434,12 +11434,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"\n" + 
 				"}",
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	foo();\n" + 
-		"	^^^\n" + 
-		"Bound mismatch: The generic method foo() of type X is not applicable for the arguments () since the type X is not a valid substitute for the bounded parameter <U extends X & Runnable>\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	foo();\n" + 
+			"	^^^\n" + 
+			"Bound mismatch: The generic method foo() of type X is not applicable for the arguments (). The inferred type X is not a valid substitute for the bounded parameter <U extends X & Runnable>\n" + 
+			"----------\n");
 	}	
 	
 	public void test424() {
@@ -13618,7 +13618,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	new X().nextTry(i, n);\n" + 
 			"	        ^^^^^^^\n" + 
-			"Bound mismatch: The generic method nextTry(I, N) of type X is not applicable for the arguments (Integer, Number) since the type Number is not a valid substitute for the bounded parameter <N extends I>\n" + 
+			"Bound mismatch: The generic method nextTry(I, N) of type X is not applicable for the arguments (Integer, Number). The inferred type Number is not a valid substitute for the bounded parameter <N extends I>\n" + 
 			"----------\n");
 	}	
 	
@@ -17207,7 +17207,7 @@ public void test500(){
 			"2. ERROR in X.java (at line 15)\n" + 
 			"	Collections.sort (lStr);\n" + 
 			"	            ^^^^\n" + 
-			"Bound mismatch: The generic method sort(List<T>) of type Collections is not applicable for the arguments (List<Comparable<String>>) since the type Comparable<String> is not a valid substitute for the bounded parameter <T extends Comparable<? super T>>\n" + 
+			"Bound mismatch: The generic method sort(List<T>) of type Collections is not applicable for the arguments (List<Comparable<String>>). The inferred type Comparable<String> is not a valid substitute for the bounded parameter <T extends Comparable<? super T>>\n" + 
 			"----------\n");
 	}	
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84284 - check warnings
@@ -17856,7 +17856,7 @@ public void test617() {
 			"1. ERROR in X.java (at line 8)\n" + 
 			"	System.out.println(Enum.valueOf(c, \"CLASS\"));\n" + 
 			"	                        ^^^^^^^\n" + 
-			"Bound mismatch: The generic method valueOf(Class<T>, String) of type Enum<E> is not applicable for the arguments (Class<capture-of ? extends Enum<?>>, String) since the type capture-of ? extends Enum<?> is not a valid substitute for the bounded parameter <T extends Enum<T>>\n" + 
+			"Bound mismatch: The generic method valueOf(Class<T>, String) of type Enum<E> is not applicable for the arguments (Class<capture-of ? extends Enum<?>>, String). The inferred type capture-of ? extends Enum<?> is not a valid substitute for the bounded parameter <T extends Enum<T>>\n" + 
 			"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982
@@ -21462,22 +21462,22 @@ public void test742() {
 		"1. ERROR in X.java (at line 24)\n" + 
 		"	List<SubType> lsub = makeSingletonList(new SubType()); // #3 - ERROR\n" + 
 		"	                     ^^^^^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method makeSingletonList(T) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
+		"Bound mismatch: The generic method makeSingletonList(T) of type X is not applicable for the arguments (X.SubType). The inferred type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 25)\n" + 
 		"	makeSingletonList(new SubType()); // #4 - ERROR\n" + 
 		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method makeSingletonList(T) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
+		"Bound mismatch: The generic method makeSingletonList(T) of type X is not applicable for the arguments (X.SubType). The inferred type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 26)\n" + 
 		"	makeSingletonList2(new SubType()); // #5 - ERROR\n" + 
 		"	^^^^^^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method makeSingletonList2(S) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
+		"Bound mismatch: The generic method makeSingletonList2(S) of type X is not applicable for the arguments (X.SubType). The inferred type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 28)\n" + 
 		"	lsub = makeSingletonList2(new SubType()); // #7 - ERROR\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method makeSingletonList2(S) of type X is not applicable for the arguments (X.SubType) since the type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
+		"Bound mismatch: The generic method makeSingletonList2(S) of type X is not applicable for the arguments (X.SubType). The inferred type X.SubType is not a valid substitute for the bounded parameter <T extends X.SelfType<T>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99553
@@ -22746,7 +22746,7 @@ public void test785() {
 		"1. ERROR in X.java (at line 8)\n" + 
 		"	getLonger(list, set);\n" + 
 		"	^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method getLonger(T, T) of type X is not applicable for the arguments (AbstractCollection<? extends Object>&Cloneable&Serializable, AbstractCollection<? extends Object>&Cloneable&Serializable) since the type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends Number>>\n" + 
+		"Bound mismatch: The generic method getLonger(T, T) of type X is not applicable for the arguments (HashSet<capture-of ?>, ArrayList<capture-of ?>). The inferred type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends Number>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103528 - variation
@@ -22784,10 +22784,10 @@ public void test787() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\r\n" + 
-		"	getLonger(list, set);\r\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	getLonger(list, set);\n" + 
 		"	^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method getLonger(T, T) of type X<U> is not applicable for the arguments (AbstractCollection<? extends Object>&Cloneable&Serializable, AbstractCollection<? extends Object>&Cloneable&Serializable) since the type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends U>>\n" + 
+		"Bound mismatch: The generic method getLonger(T, T) of type X<U> is not applicable for the arguments (HashSet<capture-of ?>, ArrayList<capture-of ?>). The inferred type AbstractCollection<? extends Object>&Cloneable&Serializable is not a valid substitute for the bounded parameter <T extends Collection<? extends U>>\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103994
@@ -22878,12 +22878,12 @@ public void test790() {
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	if (isGreater(i, d)) \n" + 
 		"	    ^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Number&Comparable<?>, Number&Comparable<?>) since the type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" + 
+		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Integer, Double). The inferred type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 15)\n" + 
 		"	isGreater(c1, c2);\n" + 
 		"	^^^^^^^^^\n" + 
-		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Comparable<? extends Number>, Comparable<? extends Number>) since the type Comparable<? extends Number> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" + 
+		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Comparable<capture-of ? extends Number>, Comparable<capture-of ? extends Number>). The inferred type Comparable<? extends Number> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 20)\n" + 
 		"	isGreater(c1, c2);\n" + 
@@ -23073,7 +23073,7 @@ public void test798() {
 		"1. ERROR in X.java (at line 16)\n" + 
 		"	System.out.println(max(1, 2.0, new BigDecimal(Math.PI)));\n" + 
 		"	                   ^^^\n" + 
-		"Bound mismatch: The generic method max(T...) of type X is not applicable for the arguments (Number&Comparable<?>...) since the type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<? super T>>\n" + 
+		"Bound mismatch: The generic method max(T...) of type X is not applicable for the arguments (Integer, Double, BigDecimal). The inferred type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<? super T>>\n" + 
 		"----------\n");
 }
 }

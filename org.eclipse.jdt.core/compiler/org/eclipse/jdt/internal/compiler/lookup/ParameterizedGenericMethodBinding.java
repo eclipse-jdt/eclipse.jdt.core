@@ -90,7 +90,12 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				switch (typeVariable.boundCheck(methodSubstitute, substitute)) {
 					case TypeConstants.MISMATCH :
 				        // incompatible due to bound check
-				        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, new TypeBinding[]{substitute, typeVariables[i] }, ParameterBoundMismatch);
+						int argLength = arguments.length;
+						TypeBinding[] augmentedArguments = new TypeBinding[argLength + 2]; // append offending substitute and typeVariable 
+						System.arraycopy(arguments, 0, augmentedArguments, 0, argLength);
+						augmentedArguments[argLength] = substitute;
+						augmentedArguments[argLength+1] = typeVariable;
+				        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, augmentedArguments, ParameterBoundMismatch);
 					case TypeConstants.UNCHECKED :
 						// tolerate unchecked bounds
 						methodSubstitute.isUnchecked = true;
