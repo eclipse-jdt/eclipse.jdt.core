@@ -3319,24 +3319,29 @@ public void javadocInvalidConstructor(Statement statement, MethodBinding targetC
 			problemConstructor = (ProblemMethodBinding) targetConstructor;
 			ParameterizedGenericMethodBinding substitutedConstructor = (ParameterizedGenericMethodBinding) problemConstructor.closestMatch;
 			shownConstructor = substitutedConstructor.original();
-			TypeBinding typeArgument = targetConstructor.parameters[0];
-			TypeVariableBinding typeParameter = (TypeVariableBinding) targetConstructor.parameters[1];
+			
+			int augmentedLength = problemConstructor.parameters.length;
+			TypeBinding inferredTypeArgument = problemConstructor.parameters[augmentedLength-2];
+			TypeVariableBinding typeParameter = (TypeVariableBinding) problemConstructor.parameters[augmentedLength-1];
+			TypeBinding[] invocationArguments = new TypeBinding[augmentedLength-2]; // remove extra info from the end
+			System.arraycopy(problemConstructor.parameters, 0, invocationArguments, 0, augmentedLength-2);
+			
 			this.handle(
 				IProblem.JavadocGenericConstructorTypeArgumentMismatch,
 				new String[] { 
 				        new String(shownConstructor.declaringClass.sourceName()),
 				        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, false), 
 				        new String(shownConstructor.declaringClass.readableName()), 
-				        typesAsString(substitutedConstructor.isVarargs(), substitutedConstructor.parameters, false), 
-				        new String(typeArgument.readableName()), 
+				        typesAsString(false, invocationArguments, false), 
+				        new String(inferredTypeArgument.readableName()), 
 				        new String(typeParameter.sourceName), 
 				        parameterBoundAsString(typeParameter, false) },
 				new String[] { 
 				        new String(shownConstructor.declaringClass.sourceName()),
 				        typesAsString(shownConstructor.isVarargs(), shownConstructor.parameters, true), 
 				        new String(shownConstructor.declaringClass.shortReadableName()), 
-				        typesAsString(substitutedConstructor.isVarargs(), substitutedConstructor.parameters, true), 
-				        new String(typeArgument.shortReadableName()), 
+				        typesAsString(false, invocationArguments, true), 
+				        new String(inferredTypeArgument.shortReadableName()), 
 				        new String(typeParameter.sourceName), 
 				        parameterBoundAsString(typeParameter, true) },
 				sourceStart,
@@ -3515,24 +3520,27 @@ public void javadocInvalidMethod(MessageSend messageSend, MethodBinding method, 
 			problemMethod = (ProblemMethodBinding) method;
 			ParameterizedGenericMethodBinding substitutedMethod = (ParameterizedGenericMethodBinding) problemMethod.closestMatch;
 			shownMethod = substitutedMethod.original();
-			TypeBinding typeArgument = method.parameters[0];
-			TypeVariableBinding typeParameter = (TypeVariableBinding) method.parameters[1];
+			int augmentedLength = problemMethod.parameters.length;
+			TypeBinding inferredTypeArgument = problemMethod.parameters[augmentedLength-2];
+			TypeVariableBinding typeParameter = (TypeVariableBinding) problemMethod.parameters[augmentedLength-1];
+			TypeBinding[] invocationArguments = new TypeBinding[augmentedLength-2]; // remove extra info from the end
+			System.arraycopy(problemMethod.parameters, 0, invocationArguments, 0, augmentedLength-2);
 			this.handle(
 				IProblem.JavadocGenericMethodTypeArgumentMismatch,
 				new String[] { 
 				        new String(shownMethod.selector),
 				        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, false), 
 				        new String(shownMethod.declaringClass.readableName()), 
-				        typesAsString(substitutedMethod.isVarargs(), substitutedMethod.parameters, false), 
-				        new String(typeArgument.readableName()), 
+				        typesAsString(false, invocationArguments, false), 
+				        new String(inferredTypeArgument.readableName()), 
 				        new String(typeParameter.sourceName), 
 				        parameterBoundAsString(typeParameter, false) },
 				new String[] { 
 				        new String(shownMethod.selector),
 				        typesAsString(shownMethod.isVarargs(), shownMethod.parameters, true), 
 				        new String(shownMethod.declaringClass.shortReadableName()), 
-				        typesAsString(substitutedMethod.isVarargs(), substitutedMethod.parameters, true), 
-				        new String(typeArgument.shortReadableName()), 
+				        typesAsString(false, invocationArguments, true), 
+				        new String(inferredTypeArgument.shortReadableName()), 
 				        new String(typeParameter.sourceName), 
 				        parameterBoundAsString(typeParameter, true) },
 				(int) (messageSend.nameSourcePosition >>> 32),
