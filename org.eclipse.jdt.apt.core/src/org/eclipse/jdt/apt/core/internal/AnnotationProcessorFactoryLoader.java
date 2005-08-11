@@ -19,10 +19,10 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.FactoryContainer;
 import org.eclipse.jdt.apt.core.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.util.FactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -38,22 +38,17 @@ public class AnnotationProcessorFactoryLoader {
     private static final String[] AUTOLOAD_SERVICES = {
         "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory" //$NON-NLS-1$
     };
-    
-    private static boolean VERBOSE_LOAD = false;
-    
-    /** Loader instance -- holds all workspace and project data */
+	
+	/** Loader instance -- holds all workspace and project data */
 	private static AnnotationProcessorFactoryLoader LOADER;
 	
+	private static boolean VERBOSE_LOAD = false;
 	
 	// Members -- workspace and project data	
 	
-	/** map of plugin names -> factories */
-	private final HashMap<String, AnnotationProcessorFactory> _pluginFactoryMap = 
-		new HashMap<String, AnnotationProcessorFactory>();
-	
 	private final Map<IJavaProject, List<AnnotationProcessorFactory>> _project2Factories = 
 		new HashMap<IJavaProject, List<AnnotationProcessorFactory>>();
-	
+
 	private final Set<IJavaProject> _projectsLoaded = new HashSet<IJavaProject>();
 	
     private final Map<IJavaProject, ClassLoader> _classLoaderMap = 
@@ -70,7 +65,7 @@ public class AnnotationProcessorFactoryLoader {
     }
     
     private AnnotationProcessorFactoryLoader() {
-    	loadPluginFactoryMap();
+    	FactoryPathUtil.loadPluginFactories();
     }
     
     /**
@@ -104,7 +99,6 @@ public class AnnotationProcessorFactoryLoader {
         return _classLoaderMap.get(project);
     }
     
-    
 	private List<AnnotationProcessorFactory> loadFactories( List<FactoryContainer> containers, IJavaProject project )
 	{
 		List<AnnotationProcessorFactory> factories = new ArrayList(containers.size());
@@ -127,7 +121,7 @@ public class AnnotationProcessorFactoryLoader {
 		{
 			AnnotationProcessorFactory factory;
 			if ( fc.getType() == FactoryType.PLUGIN )
-				factory = loadFactoryFromPlugin( factoryName );
+				factory = FactoryPathUtil.getFactoryFromPlugin( factoryName );
 			else
 				factory = loadFactoryFromClassLoader( factoryName, classLoader );
 			
@@ -137,18 +131,6 @@ public class AnnotationProcessorFactoryLoader {
 		return factories;
 	}
 	
-	private AnnotationProcessorFactory loadFactoryFromPlugin( String factoryName )
-	{
-		AnnotationProcessorFactory apf = _pluginFactoryMap.get( factoryName );
-		if ( apf == null ) 
-		{
-			String s = "could not find AnnotationProcessorFactory " +  //$NON-NLS-1$
-				factoryName + " from available factories defined by plugins"; //$NON-NLS-1$
-			AptPlugin.log(new Status(IStatus.WARNING, AptPlugin.PLUGIN_ID, AptPlugin.STATUS_NOTOOLSJAR, s, null));
-		}
-		return apf;
-	}
-
 	private AnnotationProcessorFactory loadFactoryFromClassLoader( String factoryName, ClassLoader cl )
 	{
 		AnnotationProcessorFactory f = null;
@@ -196,55 +178,8 @@ public class AnnotationProcessorFactoryLoader {
 		{
 			URL[] urls = urlList.toArray(new URL[urlList.size()]);
 			cl = new URLClassLoader( urls, AnnotationProcessorFactoryLoader.class.getClassLoader() );
-        }
-		return cl;
-	}
-	
-	/**
-	 * Discover and instantiate annotation processor factories by searching for plugins
-	 * which contribute to org.eclipse.jdt.apt.core.annotationProcessorFactory.
-	 * This method is used when running within the Eclipse framework.  When running
-	 * standalone at the command line, use {@link #LoadFactoriesFromJars}.
-	 * This method can be called repeatedly, but each time it will erase the previous
-	 * contents of the set of known AnnotationProcessorFactoriesDefined by plugin and 
-	 * do a full rediscovery.
-	 */
-	private void loadPluginFactoryMap() {
-		assert _pluginFactoryMap.size() == 0 : "loadPluginFactoryMap() called more than once"; //$NON-NLS-1$
-
-		// TODO: what follows is extremely similar to FactoryPathUtil#getAllPluginFactoryContainers().
-		// Surely there is some way to share that code?  The main difference is that there we don't 
-		// want to instantiate the actual factories, and here we do.
-		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(
-				AptPlugin.PLUGIN_ID, // name of plugin that exposes this extension point
-				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
-
-		// Iterate over all declared extensions of this extension point.  
-		// A single plugin may extend the extension point more than once, although it's not recommended.
-		for (IExtension extension : extensionPoint.getExtensions())
-		{
-			// Iterate over the children of the extension to find one named "factories".
-			for(IConfigurationElement factories : extension.getConfigurationElements())
-			{
-				if (!"factories".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement 
-					continue;
-				}
-				// Iterate over the children of the "factories" element to find all the ones named "factory".
-				for (IConfigurationElement factory : factories.getChildren()) {
-					if (!"factory".equals(factory.getName())) { //$NON-NLS-1$
-						continue;
-					}
-					try {
-						Object execExt = factory.createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
-						if (execExt instanceof AnnotationProcessorFactory){
-							_pluginFactoryMap.put( execExt.getClass().getName(), (AnnotationProcessorFactory)execExt );
-						}
-					} catch(CoreException e) {
-							e.printStackTrace();
-					}
-				}
-			}
 		}
+		return cl;
 	}
 	
     /**
@@ -305,5 +240,5 @@ public class AnnotationProcessorFactoryLoader {
         	if (jarFile != null) {try {jarFile.close();} catch (IOException ioe) {}}
         }
         return classNames;
-    }    
+    }
 }

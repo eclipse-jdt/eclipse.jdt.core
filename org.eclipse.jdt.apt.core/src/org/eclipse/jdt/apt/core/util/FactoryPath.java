@@ -123,13 +123,15 @@ public final class FactoryPath {
 	}
 	
 	/**
-	 * Create a factory container based on an Eclipse plugin.  The plugin
+	 * Get a factory container based on an Eclipse plugin. The plugin
 	 * is assumed to extend org.eclipse.jdt.apt.annotationProcessorFactory.
+	 * All plugin containers are loaded at startup time; this routine just 
+	 * returns one of the existing containers.
 	 * @param pluginId the fully qualified id of the plugin, e.g.,
 	 * "com.example.annotations"
 	 */
 	public static FactoryContainer newPluginFactoryContainer(String pluginId) {
-		return new PluginFactoryContainer(pluginId);
+		return FactoryPathUtil.getPluginFactoryContainer(pluginId);
 	}
 	
 	/**

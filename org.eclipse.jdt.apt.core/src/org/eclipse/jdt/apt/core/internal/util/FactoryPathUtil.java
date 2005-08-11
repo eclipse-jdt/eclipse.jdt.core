@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.core.internal.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,6 +39,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.sun.mirror.apt.AnnotationProcessorFactory;
+
 /**
  * Utility class for dealing with the factory path
  */
@@ -54,6 +57,12 @@ public final class FactoryPathUtil {
 	// four spaces for indent
 	private static final String INDENT = "    "; //$NON-NLS-1$
 
+	/** map of plugin names -> factories */
+	private static final HashMap<String, AnnotationProcessorFactory> PLUGIN_FACTORY_MAP = new HashMap<String, AnnotationProcessorFactory>();
+	
+	/** map of plugin names -> plugin factory containers, sorted by plugin name */
+	private static final TreeMap<String, PluginFactoryContainer> PLUGIN_CONTAINER_MAP = new TreeMap<String, PluginFactoryContainer>();
+	
 	// Private c-tor to prevent construction
 	private FactoryPathUtil() {}
 	
@@ -233,72 +242,6 @@ public final class FactoryPathUtil {
 	}
 	
 	/**
-	 * Returns an ordered list of all the plugin factory containers that have 
-	 * been registered as plugins.  Note that this does not take into account 
-	 * any factory plugins that have been disabled by the user's configuration.
-	 * Ordering is alphabetic by plugin id.
-	 */
-	public static Map<FactoryContainer, Boolean> getAllPluginFactoryContainers()
-	{
-		class PluginContents {
-			public final PluginFactoryContainer fc;
-			public final boolean b;
-			public PluginContents(PluginFactoryContainer fc, boolean b) {
-				this.fc = fc;
-				this.b = b;
-			}
-		}
-		
-		// We want the list of plugins to be uniqued and alphabetically sorted.
-		Map<String, PluginContents> plugins = 
-			new TreeMap<String, PluginContents>();
-	
-		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(
-				AptPlugin.PLUGIN_ID, // name of plugin that exposes this extension point
-				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
-
-		// Iterate over all declared extensions of this extension point.  
-		// A single plugin may extend the extension point more than once, although it's not recommended.
-		for (IExtension extension : extensionPoint.getExtensions())
-		{
-			// getNamespace() returns the plugin id
-			String pluginId = extension.getNamespace();
-			// Iterate over the children of the extension to find one named "factories".
-			for(IConfigurationElement factories : extension.getConfigurationElements())
-			{
-				if (!"factories".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement 
-					continue;
-				}
-				// Get enableDefault.  If the attribute is missing, default to true.
-				String enableDefaultStr = factories.getAttribute("enableDefault"); //$NON-NLS-1$
-				boolean enableDefault = true;
-				if ("false".equals(enableDefaultStr)) { //$NON-NLS-1$
-					enableDefault = false;
-				}
-				// Iterate over the children of the "factories" element to find all the ones named "factory".
-				for (IConfigurationElement factory : factories.getChildren()) {
-					if (!"factory".equals(factory.getName())) { //$NON-NLS-1$
-						continue;
-					}
-					PluginContents pc = plugins.get(pluginId);
-					if ( pc == null )
-					{
-						PluginFactoryContainer fc = new PluginFactoryContainer(pluginId);
-						pc = new PluginContents(fc, enableDefault);
-						plugins.put( pluginId, pc );
-					}
-					pc.fc.addFactoryName( factory.getAttribute("class") ); //$NON-NLS-1$
-				}
-			}
-		}
-		Map<FactoryContainer, Boolean> map = new LinkedHashMap<FactoryContainer, Boolean>();
-		for (PluginContents pc : plugins.values()) {
-			map.put(pc.fc, new Boolean(pc.b));
-		}
-		return map;
-	}
-	
-	/**
 	 * Get a file designator for the workspace-level factory path settings file.
 	 * Typically this is [workspace]/.metadata/plugins/org.eclipse.jdt.apt.core/.factorypath
 	 * @return a java.io.File
@@ -337,8 +280,9 @@ public final class FactoryPathUtil {
 
 	/**
 	 * Get a factory path corresponding to the default values: if jproj is
-	 * non-null, return the current workspace factory path; if jproj is null,
-	 * return the default list of plugin factories.
+	 * non-null, return the current workspace factory path (workspace prefs
+	 * are the default for a project); if jproj is null, return the default 
+	 * list of plugin factories (which is the "factory default").
 	 */
 	public static Map<FactoryContainer, Boolean> getDefaultFactoryPath(IJavaProject jproj) {
 		if (jproj != null) {
@@ -413,6 +357,99 @@ public final class FactoryPathUtil {
 		for (Map.Entry<FactoryContainer, Boolean> entry : pluginContainers.entrySet()) {
 			if (!containers.containsKey(entry.getKey())) {
 				containers.put(entry.getKey(), disableNewPlugins ? Boolean.FALSE : entry.getValue());
+			}
+		}
+	}
+
+	/**
+	 * Returns an ordered list of all the plugin factory containers that have 
+	 * been registered as plugins.  Note that this does not take into account 
+	 * any factory plugins that have been disabled by the user's configuration.
+	 * Ordering is alphabetic by plugin id.
+	 */
+	public static synchronized Map<FactoryContainer, Boolean> getAllPluginFactoryContainers()
+	{
+		Map<FactoryContainer, Boolean> map = new LinkedHashMap<FactoryContainer, Boolean>();
+		for (PluginFactoryContainer pfc : PLUGIN_CONTAINER_MAP.values()) {
+			map.put(pfc, pfc.getEnableDefault());
+		}
+		return map;
+	}
+	
+	public static synchronized AnnotationProcessorFactory getFactoryFromPlugin( String factoryName )
+	{
+		AnnotationProcessorFactory apf = PLUGIN_FACTORY_MAP.get( factoryName );
+		if ( apf == null ) 
+		{
+			String s = "could not find AnnotationProcessorFactory " +  //$NON-NLS-1$
+				factoryName + " from available factories defined by plugins"; //$NON-NLS-1$
+			AptPlugin.log(new Status(IStatus.WARNING, AptPlugin.PLUGIN_ID, AptPlugin.STATUS_NOTOOLSJAR, s, null));
+		}
+		return apf;
+	}
+
+    /**
+     * Return the factory container corresponding to the specified plugin id.
+     * All plugin factories are loaded at startup time.
+     * @param pluginId the id of a plugin that extends annotationProcessorFactory.
+     * @return a PluginFactoryContainer, or null if the plugin id does not 
+     * identify an annotation processor plugin.
+     */
+	public static synchronized FactoryContainer getPluginFactoryContainer(String pluginId) {
+		return PLUGIN_CONTAINER_MAP.get(pluginId);
+	}    
+
+	/**
+	 * Discover and instantiate annotation processor factories by searching for plugins
+	 * which contribute to org.eclipse.jdt.apt.core.annotationProcessorFactory.
+	 * This method should only be called once, at startup.
+	 */
+	public static synchronized void loadPluginFactories() {
+		assert PLUGIN_FACTORY_MAP.size() == 0 : "loadPluginFactoryMap() was called more than once"; //$NON-NLS-1$
+
+		IExtensionPoint extensionPoint = Platform.getExtensionRegistry().getExtensionPoint(
+				AptPlugin.PLUGIN_ID, // name of plugin that exposes this extension point
+				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
+
+		// Iterate over all declared extensions of this extension point.  
+		// A single plugin may extend the extension point more than once, although it's not recommended.
+		for (IExtension extension : extensionPoint.getExtensions())
+		{
+			// Iterate over the children of the extension to find one named "factories".
+			for(IConfigurationElement factories : extension.getConfigurationElements())
+			{
+				if (!"factories".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement 
+					continue;
+				}
+				
+				// Get enableDefault.  If the attribute is missing, default to true.
+				String enableDefaultStr = factories.getAttribute("enableDefault"); //$NON-NLS-1$
+				boolean enableDefault = true;
+				if ("false".equals(enableDefaultStr)) { //$NON-NLS-1$
+					enableDefault = false;
+				}
+				
+				// Create and cache a PluginFactoryContainer for this plugin.
+				String pluginId = extension.getNamespace();
+				PluginFactoryContainer pfc = new PluginFactoryContainer(pluginId, enableDefault);
+				PLUGIN_CONTAINER_MAP.put(pluginId, pfc);
+				
+				// Iterate over the children of the "factories" element to find all the ones named "factory".
+				for (IConfigurationElement factory : factories.getChildren()) {
+					if (!"factory".equals(factory.getName())) { //$NON-NLS-1$
+						continue;
+					}
+					try {
+						Object execExt = factory.createExecutableExtension("class"); //$NON-NLS-1$ - attribute name
+						if (execExt instanceof AnnotationProcessorFactory){
+							String factoryName = execExt.getClass().getName();
+							PLUGIN_FACTORY_MAP.put( factoryName, (AnnotationProcessorFactory)execExt );
+							pfc.addFactoryName(factoryName);
+						}
+					} catch(CoreException e) {
+							e.printStackTrace();
+					}
+				}
 			}
 		}
 	}

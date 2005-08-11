@@ -22,8 +22,18 @@ public class PluginFactoryContainer extends FactoryContainer
 	/** The label of the plug that owns this factory container.  */
 	private final String id;
 	
-	public PluginFactoryContainer(final String pluginId) {
+	/** Whether the plugin's factories are enabled by default */
+	private final boolean enableDefault;
+	
+	/**
+	 * In general clients should not construct this object.  This c'tor should
+	 * only be called from @see FactoryPathUtil#loadPluginFactories().
+	 * @param pluginId
+	 * @param enableDefault
+	 */
+	public PluginFactoryContainer(final String pluginId, boolean enableDefault) {
 		this.id = pluginId;
+		this.enableDefault = enableDefault;
 	}
 	
 	public void addFactoryName( String n ) {
@@ -36,6 +46,10 @@ public class PluginFactoryContainer extends FactoryContainer
 	
 	public String getId() {
 		return id;
+	}
+	
+	public boolean getEnableDefault() {
+		return enableDefault;
 	}
 	
 	@Override

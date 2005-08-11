@@ -24,7 +24,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.FactoryContainer;
 import org.eclipse.jdt.apt.core.FactoryContainer.FactoryType;
-import org.eclipse.jdt.apt.core.internal.PluginFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.FactoryPath;
@@ -75,7 +74,7 @@ public class PreferencesTests extends Tests {
 		//encode
 		Map<FactoryContainer, Boolean> factories = new LinkedHashMap<FactoryContainer, Boolean>();
 		FactoryContainer jarFactory = FactoryPath.newExtJarFactoryContainer(new File("C:/test.jar")); //$NON-NLS-1$
-		FactoryContainer pluginFactory = new PluginFactoryContainer("com.bea.ap.plugin"); //$NON-NLS-1$
+		FactoryContainer pluginFactory = FactoryPath.newPluginFactoryContainer("org.eclipse.jdt.apt.tests"); //$NON-NLS-1$
 		factories.put(jarFactory, true);
 		factories.put(pluginFactory, false);
 		String xml = FactoryPathUtil.encodeFactoryPath(factories);
@@ -97,7 +96,7 @@ public class PreferencesTests extends Tests {
 				// plugin
 				assertEquals(FactoryType.PLUGIN, container.getType());
 				assertEquals(Boolean.FALSE, entry.getValue());
-				assertEquals("com.bea.ap.plugin", container.getId()); //$NON-NLS-1$
+				assertEquals("org.eclipse.jdt.apt.tests", container.getId()); //$NON-NLS-1$
 			}
 			
 			index++;
@@ -108,7 +107,7 @@ public class PreferencesTests extends Tests {
 	private static final String serializedFactories = 
 		"<factorypath>\n" + 
 		"    <factorypathentry kind=\"EXTJAR\" id=\"C:\\test.jar\" enabled=\"true\"/>\n" + 
-		"    <factorypathentry kind=\"PLUGIN\" id=\"com.bea.ap.plugin\" enabled=\"false\"/>\n" + 
+		"    <factorypathentry kind=\"PLUGIN\" id=\"org.eclipse.jdt.apt.tests\" enabled=\"false\"/>\n" + 
 		"</factorypath>\n";
 	
 	/**
