@@ -23076,5 +23076,62 @@ public void test798() {
 		"Bound mismatch: The generic method max(T...) of type X is not applicable for the arguments (Integer, Double, BigDecimal). The inferred type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<? super T>>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105531
+public void test799() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"	Y first;\n" + 
+			"	Y first2;\n" + 
+			"\n" + 
+			"	<U> U foo(U u1, U u2) {\n" + 
+			"		return u1;\n" + 
+			"	}\n" + 
+			"	void bar2(Y<? extends T> ref) {\n" + 
+			"		String s = foo(ref, first);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	void foo(Y<? extends T> ref) {\n" + 
+			"		ref.next = first == null ? ref : first;\n" + 
+			"		String s = first == null ? ref : first;\n" + 
+			"		ref.next = first2 == null ? ref : first2;\n" + 
+			"	}\n" + 
+			"	Y<? extends T> bar(Y<? extends T> ref) {\n" + 
+			"		return first == null ? ref : first;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Y<E> {\n" + 
+			"	Y<E> next;\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	String s = foo(ref, first);\n" + 
+		"	       ^\n" + 
+		"Type mismatch: cannot convert from Y to String\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	ref.next = first == null ? ref : first;\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture-of ? extends T>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 14)\n" + 
+		"	String s = first == null ? ref : first;\n" + 
+		"	       ^\n" + 
+		"Type mismatch: cannot convert from Y to String\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 15)\n" + 
+		"	ref.next = first2 == null ? ref : first2;\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<capture-of ? extends T>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 18)\n" + 
+		"	return first == null ? ref : first;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<? extends T>\n" + 
+		"----------\n");
+}
 }
 

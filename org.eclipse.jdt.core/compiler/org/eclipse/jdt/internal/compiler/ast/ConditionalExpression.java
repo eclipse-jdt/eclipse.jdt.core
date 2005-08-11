@@ -428,23 +428,24 @@ public class ConditionalExpression extends OperatorExpression {
 				return null;
 			}
 		}
-		if (valueIfFalseType.isCompatibleWith(valueIfTrueType)) {
-			valueIfTrue.computeConversion(scope, valueIfTrueType, originalValueIfTrueType);
-			valueIfFalse.computeConversion(scope, valueIfTrueType, originalValueIfFalseType);
-			return this.resolvedType = valueIfTrueType;
-		}
-		if (valueIfTrueType.isCompatibleWith(valueIfFalseType)) {
-			valueIfTrue.computeConversion(scope, valueIfFalseType, originalValueIfTrueType);
-			valueIfFalse.computeConversion(scope, valueIfFalseType, originalValueIfFalseType);
-			return this.resolvedType = valueIfFalseType;
-		}
-		// 1.5 addition: allow most common supertype 
 		if (use15specifics) {
+			// >= 1.5 : LUB(operand types) must exist
 			TypeBinding commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
 			if (commonType != null) {
 				valueIfTrue.computeConversion(scope, commonType, originalValueIfTrueType);
 				valueIfFalse.computeConversion(scope, commonType, originalValueIfFalseType);
 				return this.resolvedType = commonType.capture(scope, this.sourceEnd);
+			}
+		} else {
+			// < 1.5 : one operand must be convertible to the other
+			if (valueIfFalseType.isCompatibleWith(valueIfTrueType)) {
+				valueIfTrue.computeConversion(scope, valueIfTrueType, originalValueIfTrueType);
+				valueIfFalse.computeConversion(scope, valueIfTrueType, originalValueIfFalseType);
+				return this.resolvedType = valueIfTrueType;
+			} else if (valueIfTrueType.isCompatibleWith(valueIfFalseType)) {
+				valueIfTrue.computeConversion(scope, valueIfFalseType, originalValueIfTrueType);
+				valueIfFalse.computeConversion(scope, valueIfFalseType, originalValueIfFalseType);
+				return this.resolvedType = valueIfFalseType;
 			}
 		}
 		scope.problemReporter().conditionalArgumentsIncompatibleTypes(
