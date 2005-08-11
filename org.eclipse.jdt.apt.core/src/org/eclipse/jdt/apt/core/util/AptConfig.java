@@ -166,6 +166,7 @@ public class AptConfig {
     				sourcepathSB.append(entry.getPath().toFile().getAbsolutePath());
     			}
     		}
+    		// if you add options here, also add them in isAutomaticProcessorOption()
     		options.put("-classpath",classpathSB.toString()); //$NON-NLS-1$
     		options.put("-sourcepath", sourcepathSB.toString()); //$NON-NLS-1$
     		options.put("-s", getString(jproj, AptPreferenceConstants.APT_GENSRCDIR)); //$NON-NLS-1$
@@ -183,6 +184,28 @@ public class AptConfig {
     	return options;
     }
 
+    /**
+     * Is the named option automatically generated in getProcessorOptions(),
+     * or did it come from somewhere else, such as a -A processor option?
+     * @param key the name of an AnnotationProcessorEnvironment option
+     * @return true if the option is automatically set.
+     */
+	public static boolean isAutomaticProcessorOption(String key) {
+		if ("-classpath".equals(key)) //$NON-NLS-1$
+			return true;
+		if ("-sourcepath".equals(key)) //$NON-NLS-1$
+			return true;
+		if ("-s".equals(key)) //$NON-NLS-1$
+			return true;
+		if ("-d".equals(key)) //$NON-NLS-1$
+			return true;
+		if ("-target".equals(key)) //$NON-NLS-1$
+			return true;
+		if ("-source".equals(key)) //$NON-NLS-1$
+			return true;
+		return false;
+	}
+	
 	/**
      * Get the options that are presented to annotation processors by the
      * AnnotationProcessorEnvironment.  The -A and = are stripped out, so 
@@ -553,5 +576,5 @@ public class AptConfig {
 			AptPlugin.log(e, "Failed to save preference: " + optionName); //$NON-NLS-1$
 		}
 	}
-	
+
 }

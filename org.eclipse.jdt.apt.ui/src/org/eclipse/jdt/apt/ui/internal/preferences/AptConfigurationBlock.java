@@ -282,26 +282,26 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	protected void validateSettings(Key changedKey, String oldValue, String newValue) {
 		IStatus status = null;
 		
-		if (changedKey == KEY_PROCESSOROPTIONS) {
-			status = validateProcessorOptions(newValue);
-		}
-		else if (changedKey == KEY_GENSRCDIR) {
-			status = validateGenSrcDir(newValue);
+		status = validateGenSrcDir();
+		if (status.getSeverity() == IStatus.OK) {
+			status = validateProcessorOptions();
 		}
 
-		if (null != status) {
-			fContext.statusChanged(status);
-		}
+		fContext.statusChanged(status);
 	}	
 	
 	/**
 	 * Validate "generated source directory" setting.  It must be a valid
 	 * pathname relative to a project, and must not be a source directory.
-	 * @param dirName
 	 * @return
 	 */
-	private IStatus validateGenSrcDir(String dirName) {
-		Path path= new Path(dirName);
+	private IStatus validateGenSrcDir() {
+		// TODO: this check should be delegated to a validation routine in apt.core.
+		String dirName = fGenSrcDirField.getText();
+		Path path = null;
+		if (dirName != null) {
+			path= new Path(dirName);
+		}
 		if (path == null || 
 				path.isAbsolute() || 
 				path.isEmpty() || 
@@ -314,16 +314,20 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	}
 
 	/**
-	 * @param newValue
-	 * @return
+	 * Validate the currently set processor options.  We do this by
+	 * looking at the table contents rather than the packed string,
+	 * just because it's easier.
+	 * @return a StatusInfo containing a warning if appropriate.
 	 */
-	private IStatus validateProcessorOptions(String newValue) {
-		if (newValue != null && (newValue.contains("-Aclasspath") || newValue.contains("-Asourcepath"))) { //$NON-NLS-1$ //$NON-NLS-2$
-			return new StatusInfo(IStatus.WARNING, Messages.AptConfigurationBlock_warningIgnoredOptions);
+	private IStatus validateProcessorOptions() {
+		List<ProcessorOption> elements = getListElements();
+		for (ProcessorOption o : elements) {
+			if (AptConfig.isAutomaticProcessorOption(o.key)) {
+				return new StatusInfo(IStatus.WARNING, 
+						Messages.AptConfigurationBlock_warningIgnoredOptions + ": " + o.key); //$NON-NLS-1$
+			}
 		}
-		else {
-			return new StatusInfo();
-		}
+		return new StatusInfo();
 	}
 	
 	/**

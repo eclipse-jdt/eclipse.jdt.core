@@ -156,7 +156,10 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
      * to run on Sun's apt as well as processors written without this bug
      * in mind, we populate the map with two copies of every option, one the
      * expected way ("key" / "value") and the other the Sun way 
-     * ("-Akey=value" / ""). 
+     * ("-Akey=value" / "").  We make exceptions for the non-dash-A options
+     * that we set automatically, such as -classpath, -target, and so forth;
+     * since these wouldn't have come from a -A option we don't construct a
+     * -Akey=value variant.
      * 
      * Called from constructor.  A new Env is constructed for each build pass,
      * so this will always be up to date with the latest settings.
@@ -168,15 +171,18 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		// Add configured options
 		for (Map.Entry<String, String> entry : procOptions.entrySet()) {
 			String value = resolveVarPath(entry.getValue());
-			_options.put(entry.getKey(), value);
-			String sunStyle;
-			if (value != null) {
-				sunStyle = "-A" + entry.getKey() + "=" + value; //$NON-NLS-1$ //$NON-NLS-2$
+			String key = entry.getKey();
+			_options.put(key, value);
+			if (!AptConfig.isAutomaticProcessorOption(key)) {
+				String sunStyle;
+				if (value != null) {
+					sunStyle = "-A" + entry.getKey() + "=" + value; //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				else {
+					sunStyle = "-A" + entry.getKey(); //$NON-NLS-1$
+				}
+				_options.put(sunStyle, ""); //$NON-NLS-1$
 			}
-			else {
-				sunStyle = "-A" + entry.getKey(); //$NON-NLS-1$
-			}
-			_options.put(sunStyle, ""); //$NON-NLS-1$
 		}
 	}
 

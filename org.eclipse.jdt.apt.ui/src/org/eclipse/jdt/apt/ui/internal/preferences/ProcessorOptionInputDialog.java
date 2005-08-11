@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.ui.internal.preferences;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.ui.internal.preferences.AptConfigurationBlock.ProcessorOption;
 import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
@@ -116,8 +117,8 @@ public class ProcessorOptionInputDialog extends StatusDialog {
 			status.setError(Messages.ProcessorOptionInputDialog_keyAlreadyInUse);
 		} else if (newVal.indexOf('=') >= 0) {
 			status.setError(Messages.ProcessorOptionInputDialog_equalsSignNotValid);
-		} else if ("classpath".equals(newKey) || "sourcepath".equals(newKey)) { //$NON-NLS-1$ //$NON-NLS-2$
-			status.setWarning(Messages.AptConfigurationBlock_warningIgnoredOptions);
+		} else if (AptConfig.isAutomaticProcessorOption(newKey)) {
+			status.setWarning(Messages.AptConfigurationBlock_warningIgnoredOptions); //$NON-NLS-1$
 		}
 		updateStatus(status);
 	}
