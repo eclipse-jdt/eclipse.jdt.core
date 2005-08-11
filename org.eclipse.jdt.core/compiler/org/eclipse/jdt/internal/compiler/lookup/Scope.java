@@ -3001,7 +3001,7 @@ public abstract class Scope
 			};
 		} else {
 			ArrayList typesToVisit = new ArrayList(5);
-			TypeBinding firstErasure = firstType.isTypeVariable() ? firstType : firstType.erasure();
+			TypeBinding firstErasure = (firstType.isTypeVariable() && !firstType.isCapture()) ? firstType : firstType.erasure();
 			if (firstErasure != firstType) {
 				Set someInvocations = new HashSet(1);
 				someInvocations.add(firstType);
@@ -3024,7 +3024,7 @@ public abstract class Scope
 				ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 				for (int j = 0, count = itsInterfaces.length; j < count; j++) {
 					TypeBinding itsInterface = itsInterfaces[j];
-					TypeBinding itsInterfaceErasure = itsInterface.isTypeVariable() ? itsInterface : itsInterface.erasure();
+					TypeBinding itsInterfaceErasure = (itsInterface.isTypeVariable() && !itsInterface.isCapture()) ? itsInterface : itsInterface.erasure();
 					if (!typesToVisit.contains(itsInterfaceErasure)) {
 						if (itsInterfaceErasure != itsInterface) {
 							Set someInvocations = new HashSet(1);
@@ -3037,7 +3037,7 @@ public abstract class Scope
 				}
 				TypeBinding itsSuperclass = currentType.superclass();
 				if (itsSuperclass != null) {
-					TypeBinding itsSuperclassErasure = itsSuperclass.isTypeVariable() ? itsSuperclass : itsSuperclass.erasure();
+					TypeBinding itsSuperclassErasure = (itsSuperclass.isTypeVariable() && !itsSuperclass.isCapture()) ? itsSuperclass : itsSuperclass.erasure();
 					if (!typesToVisit.contains(itsSuperclassErasure)) {
 						if (itsSuperclassErasure != itsSuperclass) {
 							Set someInvocations = new HashSet(1);
