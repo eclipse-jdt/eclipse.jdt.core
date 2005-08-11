@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class AnnotationInvocationHandler implements InvocationHandler
 {
+	private static final String JAVA_LANG_CLASS = "java.lang.Class"; //$NON-NLS-1$
     private final AnnotationMirrorImpl _instance;
 
     public AnnotationInvocationHandler(final AnnotationMirrorImpl annotation)
@@ -55,8 +56,11 @@ public class AnnotationInvocationHandler implements InvocationHandler
             throw new NoSuchMethodException("method " + method.getName() + "() does not exists"); //$NON-NLS-1$ //$NON-NLS-2$
 
         final ITypeBinding retType = methodBinding.getReturnType();
+        if( retType == null ) return null;
+        
+        final String qName = retType.getTypeDeclaration().getQualifiedName();
         // type of annotation member is java.lang.Class
-        if( retType.isClass() && "java.lang.Class".equals(retType.getQualifiedName()) ){ //$NON-NLS-1$
+        if( retType.isClass() && JAVA_LANG_CLASS.equals(qName) ){ //$NON-NLS-1$
             // need to figure out the class that's being accessed
             final ITypeBinding[] classTypes = _instance.getMemberValueTypeBinding(c_methodName);
             TypeMirror mirrorType = null;
@@ -69,8 +73,9 @@ public class AnnotationInvocationHandler implements InvocationHandler
         }
         else if( retType.isArray() ){
             final ITypeBinding leafType = retType.getElementType();
+            final String leafQName = leafType.getTypeDeclaration().getQualifiedName();
             // type of annotation member is java.lang.Class[]
-            if( leafType.isClass() && "java.lang.Class".equals(leafType.getQualifiedName()) ){ //$NON-NLS-1$
+            if( leafType.isClass() && JAVA_LANG_CLASS.equals(leafQName) ){ //$NON-NLS-1$
                 final ITypeBinding[] classTypes = _instance.getMemberValueTypeBinding(c_methodName);
                 final Collection<TypeMirror> mirrorTypes;
                 if( classTypes == null || classTypes.length == 0 )
