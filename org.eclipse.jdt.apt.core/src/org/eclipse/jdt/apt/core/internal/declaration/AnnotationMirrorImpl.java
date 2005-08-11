@@ -20,12 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -277,8 +275,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
             if( declaringClass != null ){
                 final String className = new String( declaringClass.getBinaryName() );
 
-                IJavaProject project = declaringClass.getJavaElement().getJavaProject();
-                ClassLoader classLoader = AnnotationProcessorFactoryLoader.getLoader().getClassLoaderForJavaProject(project);
+                ClassLoader classLoader = _env.getLatestProcessor().getClass().getClassLoader();
                 Class clazz = classLoader.loadClass(className);
          
                 final Field returnedField = clazz.getField( varBinding.getName() );

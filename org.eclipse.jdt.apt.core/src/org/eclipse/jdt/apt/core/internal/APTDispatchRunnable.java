@@ -184,6 +184,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 					if (processor != null)
 					{
 						if ( AptPlugin.DEBUG ) trace( "runAPT: invoking processor " + processor.getClass().getName() ); //$NON-NLS-1$
+                        processorEnv.setLatestProcessor(processor);
 						processor.process();
 					}
 				}

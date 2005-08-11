@@ -50,9 +50,6 @@ public class AnnotationProcessorFactoryLoader {
 		new HashMap<IJavaProject, List<AnnotationProcessorFactory>>();
 
 	private final Set<IJavaProject> _projectsLoaded = new HashSet<IJavaProject>();
-	
-    private final Map<IJavaProject, ClassLoader> _classLoaderMap = 
-    	new HashMap<IJavaProject, ClassLoader>();
     
     
 	/** 
@@ -94,16 +91,13 @@ public class AnnotationProcessorFactoryLoader {
     	
     }
     
-    public ClassLoader getClassLoaderForJavaProject(IJavaProject project)
-    {
-        return _classLoaderMap.get(project);
-    }
+
     
 	private List<AnnotationProcessorFactory> loadFactories( List<FactoryContainer> containers, IJavaProject project )
 	{
 		List<AnnotationProcessorFactory> factories = new ArrayList(containers.size());
 		ClassLoader classLoader = _createClassLoader( containers );
-        _classLoaderMap.put(project, classLoader);
+
 		for ( FactoryContainer fc : containers )
 		{
 			List<AnnotationProcessorFactory> f = loadFactoryClasses( fc, classLoader );
