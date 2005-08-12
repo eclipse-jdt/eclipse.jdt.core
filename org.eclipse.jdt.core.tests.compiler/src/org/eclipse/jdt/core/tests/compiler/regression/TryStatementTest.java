@@ -20,25 +20,19 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
-
 public class TryStatementTest extends AbstractRegressionTest {
 	
+static {
+//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NUMBERS = new int[] { 31 };
+//	TESTS_RANGE = new int[] { 11, -1 };
+}
 public TryStatementTest(String name) {
 	super(name);
 }
 public static Test suite() {
-
-	if (false) {
-	   	TestSuite ts;
-		//some of the tests depend on the order of this suite.
-		ts = new TestSuite();
-		ts.addTest(new TryStatementTest("test221"));
-		return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-	}
-	return setupSuite(testClass());
+	return buildTestSuite(testClass());
 }
-
 public void test001() {
 	this.runConformTest(new String[] {
 		"p/X.java",
@@ -1082,6 +1076,46 @@ public void test030() {
 			"}\n",
 		},
 		"EXCEPTION:ONCE:SUCCESS");
+}
+/*
+ * Try block is never reached
+ */
+public void test031() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
+	
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	static void foo(Object o) {}\n" +
+			"	\n" +
+			"    public static void main(String[] args) {\n" +
+			"    	try {\n" +
+			"    		foo(new Object() {\n" +
+			"    			public void bar() throws IOException {\n" +
+			"    				bar1();\n" +
+			"    			}\n" +
+			"    		});\n" +
+			"    	} catch(IOException e) {\n" +
+			"    		e.printStackTrace();\n" +
+			"    	}\n" +
+			"    }\n" +
+			"    \n" +
+			"    static void bar1() throws IOException {}\n" +
+			"}" 
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	} catch(IOException e) {\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"Unreachable catch block for IOException. This exception is never thrown from the try statement body\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
 }
 public static Class testClass() {
 	return TryStatementTest.class;
