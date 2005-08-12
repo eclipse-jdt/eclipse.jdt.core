@@ -28,10 +28,13 @@ public class AnnotationInvocationHandler implements InvocationHandler
 {
 	private static final String JAVA_LANG_CLASS = "java.lang.Class"; //$NON-NLS-1$
     private final AnnotationMirrorImpl _instance;
+    private final Class _clazz;
 
-    public AnnotationInvocationHandler(final AnnotationMirrorImpl annotation)
+    public AnnotationInvocationHandler(final AnnotationMirrorImpl annotation,
+    								   final Class clazz)
     {
         _instance = annotation;
+        _clazz = clazz;
     }
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
@@ -43,6 +46,8 @@ public class AnnotationInvocationHandler implements InvocationHandler
                 return new Integer( _instance.hashCode() );
             if( methodName.equals("toString") ) //$NON-NLS-1$
                 return _instance.toString();
+            if( methodName.equals("annotationType")) //$NON-NLS-1$
+            	return _clazz;
         }
         else if( args.length == 1 && methodName.equals("equals") ) //$NON-NLS-1$
         {

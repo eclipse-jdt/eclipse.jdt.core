@@ -77,7 +77,7 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
                 if( annoTypeName.equals(curTypeName) ){
                     final AnnotationMirrorImpl annoMirror =
                         (AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance, this, _env);
-                    final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror);
+                    final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror, annotationClass);
                     return (A)Proxy.newProxyInstance(annotationClass.getClassLoader(),
                                                      new Class[]{ annotationClass }, handler );
                 }
@@ -98,7 +98,7 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
 				if( annoTypeName.equals(curTypeName) ){
 				final AnnotationMirrorImpl annoMirror =
 				(AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance.resolveAnnotation(), this, _env);
-				final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror);
+				final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror, annotationClass);
 				return (A)Proxy.newProxyInstance(annotationClass.getClassLoader(),
 				                     new Class[]{ annotationClass }, handler );
 				}
