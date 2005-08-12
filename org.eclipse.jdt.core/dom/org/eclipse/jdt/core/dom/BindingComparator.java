@@ -209,9 +209,6 @@ class BindingComparator {
 					&& wildcardBinding.boundKind == wildcardBinding2.boundKind;
 				
 			case Binding.TYPE_PARAMETER :
-				if (visitedTypes.contains(typeBinding)) return true;
-				visitedTypes.add(typeBinding);
-				
 				if (!(typeBinding2.isTypeVariable())) {
 					return false;
 				}
@@ -221,17 +218,26 @@ class BindingComparator {
 					}
 					CaptureBinding captureBinding = (CaptureBinding) typeBinding;
 					CaptureBinding captureBinding2 = (CaptureBinding) typeBinding2;
-					return captureBinding.position == captureBinding2.position
-						&& isEqual(captureBinding.wildcard, captureBinding2.wildcard, visitedTypes)
-						&& isEqual(captureBinding.sourceType, captureBinding2.sourceType, visitedTypes);
+					if (captureBinding.position == captureBinding2.position) {
+						if (visitedTypes.contains(typeBinding)) return true;
+						visitedTypes.add(typeBinding);
+						
+						return isEqual(captureBinding.wildcard, captureBinding2.wildcard, visitedTypes)
+							&& isEqual(captureBinding.sourceType, captureBinding2.sourceType, visitedTypes);
+					}
+					return false;
 				}
 				TypeVariableBinding typeVariableBinding = (TypeVariableBinding) typeBinding;
 				TypeVariableBinding typeVariableBinding2 = (TypeVariableBinding) typeBinding2;
-				return CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName)
-					&& isEqual(typeVariableBinding.declaringElement, typeVariableBinding2.declaringElement, visitedTypes)
+				if (CharOperation.equals(typeVariableBinding.sourceName, typeVariableBinding2.sourceName)) {
+					if (visitedTypes.contains(typeBinding)) return true;
+					visitedTypes.add(typeBinding);
+
+					return isEqual(typeVariableBinding.declaringElement, typeVariableBinding2.declaringElement, visitedTypes)
 					&& isEqual(typeVariableBinding.superclass(), typeVariableBinding2.superclass(), visitedTypes)
 					&& isEqual(typeVariableBinding.superInterfaces(), typeVariableBinding2.superInterfaces(), visitedTypes);
-			
+				}
+				return false;
 			case Binding.GENERIC_TYPE :
 				if (!typeBinding2.isGenericType()) {
 					return false;
