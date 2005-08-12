@@ -161,8 +161,10 @@ public class TypesUtil implements Types
 			
 			final ITypeBinding[] typeParams = memberBinding.getTypeParameters();
 			final int numTypeParams = typeParams == null ? 0 : typeParams.length;
-			if( numTypeParams != numArgs )
-				throw new IllegalArgumentException("type, " + memberBinding + ", require " + numTypeParams + " type arguments " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			// if no argument then a raw type will be created, otherwise it's an error when the 
+			// number of type parameter and arguments don't agree.
+			if( numTypeParams != numArgs && numArgs != 0 )
+				throw new IllegalArgumentException("type, " + memberBinding.getQualifiedName() + ", require " + numTypeParams + " type arguments " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         "but found " + numArgs ); //$NON-NLS-1$
 			
 			final String typeKey = BindingKey.createParameterizedTypeBindingKey(memberBinding.getKey(), argKeys);
