@@ -3312,4 +3312,77 @@ public void test111() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105284
+public void test112() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Short s;\n" + 
+			"		s = 5;  // Type mismatch: cannot convert from int to Short\n" + 
+			"		Short[] shorts = { 0, 1, 2, 3 };\n" + 
+			"		System.out.println(s+shorts[2]);\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"7");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105284 - variation
+public void test113() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Short s;\n" + 
+			"		s = 5;  // Type mismatch: cannot convert from int to Short\n" + 
+			"\n" + 
+			"		int i = 0;\n" + 
+			"		s = i; // not a constant\n" + 
+			"		\n" + 
+			"		bar(4);\n" + 
+			"		Short[] shorts = { 0, 1, 2, 3 };\n" + 
+			"	}\n" + 
+			"	void bar(Short s) {}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	s = 5;  // Type mismatch: cannot convert from int to Short\n" + 
+		"	    ^\n" + 
+		"The expression of type int is boxed into Short\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	s = i; // not a constant\n" + 
+		"	    ^\n" + 
+		"Type mismatch: cannot convert from int to Short\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	bar(4);\n" + 
+		"	^^^\n" + 
+		"The method bar(Short) in the type X is not applicable for the arguments (int)\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 10)\n" + 
+		"	Short[] shorts = { 0, 1, 2, 3 };\n" + 
+		"	                   ^\n" + 
+		"The expression of type int is boxed into Short\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 10)\n" + 
+		"	Short[] shorts = { 0, 1, 2, 3 };\n" + 
+		"	                      ^\n" + 
+		"The expression of type int is boxed into Short\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 10)\n" + 
+		"	Short[] shorts = { 0, 1, 2, 3 };\n" + 
+		"	                         ^\n" + 
+		"The expression of type int is boxed into Short\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 10)\n" + 
+		"	Short[] shorts = { 0, 1, 2, 3 };\n" + 
+		"	                            ^\n" + 
+		"The expression of type int is boxed into Short\n" + 
+		"----------\n");
+}
+
 }

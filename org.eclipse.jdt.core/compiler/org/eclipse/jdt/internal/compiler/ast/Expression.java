@@ -23,10 +23,7 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 
 public abstract class Expression extends Statement {
 	
-	public static final boolean isConstantValueRepresentable(
-		Constant constant,
-		int constantTypeID,
-		int targetTypeID) {
+	public static final boolean isConstantValueRepresentable(Constant constant, int constantTypeID, int targetTypeID) {
 
 		//true if there is no loss of precision while casting.
 		// constantTypeID == constant.typeID
@@ -768,7 +765,7 @@ public abstract class Expression extends Statement {
 	//(this request some work d be done by the VM on signed numbers)
 	public boolean isConstantValueOfTypeAssignableToType(TypeBinding constantType, TypeBinding targetType) {
 
-		if (constant == Constant.NotAConstant)
+		if (this.constant == Constant.NotAConstant)
 			return false;
 		if (constantType == targetType)
 			return true;
@@ -778,7 +775,7 @@ public abstract class Expression extends Statement {
 				|| BaseTypeBinding.isWidening(T_int, constantType.id))
 				&& (BaseTypeBinding.isNarrowing(targetType.id, T_int))) {
 				//use current explicit conversion in order to get some new value to compare with current one
-				return isConstantValueRepresentable(constant, constantType.id, targetType.id);
+				return isConstantValueRepresentable(this.constant, constantType.id, targetType.id);
 			}
 		}
 		return false;

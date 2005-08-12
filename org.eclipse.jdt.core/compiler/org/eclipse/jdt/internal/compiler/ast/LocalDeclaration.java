@@ -210,7 +210,6 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 					} else if (scope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
 									&& (scope.isBoxingCompatibleWith(initializationType, variableType) 
 											|| (initializationType.isBaseType()  // narrowing then boxing ?
-													&& initializationType != null 
 													&& !variableType.isBaseType()
 													&& initialization.isConstantValueOfTypeAssignableToType(initializationType, scope.environment().computeBoxingType(variableType))))) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
