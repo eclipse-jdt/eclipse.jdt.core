@@ -23219,5 +23219,37 @@ public void test802() {
 		"The method zz() is undefined for the type Z\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101831
+public void test803() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X<A> {\n" + 
+			"  ArrayList<A> list = new ArrayList<A>();\n" + 
+			"  ArrayList<? super A> superList = new ArrayList<A>();\n" + 
+			"  ArrayList<? extends A> extendsList = new ArrayList<A>();\n" + 
+			"\n" + 
+			"  ArrayList<A> getList() {\n" + 
+			"    return true ? list : list;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  ArrayList<? super A> getSuperList() {\n" + 
+			"    return true ? superList : superList;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  ArrayList<? extends A> getExtendsList() {\n" + 
+			"    return true ? extendsList : extendsList;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	return true ? superList : superList;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from ArrayList<capture-of ? extends Object> to ArrayList<? super A>\n" + 
+		"----------\n");
+}
 }
 
