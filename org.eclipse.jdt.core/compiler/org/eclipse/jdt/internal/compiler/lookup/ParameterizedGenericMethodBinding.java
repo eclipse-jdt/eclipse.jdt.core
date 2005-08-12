@@ -136,10 +136,21 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (minArgLength < argLength) {
 				TypeBinding varargType = parameters[minArgLength]; // last arg type - as is ?
 				TypeBinding lastArgument = arguments[minArgLength];
-				if (paramLength != argLength // argument is passed as is ?
-						||  (lastArgument != NullBinding
-								&& (lastArgument.dimensions() == 0 || lastArgument.leafComponentType().isBaseType() != varargType.leafComponentType().isBaseType()))) { 
-					varargType = ((ArrayBinding)varargType).elementsType(); // eliminate one array dimension
+				checkVarargDimension: {
+					if (paramLength == argLength) {
+						if (lastArgument == NullBinding) break checkVarargDimension;
+						switch (lastArgument.dimensions()) {
+							case 0 :
+								break; // will remove one dim
+							case 1 :
+								if (!lastArgument.leafComponentType().isBaseType()) break checkVarargDimension;
+								break; // will remove one dim
+							default :
+								break checkVarargDimension;
+						}
+					}
+					// eliminate one array dimension
+					varargType = ((ArrayBinding)varargType).elementsType(); 
 				}
 				for (int i = minArgLength; i < argLength; i++) {
 					varargType.collectSubstitutes(scope, arguments[i], collectedSubstitutes, CONSTRAINT_EXTENDS);
