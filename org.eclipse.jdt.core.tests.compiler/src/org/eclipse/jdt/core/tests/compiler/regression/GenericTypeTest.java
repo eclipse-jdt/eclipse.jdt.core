@@ -23133,5 +23133,91 @@ public void test799() {
 		"Type safety: The expression of type Y needs unchecked conversion to conform to Y<? extends T>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744
+public void test800() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.lang.reflect.Constructor;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"        final Class<Ann> AnnClass = Ann.class;\n" + 
+			"	    Constructor[] constrs = X.class.getConstructors();\n" + 
+			"        for (Constructor constructor  : constrs) {\n" + 
+			"            final String message = constructor.getAnnotation(AnnClass).message();\n" + 
+			"            System.out.println(message);\n" + 
+			"        }\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"@interface Ann {\n" + 
+			"	String message();\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\r\n" + 
+		"	final String message = constructor.getAnnotation(AnnClass).message();\r\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The method getAnnotation(Class) belongs to the raw type Constructor. References to generic type Constructor<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\r\n" + 
+		"	final String message = constructor.getAnnotation(AnnClass).message();\r\n" + 
+		"	                                                           ^^^^^^^\n" + 
+		"The method message() is undefined for the type Annotation\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 - variation
+public void test801() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"		    X.class.getConstructor(new Class[0]).getAnnotation(Ann.class).message();\n" + 
+			"		} catch(Exception e) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"@interface Ann {\n" + 
+			"	String message();\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 - variation
+public void test802() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<U> {\n" + 
+			"    void bar(Y y, X<ZZ> x) {\n" + 
+			"    	y.foo(x).zz();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class Y<V> {\n" + 
+			"    <T extends Z> T foo(X<T> x) { return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Z {\n" + 
+			"}\n" + 
+			"class ZZ extends Z {\n" + 
+			"	void zz() {}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	y.foo(x).zz();\n" + 
+		"	^^^^^^^^\n" + 
+		"Type safety: The method foo(X) belongs to the raw type Y. References to generic type Y<V> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	y.foo(x).zz();\n" + 
+		"	         ^^\n" + 
+		"The method zz() is undefined for the type Z\n" + 
+		"----------\n");
+}
 }
 
