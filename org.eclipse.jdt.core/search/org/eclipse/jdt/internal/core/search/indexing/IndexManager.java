@@ -559,7 +559,7 @@ private char[] readIndexState() {
 		return new char[0];
 	}
 }
-private void updateIndexState(String indexName, Integer indexState) {
+private synchronized void updateIndexState(String indexName, Integer indexState) {
 	getIndexStates(); // ensure the states are initialized
 	if (indexState != null) {
 		if (indexState.equals(indexStates.get(indexName))) return; // not changed
