@@ -1241,4 +1241,21 @@ public class VarargsTest extends AbstractComparableTest {
 			},
 			"f(boolean, Object...)f(boolean, Object...)f(Object...)");
 	}	
+	//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=106106
+	public void test034() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*; \n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    double[][] d = { { 1 } , { 2 } }; \n" + 
+				"    List<double[]> l = Arrays.asList(d); // <T> List<T> asList(T... a)\n" + 
+				"    System.out.println(\"List size: \" + l.size());\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"List size: 2");
+	}		
 }
