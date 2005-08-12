@@ -42,4 +42,8 @@ public class NLSTag {
 	public int hashCode() {
 		return this.start;
 	}
+	
+	public String toString() {
+		return "NLSTag(" + this.start + "," + this.end + "," + this.bits + ")"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+	}
 }

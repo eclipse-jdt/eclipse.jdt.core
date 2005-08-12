@@ -2290,11 +2290,15 @@ protected void parseTags(boolean hasLineComment) {
 						i = -1; // we don't want to consider this as a valid NLS tag
 					}
 					if (line != null && line.exists(i)) {
-						line.set(i, null);
-						final NLSTag tag = new NLSTag(pos + this.getCurrentTokenStartPosition(), this.getCurrentTokenStartPosition() + end, NLSTag.USED);
-						if (!this.unnecessaryNLSTags.add(tag)) {
-							this.unnecessaryNLSTags.remove(tag);
-							this.unnecessaryNLSTags.add(tag);
+						if (line.get(i) == null) {
+							this.unnecessaryNLSTags.add(new NLSTag(pos + this.getCurrentTokenStartPosition(), this.getCurrentTokenStartPosition() + end));
+						} else {
+							line.set(i, null);
+							final NLSTag tag = new NLSTag(pos + this.getCurrentTokenStartPosition(), this.getCurrentTokenStartPosition() + end, NLSTag.USED);
+							if (!this.unnecessaryNLSTags.add(tag)) {
+								this.unnecessaryNLSTags.remove(tag);
+								this.unnecessaryNLSTags.add(tag);
+							}
 						}
 					} else {
 						this.unnecessaryNLSTags.add(new NLSTag(pos + this.getCurrentTokenStartPosition(), this.getCurrentTokenStartPosition() + end));

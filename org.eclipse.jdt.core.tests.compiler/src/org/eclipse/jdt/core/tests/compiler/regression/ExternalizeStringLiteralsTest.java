@@ -166,6 +166,82 @@ public void test004() {
 		customOptions,
 		null);	
 }
+public void test005() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\r\n" + 
+			"	public static void main(String[] args) {\r\n" + 
+			"		String s = \"\"; //$NON-NLS-1$//$NON-NLS-1$\r\n" + 
+			"    }\r\n" + 
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"\"; //$NON-NLS-1$//$NON-NLS-1$\n" + 
+		"	                            ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
+public void test006() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\r\n" + 
+			"	public static void main(String[] args) {\r\n" + 
+			"		String s = \"\"; //$NON-NLS-1$//$NON-NLS-1$\r\n" + 
+			"    }\r\n" +
+			"",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"\"; //$NON-NLS-1$//$NON-NLS-1$\n" + 
+		"	                            ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"}\" to complete ClassBody\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
+public void test007() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\r\n" + 
+			"	public static void main(String[] args) {\r\n" + 
+			"		String s = null; //$NON-NLS-1$//$NON-NLS-1$\r\n" + 
+			"    }\r\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	String s = null; //$NON-NLS-1$//$NON-NLS-1$\n" + 
+		"	                 ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	String s = null; //$NON-NLS-1$//$NON-NLS-1$\n" + 
+		"	                              ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
 public static Class testClass() {
 	return ExternalizeStringLiteralsTest.class;
 }
