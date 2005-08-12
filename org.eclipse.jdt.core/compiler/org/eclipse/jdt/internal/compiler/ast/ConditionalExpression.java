@@ -429,6 +429,15 @@ public class ConditionalExpression extends OperatorExpression {
 			}
 		}
 		if (use15specifics) {
+			if (valueIfTrueType == NullBinding) {
+				valueIfTrue.computeConversion(scope, valueIfTrueType, originalValueIfTrueType);
+				valueIfFalse.computeConversion(scope, valueIfFalseType, originalValueIfFalseType);
+				return this.resolvedType = valueIfFalseType;
+			} else if (valueIfFalseType == NullBinding) {
+				valueIfTrue.computeConversion(scope, valueIfTrueType, originalValueIfTrueType);
+				valueIfFalse.computeConversion(scope, valueIfFalseType, originalValueIfFalseType);
+				return this.resolvedType = valueIfTrueType;
+			}
 			// >= 1.5 : LUB(operand types) must exist
 			TypeBinding commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
 			if (commonType != null) {
