@@ -94,5 +94,41 @@ public class RegressionTests extends Tests {
 		ResourcesPlugin.getWorkspace().delete(new IResource[] { project }, true, null);
 
 	}
+    
+	/**
+	 * Tests annotation proxies
+	 */
+    public void testBugzilla106541() throws Exception
+    {
+        final String projName = RegressionTests.class.getName() + "104032.Project"; //$NON-NLS-1$
+        IPath projectPath = env.addProject( projName, "1.5" ); //$NON-NLS-1$
+        env.addExternalJars( projectPath, Util.getJavaClassLibs() );
+
+        env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
+        env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
+        env.setOutputFolder( projectPath, "bin" ); //$NON-NLS-1$
+
+        IJavaProject javaProject = env.getJavaProject( projectPath ) ;
+        TestUtil.createAndAddAnnotationJar(javaProject);
+        IProject project = env.getProject( projName );
+        IFolder srcFolder = project.getFolder( "src" );
+        IPath srcRoot = srcFolder.getFullPath();
+
+        String code = "package p1; " + "\n"
+        + "import org.eclipse.jdt.apt.tests.annotations.readAnnotationType.SimpleAnnotation;" + "\n"
+        + "@SimpleAnnotation(SimpleAnnotation.Name.HELLO)" + "\n"
+        + "public class MyClass { \n"
+        + " public test.HELLOGen _gen;"
+        + " }";
+        
+        env.addClass( srcRoot, "p1", "MyClass", code );
+        
+        fullBuild( project.getFullPath() );
+        expectingNoProblems();
+        
+        // Now delete the project!
+        ResourcesPlugin.getWorkspace().delete(new IResource[] { project }, true, null);
+
+    }
 	
 }

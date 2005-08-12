@@ -35,6 +35,7 @@
 	      <factory
 	         class="org.eclipse.jdt.apt.tests.annotations.valueconversion.ValueConversionProcessorFactory">
 	      </factory>
+       <factory class="org.eclipse.jdt.apt.tests.annotations.readAnnotationType.ReadAnnotationTypeProcessorFactory"/>
 	   </factories>
    </extension>
 

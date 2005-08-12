@@ -11,13 +11,14 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.FactoryContainer;
@@ -34,11 +35,6 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
  */
 public class AnnotationProcessorFactoryLoader {
 	
-	/** List of jar file entries that specify autoloadable service providers */
-    private static final String[] AUTOLOAD_SERVICES = {
-        "META-INF/services/com.sun.mirror.apt.AnnotationProcessorFactory" //$NON-NLS-1$
-    };
-	
 	/** Loader instance -- holds all workspace and project data */
 	private static AnnotationProcessorFactoryLoader LOADER;
 	
@@ -48,8 +44,6 @@ public class AnnotationProcessorFactoryLoader {
 	
 	private final Map<IJavaProject, List<AnnotationProcessorFactory>> _project2Factories = 
 		new HashMap<IJavaProject, List<AnnotationProcessorFactory>>();
-
-	private final Set<IJavaProject> _projectsLoaded = new HashSet<IJavaProject>();
     
     
 	/** 
@@ -74,18 +68,14 @@ public class AnnotationProcessorFactoryLoader {
     
     public synchronized List<AnnotationProcessorFactory> getFactoriesForProject( IJavaProject jproj ) {
     	
-    	List<AnnotationProcessorFactory> factories = null;
-    	
-		if (_projectsLoaded.contains(jproj)) {
-    		factories = _project2Factories.get(jproj);
-    		if (factories != null) {
-    			return factories;
-    		}
+    	List<AnnotationProcessorFactory> factories = _project2Factories.get(jproj);
+		if (factories != null) {
+			return factories;
 		}
+		
 		// Load the project
 		List<FactoryContainer> containers = FactoryPath.getEnabledContainers(jproj);
 		factories = loadFactories(containers, jproj);
-		_projectsLoaded.add(jproj);
 		_project2Factories.put(jproj, factories);
 		return factories;
     	
@@ -176,63 +166,4 @@ public class AnnotationProcessorFactoryLoader {
 		return cl;
 	}
 	
-    /**
-     * Given a jar file, get the names of any AnnotationProcessorFactory
-     * implementations it offers.  The information is based on the Sun
-     * <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider">
-     * Jar Service Provider spec</a>: the jar file contains a META-INF/services
-     * directory; that directory contains text files named according to the desired
-     * interfaces; and each file contains the names of the classes implementing
-     * the specified service.  The files may also contain whitespace (which is to
-     * be ignored).  The '#' character indicates the beginning of a line comment,
-     * also to be ignored.  Implied but not stated in the spec is that this routine
-     * also ignores anything after the first nonwhitespace token on a line.
-     * @param jar the jar file.
-     * @return a list, possibly empty, of fully qualified classnames to be instantiated.
-     */
-    private List<String> _getServiceClassnamesFromJar(File jar)
-    {
-        List<String> classNames = new ArrayList<String>();
-        JarFile jarFile = null;
-        try {
-            jarFile = new JarFile(jar);
-
-            for (String providerName : AUTOLOAD_SERVICES) {
-                JarEntry provider = jarFile.getJarEntry(providerName);
-                if (provider == null) {
-                    continue;
-                }
-                // Extract classnames from this text file.
-                InputStream is = jarFile.getInputStream(provider);
-                BufferedReader rd;
-                rd = new BufferedReader(new InputStreamReader(is, "UTF-8")); //$NON-NLS-1$
-                for (String line = rd.readLine(); line != null; line = rd.readLine()) {
-                    // hack off any comments
-                    int iComment = line.indexOf('#');
-                    if (iComment >= 0) {
-                        line = line.substring(0, iComment);
-                    }
-                    // add the first non-whitespace token to the list
-                    final String[] tokens = line.split("\\s", 2); //$NON-NLS-1$
-                    if (tokens[0].length() > 0) {
-                        if (VERBOSE_LOAD) {
-                            System.err.println("Found provider classname: " + tokens[0]); //$NON-NLS-1$
-                        }
-                        classNames.add(tokens[0]);
-                    }
-                }
-                rd.close();
-            }
-        }
-        catch (IOException e) {
-            if (VERBOSE_LOAD) {
-                System.err.println("\tUnable to extract provider names from \"" + jar + "\"; skipping because of: " + e); //$NON-NLS-1$ //$NON-NLS-2$
-            }
-            return classNames;
-        }
-        finally {
-        	if (jarFile != null) {try {jarFile.close();} catch (IOException ioe) {}}
-        }
-        return classNames;
-    }
 }
