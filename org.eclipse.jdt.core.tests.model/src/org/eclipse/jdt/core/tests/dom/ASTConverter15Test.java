@@ -39,7 +39,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 194 };
+//		TESTS_NUMBERS = new int[] { 195 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -5839,4 +5839,44 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	ArrayType arrayType = (ArrayType) type;
     	assertEquals("Should be 1", 1, arrayType.getDimensions());
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=106834
+	public void test0195() throws JavaModelException {
+    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+			"public class X {\n" +
+			"	<S extends Number, T> void take(S e, T f) {}\n" +
+			"	<S extends Number, T> void take(T e, S f) {}\n" +
+			"	<S extends Number, T extends S> void take(T e, S f) {}\n" +
+			"}";
+    	ASTNode node = buildAST(
+    			contents,
+    			this.workingCopy);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit unit = (CompilationUnit) node;
+    	node = getASTNode(unit, 0, 0);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+    	MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+    	IMethodBinding methodBinding = methodDeclaration.resolveBinding();
+    	
+    	node = getASTNode(unit, 0, 1);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+    	MethodDeclaration methodDeclaration2 = (MethodDeclaration) node;
+    	IMethodBinding methodBinding2 = methodDeclaration2.resolveBinding();
+    	
+    	node = getASTNode(unit, 0, 2);
+    	assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+    	MethodDeclaration methodDeclaration3 = (MethodDeclaration) node;
+    	IMethodBinding methodBinding3 = methodDeclaration3.resolveBinding();
+
+    	assertFalse("Bindings are equals", methodBinding.isEqualTo(methodBinding2));
+    	assertFalse("Bindings are equals", methodBinding2.isEqualTo(methodBinding));
+    	assertFalse("Bindings are equals", methodBinding3.isEqualTo(methodBinding));
+    	assertFalse("Bindings are equals", methodBinding3.isEqualTo(methodBinding2));
+    	assertFalse("Bindings are equals", methodBinding2.isEqualTo(methodBinding3));
+    	assertFalse("Bindings are equals", methodBinding.isEqualTo(methodBinding3));
+    	assertTrue("Bindings are not equals", methodBinding3.isEqualTo(methodBinding3));
+    	assertTrue("Bindings are not equals", methodBinding2.isEqualTo(methodBinding2));
+    	assertTrue("Bindings are not equals", methodBinding.isEqualTo(methodBinding));
+    }
 }
