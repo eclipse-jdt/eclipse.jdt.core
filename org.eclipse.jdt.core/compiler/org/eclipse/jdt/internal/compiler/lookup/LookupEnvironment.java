@@ -939,13 +939,7 @@ TypeBinding getTypeFromVariantTypeSignature(
 			return getTypeFromTypeSignature(wrapper, staticVariables, enclosingType);
 	}
 }
-public boolean isBoxingCompatibleWith(TypeBinding left, TypeBinding right) {
-	if (this.globalOptions.sourceLevel < ClassFileConstants.JDK1_5 || left.isBaseType() == right.isBaseType())
-		return false;
 
-	TypeBinding convertedType = computeBoxingType(left);
-	return convertedType == right || convertedType.isCompatibleWith(right);
-}
 /* Ask the oracle if a package exists named name in the package named compoundName.
 */
 boolean isPackage(char[][] compoundName, char[] name) {

@@ -233,7 +233,6 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 						} else if (initializationScope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
 										&& (initializationScope.isBoxingCompatibleWith(initializationType, fieldType) 
 												|| (initializationType.isBaseType()  // narrowing then boxing ?
-														&& initializationType != null 
 														&& !fieldType.isBaseType()
 														&& initialization.isConstantValueOfTypeAssignableToType(initializationType, initializationScope.environment().computeBoxingType(fieldType))))) {
 							this.initialization.computeConversion(initializationScope, fieldType, initializationType);

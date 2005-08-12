@@ -121,7 +121,7 @@ public class CaseStatement extends Statement {
 			} else {
 				return constantExpression.constant;
 			}
-		} else if (scope.isBoxingCompatibleWith(switchExpressionType, caseType)) {
+		} else if (scope.isBoxingCompatibleWith(caseType, switchExpressionType)) {
 			constantExpression.computeConversion(scope, caseType, switchExpressionType);
 			return constantExpression.constant;
 		}

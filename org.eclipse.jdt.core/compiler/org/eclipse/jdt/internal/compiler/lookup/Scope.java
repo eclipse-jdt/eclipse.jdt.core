@@ -2646,8 +2646,14 @@ public abstract class Scope
 		return null;
 	}
 
-	public boolean isBoxingCompatibleWith(TypeBinding left, TypeBinding right) {
-		return left.isBaseType() != right.isBaseType() && environment().isBoxingCompatibleWith(left, right);
+	public boolean isBoxingCompatibleWith(TypeBinding expressionType, TypeBinding targetType) {
+		LookupEnvironment environment = environment();
+		if (environment.globalOptions.sourceLevel < ClassFileConstants.JDK1_5 || expressionType.isBaseType() == targetType.isBaseType())
+			return false;
+	
+		// check if autoboxed type is compatible
+		TypeBinding convertedType = environment.computeBoxingType(expressionType);
+		return convertedType == targetType || convertedType.isCompatibleWith(targetType);
 	}
 
 	/* Answer true if the scope is nested inside a given field declaration.

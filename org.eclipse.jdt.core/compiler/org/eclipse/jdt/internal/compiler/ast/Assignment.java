@@ -169,16 +169,16 @@ public class Assignment extends Expression {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		// due to syntax lhs may be only a NameReference, a FieldReference or an ArrayReference
-		constant = NotAConstant;
+		this.constant = NotAConstant;
 		if (!(this.lhs instanceof Reference) || this.lhs.isThis()) {
 			scope.problemReporter().expressionShouldBeAVariable(this.lhs);
 			return null;
 		}
 		TypeBinding lhsType = lhs.resolveType(scope);
-		expression.setExpectedType(lhsType); // needed in case of generic method invocation
+		this.expression.setExpectedType(lhsType); // needed in case of generic method invocation
 		if (lhsType != null) 
 			this.resolvedType = lhsType.capture(scope, this.sourceEnd);
-		TypeBinding rhsType = expression.resolveType(scope);
+		TypeBinding rhsType = this.expression.resolveType(scope);
 		if (lhsType == null || rhsType == null) {
 			return null;
 		}
@@ -188,17 +188,20 @@ public class Assignment extends Expression {
 		// may require to widen the rhs expression at runtime
 		if (lhsType != rhsType) // must call before computeConversion() and typeMismatchError()
 			scope.compilationUnitScope().recordTypeConversion(lhsType, rhsType);
-		if ((expression.isConstantValueOfTypeAssignableToType(rhsType, lhsType)
+		if ((this.expression.isConstantValueOfTypeAssignableToType(rhsType, lhsType)
 				|| (lhsType.isBaseType() && BaseTypeBinding.isWidening(lhsType.id, rhsType.id)))
 				|| rhsType.isCompatibleWith(lhsType)) {
-			expression.computeConversion(scope, lhsType, rhsType);
+			this.expression.computeConversion(scope, lhsType, rhsType);
 			checkAssignment(scope, lhsType, rhsType);
 			return this.resolvedType;
-		} else if (scope.isBoxingCompatibleWith(rhsType, lhsType)) {
-			expression.computeConversion(scope, lhsType, rhsType);
+		} else if (scope.isBoxingCompatibleWith(rhsType, lhsType) 
+							|| (rhsType.isBaseType()  // narrowing then boxing ?
+									&& !lhsType.isBaseType()
+									&& this.expression.isConstantValueOfTypeAssignableToType(rhsType, scope.environment().computeBoxingType(lhsType)))) {
+			this.expression.computeConversion(scope, lhsType, rhsType);
 			return this.resolvedType;
 		} 
-		scope.problemReporter().typeMismatchError(rhsType, lhsType, expression);
+		scope.problemReporter().typeMismatchError(rhsType, lhsType, this.expression);
 		return lhsType;
 	}
 	/* (non-Javadoc)

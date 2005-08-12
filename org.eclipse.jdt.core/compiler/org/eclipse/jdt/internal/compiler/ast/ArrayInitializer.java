@@ -128,7 +128,7 @@ public class ArrayInitializer extends Expression {
 		return output.append('}');
 	}
 
-	public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTb) {
+	public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedType) {
 		// Array initializers can only occur on the right hand side of an assignment
 		// expression, therefore the expected type contains the valid information
 		// concerning the type that must be enforced by the elements of the array initializer.
@@ -139,43 +139,42 @@ public class ArrayInitializer extends Expression {
 		
 		// allow new List<?>[5]
 		if ((this.bits & IsAnnotationDefaultValue) == 0) { // annotation default value need only to be commensurate JLS9.7
-			TypeBinding leafComponentType = expectedTb.leafComponentType();
+			TypeBinding leafComponentType = expectedType.leafComponentType();
 			if (leafComponentType.isBoundParameterizedType() || leafComponentType.isGenericType() || leafComponentType.isTypeVariable()) {
 			    scope.problemReporter().illegalGenericArray(leafComponentType, this);
 			}
 		}
 			
-		if (expectedTb.isArrayType()) {
-			this.resolvedType = this.binding = (ArrayBinding) expectedTb;
-			if (expressions == null)
-				return binding;
-			TypeBinding expectedElementsTb = binding.elementsType();
-			if (expectedElementsTb.isBaseType()) {
-				for (int i = 0, length = expressions.length; i < length; i++) {
-					Expression expression = expressions[i];
-					TypeBinding expressionTb =
-						(expression instanceof ArrayInitializer)
-							? expression.resolveTypeExpecting(scope, expectedElementsTb)
-							: expression.resolveType(scope);
-					if (expressionTb == null)
-						return null;
-	
-					// Compile-time conversion required?
-					if (expectedElementsTb != expressionTb) // must call before computeConversion() and typeMismatchError()
-						scope.compilationUnitScope().recordTypeConversion(expectedElementsTb, expressionTb);
-					if (expression.isConstantValueOfTypeAssignableToType(expressionTb, expectedElementsTb)
-						|| BaseTypeBinding.isWidening(expectedElementsTb.id, expressionTb.id)
-						|| scope.isBoxingCompatibleWith(expressionTb, expectedElementsTb)) {
-							expression.computeConversion(scope, expectedElementsTb, expressionTb);
-					} else {
-						scope.problemReporter().typeMismatchError(expressionTb, expectedElementsTb, expression);
-						return null;
-					}
-				}
-			} else {
-				for (int i = 0, length = expressions.length; i < length; i++)
-					if (expressions[i].resolveTypeExpecting(scope, expectedElementsTb) == null)
-						return null;
+		if (expectedType.isArrayType()) {
+			this.resolvedType = this.binding = (ArrayBinding) expectedType;
+			if (this.expressions == null)
+				return this.binding;
+			TypeBinding elementType = this.binding.elementsType();
+			for (int i = 0, length = expressions.length; i < length; i++) {
+				Expression expression = expressions[i];
+				TypeBinding exprType = expression instanceof ArrayInitializer
+						? expression.resolveTypeExpecting(scope, elementType)
+						: expression.resolveType(scope);
+				if (exprType == null)
+					return null;
+
+				// Compile-time conversion required?
+				if (elementType != exprType) // must call before computeConversion() and typeMismatchError()
+					scope.compilationUnitScope().recordTypeConversion(elementType, exprType);
+
+				if ((expression.isConstantValueOfTypeAssignableToType(exprType, elementType)
+						|| (elementType.isBaseType() && BaseTypeBinding.isWidening(elementType.id, exprType.id)))
+						|| exprType.isCompatibleWith(elementType)) {
+					expression.computeConversion(scope, elementType, exprType);
+				} else if (scope.isBoxingCompatibleWith(exprType, elementType) 
+									|| (exprType.isBaseType()  // narrowing then boxing ?
+											&& !elementType.isBaseType()
+											&& expression.isConstantValueOfTypeAssignableToType(exprType, scope.environment().computeBoxingType(elementType)))) {
+					expression.computeConversion(scope, elementType, exprType);
+				} else {
+					scope.problemReporter().typeMismatchError(exprType, elementType, expression);
+					return null;
+				} 				
 			}
 			return binding;
 		}
@@ -203,7 +202,7 @@ public class ArrayInitializer extends Expression {
 		}
 		if (leafElementType != null) {
 			TypeBinding probableTb = scope.createArrayType(leafElementType, dim);
-			scope.problemReporter().typeMismatchError(probableTb, expectedTb, this);
+			scope.problemReporter().typeMismatchError(probableTb, expectedType, this);
 		}
 		return null;
 	}
