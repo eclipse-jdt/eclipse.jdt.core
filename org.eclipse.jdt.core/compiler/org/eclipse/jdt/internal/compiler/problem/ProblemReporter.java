@@ -5221,8 +5221,6 @@ public void unnecessaryInstanceof(InstanceOfExpression instanceofExpression, Typ
 		instanceofExpression.sourceEnd);
 }
 public void unnecessaryNLSTags(int sourceStart, int sourceEnd) {
-	// TODO (olivier) enable again after 3.2M1
-	if (true) return;
 	this.handle(
 		IProblem.UnnecessaryNLSTag,
 		NoArgument,

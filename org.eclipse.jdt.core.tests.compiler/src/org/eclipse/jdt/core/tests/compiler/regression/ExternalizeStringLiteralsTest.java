@@ -109,12 +109,7 @@ public void test002() {
 		"	  ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n" + 
-		"7. ERROR in X.java (at line 12)\n" + 
-		"	//$NON-NLS-1$\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"Unnecessary $NON-NLS$ tag\n" + 
-		"----------\n" + 
-		"8. ERROR in X.java (at line 13)\n" + 
+		"7. ERROR in X.java (at line 13)\n" + 
 		"	}//$NON-NLS-3$\n" + 
 		"	 ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
@@ -150,6 +145,26 @@ public void test003() {
 		null,
 		true,
 		customOptions);	
+}
+public void test004() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"p/Foo.java",
+			"package p;\n" + 
+			"public class Foo { \n" + 
+			"    public void foo() {\n" + 
+			"		//$NON-NLS-1$\n" + 
+			"	 };\n" + 
+			"}",
+		}, 
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);	
 }
 public static Class testClass() {
 	return ExternalizeStringLiteralsTest.class;
