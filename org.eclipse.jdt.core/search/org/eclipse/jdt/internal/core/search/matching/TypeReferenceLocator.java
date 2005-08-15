@@ -418,7 +418,7 @@ void matchReportReference(Expression expr, int lastIndex, TypeBinding refBinding
 		return;
 	}
 	if (refBinding.isLocalType()) {
-		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=84049
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=82673
 		LocalTypeBinding local = (LocalTypeBinding) refBinding;
 		IJavaElement focus = ((InternalSearchPattern)pattern).focus;
 		if (focus != null && local.enclosingMethod != null && focus.getParent().getElementType() == IJavaElement.METHOD) {
