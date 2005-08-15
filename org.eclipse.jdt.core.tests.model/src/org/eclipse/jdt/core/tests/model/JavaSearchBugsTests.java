@@ -44,9 +44,9 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug97547";
+//		TESTS_PREFIX =  "testBug100772_ProjectScope";
 //		TESTS_NAMES = new String[] { "testBug100772_ClassAndSubclass04" };
-		TESTS_NUMBERS = new int[] { 100772 };
+//		TESTS_NUMBERS = new int[] { 100772 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
 
@@ -1956,11 +1956,11 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		this.discard = false;
 		search(type, REFERENCES);
 		assertSearchResults(
-			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/b83804/package-info.java b83804.package-info [Test] EXACT_MATCH INSIDE_JAVADOC"
+			"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b83804/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
 	public void testBug83804_Method() throws CoreException {
@@ -1972,7 +1972,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		this.discard = false;
 		search(methods[0], REFERENCES);
 		assertSearchResults(
-			"src/b83804/package-info.java b83804.package-info [foo()] EXACT_MATCH INSIDE_JAVADOC"
+			"src/b83804/package-info.java [foo()] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
 	public void testBug83804_Field() throws CoreException {
@@ -1983,7 +1983,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		assertEquals("Invalid number of fields", 1, fields.length);
 		search(fields[0], REFERENCES);
 		assertSearchResults(
-			"src/b83804/package-info.java b83804.package-info [field] EXACT_MATCH INSIDE_JAVADOC"
+			"src/b83804/package-info.java [field] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
 
@@ -2443,8 +2443,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		assertSearchResults(
 			"src/b86380/Test.java b86380.Test [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
 			"src/b86380/Test.java b86380.Test.field [Annot] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
-			"src/b86380/package-info.java b86380.package-info [Annot] EXACT_MATCH INSIDE_JAVADOC\n" + 
-			"src/b86380/package-info.java b86380.package-info [Annot] EXACT_MATCH OUTSIDE_JAVADOC"
+			"src/b86380/package-info.java [Annot] EXACT_MATCH INSIDE_JAVADOC\n" + 
+			"src/b86380/package-info.java [Annot] EXACT_MATCH OUTSIDE_JAVADOC"
 		);
 	}
 	public void testBug86380_Method() throws CoreException {
@@ -2458,7 +2458,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(methods[0], REFERENCES);
 		assertSearchResults(
 			"src/b86380/Test.java b86380.Test [12] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
-			"src/b86380/package-info.java b86380.package-info [value] EXACT_MATCH OUTSIDE_JAVADOC"
+			"src/b86380/package-info.java [value] EXACT_MATCH OUTSIDE_JAVADOC"
 		);
 	}
 	public void testBug86380_Field() throws CoreException {
@@ -2471,7 +2471,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 		search(fields[0], REFERENCES);
 		assertSearchResults(
 			"src/b86380/Test.java b86380.Test.field [field] EXACT_MATCH OUTSIDE_JAVADOC\n" + 
-			"src/b86380/package-info.java b86380.package-info [field] EXACT_MATCH INSIDE_JAVADOC"
+			"src/b86380/package-info.java [field] EXACT_MATCH INSIDE_JAVADOC"
 		);
 	}
 
@@ -3738,6 +3738,47 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	}
 
 	/**
+	 * Bug 99903: [1.5][search] range wrong for package-info
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=99903"
+	 */
+	public void testBug99903_annotation() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b99903/package-info.java",
+			"/**\n" + 
+			" * @see Test\n" + 
+			" */\n" + 
+			"@Annot\n" + 
+			"package b99903;\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b99903/Test.java",
+			"package b99903;\n" + 
+			"public class Test {\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b99903/Annot.java",
+			"package b99903;\n" + 
+			"public @interface Annot {\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[2].getType("Annot");
+		search(type, REFERENCES);
+		this.discard = false;
+		assertSearchResults(
+			"src/b99903/package-info.java [Annot] EXACT_MATCH"
+		);
+	}
+	public void testBug99903_javadoc() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+		resultCollector.showInsideDoc = true;
+		IType type = workingCopies[1].getType("Test");
+		search(type, REFERENCES);
+		assertSearchResults(
+			"src/b99903/package-info.java [Test] EXACT_MATCH INSIDE_JAVADOC"
+		);
+	}
+
+	/**
 	 * Bug 100695: [1.5][search] Renaming a field of generic array type has no effect
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=100695"
 	 */
@@ -3877,7 +3918,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	 * Bug 100772: [1.5][search] Search for declarations in hierarchy reports to many matches
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=100772"
 	 */
-	public void testBug100772_ClassAndSubclass01() throws CoreException {
+	public void testBug100772_HierarchyScope_ClassAndSubclass01() throws CoreException {
 		workingCopies = new ICompilationUnit[1];
 		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
 			"package b100772;\n" + 
@@ -3891,7 +3932,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"}\n"
 		);
 		IType type = workingCopies[0].getType("Test");
-		IMethod method = type.getMethods()[0];
+		IMethod method = type.getMethod("foo", new String[] { "QT;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
@@ -3899,11 +3940,11 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_ClassAndSubclass02() throws CoreException {
+	public void testBug100772_HierarchyScope_ClassAndSubclass02() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Test");
-		IMethod method = type.getMethods()[0];
+		IMethod method = type.getMethod("foo", new String[] { "QT;" });
 		search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
@@ -3911,23 +3952,23 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_ClassAndSubclass03() throws CoreException {
+	public void testBug100772_HierarchyScope_ClassAndSubclass03() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Test");
-		IMethod method = type.getMethods()[1];
+		IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
 			"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_ClassAndSubclass04() throws CoreException {
+	public void testBug100772_HierarchyScope_ClassAndSubclass04() throws CoreException {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Sub");
-		IMethod method = type.getMethods()[0];
+		IMethod method = type.getMethod("foo", new String[] { "QString;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
@@ -3935,17 +3976,17 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_ClassAndSubclass05() throws CoreException {
+	public void testBug100772_HierarchyScope_ClassAndSubclass05() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Sub");
-		IMethod method = type.getMethods()[1];
+		IMethod method = type.getMethod("foo", new String[] { "QException;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		assertSearchResults(
 			"src/b100772/Test.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_InterfacesAndClass01() throws CoreException {
+	public void testBug100772_HierarchyScope_InterfacesAndClass01() throws CoreException {
 		workingCopies = new ICompilationUnit[1];
 		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
 			"package b100772;\n" + 
@@ -3964,7 +4005,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"}\n"
 		);
 		IType type = workingCopies[0].getType("Test");
-		IMethod method = type.getMethods()[0];
+		IMethod method = type.getMethod("foo", new String[] { "QT;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
@@ -3973,11 +4014,11 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/Test.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_InterfacesAndClass02() throws CoreException {
+	public void testBug100772_HierarchyScope_InterfacesAndClass02() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Test");
-		IMethod method = type.getMethods()[0];
+		IMethod method = type.getMethod("foo", new String[] { "QT;" });
 		search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
@@ -3986,11 +4027,11 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/Test.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_InterfacesAndClass03() throws CoreException {
+	public void testBug100772_HierarchyScope_InterfacesAndClass03() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Test");
-		IMethod method = type.getMethods()[1];
+		IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
@@ -3998,11 +4039,11 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/Test.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_InterfacesAndClass04() throws CoreException {
+	public void testBug100772_HierarchyScope_InterfacesAndClass04() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Sub");
-		IMethod method = type.getMethods()[0];
+		IMethod method = type.getMethod("foo", new String[] { "QString;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
@@ -4010,22 +4051,22 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/Test.java void b100772.Sub.foo(String) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_InterfacesAndClass05() throws CoreException {
+	public void testBug100772_HierarchyScope_InterfacesAndClass05() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Sub");
-		IMethod method = type.getMethods()[1];
+		IMethod method = type.getMethod("foo", new String[] { "QException;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
 			"src/b100772/Test.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_InterfacesAndClass06() throws CoreException {
+	public void testBug100772_HierarchyScope_InterfacesAndClass06() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("X");
-		IMethod method = type.getMethods()[0];
+		IMethod method = type.getMethod("foo", new String[] { "QString;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
@@ -4033,11 +4074,11 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/Test.java void b100772.X.foo(String) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_InterfacesAndClass07() throws CoreException {
+	public void testBug100772_HierarchyScope_InterfacesAndClass07() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("X");
-		IMethod method = type.getMethods()[1];
+		IMethod method = type.getMethod("foo", new String[] { "QClass;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
@@ -4045,17 +4086,17 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/Test.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_InterfacesAndClass08() throws CoreException {
+	public void testBug100772_HierarchyScope_InterfacesAndClass08() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("X");
-		IMethod method = type.getMethods()[2];
+		IMethod method = type.getMethod("foo", new String[] { "QException;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		assertSearchResults(
 			"src/b100772/Test.java void b100772.X.foo(Exception) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_Complex01() throws CoreException {
+	public void testBug100772_HierarchyScope_Complex01() throws CoreException {
 		workingCopies = new ICompilationUnit[1];
 		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
 			"package b100772;\n" + 
@@ -4073,7 +4114,7 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"	public void foo(String s) {}\n" + 
 			"	public void foo(Exception e) {}\n" + 
 			"}\n" + 
-			"interface IXX<V extends Exception> extends IX<V> {\n" + 
+			"interface IXX<V extends Exception> {\n" + 
 			"	public void foo(V v);\n" + 
 			"}\n" + 
 			"class Z extends Y implements IXX<Exception> {\n" + 
@@ -4081,24 +4122,23 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"	public void foo(Exception e) {}\n" + 
 			"}\n"
 		);
-		IMethod method = workingCopies[0].getType("IX").getMethods()[0];
-		search(method, DECLARATIONS);
+		IType type = workingCopies[0].getType("IX");
+		IMethod method = type.getMethod("foo", new String[] { "QU;" });
+		search(method, DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
 			"src/b100772/Test.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
 			"src/b100772/Test.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" + 
 			"src/b100772/Test.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
 			"src/b100772/Test.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" + 
-			"src/b100772/Test.java void b100772.IXX.foo(V) [foo] EXACT_MATCH\n" + 
-			"src/b100772/Test.java void b100772.Z.foo(String) [foo] EXACT_MATCH\n" + 
-			"src/b100772/Test.java void b100772.Z.foo(Exception) [foo] EXACT_MATCH"
+			"src/b100772/Test.java void b100772.Z.foo(String) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_Complex02() throws CoreException {
+	public void testBug100772_HierarchyScope_Complex02() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Z");
-		IMethod method = type.getMethods()[0];
+		IMethod method = type.getMethod("foo", new String[] { "QString;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
 		this.discard = false;
 		assertSearchResults(
@@ -4107,17 +4147,313 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/Test.java void b100772.Z.foo(String) [foo] EXACT_MATCH"
 		);
 	}
-	public void testBug100772_Complex03() throws CoreException {
+	public void testBug100772_HierarchyScope_Complex03() throws CoreException {
 		assertNotNull("There should be working copies!", workingCopies);
 		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
 		IType type = workingCopies[0].getType("Z");
-		IMethod method = type.getMethods()[1];
+		IMethod method = type.getMethod("foo", new String[] { "QException;" });
 		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
+		this.discard = false;
 		assertSearchResults(
-			"src/b100772/Test.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
 			"src/b100772/Test.java void b100772.Y.foo(Exception) [foo] EXACT_MATCH\n" + 
 			"src/b100772/Test.java void b100772.IXX.foo(V) [foo] EXACT_MATCH\n" + 
 			"src/b100772/Test.java void b100772.Z.foo(Exception) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_HierarchyScope_Complex04() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		IType type = workingCopies[0].getType("X");
+		IMethod method = type.getMethod("foo", new String[] { "QT;" });
+		search(method, UI_DECLARATIONS, SearchEngine.createHierarchyScope(type));
+		assertSearchResults(
+			"src/b100772/Test.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Test.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Test.java void b100772.IX.foo(U) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_ClassAndSubclass01() throws CoreException {
+		workingCopies = new ICompilationUnit[2];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
+			"package b100772;\n" + 
+			"class Test<T> {\n" + 
+			"    public void foo(T t) {}\n" + 
+			"    public void foo(Class c) {}\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b100772/Sub.java",
+			"package b100772;\n" + 
+			"class Sub extends Test<String> {\n" + 
+			"    public void foo(String str) {}\n" + 
+			"    public void foo(Exception e) {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("Test");
+		IMethod method = type.getMethod("foo", new String[] { "QT;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_ClassAndSubclass02() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+		IType type = workingCopies[0].getType("Test");
+		IMethod method = type.getMethod("foo", new String[] { "QT;" });
+		search(method, DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_ClassAndSubclass03() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+		IType type = workingCopies[0].getType("Test");
+		IMethod method = type.getMethod("foo", new String[] { "QClass;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_ClassAndSubclass04() throws CoreException {
+//		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+		IType type = workingCopies[1].getType("Sub");
+		IMethod method = type.getMethod("foo", new String[] { "QString;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_ClassAndSubclass05() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 2, workingCopies.length);
+		IType type = workingCopies[1].getType("Sub");
+		IMethod method = type.getMethod("foo", new String[] { "QException;" });
+		search(method, UI_DECLARATIONS);
+		assertSearchResults(
+			"src/b100772/Sub.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_InterfacesAndClass01() throws CoreException {
+		workingCopies = new ICompilationUnit[3];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/Test.java",
+			"package b100772;\n" + 
+			"interface Test<T> {\n" + 
+			"    public void foo(T t);\n" + 
+			"    public void foo(Class c);\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b100772/Sub.java",
+			"package b100772;\n" + 
+			"interface Sub extends Test<String> {\n" + 
+			"    public void foo(String str);\n" + 
+			"    public void foo(Exception e);\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b100772/X.java",
+			"package b100772;\n" + 
+			"class X implements Test<String> {\n" + 
+			"    public void foo(String str) {}\n" + 
+			"    public void foo(Class c) {}\n" + 
+			"    public void foo(Exception e) {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[0].getType("Test");
+		IMethod method = type.getMethod("foo", new String[] { "QT;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+			"src/b100772/X.java void b100772.X.foo(String) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_InterfacesAndClass02() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+		IType type = workingCopies[0].getType("Test");
+		IMethod method = type.getMethod("foo", new String[] { "QT;" });
+		search(method, DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+			"src/b100772/X.java void b100772.X.foo(String) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_InterfacesAndClass03() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+		IType type = workingCopies[0].getType("Test");
+		IMethod method = type.getMethod("foo", new String[] { "QClass;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" + 
+			"src/b100772/X.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_InterfacesAndClass04() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+		IType type = workingCopies[1].getType("Sub");
+		IMethod method = type.getMethod("foo", new String[] { "QString;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+			"src/b100772/X.java void b100772.X.foo(String) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_InterfacesAndClass05() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+		IType type = workingCopies[1].getType("Sub");
+		IMethod method = type.getMethod("foo", new String[] { "QException;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Sub.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH\n" + 
+			"src/b100772/X.java void b100772.X.foo(Exception) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_InterfacesAndClass06() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+		IType type = workingCopies[2].getType("X");
+		IMethod method = type.getMethod("foo", new String[] { "QString;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Sub.java void b100772.Sub.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Test.java void b100772.Test.foo(T) [foo] EXACT_MATCH\n" + 
+			"src/b100772/X.java void b100772.X.foo(String) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_InterfacesAndClass07() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+		IType type = workingCopies[2].getType("X");
+		IMethod method = type.getMethod("foo", new String[] { "QClass;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/Test.java void b100772.Test.foo(Class) [foo] EXACT_MATCH\n" + 
+			"src/b100772/X.java void b100772.X.foo(Class) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_InterfacesAndClass08() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 3, workingCopies.length);
+		IType type = workingCopies[2].getType("X");
+		IMethod method = type.getMethod("foo", new String[] { "QException;" });
+		search(method, UI_DECLARATIONS);
+		assertSearchResults(
+			"src/b100772/Sub.java void b100772.Sub.foo(Exception) [foo] EXACT_MATCH\n" + 
+			"src/b100772/X.java void b100772.X.foo(Exception) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_Complex01() throws CoreException {
+		workingCopies = new ICompilationUnit[6];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b100772/X.java",
+			"package b100772;\n" + 
+			"public class X<T> implements IX<T> {\n" + 
+			"	public void foo(T t) {}\n" + 
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b100772/XX.java",
+			"package b100772;\n" + 
+			"class XX extends X<String> {\n" + 
+			"	public void foo(String s) {}\n" + 
+			"	public void foo(Exception e) {}\n" + 
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b100772/IX.java",
+			"package b100772;\n" + 
+			"interface IX<U> {\n" + 
+			"	public void foo(U u);\n" + 
+			"}\n"
+		);
+		workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b100772/Y.java",
+			"package b100772;\n" + 
+			"class Y implements IX<String> {\n" + 
+			"	public void foo(String s) {}\n" + 
+			"	public void foo(Exception e) {}\n" + 
+			"}\n"
+		);
+		workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/b100772/IXX.java",
+			"package b100772;\n" + 
+			"interface IXX<V extends Exception> {\n" + 
+			"	public void foo(V v);\n" + 
+			"}\n"
+		);
+		workingCopies[5] = getWorkingCopy("/JavaSearchBugs/src/b100772/Z.java",
+			"package b100772;\n" + 
+			"class Z extends Y implements IXX<Exception> {\n" + 
+			"	public void foo(String s) {}\n" + 
+			"	public void foo(Exception e) {}\n" + 
+			"}\n"
+		);
+		IType type = workingCopies[2].getType("IX");
+		IMethod method = type.getMethod("foo", new String[] { "QU;" });
+		search(method, DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
+			"src/b100772/X.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
+			"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Y.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Z.java void b100772.Z.foo(String) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_Complex02() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 6, workingCopies.length);
+		IType type = workingCopies[5].getType("Z");
+		IMethod method = type.getMethod("foo", new String[] { "QString;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
+			"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Y.java void b100772.Y.foo(String) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Z.java void b100772.Z.foo(String) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_Complex03() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 6, workingCopies.length);
+		IType type = workingCopies[5].getType("Z");
+		IMethod method = type.getMethod("foo", new String[] { "QException;" });
+		search(method, UI_DECLARATIONS);
+		this.discard = false;
+		assertSearchResults(
+			"src/b100772/IXX.java void b100772.IXX.foo(V) [foo] EXACT_MATCH\n" + 
+			"src/b100772/XX.java void b100772.XX.foo(Exception) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Y.java void b100772.Y.foo(Exception) [foo] EXACT_MATCH\n" + 
+			"src/b100772/Z.java void b100772.Z.foo(Exception) [foo] EXACT_MATCH"
+		);
+	}
+	public void testBug100772_ProjectScope_Complex04() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 6, workingCopies.length);
+		IType type = workingCopies[0].getType("X");
+		IMethod method = type.getMethod("foo", new String[] { "QT;" });
+		search(method, UI_DECLARATIONS);
+		assertSearchResults(
+			"src/b100772/X.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
+			"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
+			"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH"
 		);
 	}
 }
