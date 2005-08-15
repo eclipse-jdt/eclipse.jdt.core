@@ -287,11 +287,11 @@ private boolean matchOverriddenMethod(ReferenceBinding type, MethodBinding metho
 			MethodBinding[] methods = interfaces[i].getMethods(this.pattern.selector);
 			int length = methods.length;
 			for (int j = 0; j<length; j++) {
-				if (methods[i].areParametersEqual(method)) {
+				if (methods[j].areParametersEqual(method)) {
 					if (matchMethod == null) {
-						if (methodParametersEqualsPattern(methods[i].original())) return true;
+						if (methodParametersEqualsPattern(methods[j].original())) return true;
 					} else {
-						if (methods[i].original().areParametersEqual(matchMethod)) return true;
+						if (methods[j].original().areParametersEqual(matchMethod)) return true;
 					}
 				}
 			}
