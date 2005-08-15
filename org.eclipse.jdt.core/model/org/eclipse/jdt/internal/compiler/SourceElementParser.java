@@ -1132,6 +1132,8 @@ public void notifySourceElementRequestor(
 }
 public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType) {
 	
+	if (CharOperation.equals(TypeConstants.PACKAGE_INFO_NAME, typeDeclaration.name)) return;
+
 	// range check
 	boolean isInRange = 
 		scanner.initialPosition <= typeDeclaration.declarationSourceStart
