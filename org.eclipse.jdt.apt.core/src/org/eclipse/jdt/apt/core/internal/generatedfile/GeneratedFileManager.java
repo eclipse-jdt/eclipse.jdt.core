@@ -288,7 +288,12 @@ public class GeneratedFileManager {
 			ICompilationUnit parentCompilationUnit, String typeName,
 			String contents, WorkingCopyOwner workingCopyOwner,
 			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor ) 
-	{		
+	{	
+		// disable type generation during reconcile. This can cause deadlock.
+		// See radar bug #238684
+		if (true)
+			return null;
+		
 		// type-generation during reconcile only works if the generated source
 		// folder is created and added to the project's source path. 
 		if ( ! isGeneratedSourceFolderConfigured() )
