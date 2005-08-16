@@ -613,6 +613,19 @@ protected IJavaElement createImportHandle(ImportReference importRef) {
 	return createTypeHandle(typeName.substring(0, lastDollar));
 }
 /**
+ * Creates an IImportDeclaration from the given import statement
+ */
+protected IJavaElement createPackageDeclarationHandle(CompilationUnitDeclaration unit) {
+	if (unit.isPackageInfo()) {
+		char[] packName = CharOperation.concatWith(unit.currentPackage.getImportName(), '.');
+		Openable openable = this.currentPossibleMatch.openable;
+		if (openable instanceof CompilationUnit) {
+			return ((CompilationUnit) openable).getPackageDeclaration(new String(packName));
+		}
+	}
+	return createTypeHandle(new String(unit.getMainTypeName()));
+}
+/**
  * Creates an IType from the given simple top level type name. 
  */
 protected IType createTypeHandle(String simpleTypeName) {
@@ -1969,7 +1982,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 				for (int i = 0, l = nodes.length; i < l; i++)
 					nodeSet.matchingNodes.removeKey(nodes[i]);
 			} else {
-				IJavaElement element = createTypeHandle(new String(unit.getMainTypeName()));
+				IJavaElement element = createPackageDeclarationHandle(unit);
 				for (int i = 0, l = nodes.length; i < l; i++) {
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
@@ -1983,7 +1996,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	if (matchedUnitContainer) {
 		ImportReference pkg = unit.currentPackage;
 		if (pkg != null && pkg.annotations != null) {
-			IJavaElement element = createTypeHandle(new String(unit.getMainTypeName()));
+			IJavaElement element = createPackageDeclarationHandle(unit);
 			if (element != null) {
 				reportMatching(pkg.annotations, element, null, nodeSet, true, encloses(element));
 			}
