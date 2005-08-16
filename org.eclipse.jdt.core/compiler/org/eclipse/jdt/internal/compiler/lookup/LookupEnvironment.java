@@ -426,9 +426,9 @@ public TypeBinding convertToRawType(TypeBinding type) {
 
 /* Used to guarantee array type identity.
 */
-public ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
-	if (type instanceof LocalTypeBinding) // cache local type arrays with the local type itself
-		return ((LocalTypeBinding) type).createArrayType(dimensionCount);
+public ArrayBinding createArrayType(TypeBinding leafComponentType, int dimensionCount) {
+	if (leafComponentType instanceof LocalTypeBinding) // cache local type arrays with the local type itself
+		return ((LocalTypeBinding) leafComponentType).createArrayType(dimensionCount);
 
 	// find the array binding cache for this dimension
 	int dimIndex = dimensionCount - 1;
@@ -451,8 +451,8 @@ public ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
 	while (++index < length) {
 		ArrayBinding currentBinding = arrayBindings[index];
 		if (currentBinding == null) // no matching array, but space left
-			return arrayBindings[index] = new ArrayBinding(type, dimensionCount, this);
-		if (currentBinding.leafComponentType == type)
+			return arrayBindings[index] = new ArrayBinding(leafComponentType, dimensionCount, this);
+		if (currentBinding.leafComponentType == leafComponentType)
 			return currentBinding;
 	}
 
@@ -462,7 +462,7 @@ public ArrayBinding createArrayType(TypeBinding type, int dimensionCount) {
 		(arrayBindings = new ArrayBinding[length * 2]), 0,
 		length); 
 	uniqueArrayBindings[dimIndex] = arrayBindings;
-	return arrayBindings[length] = new ArrayBinding(type, dimensionCount, this);
+	return arrayBindings[length] = new ArrayBinding(leafComponentType, dimensionCount, this);
 }
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 	return createBinaryTypeFrom(binaryType, packageBinding, true, accessRestriction);
