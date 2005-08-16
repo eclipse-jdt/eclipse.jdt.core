@@ -3427,4 +3427,43 @@ public void test100() {
 		"----------\n"
 	);
 }
+public void test101() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	Character c0 = \'a\';\n" +
+			"	public static void main(String argv[]) {\n" + 
+			"		Character c1;\n" + 
+			"		c1 = \'b\';\n" + 
+			"\n" + 
+			"		Character c2 = \'c\';\n" + 
+			"		Character[] c3 = { \'d\' };\n" +
+			"	\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	Character c0 = \'a\';\n" + 
+		"	          ^^\n" + 
+		"Type mismatch: cannot convert from char to Character\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	c1 = \'b\';\n" + 
+		"	     ^^^\n" + 
+		"Type mismatch: cannot convert from char to Character\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	Character c2 = \'c\';\n" + 
+		"	          ^^\n" + 
+		"Type mismatch: cannot convert from char to Character\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 8)\n" + 
+		"	Character[] c3 = { \'d\' };\n" + 
+		"	                   ^^^\n" + 
+		"Type mismatch: cannot convert from char to Character\n" + 
+		"----------\n"
+	);
+}
 }

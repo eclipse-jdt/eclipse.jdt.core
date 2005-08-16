@@ -3434,6 +3434,25 @@ public void test100() {
 		}
 	);
 }
+public void test101() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	Character c0 = \'a\';\n" +
+			"	public static void main(String argv[]) {\n" + 
+			"		Character c1;\n" + 
+			"		c1 = \'b\';\n" + 
+			"\n" + 
+			"		Character c2 = \'c\';\n" + 
+			"		Character[] c3 = { \'d\' };\n" +
+			"	\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		""
+	);
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }

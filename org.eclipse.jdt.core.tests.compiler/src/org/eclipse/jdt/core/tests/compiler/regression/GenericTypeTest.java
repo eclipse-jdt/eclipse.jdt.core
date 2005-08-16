@@ -13765,7 +13765,7 @@ public void test499(){
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	Integer[] var = cond ? tab1 : tab2;\n" + 
 		"	          ^^^\n" + 
-		"Type mismatch: cannot convert from Object&Serializable&Cloneable to Integer[]\n" + 
+		"Type mismatch: cannot convert from Object&Serializable&Comparable<? extends Object&Serializable&Comparable<?>>[] to Integer[]\n" + 
 		"----------\n");
 }	
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84251
@@ -17825,13 +17825,8 @@ public void test617() {
 				"}\n",
 	        },
 			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\r\n" + 
-			"	arrays.add(a); // Error: The method add(capture-of ? super Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\r\n" + 
-			"	       ^^^\n" + 
-			"The method add(capture-of ? super Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 17)\r\n" + 
-			"	arrays.add(a); // Error: The method add(capture-of ? extends Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\r\n" + 
+			"1. ERROR in X.java (at line 17)\n" + 
+			"	arrays.add(a); // Error: The method add(capture-of ? extends Number[]) in the type List<capture-of ? super Number[]> is not applicable for the arguments (Number[])\n" + 
 			"	       ^^^\n" + 
 			"The method add(capture-of ? extends Number[]) in the type List<capture-of ? extends Number[]> is not applicable for the arguments (Number[])\n" + 
 			"----------\n");
@@ -17890,22 +17885,17 @@ public void test617() {
 				"}\n",
 	        },
 			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	lhs.add(rhs.get(0));\n" + 
-			"	    ^^^\n" + 
-			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (capture-of ? extends Object[])\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 12)\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
 			"The method add(capture-of ? extends Object[]) in the type Vector<capture-of ? extends Object[]> is not applicable for the arguments (capture-of ? extends Object[])\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 17)\n" + 
+			"2. ERROR in X.java (at line 17)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
 			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (capture-of ? super Object[])\n" + 
 			"----------\n" + 
-			"4. ERROR in X.java (at line 22)\n" + 
+			"3. ERROR in X.java (at line 22)\n" + 
 			"	lhs.add(rhs.get(0));\n" + 
 			"	    ^^^\n" + 
 			"The method add(capture-of ? extends Object[]) in the type Vector<capture-of ? extends Object[]> is not applicable for the arguments (capture-of ? super Object[])\n" + 
@@ -17913,7 +17903,7 @@ public void test617() {
 	}				
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982 - variation
 	public void test633() {
-	    this.runNegativeTest(
+	    this.runConformTest(
             new String[] {
                 "X.java",
 				"import java.util.Vector;\n" + 
@@ -17929,12 +17919,7 @@ public void test617() {
 				"	}\n" + 
 				"}\n",
 	        },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	lhs.add(rhs.get(0)); \n" + 
-			"	    ^^^\n" + 
-			"The method add(capture-of ? super Object[]) in the type Vector<capture-of ? super Object[]> is not applicable for the arguments (Object[])\n" + 
-			"----------\n");
+			"");
 	}				
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90775
 	public void test634() {
@@ -21038,8 +21023,8 @@ public void test725() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	data = resize(data, new Object[maxChunkNo][]);\n" + 
-		"	       ^^^^^^\n" + 
-		"The method resize(T[], T[]) in the type AbsC is not applicable for the arguments (T[][], Object[][])\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object[][] to T[][]\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98500
@@ -23249,6 +23234,80 @@ public void test803() {
 		"	return true ? superList : superList;\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from ArrayList<capture-of ? extends Object> to ArrayList<? super A>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106865
+public void test804() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y<E> {\n" + 
+			"	void foo(E e) {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"    void method1(Y<? super Object[]> y, Object[] os) {\n" + 
+			"        y.foo(os);\n" + 
+			"    }\n" + 
+			"    void method2(Y<? super Cloneable> y, Cloneable c) {\n" + 
+			"        y.foo(c);\n" + 
+			"    }    \n" + 
+			"    void method3(Y<? extends Object[]> y, Object[] os) {\n" + 
+			"        y.foo(os);\n" + 
+			"    }\n" + 
+			"    void method4(Y<? extends Cloneable> y, Cloneable c) {\n" + 
+			"        y.foo(c);\n" + 
+			"    }    \n" + 
+			"    \n" + 
+			"    void bar(Y<Object> y) {\n" + 
+			"    	method2(y, null);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	y.foo(os);\n" + 
+		"	  ^^^\n" + 
+		"The method foo(capture-of ? extends Object[]) in the type Y<capture-of ? extends Object[]> is not applicable for the arguments (Object[])\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 16)\n" + 
+		"	y.foo(c);\n" + 
+		"	  ^^^\n" + 
+		"The method foo(capture-of ? extends Cloneable) in the type Y<capture-of ? extends Cloneable> is not applicable for the arguments (Cloneable)\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106936
+public void test805() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			" 	static <T> T foo(T t1, T t2) { return t1; }\n" + 
+			" 	public static void main(String[] args) {\n" + 
+			"		Number[] numbers = {}, numbers2, numbers3;\n" + 
+			"		Float[] floats = {};\n" + 
+			"		Integer[] integers = {};\n" + 
+			"\n" + 
+			"		numbers2 = foo(numbers, floats);\n" + 
+			" 		numbers3 = numbers != null ? numbers : floats;\n" + 
+			" 		String s = foo(numbers, floats); 		\n" + 
+			"\n" + 
+			" 		numbers2 = foo(integers, floats);\n" + 
+			" 		numbers3 = integers != null ? integers : floats;\n" + 
+			" 		String s2 = foo(integers, floats);\n" + 
+			" 	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	String s = foo(numbers, floats); 		\n" + 
+		"	       ^\n" + 
+		"Type mismatch: cannot convert from Number[] to String\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	String s2 = foo(integers, floats);\n" + 
+		"	       ^^\n" + 
+		"Type mismatch: cannot convert from Number&Comparable<? extends Number&Comparable<?>>[] to String\n" + 
 		"----------\n");
 }
 }

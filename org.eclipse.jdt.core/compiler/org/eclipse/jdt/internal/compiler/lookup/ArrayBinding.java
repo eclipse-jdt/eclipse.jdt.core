@@ -117,6 +117,31 @@ public LookupEnvironment environment() {
     return this.environment;
 }
 
+/**
+ * Find supertype which erases to a given type, or null if not found
+ */
+public TypeBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
+
+	if (this == otherType) return this;
+	int otherDim = otherType.dimensions();
+	if (this.dimensions != otherDim) {
+		switch(otherType.id) {
+			case T_JavaLangObject :
+			case T_JavaIoSerializable :
+			case T_JavaLangCloneable :
+				return otherType;
+		}
+		if (otherDim < this.dimensions & otherType.leafComponentType().id == T_JavaLangObject) {
+			return otherType; // X[][] has Object[] as an implicit supertype
+		}
+		return null;
+	}
+	if (!(this.leafComponentType instanceof ReferenceBinding)) return null;
+	TypeBinding leafSuperType = ((ReferenceBinding)this.leafComponentType).findSuperTypeWithSameErasure(otherType.leafComponentType());
+	if (leafSuperType == null) return null;
+	return environment().createArrayType(leafSuperType, this.dimensions);	
+}
+
 public char[] genericTypeSignature() {
 	
     if (this.genericTypeSignature == null) {
@@ -155,7 +180,7 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 			return false;
 		case Binding.WILDCARD_TYPE :
 		    return ((WildcardBinding) otherType).boundCheck(this);
-/*		    
+		    
 		case Binding.TYPE_PARAMETER :
 			// check compatibility with capture of ? super X
 			if (otherType.isCapture()) {
@@ -167,7 +192,7 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 				}
 			}
 			return false;
-*/
+
 	}
 	//Check dimensions - Java does not support explicitly sized dimensions for types.
 	//However, if it did, the type checking support would go here.
