@@ -113,7 +113,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug100041"));
+		suite.addTest(new ASTConverterJavadocTest("testBug106581"));
 		return suite;
 	}
 
@@ -2972,6 +2972,41 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			methodDeclaration = (MethodDeclaration) node;
 			javadocStart = javadocs[5].getStartPosition();
 			assertEquals("Invalid start position for MethodDeclaration: "+methodDeclaration, methodDeclaration.getStartPosition(), javadocStart);
+		}
+	}
+
+	/**
+	 * Bug 106581: [javadoc] null type binding for parameter in javadoc
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=106581"
+	 */
+	public void testBug106581() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b106581/A.java",
+			"package javadoc.b106581;\n" + 
+			"public class A {\n" + 
+			"    /**\n" + 
+			"     * @param x\n" + 
+			"     */ \n" + 
+			"     public void foo(int x) {},\n" + 
+			"}\n"
+		);
+		CompilationUnit compilUnit = verifyComments(workingCopies[0]);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Get comment
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+
+			// Get local variable declaration
+			Javadoc docComment = (Javadoc) comment;
+			TagElement tag = (TagElement) docComment.tags().get(0);
+			assertEquals("Invalid number of fragment for tag: "+tag, 1, tag.fragments().size());
+			ASTNode node = (ASTNode) tag.fragments().get(0);
+			assertEquals("Invalid kind of name reference for tag element: "+tag, ASTNode.SIMPLE_NAME, node.getNodeType());
+			SimpleName simpleName = (SimpleName) node;
+			assertNotNull("We should have a type binding for simple name: "+simpleName, simpleName.resolveTypeBinding());
 		}
 	}
 }

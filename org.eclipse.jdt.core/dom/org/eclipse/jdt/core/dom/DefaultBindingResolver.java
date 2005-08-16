@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
 import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
@@ -857,6 +858,12 @@ class DefaultBindingResolver extends BindingResolver {
 			ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
 			if (typeBinding != null) {
 				return typeBinding;
+			}
+		} if (node instanceof JavadocSingleNameReference) {
+			JavadocSingleNameReference singleNameReference = (JavadocSingleNameReference) node;
+			LocalVariableBinding localVariable = (LocalVariableBinding)singleNameReference.binding;
+			if (localVariable != null) {
+				return this.getTypeBinding(localVariable.type);
 			}
 		} if (node instanceof SingleNameReference) {
 			SingleNameReference singleNameReference = (SingleNameReference) node;
