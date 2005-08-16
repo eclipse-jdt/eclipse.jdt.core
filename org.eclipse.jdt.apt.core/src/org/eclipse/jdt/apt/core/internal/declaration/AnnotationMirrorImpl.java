@@ -338,6 +338,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
                     Array.set( array, i, returnObj );
                 }
             }
+            return array;
 		}
 		// caller should have caught this case.
         else if( value instanceof ITypeBinding )

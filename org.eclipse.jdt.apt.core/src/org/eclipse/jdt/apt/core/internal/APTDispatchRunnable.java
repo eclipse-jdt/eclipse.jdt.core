@@ -232,7 +232,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 			// log unclaimed annotations.
 		} catch (Throwable t) {
-			AptPlugin.log(t, "Unexpected failure running APT"); //$NON-NLS-1$
+			AptPlugin.log(t, "Unexpected failure running APT " + _file); //$NON-NLS-1$
 		}
 		return EMPTY_APT_RESULT;
 	}
