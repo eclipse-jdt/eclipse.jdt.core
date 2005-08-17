@@ -3168,7 +3168,7 @@ public void test090() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	X x = this.clone();\n" + 
-		"	  ^\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Object to X\n" + 
 		"----------\n"
 	);

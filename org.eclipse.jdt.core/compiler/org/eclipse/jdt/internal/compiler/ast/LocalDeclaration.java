@@ -214,7 +214,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 												&& initialization.isConstantValueOfTypeAssignableToType(initializationType, scope.environment().computeBoxingType(variableType)))) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
 					} else {
-						scope.problemReporter().typeMismatchError(initializationType, variableType, this);
+						scope.problemReporter().typeMismatchError(initializationType, variableType, this.initialization);
 					}
 				}
 			}

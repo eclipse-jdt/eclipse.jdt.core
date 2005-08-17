@@ -3128,7 +3128,7 @@ public void test090() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	X x = this.clone();\n" + 
-		"	  ^\n" + 
+		"	      ^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from Object to X\n" + 
 		"----------\n"
 	);
@@ -3460,7 +3460,7 @@ public void test101() {
 		"----------\n" + 
 		"3. ERROR in X.java (at line 7)\n" + 
 		"	Character c2 = \'c\';\n" + 
-		"	          ^^\n" + 
+		"	               ^^^\n" + 
 		"Type mismatch: cannot convert from char to Character\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 8)\n" + 
