@@ -1943,7 +1943,27 @@ public class JavaModelManager implements ISaveParticipant {
 			}
 		}
 		
-		Iterator iterator = newElements.keySet().iterator();
+		// Need to put any JarPackageFragmentRoot in first.
+		// This is due to the way the LRU cache flushes entries.
+		// When a JarPackageFragment is flused from the LRU cache, the entire
+		// jar is flushed by removing the JarPackageFragmentRoot and all of its
+		// children (see ElementCache.close()). If we flush the JarPackageFragment 
+		// when its JarPackageFragmentRoot is not in the cache and the root is about to be 
+		// added (during the 'while' loop), we will end up in an inconsist state. 
+		// Subsequent resolution against package in the jar would fail as a result.
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422
+		// (theodora)
+		for(Iterator it = newElements.entrySet().iterator(); it.hasNext(); ) {
+			Map.Entry entry = (Map.Entry)it.next();
+			IJavaElement element = (IJavaElement)entry.getKey();
+			if( element instanceof JarPackageFragmentRoot ){
+				Object info = entry.getValue();
+				it.remove();
+				this.cache.putInfo(element, info);
+			}
+		}	
+	
+		Iterator iterator = newElements.keySet().iterator();	
 		while (iterator.hasNext()) {
 			IJavaElement element = (IJavaElement)iterator.next();
 			Object info = newElements.get(element);
