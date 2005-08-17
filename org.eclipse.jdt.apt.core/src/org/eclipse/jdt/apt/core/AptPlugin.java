@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.osgi.framework.BundleContext;
 
@@ -39,6 +40,7 @@ public class AptPlugin extends Plugin {
 		initDebugTracing();
 		checkToolsJar();
 		AptConfig.initialize();
+		AnnotationProcessorFactoryLoader.getLoader();
 	}
 
 	/**
