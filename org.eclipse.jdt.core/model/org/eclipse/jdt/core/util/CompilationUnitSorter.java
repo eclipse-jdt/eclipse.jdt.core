@@ -37,6 +37,19 @@ public final class CompilationUnitSorter {
 		// Not instantiable
 	} 
 	
+    /**
+     * @deprecated marking deprecated as it is using deprecated code
+     */
+    private static void checkASTLevel(int level) {
+        switch (level) {
+        case AST.JLS2 :
+        case AST.JLS3 :
+            break;
+        default :
+            throw new IllegalArgumentException();
+        }
+    }
+
 	/**
 	 * Name of auxillary property whose value can be used to determine the
 	 * original relative order of two body declarations. This allows a
@@ -310,15 +323,10 @@ public final class CompilationUnitSorter {
         if (compilationUnit == null || comparator == null) {
             throw new IllegalArgumentException();
         }
-        switch (level) {
-        case AST.JLS2 :
-        case AST.JLS3 :
-            break;
-        default :
-            throw new IllegalArgumentException();
-        }
+        checkASTLevel(level);
         ICompilationUnit[] compilationUnits = new ICompilationUnit[] { compilationUnit };
         SortElementsOperation operation = new SortElementsOperation(level, compilationUnits, positions, comparator);
         operation.runOperation(monitor);
     }
+    
 }
