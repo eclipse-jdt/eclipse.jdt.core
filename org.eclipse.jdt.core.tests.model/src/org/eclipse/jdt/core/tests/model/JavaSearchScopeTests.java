@@ -34,15 +34,10 @@ public class JavaSearchScopeTests extends ModifyingResourceTests implements IJav
 	// All specified tests which do not belong to the class are skipped...
 	static {
 	//	TESTS_NAMES = new String[] { "testMethodOccurences" };
-//		TESTS_NUMBERS = new int[] { 101777 };
+    //  TESTS_NUMBERS = new int[] { 101777 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
 	}
 	
-	protected void setUp() throws Exception {
-		System.out.println("--------------------------------------------------------------------------------");
-		System.out.println("Running test "+getName()+"...");
-		super.setUp();
-	}
 	protected void tearDown() throws Exception {
 		// Cleanup caches
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
