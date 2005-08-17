@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class SourceTypeBinding extends ReferenceBinding {
 	public ReferenceBinding superclass;
@@ -575,9 +576,12 @@ public int kind() {
 public char[] computeUniqueKey(boolean isLeaf) {
 	char[] uniqueKey = super.computeUniqueKey(isLeaf);
 	if (uniqueKey.length == 2) return uniqueKey; // problem type's unique key is "L;"
-	int start = CharOperation.lastIndexOf('/', this.fileName) + 1;
+	if (Util.isClassFileName(this.fileName)) return uniqueKey; // no need to insert compilation unit name for a .class file
+	
+	// insert compilation unit name if the type name is not the main type name
 	int end = CharOperation.lastIndexOf('.', this.fileName);
 	if (end != -1) {
+		int start = CharOperation.lastIndexOf('/', this.fileName) + 1;
 		char[] mainTypeName = CharOperation.subarray(this.fileName, start, end);
 		start = CharOperation.lastIndexOf('/', uniqueKey) + 1;
 		if (start == 0)

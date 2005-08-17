@@ -42,7 +42,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] {"test0575"};
+//		TESTS_NAMES = new String[] {"test0576"};
 //		TESTS_NUMBERS =  new int[] { 606 };
 	}
 	public static Test suite() {
@@ -5335,6 +5335,34 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
+		}
+	}
+	
+	/*
+	 * Ensures that the binding key of a raw member type is correct.
+	 * (regression test for bug 100549 Strange binding keys from AST on class file of nested type)
+	 */
+	public void test0576() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
+			addLibrary(project, "lib.jar", "src.zip", new String[] {
+				"/P1/p/X.java",
+				"package p;\n" +
+				"public class X<T> {\n" +
+				"  /*start*/public class Member {\n" +
+				"  }/*end*/\n" +
+				"}",
+			}, "1.5");
+			IClassFile classFile = getClassFile("P1", "/P1/lib.jar", "p", "X$Member.class");
+			String source = classFile.getSource();
+			MarkerInfo markerInfo = new MarkerInfo(source);
+			markerInfo.astStarts = new int[] {source.indexOf("/*start*/") + "/*start*/".length()};
+			markerInfo.astEnds = new int[] {source.indexOf("/*end*/")};
+			ASTNode node = buildAST(markerInfo, classFile);
+			ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
+			assertBindingKeyEquals("Lp/X<TT;>.Member;", binding.getKey());
+		} finally {
+			deleteProject("P1");
 		}
 	}
 	
