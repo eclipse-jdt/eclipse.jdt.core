@@ -50,6 +50,7 @@ public static Test suite() {
 	allClasses.add(JavaSearchBugsTests.class);
 	allClasses.add(JavaSearchMultipleProjectsTests.class);
 	allClasses.add(SearchTests.class);
+	allClasses.add(JavaSearchScopeTests.class);
 
 	// Reset forgotten subsets of tests
 	TestCase.TESTS_PREFIX = null;
