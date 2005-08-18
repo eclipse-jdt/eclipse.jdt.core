@@ -443,7 +443,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=107124
 			// contents can potentially be null if a IOException occurs while retrieving the contents
 			if (contents == null) return;
-			ClassFileReader reader = new ClassFileReader(contents, this.document.getPath().toCharArray());
+			final String path = this.document.getPath();
+			ClassFileReader reader = new ClassFileReader(contents, path == null ? null : path.toCharArray());
 	
 			// first add type references
 			char[] className = replace('/', '.', reader.getName()); // looks like java/lang/String
