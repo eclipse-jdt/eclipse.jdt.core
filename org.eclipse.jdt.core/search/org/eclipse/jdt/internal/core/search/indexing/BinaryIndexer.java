@@ -439,7 +439,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 	}
 	public void indexDocument() {
 		try {
-			byte[] contents = this.document.getByteContents();
+			final byte[] contents = this.document.getByteContents();
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=107124
 			// contents can potentially be null if a IOException occurs while retrieving the contents
 			if (contents == null) return;
