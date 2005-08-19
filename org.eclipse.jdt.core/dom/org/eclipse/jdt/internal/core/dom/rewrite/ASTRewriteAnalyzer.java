@@ -1517,7 +1517,17 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		
 		try {
 			int offset= getScanner().getTokenEndOffset(ITerminalSymbols.TokenNamereturn, node.getStartPosition());
-			rewriteNode(node, ReturnStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE);
+			
+			// bug 103970
+			if (getChangeKind(node, ReturnStatement.EXPRESSION_PROPERTY) == RewriteEvent.REPLACED) {
+				if (!Character.isWhitespace(getDocument().getChar(offset))) {
+					doTextInsert(offset, String.valueOf(' '), getEditGroup(node, ReturnStatement.EXPRESSION_PROPERTY));
+				}
+			}
+			rewriteNode(node, ReturnStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE);	
+	    } catch (BadLocationException e) {
+	        handleException(e);	
+
 		} catch (CoreException e) {
 			handleException(e);
 		}

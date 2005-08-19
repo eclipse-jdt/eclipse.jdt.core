@@ -2541,6 +2541,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("        return 1;\n");
 		buf.append("        return 1;\n");
 		buf.append("        return 1 + 2;\n");
+		buf.append("        return(1 + 2);\n");
 		buf.append("    }\n");
 		buf.append("}\n");	
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
@@ -2555,7 +2556,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
 		Block block= methodDecl.getBody();
 		List statements= block.statements();
-		assertTrue("Number of statements not 4", statements.size() == 4);
+		assertTrue("Number of statements not 5", statements.size() == 5);
 		{ // insert expression
 			ReturnStatement statement= (ReturnStatement) statements.get(0);
 			assertTrue("Has expression", statement.getExpression() == null);
@@ -2586,6 +2587,12 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			
 			InfixExpression expression= (InfixExpression) statement.getExpression();
 			rewrite.replace(expression.getLeftOperand(), ast.newNumberLiteral("9"), null);
+		}
+		{ // replace parentized expression (additional space needed)
+			ReturnStatement statement= (ReturnStatement) statements.get(4);
+			
+			Expression expression= statement.getExpression();
+			rewrite.replace(expression, ast.newNumberLiteral("9"), null);
 		}		
 		
 				
@@ -2598,7 +2605,8 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("        return x;\n");
 		buf.append("        return x;\n");
 		buf.append("        return;\n");
-		buf.append("        return 9 + 2;\n");		
+		buf.append("        return 9 + 2;\n");
+		buf.append("        return 9;\n");	
 		buf.append("    }\n");
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());
