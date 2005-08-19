@@ -23310,5 +23310,60 @@ public void test805() {
 		"Type mismatch: cannot convert from Number&Comparable<? extends Number&Comparable<?>>[] to String\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107079
+public void test806() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"/**\n" + 
+			" * This class demonstrates a generic program that Eclipse must not compile as it\n" + 
+			" * can lead to a ClassCastException despite having no explicit type casts.\n" + 
+			" */\n" + 
+			"public class X {\n" + 
+			"	private static class ValueHolder<T> {\n" + 
+			"		public T value;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		List<ValueHolder<?>> multiList = new ArrayList<ValueHolder<?>>();\n" + 
+			"\n" + 
+			"		ValueHolder<Integer> intHolder = new ValueHolder<Integer>();\n" + 
+			"		intHolder.value = 1;\n" + 
+			"\n" + 
+			"		ValueHolder<Double> doubleHolder = new ValueHolder<Double>();\n" + 
+			"		doubleHolder.value = 1.5;\n" + 
+			"\n" + 
+			"		multiList.add(intHolder);\n" + 
+			"		multiList.add(doubleHolder);\n" + 
+			"\n" + 
+			"		// I believe this line is being erroneously treated as a capture\n" + 
+			"        // conversion under 3.1 JDT.\n" + 
+			"		// I believe the problem is that ? cannot be captured except in a first\n" + 
+			"        // level wildcard.\n" + 
+			"		swapFirstTwoValues(multiList);\n" + 
+			"\n" + 
+			"		// this line causes a ClassCastException when checked.\n" + 
+			"		Integer value = intHolder.value;\n" + 
+			"		System.out.println(value);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static <T> void swapFirstTwoValues(List<ValueHolder<T>> multiList) {\n" + 
+			"		ValueHolder<T> intHolder = multiList.get(0);\n" + 
+			"		ValueHolder<T> doubleHolder = multiList.get(1);\n" + 
+			"\n" + 
+			"		intHolder.value = doubleHolder.value;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 29)\n" + 
+		"	swapFirstTwoValues(multiList);\n" + 
+		"	^^^^^^^^^^^^^^^^^^\n" + 
+		"The method swapFirstTwoValues(List<X.ValueHolder<T>>) in the type X is not applicable for the arguments (List<X.ValueHolder<?>>)\n" + 
+		"----------\n");
+}
 }
 

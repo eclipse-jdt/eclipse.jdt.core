@@ -169,14 +169,19 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public void collectSubstitutes(Scope scope, TypeBinding otherType, Map substitutes, int constraint) {
 		
 		// cannot infer anything from a null type
-		if (otherType == NullBinding) return;
-	
-		if (otherType.isBaseType()) {
-			TypeBinding boxedType = scope.environment().computeBoxingType(otherType);
-			if (boxedType == otherType) return;
-			otherType = boxedType;
+		switch (otherType.kind()) {
+			case Binding.BASE_TYPE :
+				if (otherType == NullBinding) return;
+				TypeBinding boxedType = scope.environment().computeBoxingType(otherType);
+				if (boxedType == otherType) return;
+				otherType = boxedType;
+				break;
+			case Binding.WILDCARD_TYPE :
+				WildcardBinding otherWildcard = (WildcardBinding) otherType;
+				if (otherWildcard.otherBounds != null) break; // intersection type
+				return; // wildcards are not true type expressions (JLS 15.12.2.7, p.453 2nd discussion)
 		}
-		
+	
 		// reverse constraint, to reflect variable on rhs:   A << T --> T >: A
 		int variableConstraint;
 		switch(constraint) {
