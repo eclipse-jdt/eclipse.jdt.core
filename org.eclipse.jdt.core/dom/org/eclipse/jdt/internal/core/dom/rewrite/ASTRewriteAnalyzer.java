@@ -1520,13 +1520,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			
 			// bug 103970
 			if (getChangeKind(node, ReturnStatement.EXPRESSION_PROPERTY) == RewriteEvent.REPLACED) {
-				if (!Character.isWhitespace(getDocument().getChar(offset))) {
+				if (offset == ((ASTNode) getOriginalValue(node, ReturnStatement.EXPRESSION_PROPERTY)).getStartPosition()) {
 					doTextInsert(offset, String.valueOf(' '), getEditGroup(node, ReturnStatement.EXPRESSION_PROPERTY));
 				}
 			}
 			rewriteNode(node, ReturnStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE);	
-	    } catch (BadLocationException e) {
-	        handleException(e);	
 
 		} catch (CoreException e) {
 			handleException(e);
@@ -1709,7 +1707,22 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		
+		try {
+			// bug 103970
+			if (getChangeKind(node, AssertStatement.EXPRESSION_PROPERTY) == RewriteEvent.REPLACED) {
+				int offset= getScanner().getNextEndOffset(node.getStartPosition(), true); // assert
+				
+				if (offset == ((ASTNode) getOriginalValue(node, AssertStatement.EXPRESSION_PROPERTY)).getStartPosition()) {
+					doTextInsert(offset, String.valueOf(' '), getEditGroup(node, AssertStatement.EXPRESSION_PROPERTY));
+				}
+			}
+		} catch (CoreException e) {
+			handleException(e);
+		}
+		
 		int offset= rewriteRequiredNode(node, AssertStatement.EXPRESSION_PROPERTY);
+
+		
 		rewriteNode(node, AssertStatement.MESSAGE_PROPERTY, offset, ASTRewriteFormatter.ASSERT_COMMENT);
 		return false;
 	}

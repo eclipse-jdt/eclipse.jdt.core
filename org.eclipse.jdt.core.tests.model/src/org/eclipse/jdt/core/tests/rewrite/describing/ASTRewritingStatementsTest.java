@@ -2613,6 +2613,49 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	}
 	
+	public void testAssertStatement() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        assert(true);\n");
+		buf.append("    }\n");
+		buf.append("}\n");	
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+		
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		
+		AST ast= astRoot.getAST();
+		
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List statements= block.statements();
+		assertTrue("Number of statements not 1", statements.size() == 1);
+		{ // insert expression
+			AssertStatement statement= (AssertStatement) statements.get(0);
+			
+			SimpleName newExpression= ast.newSimpleName("x");	
+			rewrite.set(statement, AssertStatement.EXPRESSION_PROPERTY, newExpression, null);
+		}		
+				
+		String preview= evaluateRewrite(cu, rewrite);
+		
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("    public void foo() {\n");
+		buf.append("        assert x;\n");
+		buf.append("    }\n");
+		buf.append("}\n");	
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	
 	public void testSwitchStatement() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
