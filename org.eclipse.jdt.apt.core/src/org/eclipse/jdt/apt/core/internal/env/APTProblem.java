@@ -11,12 +11,12 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.compiler.IProblem;
 
-public class APTProblem implements IProblem 
-{
-	public static enum Severity{ ERROR, WARNING, INFO};
+class APTProblem implements IProblem 
+{	
 	private static final String[] NO_ARGS = new String[0];
 	private final Severity _severity;
 	private int _startingOffset;

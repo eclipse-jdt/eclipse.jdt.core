@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class MessagerImpl implements Messager, EclipseMessager
 {
+	public static enum Severity{ ERROR, WARNING, INFO};
     private final ProcessorEnvImpl _env;
 
     MessagerImpl(ProcessorEnvImpl env){
@@ -34,9 +35,9 @@ public class MessagerImpl implements Messager, EclipseMessager
     	if( pos == null )
     		printError(msg);
     	else if( pos instanceof SourcePositionImpl )
-            print((SourcePositionImpl)pos, APTProblem.Severity.ERROR, msg, arguments);
+            print((SourcePositionImpl)pos, Severity.ERROR, msg, arguments);
     	else
-    		print(pos, APTProblem.Severity.ERROR, msg, arguments);
+    		print(pos, Severity.ERROR, msg, arguments);
     }
 	
 	public void printError(ASTNode node, String msg)
@@ -44,23 +45,25 @@ public class MessagerImpl implements Messager, EclipseMessager
 		if( node == null )
 			throw new IllegalArgumentException("'node' cannot be null"); //$NON-NLS-1$
 		final int start = node.getStartPosition();
+		// The only time you get a dom AST node is when you are processing in a per-file mode.
+		// _env.getAstCompilationUnit() && _env.getFile() will return an non-null value.
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.ERROR, msg, line, null );
+		_env.addProblem(_env.getFile(), start, node.getLength() + start, Severity.ERROR, msg, line, null );
 	}
 
     public void printError(String msg)
     {
-        print(APTProblem.Severity.ERROR, msg, null);
+        print(Severity.ERROR, msg, null);
     }
 
     public void printNotice(SourcePosition pos, String msg, String[] arguments)
     {
         if( pos instanceof SourcePositionImpl )
-            print((SourcePositionImpl)pos, APTProblem.Severity.INFO, msg, arguments);
+            print((SourcePositionImpl)pos, Severity.INFO, msg, arguments);
 		else if (pos == null )
 			printNotice(msg);
 		else
-    		print(pos, APTProblem.Severity.INFO, msg, arguments);
+    		print(pos, Severity.INFO, msg, arguments);
     }
 	
 	public void printNotice(ASTNode node, String msg)
@@ -68,23 +71,25 @@ public class MessagerImpl implements Messager, EclipseMessager
 		if( node == null )
 			throw new IllegalArgumentException("'node' cannot be null"); //$NON-NLS-1$
 		final int start = node.getStartPosition();
+		// The only time you get a dom AST node is when you are processing in a per-file mode.
+		// _env.getAstCompilationUnit() && _env.getFile() will return an non-null value.
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.INFO, msg, line, null );
+		_env.addProblem(_env.getFile(), start, node.getLength() + start, Severity.INFO, msg, line, null );
 	}
 
     public void printNotice(String msg)
     {
-       print(APTProblem.Severity.INFO, msg, null);
+       print(Severity.INFO, msg, null);
     }
 
     public void printWarning(SourcePosition pos, String msg, String[] arguments)
     {		
         if( pos instanceof SourcePositionImpl )
-            print((SourcePositionImpl)pos, APTProblem.Severity.WARNING, msg, arguments);
+            print((SourcePositionImpl)pos, Severity.WARNING, msg, arguments);
 		else if (pos == null )
 			printWarning(msg); 
 		else
-    		print(pos, APTProblem.Severity.WARNING, msg, arguments);
+    		print(pos, Severity.WARNING, msg, arguments);
     }
 	
 	public void printWarning(ASTNode node, String msg)
@@ -92,13 +97,15 @@ public class MessagerImpl implements Messager, EclipseMessager
 		if( node == null )
 			throw new IllegalArgumentException("'node' cannot be null"); //$NON-NLS-1$
 		final int start = node.getStartPosition();
+		// The only time you get a dom AST node is when you are processing in a per-file mode.
+		// _env.getAstCompilationUnit() && _env.getFile() will return an non-null value.
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		_env.addProblem(_env.getFile(), start, node.getLength() + start, APTProblem.Severity.WARNING, msg, line, null);
+		_env.addProblem(_env.getFile(), start, node.getLength() + start, Severity.WARNING, msg, line, null);
 	}
 
     public void printWarning(String msg)
     {
-        print(APTProblem.Severity.WARNING, msg, null);
+        print(Severity.WARNING, msg, null);
     }
     
     public void printError(SourcePosition pos, String msg) {
@@ -150,7 +157,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		if (errorId == null) {
 			throw new IllegalArgumentException("errorId cannot be null"); //$NON-NLS-1$
 		}
-		print(APTProblem.Severity.ERROR, msg, new String[] {pluginId, errorId});
+		print(Severity.ERROR, msg, new String[] {pluginId, errorId});
 	}
 	
 	public void printFixableWarning(String msg, String pluginId, String errorId) {
@@ -160,7 +167,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		if (errorId == null) {
 			throw new IllegalArgumentException("errorId cannot be null"); //$NON-NLS-1$
 		}
-		print(APTProblem.Severity.WARNING, msg, new String[] {pluginId, errorId});
+		print(Severity.WARNING, msg, new String[] {pluginId, errorId});
 	}
 	
 	public void printFixableNotice(String msg, String pluginId, String errorId) {
@@ -170,11 +177,11 @@ public class MessagerImpl implements Messager, EclipseMessager
 		if (errorId == null) {
 			throw new IllegalArgumentException("errorId cannot be null"); //$NON-NLS-1$
 		}
-		print(APTProblem.Severity.INFO, msg, new String[] {pluginId, errorId});
+		print(Severity.INFO, msg, new String[] {pluginId, errorId});
 	}
   
     private void print(SourcePositionImpl pos,
-    				   APTProblem.Severity severity,
+    				   Severity severity,
                        String msg,
                        String[] arguments)
     {
@@ -189,7 +196,7 @@ public class MessagerImpl implements Messager, EclipseMessager
     }
     
     private void print(SourcePosition pos,
-    				   APTProblem.Severity severity,
+    				   Severity severity,
     				   String msg,
     				   String[] arguments)
     {    	
@@ -206,18 +213,18 @@ public class MessagerImpl implements Messager, EclipseMessager
     	else
     		resource = null;
     	 
-    	final IFile currentResource = _env.getFile();
-    	int offset = 0;    	
-    	if( currentResource.equals(resource) ){
-    		final CompilationUnit unit = _env.getAstCompilationUnit();    		
-    		offset = unit.getPosition(pos.line(), pos.column() );
-    	}    	
+    	int offset = 0;
+    	if( resource != null ){
+    		final CompilationUnit unit = _env.getAstCompilationUnit(resource);
+    		if( unit != null )
+    			offset = unit.getPosition( pos.line(), pos.column() );
+    	}
     	_env.addProblem(resource, offset, -1, severity, msg, pos.line(), arguments );   
     }
 
-    private void print(APTProblem.Severity severity, String msg, String[] arguments)
+    private void print(Severity severity, String msg, String[] arguments)
     {
-    	_env.addProblem(null, 0, -1, severity, msg, 1, arguments );  
+     	_env.addProblem(null, 0, -1, severity, msg, 1, arguments );  
 		
     }
   

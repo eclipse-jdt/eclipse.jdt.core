@@ -61,7 +61,10 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
         return false;
     }
 
-    public int hashCode(){ return _binding.hashCode(); }
+    public int hashCode(){ 
+    	final String key = getDeclarationBinding().getKey();
+    	return key == null ? 0 : key.hashCode(); 
+    }
 
     <A extends Annotation> A _getAnnotation(Class<A> annotationClass,
                                             IResolvedAnnotation[] annoInstances)

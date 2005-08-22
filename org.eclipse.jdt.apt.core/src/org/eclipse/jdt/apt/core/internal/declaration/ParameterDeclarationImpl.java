@@ -100,7 +100,13 @@ public abstract class ParameterDeclarationImpl extends DeclarationImpl implement
 
     public MirrorKind kind(){ return MirrorKind.FORMAL_PARAMETER; }
 
-    public int hashCode(){ return _executable.getDeclarationBinding().hashCode() + _paramIndex; }   
+    public int hashCode(){
+    	final String methodKey = _executable.getDeclarationBinding().getKey();
+    	int hashcode = 0;
+    	if( methodKey != null )
+    		hashcode = methodKey.hashCode();
+    	return hashcode + _paramIndex; 
+    }   
 
     public String toString(){		
         final StringBuilder builder = new StringBuilder();

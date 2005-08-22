@@ -37,12 +37,14 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
 public class APTDispatch 
 {	
 	public static APTResult runAPTDuringBuild(
-			final List<AnnotationProcessorFactory> factories, final IFile file,
-			final IJavaProject javaProj) 
-	{
-		return runAPT( factories, javaProj, file, null );
+			final List<AnnotationProcessorFactory> factories,
+			final IFile[] files,
+			final IJavaProject javaProj,
+			final boolean isFullBuild)
+	{	
+		return runAPT( factories, javaProj, files, null, isFullBuild );
 	}
-
+	
 	/**
 	 * Run annnotation processing.
 	 * @param factories the list of annotation processor factories to be run.
@@ -52,19 +54,25 @@ public class APTDispatch
 			final List<AnnotationProcessorFactory> factories,
 			ICompilationUnit compilationUnit, IJavaProject javaProj) 
 	{
-		return runAPT( factories, javaProj, null, compilationUnit );
+		return runAPT( factories, javaProj, null, compilationUnit, false /* does not matter*/ );
 	}
 		
 	private static APTResult runAPT(final List<AnnotationProcessorFactory> factories,
-			IJavaProject javaProj, IFile file, 
-			ICompilationUnit compilationUnit )
-	{
-		
+			IJavaProject javaProj,
+			IFile[] files,
+			ICompilationUnit compilationUnit,
+			boolean isFullBuild)
+	{	
+
+		assert ( files != null && compilationUnit == null ) ||
+		       ( files == null && compilationUnit != null ) :
+	    	"either compilation unit is null or set of files is, but not both"; //$NON-NLS-1$
+	    
 		APTDispatchRunnable runnable;
 		ISchedulingRule schedulingRule;
-		if ( file != null )
+		if ( files != null )
 		{
-			 runnable = new APTDispatchRunnable( file, javaProj, factories );
+			 runnable = new APTDispatchRunnable( files, javaProj, factories, isFullBuild );
 			 schedulingRule = javaProj.getResource();
 		}
 		else
@@ -97,11 +105,11 @@ public class APTDispatch
 		{
 			_newFiles = Collections.emptySet();
 			_deletedFiles = Collections.emptySet();
-			_newDependencies = Collections.emptySet();
+			_newDependencies = Collections.emptyMap();
 			_newProblems = Collections.emptyMap();
 			_sourcePathChanged = false;
 		}
-		APTResult( Set<IFile> newFiles, Set<IFile> deletedFiles, Set<String> deps, Map<IFile, List<IProblem>> problems, boolean sourcePathChanged )
+		APTResult( Set<IFile> newFiles, Set<IFile> deletedFiles, Map<IFile, Set<String>> deps, Map<IFile, List<IProblem>> problems, boolean sourcePathChanged )
 		{
 			_newFiles = newFiles;
 			_newDependencies = deps;
@@ -112,16 +120,14 @@ public class APTDispatch
 		
 		private final Set<IFile> _newFiles;
 		private final Set<IFile> _deletedFiles;
-		private final Set<String> _newDependencies;
+		private final Map<IFile, Set<String>> _newDependencies;
 		private final Map<IFile, List<IProblem>> _newProblems;
 		private final boolean _sourcePathChanged;
 		
 		Set<IFile> getNewFiles() { return _newFiles; }
 		Set<IFile> getDeletedFiles() { return _deletedFiles; }
-		Set<String> getNewDependencies() { return _newDependencies; }
+		Map<IFile, Set<String>> getNewDependencies() { return _newDependencies; }
 		Map<IFile, List<IProblem>> getProblems(){return _newProblems;}
 		boolean getSourcePathChanged() { return _sourcePathChanged; }
-	}
-
-	
+	}	
 }

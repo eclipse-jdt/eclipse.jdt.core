@@ -86,6 +86,10 @@ import org.eclipse.jdt.core.dom.AST;
  * 
  */
 public class GeneratedFileManager {
+
+	// disable type generation during reconcile. This can cause deadlock.
+	// See radar bug #238684	
+	public static final boolean GENERATE_TYPE_DURING_RECONCILE = false;
 	
 
 	// Use a weak hash map to allow file managers to get GC'ed if a project
@@ -224,7 +228,9 @@ public class GeneratedFileManager {
 			
 			makeReadOnly( file, true );
 			
-			addEntryToFileMaps( parentFile, file );
+			// during a batch build
+			if( parentFile != null )
+				addEntryToFileMaps( parentFile, file );
 			return new FileGenerationResult(file, contentsDiffer, updatededSourcePath);
 		}
 		catch ( Throwable t )
@@ -289,9 +295,8 @@ public class GeneratedFileManager {
 			String contents, WorkingCopyOwner workingCopyOwner,
 			IProblemRequestor problemRequestor, IProgressMonitor progressMonitor ) 
 	{	
-		// disable type generation during reconcile. This can cause deadlock.
-		// See radar bug #238684
-		if (true)
+		
+		if (!GENERATE_TYPE_DURING_RECONCILE)
 			return null;
 		
 		// type-generation during reconcile only works if the generated source
@@ -536,7 +541,8 @@ public class GeneratedFileManager {
 	public boolean deleteGeneratedTypeInMemory(IFile generatedFile, ICompilationUnit parentWorkingCopy, IProgressMonitor progressMonitor )
 		throws JavaModelException
 	{		
-		
+		if( !GENERATE_TYPE_DURING_RECONCILE )
+			return false;
 		// see if this is the only parent for this generated file
 		boolean remove = false;
 		IFile parentFile = (IFile) parentWorkingCopy.getResource();

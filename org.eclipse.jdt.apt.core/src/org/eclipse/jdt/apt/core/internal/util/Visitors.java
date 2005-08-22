@@ -80,6 +80,8 @@ public class Visitors {
         public boolean visit(ForStatement forStatement){ return false; }
         public boolean visit(IfStatement ifStatement){ return false; }
         public boolean visit(TryStatement tryStatement){ return false; }
+        
+        public void reset(){ _annotations.clear(); }
     }
     
     /**

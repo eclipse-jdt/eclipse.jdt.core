@@ -14,8 +14,6 @@ package org.eclipse.jdt.apt.core.internal;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -114,36 +112,28 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		if ("1.3".equals(javaVersion) || "1.4".equals(javaVersion)) { //$NON-NLS-1$ //$NON-NLS-2$
 			return EMPTY_PRE_BUILD_COMPILATION_RESULT;
 		}
+
+	
+		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject );	
+	
+		APTResult result = APTDispatch.runAPTDuringBuild(factories, buildFiles, javaProject, pbce.isFullBuild());
+		Set<IFile> newFiles = result.getNewFiles();			
+		Set<IFile> deletedFiles = result.getDeletedFiles();
 		
-		HashSet<IFile> newFiles = new HashSet<IFile>();
-		HashSet<IFile> deletedFiles = new HashSet<IFile>();
-		HashMap<IFile, Set<String>> newDependencies = new HashMap<IFile, Set<String>>();
-		HashMap<IFile, List<IProblem>> problems = new HashMap<IFile, List<IProblem>>(4);
-		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject );
-		boolean sourcePathChanged = false;
-		for ( int i = 0; i < buildFiles.length; i++ )
-		{
-			APTResult result = APTDispatch.runAPTDuringBuild( 
-					factories, 
-					buildFiles[i], 
-					javaProject );
-			
-			// see if APT updated a project's source path
-			sourcePathChanged |= result.getSourcePathChanged();
-			
-			newFiles.addAll( result.getNewFiles() );			
-			deletedFiles.addAll( result.getDeletedFiles() );
-			newDependencies.put( buildFiles[i], result.getNewDependencies() );	
-			mergeMaps(result.getProblems(), problems);
-		}
+		// see if APT updated a project's source path
+		boolean sourcePathChanged = result.getSourcePathChanged();
 		
 		// for apt, new files will always trump deleted files
 		for ( IFile df : deletedFiles )
 			if ( newFiles.contains( df ) )
 				deletedFiles.remove( df );
 
-		return new PreBuildCompilationResult( newFiles.toArray( new IFile[ newFiles.size() ] ), deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), newDependencies, problems, sourcePathChanged );
-		
+		return new PreBuildCompilationResult( 
+				newFiles.toArray( new IFile[ newFiles.size() ] ), 
+				deletedFiles.toArray( new IFile[ deletedFiles.size() ] ), 
+				result.getNewDependencies(), 
+				result.getProblems(), 
+				sourcePathChanged );
 	}
 	
 	/** 
