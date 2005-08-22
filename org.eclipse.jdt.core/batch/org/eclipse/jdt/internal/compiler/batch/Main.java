@@ -718,6 +718,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 
 		/**
+		 * Print the usage of the compiler
 		 * @param usage
 		 */
 		public void logUsage(String usage) {
@@ -725,20 +726,35 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 
 		/**
-		 * 
+		 * Print the version of the compiler in the log and/or the out field
 		 */
-		public void logVersion() {
-			this.printlnOut(Main.bind("misc.version", //$NON-NLS-1$
-				new String[] {
-					Main.bind("compiler.name"), //$NON-NLS-1$
-					Main.bind("compiler.version"), //$NON-NLS-1$
-					Main.bind("compiler.copyright") //$NON-NLS-1$
+		public void logVersion(final boolean printToOut) {
+			if (this.log != null && !this.isXml) {
+				final String version = Main.bind("misc.version", //$NON-NLS-1$
+					new String[] {
+						Main.bind("compiler.name"), //$NON-NLS-1$
+						Main.bind("compiler.version"), //$NON-NLS-1$
+						Main.bind("compiler.copyright") //$NON-NLS-1$
+					}
+				);
+				this.log.println("# " + version); //$NON-NLS-1$
+				if (printToOut) {
+					this.out.println(version);
 				}
-			));
+			} else if (printToOut) {
+				final String version = Main.bind("misc.version", //$NON-NLS-1$
+					new String[] {
+						Main.bind("compiler.name"), //$NON-NLS-1$
+						Main.bind("compiler.version"), //$NON-NLS-1$
+						Main.bind("compiler.copyright") //$NON-NLS-1$
+					}
+				);
+				this.out.println(version);
+			}
 		}
 
 		/**
-		 * 
+		 * Print the usage of wrong JDK
 		 */
 		public void logWrongJDK() {
 			if (isXml) {
@@ -806,28 +822,22 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 		private void printErr(String s) {
 			this.err.print(s);
-			if (!this.isXml) {
-				if (this.log != null) {
-					this.log.print(s);
-				}
+			if (!this.isXml && this.log != null) {
+				this.log.print(s);
 			}
 		}
 
 		private void printlnErr(String s) {
 			this.err.println(s);
-			if (!this.isXml) {
-				if (this.log != null) {
-					this.log.println(s);
-				}
+			if (!this.isXml && this.log != null) {
+				this.log.println(s);
 			}
 		}
 
 		private void printlnOut(String s) {
 			this.out.println(s);
-			if (!this.isXml) {
-				if (this.log != null) {
-					this.log.println(s);
-				}
+			if (!this.isXml && this.log != null) {
+				this.log.println(s);
 			}
 		}
 
@@ -1446,7 +1456,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 			if (currentArg.equals("-version") //$NON-NLS-1$
 					|| currentArg.equals("-v")) { //$NON-NLS-1$
-				printVersion();
+				this.logger.logVersion(true);
 				this.proceed = false;
 				return;
 			}
@@ -2180,14 +2190,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		} else {
 			this.showProgress = false;
 		}
+		this.logger.logVersion(printVersionRequired);
 		
 		if (printUsageRequired || filesCount == 0) {
 			printUsage();
 			this.proceed = false;
 			return;
-		}
-		if (printVersionRequired) {
-			printVersion();
 		}
 
 		if (filesCount != 0)
@@ -2714,10 +2722,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				Main.bind("compiler.copyright") //$NON-NLS-1$
 			}
 		));
-		this.logger.flush();
-	}
-	public void printVersion() {
-		this.logger.logVersion();
 		this.logger.flush();
 	}
 }

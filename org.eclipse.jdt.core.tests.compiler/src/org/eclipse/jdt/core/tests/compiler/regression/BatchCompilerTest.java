@@ -384,6 +384,8 @@ public static Test suite() {
 										normalizedValueBuffer.append(source
 												.substring(currentCharIndex));
 									state = END;
+								} else {
+									state = SKIPING;
 								}
 								break;
 							default:
@@ -402,7 +404,7 @@ public static Test suite() {
 							}
 	
 						}
-					} 
+					}
 					else if (currentChar == '\n')
 						state = END;
 					else
@@ -429,7 +431,7 @@ public static Test suite() {
 	 */
 	private static Normalizer textLogsNormalizer = new StringNormalizer(
 			new XMLClasspathsSectionNormalizer(new LinesRangeNormalizer(null,
-					0, 1)), OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
+					0, 2)), OUTPUT_DIR, OUTPUT_DIR_PLACEHOLDER);
 
 	/**
 	 * Normalizer instance for XML log files.
