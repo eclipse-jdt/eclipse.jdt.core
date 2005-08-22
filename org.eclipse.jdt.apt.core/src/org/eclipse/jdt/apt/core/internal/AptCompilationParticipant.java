@@ -38,8 +38,8 @@ import org.eclipse.jdt.core.compiler.CompilationParticipantEvent;
 import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
 import org.eclipse.jdt.core.compiler.ICompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.compiler.PostReconcileCompilationEvent;
-import org.eclipse.jdt.core.compiler.PostReconcileCompilationResult;
+import org.eclipse.jdt.core.compiler.PreReconcileCompilationEvent;
+import org.eclipse.jdt.core.compiler.PreReconcileCompilationResult;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationEvent;
 import org.eclipse.jdt.core.compiler.PreBuildCompilationResult;
 
@@ -84,8 +84,8 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		else if ( cpe.getKind() == ICompilationParticipant.PRE_BUILD_EVENT ) {
 			return preBuildNotify( (PreBuildCompilationEvent) cpe );
 		}
-		else if ( cpe.getKind() == ICompilationParticipant.POST_RECONCILE_EVENT ) {
-			return postReconcileNotify( (PostReconcileCompilationEvent) cpe );
+		else if ( cpe.getKind() == ICompilationParticipant.PRE_RECONCILE_EVENT ) {
+			return preReconcileNotify( (PreReconcileCompilationEvent) cpe );
 		}
 		else if ( cpe.getKind() == ICompilationParticipant.BROKEN_CLASSPATH_BUILD_FAILURE_EVENT) {
 			return brokenClasspathBuildFailureNotify( (BrokenClasspathBuildFailureEvent) cpe );
@@ -114,7 +114,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		if ("1.3".equals(javaVersion) || "1.4".equals(javaVersion)) { //$NON-NLS-1$ //$NON-NLS-2$
 			return EMPTY_PRE_BUILD_COMPILATION_RESULT;
 		}
-
+		
 		HashSet<IFile> newFiles = new HashSet<IFile>();
 		HashSet<IFile> deletedFiles = new HashSet<IFile>();
 		HashMap<IFile, Set<String>> newDependencies = new HashMap<IFile, Set<String>>();
@@ -171,7 +171,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		}
 	}
 	
-	private CompilationParticipantResult postReconcileNotify( PostReconcileCompilationEvent prce )
+	private CompilationParticipantResult preReconcileNotify( PreReconcileCompilationEvent prce )
 	{
 		IProblem[] problems = null;
 		
@@ -196,17 +196,19 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		{
 			AptPlugin.log(t, "Failure processing"); //$NON-NLS-1$
 		}	
-		return new PostReconcileCompilationResult(problems);
+		return new PreReconcileCompilationResult(problems);
 	}
 
 	private CompilationParticipantResult cleanNotify( CompilationParticipantEvent cpe )
 	{		
 		IProject p = cpe.getJavaProject().getProject();
+		
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
 		gfm.projectClean( true );
 		
 		return GENERIC_COMPILATION_RESULT;
 	}
+	
 	
 	private BrokenClasspathBuildFailureResult brokenClasspathBuildFailureNotify( BrokenClasspathBuildFailureEvent event )
 	{

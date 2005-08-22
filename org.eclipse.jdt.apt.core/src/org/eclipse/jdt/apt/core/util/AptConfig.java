@@ -405,8 +405,7 @@ public class AptConfig {
 	}
 	
 	private static synchronized boolean getBoolean(IJavaProject jproject, String optionName) {
-		Map options = getOptions(jproject);
-		return "true".equals(options.get(optionName)); //$NON-NLS-1$
+		return "true".equals(getOptions(jproject).get(optionName)); //$NON-NLS-1$
 	}
 	
     /**
@@ -417,10 +416,10 @@ public class AptConfig {
 	 * @param jproject
 	 * @return
 	 */
-	private static Map getOptions(IJavaProject jproject) {
+	private static Map<String,String> getOptions(IJavaProject jproject) {
 		IProject project = jproject.getProject();
 		assert(null != project);
-		Map options = _optionsMaps.get(project);
+		Map<String,String> options = _optionsMaps.get(project);
 		if (null != options) {
 			return options;
 		}
@@ -508,9 +507,16 @@ public class AptConfig {
 	 * @return
 	 */
     public static synchronized String getString(IJavaProject jproject, String optionName) {
-		Map options = getOptions(jproject);
-		return (String)options.get(optionName);
+		return getOptions(jproject).get(optionName);
 	}
+    
+    public static String getGenSrcDir(IJavaProject jproject) {
+    	return getString(jproject, AptPreferenceConstants.APT_GENSRCDIR);
+    }
+    
+    public static void setGenSrcDir(IJavaProject jproject, String dirString) {
+    	setString(jproject, AptPreferenceConstants.APT_GENSRCDIR, dirString);
+    }
 	
     /**
      * Save processor (-A) options as a string.  Option key/val pairs will be

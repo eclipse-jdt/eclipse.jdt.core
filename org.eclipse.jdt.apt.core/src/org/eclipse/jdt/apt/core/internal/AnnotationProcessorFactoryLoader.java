@@ -11,6 +11,8 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -90,14 +92,24 @@ public class AnnotationProcessorFactoryLoader {
 
 		for ( FactoryContainer fc : containers )
 		{
-			List<AnnotationProcessorFactory> f = loadFactoryClasses( fc, classLoader );
-			for ( AnnotationProcessorFactory apf : f )
-				factories.add( apf  );
+			try {
+				List<AnnotationProcessorFactory> f = loadFactoryClasses( fc, classLoader );
+				for ( AnnotationProcessorFactory apf : f )
+					factories.add( apf  );
+			}
+			catch (FileNotFoundException fnfe) {
+				AptPlugin.log(fnfe, Messages.AnnotationProcessorFactoryLoader_jarNotFound + fnfe.getLocalizedMessage());
+			}
+			catch (IOException ioe) {
+				AptPlugin.log(ioe, Messages.AnnotationProcessorFactoryLoader_ioError + ioe.getLocalizedMessage());
+			}
 		}
 		return factories;
 	}
 	
-	private List<AnnotationProcessorFactory> loadFactoryClasses( FactoryContainer fc, ClassLoader classLoader )
+	private List<AnnotationProcessorFactory> loadFactoryClasses( 
+			FactoryContainer fc, ClassLoader classLoader )
+			throws IOException
 	{
 		List<String> factoryNames = fc.getFactoryNames();
 		List<AnnotationProcessorFactory> factories = new ArrayList<AnnotationProcessorFactory>( factoryNames.size() ); 

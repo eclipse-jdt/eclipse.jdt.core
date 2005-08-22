@@ -22,7 +22,7 @@ import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
  */
 public class AptCorePreferenceInitializer extends AbstractPreferenceInitializer {
 
-	private static final String DEFAULT_GENERATED_SOURCE_FOLDER_NAME = "__generated_src"; //$NON-NLS-1$
+	public static final String DEFAULT_GENERATED_SOURCE_FOLDER_NAME = "__generated_src"; //$NON-NLS-1$
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()

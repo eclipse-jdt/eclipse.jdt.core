@@ -12,6 +12,7 @@
 
 package org.eclipse.jdt.apt.core;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -45,11 +46,11 @@ public abstract class FactoryContainer
 	
 	public abstract FactoryType getType();
 	
-	protected abstract List<String> loadFactoryNames();
+	protected abstract List<String> loadFactoryNames() throws IOException;
 	
 	protected List<String> _factoryNames;
 	
-	public List<String> getFactoryNames() 
+	public List<String> getFactoryNames() throws IOException
 	{ 
 		if ( _factoryNames == null )
 			_factoryNames = loadFactoryNames();

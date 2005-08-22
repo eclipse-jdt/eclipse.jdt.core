@@ -11,7 +11,11 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,7 +24,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.eclipse.jdt.apt.core.FactoryContainer;
-import org.eclipse.jdt.apt.core.AptPlugin;
 
 /**
  * Represents a jar file that contains annotation processor factories.
@@ -36,7 +39,7 @@ public abstract class JarFactoryContainer extends FactoryContainer
 	protected abstract File getJarFile();
 		
 	@Override
-	protected List<String> loadFactoryNames() { 
+	protected List<String> loadFactoryNames() throws IOException { 
 		return getServiceClassnamesFromJar( getJarFile() );
 	}
 	
@@ -54,10 +57,10 @@ public abstract class JarFactoryContainer extends FactoryContainer
      * @param jar the jar file.
      * @return a list, possibly empty, of fully qualified classnames to be instantiated.
      */
-    protected static List<String> getServiceClassnamesFromJar(File jar)
+    protected static List<String> getServiceClassnamesFromJar(File jar) throws IOException
     {
         List<String> classNames = new ArrayList<String>();
-        JarFile jarFile;
+        JarFile jarFile = null;
         try {
             jarFile = new JarFile(jar);
 
@@ -71,11 +74,9 @@ public abstract class JarFactoryContainer extends FactoryContainer
                 InputStream is = jarFile.getInputStream(provider);
                 readServiceProvider(is, classNames);
             }
-            jarFile.close();
         }
-        catch (IOException e) {	
-        	AptPlugin.log(e, "Unable to read annotation processor service names from jar file " + jar); //$NON-NLS-1$
-            return classNames;
+        finally {
+        	try {if (jarFile != null) jarFile.close();} catch (IOException ioe) {}
         }
         return classNames;
     }
@@ -86,9 +87,9 @@ public abstract class JarFactoryContainer extends FactoryContainer
      * definition file, e.g., one of the files named in AUTOLOAD_SERVICES.
      * @param classNames a list to which the classes named in is will be added.
      */
-    protected static void readServiceProvider(InputStream is, List<String> classNames) {
+    protected static void readServiceProvider(InputStream is, List<String> classNames) throws IOException {
+    	BufferedReader rd = null;
     	try {
-	        BufferedReader rd;
 	        rd = new BufferedReader(new InputStreamReader(is, "UTF-8")); //$NON-NLS-1$
 	        for (String line = rd.readLine(); line != null; line = rd.readLine()) {
 	            // hack off any comments
@@ -104,8 +105,8 @@ public abstract class JarFactoryContainer extends FactoryContainer
 	        }
 	        rd.close();
     	}
-    	catch (IOException e) {
-    		AptPlugin.log(e, "Error reading annotation processor jar file"); //$NON-NLS-1$
+    	finally {
+    		if (rd != null) try {rd.close();} catch (IOException ioe) {}
     	}
     }
 	

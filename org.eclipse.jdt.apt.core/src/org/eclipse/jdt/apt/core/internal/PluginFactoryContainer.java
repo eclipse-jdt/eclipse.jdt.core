@@ -12,9 +12,11 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.FactoryContainer;
 
 public class PluginFactoryContainer extends FactoryContainer
@@ -37,7 +39,12 @@ public class PluginFactoryContainer extends FactoryContainer
 	}
 	
 	public void addFactoryName( String n ) {
-		getFactoryNames().add( n ); 
+		try {
+			getFactoryNames().add( n ); 
+		}
+		catch (IOException ioe) {
+			AptPlugin.log(ioe, "IOException reading a plugin"); //$NON-NLS-1$
+		}
 	}
 	
 	protected List<String> loadFactoryNames() { 
