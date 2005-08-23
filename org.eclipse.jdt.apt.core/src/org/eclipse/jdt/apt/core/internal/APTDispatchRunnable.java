@@ -240,8 +240,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			final List<AnnotationProcessorFactory> factories,
 			final ProcessorEnvImpl processorEnv )
 	{
-		for( int fileIndex=0, numFiles=_filesToProcess.length; fileIndex<numFiles; fileIndex++ ){
-			final IFile curFile = _filesToProcess[fileIndex];
+		for (IFile curFile : _filesToProcess) {
 			processorEnv.setFileProcessing(curFile);
 			Map<String, AnnotationTypeDeclaration> annotationDecls = processorEnv.getAnnotationTypesInFile();
 			for (int factoryIndex = 0, numFactories = factories.size(); factoryIndex < numFactories; factoryIndex++) {
@@ -259,8 +258,10 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 							.getProcessorFor(factoryDecls, processorEnv);
 					if (processor != null)
 					{
-						if ( AptPlugin.DEBUG ) 
-							trace( "runAPT: invoking file-based processor " + processor.getClass().getName() ); //$NON-NLS-1$
+						if ( AptPlugin.DEBUG ) {
+							trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + curFile ); //$NON-NLS-1$ //$NON-NLS-2$
+							
+						}
 	                    processorEnv.setLatestProcessor(processor);
 						processor.process();
 					}
@@ -460,7 +461,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 			// log unclaimed annotations.
 		} catch (Throwable t) {
-			AptPlugin.log(t, "Unexpected failure running APT " + getFileNameForPrint()); //$NON-NLS-1$
+			AptPlugin.log(t, "Unexpected failure running APT " + getFileNamesForPrinting()); //$NON-NLS-1$
 		}
 		return EMPTY_APT_RESULT;
 	}
@@ -600,17 +601,16 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	{
 		if (AptPlugin.DEBUG)
 		{
-			s = "[ phase = " + _phaseName + ", file = " + getFileNameForPrint() +" ]  " + s; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			s = "[ phase = " + _phaseName + ", file = " + getFileNamesForPrinting() +" ]  " + s; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			System.out.println( "[" + APTDispatch.class.getName() + "][ thread= " + Thread.currentThread().getName() + " ]"+ s ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
 	
 	/**
 	 * For debugging statements only!!
-	 * @return the name of the file that we are currently processing if 
-	 * we are not in batch mode. If in batch mode, return the string "batch mode". 
+	 * @return the names of the files that we are currently processing. 
 	 */
-	private String getFileNameForPrint(){
+	private String getFileNamesForPrinting(){
 		final int len = _filesToProcess.length;
 		switch( len )
 		{
@@ -619,7 +619,18 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		case 1:
 			return _filesToProcess[0].getName();
 		default:
-			return "batch mode";  //$NON-NLS-1$
+			StringBuilder sb = new StringBuilder();
+			boolean firstItem = true;
+			for (IFile file : _filesToProcess) {
+				if (firstItem) {
+					firstItem = false;
+				}
+				else {
+					sb.append(", "); //$NON-NLS-1$
+				}
+				sb.append(file.getName());
+			}
+			return sb.toString();
 		}
 	}
 	

@@ -420,7 +420,7 @@ public class AptConfig {
 		IProject project = jproject.getProject();
 		assert(null != project);
 		Map<String,String> options = _optionsMaps.get(project);
-		if (null != options) {
+		if (options != null) {
 			return options;
 		}
 		// We didn't already have an options map for this project, so create one.
@@ -428,24 +428,27 @@ public class AptConfig {
 		// Don't need to do this, because it's the default-default already:
 		//service.setDefaultLookupOrder(AptPlugin.PLUGIN_ID, null, lookupOrder);
 		options = new HashMap(AptPreferenceConstants.NSETTINGS);
-		if (jproject != null) {
-			_optionsMaps.put(project, options);
-			// Load project values into the map
-			ProjectScope projScope = new ProjectScope(project);
-			IScopeContext[] contexts = new IScopeContext[] { projScope };
-			for (String optionName : AptPreferenceConstants.OPTION_NAMES) {
-				String val = service.getString(AptPlugin.PLUGIN_ID, optionName, null, contexts);
-				if (val != null) {
-					options.put(optionName, val);
-				}
+		
+		_optionsMaps.put(project, options);
+		// Load project values into the map
+		ProjectScope projScope = new ProjectScope(project);
+		IScopeContext[] contexts = new IScopeContext[] { projScope };
+		for (String optionName : AptPreferenceConstants.OPTION_NAMES) {
+			String val = service.getString(
+					AptPlugin.PLUGIN_ID, 
+					optionName, 
+					AptPreferenceConstants.DEFAULT_OPTIONS_MAP.get(optionName), 
+					contexts);
+			if (val != null) {
+				options.put(optionName, val);
 			}
-			// Add change listener for this project, so we can update the map later on
-			IEclipsePreferences projPrefs = projScope.getNode(AptPlugin.PLUGIN_ID);
-			ChangeListener listener = new ChangeListener(project);
-			projPrefs.addPreferenceChangeListener(listener);
-			((IEclipsePreferences)projPrefs.parent()).addNodeChangeListener(listener);
-            AptPlugin.getPlugin().getPluginPreferences().addPropertyChangeListener(listener);
 		}
+		// Add change listener for this project, so we can update the map later on
+		IEclipsePreferences projPrefs = projScope.getNode(AptPlugin.PLUGIN_ID);
+		ChangeListener listener = new ChangeListener(project);
+		projPrefs.addPreferenceChangeListener(listener);
+		((IEclipsePreferences)projPrefs.parent()).addNodeChangeListener(listener);
+        AptPlugin.getPlugin().getPluginPreferences().addPropertyChangeListener(listener);
 		
 		return options;
 	}
@@ -511,11 +514,19 @@ public class AptConfig {
 	}
     
     public static String getGenSrcDir(IJavaProject jproject) {
-    	return getString(jproject, AptPreferenceConstants.APT_GENSRCDIR);
+    	String genSrcDir = getString(jproject, AptPreferenceConstants.APT_GENSRCDIR);
+    	if (genSrcDir == null) {
+    		throw new IllegalStateException("Generated Source Directory was null."); //$NON-NLS-1$
+    	}
+    	return genSrcDir;
     }
     
     public static void setGenSrcDir(IJavaProject jproject, String dirString) {
+    	if (dirString == null) {
+    		throw new IllegalStateException("Cannot set the Generated Source Directory to null"); //$NON-NLS-1$
+    	}
     	setString(jproject, AptPreferenceConstants.APT_GENSRCDIR, dirString);
+    	
     }
 	
     /**

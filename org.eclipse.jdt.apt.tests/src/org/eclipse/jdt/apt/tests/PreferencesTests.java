@@ -24,7 +24,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.FactoryContainer;
 import org.eclipse.jdt.apt.core.FactoryContainer.FactoryType;
-import org.eclipse.jdt.apt.core.internal.util.AptCorePreferenceInitializer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
@@ -183,7 +182,7 @@ public class PreferencesTests extends Tests {
 	public void testGenSrcDir() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		String genSrcDir = AptConfig.getGenSrcDir(jproj);
-		assertEquals(AptCorePreferenceInitializer.DEFAULT_GENERATED_SOURCE_FOLDER_NAME, genSrcDir);
+		assertEquals(AptPreferenceConstants.DEFAULT_GENERATED_SOURCE_FOLDER_NAME, genSrcDir);
 		
 		final String newDir = "gen/src";
 		AptConfig.setGenSrcDir(jproj, newDir);

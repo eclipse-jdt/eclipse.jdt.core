@@ -11,6 +11,10 @@
 
 package org.eclipse.jdt.apt.core.util;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * String constants used to access APT preference store
  */
@@ -20,6 +24,18 @@ public class AptPreferenceConstants {
 	public static final String APT_GENSRCDIR = APT_STRING_BASE + ".genSrcDir"; //$NON-NLS-1$
 	public static final String APT_PROCESSOROPTIONS = APT_STRING_BASE + ".processorOptions"; //$NON-NLS-1$
 
+	public static final String DEFAULT_GENERATED_SOURCE_FOLDER_NAME = "__generated_src"; //$NON-NLS-1$
+	
+	public static Map<String,String> DEFAULT_OPTIONS_MAP;
+	
+	static {
+		Map<String,String> options = new HashMap<String,String>();
+		options.put(AptPreferenceConstants.APT_ENABLED, "true"); //$NON-NLS-1$
+		options.put(AptPreferenceConstants.APT_GENSRCDIR, DEFAULT_GENERATED_SOURCE_FOLDER_NAME);
+		options.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, ""); //$NON-NLS-1$
+		DEFAULT_OPTIONS_MAP = Collections.unmodifiableMap(options);
+	}
+	
 	/**
 	 * Names of all apt settings that can be read from APT preference store.
 	 * Order is unimportant.  Note that not all "apt settings" may be in the
