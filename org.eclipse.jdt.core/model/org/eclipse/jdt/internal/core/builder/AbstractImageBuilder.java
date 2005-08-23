@@ -246,8 +246,9 @@ private  Map notifyCompilationParticipants(ICompilationUnit[] sourceUnits, Set n
 			files[i] = javaBuilder.javaProject.getProject().getFile( fname );
 		}
 	}
-	PreBuildCompilationEvent pbce = new PreBuildCompilationEvent( files,
-			javaBuilder.javaProject );
+	PreBuildCompilationEvent pbce = new PreBuildCompilationEvent( files, 
+			javaBuilder.javaProject,
+			!javaBuilder.nameEnvironment.isIncrementalBuild);
 
 	java.util.Iterator it = cps.iterator();
 	Map ifiles2problems = new HashMap();

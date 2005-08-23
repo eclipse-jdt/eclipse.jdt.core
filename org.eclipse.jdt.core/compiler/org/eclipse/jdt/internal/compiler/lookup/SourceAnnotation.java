@@ -24,7 +24,7 @@ public class SourceAnnotation implements IAnnotationInstance, TypeConstants
 			if( numberOfPairs > 0 ){
 				this.pairs = new SourceElementValuePair[numberOfPairs];
 				for( int i=0; i<numberOfPairs; i++ ){
-					this.pairs[i] = new SourceElementValuePair(astPairs[i]);
+					this.pairs[i] = astPairs[i].getCompilerElementValuePair();
 				}				
 			}
 			else
@@ -33,7 +33,7 @@ public class SourceAnnotation implements IAnnotationInstance, TypeConstants
 		else if( astAnnotation instanceof SingleMemberAnnotation ){
 			final MemberValuePair astPair = ((SingleMemberAnnotation)astAnnotation).memberValuePairs()[0];
 			if( astPair != null )
-				this.pairs = new SourceElementValuePair[]{ new SourceElementValuePair(astPair) };
+				this.pairs = new SourceElementValuePair[]{ astPair.getCompilerElementValuePair() };
 			else
 				this.pairs = NoElementValuePairs;
 		}

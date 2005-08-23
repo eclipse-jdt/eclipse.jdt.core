@@ -16,12 +16,11 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CompilationParticipantResult;
 import org.eclipse.jdt.core.compiler.ICompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.compiler.PostReconcileCompilationEvent;
-import org.eclipse.jdt.core.compiler.PostReconcileCompilationResult;
+import org.eclipse.jdt.core.compiler.PreReconcileCompilationEvent;
+import org.eclipse.jdt.core.compiler.PreReconcileCompilationResult;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -133,20 +132,23 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		final IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
 		
 		IJavaProject javaProject = workingCopy.getJavaProject();
-		List l = JavaCore.getCompilationParticipants(ICompilationParticipant.POST_RECONCILE_EVENT, javaProject);	
+		List l = JavaCore.getCompilationParticipants(ICompilationParticipant.PRE_RECONCILE_EVENT, javaProject);	
 
 		// we want to go through ICompilationParticipant only if there are participants
 		// and the compilation unit is not consistent or we are forcing problem detection
 		if ( ( l != null && l.size() > 0 ) && ( !workingCopy.isConsistent() || forceProblemDetection )) {	
-			PostReconcileCompilationEvent prce = new PostReconcileCompilationEvent( workingCopy, javaProject );
+			PreReconcileCompilationEvent prce = new PreReconcileCompilationEvent( workingCopy, javaProject );
 			Iterator it = l.iterator();
 			while ( it.hasNext() ) {
 				ICompilationParticipant p = (ICompilationParticipant)it.next(); 
-				final PostReconcileCompilationResult result = (PostReconcileCompilationResult)p.notify( prce );
-				final IProblem[] problems = result.getProblems();	
-				if( problemRequestor != null && problems != null ){
-					for(int i=0, len=problems.length; i<len; i++ )
-						problemRequestor.acceptProblem(problems[i]);
+				final CompilationParticipantResult result = p.notify(prce);
+				if (result.getKind() == ICompilationParticipant.PRE_RECONCILE_EVENT) {
+					final PreReconcileCompilationResult postResult = (PreReconcileCompilationResult)result;
+					final IProblem[] problems = postResult.getProblems();	
+					if( problemRequestor != null && problems != null ){
+						for(int i=0, len=problems.length; i<len; i++ )
+							problemRequestor.acceptProblem(problems[i]);
+					}
 				}
 			}
 		}

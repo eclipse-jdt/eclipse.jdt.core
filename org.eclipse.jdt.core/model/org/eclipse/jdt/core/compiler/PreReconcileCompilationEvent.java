@@ -16,36 +16,36 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
- * An event class passed into ICompilationParticipant's notify() method after a reconcile
- * has completed.
+ * An event class passed into ICompilationParticipant's notify() method before a reconcile
+ * has begun.
  * 
  *  @see ICompilationParticipant#notify(CompilationParticipantEvent)
  *  @since 3.2
  */
-public class PostReconcileCompilationEvent extends CompilationParticipantEvent {
+public class PreReconcileCompilationEvent extends CompilationParticipantEvent {
 
 	/**
-	 * constructs a new PostReconcileCompilationEvent
+	 * constructs a new PreReconcileCompilationEvent
 	 * 
-	 * @param cu - the ICompilationUnit that was just reconciled
-	 * @param jp - the java project for the ICompilationUnit that was reconciled
+	 * @param cu - the ICompilationUnit that is about to be reconciled
+	 * @param jp - the java project for the ICompilationUnit that will be reconciled
 	 */
-	public PostReconcileCompilationEvent( ICompilationUnit cu, IJavaProject jp )
+	public PreReconcileCompilationEvent( ICompilationUnit cu, IJavaProject jp )
 	{
 		super( jp );
 		_compilationUnit = cu;
 	}
 	
 	
-	/** @return the ICompilationUnit that was just reconciled */
+	/** @return the ICompilationUnit that will be reconciled */
 	public ICompilationUnit getCompilationUnit() { return _compilationUnit; }
 	
 	/**
-	 * @return an integer flag indicating that this is a post-reconcile event.
-	 * @see ICompilationParticipant#POST_RECONCILE_EVENT
+	 * @return an integer flag indicating that this is a pre-reconcile event.
+	 * @see ICompilationParticipant#PRE_RECONCILE_EVENT
 	 * @see CompilationParticipantEvent#getKind()
 	 */
-	public final int getKind() { return ICompilationParticipant.POST_RECONCILE_EVENT; }
+	public final int getKind() { return ICompilationParticipant.PRE_RECONCILE_EVENT; }
 
 	private ICompilationUnit _compilationUnit;
 	

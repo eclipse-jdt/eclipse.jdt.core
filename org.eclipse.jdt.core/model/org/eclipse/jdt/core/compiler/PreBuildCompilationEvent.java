@@ -27,17 +27,25 @@ public class PreBuildCompilationEvent extends CompilationParticipantEvent {
 	/**
 	 * @param files - IFile[] of the files about to be compiled
 	 * @param jp - the IJavaProject for the IFiles[] being compiled
+	 * @param isFullBuild <code>true</code> to indicate a full build, build after a clean.
 	 */
-	public PreBuildCompilationEvent( IFile[] files, IJavaProject jp ) 
+	public PreBuildCompilationEvent( IFile[] files, IJavaProject jp, boolean isFullBuild ) 
 	{ 
 		super( jp );
 		_files = files;
+		_isFullBuild = isFullBuild;
 	}
 	
 	/**
 	 * @return -  IFile[] containing the files about to be compiled
 	 */
 	public IFile[] getFiles()  { return _files; }
+	
+	/**
+	 * @return <code>true</code> iff this the build is going to be a clean/full build.
+	 * Return <code>false</code> otherwise.
+	 */
+	public boolean isFullBuild(){ return _isFullBuild; }
 	
 	/**
 	 * @return an integer flag indicating that this is a pre-build event.
@@ -47,4 +55,7 @@ public class PreBuildCompilationEvent extends CompilationParticipantEvent {
 	public final int getKind() { return ICompilationParticipant.PRE_BUILD_EVENT; }
 
 	private IFile[] _files;
+	
+	private final boolean _isFullBuild;
+	
 }

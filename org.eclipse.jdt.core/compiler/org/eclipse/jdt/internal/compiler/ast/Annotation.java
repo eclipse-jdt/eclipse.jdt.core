@@ -280,6 +280,8 @@ public abstract class Annotation extends Expression {
 			}
 		}		
 		
+		this.compilerAnnotation = new SourceAnnotation(this);
+		
 		// check unused pairs
 		for (int i = 0; i < pairsLength; i++) {
 			if (pairs[i] != null) {
@@ -373,8 +375,7 @@ public abstract class Annotation extends Expression {
 				}			
 				scope.problemReporter().disallowedTargetForAnnotation(this);
 			}
-		}
-		this.compilerAnnotation = new SourceAnnotation(this);
+		}		
 		return this.resolvedType;
 	}	
 	

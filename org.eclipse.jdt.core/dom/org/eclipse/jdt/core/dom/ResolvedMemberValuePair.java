@@ -71,9 +71,7 @@ class ResolvedMemberValuePair implements IResolvedMemberValuePair
 			return resolver.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)internalObject);
 		}
 		if( internalObject instanceof org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance ) {
-			return new ResolvedAnnotation(
-					(org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance)internalObject, 
-					resolver);
+			return resolver.getAnnotationInstance( (org.eclipse.jdt.internal.compiler.lookup.IAnnotationInstance)internalObject);
 		}
 		else if( internalObject instanceof org.eclipse.jdt.internal.compiler.lookup.FieldBinding ) {
 			return resolver.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.FieldBinding)internalObject);

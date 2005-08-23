@@ -17,7 +17,7 @@ public class SourceElementValuePair implements IElementValuePair
 	private final MethodBinding binding;
 	private final Object value;
 	
-	SourceElementValuePair(final MemberValuePair pair)
+	public SourceElementValuePair(final MemberValuePair pair)
 	{
 		this.name = pair.name;
 		this.binding = pair.binding;
@@ -48,7 +48,7 @@ public class SourceElementValuePair implements IElementValuePair
 		if( constant != null && constant != Constant.NotAConstant) return constant;
 			
 		if( expression instanceof Annotation )
-			return new SourceAnnotation( (Annotation)expression );      
+			return ((Annotation)expression).getCompilerAnnotation();      
 		else if(expression instanceof Reference){
             FieldBinding fieldBinding = null;
             if(expression instanceof FieldReference )

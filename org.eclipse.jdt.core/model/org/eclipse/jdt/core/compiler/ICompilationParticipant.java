@@ -40,9 +40,9 @@ public interface ICompilationParticipant {
 	public static final int GENERIC_EVENT        = 1;
 	
 	/** 
-	 * a flag indicating an event fired after reconcile 
+	 * a flag indicating an event fired before reconcile 
 	 */
-	public static final int POST_RECONCILE_EVENT = 2;
+	public static final int PRE_RECONCILE_EVENT = 2;
 	
 	/** 
 	 * a flag indicating an event fired before a build 
@@ -50,19 +50,14 @@ public interface ICompilationParticipant {
 	public static final int PRE_BUILD_EVENT      = 4;
 	
 	/** 
-	 * a flag indicating an event fired after a build 
-	 */
-	public static final int POST_BUILD_EVENT     = 8;
-	
-	/** 
 	 * a flag indicating an event fired before a clean operation 
 	 */
-	public static final int CLEAN_EVENT          = 16;
+	public static final int CLEAN_EVENT          = 8;
 	
 	/**
 	 * a flag indicating an event fired when there is a catastrophic build 
 	 * failure, such as a broken classpath.
 	 */
-	public static final int BROKEN_CLASSPATH_BUILD_FAILURE_EVENT = 32;
+	public static final int BROKEN_CLASSPATH_BUILD_FAILURE_EVENT = 16;
 	
 }
