@@ -10,10 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.util.Map;
-
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 import junit.framework.Test;
 
 public class ConditionalExpressionTest extends AbstractRegressionTest {
@@ -53,13 +49,9 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			"SUCCESS"
 		);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=107193
 	public void test002() {
-		Map options = this.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -74,12 +66,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				"    }\n" +
 				"}",
 			},
-			"",
-			null,
-			true,
-			null,
-			options,
-			null
+			""
 		);
 	}
 }
