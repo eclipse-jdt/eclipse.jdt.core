@@ -1131,4 +1131,50 @@ public void test0015() {
 		expectedCompletionDietUnitToString,	
 		testName);
 }
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=107580
+ */
+public void test0016() {
+	String s = 
+		"public enum Enum {								\n"
+			+ "  BEGIN(\"blabla\"),						\n"
+			+ "  END(\"blabla\").							\n"
+			+ "}											\n"; 	
+
+	String expectedDietUnitToString = 
+		"public enum Enum {\n" + 
+		"  BEGIN(\"blabla\"),\n" + 
+		"  END(\"blabla\"),\n" + 
+		"  public Enum() {\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"public enum Enum {\n" + 
+		"  BEGIN(\"blabla\"),\n" + 
+		"  END(\"blabla\"),\n" + 
+		"  public Enum() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<enum recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
 }

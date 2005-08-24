@@ -2817,12 +2817,6 @@ protected void consumeEnumConstantHeader() {
 				currentType.insideEnumConstantPart = false;
 			}
 		  }
-	      if (!(this.currentElement instanceof RecoveredType)
-	            && (this.currentToken == TokenNameDOT)){
-	         this.lastCheckPoint = enumConstant.sourceStart;
-	         this.restartRecovery = true;
-	         return;
-	      }
 		  this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
 	      this.lastIgnoredToken = -1;
 	      this.restartRecovery = true;
