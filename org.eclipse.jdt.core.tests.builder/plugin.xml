@@ -16,8 +16,8 @@
       <import plugin="org.eclipse.jdt.core"/>
       <import plugin="org.eclipse.jdt.core.tests.compiler"/>
       <import plugin="org.eclipse.core.resources"/>
-     <import plugin="org.eclipse.core.runtime.compatibility"/>
-     <import plugin="org.eclipse.test.performance"/>    
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.test.performance"/>
    </requires>
 
 
