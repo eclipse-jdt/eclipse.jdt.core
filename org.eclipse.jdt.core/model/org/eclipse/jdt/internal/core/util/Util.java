@@ -836,6 +836,8 @@ public class Util {
 	 */
 	public static String getNameWithoutJavaLikeExtension(String fileName) {
 		int index = indexOfJavaLikeExtension(fileName);
+		if (index == -1)
+			return fileName;
 		return fileName.substring(0, index);
 	}
 	
