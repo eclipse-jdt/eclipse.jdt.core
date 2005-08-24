@@ -405,12 +405,10 @@ class TypeBinding implements ITypeBinding {
 			// local or anonymous type
 			ICompilationUnit cu = getCompilationUnit(fileName);
 			if (cu == null) return null;
-			if (!(this.resolver instanceof DefaultBindingResolver)) return null;
-			DefaultBindingResolver bindingResolver = (DefaultBindingResolver) this.resolver;
-			ASTNode node = (ASTNode) bindingResolver.bindingsToAstNodes.get(this);
 			// must use getElementAt(...) as there is no back pointer to the defining method (scope is null after resolution has ended)
 			try {
-				return (JavaElement) cu.getElementAt(node.getStartPosition());
+				int sourceStart = ((LocalTypeBinding) referenceBinding).sourceStart;
+				return (JavaElement) cu.getElementAt(sourceStart);
 			} catch (JavaModelException e) {
 				// does not exist
 				return null;

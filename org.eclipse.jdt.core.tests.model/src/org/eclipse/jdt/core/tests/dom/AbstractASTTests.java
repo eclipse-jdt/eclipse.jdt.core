@@ -275,7 +275,15 @@ public class AbstractASTTests extends ModifyingResourceTests {
 		contents = markerInfo.source;
 
 		cu.getBuffer().setContents(contents);
-		CompilationUnit unit = cu.reconcile(AST.JLS3, false, null, null);
+		CompilationUnit unit;
+		if (cu.isWorkingCopy()) 
+			unit = cu.reconcile(AST.JLS3, false, null, null);
+		else {
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setSource(cu);
+			parser.setResolveBindings(true);
+			unit = (CompilationUnit) parser.createAST(null);
+		}
 		
 		if (reportErrors) {
 			StringBuffer buffer = new StringBuffer();
