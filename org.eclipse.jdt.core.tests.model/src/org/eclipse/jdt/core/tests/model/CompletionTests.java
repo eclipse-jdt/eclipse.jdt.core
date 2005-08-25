@@ -990,8 +990,8 @@ public void testCompletionMethodDeclaration() throws JavaModelException {
 
 	assertEquals(
 		"should have two completions", 
-		"element:eqFoo    completion:public int eqFoo(int a, Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"\n" +
-		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+		"element:eqFoo    completion:public int eqFoo(int a, Object b)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"\n" +
+		"element:equals    completion:public boolean equals(Object obj)    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -1022,8 +1022,8 @@ public void testCompletionMethodDeclaration2() throws JavaModelException {
 	
 		assertResults(
 			"eq[POTENTIAL_METHOD_DECLARATION]{eq, LCompletionMethodDeclaration2;, ()V, eq, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+"}",
+			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		if(superClass != null) {
@@ -1066,7 +1066,7 @@ public void testCompletionMethodDeclaration3() throws JavaModelException {
 	
 		assertResults(
 			"eq[POTENTIAL_METHOD_DECLARATION]{eq, LCompletionMethodDeclaration3;, ()V, eq, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+"}",
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		if(superClass != null) {
@@ -1100,8 +1100,8 @@ public void testCompletionMethodDeclaration4() throws JavaModelException {
 	
 		assertResults(
 			"eq[POTENTIAL_METHOD_DECLARATION]{eq, LCompletionMethodDeclaration4;, ()V, eq, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperInterface;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+"}",
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperInterface;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		if(superClass != null) {
@@ -1141,23 +1141,23 @@ public void testCompletionMethodDeclaration5() throws JavaModelException {
 	    if(CompletionEngine.NO_TYPE_COMPLETION_ON_EMPTY_TOKEN) {
 			assertResults(
 				"[POTENTIAL_METHOD_DECLARATION]{, LCompletionSuperClass;, ()V, , null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+ "}",
+				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+ "}",
 				requestor.getResults());
 		} else {
 			assertResults(
 				"[POTENTIAL_METHOD_DECLARATION]{, LCompletionSuperClass;, ()V, , null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
 				"CompletionMethodDeclaration5[TYPE_REF]{CompletionMethodDeclaration5, , LCompletionMethodDeclaration5;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"+
-				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n"+
-				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+ "}",
+				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperClass;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n"+
+				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+ "}",
 				requestor.getResults());
 		}
 	} finally {
@@ -1195,7 +1195,7 @@ public void testCompletionMethodDeclaration7() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -1212,7 +1212,7 @@ public void testCompletionMethodDeclaration8() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -1229,7 +1229,7 @@ public void testCompletionMethodDeclaration9() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 
@@ -1246,7 +1246,7 @@ public void testCompletionMethodDeclaration10() throws JavaModelException {
 	assertEquals(
 		"should have one completion", 
 		"element:CloneNotSupportedException    completion:CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+		"element:clone    completion:protected Object clone() throws CloneNotSupportedException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=80063
@@ -2841,9 +2841,9 @@ public void testCompletionAbstractMethodRelevance1() throws JavaModelException {
 	
 		assertResults(
 			"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionAbstractMethodRelevance1;, ()V, foo, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"foo1[METHOD_DECLARATION]{public void foo1(), LCompletionAbstractSuperClass;, ()V, foo1, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n" +
-			"foo3[METHOD_DECLARATION]{public void foo3(), LCompletionAbstractSuperClass;, ()V, foo3, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n" +
-			"foo2[METHOD_DECLARATION]{public void foo2(), LCompletionAbstractSuperClass;, ()V, foo2, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+"}",
+			"foo1[METHOD_DECLARATION]{public void foo1(), LCompletionAbstractSuperClass;, ()V, foo1, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n" +
+			"foo3[METHOD_DECLARATION]{public void foo3(), LCompletionAbstractSuperClass;, ()V, foo3, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n" +
+			"foo2[METHOD_DECLARATION]{public void foo2(), LCompletionAbstractSuperClass;, ()V, foo2, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		if(superClass != null) {
@@ -2878,8 +2878,8 @@ public void testCompletionAbstractMethodRelevance2() throws JavaModelException {
 	
 		assertResults(
 			"eq[POTENTIAL_METHOD_DECLARATION]{eq, LCompletionAbstractMethodRelevance2;, ()V, eq, null, "+(R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED)+"}\n" +
-			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperInterface;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED)+"}",
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED)+"}\n" +
+			"eqFoo[METHOD_DECLARATION]{public int eqFoo(int a, Object b), LCompletionSuperInterface;, (ILjava.lang.Object;)I, eqFoo, (a, b), "+(R_DEFAULT + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_METHOD_OVERIDE+ R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
 		if(superClass != null) {
@@ -5509,7 +5509,7 @@ public void testCompletionKeywordFinal5() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal6() throws JavaModelException {
@@ -5536,7 +5536,7 @@ public void testCompletionKeywordFinal7() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal8() throws JavaModelException {
@@ -8135,7 +8135,7 @@ public void testCompletionKeywordFinal14() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal15() throws JavaModelException {
@@ -8162,7 +8162,7 @@ public void testCompletionKeywordFinal16() throws JavaModelException {
 
 		assertEquals(
 			"element:final    completion:final    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"\n"+
-			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
+			"element:finalize    completion:protected void finalize() throws Throwable    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE+ R_NON_RESTRICTED),
 			requestor.getResults());
 }
 public void testCompletionKeywordFinal17() throws JavaModelException {
@@ -8935,116 +8935,262 @@ public void testCompletionAbstractMethod4() throws JavaModelException {
            requestor.getResults());
 }
 public void testCompletionStaticMethodDeclaration1() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration1.java");
-
-	String str = cu.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-			"element:foo    completion:public static void foo()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "\n" +
-			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+		
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration1.java",
+	            "public class CompletionStaticMethodDeclaration1 extends TypeWithAMethodAndAStaticMethod {\n"+
+	            "	foo\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionStaticMethodDeclaration1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethodDeclaration2() throws JavaModelException {
-	this.wc = getWorkingCopy(
-            "/Completion/src/CompletionStaticMethodDeclaration2.java",
-            "public class CompletionStaticMethodDeclaration2 {\n" +
-            "	class Inner1 extends TypeWithAMethodAndAStaticMethod {\n" +
-            "		foo\n" +
-            "	}\n" +
-            "}");
-    
-    
-    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-    String str = this.wc.getSource();
-    String completeBehind = "foo";
-    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
-
-	assertResults(
-			"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionStaticMethodDeclaration2$Inner1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration2.java",
+	            "public class CompletionStaticMethodDeclaration2 {\n" +
+	            "	class Inner1 extends TypeWithAMethodAndAStaticMethod {\n" +
+	            "		foo\n" +
+	            "	}\n" +
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionStaticMethodDeclaration2$Inner1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethodDeclaration3() throws JavaModelException {
-	this.wc = getWorkingCopy(
-            "/Completion/src/CompletionStaticMethodDeclaration3.java",
-            "public class CompletionStaticMethodDeclaration3 {\n" +
-            "	static class Inner1 extends TypeWithAMethodAndAStaticMethod {\n" +
-            "		foo\n" +
-            "	}\n" +
-            "}");
-    
-    
-    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-    String str = this.wc.getSource();
-    String completeBehind = "foo";
-    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
-
-	assertResults(
-			"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionStaticMethodDeclaration3$Inner1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED) + "}\n" +
-			"foo[METHOD_DECLARATION]{public static void foo(), LTypeWithAMethodAndAStaticMethod;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration3.java",
+	            "public class CompletionStaticMethodDeclaration3 {\n" +
+	            "	static class Inner1 extends TypeWithAMethodAndAStaticMethod {\n" +
+	            "		foo\n" +
+	            "	}\n" +
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LCompletionStaticMethodDeclaration3$Inner1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethodDeclaration4() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration4.java");
-
-	String str = cu.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration4.java",
+	            "public class CompletionStaticMethodDeclaration4 {\n" +
+	            "	void bar() {\n" +
+	            "		class Local1 extends TypeWithAMethodAndAStaticMethod {\n" +
+	            "			foo\n" +
+	            "		}\n" +
+	            "	}\n" +
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LLocal1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethodDeclaration5() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration5.java");
-
-	String str = cu.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration5.java",
+	            "public class CompletionStaticMethodDeclaration5 {\n"+
+	            "	void bar() {\n"+
+	            "		static class Local1 extends TypeWithAMethodAndAStaticMethod {\n"+
+	            "			foo\n"+
+	            "		}\n"+
+	            "	}\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LLocal1;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethodDeclaration6() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethodDeclaration6.java");
-
-	String str = cu.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-			"element:foo0    completion:public void foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE+ R_NON_RESTRICTED),
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethodDeclaration6.java",
+	            "public class CompletionStaticMethodDeclaration6 {\n"+
+	            "	void bar() {\n"+
+	            "		new TypeWithAMethodAndAStaticMethod() {\n"+
+	            "			foo\n"+
+	            "		};\n"+
+	            "	}\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"foo[POTENTIAL_METHOD_DECLARATION]{foo, LTypeWithAMethodAndAStaticMethod;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_DECLARATION]{public void foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionStaticMethod1() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionStaticMethod1.java");
-
-	String str = cu.getSource();
-	String completeBehind = "foo";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
-
-	assertEquals(
-			"element:foo    completion:CompletionStaticMethod1.foo()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "\n" +
-			"element:foo    completion:foo()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME + R_NON_RESTRICTED) + "\n" +
-			"element:foo0    completion:CompletionStaticMethod1.this.foo0()    relevance:"+ (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "\n" +
-			"element:foo0    completion:foo0()    relevance:" + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED),
-			requestor.getResults());
+	ICompilationUnit aType = null;
+	try {
+		aType = getWorkingCopy(
+	            "/Completion/src/TypeWithAMethodAndAStaticMethod .java",
+	            "public class TypeWithAMethodAndAStaticMethod {\n"+
+	            "	public static void foo(){}\n"+
+	            "	public void foo0(){}\n"+
+	            "}");
+			
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionStaticMethod1.java",
+	            "public class CompletionStaticMethod1 extends TypeWithAMethodAndAStaticMethod {\n"+
+	            "	void bar(){\n"+
+	            "		new TypeWithAMethodAndAStaticMethod(){\n"+
+	            "			class Inner1 extends TypeWithAMethodAndAStaticMethod {\n"+
+	            "				void bar(){\n"+
+	            "					foo\n"+
+	            "				}\n"+
+	            "			}\n"+
+	            "		};\n"+
+	            "	}\n"+
+	            "	\n"+
+	            "}");
+	    
+	    
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "foo";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"foo0[METHOD_REF]{CompletionStaticMethod1.this.foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"foo0[METHOD_REF]{foo0(), LTypeWithAMethodAndAStaticMethod;, ()V, foo0, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED+ R_NON_RESTRICTED) + "}\n" +
+				"foo[METHOD_REF]{CompletionStaticMethod1.foo(), LTypeWithAMethodAndAStaticMethod;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}\n" +
+				"foo[METHOD_REF]{foo(), LTypeWithAMethodAndAStaticMethod;, ()V, foo, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
 }
 public void testCompletionAfterSwitch() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -9280,7 +9426,7 @@ public void testCompletionBasicMethodDeclaration1() throws JavaModelException {
 
 	assertResults(
 			"equals[POTENTIAL_METHOD_DECLARATION]{equals, LCompletionBasicMethodDeclaration1;, ()V, equals, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_STATIC_OVERIDE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_METHOD_OVERIDE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionBasicAnonymousDeclaration1() throws JavaModelException {

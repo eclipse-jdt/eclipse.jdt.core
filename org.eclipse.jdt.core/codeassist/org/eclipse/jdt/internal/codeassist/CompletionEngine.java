@@ -3170,7 +3170,6 @@ public final class CompletionEngine
 									methods,
 									scope,
 									methodsFound,
-									onlyStaticMethods,
 									exactMatch,
 									receiverType);
 	
@@ -3612,9 +3611,6 @@ public final class CompletionEngine
 		}
 		return 0;
 	}
-	private int computeRelevanceForStaticOveride(boolean isStatic) {
-		return isStatic ? 0 : R_NON_STATIC_OVERIDE;
-	}
 	private int computeRelevanceForException(char[] proposalName){
 		
 		if(this.assistNodeIsException &&
@@ -3682,7 +3678,6 @@ public final class CompletionEngine
 		Scope scope,
 		ObjectVector methodsFound,
 		//	boolean noVoidReturnType, how do you know?
-		boolean onlyStaticMethods,
 		boolean exactMatch,
 		ReferenceBinding receiverType) {
 
@@ -3705,15 +3700,7 @@ public final class CompletionEngine
             }
 
 			//		if (noVoidReturnType && method.returnType == BaseTypes.VoidBinding) continue next;
-			if(method.isStatic()) {
-				if(receiverType.isAnonymousType()) continue next;
-				
-				if(receiverType.isMemberType() && !receiverType.isStatic()) continue next;
-				
-				if(receiverType.isLocalType()) continue next;
-			} else  {
-				if(onlyStaticMethods) continue next;
-			}
+			if(method.isStatic()) continue next;
 
 			if (!method.canBeSeenBy(receiverType, FakeInvocationSite , scope)) continue next;
 
@@ -3766,7 +3753,7 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
-			relevance += computeRelevanceForStaticOveride(method.isStatic());
+			relevance += R_METHOD_OVERIDE;
 			if(method.isAbstract()) relevance += R_ABSTRACT_METHOD;
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
 			
@@ -4062,7 +4049,6 @@ public final class CompletionEngine
 						methods,
 						scope,
 						methodsFound,
-						onlyStaticMethods,
 						exactMatch,
 						receiverType);
 				} else{
