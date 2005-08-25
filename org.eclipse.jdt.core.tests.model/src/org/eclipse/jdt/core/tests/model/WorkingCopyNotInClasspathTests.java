@@ -181,6 +181,27 @@ public void testReconcileSimpleProject() throws CoreException {
 	}
 }
 /*
+ * Ensures that a working copy created in a simple project can be reconciled when it is already
+ * consistent but force problem detection is on.
+ * (regression test for bug 104486 newNotPresentException when reconciling CU in a non-java project)
+ */
+public void testReconcileSimpleProject2() throws CoreException {
+	ICompilationUnit wc = null;
+	try {
+	    IProject project = createProject("SimpleProject");
+		IFile file = project.getFile("A.java");
+		wc = JavaCore.createCompilationUnitFrom(file);
+		ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
+		wc.becomeWorkingCopy(pbRequestor, null);
+		wc.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
+	} finally {
+		if (wc != null) {
+			wc.discardWorkingCopy();
+		}
+		deleteProject("SimpleProject");
+	}
+}
+/*
  * Ensure that a working copy created on a .java file in a simple project can be opened.
  * (regression test for bug 33748 Cannot open working copy on .java file in simple project)
  */

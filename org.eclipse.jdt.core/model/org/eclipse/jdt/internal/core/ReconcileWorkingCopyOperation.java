@@ -69,9 +69,10 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 				}
 			} else {
 				// force problem detection? - if structure was consistent
-				if (forceProblemDetection) {
+				if (this.forceProblemDetection) {
 					IProblemRequestor problemRequestor = workingCopy.getPerWorkingCopyInfo();
-					if (problemRequestor != null && problemRequestor.isActive()) {
+					boolean computeProblems = JavaProject.hasJavaNature(workingCopy.getJavaProject().getProject()) && problemRequestor != null && problemRequestor.isActive();
+					if (computeProblems) {
 					    CompilationUnitDeclaration unit = null;
 					    try {
 							problemRequestor.beginReporting();
