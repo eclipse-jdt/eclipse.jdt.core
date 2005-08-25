@@ -23365,5 +23365,30 @@ public void test806() {
 		"The method swapFirstTwoValues(List<X.ValueHolder<T>>) in the type X is not applicable for the arguments (List<X.ValueHolder<?>>)\n" + 
 		"----------\n");
 }
+// crash javac
+public void test807() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T, U> {\n" +
+			"	public String toString() {\n" +
+			"		return \"SUCCESS\";\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"\n" +
+			"	public <K> A<K,K> foo(K type) {\n" +
+			"		return new A<K,K>();\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String args[]) {\n" +
+			"		X x = new X();\n" +
+			"		A<?,?> a = x.foo(null);\n" +
+			"		System.out.println(a);\n" +
+			"	}\n" +
+			"}",
+		},
+		"SUCCESS");
+}
 }
 
