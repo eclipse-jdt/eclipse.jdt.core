@@ -357,7 +357,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			this.workingCopy.getType("X").getMethod("foo", new String[0]).getType("Y", 1)
 		);
 		assertBindingsEqual(
-			"LX$42;",
+			"LX$42$Y;",
 			bindings);
 	}
 	

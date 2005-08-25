@@ -66,14 +66,26 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	char[] outerKey = outermostEnclosingType().computeUniqueKey(isLeaf);
 	int semicolon = CharOperation.lastIndexOf(';', outerKey);
 
+	StringBuffer sig = new StringBuffer();
+	sig.append(outerKey, 0, semicolon);
+
 	// insert $sourceStart
-	return CharOperation.concat(
-		CharOperation.concat(
-			CharOperation.subarray(outerKey, 0, semicolon),
-			String.valueOf(
-			this.sourceStart).toCharArray(),
-			'$'),
-		CharOperation.subarray(outerKey, semicolon, outerKey.length));
+	sig.append('$');
+	sig.append(String.valueOf(this.sourceStart));
+	
+	// insert $LocalName if local
+	if (!isAnonymousType()) {
+		sig.append('$');
+		sig.append(this.sourceName);
+	}
+	
+	// insert remaining from outer key
+	sig.append(outerKey, semicolon, outerKey.length-semicolon);
+	
+	int sigLength = sig.length();
+	char[] uniqueKey = new char[sigLength];
+	sig.getChars(0, sigLength, uniqueKey, 0);			
+	return uniqueKey;
 }
 
 public char[] constantPoolName() /* java/lang/Object */ {

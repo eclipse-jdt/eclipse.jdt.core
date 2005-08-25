@@ -17,12 +17,14 @@ import java.util.List;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.*;
 
 public class ASTConverter15Test extends ConverterTestSetup {
@@ -39,7 +41,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 195 };
+//		TESTS_NUMBERS = new int[] { 196 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -5879,4 +5881,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertTrue("Bindings are not equals", methodBinding2.isEqualTo(methodBinding2));
     	assertTrue("Bindings are not equals", methodBinding.isEqualTo(methodBinding));
     }
+	
+	/*
+	 * Ensures that the signature of and IBinding representing a local type ends with the local type's simple name.
+	 * (regression test for bug 104879 BindingKey#internalToSignature() returns invalid signature for local type
+	 */
+	public void test0196() throws JavaModelException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			"public class X {\n" +
+			"  void foo() {\n" +
+			"    /*start*/class Y {\n" +
+			"    }/*end*/\n" +
+			"  }\n" +
+			"}",
+			this.workingCopy);
+		IBinding binding = ((TypeDeclarationStatement) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		
+		String key = binding.getKey();
+		String signature = new BindingKey(key).internalToSignature();
+		String simpleName = Signature.getSimpleName(Signature.toString(signature));
+		assertEquals("Unexpected simple name", "Y", simpleName);
+	}
+
+	
 }

@@ -433,7 +433,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			}, 
-			"Lp1/X$54;");
+			"Lp1/X$54$Y;");
 	}
 
 	/*
@@ -553,7 +553,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"  }\n" +
 				"}",
 			},
-			"Lp1/X$54;");
+			"Lp1/X$54$Y;");
 	}
 	
 	/*
