@@ -219,14 +219,14 @@ public class GeneratedFileManager {
 					}
 				}
 				if (contentsDiffer) {
-					makeReadOnly( file, false );
 					file.setContents( is, true, true, progressMonitor );
 				}
 			}
 			
 			file.setDerived( true );
-			
-			makeReadOnly( file, true );
+			// We used to also make the file read-only. This is a bad idea,
+			// as refactorings then fail in the future, which is worse
+			// than allowing a user to modify a generated file.
 			
 			// during a batch build
 			if( parentFile != null )
@@ -858,23 +858,6 @@ public class GeneratedFileManager {
 		
 
 		return workingCopy;	
-	}
-
-	
-	/**
-	 *  make the compilation unit read-only
-	 */
-	private void makeReadOnly( IResource r, boolean readOnly )
-		throws CoreException
-	{
-		if ( r.exists() )
-		{
-			ResourceAttributes ra = r.getResourceAttributes();
-			if (ra == null)
-				ra = new ResourceAttributes();
-			ra.setReadOnly( readOnly );
-			r.setResourceAttributes(ra);
-		}
 	}
 	
 	/**
