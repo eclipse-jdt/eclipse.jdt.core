@@ -151,7 +151,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 					msg = "no AnnotationProcessoryFactory instances registered."; //$NON-NLS-1$
 				else
 					msg = "no annotation instances in file."; //$NON-NLS-1$
-				trace( "run():  leaving early because there are " + msg ); //$NON-NLS-1$
+				trace( "run():  leaving early because there are " + msg, //$NON-NLS-1$
+					   null);
 			}
 
 			Set<IFile> allDeletedFiles = new HashSet<IFile>();
@@ -159,7 +160,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				for( int i=0, len = _originalFiles.length; i<len; i++ ){
 					IFile f = _originalFiles[i];
 					final Set<IFile> deletedFiles = 
-						cleanupAllGeneratedFilesForParent( f, _compilationUnit );
+						cleanupAllGeneratedFilesForParent( f, _compilationUnit, null );
 					if( deletedFiles != null )
 						allDeletedFiles.addAll(deletedFiles);
 				}
@@ -259,7 +260,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 					if (processor != null)
 					{
 						if ( AptPlugin.DEBUG ) {
-							trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + curFile ); //$NON-NLS-1$ //$NON-NLS-2$
+							trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + curFile, //$NON-NLS-1$ //$NON-NLS-2$ 
+									processorEnv); 
 							
 						}
 	                    processorEnv.setLatestProcessor(processor);
@@ -295,7 +297,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		if (annotationDecls.isEmpty())
 		{
 			if ( AptPlugin.DEBUG ) 
-				trace( "runAPT:  leaving early because annotationDecls is empty" ); //$NON-NLS-1$
+				trace( "runAPT:  leaving early because annotationDecls is empty", //$NON-NLS-1$
+					   processorEnv); 
 			return;
 		}
 		
@@ -349,7 +352,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 					factory.getProcessorFor(annotationTypes, processorEnv);
 				if( processor != null ){
 					if ( AptPlugin.DEBUG ) 
-						trace( "runAPT: invoking batch processor " + processor.getClass().getName() ); //$NON-NLS-1$
+						trace( "runAPT: invoking batch processor " + processor.getClass().getName(), //$NON-NLS-1$
+								processorEnv); 
                     processorEnv.setLatestProcessor(processor);
 					processor.process();
 				}
@@ -374,7 +378,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 							factory.getProcessorFor(intersect, processorEnv);
 						if( processor != null ){
 							if ( AptPlugin.DEBUG ) 
-								trace( "runAPT: invoking file-based processor " + processor.getClass().getName() ); //$NON-NLS-1$
+								trace( "runAPT: invoking file-based processor " + processor.getClass().getName(), //$NON-NLS-1$
+										processorEnv );
 		                    processorEnv.setLatestProcessor(processor);
 							processor.process();
 						}
@@ -391,7 +396,9 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		try {
 			if (factories.size() == 0)
 			{
-				if ( AptPlugin.DEBUG ) trace( "runAPT: leaving early because there are no factories"); //$NON-NLS-1$
+				if ( AptPlugin.DEBUG ) 
+					trace( "runAPT: leaving early because there are no factories", //$NON-NLS-1$ 
+							processorEnv );
 				return EMPTY_APT_RESULT;
 			}
 			// TODO: put the short circuit back in!!! (theodora)
@@ -445,8 +452,13 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			// BUGZILLA 103183 - reconcile-path disabled until type-generation in reconcile is turned on
 			Set<IFile> allDeletedFiles = new HashSet<IFile>();
 			for( int i=0, len=_filesToProcess.length; i<len; i++ ){
-				final Set<IFile> deletedFiles = 
-					cleanupNoLongerGeneratedFiles( _filesToProcess[i], processorEnv.getCompilationUnit(), lastGeneratedFiles, allGeneratedFiles, gfm );
+				final Set<IFile> deletedFiles = cleanupNoLongerGeneratedFiles( 
+							_filesToProcess[i], 
+							processorEnv.getCompilationUnit(), 
+							lastGeneratedFiles, 
+							allGeneratedFiles, 
+							gfm,
+							processorEnv);
 				if(deletedFiles != null )
 					allDeletedFiles.addAll(deletedFiles);		
 			}
@@ -461,7 +473,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 			// log unclaimed annotations.
 		} catch (Throwable t) {
-			AptPlugin.log(t, "Unexpected failure running APT " + getFileNamesForPrinting()); //$NON-NLS-1$
+			AptPlugin.log(t, "Unexpected failure running APT " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
 		}
 		return EMPTY_APT_RESULT;
 	}
@@ -483,16 +495,28 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		return intersect;
 	}
 
-	private Set<IFile> cleanupAllGeneratedFilesForParent( IFile parent, ICompilationUnit parentCompilationUnit )
+	private Set<IFile> cleanupAllGeneratedFilesForParent( 
+			IFile parent, 
+			ICompilationUnit parentCompilationUnit,
+			ProcessorEnvImpl processorEnv)
 	{
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( parent.getProject() );
 		Set<IFile> lastGeneratedFiles = gfm.getGeneratedFilesForParent( parent );
-		return cleanupNoLongerGeneratedFiles( parent, parentCompilationUnit, lastGeneratedFiles, Collections.<IFile>emptySet(), gfm );
+		return cleanupNoLongerGeneratedFiles( 
+				parent, 
+				parentCompilationUnit, 
+				lastGeneratedFiles, 
+				Collections.<IFile>emptySet(), 
+				gfm,
+				processorEnv);
 	}
 	
 	private Set<IFile> cleanupNoLongerGeneratedFiles( 
-		IFile parentFile, ICompilationUnit parentCompilationUnit, Set<IFile> lastGeneratedFiles, Set<IFile> newGeneratedFiles,
-		GeneratedFileManager gfm )
+		IFile parentFile, 
+		ICompilationUnit parentCompilationUnit, 
+		Set<IFile> lastGeneratedFiles, Set<IFile> newGeneratedFiles,
+		GeneratedFileManager gfm,
+		ProcessorEnvImpl processorEnv)
 	{
 		HashSet<IFile> deletedFiles = new HashSet<IFile>();
 			
@@ -503,7 +527,9 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			IFile f = files[i];
 			if ( ! newGeneratedFiles.contains( f ) )
 			{
-				if ( AptPlugin.DEBUG ) trace( "runAPT:  File " + f + " is no longer a generated file for " + parentFile ); //$NON-NLS-1$ //$NON-NLS-2$
+				if ( AptPlugin.DEBUG ) 
+					trace( "runAPT:  File " + f + " is no longer a generated file for " + parentFile,  //$NON-NLS-1$ //$NON-NLS-2$
+							processorEnv );
 				try
 				{
 					if ( parentCompilationUnit == null )
@@ -597,11 +623,11 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		return fDecls.isEmpty() ? null : fDecls;
 	}
 	
-	private void trace( String s )
+	private void trace( String s, ProcessorEnvImpl processorEnv )
 	{
 		if (AptPlugin.DEBUG)
 		{
-			s = "[ phase = " + _phaseName + ", file = " + getFileNamesForPrinting() +" ]  " + s; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			s = "[ phase = " + _phaseName + ", file = " + getFileNamesForPrinting(processorEnv) +" ]  " + s; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			System.out.println( "[" + APTDispatch.class.getName() + "][ thread= " + Thread.currentThread().getName() + " ]"+ s ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 	}
@@ -610,7 +636,12 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	 * For debugging statements only!!
 	 * @return the names of the files that we are currently processing. 
 	 */
-	private String getFileNamesForPrinting(){
+	private String getFileNamesForPrinting(final ProcessorEnvImpl processorEnv){
+		if( processorEnv != null ){
+			final IFile file = processorEnv.getFile();
+			if( file != null )
+				return file.getName();
+		}
 		final int len = _filesToProcess.length;
 		switch( len )
 		{

@@ -1,4 +1,4 @@
-/*******************************************************************************
+ /*******************************************************************************
  * Copyright (c) 2005 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,11 +21,13 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
+import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -195,6 +197,17 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
 		gfm.projectClean( true );
+		try{
+			// clear out all markers during a clean.
+			IMarker[] markers = p.findMarkers(ProcessorEnvImpl.BUILD_MARKER, true, IResource.DEPTH_INFINITE);
+			if( markers != null ){
+				for( IMarker marker : markers )
+					marker.delete();
+			}
+		}
+		catch(CoreException e){
+			e.printStackTrace();
+		}
 		
 		return GENERIC_COMPILATION_RESULT;
 	}

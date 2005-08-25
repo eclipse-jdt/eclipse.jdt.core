@@ -62,7 +62,7 @@ import com.sun.mirror.declaration.TypeDeclaration;
 
 public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotationProcessorEnvironment
 {
-	private static final String BUILD_MARKER = "org.eclipse.jdt.apt.core.marker"; //$NON-NLS-1$
+	public static final String BUILD_MARKER = "org.eclipse.jdt.apt.core.marker"; //$NON-NLS-1$
 	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
 	/** delimiter of path variables in -A values, e.g., %ROOT%/foo */
 	private static final char PATHVAR_DELIM = '%';
@@ -98,9 +98,23 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	
 	private boolean _batchMode = false; // off by default. 
 	private char[] _curSource = null;
-	private CompilationUnit[] _astUnits = null;
-	private char[][] _sources = null;
+	/** 
+	 * This is only non-null when <code>#_batchMode</code> is <code>true</code>
+	 * If we are not in batch mode (reconcile time or file-based dispatch during build),
+	 * <code>super._file</code> holds the file being processed at the time. 
+	 */ 
 	private IFile[] _files = null;
+	/** 
+	 * This is only non-null when <code>#_batchMode</code> is <code>true</code> *
+	 * If we are not in batch mode, <code>super._astRoot</code> holds the current ast 
+	 * being processed at the time.*/
+	private CompilationUnit[] _astUnits = null;
+	
+	/** 
+	 * The source to all of the compilation units in <code>_astUnits</code>
+	 * This is only non-null when <code>#_batchMode</code> is <code>true</code> 
+	 */
+	private char[][] _sources = null;
 	private List<Map<String,Object>> _markerInfos = null;
 
 	public static ProcessorEnvImpl newProcessorEnvironmentForReconcile(ICompilationUnit compilationUnit, IJavaProject javaProj)
@@ -407,6 +421,8 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 					return true;
 			}		
 		}
+		
+		// TODO: also include markers
 		return false;
 	}  
 
@@ -456,6 +472,10 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	 *  4) add or remove listeners
 	 */
     public void close(){
+    	if( _isClosed ) 
+    		return;
+    	postMarkers();
+    	_markerInfos = null;
     	_astRoot = null;
     	_file = null;
     	_astUnits = null;
@@ -485,7 +505,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
      * @param msg the message on the marker
      * @param line the line number of where the marker should be
      */
-    void addProblem(IFile resource, 
+    void addMessage(IFile resource, 
        		        int start, 
     				int end,
                     Severity severity, 
@@ -495,11 +515,33 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     {
     	checkValid();
     	
-    	assert( resource != null ) : "missing resource"; //$NON-NLS-1$
+    	if( resource == null )
+    		resource = getFile();
+    	
     	// not going to post any markers to resource outside of the one we are currently 
     	// processing during reconcile phase.
     	if( _phase == Phase.RECONCILE && resource != null && !resource.equals( getFile() ) )
-    		return;    
+    		return;   
+    		
+    	if( resource == null ){
+    		assert _batchMode : "not in batch mode but don't know about current resource"; //$NON-NLS-1$
+    		addMarker(start, end, severity, msg, line, arguments);
+    	}
+    	else
+    		addProblem(resource, start, end, severity, msg, line, arguments);
+    	
+    }
+    
+    void addProblem(
+    		IFile resource, 
+		    int start, 
+			int end,
+            Severity severity, 
+            String msg, 
+            int line,
+            String[] arguments)
+    {
+    	 
     	final APTProblem newProblem = 
         	new APTProblem(msg, severity, resource, start, end, line, arguments);
     	List<IProblem> problems = _allProblems.get(resource);
@@ -511,11 +553,12 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     }
     
     void addMarker(
-    		final int start,
-    		final int end,
-    		final String msg,
-    		final Severity severity,
-    		final int line)
+    		int start, 
+			int end,
+            Severity severity, 
+            String msg, 
+            int line,
+            String[] arguments)
     {
     	// TODO: implement me.
     }
@@ -600,23 +643,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	}
     
     /**
-     * @param file
-     * @return the index of <code>file</code> from the list of files we are processing.
-     * Return -2 if no match is found.
-     */
-    private int getFileIndex(final IFile file)
-    {
-    	int index = -2;
-    	for( int i=0, len=_files.length; i<len; i++ ){
-    		if( file == _files[i] ){
-    			index = i;
-    			break;
-    		}    	
-    	}
-    	return index;
-    }
-    
-    /**
      * Determine the ending offset of any problems on the current resource that doesn't have one by
      * traversing the ast for the. We will only walk the ast once to determine the ending 
      * offsets of all the marker infos that do not have the information set.
@@ -627,22 +653,20 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	// traversing the ast.
     	// we do it once just before we post the marker so we only have to walk the ast 
     	// once.
+    	
     	for( Map.Entry<IFile, List<IProblem>> entry : _allProblems.entrySet() ){
     		int count = 0;
-    		int fileIndex = -1;
     		final IFile file = entry.getKey();
     		for( IProblem problem : entry.getValue() ){
     			if( problem.getSourceEnd() == -1 ){
-    				if( fileIndex == -1 )
-    					fileIndex = getFileIndex(file);
-    				// -2 means it's not one of the files that we are processing.
-    				if( fileIndex != -2 )
-    					count ++;
+    				count ++;
     			}
     		}
     		
-    		if( fileIndex != -2 ){
-    			if( count > 0 ){
+    		if( count > 0 ){
+    			final CompilationUnit astUnit = getAstCompilationUnit(file);
+    			if( astUnit != null ){
+    			
     				final int[] startingOffsets = new int[count];
     		    	int index = 0;
 	    			for( IProblem problem : entry.getValue() ){
@@ -651,7 +675,8 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	    			}
 	    			
 	    			final EndingOffsetFinder lfinder = new EndingOffsetFinder(startingOffsets);
-	    			_astUnits[fileIndex].accept( lfinder );
+	    			
+	    			astUnit.accept( lfinder );
 	    	    	
 	    	    	for(IProblem problem : entry.getValue() ){
 	    				if( problem.getSourceEnd() == -1 ){
@@ -663,15 +688,15 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	    				}
 	    			}
     			}
-    			// else everything is clear.
+    			else{
+        			for(IProblem problem : entry.getValue() ){
+        				// set the -1 source end to be the same as the source start.
+        				if( problem.getSourceEnd() < problem.getSourceStart() )
+        					problem.setSourceEnd(problem.getSourceStart());
+        			}
+        		}
     		}
-    		else{
-    			for(IProblem problem : entry.getValue() ){
-    				// set the -1 source end to be the same as the source start.
-    				if( problem.getSourceEnd() < problem.getSourceStart() )
-    					problem.setSourceEnd(problem.getSourceStart());
-    			}
-    		}
+    		
     	}
     }
     
@@ -978,13 +1003,25 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		return null;
 	}
 	
+	/**
+     * @param file
+     * @return the compilation unit associated with the given file.
+     * If the file is not one of those that this environment is currently processing,
+     * return null;
+     */
 	public CompilationUnit getAstCompilationUnit(final IFile file)
 	{
-		for( int i=0, len=_files.length; i<len; i++ ){
-			if( _files[i] == file )
-				return _astUnits[i];
-		}
-		return null;
+		if( file == null ) 
+    		return null;
+    	else if( file.equals(_file) )
+    		return _astRoot;
+    	else if( _batchMode ){
+    		for( int i=0, len=_files.length; i<len; i++ ){
+        		if( file.equals(_files[i]) )
+        			return _astUnits[i];
+        	}
+    	}
+    	return null;
 	}
 	
 	/**
@@ -1005,6 +1042,8 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	
 	void postMarkers()
     {
+		if( _markerInfos == null )
+			return;
 		// Posting all the markers to the workspace. Doing this in a batch process
 		// to minimize the amount of notification.
 		try{
@@ -1020,7 +1059,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 						}
 						catch(CoreException e){
 							throw new IllegalStateException(e);
-							// todo: (theodora) report the problem
+							// TODO: (theodora) report the problem
 						}
 	                }
 	            };
@@ -1028,7 +1067,8 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 			currentResource.getWorkspace().run(runnable, null);
 		}
 		catch(CoreException e){
-			// todo:(theodora) report the problem.
+			e.printStackTrace();
+			// TODO:(theodora) report the problem.
 		}
 		finally{
 			_markerInfos.clear();

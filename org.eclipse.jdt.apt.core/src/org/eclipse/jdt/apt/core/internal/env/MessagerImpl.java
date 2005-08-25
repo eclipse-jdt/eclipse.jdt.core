@@ -48,7 +48,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		// The only time you get a dom AST node is when you are processing in a per-file mode.
 		// _env.getAstCompilationUnit() && _env.getFile() will return an non-null value.
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		_env.addProblem(_env.getFile(), start, node.getLength() + start, Severity.ERROR, msg, line, null );
+		_env.addMessage(_env.getFile(), start, node.getLength() + start, Severity.ERROR, msg, line, null );
 	}
 
     public void printError(String msg)
@@ -74,7 +74,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		// The only time you get a dom AST node is when you are processing in a per-file mode.
 		// _env.getAstCompilationUnit() && _env.getFile() will return an non-null value.
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		_env.addProblem(_env.getFile(), start, node.getLength() + start, Severity.INFO, msg, line, null );
+		_env.addMessage(_env.getFile(), start, node.getLength() + start, Severity.INFO, msg, line, null );
 	}
 
     public void printNotice(String msg)
@@ -100,7 +100,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		// The only time you get a dom AST node is when you are processing in a per-file mode.
 		// _env.getAstCompilationUnit() && _env.getFile() will return an non-null value.
 		final int line = _env.getAstCompilationUnit().lineNumber(start);
-		_env.addProblem(_env.getFile(), start, node.getLength() + start, Severity.WARNING, msg, line, null);
+		_env.addMessage(_env.getFile(), start, node.getLength() + start, Severity.WARNING, msg, line, null);
 	}
 
     public void printWarning(String msg)
@@ -190,7 +190,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 			throw new IllegalStateException("missing resource"); //$NON-NLS-1$            
         }
         else{          
-          _env.addProblem(resource, pos.getStartingOffset(), pos.getEndingOffset(), 
+          _env.addMessage(resource, pos.getStartingOffset(), pos.getEndingOffset(), 
 						  severity, msg, pos.line(), arguments);
         }
     }
@@ -219,12 +219,12 @@ public class MessagerImpl implements Messager, EclipseMessager
     		if( unit != null )
     			offset = unit.getPosition( pos.line(), pos.column() );
     	}
-    	_env.addProblem(resource, offset, -1, severity, msg, pos.line(), arguments );   
+    	_env.addMessage(resource, offset, -1, severity, msg, pos.line(), arguments );   
     }
 
     private void print(Severity severity, String msg, String[] arguments)
     {
-     	_env.addProblem(null, 0, -1, severity, msg, 1, arguments );  
+     	_env.addMessage(null, 0, -1, severity, msg, 1, arguments );  
 		
     }
   
