@@ -1257,5 +1257,22 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"List size: 2");
-	}		
+	}
+	//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=108095
+	public void test035() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static <T> void foo(T ... values) {\n" +
+				"      System.out.print(values.getClass());\n" +
+				"  }\n" +
+				"	public static void main(String args[]) {\n" +
+				"	   X.<String>foo(\"monkey\", \"cat\");\n" +
+				"      X.<String>foo(new String[] { \"monkey\", \"cat\" });\n" +
+				"	}\n" +
+				"}",
+			},
+			"class [Ljava.lang.String;class [Ljava.lang.String;");
+	}
 }
