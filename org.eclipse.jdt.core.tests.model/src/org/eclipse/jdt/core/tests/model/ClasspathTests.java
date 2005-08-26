@@ -76,7 +76,7 @@ public ClasspathTests(String name) {
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-//	TESTS_NAMES = new String[] {"testExportContainer"};
+//	TESTS_NAMES = new String[] {"testEmptyInclusionPattern"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -1998,6 +1998,34 @@ public void testEmptyContainer() throws CoreException {
 	} finally {
 		stopDeltas();
 		this.deleteProject("P");
+	}
+}
+/*
+ * Ensure that a .classpath with an empty inclusion pattern is correctly handled
+ * (regression test for bug 105581 Creating a Java project from existing source fails because of "Unhandled event loop exception":)
+ */
+public void testEmptyInclusionPattern() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {""}, "bin");
+		project.open(null);
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"  <classpathentry including=\"X.java|\" kind=\"src\" path=\"\"/>\n" + 
+			"  <classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>"
+		);
+		project.getProject().close(null);
+		project.getProject().open(null);
+		project.getPackageFragmentRoot(project.getProject()).open(null);
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		assertClasspathEquals(
+			classpath, 
+			"/P[CPE_SOURCE][K_SOURCE][isExported:false][including:X.java]"
+		);
+	} finally {
+		deleteProject("P");
 	}
 }
 /**

@@ -342,11 +342,16 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (!sequence.equals("")) { //$NON-NLS-1$ 
 			char[][] patterns = CharOperation.splitOn('|', sequence.toCharArray());
 			int patternCount;
-			if ((patternCount  = patterns.length) > 0) {
+			if ((patternCount = patterns.length) > 0) {
 				IPath[] paths = new IPath[patternCount];
-				for (int j = 0; j < patterns.length; j++){
-					paths[j] = new Path(new String(patterns[j]));
+				int index = 0;
+				for (int j = 0; j < patternCount; j++) {
+					char[] pattern = patterns[j];
+					if (pattern.length == 0) continue; // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=105581
+					paths[index++] = new Path(new String(pattern));
 				}
+				if (index < patternCount)
+					System.arraycopy(paths, 0, paths = new IPath[index], 0, index);
 				return paths;
 			}
 		}
