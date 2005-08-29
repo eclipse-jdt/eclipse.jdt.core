@@ -740,6 +740,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				this.log.println("# " + version); //$NON-NLS-1$
 				if (printToOut) {
 					this.out.println(version);
+					this.out.flush();
 				}
 			} else if (printToOut) {
 				final String version = Main.bind("misc.version", //$NON-NLS-1$
@@ -750,6 +751,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				);
 				this.out.println(version);
+				this.out.flush();
 			}
 		}
 
