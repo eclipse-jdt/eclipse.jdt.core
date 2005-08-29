@@ -68,7 +68,17 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
     
     public String toString()
     {
-        return getSimpleName();
+    /*
+    	final StringBuilder buffer = new StringBuilder();
+    	final IVariableBinding field = getDeclarationBinding();
+    	if( field.getType() != null ){
+    		buffer.append( field.getType() );
+    		buffer.append(' ');
+    	}
+    	buffer.append(field.getName());
+    	return buffer.toString();
+    */
+    	return getSimpleName();
     }
 
     public MirrorKind kind(){ return MirrorKind.FIELD; }

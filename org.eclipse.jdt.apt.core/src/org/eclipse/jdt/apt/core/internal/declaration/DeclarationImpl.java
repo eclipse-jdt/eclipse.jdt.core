@@ -8,138 +8,45 @@
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
+package org.eclipse.jdt.apt.core.internal.declaration;
 
- package org.eclipse.jdt.apt.core.internal.declaration;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
-import org.eclipse.jdt.apt.core.internal.env.AnnotationInvocationHandler;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IResolvedAnnotation;
 import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 
-import com.sun.mirror.declaration.AnnotationMirror;
-import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.Modifier;
-import com.sun.mirror.util.DeclarationVisitor;
 
-public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
-{
+public abstract class DeclarationImpl extends EclipseDeclarationImpl {
+	
 	/** the type binding corresponding to this declaration */
-    final IBinding _binding;
-    final BaseProcessorEnv _env;
-
-    DeclarationImpl(final IBinding binding, final BaseProcessorEnv env)
-    {
-        assert binding != null : "binding cannot be null"; //$NON-NLS-1$
-        assert env != null : "missing environment"; //$NON-NLS-1$
-        _binding = binding;
-        _env = env;
-    }
-
-    public void accept(DeclarationVisitor visitor)
-    {
-        visitor.visitDeclaration(this);     
-    }
-
-    public boolean equals(Object obj)
+	protected final IBinding _binding;
+	DeclarationImpl(final IBinding binding, final BaseProcessorEnv env )
+	{
+		super(env);
+		assert binding != null : "binding cannot be null"; //$NON-NLS-1$
+		_binding = binding;
+	}
+	
+	public boolean equals(Object obj)
     {
         if(obj instanceof DeclarationImpl)
             return _binding.isEqualTo( ((DeclarationImpl)obj)._binding );
             
         return false;
     }
-
-    public int hashCode(){ 
+	
+	public int hashCode(){ 
     	final String key = getDeclarationBinding().getKey();
     	return key == null ? 0 : key.hashCode(); 
     }
-
-    <A extends Annotation> A _getAnnotation(Class<A> annotationClass,
-                                            IResolvedAnnotation[] annoInstances)
-    {
-        final String annoTypeName = annotationClass.getName();
-		if( annoTypeName == null ) return null;
-		final int len = annoInstances == null ? 0 : annoInstances.length;
-        if( len == 0 ) return null;
-        for( IResolvedAnnotation annoInstance :  annoInstances){
-            final ITypeBinding binding = annoInstance.getAnnotationType();            
-            if( binding != null && binding.isAnnotation() ){
-                final String curTypeName = binding.getQualifiedName();
-                if( annoTypeName.equals(curTypeName) ){
-                    final AnnotationMirrorImpl annoMirror =
-                        (AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance, this, _env);
-                    final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror, annotationClass);
-                    return (A)Proxy.newProxyInstance(annotationClass.getClassLoader(),
-                                                     new Class[]{ annotationClass }, handler );
-                }
-            }
-        }
-        return null; 
-    }
 	
-	<A extends Annotation> A _getAnnotation(Class<A> annotationClass,
-            List<org.eclipse.jdt.core.dom.Annotation> annoInstances)
-	{
-		final String annoTypeName = annotationClass.getName();
-		if( annoInstances == null || annoInstances.size() == 0 ) return null;
-		for( org.eclipse.jdt.core.dom.Annotation annoInstance :  annoInstances){
-			final ITypeBinding binding = annoInstance.resolveTypeBinding();
-			if(binding.isAnnotation() ){
-				final String curTypeName = binding.getQualifiedName();
-				if( annoTypeName.equals(curTypeName) ){
-				final AnnotationMirrorImpl annoMirror =
-				(AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance.resolveAnnotation(), this, _env);
-				final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror, annotationClass);
-				return (A)Proxy.newProxyInstance(annotationClass.getClassLoader(),
-				                     new Class[]{ annotationClass }, handler );
-				}
-			}
-		}
-		return null;
-	}
-
-    Collection<AnnotationMirror> _getAnnotationMirrors(IResolvedAnnotation[] annoInstances)
-    {
-		final int len = annoInstances == null ? 0 : annoInstances.length;
-        if( len == 0 ) return Collections.emptyList();
-        final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(len);
-        for(IResolvedAnnotation annoInstance : annoInstances){
-            final AnnotationMirrorImpl annoMirror =
-                        (AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance, this, _env);
-            result.add(annoMirror);
-        }
-        return result;
-    }  
-	
-	Collection<AnnotationMirror> _getAnnotationMirrors(List<org.eclipse.jdt.core.dom.Annotation> annoInstances)
-	{
-		if( annoInstances == null || annoInstances.size() == 0 ) return Collections.emptyList();
-		final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(annoInstances.size());
-		for( org.eclipse.jdt.core.dom.Annotation annoInstance : annoInstances){
-			final AnnotationMirrorImpl annoMirror =
-				(AnnotationMirrorImpl)Factory.createAnnotationMirror(annoInstance.resolveAnnotation(), this, _env);
-			result.add(annoMirror);
-		}
-		return result;
-	}  
-	
-
-
-
-    
-    /**
+	 /**
      * @return the binding that corresponds to the original declaration. 
      * For parameterized type or raw type, return the generic type declaration binding.
      * For parameterized method, return the method declaration binding that has the 
@@ -176,37 +83,19 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
         	mods.add(Modifier.VOLATILE);
         return mods;
     }
-
-
-    /**
-     * @return true iff this declaration came from a source file.
-     *         Return false otherwise.
-     */
-    public abstract boolean isFromSource();
-        
-    /**
-     * @return the ast node that corresponding to this declaration.
-     *         Return null if this declaration came from binary.
-     * @see #isFromSource();
-     */
+    
+    public boolean isBindingBased(){ return true; }
+ 
     ASTNode getAstNode(){
         if( !isFromSource() ) return null;
         return _env.getASTNodeForBinding(getDeclarationBinding());      
     }
 
-    /**
-     * @return the compilation unit that the ast node of this declaration came from
-     *         Return null if this declaration came from binary.
-     * @see #isFromSource()
-     */
     CompilationUnit getCompilationUnit(){
         if( !isFromSource() ) return null;
         return _env.getCompilationUnitForBinding(getDeclarationBinding());
     }
-	
-	/**
-	 * @return the resource of this declaration if the declaration is from source.
-	 */
+
 	public IFile getResource(){
         if( isFromSource() ){
             final IBinding binding = getDeclarationBinding();
@@ -214,6 +103,5 @@ public abstract class DeclarationImpl implements Declaration, EclipseMirrorImpl
         }
         return null;
     }
-	
-	public BaseProcessorEnv getEnvironment(){ return _env; }
-} 
+
+}

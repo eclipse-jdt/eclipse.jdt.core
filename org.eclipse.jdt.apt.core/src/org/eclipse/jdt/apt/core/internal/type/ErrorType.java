@@ -14,13 +14,16 @@ package org.eclipse.jdt.apt.core.internal.type;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.ClassDeclaration;
 import com.sun.mirror.declaration.InterfaceDeclaration;
+import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.type.AnnotationType;
+import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.DeclaredType;
 import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.type.ReferenceType;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.TypeVisitor;
+
 import java.util.Collection;
 import java.util.Collections;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
@@ -99,5 +102,36 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
         }
 
         public AnnotationTypeDeclaration getDeclaration(){ return null; }
+    }
+    
+    public static final class ErrorArrayType extends ErrorType implements ArrayType 
+    {
+    	private final int _dimension;
+    	public ErrorArrayType(final String name, final int dimension )
+    	{
+    		super(name);
+    		_dimension = dimension;
+    	}
+    	
+    	public void accept(TypeVisitor visitor)
+        {
+            super.accept(visitor);
+            visitor.visitArrayType(this);
+        }
+    	
+    	public TypeDeclaration getDeclaration() { return null; }
+    	
+    	public TypeMirror getComponentType() {
+    		return new ErrorClass(_name);
+    	}
+    	
+    	public String toString()
+    	{
+    		final StringBuilder buffer = new StringBuilder();
+    		buffer.append(_name);
+    		for( int i=0; i<_dimension; i++ )
+    			buffer.append("[]"); //$NON-NLS-1$
+    		return buffer.toString();
+    	}
     }
 }

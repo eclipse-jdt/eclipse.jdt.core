@@ -13,6 +13,7 @@ package org.eclipse.jdt.apt.core.internal.util;
 
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.AnnotationValue;
+import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.type.AnnotationType;
 import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.type.ClassType;
@@ -23,7 +24,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedAnnotationElementDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedFieldDeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.ASTBasedMethodDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationElementDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationMirrorImpl;
@@ -31,14 +36,13 @@ import org.eclipse.jdt.apt.core.internal.declaration.AnnotationValueImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.BinaryParameterDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.ClassDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.ConstructorDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.DeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.EnumConstantDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.EnumDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.ExecutableDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.FieldDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.InterfaceDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.MethodDeclarationImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.ParameterDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.SourceParameterDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeParameterDeclarationImpl;
@@ -46,13 +50,15 @@ import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.type.ArrayTypeImpl;
 import org.eclipse.jdt.apt.core.internal.type.ErrorType;
 import org.eclipse.jdt.apt.core.internal.type.WildcardTypeImpl;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.IResolvedAnnotation;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 public class Factory
 {
@@ -77,7 +83,7 @@ public class Factory
         return mirror;
     }
 
-    public static DeclarationImpl createDeclaration(IBinding binding, BaseProcessorEnv env)
+    public static EclipseDeclarationImpl createDeclaration(IBinding binding, BaseProcessorEnv env)
     {
         if(binding == null) return null;
        
@@ -107,6 +113,30 @@ public class Factory
         default:
             throw new IllegalStateException("failed to create declaration from " + binding); //$NON-NLS-1$
         }     
+    }
+    
+    public static EclipseDeclarationImpl createDeclaration(
+    		ASTNode node, 
+    		IFile file,
+    		BaseProcessorEnv env)
+    {
+    	 if( node == null )
+    		 return null;
+    	 switch( node.getNodeType() )
+    	 {
+    	 case ASTNode.SINGLE_VARIABLE_DECLARATION:
+    		 return new SourceParameterDeclarationImpl((SingleVariableDeclaration)node, file, env);
+    	 case ASTNode.VARIABLE_DECLARATION_FRAGMENT:
+    		 return new ASTBasedFieldDeclarationImpl( (VariableDeclarationFragment)node, file, env );
+    	 case ASTNode.METHOD_DECLARATION :
+    		  return new ASTBasedMethodDeclarationImpl( (org.eclipse.jdt.core.dom.MethodDeclaration)node, file, env );
+    	 case ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION:
+    		 return new ASTBasedMethodDeclarationImpl((AnnotationTypeMemberDeclaration)node, file, env);
+    	 default :
+    		 throw new UnsupportedOperationException(
+    				 "cannot create mirror type from " +   //$NON-NLS-1$
+    				 node.getClass().getName() );
+    	 }
     }
 
     public static TypeMirror createTypeMirror(ITypeBinding binding, BaseProcessorEnv env)
@@ -146,34 +176,22 @@ public class Factory
             return createReferenceType(binding, env);       
     }
     
-    public static ParameterDeclarationImpl createParameterDeclaration(
+    public static ParameterDeclaration createParameterDeclaration(
     		final SingleVariableDeclaration param,
-    		final BaseProcessorEnv env )
+    		final IFile file,
+    		final BaseProcessorEnv env)
     {
-    	// the parent of a parameter is always the method itself.
-		final MethodDeclaration method = (MethodDeclaration)param.getParent();	
-		final List<SingleVariableDeclaration> params = method.parameters();
-		int index = -1;
-		int counter = 0;
-		for( SingleVariableDeclaration p : params ){
-			if( p == param )
-				index = counter;
-			counter ++;
-		}
-		final ExecutableDeclarationImpl exec = 
-			(ExecutableDeclarationImpl)Factory.createDeclaration(method.resolveBinding(), env);
-		return createParameterDeclaration(exec, index, param.getType().resolveBinding(), env);		
+    	return new SourceParameterDeclarationImpl(param, file, env);
     }
     
-    public static ParameterDeclarationImpl createParameterDeclaration(final ExecutableDeclarationImpl exec,
-    																  final int paramIndex,
-    																  final ITypeBinding type,
-    																  final BaseProcessorEnv env )
+    
+    public static ParameterDeclaration createParameterDeclaration(
+    		final ExecutableDeclarationImpl exec,
+    		final int paramIndex,
+    		final ITypeBinding type,
+    		final BaseProcessorEnv env )
     {
-    	if( exec.isFromSource() )
-    		return new SourceParameterDeclarationImpl(exec, type, paramIndex, env);
-    	else
-    		return new BinaryParameterDeclarationImpl(exec, type, paramIndex, env);
+    	return new BinaryParameterDeclarationImpl(exec, type, paramIndex, env);
     }
    
   
@@ -184,10 +202,22 @@ public class Factory
      * @return a newly created {@link AnnotationMirror} object
      */
     public static AnnotationMirror createAnnotationMirror(final IResolvedAnnotation annotation,
-                                                          final DeclarationImpl annotated,
+                                                          final EclipseDeclarationImpl annotated,
                                                           final BaseProcessorEnv env)
     {
         return new AnnotationMirrorImpl(annotation, annotated, env);		
+    }
+    
+    public static AnnotationValue createDefaultValue(
+    		Object domValue,
+    		AnnotationElementDeclarationImpl decl,
+    		BaseProcessorEnv env)
+    {
+    	if( domValue == null ) return null;		
+		final Object converted = convertDOMValueToMirrorValue(
+				domValue, null, decl, decl, env, decl.getReturnType());
+		
+        return createAnnotationValue(converted, null, -1, decl, env);
     }
 	
 	/**
@@ -200,11 +230,12 @@ public class Factory
 	 * @return an annotation value
 	 */
     public static AnnotationValue createDefaultValue(Object domValue, 
-													 AnnotationElementDeclarationImpl decl, 
+													 ASTBasedAnnotationElementDeclarationImpl decl, 
 													 BaseProcessorEnv env)
     {
         if( domValue == null ) return null;		
-		final Object converted = convertDOMValueToMirrorValue(domValue, null, decl, decl, env, decl.getReturnType());
+		final Object converted = convertDOMValueToMirrorValue(
+				domValue, null, decl, decl, env, decl.getReturnType());
 		
         return createAnnotationValue(converted, null, -1, decl, env);
     }
@@ -273,7 +304,7 @@ public class Factory
     private static Object convertDOMValueToMirrorValue(Object domValue, 
 													   String name,	
 													   EclipseMirrorImpl parent,
-													   DeclarationImpl decl, 
+													   EclipseDeclarationImpl decl, 
 													   BaseProcessorEnv env,
 													   TypeMirror expectedType)													   
     {
@@ -518,11 +549,21 @@ public class Factory
 
     public static ClassType createErrorClassType(final ITypeBinding binding)
     {
-        return new ErrorType.ErrorClass(binding.getName());
+        return createErrorClassType(binding.getName());
+    }
+    
+    public static ClassType createErrorClassType(final String name)
+    {
+    	return new ErrorType.ErrorClass(name);
     }
 
     public static AnnotationType createErrorAnnotationType(final ITypeBinding binding)
     {
         return new ErrorType.ErrorAnnotation(binding.getName());
+    }
+    
+    public static ArrayType createErrorArrayType(final String name, final int dimension)
+    {
+    	return new ErrorType.ErrorArrayType(name, dimension);
     }
 }

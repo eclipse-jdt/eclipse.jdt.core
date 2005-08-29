@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.core.internal.util;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.NonEclipseImplementationException;
 import org.eclipse.jdt.apt.core.internal.declaration.DeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.MemberDeclarationImpl;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -32,6 +33,10 @@ public class DeclarationsUtil implements Declarations
 		
 		// A declaration cannot hide itself
 		if (sub == sup || sub.equals(sup))
+			return false;
+		
+		if( ! ((EclipseDeclarationImpl)sub).isBindingBased() ||  
+			! ((EclipseDeclarationImpl)sup).isBindingBased() )
 			return false;
 		
 		MemberDeclarationImpl subImpl = (MemberDeclarationImpl)sub;
@@ -125,7 +130,10 @@ public class DeclarationsUtil implements Declarations
     {
         if( memberDecl == null ) return null;
         if( memberDecl instanceof EclipseMirrorImpl ){
-            return ((DeclarationImpl)memberDecl).getDeclarationBinding();
+        	if( memberDecl instanceof DeclarationImpl )
+        		return ((DeclarationImpl)memberDecl).getDeclarationBinding();
+        	else
+        		return null;
         }
         throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
                                                     " Found " + memberDecl.getClass().getName()); //$NON-NLS-1$

@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationValueImpl;
-import org.eclipse.jdt.apt.core.internal.declaration.DeclarationImpl;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
 
 public class SourcePositionImpl implements SourcePosition
 {
@@ -35,7 +35,7 @@ public class SourcePositionImpl implements SourcePosition
                               final int length,
                               final int line,
                               final int column,
-                              final DeclarationImpl decl)
+                              final EclipseDeclarationImpl decl)
     {
         _startingOffset = startingOffset;
         _length = length;
@@ -88,10 +88,10 @@ public class SourcePositionImpl implements SourcePosition
     public int getEndingOffset(){ return _startingOffset + _length; }
     public int getLength(){ return _length; }
     public IFile getResource(){
-		if( _decl instanceof DeclarationImpl )
-			return ((DeclarationImpl)_decl).getResource();
+		if( _decl instanceof EclipseDeclarationImpl )
+			return ((EclipseDeclarationImpl)_decl).getResource();
 		else if( _decl instanceof AnnotationMirrorImpl )
-			return ((AnnotationMirrorImpl)_decl).getResouce();
+			return ((AnnotationMirrorImpl)_decl).getResource();
 		else if( _decl instanceof AnnotationValueImpl )
 			return ((AnnotationValueImpl)_decl).getResource();
 		

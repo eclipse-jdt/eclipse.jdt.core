@@ -283,7 +283,7 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		MethodDeclaration methodDec = null;
 		MethodDeclaration methodDecNoArg = null;
 		for(MethodDeclaration method : methodDecls) {
-			if(method.toString().endsWith("methodDec(int k, String[] t)"))
+			if(method.toString().endsWith("methodDec(int k, String... t)"))
 				methodDec = method;
 			if(method.toString().endsWith("methodDecNoArg()"))
 				methodDecNoArg = method;
@@ -308,12 +308,12 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		for(ParameterDeclaration param : paramDecls) {
 			if(param.toString().startsWith("int"))
 				paramDeclInt = param;
-			if(param.toString().startsWith("String[]"))
+			if(param.toString().startsWith("String..."))
 				paramDeclString = param;
 		}
 		ProcessorTestStatus.assertTrue("int parameter exists", paramDeclInt != null);
 		ProcessorTestStatus.assertEquals("Parameter type is int", "int", paramDeclInt.getType().toString());
-		ProcessorTestStatus.assertTrue("String[] parameter exists", paramDeclString != null);
+		ProcessorTestStatus.assertTrue("String... parameter exists", paramDeclString != null);
 		ProcessorTestStatus.assertEquals("Parameter type is String[]", "java.lang.String[]", paramDeclString.getType().toString());
 		ProcessorTestStatus.assertEquals("Number of parameters in methodDecNoArg", 0, methodDecNoArg.getParameters().size());
 	}

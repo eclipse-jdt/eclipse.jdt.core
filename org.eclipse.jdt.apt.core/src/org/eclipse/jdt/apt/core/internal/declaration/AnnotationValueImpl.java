@@ -13,6 +13,7 @@ package org.eclipse.jdt.apt.core.internal.declaration;
 
 import java.util.List;
 
+import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.util.SourcePosition;
 
 import org.eclipse.core.resources.IFile;
@@ -23,7 +24,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirrorImpl
+public class AnnotationValueImpl implements EclipseMirrorImpl, AnnotationValue
 {   
 	/**
 	 * Either the annotation that directly contains this annotation value
@@ -130,14 +131,17 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
     }
 	
 	CompilationUnit getCompilationUnit()
-	{
+	{	
 		final MirrorKind kind = _parent.kind();
 		switch(kind)
 		{
 		case ANNOTATION_MIRROR:
 			return ((AnnotationMirrorImpl)_parent).getCompilationUnit();
 		case ANNOTATION_ELEMENT:
-			return ((MethodDeclarationImpl)_parent).getCompilationUnit();
+			if( ((EclipseDeclarationImpl)_parent).isBindingBased() )
+				return ((AnnotationElementDeclarationImpl)_parent).getCompilationUnit();
+			else
+				return ((ASTBasedAnnotationElementDeclarationImpl)_parent).getCompilationUnit();
 		default:
 			throw new IllegalStateException(); // should never reach this point.
 		}
@@ -151,7 +155,10 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 		case ANNOTATION_MIRROR:
 			return ((AnnotationMirrorImpl)_parent).isFromSource();
 		case ANNOTATION_ELEMENT:
-			return ((MethodDeclarationImpl)_parent).isFromSource();
+			if( ((EclipseDeclarationImpl)_parent).isBindingBased() )
+				return ((AnnotationElementDeclarationImpl)_parent).isFromSource();
+			else
+				return ((ASTBasedAnnotationElementDeclarationImpl)_parent).isFromSource();
 		default:
 			throw new IllegalStateException(); // should never reach this point.
 		}
@@ -163,9 +170,12 @@ public class AnnotationValueImpl implements IEclipseAnnotationValue, EclipseMirr
 		switch(kind)
 		{
 		case ANNOTATION_MIRROR:
-			return ((AnnotationMirrorImpl)_parent).getResouce();
+			return ((AnnotationMirrorImpl)_parent).getResource();
 		case ANNOTATION_ELEMENT:
-			return ((MethodDeclarationImpl)_parent).getResource();
+			if( ((EclipseDeclarationImpl)_parent).isBindingBased() )
+				return ((AnnotationElementDeclarationImpl)_parent).getResource();
+			else
+				return ((ASTBasedAnnotationElementDeclarationImpl)_parent).getResource();
 		default:
 			throw new IllegalStateException(); // should never reach this point.
 		}

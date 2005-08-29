@@ -11,10 +11,7 @@
 package org.eclipse.jdt.apt.core.internal.declaration; 
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
@@ -95,61 +92,7 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
         	}  
         }
         return null;
-    }
-    
-    private String getDocComment(final BodyDeclaration decl)
-    {
-    	final Javadoc javaDoc = decl.getJavadoc();
-        if( javaDoc == null ) return ""; //$NON-NLS-1$
-        return javaDoc.toString();
-    }
-	
-	/**
-	 * @return the ast node that holds the range of this member declaration in source.
-	 *         The default is to find the name of the node and if that fails, return the 
-	 *         node with the smallest range that contains the declaration.
-	 */
-	private ASTNode getRangeNode()
-	{
-		final ASTNode node = getAstNode();
-		if( node == null ) return null;
-		SimpleName name = null;
-		switch( node.getNodeType() )
-		{
-		case ASTNode.TYPE_DECLARATION:
-		case ASTNode.ANNOTATION_TYPE_DECLARATION:
-		case ASTNode.ENUM_DECLARATION:
-			name = ((AbstractTypeDeclaration)node).getName();
-			break;
-		case ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION:
-			name = ((AnnotationTypeMemberDeclaration)node).getName();
-			break;
-		case ASTNode.METHOD_DECLARATION:
-			name = ((MethodDeclaration)node).getName();
-			break;		
-		case ASTNode.SINGLE_VARIABLE_DECLARATION:
-			name = ((SingleVariableDeclaration)node).getName();
-			break;
-		case ASTNode.FIELD_DECLARATION:
-			final String declName = getSimpleName();
-			if( declName == null ) return node;
-			for(Object obj : ((FieldDeclaration)node).fragments() ){
-				 VariableDeclarationFragment frag = (VariableDeclarationFragment)obj;
-				 if( declName.equals(frag.getName()) ){
-					 name = frag.getName();
-					 break;
-				 }	 
-			}
-			break;
-		case ASTNode.ENUM_CONSTANT_DECLARATION:
-			name = ((EnumConstantDeclaration)node).getName();
-			break;
-		default:
-			return node;
-		}
-		if( name == null ) return node;
-		return name;
-	}
+    }    
 
 	/**
 	 * @return the source position of this declaration. 
@@ -171,26 +114,5 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 					this);
         }
         return null;
-    }
-
-    /**
-     * @return the list of annotation ast node on the given body declaration.
-     * This declaration must came from source. 
-     * Return the empty list if the declaration is part of a secondary type outside
-     * of the file associated with the environment.
-     */
-    List<org.eclipse.jdt.core.dom.Annotation> getAnnotations()
-    {
-        assert isFromSource() : "Declaration did not come from source."; //$NON-NLS-1$
-        final BodyDeclaration decl = (BodyDeclaration)getAstNode(); 
-		if( decl == null ) return Collections.emptyList();
-        final List<IExtendedModifier> extMods = decl.modifiers();
-        if( extMods == null || extMods.isEmpty() ) return Collections.emptyList();
-        List<org.eclipse.jdt.core.dom.Annotation> annos = new ArrayList<org.eclipse.jdt.core.dom.Annotation>(4);
-        for( IExtendedModifier extMod : extMods ){
-            if( extMod.isAnnotation() )
-                annos.add((org.eclipse.jdt.core.dom.Annotation)extMod);
-        }
-        return annos;
-    }    
+    }   
 } 

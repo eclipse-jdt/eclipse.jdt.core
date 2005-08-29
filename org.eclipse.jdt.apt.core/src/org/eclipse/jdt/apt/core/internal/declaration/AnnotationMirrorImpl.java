@@ -54,9 +54,9 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
     private final BaseProcessorEnv _env;
     /** the declaration that is annotated by this annotation or the annotation element declaration
      *  if this is (part of) a default value*/
-    private final DeclarationImpl _annotated;
+    private final EclipseDeclarationImpl _annotated;
     
-    public AnnotationMirrorImpl(IResolvedAnnotation annotationAstNode, DeclarationImpl decl, BaseProcessorEnv env)
+    public AnnotationMirrorImpl(IResolvedAnnotation annotationAstNode, EclipseDeclarationImpl decl, BaseProcessorEnv env)
     {
 		_domAnnotation = annotationAstNode;
         _env = env;
@@ -85,7 +85,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
              if( name == null ) continue;
              IMethodBinding elementMethod = pair.getMemberBinding();            
              if( elementMethod != null ){           
-                 final DeclarationImpl mirrorDecl = Factory.createDeclaration(elementMethod, _env);
+                 final EclipseDeclarationImpl mirrorDecl = Factory.createDeclaration(elementMethod, _env);
                  if( mirrorDecl != null && mirrorDecl.kind() == EclipseMirrorImpl.MirrorKind.ANNOTATION_ELEMENT  )
                  {
                 	 final AnnotationTypeElementDeclaration elementDecl = 
@@ -397,10 +397,10 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 
 	public BaseProcessorEnv getEnvironment(){ return _env; }
 	
-	public IFile getResouce()
+	public IFile getResource()
 	{ 	return _annotated.getResource(); }
 	
-	public DeclarationImpl getAnnotatedDeclaration(){ return _annotated; }
+	public EclipseDeclarationImpl getAnnotatedDeclaration(){ return _annotated; }
 
     public boolean equals(Object obj){
         if( obj instanceof AnnotationMirrorImpl ){

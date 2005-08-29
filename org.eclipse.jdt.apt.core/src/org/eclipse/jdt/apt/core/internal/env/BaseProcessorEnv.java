@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.env.Phase;
+import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.PackageDeclarationImplNoBinding;
 import org.eclipse.jdt.apt.core.internal.declaration.TypeDeclarationImpl;
@@ -217,15 +218,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     {
     	 final ITypeBinding annotationType = TypesUtil.getTypeBinding(a);
          if( annotationType == null  || !annotationType.isAnnotation()) return Collections.emptyList();
-         final List<IBinding> annotatedDecls = getBindingsAnnotatedWith(annotationType);
-         if( annotatedDecls.isEmpty() ) return Collections.emptyList();
-         final Collection<Declaration> results = new ArrayList<Declaration>(annotatedDecls.size());
-         for( IBinding annotatedDecl : annotatedDecls ){
-             Declaration mirrorDecl = Factory.createDeclaration(annotatedDecl, this);
-             if( mirrorDecl != null )
-                 results.add(mirrorDecl);
-        }
-        return results;
+         return getDeclarationsAnnotatedWith(annotationType);
     }
     
     /**
@@ -240,32 +233,40 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
         return astNode2Anno;
     }
 
-    private List<IBinding> getBindingsAnnotatedWith(final ITypeBinding annotationType)
+    private List<Declaration> getDeclarationsAnnotatedWith(final ITypeBinding annotationType)
     {
         final Map<ASTNode, List<Annotation>> astNode2Anno = getASTNodesWithAnnotations();       
 		if( astNode2Anno.isEmpty() )
 			return Collections.emptyList();
-		final List<IBinding> annotatedBindings = new ArrayList<IBinding>();
+		final List<Declaration> decls = new ArrayList<Declaration>();
 		for(Map.Entry<ASTNode, List<Annotation>> entry : astNode2Anno.entrySet() ){
 			final ASTNode node = entry.getKey();
 			for( Annotation anno : entry.getValue() ){
 				final IBinding resolvedTypeBinding = anno.resolveTypeBinding();
 				if( annotationType.isEqualTo(resolvedTypeBinding) )
-                    getBinding(node, annotatedBindings);
+					getDeclarations(node, decls);
 			}
 		}
-        return annotatedBindings;
+        return decls;
 
     }
-
-	/**
+    
+    protected IFile getFileForNode(final ASTNode node)
+    {
+    	if( node.getRoot() == _astRoot )
+    		return _file;
+    	
+    	throw new IllegalStateException(); // should never get here.
+    }
+    
+    /**
 	 * @param node the ast node in question
-	 * @param bindings the list to be populated.
-	 *        adding the binding(s) corresponding to the ast node to this list.
+	 * @param decls the list to be populated.
+	 *        adding the declaration(s) corresponding to the ast node to this list.
 	 */
-	public static void getBinding(ASTNode node, List<IBinding> bindings)
-	{
-		if( node == null ) return;
+    protected void getDeclarations(ASTNode node, List<Declaration>decls)
+    {
+    	if( node == null ) return;
         IBinding binding = null;
 		switch( node.getNodeType() )
 		{
@@ -274,8 +275,14 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
                 ((org.eclipse.jdt.core.dom.FieldDeclaration)node).fragments();
 			for( VariableDeclarationFragment frag : fragments ){
 				final IBinding fieldBinding = frag.resolveBinding();
+				final EclipseDeclarationImpl decl; 
 				if( fieldBinding != null )
-					bindings.add(fieldBinding);
+					decl = Factory.createDeclaration(fieldBinding, this);
+				else{
+					decl = Factory.createDeclaration(frag, getFileForNode(frag), this);
+				}
+				if( decl != null )
+					decls.add(decl);
 			}
             return;
 
@@ -303,10 +310,19 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
             throw new UnsupportedOperationException("unknown node type: " + node.getNodeType()); //$NON-NLS-1$
         }
 
-        if(binding != null)
-            bindings.add(binding);
+		final EclipseDeclarationImpl decl; 
+		if( binding != null )
+			decl = Factory.createDeclaration(binding, this);
+		else{
+			decl = Factory.createDeclaration(node, getFileForNode(node), this);
+		}
+		if( decl != null )
+			decls.add( decl );
+        
         return;
-	}
+    }
+
+	
 	
 	/**
      * @param binding must be correspond to a type, method or field declaration.

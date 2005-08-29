@@ -963,6 +963,18 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
         return astNode2Anno;
     }
 	
+	protected IFile getFileForNode(final ASTNode node)
+	{
+		if( !_batchMode )
+			return super.getFileForNode(node);
+		final CompilationUnit curRoot = (CompilationUnit)node.getRoot();
+		for( int i=0, len=_astUnits.length; i<len; i++ ){
+			if( _astUnits[i] == curRoot )
+				return _files[i];
+		}
+		throw new IllegalStateException();
+	}
+	
 	/**
 	 * Go through the list of compilation unit in this environment and looking for
 	 * the declaration node of the given binding.
