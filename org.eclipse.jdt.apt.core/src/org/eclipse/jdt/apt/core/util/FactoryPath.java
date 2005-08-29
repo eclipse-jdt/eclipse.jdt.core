@@ -47,7 +47,13 @@ public final class FactoryPath {
 			IJavaProject jproj, Map<FactoryContainer, Boolean> adds) 
 			throws CoreException {
 		Map<FactoryContainer, Boolean> existing = FactoryPathUtil.getAllContainers(jproj);
-		existing.putAll(adds);
+		// Iterate over the adds manually in order to detect null
+		for (Map.Entry<FactoryContainer, Boolean> e : adds.entrySet()) {
+			FactoryContainer fc = e.getKey();
+			if (fc == null)
+				throw new IllegalArgumentException("Cannot add a null factory container"); //$NON-NLS-1$
+			existing.put(fc, e.getValue());
+		}
 		setContainers(jproj, existing);
 	}
 
@@ -130,7 +136,7 @@ public final class FactoryPath {
 	 * @param pluginId the fully qualified id of the plugin, e.g.,
 	 * "com.example.annotations"
 	 */
-	public static FactoryContainer newPluginFactoryContainer(String pluginId) {
+	public static FactoryContainer getPluginFactoryContainer(String pluginId) {
 		return FactoryPathUtil.getPluginFactoryContainer(pluginId);
 	}
 	

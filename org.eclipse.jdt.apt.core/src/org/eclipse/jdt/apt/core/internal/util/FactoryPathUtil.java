@@ -225,7 +225,7 @@ public final class FactoryPathUtil {
 					break;
 				
 				case PLUGIN :
-					container = FactoryPath.newPluginFactoryContainer(idString);
+					container = FactoryPath.getPluginFactoryContainer(idString);
 					break;
 					
 				default :

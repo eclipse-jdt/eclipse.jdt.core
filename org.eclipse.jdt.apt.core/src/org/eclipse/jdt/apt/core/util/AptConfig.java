@@ -17,8 +17,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
@@ -138,6 +140,8 @@ public class AptConfig {
     		return options;
     	}
     	
+    	IPath workspaceRootPath = jproj.getProject().getWorkspace().getRoot().getLocation();
+    	
     	// Add sourcepath and classpath variables
     	try {
     		IClasspathEntry[] classpathEntries = jproj.getResolvedClasspath(true);
@@ -154,7 +158,7 @@ public class AptConfig {
 	    			else {
 	    				classpathSB.append(File.pathSeparatorChar);
 	    			}
-	    			classpathSB.append(entry.getPath().toFile().getAbsolutePath());
+	    			classpathSB.append(entry.getPath().makeAbsolute().toOSString());
     			}
     			else if (kind == IClasspathEntry.CPE_SOURCE) {
     				if (firstSP) {
@@ -163,17 +167,27 @@ public class AptConfig {
     				else {
     					sourcepathSB.append(File.separatorChar);
     				}
-    				sourcepathSB.append(entry.getPath().toFile().getAbsolutePath());
+    				// Sourcepath is a bit odd -- it's workspace-relative
+    				IPath sourcepath = entry.getPath();
+    				sourcepathSB.append(workspaceRootPath.append(sourcepath).toOSString());
     			}
     		}
     		// if you add options here, also add them in isAutomaticProcessorOption()
     		options.put("-classpath",classpathSB.toString()); //$NON-NLS-1$
     		options.put("-sourcepath", sourcepathSB.toString()); //$NON-NLS-1$
-    		options.put("-s", getString(jproj, AptPreferenceConstants.APT_GENSRCDIR)); //$NON-NLS-1$
-    		String binDir = jproj.getOutputLocation().toString();
-    		options.put("-d", binDir); //$NON-NLS-1$
+    		
+    		// Get absolute path for generated source dir
+    		IFolder genSrcDir = jproj.getProject().getFolder(getGenSrcDir(jproj));
+    		options.put("-s", genSrcDir.getRawLocation().toOSString()); //$NON-NLS-1$
+    		
+    		// Absolute path for bin dir as well
+    		IPath binPath = jproj.getOutputLocation();
+    		IPath binDir = workspaceRootPath.append(binPath);
+    		options.put("-d", binDir.toOSString()); //$NON-NLS-1$
+    		
     		String target = jproj.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true);
     		options.put("-target", target); //$NON-NLS-1$
+    		
     		String source = jproj.getOption(JavaCore.COMPILER_SOURCE, true);
     		options.put("-source", source); //$NON-NLS-1$
     	}

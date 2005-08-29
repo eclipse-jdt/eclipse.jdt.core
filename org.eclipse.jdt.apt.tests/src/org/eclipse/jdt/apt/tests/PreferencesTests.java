@@ -75,7 +75,7 @@ public class PreferencesTests extends Tests {
 		//encode
 		Map<FactoryContainer, Boolean> factories = new LinkedHashMap<FactoryContainer, Boolean>();
 		FactoryContainer jarFactory = FactoryPath.newExtJarFactoryContainer(new File("C:/test.jar")); //$NON-NLS-1$
-		FactoryContainer pluginFactory = FactoryPath.newPluginFactoryContainer("org.eclipse.jdt.apt.tests"); //$NON-NLS-1$
+		FactoryContainer pluginFactory = FactoryPath.getPluginFactoryContainer("org.eclipse.jdt.apt.tests"); //$NON-NLS-1$
 		factories.put(jarFactory, true);
 		factories.put(pluginFactory, false);
 		String xml = FactoryPathUtil.encodeFactoryPath(factories);
@@ -172,11 +172,12 @@ public class PreferencesTests extends Tests {
 		assertEquals(source, "1.5");
 		
 		String bindir = options.get("-d");
-		assertEquals(bindir, "/org.eclipse.jdt.apt.tests.PreferencesTestsProject/bin");
+		assertNotNull(bindir);
+		assertTrue(bindir.length() > 0);
 		
 		String gensrcdirAuto = options.get("-s");
-		String gensrcdirSet = AptConfig.getString(jproj, AptPreferenceConstants.APT_GENSRCDIR);
-		assertEquals(gensrcdirAuto, gensrcdirSet);
+		assertNotNull(gensrcdirAuto);
+		assertTrue(gensrcdirAuto.length() > 0);
 	}
 	
 	public void testGenSrcDir() throws Exception {

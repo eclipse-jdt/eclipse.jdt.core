@@ -34,7 +34,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -708,8 +707,11 @@ public class GeneratedFileManager {
 		// don't take any locks in while creating the folder, since we are doing file-system operations
 		IFolder srcFolder = getGeneratedSourceFolder();
 		srcFolder.refreshLocal( IResource.DEPTH_INFINITE, progressMonitor );
-		if (!srcFolder.exists())
+		if (!srcFolder.exists()) {
 			srcFolder.create(true, false, progressMonitor );
+			// Since we've created it, mark it as derived
+			srcFolder.setDerived(true);
+		}
 			
 		//
 		// make sure __generated_src dir is on the cp if not already
