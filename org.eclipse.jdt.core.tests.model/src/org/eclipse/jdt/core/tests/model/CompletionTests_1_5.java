@@ -7601,4 +7601,18 @@ public void test0244() throws JavaModelException {
 			"foo[METHOD_DECLARATION]{public Object foo(ZAGenericType var), Lgenerics.ZAGenericType;, (Lgenerics.ZAGenericType;)Ljava.lang.Object;, foo, (var), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_METHOD_OVERIDE + R_NON_RESTRICTED) + "}",
 			result.proposals);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83005
+public void test0245() throws JavaModelException {
+		CompletionResult result = complete(
+			"/Completion/src3/test0245/X.java",
+			"package test0245;\n" + 
+			"public @interface X {\n" + 
+			"	ann\n" +  
+			"}",
+			"ann");
+
+		assertResults(
+			"Annotation[TYPE_REF]{java.lang.annotation.Annotation, java.lang.annotation, Ljava.lang.annotation.Annotation;, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
 }

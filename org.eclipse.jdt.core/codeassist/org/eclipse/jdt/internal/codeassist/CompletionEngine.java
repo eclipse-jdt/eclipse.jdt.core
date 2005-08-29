@@ -678,11 +678,14 @@ public final class CompletionEngine
 			}
 			
 			if(!field.isLocalVariable && field.modifiers == CompilerModifiers.AccDefault) {
-				if(!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
-					findMethods(this.completionToken,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false,false,true);
-				}
-				if(!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
-					proposeNewMethod(this.completionToken, scope.enclosingSourceType());
+				SourceTypeBinding enclosingType = scope.enclosingSourceType();
+				if(!enclosingType.isAnnotationType()) {
+					if(!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
+						findMethods(this.completionToken,null,enclosingType,scope,new ObjectVector(),false,false,true,null,null,false,false,true);
+					}
+					if(!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
+						proposeNewMethod(this.completionToken, enclosingType);
+					}
 				}
 			}
 		} else {
@@ -698,11 +701,14 @@ public final class CompletionEngine
 				}
 			
 				if(method.modifiers == CompilerModifiers.AccDefault) {
-					if(!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
-						findMethods(this.completionToken,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false,false,true);
-					}
-					if(!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
-						proposeNewMethod(this.completionToken, scope.enclosingSourceType());
+					SourceTypeBinding enclosingType = scope.enclosingSourceType();
+					if(!enclosingType.isAnnotationType()) {
+						if(!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
+							findMethods(this.completionToken,null,scope.enclosingSourceType(),scope,new ObjectVector(),false,false,true,null,null,false,false,true);
+						}
+						if(!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
+							proposeNewMethod(this.completionToken, scope.enclosingSourceType());
+						}
 					}
 				}
 			} else {
