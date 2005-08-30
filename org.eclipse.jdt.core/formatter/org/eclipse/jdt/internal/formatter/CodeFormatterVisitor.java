@@ -1663,6 +1663,9 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		
 		final Argument[] arguments = methodDeclaration.arguments;
 		if (arguments != null) {
+			if (spaceBeforeFirstParameter) {
+				this.scribe.space();
+			}
 			int argumentLength = arguments.length;
 			Alignment argumentsAlignment = this.scribe.createAlignment(
 					"methodArguments",//$NON-NLS-1$
@@ -1673,9 +1676,6 @@ public class CodeFormatterVisitor extends ASTVisitor {
 			boolean ok = false;
 			do {
 				try {
-					if (spaceBeforeFirstParameter) {
-						this.scribe.space();
-					}
 					for (int i = 0; i < argumentLength; i++) {
 						if (i > 0) {
 							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, spaceBeforeComma);
