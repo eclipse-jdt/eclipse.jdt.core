@@ -260,24 +260,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		}
 	}
 
-	/**
-	 *  This should create an AST without imports or method-body statements
-	 */
-	private static ASTNode createDietAST( String unitName, IJavaProject javaProject, ICompilationUnit compilationUnit, char[] source )
-	{
-		ASTParser p = ASTParser.newParser( AST.JLS3 );
-		if ( compilationUnit != null )
-			p.setSource( compilationUnit );
-		else
-			p.setSource( source );
-		p.setResolveBindings( true );
-		p.setProject( javaProject );
-		p.setUnitName( unitName );
-		p.setFocalPosition( 0 );
-		p.setKind( ASTParser.K_COMPILATION_UNIT );
-		ASTNode node = p.createAST( null );
-		return node;
-	}
 
     public Filer getFiler()
     {

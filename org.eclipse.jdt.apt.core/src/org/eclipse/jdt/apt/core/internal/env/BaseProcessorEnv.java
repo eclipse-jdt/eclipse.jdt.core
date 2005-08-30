@@ -34,7 +34,6 @@ import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.PackageUtil;
 import org.eclipse.jdt.apt.core.internal.util.TypesUtil;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotatedNodeVisitor;
-import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -63,6 +62,7 @@ import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.AnnotationProcessorListener;
 import com.sun.mirror.apt.Filer;
+import com.sun.mirror.apt.Messager;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.PackageDeclaration;
@@ -551,11 +551,11 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     }
     
     public Filer getFiler(){ 
-    	throw new UnsupportedOperationException("Not supported!"); //$NON-NLS-1$
+    	throw new UnsupportedOperationException("Not supported: the EnvironmentFactory API is for type system navigation only"); //$NON-NLS-1$
     }    
 
-    public EclipseMessager getMessager(){ 
-    	throw new UnsupportedOperationException("Not supported!"); //$NON-NLS-1$
+    public Messager getMessager(){ 
+    	throw new UnsupportedOperationException("Not supported: the EnvironmentFactory API is for type system navigation only"); //$NON-NLS-1$
     }
     
     /**
@@ -631,6 +631,25 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 				throw new IllegalStateException(e);
 			}
 		}
+	}
+	
+	/**
+	 *  This should create an AST without imports or method-body statements
+	 */
+	public static ASTNode createDietAST( String unitName, IJavaProject javaProject, ICompilationUnit compilationUnit, char[] source )
+	{
+		ASTParser p = ASTParser.newParser( AST.JLS3 );
+		if ( compilationUnit != null )
+			p.setSource( compilationUnit );
+		else
+			p.setSource( source );
+		p.setResolveBindings( true );
+		p.setProject( javaProject );
+		p.setUnitName( unitName );
+		p.setFocalPosition( 0 );
+		p.setKind( ASTParser.K_COMPILATION_UNIT );
+		ASTNode node = p.createAST( null );
+		return node;
 	}
 	
 	/**
