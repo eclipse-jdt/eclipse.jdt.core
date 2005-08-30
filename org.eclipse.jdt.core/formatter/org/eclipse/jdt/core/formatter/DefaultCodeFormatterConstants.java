@@ -745,6 +745,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES = JavaCore.PLUGIN_ID + ".formatter.indent_breaks_compare_to_cases";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to ident empty lines
+	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_empty_lines"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.2
+	 */
+	public static final String FORMATTER_INDENT_EMPTY_LINES = JavaCore.PLUGIN_ID + ".formatter.indent_empty_lines"; //$NON-NLS-1$	
+	/**
+	 * <pre>
 	 * FORMATTER / Option to indent statements inside a block
 	 *     - option id:         "org.eclipse.jdt.core.formatter.indent_statements_compare_to_block"
 	 *     - possible values:   { TRUE, FALSE }

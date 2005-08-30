@@ -76,6 +76,9 @@ public class Scribe {
 	public int numberOfIndentations;
 	private boolean useTabsOnlyForLeadingIndents;
 
+    /** indent empty lines*/
+    private final boolean indentEmptyLines;
+    
 	Scribe(CodeFormatterVisitor formatter, Map settings, int offset, int length, CodeSnippetParsingUtil codeSnippetParsingUtil) {
 		if (settings != null) {
 			Object sourceLevelOption = settings.get(JavaCore.COMPILER_SOURCE);
@@ -95,6 +98,7 @@ public class Scribe {
 		this.indentationLevel= 0; // initialize properly
 		this.numberOfIndentations = 0;
 		this.useTabsOnlyForLeadingIndents = formatter.preferences.use_tabs_only_for_leading_indentations;
+        this.indentEmptyLines = formatter.preferences.indent_empty_lines;
 		this.tabChar = formatter.preferences.tab_char;
 		if (this.tabChar == DefaultCodeFormatterOptions.MIXED) {
 			this.indentationSize = formatter.preferences.indentation_size;
@@ -398,6 +402,7 @@ public class Scribe {
 		if (lastNumberOfNewLines == 0) {
 			linesNumber++; // add an extra line breaks
 			for (int i = 0; i < linesNumber; i++) {
+                if (indentEmptyLines) printIndentationIfNecessary(buffer);
 				buffer.append(this.lineSeparator);
 			}
 			lastNumberOfNewLines += linesNumber;
@@ -407,6 +412,7 @@ public class Scribe {
 			this.pendingSpace = false;
 		} else if (lastNumberOfNewLines == 1) {
 			for (int i = 0; i < linesNumber; i++) {
+                if (indentEmptyLines) printIndentationIfNecessary(buffer);
 				buffer.append(this.lineSeparator);
 			}
 			lastNumberOfNewLines += linesNumber;
@@ -421,6 +427,7 @@ public class Scribe {
 			}
 			final int realNewLineNumber = linesNumber - lastNumberOfNewLines + 1;
 			for (int i = 0; i < realNewLineNumber; i++) {
+                if (indentEmptyLines) printIndentationIfNecessary(buffer);
 				buffer.append(this.lineSeparator);
 			}
 			lastNumberOfNewLines += realNewLineNumber;
@@ -1017,45 +1024,10 @@ public class Scribe {
 	}
 
 	private void printEmptyLines(int linesNumber, int insertPosition) {
-		if (this.nlsTagCounter > 0) {
-			return;
-		}
-		StringBuffer buffer = new StringBuffer();
-		if (lastNumberOfNewLines == 0) {
-			linesNumber++; // add an extra line breaks
-			for (int i = 0; i < linesNumber; i++) {
-				buffer.append(this.lineSeparator);
-			}
-			lastNumberOfNewLines += linesNumber;
-			line += linesNumber;
-			column = 1;
-			needSpace = false;
-			this.pendingSpace = false;
-		} else if (lastNumberOfNewLines == 1) {
-			for (int i = 0; i < linesNumber; i++) {
-				buffer.append(this.lineSeparator);
-			}
-			lastNumberOfNewLines += linesNumber;
-			line += linesNumber;
-			column = 1;
-			needSpace = false;
-			this.pendingSpace = false;
-		} else {
-			if ((lastNumberOfNewLines - 1) >= linesNumber) {
-				// there is no need to add new lines
-				return;
-			}
-			final int realNewLineNumber = linesNumber - lastNumberOfNewLines + 1;
-			for (int i = 0; i < realNewLineNumber; i++) {
-				buffer.append(this.lineSeparator);
-			}
-			lastNumberOfNewLines += realNewLineNumber;
-			line += realNewLineNumber;
-			column = 1;
-			needSpace = false;
-			this.pendingSpace = false;
-		}
-		addInsertEdit(insertPosition, buffer.toString());
+        final String buffer = getEmptyLines(linesNumber);
+        if (EMPTY_STRING == buffer) return;
+        
+		addInsertEdit(insertPosition, buffer);
 	}
 
 	private void printIndentationIfNecessary() {
