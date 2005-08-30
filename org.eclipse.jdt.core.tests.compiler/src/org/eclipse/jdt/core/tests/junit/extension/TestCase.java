@@ -34,6 +34,12 @@ public static void assertEquals(String expected, String actual) {
     assertEquals(null, expected, actual);
 }
 public static void assertEquals(String message, String expected, String actual) {
+	assertStringEquals(message, expected, actual, true);
+}
+public static void assertStringEquals(String expected, String actual, boolean showLineSeparators) {
+	assertStringEquals(null, expected, actual, showLineSeparators);
+}
+public static void assertStringEquals(String message, String expected, String actual, boolean showLineSeparators) {
 	if (expected == null && actual == null)
 		return;
 	if (expected != null && expected.equals(actual))
@@ -44,23 +50,35 @@ public static void assertEquals(String message, String expected, String actual) 
 	} else {
 		formatted = ""; //$NON-NLS-1$
 	}
-	final String expectedWithLineSeparators = expected == null ? null : showLineSeparators(expected);
-	final String actualWithLineSeparators = actual == null ? null : showLineSeparators(actual);
-	
-	throw new ComparisonFailure(
-	    formatted
-			+ "\n----------- Expected ------------\n" //$NON-NLS-1$
-			+ expectedWithLineSeparators
-			+ "\n------------ but was ------------\n" //$NON-NLS-1$
-			+ actualWithLineSeparators
-			+ "\n--------- Difference is ----------\n", //$NON-NLS-1$
-	    expectedWithLineSeparators, 
-	    actualWithLineSeparators);
+	if (showLineSeparators) {
+		final String expectedWithLineSeparators = showLineSeparators(expected);
+		final String actualWithLineSeparators = showLineSeparators(actual);
+		throw new ComparisonFailure(
+			    formatted
+					+ "\n----------- Expected ------------\n" //$NON-NLS-1$
+					+ expectedWithLineSeparators
+					+ "\n------------ but was ------------\n" //$NON-NLS-1$
+					+ actualWithLineSeparators
+					+ "\n--------- Difference is ----------\n", //$NON-NLS-1$
+			    expectedWithLineSeparators, 
+			    actualWithLineSeparators);
+	} else {
+		throw new ComparisonFailure(
+			    formatted
+					+ "\n----------- Expected ------------\n" //$NON-NLS-1$
+					+ expected
+					+ "\n------------ but was ------------\n" //$NON-NLS-1$
+					+ actual
+					+ "\n--------- Difference is ----------\n", //$NON-NLS-1$
+			    expected, 
+			    actual);
+	}
 }
 /*
  * Shows the line separators in the given String.
  */
 protected static String showLineSeparators(String string) {
+	if (string == null) return null;
 	StringBuffer buffer = new StringBuffer();
 	int length = string.length();
 	for (int i = 0; i < length; i++) {
