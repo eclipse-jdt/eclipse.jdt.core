@@ -834,36 +834,39 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		} else
 			if (binding instanceof MethodBinding) {
 				MethodBinding methodBinding = (MethodBinding) binding;
-				TypeBinding[] parameterTypes = methodBinding.original().parameters;
-				int length = parameterTypes.length;
-				char[][] parameterPackageNames = new char[length][];
-				char[][] parameterTypeNames = new char[length][];
-				String[] parameterSignatures = new String[length];
-				for (int i = 0; i < length; i++) {
-					parameterPackageNames[i] = parameterTypes[i].qualifiedPackageName();
-					parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
-					parameterSignatures[i] = new String(getSignature(parameterTypes[i])).replace('/', '.');
-				}
 				this.noProposal = false;
-				ReferenceBinding declaringClass = methodBinding.declaringClass;
-				if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
-					((SelectionRequestor)this.requestor).acceptLocalMethod(methodBinding);
-				} else {
-					this.requestor.acceptMethod(
-						declaringClass.qualifiedPackageName(),
-						declaringClass.qualifiedSourceName(),
-						declaringClass.enclosingType() == null ? null : new String(getSignature(declaringClass.enclosingType())),
-						methodBinding.isConstructor()
-							? declaringClass.sourceName()
-							: methodBinding.selector,
-						parameterPackageNames,
-						parameterTypeNames,
-						parameterSignatures,
-						methodBinding.isConstructor(), 
-						isDeclaration,
-						methodBinding.computeUniqueKey(),
-						this.actualSelectionStart,
-						this.actualSelectionEnd);
+				if(!methodBinding.isSynthetic()) {
+					TypeBinding[] parameterTypes = methodBinding.original().parameters;
+					int length = parameterTypes.length;
+					char[][] parameterPackageNames = new char[length][];
+					char[][] parameterTypeNames = new char[length][];
+					String[] parameterSignatures = new String[length];
+					for (int i = 0; i < length; i++) {
+						parameterPackageNames[i] = parameterTypes[i].qualifiedPackageName();
+						parameterTypeNames[i] = parameterTypes[i].qualifiedSourceName();
+						parameterSignatures[i] = new String(getSignature(parameterTypes[i])).replace('/', '.');
+					}
+					
+					ReferenceBinding declaringClass = methodBinding.declaringClass;
+					if (isLocal(declaringClass) && this.requestor instanceof SelectionRequestor) {
+						((SelectionRequestor)this.requestor).acceptLocalMethod(methodBinding);
+					} else {
+						this.requestor.acceptMethod(
+							declaringClass.qualifiedPackageName(),
+							declaringClass.qualifiedSourceName(),
+							declaringClass.enclosingType() == null ? null : new String(getSignature(declaringClass.enclosingType())),
+							methodBinding.isConstructor()
+								? declaringClass.sourceName()
+								: methodBinding.selector,
+							parameterPackageNames,
+							parameterTypeNames,
+							parameterSignatures,
+							methodBinding.isConstructor(), 
+							isDeclaration,
+							methodBinding.computeUniqueKey(),
+							this.actualSelectionStart,
+							this.actualSelectionEnd);
+					}
 				}
 				this.acceptedAnswer = true;
 			} else

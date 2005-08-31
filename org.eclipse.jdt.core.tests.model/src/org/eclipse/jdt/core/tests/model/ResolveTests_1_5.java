@@ -2169,4 +2169,35 @@ public void test0097() throws JavaModelException {
 		}
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=83206
+public void test0098() throws JavaModelException {
+	ICompilationUnit imported = null;
+	try {
+		imported = getWorkingCopy(
+				"/Resolve/src2/test0098/Color.java",
+				"public enum Color<\n" +
+				"	BLUE,\n" +
+				"	RED;\n" +
+				"}\n");
+
+		IJavaElement[] elements = select(
+				"/Resolve/src2/test0098/Test.java",
+				"public class Test<\n" +
+				"	void foo() {\n" +
+				"		Color.valueof(\"RED\");\n" +
+				"	}\n" +
+				"}\n",
+				"valueof");
+		
+		assertElementsEqual(
+			"Unexpected elements",
+			"",
+			elements
+		);
+	} finally {
+		if(imported != null) {
+			imported.discardWorkingCopy();
+		}
+	}
+}
 }
