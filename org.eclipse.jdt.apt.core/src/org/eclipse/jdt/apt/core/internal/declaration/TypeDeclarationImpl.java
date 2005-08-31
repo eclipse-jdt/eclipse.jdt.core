@@ -32,6 +32,8 @@ import com.sun.mirror.util.TypeVisitor;
 
 public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implements TypeDeclaration, DeclaredType, ReferenceType
 {
+	// jdt core compiler add a field to a type with the following name when there is a hierachy problem with the type.	
+	private static final String HAS_INCONSISTENT_TYPE_HIERACHY = "has inconsistent hierarchy"; //$NON-NLS-1$
     public TypeDeclarationImpl(final ITypeBinding binding,
                                final BaseProcessorEnv env)
     {
@@ -69,7 +71,10 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
         final IVariableBinding[] fields = getDeclarationBinding().getDeclaredFields();
         final List<FieldDeclaration> results = new ArrayList<FieldDeclaration>(fields.length);
         for( IVariableBinding field : fields ){
-        	if( field.isSynthetic() ) continue;
+        	// note that the name HAS_INCONSISTENT_TYPE_HIERACHY is not a legal java identifier
+        	// so there is no chance that we are filtering out actual declared fields.
+        	if( field.isSynthetic() || HAS_INCONSISTENT_TYPE_HIERACHY.equals(field.getName())) 
+        		continue;
             Declaration mirrorDecl = Factory.createDeclaration(field, _env);
             if( mirrorDecl != null)
                 results.add( (FieldDeclaration)mirrorDecl);

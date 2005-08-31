@@ -559,7 +559,12 @@ public class Factory
 
     public static AnnotationType createErrorAnnotationType(final ITypeBinding binding)
     {
-        return new ErrorType.ErrorAnnotation(binding.getName());
+        return createErrorAnnotationType(binding.getName());
+    }
+    
+    public static AnnotationType createErrorAnnotationType(String name)
+    {	
+        return new ErrorType.ErrorAnnotation(name);
     }
     
     public static ArrayType createErrorArrayType(final String name, final int dimension)

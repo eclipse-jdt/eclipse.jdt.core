@@ -25,6 +25,7 @@ import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
@@ -34,6 +35,7 @@ import org.eclipse.jdt.core.dom.IResolvedMemberValuePair;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MemberValuePair;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.TypeLiteral;
@@ -68,7 +70,18 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
     public AnnotationType getAnnotationType()
     {		
         final ITypeBinding binding = _domAnnotation.getAnnotationType();
-		return (AnnotationType)Factory.createReferenceType(binding, _env);        
+        if( binding == null ){
+        	final ASTNode node = _annotated.getCompilationUnit().findDeclaringNode(_domAnnotation);
+        	String name = ""; //$NON-NLS-1$
+        	if( node != null && node instanceof Annotation ){
+        		final Name typeNameNode = ((Annotation)node).getTypeName();
+        		if( typeNameNode != null )
+        			name = typeNameNode.toString();
+        	}
+        	return Factory.createErrorAnnotationType(name);
+        }
+        else
+        	return (AnnotationType)Factory.createReferenceType(binding, _env);        
     }
 
     public Map<AnnotationTypeElementDeclaration, AnnotationValue> getElementValues()
