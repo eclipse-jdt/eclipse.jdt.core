@@ -188,7 +188,20 @@ public void setAsMemberType() {
 public void setConstantPoolName(char[] computedConstantPoolName) /* java/lang/Object */ {
 	this.constantPoolName = computedConstantPoolName;
 }
-
+/*
+ * Overriden for code assist. In this case, the constantPoolName() has not been computed yet.
+ * Slam the source name so that the signature is syntactically correct.
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=102284)
+ */
+public char[] signature() {
+	if (this.signature == null && constantPoolName() == null) {
+		if (isAnonymousType())
+			setConstantPoolName(superclass().sourceName());
+		else
+			setConstantPoolName(sourceName());
+	}
+	return super.signature();
+}
 public char[] sourceName() {
 	if (isAnonymousType()) {
 		if (superInterfaces == NoSuperInterfaces)
