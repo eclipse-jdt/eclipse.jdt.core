@@ -405,4 +405,13 @@ public class Alignment {
 		    }
 		}
 	}
+
+	public boolean isWrapped() {
+		for (int i = 0, max = this.fragmentCount; i < max; i++) {
+			if (this.fragmentBreaks[i] == BREAK) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

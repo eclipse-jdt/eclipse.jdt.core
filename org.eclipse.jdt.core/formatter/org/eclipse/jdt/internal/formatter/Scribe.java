@@ -1009,12 +1009,14 @@ public class Scribe {
 			if (this.memberAlignment != null) {
 				// select the last alignment
 				if (this.currentAlignment.location.inputOffset > this.memberAlignment.location.inputOffset) {
-					this.indentationLevel = Math.max(this.indentationLevel, this.currentAlignment.breakIndentationLevel);
+					if (this.currentAlignment.couldBreak() && this.currentAlignment.wasSplit) {
+						this.currentAlignment.performFragmentEffect();
+					}
 				} else {
 					this.indentationLevel = Math.max(this.indentationLevel, this.memberAlignment.breakIndentationLevel);
 				}
-			} else {
-				this.indentationLevel = Math.max(this.indentationLevel, this.currentAlignment.breakIndentationLevel);
+			} else if (this.currentAlignment.couldBreak() && this.currentAlignment.wasSplit) {
+				this.currentAlignment.performFragmentEffect();
 			}
 		}
 		this.scanner.resetTo(currentTokenEndPosition, this.scannerEndPosition - 1);

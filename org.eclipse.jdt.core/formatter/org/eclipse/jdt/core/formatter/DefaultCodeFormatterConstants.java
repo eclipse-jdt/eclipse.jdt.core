@@ -115,6 +115,17 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_QUALIFIED_ALLOCATION_EXPRESSION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_arguments_in_qualified_allocation_expression";	 //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of assignment
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_assignment"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, M_NO_ALIGNMENT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.2
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ASSIGNMENT  = JavaCore.PLUGIN_ID + ".formatter.alignment_for_assignment";	 //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of binary expression
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_binary_expression"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call

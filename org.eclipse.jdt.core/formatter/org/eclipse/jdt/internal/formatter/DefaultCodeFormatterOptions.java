@@ -50,6 +50,7 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_arguments_in_explicit_constructor_call;
 	public int alignment_for_arguments_in_method_invocation;
 	public int alignment_for_arguments_in_qualified_allocation_expression;
+	public int alignment_for_assignment;
 	public int alignment_for_binary_expression;
 	public int alignment_for_compact_if;
 	public int alignment_for_conditional_expression;
@@ -320,6 +321,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_EXPLICIT_CONSTRUCTOR_CALL, getAlignment(this.alignment_for_arguments_in_explicit_constructor_call));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_METHOD_INVOCATION, getAlignment(this.alignment_for_arguments_in_method_invocation));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_QUALIFIED_ALLOCATION_EXPRESSION, getAlignment(this.alignment_for_arguments_in_qualified_allocation_expression));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ASSIGNMENT, getAlignment(this.alignment_for_assignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION, getAlignment(this.alignment_for_binary_expression));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_COMPACT_IF, getAlignment(this.alignment_for_compact_if));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION, getAlignment(this.alignment_for_conditional_expression));
@@ -619,6 +621,16 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
 			} catch (ClassCastException e) {
 				this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
+			}
+		}
+		final Object alignmentForAssignmentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ASSIGNMENT);
+		if (alignmentForAssignmentOption != null) {
+			try {
+				this.alignment_for_assignment = Integer.parseInt((String) alignmentForAssignmentOption);
+			} catch (NumberFormatException e) {
+				this.alignment_for_assignment =  Alignment.M_ONE_PER_LINE_SPLIT;
+			} catch (ClassCastException e) {
+				this.alignment_for_assignment =  Alignment.M_ONE_PER_LINE_SPLIT;
 			}
 		}
 		final Object alignmentForBinaryExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION);
@@ -1819,6 +1831,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_method_invocation = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_assignment = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_binary_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
 		this.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT;
@@ -2069,6 +2082,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_arguments_in_explicit_constructor_call = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_method_invocation = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_qualified_allocation_expression = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_assignment = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_binary_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_compact_if = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_conditional_expression = Alignment.M_NEXT_PER_LINE_SPLIT;
