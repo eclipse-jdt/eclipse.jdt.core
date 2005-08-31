@@ -784,28 +784,35 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			
 			if(enclosingElement instanceof SourceTypeBinding) {
 				SourceTypeBinding enclosingType = (SourceTypeBinding) enclosingElement;
-				this.requestor.acceptTypeParameter(
-					enclosingType.qualifiedPackageName(),
-					enclosingType.qualifiedSourceName(),
-					typeVariableBinding.sourceName(),
-					false,
-					this.actualSelectionStart,
-					this.actualSelectionEnd);
+				if (isLocal(enclosingType) && this.requestor instanceof SelectionRequestor) {
+					((SelectionRequestor)this.requestor).acceptLocalTypeParameter(typeVariableBinding);
+				} else {
+					this.requestor.acceptTypeParameter(
+						enclosingType.qualifiedPackageName(),
+						enclosingType.qualifiedSourceName(),
+						typeVariableBinding.sourceName(),
+						false,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
+				}
 			} else if(enclosingElement instanceof MethodBinding) {
 				MethodBinding enclosingMethod = (MethodBinding) enclosingElement;
-				
-				this.requestor.acceptMethodTypeParameter(
-					enclosingMethod.declaringClass.qualifiedPackageName(),
-					enclosingMethod.declaringClass.qualifiedSourceName(),
-					enclosingMethod.isConstructor()
-							? enclosingMethod.declaringClass.sourceName()
-							: enclosingMethod.selector,
-					enclosingMethod.sourceStart(),
-					enclosingMethod.sourceEnd(),
-					typeVariableBinding.sourceName(),
-					false,
-					this.actualSelectionStart,
-					this.actualSelectionEnd);
+				if (isLocal(enclosingMethod.declaringClass) && this.requestor instanceof SelectionRequestor) {
+					((SelectionRequestor)this.requestor).acceptLocalMethodTypeParameter(typeVariableBinding);
+				} else {
+					this.requestor.acceptMethodTypeParameter(
+						enclosingMethod.declaringClass.qualifiedPackageName(),
+						enclosingMethod.declaringClass.qualifiedSourceName(),
+						enclosingMethod.isConstructor()
+								? enclosingMethod.declaringClass.sourceName()
+								: enclosingMethod.selector,
+						enclosingMethod.sourceStart(),
+						enclosingMethod.sourceEnd(),
+						typeVariableBinding.sourceName(),
+						false,
+						this.actualSelectionStart,
+						this.actualSelectionEnd);
+				}
 			}
 			this.acceptedAnswer = true;
 		} else if (binding instanceof ReferenceBinding) {
@@ -969,6 +976,18 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope scope) {
 				if (typeDeclaration.name == assistIdentifier) {
 					throw new SelectionNodeFound(typeDeclaration.binding);
+				}
+				return true;
+			}
+			public boolean visit(TypeParameter typeParameter, BlockScope scope) {
+				if (typeParameter.name == assistIdentifier) {
+					throw new SelectionNodeFound(typeParameter.binding);
+				}
+				return true;
+			}
+			public boolean visit(TypeParameter typeParameter, ClassScope scope) {
+				if (typeParameter.name == assistIdentifier) {
+					throw new SelectionNodeFound(typeParameter.binding);
 				}
 				return true;
 			}

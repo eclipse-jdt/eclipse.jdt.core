@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
@@ -36,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -280,6 +280,45 @@ public void acceptLocalType(TypeBinding typeBinding) {
 			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
 			System.out.print(res.toString());
 			System.out.println(")"); //$NON-NLS-1$
+		}
+	}
+}
+public void acceptLocalTypeParameter(TypeVariableBinding typeVariableBinding) {
+	IJavaElement res;
+	if(typeVariableBinding.declaringElement instanceof ParameterizedTypeBinding) {
+		LocalTypeBinding localTypeBinding = (LocalTypeBinding)((ParameterizedTypeBinding)typeVariableBinding.declaringElement).type;
+		res = findLocalElement(localTypeBinding.sourceStart());
+	} else {
+		SourceTypeBinding typeBinding = (SourceTypeBinding)typeVariableBinding.declaringElement;
+		res = findLocalElement(typeBinding.sourceStart());
+	}
+	if (res != null && res.getElementType() == IJavaElement.TYPE) {
+		IType type = (IType) res;
+		ITypeParameter typeParameter = type.getTypeParameter(new String(typeVariableBinding.sourceName));
+		if (typeParameter.exists()) {
+			addElement(typeParameter);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept type parameter("); //$NON-NLS-1$
+				System.out.print(typeParameter.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
+		}
+	}
+}
+public void acceptLocalMethodTypeParameter(TypeVariableBinding typeVariableBinding) {
+	MethodBinding methodBinding = (MethodBinding)typeVariableBinding.declaringElement;
+	IJavaElement res = findLocalElement(methodBinding.sourceStart());
+	if(res != null && res.getElementType() == IJavaElement.METHOD) {
+		IMethod method = (IMethod) res;
+		
+		ITypeParameter typeParameter = method.getTypeParameter(new String(typeVariableBinding.sourceName));
+		if (typeParameter.exists()) {
+			addElement(typeParameter);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept type parameter("); //$NON-NLS-1$
+				System.out.print(typeParameter.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
 		}
 	}
 }

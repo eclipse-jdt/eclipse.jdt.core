@@ -2200,4 +2200,40 @@ public void test0098() throws JavaModelException {
 		}
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99645
+public void test0099() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0099/Test.java",
+			"public class Test<\n" +
+			"	void foo() {\n" +
+			"		class Local<TLocal>{}\n" +
+			"	}\n" +
+			"}\n",
+			"TLocal");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"<TLocal> [in Local [in foo() [in Test [in [Working copy] Test.java [in test0099 [in src2 [in Resolve]]]]]]]",
+		elements
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99645
+public void test0100() throws JavaModelException {
+	IJavaElement[] elements = select(
+			"/Resolve/src2/test0100/Test.java",
+			"public class Test<\n" +
+			"	void foo() {\n" +
+			"		class Local<TLocal>{\n" +
+			"			TLocal var;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+			"TLocal");
+	
+	assertElementsEqual(
+		"Unexpected elements",
+		"<TLocal> [in Local [in foo() [in Test [in [Working copy] Test.java [in test0100 [in src2 [in Resolve]]]]]]]",
+		elements
+	);
+}
 }
