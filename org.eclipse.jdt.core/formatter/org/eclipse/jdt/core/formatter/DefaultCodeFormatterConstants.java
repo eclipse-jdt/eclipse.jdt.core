@@ -2951,7 +2951,6 @@ public class DefaultCodeFormatterConstants {
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
 	 * </pre>
-	 * <p>This is used only if the {@link #FORMATTER_TAB_CHAR } is set to {@link JavaCore#TAB}.</p>
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @since 3.1
