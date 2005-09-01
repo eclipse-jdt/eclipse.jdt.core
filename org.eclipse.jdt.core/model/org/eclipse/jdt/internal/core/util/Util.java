@@ -1320,9 +1320,13 @@ public class Util {
 	
 	/*
 	 * Returns the simple name of a local type from the given binary type name.
-	 * The last '$' is at lastDollar. The ;last character of the type name is at end-1.
+	 * The last '$' is at lastDollar. The last character of the type name is at end-1.
 	 */
 	public static String localTypeName(String binaryTypeName, int lastDollar, int end) {
+		if (lastDollar > 0 && binaryTypeName.charAt(lastDollar-1) == '$') 
+			// local name starts with a dollar sign
+			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=103466)
+			return binaryTypeName;
 		int nameStart = lastDollar+1;
 		while (nameStart < end && Character.isDigit(binaryTypeName.charAt(nameStart)))
 			nameStart++;
