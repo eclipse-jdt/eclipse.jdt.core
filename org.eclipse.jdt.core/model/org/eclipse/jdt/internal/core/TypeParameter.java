@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.HashMap;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.ITypeParameter;
@@ -32,6 +35,25 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 		return super.equals(o);
 	}
 
+	/*
+	 * @see JavaElement#generateInfos
+	 */
+	protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
+		Openable openableParent = (Openable)getOpenableParent();
+		if (openableParent == null) return;
+		
+		JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
+		if (openableParentInfo == null) {
+			openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
+		}
+		
+		if (openableParent.getElementType() == IJavaElement.CLASS_FILE) {
+			ClassFileInfo classFileInfo = (ClassFileInfo) (openableParentInfo == null ? newElements.get(openableParent) : openableParentInfo);
+			if (classFileInfo == null) return;
+			classFileInfo.getBinaryChildren(newElements); // forces the initialization
+		}
+	}	
+	
 	public String[] getBounds() throws JavaModelException {
 		TypeParameterElementInfo info = (TypeParameterElementInfo) getElementInfo();
 		return CharOperation.toStrings(info.bounds);
