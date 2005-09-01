@@ -12,10 +12,14 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -26,6 +30,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.tests.util.Util;
 
 public class ASTConverter15Test extends ConverterTestSetup {
 	
@@ -5906,4 +5911,45 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	
+	/*
+	 * Ensures that creating an AST with binding resolution where there is a problem in a binary
+	 * doesn't throw an NPE
+	 * (regression test for bug 100606 NPE during reconcile)
+	 */
+	public void test0197() throws CoreException {
+		try {
+			createJavaProject("P", new String[] {"src" }, new String[] {"CONVERTER_JCL15_LIB", "/P/lib"}, "bin", "1.5");
+			IFolder folder = createFolder("/P/lib");
+			String classesPath = folder.getLocation().toOSString();
+			Map options = new HashMap();
+			String[] pathsAndContents = new String[] {
+				"p/Bin.java",
+				"package p;\n" +
+				"public class Bin {\n" +
+				"}",
+				"p/BinSub.java",
+				"package p;\n" +
+				"public class BinSub extends Bin {\n" +
+				"}",
+			};
+			Util.compile(pathsAndContents, options, classesPath);
+			folder.refreshLocal(IResource.DEPTH_INFINITE, null);
+			folder.getFolder("p").getFile("Bin.class").delete(false, null);
+	    	this.workingCopy = getWorkingCopy("/P/src/X.java", true/*resolve*/);
+	    	String contents =
+				"public class X {\n" + 
+				"	void bar() throws p.BinSub {\n" + 
+				"	}\n" + 
+				"	</*start*/T/*end*/> void foo() {\n" + 
+				"	}\n" + 
+				"}";
+		   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+		   	assertBindingsEqual(
+		   		"LX;.foo<T:>():TT;",
+		   		bindings);
+		} finally {
+			deleteProject("P");
+		}
+	}
+
 }
