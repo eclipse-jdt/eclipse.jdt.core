@@ -57,6 +57,9 @@ public class APTDispatch
 		return runAPT( factories, javaProj, null, compilationUnit, false /* does not matter*/ );
 	}
 		
+	/**
+	 * If files is null, we are reconciling. If compilation unit is null, we are building
+	 */
 	private static APTResult runAPT(final List<AnnotationProcessorFactory> factories,
 			IJavaProject javaProj,
 			IFile[] files,
@@ -67,28 +70,32 @@ public class APTDispatch
 		assert ( files != null && compilationUnit == null ) ||
 		       ( files == null && compilationUnit != null ) :
 	    	"either compilation unit is null or set of files is, but not both"; //$NON-NLS-1$
+		       
+		boolean building = files != null;
 	    
 		APTDispatchRunnable runnable;
 		ISchedulingRule schedulingRule;
-		if ( files != null )
+		if ( building )
 		{
+			// If we're building, types can be generated, so we
+			// want to run this as an atomic workspace operation
 			 runnable = new APTDispatchRunnable( files, javaProj, factories, isFullBuild );
 			 schedulingRule = javaProj.getResource();
+			 IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			 try {
+				 workspace.run(runnable, schedulingRule, IWorkspace.AVOID_UPDATE, null);
+			 }
+			 catch (CoreException ce) {
+				 AptPlugin.log(ce, "Could not run APT"); //$NON-NLS-1$
+			 }
 		}
 		else
 		{
+			// Reconciling, so we do not want to run this as an atomic workspace
+			// operation. If we do, it is easy to have locking issues when someone
+			// calls a reconcile from within a workspace lock
 			runnable = new APTDispatchRunnable( compilationUnit, javaProj, factories );
-			schedulingRule = null;
-		}
-		
-		try
-		{
-			IWorkspace w = ResourcesPlugin.getWorkspace();
-			w.run( runnable, schedulingRule, IWorkspace.AVOID_UPDATE, null );
-		}
-		catch( CoreException ce )
-		{
-			AptPlugin.log(ce, "Could not run APT"); //$NON-NLS-1$
+			runnable.run(null);
 		}
 			
 		return runnable.getResult();
