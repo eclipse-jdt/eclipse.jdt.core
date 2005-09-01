@@ -36,6 +36,15 @@
 	         class="org.eclipse.jdt.apt.tests.annotations.valueconversion.ValueConversionProcessorFactory">
 	      </factory>
        <factory class="org.eclipse.jdt.apt.tests.annotations.readAnnotationType.ReadAnnotationTypeProcessorFactory"/>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.filegen.FileGenLocationAnnotationProcessorFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.filegen.FirstGenAnnotationProcessorFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.filegen.SecondGenAnnotationProcessorFactory">
+	      </factory>
 	   </factories>
    </extension>
 

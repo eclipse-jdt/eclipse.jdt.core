@@ -46,6 +46,7 @@ public class TestAll extends TestCase {
 		suite.addTest(AnnotationValueConversionTests.suite());
 		suite.addTest(JavaVersionTests.suite());
 		suite.addTest(RegressionTests.suite());
+		suite.addTest(FileGenerationTests.suite());
 	
 		return suite;
 		
