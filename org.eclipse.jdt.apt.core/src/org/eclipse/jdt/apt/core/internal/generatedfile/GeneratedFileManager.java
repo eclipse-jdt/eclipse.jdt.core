@@ -40,6 +40,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.core.ElementChangedEvent;
@@ -708,7 +709,7 @@ public class GeneratedFileManager {
 		IFolder srcFolder = getGeneratedSourceFolder();
 		srcFolder.refreshLocal( IResource.DEPTH_INFINITE, progressMonitor );
 		if (!srcFolder.exists()) {
-			srcFolder.create(true, false, progressMonitor );
+			FileSystemUtil.mkdirs(srcFolder);
 			// Since we've created it, mark it as derived
 			srcFolder.setDerived(true);
 		}

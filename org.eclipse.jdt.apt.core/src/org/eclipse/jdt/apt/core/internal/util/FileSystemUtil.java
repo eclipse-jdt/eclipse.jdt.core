@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
@@ -46,6 +48,17 @@ public final class FileSystemUtil
                     succeed = parent.mkdirs();
             }
         }
+    }
+    
+    /**
+     * Eclipse doesn't seem 
+     * @param target
+     */
+    public static void mkdirs (IContainer folder) throws CoreException {
+		if (!folder.exists()) {
+			mkdirs(folder.getParent());
+			((IFolder) folder).create(true, true, null);
+		}
     }
     
     /**
