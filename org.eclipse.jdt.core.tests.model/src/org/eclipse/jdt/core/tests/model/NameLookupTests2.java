@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.IJavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
@@ -35,9 +32,20 @@ public NameLookupTests2(String name) {
 	super(name);
 }
 
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+//		org.eclipse.jdt.internal.core.search.matching.MatchLocator.PRINT_BUFFER = false;
+//		TESTS_PREFIX =  "testArray";
+//		TESTS_NAMES = new String[] { "testFindBinaryTypeWithDollarName" };
+//		TESTS_NUMBERS = new int[] { 8 };
+//		TESTS_RANGE = new int[] { 6, -1 };
+	}
+
 public static Test suite() {
-	return new Suite(NameLookupTests2.class);
+	return buildTestSuite(NameLookupTests2.class);
 }
+
 private NameLookup getNameLookup(JavaProject project) throws JavaModelException {
 	return project.newNameLookup((WorkingCopyOwner)null);
 }
@@ -191,7 +199,7 @@ public void testFindDefaultPackageFragmentInNonDefaultRoot() throws CoreExceptio
  * Ensure that finding a package fragment with a working copy opened returns one element only
  * (regression test for bug 89624 Open on selection proposes twice the same entry)
  */
-public void testFingPackageFragementWithWorkingCopy() throws CoreException {
+public void testFindPackageFragmentWithWorkingCopy() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	try {
 		JavaProject project = (JavaProject)createJavaProject("P");
@@ -208,6 +216,34 @@ public void testFingPackageFragementWithWorkingCopy() throws CoreException {
 			"Unexpected packages",
 			"p1 [in <project root> [in P]]",
 			pkgs);
+	} finally {
+		deleteProject("P");
+	}
+}
+/*
+ * Ensure that a member type with a name ending with a dollar and a number is found
+ * (regression test for bug 103466 Stack Overflow: Requesting Java AST from selection)
+ */
+public void testFindBinaryTypeWithDollarName() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		addLibrary(project, "lib.jar", "libsrc.zip", 
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"  public class $1 {\n" +
+				"    public class $2 {\n" +
+				"    }\n" +
+				"  }\n" +
+				"}"
+			}, 
+			"1.4");
+		IType type = getNameLookup((JavaProject) project).findType("p.X$$1", false, NameLookup.ACCEPT_ALL);
+		assertTypesEqual(
+			"Unexpected type", 
+			"p.X$$1\n",
+			new IType[] {type});
 	} finally {
 		deleteProject("P");
 	}
