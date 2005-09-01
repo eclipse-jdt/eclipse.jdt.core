@@ -832,10 +832,15 @@ public class Util {
 	}
 	
 	/**
-	 * Returns the substring of the given file name, ending at the start of a Java like extension.
+	 * Returns the substring of the given file name, ending at the start of a
+	 * Java like extension. The entire file name is returned if it doesn't end
+	 * with a Java like extension.
 	 */
 	public static String getNameWithoutJavaLikeExtension(String fileName) {
 		int index = indexOfJavaLikeExtension(fileName);
+		if (index == -1) {
+			return fileName;
+		}
 		return fileName.substring(0, index);
 	}
 	

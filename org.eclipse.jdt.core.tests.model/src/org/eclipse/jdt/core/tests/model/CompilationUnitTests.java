@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.model;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.Util;
 
 import junit.framework.Test;
 
@@ -536,6 +537,14 @@ public void testIsEnumConstant1() throws JavaModelException {
 public void testIsEnumConstant2() throws JavaModelException {
 	IField field = this.cu.getType("X").getField("f1");
 	assertTrue("X#f1 should not be an enum constant", !field.isEnumConstant());
+}
+/*
+ * Ensure that the utility method Util.#getNameWithoutJavaLikeExtension(String) works as expected
+ * (regression test for bug 107735 StringIndexOutOfBoundsException in Util.getNameWithoutJavaLikeExtension())
+ */
+public void testNameWithoutJavaLikeExtension() {
+	String name = Util.getNameWithoutJavaLikeExtension("Test.aj");
+	assertEquals("Unepected name without extension", "Test.aj", name);
 }
 /**
  * Ensures that a compilation unit that does not exist responds
