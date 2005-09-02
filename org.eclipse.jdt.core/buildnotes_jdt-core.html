@@ -47,6 +47,9 @@ Eclipse SDK 3.2M2 - ?th September 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>The size limit of the internal Java model cache is now function of the max heap size (-Xmx VM argument) given to the Java Virtual Machine.
+      Thus users who give more memory to the VM because they have big .jar files on their classpath will see an increase in performance.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
