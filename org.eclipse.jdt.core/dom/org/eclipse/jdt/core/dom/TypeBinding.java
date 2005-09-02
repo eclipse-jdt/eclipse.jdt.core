@@ -105,15 +105,17 @@ class TypeBinding implements ITypeBinding {
 	 */
 	private IClassFile getClassFile(char[] fileName) {
 		int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
-		int lastSlash = CharOperation.lastIndexOf('/', fileName);
-		if (lastSlash == -1) 
-			lastSlash = CharOperation.lastIndexOf(File.separatorChar, fileName);
-		if (lastSlash <= jarSeparator) // if jarSeparator == -1 and there is no slash, lastSlash should be 0
-			lastSlash = jarSeparator+1;
-		IPackageFragment pkg = getPackageFragment(fileName, lastSlash, jarSeparator);
+		int pkgEnd = CharOperation.lastIndexOf('/', fileName); // pkgEnd is exclusive
+		if (pkgEnd == -1) 
+			pkgEnd = CharOperation.lastIndexOf(File.separatorChar, fileName);
+		if (jarSeparator != -1 && pkgEnd < jarSeparator) // if in a jar and no slash, it is a default package -> pkgEnd should be equal to jarSeparator
+			pkgEnd = jarSeparator;
+		if (pkgEnd == -1)
+			return null;
+		IPackageFragment pkg = getPackageFragment(fileName, pkgEnd, jarSeparator);
 		if (pkg == null) return null;
-		int start = lastSlash == jarSeparator+1 ? lastSlash : lastSlash+1;
-		return pkg.getClassFile(new String(fileName, start, fileName.length - start));
+		int start;
+		return pkg.getClassFile(new String(fileName, start = pkgEnd + 1, fileName.length - start));
 	}
 	
 	/*
@@ -122,12 +124,13 @@ class TypeBinding implements ITypeBinding {
 	 */
 	private ICompilationUnit getCompilationUnit(char[] fileName) {
 		char[] slashSeparatedFileName = CharOperation.replaceOnCopy(fileName, File.separatorChar, '/');
-		int lastSlash = CharOperation.lastIndexOf('/', slashSeparatedFileName);
-		if (lastSlash == -1) return null;
-		IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, lastSlash, -1/*no jar separator for .java files*/);
+		int pkgEnd = CharOperation.lastIndexOf('/', slashSeparatedFileName); // pkgEnd is exclusive
+		if (pkgEnd == -1)
+			return null;
+		IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, pkgEnd, -1/*no jar separator for .java files*/);
 		if (pkg == null) return null;
 		int start;
-		ICompilationUnit cu = pkg.getCompilationUnit(new String(slashSeparatedFileName, start =  lastSlash+1, slashSeparatedFileName.length - start));
+		ICompilationUnit cu = pkg.getCompilationUnit(new String(slashSeparatedFileName, start =  pkgEnd+1, slashSeparatedFileName.length - start));
 		if (this.resolver instanceof DefaultBindingResolver) {
 			ICompilationUnit workingCopy = cu.findWorkingCopy(((DefaultBindingResolver) this.resolver).workingCopyOwner);
 			if (workingCopy != null) 
@@ -402,19 +405,21 @@ class TypeBinding implements ITypeBinding {
 			// local or anonymous type
 			if (Util.isClassFileName(fileName)) {
 				int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
-				int lastSlash = CharOperation.lastIndexOf('/', fileName);
-				if (lastSlash == -1) 
-					lastSlash = CharOperation.lastIndexOf(File.separatorChar, fileName);
-				if (lastSlash <= jarSeparator) // if jarSeparator == -1 and there is no slash, lastSlash should be 0
-					lastSlash = jarSeparator+1;
-				IPackageFragment pkg = getPackageFragment(fileName, lastSlash, jarSeparator);
+				int pkgEnd = CharOperation.lastIndexOf('/', fileName); // pkgEnd is exclusive
+				if (pkgEnd == -1) 
+					pkgEnd = CharOperation.lastIndexOf(File.separatorChar, fileName);
+				if (jarSeparator != -1 && pkgEnd < jarSeparator) // if in a jar and no slash, it is a default package -> pkgEnd should be equal to jarSeparator
+					pkgEnd = jarSeparator;
+				if (pkgEnd == -1)
+					return null;
+				IPackageFragment pkg = getPackageFragment(fileName, pkgEnd, jarSeparator);
 				char[] constantPoolName = referenceBinding.constantPoolName();
 				if (constantPoolName == null) {
 					ClassFile classFile = (ClassFile) getClassFile(fileName);
 					return classFile == null ? null : (JavaElement) classFile.getType();
 				}
-				lastSlash = CharOperation.lastIndexOf('/', constantPoolName);
-				char[] classFileName = CharOperation.subarray(constantPoolName, lastSlash+1, constantPoolName.length);
+				pkgEnd = CharOperation.lastIndexOf('/', constantPoolName);
+				char[] classFileName = CharOperation.subarray(constantPoolName, pkgEnd+1, constantPoolName.length);
 				ClassFile classFile = (ClassFile) pkg.getClassFile(new String(classFileName) + SuffixConstants.SUFFIX_STRING_class);
 				return (JavaElement) classFile.getType();
 			}
@@ -605,17 +610,23 @@ class TypeBinding implements ITypeBinding {
 	
 	/*
 	 * Returns the package that includes the given file name, or null if not found.
+	 * pkgEnd == jarSeparator if default package in a jar
+	 * pkgEnd > jarSeparator if non default package in a jar
+	 * pkgEnd > 0 if package not in a jar
+	 * 
 	 * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
 	 */
-	private IPackageFragment getPackageFragment(char[] fileName, int lastSlash, int jarSeparator) {
+	private IPackageFragment getPackageFragment(char[] fileName, int pkgEnd, int jarSeparator) {
 		if (jarSeparator != -1) {
 			String jarMemento = new String(fileName, 0, jarSeparator);
 			IPackageFragmentRoot root = (IPackageFragmentRoot) JavaCore.create(jarMemento);
-			char[] pkgName = CharOperation.subarray(fileName, jarSeparator+1, lastSlash);
+			if (pkgEnd == jarSeparator)
+				return root.getPackageFragment(IPackageFragment.DEFAULT_PACKAGE_NAME);
+			char[] pkgName = CharOperation.subarray(fileName, jarSeparator+1, pkgEnd);
 			CharOperation.replace(pkgName, '/', '.');
 			return root.getPackageFragment(new String(pkgName));
 		} else {
-			Path path = new Path(new String(fileName, 0, lastSlash));
+			Path path = new Path(new String(fileName, 0, pkgEnd));
 			IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 			IContainer folder = path.segmentCount() == 1 ? workspaceRoot.getProject(path.lastSegment()) : (IContainer) workspaceRoot.getFolder(path);
 			IJavaElement element = JavaCore.create(folder);
