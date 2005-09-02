@@ -20,14 +20,14 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
-import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -756,8 +756,18 @@ public class ASTParser {
 							PackageFragment packageFragment = (PackageFragment) this.classFileSource.getParent();
 							BinaryType type = (BinaryType) this.classFileSource.getType();
 							IBinaryType binaryType = (IBinaryType) type.getElementInfo();
-							String fileName = new String(binaryType.getFileName()); // file name is used to recreate the Java element, so it has to be the .class file name
-							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), fileName, this.project);
+							// file name is used to recreate the Java element, so it has to be the toplevel .class file name
+							char[] fileName = binaryType.getFileName();
+							int firstDollar = CharOperation.indexOf('$', fileName);
+							if (firstDollar != -1) {
+								char[] suffix = SuffixConstants.SUFFIX_class;
+								int suffixLength = suffix.length;
+								char[] newFileName = new char[firstDollar + suffixLength];
+								System.arraycopy(fileName, 0, newFileName, 0, firstDollar);
+								System.arraycopy(suffix, 0, newFileName, firstDollar, suffixLength);
+								fileName = newFileName;
+							}
+							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), new String(fileName), this.project);
 							element = this.classFileSource;
 						} catch(JavaModelException e) {
 							// an error occured accessing the java element
