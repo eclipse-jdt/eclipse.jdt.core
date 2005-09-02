@@ -108,8 +108,10 @@ class TypeBinding implements ITypeBinding {
 		int lastSlash = CharOperation.lastIndexOf('/', fileName);
 		if (lastSlash == -1) 
 			lastSlash = CharOperation.lastIndexOf(File.separatorChar, fileName);
-		if (lastSlash <= jarSeparator) // if jarSeparator == -1 and there is no slash, lastSlash should be 0
+		if (jarSeparator != -1 && lastSlash < jarSeparator) // if in a jar and no slash, it is a default package -> lastSlash should be jarSeparator+1
 			lastSlash = jarSeparator+1;
+		if (lastSlash == -1)
+			return null;
 		IPackageFragment pkg = getPackageFragment(fileName, lastSlash, jarSeparator);
 		if (pkg == null) return null;
 		int start = lastSlash == jarSeparator+1 ? lastSlash : lastSlash+1;
@@ -405,8 +407,10 @@ class TypeBinding implements ITypeBinding {
 				int lastSlash = CharOperation.lastIndexOf('/', fileName);
 				if (lastSlash == -1) 
 					lastSlash = CharOperation.lastIndexOf(File.separatorChar, fileName);
-				if (lastSlash <= jarSeparator) // if jarSeparator == -1 and there is no slash, lastSlash should be 0
+				if (jarSeparator != -1 && lastSlash < jarSeparator) // if in a jar and no slash, it is a default package -> lastSlash should be jarSeparator+1
 					lastSlash = jarSeparator+1;
+				if (lastSlash == -1)
+					return null;
 				IPackageFragment pkg = getPackageFragment(fileName, lastSlash, jarSeparator);
 				char[] constantPoolName = referenceBinding.constantPoolName();
 				if (constantPoolName == null) {
