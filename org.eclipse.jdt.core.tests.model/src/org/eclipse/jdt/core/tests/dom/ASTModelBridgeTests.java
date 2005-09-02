@@ -85,6 +85,23 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"public class Y<T> {\n" +
 				"  public Y(T t) {\n" +
 				"  }\n" +
+				"}",
+				"p/Z.java",
+				"package p;\n" +
+				"public class Z {\n" +
+				"  /*start*/class Member {\n" +
+				"  }/*end*/\n" +
+				"  void foo() {\n" +
+				"    new Member() {};\n" +
+				"  }\n" +
+				"}",
+				"Z.java",
+				"public class Z {\n" +
+				"  /*start*/class Member {\n" +
+				"  }/*end*/\n" +
+				"  void foo() {\n" +
+				"    new Member() {};\n" +
+				"  }\n" +
 				"}"
 			}, 
 			"1.5");
@@ -237,6 +254,50 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		assertElementEquals(
 			"Unexpected Java element",
 			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in P]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+	
+	/*
+	 * Ensures that the IJavaElement for a binary member type coming from an anoumous class file is correct.
+	 * (regression test for bug 100636 [model] Can't find overriden methods of protected nonstatic inner class.)
+	 */
+	public void testBinaryMemberTypeFromAnonymousClassFile1() throws JavaModelException {
+		IClassFile classFile = getClassFile("P", "/P/lib.jar", "p", "Z$1.class");
+		String source = classFile.getSource();
+		MarkerInfo markerInfo = new MarkerInfo(source);
+		markerInfo.astStarts = new int[] {source.indexOf("/*start*/") + "/*start*/".length()};
+		markerInfo.astEnds = new int[] {source.indexOf("/*end*/")};
+		ASTNode node = buildAST(markerInfo, classFile);
+		IBinding binding = ((TypeDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Member [in Z$Member.class [in p [in lib.jar [in P]]]]",
+			element
+		);
+		assertTrue("Element should exist", element.exists());
+	}
+	
+	/*
+	 * Ensures that the IJavaElement for a binary member type coming from an anoumous class file is correct.
+	 * (regression test for bug 100636 [model] Can't find overriden methods of protected nonstatic inner class.)
+	 */
+	public void testBinaryMemberTypeFromAnonymousClassFile2() throws JavaModelException {
+		IClassFile classFile = getClassFile("P", "/P/lib.jar", "", "Z$1.class");
+		String source = classFile.getSource();
+		MarkerInfo markerInfo = new MarkerInfo(source);
+		markerInfo.astStarts = new int[] {source.indexOf("/*start*/") + "/*start*/".length()};
+		markerInfo.astEnds = new int[] {source.indexOf("/*end*/")};
+		ASTNode node = buildAST(markerInfo, classFile);
+		IBinding binding = ((TypeDeclaration) node).resolveBinding();
+		assertNotNull("No binding", binding);
+		IJavaElement element = binding.getJavaElement();
+		assertElementEquals(
+			"Unexpected Java element",
+			"Member [in Z$Member.class [in <default> [in lib.jar [in P]]]]",
 			element
 		);
 		assertTrue("Element should exist", element.exists());
