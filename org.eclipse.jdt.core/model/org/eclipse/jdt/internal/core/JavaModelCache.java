@@ -19,12 +19,11 @@ import org.eclipse.jdt.core.IJavaElement;
  * The cache of java elements to their respective info.
  */
 public class JavaModelCache {
-	public static final int BASE_VALUE = 20;
 	public static final int DEFAULT_PROJECT_SIZE = 5;  // average 25552 bytes per project.
-	public static final int DEFAULT_ROOT_SIZE = BASE_VALUE*10; // average 2590 bytes per root -> maximum size : 25900*BASE_VALUE bytes
-	public static final int DEFAULT_PKG_SIZE = BASE_VALUE*100; // average 1782 bytes per pkg -> maximum size : 178200*BASE_VALUE bytes
-	public static final int DEFAULT_OPENABLE_SIZE = BASE_VALUE*100; // average 6629 bytes per openable (includes children) -> maximum size : 662900*BASE_VALUE bytes
-	public static final int DEFAULT_CHILDREN_SIZE = BASE_VALUE*100*20; // average 20 children per openable
+	public static final int DEFAULT_ROOT_SIZE = 50; // average 2590 bytes per root -> maximum size : 25900*BASE_VALUE bytes
+	public static final int DEFAULT_PKG_SIZE = 500; // average 1782 bytes per pkg -> maximum size : 178200*BASE_VALUE bytes
+	public static final int DEFAULT_OPENABLE_SIZE = 500; // average 6629 bytes per openable (includes children) -> maximum size : 662900*BASE_VALUE bytes
+	public static final int DEFAULT_CHILDREN_SIZE = 500*20; // average 20 children per openable
 	
 	/**
 	 * Active Java Model Info
@@ -57,11 +56,13 @@ public class JavaModelCache {
 	protected Map childrenCache;
 	
 public JavaModelCache() {
+	// set the size of the caches in function of the maximum amount of memory available
+	double ratio =  Runtime.getRuntime().maxMemory() / 64000000; // 64000000 is the base memory for most JVM
 	this.projectCache = new HashMap(DEFAULT_PROJECT_SIZE); // NB: Don't use a LRUCache for projects as they are constantly reopened (e.g. during delta processing)
-	this.rootCache = new ElementCache(DEFAULT_ROOT_SIZE);
-	this.pkgCache = new ElementCache(DEFAULT_PKG_SIZE);
-	this.openableCache = new ElementCache(DEFAULT_OPENABLE_SIZE);
-	this.childrenCache = new HashMap(DEFAULT_CHILDREN_SIZE);
+	this.rootCache = new ElementCache((int) (DEFAULT_ROOT_SIZE * ratio));
+	this.pkgCache = new ElementCache((int) (DEFAULT_PKG_SIZE * ratio));
+	this.openableCache = new ElementCache((int) (DEFAULT_OPENABLE_SIZE * ratio));
+	this.childrenCache = new HashMap((int) (DEFAULT_CHILDREN_SIZE * ratio));
 }
 
 /**
