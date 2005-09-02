@@ -217,28 +217,36 @@ public abstract class Scope
 
 			case Binding.TYPE:
 				if (!originalType.isMemberType()) break;
-				// fall thru in case enclosing is generic
-			case Binding.GENERIC_TYPE:
 				ReferenceBinding originalReferenceType = (ReferenceBinding) originalType;
 				originalEnclosing = originalType.enclosingType();
 				substitutedEnclosing = originalEnclosing;
 				if (originalEnclosing != null) {
 					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
 				}
+				
+			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
+				if (substitutedEnclosing != originalEnclosing) {
+					return substitution.isRawSubstitution() 
+						? substitution.environment().createRawType(originalReferenceType, substitutedEnclosing)
+						:  substitution.environment().createParameterizedType(originalReferenceType, null, substitutedEnclosing);
+				}
+				break;
+			case Binding.GENERIC_TYPE:
+				originalReferenceType = (ReferenceBinding) originalType;
+				originalEnclosing = originalType.enclosingType();
+				substitutedEnclosing = originalEnclosing;
+				if (originalEnclosing != null) {
+					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
+				}
+				
 				if (substitution.isRawSubstitution()) {
-		            return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing);
-	            }
+					return substitution.environment().createRawType(originalReferenceType, substitutedEnclosing);
+				}
 			    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
 				originalArguments = originalReferenceType.typeVariables();
-				if (originalArguments == NoTypeVariables) {
-					originalArguments = null;
-					substitutedArguments = null;
-				} else {
-					substitutedArguments = substitute(substitution, originalArguments);
-				}
+				substitutedArguments = substitute(substitution, originalArguments);
 				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
-					return substitution.environment().createParameterizedType(
-							originalReferenceType, substitutedArguments, substitutedEnclosing);
+					return substitution.environment().createParameterizedType(originalReferenceType, substitutedArguments, substitutedEnclosing);
 				}
 				break;
 		}

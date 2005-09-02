@@ -23365,5 +23365,47 @@ public void test806() {
 		"The method swapFirstTwoValues(List<X.ValueHolder<T>>) in the type X is not applicable for the arguments (List<X.ValueHolder<?>>)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107756
+public void test807() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Prop<BeanT> {\n" + 
+			"	Unmarshaller.Handler createHandler();\n" + 
+			"}\n" + 
+			"\n" + 
+			"abstract class Unmarshaller {\n" + 
+			"	public static abstract class Handler {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo(Prop p) {\n" + 
+			"		Unmarshaller.Handler h = p.createHandler(); \n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107756 - variation
+public void test808() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"    \n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        X x = new X();\n" + 
+			"        x.ax = new AX<String>();\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    AX<T> ax;\n" + 
+			"}\n" + 
+			"\n" + 
+			"class AX <P> {\n" + 
+			"    AX<P> p;\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
