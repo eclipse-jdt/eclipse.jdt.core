@@ -233,12 +233,16 @@ public class GeneratedFileManager {
 				addEntryToFileMaps( parentFile, file );
 			return new FileGenerationResult(file, contentsDiffer, updatededSourcePath);
 		}
+		catch (CoreException ce) {
+			throw ce;
+		}
+		catch (UnsupportedEncodingException uee) {
+			throw uee;
+		}
 		catch ( Throwable t )
 		{
-			AptPlugin.log(t, "Could not generate file for type: " + typeName); //$NON-NLS-1$
+			throw new CoreException(AptPlugin.createStatus(t, "Could not generate file for type: " + typeName)); //$NON-NLS-1$
 		}
-		
-		return null;
 	}
 	
 	/**

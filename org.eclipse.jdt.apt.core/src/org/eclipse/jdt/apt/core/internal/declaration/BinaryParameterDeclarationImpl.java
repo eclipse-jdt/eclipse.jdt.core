@@ -52,7 +52,7 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
     {
         super(typeBinding, env);
         assert( typeBinding != null ) : "missing type binding"; //$NON-NLS-1$
-        assert( index > 0 ) : "invalid index " + index; //$NON-NLS-1$
+        assert( index >= 0 ) : "invalid index " + index; //$NON-NLS-1$
         assert executable != null : "missing executable"; //$NON-NLS-1$
         _type = typeBinding;
         _paramIndex = index;

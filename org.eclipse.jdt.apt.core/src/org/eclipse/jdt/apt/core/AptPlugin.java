@@ -91,6 +91,13 @@ public class AptPlugin extends Plugin {
 		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e)); 
 	}
 	
+	/**
+	 * Convenience wrapper for rethrowing exceptions as CoreExceptions
+	 */
+	public static Status createStatus(Throwable e, String message) {
+		return new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e);
+	}
+	
 	private void initDebugTracing() {		
 		String option = Platform.getDebugOption(APT_DEBUG_OPTION);
 		if(option != null) DEBUG = option.equalsIgnoreCase("true") ; //$NON-NLS-1$		
