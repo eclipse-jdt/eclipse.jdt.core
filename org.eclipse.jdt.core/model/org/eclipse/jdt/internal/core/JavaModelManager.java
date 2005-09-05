@@ -2278,7 +2278,8 @@ public class JavaModelManager implements ISaveParticipant {
 							containerString = ((JavaProject)project).encodeClasspath(
 									entries, 
 									null, 
-									false);
+									false,
+									null/*not interested in unknown elements*/);
 						}
 					} catch(JavaModelException e){
 						// could not encode entry: will not persist
