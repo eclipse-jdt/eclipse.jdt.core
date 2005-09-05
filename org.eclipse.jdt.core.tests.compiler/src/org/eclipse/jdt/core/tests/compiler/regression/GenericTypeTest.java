@@ -23499,5 +23499,28 @@ public void test810() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372
+public void test811() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"    private T t;\n" + 
+			"    private X.Inner inner;\n" + 
+			"    private X.Inner[] inners;\n" + 
+			"    public X(T t,  X.Inner in, X.Inner[] ins) {\n" + 
+			"        this.t = t;\n" + 
+			"        this.inner = in;\n" + 
+			"        this.inner = new X(null, null, null).new Inner();\n" + 
+			"        this.inners = ins;\n" + 
+			"        this.inners = new X.Inner[10];\n" + 
+			"        //Type mismatch: cannot convert from X.Inner[] to X<T>.Inner[]\n" + 
+			"    }\n" + 
+			"    private class Inner {\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
