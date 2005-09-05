@@ -23407,5 +23407,97 @@ public void test808() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106946
+public void test809() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Iterator;\n" + 
+			"\n" + 
+			"class Node {}\n" + 
+			"interface Set1<N extends Node> extends Iterable<N> {}\n" + 
+			"interface Set2 extends Iterable<Node> {}\n" + 
+			"\n" + 
+			"class SetIterator<N extends Node> implements Iterator<N> {\n" + 
+			"	public N next() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public boolean hasNext() {\n" + 
+			"		return true;\n" + 
+			"	}\n" + 
+			"	public void remove() {\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface Set3<N extends Node> extends Iterable<N> {\n" + 
+			"	SetIterator<N> iterator();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	void f1(Set1 s) {\n" + 
+			"		Node n_ = s.iterator().next();\n" + 
+			"		// ^Type mismatch: cannot convert from Object to Node\n" + 
+			"		// this was unexpected (s can only contain types derivered from Node)\n" + 
+			"		for (Node n : s) {\n" + 
+			"			// ^Type mismatch: cannot convert from Object to Node\n" + 
+			"			// this was unexpected\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void f2(Set2 s) {\n" + 
+			"		Node n_ = s.iterator().next();\n" + 
+			"		for (Node n : s) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void f3(Set3 s) {\n" + 
+			"		Node n_ = s.iterator().next();\n" + 
+			"		// (^ no error here)\n" + 
+			"		for (Node n : s) {\n" + 
+			"			// ^Type mismatch: cannot convert from Object to Node\n" + 
+			"			// this is even stranger as we already know that s.iterator().next()\n" + 
+			"            // have the right type\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 22)\n" + 
+		"	Node n_ = s.iterator().next();\n" + 
+		"	     ^^\n" + 
+		"Type mismatch: cannot convert from Object to Node\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 25)\n" + 
+		"	for (Node n : s) {\n" + 
+		"	              ^\n" + 
+		"Type mismatch: cannot convert from element type Object to Node\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 38)\n" + 
+		"	for (Node n : s) {\n" + 
+		"	              ^\n" + 
+		"Type mismatch: cannot convert from element type Object to Node\n" + 
+		"----------\n");
+}
+//crash javac
+public void test810() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class A<T, U> {\n" +
+			"	public String toString() {\n" +
+			"		return \"SUCCESS\";\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"\n" +
+			"	public <K> A<K,K> foo(K type) {\n" +
+			"		return new A<K,K>();\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String args[]) {\n" +
+			"		X x = new X();\n" +
+			"		A<?,?> a = x.foo(null);\n" +
+			"		System.out.println(a);\n" +
+			"	}\n" +
+			"}",
+		},
+		"SUCCESS");
+}
 }
 
