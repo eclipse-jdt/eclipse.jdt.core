@@ -81,7 +81,7 @@ public class InstanceOfExpression extends OperatorExpression {
 		if (expressionType == null || checkedType == null)
 			return null;
 
-		if (checkedType.isTypeVariable() || checkedType.isBoundParameterizedType() || checkedType.isGenericType()) {
+		if (!checkedType.isReifiable()) {
 			scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
 		} else {
 			boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, null);

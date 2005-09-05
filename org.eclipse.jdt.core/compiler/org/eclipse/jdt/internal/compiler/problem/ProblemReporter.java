@@ -5293,7 +5293,12 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 public void unsafeCast(CastExpression castExpression, Scope scope) {
 	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
 	TypeBinding erasedCastType = castExpression.resolvedType.erasure();
-	if (erasedCastType.isGenericType()) erasedCastType = scope.environment().createRawType((ReferenceBinding)erasedCastType, erasedCastType.enclosingType());
+	TypeBinding erasedLeaf = erasedCastType.leafComponentType();
+	int dim = erasedCastType.dimensions();
+	if (erasedLeaf.isGenericType()) {
+		erasedCastType = scope.environment().createRawType((ReferenceBinding)erasedLeaf, erasedLeaf.enclosingType());
+		if (dim > 0) erasedCastType = scope.environment().createArrayType(erasedCastType, dim);
+	}	
 	this.handle(
 		IProblem.UnsafeGenericCast,
 		new String[]{ 
