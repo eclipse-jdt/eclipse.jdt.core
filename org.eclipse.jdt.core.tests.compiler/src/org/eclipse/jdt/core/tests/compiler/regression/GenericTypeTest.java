@@ -23524,7 +23524,7 @@ public void test811() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372 - variation
 public void test812() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" + 
