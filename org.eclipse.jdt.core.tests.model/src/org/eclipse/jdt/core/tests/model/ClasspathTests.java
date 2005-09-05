@@ -3194,7 +3194,7 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 		}, 
 		null);
 		time[0] += System.currentTimeMillis()-start[0];
-		System.out.println("No cycle check ("+numberOfParticipants+" participants) : "+ time[0]+" ms, "+ (useForwardReferences ? "forward references" : "backward references") + ", " + (createProjectsFirst ? "two steps (projects created first, then classpaths are set)" : "one step (projects created and classpaths set in one batch)"));
+		//System.out.println("No cycle check ("+numberOfParticipants+" participants) : "+ time[0]+" ms, "+ (useForwardReferences ? "forward references" : "backward references") + ", " + (createProjectsFirst ? "two steps (projects created first, then classpaths are set)" : "one step (projects created and classpaths set in one batch)"));
 		
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
@@ -3345,6 +3345,154 @@ public void testReplaceProject() throws CoreException {
 			null);
 		IClasspathEntry[] classpath = javaProject.getRawClasspath();
 		assertEquals("classpath should have been refreshed", new Path("/P/src2"), classpath[0].getPath());
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that unknown classpath attributes in a .classpath file are not lost when read and rewritten.
+ * (regression test for bug 101425 Classpath persistence should be resilient with unknown attributes)
+ */
+public void testUnknownAttributes() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry unknown=\"test\" kind=\"src\" path=\"src1\"/>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>\n"
+		);
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		
+		// swap 2 entries
+		IClasspathEntry src1 = classpath[0];
+		classpath[0] = classpath[1];
+		classpath[1] = src1;
+		project.setRawClasspath(classpath, null);
+		
+		// check that .classpath has correct content
+		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
+		assertSourceEquals(
+			"Unexpected content", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" + 
+			"	<classpathentry unknown=\"test\" kind=\"src\" path=\"src1\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>\n",			
+			contents);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that unknown classpath elements in a .classpath file are not lost when read and rewritten.
+ * (regression test for bug 101425 Classpath persistence should be resilient with unknown attributes)
+ */
+public void testUnknownElements1() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src1\">\n" + 
+			"		<unknown>\n" +
+			"			<test kind=\"\"/>\n" +
+			"		</unknown>\n" +
+			"	</classpathentry>\n" +
+			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>\n"
+		);
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		
+		// swap 2 entries
+		IClasspathEntry src1 = classpath[0];
+		classpath[0] = classpath[1];
+		classpath[1] = src1;
+		project.setRawClasspath(classpath, null);
+		
+		// check that .classpath has correct content
+		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
+		assertSourceEquals(
+			"Unexpected content", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src1\">\n" + 
+			"		<unknown>\n" +
+			"			<test kind=\"\"/>\n" +
+			"		</unknown>\n" +
+			"	</classpathentry>\n" +
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>\n",			
+			contents);		
+	} finally {
+		deleteProject("P");
+	}
+}
+
+/*
+ * Ensures that unknown classpath elements in a .classpath file are not lost when read and rewritten.
+ * (regression test for bug 101425 Classpath persistence should be resilient with unknown attributes)
+ */
+public void testUnknownElements2() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P");
+		editFile(
+			"/P/.classpath",
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" unknownattribute=\"abcde\" path=\"src1\">\n" + 
+			"		<unknown1>\n" +
+			"			<test kind=\"1\"/>\n" +
+			"			<test kind=\"2\"/>\n" +
+			"		</unknown1>\n" +
+			"		<unknown2 attribute2=\"\">\n" +
+			"			<test>\n" +
+			"				<other a=\"b\"/>\n" +
+			"			</test>\n" +
+			"		</unknown2>\n" +
+			"	</classpathentry>\n" +
+			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" + 
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>\n"
+		);
+		IClasspathEntry[] classpath = project.getRawClasspath();
+		
+		// swap 2 entries
+		IClasspathEntry src1 = classpath[0];
+		classpath[0] = classpath[1];
+		classpath[1] = src1;
+		project.setRawClasspath(classpath, null);
+		
+		// check that .classpath has correct content
+		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
+		assertSourceEquals(
+			"Unexpected content", 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<classpath>\n" + 
+			"	<classpathentry kind=\"src\" path=\"src2\"/>\n" + 
+			"	<classpathentry kind=\"src\" unknownattribute=\"abcde\" path=\"src1\">\n" + 
+			"		<unknown1>\n" +
+			"			<test kind=\"1\"/>\n" +
+			"			<test kind=\"2\"/>\n" +
+			"		</unknown1>\n" +
+			"		<unknown2 attribute2=\"\">\n" +
+			"			<test>\n" +
+			"				<other a=\"b\"/>\n" +
+			"			</test>\n" +
+			"		</unknown2>\n" +
+			"	</classpathentry>\n" +
+			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" + 
+			"</classpath>\n",
+			contents);		
 	} finally {
 		deleteProject("P");
 	}

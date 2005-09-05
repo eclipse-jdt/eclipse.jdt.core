@@ -58,16 +58,18 @@ class XMLWriter extends PrintWriter {
 	}
 	private int tab;
 	private String lineSeparator;
-	public XMLWriter(Writer writer, IJavaProject project) {
+	public XMLWriter(Writer writer, IJavaProject project, boolean printXmlVersion) {
 		super(writer);
 		this.tab= 0;
 		this.lineSeparator = Util.getLineSeparator((String) null, project);
-		print(XML_VERSION);
-		print(this.lineSeparator);
+		if (printXmlVersion) {
+			print(XML_VERSION);
+			print(this.lineSeparator);
+		}
 	}
-	public void endTag(String name, boolean insertTab) {
+	public void endTag(String name, boolean insertTab, boolean insertNewLine) {
 		this.tab --;
-		printTag('/' + name, null/*no parameters*/, insertTab, true/*insert new line*/, false/*don't close tag*/);
+		printTag('/' + name, null/*no parameters*/, insertTab, insertNewLine, false/*don't close tag*/);
 	}
 	private void printTabulation() {
 		for (int i= 0; i < tab; i++)
@@ -92,16 +94,19 @@ class XMLWriter extends PrintWriter {
 		} else {
 			sb.append(">"); //$NON-NLS-1$
 		}
-		if (insertTab) {
-			printTabulation();
-		}
-		print(sb.toString());
-		if (insertNewLine) {
-			print(this.lineSeparator);
-		}
+		printString(sb.toString(), insertTab, insertNewLine);
 		if (parameters != null && !closeTag)
 			this.tab++;
 
+	}
+	public void printString(String string, boolean insertTab, boolean insertNewLine) {
+		if (insertTab) {
+			printTabulation();
+		}
+		print(string);
+		if (insertNewLine) {
+			print(this.lineSeparator);
+		}
 	}
 	public void startTag(String name, boolean insertTab) {
 		printTag(name, null/*no parameters*/, insertTab, true/*insert new line*/, false/*don't close tag*/);

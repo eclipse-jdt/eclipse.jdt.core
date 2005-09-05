@@ -796,6 +796,13 @@ public class JavaProject
 	 * Reads and decode an XML classpath string
 	 */
 	protected IClasspathEntry[] decodeClasspath(String xmlClasspath, boolean createMarker, boolean logProblems) {
+		return decodeClasspath(xmlClasspath, createMarker, logProblems, null/*not interested in unknown elements*/);
+	}
+	
+	/**
+	 * Reads and decode an XML classpath string
+	 */
+	protected IClasspathEntry[] decodeClasspath(String xmlClasspath, boolean createMarker, boolean logProblems, Map unknownElements) {
 
 		ArrayList paths = new ArrayList();
 		IClasspathEntry defaultOutput = null;
@@ -825,7 +832,7 @@ public class JavaProject
 			for (int i = 0; i < length; ++i) {
 				Node node = list.item(i);
 				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					IClasspathEntry entry = ClasspathEntry.elementDecode((Element)node, this);
+					IClasspathEntry entry = ClasspathEntry.elementDecode((Element)node, this, unknownElements);
 					if (entry != null){
 						if (entry.getContentKind() == ClasspathEntry.K_OUTPUT) { 
 							defaultOutput = entry; // separate output
@@ -901,15 +908,15 @@ public class JavaProject
 	/**
 	 * Returns the XML String encoding of the class path.
 	 */
-	protected String encodeClasspath(IClasspathEntry[] classpath, IPath outputLocation, boolean indent) throws JavaModelException {
+	protected String encodeClasspath(IClasspathEntry[] classpath, IPath outputLocation, boolean indent, Map unknownElements) throws JavaModelException {
 		try {
 			ByteArrayOutputStream s = new ByteArrayOutputStream();
 			OutputStreamWriter writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
-			XMLWriter xmlWriter = new XMLWriter(writer, this);
+			XMLWriter xmlWriter = new XMLWriter(writer, this, true/*print XML version*/);
 			
 			xmlWriter.startTag(ClasspathEntry.TAG_CLASSPATH, indent);
 			for (int i = 0; i < classpath.length; ++i) {
-				((ClasspathEntry)classpath[i]).elementEncode(xmlWriter, this.project.getFullPath(), indent, true);
+				((ClasspathEntry)classpath[i]).elementEncode(xmlWriter, this.project.getFullPath(), indent, true, unknownElements);
 			}
 	
 			if (outputLocation != null) {
@@ -921,7 +928,7 @@ public class JavaProject
 				xmlWriter.printTag(ClasspathEntry.TAG_CLASSPATHENTRY, parameters, indent, true, true);
 			}
 	
-			xmlWriter.endTag(ClasspathEntry.TAG_CLASSPATH, indent);
+			xmlWriter.endTag(ClasspathEntry.TAG_CLASSPATH, indent, true/*insert new line*/);
 			writer.flush();
 			writer.close();
 			return s.toString("UTF8");//$NON-NLS-1$
@@ -2537,6 +2544,10 @@ public class JavaProject
 	 * Returns INVALID_CLASSPATH if it has a format problem.
 	 */
 	protected IClasspathEntry[] readClasspathFile(boolean createMarker, boolean logProblems) {
+		return readClasspathFile(createMarker, logProblems, null/*not interested in unknown elements*/);
+	}
+	
+	protected IClasspathEntry[] readClasspathFile(boolean createMarker, boolean logProblems, Map unknownElements) {
 
 		try {
 			String xmlClasspath = getSharedProperty(CLASSPATH_FILENAME);
@@ -2548,7 +2559,7 @@ public class JavaProject
 				}
 				return null;
 			}
-			return decodeClasspath(xmlClasspath, createMarker, logProblems);
+			return decodeClasspath(xmlClasspath, createMarker, logProblems, unknownElements);
 		} catch(CoreException e) {
 			// file does not exist (or not accessible)
 			if (createMarker && this.project.isAccessible()) {
@@ -2653,7 +2664,8 @@ public class JavaProject
 
 		if (!this.project.isAccessible()) return false;
 
-		IClasspathEntry[] fileEntries = readClasspathFile(false /*don't create markers*/, false/*don't log problems*/);
+		Map unknownElements = new HashMap();
+		IClasspathEntry[] fileEntries = readClasspathFile(false /*don't create markers*/, false/*don't log problems*/, unknownElements);
 		if (fileEntries != null && isClasspathEqualsTo(newClasspath, newOutputLocation, fileEntries)) {
 			// no need to save it, it is the same
 			return false;
@@ -2661,7 +2673,7 @@ public class JavaProject
 
 		// actual file saving
 		try {
-			setSharedProperty(CLASSPATH_FILENAME, encodeClasspath(newClasspath, newOutputLocation, true));
+			setSharedProperty(CLASSPATH_FILENAME, encodeClasspath(newClasspath, newOutputLocation, true, unknownElements));
 			return true;
 		} catch (CoreException e) {
 			throw new JavaModelException(e);

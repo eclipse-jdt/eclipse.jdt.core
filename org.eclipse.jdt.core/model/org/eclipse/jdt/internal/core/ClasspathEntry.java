@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -39,9 +43,12 @@ import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 /**
  * @see IClasspathEntry
@@ -118,6 +125,12 @@ public class ClasspathEntry implements IClasspathEntry {
 	
 	private String rootID;
 	private AccessRuleSet accessRuleSet;
+	
+	
+	static class UnknownXmlElements {
+		String[] attributes;
+		ArrayList children;
+	}
 	
 	/*
 	 * Default inclusion pattern set
@@ -278,10 +291,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		return result;
 	}
 
-	static IClasspathAttribute[] decodeExtraAttributes(Element element) {
-		Node extra = element.getElementsByTagName(TAG_ATTRIBUTES).item(0);
-		if (extra == null) return NO_EXTRA_ATTRIBUTES;
-		NodeList attributes = element.getElementsByTagName(TAG_ATTRIBUTE);
+	static IClasspathAttribute[] decodeExtraAttributes(NodeList attributes) {
 		if (attributes == null) return NO_EXTRA_ATTRIBUTES;
 		int length = attributes.getLength();
 		if (length == 0) return NO_EXTRA_ATTRIBUTES;
@@ -303,31 +313,30 @@ public class ClasspathEntry implements IClasspathEntry {
 		return result;
 	}
 	
-	static IAccessRule[] decodeAccessRules(Element element) {
-		Node accessRules = element.getElementsByTagName(TAG_ACCESS_RULES).item(0);
-		if (accessRules == null || accessRules.getNodeType() != Node.ELEMENT_NODE) return null;
-		NodeList list = ((Element) accessRules).getElementsByTagName(TAG_ACCESS_RULE);
+	static IAccessRule[] decodeAccessRules(NodeList list) {
+		if (list == null) return null;
 		int length = list.getLength();
 		if (length == 0) return null;
 		IAccessRule[] result = new IAccessRule[length];
 		int index = 0;
 		for (int i = 0; i < length; i++) {
 			Node accessRule = list.item(i);
-			if (accessRule == null || accessRule.getNodeType() != Node.ELEMENT_NODE) return null;
-			Element elementAccessRule = (Element) accessRule;
-			String pattern = elementAccessRule.getAttribute(TAG_PATTERN);
-			if (pattern == null) continue;
-			String tagKind =  elementAccessRule.getAttribute(TAG_KIND);
-			int kind;
-			if (TAG_ACCESSIBLE.equals(tagKind))
-				kind = IAccessRule.K_ACCESSIBLE;
-			else if (TAG_NON_ACCESSIBLE.equals(tagKind))
-				kind = IAccessRule.K_NON_ACCESSIBLE;
-			else if (TAG_DISCOURAGED.equals(tagKind))
-				kind = IAccessRule.K_DISCOURAGED;
-			else
-				continue;
-			result[index++] = new ClasspathAccessRule(new Path(pattern), kind);
+			if (accessRule.getNodeType() == Node.ELEMENT_NODE) {
+				Element elementAccessRule = (Element) accessRule;
+				String pattern = elementAccessRule.getAttribute(TAG_PATTERN);
+				if (pattern == null) continue;
+				String tagKind =  elementAccessRule.getAttribute(TAG_KIND);
+				int kind;
+				if (TAG_ACCESSIBLE.equals(tagKind))
+					kind = IAccessRule.K_ACCESSIBLE;
+				else if (TAG_NON_ACCESSIBLE.equals(tagKind))
+					kind = IAccessRule.K_NON_ACCESSIBLE;
+				else if (TAG_DISCOURAGED.equals(tagKind))
+					kind = IAccessRule.K_DISCOURAGED;
+				else
+					continue;
+				result[index++] = new ClasspathAccessRule(new Path(pattern), kind);
+			}
 		}
 		if (index != length)
 			System.arraycopy(result, 0, result = new IAccessRule[index], 0, index);
@@ -337,8 +346,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	/**
 	 * Decode some element tag containing a sequence of patterns into IPath[]
 	 */
-	private static IPath[] decodePatterns(Element element, String tag) {
-		String sequence = element.getAttribute(tag);
+	private static IPath[] decodePatterns(NamedNodeMap nodeMap, String tag) {
+		String sequence = removeAttribute(tag, nodeMap);
 		if (!sequence.equals("")) { //$NON-NLS-1$ 
 			char[][] patterns = CharOperation.splitOn('|', sequence.toCharArray());
 			int patternCount;
@@ -357,6 +366,49 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		return null;
 	}
+	
+	private static void decodeUnknownNode(Node node, StringBuffer buffer, IJavaProject project) {
+		ByteArrayOutputStream s = new ByteArrayOutputStream();
+		OutputStreamWriter writer;
+		try {
+			writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
+			XMLWriter xmlWriter = new XMLWriter(writer, project, false/*don't print XML version*/);
+			decodeUnknownNode(node, xmlWriter, true/*insert new line*/);
+			xmlWriter.flush();
+			xmlWriter.close();
+			buffer.append(s.toString("UTF8")); //$NON-NLS-1$
+		} catch (UnsupportedEncodingException e) {
+			// ignore (UTF8 is always supported)
+		} 
+	}
+
+	private static void decodeUnknownNode(Node node, XMLWriter xmlWriter, boolean insertNewLine) {
+		switch (node.getNodeType()) {
+		case Node.ELEMENT_NODE:
+			NamedNodeMap attributes = node.getAttributes();
+			HashMap parameters = new HashMap();
+			for (int i = 0, length = attributes == null ? 0 : attributes.getLength(); i < length; i++) {
+				Node attribute = attributes.item(i);
+				parameters.put(attribute.getNodeName(), attribute.getNodeValue());
+			}
+			NodeList children = node.getChildNodes();
+			int childrenLength = children.getLength();
+			String nodeName = node.getNodeName();
+			xmlWriter.printTag(nodeName, parameters, false/*don't insert tab*/, false/*don't insert new line*/, childrenLength == 0/*close tag if no children*/);
+			if (childrenLength > 0) {
+				for (int i = 0; i < childrenLength; i++) {
+					decodeUnknownNode(children.item(i), xmlWriter, false/*don't insert new line*/);
+				}
+				xmlWriter.endTag(nodeName, false/*don't insert tab*/, insertNewLine);
+			}
+			break;
+		case Node.TEXT_NODE:
+			String data = ((Text) node).getData();
+			xmlWriter.printString(data, false/*don't insert tab*/, false/*don't insert new line*/);
+			break;
+		}
+	}
+	
 	/*
 	 * Returns a char based representation of the exclusions patterns full path.
 	 */
@@ -394,7 +446,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	/**
 	 * Returns the XML encoding of the class path.
 	 */
-	public void elementEncode(XMLWriter writer, IPath projectPath, boolean indent, boolean newLine) {
+	public void elementEncode(XMLWriter writer, IPath projectPath, boolean indent, boolean newLine, Map unknownElements) {
 		HashMap parameters = new HashMap();
 		
 		parameters.put(TAG_KIND, ClasspathEntry.kindToString(this.entryKind));
@@ -438,6 +490,16 @@ public class ClasspathEntry implements IClasspathEntry {
 			parameters.put(TAG_COMBINE_ACCESS_RULES, "false"); //$NON-NLS-1$
 		
 		
+		// unknown attributes
+		UnknownXmlElements unknownXmlElements = unknownElements == null ? null : (UnknownXmlElements) unknownElements.get(this.path);
+		String[] unknownAttributes;
+		if (unknownXmlElements != null && (unknownAttributes = unknownXmlElements.attributes) != null)
+			for (int i = 0, length = unknownAttributes.length; i < length; i+=2) {
+				String tagName = unknownAttributes[i];
+				String tagValue = unknownAttributes[i+1];
+				parameters.put(tagName, tagValue);
+			}
+		
 		if (this.specificOutputLocation != null) {
 			IPath outputLocation = this.specificOutputLocation.removeFirstSegments(1);
 			outputLocation = outputLocation.makeRelative();
@@ -446,16 +508,26 @@ public class ClasspathEntry implements IClasspathEntry {
 
 		boolean hasExtraAttributes = this.extraAttributes.length != 0;
 		boolean hasRestrictions = getAccessRuleSet() != null; // access rule set is null if no access rules
-		writer.printTag(TAG_CLASSPATHENTRY, parameters, indent, newLine, !hasExtraAttributes && !hasRestrictions /*close tag if no extra attributes and no restriction*/);
+		ArrayList unknownChildren = unknownXmlElements != null ? unknownXmlElements.children : null;
+		boolean hasUnknownChildren = unknownChildren != null;
+		writer.printTag(
+			TAG_CLASSPATHENTRY, 
+			parameters, 
+			indent, 
+			newLine, 
+			!hasExtraAttributes && !hasRestrictions && !hasUnknownChildren/*close tag if no extra attributes, no restriction and no unknown children*/);
 		
 		if (hasExtraAttributes)
 			encodeExtraAttributes(writer, indent, newLine);
 	
 		if (hasRestrictions)
 			encodeAccessRules(writer, indent, newLine);
+		
+		if (hasUnknownChildren)
+			encodeUnknownChildren(writer, indent, newLine, unknownChildren);
 
-		if (hasExtraAttributes || hasRestrictions)
-			writer.endTag(TAG_CLASSPATHENTRY, indent);
+		if (hasExtraAttributes || hasRestrictions || hasUnknownChildren)
+			writer.endTag(TAG_CLASSPATHENTRY, indent, true/*insert new line*/);
 	}
 	
 	void encodeExtraAttributes(XMLWriter writer, boolean indent, boolean newLine) {
@@ -467,7 +539,7 @@ public class ClasspathEntry implements IClasspathEntry {
 			parameters.put(TAG_ATTRIBUTE_VALUE, attribute.getValue());
 			writer.printTag(TAG_ATTRIBUTE, parameters, indent, newLine, true);
 		}
-		writer.endTag(TAG_ATTRIBUTES, indent);
+		writer.endTag(TAG_ATTRIBUTES, indent, true/*insert new line*/);
 	}
 	
 	void encodeAccessRules(XMLWriter writer, boolean indent, boolean newLine) {
@@ -477,7 +549,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		for (int i = 0, length = rules.length; i < length; i++) {
 			encodeAccessRule(rules[i], writer, indent, newLine);
 		}
-		writer.endTag(TAG_ACCESS_RULES, indent);
+		writer.endTag(TAG_ACCESS_RULES, indent, true/*insert new line*/);
 	}
 	
 	private void encodeAccessRule(AccessRule accessRule, XMLWriter writer, boolean indent, boolean newLine) {
@@ -501,11 +573,21 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	}
 	
-	public static IClasspathEntry elementDecode(Element element, IJavaProject project) {
+	private void encodeUnknownChildren(XMLWriter writer, boolean indent, boolean newLine, ArrayList unknownChildren) {
+		for (int i = 0, length = unknownChildren.size(); i < length; i++) {
+			String child = (String) unknownChildren.get(i);
+			writer.printString(child, indent, false/*don't insert new line*/);
+		}
+	}
+	
+	public static IClasspathEntry elementDecode(Element element, IJavaProject project, Map unknownElements) {
 	
 		IPath projectPath = project.getProject().getFullPath();
-		String kindAttr = element.getAttribute(TAG_KIND);
-		String pathAttr = element.getAttribute(TAG_PATH);
+		NamedNodeMap attributes = element.getAttributes();
+		NodeList children = element.getChildNodes();
+		boolean[] foundChildren = new boolean[children.getLength()];
+		String kindAttr = removeAttribute(TAG_KIND, attributes);
+		String pathAttr = removeAttribute(TAG_PATH, attributes);
 
 		// ensure path is absolute
 		IPath path = new Path(pathAttr); 		
@@ -516,29 +598,30 @@ public class ClasspathEntry implements IClasspathEntry {
 		// source attachment info (optional)
 		IPath sourceAttachmentPath = 
 			element.hasAttribute(TAG_SOURCEPATH)	
-			? new Path(element.getAttribute(TAG_SOURCEPATH))
+			? new Path(removeAttribute(TAG_SOURCEPATH, attributes))
 			: null;
 		if (kind != IClasspathEntry.CPE_VARIABLE && sourceAttachmentPath != null && !sourceAttachmentPath.isAbsolute()) {
 			sourceAttachmentPath = projectPath.append(sourceAttachmentPath);
 		}
 		IPath sourceAttachmentRootPath = 
 			element.hasAttribute(TAG_ROOTPATH)
-			? new Path(element.getAttribute(TAG_ROOTPATH))
+			? new Path(removeAttribute(TAG_ROOTPATH, attributes))
 			: null;
 		
 		// exported flag (optional)
-		boolean isExported = element.getAttribute(TAG_EXPORTED).equals("true"); //$NON-NLS-1$
+		boolean isExported = removeAttribute(TAG_EXPORTED, attributes).equals("true"); //$NON-NLS-1$
 
 		// inclusion patterns (optional)
-		IPath[] inclusionPatterns = decodePatterns(element, TAG_INCLUDING);
+		IPath[] inclusionPatterns = decodePatterns(attributes, TAG_INCLUDING);
 		if (inclusionPatterns == null) inclusionPatterns = INCLUDE_ALL;
 		
 		// exclusion patterns (optional)
-		IPath[] exclusionPatterns = decodePatterns(element, TAG_EXCLUDING);
+		IPath[] exclusionPatterns = decodePatterns(attributes, TAG_EXCLUDING);
 		if (exclusionPatterns == null) exclusionPatterns = EXCLUDE_NONE;
 		
 		// access rules (optional)
-		IAccessRule[] accessRules = decodeAccessRules(element);
+		NodeList attributeList = getChildAttributes(TAG_ACCESS_RULES, children, foundChildren);
+		IAccessRule[] accessRules = decodeAccessRules(attributeList);
 		
 		// backward compatibility
 		if (accessRules == null) {
@@ -546,25 +629,62 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 
 		// combine access rules (optional)
-		boolean combineAccessRestrictions = !element.getAttribute(TAG_COMBINE_ACCESS_RULES).equals("false"); //$NON-NLS-1$
+		boolean combineAccessRestrictions = !removeAttribute(TAG_COMBINE_ACCESS_RULES, attributes).equals("false"); //$NON-NLS-1$
 		
 		// extra attributes (optional)
-		IClasspathAttribute[] extraAttributes = decodeExtraAttributes(element);
+		attributeList = getChildAttributes(TAG_ATTRIBUTES, children, foundChildren);
+		IClasspathAttribute[] extraAttributes = decodeExtraAttributes(attributeList);
 		
 		// custom output location
-		IPath outputLocation = element.hasAttribute(TAG_OUTPUT) ? projectPath.append(element.getAttribute(TAG_OUTPUT)) : null;
+		IPath outputLocation = element.hasAttribute(TAG_OUTPUT) ? projectPath.append(removeAttribute(TAG_OUTPUT, attributes)) : null;
+		
+		String[] unknownAttributes = null;
+		ArrayList unknownChildren = null;
+
+		if (unknownElements != null) {
+			// unknown attributes
+			int unknownAttributeLength = attributes.getLength();
+			if (unknownAttributeLength != 0) {
+				unknownAttributes = new String[unknownAttributeLength*2];
+				for (int i = 0; i < unknownAttributeLength; i++) {
+					Node attribute = attributes.item(i);
+					unknownAttributes[i*2] = attribute.getNodeName();
+					unknownAttributes[i*2 + 1] = attribute.getNodeValue();
+				}
+			}
+			
+			// unknown children
+			for (int i = 0, length = foundChildren.length; i < length; i++) {
+				if (!foundChildren[i]) {
+					Node node = children.item(i);
+					if (node.getNodeType() != Node.ELEMENT_NODE) continue;
+					if (unknownChildren == null)
+						unknownChildren = new ArrayList();
+					StringBuffer buffer = new StringBuffer();
+					decodeUnknownNode(node, buffer, project);
+					unknownChildren.add(buffer.toString());
+				}
+			}
+		}
 		
 		// recreate the CP entry
 		IClasspathEntry entry = null;
 		switch (kind) {
 
 			case IClasspathEntry.CPE_PROJECT :
-				entry = JavaCore.newProjectEntry(
-												path, 
-												accessRules,
-												combineAccessRestrictions,
-												extraAttributes,
-												isExported);
+				entry = new ClasspathEntry(
+				IPackageFragmentRoot.K_SOURCE,
+				IClasspathEntry.CPE_PROJECT,
+				path,
+				ClasspathEntry.INCLUDE_ALL, // inclusion patterns
+				ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
+				null, // source attachment
+				null, // source attachment root
+				null, // specific output folder
+				isExported,
+				accessRules,
+				combineAccessRestrictions,
+				extraAttributes);
 				break;				
 			case IClasspathEntry.CPE_LIBRARY :
 				entry = JavaCore.newLibraryEntry(
@@ -579,7 +699,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				// must be an entry in this project or specify another project
 				String projSegment = path.segment(0);
 				if (projSegment != null && projSegment.equals(project.getElementName())) { // this project
-					return JavaCore.newSourceEntry(path, inclusionPatterns, exclusionPatterns, outputLocation, extraAttributes);
+					entry = JavaCore.newSourceEntry(path, inclusionPatterns, exclusionPatterns, outputLocation, extraAttributes);
 				} else { 
 					if (path.segmentCount() == 1) {
 						// another project
@@ -591,7 +711,7 @@ public class ClasspathEntry implements IClasspathEntry {
 												isExported);
 					} else {
 						// an invalid source folder
-						return JavaCore.newSourceEntry(path, inclusionPatterns, exclusionPatterns, outputLocation, extraAttributes);
+						entry = JavaCore.newSourceEntry(path, inclusionPatterns, exclusionPatterns, outputLocation, extraAttributes);
 					}
 				}
 				break;
@@ -613,7 +733,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				break;
 			case ClasspathEntry.K_OUTPUT :
 				if (!path.isAbsolute()) return null;
-				return new ClasspathEntry(
+				entry = new ClasspathEntry(
 						ClasspathEntry.K_OUTPUT,
 						IClasspathEntry.CPE_LIBRARY,
 						path,
@@ -626,10 +746,48 @@ public class ClasspathEntry implements IClasspathEntry {
 						null, // no access rules
 						false, // no accessible files to combine
 						NO_EXTRA_ATTRIBUTES);
+				break;
 			default :
 				throw new Assert.AssertionFailedException(Messages.bind(Messages.classpath_unknownKind, kindAttr)); 
 		}
+		
+		if (unknownAttributes != null || unknownChildren != null) {
+			UnknownXmlElements unknownXmlElements = new UnknownXmlElements();
+			unknownXmlElements.attributes = unknownAttributes;
+			unknownXmlElements.children = unknownChildren;
+			unknownElements.put(path, unknownXmlElements);
+		}
+		
 		return entry;
+	}
+	
+	public static NodeList getChildAttributes(String childName, NodeList children, boolean[] foundChildren) {
+		for (int i = 0, length = foundChildren.length; i < length; i++) {
+			Node node = children.item(i);
+			if (childName.equals(node.getNodeName())) {
+				foundChildren[i] = true;
+				return node.getChildNodes();
+			}
+		}
+		return null;
+	}
+
+	
+	private static String removeAttribute(String nodeName, NamedNodeMap nodeMap) {
+		Node node = removeNode(nodeName, nodeMap);
+		if (node == null)
+			return ""; // //$NON-NLS-1$
+		return node.getNodeValue();
+	}
+	
+	private static Node removeNode(String nodeName, NamedNodeMap nodeMap) {
+		try {
+			return nodeMap.removeNamedItem(nodeName);
+		} catch (DOMException e) {
+			if (e.code != DOMException.NOT_FOUND_ERR)
+				throw e;
+			return null;
+		}
 	}
 
 	/**

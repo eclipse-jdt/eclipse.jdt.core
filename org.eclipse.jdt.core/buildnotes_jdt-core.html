@@ -50,10 +50,15 @@ What's new in this drop</h2>
 <li>The size limit of the internal Java model cache is now function of the max heap size (-Xmx VM argument) given to the Java Virtual Machine.
       Thus users who give more memory to the VM because they have big .jar files on their classpath will see an increase in performance.
 </li>
+<li>Reading the .classpath file is now forward compatible with upcoming versions. If a .classpath file contains unknown elements and attributes,
+     these are left untouched and are persisted.
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=108372">108372</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=101425">101425</a>
+Classpath persistence should be resilient with unknown attributes
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=108372">108372</a>
 [1.5][compiler] Inner class of enclosing raw type don't works
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106202">106202</a>
 JavaModelCache should have configurable LRU cache limits
