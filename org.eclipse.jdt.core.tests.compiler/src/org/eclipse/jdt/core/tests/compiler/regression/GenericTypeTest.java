@@ -21781,9 +21781,9 @@ public void test755() {
 		"The member type X<?>.B cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<?>\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999 - variation
 public void test756() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -21793,7 +21793,12 @@ public void test756() {
 			"  }\n" +
 			"}",
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\r\n" + 
+		"	X<?>.B[] b = new X<?>.B[1];\r\n" + 
+		"	             ^^^^^^^^^^^^^\n" + 
+		"Cannot create a generic array of X<?>.B\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100147
 public void test757() {
@@ -23571,6 +23576,211 @@ public void test812() {
 		"	Zork z;\r\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372 - variation
+public void test813() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"    private T t;\n" + 
+			"    private X<?>.Inner[] inners;\n" + 
+			"    public X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"        this.inners = new X<?>.Inner[10];\n" + 
+			"    }\n" + 
+			"    private class Inner {\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	private T t;\n" + 
+		"	          ^\n" + 
+		"The field X<T>.t is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	private X<?>.Inner[] inners;\n" + 
+		"	                     ^^^^^^\n" + 
+		"The field X<T>.inners is never read locally\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	this.inners = new X<?>.Inner[10];\n" + 
+		"	              ^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot create a generic array of X<?>.Inner\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695
+public void test814() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X<E> {\n" + 
+			"    void method(Object o) {\n" + 
+			"        if (o instanceof E[]) { //incorrect: cannot test non-reifiable type\n" + 
+			"            E[] es = (E[]) o;\n" + 
+			"        }\n" + 
+			"        if (o instanceof List<E>[]) { //incorrect too\n" + 
+			"            List<E>[] es = (List<E>[]) o; \n" + 
+			"        }\n" + 
+			"        if (o instanceof List<?>[]) { // unbound is ok\n" + 
+			"            List<?>[] es = (List<?>[]) o;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    void method(ArrayList<E>[] al) {\n" + 
+			"        if (al instanceof List<E>[]) { //incorrect too\n" + 
+			"            List<E>[] es = (List<E>[]) al; \n" + 
+			"        }        \n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o instanceof E[]) { //incorrect: cannot test non-reifiable type\n" + 
+		"	    ^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type E[]. Use instead its raw form Object[] since generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	E[] es = (E[]) o;\n" + 
+		"	         ^^^^^^^\n" + 
+		"Type safety: The cast from Object to E[] is actually checking against the erased type Object[]\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 7)\n" + 
+		"	if (o instanceof List<E>[]) { //incorrect too\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type List<E>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 8)\n" + 
+		"	List<E>[] es = (List<E>[]) o; \n" + 
+		"	               ^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object to List<E>[] is actually checking against the erased type List[]\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 15)\n" + 
+		"	if (al instanceof List<E>[]) { //incorrect too\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type List<E>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 16)\n" + 
+		"	List<E>[] es = (List<E>[]) al; \n" + 
+		"	               ^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from ArrayList<E>[] to List<E>[]\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
+public void test815() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<E> {\n" + 
+			"	void foo(Object[][] e) {\n" + 
+			"		E[] o = (E[]) e;\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	E[] o = (E[]) e;\n" + 
+		"	        ^^^^^^^\n" + 
+		"Type safety: The cast from Object[][] to E[] is actually checking against the erased type Object[]\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
+public void test816() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X<E> {\n" + 
+			"    void method(Object[] o) {\n" + 
+			"        if (o instanceof List<E>[][]) { //incorrect too\n" + 
+			"            List<E>[][] es = (List<E>[][]) o; \n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	if (o instanceof List<E>[][]) { //incorrect too\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type List<E>[][]. Use instead its raw form List[][] since generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	List<E>[][] es = (List<E>[][]) o; \n" + 
+		"	                 ^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Object[] to List<E>[][] is actually checking against the erased type List[][]\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
+public void test817() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X<T> {\n" + 
+			"    private T t;\n" + 
+			"    private X<?>.Inner[] inner;\n" + 
+			"    private X<?>.Inner[] inners;\n" + 
+			"    public X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"        if (this.inner instanceof X<?>.Inner) {}\n" + 
+			"        if (this.inners instanceof X<?>.Inner[]) {}\n" + 
+			"    }\n" + 
+			"    private class Inner {\n" + 
+			"    }\n" + 
+			"    void foo(List l) {\n" + 
+			"    	if (l instanceof List<?>) {}\n" + 
+			"    	if (l instanceof List<? extends String>) {}\n" + 
+			"    }\n" + 
+			"    void foo(List[] ls) {\n" + 
+			"    	if (ls instanceof List<?>[]) {}\n" + 
+			"    	if (ls instanceof List<? extends String>[]) {}\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	private T t;\n" + 
+		"	          ^\n" + 
+		"The field X<T>.t is never read locally\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	if (this.inner instanceof X<?>.Inner) {}\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type X<?>.Inner. Use instead its raw form Inner since generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 10)\n" + 
+		"	if (this.inners instanceof X<?>.Inner[]) {}\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type X<?>.Inner[]. Use instead its raw form Inner[] since generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 15)\n" + 
+		"	if (l instanceof List<?>) {}\n" + 
+		"	    ^^^^^^^^^^^^^^^^^\n" + 
+		"The expression of type List is already an instance of type List<?>\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 16)\n" + 
+		"	if (l instanceof List<? extends String>) {}\n" + 
+		"	    ^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type List<? extends String>. Use instead its raw form List since generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 19)\n" + 
+		"	if (ls instanceof List<?>[]) {}\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The expression of type List[] is already an instance of type List<?>\n" + 
+		"----------\n" + 
+		"7. ERROR in X.java (at line 20)\n" + 
+		"	if (ls instanceof List<? extends String>[]) {}\n" + 
+		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type List<? extends String>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" + 
 		"----------\n");
 }
 }

@@ -300,6 +300,7 @@ public boolean isReifiable() {
 	if (!(leafType instanceof ReferenceBinding)) 
 		return true;
 	ReferenceBinding current = (ReferenceBinding) leafType;
+	int depth = 0;
 	do {
 		switch(current.kind()) {
 			
@@ -309,7 +310,8 @@ public boolean isReifiable() {
 				return false;
 				
 			case Binding.PARAMETERIZED_TYPE :
-				if (isBoundParameterizedType()) 
+				// tolerate unbound at depth 0 (innermost) only
+				if (depth == 0 ? current.isBoundParameterizedType() : current.isParameterizedType()) 
 					return false;
 				break;
 				
@@ -318,6 +320,7 @@ public boolean isReifiable() {
 		}
 		if (current.isStatic()) 
 			return true;
+		depth++;
 	} while ((current = current.enclosingType()) != null);
 	return true;
 }
