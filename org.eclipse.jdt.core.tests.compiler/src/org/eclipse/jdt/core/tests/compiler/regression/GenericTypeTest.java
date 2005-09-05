@@ -23522,5 +23522,56 @@ public void test811() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372 - variation
+public void test812() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"    private T t;\n" + 
+			"    private X<?>.Inner inner;\n" + 
+			"    private X<?>.Inner[] inners;\n" + 
+			"    public X(T t) {\n" + 
+			"        this.t = t;\n" + 
+			"        this.inner = new X.Inner();\n" + 
+			"        this.inners = new X.Inner[10];\n" + 
+			"        Zork z;\n" +
+			"    }\n" + 
+			"    private class Inner {\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\r\n" + 
+		"	private T t;\r\n" + 
+		"	          ^\n" + 
+		"The field X<T>.t is never read locally\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 3)\r\n" + 
+		"	private X<?>.Inner inner;\r\n" + 
+		"	                   ^^^^^\n" + 
+		"The field X<T>.inner is never read locally\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 4)\r\n" + 
+		"	private X<?>.Inner[] inners;\r\n" + 
+		"	                     ^^^^^^\n" + 
+		"The field X<T>.inners is never read locally\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\r\n" + 
+		"	this.inner = new X.Inner();\r\n" + 
+		"	             ^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.Inner needs unchecked conversion to conform to X<?>.Inner\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 8)\r\n" + 
+		"	this.inners = new X.Inner[10];\r\n" + 
+		"	              ^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type X.Inner[] needs unchecked conversion to conform to X<?>.Inner[]\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 9)\r\n" + 
+		"	Zork z;\r\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
 

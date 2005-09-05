@@ -607,13 +607,16 @@ public boolean needsUncheckedConversion(TypeBinding targetType) {
 	if (compatible == null) 
 		return false;
 
+	int depth = 0;
 	while (compatible.isRawType()) {
-		if (targetType.isBoundParameterizedType() || targetType.isGenericType()) {
-			return true;
-		}
+		if (targetType.isGenericType()) return true;
+		// tolerate unbound only for innermost
+		if (depth == 0 ? targetType.isBoundParameterizedType() : targetType.isParameterizedType()) return true;
+
 		if (compatible.isStatic()) break;
 		if ((compatible = compatible.enclosingType()) == null) break;
 		if ((targetType = targetType.enclosingType()) == null) break;
+		depth++;
 	}
 	return false;
 }
