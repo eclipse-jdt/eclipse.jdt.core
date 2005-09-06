@@ -1666,6 +1666,61 @@ public void test032() {
 		},
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
+public void _test033() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.Iterator;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X implements Iterable<String>, Runnable {\n" +
+			"	public <T extends Runnable & Iterable<String>> void foo(T t) {\n" +
+			"		for (String s : t)\n" +
+			"			System.out.print(s);\n" +
+			"	}\n" +
+			"	public void run() {	/* */ }\n" +
+			"	private List<String> list = Arrays.asList(new String[] { \"a\", \"b\" });\n" +
+			"	public Iterator<String> iterator() {\n" +
+			"		return this.list.iterator();\n" +
+			"	}\n" +
+			"	public static void main(String... args) {\n" +
+			"		X x = new X();\n" +
+			"		x.foo(x);\n" +
+			"	}\n" +
+			"}",
+		},
+		"ab");
+	// TODO need to add disassembled code to check that the declaring class is Iterable
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
+public void _test034() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.Iterator;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static <T extends ArrayList<String>> void foo(T t) {\n" +
+			"		for (String s : t)\n" +
+			"			System.out.print(s);\n" +
+			"	}\n" +
+			"	private static ArrayList<String> list = new ArrayList<String>();\n" +
+			"	static {\n" +
+			"		list.addAll(Arrays.asList(new String[] { \"a\", \"b\" }));\n" +
+			"	}\n" +
+			"	public static void main(String... args) {\n" +
+			"		foo(list);\n" +
+			"	}\n" +
+			"}",
+		},
+		"ab");
+	// TODO need to add disassembled code to check that the declaring class is ArrayList
+}
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }
