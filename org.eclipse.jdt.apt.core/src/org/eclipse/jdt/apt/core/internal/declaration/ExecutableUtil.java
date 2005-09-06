@@ -163,6 +163,11 @@ class ExecutableUtil {
 			// show up in the method binding
 			final org.eclipse.jdt.core.dom.MethodDeclaration methodAstNode = 
 				(org.eclipse.jdt.core.dom.MethodDeclaration)executable.getAstNode();
+			
+			// If this method is synthetic, there will be no AST node
+			if (methodAstNode == null) 
+				return Collections.emptyList();
+			
 	    	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	    	final List<Name> exceptions = methodAstNode.thrownExceptions();
 	    	if(exceptions == null || exceptions.size() == 0 )
