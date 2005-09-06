@@ -123,6 +123,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				case JEM_PACKAGEDECLARATION:
 				case JEM_IMPORTDECLARATION:
 				case JEM_LOCALVARIABLE:
+				case JEM_TYPE_PARAMETER:
 					buffer.append(JEM_ESCAPE);
 			}
 			buffer.append(character);
