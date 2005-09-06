@@ -181,9 +181,11 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < size; i++) {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				if (memberContext.kind() == IGenericType.INTERFACE_DECL) {
-					problemReporter().nestedClassCannotDeclareInterface(memberContext);
-					continue nextMember;
+				switch(memberContext.kind()) {
+					case IGenericType.INTERFACE_DECL :
+					case IGenericType.ANNOTATION_TYPE_DECL :
+						problemReporter().illegalLocalTypeDeclaration(memberContext);
+						continue nextMember;
 				}
 				ReferenceBinding type = localType;
 				// check that the member does not conflict with an enclosing type
@@ -232,12 +234,16 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < length; i++) {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				if (memberContext.kind() == IGenericType.INTERFACE_DECL
-					&& sourceType.isNestedType()
-					&& sourceType.isClass() // no need to check for enum, since implicitly static
-					&& !sourceType.isStatic()) {
-					problemReporter().nestedClassCannotDeclareInterface(memberContext);
-					continue nextMember;
+				switch(memberContext.kind()) {
+					case IGenericType.INTERFACE_DECL :
+					case IGenericType.ANNOTATION_TYPE_DECL :
+						if (sourceType.isNestedType()
+								&& sourceType.isClass() // no need to check for enum, since implicitly static
+								&& !sourceType.isStatic()) {
+							problemReporter().illegalLocalTypeDeclaration(memberContext);
+							continue nextMember;
+						}
+					break;						
 				}
 				ReferenceBinding type = sourceType;
 				// check that the member does not conflict with an enclosing type

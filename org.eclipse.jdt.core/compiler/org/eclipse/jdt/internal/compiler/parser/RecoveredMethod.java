@@ -214,13 +214,15 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		}
 		return methodBody.add(typeDeclaration, bracketBalanceValue, true);	
 	}
-	if (typeDeclaration.kind() == IGenericType.INTERFACE_DECL) {
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));
-		if (this.parent == null) {
-			return this; // ignore
-		}
-		// close the constructor
-		return this.parent.add(typeDeclaration, bracketBalanceValue);
+	switch (typeDeclaration.kind()) {
+		case IGenericType.INTERFACE_DECL :
+		case IGenericType.ANNOTATION_TYPE_DECL :
+			this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));
+			if (this.parent == null) {
+				return this; // ignore
+			}
+			// close the constructor
+			return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
 	if (localTypes == null) {
 		localTypes = new RecoveredType[5];

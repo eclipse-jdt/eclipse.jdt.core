@@ -984,12 +984,12 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	int[] value();\n" + 
 				"}\n" 
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	int[] tab;\n" + 
-		"	      ^^^\n" + 
-		"The annotation field X.tab must be initialized with a constant expression\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int[] tab;\n" + 
+			"	      ^^^\n" + 
+			"The blank final field tab may not have been initialized\n" + 
+			"----------\n");
 	}		
 	
 	// check annotation array field initializer
@@ -1031,12 +1031,12 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	int value;\n" + 
 				"}\n"
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\r\n" + 
-		"	int value;\r\n" + 
-		"	    ^^^^^\n" + 
-		"The annotation field X.value must be initialized with a constant expression\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	int value;\n" + 
+			"	    ^^^^^\n" + 
+			"The blank final field value may not have been initialized\n" + 
+			"----------\n");
 	}
 	
 	// check annotation field initializer
@@ -5630,4 +5630,20 @@ public class AnnotationTest extends AbstractComparableTest {
     		"----------\n",
 			null, true, customOptions);
     }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=108263
+    public void test177() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+				"public @interface X {\n" + 
+				"  public static final Integer foo = B.zzz; \n" + 
+				"  public static final int foo3 = B.zzz2; \n" + 
+				"}\n" + 
+				"class B {\n" + 
+				"  public static final Integer zzz = new Integer(0);\n" + 
+				"  public static final int zzz2 = 0;\n" + 
+				"}\n",
+           },
+		"");
+    }        
 }

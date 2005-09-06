@@ -418,9 +418,6 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			}
 		}
 		
-		if (this.binding != null && this.binding.declaringClass.isAnnotationType()) {
-			this.scope.problemReporter().annotationTypeDeclarationCannotHaveConstructor(this);
-		}
 		// if null ==> an error has occurs at parsing time ....
 		if (this.constructorCall != null) {
 			// e.g. using super() in java.lang.Object

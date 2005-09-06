@@ -154,15 +154,6 @@ public void annotationCircularity(TypeBinding sourceType, TypeBinding otherType,
 			reference.sourceStart,
 			reference.sourceEnd);
 }
-public void annotationFieldNeedConstantInitialization(FieldDeclaration fieldDecl) {
-	String str = new String(fieldDecl.name);
-	this.handle(
-		IProblem.AnnotationFieldNeedConstantInitialization,
-		new String[] { new String(fieldDecl.binding.declaringClass.readableName()), str },
-		new String[] { new String(fieldDecl.binding.declaringClass.shortReadableName()), str},
-		fieldDecl.sourceStart,
-		fieldDecl.sourceEnd);
-}
 public void annotationMembersCannotHaveParameters(AnnotationMethodDeclaration annotationMethodDeclaration) {
 	this.handle(
 		IProblem.AnnotationMembersCannotHaveParameters,
@@ -4074,15 +4065,6 @@ public void needToEmulateMethodAccess(
 		 }, 
 		location.sourceStart, 
 		location.sourceEnd); 
-}
-public void nestedClassCannotDeclareInterface(TypeDeclaration typeDecl) {
-	String[] arguments = new String[] {new String(typeDecl.name)};
-	this.handle(
-		IProblem.CannotDefineInterfaceInLocalType,
-		arguments,
-		arguments,
-		typeDecl.sourceStart,
-		typeDecl.sourceEnd);
 }
 public void noMoreAvailableSpaceForArgument(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[]{ new String(local.name) };

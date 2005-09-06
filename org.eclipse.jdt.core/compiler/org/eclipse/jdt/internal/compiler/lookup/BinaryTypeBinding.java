@@ -124,6 +124,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	}
 
 	this.modifiers = binaryType.getModifiers();
+	// TODO (kent) what about ANNOTATION_TYPE_DECL case ?
 	if (binaryType.getKind() == IGenericType.INTERFACE_DECL)
 		this.modifiers |= AccInterface;
 		
