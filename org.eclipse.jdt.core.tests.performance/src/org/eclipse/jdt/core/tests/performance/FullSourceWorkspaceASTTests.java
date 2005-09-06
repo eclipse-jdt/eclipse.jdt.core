@@ -18,7 +18,7 @@ import junit.framework.*;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.test.performance.Performance;
 
 /**
  */
@@ -576,6 +576,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 */
 	public void testDomAstCreationJLS2() throws JavaModelException {
 		tagAsSummary("DOM>Creation>Src>JLS2", true); // put in fingerprint
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Currently investigating performance issue on this test...");
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
 		createAST(unit, AST.JLS2);
