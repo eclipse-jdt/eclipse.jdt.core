@@ -39,7 +39,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 194 };
+//		TESTS_NUMBERS = new int[] { 192 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -1175,7 +1175,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "T", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong key", "Ltest0037/X;:TT;", typeBinding.getKey());
 		SimpleName simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "T", simpleName.getIdentifier());
@@ -1196,7 +1195,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		typeBinding = (ITypeBinding) binding;
 		assertEquals("Wrong name", "U", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong key", "Ltest0037/X;:TU;", typeBinding.getKey());
 		simpleName = typeParameter.getName();
 		assertEquals("Wrong name", "U", simpleName.getIdentifier());
@@ -1254,7 +1252,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong isTopLevel", false, typeBinding.isTopLevel());
 		assertEquals("Wrong isUpperbound", false, typeBinding.isUpperbound());
 		assertEquals("Wrong isTypeVariable", true, typeBinding.isTypeVariable());
-		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong isWildcardType", false, typeBinding.isWildcardType());
 		ITypeBinding typeBinding2 = type.resolveBinding();
 		assertEquals("Wrong name", "X", typeBinding2.getName());
@@ -1417,7 +1414,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong size", 1, typeParametersBindings.length);
 		ITypeBinding typeBinding = typeParametersBindings[0];
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertTrue("Not from source", typeBinding.isFromSource());
 		assertEquals("Wrong fully qualified name", "Z", typeBinding.getQualifiedName());
 	}
 	
@@ -2651,7 +2647,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertEquals("Wrong name", "E", typeBinding.getName());
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertTrue("Not from source", typeBinding.isFromSource());
 		ASTNode node2 = compilationUnit.findDeclaringNode(typeBinding);
 		assertNotNull("No declaring node", node2);
 		ASTNode node3 = compilationUnit.findDeclaringNode(typeBinding.getKey());
@@ -4984,7 +4979,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type type = singleVariableDeclaration.getType();
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertTrue("Not from source", typeBinding.isFromSource());
 		final ITypeBinding declaringClass = typeBinding.getDeclaringClass();
 		assertNotNull("No declaring class", declaringClass);
 		assertTrue("Not a generic class", declaringClass.isGenericType());
@@ -5014,7 +5008,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type type = singleVariableDeclaration.getType();
 		ITypeBinding typeBinding = type.resolveBinding();
 		assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertTrue("Not from source", typeBinding.isFromSource());
 		final IMethodBinding methodBinding = typeBinding.getDeclaringMethod();
 		assertNotNull("No declaring method", methodBinding);
 		assertEquals("Wrong name", "foo", methodBinding.getName());
@@ -5138,10 +5131,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a parameterized binding", typeBinding.isParameterizedType());
 		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
 		assertEquals("Wrong size", 1, typeArguments.length);
-		final ITypeBinding typeBinding2 = typeArguments[0];
-		assertTrue("Not a capture binding", typeBinding2.isCapture());
-		assertTrue("Not from source", typeBinding2.isFromSource());
-		assertNotNull("No wildcard", typeBinding2.getWildcard());
+		assertTrue("Not a capture binding", typeArguments[0].isCapture());
+		assertNotNull("No wildcard", typeArguments[0].getWildcard());
 	}
 
 	public void test0169() throws CoreException {
@@ -5177,11 +5168,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
 		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
 		assertEquals("Wrong size", 2, typeArguments.length);
-		final ITypeBinding typeBinding2 = typeArguments[0];
+		ITypeBinding typeBinding2 = typeArguments[0];
 		assertTrue("Not a capture binding", typeBinding2.isCapture());
 		ITypeBinding wildcardBinding = typeBinding2.getWildcard();
 		assertNotNull("No wildcard binding", wildcardBinding);
-		assertTrue("Not from source", typeBinding2.isFromSource());
 		assertTrue("Not a wildcard", wildcardBinding.isWildcardType());
 	}
 
@@ -5207,11 +5197,10 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a parameterized type", typeBinding.isParameterizedType());
 		ITypeBinding[] typeArguments = typeBinding.getTypeArguments();
 		assertEquals("Wrong size", 2, typeArguments.length);
-		final ITypeBinding typeBinding2 = typeArguments[0];
+		ITypeBinding typeBinding2 = typeArguments[0];
 		assertTrue("Not a capture binding", typeBinding2.isCapture());
 		ITypeBinding wildcardBinding = typeBinding2.getWildcard();
 		assertNotNull("No wildcard binding", wildcardBinding);
-		assertTrue("Not from source", typeBinding2.isFromSource());
 		assertTrue("Not a wildcard", wildcardBinding.isWildcardType());
 	}
 	/*
@@ -5631,7 +5620,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertFalse("A class", typeBinding.isClass());
     	assertFalse("An interface", typeBinding.isInterface());
     	assertTrue("Not a type variable", typeBinding.isTypeVariable());
-		assertTrue("Not from source", typeBinding.isFromSource());
 	}
 
 	public void test0189() throws CoreException, IOException {
@@ -5784,59 +5772,5 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	   	}
 	   	assertTrue("should yield a null, not a malformed binding", 
 	   			bindings[0] == null);
-	}
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=104492
-	public void test0193() throws JavaModelException {
-    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-    	String contents =
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        byte[] b1 = new byte[0];\n" +
-			"        byte[] b2 = new byte[0];\n" +
-			"        for (byte[] bs : new byte[][] { b1, b2 }) {}\n" +
-			"    }\n" +
-			"}";
-    	ASTNode node = buildAST(
-    			contents,
-    			this.workingCopy);
-    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-    	CompilationUnit unit = (CompilationUnit) node;
-    	node = getASTNode(unit, 0, 0, 2);
-    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
-    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
-    	SingleVariableDeclaration singleVariableDeclaration = forStatement.getParameter();
-    	assertEquals("Should be 0", 0, singleVariableDeclaration.getExtraDimensions());
-    	Type type = singleVariableDeclaration.getType();
-    	assertEquals("Not an array type", ASTNode.ARRAY_TYPE, type.getNodeType());
-    	ArrayType arrayType = (ArrayType) type;
-    	assertEquals("Should be 1", 1, arrayType.getDimensions());
-    }
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=104492
-	public void test0194() throws JavaModelException {
-    	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-    	String contents =
-			"public class X {\n" +
-			"    public static void main(String[] args) {\n" +
-			"        byte[] b1 = new byte[0];\n" +
-			"        byte[] b2 = new byte[0];\n" +
-			"        for (byte[] bs/*comment*/ [ /*comment*/ ]: new byte[][][] { new byte[][] { b1, b2 }}) {}\n" +
-			"    }\n" +
-			"}";
-    	ASTNode node = buildAST(
-    			contents,
-    			this.workingCopy);
-    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-    	CompilationUnit unit = (CompilationUnit) node;
-    	node = getASTNode(unit, 0, 0, 2);
-    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
-    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
-    	SingleVariableDeclaration singleVariableDeclaration = forStatement.getParameter();
-    	assertEquals("Should be 1", 1, singleVariableDeclaration.getExtraDimensions());
-    	Type type = singleVariableDeclaration.getType();
-    	assertEquals("Not an array type", ASTNode.ARRAY_TYPE, type.getNodeType());
-    	ArrayType arrayType = (ArrayType) type;
-    	assertEquals("Should be 1", 1, arrayType.getDimensions());
 	}
 }

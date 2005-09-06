@@ -122,14 +122,13 @@ public class EnumTest extends AbstractComparableTest {
 					"	KENT(40),\n" + 
 					"	YODA(41),\n" +
 					"	FREDERIC;\n" + 
-					"	final static int OLD = 41;\n" +
 					"\n" + 
 					"   enum Role { M, D }\n" + 
 					"\n" + 
 					"   int age;\n" + 
 					"	Role role;\n" + 
 					"\n" + 
-					"	T() { this(OLD); }\n" +  
+					"	T() { this(YODA.age()); }\n" +  // TODO (philippe) should this not complain: illegal reference to static field from initializer
 					"	T(int age) {\n" + 
 					"		this.age = age;\n" + 
 					"	}\n" + 
@@ -152,7 +151,7 @@ public class EnumTest extends AbstractComparableTest {
 				"	BLEU, \n" + 
 				"	BLANC, \n" + 
 				"	ROUGE;\n" + 
-				"	static {\n" + 
+				"	{\n" + 
 				"		BLEU = null;\n" + 
 				"	}\n" + 
 				"}"
@@ -3151,7 +3150,7 @@ blocks, or instance variable initializer expressions of an enum constant e1
 to refer to itself or an enum constant of the same type that is declared to
 the right of e1."
 	*/
-	public void test100() {
+	public void _test100() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3160,7 +3159,7 @@ the right of e1."
 				"	anEnumValue {\n" + 
 				"		private final X thisOne = anEnumValue;\n" + 
 				"\n" + 
-				"		@Override String getMessage() {\n" + 
+				"		String getMessage() {\n" + 
 				"			return \"Here is what thisOne gets assigned: \" + thisOne;\n" + 
 				"		}\n" + 
 				"	};\n" + 
@@ -3174,12 +3173,7 @@ the right of e1."
 				"\n" + 
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	private final X thisOne = anEnumValue;\n" + 
-			"	                          ^^^^^^^^^^^\n" + 
-			"Cannot refer to the static enum field X.anEnumValue within an initializer\n" + 
-			"----------\n");
+			"should reject as invalid ref to non-constant");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=91761
 	public void test101() {
@@ -3849,259 +3843,4 @@ the right of e1."
 			},
 			"");
 	}
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101713
-	public void test115() {
-	    this.runNegativeTest(
-            new String[] {
-                "X.java",
-				"public enum X {\n" + 
-				"	VALUE;\n" + 
-				"\n" + 
-				"	static int ASD;\n" + 
-				"	final static int CST = 0;\n" + 
-				"	\n" + 
-				"	private X() {\n" + 
-				"		VALUE = null;\n" + 
-				"		ASD = 5;\n" + 
-				"		X.VALUE = null;\n" + 
-				"		X.ASD = 5;\n" + 
-				"		\n" + 
-				"		System.out.println(CST);\n" + 
-				"	}\n" + 
-				"}\n",
-	        },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	VALUE = null;\n" + 
-			"	^^^^^\n" + 
-			"Cannot refer to the static enum field X.VALUE within an initializer\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
-			"	VALUE = null;\n" + 
-			"	^^^^^\n" + 
-			"The final field X.VALUE cannot be assigned\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 9)\n" + 
-			"	ASD = 5;\n" + 
-			"	^^^\n" + 
-			"Cannot refer to the static enum field X.ASD within an initializer\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 10)\n" + 
-			"	X.VALUE = null;\n" + 
-			"	^^^^^^^\n" + 
-			"The final field X.VALUE cannot be assigned\n" + 
-			"----------\n");
-	}	
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101713 - variation
-	public void test116() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public enum X { \n" + 
-				"	BLEU, \n" + 
-				"	BLANC, \n" + 
-				"	ROUGE;\n" + 
-				"	{\n" + 
-				"		BLEU = null;\n" + 
-				"	}\n" + 
-				"}"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	BLEU = null;\n" + 
-			"	^^^^\n" + 
-			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	BLEU = null;\n" + 
-			"	^^^^\n" + 
-			"The final field X.BLEU cannot be assigned\n" + 
-			"----------\n");
-	}	
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101713 - variation
-	public void test117() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public enum X { \n" + 
-				"	BLEU, \n" + 
-				"	BLANC, \n" + 
-				"	ROUGE;\n" + 
-				"	{\n" + 
-				"		X x = BLEU.BLANC; // ko\n" + 
-				"		X x2 = BLEU; // ko\n" + 
-				"	}\n" + 
-				"	static {\n" + 
-				"		X x = BLEU.BLANC; // ok\n" + 
-				"		X x2 = BLEU; // ok\n" + 
-				"	}	\n" + 
-				"	X dummy = BLEU; // ko\n" + 
-				"	static X DUMMY = BLANC; // ok\n" + 
-				"	X() {\n" + 
-				"		X x = BLEU.BLANC; // ko\n" + 
-				"		X x2 = BLEU; // ko\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
-			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
-			"The static field X.BLANC should be accessed in a static way\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
-			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 7)\n" + 
-			"	X x2 = BLEU; // ko\n" + 
-			"	       ^^^^\n" + 
-			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 10)\n" + 
-			"	X x = BLEU.BLANC; // ok\n" + 
-			"	      ^^^^^^^^^^\n" + 
-			"The static field X.BLANC should be accessed in a static way\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 13)\n" + 
-			"	X dummy = BLEU; // ko\n" + 
-			"	          ^^^^\n" + 
-			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
-			"----------\n" + 
-			"6. WARNING in X.java (at line 16)\n" + 
-			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
-			"The static field X.BLANC should be accessed in a static way\n" + 
-			"----------\n" + 
-			"7. ERROR in X.java (at line 16)\n" + 
-			"	X x = BLEU.BLANC; // ko\n" + 
-			"	      ^^^^^^^^^^\n" + 
-			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
-			"----------\n" + 
-			"8. ERROR in X.java (at line 17)\n" + 
-			"	X x2 = BLEU; // ko\n" + 
-			"	       ^^^^\n" + 
-			"Cannot refer to the static enum field X.BLEU within an initializer\n" + 
-			"----------\n");
-	}	
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102265
-	public void test118() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"import java.util.ArrayList;\n" + 
-				"\n" + 
-				"public enum X {\n" + 
-				"		 one,\n" + 
-				"		 two;\n" + 
-				"		 \n" + 
-				"		 static ArrayList someList;\n" + 
-				"		 \n" + 
-				"		 private X() {\n" + 
-				"		 		 if (someList == null) {\n" + 
-				"		 		 		 someList = new ArrayList();\n" + 
-				"		 		 }\n" + 
-				"		 }\n" + 
-				"}\n"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	if (someList == null) {\n" + 
-			"	    ^^^^^^^^\n" + 
-			"Cannot refer to the static enum field X.someList within an initializer\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
-			"	someList = new ArrayList();\n" + 
-			"	^^^^^^^^\n" + 
-			"Cannot refer to the static enum field X.someList within an initializer\n" + 
-			"----------\n");
-	}		
-	public void test119() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public enum X {\n" + 
-				"	BLEU, BLANC, ROUGE;\n" + 
-				"	final static int CST = 0;\n" + 
-				"    enum Member {\n" + 
-				"    	;\n" + 
-				"        Object obj1 = CST;\n" + 
-				"        Object obj2 = BLEU;\n" + 
-				"    }\n" + 
-				"}\n"
-			},
-			"");
-	}
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102213
-	public void test120() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public enum X {\n" + 
-				"\n" + 
-				"	A() {\n" + 
-				"		final X a = A;\n" + 
-				"		final X a2 = B.A;\n" + 
-				"		@Override void foo() {\n" + 
-				"			System.out.println(String.valueOf(a));\n" + 
-				"			System.out.println(String.valueOf(a2));\n" + 
-				"		}\n" + 
-				"	},\n" + 
-				"	B() {\n" + 
-				"		@Override void foo(){}\n" + 
-				"	};\n" + 
-				"	abstract void foo();\n" + 
-				"\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		A.foo();\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	final X a = A;\n" + 
-			"	            ^\n" + 
-			"Cannot refer to the static enum field X.A within an initializer\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
-			"	final X a2 = B.A;\n" + 
-			"	             ^^^\n" + 
-			"The static field X.A should be accessed in a static way\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	final X a2 = B.A;\n" + 
-			"	             ^^^\n" + 
-			"Cannot refer to the static enum field X.B within an initializer\n" + 
-			"----------\n");
-	}			
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92165
-	public void test121() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public enum X {\n" + 
-				"\n" + 
-				"	UNKNOWN();\n" + 
-				"\n" + 
-				"	private static String error;\n" + 
-				"\n" + 
-				"	{\n" + 
-				"		error = \"error\";\n" + 
-				"	}\n" + 
-				"\n" + 
-				"}\n",
-			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 5)\n" + 
-			"	private static String error;\n" + 
-			"	                      ^^^^^\n" + 
-			"The field X.error is never read locally\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
-			"	error = \"error\";\n" + 
-			"	^^^^^\n" + 
-			"Cannot refer to the static enum field X.error within an initializer\n" + 
-			"----------\n");
-	}				
 }

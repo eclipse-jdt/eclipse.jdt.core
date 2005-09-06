@@ -106,7 +106,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 614 };
+//		TESTS_NUMBERS =  new int[] { 611 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -6532,116 +6532,4 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
-	
-	public void test0613() throws JavaModelException {
-		ICompilationUnit workingCopy = null;
-		try {
-			String contents =
-				"public class X {\n" +
-				"	void foo(boolean b) {\n" +
-				"		Zork z = null;\n" +
-				"		if (b) {\n" +
-				"			System.out.println(z);\n" +
-				"		}\n" +
-				"	}\n" +
-				"}";
-			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
-			ASTNode node = buildAST(
-				contents,
-				workingCopy,
-				false);
-			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(unit, 1, "Zork cannot be resolved to a type");
-			node = getASTNode(unit, 0, 0, 0);
-			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
-			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
-			List fragments = statement.fragments();
-			assertEquals("Wrong size", 1, fragments.size());
-			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
-			IVariableBinding binding = fragment.resolveBinding();
-			assertNull("Got a binding", binding);
-
-			node = getASTNode(unit, 0, 0, 1);
-			assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
-			IfStatement ifStatement = (IfStatement) node;
-			Statement statement2 = ifStatement.getThenStatement();
-			assertEquals("Not a block", ASTNode.BLOCK, statement2.getNodeType());
-			Block block = (Block) statement2;
-			List statements = block.statements();
-			assertEquals("Wrong size", 1, statements.size());
-			
-			Statement statement3 = (Statement) statements.get(0);
-			assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, statement3.getNodeType());
-			ExpressionStatement expressionStatement = (ExpressionStatement) statement3;
-			Expression expression = expressionStatement.getExpression();
-			assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
-			MethodInvocation methodInvocation = (MethodInvocation) expression;
-			List arguments = methodInvocation.arguments();
-			assertEquals("Wrong size", 1, arguments.size());
-			Expression expression2 = (Expression) arguments.get(0);
-			ITypeBinding typeBinding = expression2.resolveTypeBinding();
-			assertNull("Got a binding", typeBinding);
-			assertEquals("Not a simple name", ASTNode.SIMPLE_NAME, expression2.getNodeType());
-			SimpleName simpleName = (SimpleName) expression2;
-			IBinding binding2 = simpleName.resolveBinding();
-			assertNull("Got a binding", binding2);			
-		} finally {
-			if (workingCopy != null)
-				workingCopy.discardWorkingCopy();
-		}
-	}
-
-	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=100041
-	 */
-	public void test0614() throws JavaModelException {
-		ICompilationUnit workingCopy = null;
-		try {
-			String contents =
-				"class X {\n" +
-				"	static Object object;\n" +
-				"	static void foo() {\n" +
-				"		/**\n" +
-				"		 * javadoc comment.\n" +
-				"		 */\n" +
-				"		if (object instanceof String) {\n" +
-				"			final String clr = null;\n" +
-				"		}\n" +
-				"	}\n" +
-				"}";
-			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
-			ASTNode node = buildAST(
-				contents,
-				workingCopy);
-			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(unit, 0);
-			node = getASTNode(unit, 0, 1, 0);
-			assertNotNull("No node", node);
-			assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
-			IfStatement ifStatement = (IfStatement) node;
-			String expectedSource = "if (object instanceof String) {\n" +
-			"			final String clr = null;\n" +
-			"		}";
-			checkSourceRange(ifStatement, expectedSource, contents);
-			Statement statement = ifStatement.getThenStatement();
-			assertNotNull("No then statement", statement);
-			assertEquals("not a block", ASTNode.BLOCK, statement.getNodeType());
-			Block block = (Block) statement;
-			expectedSource = "{\n" +
-			"			final String clr = null;\n" +
-			"		}";
-			checkSourceRange(block, expectedSource, contents);
-			List statements = block.statements();
-			assertEquals("Wrong size", 1, statements.size());
-			Statement statement2 = (Statement) statements.get(0);
-			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement2.getNodeType());
-			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement2;
-			checkSourceRange(variableDeclarationStatement, "final String clr = null;", contents);
-		} finally {
-			if (workingCopy != null)
-				workingCopy.discardWorkingCopy();
-		}
-	}	
 }

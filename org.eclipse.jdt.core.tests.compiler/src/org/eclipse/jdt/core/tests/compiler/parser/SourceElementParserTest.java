@@ -12,8 +12,6 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
@@ -39,12 +37,6 @@ public SourceElementParserTest(String testName) {
 public SourceElementParserTest(String testName, char[] source) {
 	super(testName);
 	this.source = source;
-}
-static {
-//	TESTS_NUMBERS = new int[] { 99662 };	
-}
-public static Test suite() {
-	return buildTestSuite(SourceElementParserTest.class);
 }
 /**
  * acceptConstructorReference method comment.
@@ -5110,7 +5102,7 @@ public void test76() {
 		"	java.lang.Object(0)\n" +
 		"}"; 
 
-	String testName = "test76: full parse";
+	String testName = "test01: full parse";
 	fullParse(s,testName);
 
 	assertEquals(
@@ -5143,21 +5135,5 @@ public void test76() {
 		"Invalid source " + testName, 
 		expectedUnitToString, 
 		currentType.toString()); 
-}
-/**
- * Bug 99662:[1.5] JavaModel returns inexistent IType for package-info ICompilationUnits
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=99662"
- *
- */
-public void testBug99662() {
-
-	String s = 
-		"@Deprecated\n" + 
-		"package p;\n"; 
-
-	String testName = "package-info.java";
-	fullParse(s,testName);
-
-	assertNull("package-info.java file should not have ANY type!",  this.currentType);
 }
 }
