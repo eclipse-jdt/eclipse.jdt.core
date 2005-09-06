@@ -108,6 +108,11 @@ class ExecutableUtil {
 			// show up in the method binding
 			final org.eclipse.jdt.core.dom.MethodDeclaration methodAstNode = 
 				(org.eclipse.jdt.core.dom.MethodDeclaration)executable.getAstNode();
+			
+			// Synthetic methods will have no ast node
+			if (methodAstNode == null)
+				return Collections.emptyList();
+			
 	    	@SuppressWarnings("unchecked") //$NON-NLS-1$
 	    	final List<SingleVariableDeclaration> params = methodAstNode.parameters();
 	    	if( params == null || params.size() == 0 )
