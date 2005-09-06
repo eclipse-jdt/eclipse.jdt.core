@@ -75,17 +75,6 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				this);
 		}
 
-		checkAnnotationField: {
-			if (!this.binding.declaringClass.isAnnotationType())
-				break checkAnnotationField;
-			if (this.initialization != null) {
-				if (this.binding.type.isArrayType() && (this.initialization instanceof ArrayInitializer))
-					break checkAnnotationField;
-				if (this.initialization.constant != NotAConstant)
-					break checkAnnotationField;
-			}
-			initializationScope.problemReporter().annotationFieldNeedConstantInitialization(this);
-		}
 		if (this.initialization != null) {
 			flowInfo =
 				this.initialization

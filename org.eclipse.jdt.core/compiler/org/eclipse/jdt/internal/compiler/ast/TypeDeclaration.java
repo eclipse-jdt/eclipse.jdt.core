@@ -289,10 +289,16 @@ public class TypeDeclaration
 							methods[i] = m;
 						}
 					} else {
-						if (this.kind() == IGenericType.INTERFACE_DECL) {
-							// report the problem and continue the parsing
-							parser.problemReporter().interfaceCannotHaveConstructors(
-								(ConstructorDeclaration) am);
+						switch (kind()) {
+							case IGenericType.INTERFACE_DECL :
+								// report the problem and continue the parsing
+								parser.problemReporter().interfaceCannotHaveConstructors((ConstructorDeclaration) am);
+								break;
+							case IGenericType.ANNOTATION_TYPE_DECL :
+								// report the problem and continue the parsing
+								parser.problemReporter().annotationTypeDeclarationCannotHaveConstructor((ConstructorDeclaration) am);
+								break;
+								
 						}
 						hasConstructor = true;
 					}
@@ -806,8 +812,11 @@ public class TypeDeclaration
 		if (fields == null)
 			return false;
 		
-		if (kind() == IGenericType.INTERFACE_DECL)
-			return true; // fields are implicitly statics
+		switch (kind()) {
+			case IGenericType.INTERFACE_DECL:
+			case IGenericType.ANNOTATION_TYPE_DECL:
+				return true; // fields are implicitly statics
+		}
 		for (int i = fields.length; --i >= 0;) {
 			FieldDeclaration field = fields[i];
 			//need to test the modifier directly while there is no binding yet
