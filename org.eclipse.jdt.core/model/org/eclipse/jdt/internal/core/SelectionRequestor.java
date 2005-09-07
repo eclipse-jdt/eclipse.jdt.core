@@ -78,20 +78,50 @@ public SelectionRequestor(NameLookup nameLookup, Openable openable) {
  *
  * fix for 1FWFT6Q
  */
-protected void acceptBinaryMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, char[] uniqueKey) {
+protected void acceptBinaryMethod(IType type, char[] selector, char[][] parameterPackageNames, char[][] parameterTypeNames, String[] parameterSignatures, char[] uniqueKey, boolean isConstructor) {
 	IMethod method= type.getMethod(new String(selector), parameterSignatures);
 	if (method.exists()) {
-		if (uniqueKey != null)
-			method = new ResolvedBinaryMethod(
-					(JavaElement)method.getParent(),
-					method.getElementName(),
-					method.getParameterTypes(),
-					new String(uniqueKey));
-		addElement(method);
-		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-			System.out.print(method.toString());
-			System.out.println(")"); //$NON-NLS-1$
+		try {
+			if(!isConstructor || ((JavaElement)method).getSourceMapper() == null) {
+				if (uniqueKey != null)
+					method = new ResolvedBinaryMethod(
+							(JavaElement)method.getParent(),
+							method.getElementName(),
+							method.getParameterTypes(),
+							new String(uniqueKey));
+				addElement(method);
+				if(SelectionEngine.DEBUG){
+					System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+					System.out.print(method.toString());
+					System.out.println(")"); //$NON-NLS-1$
+				}
+			} else {
+				ISourceRange range = method.getSourceRange();
+				if (range.getOffset() != -1 && range.getLength() != 0 ) {
+					if (uniqueKey != null)
+						method = new ResolvedBinaryMethod(
+								(JavaElement)method.getParent(),
+								method.getElementName(),
+								method.getParameterTypes(),
+								new String(uniqueKey));
+					addElement(method);
+					if(SelectionEngine.DEBUG){
+						System.out.print("SELECTION - accept method("); //$NON-NLS-1$
+						System.out.print(method.toString());
+						System.out.println(")"); //$NON-NLS-1$
+					}
+				} else {
+					// no range was actually found, but a method was originally given -> default constructor
+					addElement(type);
+					if(SelectionEngine.DEBUG){
+						System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+						System.out.print(type.toString());
+						System.out.println(")"); //$NON-NLS-1$
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			// an exception occurs, return nothing
 		}
 	}
 }
@@ -390,7 +420,7 @@ public void acceptMethod(char[] declaringTypePackageName, char[] declaringTypeNa
 					parameterSignatures[0] = enclosingDeclaringTypeSignature;
 				}
 				
-				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, uniqueKey);
+				acceptBinaryMethod(type, selector, parameterPackageNames, parameterTypeNames, parameterSignatures, uniqueKey, isConstructor);
 			} else {
 				acceptSourceMethod(type, selector, parameterPackageNames, parameterTypeNames, uniqueKey);
 			}

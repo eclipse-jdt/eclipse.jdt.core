@@ -246,6 +246,18 @@ public void testConstructor() throws JavaModelException {
 	);
 }
 /**
+ * Resolve a constructor call
+ */
+public void testConstructor2() throws JavaModelException {
+	IClassFile cf = getClassFile("Resolve", "class-folder", "", "ResolveConstructorCall.class");
+	IJavaElement[] elements = codeSelect(cf, "ResolveConstructorCall();", "ResolveConstructorCall");
+	assertElementsEqual(
+		"Unexpected elements",
+		"ResolveConstructorCall() [in ResolveConstructorCall [in ResolveConstructorCall.class [in <default> [in class-folder [in Resolve]]]]]",
+		elements
+	);
+}
+/**
  * Resolve constructor call
  */
 public void testConstructorCallOfMemberType() throws JavaModelException {
@@ -253,7 +265,20 @@ public void testConstructorCallOfMemberType() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cf, "Inner()", "Inner");
 	assertElementsEqual(
 		"Unexpected elements",
-		"Inner(ResolveConstructorCallOfMemberType) [in Inner [in ResolveConstructorCallOfMemberType$Inner.class [in <default> [in class-folder [in Resolve]]]]]",
+		"Inner [in ResolveConstructorCallOfMemberType$Inner.class [in <default> [in class-folder [in Resolve]]]]",
+		elements
+	);
+}
+/**
+ * Resolve constructor call
+ */
+//TODO(david) enable this test when https://bugs.eclipse.org/bugs/show_bug.cgi?id=108784 will be fixed.
+public void _testConstructorCallOfMemberType2() throws JavaModelException {
+	IClassFile cf = getClassFile("Resolve", "class-folder", "", "ResolveConstructorCallOfMemberType2.class");
+	IJavaElement[] elements = codeSelect(cf, "Inner();", "Inner");
+	assertElementsEqual(
+		"Unexpected elements",
+		"Inner(ResolveConstructorCallOfMemberType2) [in Inner [in ResolveConstructorCallOfMemberType2$Inner.class [in <default> [in class-folder [in Resolve]]]]]",
 		elements
 	);
 }
