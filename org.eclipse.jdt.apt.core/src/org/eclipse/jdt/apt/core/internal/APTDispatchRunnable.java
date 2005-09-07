@@ -292,8 +292,6 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		final Map<String, AnnotationTypeDeclaration> annotationDecls = 
 			processorEnv.getAllAnnotationTypes(file2AnnotationDecls);	
 		
-		System.err.println(file2AnnotationDecls);
-		
 		if (annotationDecls.isEmpty())
 		{
 			if ( AptPlugin.DEBUG ) 

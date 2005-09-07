@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
@@ -115,7 +116,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	 * This is only non-null when <code>#_batchMode</code> is <code>true</code> 
 	 */
 	private char[][] _sources = null;
-	private List<Map<String,Object>> _markerInfos = null;
+	private List<MarkerInfo> _markerInfos = null;
 
 	public static ProcessorEnvImpl newProcessorEnvironmentForReconcile(ICompilationUnit compilationUnit, IJavaProject javaProj)
     {	
@@ -161,6 +162,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	   _curSource = source;
 	   _filer = new FilerImpl(this);
 	   _allProblems = new HashMap<IFile, List<IProblem>>();
+	   _markerInfos = new ArrayList<MarkerInfo>();
 	   initOptions(javaProj);
     }
     
@@ -541,8 +543,9 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
             String msg, 
             int line,
             String[] arguments)
-    {
-    	// TODO: implement me.
+    {    	
+    	// Note that the arguments are ignored -- no quick-fix for markers.
+    	_markerInfos.add(new MarkerInfo(start, end, severity, msg, line));
     }
     
     public Map<IFile, List<IProblem>> getProblems()
@@ -1036,33 +1039,37 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	
 	void postMarkers()
     {
-		if( _markerInfos == null )
+		if( _markerInfos == null || _markerInfos.size() == 0 )
 			return;
 		// Posting all the markers to the workspace. Doing this in a batch process
 		// to minimize the amount of notification.
 		try{
-			// the resource of the compilation unit in the environment.
-			final IResource currentResource = _file;
 	        final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
 	            public void run(IProgressMonitor monitor)
 	            {		
-	                for( Map<String, Object> markerInfo : _markerInfos ){	                  
+	                for( MarkerInfo markerInfo : _markerInfos ){	                  
 						try{
-		                    final IMarker marker = _javaProject.getProject().createMarker(BUILD_MARKER);                    
-		                    marker.setAttributes(markerInfo);
+		                    final IMarker marker = _javaProject.getProject().createMarker(BUILD_MARKER);
+							//final IMarker marker = _javaProject.getProject().createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
+		                    markerInfo.copyIntoMarker(marker);
 						}
 						catch(CoreException e){
-							throw new IllegalStateException(e);
-							// TODO: (theodora) report the problem
+							AptPlugin.log(e, "Failure posting markers"); //$NON-NLS-1$
 						}
 	                }
 	            };
 	        };
-			currentResource.getWorkspace().run(runnable, null);
+	        IWorkspace ws;
+	        if (_file != null) {
+	        	ws = _file.getWorkspace();
+	        }
+	        else {
+	        	ws = _files[0].getWorkspace(); 
+	        }
+			ws.run(runnable, null);
 		}
 		catch(CoreException e){
-			e.printStackTrace();
-			// TODO:(theodora) report the problem.
+			AptPlugin.log(e, "Failed to post markers"); //$NON-NLS-1$
 		}
 		finally{
 			_markerInfos.clear();
