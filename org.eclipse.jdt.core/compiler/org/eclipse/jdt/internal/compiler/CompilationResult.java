@@ -115,11 +115,11 @@ public class CompilationResult {
 			} else {
 				priority += P_OUTSIDE_METHOD;
 			}
+			if (firstErrors.contains(problem)){ // if context is null, firstErrors is null too
+			  priority += P_FIRST_ERROR;
+		    }
 		} else {
 			priority += P_OUTSIDE_METHOD;
-		}
-		if (firstErrors.contains(problem)){
-			priority += P_FIRST_ERROR;
 		}
 		return priority;
 	}
@@ -147,6 +147,7 @@ public class CompilationResult {
 				removed++;
 				problems[i] = null;
 				if (problemsMap != null) problemsMap.remove(problem);
+				if (firstErrors != null) firstErrors.remove(problem);
 				continue nextProblem;
 			}
 		}
@@ -450,6 +451,7 @@ public class CompilationResult {
 
 		this.hasBeenAccepted = true;
 		this.problemsMap = null; // flush
+		this.firstErrors = null; // flush
 		return this;
 	}
 	
