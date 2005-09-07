@@ -21783,7 +21783,7 @@ public void test755() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999 - variation
 public void test756() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -21793,12 +21793,7 @@ public void test756() {
 			"  }\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\r\n" + 
-		"	X<?>.B[] b = new X<?>.B[1];\r\n" + 
-		"	             ^^^^^^^^^^^^^\n" + 
-		"Cannot create a generic array of X<?>.B\n" + 
-		"----------\n");
+		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100147
 public void test757() {
@@ -23580,7 +23575,7 @@ public void test812() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372 - variation
 public void test813() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" + 
@@ -23594,22 +23589,7 @@ public void test813() {
 			"    }\n" + 
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	private T t;\n" + 
-		"	          ^\n" + 
-		"The field X<T>.t is never read locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 3)\n" + 
-		"	private X<?>.Inner[] inners;\n" + 
-		"	                     ^^^^^^\n" + 
-		"The field X<T>.inners is never read locally\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 6)\n" + 
-		"	this.inners = new X<?>.Inner[10];\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot create a generic array of X<?>.Inner\n" + 
-		"----------\n");
+		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695
 public void test814() {
@@ -23755,12 +23735,12 @@ public void test817() {
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	if (this.inner instanceof X<?>.Inner) {}\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot perform instanceof check against parameterized type X<?>.Inner. Use instead its raw form Inner since generic type information will be erased at runtime\n" + 
+		"Incompatible conditional operand types X<?>.Inner[] and X<?>.Inner\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 10)\n" + 
+		"3. WARNING in X.java (at line 10)\n" + 
 		"	if (this.inners instanceof X<?>.Inner[]) {}\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot perform instanceof check against parameterized type X<?>.Inner[]. Use instead its raw form Inner[] since generic type information will be erased at runtime\n" + 
+		"The expression of type X<?>.Inner[] is already an instance of type X<?>.Inner[]\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 15)\n" + 
 		"	if (l instanceof List<?>) {}\n" + 
