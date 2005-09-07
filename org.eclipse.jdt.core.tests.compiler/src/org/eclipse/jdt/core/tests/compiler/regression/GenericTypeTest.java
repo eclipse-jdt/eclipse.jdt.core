@@ -23753,5 +23753,17 @@ public void test817() {
 		"Cannot perform instanceof check against parameterized type List<? extends String>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" + 
 		"----------\n");
 }
+public void test818() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"    boolean b = this instanceof Y;\n" + 
+			"    static class Y extends X<Object> {\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
