@@ -23542,33 +23542,23 @@ public void test812() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\r\n" + 
-		"	private T t;\r\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	private T t;\n" + 
 		"	          ^\n" + 
 		"The field X<T>.t is never read locally\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 3)\r\n" + 
-		"	private X<?>.Inner inner;\r\n" + 
+		"2. WARNING in X.java (at line 3)\n" + 
+		"	private X<?>.Inner inner;\n" + 
 		"	                   ^^^^^\n" + 
 		"The field X<T>.inner is never read locally\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 4)\r\n" + 
-		"	private X<?>.Inner[] inners;\r\n" + 
+		"3. WARNING in X.java (at line 4)\n" + 
+		"	private X<?>.Inner[] inners;\n" + 
 		"	                     ^^^^^^\n" + 
 		"The field X<T>.inners is never read locally\n" + 
 		"----------\n" + 
-		"4. WARNING in X.java (at line 7)\r\n" + 
-		"	this.inner = new X.Inner();\r\n" + 
-		"	             ^^^^^^^^^^^^^\n" + 
-		"Type safety: The expression of type X.Inner needs unchecked conversion to conform to X<?>.Inner\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 8)\r\n" + 
-		"	this.inners = new X.Inner[10];\r\n" + 
-		"	              ^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The expression of type X.Inner[] needs unchecked conversion to conform to X<?>.Inner[]\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 9)\r\n" + 
-		"	Zork z;\r\n" + 
+		"4. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
@@ -23732,10 +23722,10 @@ public void test817() {
 		"	          ^\n" + 
 		"The field X<T>.t is never read locally\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
 		"	if (this.inner instanceof X<?>.Inner) {}\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Incompatible conditional operand types X<?>.Inner[] and X<?>.Inner\n" + 
+		"The expression of type X<?>.Inner is already an instance of type X<?>.Inner\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 10)\n" + 
 		"	if (this.inners instanceof X<?>.Inner[]) {}\n" + 
