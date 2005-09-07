@@ -18,8 +18,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.jdom.*;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 /**
@@ -130,7 +130,7 @@ public void enterType(TypeInfo typeInfo) {
 		int[] sourceRange = {typeInfo.declarationStart, -1}; // will be fixed in the exit
 		int[] nameRange = new int[] {typeInfo.nameSourceStart, typeInfo.nameSourceEnd};
 		fNode = new DOMType(fDocument, sourceRange, new String(typeInfo.name), nameRange,
-			typeInfo.modifiers, CharOperation.charArrayToStringArray(typeInfo.superinterfaces), typeInfo.kind == IGenericType.CLASS_DECL); // TODO (jerome) should pass in kind
+			typeInfo.modifiers, CharOperation.charArrayToStringArray(typeInfo.superinterfaces), TypeDeclaration.kind(typeInfo.modifiers) == TypeDeclaration.CLASS_DECL); // TODO (jerome) should pass in kind
 		addChild(fNode);
 		fStack.push(fNode);
 		

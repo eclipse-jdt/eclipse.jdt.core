@@ -13,12 +13,12 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.FieldInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
@@ -492,19 +492,20 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			
 			char[][] superinterfaces = replace('/', '.', reader.getInterfaceNames());
 			char[][] enclosingTypeNames = enclosingTypeName == null ? null : new char[][] {enclosingTypeName};
-			switch (reader.getKind()) {
-				case IGenericType.CLASS_DECL :
+			int modifiers = reader.getModifiers();
+			switch (TypeDeclaration.kind(modifiers)) {
+				case TypeDeclaration.CLASS_DECL :
 					char[] superclass = replace('/', '.', reader.getSuperclassName());
-					addClassDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures);
+					addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures);
 					break;
-				case IGenericType.INTERFACE_DECL :
-					addInterfaceDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces, typeParameterSignatures);
+				case TypeDeclaration.INTERFACE_DECL :
+					addInterfaceDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces, typeParameterSignatures);
 					break;
-				case IGenericType.ENUM_DECL :
-					addEnumDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames, superinterfaces);
+				case TypeDeclaration.ENUM_DECL :
+					addEnumDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces);
 					break;
-				case IGenericType.ANNOTATION_TYPE_DECL :
-					addAnnotationTypeDeclaration(reader.getModifiers(), packageName, name, enclosingTypeNames);
+				case TypeDeclaration.ANNOTATION_TYPE_DECL :
+					addAnnotationTypeDeclaration(modifiers, packageName, name, enclosingTypeNames);
 					break;
 			}			
 	

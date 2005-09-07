@@ -529,17 +529,17 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 }
 protected CompilationUnitDeclaration endParse(int act) {
 	if (sourceType != null) {
-		switch (sourceType.getKind()) {
-			case IGenericType.CLASS_DECL :
+		switch (TypeDeclaration.kind(sourceType.getModifiers())) {
+			case TypeDeclaration.CLASS_DECL :
 				consumeClassDeclaration();
 				break;
-			case IGenericType.INTERFACE_DECL :
+			case TypeDeclaration.INTERFACE_DECL :
 				consumeInterfaceDeclaration();
 				break;
-			case IGenericType.ENUM_DECL :
+			case TypeDeclaration.ENUM_DECL :
 				consumeEnumDeclaration();
 				break;
-			case IGenericType.ANNOTATION_TYPE_DECL :
+			case TypeDeclaration.ANNOTATION_TYPE_DECL :
 				consumeAnnotationTypeDeclaration();
 				break;
 		}
@@ -1173,7 +1173,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 					CharOperation.concatWith(superInterfaces[i].getParameterizedTypeName(), '.'); 
 			}
 		}
-		int kind = typeDeclaration.kind();
+		int kind = TypeDeclaration.kind(typeDeclaration.modifiers);
 		char[] implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_OBJECT;
 		if (isInRange) {
 			int currentModifiers = typeDeclaration.modifiers;
@@ -1188,7 +1188,6 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 				superclassName = superclass != null ? CharOperation.concatWith(superclass.getParameterizedTypeName(), '.') : null;
 			}
 			ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
-			typeInfo.kind = kind;
 			typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
 			typeInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
 			typeInfo.name = typeDeclaration.name;
@@ -1200,17 +1199,17 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
 			requestor.enterType(typeInfo);
 			switch (kind) {
-				case IGenericType.CLASS_DECL :
+				case TypeDeclaration.CLASS_DECL :
 					if (superclassName != null)
 						implicitSuperclassName = superclassName;
 					break;
-				case IGenericType.INTERFACE_DECL :
+				case TypeDeclaration.INTERFACE_DECL :
 					implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_OBJECT;
 					break;
-				case IGenericType.ENUM_DECL :
+				case TypeDeclaration.ENUM_DECL :
 					implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_ENUM;
 					break;
-				case IGenericType.ANNOTATION_TYPE_DECL :
+				case TypeDeclaration.ANNOTATION_TYPE_DECL :
 					implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_ANNOTATION_ANNOTATION;
 					break;
 			}

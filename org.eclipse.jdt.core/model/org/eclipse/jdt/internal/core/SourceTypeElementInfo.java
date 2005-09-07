@@ -15,8 +15,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
 import org.eclipse.jdt.internal.compiler.env.ISourceImport;
 import org.eclipse.jdt.internal.compiler.env.ISourceMethod;
@@ -151,18 +149,7 @@ public char[][] getInterfaceNames() {
 	}
 	return this.superInterfaceNames;
 }
-/**
- * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
- */
-public int getKind() {
-	if ((this.flags & IConstants.AccInterface) != 0) {
-		if ((this.flags & IConstants.AccAnnotation) != 0)
-			return IGenericType.ANNOTATION_TYPE_DECL;
-		return IGenericType.INTERFACE_DECL;
-	}
-	if ((this.flags & IConstants.AccEnum) != 0) return IGenericType.ENUM_DECL;
-	return IGenericType.CLASS_DECL;
-}
+
 /**
  * @see ISourceType
  */

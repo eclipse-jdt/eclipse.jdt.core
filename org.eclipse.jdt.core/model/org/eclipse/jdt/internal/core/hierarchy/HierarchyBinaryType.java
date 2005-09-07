@@ -12,17 +12,16 @@ package org.eclipse.jdt.internal.core.hierarchy;
 
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class HierarchyBinaryType implements IBinaryType {
 	private int modifiers;
-	private int kind;
 	private char[] name;
 	private char[] enclosingTypeName;
 	private char[] superclass;
@@ -33,20 +32,6 @@ public class HierarchyBinaryType implements IBinaryType {
 public HierarchyBinaryType(int modifiers, char[] qualification, char[] typeName, char[] enclosingTypeName, char[][] typeParameterSignatures, char typeSuffix){
 
 	this.modifiers = modifiers;
-	switch(typeSuffix) {
-		case IIndexConstants.CLASS_SUFFIX :
-			this.kind = IGenericType.CLASS_DECL;
-			break;
-		case IIndexConstants.INTERFACE_SUFFIX :
-			this.kind = IGenericType.INTERFACE_DECL;
-			break;
-		case IIndexConstants.ENUM_SUFFIX :
-			this.kind = IGenericType.ENUM_DECL;
-			break;
-		case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
-			this.kind = IGenericType.ANNOTATION_TYPE_DECL;
-			break;
-	}
 	if (enclosingTypeName == null){
 		this.name = CharOperation.concat(qualification, typeName, '/');
 	} else {
@@ -98,12 +83,6 @@ public char[] getGenericSignature() {
 		CharOperation.replace(this.genericSignature, '.', '/');
 	}
 	return this.genericSignature;
-}
-/**
- * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
- */
-public int getKind() {
-	return this.kind;
 }
 /**
  * Answer the resolved names of the receiver's interfaces in the
@@ -189,7 +168,7 @@ public void recordSuperType(char[] superTypeName, char[] superQualification, cha
 	if (superClassOrInterface == IIndexConstants.CLASS_SUFFIX){
 		// interfaces are indexed as having superclass references to Object by default,
 		// this is an artifact used for being able to query them only.
-		if (this.kind == IGenericType.INTERFACE_DECL) return; 
+		if (TypeDeclaration.kind(this.modifiers) == TypeDeclaration.INTERFACE_DECL) return; 
 		char[] encodedName = CharOperation.concat(superQualification, superTypeName, '/');
 		CharOperation.replace(encodedName, '.', '/'); 
 		this.superclass = encodedName;
@@ -210,14 +189,14 @@ public String toString() {
 	if (this.modifiers == IConstants.AccPublic) {
 		buffer.append("public "); //$NON-NLS-1$
 	}
-	switch (this.kind) {
-		case IGenericType.CLASS_DECL :
+	switch (TypeDeclaration.kind(this.modifiers)) {
+		case TypeDeclaration.CLASS_DECL :
 			buffer.append("class "); //$NON-NLS-1$
 			break;		
-		case IGenericType.INTERFACE_DECL :
+		case TypeDeclaration.INTERFACE_DECL :
 			buffer.append("interface "); //$NON-NLS-1$
 			break;		
-		case IGenericType.ENUM_DECL :
+		case TypeDeclaration.ENUM_DECL :
 			buffer.append("enum "); //$NON-NLS-1$
 			break;		
 	}

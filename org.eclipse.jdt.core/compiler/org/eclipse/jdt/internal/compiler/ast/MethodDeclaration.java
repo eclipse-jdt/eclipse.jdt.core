@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
@@ -158,11 +157,11 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 				
 		// by grammatical construction, interface methods are always abstract
-		switch (this.scope.referenceType().kind()) {
-			case IGenericType.ENUM_DECL :
+		switch (TypeDeclaration.kind(this.scope.referenceType().modifiers)) {
+			case TypeDeclaration.ENUM_DECL :
 				if (this.selector == TypeConstants.VALUES) break;
 				if (this.selector == TypeConstants.VALUEOF) break;
-			case IGenericType.CLASS_DECL :
+			case TypeDeclaration.CLASS_DECL :
 				// if a method has an semicolon body and is not declared as abstract==>error
 				// native methods may have a semicolon body 
 				if ((this.modifiers & AccSemicolonBody) != 0) {

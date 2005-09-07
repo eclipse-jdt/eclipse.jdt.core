@@ -18,22 +18,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.BasicCompilationUnit;
-import org.eclipse.jdt.internal.core.ClassFile;
-import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
-import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.NameLookup;
-import org.eclipse.jdt.internal.core.Openable;
-import org.eclipse.jdt.internal.core.SearchableEnvironment;
-import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class HierarchyBuilder {
@@ -160,17 +151,17 @@ public abstract class HierarchyBuilder {
 			}
 		}
 		// now do the caching
-		switch (type.getKind()) {
-			case IGenericType.CLASS_DECL :
-			case IGenericType.ENUM_DECL :
+		switch (TypeDeclaration.kind(type.getModifiers())) {
+			case TypeDeclaration.CLASS_DECL :
+			case TypeDeclaration.ENUM_DECL :
 				if (superclassHandle == null) {
 					this.hierarchy.addRootClass(typeHandle);
 				} else {
 					this.hierarchy.cacheSuperclass(typeHandle, superclassHandle);
 				}
 				break;
-			case IGenericType.INTERFACE_DECL :
-			case IGenericType.ANNOTATION_TYPE_DECL :
+			case TypeDeclaration.INTERFACE_DECL :
+			case TypeDeclaration.ANNOTATION_TYPE_DECL :
 				this.hierarchy.addInterface(typeHandle);
 				break;
 		}		
@@ -224,14 +215,14 @@ public abstract class HierarchyBuilder {
 	protected IType lookupBinaryHandle(IBinaryType typeInfo) {
 		int flag;
 		String qualifiedName;
-		switch (typeInfo.getKind()) {
-			case IGenericType.CLASS_DECL :
+		switch (TypeDeclaration.kind(typeInfo.getModifiers())) {
+			case TypeDeclaration.CLASS_DECL :
 				flag = NameLookup.ACCEPT_CLASSES;
 				break;
-			case IGenericType.INTERFACE_DECL :
+			case TypeDeclaration.INTERFACE_DECL :
 				flag = NameLookup.ACCEPT_INTERFACES;
 				break;
-			case IGenericType.ENUM_DECL :
+			case TypeDeclaration.ENUM_DECL :
 				flag = NameLookup.ACCEPT_ENUMS;
 				break;
 			default:

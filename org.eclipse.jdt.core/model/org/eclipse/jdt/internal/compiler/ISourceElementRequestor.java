@@ -39,7 +39,6 @@ import org.eclipse.jdt.core.compiler.IProblem;
 public interface ISourceElementRequestor {
 	
 	public static class TypeInfo {
-		public int kind;
 		public int declarationStart;
 		public int modifiers;
 		public char[] name;

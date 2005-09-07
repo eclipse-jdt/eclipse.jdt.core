@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -181,9 +180,9 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < size; i++) {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				switch(memberContext.kind()) {
-					case IGenericType.INTERFACE_DECL :
-					case IGenericType.ANNOTATION_TYPE_DECL :
+				switch(TypeDeclaration.kind(memberContext.modifiers)) {
+					case TypeDeclaration.INTERFACE_DECL :
+					case TypeDeclaration.ANNOTATION_TYPE_DECL :
 						problemReporter().illegalLocalTypeDeclaration(memberContext);
 						continue nextMember;
 				}
@@ -234,9 +233,9 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < length; i++) {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				switch(memberContext.kind()) {
-					case IGenericType.INTERFACE_DECL :
-					case IGenericType.ANNOTATION_TYPE_DECL :
+				switch(TypeDeclaration.kind(memberContext.modifiers)) {
+					case TypeDeclaration.INTERFACE_DECL :
+					case TypeDeclaration.ANNOTATION_TYPE_DECL :
 						if (sourceType.isNestedType()
 								&& sourceType.isClass() // no need to check for enum, since implicitly static
 								&& !sourceType.isStatic()) {
@@ -272,7 +271,7 @@ public class ClassScope extends Scope {
 	}
 	
 	private void buildMethods() {
-		boolean isEnum = referenceContext.kind() == IGenericType.ENUM_DECL;
+		boolean isEnum = TypeDeclaration.kind(referenceContext.modifiers) == TypeDeclaration.ENUM_DECL;
 		if (referenceContext.methods == null && !isEnum) {
 			referenceContext.binding.methods = NoMethods;
 			return;

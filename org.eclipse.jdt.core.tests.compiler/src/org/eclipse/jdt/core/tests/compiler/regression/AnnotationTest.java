@@ -19,9 +19,9 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -1155,7 +1155,7 @@ public class AnnotationTest extends AbstractComparableTest {
 
 		try {
 			ClassFileReader fileReader = ClassFileReader.read(new File(OUTPUT_DIR + File.separator  +"I.class"));
-			assertEquals("Not an annotation type declaration", IGenericType.ANNOTATION_TYPE_DECL, fileReader.getKind());
+			assertEquals("Not an annotation type declaration", TypeDeclaration.ANNOTATION_TYPE_DECL, TypeDeclaration.kind(fileReader.getModifiers()));
 		} catch (ClassFormatException e1) {
 			assertTrue("ClassFormatException", false);
 		} catch (IOException e1) {

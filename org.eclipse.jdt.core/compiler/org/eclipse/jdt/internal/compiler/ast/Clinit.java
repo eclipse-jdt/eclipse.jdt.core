@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
@@ -165,7 +164,7 @@ public class Clinit extends AbstractMethodDeclaration {
 		// generate static fields/initializers/enum constants
 		final FieldDeclaration[] fieldDeclarations = declaringType.fields;
 		BlockScope lastInitializerScope = null;
-		if (declaringType.kind() == IGenericType.ENUM_DECL) {
+		if (TypeDeclaration.kind(declaringType.modifiers) == TypeDeclaration.ENUM_DECL) {
 			int enumCount = 0;
 			int remainingFieldCount = 0;
 			if (fieldDeclarations != null) {

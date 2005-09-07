@@ -43,7 +43,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -2417,14 +2416,15 @@ class ASTConverter {
 	}
 
 	public ASTNode convert(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
-		switch (typeDeclaration.kind()) {
-			case IGenericType.ENUM_DECL :
+		int kind = org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.kind(typeDeclaration.modifiers);
+		switch (kind) {
+			case org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.ENUM_DECL :
 				if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
 					return null;
 				} else {
 					return convertToEnumDeclaration(typeDeclaration);
 				}
-			case IGenericType.ANNOTATION_TYPE_DECL :
+			case org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.ANNOTATION_TYPE_DECL :
 				if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
 					return null;
 				} else {
@@ -2437,7 +2437,7 @@ class ASTConverter {
 		if (typeDeclaration.modifiersSourceStart != -1) {
 			setModifiers(typeDecl, typeDeclaration);
 		}
-		typeDecl.setInterface(typeDeclaration.kind() == IGenericType.INTERFACE_DECL);
+		typeDecl.setInterface(kind == org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.INTERFACE_DECL);
 		final SimpleName typeName = new SimpleName(this.ast);
 		typeName.internalSetIdentifier(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);

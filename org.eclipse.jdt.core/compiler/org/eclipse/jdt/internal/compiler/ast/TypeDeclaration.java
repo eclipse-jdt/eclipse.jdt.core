@@ -15,7 +15,6 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
@@ -27,6 +26,12 @@ public class TypeDeclaration
 
 	public static final char[] ANONYMOUS_EMPTY_NAME = new char[] {};
 
+	// Type decl kinds
+	public static final int CLASS_DECL = 1;
+	public static final int INTERFACE_DECL = 2;
+	public static final int ENUM_DECL = 3;	
+	public static final int ANNOTATION_TYPE_DECL = 4;
+	
 	public int modifiers = AccDefault;
 	public int modifiersSourceStart;
 	public Annotation[] annotations;
@@ -289,12 +294,12 @@ public class TypeDeclaration
 							methods[i] = m;
 						}
 					} else {
-						switch (kind()) {
-							case IGenericType.INTERFACE_DECL :
+						switch (kind(this.modifiers)) {
+							case TypeDeclaration.INTERFACE_DECL :
 								// report the problem and continue the parsing
 								parser.problemReporter().interfaceCannotHaveConstructors((ConstructorDeclaration) am);
 								break;
-							case IGenericType.ANNOTATION_TYPE_DECL :
+							case TypeDeclaration.ANNOTATION_TYPE_DECL :
 								// report the problem and continue the parsing
 								parser.problemReporter().annotationTypeDeclarationCannotHaveConstructor((ConstructorDeclaration) am);
 								break;
@@ -720,19 +725,19 @@ public class TypeDeclaration
 		}
 	}
 
-	public int kind() {
-		switch (modifiers & (AccInterface|AccAnnotation|AccEnum)) {
+	public final static int kind(int flags) {
+		switch (flags & (AccInterface|AccAnnotation|AccEnum)) {
 			case AccInterface :
-				return IGenericType.INTERFACE_DECL;
+				return TypeDeclaration.INTERFACE_DECL;
 			case AccInterface|AccAnnotation :
-				return IGenericType.ANNOTATION_TYPE_DECL;
+				return TypeDeclaration.ANNOTATION_TYPE_DECL;
 			case AccEnum :
-				return IGenericType.ENUM_DECL;
+				return TypeDeclaration.ENUM_DECL;
 			default : 
-				return IGenericType.CLASS_DECL;
-		}
+				return TypeDeclaration.CLASS_DECL;
+		}		
 	}
-	
+
 	/* 
 	 * Access emulation for a local type
 	 * force to emulation of access to direct enclosing instance.
@@ -812,9 +817,9 @@ public class TypeDeclaration
 		if (fields == null)
 			return false;
 		
-		switch (kind()) {
-			case IGenericType.INTERFACE_DECL:
-			case IGenericType.ANNOTATION_TYPE_DECL:
+		switch (kind(this.modifiers)) {
+			case TypeDeclaration.INTERFACE_DECL:
+			case TypeDeclaration.ANNOTATION_TYPE_DECL:
 				return true; // fields are implicitly statics
 		}
 		for (int i = fields.length; --i >= 0;) {
@@ -911,17 +916,17 @@ public class TypeDeclaration
 		printModifiers(this.modifiers, output);
 		if (this.annotations != null) printAnnotations(this.annotations, output);
 		
-		switch (kind()) {
-			case IGenericType.CLASS_DECL :
+		switch (kind(this.modifiers)) {
+			case TypeDeclaration.CLASS_DECL :
 				output.append("class "); //$NON-NLS-1$
 				break;
-			case IGenericType.INTERFACE_DECL :
+			case TypeDeclaration.INTERFACE_DECL :
 				output.append("interface "); //$NON-NLS-1$
 				break;
-			case IGenericType.ENUM_DECL :
+			case TypeDeclaration.ENUM_DECL :
 				output.append("enum "); //$NON-NLS-1$
 				break;
-			case IGenericType.ANNOTATION_TYPE_DECL :
+			case TypeDeclaration.ANNOTATION_TYPE_DECL :
 				output.append("@interface "); //$NON-NLS-1$
 				break;
 		}			
@@ -939,13 +944,13 @@ public class TypeDeclaration
 			superclass.print(0, output);
 		}
 		if (superInterfaces != null && superInterfaces.length > 0) {
-			switch (kind()) {
-				case IGenericType.CLASS_DECL :
-				case IGenericType.ENUM_DECL :
+			switch (kind(this.modifiers)) {
+				case TypeDeclaration.CLASS_DECL :
+				case TypeDeclaration.ENUM_DECL :
 					output.append(" implements "); //$NON-NLS-1$
 					break;
-				case IGenericType.INTERFACE_DECL :
-				case IGenericType.ANNOTATION_TYPE_DECL :
+				case TypeDeclaration.INTERFACE_DECL :
+				case TypeDeclaration.ANNOTATION_TYPE_DECL :
 					output.append(" extends "); //$NON-NLS-1$
 					break;
 			}			
@@ -1042,25 +1047,30 @@ public class TypeDeclaration
 				this.scope.problemReporter().missingSerialVersion(this);
 			}
 			// check extends/implements for annotation type
-			if (kind() == IGenericType.ANNOTATION_TYPE_DECL) {
-				if (this.superclass != null) {
-					this.scope.problemReporter().annotationTypeDeclarationCannotHaveSuperclass(this);
-				}
-				if (this.superInterfaces != null) {
-					this.scope.problemReporter().annotationTypeDeclarationCannotHaveSuperinterfaces(this);
-				}
-			}
-			// check enum abstract methods
-			if (kind() == IGenericType.ENUM_DECL && this.binding.isAbstract()) {
-				if (!hasEnumConstants || hasEnumConstantsWithoutBody) {
-					for (int i = 0, count = this.methods.length; i < count; i++) {
-						final AbstractMethodDeclaration methodDeclaration = this.methods[i];
-						if (methodDeclaration.isAbstract() && methodDeclaration.binding != null) {
-							this.scope.problemReporter().enumAbstractMethodMustBeImplemented(methodDeclaration);
+			switch(kind(this.modifiers)) {
+				case TypeDeclaration.ANNOTATION_TYPE_DECL :
+					if (this.superclass != null) {
+						this.scope.problemReporter().annotationTypeDeclarationCannotHaveSuperclass(this);
+					}
+					if (this.superInterfaces != null) {
+						this.scope.problemReporter().annotationTypeDeclarationCannotHaveSuperinterfaces(this);
+					}		
+					break;
+				case TypeDeclaration.ENUM_DECL :
+					// check enum abstract methods
+					if (this.binding.isAbstract()) {
+						if (!hasEnumConstants || hasEnumConstantsWithoutBody) {
+							for (int i = 0, count = this.methods.length; i < count; i++) {
+								final AbstractMethodDeclaration methodDeclaration = this.methods[i];
+								if (methodDeclaration.isAbstract() && methodDeclaration.binding != null) {
+									this.scope.problemReporter().enumAbstractMethodMustBeImplemented(methodDeclaration);
+								}
+							}
 						}
 					}
-				}
+					break;
 			}
+			
 			int missingAbstractMethodslength = this.missingAbstractMethods == null ? 0 : this.missingAbstractMethods.length;
 			int methodsLength = this.methods == null ? 0 : this.methods.length;
 			if ((methodsLength + missingAbstractMethodslength) > 0xFFFF) {

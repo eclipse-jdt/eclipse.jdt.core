@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
 /**
@@ -51,7 +50,7 @@ public RecoveredType(TypeDeclaration typeDeclaration, RecoveredElement parent, i
 	} else {
 		this.foundOpeningBrace = !bodyStartsAtHeaderEnd();
 	}
-	this.insideEnumConstantPart = typeDeclaration.kind() == IGenericType.ENUM_DECL;
+	this.insideEnumConstantPart = TypeDeclaration.kind(typeDeclaration.modifiers) == TypeDeclaration.ENUM_DECL;
 	if(this.foundOpeningBrace) {
 		this.bracketBalance++;
 	}
@@ -393,7 +392,8 @@ public TypeDeclaration updatedTypeDeclaration(){
 		}
 		typeDeclaration.methods = methodDeclarations;
 	} else {
-		if (!hasConstructor && typeDeclaration.kind() != IGenericType.INTERFACE_DECL && typeDeclaration.kind() != IGenericType.ANNOTATION_TYPE_DECL) {// if was already reduced, then constructor
+		int kind = TypeDeclaration.kind(typeDeclaration.modifiers);
+		if (!hasConstructor && kind != TypeDeclaration.INTERFACE_DECL && kind != TypeDeclaration.ANNOTATION_TYPE_DECL) {// if was already reduced, then constructor
 			boolean insideFieldInitializer = false;
 			RecoveredElement parentElement = this.parent; 
 			while (parentElement != null){

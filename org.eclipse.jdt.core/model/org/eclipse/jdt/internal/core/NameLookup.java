@@ -12,14 +12,8 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.File;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -34,12 +28,10 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IConstants;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -221,14 +213,14 @@ public class NameLookup implements SuffixConstants {
 			return true; // no flags or all flags, always accepted
 		try {
 			int kind = isSourceType
-					? ((SourceTypeElementInfo) ((SourceType) type).getElementInfo()).getKind() 
-					: ((IBinaryType) ((BinaryType) type).getElementInfo()).getKind();
+					? TypeDeclaration.kind(((SourceTypeElementInfo) ((SourceType) type).getElementInfo()).getModifiers())
+					: TypeDeclaration.kind(((IBinaryType) ((BinaryType) type).getElementInfo()).getModifiers());
 			switch (kind) {
-				case IGenericType.CLASS_DECL :
+				case TypeDeclaration.CLASS_DECL :
 					return (acceptFlags & ACCEPT_CLASSES) != 0;
-				case IGenericType.INTERFACE_DECL :
+				case TypeDeclaration.INTERFACE_DECL :
 					return (acceptFlags & ACCEPT_INTERFACES) != 0;
-				case IGenericType.ENUM_DECL :
+				case TypeDeclaration.ENUM_DECL :
 					return (acceptFlags & ACCEPT_ENUMS) != 0;
 				default:
 					//case IGenericType.ANNOTATION_TYPE :

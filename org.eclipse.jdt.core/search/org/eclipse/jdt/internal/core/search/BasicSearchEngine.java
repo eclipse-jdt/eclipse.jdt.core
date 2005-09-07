@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -79,10 +78,10 @@ public class BasicSearchEngine {
 
 	char convertTypeKind(int typeDeclarationKind) {
 		switch(typeDeclarationKind) {
-			case IGenericType.CLASS_DECL : return IIndexConstants.CLASS_SUFFIX;
-			case IGenericType.INTERFACE_DECL : return IIndexConstants.INTERFACE_SUFFIX;
-			case IGenericType.ENUM_DECL : return IIndexConstants.ENUM_SUFFIX;
-			case IGenericType.ANNOTATION_TYPE_DECL : return IIndexConstants.ANNOTATION_TYPE_SUFFIX;
+			case TypeDeclaration.CLASS_DECL : return IIndexConstants.CLASS_SUFFIX;
+			case TypeDeclaration.INTERFACE_DECL : return IIndexConstants.INTERFACE_SUFFIX;
+			case TypeDeclaration.ENUM_DECL : return IIndexConstants.ENUM_SUFFIX;
+			case TypeDeclaration.ANNOTATION_TYPE_DECL : return IIndexConstants.ANNOTATION_TYPE_SUFFIX;
 			default : return IIndexConstants.TYPE_SUFFIX;
 		}
 	}
@@ -359,22 +358,22 @@ public class BasicSearchEngine {
 	boolean match(char patternTypeSuffix, char[] patternPkg, char[] patternTypeName, int matchRule, int typeKind, char[] pkg, char[] typeName) {
 		switch(patternTypeSuffix) {
 			case IIndexConstants.CLASS_SUFFIX :
-				if (typeKind != IGenericType.CLASS_DECL) return false;
+				if (typeKind != TypeDeclaration.CLASS_DECL) return false;
 				break;
 			case IIndexConstants.CLASS_AND_INTERFACE_SUFFIX:
-				if (typeKind != IGenericType.CLASS_DECL && typeKind != IGenericType.INTERFACE_DECL) return false;
+				if (typeKind != TypeDeclaration.CLASS_DECL && typeKind != TypeDeclaration.INTERFACE_DECL) return false;
 				break;
 			case IIndexConstants.CLASS_AND_ENUM_SUFFIX:
-				if (typeKind != IGenericType.CLASS_DECL && typeKind != IGenericType.ENUM_DECL) return false;
+				if (typeKind != TypeDeclaration.CLASS_DECL && typeKind != TypeDeclaration.ENUM_DECL) return false;
 				break;
 			case IIndexConstants.INTERFACE_SUFFIX :
-				if (typeKind != IGenericType.INTERFACE_DECL) return false;
+				if (typeKind != TypeDeclaration.INTERFACE_DECL) return false;
 				break;
 			case IIndexConstants.ENUM_SUFFIX :
-				if (typeKind != IGenericType.ENUM_DECL) return false;
+				if (typeKind != TypeDeclaration.ENUM_DECL) return false;
 				break;
 			case IIndexConstants.ANNOTATION_TYPE_SUFFIX :
-				if (typeKind != IGenericType.ANNOTATION_TYPE_DECL) return false;
+				if (typeKind != TypeDeclaration.ANNOTATION_TYPE_DECL) return false;
 				break;
 			case IIndexConstants.TYPE_SUFFIX : // nothing
 		}
@@ -605,13 +604,13 @@ public class BasicSearchEngine {
 							char[] simpleName = type.getElementName().toCharArray();
 							int kind;
 							if (type.isEnum()) {
-								kind = IGenericType.ENUM_DECL;
+								kind = TypeDeclaration.ENUM_DECL;
 							} else if (type.isAnnotation()) {
-								kind = IGenericType.ANNOTATION_TYPE_DECL;
+								kind = TypeDeclaration.ANNOTATION_TYPE_DECL;
 							}	else if (type.isClass()) {
-								kind = IGenericType.CLASS_DECL;
+								kind = TypeDeclaration.CLASS_DECL;
 							} else /*if (type.isInterface())*/ {
-								kind = IGenericType.INTERFACE_DECL;
+								kind = TypeDeclaration.INTERFACE_DECL;
 							}
 							if (match(typeSuffix, packageName, typeName, matchRule, kind, packageDeclaration, simpleName)) {
 								nameRequestor.acceptType(type.getFlags(), packageDeclaration, simpleName, enclosingTypeNames, path, null);
@@ -643,13 +642,13 @@ public class BasicSearchEngine {
 									return false; // no local/anonymous type
 								}
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
-									if (match(typeSuffix, packageName, typeName, matchRule, typeDeclaration.kind(), packageDeclaration, typeDeclaration.name)) {
+									if (match(typeSuffix, packageName, typeName, matchRule, TypeDeclaration.kind(typeDeclaration.modifiers), packageDeclaration, typeDeclaration.name)) {
 										nameRequestor.acceptType(typeDeclaration.modifiers, packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
 									}
 									return true;
 								}
 								public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope classScope) {
-									if (match(typeSuffix, packageName, typeName, matchRule, memberTypeDeclaration.kind(), packageDeclaration, memberTypeDeclaration.name)) {
+									if (match(typeSuffix, packageName, typeName, matchRule, TypeDeclaration.kind(memberTypeDeclaration.modifiers), packageDeclaration, memberTypeDeclaration.name)) {
 										// compute encloising type names
 										TypeDeclaration enclosing = memberTypeDeclaration.enclosingType;
 										char[][] enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
@@ -869,7 +868,7 @@ public class BasicSearchEngine {
 								}
 								public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope compilationUnitScope) {
 									SearchPattern decodedPattern =
-										new QualifiedTypeDeclarationPattern(packageDeclaration, typeDeclaration.name, convertTypeKind(typeDeclaration.kind()), matchRule);
+										new QualifiedTypeDeclarationPattern(packageDeclaration, typeDeclaration.name, convertTypeKind(TypeDeclaration.kind(typeDeclaration.modifiers)), matchRule);
 									if (pattern.matchesDecodedKey(decodedPattern)) {
 										nameRequestor.acceptType(typeDeclaration.modifiers, packageDeclaration, typeDeclaration.name, CharOperation.NO_CHAR_CHAR, path, null);
 									}
@@ -890,7 +889,7 @@ public class BasicSearchEngine {
 										}
 									}
 									SearchPattern decodedPattern =
-										new QualifiedTypeDeclarationPattern(qualification, memberTypeDeclaration.name, convertTypeKind(memberTypeDeclaration.kind()), matchRule);
+										new QualifiedTypeDeclarationPattern(qualification, memberTypeDeclaration.name, convertTypeKind(TypeDeclaration.kind(memberTypeDeclaration.modifiers)), matchRule);
 									if (pattern.matchesDecodedKey(decodedPattern)) {
 										nameRequestor.acceptType(memberTypeDeclaration.modifiers, packageDeclaration, memberTypeDeclaration.name, enclosingTypeNames, path, null);
 									}

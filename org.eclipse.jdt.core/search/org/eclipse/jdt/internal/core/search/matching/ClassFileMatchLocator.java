@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -246,20 +247,20 @@ boolean matchTypeDeclaration(TypeDeclarationPattern pattern, Object binaryInfo, 
 		if (!checkTypeName(pattern.simpleName, patternString, fullyQualifiedTypeName, pattern.isCaseSensitive())) return false;
 	}
 
-	int kind  = type.getKind();
+	int kind  = TypeDeclaration.kind(type.getModifiers());
 	switch (pattern.typeSuffix) {
 		case CLASS_SUFFIX:
-			return kind == IGenericType.CLASS_DECL;
+			return kind == TypeDeclaration.CLASS_DECL;
 		case INTERFACE_SUFFIX:
-			return kind == IGenericType.INTERFACE_DECL;
+			return kind == TypeDeclaration.INTERFACE_DECL;
 		case ENUM_SUFFIX:
-			return kind == IGenericType.ENUM_DECL;
+			return kind == TypeDeclaration.ENUM_DECL;
 		case ANNOTATION_TYPE_SUFFIX:
-			return kind == IGenericType.ANNOTATION_TYPE_DECL;
+			return kind == TypeDeclaration.ANNOTATION_TYPE_DECL;
 		case CLASS_AND_INTERFACE_SUFFIX:
-			return kind == IGenericType.CLASS_DECL || kind == IGenericType.INTERFACE_DECL;
+			return kind == TypeDeclaration.CLASS_DECL || kind == TypeDeclaration.INTERFACE_DECL;
 		case CLASS_AND_ENUM_SUFFIX:
-			return kind == IGenericType.CLASS_DECL || kind == IGenericType.ENUM_DECL;
+			return kind == TypeDeclaration.CLASS_DECL || kind == TypeDeclaration.ENUM_DECL;
 		case TYPE_SUFFIX: // nothing
 	}
 	return true;

@@ -580,22 +580,6 @@ public char[][] getInterfaceNames() {
 }
 
 /**
- * @see org.eclipse.jdt.internal.compiler.env.IGenericType#getKind()
- */
-public int getKind() {
-	
-		switch (getModifiers() & (AccInterface|AccAnnotation|AccEnum)) {
-			case AccInterface :
-				return IGenericType.INTERFACE_DECL;
-			case AccInterface|AccAnnotation :
-				return IGenericType.ANNOTATION_TYPE_DECL;
-			case AccEnum :
-				return IGenericType.ENUM_DECL;
-			default : 
-				return IGenericType.CLASS_DECL;
-		}
-}
-/**
  * Answer the receiver's nested types or null if the array is empty.
  * 
  * This nested type info is extracted from the inner class attributes. Ask the
