@@ -23691,67 +23691,67 @@ public void test816() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
 public void test817() {
 	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"import java.util.List;\n" + 
-			"\n" + 
-			"public class X<T> {\n" + 
-			"    private T t;\n" + 
-			"    private X<?>.Inner[] inner;\n" + 
-			"    private X<?>.Inner[] inners;\n" + 
-			"    public X(T t) {\n" + 
-			"        this.t = t;\n" + 
-			"        if (this.inner instanceof X<?>.Inner) {}\n" + 
-			"        if (this.inners instanceof X<?>.Inner[]) {}\n" + 
-			"    }\n" + 
-			"    private class Inner {\n" + 
-			"    }\n" + 
-			"    void foo(List l) {\n" + 
-			"    	if (l instanceof List<?>) {}\n" + 
-			"    	if (l instanceof List<? extends String>) {}\n" + 
-			"    }\n" + 
-			"    void foo(List[] ls) {\n" + 
-			"    	if (ls instanceof List<?>[]) {}\n" + 
-			"    	if (ls instanceof List<? extends String>[]) {}\n" + 
-			"    }\n" + 
-			"}\n",
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	private T t;\n" + 
-		"	          ^\n" + 
-		"The field X<T>.t is never read locally\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
-		"	if (this.inner instanceof X<?>.Inner) {}\n" + 
-		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Incompatible conditional operand types X<?>.Inner[] and X<?>.Inner\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 10)\n" + 
-		"	if (this.inners instanceof X<?>.Inner[]) {}\n" + 
-		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The expression of type X<?>.Inner[] is already an instance of type X<?>.Inner[]\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 15)\n" + 
-		"	if (l instanceof List<?>) {}\n" + 
-		"	    ^^^^^^^^^^^^^^^^^\n" + 
-		"The expression of type List is already an instance of type List<?>\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 16)\n" + 
-		"	if (l instanceof List<? extends String>) {}\n" + 
-		"	    ^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot perform instanceof check against parameterized type List<? extends String>. Use instead its raw form List since generic type information will be erased at runtime\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 19)\n" + 
-		"	if (ls instanceof List<?>[]) {}\n" + 
-		"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The expression of type List[] is already an instance of type List<?>\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 20)\n" + 
-		"	if (ls instanceof List<? extends String>[]) {}\n" + 
-		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot perform instanceof check against parameterized type List<? extends String>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" + 
-		"----------\n");
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X<T> {\n" + 
+				"    private T t;\n" + 
+				"    private X<?>.Inner inner;\n" + 
+				"    private X<?>.Inner[] inners;\n" + 
+				"    public X(T t) {\n" + 
+				"        this.t = t;\n" + 
+				"        if (this.inner instanceof X<?>.Inner) {}\n" + 
+				"        if (this.inners instanceof X<?>.Inner[]) {}\n" + 
+				"    }\n" + 
+				"    private class Inner {\n" + 
+				"    }\n" + 
+				"    void foo(List l) {\n" + 
+				"    	if (l instanceof List<?>) {}\n" + 
+				"    	if (l instanceof List<? extends String>) {}\n" + 
+				"    }\n" + 
+				"    void foo(List[] ls) {\n" + 
+				"    	if (ls instanceof List<?>[]) {}\n" + 
+				"    	if (ls instanceof List<? extends String>[]) {}\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	private T t;\n" + 
+			"	          ^\n" + 
+			"The field X<T>.t is never read locally\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 9)\n" + 
+			"	if (this.inner instanceof X<?>.Inner) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type X<?>.Inner is already an instance of type X<?>.Inner\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	if (this.inners instanceof X<?>.Inner[]) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type X<?>.Inner[] is already an instance of type X<?>.Inner[]\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 15)\n" + 
+			"	if (l instanceof List<?>) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type List is already an instance of type List<?>\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 16)\n" + 
+			"	if (l instanceof List<? extends String>) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type List<? extends String>. Use instead its raw form List since generic type information will be erased at runtime\n" + 
+			"----------\n" + 
+			"6. WARNING in X.java (at line 19)\n" + 
+			"	if (ls instanceof List<?>[]) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The expression of type List[] is already an instance of type List<?>\n" + 
+			"----------\n" + 
+			"7. ERROR in X.java (at line 20)\n" + 
+			"	if (ls instanceof List<? extends String>[]) {}\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Cannot perform instanceof check against parameterized type List<? extends String>[]. Use instead its raw form List[] since generic type information will be erased at runtime\n" + 
+			"----------\n");
 }
 public void test818() {
 	this.runConformTest(
