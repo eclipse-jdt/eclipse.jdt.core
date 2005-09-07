@@ -23722,10 +23722,10 @@ public void test817() {
 		"	          ^\n" + 
 		"The field X<T>.t is never read locally\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 9)\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
 		"	if (this.inner instanceof X<?>.Inner) {}\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The expression of type X<?>.Inner is already an instance of type X<?>.Inner\n" + 
+		"Incompatible conditional operand types X<?>.Inner[] and X<?>.Inner\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 10)\n" + 
 		"	if (this.inners instanceof X<?>.Inner[]) {}\n" + 
