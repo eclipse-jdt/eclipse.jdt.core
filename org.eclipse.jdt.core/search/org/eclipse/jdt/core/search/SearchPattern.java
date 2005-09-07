@@ -1252,7 +1252,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 				return new SuperTypeReferencePattern(
 					CharOperation.concatWith(packageName, enclosingTypeNames, '.'), 
 					simpleName,
-					true,
+					SuperTypeReferencePattern.ONLY_SUPER_INTERFACES,
 					matchRule);
 			case IJavaSearchConstants.ALL_OCCURRENCES :
 				return new OrPattern(
@@ -1376,7 +1376,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 			case IJavaSearchConstants.REFERENCES :
 				return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, matchRule);
 			case IJavaSearchConstants.IMPLEMENTORS : 
-				return new SuperTypeReferencePattern(qualificationChars, typeChars, true, matchRule);
+				return new SuperTypeReferencePattern(qualificationChars, typeChars, SuperTypeReferencePattern.ONLY_SUPER_INTERFACES, matchRule);
 			case IJavaSearchConstants.ALL_OCCURRENCES :
 				return new OrPattern(
 					new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, indexSuffix, matchRule),// cannot search for explicit member types
