@@ -2403,7 +2403,34 @@ public class NullReferenceTest extends AbstractRegressionTest {
 			},
 		"");
 	}
-	
+
+	// null analysis -- for
+	// origin: AssignmentTest#test019
+	public void test0240_for() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	 void foo() {\n" + 
+				"	   Object o = new Object();\n" + 
+				"		 for (int i = 0; i < 10; i++) {\n" + 
+				"		   if (o == null) {\n" + // complain: o cannot be null
+				"		     continue;\n" + 
+				"		   }\n" + 
+				"		   o = null;\n" + 
+				"		   break;\n" + 
+				"		 }\n" + 
+				"	 }\n" + 
+				"}\n",
+			},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	if (o == null) {\n" + 
+		"	    ^\n" + 
+		"The variable o can only be null; it was either set to null or checked for null when last used\n" + 
+		"----------\n");
+	}
+		
 	// null analysis -- switch
 	// origin: AssignmentTest#test021
 	// WORK minimize
