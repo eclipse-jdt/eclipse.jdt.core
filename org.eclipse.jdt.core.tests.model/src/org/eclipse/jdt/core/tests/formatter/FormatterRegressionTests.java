@@ -53,7 +53,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private long time;
 	
 	static {
-//		TESTS_NUMBERS = new int[] { 599 } ;
+//		TESTS_NUMBERS = new int[] { 600 } ;
 	}
 	public static Test suite() {
 		return buildTestSuite(FormatterRegressionTests.class);
@@ -8501,5 +8501,12 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test599", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
+	}
+	// test Scribe2.hasNLSTag()
+	public void test600() {
+		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
+		runTest(codeFormatter, "test600", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
