@@ -23765,5 +23765,41 @@ public void test818() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101380
+public void test819() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X implements MyInterface {\n" + 
+				"	public void myMethod(myEnum value) {\n" + 
+				"		System.out.println(\"value is \"+value);\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args){\n" + 
+				"		new X().myMethod(myEnum.one);		\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface MyInterface<T> {\n" + 
+				"	enum myEnum {one,two};\n" + 
+				"	public void myMethod(myEnum value); \n" + 
+				"}\n",
+			},
+			"value is one");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101380 - variation
+public void test820() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X implements I {\n" + 
+			"  public void x(M value) {}\n" + 
+			"}\n" + 
+			"interface I<T> {\n" + 
+			"  class M {}\n" + 
+			"  void x(M value); \n" + 
+			"}\n",
+		},
+		"");
+}
 }
 

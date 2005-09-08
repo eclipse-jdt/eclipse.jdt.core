@@ -167,12 +167,12 @@ public abstract class Scope
 				if (originalEnclosing != null) {
 					substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
 				}
-				if (substitution.isRawSubstitution()) {
-					return originalParameterizedType.environment.createRawType(originalParameterizedType.type, substitutedEnclosing);
-				}				
 				TypeBinding[] originalArguments = originalParameterizedType.arguments;
 				TypeBinding[] substitutedArguments = originalArguments;
 				if (originalArguments != null) {
+					if (substitution.isRawSubstitution()) {
+						return originalParameterizedType.environment.createRawType(originalParameterizedType.type, substitutedEnclosing);
+					}
 					substitutedArguments = substitute(substitution, originalArguments);
 				}
 				if (substitutedArguments != originalArguments || substitutedEnclosing != originalEnclosing) {
