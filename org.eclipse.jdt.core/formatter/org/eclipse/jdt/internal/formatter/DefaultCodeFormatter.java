@@ -13,11 +13,16 @@ package org.eclipse.jdt.internal.formatter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
@@ -39,6 +44,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 
 	private static Scanner ProbingScanner;
 	public static final boolean DEBUG = false;
+	public static boolean USE_NEW_FORMATTER = false;
 
 	/**
 	 * Creates a comment region for a specific document partition type.
@@ -65,6 +71,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private Map defaultCompilerOptions;
 	
 	private CodeFormatterVisitor newCodeFormatter;
+	private CodeFormatterVisitor2 newCodeFormatter2;
 	private Map options;
 	
 	private DefaultCodeFormatterOptions preferences;
@@ -130,6 +137,24 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 	
 	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		if (USE_NEW_FORMATTER) {
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setSource(source.toCharArray());
+			parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+			parser.setCompilerOptions(getDefaultCompilerOptions());
+			parser.setResolveBindings(false);
+			parser.setUnitName(""); //$NON-NLS-1$
+			org.eclipse.jdt.core.dom.ASTNode node = parser.createAST(null);
+			if (lineSeparator != null) {
+				this.preferences.line_separator = lineSeparator;
+			} else {
+				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+			}
+			this.preferences.initial_indentation_level = indentationLevel;
+
+			this.newCodeFormatter2 = new CodeFormatterVisitor2(this.preferences, this.options, offset, length, (CompilationUnit) node.getRoot());
+			return this.newCodeFormatter2.format(source, (AbstractTypeDeclaration) node);
+		}
 		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (bodyDeclarations == null) {
@@ -158,6 +183,24 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		if (USE_NEW_FORMATTER) {
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setSource(source.toCharArray());
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+			parser.setCompilerOptions(getDefaultCompilerOptions());
+			parser.setResolveBindings(false);
+			parser.setUnitName(""); //$NON-NLS-1$
+			org.eclipse.jdt.core.dom.ASTNode node = parser.createAST(null);
+			if (lineSeparator != null) {
+				this.preferences.line_separator = lineSeparator;
+			} else {
+				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+			}
+			this.preferences.initial_indentation_level = indentationLevel;
+
+			this.newCodeFormatter2 = new CodeFormatterVisitor2(this.preferences, this.options, offset, length, (CompilationUnit) node.getRoot());
+			this.newCodeFormatter2.format(source, (CompilationUnit) node);
+		}
 		CompilationUnitDeclaration compilationUnitDeclaration = this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (lineSeparator != null) {
@@ -173,6 +216,27 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatExpression(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		if (USE_NEW_FORMATTER) {
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setSource(source.toCharArray());
+			parser.setKind(ASTParser.K_EXPRESSION);
+			parser.setCompilerOptions(getDefaultCompilerOptions());
+			parser.setResolveBindings(false);
+			parser.setUnitName(""); //$NON-NLS-1$
+			org.eclipse.jdt.core.dom.ASTNode node = parser.createAST(null);
+			if (lineSeparator != null) {
+				this.preferences.line_separator = lineSeparator;
+			} else {
+				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+			}
+			this.preferences.initial_indentation_level = indentationLevel;
+
+			this.newCodeFormatter2 = new CodeFormatterVisitor2(this.preferences, this.options, offset, length, (CompilationUnit) node.getRoot());
+			
+			TextEdit textEdit = this.newCodeFormatter2.format(source, (org.eclipse.jdt.core.dom.Expression) node);
+			return textEdit;
+		}
+		
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (expression == null) {
@@ -183,6 +247,26 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private TextEdit formatStatements(String source, int indentationLevel, String lineSeparator, int offset, int length) {
+		if (USE_NEW_FORMATTER) {
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setSource(source.toCharArray());
+			parser.setKind(ASTParser.K_STATEMENTS);
+			parser.setCompilerOptions(getDefaultCompilerOptions());
+			parser.setResolveBindings(false);
+			parser.setUnitName(""); //$NON-NLS-1$
+			org.eclipse.jdt.core.dom.ASTNode node = parser.createAST(null);
+			if (lineSeparator != null) {
+				this.preferences.line_separator = lineSeparator;
+			} else {
+				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+			}
+			this.preferences.initial_indentation_level = indentationLevel;
+
+			this.newCodeFormatter2 = new CodeFormatterVisitor2(this.preferences, this.options, offset, length, (CompilationUnit) node.getRoot());
+			
+			return this.newCodeFormatter2.format(source, (Block) node);
+		}
+		
 		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
 		if (constructorDeclaration.statements == null) {
@@ -336,21 +420,37 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		// probe for expression
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (expression != null) {
+			if (USE_NEW_FORMATTER) {
+				// (TODO) enable new formatter
+				return null;
+			}			
 			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
 		}
 
 		// probe for body declarations (fields, methods, constructors)
 		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (bodyDeclarations != null) {
+			if (USE_NEW_FORMATTER) {
+				// (TODO) enable new formatter
+				return null;
+			}
 			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
 		}
 
 		// probe for statements
 		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (constructorDeclaration.statements != null) {
+			if (USE_NEW_FORMATTER) {
+				// (TODO) enable new formatter
+				return null;
+			}
 			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 		}
 
+		if (USE_NEW_FORMATTER) {
+			// (TODO) enable new formatter
+			return null;
+		}
 		// this has to be a compilation unit
 		return formatCompilationUnit(source, indentationLevel, lineSeparator, offset, length);
 	}
