@@ -35,7 +35,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test030" };
+//		TESTS_NAMES = new String[] { "test031" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -570,8 +570,8 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 			new String[] {
 				"/P/p1/X.java",
 				"package p1;\n" +
-				"public class X {\n" +
-				"  <T> Z<T> foo(Z<T> o) {\n" +
+				"public class X<T>  {\n" +
+				"  Z<T> foo(Z<T> o) {\n" +
 				"  }\n" +
 				"}",
 				"/P/p1/Y.java",
@@ -586,7 +586,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 				"}",
 			},
 			new String[] {
-				"Lp1/X;.foo<T:Ljava/lang/Object;>(Lp1/Z<TT;>;)Lp1/Z<TT;>;",
+				"Lp1/X;.foo(Lp1/Z<TT;>;)Lp1/Z<TT;>;",
 				"Lp1/Y;.foo(Lp1/Z;)Lp1/Z;",
 			});	
 		assertTrue("Y#foo(Z) should be a subsignature of X#foo(Z<T>)", bindings[1].isSubsignature(bindings[0]));
@@ -670,4 +670,31 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 			});	
 		assertTrue("Y#foo(String) should override X#foo(T)", bindings[0].overrides(bindings[1]));
 	}
+	
+	/*
+	 * Ensures that a method with the same parameter types but with different type parameters is not a subsignature of its super method.
+	 * (regression test for bug 107110 IMethodBinding.isSubsignature not yet correctly implemented)
+	 */
+	public void test031() throws JavaModelException {
+		IMethodBinding[] bindings = createMethodBindings(
+			new String[] {
+				"/P/p1/X.java",
+				"package p1;\n" +
+				"public class X {\n" +
+				"  void foo() {\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y extends X {\n" +
+				"  <T> void foo() {\n" +
+				"  }\n" +
+				"}",
+			},
+			new String[] {
+				"Lp1/X;.foo()V",
+				"Lp1/Y;.foo<T:Ljava/lang/Object;>()V"
+			});	
+		assertFalse("Y#foo() should not be a subsignature of X#foo()", bindings[1].isSubsignature(bindings[0]));
+	}
+	
+	
 }

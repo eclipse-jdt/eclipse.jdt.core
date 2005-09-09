@@ -376,7 +376,7 @@ class MethodBinding implements IMethodBinding {
 		org.eclipse.jdt.internal.compiler.lookup.MethodBinding other = ((MethodBinding) otherMethod).binding;
 		if (!CharOperation.equals(this.binding.selector, other.selector))
 			return false;
-		return this.binding.areParameterErasuresEqual(other);
+		return this.binding.areParameterErasuresEqual(other) && this.binding.areTypeVariableErasuresEqual(other);
 	}
 
 	/**
