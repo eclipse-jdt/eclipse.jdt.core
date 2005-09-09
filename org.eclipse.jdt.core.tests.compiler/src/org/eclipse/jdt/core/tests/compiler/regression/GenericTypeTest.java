@@ -23801,5 +23801,353 @@ public void test820() {
 		},
 		"");
 }
+public void test821() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"public class X<T extends Serializable & Runnable> {\n" + 
+			"	T t;\n" + 
+			"	X(T t) {\n" + 
+			"		this.t = t;\n" + 
+			"	}\n" + 
+			"	void foo() {\n" + 
+			"		t.run();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X<A>(new A()).foo();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A implements Serializable, Runnable {\n" + 
+			"	public void run() {\n" + 
+			"		System.out.println(\"AA\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"AA");
+	// 	ensure proper declaring class for #run() invocation
+	String expectedOutput =
+			"  // Method descriptor #13 ()V\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  void foo();\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  getfield X.t : java.io.Serializable [17]\n" + 
+			"     4  invokeinterface java.lang.Runnable.run() : void  [29] [nargs: 1]\n" + 
+			"     9  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 9, line: 10]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 10] local: this index: 0 type: X<T>\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+public void test822() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"public class X<T extends Serializable & Runnable> {\n" + 
+			"	void foo(T t) {\n" + 
+			"		t.run();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X<A>().foo(new A());\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A implements Serializable, Runnable {\n" + 
+			"	public void run() {\n" + 
+			"		System.out.println(\"AA\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"AA");
+	// 	ensure proper declaring class for #run() invocation
+	String expectedOutput =
+			"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" + 
+			"  // Signature: (TT;)V\n" + 
+			"  // Stack: 1, Locals: 2\n" + 
+			"  void foo(Serializable t);\n" + 
+			"    0  aload_1 [t]\n" + 
+			"    1  invokeinterface java.lang.Runnable.run() : void  [24] [nargs: 1]\n" + 
+			"    6  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"        [pc: 6, line: 6]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 7] local: t index: 1 type: java.io.Serializable\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 7] local: this index: 0 type: X<T>\n" + 
+			"        [pc: 0, pc: 7] local: t index: 1 type: T\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+public void test823() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"public class X<T extends Serializable & Runnable, V extends T> {\n" + 
+			"	T t;\n" + 
+			"	X(T t) {\n" + 
+			"		this.t = t;\n" + 
+			"	}\n" + 
+			"	void foo() {\n" + 
+			"		(this == null ? t : t).run();\n" + 
+			"		((V) t).run();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X<A, A>(new A()).foo();\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A implements Serializable, Runnable {\n" + 
+			"	public void run() {\n" + 
+			"		System.out.print(\"AA\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"AAAA");
+	// 	ensure proper declaring class for #run() invocation
+	String expectedOutput =
+			"  // Method descriptor #13 ()V\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  void foo();\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  ifnonnull 11\n" + 
+			"     4  aload_0 [this]\n" + 
+			"     5  getfield X.t : java.io.Serializable [17]\n" + 
+			"     8  goto 15\n" + 
+			"    11  aload_0 [this]\n" + 
+			"    12  getfield X.t : java.io.Serializable [17]\n" + 
+			"    15  invokeinterface java.lang.Runnable.run() : void  [29] [nargs: 1]\n" + 
+			"    20  aload_0 [this]\n" + 
+			"    21  getfield X.t : java.io.Serializable [17]\n" + 
+			"    24  invokeinterface java.lang.Runnable.run() : void  [29] [nargs: 1]\n" + 
+			"    29  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 9]\n" + 
+			"        [pc: 20, line: 10]\n" + 
+			"        [pc: 29, line: 11]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 30] local: this index: 0 type: X\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 30] local: this index: 0 type: X<T,V>\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+public void test824() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"public class X<T extends Serializable & Runnable, V extends T> {\n" + 
+			"	void foo(T t) {\n" + 
+			"		(this == null ? t : t).run();\n" + 
+			"		((V) t).run();\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X<A, A>().foo(new A());\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A implements Serializable, Runnable {\n" + 
+			"	public void run() {\n" + 
+			"		System.out.print(\"AA\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"AAAA");
+	// 	ensure proper declaring class for #run() invocation
+	String expectedOutput =
+			"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" + 
+			"  // Signature: (TT;)V\n" + 
+			"  // Stack: 1, Locals: 2\n" + 
+			"  void foo(Serializable t);\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  ifnonnull 8\n" + 
+			"     4  aload_1 [t]\n" + 
+			"     5  goto 9\n" + 
+			"     8  aload_1 [t]\n" + 
+			"     9  invokeinterface java.lang.Runnable.run() : void  [24] [nargs: 1]\n" + 
+			"    14  aload_1 [t]\n" + 
+			"    15  invokeinterface java.lang.Runnable.run() : void  [24] [nargs: 1]\n" + 
+			"    20  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"        [pc: 14, line: 6]\n" + 
+			"        [pc: 20, line: 7]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 21] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 21] local: t index: 1 type: java.io.Serializable\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 21] local: this index: 0 type: X<T,V>\n" + 
+			"        [pc: 0, pc: 21] local: t index: 1 type: T\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+public void test825() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" + 
+			"\n" + 
+			"public class X<T extends Serializable & Runnable, V extends T> {\n" + 
+			"	void foo(T t) {\n" + 
+			"		Runnable r1 = t;\n" + 
+			"		Runnable r2 = (this == null ? t : t);\n" + 
+			"		Runnable r3 = ((V) t);\n" + 
+			"		\n" + 
+			"		bar(t);\n" + 
+			"		bar(this == null ? t : t);\n" + 
+			"		bar((V)t);\n" + 
+			"	}\n" + 
+			"	void bar(Runnable r) {}	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X<A, A>().foo(new A());\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class A implements Serializable, Runnable {\n" + 
+			"	public void run() {\n" + 
+			"		System.out.println(\"AA\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+	// 	ensure proper declaring class for #run() invocation
+	String expectedOutput =
+			"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" + 
+			"  // Signature: (TT;)V\n" + 
+			"  // Stack: 2, Locals: 5\n" + 
+			"  void foo(Serializable t);\n" + 
+			"     0  aload_1 [t]\n" + 
+			"     1  astore_2 [r1]\n" + 
+			"     2  aload_0 [this]\n" + 
+			"     3  ifnonnull 10\n" + 
+			"     6  aload_1 [t]\n" + 
+			"     7  goto 11\n" + 
+			"    10  aload_1 [t]\n" + 
+			"    11  astore_3 [r2]\n" + 
+			"    12  aload_1 [t]\n" + 
+			"    13  astore 4 [r3]\n" + 
+			"    15  aload_0 [this]\n" + 
+			"    16  aload_1 [t]\n" + 
+			"    17  invokevirtual X.bar(java.lang.Runnable) : void  [23]\n" + 
+			"    20  aload_0 [this]\n" + 
+			"    21  aload_0 [this]\n" + 
+			"    22  ifnonnull 29\n" + 
+			"    25  aload_1 [t]\n" + 
+			"    26  goto 30\n" + 
+			"    29  aload_1 [t]\n" + 
+			"    30  invokevirtual X.bar(java.lang.Runnable) : void  [23]\n" + 
+			"    33  aload_0 [this]\n" + 
+			"    34  aload_1 [t]\n" + 
+			"    35  invokevirtual X.bar(java.lang.Runnable) : void  [23]\n" + 
+			"    38  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"        [pc: 2, line: 6]\n" + 
+			"        [pc: 12, line: 7]\n" + 
+			"        [pc: 15, line: 9]\n" + 
+			"        [pc: 20, line: 10]\n" + 
+			"        [pc: 33, line: 11]\n" + 
+			"        [pc: 38, line: 12]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 39] local: this index: 0 type: X\n" + 
+			"        [pc: 0, pc: 39] local: t index: 1 type: java.io.Serializable\n" + 
+			"        [pc: 2, pc: 39] local: r1 index: 2 type: java.lang.Runnable\n" + 
+			"        [pc: 12, pc: 39] local: r2 index: 3 type: java.lang.Runnable\n" + 
+			"        [pc: 15, pc: 39] local: r3 index: 4 type: java.lang.Runnable\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 39] local: this index: 0 type: X<T,V>\n" + 
+			"        [pc: 0, pc: 39] local: t index: 1 type: T\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
 }
 
