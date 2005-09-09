@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.core.internal.declaration;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.EclipseMirrorImpl;
+import org.eclipse.jdt.apt.core.internal.env.AnnotationInvocationHandler;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
@@ -286,12 +288,10 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 			final IVariableBinding varBinding = (IVariableBinding)value;
             final ITypeBinding declaringClass = varBinding.getDeclaringClass();
             if( declaringClass != null ){
-                final String className = new String( declaringClass.getBinaryName() );
-
-                ClassLoader classLoader = _env.getLatestProcessor().getClass().getClassLoader();
-                Class clazz = classLoader.loadClass(className);
          
-                final Field returnedField = clazz.getField( varBinding.getName() );
+                final Field returnedField = targetType.getField( varBinding.getName() );
+                if (returnedField == null)
+                	return null;
                 if( returnedField.getType() != targetType )
                     throw new ClassCastException( targetType.getName() );
                 return returnedField.get(null);
@@ -359,7 +359,11 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorImpl
 		
         else if( value instanceof IResolvedAnnotation )
 		{
-			return Factory.createAnnotationMirror((IResolvedAnnotation)value, _annotated, _env);
+			final AnnotationMirrorImpl annoMirror =
+                (AnnotationMirrorImpl)Factory.createAnnotationMirror((IResolvedAnnotation)value, _annotated, _env);
+            final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror, targetType);
+            return Proxy.newProxyInstance(targetType.getClassLoader(),
+                                             new Class[]{ targetType }, handler );
 		}
 
         return null;

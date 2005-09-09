@@ -23,6 +23,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.FactoryContainer;
 import org.eclipse.jdt.apt.core.util.FactoryPath;
+import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorAnnotationProcessor;
+import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorTestCodeExample;
 import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
@@ -68,6 +70,9 @@ public class FactoryLoaderTests extends Tests {
 		IPath srcRoot = getSourcePath();
 		String code = LoaderTestCodeExample.CODE;
 		env.addClass(srcRoot, LoaderTestCodeExample.CODE_PACKAGE, LoaderTestCodeExample.CODE_CLASS_NAME, code);
+		
+		code = ColorTestCodeExample.CODE;
+		env.addClass(srcRoot, ColorTestCodeExample.CODE_PACKAGE, ColorTestCodeExample.CODE_CLASS_NAME, code);
 }
 	
 	public static String getProjectName() {
@@ -100,6 +105,9 @@ public class FactoryLoaderTests extends Tests {
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		assertTrue(LoaderTestAnnotationProcessor.isLoaded());
+		
+		// Verify that we were able to run the ColorAnnotationProcessor successfully
+		assertTrue(ColorAnnotationProcessor.wasSuccessful());
 		
 		// remove _extJar from the factory list.
 		FactoryPath.removeContainer(jproj, jarContainer);

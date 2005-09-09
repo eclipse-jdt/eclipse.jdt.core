@@ -1,1 +1,2 @@
 org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestAnnotationProcessorFactory
+org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorAnnotationProcessorFactory
