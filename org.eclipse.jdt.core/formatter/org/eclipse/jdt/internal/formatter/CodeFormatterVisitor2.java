@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.compiler.ast.EmptyStatement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -597,9 +598,30 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 	
 	private void formatStatements(final List statements, boolean insertNewLineAfterLastStatement) {
 		final int statementsLength = statements.size();
-		for (int i = 0; i < statementsLength; i++) {
-			final Statement statement = (Statement) statements.get(i);
+		if (statementsLength > 1) {
+			Statement previousStatement = (Statement) statements.get(0);
+			previousStatement.accept(this);
+			for (int i = 1; i < statementsLength - 1; i++) {
+				final Statement statement = (Statement) statements.get(i);
+				if (i > 0
+						&& (previousStatement.getNodeType() == ASTNode.EMPTY_STATEMENT)
+						&& (statement.getNodeType() != ASTNode.EMPTY_STATEMENT)) {
+					this.scribe.printNewLine();
+				}
+				statement.accept(this);
+				previousStatement = statement;
+			}
+			final Statement statement = ((Statement) statements.get(statementsLength - 1));
+			if (previousStatement.getNodeType() == ASTNode.EMPTY_STATEMENT
+					&& statement.getNodeType() != ASTNode.EMPTY_STATEMENT) {
+				this.scribe.printNewLine();
+			}
 			statement.accept(this);
+		} else {
+			((Statement) statements.get(0)).accept(this);
+		}
+		if (insertNewLineAfterLastStatement) {
+			this.scribe.printNewLine();
 		}
 	}
 

@@ -199,7 +199,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			this.preferences.initial_indentation_level = indentationLevel;
 
 			this.newCodeFormatter2 = new CodeFormatterVisitor2(this.preferences, this.options, offset, length, (CompilationUnit) node.getRoot());
-			this.newCodeFormatter2.format(source, (CompilationUnit) node);
+			return this.newCodeFormatter2.format(source, (CompilationUnit) node);
 		}
 		CompilationUnitDeclaration compilationUnitDeclaration = this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
 		
@@ -224,6 +224,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			parser.setResolveBindings(false);
 			parser.setUnitName(""); //$NON-NLS-1$
 			org.eclipse.jdt.core.dom.ASTNode node = parser.createAST(null);
+			if (node.getNodeType() == org.eclipse.jdt.core.dom.ASTNode.COMPILATION_UNIT) return null;
 			if (lineSeparator != null) {
 				this.preferences.line_separator = lineSeparator;
 			} else {
@@ -233,8 +234,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 
 			this.newCodeFormatter2 = new CodeFormatterVisitor2(this.preferences, this.options, offset, length, (CompilationUnit) node.getRoot());
 			
-			TextEdit textEdit = this.newCodeFormatter2.format(source, (org.eclipse.jdt.core.dom.Expression) node);
-			return textEdit;
+			return this.newCodeFormatter2.format(source, (org.eclipse.jdt.core.dom.Expression) node);
 		}
 		
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
@@ -421,8 +421,25 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (expression != null) {
 			if (USE_NEW_FORMATTER) {
-				// (TODO) enable new formatter
-				return null;
+				ASTParser parser = ASTParser.newParser(AST.JLS3);
+				parser.setSource(source.toCharArray());
+				parser.setKind(ASTParser.K_EXPRESSION);
+				parser.setCompilerOptions(getDefaultCompilerOptions());
+				parser.setResolveBindings(false);
+				parser.setUnitName(""); //$NON-NLS-1$
+				org.eclipse.jdt.core.dom.ASTNode node = parser.createAST(null);
+				if (node.getNodeType() == org.eclipse.jdt.core.dom.ASTNode.COMPILATION_UNIT) return null;
+				if (lineSeparator != null) {
+					this.preferences.line_separator = lineSeparator;
+				} else {
+					this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+				}
+				this.preferences.initial_indentation_level = indentationLevel;
+
+				this.newCodeFormatter2 = new CodeFormatterVisitor2(this.preferences, this.options, offset, length, (CompilationUnit) node.getRoot());
+				
+				TextEdit textEdit = this.newCodeFormatter2.format(source, (org.eclipse.jdt.core.dom.Expression) node);
+				return textEdit;
 			}			
 			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, offset, length);
 		}
@@ -431,8 +448,22 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (bodyDeclarations != null) {
 			if (USE_NEW_FORMATTER) {
-				// (TODO) enable new formatter
-				return null;
+				ASTParser parser = ASTParser.newParser(AST.JLS3);
+				parser.setSource(source.toCharArray());
+				parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
+				parser.setCompilerOptions(getDefaultCompilerOptions());
+				parser.setResolveBindings(false);
+				parser.setUnitName(""); //$NON-NLS-1$
+				org.eclipse.jdt.core.dom.ASTNode node = parser.createAST(null);
+				if (lineSeparator != null) {
+					this.preferences.line_separator = lineSeparator;
+				} else {
+					this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+				}
+				this.preferences.initial_indentation_level = indentationLevel;
+
+				this.newCodeFormatter2 = new CodeFormatterVisitor2(this.preferences, this.options, offset, length, (CompilationUnit) node.getRoot());
+				return this.newCodeFormatter2.format(source, (AbstractTypeDeclaration) node);
 			}
 			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, offset, length);
 		}
@@ -441,15 +472,44 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), getDefaultCompilerOptions(), true);
 		if (constructorDeclaration.statements != null) {
 			if (USE_NEW_FORMATTER) {
-				// (TODO) enable new formatter
-				return null;
+				ASTParser parser = ASTParser.newParser(AST.JLS3);
+				parser.setSource(source.toCharArray());
+				parser.setKind(ASTParser.K_STATEMENTS);
+				parser.setCompilerOptions(getDefaultCompilerOptions());
+				parser.setResolveBindings(false);
+				parser.setUnitName(""); //$NON-NLS-1$
+				org.eclipse.jdt.core.dom.ASTNode node = parser.createAST(null);
+				if (lineSeparator != null) {
+					this.preferences.line_separator = lineSeparator;
+				} else {
+					this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+				}
+				this.preferences.initial_indentation_level = indentationLevel;
+
+				this.newCodeFormatter2 = new CodeFormatterVisitor2(this.preferences, this.options, offset, length, (CompilationUnit) node.getRoot());
+				
+				return this.newCodeFormatter2.format(source, (Block) node);
 			}
 			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, offset, length);
 		}
 
 		if (USE_NEW_FORMATTER) {
-			// (TODO) enable new formatter
-			return null;
+			ASTParser parser = ASTParser.newParser(AST.JLS3);
+			parser.setSource(source.toCharArray());
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+			parser.setCompilerOptions(getDefaultCompilerOptions());
+			parser.setResolveBindings(false);
+			parser.setUnitName(""); //$NON-NLS-1$
+			org.eclipse.jdt.core.dom.ASTNode node = parser.createAST(null);
+			if (lineSeparator != null) {
+				this.preferences.line_separator = lineSeparator;
+			} else {
+				this.preferences.line_separator = System.getProperty("line.separator"); //$NON-NLS-1$
+			}
+			this.preferences.initial_indentation_level = indentationLevel;
+
+			this.newCodeFormatter2 = new CodeFormatterVisitor2(this.preferences, this.options, offset, length, (CompilationUnit) node.getRoot());
+			return this.newCodeFormatter2.format(source, (CompilationUnit) node);
 		}
 		// this has to be a compilation unit
 		return formatCompilationUnit(source, indentationLevel, lineSeparator, offset, length);
