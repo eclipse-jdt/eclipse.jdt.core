@@ -486,7 +486,8 @@ public class NullReferenceTest extends AbstractRegressionTest {
 			"----------\n"
 		);
 	}
-
+	//TODO (maxime) - add case with non constant condition in conditional expression   cond() ? ... : ...
+	
 	// null analysis -- autoboxing
 	// TODO (maxime) fix
 	public void _test0030_autoboxing_compound_assignment() {
@@ -809,7 +810,9 @@ public class NullReferenceTest extends AbstractRegressionTest {
 			"----------\n"  
 		);
 	}
-
+	
+	// TODO (maxime) - what about further diagnostics inside fake reachable code ? if (false) { o = null; o.toString(); }
+	
 	// null analysis - if/else
 	public void test0101_if_else() {
 		this.runNegativeTest(
@@ -982,7 +985,19 @@ public class NullReferenceTest extends AbstractRegressionTest {
 			"----------\n"  
 		);
 	}
-
+/* TODO (maxime)
+ 	Object o = new Object();
+ 	while (b) {
+ 		o.toString(); // should signal NPE risk
+ 		if (b2) o = null;
+ 	}
+ */
+	
+/* TODO (maxime)
+ 	Object o = new Object();
+	if (b2) o = null;
+	o.toString(); // should barf
+ */
 	// null analysis -- while
 	// TODO (maxime) fix
 	public void _test0112_while() {
@@ -1118,6 +1133,8 @@ public class NullReferenceTest extends AbstractRegressionTest {
 		);
 	}
 
+	// TODO (maxime) should nuance error message: The variable o may be null...
+	
 	// null analysis -- while
 	// this test shows that, as long as we do not explore all possible
 	// paths, we have to take potential initializations into account
