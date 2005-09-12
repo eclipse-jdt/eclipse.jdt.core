@@ -1115,7 +1115,6 @@ public class Scribe2 {
 			boolean isFirstModifier = true;
 			int currentTokenStartPosition = this.scanner.currentPosition;
 			boolean hasComment = false;
-			boolean hasModifiers = false;
 			while ((this.currentToken = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(this.currentToken) {
 					case TerminalTokens.TokenNamepublic :
@@ -1129,14 +1128,12 @@ public class Scribe2 {
 					case TerminalTokens.TokenNametransient :
 					case TerminalTokens.TokenNamevolatile :
 					case TerminalTokens.TokenNamestrictfp :
-						hasModifiers = true;
 						this.print(this.scanner.getRawTokenSource(), !isFirstModifier);
 						isFirstModifier = false;
 						currentTokenStartPosition = this.scanner.currentPosition;
 						modifiersIndex++;
 						break;
 					case TerminalTokens.TokenNameAT :
-						hasModifiers = true;
 						if (!isFirstModifier) {
 							this.space();
 						}
@@ -1188,9 +1185,6 @@ public class Scribe2 {
 						hasComment = false;
 						break;
 					default:
-						if (hasModifiers) {
-							this.space();
-						}
 						// step back one token
 						this.scanner.resetTo(currentTokenStartPosition, this.scannerEndPosition - 1);
 						return;					

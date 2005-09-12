@@ -100,6 +100,50 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		return false;
 	}
 	
+
+	public static int extractInfixExpressionOperator(InfixExpression node) {
+		final InfixExpression.Operator infixOperator = node.getOperator();
+		if (infixOperator == InfixExpression.Operator.AND) {
+			return TerminalTokens.TokenNameAND;
+		} else if (infixOperator == InfixExpression.Operator.CONDITIONAL_AND) {
+			return TerminalTokens.TokenNameAND_AND;
+		} else if (infixOperator == InfixExpression.Operator.CONDITIONAL_OR) {
+			return TerminalTokens.TokenNameOR_OR;
+		} else if (infixOperator == InfixExpression.Operator.DIVIDE) {
+			return TerminalTokens.TokenNameDIVIDE;
+		} else if (infixOperator == InfixExpression.Operator.EQUALS) {
+			return TerminalTokens.TokenNameEQUAL_EQUAL;
+		} else if (infixOperator == InfixExpression.Operator.GREATER) {
+			return TerminalTokens.TokenNameGREATER;
+		} else if (infixOperator == InfixExpression.Operator.GREATER_EQUALS) {
+			return TerminalTokens.TokenNameGREATER_EQUAL;
+		} else if (infixOperator == InfixExpression.Operator.LEFT_SHIFT) {
+			return TerminalTokens.TokenNameLEFT_SHIFT;
+		} else if (infixOperator == InfixExpression.Operator.LESS) {
+			return TerminalTokens.TokenNameLESS;
+		} else if (infixOperator == InfixExpression.Operator.LESS_EQUALS) {
+			return TerminalTokens.TokenNameLESS_EQUAL;
+		} else if (infixOperator == InfixExpression.Operator.MINUS) {
+			return TerminalTokens.TokenNameMINUS;
+		} else if (infixOperator == InfixExpression.Operator.NOT_EQUALS) {
+			return TerminalTokens.TokenNameNOT_EQUAL;
+		} else if (infixOperator == InfixExpression.Operator.OR) {
+			return TerminalTokens.TokenNameOR;
+		} else if (infixOperator == InfixExpression.Operator.PLUS) {
+			return TerminalTokens.TokenNamePLUS;
+		} else if (infixOperator == InfixExpression.Operator.REMAINDER) {
+			return TerminalTokens.TokenNameREMAINDER;
+		} else if (infixOperator == InfixExpression.Operator.RIGHT_SHIFT_SIGNED) {
+			return TerminalTokens.TokenNameRIGHT_SHIFT;
+		} else if (infixOperator == InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED) {
+			return TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT;
+		} else if (infixOperator == InfixExpression.Operator.TIMES) {
+			return TerminalTokens.TokenNameMULTIPLY;
+		} else {
+			return TerminalTokens.TokenNameXOR;
+		}
+	}
+
 	private final TextEdit failedToFormat() {
 		if (DEBUG) {
 			System.out.println("COULD NOT FORMAT \n" + this.scribe.scanner); //$NON-NLS-1$
@@ -124,7 +168,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 	
 		try {
 			this.scribe.lastNumberOfNewLines = 1;
-			formatTypeMembers(typeDeclaration.bodyDeclarations());
+			formatTypeMembers(typeDeclaration.bodyDeclarations(), false);
 		} catch(AbortFormatting e){
 			return failedToFormat();
 		}
@@ -417,7 +461,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		methodDeclaration.accept(this);
 	}
 
-	private void formatAction(final int line, final Statement action) {
+	private void formatAction(final int line, final Statement action, boolean insertLineForSingleStatement) {
 		if (action != null) {
 			switch(action.getNodeType()) {
 				case ASTNode.BLOCK :
@@ -425,16 +469,24 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 					action.accept(this);
 					break;
 				case ASTNode.EMPTY_STATEMENT :
+					this.scribe.indent();
 					action.accept(this);
+					this.scribe.unIndent();
 					break;
 				default :
 					this.scribe.printNewLine();
 					this.scribe.indent();
 					action.accept(this);
-					this.scribe.unIndent();			
+					this.scribe.unIndent();
+					if (insertLineForSingleStatement) {
+						this.scribe.printNewLine();
+					}
 			}
 		} else {
+			// empty statement
+			this.scribe.indent();
 			action.accept(this);
+			this.scribe.unIndent();
 		}
 	}
 
@@ -652,7 +704,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		}
 	}
 
-	private void formatTypeMembers(List bodyDeclarations) {
+	private void formatTypeMembers(List bodyDeclarations, boolean insertLineAfterLastMember) {
 		Alignment2 memberAlignment = this.scribe.createMemberAlignment("typeMembers", this.preferences.align_type_members_on_columns ? Alignment.M_MULTICOLUMN : Alignment.M_NO_ALIGNMENT, 3, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterMemberAlignment(memberAlignment);
 		boolean isChunkStart = false;
@@ -696,7 +748,9 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 						this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 						this.scribe.printTrailingComment();
 					}
-					this.scribe.printNewLine();
+					if (i < max - 1 || insertLineAfterLastMember) {
+						this.scribe.printNewLine();
+					}					
 					// realign to the proper value
 					if (this.scribe.memberAlignment != null) {
 						// select the last alignment
@@ -719,6 +773,9 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 			switch(node.getNodeType()) {
 				case ASTNode.ENUM_DECLARATION :
 					insertNewLine = this.preferences.insert_new_line_in_empty_enum_declaration;
+					break;
+				case ASTNode.ENUM_CONSTANT_DECLARATION :
+					insertNewLine = this.preferences.insert_new_line_in_empty_enum_constant;
 					break;
 				case ASTNode.ANONYMOUS_CLASS_DECLARATION :
 					insertNewLine = this.preferences.insert_new_line_in_empty_anonymous_type_declaration;
@@ -838,7 +895,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 			this.scribe.indent();
 		}
 		
-		formatTypeMembers(bodyDeclarations);
+		formatTypeMembers(bodyDeclarations, true);
 		
 		if (indent_body_declarations_compare_to_header) {
 			this.scribe.unIndent();
@@ -902,7 +959,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		
 		this.scribe.indent();
 
-		formatTypeMembers(bodyDeclarations);
+		formatTypeMembers(bodyDeclarations, true);
 
 		this.scribe.unIndent();
 		if (this.preferences.insert_new_line_in_empty_anonymous_type_declaration) {
@@ -1249,8 +1306,11 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 				this.scribe.printEmptyLines(blankLinesBeforePackage);
 			}
 
-			this.scribe.printModifiers(packageDeclaration.annotations(), this);
-			this.scribe.space();
+			final List annotations = packageDeclaration.annotations();
+			if (annotations.size() != 0) {
+				this.scribe.printModifiers(annotations, this);
+				this.scribe.space();
+			}
 			// dump the package keyword
 			this.scribe.printNextToken(TerminalTokens.TokenNamepackage);
 			this.scribe.space();
@@ -1433,7 +1493,26 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		this.scribe.printNextToken(TerminalTokens.TokenNamedo);
 		final int line = this.scribe.line;
 		
-		formatAction(line, node.getBody());
+		final Statement action = node.getBody();
+		if (action != null) {
+			switch(action.getNodeType()) {
+				case ASTNode.BLOCK :
+	                formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
+					action.accept(this);
+					break;
+				case ASTNode.EMPTY_STATEMENT :
+					action.accept(this);
+					break;
+				default :
+					this.scribe.printNewLine();
+					this.scribe.indent();
+					action.accept(this);
+					this.scribe.unIndent();
+					this.scribe.printNewLine();
+			}
+		} else {
+			action.accept(this);
+		}
 
 		if (this.preferences.insert_new_line_before_while_in_do_statement) {
 			this.scribe.printNewLine();
@@ -1480,7 +1559,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_for);
 		
-		formatAction(line, node.getBody());
+		formatAction(line, node.getBody(), false);
 		return false;
 	}
 
@@ -1547,7 +1626,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 				this.scribe.indent();
 			}
 
-			formatTypeMembers(bodyDeclarations);
+			formatTypeMembers(bodyDeclarations, true);
 
 			if (this.preferences.indent_body_declarations_compare_to_enum_constant_header) {
 				this.scribe.unIndent();
@@ -1627,16 +1706,17 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		
 		final String bracePosition = this.preferences.brace_position_for_enum_declaration;
 
-        formatLeftCurlyBrace(line, bracePosition);
-		formatTypeOpeningBrace(bracePosition, this.preferences.insert_space_before_opening_brace_in_enum_declaration, node.bodyDeclarations().size() != 0, node);
+		final List enumConstants = node.enumConstants();
+		final int enumConstantsLength = enumConstants.size();
+
+		formatLeftCurlyBrace(line, bracePosition);
+		formatTypeOpeningBrace(bracePosition, this.preferences.insert_space_before_opening_brace_in_enum_declaration, (enumConstantsLength + node.bodyDeclarations().size()) != 0, node);
 		
 		final boolean indent_body_declarations_compare_to_header = this.preferences.indent_body_declarations_compare_to_enum_declaration_header;
 		if (indent_body_declarations_compare_to_header) {
 			this.scribe.indent();
 		}
 		
-		final List enumConstants = node.enumConstants();
-		final int enumConstantsLength = enumConstants.size();
 		if (enumConstantsLength != 0) {
 			if (enumConstantsLength > 1) {
 				Alignment2 enumConstantsAlignment = this.scribe.createAlignment(
@@ -1694,7 +1774,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 			this.scribe.printNewLine();	
 		}
 
-		formatTypeMembers(node.bodyDeclarations());
+		formatTypeMembers(node.bodyDeclarations(), true);
 		
 		if (indent_body_declarations_compare_to_header) {
 			this.scribe.unIndent();
@@ -1786,7 +1866,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_for);
 		
-		formatAction(line, node.getBody());
+		formatAction(line, node.getBody(), false);
 		return false;
 	}
 
@@ -1918,8 +1998,131 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 	}
 
 	public boolean visit(InfixExpression node) {
-		// TODO Auto-generated method stub
-		return super.visit(node);
+		// active line wrapping
+		final InfixExpressionWrappingBuilder builder = new InfixExpressionWrappingBuilder();
+		node.accept(builder);
+		final int fragmentsSize = builder.getFragmentsCounter();
+		this.scribe.printComment();
+		Alignment2 binaryExpressionAlignment = this.scribe.createAlignment("binaryExpressionAlignment", this.preferences.alignment_for_binary_expression, Alignment.R_OUTERMOST, fragmentsSize, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+		this.scribe.enterAlignment(binaryExpressionAlignment);
+		boolean ok = false;
+		List fragments = builder.fragments;
+		int[] operators = builder.getOperators();
+/*		do {
+			try {
+				final boolean alignAfterOperator = false;
+				if (alignAfterOperator) {
+					for (int i = 0; i < fragmentsSize - 1; i++) {
+						this.scribe.alignFragment(binaryExpressionAlignment, i);
+						((Expression) fragments.get(i)).accept(this);
+						this.scribe.printTrailingComment();
+						if (this.scribe.lastNumberOfNewLines == 1) {
+							// a new line has been inserted by printTrailingComment()
+							this.scribe.indentationLevel = binaryExpressionAlignment.breakIndentationLevel;
+						}
+						this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
+						if (operators[i] == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS)) {
+							// the next character is a minus (unary operator)
+							this.scribe.space();
+						}
+						if (this.preferences.insert_space_after_binary_operator) {
+							this.scribe.space();
+						}
+					}
+					this.scribe.alignFragment(binaryExpressionAlignment, fragmentsSize - 1);
+					((Expression) fragments.get(fragmentsSize - 1)).accept(this);
+					this.scribe.printTrailingComment();
+				} else {
+					this.scribe.alignFragment(binaryExpressionAlignment, 0);
+					((Expression) fragments.get(0)).accept(this);
+					this.scribe.printTrailingComment();
+					if (this.scribe.lastNumberOfNewLines == 1) {
+						if (binaryExpressionAlignment.couldBreak() && binaryExpressionAlignment.wasSplit) {
+							binaryExpressionAlignment.performFragmentEffect();
+						}
+					}
+					for (int i = 1; i < fragmentsSize - 1; i++) {
+						this.scribe.alignFragment(binaryExpressionAlignment, i);
+						this.scribe.printNextToken(operators[i - 1], this.preferences.insert_space_before_binary_operator);
+						if (operators[i] == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS)) {
+							// the next character is a minus (unary operator)
+							this.scribe.space();
+						}
+						if (this.preferences.insert_space_after_binary_operator) {
+							this.scribe.space();
+						}
+						((Expression) fragments.get(i)).accept(this);
+						this.scribe.printTrailingComment();
+						if (this.scribe.lastNumberOfNewLines == 1) {
+							if (binaryExpressionAlignment.couldBreak() && binaryExpressionAlignment.wasSplit) {
+								binaryExpressionAlignment.performFragmentEffect();
+							}
+						}
+					}
+					this.scribe.alignFragment(binaryExpressionAlignment, fragmentsSize - 1);
+					this.scribe.printNextToken(operators[fragmentsSize - 2], this.preferences.insert_space_before_binary_operator);
+					if (operators[fragmentsSize - 2] == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS)) {
+						// the next character is a minus (unary operator)
+						this.scribe.space();
+					}
+					if (this.preferences.insert_space_after_binary_operator) {
+						this.scribe.space();
+					}
+					((Expression) fragments.get(fragmentsSize - 1)).accept(this);
+					this.scribe.printTrailingComment();
+					if (this.scribe.lastNumberOfNewLines == 1) {
+						if (binaryExpressionAlignment.couldBreak() && binaryExpressionAlignment.wasSplit) {
+							binaryExpressionAlignment.performFragmentEffect();
+						}
+					}
+				}
+				ok = true;
+			} catch(AlignmentException e){
+				this.scribe.redoAlignment(e);
+			}
+		} while (!ok);
+		this.scribe.exitAlignment(binaryExpressionAlignment, true);*/
+		do {
+			try {
+				for (int i = 0; i < fragmentsSize - 1; i++) {
+					((Expression) fragments.get(i)).accept(this);
+					this.scribe.printTrailingComment();
+					if (this.scribe.lastNumberOfNewLines == 1) {
+						if (binaryExpressionAlignment.couldBreak() && binaryExpressionAlignment.wasSplit) {
+							binaryExpressionAlignment.performFragmentEffect();
+						}
+					}
+					this.scribe.alignFragment(binaryExpressionAlignment, i);
+					this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
+					if ( this.preferences.insert_space_after_binary_operator
+							|| (operators[i] == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS))) {
+						// the next character is a minus (unary operator) or the preference is set to true
+						this.scribe.space();
+					}
+				}
+				((Expression) fragments.get(fragmentsSize - 1)).accept(this);
+				this.scribe.printTrailingComment();
+				if (this.scribe.lastNumberOfNewLines == 1) {
+					if (binaryExpressionAlignment.couldBreak() && binaryExpressionAlignment.wasSplit) {
+						binaryExpressionAlignment.performFragmentEffect();
+					}
+				}
+				ok = true;
+			} catch(AlignmentException e){
+				this.scribe.redoAlignment(e);
+			}
+		} while (!ok);		
+		this.scribe.exitAlignment(binaryExpressionAlignment, true);		
+/*			leftOperand.accept(this);
+			final int operator = extractInfixExpressionOperator(node);
+			this.scribe.printNextToken(operator, this.preferences.insert_space_before_binary_operator);
+			if ( this.preferences.insert_space_after_binary_operator
+					|| (operator == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS))) {
+				// the next character is a minus (unary operator) or the preference is set to true
+				this.scribe.space();
+			}
+			rightOperand.accept(this);*/
+		return false;
 	}
 
 	public boolean visit(Initializer node) {
@@ -2684,7 +2887,8 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
             this.scribe.printModifiers(modifiers, this);
             this.scribe.space();
         }
-        if (node.isInterface()) {
+        final boolean isInterface = node.isInterface();
+		if (isInterface) {
 			this.scribe.printNextToken(TerminalTokens.TokenNameinterface, true);
         } else {
 			this.scribe.printNextToken(TerminalTokens.TokenNameclass, true);
@@ -2757,21 +2961,22 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 			do {
 				try {
 					this.scribe.alignFragment(interfaceAlignment, 0);
-					this.scribe.printNextToken(TerminalTokens.TokenNameextends, true);
-					for (int i = 0; i < superInterfacesLength; i++) {
-						if (i > 0) {
-							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_superinterfaces);
-							this.scribe.printTrailingComment();
-							this.scribe.alignFragment(interfaceAlignment, i+1);
-							if (this.preferences.insert_space_after_comma_in_superinterfaces) {
-								this.scribe.space();
-							}
-							((Type) superInterfaces.get(i)).accept(this);
-						} else {
-							this.scribe.alignFragment(interfaceAlignment, i+1);
+					if (isInterface) {
+						this.scribe.printNextToken(TerminalTokens.TokenNameextends, true);
+					} else {
+						this.scribe.printNextToken(TerminalTokens.TokenNameimplements, true);
+					}
+					this.scribe.alignFragment(interfaceAlignment, 1);
+					this.scribe.space();
+					((Type) superInterfaces.get(0)).accept(this);
+					for (int i = 1; i < superInterfacesLength; i++) {
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_superinterfaces);
+						this.scribe.printTrailingComment();
+						this.scribe.alignFragment(interfaceAlignment, i+1);
+						if (this.preferences.insert_space_after_comma_in_superinterfaces) {
 							this.scribe.space();
-							((Type) superInterfaces.get(i)).accept(this);
 						}
+						((Type) superInterfaces.get(i)).accept(this);
 					}
 					ok = true;
 				} catch (AlignmentException e) {
@@ -2794,7 +2999,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 			this.scribe.indent();
 		}
 		
-		formatTypeMembers(bodyDeclarations);
+		formatTypeMembers(bodyDeclarations, true);
 		
 		if (indent_body_declarations_compare_to_header) {
 			this.scribe.unIndent();
@@ -2978,7 +3183,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_while);
 		
-		formatAction(line, node.getBody());
+		formatAction(line, node.getBody(),false);
 		return false;
 	}
 
