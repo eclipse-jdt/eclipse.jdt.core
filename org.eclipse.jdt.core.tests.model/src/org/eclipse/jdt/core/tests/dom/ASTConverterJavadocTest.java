@@ -113,7 +113,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		// Run test cases subset
 		COPY_DIR = false;
 		System.err.println("WARNING: only subset of tests will be executed!!!");
-		suite.addTest(new ASTConverterJavadocTest("testBug106581"));
+		suite.addTest(new ASTConverterJavadocTest("testBug84049"));
+		suite.addTest(new ASTConverterJavadocTest("testBug108622"));
 		return suite;
 	}
 
@@ -2450,7 +2451,19 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			ASTNode node = getASTNode(compilUnit, 0, 0);
 			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
 			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-			assertNull("MethodDeclaration should not have any javadoc comment", methodDeclaration.getJavadoc());
+			Javadoc methodJavadoc = methodDeclaration.getJavadoc();
+			assertNotNull("MethodDeclaration have a javadoc comment", methodJavadoc);
+			int javadocStart = methodJavadoc.getStartPosition();
+			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
+			/* TODO (frederic) Enable this block when bug will be fixed...
+			SimpleName methodName = methodDeclaration.getName();
+			int nameStart = methodName.getStartPosition();
+			assertTrue("Method simple name should not include javadoc comment", nameStart > javadocStart+methodJavadoc.getLength());
+			int extendedStart = compilUnit.getExtendedStartPosition(methodName);
+			assertEquals("Method simple name start position should not be extended!", nameStart, extendedStart);
+			int extendedLength = compilUnit.getExtendedLength(methodName);
+			assertEquals("Method simple name length should not be extended!", methodName.getLength(), extendedLength);
+			*/
 		}
 	}
 
@@ -3007,6 +3020,55 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assertEquals("Invalid kind of name reference for tag element: "+tag, ASTNode.SIMPLE_NAME, node.getNodeType());
 			SimpleName simpleName = (SimpleName) node;
 			assertNotNull("We should have a type binding for simple name: "+simpleName, simpleName.resolveTypeBinding());
+		}
+	}
+
+	/**
+	 * Bug 108622: [javadoc][dom] ASTNode not including javadoc
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=108622"
+	 */
+	public void testBug108622() throws JavaModelException {
+		workingCopies = new ICompilationUnit[1];
+		astLevel = AST.JLS3;
+		workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b108622/Test.java",
+			"package javadoc.b108622;\n" + 
+			"/**\n" + 
+			" * \n" + 
+			" */\n" + 
+			"public abstract class Test {\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * \n" + 
+			"	 */\n" + 
+			"	public abstract Zork getFoo();\n" + 
+			"\n" + 
+			"	/**\n" + 
+			"	 * \n" + 
+			"	 */\n" + 
+			"	public abstract void setFoo(Zork dept);\n" + 
+			"\n" + 
+			"}"
+			);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(workingCopies[0], true);
+		if (docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify first method
+			ASTNode node = getASTNode(compilUnit, 0, 0);
+			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			assertEquals("Invalid method name", "getFoo", methodDeclaration.getName().toString());
+			Javadoc methodJavadoc = methodDeclaration.getJavadoc();
+			assertNotNull("MethodDeclaration have a javadoc comment", methodJavadoc);
+			int javadocStart = methodJavadoc.getStartPosition();
+			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
+			// Verify second method
+			node = getASTNode(compilUnit, 0, 1);
+			assertEquals("Invalid type for node: "+node, ASTNode.METHOD_DECLARATION, node.getNodeType());
+			methodDeclaration = (MethodDeclaration) node;
+			assertEquals("Invalid method name", "setFoo", methodDeclaration.getName().toString());
+			methodJavadoc = methodDeclaration.getJavadoc();
+			assertNotNull("MethodDeclaration have a javadoc comment", methodJavadoc);
+			javadocStart = methodJavadoc.getStartPosition();
+			assertEquals("Method declaration should include javadoc comment", methodDeclaration.getStartPosition(), javadocStart);
 		}
 	}
 }
