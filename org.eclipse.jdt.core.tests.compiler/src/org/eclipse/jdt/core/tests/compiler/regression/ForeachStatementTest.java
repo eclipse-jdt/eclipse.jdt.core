@@ -1886,7 +1886,7 @@ public void _test035() {
 	}		
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
-public void _test033() { 
+public void __test033() { 
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1914,7 +1914,7 @@ public void _test033() {
 	// TODO need to add disassembled code to check that the declaring class is Iterable
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
-public void _test034() { 
+public void __test034() { 
 	this.runConformTest(
 		new String[] {
 			"X.java",
