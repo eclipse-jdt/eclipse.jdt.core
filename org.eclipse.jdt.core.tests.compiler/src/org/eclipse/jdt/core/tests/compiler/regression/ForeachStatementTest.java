@@ -41,7 +41,7 @@ protected Map getCompilerOptions() {
 //	static {
 //		TESTS_NAMES = new String[] { "test000" };
 //		TESTS_NUMBERS = new int[] { 31 };
-//		TESTS_RANGE = new int[] { 21, 50 };
+//		TESTS_RANGE = new int[] { 34, 38 };
 //	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
@@ -1684,8 +1684,7 @@ public void test033() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783 - variation
-// TODO (philippe) Disabled as this test fails in HEAD stream
-public void _test034() { 
+public void test034() { 
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1730,40 +1729,40 @@ public void _test034() {
 		"ab");
 	// 	ensure proper declaring class (Bar): 1  invokevirtual Bar.iterator() : java.util.Iterator  [33]
 	String expectedOutput =
-			"  // Method descriptor #23 (LBar;)V\n" + 
-			"  // Signature: (TT;)V\n" + 
-			"  // Stack: 2, Locals: 4\n" + 
-			"  void foo(Bar t);\n" + 
-			"     0  aload_1 [t]\n" + 
-			"     1  invokevirtual Bar.iterator() : java.util.Iterator  [33]\n" +
-			"     4  astore_3\n" + 
-			"     5  goto 25\n" + 
-			"     8  aload_3\n" + 
-			"     9  invokeinterface java.util.Iterator.next() : java.lang.Object  [39] [nargs: 1]\n" + 
-			"    14  checkcast java.lang.String [41]\n" + 
-			"    17  astore_2 [s]\n" + 
-			"    18  getstatic java.lang.System.out : java.io.PrintStream [47]\n" + 
-			"    21  aload_2 [s]\n" + 
-			"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [53]\n" + 
-			"    25  aload_3\n" + 
-			"    26  invokeinterface java.util.Iterator.hasNext() : boolean  [57] [nargs: 1]\n" + 
-			"    31  ifne 8\n" + 
-			"    34  getstatic java.lang.System.out : java.io.PrintStream [47]\n" + 
-			"    37  invokevirtual java.io.PrintStream.println() : void  [60]\n" + 
-			"    40  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 8]\n" + 
-			"        [pc: 18, line: 9]\n" + 
-			"        [pc: 25, line: 8]\n" + 
-			"        [pc: 34, line: 11]\n" + 
-			"        [pc: 40, line: 12]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 41] local: this index: 0 type: X\n" + 
-			"        [pc: 0, pc: 41] local: t index: 1 type: Bar\n" + 
-			"        [pc: 18, pc: 34] local: s index: 2 type: java.lang.String\n" + 
-			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 41] local: this index: 0 type: X<T>\n" + 
-			"        [pc: 0, pc: 41] local: t index: 1 type: T\n";
+		"  // Method descriptor #25 (LBar;)V\n" + 
+		"  // Signature: (TT;)V\n" + 
+		"  // Stack: 2, Locals: 4\n" + 
+		"  void foo(Bar t);\n" + 
+		"     0  aload_1 [t]\n" + 
+		"     1  invokevirtual Bar.iterator() : java.util.Iterator [30]\n" + 
+		"     4  astore_3\n" + 
+		"     5  goto 25\n" + 
+		"     8  aload_3\n" + 
+		"     9  invokeinterface java.util.Iterator.next() : java.lang.Object [34] [nargs: 1]\n" + 
+		"    14  checkcast java.lang.String [40]\n" + 
+		"    17  astore_2 [s]\n" + 
+		"    18  getstatic java.lang.System.out : java.io.PrintStream [42]\n" + 
+		"    21  aload_2 [s]\n" + 
+		"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void [48]\n" + 
+		"    25  aload_3\n" + 
+		"    26  invokeinterface java.util.Iterator.hasNext() : boolean [54] [nargs: 1]\n" + 
+		"    31  ifne 8\n" + 
+		"    34  getstatic java.lang.System.out : java.io.PrintStream [42]\n" + 
+		"    37  invokevirtual java.io.PrintStream.println() : void [58]\n" + 
+		"    40  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 8]\n" + 
+		"        [pc: 18, line: 9]\n" + 
+		"        [pc: 25, line: 8]\n" + 
+		"        [pc: 34, line: 11]\n" + 
+		"        [pc: 40, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 41] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 41] local: t index: 1 type: Bar\n" + 
+		"        [pc: 18, pc: 34] local: s index: 2 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 41] local: this index: 0 type: X<T>\n" + 
+		"        [pc: 0, pc: 41] local: t index: 1 type: T\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1784,8 +1783,7 @@ public void _test034() {
 	}		
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783 - variation
-// TODO (philippe) Disabled as this test fails in HEAD stream
-public void _test035() { 
+public void test035() { 
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1832,40 +1830,40 @@ public void _test035() {
 		"ab");
 	// 	ensure proper declaring class (IFoo): 1  invokeinterface IFoo.iterator() : java.util.Iterator  [35] [nargs: 1]
 	String expectedOutput =
-			"  // Method descriptor #23 (LIFoo;)V\n" + 
-			"  // Signature: (TT;)V\n" + 
-			"  // Stack: 2, Locals: 4\n" + 
-			"  void foo(IFoo t);\n" + 
-			"     0  aload_1 [t]\n" + 
-			"     1  invokeinterface IFoo.iterator() : java.util.Iterator  [35] [nargs: 1]\n" + 
-			"     6  astore_3\n" + 
-			"     7  goto 27\n" + 
-			"    10  aload_3\n" + 
-			"    11  invokeinterface java.util.Iterator.next() : java.lang.Object  [41] [nargs: 1]\n" + 
-			"    16  checkcast java.lang.String [43]\n" + 
-			"    19  astore_2 [s]\n" + 
-			"    20  getstatic java.lang.System.out : java.io.PrintStream [49]\n" + 
-			"    23  aload_2 [s]\n" + 
-			"    24  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [55]\n" + 
-			"    27  aload_3\n" + 
-			"    28  invokeinterface java.util.Iterator.hasNext() : boolean  [59] [nargs: 1]\n" + 
-			"    33  ifne 10\n" + 
-			"    36  getstatic java.lang.System.out : java.io.PrintStream [49]\n" + 
-			"    39  invokevirtual java.io.PrintStream.println() : void  [62]\n" + 
-			"    42  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 8]\n" + 
-			"        [pc: 20, line: 9]\n" + 
-			"        [pc: 27, line: 8]\n" + 
-			"        [pc: 36, line: 11]\n" + 
-			"        [pc: 42, line: 12]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 43] local: this index: 0 type: X\n" + 
-			"        [pc: 0, pc: 43] local: t index: 1 type: IFoo\n" + 
-			"        [pc: 20, pc: 36] local: s index: 2 type: java.lang.String\n" + 
-			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 43] local: this index: 0 type: X<T>\n" + 
-			"        [pc: 0, pc: 43] local: t index: 1 type: T\n";
+		"  // Method descriptor #25 (LIFoo;)V\n" + 
+		"  // Signature: (TT;)V\n" + 
+		"  // Stack: 2, Locals: 4\n" + 
+		"  void foo(IFoo t);\n" + 
+		"     0  aload_1 [t]\n" + 
+		"     1  invokeinterface IFoo.iterator() : java.util.Iterator [30] [nargs: 1]\n" + 
+		"     6  astore_3\n" + 
+		"     7  goto 27\n" + 
+		"    10  aload_3\n" + 
+		"    11  invokeinterface java.util.Iterator.next() : java.lang.Object [36] [nargs: 1]\n" + 
+		"    16  checkcast java.lang.String [42]\n" + 
+		"    19  astore_2 [s]\n" + 
+		"    20  getstatic java.lang.System.out : java.io.PrintStream [44]\n" + 
+		"    23  aload_2 [s]\n" + 
+		"    24  invokevirtual java.io.PrintStream.print(java.lang.String) : void [50]\n" + 
+		"    27  aload_3\n" + 
+		"    28  invokeinterface java.util.Iterator.hasNext() : boolean [56] [nargs: 1]\n" + 
+		"    33  ifne 10\n" + 
+		"    36  getstatic java.lang.System.out : java.io.PrintStream [44]\n" + 
+		"    39  invokevirtual java.io.PrintStream.println() : void [60]\n" + 
+		"    42  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 8]\n" + 
+		"        [pc: 20, line: 9]\n" + 
+		"        [pc: 27, line: 8]\n" + 
+		"        [pc: 36, line: 11]\n" + 
+		"        [pc: 42, line: 12]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 43] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 43] local: t index: 1 type: IFoo\n" + 
+		"        [pc: 20, pc: 36] local: s index: 2 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 43] local: this index: 0 type: X<T>\n" + 
+		"        [pc: 0, pc: 43] local: t index: 1 type: T\n";
 	
 	try {
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1883,10 +1881,10 @@ public void _test035() {
 		assertTrue(false);
 	} catch (IOException e) {
 		assertTrue(false);
-	}		
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
-public void __test033() { 
+public void test036() { 
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1911,10 +1909,58 @@ public void __test033() {
 			"}",
 		},
 		"ab");
-	// TODO need to add disassembled code to check that the declaring class is Iterable
+	String expectedOutput =
+		"  // Method descriptor #37 (Ljava/lang/Runnable;)V\n" + 
+		"  // Signature: <T::Ljava/lang/Runnable;:Ljava/lang/Iterable<Ljava/lang/String;>;>(TT;)V\n" + 
+		"  // Stack: 2, Locals: 4\n" + 
+		"  public void foo(Runnable t);\n" + 
+		"     0  aload_1 [t]\n" + 
+		"     1  invokeinterface java.lang.Iterable.iterator() : java.util.Iterator [39] [nargs: 1]\n" + 
+		"     6  astore_3\n" + 
+		"     7  goto 27\n" + 
+		"    10  aload_3\n" + 
+		"    11  invokeinterface java.util.Iterator.next() : java.lang.Object [43] [nargs: 1]\n" + 
+		"    16  checkcast java.lang.String [18]\n" + 
+		"    19  astore_2 [s]\n" + 
+		"    20  getstatic java.lang.System.out : java.io.PrintStream [49]\n" + 
+		"    23  aload_2 [s]\n" + 
+		"    24  invokevirtual java.io.PrintStream.print(java.lang.String) : void [55]\n" + 
+		"    27  aload_3\n" + 
+		"    28  invokeinterface java.util.Iterator.hasNext() : boolean [61] [nargs: 1]\n" + 
+		"    33  ifne 10\n" + 
+		"    36  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 7]\n" + 
+		"        [pc: 20, line: 8]\n" + 
+		"        [pc: 27, line: 7]\n" + 
+		"        [pc: 36, line: 9]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 37] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 37] local: t index: 1 type: java.lang.Runnable\n" + 
+		"        [pc: 20, pc: 36] local: s index: 2 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 37] local: t index: 1 type: T\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
-public void __test034() { 
+public void test037() { 
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -1938,7 +1984,55 @@ public void __test034() {
 			"}",
 		},
 		"ab");
-	// TODO need to add disassembled code to check that the declaring class is ArrayList
+
+	String expectedOutput =
+		"  // Method descriptor #43 (Ljava/util/ArrayList;)V\n" + 
+		"  // Signature: <T:Ljava/util/ArrayList<Ljava/lang/String;>;>(TT;)V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  public static void foo(ArrayList t);\n" + 
+		"     0  aload_0 [t]\n" + 
+		"     1  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [45]\n" + 
+		"     4  astore_2\n" + 
+		"     5  goto 25\n" + 
+		"     8  aload_2\n" + 
+		"     9  invokeinterface java.util.Iterator.next() : java.lang.Object [49] [nargs: 1]\n" + 
+		"    14  checkcast java.lang.String [19]\n" + 
+		"    17  astore_1 [s]\n" + 
+		"    18  getstatic java.lang.System.out : java.io.PrintStream [55]\n" + 
+		"    21  aload_1 [s]\n" + 
+		"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void [61]\n" + 
+		"    25  aload_2\n" + 
+		"    26  invokeinterface java.util.Iterator.hasNext() : boolean [67] [nargs: 1]\n" + 
+		"    31  ifne 8\n" + 
+		"    34  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 8]\n" + 
+		"        [pc: 18, line: 9]\n" + 
+		"        [pc: 25, line: 8]\n" + 
+		"        [pc: 34, line: 10]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 35] local: t index: 0 type: java.util.ArrayList\n" + 
+		"        [pc: 18, pc: 34] local: s index: 1 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 35] local: t index: 0 type: T\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
 }
 public static Class testClass() {
 	return ForeachStatementTest.class;
