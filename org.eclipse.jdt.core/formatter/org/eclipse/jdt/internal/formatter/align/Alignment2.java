@@ -250,7 +250,7 @@ public class Alignment2 {
 			 *  foo(#AAAAA, #BBBBB,
 			 *     #CCCC);
 			 */
-			case M_COMPACT_SPLIT : 
+			case M_COMPACT_SPLIT :
 				i = this.fragmentIndex;
 				do {
 					if (this.fragmentBreaks[i] == NONE) {
