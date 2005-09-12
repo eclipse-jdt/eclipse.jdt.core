@@ -123,6 +123,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		this.scribe.initializeScanner(compilationUnitSource);
 	
 		try {
+			this.scribe.lastNumberOfNewLines = 1;
 			formatTypeMembers(typeDeclaration.bodyDeclarations());
 		} catch(AbortFormatting e){
 			return failedToFormat();
@@ -416,6 +417,27 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		methodDeclaration.accept(this);
 	}
 
+	private void formatAction(final int line, final Statement action) {
+		if (action != null) {
+			switch(action.getNodeType()) {
+				case ASTNode.BLOCK :
+	                formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
+					action.accept(this);
+					break;
+				case ASTNode.EMPTY_STATEMENT :
+					action.accept(this);
+					break;
+				default :
+					this.scribe.printNewLine();
+					this.scribe.indent();
+					action.accept(this);
+					this.scribe.unIndent();			
+			}
+		} else {
+			action.accept(this);
+		}
+	}
+
 	private void formatBlock(Block block, String block_brace_position, boolean insertSpaceBeforeOpeningBrace) {
 		formatOpeningBrace(block_brace_position, insertSpaceBeforeOpeningBrace);
 		final List statements = block.statements();
@@ -600,19 +622,25 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		if (statementsLength > 1) {
 			Statement previousStatement = (Statement) statements.get(0);
 			previousStatement.accept(this);
+			final int previousStatementNodeType = previousStatement.getNodeType();
 			for (int i = 1; i < statementsLength - 1; i++) {
 				final Statement statement = (Statement) statements.get(i);
-				if (i > 0
-						&& (previousStatement.getNodeType() == ASTNode.EMPTY_STATEMENT)
-						&& (statement.getNodeType() != ASTNode.EMPTY_STATEMENT)) {
+				final int statementNodeType = statement.getNodeType();
+				if ((previousStatementNodeType == ASTNode.EMPTY_STATEMENT
+						&& statementNodeType != ASTNode.EMPTY_STATEMENT)
+					|| (previousStatementNodeType != ASTNode.EMPTY_STATEMENT
+						&& statementNodeType != ASTNode.EMPTY_STATEMENT)) {
 					this.scribe.printNewLine();
 				}
 				statement.accept(this);
 				previousStatement = statement;
 			}
 			final Statement statement = ((Statement) statements.get(statementsLength - 1));
-			if (previousStatement.getNodeType() == ASTNode.EMPTY_STATEMENT
-					&& statement.getNodeType() != ASTNode.EMPTY_STATEMENT) {
+			final int statementNodeType = statement.getNodeType();
+			if ((previousStatementNodeType == ASTNode.EMPTY_STATEMENT
+					&& statementNodeType != ASTNode.EMPTY_STATEMENT)
+				|| (previousStatementNodeType != ASTNode.EMPTY_STATEMENT
+					&& statementNodeType != ASTNode.EMPTY_STATEMENT)) {
 				this.scribe.printNewLine();
 			}
 			statement.accept(this);
@@ -1405,31 +1433,8 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		this.scribe.printNextToken(TerminalTokens.TokenNamedo);
 		final int line = this.scribe.line;
 		
-		final Statement action = node.getBody();
-		if (action != null) {
-			switch(action.getNodeType()) {
-				case ASTNode.BLOCK :
-					formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
-					action.accept(this);
-					break;
-				case ASTNode.EMPTY_STATEMENT :
-					this.scribe.indent();
-					action.accept(this);
-					this.scribe.unIndent();
-					break;
-				default:
-					this.scribe.printNewLine();
-					this.scribe.indent();
-					action.accept(this);
-					this.scribe.printNewLine();
-					this.scribe.unIndent();
-			}
-		} else {
-			this.scribe.indent();
-			action.accept(this);
-			this.scribe.unIndent();
-		}
-		
+		formatAction(line, node.getBody());
+
 		if (this.preferences.insert_new_line_before_while_in_do_statement) {
 			this.scribe.printNewLine();
 		}
@@ -1475,29 +1480,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_for);
 		
-		final Statement action = node.getBody();
-		if (action != null) {
-			switch(action.getNodeType()) {
-				case ASTNode.BLOCK :
-		            formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
-					action.accept(this);
-					break;
-				case ASTNode.EMPTY_STATEMENT :
-					this.scribe.indent();
-					action.accept(this);
-					this.scribe.unIndent();
-					break;
-				default :
-					this.scribe.indent();
-					this.scribe.printNewLine();
-					action.accept(this);
-					this.scribe.unIndent();
-			}
-		} else {
-			this.scribe.indent();
-			action.accept(this);
-			this.scribe.unIndent();
-		}
+		formatAction(line, node.getBody());
 		return false;
 	}
 
@@ -1803,29 +1786,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_for);
 		
-		final Statement action = node.getBody();
-		if (action != null) {
-			switch(action.getNodeType()) {
-				case ASTNode.BLOCK :
-		            formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
-					action.accept(this);
-					break;
-				case ASTNode.EMPTY_STATEMENT :
-					this.scribe.indent();
-					action.accept(this);
-					this.scribe.unIndent();
-					break;
-				default:
-					this.scribe.indent();
-					this.scribe.printNewLine();
-					action.accept(this);
-					this.scribe.unIndent();
-			}
-		} else {
-			this.scribe.indent();
-			action.accept(this);
-			this.scribe.unIndent();
-		}
+		formatAction(line, node.getBody());
 		return false;
 	}
 
@@ -2054,7 +2015,11 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		 */
 		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true); 
 
-		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_method_declaration); 
+		boolean spaceBeforeParen = this.preferences.insert_space_before_opening_paren_in_method_declaration;
+		if (node.isConstructor()) {
+			spaceBeforeParen = this.preferences.insert_space_before_opening_paren_in_constructor_declaration;
+		}
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, spaceBeforeParen); 
 		
 		final List parameters = node.parameters();
 		final int parametersLength = parameters.size();
@@ -3013,30 +2978,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		
 		this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_while);
 		
-		final Statement action = node.getBody();
-		if (action != null) {
-			switch(action.getNodeType()) {
-				case ASTNode.BLOCK :
-	                formatLeftCurlyBrace(line, this.preferences.brace_position_for_block);
-					action.accept(this);
-					break;
-				case ASTNode.EMPTY_STATEMENT :
-					this.scribe.indent();
-					action.accept(this);
-					this.scribe.unIndent();
-					break;
-				default :
-					this.scribe.printNewLine();
-					this.scribe.indent();
-					action.accept(this);
-					this.scribe.unIndent();					
-					
-			}
-		} else {
-			this.scribe.indent();
-			action.accept(this);
-			this.scribe.unIndent();
-		}
+		formatAction(line, node.getBody());
 		return false;
 	}
 
