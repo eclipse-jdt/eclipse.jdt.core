@@ -453,8 +453,12 @@ public static void flushDirectoryContent(File dir) {
 */
 public static String[] getJavaClassLibs() {
 	String jreDir = getJREDirectory();
+	final String osName = System.getProperty("os.name");
 	if (jreDir == null)  {
 		return new String[] {};
+	}
+	if (osName.startsWith("Mac")) {
+		return new String[] { toNativePath(jreDir + "/../Classes/classes.jar")};
 	}
 	final String vmName = System.getProperty("java.vm.name");
 	if ("J9".equals(vmName)) {

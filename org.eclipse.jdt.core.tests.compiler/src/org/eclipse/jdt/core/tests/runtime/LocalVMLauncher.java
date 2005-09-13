@@ -55,6 +55,10 @@ public static LocalVMLauncher getLauncher() {
 	if ("J9".equals(vmName)) {
 		return new J9VMLauncher();
 	}
+	final String osName = System.getProperty("os.name");
+	if (osName.startsWith("Mac")) {
+		return new MacVMLauncher();
+	}
 	File file = new File(Util.getJREDirectory() + "/lib/rt.jar");
 	if (file.exists()) {
 		return new StandardVMLauncher();
