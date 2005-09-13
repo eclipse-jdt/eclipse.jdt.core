@@ -437,7 +437,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		}
 	}
 	private void format(
-			MethodDeclaration methodDeclaration,
+			BodyDeclaration bodyDeclaration,
 			boolean isChunkStart,
 			boolean isFirstClassBodyDeclaration) {
 
@@ -458,7 +458,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		} else if (this.scribe.line != 0 || this.scribe.column != 1) {
 			this.scribe.printNewLine();
 		}
-		methodDeclaration.accept(this);
+		bodyDeclaration.accept(this);
 	}
 
 	private void formatAction(final int line, final Statement action, boolean insertLineForSingleStatement) {
@@ -733,10 +733,10 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 							}
 							bodyDeclaration.accept(this);			
 							break;
+						case ASTNode.ANNOTATION_TYPE_MEMBER_DECLARATION :
 						case ASTNode.METHOD_DECLARATION :
 							isChunkStart = memberAlignment.checkChunkStart(Alignment.CHUNK_METHOD, i, this.scribe.scanner.currentPosition);
-							MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
-							format(methodDeclaration, isChunkStart, i == 0);
+							format(bodyDeclaration, isChunkStart, i == 0);
 							break;
 						case ASTNode.TYPE_DECLARATION :
 						case ASTNode.ENUM_DECLARATION :
@@ -986,26 +986,37 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 	public boolean visit(ArrayCreation node) {
 		this.scribe.printNextToken(TerminalTokens.TokenNamenew);
 		this.scribe.space();
-		node.getType().accept(this);
-		
+		final ArrayType type = node.getType();
 		final List dimensions = node.dimensions();
 		final int dimensionsLength = dimensions.size();
-		for (int i = 0; i < dimensionsLength; i++) {
-			if (this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression) {
-				this.scribe.space();
-			}
-			this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, false);
-			Expression dimension = (Expression) dimensions.get(i);
-			if (dimension != null) {
-				if (this.preferences.insert_space_after_opening_bracket_in_array_allocation_expression) {
-					this.scribe.space();
+
+		final int arrayTypeDimensions = type.getDimensions();
+		type.getElementType().accept(this);
+		if (dimensionsLength != 0) {
+			for (int i = 0; i < dimensionsLength; i++) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression);
+				Expression dimension = (Expression) dimensions.get(i);
+				if (dimension != null) {
+					if (this.preferences.insert_space_after_opening_bracket_in_array_allocation_expression) {
+						this.scribe.space();
+					}
+					dimension.accept(this);
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_before_closing_bracket_in_array_allocation_expression);
+				} else {
+					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression);
 				}
-				dimension.accept(this);
-				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_before_closing_bracket_in_array_allocation_expression);
-			} else {
+			}
+			for (int i = 0, max = arrayTypeDimensions - dimensionsLength; i < max; i++) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression);
+				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression);
+			}
+		} else {
+			for (int i = 0; i < arrayTypeDimensions; i++) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET, this.preferences.insert_space_before_opening_bracket_in_array_allocation_expression);
 				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET, this.preferences.insert_space_between_empty_brackets_in_array_allocation_expression);
 			}
 		}
+		
 		final ArrayInitializer initializer = node.getInitializer();
 		if (initializer != null) {
 			initializer.accept(this);
@@ -1117,19 +1128,14 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 
 	public boolean visit(ArrayType node) {
 		node.getComponentType().accept(this);
-		final int dimensions = node.getDimensions();
-		if (dimensions != 0) {
-			if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
-				this.scribe.space();
-			}
-			for (int i = 0; i < dimensions; i++) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
-				if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
-					this.scribe.space();
-				}
-				this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
-			}
+		if (this.preferences.insert_space_before_opening_bracket_in_array_type_reference) {
+			this.scribe.space();
 		}
+		this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
+		if (this.preferences.insert_space_between_brackets_in_array_type_reference) {
+			this.scribe.space();
+		}
+		this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
 		return false;
 	}
 
@@ -1153,7 +1159,32 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 
 	public boolean visit(Assignment node) {
 		node.getLeftHandSide().accept(this);
-		this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operator);
+		Assignment.Operator operator = node.getOperator();
+		if (operator == Assignment.Operator.ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else if (operator == Assignment.Operator.MINUS_ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameMINUS_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else if (operator == Assignment.Operator.PLUS_ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNamePLUS_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else if (operator == Assignment.Operator.TIMES_ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameMULTIPLY_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else if (operator == Assignment.Operator.DIVIDE_ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameDIVIDE_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else if (operator == Assignment.Operator.REMAINDER_ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameREMAINDER_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else if (operator == Assignment.Operator.LEFT_SHIFT_ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameLEFT_SHIFT_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else if (operator == Assignment.Operator.RIGHT_SHIFT_SIGNED_ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameRIGHT_SHIFT_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else if (operator == Assignment.Operator.RIGHT_SHIFT_UNSIGNED_ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else if (operator == Assignment.Operator.BIT_AND_ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameAND_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else if (operator == Assignment.Operator.BIT_OR_ASSIGN) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameOR_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} else {
+			this.scribe.printNextToken(TerminalTokens.TokenNameXOR_EQUAL, this.preferences.insert_space_before_assignment_operator);
+		} 
 		if (this.preferences.insert_space_after_assignment_operator) {
 			this.scribe.space();
 		}
@@ -1285,6 +1316,10 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_method_invocation); 
 		} else {
 			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_parens_in_method_invocation); 
+		}
+		final AnonymousClassDeclaration classDeclaration = node.getAnonymousClassDeclaration();
+		if (classDeclaration != null) {
+			classDeclaration.accept(this);
 		}
 		return false;
 	}
@@ -2359,8 +2394,95 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 	}
 
 	public boolean visit(MethodInvocation node) {
-		// TODO Auto-generated method stub
-		return super.visit(node);
+		MethodInvocationFragmentBuilder builder = new MethodInvocationFragmentBuilder();
+		node.accept(builder);
+		
+		final List fragments = builder.fragments();
+		final int fragmentsLength = fragments.size();
+		if (fragmentsLength >= 3) {
+			// manage cascading method invocations
+		} else {
+			Expression expression = node.getExpression();
+			if (expression != null) {
+				expression.accept(this);
+				this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+			}
+			final List typeArguments = node.typeArguments();
+			final int typeArgumentsLength = typeArguments.size();
+			if (typeArgumentsLength != 0) {
+				this.scribe.printNextToken(TerminalTokens.TokenNameLESS, this.preferences.insert_space_before_opening_angle_bracket_in_type_arguments); 
+				if (this.preferences.insert_space_after_opening_angle_bracket_in_type_arguments) {
+					this.scribe.space();
+				}
+				for (int i = 0; i < typeArgumentsLength - 1; i++) {
+					((Type) typeArguments.get(i)).accept(this);
+					this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_type_arguments);
+					if (this.preferences.insert_space_after_comma_in_type_arguments) {
+						this.scribe.space();
+					}				
+				}
+				((Type) typeArguments.get(typeArgumentsLength - 1)).accept(this);
+				if (isClosingGenericToken()) {
+					this.scribe.printNextToken(CLOSING_GENERICS_EXPECTEDTOKENS, this.preferences.insert_space_before_closing_angle_bracket_in_type_arguments); 
+				}
+				if (this.preferences.insert_space_after_closing_angle_bracket_in_type_arguments) {
+					this.scribe.space();
+				}
+			}
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier); // selector
+			this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_method_invocation);
+
+			final List arguments = node.arguments();
+			final int argumentsLength = arguments.size();
+			if (argumentsLength != 0) {
+				if (this.preferences.insert_space_after_opening_paren_in_method_invocation) {
+					this.scribe.space();
+				}
+				if (argumentsLength > 1) {
+					Alignment2 argumentsAlignment = this.scribe.createAlignment(
+							"messageArguments", //$NON-NLS-1$
+							this.preferences.alignment_for_arguments_in_method_invocation,
+							argumentsLength,
+							this.scribe.scanner.currentPosition);
+					this.scribe.enterAlignment(argumentsAlignment);
+					boolean ok = false;
+					do {
+						try {
+							for (int i = 0; i < argumentsLength; i++) {
+								if (i > 0) {
+									this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_method_invocation_arguments);
+									this.scribe.printTrailingComment();
+								}
+								this.scribe.alignFragment(argumentsAlignment, i);
+								if (i > 0 && this.preferences.insert_space_after_comma_in_method_invocation_arguments) {
+									this.scribe.space();
+								}
+								((Expression) arguments.get(i)).accept(this);
+							}
+							ok = true;
+						} catch (AlignmentException e) {
+							this.scribe.redoAlignment(e);
+						}
+					} while (!ok);
+					this.scribe.exitAlignment(argumentsAlignment, true);
+				} else {
+					for (int i = 0; i < argumentsLength; i++) {
+						if (i > 0) {
+							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_method_invocation_arguments);
+							this.scribe.printTrailingComment();
+						}
+						if (i > 0 && this.preferences.insert_space_after_comma_in_method_invocation_arguments) {
+							this.scribe.space();
+						}
+						((Expression) arguments.get(i)).accept(this);
+					}
+				}
+				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_method_invocation); 
+			} else {
+				this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_parens_in_method_invocation);
+			}			
+		}
+		return false;
 	}
 	
 	public boolean visit(NormalAnnotation node) {
@@ -2550,8 +2672,19 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 
 		node.getType().accept(this);
 		
-		// single field declaration
-		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
+		if (node.isVarargs()) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameELLIPSIS, this.preferences.insert_space_before_ellipsis);
+			if (this.preferences.insert_space_after_ellipsis) {
+				this.scribe.space();
+			}
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false);
+		} else {
+			/*
+			 * Print the argument name
+			 */	
+			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
+		}
+		
 		final int extraDimensions = node.getExtraDimensions();
 		if (extraDimensions != 0) {
 			for (int i = 0; i < extraDimensions; i++) {
@@ -2675,8 +2808,66 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 	}
 
 	public boolean visit(SuperMethodInvocation node) {
-		// TODO Auto-generated method stub
-		return super.visit(node);
+		final Name qualifier = node.getQualifier();
+		if (qualifier != null) {
+			qualifier.accept(this);
+			this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+		}
+		this.scribe.printNextToken(TerminalTokens.TokenNamesuper);
+		this.scribe.printNextToken(TerminalTokens.TokenNameDOT);
+		this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier);
+		this.scribe.printNextToken(TerminalTokens.TokenNameLPAREN, this.preferences.insert_space_before_opening_paren_in_method_invocation);
+
+		final List arguments = node.arguments();
+		final int argumentsLength = arguments.size();
+		if (argumentsLength != 0) {
+			if (this.preferences.insert_space_after_opening_paren_in_method_invocation) {
+				this.scribe.space();
+			}
+			if (argumentsLength > 1) {
+				Alignment2 argumentsAlignment = this.scribe.createAlignment(
+						"messageArguments", //$NON-NLS-1$
+						this.preferences.alignment_for_arguments_in_method_invocation,
+						argumentsLength,
+						this.scribe.scanner.currentPosition);
+				this.scribe.enterAlignment(argumentsAlignment);
+				boolean ok = false;
+				do {
+					try {
+						for (int i = 0; i < argumentsLength; i++) {
+							if (i > 0) {
+								this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_method_invocation_arguments);
+								this.scribe.printTrailingComment();
+							}
+							this.scribe.alignFragment(argumentsAlignment, i);
+							if (i > 0 && this.preferences.insert_space_after_comma_in_method_invocation_arguments) {
+								this.scribe.space();
+							}
+							((Expression) arguments.get(i)).accept(this);
+						}
+						ok = true;
+					} catch (AlignmentException e) {
+						this.scribe.redoAlignment(e);
+					}
+				} while (!ok);
+				this.scribe.exitAlignment(argumentsAlignment, true);
+			} else {
+				for (int i = 0; i < argumentsLength; i++) {
+					if (i > 0) {
+						this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_method_invocation_arguments);
+						this.scribe.printTrailingComment();
+					}
+					if (i > 0 && this.preferences.insert_space_after_comma_in_method_invocation_arguments) {
+						this.scribe.space();
+					}
+					((Expression) arguments.get(i)).accept(this);
+				}
+			}
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_before_closing_paren_in_method_invocation); 
+		} else {
+			this.scribe.printNextToken(TerminalTokens.TokenNameRPAREN, this.preferences.insert_space_between_empty_parens_in_method_invocation);
+		}			
+		return false;
 	}
 
 	public boolean visit(SwitchCase node) {

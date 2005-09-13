@@ -466,6 +466,14 @@ class ASTConverter {
 				int extraDimensions = retrieveExtraDimension(rightParenthesisPosition, method.bodyEnd);
 				methodDecl.setExtraDimensions(extraDimensions);
 				setTypeForMethodDeclaration(methodDecl, returnType, extraDimensions);
+			} else {
+				switch(this.ast.apiLevel) {
+					case AST.JLS2_INTERNAL :
+						methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
+						break;
+					case AST.JLS3 :
+						methodDecl.setReturnType2(null);
+				}
 			}
 		}
 		int declarationSourceStart = methodDeclaration.declarationSourceStart;
