@@ -38,11 +38,11 @@ protected Map getCompilerOptions() {
 }
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
-//	static {
+	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 31 };
+//		TESTS_NUMBERS = new int[] { 36, 37};
 //		TESTS_RANGE = new int[] { 21, 50 };
-//	}
+	}
 	public static Test suite() {
 		Test suite = buildTestSuite(testClass());
 		TESTS_COUNTERS.put(testClass().getName(), new Integer(suite.countTestCases()));
@@ -1882,6 +1882,157 @@ public void test035() {
 	} catch (IOException e) {
 		assertTrue(false);
 	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
+public void test036() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.Iterator;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X implements Iterable<String>, Runnable {\n" +
+			"	public <T extends Runnable & Iterable<String>> void foo(T t) {\n" +
+			"		for (String s : t)\n" +
+			"			System.out.print(s);\n" +
+			"	}\n" +
+			"	public void run() {	/* */ }\n" +
+			"	private List<String> list = Arrays.asList(new String[] { \"a\", \"b\" });\n" +
+			"	public Iterator<String> iterator() {\n" +
+			"		return this.list.iterator();\n" +
+			"	}\n" +
+			"	public static void main(String... args) {\n" +
+			"		X x = new X();\n" +
+			"		x.foo(x);\n" +
+			"	}\n" +
+			"}",
+		},
+		"ab");
+	String expectedOutput =
+		"  // Method descriptor #37 (Ljava/lang/Runnable;)V\n" + 
+		"  // Signature: <T::Ljava/lang/Runnable;:Ljava/lang/Iterable<Ljava/lang/String;>;>(TT;)V\n" + 
+		"  // Stack: 2, Locals: 4\n" + 
+		"  public void foo(Runnable t);\n" + 
+		"     0  aload_1 [t]\n" + 
+		"     1  invokeinterface java.lang.Iterable.iterator() : java.util.Iterator  [42] [nargs: 1]\n" + 
+		"     6  astore_3\n" + 
+		"     7  goto 27\n" + 
+		"    10  aload_3\n" + 
+		"    11  invokeinterface java.util.Iterator.next() : java.lang.Object  [48] [nargs: 1]\n" + 
+		"    16  checkcast java.lang.String [19]\n" + 
+		"    19  astore_2 [s]\n" + 
+		"    20  getstatic java.lang.System.out : java.io.PrintStream [54]\n" + 
+		"    23  aload_2 [s]\n" + 
+		"    24  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [60]\n" + 
+		"    27  aload_3\n" + 
+		"    28  invokeinterface java.util.Iterator.hasNext() : boolean  [64] [nargs: 1]\n" + 
+		"    33  ifne 10\n" + 
+		"    36  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 7]\n" + 
+		"        [pc: 20, line: 8]\n" + 
+		"        [pc: 27, line: 7]\n" + 
+		"        [pc: 36, line: 9]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 37] local: this index: 0 type: X\n" + 
+		"        [pc: 0, pc: 37] local: t index: 1 type: java.lang.Runnable\n" + 
+		"        [pc: 20, pc: 36] local: s index: 2 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 37] local: t index: 1 type: T\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108783
+public void test037() { 
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.Iterator;\n" +
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static <T extends ArrayList<String>> void foo(T t) {\n" +
+			"		for (String s : t)\n" +
+			"			System.out.print(s);\n" +
+			"	}\n" +
+			"	private static ArrayList<String> list = new ArrayList<String>();\n" +
+			"	static {\n" +
+			"		list.addAll(Arrays.asList(new String[] { \"a\", \"b\" }));\n" +
+			"	}\n" +
+			"	public static void main(String... args) {\n" +
+			"		foo(list);\n" +
+			"	}\n" +
+			"}",
+		},
+		"ab");
+
+	String expectedOutput =
+		"  // Method descriptor #43 (Ljava/util/ArrayList;)V\n" + 
+		"  // Signature: <T:Ljava/util/ArrayList<Ljava/lang/String;>;>(TT;)V\n" + 
+		"  // Stack: 2, Locals: 3\n" + 
+		"  public static void foo(ArrayList t);\n" + 
+		"     0  aload_0 [t]\n" + 
+		"     1  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator  [48]\n" + 
+		"     4  astore_2\n" + 
+		"     5  goto 25\n" + 
+		"     8  aload_2\n" + 
+		"     9  invokeinterface java.util.Iterator.next() : java.lang.Object  [54] [nargs: 1]\n" + 
+		"    14  checkcast java.lang.String [20]\n" + 
+		"    17  astore_1 [s]\n" + 
+		"    18  getstatic java.lang.System.out : java.io.PrintStream [60]\n" + 
+		"    21  aload_1 [s]\n" + 
+		"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void  [66]\n" + 
+		"    25  aload_2\n" + 
+		"    26  invokeinterface java.util.Iterator.hasNext() : boolean  [70] [nargs: 1]\n" + 
+		"    31  ifne 8\n" + 
+		"    34  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 8]\n" + 
+		"        [pc: 18, line: 9]\n" + 
+		"        [pc: 25, line: 8]\n" + 
+		"        [pc: 34, line: 10]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 35] local: t index: 0 type: java.util.ArrayList\n" + 
+		"        [pc: 18, pc: 34] local: s index: 1 type: java.lang.String\n" + 
+		"      Local variable type table:\n" + 
+		"        [pc: 0, pc: 35] local: t index: 0 type: T\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}
 }
 public static Class testClass() {
 	return ForeachStatementTest.class;
