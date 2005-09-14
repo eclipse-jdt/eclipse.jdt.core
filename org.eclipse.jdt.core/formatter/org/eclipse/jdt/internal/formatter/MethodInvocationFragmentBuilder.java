@@ -17,7 +17,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 
 class MethodInvocationFragmentBuilder
@@ -48,18 +47,14 @@ class MethodInvocationFragmentBuilder
 					this.fragmentsList.add(expression);
 			}
 		}
-		this.fragmentsList.add(methodInvocation.getName());
+		this.fragmentsList.add(methodInvocation);
 		return false;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ASTVisitor#visit(org.eclipse.jdt.internal.compiler.ast.MessageSend, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
 	public boolean visit(SuperMethodInvocation methodInvocation) {
-		final Name qualifier = methodInvocation.getQualifier();
-		if (qualifier != null) {
-			this.fragmentsList.add(qualifier);
-		}
-		this.fragmentsList.add(methodInvocation.getName());
+		this.fragmentsList.add(methodInvocation);
 		return false;
 	}
 }
