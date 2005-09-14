@@ -14,7 +14,6 @@ package org.eclipse.jdt.core.tests.dom;
 import java.util.*;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.jdt.core.*;
@@ -33,14 +32,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 	public ASTConverterTest(String name) {
 		super(name);
 	}
-
+	static {
+//		TESTS_NAMES = new String[] {"test0602"};
+//		TESTS_NUMBERS =  new int[] { 618 };
+	}
 	public static Test suite() {
-		if (true) {
-			return new Suite(ASTConverterTest.class);		
-		}
-		TestSuite suite = new Suite(ASTConverterTest.class.getName());
-		suite.addTest(new ASTConverterTest("test0206"));
-		return suite;
+		return buildTestSuite(ASTConverterTest.class);
 	}
 		
 	/** @deprecated using deprecated code */
