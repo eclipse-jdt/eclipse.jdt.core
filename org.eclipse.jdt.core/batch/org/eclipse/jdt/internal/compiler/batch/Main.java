@@ -2230,7 +2230,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 		
-	 	 if (bootclasspaths.size() == 0) {
+	 	final File javaHome = getJavaHome();
+		if (bootclasspaths.size() == 0) {
 			/* no bootclasspath specified
 			 * we can try to retrieve the default librairies of the VM used to run
 			 * the batch compiler
@@ -2245,10 +2246,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 	/*
 		 	 * Handle >= JDK 1.2.2 settings: retrieve rt.jar
 		 	 */
-		 	 if (getJavaHome() != null) {
-				File[] directoriesToCheck = new File[] { 
-						new File(getJavaHome(), "lib") //$NON-NLS-1$
-						};
+		 	 if (javaHome != null) {
+				File[] directoriesToCheck = null;
+				if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
+					directoriesToCheck = new File[] {
+						new File(javaHome, "../Classes"), //$NON-NLS-1$
+					};
+				} else {
+					directoriesToCheck = new File[] { 
+						new File(javaHome, "lib") //$NON-NLS-1$
+					};
+				}
 				File[][] systemLibrariesJars = getLibrariesFiles(directoriesToCheck);
 				if (systemLibrariesJars != null) {
 					for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
@@ -2278,7 +2286,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		if (extdirsNames.size() == 0) {
 			String extdirsStr = System.getProperty("java.ext.dirs"); //$NON-NLS-1$
 			if (extdirsStr == null) {
-				extdirsNames.add(getJavaHome().getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
+				extdirsNames.add(javaHome.getAbsolutePath() + "/lib/ext"); //$NON-NLS-1$
 			}
 			else {
 				StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
