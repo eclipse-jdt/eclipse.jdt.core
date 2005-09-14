@@ -6742,7 +6742,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=109535
 	 */
-	public void _test0618() throws JavaModelException {
+	public void test0618() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =
@@ -6776,7 +6776,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			InfixExpression infixExpression2 = (InfixExpression) leftOperand;
 			extendedOperands = infixExpression.extendedOperands();
 			assertEquals("Wrong size", 0, extendedOperands.size());
-			assertEquals("Wrong operator", InfixExpression.Operator.PLUS, infixExpression.getOperator());
+			assertEquals("Wrong operator", InfixExpression.Operator.PLUS, infixExpression2.getOperator());
 			assertEquals("Not a string literal", ASTNode.STRING_LITERAL, infixExpression2.getLeftOperand().getNodeType());
 			assertEquals("Not a string literal", ASTNode.STRING_LITERAL, infixExpression2.getRightOperand().getNodeType());
 		} finally {
