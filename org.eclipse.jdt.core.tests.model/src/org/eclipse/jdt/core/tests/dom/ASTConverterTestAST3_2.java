@@ -106,7 +106,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 616, 617 };
+//		TESTS_NUMBERS =  new int[] { 618 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterTestAST3_2.class);
@@ -6734,6 +6734,51 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			final List extendedOperands = infixExpression.extendedOperands();
 			assertEquals("Wrong size", 3, extendedOperands.size());
 			assertEquals("Wrong operator", InfixExpression.Operator.CONDITIONAL_OR, infixExpression.getOperator());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=109535
+	 */
+	public void _test0618() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\r\n" + 
+				"	String f = \"\" + \"\" - 1;\r\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", false/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0);
+			assertNotNull("No node", node);
+			assertEquals("Not a field declaration ", ASTNode.FIELD_DECLARATION, node.getNodeType());
+			final FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+			final List fragments = fieldDeclaration.fragments();
+			assertEquals("Wrong size", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			final Expression initializer = fragment.getInitializer();
+			assertNotNull("No initializer", initializer);
+			assertEquals("Not an infix expression", ASTNode.INFIX_EXPRESSION, initializer.getNodeType());
+			InfixExpression infixExpression = (InfixExpression) initializer;
+			List extendedOperands = infixExpression.extendedOperands();
+			assertEquals("Wrong size", 0, extendedOperands.size());
+			assertEquals("Wrong operator", InfixExpression.Operator.MINUS, infixExpression.getOperator());
+			Expression leftOperand = infixExpression.getLeftOperand();
+			assertEquals("Not an infix expression", ASTNode.INFIX_EXPRESSION, leftOperand.getNodeType());
+			InfixExpression infixExpression2 = (InfixExpression) leftOperand;
+			extendedOperands = infixExpression.extendedOperands();
+			assertEquals("Wrong size", 0, extendedOperands.size());
+			assertEquals("Wrong operator", InfixExpression.Operator.PLUS, infixExpression.getOperator());
+			assertEquals("Not a string literal", ASTNode.STRING_LITERAL, infixExpression2.getLeftOperand().getNodeType());
+			assertEquals("Not a string literal", ASTNode.STRING_LITERAL, infixExpression2.getRightOperand().getNodeType());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
