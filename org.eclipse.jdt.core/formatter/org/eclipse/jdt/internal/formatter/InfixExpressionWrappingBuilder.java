@@ -33,7 +33,7 @@ public class InfixExpressionWrappingBuilder extends ASTVisitor {
 		}
 		return false;
 	}
-	public boolean visit(InfixExpression node) { 
+	public boolean visit(InfixExpression node) {
 		final Expression leftOperand = node.getLeftOperand();
 		final Expression rightOperand = node.getRightOperand();
 		if (leftOperand.getNodeType() == ASTNode.INFIX_EXPRESSION && isSplittable(leftOperand)) {
