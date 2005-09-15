@@ -2134,6 +2134,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 					}
 					this.scribe.alignFragment(binaryExpressionAlignment, i);
 					this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
+					this.scribe.printTrailingComment();
 					if ( this.preferences.insert_space_after_binary_operator
 							|| (operators[i] == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS))) {
 						// the next character is a minus (unary operator) or the preference is set to true
