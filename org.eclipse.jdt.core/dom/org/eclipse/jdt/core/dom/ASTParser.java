@@ -927,7 +927,11 @@ public class ASTParser {
 					if (statements != null) {
 						int statementsLength = statements.length;
 						for (int i = 0; i < statementsLength; i++) {
-							block.statements().add(converter.convert(statements[i]));
+							if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
+								converter.checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
+							} else {
+								block.statements().add(converter.convert(statements[i]));
+							}
 						}
 					}
 					rootNodeToCompilationUnit(ast, compilationUnit, block, recordedParsingInformation);
