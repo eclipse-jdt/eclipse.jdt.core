@@ -2213,6 +2213,12 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 	}
 
 	public boolean visit(MethodDeclaration node) {
+		if ((node.getFlags() & ASTNode.MALFORMED) != 0) {
+			this.scribe.printComment();
+			this.scribe.scanner.resetTo(node.getStartPosition() + node.getLength(), this.scribe.scannerEndPosition);
+			this.scribe.printTrailingComment();
+			return false;
+		}
         /*
          * Print comments to get proper line number
          */
