@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.osgi.service.prefs.BackingStoreException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -159,6 +160,8 @@ public class JavaModelManager implements ISaveParticipant {
 	public static final String CONTAINER_INITIALIZER_PERF = JavaCore.PLUGIN_ID + "/perf/containerinitializer" ; //$NON-NLS-1$
 	public static final String RECONCILE_PERF = JavaCore.PLUGIN_ID + "/perf/reconcile" ; //$NON-NLS-1$
 	
+	private static final String ENABLE_NEW_FORMATTER = JavaCore.PLUGIN_ID + "/formatter/enable_new" ; //$NON-NLS-1$
+
 	public static boolean PERF_VARIABLE_INITIALIZER = false;
 	public static boolean PERF_CONTAINER_INITIALIZER = false;
 	
@@ -932,6 +935,9 @@ public class JavaModelManager implements ISaveParticipant {
 			
 			option = Platform.getDebugOption(SOURCE_MAPPER_DEBUG_VERBOSE);
 			if(option != null) SourceMapper.VERBOSE = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
+			
+			option = Platform.getDebugOption(ENABLE_NEW_FORMATTER);
+			if(option != null) DefaultCodeFormatter.USE_NEW_FORMATTER = option.equalsIgnoreCase("true") ; //$NON-NLS-1$
 		}
 		
 		// configure performance options
