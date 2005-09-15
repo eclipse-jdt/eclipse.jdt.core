@@ -368,7 +368,19 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 							if (this.preferences.insert_space_after_assignment_operator) {
 								this.scribe.space();
 							}
-							initialization.accept(this);
+							Alignment2 assignmentAlignment = this.scribe.createAlignment("fieldDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+							this.scribe.enterAlignment(assignmentAlignment);
+							boolean ok2 = false;
+							do {
+								try {
+									this.scribe.alignFragment(assignmentAlignment, 0);
+									initialization.accept(this);
+									ok2 = true;
+								} catch(AlignmentException e){
+									this.scribe.redoAlignment(e);
+								}
+							} while (!ok2);		
+							this.scribe.exitAlignment(assignmentAlignment, true);			
 						}
 						
 						if (i != fragmentsLength - 1) {
@@ -410,7 +422,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 				if (this.preferences.insert_space_after_assignment_operator) {
 					this.scribe.space();
 				}
-				Alignment2 assignmentAlignment = this.scribe.createAlignment("fieldDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, Alignment.R_OUTERMOST, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+				Alignment2 assignmentAlignment = this.scribe.createAlignment("fieldDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 				this.scribe.enterAlignment(assignmentAlignment);
 				boolean ok = false;
 				do {
@@ -559,7 +571,10 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 
 		declarationExpression.getType().accept(this);
 		
-		List fragments = declarationExpression.fragments();
+		formatVariableDeclarationFragments(declarationExpression.fragments(), insertSpaceBeforeComma, insertSpaceAfterComma);
+	}
+
+	private void formatVariableDeclarationFragments(final List fragments, boolean insertSpaceBeforeComma, boolean insertSpaceAfterComma) {
 		final int fragmentsLength = fragments.size();
 		if (fragmentsLength > 1) {
 			// multiple field declaration
@@ -604,7 +619,19 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 							if (this.preferences.insert_space_after_assignment_operator) {
 								this.scribe.space();
 							}
-							initialization.accept(this);
+							Alignment2 assignmentAlignment = this.scribe.createAlignment("fieldDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+							this.scribe.enterAlignment(assignmentAlignment);
+							boolean ok2 = false;
+							do {
+								try {
+									this.scribe.alignFragment(assignmentAlignment, 0);
+									initialization.accept(this);
+									ok2 = true;
+								} catch(AlignmentException e){
+									this.scribe.redoAlignment(e);
+								}
+							} while (!ok2);		
+							this.scribe.exitAlignment(assignmentAlignment, true);			
 						}
 						
 						if (i != fragmentsLength - 1) {
@@ -640,7 +667,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 				if (this.preferences.insert_space_after_assignment_operator) {
 					this.scribe.space();
 				}
-				Alignment2 assignmentAlignment = this.scribe.createAlignment("localDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, Alignment.R_OUTERMOST, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+				Alignment2 assignmentAlignment = this.scribe.createAlignment("localDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 				this.scribe.enterAlignment(assignmentAlignment);
 				boolean ok = false;
 				do {
@@ -1189,7 +1216,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 			this.scribe.space();
 		}
 
-		Alignment2 assignmentAlignment = this.scribe.createAlignment("assignmentAlignment", this.preferences.alignment_for_assignment, Alignment.R_OUTERMOST, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+		Alignment2 assignmentAlignment = this.scribe.createAlignment("assignmentAlignment", this.preferences.alignment_for_assignment, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 		this.scribe.enterAlignment(assignmentAlignment);
 		boolean ok = false;
 		do {
@@ -2135,6 +2162,11 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 					this.scribe.alignFragment(binaryExpressionAlignment, i);
 					this.scribe.printNextToken(operators[i], this.preferences.insert_space_before_binary_operator);
 					this.scribe.printTrailingComment();
+					if (this.scribe.lastNumberOfNewLines == 1) {
+						if (binaryExpressionAlignment.couldBreak() && binaryExpressionAlignment.wasSplit) {
+							binaryExpressionAlignment.performFragmentEffect();
+						}
+					}
 					if ( this.preferences.insert_space_after_binary_operator
 							|| (operators[i] == TerminalTokens.TokenNameMINUS && isNextToken(TerminalTokens.TokenNameMINUS))) {
 						// the next character is a minus (unary operator) or the preference is set to true
@@ -2750,7 +2782,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 			if (this.preferences.insert_space_after_assignment_operator) {
 				this.scribe.space();
 			}
-			Alignment2 assignmentAlignment = this.scribe.createAlignment("localDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, Alignment.R_OUTERMOST, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
+			Alignment2 assignmentAlignment = this.scribe.createAlignment("localDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
 			this.scribe.enterAlignment(assignmentAlignment);
 			boolean ok = false;
 			do {
@@ -3319,101 +3351,7 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 
 		node.getType().accept(this);
 		
-		List fragments = node.fragments();
-		final int fragmentsLength = fragments.size();
-		if (fragmentsLength > 1) {
-			// multiple field declaration
-			Alignment2 multiFieldDeclarationsAlignment =this.scribe.createAlignment(
-					"multiple_field",//$NON-NLS-1$
-					this.preferences.alignment_for_multiple_fields,
-					fragmentsLength - 1,
-					this.scribe.scanner.currentPosition);
-			this.scribe.enterAlignment(multiFieldDeclarationsAlignment);
-		
-			boolean ok = false;
-			do {
-				try {
-					for (int i = 0; i < fragmentsLength; i++) {
-						VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(i);
-						/*
-						 * Field name
-						 */
-						if (i == 0) {
-							this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
-						} else {
-							this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, false);
-						}
-				
-						/*
-						 * Check for extra dimensions
-						 */
-						final int extraDimensions = fragment.getExtraDimensions();
-						if (extraDimensions != 0) {
-							 for (int index = 0; index < extraDimensions; index++) {
-							 	this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
-							 	this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
-							 }
-						}
-					
-						/*
-						 * Field initialization
-						 */
-						final Expression initialization = fragment.getInitializer();
-						if (initialization != null) {
-							this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operator);
-							if (this.preferences.insert_space_after_assignment_operator) {
-								this.scribe.space();
-							}
-							initialization.accept(this);
-						}
-						if (i != fragmentsLength - 1) {
-							this.scribe.printNextToken(TerminalTokens.TokenNameCOMMA, this.preferences.insert_space_before_comma_in_multiple_local_declarations);
-							this.scribe.printTrailingComment();
-							this.scribe.alignFragment(multiFieldDeclarationsAlignment, i);
-
-							if (this.preferences.insert_space_after_comma_in_multiple_local_declarations) {
-								this.scribe.space();
-							}
-						}
-					}
-					ok = true;
-				} catch (AlignmentException e) {
-					this.scribe.redoAlignment(e);
-				}
-			} while (!ok);
-			this.scribe.exitAlignment(multiFieldDeclarationsAlignment, true);				
-		} else {
-			// single field declaration
-			this.scribe.printNextToken(TerminalTokens.TokenNameIdentifier, true);
-			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
-			final int extraDimensions = fragment.getExtraDimensions();
-			if (extraDimensions != 0) {
-				for (int i = 0; i < extraDimensions; i++) {
-					this.scribe.printNextToken(TerminalTokens.TokenNameLBRACKET);
-					this.scribe.printNextToken(TerminalTokens.TokenNameRBRACKET);
-				}
-			}
-			final Expression initialization = fragment.getInitializer();
-			if (initialization != null) {
-				this.scribe.printNextToken(TerminalTokens.TokenNameEQUAL, this.preferences.insert_space_before_assignment_operator);
-				if (this.preferences.insert_space_after_assignment_operator) {
-					this.scribe.space();
-				}
-				Alignment2 assignmentAlignment = this.scribe.createAlignment("localDeclarationAssignmentAlignment", this.preferences.alignment_for_assignment, Alignment.R_OUTERMOST, 1, this.scribe.scanner.currentPosition); //$NON-NLS-1$
-				this.scribe.enterAlignment(assignmentAlignment);
-				boolean ok = false;
-				do {
-					try {
-						this.scribe.alignFragment(assignmentAlignment, 0);
-						initialization.accept(this);
-						ok = true;
-					} catch(AlignmentException e){
-						this.scribe.redoAlignment(e);
-					}
-				} while (!ok);		
-				this.scribe.exitAlignment(assignmentAlignment, true);			
-			}
-		}
+		formatVariableDeclarationFragments(node.fragments(), this.preferences.insert_space_before_comma_in_multiple_local_declarations, this.preferences.insert_space_after_comma_in_multiple_local_declarations);
 		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
 		this.scribe.printTrailingComment();
 		return false;

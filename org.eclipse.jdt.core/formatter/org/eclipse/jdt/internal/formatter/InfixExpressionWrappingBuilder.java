@@ -26,12 +26,13 @@ public class InfixExpressionWrappingBuilder extends ASTVisitor {
 		return this.operators;
 	}
 	private boolean isSplittable(Expression expression) {
-		if (expression instanceof InfixExpression) {
-			InfixExpression infixExpression = (InfixExpression) expression;
-			return infixExpression.getLeftOperand() instanceof InfixExpression
-					||  infixExpression.getRightOperand() instanceof InfixExpression;
-		}
-		return false;
+//		if (expression instanceof InfixExpression) {
+//			InfixExpression infixExpression = (InfixExpression) expression;
+//			return infixExpression.getLeftOperand() instanceof InfixExpression
+//					||  infixExpression.getRightOperand() instanceof InfixExpression;
+//		}
+//		return false;
+		return true;
 	}
 	public boolean visit(InfixExpression node) {
 		final Expression leftOperand = node.getLeftOperand();
