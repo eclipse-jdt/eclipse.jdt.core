@@ -11,7 +11,6 @@
 package org.eclipse.jdt.core.tests.formatter.comment;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
@@ -20,11 +19,14 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.formatter.comment.SingleCommentLine;
 
 public class SingleLineTestCase extends CommentTestCase {
-
 	protected static final String PREFIX= SingleCommentLine.SINGLE_COMMENT_PREFIX;
 
+	static {
+//		TESTS_NAMES = new String[] { "test109581" } ;
+	}
+	
 	public static Test suite() {
-		return new TestSuite(SingleLineTestCase.class);
+		return buildTestSuite(SingleLineTestCase.class);
 	}
 
 	public SingleLineTestCase(String name) {
@@ -211,5 +213,10 @@ public class SingleLineTestCase extends CommentTestCase {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "1");
 		String content= PREFIX + "test test";
 		assertEquals(content, testFormat(content));
+	}
+	public void _test109581() {
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT, DefaultCodeFormatterConstants.TRUE);
+		String content= "//// some comment ////";
+		assertEquals(content + DELIMITER, testFormat(content));
 	}
 }
