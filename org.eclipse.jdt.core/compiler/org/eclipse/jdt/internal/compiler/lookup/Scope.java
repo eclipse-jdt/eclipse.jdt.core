@@ -679,7 +679,7 @@ public abstract class Scope
 		// no need to check for visibility - interface methods are public
 		boolean isCompliant14 = compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 		if (isCompliant14)
-			return mostSpecificMethodBinding(candidates, candidatesCount, argumentTypes, invocationSite);
+			return mostSpecificMethodBinding(candidates, candidatesCount, argumentTypes, invocationSite, receiverType);
 		return mostSpecificInterfaceMethodBinding(candidates, candidatesCount, invocationSite);
 	}
 
@@ -1135,15 +1135,18 @@ public abstract class Scope
 					unitScope.recordTypeReferences(matchingMethod.thrownExceptions);
 					return matchingMethod;
 				}
-			} 
-			matchingMethod =
-				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
+			}
+			// when receiverType is abstract then need to find possible matches in interfaces
+			if (receiverType.isAbstract())
+				matchingMethod =
+					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			if (matchingMethod != null) return matchingMethod;
 			return problemMethod;
 		}
 
 		// no match was found, try to find a close match when the parameter order is wrong or missing some parameters
 		if (candidatesCount == 0) {
+			// reduces secondary errors since missing interface method error is already reported
 			MethodBinding interfaceMethod =
 				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			if (interfaceMethod != null) return interfaceMethod;
@@ -1204,9 +1207,9 @@ public abstract class Scope
 			return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, NotVisible);
 		}
 		if (isCompliant14) {
-			matchingMethod = mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite);
+			matchingMethod = mostSpecificMethodBinding(candidates, visiblesCount, argumentTypes, invocationSite, receiverType);
 			if (parameterCompatibilityLevel(matchingMethod, argumentTypes) > COMPATIBLE) {
-				// see if there is a better match in the interfaces
+				// see if there is a better match in the interfaces - see AutoBoxingTest 99
 				MethodBinding interfaceMethod =
 					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, new ObjectVector());
 				if (interfaceMethod != null) return interfaceMethod;
@@ -1654,7 +1657,7 @@ public abstract class Scope
 					compatible[0].parameters,
 					NotVisible);
 			// all of visible are from the same declaringClass, even before 1.4 we can call this method instead of mostSpecificClassMethodBinding
-			return mostSpecificMethodBinding(visible, visibleIndex, argumentTypes, invocationSite);
+			return mostSpecificMethodBinding(visible, visibleIndex, argumentTypes, invocationSite, receiverType);
 		} catch (AbortCompilation e) {
 			e.updateContext(invocationSite, referenceCompilationUnit().compilationResult);
 			throw e;
@@ -1962,7 +1965,7 @@ public abstract class Scope
 					}
 				}
 				if (visible != null)
-					foundMethod = mostSpecificMethodBinding(visible, visible.length, argumentTypes, invocationSite);
+					foundMethod = mostSpecificMethodBinding(visible, visible.length, argumentTypes, invocationSite, null);
 			}
 			if (foundMethod != null) {
 				invocationSite.setActualReceiverType(foundMethod.declaringClass);
@@ -2775,6 +2778,41 @@ public abstract class Scope
 		}
 		return false;
 	}
+
+	protected final boolean isMoreSpecificMethod(MethodBinding one, MethodBinding two) {
+		TypeBinding[] oneParams = one.parameters;
+		TypeBinding[] twoParams = two.parameters;
+		int oneParamsLength = oneParams.length;
+		int twoParamsLength = twoParams.length;
+		if (oneParamsLength == twoParamsLength) {
+			for (int i = 0; i < oneParamsLength; i++) {
+				if (oneParams[i] != twoParams[i] && !oneParams[i].isCompatibleWith(twoParams[i])) {
+					if (i == oneParamsLength - 1 && one.isVarargs() && two.isVarargs()) {
+						TypeBinding eType = ((ArrayBinding) twoParams[i]).elementsType();
+						if (oneParams[i] == eType || oneParams[i].isCompatibleWith(eType))
+							return true; // special case to choose between 2 varargs methods when the last arg is Object[]
+					}
+					return false;
+				}
+			}
+			return true;
+		}
+
+		if (one.isVarargs() && two.isVarargs() && oneParamsLength - 1 == twoParamsLength) {
+			// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or (Integer, int...)
+			if (((ArrayBinding) twoParams[twoParamsLength - 1]).elementsType().id != TypeIds.T_JavaLangObject)
+				return false;
+			// check that each parameter before the vararg parameters are compatible (no autoboxing allowed here)
+			for (int i = twoParamsLength - 2; i >= 0; i--)
+				if (oneParams[i] != twoParams[i] && !oneParams[i].isCompatibleWith(twoParams[i]))
+					return false;
+			if (parameterCompatibilityLevel(one, twoParams) == NOT_COMPATIBLE
+				&& parameterCompatibilityLevel(two, oneParams) == VARARGS_COMPATIBLE)
+					return true; 
+		}
+		return false;
+	}
+
 	private TypeBinding leastContainingInvocation(TypeBinding mec, Set invocations, List lubStack) {
 		if (invocations == null) return mec; // no alternate invocation
 		int length = invocations.size();
@@ -3284,81 +3322,93 @@ public abstract class Scope
 		return problemMethod;
 	}
 
-	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
+	protected final MethodBinding mostSpecificMethodBinding(MethodBinding[] visible, int visibleSize, TypeBinding[] argumentTypes, InvocationSite invocationSite, ReferenceBinding receiverType) {
 		int[] compatibilityLevels = new int[visibleSize];
 		for (int i = 0; i < visibleSize; i++)
 			compatibilityLevels[i] = parameterCompatibilityLevel(visible[i], argumentTypes);
+		byte[] skipValues = new byte[visibleSize]; // tagged with -1 if method cannot be best match
 
 		for (int level = 0, max = VARARGS_COMPATIBLE; level <= max; level++) {
 			nextVisible : for (int i = 0; i < visibleSize; i++) {
-				if (compatibilityLevels[i] != level) continue nextVisible; // skip this method for now
-				MethodBinding method = visible[i];
-				TypeBinding[] params = method.tiebreakMethod().parameters;
+				if (compatibilityLevels[i] != level || skipValues[i] == -1) continue nextVisible; // skip this method for now
+				MethodBinding original = visible[i].original();
+				MethodBinding method = visible[i].tiebreakMethod();
 				for (int j = 0; j < visibleSize; j++) {
 					if (i == j || compatibilityLevels[j] != level) continue;
 					max = level; // do not examine further categories
-					MethodBinding method2 = visible[j];
-					// tiebreak generic methods using variant where type params are substituted by their erasures
-					if (!method2.tiebreakMethod().areParametersCompatibleWith(params)) {
-						if (method.isVarargs() && method2.isVarargs()) {
-							// check the non-vararg parameters
-							int paramLength = params.length;
-							TypeBinding[] params2 = method2.tiebreakMethod().parameters;
-							if (paramLength != params2.length)
-								continue nextVisible;
-							for (int p = paramLength - 2; p >= 0; p--)
-								if (params[p] != params2[p] && !params[p].isCompatibleWith(params2[p]))
-									continue nextVisible;
+					MethodBinding original2 = visible[j].original();
+					if (original == original2)
+						continue; // parameterized superclasses & interfaces may be walked twice from different paths
 
-							TypeBinding elementsType = ((ArrayBinding) params2[paramLength - 1]).elementsType();
-							if (params[paramLength - 1].isCompatibleWith(elementsType))
-								continue; // special case to choose between 2 varargs methods when the last arg is missing or its Object[]
-						}
-						continue nextVisible;
+					MethodBinding method2 = visible[j].tiebreakMethod();
+					if (!isMoreSpecificMethod(method, method2)) {
+						if (!isMoreSpecificMethod(method2, method))
+							skipValues[j] = -1; // no point checking method2 either
+						continue nextVisible; // method2 is a better match
 					}
 
-					// parameterized superclasses & interfaces may be walked twice from different paths
-					if (method.original() == method2.original()) continue;
-
-					// see if method & method2 are duplicates due to the current substitution or multiple static imported methods
-					if (method.tiebreakMethod().areParametersEqual(method2.tiebreakMethod())) {
-						if (method.declaringClass == method2.declaringClass)
-							continue nextVisible; // duplicates thru substitution
-
-						MethodBinding original = method.original();
-						if (method.hasSubstitutedParameters() || original.typeVariables != NoTypeVariables) {
-							ReferenceBinding declaringClass = (ReferenceBinding) method.declaringClass.erasure();
-							ReferenceBinding superType = declaringClass.findSuperTypeWithSameErasure(method2.declaringClass.erasure());
-							if (superType == null) {
-								// accept concrete methods over abstract methods found due to the default abstract method walk
-								if (!method.isAbstract() && method2.isAbstract())
-									continue;
-								continue nextVisible;
-							}
-							MethodBinding inheritedMethod = method2;
-							MethodBinding inheritedOriginal = method2.original();
-							if (method.hasSubstitutedParameters()) { // must find inherited method with the same substituted variables
-								MethodBinding[] superMethods = superType.getMethods(inheritedMethod.selector);
-								for (int m = 0, l = superMethods.length; m < l; m++) {
-									if (superMethods[m].original() == inheritedOriginal) {
-										inheritedMethod = superMethods[m];
-										break;
-									}
-								}
-							}
-							if (original.typeVariables != NoTypeVariables)
-								inheritedMethod = original.computeSubstitutedMethod(inheritedMethod == method2 ? inheritedOriginal : inheritedMethod, environment());
-							if (inheritedMethod == null || !original.areParametersEqual(inheritedMethod))
-								break nextVisible; // dup thru substitution, not overridden... cannot find possible match
-							// method overrides method2, accept it
-						} else if (method.isStatic() && method2.isStatic()) {
+					if (method.areParametersEqual(method2)) {
+						if (method.isStatic() && method2.isStatic()) {
+							// if you knew that method overrode method2, it would help
 							ReferenceBinding declaringClass = (ReferenceBinding) method.declaringClass.erasure();
 							ReferenceBinding superType = declaringClass.findSuperTypeWithSameErasure(method2.declaringClass.erasure());
 							if (superType == null)
 								continue nextVisible; // static methods from unrelated types
 						}
+						if (original == method && original2 == method2)
+							continue; // no need to check further
+						if (!method.isAbstract() && method2.isAbstract())
+							continue; // 15.12.2, concrete method beats abstract method
+						if (method.declaringClass == method2.declaringClass)
+							continue nextVisible; // duplicates thru substitution
+
+						if (method.hasSubstitutedParameters() && method.isAbstract() == method2.isAbstract() && receiverType != null) {
+							// class A<T> { void foo(T t) {} }
+							// class B<T, S> extends A<S> { void foo(T t) {} }
+							receiverType = receiverType instanceof CaptureBinding ? receiverType : (ReferenceBinding) receiverType.erasure();
+							ReferenceBinding superType = receiverType.findSuperTypeWithSameErasure(method.declaringClass.erasure());
+							if (original.declaringClass == superType || superType == null) {
+								method = original;
+							} else {
+								// must find inherited method with the same substituted variables
+								MethodBinding[] superMethods = superType.getMethods(method.selector);
+								for (int m = 0, l = superMethods.length; m < l; m++) {
+									if (superMethods[m].original() == original) {
+										method = superMethods[m];
+										break;
+									}
+								}
+							}
+							superType = receiverType.findSuperTypeWithSameErasure(method2.declaringClass.erasure());
+							if (original2.declaringClass == superType || superType == null) {
+								method2 = original2;
+							} else {
+								// must find inherited method with the same substituted variables
+								MethodBinding[] superMethods = superType.getMethods(method2.selector);
+								for (int m = 0, l = superMethods.length; m < l; m++) {
+									if (superMethods[m].original() == original2) {
+										method2 = superMethods[m];
+										break;
+									}
+								}
+							}
+							if (method.typeVariables != NoTypeVariables)
+								method2 = method.computeSubstitutedMethod(method2, environment());
+							if (method2 == null || !method.areParametersEqual(method2)) {
+								skipValues[j] = -1;
+								continue nextVisible; // dup thru substitution, not overridden... cannot find possible match
+							}
+							// method overrides method2, accept it
+						} else if (!original.areTypeVariableErasuresEqual(original2)) {
+							if (original.typeVariables != NoTypeVariables) {
+								skipValues[j] = -1;
+								continue nextVisible; // method is not better since variables are not equal
+							}
+							continue nextVisible; // method2 is better match than method
+						}
 					}
 				}
+				method = visible[i]; // instead of the tieBreakMethod
 				compilationUnitScope().recordTypeReferences(method.thrownExceptions);
 				return method;
 			}

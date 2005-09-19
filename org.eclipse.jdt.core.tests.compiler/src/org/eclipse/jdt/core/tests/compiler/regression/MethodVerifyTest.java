@@ -3899,5 +3899,105 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"");
-	}	
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103849
+	public void test066() {
+		this.runConformTest(
+			new String[] {
+				"JukeboxImpl.java",
+				"public class JukeboxImpl implements Jukebox {\n" + 
+				"    public <M extends Music,A extends Artist<M>> A getArtist (M music){return null;}\n" + 
+				"    void test () { getArtist(new Rock()); }\n" + 
+				"}\n" + 
+				"interface Jukebox {\n" + 
+				"	<M extends Music, A extends Artist<M>> A getArtist (M music);\n" + 
+				"}\n" + 
+				"interface Music {}\n" + 
+				"class Rock implements Music {}\n" + 
+				"interface Artist<M extends Music> {}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107098
+	public void test067() {
+		this.runConformTest(
+			new String[] {
+				"NoErrors.java",
+				"public class NoErrors {\n" + 
+				"    public static void main(String[] args) { new B().foo2(1, 10); }\n" + 
+				"}\n" + 
+				"class A<T> {\n" + 
+				"	<S1 extends T> void foo2(Number t, S1 s) { System.out.print(false); }\n" + 
+				"}\n" + 
+				"class B extends A<Number> {\n" + 
+				"	<S2 extends Number> void foo2(Number t, S2 s) { System.out.print(true); }\n" + 
+				"}\n"
+			},
+			"true");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107681
+	public void test068() {
+		this.runConformTest(
+			new String[] {
+				"ReflectionNavigator.java",
+				"import java.lang.reflect.Type;\n" +
+				"public class ReflectionNavigator implements Navigator<Type> {\n" + 
+				"    public <T> Class<T> erasure(Type t) { return null; }\n" + 
+				"}\n" + 
+				"interface Navigator<TypeT> {\n" + 
+				"	<T> TypeT erasure(TypeT x);\n" + 
+				"}\n" + 
+				"class Usage {\n" + 
+				"	public void foo(ReflectionNavigator r, Type t) { r.erasure(t); }\n" + 
+				"}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108203
+	public void test069() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Type;\n" +
+				"public class X implements I<A> {\n" + 
+				"    public <N extends A> void x1() {}\n" + 
+				"    public <N extends Number> void x2() {}\n" + 
+				"    public <N extends Number> void x3() {}\n" + 
+				"}\n" + 
+				"interface I<V> {\n" + 
+				"	<N extends V> void x1();\n" + 
+				"	<N extends String> void x2();\n" + 
+				"	<N extends Object> void x3();\n" + 
+				"}\n" + 
+				"class A {}\n" + 
+				"class B<T> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	public class X implements I<A> {\r\n" + 
+			"	             ^\n" + 
+			"The type X must implement the inherited abstract method I<A>.x3()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\r\n" + 
+			"	public class X implements I<A> {\r\n" + 
+			"	             ^\n" + 
+			"The type X must implement the inherited abstract method I<A>.x2()\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\r\n" + 
+			"	public <N extends Number> void x2() {}\r\n" + 
+			"	                               ^^^^\n" + 
+			"Name clash: The method x2() of type X has the same erasure as x2() of type I<V> but does not override it\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\r\n" + 
+			"	public <N extends Number> void x3() {}\r\n" + 
+			"	                               ^^^^\n" + 
+			"Name clash: The method x3() of type X has the same erasure as x3() of type I<V> but does not override it\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 9)\r\n" + 
+			"	<N extends String> void x2();\r\n" + 
+			"	           ^^^^^^\n" + 
+			"The type parameter N should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n"
+		);
+	}
 }

@@ -1217,8 +1217,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102631
-	// TODO (kent) reenable once addressed
-	public void _test033() {
+	public void test033() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
