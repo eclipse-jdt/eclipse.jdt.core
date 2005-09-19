@@ -349,12 +349,16 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			name = name.substring(0, index);
 		
 		// first see if it is one of the well known types.
-		// any AST is as good as the other.
-		ITypeBinding typeBinding = _astRoot.getAST().resolveWellKnownType(name);
+		// any AST is as good as the other.		
+		ITypeBinding typeBinding = null;
+		if( _astRoot != null )
+			typeBinding = _astRoot.getAST().resolveWellKnownType(name);
 		String typeKey = BindingKey.createTypeBindingKey(name);
 		if(typeBinding == null){
 			// then look into the current compilation units			
-			ASTNode node = _astRoot.findDeclaringNode(typeKey);
+			ASTNode node = null;
+			if( _astRoot != null )
+				node = _astRoot.findDeclaringNode(typeKey);
 						
 			if( node != null ){
 				final int nodeType = node.getNodeType();

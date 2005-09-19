@@ -49,7 +49,7 @@ public class FilerImpl implements Filer {
     public PrintWriter createSourceFile(String typeName) throws IOException 
     {
     	_env.checkValid();
-        return new JavaSourceFilePrintWriter( typeName, new StringWriter(), _env, null /* charset */ ); 
+        return new JavaSourceFilePrintWriter( typeName, new StringWriter(), _env ); 
     }
 
 

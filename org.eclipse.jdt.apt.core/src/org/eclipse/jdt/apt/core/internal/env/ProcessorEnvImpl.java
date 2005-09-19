@@ -63,6 +63,7 @@ import com.sun.mirror.declaration.TypeDeclaration;
 
 public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotationProcessorEnvironment
 {
+	private static final boolean ENABLE_GENERATED_FILE_LISTENER = false;
 	public static final String BUILD_MARKER = "org.eclipse.jdt.apt.core.marker"; //$NON-NLS-1$
 	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
 	/** delimiter of path variables in -A values, e.g., %ROOT%/foo */
@@ -97,23 +98,31 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	 */
 	private Map<String, String> _options;
 	
-	private boolean _batchMode = false; // off by default. 
+	private boolean _batchMode = false; // off by default.
+	
+	/**
+	 * The source of the file currently being processed.
+	 * <code>null</code> during batch mode during build and reconcile.
+	 */
 	private char[] _curSource = null;
 	/** 
-	 * This is only non-null when <code>#_batchMode</code> is <code>true</code>
+	 * Holds all the files that are to be processed during build.
 	 * If we are not in batch mode (reconcile time or file-based dispatch during build),
 	 * <code>super._file</code> holds the file being processed at the time. 
 	 */ 
 	private IFile[] _files = null;
 	/** 
-	 * This is only non-null when <code>#_batchMode</code> is <code>true</code> *
+	 * This is only non-null when <code>#_batchMode</code> is <code>true</code>
 	 * If we are not in batch mode, <code>super._astRoot</code> holds the current ast 
-	 * being processed at the time.*/
+	 * being processed at the time.
+	 */
 	private CompilationUnit[] _astUnits = null;
+	
+	private List<IFile> _filesWithMissingType = null;
+	private List<char[]> _sourceFileFileWithMissingType = null;
 	
 	/** 
 	 * The source to all of the compilation units in <code>_astUnits</code>
-	 * This is only non-null when <code>#_batchMode</code> is <code>true</code> 
 	 */
 	private char[][] _sources = null;
 	private List<MarkerInfo> _markerInfos = null;
@@ -127,14 +136,26 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
        			compilationUnit, null /*source*/, 
        			(IFile)compilationUnit.getResource(), 
        			javaProj, Phase.RECONCILE );
-    }   
+    }
+	
+	/**
+	 * @param files 
+	 * @param sources source from <code>files</code>
+	 * @param javaProj
+	 * @return a new processor environment.
+	 */
+	public static ProcessorEnvImpl newProcessorEnvironmentForBuild(IFile[] files, char[][] sources, IJavaProject javaProj)
+	{
+		assert files != null : "missing files"; //$NON-NLS-1$  
+		return new ProcessorEnvImpl(files, sources, javaProj, Phase.BUILD);
+	}
     
     public static ProcessorEnvImpl newProcessorEnvironmentForBuild(IFile[] files, IJavaProject javaProj )
     {
     	assert files != null : "missing files"; //$NON-NLS-1$    	
     
 		// note, we are not reading any files.
-		return new ProcessorEnvImpl(files, javaProj, Phase.BUILD);
+		return new ProcessorEnvImpl(files, null, javaProj, Phase.BUILD);
     }
     
     private ProcessorEnvImpl(
@@ -167,8 +188,9 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     }
     
     private ProcessorEnvImpl(
-			final IFile[] files, 
-			final IJavaProject javaProj, 
+			final IFile[] files,
+			final char[][] sources,
+			final IJavaProject javaProj,
 			final Phase phase) {
     	
     	super(null, null, javaProj, phase);
@@ -176,6 +198,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     		"Unexpected phase value " + phase; //$NON-NLS-1$
 		
 		_compilationUnit = null;
+		_sources = sources;
 		_filer = new FilerImpl(this);
 		_files = files;
 		_allProblems = new HashMap<IFile, List<IProblem>>();
@@ -533,6 +556,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     		problems = new ArrayList<IProblem>(4);
     		_allProblems.put(resource, problems);    		
     	}
+   //System.err.println(_phase + "------ added " + newProblem ); //$NON-NLS-1$
     	problems.add(newProblem);
     }
     
@@ -553,7 +577,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	checkValid();
     	
     	updateProblemLength();
-    	return Collections.unmodifiableMap(_allProblems);
+    	return _allProblems;
     }
     
     public Map<String, AnnotationTypeDeclaration> getAnnotationTypesInFile()
@@ -585,7 +609,9 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     
     /**
 	 * Return all annotations at declaration level within all compilation unit(s)
-	 * associated with this environment.
+	 * associated with this environment. All the files associated with this environment will 
+	 * be parsed and resolved for all declaration level elements at the return of this call.
+	 * 
 	 * @param file2Annotations populated by this method to map files to the annotation types
 	 *        if contains. May be null.
 	 * @return the map containing all annotation types found within this environment.
@@ -805,7 +831,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	
 	private void readFiles()
 	{
-		if( _astUnits != null || _files == null ) return;
+		if( _astUnits != null || _files == null || _sources != null) return;
 		final int numFiles = _files.length;
 		_astUnits = new CompilationUnit[numFiles]; 
 		_sources = new char[numFiles][];
@@ -1000,6 +1026,21 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		return null;
 	}
 	
+	public char[] getSourceForFile(final IFile file)
+	{
+		if( file == null ) 
+    		return null;
+    	else if( file.equals(_file) )
+    		return _curSource;
+    	else if( _batchMode ){
+    		for( int i=0, len=_files.length; i<len; i++ ){
+        		if( file.equals(_files[i]) )
+        			return _sources[i];
+        	}
+    	}
+    	return null;
+	}
+	
 	/**
      * @param file
      * @return the compilation unit associated with the given file.
@@ -1075,4 +1116,12 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 			_markerInfos.clear();
 		}
     }
+	
+	public IFile[] getFiles()
+	{
+		if(_files != null)
+			return _files;
+		else
+			return new IFile[]{_file};
+	}
 }

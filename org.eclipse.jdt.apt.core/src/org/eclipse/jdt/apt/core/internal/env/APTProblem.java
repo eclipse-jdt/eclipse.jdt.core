@@ -97,4 +97,9 @@ class APTProblem implements IProblem
 	public boolean isWarning() {
 		return _severity == Severity.WARNING;
 	}
+	
+	public String toString()
+	{
+		return _message == null ? "<null message>" : _message ;  //$NON-NLS-1$
+	}
 }

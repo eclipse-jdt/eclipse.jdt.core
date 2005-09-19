@@ -432,7 +432,7 @@ public class AptBuilderTests extends Tests
 		incrementalBuild( project.getFullPath() );
 		expectingOnlyProblemsFor( p1bPath );
 		expectingOnlySpecificProblemFor( p1bPath, new Problem(
-			"B", "generatedfilepackage.GeneratedFileTest cannot be resolved to a type", p1bPath ) ); //$NON-NLS-1$ //$NON-NLS-2$	
+			"B", "generatedfilepackage cannot be resolved to a type", p1bPath ) ); //$NON-NLS-1$ //$NON-NLS-2$	
 	}
 	
 	public void testStopGeneratingFileInBuilder_FullBuild()

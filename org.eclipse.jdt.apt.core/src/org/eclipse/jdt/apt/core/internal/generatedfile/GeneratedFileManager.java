@@ -38,6 +38,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
@@ -150,7 +151,7 @@ public class GeneratedFileManager {
 		MANAGERS_MAP.put(project, gfm);
 		return gfm;
 	}
-
+	
 	/**
 	 * Invoked when a file is generated during a build.  The generated file and intermediate 
 	 * directories will be created if they don't  exist.  This method takes file-system locks, 
@@ -173,36 +174,54 @@ public class GeneratedFileManager {
 			IFile parentFile,
 			String typeName, 
 			String contents, 
-			IProgressMonitor progressMonitor,
-			String charsetName ) 
-		throws CoreException, UnsupportedEncodingException
+			IProgressMonitor progressMonitor)
+	throws CoreException
 	{
-		try
-		{
+		try{
 			boolean updatededSourcePath = ensureGeneratedSourceFolder( progressMonitor );
+			final IFolder genFolder = getGeneratedSourceFolder();
+			IPackageFragmentRoot genFragRoot = null;
+			IPackageFragmentRoot[] roots = _javaProject.getAllPackageFragmentRoots();
+			for (IPackageFragmentRoot root : roots) {
+				if( genFolder.equals(root.getResource()) ){
+					genFragRoot = root;
+					break;
+				}
+			}
+			if( genFragRoot == null ){
+				throw new IllegalStateException("failed to locate package fragment root for " + genFolder.getName()); //$NON-NLS-1$
+			}
+			if( typeName.indexOf('/') != -1 )
+				typeName = typeName.replace('/', '.');
+			int separatorIndex = typeName.lastIndexOf('.');			
+			final String typeSimpleName;
+			final String pkgName;
+			if( separatorIndex == -1 ){
+				pkgName = ""; //$NON-NLS-1$
+				typeSimpleName = typeName;
+			}
+			else{
+				pkgName = typeName.substring(0, separatorIndex);
+				typeSimpleName = typeName.substring(separatorIndex + 1, typeName.length());
+			}
+			IPackageFragment pkgFrag = genFragRoot.createPackageFragment(pkgName, true, progressMonitor);
+			if( pkgFrag == null ){
+				IStatus status = AptPlugin.createStatus(
+						new IllegalStateException("failed to locate package '" + pkgName + "'"),  //$NON-NLS-1$ //$NON-NLS-2$
+						"Failure generating file");  //$NON-NLS-1$
+				throw new CoreException(status);
+			}			
+			final String cuName = typeSimpleName + ".java"; //$NON-NLS-1$
 			
-			IFile file = getIFileForTypeName( typeName );
-
-			byte[] bytes;
-			if ( charsetName == null || charsetName == "" ) //$NON-NLS-1$
-				bytes = contents.getBytes();
-			else
-				bytes = contents.getBytes( charsetName );
-			InputStream is = new ByteArrayInputStream( bytes );
-			
+			ICompilationUnit unit = pkgFrag.getCompilationUnit(cuName);
 			boolean contentsDiffer = true;
 			
-			if ( !file.exists() )
-			{
-				createFoldersForFile( file );
-				file.create( is, true, progressMonitor );
-			}
-			else
-			{
-				// Check if the content has changed
+			if( unit.exists() ){
 				InputStream oldData = null;
+				InputStream is = null;
 				try {
-					oldData = new BufferedInputStream(file.getContents());
+					is = new ByteArrayInputStream( contents.getBytes() );
+					oldData = new BufferedInputStream( ((IFile)unit.getResource() ).getContents());
 					contentsDiffer = !compareStreams(oldData, is);
 				}
 				catch (CoreException ce) {
@@ -218,32 +237,35 @@ public class GeneratedFileManager {
 						{}
 					}
 				}
-				if (contentsDiffer) {
-					file.setContents( is, true, true, progressMonitor );
-				}
 			}
 			
-			file.setDerived( true );
-			// We used to also make the file read-only. This is a bad idea,
-			// as refactorings then fail in the future, which is worse
-			// than allowing a user to modify a generated file.
+			if( contentsDiffer )
+				unit = pkgFrag.createCompilationUnit(cuName, contents, true, progressMonitor);
 			
-			// during a batch build
-			if( parentFile != null )
-				addEntryToFileMaps( parentFile, file );
-			return new FileGenerationResult(file, contentsDiffer, updatededSourcePath);
+			if( unit == null ) {
+				IStatus status = AptPlugin.createStatus(new IllegalStateException("Unable to create unit for " + cuName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
+				throw new CoreException(status);
+			}
+			else{
+				final IFile file = (IFile)unit.getResource();
+				file.setDerived( true );
+				// We used to also make the file read-only. This is a bad idea,
+				// as refactorings then fail in the future, which is worse
+				// than allowing a user to modify a generated file.
+				
+				// during a batch build
+				if( parentFile != null )
+					addEntryToFileMaps( parentFile, file );
+				return new FileGenerationResult(file, contentsDiffer, updatededSourcePath);
+			}
+			
 		}
-		catch (CoreException ce) {
-			throw ce;
+		catch(Exception e){
+			AptPlugin.log(e, "failed to generate type " + typeName); //$NON-NLS-1$
 		}
-		catch (UnsupportedEncodingException uee) {
-			throw uee;
-		}
-		catch ( Throwable t )
-		{
-			throw new CoreException(AptPlugin.createStatus(t, "Could not generate file for type: " + typeName)); //$NON-NLS-1$
-		}
-	}
+		IStatus status = AptPlugin.createStatus(new IllegalStateException("Failed to generate type " + typeName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
+		throw new CoreException(status);
+	}	
 	
 	/**
 	 * Return true if the content of the streams is identical, 
@@ -521,8 +543,21 @@ public class GeneratedFileManager {
 				delete = true;
 		}
 		
-		if ( delete )
+		if ( delete ){
+			final IFolder genFolder = getGeneratedSourceFolder();
+			IContainer parent = generatedFile.getParent();
 			generatedFile.delete(true, true, progressMonitor);
+			while( !genFolder.equals(parent) && parent != null ){
+				final IResource[] members = parent.members();
+				IContainer grandParent = parent.getParent();
+				// last one turns the light off.
+				if( members == null || members.length == 0 )
+					parent.delete(true, progressMonitor);
+				else
+					break;
+				parent = grandParent;
+			}
+		}
 		
 		return delete;
 	}

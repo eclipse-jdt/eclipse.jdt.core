@@ -12,6 +12,7 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -115,26 +116,98 @@ public class APTDispatch
 			_newDependencies = Collections.emptyMap();
 			_newProblems = Collections.emptyMap();
 			_sourcePathChanged = false;
+			_hasGeneratedTypes = false;
 		}
-		APTResult( Set<IFile> newFiles, Set<IFile> deletedFiles, Map<IFile, Set<String>> deps, Map<IFile, List<IProblem>> problems, boolean sourcePathChanged )
+		APTResult( 
+				Set<IFile> newFiles, 
+				Set<IFile> deletedFiles, 
+				Map<IFile, Set<String>> deps, 
+				Map<IFile, List<IProblem>> problems, 
+				boolean sourcePathChanged,
+				boolean hasGeneratedTypes)
 		{
 			_newFiles = newFiles;
 			_newDependencies = deps;
 			_deletedFiles = deletedFiles;
 			_newProblems = problems;
 			_sourcePathChanged = sourcePathChanged;
+			_hasGeneratedTypes = hasGeneratedTypes;
 		}
 		
 		private final Set<IFile> _newFiles;
 		private final Set<IFile> _deletedFiles;
 		private final Map<IFile, Set<String>> _newDependencies;
 		private final Map<IFile, List<IProblem>> _newProblems;
-		private final boolean _sourcePathChanged;
+		private boolean _sourcePathChanged;
+		private boolean _hasGeneratedTypes;
+		private boolean _mutable = true;
 		
-		Set<IFile> getNewFiles() { return _newFiles; }
-		Set<IFile> getDeletedFiles() { return _deletedFiles; }
-		Map<IFile, Set<String>> getNewDependencies() { return _newDependencies; }
-		Map<IFile, List<IProblem>> getProblems(){return _newProblems;}
+		Set<IFile> getNewFiles() { return Collections.unmodifiableSet(_newFiles); }
+		Set<IFile> getDeletedFiles() { return Collections.unmodifiableSet(_deletedFiles); }
+		Map<IFile, Set<String>> getNewDependencies() { return Collections.unmodifiableMap(_newDependencies); }
+		void removeDependenciesFrom(IFile file){
+			mutate();
+			_newDependencies.remove(file);
+		}
+		
+		Map<IFile, List<IProblem>> getProblems(){return Collections.unmodifiableMap(_newProblems);}
+		void removeProblemsFrom(IFile file){
+			mutate();
+			_newProblems.remove(file);
+		}
+		
 		boolean getSourcePathChanged() { return _sourcePathChanged; }
+		boolean hasGeneratedTypes(){ return _hasGeneratedTypes; }
+		
+		void setReadOnly(){
+			_mutable = true;
+		}
+		
+		private void mutate(){ 
+			if( !_mutable )
+				throw new IllegalStateException("modifications not allowed"); //$NON-NLS-1$
+		}
+		
+		void merge(APTResult otherResult){
+			mutate();
+			_newFiles.addAll(otherResult._newFiles);
+			_deletedFiles.addAll(otherResult._deletedFiles);
+			mergeMaps(_newDependencies, otherResult._newDependencies);
+			mergeMaps(_newProblems, otherResult._newProblems);
+			_sourcePathChanged |= otherResult._sourcePathChanged;
+			_hasGeneratedTypes |= otherResult._hasGeneratedTypes;
+		}
+		
+		/**
+		 * This method assumes that the values of the two maps are of compatible type. 
+		 * If not, {@link ClassCastException} will be thrown. If the values of the maps are not collections 
+		 * and the keys collide, then {@link IllegalStateException} will be thrown.
+		 * @param destination 
+		 * @param source moving everything into <code>destination</code
+		 *
+		 */
+		private void mergeMaps(final Map destination, final Map source )
+		{		
+			for( Object o : source.entrySet() )
+			{
+				final Map.Entry entry = (Map.Entry)o;
+				final Object destValue = destination.get(entry.getKey());
+				if( destValue == null )
+					destination.put( entry.getKey(), entry.getValue() );
+				else{
+					if( destValue instanceof Collection )
+					{
+						final Collection destCollection = (Collection)destination;
+						// A ClassCastException would occur if entry.getValue() doesn't return
+						// a collection. 
+						final Collection sourceCollection = (Collection)entry.getValue();
+						destCollection.addAll(sourceCollection);
+					}
+					else
+						throw new IllegalStateException("keys collided"); //$NON-NLS-1$
+				}
+			}
+		}
+		
 	}	
 }
