@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /*
@@ -124,9 +123,6 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	}
 
 	this.modifiers = binaryType.getModifiers();
-	// TODO (kent) what about ANNOTATION_TYPE_DECL case ?
-	if (binaryType.getKind() == IGenericType.INTERFACE_DECL)
-		this.modifiers |= AccInterface;
 		
 	if (binaryType.isAnonymous()) {
 		this.tagBits |= AnonymousTypeMask;
