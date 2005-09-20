@@ -1222,25 +1222,58 @@ public class VarargsTest extends AbstractComparableTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
-				"	void f(boolean b, Object... o) {\n" + 
-				"		System.out.print(\"f(boolean, Object...)\");\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	void f(Object... o) {\n" + 
-				"		System.out.print(\"f(Object...)\");\n" + 
-				"	}\n" + 
-				"\n" + 
+				"	void a(boolean b, Object... o) {System.out.print(1);}\n" + 
+				"	void a(Object... o) {System.out.print(2);}\n" + 
 				"	public static void main(String[] args) {\n" + 
-				"		X a = new X();\n" + 
-				"		a.f(true);\n" + 
-				"		a.f(true, \"foobar\");\n" + 
-				"		a.f(\"foo\", \"bar\");\n" + 
+				"		X x = new X();\n" + 
+				"		x.a(true);\n" + 
+				"		x.a(true, \"foobar\");\n" + 
+				"		x.a(\"foo\", \"bar\");\n" + 
 				"	}\n" + 
 				"}\n",
 			},
-			"f(boolean, Object...)f(boolean, Object...)f(Object...)");
-	}	
-	//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=106106
+			"112");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void b(boolean b, Object... o) {}\n" + 
+				"	void b(Boolean... o) {}\n" + 
+				"	void c(boolean b, boolean b2, Object... o) {}\n" + 
+				"	void c(Boolean b, Object... o) {}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X x = new X();\n" + 
+				"		x.b(true);\n" + 
+				"		x.b(true, false);\n" + 
+				"		x.c(true, true, true);\n" + 
+				"		x.c(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\r\n" + 
+			"	x.b(true);\r\n" + 
+			"	  ^\n" + 
+			"The method b(boolean, Object[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\r\n" + 
+			"	x.b(true, false);\r\n" + 
+			"	  ^\n" + 
+			"The method b(boolean, Object[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\r\n" + 
+			"	x.c(true, true, true);\r\n" + 
+			"	  ^\n" + 
+			"The method c(boolean, boolean, Object[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 11)\r\n" + 
+			"	x.c(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);\r\n" + 
+			"	  ^\n" + 
+			"The method c(boolean, boolean, Object[]) is ambiguous for the type X\n" + 
+			"----------\n"
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106106
 	public void test034() {
 		this.runConformTest(
 			new String[] {

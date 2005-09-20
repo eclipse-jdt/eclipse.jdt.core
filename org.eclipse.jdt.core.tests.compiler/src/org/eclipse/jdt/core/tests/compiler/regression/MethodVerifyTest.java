@@ -4000,4 +4000,26 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101049
+	public void test070() {
+		this.runNegativeTest(
+			new String[] {
+				"BooleanFactory.java",
+				"interface Factory<T> {\n" +
+				"	<U extends T> U create(Class<U> c);\n" + 
+				"}\n" + 
+				"public class BooleanFactory implements Factory<Boolean> {\n" + 
+				"	public <U extends Boolean> U create(Class<U> c) {\n" + 
+				"		try { return c.newInstance(); } catch(Exception e) { return null; }\n" +
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in BooleanFactory.java (at line 5)\n" + 
+			"	public <U extends Boolean> U create(Class<U> c) {\n" + 
+			"	                  ^^^^^^^\n" + 
+			"The type parameter U should not be bounded by the final type Boolean. Final types cannot be further extended\n" + 
+			"----------\n"
+		);
+	}
 }
