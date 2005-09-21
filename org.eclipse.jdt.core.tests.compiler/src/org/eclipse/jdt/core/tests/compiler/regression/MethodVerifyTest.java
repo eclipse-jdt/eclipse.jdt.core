@@ -4076,7 +4076,12 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"	void a3(X x) { x.a3(\"test\"); }\n" +
 				"}\n"
 			},
-			"ambiguous error"
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	void a3(X x) { x.a3(\"test\"); }\n" + 
+			"	                 ^^\n" + 
+			"The method a3(Comparable<String>) is ambiguous for the type X\n" + 
+			"----------\n"
 		);
 	}
 }
