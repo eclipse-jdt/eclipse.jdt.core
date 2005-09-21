@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.performance;
 
 import java.io.PrintStream;
 import java.text.NumberFormat;
+import java.util.Hashtable;
 import java.util.List;
 
 import junit.framework.*;
@@ -579,6 +580,9 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, "Currently investigating performance issue on this test...");
 
 		ICompilationUnit unit = getCompilationUnit("org.eclipse.jdt.core", "org.eclipse.jdt.internal.compiler.parser", "Parser.java");
+		Hashtable options = JavaCore.getOptions();
+		options.put(JavaCore.COMPILER_PB_NON_NLS_STRING_LITERAL, JavaCore.IGNORE);
+		JavaCore.setOptions(options);
 		createAST(unit, AST.JLS2);
 	}
 
