@@ -6643,5 +6643,71 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
-	}	
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=109963
+	 */
+	public void test0615() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	public void foo(int y) {\n" +
+				"		switch (y) {\n" +
+				"			case 1:\n" +
+				"				int i,j;\n" +
+				"		}\n" +
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", false/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0, 0);
+			assertNotNull("No node", node);
+			assertEquals("Not a switch statement", ASTNode.SWITCH_STATEMENT, node.getNodeType());
+			SwitchStatement switchStatement = (SwitchStatement) node;
+			List statements = switchStatement.statements();
+			assertEquals("Wrong size", 2, statements.size());
+			Statement statement = (Statement) statements.get(1);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement.getNodeType());
+			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement;
+			assertEquals("Wrong size", 2, variableDeclarationStatement.fragments().size());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=109646
+	 */
+	public void test0616() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0616", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		char[] source = sourceUnit.getSource().toCharArray();
+		ASTNode result = runConversion(AST.JLS3, sourceUnit, false);
+		final CompilationUnit unit = (CompilationUnit) result;
+		assertProblemsSize(unit, 0);
+		ASTNode node = getASTNode(unit, 0, 0, 0);
+		assertNotNull("No node", node);
+		ASTNode statement = node;
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_STATEMENTS);
+		parser.setSource(source);
+		parser.setSourceRange(statement.getStartPosition(), statement.getLength());
+		parser.setCompilerOptions(JavaCore.getOptions());
+		ASTNode result2 = parser.createAST(null);
+		assertNotNull("No node", result2);
+		assertTrue("not a block", result2.getNodeType() == ASTNode.BLOCK);
+		Block block = (Block) result2;
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size());
+		Statement statement2 = (Statement) statements.get(0);
+		assertEquals("Statement is not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement2.getNodeType());
+		VariableDeclarationStatement declarationStatement = (VariableDeclarationStatement) statement2;
+		assertEquals("Wrong number of fragments", 4, declarationStatement.fragments().size());
+	}
 }
