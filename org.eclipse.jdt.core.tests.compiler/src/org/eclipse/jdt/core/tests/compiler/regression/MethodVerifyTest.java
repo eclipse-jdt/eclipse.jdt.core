@@ -4084,4 +4084,25 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100869 - variation
+	public void _test072() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	<T> Object foo12(Comparable value) {System.out.print(1);return null;}\n" + 
+				"	<T> void foo12(Comparable<T> value) {System.out.print(2);}\n" + 
+				"	void foo12(X x) { Object o = x.foo12(\"test\"); x.foo12(\"test\"); }\n" + 
+				"	\n" + 
+				"\n" + 
+				"\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		X x = new X();\n" + 
+				"		x.foo12(x);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"11"
+		);
+	}	
 }
