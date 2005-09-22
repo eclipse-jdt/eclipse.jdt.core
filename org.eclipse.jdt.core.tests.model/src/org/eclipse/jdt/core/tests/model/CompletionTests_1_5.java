@@ -7601,4 +7601,31 @@ public void test0244() throws JavaModelException {
 			"foo[METHOD_DECLARATION]{public Object foo(ZAGenericType var), Lgenerics.ZAGenericType;, (Lgenerics.ZAGenericType;)Ljava.lang.Object;, foo, (var), " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC_OVERIDE + R_NON_RESTRICTED) + "}",
 			result.proposals);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=101456
+public void test0245() throws JavaModelException {
+    this.wc = getWorkingCopy(
+            "/Completion/src/test/SnapshotImpl.java",
+            "class SnapshotImpl extends AbstractSnapshot<SnapshotImpl, ProviderImpl> {}");
+    getWorkingCopy(
+            "/Completion/src/test/Snapshot.java",
+            "public interface Snapshot<S extends Snapshot> {}");
+    getWorkingCopy(
+            "/Completion/src/test/SnapshotProvider.java",
+            "interface SnapshotProvider<S extends Snapshot> {}");
+    getWorkingCopy(
+            "/Completion/src/test/AbstractSnapshot.java",
+            "abstract class AbstractSnapshot<S extends Snapshot, P extends SnapshotProvider<S>> implements Snapshot<S> {}");
+    getWorkingCopy(
+            "/Completion/src/test/ProviderImpl.java",
+            "class ProviderImpl implements SnapshotProvider<SnapshotImpl> {}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    String str = this.wc.getSource();
+    String completeBehind = "ProviderImp";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+
+	assertResults("", requestor.getResults());
+}
 }
