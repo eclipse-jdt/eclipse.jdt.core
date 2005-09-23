@@ -60,7 +60,7 @@ cd %TEMPDIR%
 sh %ROOT%\org.eclipse.jdt.apt.core\scripts\make_set_date_suffix_cmd.sh
 call set_date_suffix.cmd
 
-@set SDK_APT_ZIP=eclipse-SDK-APT-%DATE_SUFFIX%-win32.zip
+@set SDK_APT_ZIP=eclipse-SDK-APT-%DATE_SUFFIX%.zip
 @set FULL_SDK_APT_ZIP=%TEMPDIR%\%SDK_APT_ZIP%
 
 

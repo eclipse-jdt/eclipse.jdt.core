@@ -20,6 +20,7 @@ import java.util.WeakHashMap;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
@@ -33,7 +34,10 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChang
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.NodeChangeEvent;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -467,6 +471,58 @@ public class AptConfig {
 		return options;
 	}
 	
+	/**
+	 * Get a factory path corresponding to the default values: if jproj is
+	 * non-null, return the current workspace factory path (workspace prefs
+	 * are the default for a project); if jproj is null, return the default 
+	 * list of plugin factories (which is the "factory default").
+	 */
+	public static IFactoryPath getDefaultFactoryPath(IJavaProject jproj) {
+		return FactoryPathUtil.getDefaultFactoryPath(jproj);
+	}
+	
+	/**
+	 * Get the factory path for a given project or for the workspace.
+	 * @param jproj the project, or null to get the factory path for the workspace.
+	 * @return a FactoryPath representing the current state of the specified project.
+	 * Note that changes made to the project after this call will not affect the
+	 * returned object - that is, it behaves like a value, not like a live link to
+	 * the project state.
+	 */
+	public static IFactoryPath getFactoryPath(IJavaProject jproj) {
+		return FactoryPathUtil.getFactoryPath(jproj);
+	}
+	
+	/**
+	 * Set the factory path for a given project or for the workspace.
+	 * Does not perform any validation on the path.
+	 * @param jproj the project, or null to set the factory path for the workspace.
+	 * @param path a factory path, or null to reset the factory path to the default.
+	 */
+	public static void setFactoryPath(IJavaProject jproj, IFactoryPath path)	
+			throws CoreException 
+	{
+		FactoryPath fp = (FactoryPath)path;
+		FactoryPathUtil.setFactoryPath(jproj, fp);
+		// The factory path isn't saved to the Eclipse preference store,
+		// so we can't rely on the ChangeListener mechanism.
+		AnnotationProcessorFactoryLoader.getLoader().reset();
+	}
+
+	/**
+	 * Has an explicit factory path been set for the specified project, or
+	 * is it just defaulting to the workspace settings? 
+	 * @param project
+	 * @return true if there is a project-specific factory path.
+	 */
+	public static boolean hasProjectSpecificFactoryPath(IJavaProject jproj) {
+		if (null == jproj) {
+			// say no, even if workspace-level factory path does exist. 
+			return false;
+		}
+		return FactoryPathUtil.doesFactoryPathFileExist(jproj);
+	}
+
 	private static class ChangeListener implements IPreferenceChangeListener, INodeChangeListener, IPropertyChangeListener {
 		private final IProject _proj;
 		public ChangeListener(IProject proj) {

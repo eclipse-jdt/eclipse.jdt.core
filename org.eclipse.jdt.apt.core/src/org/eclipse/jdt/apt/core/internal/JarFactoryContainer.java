@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.eclipse.jdt.apt.core.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 
 /**
  * Represents a jar file that contains annotation processor factories.

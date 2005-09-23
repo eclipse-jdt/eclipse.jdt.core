@@ -12,7 +12,7 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.apt.core.util.FactoryPath;
+import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.ui.AptUIPlugin;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.swt.widgets.Composite;
@@ -52,7 +52,7 @@ public class FactoryPathPreferencePage extends BasePreferencePage {
 
 	protected boolean hasProjectSpecificOptions(IProject project) {
 		useProjectSettings();
-		return (project == null) ? false : FactoryPath.hasProjectSpecificFactoryPath(JavaCore.create(project));
+		return (project == null) ? false : AptConfig.hasProjectSpecificFactoryPath(JavaCore.create(project));
 	}
 	
 	/* (non-Javadoc)

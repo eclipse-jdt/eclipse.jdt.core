@@ -17,16 +17,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.apt.core.AptPlugin;
-import org.eclipse.jdt.apt.core.FactoryContainer;
-import org.eclipse.jdt.apt.core.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
-import org.eclipse.jdt.apt.core.util.FactoryPath;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
 import org.eclipse.jdt.core.IJavaProject;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
@@ -76,21 +75,23 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		
 		// Load the project
-		List<FactoryContainer> containers = FactoryPath.getEnabledContainers(jproj);
+		FactoryPath fp = FactoryPathUtil.getFactoryPath(jproj);
+		Map<FactoryContainer, FactoryPath.Attributes> containers = fp.getEnabledContainers(jproj);
 		factories = loadFactories(containers, jproj);
 		_project2Factories.put(jproj, factories);
 		return factories;
     	
     }
     
-
-    
-	private List<AnnotationProcessorFactory> loadFactories( List<FactoryContainer> containers, IJavaProject project )
+	/**
+	 * @param containers an ordered map.
+	 */
+	private List<AnnotationProcessorFactory> loadFactories( Map<FactoryContainer, FactoryPath.Attributes> containers, IJavaProject project )
 	{
 		List<AnnotationProcessorFactory> factories = new ArrayList(containers.size());
 		ClassLoader classLoader = _createClassLoader( containers );
 
-		for ( FactoryContainer fc : containers )
+		for ( FactoryContainer fc : containers.keySet() )
 		{
 			try {
 				List<AnnotationProcessorFactory> f = loadFactoryClasses( fc, classLoader );
@@ -149,10 +150,13 @@ public class AnnotationProcessorFactoryLoader {
 		return f;
 	}
 	
-	private ClassLoader _createClassLoader( Collection<? extends FactoryContainer> containers )
+	/**
+	 * @param containers an ordered map.
+	 */
+	private ClassLoader _createClassLoader( Map<FactoryContainer, FactoryPath.Attributes> containers )
 	{
 		ArrayList<URL> urlList = new ArrayList<URL>( containers.size() );
-		for ( FactoryContainer fc : containers ) 
+		for ( FactoryContainer fc : containers.keySet() ) 
 		{
 			if ( fc instanceof JarFactoryContainer  )
 			{

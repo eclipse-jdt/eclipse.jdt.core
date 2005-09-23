@@ -92,10 +92,19 @@ public class AptPlugin extends Plugin {
 	}
 	
 	/**
-	 * Convenience wrapper for rethrowing exceptions as CoreExceptions
+	 * Convenience wrapper for rethrowing exceptions as CoreExceptions,
+	 * with severity of ERROR.
 	 */
 	public static Status createStatus(Throwable e, String message) {
 		return new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e);
+	}
+	
+	/**
+	 * Convenience wrapper for rethrowing exceptions as CoreExceptions,
+	 * with severity of WARNING.
+	 */
+	public static Status createWarningStatus(Throwable e, String message) {
+		return new Status(IStatus.WARNING, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
 	
 	private void initDebugTracing() {		

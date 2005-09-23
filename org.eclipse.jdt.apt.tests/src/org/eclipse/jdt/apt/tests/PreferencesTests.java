@@ -22,12 +22,12 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.core.FactoryContainer;
-import org.eclipse.jdt.apt.core.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
-import org.eclipse.jdt.apt.core.util.FactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -73,33 +73,49 @@ public class PreferencesTests extends Tests {
 	
 	public void testFactoryPathEncodingAndDecoding() throws Exception {
 		//encode
-		Map<FactoryContainer, Boolean> factories = new LinkedHashMap<FactoryContainer, Boolean>();
-		FactoryContainer jarFactory = FactoryPath.newExtJarFactoryContainer(new File("C:/test.jar")); //$NON-NLS-1$
-		FactoryContainer pluginFactory = FactoryPath.getPluginFactoryContainer("org.eclipse.jdt.apt.tests"); //$NON-NLS-1$
-		factories.put(jarFactory, true);
-		factories.put(pluginFactory, false);
+		Map<FactoryContainer, FactoryPath.Attributes> factories = new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>();
+		FactoryContainer jarFactory1 = FactoryPathUtil.newExtJarFactoryContainer(new File("C:/test1.jar")); //$NON-NLS-1$
+		FactoryPath.Attributes jarFPA1 = new FactoryPath.Attributes(true, false);
+		FactoryContainer jarFactory2 = FactoryPathUtil.newExtJarFactoryContainer(new File("C:/test2.jar")); //$NON-NLS-1$
+		FactoryPath.Attributes jarFPA2 = new FactoryPath.Attributes(true, true);
+		FactoryContainer pluginFactory = FactoryPathUtil.getPluginFactoryContainer("org.eclipse.jdt.apt.tests"); //$NON-NLS-1$
+		FactoryPath.Attributes pluginFPA = new FactoryPath.Attributes(false, false);
+		factories.put(jarFactory1, jarFPA1);
+		factories.put(jarFactory2, jarFPA2);
+		factories.put(pluginFactory, pluginFPA);
 		String xml = FactoryPathUtil.encodeFactoryPath(factories);
 		assertEquals(serializedFactories, xml);
 		
 		// decode
 		factories = FactoryPathUtil.decodeFactoryPath(xml);
-		assertEquals(2, factories.size());
+		assertEquals(3, factories.size());
 
 		int index=0;
-		for (Map.Entry<FactoryContainer, Boolean> entry : factories.entrySet()) {
+		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : factories.entrySet()) {
 			FactoryContainer container = entry.getKey();
-			if (index == 0) {
-				// jar
+			switch (index) {
+			case 0:
+				// jar1
 				assertEquals(FactoryType.EXTJAR, container.getType());
-				assertEquals(Boolean.TRUE, entry.getValue());
-			}
-			else {
+				assertTrue(entry.getValue().isEnabled());
+				assertFalse(entry.getValue().runInBatchMode());
+				break;
+			case 1:
+				// jar2
+				assertEquals(FactoryType.EXTJAR, container.getType());
+				assertTrue(entry.getValue().isEnabled());
+				assertTrue(entry.getValue().runInBatchMode());
+				break;
+			case 2:
 				// plugin
 				assertEquals(FactoryType.PLUGIN, container.getType());
-				assertEquals(Boolean.FALSE, entry.getValue());
+				assertFalse(entry.getValue().isEnabled());
 				assertEquals("org.eclipse.jdt.apt.tests", container.getId()); //$NON-NLS-1$
+				break;
+			default:
+				fail("FactoryPath had an unexpected number of entries: " + (index + 1));
 			}
-			
+		
 			index++;
 		}
 	}
@@ -107,8 +123,9 @@ public class PreferencesTests extends Tests {
 	@SuppressWarnings("nls")
 	private static final String serializedFactories = 
 		"<factorypath>\n" + 
-		"    <factorypathentry kind=\"EXTJAR\" id=\"C:\\test.jar\" enabled=\"true\"/>\n" + 
-		"    <factorypathentry kind=\"PLUGIN\" id=\"org.eclipse.jdt.apt.tests\" enabled=\"false\"/>\n" + 
+		"    <factorypathentry kind=\"EXTJAR\" id=\"C:\\test1.jar\" enabled=\"true\" runInBatchMode=\"false\"/>\n" + 
+		"    <factorypathentry kind=\"EXTJAR\" id=\"C:\\test2.jar\" enabled=\"true\" runInBatchMode=\"true\"/>\n" + 
+		"    <factorypathentry kind=\"PLUGIN\" id=\"org.eclipse.jdt.apt.tests\" enabled=\"false\" runInBatchMode=\"false\"/>\n" + 
 		"</factorypath>\n";
 	
 	/**

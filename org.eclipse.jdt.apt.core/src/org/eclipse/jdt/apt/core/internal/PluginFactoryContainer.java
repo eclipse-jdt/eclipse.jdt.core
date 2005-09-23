@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.apt.core.AptPlugin;
-import org.eclipse.jdt.apt.core.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 
 public class PluginFactoryContainer extends FactoryContainer
 {

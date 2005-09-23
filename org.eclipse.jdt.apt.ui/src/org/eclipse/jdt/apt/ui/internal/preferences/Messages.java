@@ -97,4 +97,10 @@ public class Messages extends NLS {
 	public static String ProcessorOptionInputDialog_equalsSignNotValid;
 
 	public static String AptConfigurationBlock_genSrcDirMustBeValidRelativePath;
+
+	public static String FactoryPathConfigurationBlock_advanced;
+
+	public static String AdvancedFactoryPathOptionsDialog_advancedOptions;
+
+	public static String AdvancedFactoryPathOptionsDialog_batchMode;
 }

@@ -10,7 +10,7 @@
  *******************************************************************************/
 
 
-package org.eclipse.jdt.apt.core;
+package org.eclipse.jdt.apt.core.internal.util;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,7 +29,7 @@ public abstract class FactoryContainer
 	
 	/**	
 	 * Returns an ID that is guaranteed to be sufficiently unique for this container --
-	 * that is, all necessary state can be reconstructed from just the id.
+	 * that is, all necessary state can be reconstructed from just the id and FactoryType.
 	 * For plugins, it's the plugin id, for jar files, the path to the jar, etc.
 	 */
 	public abstract String getId();

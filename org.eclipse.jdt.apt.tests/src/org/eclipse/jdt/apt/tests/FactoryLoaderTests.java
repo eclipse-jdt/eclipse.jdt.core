@@ -12,8 +12,6 @@
 package org.eclipse.jdt.apt.tests;
 
 import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -21,8 +19,8 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.core.FactoryContainer;
-import org.eclipse.jdt.apt.core.util.FactoryPath;
+import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.core.util.IFactoryPath;
 import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorTestCodeExample;
 import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestAnnotationProcessor;
@@ -93,12 +91,12 @@ public class FactoryLoaderTests extends Tests {
 		expectingNoProblems();
 		assertFalse(LoaderTestAnnotationProcessor.isLoaded());
 		
-		// add _extJar to the factory list and rebuild.
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
-		FactoryContainer jarContainer = FactoryPath.newExtJarFactoryContainer(_extJar);
-		Map<FactoryContainer, Boolean> containers = new LinkedHashMap<FactoryContainer, Boolean>(1);
-		containers.put(jarContainer, true);
-		FactoryPath.addContainers(jproj, containers);
+		IFactoryPath ifp = AptConfig.getFactoryPath(jproj);
+		
+		// add _extJar to the factory list and rebuild.
+		ifp.addExternalJar(_extJar);
+		AptConfig.setFactoryPath(jproj, ifp);
 		
 		// rebuild and verify that the processor was loaded
 		LoaderTestAnnotationProcessor.clearLoaded();
@@ -109,8 +107,9 @@ public class FactoryLoaderTests extends Tests {
 		// Verify that we were able to run the ColorAnnotationProcessor successfully
 		assertTrue(ColorAnnotationProcessor.wasSuccessful());
 		
-		// remove _extJar from the factory list.
-		FactoryPath.removeContainer(jproj, jarContainer);
+		// restore to the original
+		ifp.removeExternalJar(_extJar);
+		AptConfig.setFactoryPath(jproj, ifp);
 		
 		// rebuild and verify that the processor was not loaded.
 		LoaderTestAnnotationProcessor.clearLoaded();
