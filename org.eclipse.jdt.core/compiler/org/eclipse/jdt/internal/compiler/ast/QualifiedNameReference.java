@@ -52,11 +52,12 @@ public class QualifiedNameReference extends NameReference {
 		// determine the rank until which we now we do not need any actual value for the field access
 		int otherBindingsCount = otherBindings == null ? 0 : otherBindings.length;
 		boolean needValue = otherBindingsCount == 0 || !this.otherBindings[0].isStatic();
+		boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 		FieldBinding lastFieldBinding = null;
 		switch (bits & RestrictiveFlagMASK) {
 			case Binding.FIELD : // reading a field
 				lastFieldBinding = (FieldBinding) binding;
-				if (needValue) {
+				if (needValue || complyTo14) {
 					manageSyntheticAccessIfNecessary(currentScope, lastFieldBinding, this.actualReceiverType, 0, flowInfo);
 				}
 				if (this.indexOfFirstFieldBinding == 1) { // was an implicit reference to the first field binding
@@ -106,7 +107,6 @@ public class QualifiedNameReference extends NameReference {
 		}
 		// all intermediate field accesses are read accesses
 		if (otherBindings != null) {
-			boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 			for (int i = 0; i < otherBindingsCount-1; i++) {
 				lastFieldBinding = otherBindings[i];
 				needValue = !otherBindings[i+1].isStatic();
@@ -211,9 +211,10 @@ public class QualifiedNameReference extends NameReference {
 		int otherBindingsCount = otherBindings == null ? 0 : otherBindings.length;
 
 		boolean needValue = otherBindingsCount == 0 ? valueRequired : !this.otherBindings[0].isStatic();
+		boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 		switch (bits & RestrictiveFlagMASK) {
 			case Binding.FIELD : // reading a field
-				if (needValue) {
+				if (needValue || complyTo14) {
 					manageSyntheticAccessIfNecessary(currentScope, (FieldBinding) binding, this.actualReceiverType, 0, flowInfo);
 				}
 				if (this.indexOfFirstFieldBinding == 1) { // was an implicit reference to the first field binding
@@ -257,7 +258,6 @@ public class QualifiedNameReference extends NameReference {
 			// only for first binding
 		}
 		if (otherBindings != null) {
-			boolean complyTo14 = currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4;
 			for (int i = 0; i < otherBindingsCount; i++) {
 				needValue = i < otherBindingsCount-1 ? !otherBindings[i+1].isStatic() : valueRequired;
 				if (needValue || complyTo14) {
