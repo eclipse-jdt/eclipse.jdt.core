@@ -239,7 +239,7 @@ public class FieldReference extends Reference implements InvocationSite {
 					}
 				} else {
 					if (!isStatic){
-						codeStream.invokeObjectGetClass(); // perform null check
+						if (!(this.receiver instanceof ThisReference)) codeStream.invokeObjectGetClass(); // perform null check
 						codeStream.pop();
 					}
 				}
@@ -501,7 +501,17 @@ public class FieldReference extends Reference implements InvocationSite {
 		}		
 	}
 
+	public Constant optimizedBooleanConstant() {
 
+		switch (this.resolvedType.id) {
+			case T_boolean :
+			case T_JavaLangBoolean :		
+				return this.constant != NotAConstant ? this.constant : this.binding.constant();
+			default :
+				return NotAConstant;
+		}
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		return receiver.printExpression(0, output).append('.').append(token);

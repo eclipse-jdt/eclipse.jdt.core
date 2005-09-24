@@ -367,6 +367,18 @@ public class CastExpression extends Expression {
 		return this.expression.nullStatus(flowInfo);
 	}
 	
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#optimizedBooleanConstant()
+	 */
+	public Constant optimizedBooleanConstant() {
+		switch(this.resolvedType.id) {
+			case T_boolean :
+			case T_JavaLangBoolean :
+				return this.expression.optimizedBooleanConstant();
+		}
+		return NotAConstant;
+	}
+	
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 
 		output.append('(');

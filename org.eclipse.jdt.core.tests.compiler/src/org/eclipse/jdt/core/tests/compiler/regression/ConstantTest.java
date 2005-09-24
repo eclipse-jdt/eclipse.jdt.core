@@ -19,6 +19,8 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ConstantTest extends AbstractRegressionTest {
 	
@@ -635,6 +637,742 @@ public void test013() {
 		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"The literal 23092395825689123986L of type long is out of range \n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182
+public void test014() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	X fx;\n" + 
+			"	final static boolean DBG = false;\n" + 
+			"	void foo1(X x) {\n" + 
+			"		if (x.DBG) {\n" + 
+			"			boolean b = x.DBG;\n" + 
+			"		}\n" + 
+			"		boolean bb;\n" + 
+			"		if (bb = x.DBG) {\n" + 
+			"			boolean b = x.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo2(X x) {\n" + 
+			"		while (x.DBG) {\n" + 
+			"			boolean b = x.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo3(X x) {\n" + 
+			"		for (;x.DBG;) {\n" + 
+			"			boolean b = x.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo4(X x) {\n" + 
+			"		boolean b = x.DBG ? x == null : x.DBG;\n" + 
+			"	}\n" + 
+			"	void foo5() {\n" + 
+			"		if (this.fx.DBG) {\n" + 
+			"			boolean b = this.fx.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo6() {\n" + 
+			"		while (this.fx.DBG) {\n" + 
+			"			boolean b = this.fx.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo7() {\n" + 
+			"		for (;this.fx.DBG;) {\n" + 
+			"			boolean b = this.fx.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo8() {\n" + 
+			"		boolean b = this.fx.DBG ? this.fx == null : this.fx.DBG;\n" + 
+			"	}\n" +
+			"}\n",
+		},
+		"");
+	// ensure boolean codegen got optimized (optimizedBooleanConstant)
+	String expectedOutput =
+		CompilerOptions.versionToJdkLevel(getCompilerOptions().get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4
+			?		"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 2, Locals: 4\n" + 
+					"  void foo1(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  dup\n" + 
+					"    2  istore_2 [bb]\n" + 
+					"    3  ifeq 8\n" + 
+					"    6  iconst_0\n" + 
+					"    7  istore_3\n" + 
+					"    8  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 9]\n" + 
+					"        [pc: 6, line: 10]\n" + 
+					"        [pc: 8, line: 12]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 9] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 9] local: x index: 1 type: X\n" + 
+					"        [pc: 3, pc: 9] local: bb index: 2 type: boolean\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo2(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  ifeq 4\n" + 
+					"    4  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 14]\n" + 
+					"        [pc: 4, line: 17]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo3(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  ifne 0\n" + 
+					"    4  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 19]\n" + 
+					"        [pc: 4, line: 22]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 3\n" + 
+					"  void foo4(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  istore_2 [b]\n" + 
+					"    2  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 24]\n" + 
+					"        [pc: 2, line: 25]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 3] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 3] local: x index: 1 type: X\n" + 
+					"        [pc: 2, pc: 3] local: b index: 2 type: boolean\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo5();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  pop\n" + 
+					"    2  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 27]\n" + 
+					"        [pc: 2, line: 30]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 3] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo6();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  pop\n" + 
+					"    2  iconst_0\n" + 
+					"    3  ifeq 6\n" + 
+					"    6  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 32]\n" + 
+					"        [pc: 6, line: 35]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo7();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  pop\n" + 
+					"    2  iconst_0\n" + 
+					"    3  ifne 0\n" + 
+					"    6  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 37]\n" + 
+					"        [pc: 6, line: 40]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo8();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  pop\n" + 
+					"    2  aload_0 [this]\n" + 
+					"    3  pop\n" + 
+					"    4  iconst_0\n" + 
+					"    5  istore_1 [b]\n" + 
+					"    6  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 42]\n" + 
+					"        [pc: 6, line: 43]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+					"        [pc: 6, pc: 7] local: b index: 1 type: boolean\n" + 
+					"}"					
+			: 		"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 2, Locals: 4\n" + 
+					"  void foo1(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  dup\n" + 
+					"    2  istore_2 [bb]\n" + 
+					"    3  ifeq 8\n" + 
+					"    6  iconst_0\n" + 
+					"    7  istore_3\n" + 
+					"    8  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 9]\n" + 
+					"        [pc: 6, line: 10]\n" + 
+					"        [pc: 8, line: 12]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 9] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 9] local: x index: 1 type: X\n" + 
+					"        [pc: 3, pc: 9] local: bb index: 2 type: boolean\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo2(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  ifeq 4\n" + 
+					"    4  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 14]\n" + 
+					"        [pc: 4, line: 17]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo3(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  ifne 0\n" + 
+					"    4  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 19]\n" + 
+					"        [pc: 4, line: 22]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 3\n" + 
+					"  void foo4(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  istore_2 [b]\n" + 
+					"    2  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 24]\n" + 
+					"        [pc: 2, line: 25]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 3] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 3] local: x index: 1 type: X\n" + 
+					"        [pc: 2, pc: 3] local: b index: 2 type: boolean\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo5();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  getfield X.fx : X [28]\n" + 
+					"    4  pop\n" + 
+					"    5  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 27]\n" + 
+					"        [pc: 5, line: 30]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 6] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo6();\n" + 
+					"     0  aload_0 [this]\n" + 
+					"     1  getfield X.fx : X [28]\n" + 
+					"     4  pop\n" + 
+					"     5  iconst_0\n" + 
+					"     6  ifeq 9\n" + 
+					"     9  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 32]\n" + 
+					"        [pc: 9, line: 35]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo7();\n" + 
+					"     0  aload_0 [this]\n" + 
+					"     1  getfield X.fx : X [28]\n" + 
+					"     4  pop\n" + 
+					"     5  iconst_0\n" + 
+					"     6  ifne 0\n" + 
+					"     9  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 37]\n" + 
+					"        [pc: 9, line: 40]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo8();\n" + 
+					"     0  aload_0 [this]\n" + 
+					"     1  getfield X.fx : X [28]\n" + 
+					"     4  pop\n" + 
+					"     5  aload_0 [this]\n" + 
+					"     6  getfield X.fx : X [28]\n" + 
+					"     9  pop\n" + 
+					"    10  iconst_0\n" + 
+					"    11  istore_1 [b]\n" + 
+					"    12  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 42]\n" + 
+					"        [pc: 12, line: 43]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
+					"        [pc: 12, pc: 13] local: b index: 1 type: boolean\n" + 
+					"}";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182 - variation
+public void test015() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	X fx;\n" + 
+			"	final static boolean DBG = false;\n" + 
+			"	void foo1(X x) {\n" + 
+			"		if (x.DBG) {\n" + 
+			"			boolean b = x.DBG;\n" + 
+			"		}\n" + 
+			"		boolean bb;\n" + 
+			"		if (bb = x.DBG) {\n" + 
+			"			boolean b = x.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo2(X x) {\n" + 
+			"		while (x.DBG) {\n" + 
+			"			boolean b = x.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo3(X x) {\n" + 
+			"		for (;x.DBG;) {\n" + 
+			"			boolean b = x.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo4(X x) {\n" + 
+			"		boolean b = x.DBG ? x == null : x.DBG;\n" + 
+			"	}\n" + 
+			"	void foo5() {\n" + 
+			"		if (this.fx.DBG) {\n" + 
+			"			boolean b = this.fx.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo6() {\n" + 
+			"		while (this.fx.DBG) {\n" + 
+			"			boolean b = this.fx.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo7() {\n" + 
+			"		for (;this.fx.DBG;) {\n" + 
+			"			boolean b = this.fx.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo8() {\n" + 
+			"		boolean b = this.fx.DBG ? this.fx == null : this.fx.DBG;\n" + 
+			"	}\n" +
+			"}\n",
+		},
+		"");
+	// ensure boolean codegen got optimized (optimizedBooleanConstant)
+	String expectedOutput =
+		CompilerOptions.versionToJdkLevel(getCompilerOptions().get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4
+			?		"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 2, Locals: 4\n" + 
+					"  void foo1(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  dup\n" + 
+					"    2  istore_2 [bb]\n" + 
+					"    3  ifeq 8\n" + 
+					"    6  iconst_0\n" + 
+					"    7  istore_3\n" + 
+					"    8  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 9]\n" + 
+					"        [pc: 6, line: 10]\n" + 
+					"        [pc: 8, line: 12]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 9] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 9] local: x index: 1 type: X\n" + 
+					"        [pc: 3, pc: 9] local: bb index: 2 type: boolean\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo2(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  ifeq 4\n" + 
+					"    4  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 14]\n" + 
+					"        [pc: 4, line: 17]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo3(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  ifne 0\n" + 
+					"    4  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 19]\n" + 
+					"        [pc: 4, line: 22]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 3\n" + 
+					"  void foo4(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  istore_2 [b]\n" + 
+					"    2  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 24]\n" + 
+					"        [pc: 2, line: 25]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 3] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 3] local: x index: 1 type: X\n" + 
+					"        [pc: 2, pc: 3] local: b index: 2 type: boolean\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo5();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  pop\n" + 
+					"    2  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 27]\n" + 
+					"        [pc: 2, line: 30]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 3] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo6();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  pop\n" + 
+					"    2  iconst_0\n" + 
+					"    3  ifeq 6\n" + 
+					"    6  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 32]\n" + 
+					"        [pc: 6, line: 35]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo7();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  pop\n" + 
+					"    2  iconst_0\n" + 
+					"    3  ifne 0\n" + 
+					"    6  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 37]\n" + 
+					"        [pc: 6, line: 40]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo8();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  pop\n" + 
+					"    2  aload_0 [this]\n" + 
+					"    3  pop\n" + 
+					"    4  iconst_0\n" + 
+					"    5  istore_1 [b]\n" + 
+					"    6  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 42]\n" + 
+					"        [pc: 6, line: 43]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+					"        [pc: 6, pc: 7] local: b index: 1 type: boolean\n" + 
+					"}"					
+			: 		"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 2, Locals: 4\n" + 
+					"  void foo1(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  dup\n" + 
+					"    2  istore_2 [bb]\n" + 
+					"    3  ifeq 8\n" + 
+					"    6  iconst_0\n" + 
+					"    7  istore_3\n" + 
+					"    8  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 9]\n" + 
+					"        [pc: 6, line: 10]\n" + 
+					"        [pc: 8, line: 12]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 9] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 9] local: x index: 1 type: X\n" + 
+					"        [pc: 3, pc: 9] local: bb index: 2 type: boolean\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo2(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  ifeq 4\n" + 
+					"    4  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 14]\n" + 
+					"        [pc: 4, line: 17]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo3(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  ifne 0\n" + 
+					"    4  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 19]\n" + 
+					"        [pc: 4, line: 22]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 5] local: x index: 1 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #20 (LX;)V\n" + 
+					"  // Stack: 1, Locals: 3\n" + 
+					"  void foo4(X x);\n" + 
+					"    0  iconst_0\n" + 
+					"    1  istore_2 [b]\n" + 
+					"    2  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 24]\n" + 
+					"        [pc: 2, line: 25]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 3] local: this index: 0 type: X\n" + 
+					"        [pc: 0, pc: 3] local: x index: 1 type: X\n" + 
+					"        [pc: 2, pc: 3] local: b index: 2 type: boolean\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo5();\n" + 
+					"    0  aload_0 [this]\n" + 
+					"    1  getfield X.fx : X [28]\n" + 
+					"    4  pop\n" + 
+					"    5  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 27]\n" + 
+					"        [pc: 5, line: 30]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 6] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo6();\n" + 
+					"     0  aload_0 [this]\n" + 
+					"     1  getfield X.fx : X [28]\n" + 
+					"     4  pop\n" + 
+					"     5  iconst_0\n" + 
+					"     6  ifeq 9\n" + 
+					"     9  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 32]\n" + 
+					"        [pc: 9, line: 35]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 1\n" + 
+					"  void foo7();\n" + 
+					"     0  aload_0 [this]\n" + 
+					"     1  getfield X.fx : X [28]\n" + 
+					"     4  pop\n" + 
+					"     5  iconst_0\n" + 
+					"     6  ifne 0\n" + 
+					"     9  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 37]\n" + 
+					"        [pc: 9, line: 40]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+					"  \n" + 
+					"  // Method descriptor #12 ()V\n" + 
+					"  // Stack: 1, Locals: 2\n" + 
+					"  void foo8();\n" + 
+					"     0  aload_0 [this]\n" + 
+					"     1  getfield X.fx : X [28]\n" + 
+					"     4  pop\n" + 
+					"     5  aload_0 [this]\n" + 
+					"     6  getfield X.fx : X [28]\n" + 
+					"     9  pop\n" + 
+					"    10  iconst_0\n" + 
+					"    11  istore_1 [b]\n" + 
+					"    12  return\n" + 
+					"      Line numbers:\n" + 
+					"        [pc: 0, line: 42]\n" + 
+					"        [pc: 12, line: 43]\n" + 
+					"      Local variable table:\n" + 
+					"        [pc: 0, pc: 13] local: this index: 0 type: X\n" + 
+					"        [pc: 12, pc: 13] local: b index: 1 type: boolean\n" + 
+					"}";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110182 - variation
+public void test016() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	X fx;\n" + 
+			"	final static boolean DBG = false;\n" + 
+			"	void foo1(X x) {\n" + 
+			"		boolean b;\n" + 
+			"		if (false ? false : x.DBG) {\n" + 
+			"			boolean bb = x.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo2(X x) {\n" + 
+			"		boolean b;\n" + 
+			"		while (x == null ? x.DBG : x.DBG) {\n" + 
+			"			boolean bb = x.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo3(X x) {\n" + 
+			"		boolean b;\n" + 
+			"		for (;x == null ? x.DBG : x.DBG;) {\n" + 
+			"			boolean bb = x.DBG;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	void foo4(X x) {\n" + 
+			"		boolean bb = (x == null ? x.DBG :  x.DBG) ? x == null : x.DBG;\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+	// ensure boolean codegen got optimized (optimizedBooleanConstant)
+	String expectedOutput =
+				"  // Method descriptor #20 (LX;)V\n" + 
+				"  // Stack: 0, Locals: 2\n" + 
+				"  void foo1(X x);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 9]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: x index: 1 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #20 (LX;)V\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  void foo2(X x);\n" + 
+				"     0  aload_1 [x]\n" + 
+				"     1  ifnonnull 11\n" + 
+				"     4  iconst_0\n" + 
+				"     5  ifeq 15\n" + 
+				"     8  goto 15\n" + 
+				"    11  iconst_0\n" + 
+				"    12  ifeq 15\n" + 
+				"    15  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 12]\n" + 
+				"        [pc: 15, line: 15]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 16] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 16] local: x index: 1 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #20 (LX;)V\n" + 
+				"  // Stack: 1, Locals: 2\n" + 
+				"  void foo3(X x);\n" + 
+				"     0  aload_1 [x]\n" + 
+				"     1  ifnonnull 11\n" + 
+				"     4  iconst_0\n" + 
+				"     5  ifne 0\n" + 
+				"     8  goto 15\n" + 
+				"    11  iconst_0\n" + 
+				"    12  ifne 0\n" + 
+				"    15  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 18]\n" + 
+				"        [pc: 15, line: 21]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 16] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 16] local: x index: 1 type: X\n" + 
+				"  \n" + 
+				"  // Method descriptor #20 (LX;)V\n" + 
+				"  // Stack: 1, Locals: 3\n" + 
+				"  void foo4(X x);\n" + 
+				"    0  aload_1 [x]\n" + 
+				"    1  ifnonnull 4\n" + 
+				"    4  iconst_0\n" + 
+				"    5  istore_2 [bb]\n" + 
+				"    6  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 23]\n" + 
+				"        [pc: 6, line: 24]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 7] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 7] local: x index: 1 type: X\n" + 
+				"        [pc: 6, pc: 7] local: bb index: 2 type: boolean\n" + 
+				"}";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}		
 }
 public static Class testClass() {
 	return ConstantTest.class;
