@@ -33,7 +33,7 @@ public class EnumTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 110 };
+//		TESTS_NUMBERS = new int[] { 123 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
 	public static Test suite() {
@@ -4125,5 +4125,25 @@ the right of e1."
 				"}"
 			},
 			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110403
+	public void test123() {
+		this.runNegativeTest(
+			new String[] {
+				"Foo.java",
+				"enum Foo {\n" +
+				" A(0);\n" +
+				" Foo(int x) {\n" +
+				"    t[0]=x;\n" +
+				" }\n" +
+				" private static final int[] t = new int[12];\n" +
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in Foo.java (at line 4)\n" + 
+			"	t[0]=x;\n" + 
+			"	^\n" + 
+			"Cannot refer to the static enum field Foo.t within an initializer\n" + 
+			"----------\n");
 	}
 }
