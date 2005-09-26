@@ -1714,7 +1714,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportRawTypeReference,
 							CompilerOptions.DISABLED);						
-					} else if (token.equals("allUnchecked")) {//$NON-NLS-1$ //$NON-NLS-2$ 
+					} else if (token.equals("allUnchecked")) {//$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportUncheckedTypeOperation,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
