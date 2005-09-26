@@ -1991,6 +1991,24 @@ public void test033(){
         "",
         true);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=105430
+public void test034(){
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" + 
+			"public class X {\n" + 
+			"}",
+		},
+        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+        + " -1.5 -g -preserveAllLocals"
+        + " -cp " + File.pathSeparator + "\"" + OUTPUT_DIR
+        + "\"" + File.pathSeparator
+        + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
+        "",
+        "",
+        true);
+}
 public static Class testClass() {
 	return BatchCompilerTest.class;
 }
