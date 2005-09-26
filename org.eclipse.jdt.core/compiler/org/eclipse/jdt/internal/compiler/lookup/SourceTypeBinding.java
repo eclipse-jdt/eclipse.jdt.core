@@ -1204,10 +1204,10 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	}
 	if (isViewedAsDeprecated() && !method.isDeprecated())
 		method.modifiers |= AccDeprecatedImplicitly;
-			
+
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
 	if (methodDecl == null) return null; // method could not be resolved in previous iteration
-	
+
 	TypeParameter[] typeParameters = methodDecl.typeParameters();
 	if (typeParameters != null) {
 		methodDecl.scope.connectTypeVariables(typeParameters);
@@ -1260,7 +1260,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				foundArgProblem = true;
 			} else {
 				TypeBinding leafType = parameterType.leafComponentType();
-			    if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0)
+			    if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & AccGenericSignature) != 0)
 					method.modifiers |= AccGenericSignature;
 				method.parameters[i] = parameterType;
 			}
@@ -1286,20 +1286,19 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			} else {
 				method.returnType = methodType;
 				TypeBinding leafType = methodType.leafComponentType();
-				if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0)
+				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & AccGenericSignature) != 0)
 					method.modifiers |= AccGenericSignature;
 			}
 		}
 	}
 	if (foundArgProblem) {
 		methodDecl.binding = null;
+		method.parameters = NoParameters; // see 107004
 		// nullify type parameter bindings as well as they have a backpointer to the method binding
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=81134)
 		if (typeParameters != null)
-			for (int i = 0, length = typeParameters.length; i < length; i++) {
-				TypeParameter parameter = typeParameters[i];
-				parameter.binding = null;
-			}
+			for (int i = 0, length = typeParameters.length; i < length; i++)
+				typeParameters[i].binding = null;
 		return null;
 	}
 	if (foundReturnTypeProblem)
