@@ -282,7 +282,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		int length = originalVariables.length;
 		TypeBinding[] rawArguments = new TypeBinding[length];
 		for (int i = 0; i < length; i++) {
-			rawArguments[i] = originalVariables[i].upperBound();
+			rawArguments[i] =  environment.convertToRawType(originalVariables[i].erasure());
 		}		
 	    this.isRaw = true;
 		this.isUnchecked = false;
