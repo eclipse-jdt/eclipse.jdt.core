@@ -2961,8 +2961,11 @@ public abstract class Scope
 			if (lubTypeLength < typeLength) continue nextLubCheck;
 			nextTypeCheck:	for (int j = 0; j < typeLength; j++) {
 				TypeBinding type = types[j];
+				if (type == null) continue nextTypeCheck; // ignore
 				for (int k = 0; k < lubTypeLength; k++) {
-					if (lubTypes[k] == type || lubTypes[k].isEquivalentTo(type)) continue nextTypeCheck; // type found, jump to next one 
+					TypeBinding lubType = lubTypes[k];
+					if (lubType == null) continue; // ignore
+					if (lubType == type || lubType.isEquivalentTo(type)) continue nextTypeCheck; // type found, jump to next one 
 				}
 				continue nextLubCheck; // type not found in current lubTypes
 			}
