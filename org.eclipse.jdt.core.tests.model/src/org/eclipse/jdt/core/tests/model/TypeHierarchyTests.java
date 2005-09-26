@@ -118,6 +118,22 @@ public void setUpSuite() throws Exception {
 		"public class Y99606<T> {\n" + 
 		"}"
 	);
+	createFile(
+		"/TypeHierarchy15/src/A108740.java", 
+		"class A108740<T> {}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/B108740.java", 
+		"class B108740<T> extends A108740<C108740> {}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/C108740.java", 
+		"class C108740 extends B108740<C108740> {}"
+	);
+	createFile(
+		"/TypeHierarchy15/src/D108740.java", 
+		"class D108740 extends B108740<D108740> {}"
+	);
 }
 
 /* (non-Javadoc)
@@ -1019,6 +1035,20 @@ public void testGeneric7() throws JavaModelException {
 		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in TypeHierarchy15]]]]\n" + 
 		"Sub types:\n" + 
 		"  X99606 [in X99606.java [in <default> [in src [in TypeHierarchy15]]]]\n",
+		hierarchy
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=108740
+public void testGeneric8() throws JavaModelException {
+	IType type = getCompilationUnit("/TypeHierarchy15/src/D108740.java").getType("D108740");
+	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+	assertHierarchyEquals(
+		"Focus: D108740 [in D108740.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"Super types:\n" + 
+		"  B108740 [in B108740.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"    A108740 [in A108740.java [in <default> [in src [in TypeHierarchy15]]]]\n" + 
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + " [in TypeHierarchy15]]]]\n" + 
+		"Sub types:\n",
 		hierarchy
 	);
 }

@@ -669,7 +669,7 @@ public boolean implementsInterface(ReferenceBinding anInterface, boolean searchH
 	ReferenceBinding currentType = this;
 	do {
 		ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-		if (itsInterfaces != NoSuperInterfaces) {
+		if (itsInterfaces != NoSuperInterfaces && itsInterfaces != null) { // in code assist cases when source types are added late, may not be finished connecting hierarchy
 			if (++lastPosition == interfacesToVisit.length)
 				System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 			interfacesToVisit[lastPosition] = itsInterfaces;
@@ -683,7 +683,7 @@ public boolean implementsInterface(ReferenceBinding anInterface, boolean searchH
 				return true;
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (itsInterfaces != NoSuperInterfaces) {
+			if (itsInterfaces != NoSuperInterfaces && itsInterfaces != null) { // in code assist cases when source types are added late, may not be finished connecting hierarchy
 				if (++lastPosition == interfacesToVisit.length)
 					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 				interfacesToVisit[lastPosition] = itsInterfaces;

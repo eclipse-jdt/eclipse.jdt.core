@@ -651,6 +651,8 @@ public class ClassScope extends Scope {
 
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != NoSuperInterfaces) {
+				if (itsInterfaces == null)
+					return; // in code assist cases when source types are added late, may not be finished connecting hierarchy
 				if (interfacesToVisit == null)
 					interfacesToVisit = new ReferenceBinding[5][];
 				if (++lastPosition == interfacesToVisit.length)
@@ -673,6 +675,8 @@ public class ClassScope extends Scope {
 						needToTag = true;
 						ReferenceBinding[] itsInterfaces = anInterface.superInterfaces();
 						if (itsInterfaces != NoSuperInterfaces) {
+							if (itsInterfaces == null)
+								return; // in code assist cases when source types are added late, may not be finished connecting hierarchy
 							if (++lastPosition == interfacesToVisit.length)
 								System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 							interfacesToVisit[lastPosition] = itsInterfaces;
