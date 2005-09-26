@@ -3488,8 +3488,10 @@ public abstract class Scope
 				}
 				level = VARARGS_COMPATIBLE; // varargs support needed
 			}
-			// now compare standard arguments from 0 to lastIndex
+		} else 	if (paramLength != argLength) {
+				return NOT_COMPATIBLE;
 		}
+		// now compare standard arguments from 0 to lastIndex
 		for (int i = 0; i < lastIndex; i++) {
 			TypeBinding param = parameters[i];
 			TypeBinding arg = arguments[i];
