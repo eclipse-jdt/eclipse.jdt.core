@@ -7628,4 +7628,23 @@ public void test0245() throws JavaModelException {
 
 	assertResults("", requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102284
+public void test0246() throws JavaModelException {
+		CompletionResult result = complete(
+			"/Completion/src3/test0245/X.java",
+			"package test0245;\n" + 
+			"public class X {\n" + 
+			"  void test() {\n" + 
+			"    class Type<S, T> {\n" + 
+			"      Type<String, String> t= new Type<String, String> ()\n" + 
+			"    }\n" + 
+			"  }\n" +  
+			"}",
+			"Type<String, String> (");
+
+		assertResults(
+			"Type[METHOD_REF<CONSTRUCTOR>]{, LType<Ljava.lang.String;Ljava.lang.String;>;, ()V, Type, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Type<java.lang.String,java.lang.String>[ANONYMOUS_CLASS_DECLARATION]{, LType<Ljava.lang.String;Ljava.lang.String;>;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			result.proposals);
+}
 }
