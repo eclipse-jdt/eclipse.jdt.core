@@ -48,10 +48,29 @@ Eclipse SDK 3.2M3 - ?th September 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>
+Added optional compiler diagnosis for signaling usage of raw types. A raw type is a reference to some
+generic type without any type argument (e.g. "List" in place of "List<Element>").
+<pre>
+* COMPILER / Reporting Raw Type Reference
+*    When enabled, the compiler will signal references to raw types. Raw types are discouraged, and are intended to help interfacing
+*    with legacy code. In the future, the language specification may reject raw references to generic types.
+*    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation".
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.rawTypeReference"
+*     - possible values:   { "enabled", "disabled" }
+*     - default:           "disabled"
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110182">110182</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110570">110570</a>
+[1.5][compiler] error in type deduction
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110563">110563</a>
+[1.5][compiler] Internal compiler error for varags
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=89529">89529</a>
+[1.5][compiler] improve warnings for raw types
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110182">110182</a>
 [compiler] Eclipse does not recompile rt.jar properly 
 
 

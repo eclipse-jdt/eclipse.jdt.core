@@ -938,7 +938,11 @@ public class QualifiedNameReference extends NameReference {
 				    TypeBinding type = (TypeBinding) binding;
 					if (isTypeUseDeprecated(type, scope))
 						scope.problemReporter().deprecatedType(type, this);
-					return this.resolvedType = scope.environment().convertToRawType(type);
+					type = scope.environment().convertToRawType(type);
+					if (type.isRawType() && scope.compilerOptions().reportRawTypeReference) {
+						scope.problemReporter().rawTypeReference(this, type);
+					}					
+					return this.resolvedType = type;
 			}
 		}
 		//========error cases===============

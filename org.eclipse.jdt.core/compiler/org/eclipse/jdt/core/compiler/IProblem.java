@@ -963,6 +963,8 @@ public interface IProblem {
 	int UnsafeRawGenericMethodInvocation = TypeRelated + 570;
 	/** @since 3.1 */
 	int TypeParameterHidingType = TypeRelated + 571;
+	/** @since 3.2 */
+	int RawTypeReference = TypeRelated + 572;
 	
 	/**
 	 * Foreach

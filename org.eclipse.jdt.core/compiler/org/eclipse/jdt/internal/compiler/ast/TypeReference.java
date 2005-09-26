@@ -115,39 +115,47 @@ public final TypeBinding resolveType(BlockScope blockScope) {
 	return resolveType(blockScope, true /* checkbounds if any */);
 }
 
-public TypeBinding resolveType(BlockScope blockScope, boolean checkBounds) {
+public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 	// handle the error here
 	this.constant = NotAConstant;
 	if (this.resolvedType != null) // is a shared type reference which was already resolved
 		return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 
-	this.resolvedType = getTypeBinding(blockScope);
+	TypeBinding type = this.resolvedType = getTypeBinding(scope);
 	if (this.resolvedType == null)
 		return null; // detected cycle while resolving hierarchy	
 	if (!this.resolvedType.isValidBinding()) {
-		reportInvalidType(blockScope);
+		reportInvalidType(scope);
 		return null;
 	}
-	if (isTypeUseDeprecated(this.resolvedType, blockScope))
-		reportDeprecatedType(blockScope);
-	return this.resolvedType = blockScope.environment().convertToRawType(this.resolvedType);
+	if (isTypeUseDeprecated(this.resolvedType, scope))
+		reportDeprecatedType(scope);
+	type = scope.environment().convertToRawType(type);
+	if (type.isRawType() && scope.compilerOptions().reportRawTypeReference) {
+		scope.problemReporter().rawTypeReference(this, type);
+	}			
+	return this.resolvedType = type;
 }
-public TypeBinding resolveType(ClassScope classScope) {
+public TypeBinding resolveType(ClassScope scope) {
 	// handle the error here
 	this.constant = NotAConstant;
 	if (this.resolvedType != null) // is a shared type reference which was already resolved
 		return this.resolvedType.isValidBinding() ? this.resolvedType : null; // already reported error
 
-	this.resolvedType = getTypeBinding(classScope);
+	TypeBinding type = this.resolvedType = getTypeBinding(scope);
 	if (this.resolvedType == null)
 		return null; // detected cycle while resolving hierarchy	
 	if (!this.resolvedType.isValidBinding()) {
-		reportInvalidType(classScope);
+		reportInvalidType(scope);
 		return null;
 	}
-	if (isTypeUseDeprecated(this.resolvedType, classScope))
-		reportDeprecatedType(classScope);
-	return this.resolvedType = classScope.environment().convertToRawType(this.resolvedType);
+	if (isTypeUseDeprecated(this.resolvedType, scope))
+		reportDeprecatedType(scope);
+	type = scope.environment().convertToRawType(type);
+	if (type.isRawType() && scope.compilerOptions().reportRawTypeReference) {
+		scope.problemReporter().rawTypeReference(this, type);
+	}			
+	return this.resolvedType = type;	
 }
 
 public TypeBinding resolveTypeArgument(BlockScope blockScope, ReferenceBinding genericType, int rank) {

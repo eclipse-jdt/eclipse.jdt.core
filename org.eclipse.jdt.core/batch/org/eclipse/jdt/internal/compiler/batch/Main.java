@@ -1617,6 +1617,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, 
 							CompilerOptions.DISABLED);
+						this.options.put(
+							CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, 
+							CompilerOptions.DISABLED);						
 					} else if (token.equals("allDeprecation")) { //$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportDeprecation, 
@@ -1708,6 +1711,16 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportUncheckedTypeOperation,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportRawTypeReference,
+							CompilerOptions.DISABLED);						
+					} else if (token.equals("allUnchecked")) {//$NON-NLS-1$ //$NON-NLS-2$ 
+						this.options.put(
+							CompilerOptions.OPTION_ReportUncheckedTypeOperation,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+							CompilerOptions.OPTION_ReportRawTypeReference,
+							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);						
 					} else if (token.equals("finalBound")) {//$NON-NLS-1$ 
 						this.options.put(
 							CompilerOptions.OPTION_ReportFinalParameterBound,

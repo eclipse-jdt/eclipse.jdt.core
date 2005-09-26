@@ -1338,6 +1338,7 @@ public static long getIrritant(int problemID) {
 		case IProblem.UnsafeReturnTypeOverride:
 		case IProblem.UnsafeRawGenericMethodInvocation:
 		case IProblem.UnsafeRawGenericConstructorInvocation:
+		case IProblem.RawTypeReference:
 			return CompilerOptions.UncheckedTypeOperation;
 
 		case IProblem.MissingOverrideAnnotation:
@@ -4676,6 +4677,14 @@ public void rawMemberTypeCannotBeParameterized(ASTNode location, ReferenceBindin
 		IProblem.RawMemberTypeCannotBeParameterized,
 		new String[] {new String(type.readableName()), typesAsString(false, argumentTypes, false), new String(type.enclosingType().readableName())},
 		new String[] {new String(type.shortReadableName()), typesAsString(false, argumentTypes, true), new String(type.enclosingType().shortReadableName())},
+		location.sourceStart,
+		location.sourceEnd);
+}
+public void rawTypeReference(ASTNode location, TypeBinding type) {
+    this.handle(
+		IProblem.RawTypeReference,
+		new String[] {new String(type.readableName()), new String(type.erasure().readableName()), },
+		new String[] {new String(type.shortReadableName()),new String(type.erasure().shortReadableName()),},
 		location.sourceStart,
 		location.sourceEnd);
 }

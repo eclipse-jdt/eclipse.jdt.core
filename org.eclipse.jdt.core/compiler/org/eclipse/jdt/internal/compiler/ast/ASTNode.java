@@ -338,6 +338,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 				scope.problemReporter().forbiddenReference(type, this, restriction.getMessageTemplate(), restriction.getProblemId());
 			}
 		}
+		
 		if (!refType.isViewedAsDeprecated()) return false;
 		
 		// inside same unit - no report

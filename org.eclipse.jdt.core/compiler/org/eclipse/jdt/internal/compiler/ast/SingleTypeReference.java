@@ -55,7 +55,7 @@ public class SingleTypeReference extends TypeReference {
 
 	public TypeBinding resolveTypeEnclosing(BlockScope scope, ReferenceBinding enclosingType) {
 
-		ReferenceBinding memberType = scope.getMemberType(token, enclosingType);
+		TypeBinding memberType = scope.getMemberType(token, enclosingType);
 		if (!memberType.isValidBinding()) {
 			this.resolvedType = memberType;
 			scope.problemReporter().invalidEnclosingType(this, memberType, enclosingType);
@@ -63,7 +63,11 @@ public class SingleTypeReference extends TypeReference {
 		}
 		if (isTypeUseDeprecated(memberType, scope))
 			scope.problemReporter().deprecatedType(memberType, this);
-		return this.resolvedType = scope.environment().convertToRawType(memberType);
+		memberType = scope.environment().convertToRawType(memberType);
+		if (memberType.isRawType() && scope.compilerOptions().reportRawTypeReference) {
+			scope.problemReporter().rawTypeReference(this, memberType);
+		}
+		return this.resolvedType = memberType;
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

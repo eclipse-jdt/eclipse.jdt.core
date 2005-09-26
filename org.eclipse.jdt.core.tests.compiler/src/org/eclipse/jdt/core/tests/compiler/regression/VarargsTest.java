@@ -1307,4 +1307,19 @@ public class VarargsTest extends AbstractComparableTest {
 			},
 			"class [Ljava.lang.String;class [Ljava.lang.String;");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110563
+	public void test036() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"    public void testBreak() {\n" + 
+				"        Collection<Class> classes = new ArrayList<Class>();\n" + 
+				"        classes.containsAll(Arrays.asList(String.class, Integer.class, Long.class));\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"");
+	}	
 }

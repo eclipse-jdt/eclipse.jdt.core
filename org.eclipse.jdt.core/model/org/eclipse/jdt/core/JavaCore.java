@@ -401,6 +401,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String COMPILER_PB_RAW_TYPE_REFERENCE = PLUGIN_ID + ".compiler.problem.rawTypeReference"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 3.1
 	 */
 	public static final String COMPILER_PB_FINAL_PARAMETER_BOUND = PLUGIN_ID + ".compiler.problem.finalParameterBound"; //$NON-NLS-1$
@@ -1886,6 +1892,14 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
+	 *     
+	 * COMPILER / Reporting Raw Type Reference
+	 *    When enabled, the compiler will signal references to raw types. Raw types are discouraged, and are intended to help interfacing
+	 *    with legacy code. In the future, the language specification may reject raw references to generic types.
+	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation".
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.rawTypeReference"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "disabled"
 	 * 
 	 * COMPILER / Reporting final Bound for Type Parameter
 	 *    When enabled, the compiler will issue an error or a warning whenever a generic type parameter is associated with a 

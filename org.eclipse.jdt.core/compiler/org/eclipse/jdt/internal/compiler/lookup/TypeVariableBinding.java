@@ -214,8 +214,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 			                break insertLoop;
 			            }
 			        }
-			        // no free spot found, need to grow
-			        System.arraycopy(constraintSubstitutes, 0, constraintSubstitutes = new TypeBinding[2*length], 0, length);
+			        // no free spot found, need to grow by one
+			        System.arraycopy(constraintSubstitutes, 0, constraintSubstitutes = new TypeBinding[length+1], 0, length);
 		    	}
 		        constraintSubstitutes[length] = otherType;
 		        variableSubstitutes[variableConstraint] = constraintSubstitutes;

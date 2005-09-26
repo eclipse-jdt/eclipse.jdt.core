@@ -24149,5 +24149,76 @@ public void test825() {
 		assertTrue(false);
 	}		
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110570
+public void test826() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X<T> {\n" + 
+			"\n" + 
+			"  public <V1, V2 extends V1> void test(V1 p1, V2 p2) {}\n" + 
+			"	\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    XA a = new XA(){};\n" + 
+			"    XB b = new XB(){};\n" + 
+			"\n" + 
+			"    X t1 = new X();\n" + 
+			"    t1.test(a, b); //this gives an error but should be OK\n" + 
+			"    \n" + 
+			"    X<Object> t2 = new X<Object>();\n" + 
+			"    t2.test(a, b); //this compiles OK\n" + 
+			"    Zork z;\n" +
+			"  }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface XA {}\n" + 
+			"interface XB extends XA {}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	t1.test(a, b); //this gives an error but should be OK\n" + 
+		"	^^^^^^^^^^^^^\n" + 
+		"Type safety: The method test(Object, Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110570 - variation
+// ensure variable V2 is substituted with upper bound erasure (List) and not just upperbound List<String>
+// for raw generic method invocation
+public void test827() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"public class X<T> {\n" + 
+			"  public <V1, V2 extends List<String>> void test(V1 p1, V2 p2) {}\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    XA a = new XA(){};\n" + 
+			"    List<Object> b = null;\n" + 
+			"    X t1 = new X();\n" + 
+			"    t1.test(a, b); //this gives an error but should be OK\n" + 
+			"    X<Object> t2 = new X<Object>();\n" + 
+			"    t2.test(a, b); //this compiles OK\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface XA {}\n" + 
+			"\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	t1.test(a, b); //this gives an error but should be OK\n" + 
+		"	^^^^^^^^^^^^^\n" + 
+		"Type safety: The method test(Object, List) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	t2.test(a, b); //this compiles OK\n" + 
+		"	   ^^^^\n" + 
+		"Bound mismatch: The generic method test(V1, V2) of type X<T> is not applicable for the arguments (XA, List<Object>). The inferred type List<Object> is not a valid substitute for the bounded parameter <V2 extends List<String>>\n" + 
+		"----------\n");
+}
 }
 
