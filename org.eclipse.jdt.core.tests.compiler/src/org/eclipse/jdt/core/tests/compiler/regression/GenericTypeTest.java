@@ -25621,46 +25621,91 @@ public void test827() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=109249
-public void _test828() {
+public void test828() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" + 
-			"public class X<T> {\n" + 
-			"  public <V1, V2 extends List<String>> void test(V1 p1, V2 p2) {}\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"    XA a = new XA(){};\n" + 
-			"    List<Object> b = null;\n" + 
-			"    X t1 = new X();\n" + 
-			"    t1.test(a, b); //this gives an error but should be OK\n" + 
-			"    X<Object> t2 = new X<Object>();\n" + 
-			"    t2.test(a, b); //this compiles OK\n" + 
-			"  }\n" + 
+			"interface Transformable<T extends Transformable>\n" + 
+			"{\n" + 
+			"	public T transform();\n" + 
 			"}\n" + 
-			"interface XA {}\n" + 
-			"\n",
+			"interface Volume<V extends Volume> extends Transformable<V>\n" + 
+			"{\n" + 
+			"//	public V transform();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	void foo(){\n" + 
+			"		Volume v1 = null;\n" + 
+			"		Volume v2 = v1.transform();\n" + 
+			"	}\n" + 
+			"	void bar(){\n" + 
+			"		Volume<Volume> v1 = null;\n" + 
+			"		Volume v2 = v1.transform();\n" + 
+			"	}\n" + 
+			"}\n",
 		},
 		"----------\n" + 
-		"1. WARNING in X.java (at line 7)\n" + 
-		"	X t1 = new X();\n" + 
-		"	^\n" + 
-		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"1. WARNING in X.java (at line 1)\n" + 
+		"	interface Transformable<T extends Transformable>\n" + 
+		"	                                  ^^^^^^^^^^^^^\n" + 
+		"Type safety: Transformable is a raw type. References to generic type Transformable<T> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
-		"	X t1 = new X();\n" + 
-		"	           ^\n" + 
-		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	interface Volume<V extends Volume> extends Transformable<V>\n" + 
+		"	                           ^^^^^^\n" + 
+		"Type safety: Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n" + 
-		"3. WARNING in X.java (at line 8)\n" + 
-		"	t1.test(a, b); //this gives an error but should be OK\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"Type safety: The method test(Object, List) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+		"3. WARNING in X.java (at line 11)\n" + 
+		"	Volume v1 = null;\n" + 
+		"	^^^^^^\n" + 
+		"Type safety: Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 10)\n" + 
-		"	t2.test(a, b); //this compiles OK\n" + 
-		"	   ^^^^\n" + 
-		"Bound mismatch: The generic method test(V1, V2) of type X<T> is not applicable for the arguments (XA, List<Object>). The inferred type List<Object> is not a valid substitute for the bounded parameter <V2 extends List<String>>\n" + 
+		"4. WARNING in X.java (at line 12)\n" + 
+		"	Volume v2 = v1.transform();\n" + 
+		"	^^^^^^\n" + 
+		"Type safety: Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 12)\n" + 
+		"	Volume v2 = v1.transform();\n" + 
+		"	            ^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Transformable to Volume\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 15)\n" + 
+		"	Volume<Volume> v1 = null;\n" + 
+		"	       ^^^^^^\n" + 
+		"Type safety: Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 16)\n" + 
+		"	Volume v2 = v1.transform();\n" + 
+		"	^^^^^^\n" + 
+		"Type safety: Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=109249 - variation
+public void test829() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Transformable<T extends Transformable>\n" + 
+			"{\n" + 
+			"	public T transform();\n" + 
+			"}\n" + 
+			"interface Volume<V extends Volume> extends Transformable<V>\n" + 
+			"{\n" + 
+			"	public V transform();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	void foo(){\n" + 
+			"		Volume v1 = null;\n" + 
+			"		Volume v2 = v1.transform();\n" + 
+			"	}\n" + 
+			"	void bar(){\n" + 
+			"		Volume<Volume> v1 = null;\n" + 
+			"		Volume v2 = v1.transform();\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
 }
 }
 
