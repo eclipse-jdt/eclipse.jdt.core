@@ -2225,8 +2225,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 			if ((classProp == null) || (classProp.length() == 0)) {
 				this.logger.logNoClasspath();
-			}
-			else {
+				classpaths.add(FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, 0, null));//$NON-NLS-1$
+			} else {
 				StringTokenizer tokenizer = new StringTokenizer(classProp, File.pathSeparator);
 				String token;
 				while (tokenizer.hasMoreTokens()) {

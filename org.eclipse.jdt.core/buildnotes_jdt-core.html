@@ -51,7 +51,8 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110826">110826</a>
+[compiler] Batch compiler doesn't work when set on the bootclasspath
 
 <a name="v_614"></a>
 <p><hr><h1>
@@ -65,7 +66,7 @@ What's new in this drop</h2>
 <ul>
 <li>
 Added optional compiler diagnosis for signaling usage of raw types. A raw type is a reference to some
-generic type without any type argument (e.g. "List" in place of "List<Element>").
+generic type without any type argument (e.g. "List" in place of "List&lt;Element&gt;").
 <pre>
 * COMPILER / Reporting Raw Type Reference
 *    When enabled, the compiler will signal references to raw types. Raw types are discouraged, and are intended to help interfacing
@@ -79,7 +80,7 @@ generic type without any type argument (e.g. "List" in place of "List<Element>")
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=107004">107004</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=107004">107004</a>
 NPE in TypeBinding.getKey()
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=108740">108740</a>
 [1.5][compiler] Type hierarchy with generics fails with NPE
