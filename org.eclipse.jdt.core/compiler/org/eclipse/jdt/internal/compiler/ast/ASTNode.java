@@ -37,7 +37,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit12 = 0x800; 					// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
 	public final static int Bit13 = 0x1000; 				// depth (name ref, msg) 
 	public final static int Bit14 = 0x2000; 				// strictly assigned (reference lhs)
-	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression)
+	public final static int Bit15 = 0x4000; 				// is unnecessary cast (expression) | is varargs (type ref)
 	public final static int Bit16 = 0x8000; 				// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000; 				// compound assigned (reference lhs)
 	public final static int Bit18 = 0x20000; 				
@@ -53,7 +53,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit28 = 0x8000000; 			// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000; 		// parenthesis count (expression)
 	public final static int Bit30 = 0x20000000; 		// assignment with no effect (assignment) | elseif (if statement)
-	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl)
+	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl) | ignore raw type check (type ref)
 	public final static int Bit32 = 0x80000000; 		// reachable (statement)
 
 	public final static long Bit32L = 0x80000000L; 		
@@ -153,9 +153,8 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	
 	// for type reference
 	public static final int IsSuperType = Bit5;
-	
-	// for variable argument
 	public static final int IsVarArgs = Bit15;
+	public static final int IgnoreRawTypeCheck = Bit31;
 	
 	// for array initializer
 	public static final int IsAnnotationDefaultValue = Bit1;

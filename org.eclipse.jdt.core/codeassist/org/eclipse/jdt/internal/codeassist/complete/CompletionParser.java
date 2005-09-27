@@ -697,6 +697,7 @@ private void buildMoreCompletionContext(Expression expression) {
 					pushOnGenericsLengthStack(0);
 					pushOnGenericsIdentifiersLengthStack(identifierLengthStack[identifierLengthPtr]);
 					allocationExpression.type = getTypeReference(0);
+					allocationExpression.type.bits |= ASTNode.IgnoreRawTypeCheck; // no need to worry about raw type usage
 					int length = expressionLengthStack[expressionLengthPtr];
 					allocationExpression.dimensions = new Expression[length];
 

@@ -1091,17 +1091,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Varargs argument Class[] should be cast to Object[] when passed to the method invoke(Object, Object...) from type Method\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 7)\n" + 
-			"	method.invoke(this, new Class[0]);\n" + 
-			"	                        ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 8)\n" + 
-			"	method.invoke(this, (Object[])new Class[0]);\n" + 
-			"	                                  ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 12)\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 

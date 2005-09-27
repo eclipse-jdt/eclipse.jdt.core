@@ -1414,11 +1414,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	print(X.this.t);\n" + 
 			"	^^^^^\n" + 
 			"The method print(X) in the type A<X> is not applicable for the arguments (T)\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 14)\n" + 
-			"	print(X.this.t);\n" + 
-			"	      ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n");
 	}
 
@@ -6544,11 +6539,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	Object x3= new X<T>[0];	 \n" + 
 			"	           ^^^^^^^^^^^\n" + 
 			"Cannot create a generic array of X<T>\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 5)\n" + 
-			"	Object x4= new X[0];	 \n" + 
-			"	               ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69359 - unsafe cast diagnosis
@@ -7733,11 +7723,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	ArrayList<X> list = new ArrayList();\n" + 
 			"	                        ^^^^^^^^^\n" + 
 			"Type safety: ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 5)\n" + 
-			"	return list.toArray(new X[list.size()]);\n" + 
-			"	                        ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70975 - test compilation against binary generic method
@@ -13553,12 +13538,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
-			"	Set[] sets = new Set[10];\n" + 
-			"	                 ^^^\n" + 
-			"Type safety: Set is a raw type. References to generic type Set<E> should be parameterized\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 6)\n" + 
+			"2. WARNING in X.java (at line 6)\n" + 
 			"	return sets;\n" + 
 			"	       ^^^^\n" + 
 			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
@@ -13590,11 +13570,6 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	List<Integer>[] nums = new List[] {Collections.singletonList(\"Uh oh\")};\n" + 
 			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type List[] needs unchecked conversion to conform to List<Integer>[]\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 6)\n" + 
-			"	List<Integer>[] nums = new List[] {Collections.singletonList(\"Uh oh\")};\n" + 
-			"	                           ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n");
 	}
 
@@ -24957,12 +24932,7 @@ public void test812() {
 		"	                 ^^^^^^^\n" + 
 		"Type safety: X.Inner is a raw type. References to generic type X<T>.Inner should be parameterized\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 8)\n" + 
-		"	this.inners = new X.Inner[10];\n" + 
-		"	                  ^^^^^^^\n" + 
-		"Type safety: X.Inner is a raw type. References to generic type X<T>.Inner should be parameterized\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 9)\n" + 
+		"5. ERROR in X.java (at line 9)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
@@ -25610,6 +25580,48 @@ public void test826() {
 // ensure variable V2 is substituted with upper bound erasure (List) and not just upperbound List<String>
 // for raw generic method invocation
 public void test827() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"public class X<T> {\n" + 
+			"  public <V1, V2 extends List<String>> void test(V1 p1, V2 p2) {}\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    XA a = new XA(){};\n" + 
+			"    List<Object> b = null;\n" + 
+			"    X t1 = new X();\n" + 
+			"    t1.test(a, b); //this gives an error but should be OK\n" + 
+			"    X<Object> t2 = new X<Object>();\n" + 
+			"    t2.test(a, b); //this compiles OK\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"interface XA {}\n" + 
+			"\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	X t1 = new X();\n" + 
+		"	^\n" + 
+		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	X t1 = new X();\n" + 
+		"	           ^\n" + 
+		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 8)\n" + 
+		"	t1.test(a, b); //this gives an error but should be OK\n" + 
+		"	^^^^^^^^^^^^^\n" + 
+		"Type safety: The method test(Object, List) belongs to the raw type X. References to generic type X<T> should be parameterized\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
+		"	t2.test(a, b); //this compiles OK\n" + 
+		"	   ^^^^\n" + 
+		"Bound mismatch: The generic method test(V1, V2) of type X<T> is not applicable for the arguments (XA, List<Object>). The inferred type List<Object> is not a valid substitute for the bounded parameter <V2 extends List<String>>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=109249
+public void _test828() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

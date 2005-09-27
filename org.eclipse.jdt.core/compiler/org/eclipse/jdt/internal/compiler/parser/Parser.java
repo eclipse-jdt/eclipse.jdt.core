@@ -1190,49 +1190,51 @@ protected void consumeArrayCreationExpressionWithInitializer() {
 	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
 
 	int length;
-	ArrayAllocationExpression aae = new ArrayAllocationExpression();
+	ArrayAllocationExpression arrayAllocation = new ArrayAllocationExpression();
 	this.expressionLengthPtr -- ;
-	aae.initializer = (ArrayInitializer) this.expressionStack[this.expressionPtr--];
+	arrayAllocation.initializer = (ArrayInitializer) this.expressionStack[this.expressionPtr--];
 		
-	aae.type = getTypeReference(0);
+	arrayAllocation.type = getTypeReference(0);
+	arrayAllocation.type.bits |= ASTNode.IgnoreRawTypeCheck; // no need to worry about raw type usage
 	length = (this.expressionLengthStack[this.expressionLengthPtr--]);
 	this.expressionPtr -= length ;
 	System.arraycopy(
 		this.expressionStack,
 		this.expressionPtr+1,
-		aae.dimensions = new Expression[length],
+		arrayAllocation.dimensions = new Expression[length],
 		0,
 		length);
-	aae.sourceStart = this.intStack[this.intPtr--];
-	if (aae.initializer == null) {
-		aae.sourceEnd = this.endPosition;
+	arrayAllocation.sourceStart = this.intStack[this.intPtr--];
+	if (arrayAllocation.initializer == null) {
+		arrayAllocation.sourceEnd = this.endPosition;
 	} else {
-		aae.sourceEnd = aae.initializer.sourceEnd ;
+		arrayAllocation.sourceEnd = arrayAllocation.initializer.sourceEnd ;
 	}
-	pushOnExpressionStack(aae);
+	pushOnExpressionStack(arrayAllocation);
 }
 protected void consumeArrayCreationExpressionWithoutInitializer() {
 	// ArrayCreationWithoutArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs
 	// ArrayCreationWithoutArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs
 
 	int length;
-	ArrayAllocationExpression aae = new ArrayAllocationExpression();
-	aae.type = getTypeReference(0);
+	ArrayAllocationExpression arrayAllocation = new ArrayAllocationExpression();
+	arrayAllocation.type = getTypeReference(0);
+	arrayAllocation.type.bits |= ASTNode.IgnoreRawTypeCheck; // no need to worry about raw type usage	
 	length = (this.expressionLengthStack[this.expressionLengthPtr--]);
 	this.expressionPtr -= length ;
 	System.arraycopy(
 		this.expressionStack,
 		this.expressionPtr+1,
-		aae.dimensions = new Expression[length],
+		arrayAllocation.dimensions = new Expression[length],
 		0,
 		length);
-	aae.sourceStart = this.intStack[this.intPtr--];
-	if (aae.initializer == null) {
-		aae.sourceEnd = this.endPosition;
+	arrayAllocation.sourceStart = this.intStack[this.intPtr--];
+	if (arrayAllocation.initializer == null) {
+		arrayAllocation.sourceEnd = this.endPosition;
 	} else {
-		aae.sourceEnd = aae.initializer.sourceEnd ;
+		arrayAllocation.sourceEnd = arrayAllocation.initializer.sourceEnd ;
 	}
-	pushOnExpressionStack(aae);
+	pushOnExpressionStack(arrayAllocation);
 }
 protected void consumeArrayCreationHeader() {
 	// nothing to do

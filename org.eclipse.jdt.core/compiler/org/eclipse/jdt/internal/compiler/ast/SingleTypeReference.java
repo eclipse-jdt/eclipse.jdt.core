@@ -64,7 +64,7 @@ public class SingleTypeReference extends TypeReference {
 		if (isTypeUseDeprecated(memberType, scope))
 			scope.problemReporter().deprecatedType(memberType, this);
 		memberType = scope.environment().convertToRawType(memberType);
-		if (memberType.isRawType() && scope.compilerOptions().reportRawTypeReference) {
+		if (memberType.isRawType() && (this.bits & IgnoreRawTypeCheck) == 0 && scope.compilerOptions().reportRawTypeReference) {
 			scope.problemReporter().rawTypeReference(this, memberType);
 		}
 		return this.resolvedType = memberType;
