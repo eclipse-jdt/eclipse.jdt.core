@@ -2798,7 +2798,7 @@ public abstract class Scope
 			return true;
 		}
 
-		if (one.isVarargs() && two.isVarargs() && oneParamsLength - 1 == twoParamsLength) {
+		if (one.isVarargs() && two.isVarargs() && oneParamsLength > twoParamsLength) {
 			// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or (Integer, int...)
 			if (((ArrayBinding) twoParams[twoParamsLength - 1]).elementsType().id != TypeIds.T_JavaLangObject)
 				return false;

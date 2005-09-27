@@ -1321,5 +1321,63 @@ public class VarargsTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"");
-	}	
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110783
+	public void test037() {
+		this.runConformTest(
+			new String[] {
+				"V.java",
+				"public class V {\n" + 
+				"    public static void main(String[] s) {\n" + 
+				"        V v = new V();\n" + 
+				"        v.foo(\"\", v, null, \"\");\n" + 
+				"        v.foo(\"\", v, null, \"\", 1);\n" + 
+				"        v.foo2(\"\");\n" + 
+				"        v.foo2(\"\", null);\n" + 
+				"        v.foo2(\"\", null, null);\n" + 
+				"        v.foo3(\"\", v, null, \"\", null);\n" + 
+				"    }\n" + 
+				"    void foo(String s, V v, Object... obs) {System.out.print(1);}\n" + 
+				"    void foo(String s, V v, String r, Object o, Object... obs) {System.out.print(2);}\n" + 
+				"    void foo2(Object... a) {System.out.print(1);}\n" + 
+				"    void foo2(String s, Object... a) {System.out.print(2);}\n" + 
+				"    void foo2(String s, Object o, Object... a) {System.out.print(3);}\n" + 
+				"    void foo3(String s, V v, String... obs) {System.out.print(1);}\n" + 
+				"    void foo3(String s, V v, String r, Object o, Object... obs) {System.out.print(2);}\n" + 
+				"}\n",
+			},
+			"222232");
+		this.runNegativeTest(
+			new String[] {
+				"V.java",
+				"public class V {\n" + 
+				"    public static void main(String[] s) {\n" + 
+				"        V v = new V();\n" + 
+				"        v.foo2(null, \"\");\n" + 
+				"        v.foo2(null, \"\", \"\");\n" + 
+				"        v.foo3(\"\", v, null, \"\");\n" + 
+				"    }\n" + 
+				"    void foo2(String s, Object... a) {System.out.print(2);}\n" + 
+				"    void foo2(String s, Object o, Object... a) {System.out.print(3);}\n" + 
+				"    void foo3(String s, V v, String... obs) {System.out.print(1);}\n" + 
+				"    void foo3(String s, V v, String r, Object o, Object... obs) {System.out.print(2);}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in V.java (at line 4)\r\n" + 
+			"	v.foo2(null, \"\");\r\n" + 
+			"	  ^^^^\n" + 
+			"The method foo2(String, Object[]) is ambiguous for the type V\n" + 
+			"----------\n" + 
+			"2. ERROR in V.java (at line 5)\r\n" + 
+			"	v.foo2(null, \"\", \"\");\r\n" + 
+			"	  ^^^^\n" + 
+			"The method foo2(String, Object[]) is ambiguous for the type V\n" + 
+			"----------\n" + 
+			"3. ERROR in V.java (at line 6)\r\n" + 
+			"	v.foo3(\"\", v, null, \"\");\r\n" + 
+			"	  ^^^^\n" + 
+			"The method foo3(String, V, String[]) is ambiguous for the type V\n" + 
+			"----------\n");
+	}
 }
