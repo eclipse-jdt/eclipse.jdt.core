@@ -2798,7 +2798,7 @@ public abstract class Scope
 			return true;
 		}
 
-		if (one.isVarargs() && two.isVarargs() && oneParamsLength - 1 == twoParamsLength) {
+		if (one.isVarargs() && two.isVarargs() && oneParamsLength > twoParamsLength) {
 			// special case when autoboxing makes (int, int...) better than (Object...) but not (int...) or (Integer, int...)
 			if (((ArrayBinding) twoParams[twoParamsLength - 1]).elementsType().id != TypeIds.T_JavaLangObject)
 				return false;
@@ -3488,8 +3488,10 @@ public abstract class Scope
 				}
 				level = VARARGS_COMPATIBLE; // varargs support needed
 			}
-			// now compare standard arguments from 0 to lastIndex
+		} else 	if (paramLength != argLength) {
+				return NOT_COMPATIBLE;
 		}
+		// now compare standard arguments from 0 to lastIndex
 		for (int i = 0; i < lastIndex; i++) {
 			TypeBinding param = parameters[i];
 			TypeBinding arg = arguments[i];
