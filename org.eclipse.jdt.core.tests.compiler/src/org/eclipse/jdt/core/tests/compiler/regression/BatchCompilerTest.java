@@ -32,7 +32,7 @@ public BatchCompilerTest(String name) {
 public static Test suite() {
 	if (false) {
 		TestSuite suite = new TestSuite();
-		suite.addTest(new BatchCompilerTest("test032"));
+		suite.addTest(new BatchCompilerTest("test035"));
 		return suite;
 	}
 	if (false) {
@@ -2001,6 +2001,53 @@ public void test034(){
         "",
         "",
         true);
+}
+// check classpath value
+public void test035(){
+	final String javaClassspath = System.getProperty("java.class.path");
+	final String javaUserDir = System.getProperty("user.dir");
+	try {
+		System.setProperty("user.dir", OUTPUT_DIR);
+		this.runConformTest(
+			new String[] {
+				"p/Y.java",
+				"public class Y { public static final String S = \"\"; }",
+			},
+	        "\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Y.java\""
+	        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+	        "",
+	        "",
+	        true);
+		System.setProperty("java.class.path", "");
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import p.Y;\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.print(Y.S);\n" +
+					"	}\n" +
+					"}",
+				},
+		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+		        "",// this is not the runtime output
+		        "no classpath defined, using default directory instead\n",
+		        false);
+		final String userDir = System.getProperty("user.dir");
+		File f = new File(userDir, "X.java");
+		if (!f.delete()) {
+			System.out.println("Could not delete X");
+		}
+		f = new File(userDir, "p" + File.separator + "Y.java");
+		if (!f.delete()) {
+			System.out.println("Could not delete Y");
+		}
+		
+	} finally {
+		System.setProperty("java.class.path", javaClassspath);
+		System.setProperty("user.dir", javaUserDir);
+	}
 }
 public static Class testClass() {
 	return BatchCompilerTest.class;
