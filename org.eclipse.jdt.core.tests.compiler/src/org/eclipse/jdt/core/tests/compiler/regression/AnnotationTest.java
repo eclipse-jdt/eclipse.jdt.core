@@ -480,15 +480,25 @@ public class AnnotationTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
+			"1. WARNING in X.java (at line 2)\n" + 
+			"	Class value() default X.clazz();\n" + 
+			"	^^^^^\n" + 
+			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
 			"	Class value() default X.clazz();\n" + 
 			"	                      ^^^^^^^^^\n" + 
 			"The value for annotation attribute Foo.value must be a class literal\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
 			"	@Foo( clazz() )\n" + 
 			"	      ^^^^^^^\n" + 
 			"The value for annotation attribute Foo.value must be a class literal\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 8)\n" + 
+			"	static Class clazz() { return X.class; }\n" + 
+			"	       ^^^^^\n" + 
+			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n");
 	}			
 	
@@ -1078,7 +1088,12 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	                      ^^^\n" + 
 			"Type mismatch: cannot convert from long to int\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 4)\n" + 
+			"3. WARNING in X.java (at line 4)\n" + 
+			"	Class cls() default new Object();\n" + 
+			"	^^^^^\n" + 
+			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 4)\n" + 
 			"	Class cls() default new Object();\n" + 
 			"	                    ^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to Class\n" + 
@@ -3426,42 +3441,47 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. WARNING in X.java (at line 8)\n" + 
-			"	interface Iface extends Ann {\n" + 
-			"	                        ^^^\n" + 
-			"The annotation type Ann should not be used as a superinterface for Iface\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 11)\n" + 
-			"	abstract class Klass implements Ann {\n" + 
-			"	                                ^^^\n" + 
-			"The annotation type Ann should not be used as a superinterface for Klass\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 14)\n" + 
-			"	class SubKlass extends Klass {\n" + 
-			"	      ^^^^^^^^\n" + 
-			"The type SubKlass must implement the inherited abstract method Ann.foo()\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 20)\n" + 
-			"	class AnnImpl implements Ann {\n" + 
-			"	                         ^^^\n" + 
-			"The annotation type Ann should not be used as a superinterface for AnnImpl\n" + 
-			"----------\n" + 
-			"5. WARNING in X.java (at line 21)\n" + 
-			"	public boolean equals(Object obj) { return false; }\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^\n" + 
-			"The method equals(Object) of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"6. WARNING in X.java (at line 22)\n" + 
-			"	public int hashCode() { return 0; }\n" + 
-			"	           ^^^^^^^^^^\n" + 
-			"The method hashCode() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"7. WARNING in X.java (at line 23)\n" + 
-			"	public String toString() { return null; }\n" + 
-			"	              ^^^^^^^^^^\n" + 
-			"The method toString() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n");
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 8)\n" + 
+    		"	interface Iface extends Ann {\n" + 
+    		"	                        ^^^\n" + 
+    		"The annotation type Ann should not be used as a superinterface for Iface\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 11)\n" + 
+    		"	abstract class Klass implements Ann {\n" + 
+    		"	                                ^^^\n" + 
+    		"The annotation type Ann should not be used as a superinterface for Klass\n" + 
+    		"----------\n" + 
+    		"3. ERROR in X.java (at line 14)\n" + 
+    		"	class SubKlass extends Klass {\n" + 
+    		"	      ^^^^^^^^\n" + 
+    		"The type SubKlass must implement the inherited abstract method Ann.foo()\n" + 
+    		"----------\n" + 
+    		"4. WARNING in X.java (at line 20)\n" + 
+    		"	class AnnImpl implements Ann {\n" + 
+    		"	                         ^^^\n" + 
+    		"The annotation type Ann should not be used as a superinterface for AnnImpl\n" + 
+    		"----------\n" + 
+    		"5. WARNING in X.java (at line 21)\n" + 
+    		"	public boolean equals(Object obj) { return false; }\n" + 
+    		"	               ^^^^^^^^^^^^^^^^^^\n" + 
+    		"The method equals(Object) of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
+    		"----------\n" + 
+    		"6. WARNING in X.java (at line 22)\n" + 
+    		"	public int hashCode() { return 0; }\n" + 
+    		"	           ^^^^^^^^^^\n" + 
+    		"The method hashCode() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
+    		"----------\n" + 
+    		"7. WARNING in X.java (at line 23)\n" + 
+    		"	public String toString() { return null; }\n" + 
+    		"	              ^^^^^^^^^^\n" + 
+    		"The method toString() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
+    		"----------\n" + 
+    		"8. WARNING in X.java (at line 30)\n" + 
+    		"	Class c = SubKlass.class;\n" + 
+    		"	^^^^^\n" + 
+    		"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"----------\n");
     }            
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291
     public void test112() {
@@ -3522,12 +3542,17 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	@Annot( foo = M.class )\n" + 
-			"	              ^\n" + 
-			"M cannot be resolved to a type\n" + 
-			"----------\n");
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 2)\n" + 
+    		"	Class foo();\n" + 
+    		"	^^^^^\n" + 
+    		"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 4)\n" + 
+    		"	@Annot( foo = M.class )\n" + 
+    		"	              ^\n" + 
+    		"M cannot be resolved to a type\n" + 
+    		"----------\n");
     }  	
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291 - variation
     public void test115() {
@@ -3550,32 +3575,37 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	@Annot(foo = M.class, bar = baz()+s)\n" + 
-			"	             ^\n" + 
-			"M cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	@Annot(foo = M.class, bar = baz()+s)\n" + 
-			"	                            ^^^\n" + 
-			"The method baz() is undefined for the type X\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	@Annot(foo = M.class, bar = baz()+s)\n" + 
-			"	                                  ^\n" + 
-			"s cannot be resolved\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 11)\n" + 
-			"	@Annot(foo = T.class, bar = s)\n" + 
-			"	             ^^^^^^^\n" + 
-			"Illegal class literal for the type parameter T\n" + 
-			"----------\n" + 
-			"5. WARNING in X.java (at line 12)\n" + 
-			"	<T> T foo(T t, String s) {\n" + 
-			"	                      ^\n" + 
-			"The parameter s is hiding a field from type X\n" + 
-			"----------\n");
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 2)\n" + 
+    		"	Class foo();\n" + 
+    		"	^^^^^\n" + 
+    		"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X.java (at line 5)\n" + 
+    		"	@Annot(foo = M.class, bar = baz()+s)\n" + 
+    		"	             ^\n" + 
+    		"M cannot be resolved to a type\n" + 
+    		"----------\n" + 
+    		"3. ERROR in X.java (at line 5)\n" + 
+    		"	@Annot(foo = M.class, bar = baz()+s)\n" + 
+    		"	                            ^^^\n" + 
+    		"The method baz() is undefined for the type X\n" + 
+    		"----------\n" + 
+    		"4. ERROR in X.java (at line 5)\n" + 
+    		"	@Annot(foo = M.class, bar = baz()+s)\n" + 
+    		"	                                  ^\n" + 
+    		"s cannot be resolved\n" + 
+    		"----------\n" + 
+    		"5. ERROR in X.java (at line 11)\n" + 
+    		"	@Annot(foo = T.class, bar = s)\n" + 
+    		"	             ^^^^^^^\n" + 
+    		"Illegal class literal for the type parameter T\n" + 
+    		"----------\n" + 
+    		"6. WARNING in X.java (at line 12)\n" + 
+    		"	<T> T foo(T t, String s) {\n" + 
+    		"	                      ^\n" + 
+    		"The parameter s is hiding a field from type X\n" + 
+    		"----------\n");
     }  	
     // check @Deprecated support
     public void test116() {
@@ -3949,17 +3979,22 @@ public class AnnotationTest extends AbstractComparableTest {
                 "   Zork z;\n" +
                 "}\n",
             },
-			"----------\n" + 
-			"1. WARNING in X.java (at line 5)\n" + 
-			"	List<String> ls1 = list;\n" + 
-			"	                   ^^^^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n");
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 4)\n" + 
+    		"	void foo(List list) {\n" + 
+    		"	         ^^^^\n" + 
+    		"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 5)\n" + 
+    		"	List<String> ls1 = list;\n" + 
+    		"	                   ^^^^\n" + 
+    		"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
+    		"----------\n" + 
+    		"3. ERROR in X.java (at line 11)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n");
     }       
     // check @SuppressWarning support
     public void test129() {
@@ -4070,7 +4105,7 @@ public class AnnotationTest extends AbstractComparableTest {
     			"	}\n" + 
     			"}\n"
             },
-    		"----------\n" + 
+            "----------\n" + 
     		"1. WARNING in X.java (at line 7)\n" + 
     		"	W.deprecated();\n" + 
     		"	^^^^^^^^^^^^^^\n" + 
@@ -4081,14 +4116,19 @@ public class AnnotationTest extends AbstractComparableTest {
     		"	            ^^^^^^^^^^^^\n" + 
     		"Type safety: The expression of type Vector needs unchecked conversion to conform to List<X>\n" + 
     		"----------\n" + 
-    		"3. WARNING in X.java (at line 12)\n" + 
+    		"3. WARNING in X.java (at line 8)\n" + 
+    		"	List<X> l = new Vector();\n" + 
+    		"	                ^^^^^^\n" + 
+    		"Type safety: Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
+    		"----------\n" + 
+    		"4. WARNING in X.java (at line 12)\n" + 
     		"	} finally {\n" + 
     		"			throw new Error();\n" + 
     		"		}\n" + 
     		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
     		"finally block does not complete normally\n" + 
     		"----------\n" + 
-    		"4. WARNING in X.java (at line 18)\n" + 
+    		"5. WARNING in X.java (at line 18)\n" + 
     		"	class S implements Serializable {\n" + 
     		"	      ^\n" + 
     		"The serializable class S does not declare a static final serialVersionUID field of type long\n" + 
@@ -4253,7 +4293,6 @@ public class AnnotationTest extends AbstractComparableTest {
 		}
 		customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.DISABLED);
         this.runNegativeTest(
-
             new String[] {
                 "X.java",
     			"import java.io.Serializable;\n" + 
@@ -4287,43 +4326,48 @@ public class AnnotationTest extends AbstractComparableTest {
     			"	}\n" + 
     			"}\n"
             },
-			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
-			"	public class X {\n" + 
-			"	             ^\n" + 
-			"Javadoc: Missing comment for public declaration\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 7)\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: Missing comment for public declaration\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 8)\n" + 
-			"	W.deprecated();\n" + 
-			"	^^^^^^^^^^^^^^\n" + 
-			"The method deprecated() from the type W is deprecated\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 9)\n" + 
-			"	List<X> l = new Vector();\n" + 
-			"	            ^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Vector needs unchecked conversion to conform to List<X>\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 16)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"6. WARNING in X.java (at line 19)\n" + 
-			"	class S implements Serializable {\n" + 
-			"	      ^\n" + 
-			"The serializable class S does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in W.java (at line 1)\n" + 
-			"	public class W {\n" + 
-			"	             ^\n" + 
-			"Javadoc: Missing comment for public declaration\n" + 
-			"----------\n",
+            "----------\n" + 
+    		"1. WARNING in X.java (at line 6)\n" + 
+    		"	public class X {\n" + 
+    		"	             ^\n" + 
+    		"Javadoc: Missing comment for public declaration\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 7)\n" + 
+    		"	public static void main(String[] args) {\n" + 
+    		"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Javadoc: Missing comment for public declaration\n" + 
+    		"----------\n" + 
+    		"3. WARNING in X.java (at line 8)\n" + 
+    		"	W.deprecated();\n" + 
+    		"	^^^^^^^^^^^^^^\n" + 
+    		"The method deprecated() from the type W is deprecated\n" + 
+    		"----------\n" + 
+    		"4. WARNING in X.java (at line 9)\n" + 
+    		"	List<X> l = new Vector();\n" + 
+    		"	            ^^^^^^^^^^^^\n" + 
+    		"Type safety: The expression of type Vector needs unchecked conversion to conform to List<X>\n" + 
+    		"----------\n" + 
+    		"5. WARNING in X.java (at line 9)\n" + 
+    		"	List<X> l = new Vector();\n" + 
+    		"	                ^^^^^^\n" + 
+    		"Type safety: Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
+    		"----------\n" + 
+    		"6. ERROR in X.java (at line 16)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n" + 
+    		"7. WARNING in X.java (at line 19)\n" + 
+    		"	class S implements Serializable {\n" + 
+    		"	      ^\n" + 
+    		"The serializable class S does not declare a static final serialVersionUID field of type long\n" + 
+    		"----------\n" + 
+    		"----------\n" + 
+    		"1. WARNING in W.java (at line 1)\n" + 
+    		"	public class W {\n" + 
+    		"	             ^\n" + 
+    		"Javadoc: Missing comment for public declaration\n" + 
+    		"----------\n",
 			null, true, customOptions);
     }      
     // check @SuppressWarning support
@@ -4548,22 +4592,32 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	List validateTestMethods() { return null; }\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 34)\n" + 
-			"	List<Exception> problems= new TestIntrospector(EverythingWrong.class).validateTestMethods();\n" + 
-			"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<Exception>\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 38)\n" + 
-			"	public static junit.framework.Test suite() {\n" + 
-			"	              ^^^^^\n" + 
-			"junit cannot be resolved to a type\n" + 
-			"----------\n");
+            "----------\n" + 
+    		"1. ERROR in X.java (at line 3)\n" + 
+    		"	Zork z;\n" + 
+    		"	^^^^\n" + 
+    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n" + 
+    		"2. WARNING in X.java (at line 34)\n" + 
+    		"	List<Exception> problems= new TestIntrospector(EverythingWrong.class).validateTestMethods();\n" + 
+    		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Type safety: The expression of type List needs unchecked conversion to conform to List<Exception>\n" + 
+    		"----------\n" + 
+    		"3. ERROR in X.java (at line 38)\n" + 
+    		"	public static junit.framework.Test suite() {\n" + 
+    		"	              ^^^^^\n" + 
+    		"junit cannot be resolved to a type\n" + 
+    		"----------\n" + 
+    		"4. WARNING in X.java (at line 50)\n" + 
+    		"	TestIntrospector(Class c) {}\n" + 
+    		"	                 ^^^^^\n" + 
+    		"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"----------\n" + 
+    		"5. WARNING in X.java (at line 51)\n" + 
+    		"	List validateTestMethods() { return null; }\n" + 
+    		"	^^^^\n" + 
+    		"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+    		"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89937
     public void test145() {

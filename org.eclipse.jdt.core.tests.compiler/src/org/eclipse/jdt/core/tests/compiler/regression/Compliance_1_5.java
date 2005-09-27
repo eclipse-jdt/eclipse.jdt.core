@@ -3126,7 +3126,12 @@ public void test088() {
 		"	             ^^^\n" + 
 		"The method a() from the type X is never used locally\n" + 
 		"----------\n" + 
-		"4. WARNING in p\\X.java (at line 39)\n" + 
+		"4. WARNING in p\\X.java (at line 31)\n" + 
+		"	Class c = b.getClass();\n" + 
+		"	^^^^^\n" + 
+		"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"5. WARNING in p\\X.java (at line 39)\n" + 
 		"	Method _getMethod = c.getMethod(\"d\",null);\n" + 
 		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Varargs argument null should be cast to Class[] when passed to the method getMethod(String, Class...) from type Class\n" + 

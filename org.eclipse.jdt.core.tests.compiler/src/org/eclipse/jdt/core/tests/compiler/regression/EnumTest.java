@@ -977,7 +977,12 @@ public class EnumTest extends AbstractComparableTest {
 				"}",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
+			"1. WARNING in X.java (at line 1)\n" + 
+			"	public class X extends Enum {\n" + 
+			"	                       ^^^^\n" + 
+			"Type safety: Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Enum {\n" + 
 			"	                       ^^^^\n" + 
 			"The type X may not subclass Enum explicitly\n" + 
@@ -2673,7 +2678,12 @@ public class EnumTest extends AbstractComparableTest {
 			"	            ^^^^^^^^\n" + 
 			"Incompatible operand types X.Test1 and X.Test2\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 19)\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	void foo3(Test1 t1, Enum t2) {\n" + 
+			"	                    ^^^^\n" + 
+			"Type safety: Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 19)\n" + 
 			"	boolean booleanTest = (Test1.test11 == Test2.test22);\n" + 
 			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Incompatible operand types X.Test1 and X.Test2\n" + 
@@ -3025,15 +3035,20 @@ public class EnumTest extends AbstractComparableTest {
 				"class A<T> {}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\r\n" + 
-			"	public enum X implements I { \r\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public enum X implements I { \n" + 
 			"	            ^\n" + 
 			"The type X must implement the inherited abstract method I.foo(A)\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\r\n" + 
-			"	public void foo(A<String> a) {}\r\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	public void foo(A<String> a) {}\n" + 
 			"	            ^^^^^^^^^^^^^^^^\n" + 
 			"Name clash: The method foo(A<String>) of type X has the same erasure as foo(A) of type I but does not override it\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
+			"	interface I { void foo(A a); }\n" + 
+			"	                       ^\n" + 
+			"Type safety: A is a raw type. References to generic type A<T> should be parameterized\n" + 
 			"----------\n");
 	}
 
@@ -3233,11 +3248,26 @@ the right of e1."
 				"class Bar extends Foo {\n" + 
 				"}\n",
 	        },
+	        "----------\n" + 
+			"1. WARNING in X.java (at line 12)\n" + 
+			"	Set<SomeEnum> set1 = EnumSet.of(SomeEnum.A);\n" + 
+			"	                     ^^^^^^^\n" + 
+			"Type safety: EnumSet is a raw type. References to generic type EnumSet<E> should be parameterized\n" + 
 			"----------\n" + 
-			"1. ERROR in X.java (at line 15)\n" + 
+			"2. WARNING in X.java (at line 13)\n" + 
+			"	Set<SomeEnum> set2 = EnumSet.of(SomeEnum.foo());\n" + 
+			"	                     ^^^^^^^\n" + 
+			"Type safety: EnumSet is a raw type. References to generic type EnumSet<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 15)\n" + 
 			"	Foo<Bar> foo = null;\n" + 
 			"	    ^^^\n" + 
 			"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <U extends Foo<U>> of the type Foo<U>\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 19)\n" + 
+			"	class Bar extends Foo {\n" + 
+			"	                  ^^^\n" + 
+			"Type safety: Foo is a raw type. References to generic type Foo<U> should be parameterized\n" + 
 			"----------\n");
 	}		
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93396
@@ -4006,15 +4036,25 @@ the right of e1."
 				"}\n"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
+			"1. WARNING in X.java (at line 7)\n" + 
+			"	static ArrayList someList;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"Type safety: ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
 			"	if (someList == null) {\n" + 
 			"	    ^^^^^^^^\n" + 
 			"Cannot refer to the static enum field X.someList within an initializer\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
+			"3. ERROR in X.java (at line 11)\n" + 
 			"	someList = new ArrayList();\n" + 
 			"	^^^^^^^^\n" + 
 			"Cannot refer to the static enum field X.someList within an initializer\n" + 
+			"----------\n" + 
+			"4. WARNING in X.java (at line 11)\n" + 
+			"	someList = new ArrayList();\n" + 
+			"	               ^^^^^^^^^\n" + 
+			"Type safety: ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
 	}		
 	public void test119() {
