@@ -249,7 +249,7 @@ class CompilationUnitResolver extends Compiler {
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
 		compilationUnit = converter.convert(compilationUnitDeclaration, source);
-		compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.lineSeparatorPositions);
+		compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.getLineSeparatorPositions());
 		ast.setDefaultNodeFlag(0);
 		ast.setOriginalModificationCount(ast.modificationCount());
 		return compilationUnit;
@@ -683,7 +683,7 @@ class CompilationUnitResolver extends Compiler {
 							converter.setAST(ast);
 							CompilationUnit compilationUnit = converter.convert(unit, contents);
 							compilationUnit.setJavaElement(source);
-							compilationUnit.setLineEndTable(compilationResult.lineSeparatorPositions);
+							compilationUnit.setLineEndTable(compilationResult.getLineSeparatorPositions());
 							ast.setDefaultNodeFlag(0);
 							ast.setOriginalModificationCount(ast.modificationCount());
 							

@@ -106,7 +106,7 @@ public void handle(
 			problemStartPosition, 
 			problemEndPosition, 
 			problemStartPosition >= 0
-				? searchLineNumber(unitResult.lineSeparatorPositions, problemStartPosition)
+				? searchLineNumber(unitResult.getLineSeparatorPositions(), problemStartPosition)
 				: 0);
 	if (problem == null) return; // problem couldn't be created, ignore
 	

@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class CompilationResult {
+	private static final int[] EMPTY_LINE_ENDS = new int[0];
 	
 	public IProblem problems[];
 	public IProblem tasks[];
@@ -257,6 +258,11 @@ public class CompilationResult {
 		return errors;
 	}
 	
+
+	public int[] getLineSeparatorPositions() {
+		return this.lineSeparatorPositions == null ? EMPTY_LINE_ENDS : this.lineSeparatorPositions;
+	}
+
 	/**
 	 * Answer the problems (errors and warnings) encountered during compilation.
 	 *

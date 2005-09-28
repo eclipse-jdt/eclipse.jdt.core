@@ -44,7 +44,7 @@ public class CodeSnippetParsingUtil {
 				System.arraycopy(compilationResultProblems, 0, (problems = new IProblem[problemsCount]), 0, problemsCount);
 			}
 		}
-		return new RecordedParsingInformation(problems, compilationResult.lineSeparatorPositions, parser.getCommentsPositions());
+		return new RecordedParsingInformation(problems, compilationResult.getLineSeparatorPositions(), parser.getCommentsPositions());
 	}
 
 	public ASTNode[] parseClassBodyDeclarations(char[] source, Map settings, boolean recordParsingInformation) {

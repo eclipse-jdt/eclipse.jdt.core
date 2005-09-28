@@ -947,7 +947,7 @@ public class ClassFile
 		completeCodeAttributeForMissingAbstractProblemMethod(
 			methodBinding,
 			codeAttributeOffset,
-			compilationResult.lineSeparatorPositions,
+			compilationResult.getLineSeparatorPositions(),
 			problem.getSourceLineNumber());
 			
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
@@ -1000,11 +1000,6 @@ public class ClassFile
 		attributeNumber++; // code attribute
 		completeCodeAttributeForClinit(
 			codeAttributeOffset,
-			referenceBinding
-				.scope
-				.referenceCompilationUnit()
-				.compilationResult
-				.lineSeparatorPositions,
 			problemLine);
 		contents[attributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[attributeOffset] = (byte) attributeNumber;
@@ -1067,7 +1062,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions,
+				.getLineSeparatorPositions(),
 			problemLine);
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
@@ -1157,7 +1152,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions,
+				.getLineSeparatorPositions(),
 			problemLine);
 		completeMethodInfo(methodAttributeOffset, attributeNumber);
 	}
@@ -1270,7 +1265,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -1300,7 +1295,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;			
@@ -1325,7 +1320,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -1354,7 +1349,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;		
@@ -1385,7 +1380,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -1416,7 +1411,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -1446,7 +1441,7 @@ public class ClassFile
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.lineSeparatorPositions);
+				.getLineSeparatorPositions());
 		// update the number of attributes
 		contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -2048,13 +2043,9 @@ public class ClassFile
 	 * - code_length
 	 * - exception table
 	 * - and debug attributes if necessary.
-	 *
-	 * @param codeAttributeOffset <CODE>int</CODE>
-	 * @param startLineIndexes int[]
 	 */
 	public void completeCodeAttributeForClinit(
 		int codeAttributeOffset,
-		int[] startLineIndexes,
 		int problemLine) {
 		// reinitialize the contents with the byte modified by the code stream
 		this.contents = codeStream.bCodeStream;

@@ -133,7 +133,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			CompilationUnitDeclaration unitDeclaration = parser.dietParse(unit, unitResult);
 			parser.getMethodBodies(unitDeclaration);
 			parsedCharacters += content.length;
-			parsedLines += unitResult.lineSeparatorPositions.length;
+			parsedLines += unitResult.getLineSeparatorPositions().length;
 		}
 		stopMeasuring();
 
