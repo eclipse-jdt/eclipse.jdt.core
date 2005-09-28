@@ -265,22 +265,21 @@ public class CharacterLiteral extends Expression {
 								throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 							}
 							number = (number * 8) + Character.getNumericValue(nextChar);
-						}
-						nextChar = (char) scanner.getNextChar();
-						if (nextChar == -1) {
-							throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
-						}
-						if (nextChar != '\'') {
-							if (!Character.isDigit(nextChar)) {
+							nextChar = (char) scanner.getNextChar();
+							if (nextChar == -1) {
 								throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 							}
-							number = (number * 8) + Character.getNumericValue(nextChar);
+							if (nextChar != '\'') {
+								if (!Character.isDigit(nextChar)) {
+									throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+								}
+								number = (number * 8) + Character.getNumericValue(nextChar);
+							}
 						}
-						value = (char) number;
+						return (char) number;			
 					} else {
 						throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 					}
-					break;
 			}
 			nextChar = (char) scanner.getNextChar();
 			if (nextChar == -1) {
