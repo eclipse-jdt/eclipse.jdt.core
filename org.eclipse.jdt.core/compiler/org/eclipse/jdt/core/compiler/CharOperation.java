@@ -1450,6 +1450,7 @@ public final class CharOperation {
 	 * @return the first index in the array for which the toBeFound array is a matching
 	 * subarray following the case rule, -1 otherwise
 	 * @throws NullPointerException if array is null or toBeFound is null
+	 * @since 3.2
 	 */
 	public static final int indexOf(char[] toBeFound, char[] array, boolean isCaseSensitive) {
 		return indexOf(toBeFound, array, isCaseSensitive, 0);
@@ -1483,6 +1484,7 @@ public final class CharOperation {
 	 * @return the first index in the array for which the toBeFound array is a matching
 	 * subarray following the case rule starting at the index start, -1 otherwise
 	 * @throws NullPointerException if array is null or toBeFound is null
+	 * @since 3.2
 	 */
 	public static final int indexOf(final char[] toBeFound, final char[] array, final boolean isCaseSensitive, final int start) {
 		return indexOf(toBeFound, array, isCaseSensitive, start, array.length);
@@ -1517,6 +1519,7 @@ public final class CharOperation {
 	 * @return the first index in the array for which the toBeFound array is a matching
 	 * subarray following the case rule starting at the index start, -1 otherwise
 	 * @throws NullPointerException if array is null or toBeFound is null
+	 * @since 3.2
 	 */
 	public static final int indexOf(final char[] toBeFound, final char[] array, final boolean isCaseSensitive, final int start, final int end) {
 		final int arrayLength = end;
@@ -1643,6 +1646,7 @@ public final class CharOperation {
 	 * equal to toBeFound, -1 otherwise
 	 * @throws NullPointerException if array is null
 	 * @throws ArrayIndexOutOfBoundsException if  start is lower than 0 or ending greater than array length
+	 * @since 3.2
 	 */
 	public static final int indexOf(char toBeFound, char[] array, int start, int end) {
 		for (int i = start; i < end; i++)
