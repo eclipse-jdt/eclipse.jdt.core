@@ -99,6 +99,9 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		root.accept(v);
 	}
 		
+	/**
+	 * @deprecated since using deprecated constant
+	 */
 	public void testStructuralProperties() {
 		final ASTNode root = SampleASTs.oneOfEach(ast);
 		
