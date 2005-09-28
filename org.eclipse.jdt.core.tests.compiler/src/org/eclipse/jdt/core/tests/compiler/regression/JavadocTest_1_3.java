@@ -2469,12 +2469,12 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"3. ERROR in Invalid.java (at line 4)\n" + 
 			"	* @see Test#foo()\n" + 
 			"	            ^^^\n" + 
-			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments ()\n" + 
+			"Javadoc: The method foo(String[]) in the type Test is not applicable for the arguments ()\n" + 
 			"----------\n" + 
 			"4. ERROR in Invalid.java (at line 5)\n" + 
 			"	* @see Test#foo(String)\n" + 
 			"	            ^^^\n" + 
-			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (String)\n" + 
+			"Javadoc: The method foo(String[]) in the type Test is not applicable for the arguments (String)\n" + 
 			"----------\n" + 
 			"5. ERROR in Invalid.java (at line 6)\n" + 
 			"	* @see Test#foo(String, String)\n" + 
@@ -2489,12 +2489,12 @@ public class JavadocTest_1_3 extends JavadocTest {
 			"7. ERROR in Invalid.java (at line 8)\n" + 
 			"	* @see Test#foo(Exception, boolean)\n" + 
 			"	            ^^^\n" + 
-			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (Exception, boolean)\n" + 
+			"Javadoc: The method foo(Exception, boolean[]) in the type Test is not applicable for the arguments (Exception, boolean)\n" + 
 			"----------\n" + 
 			"8. ERROR in Invalid.java (at line 9)\n" + 
 			"	* @see Test#foo(Exception, boolean, boolean)\n" + 
 			"	            ^^^\n" + 
-			"Javadoc: The method foo(int, int) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
+			"Javadoc: The method foo(Exception, boolean[]) in the type Test is not applicable for the arguments (Exception, boolean, boolean)\n" + 
 			"----------\n"
 		);
 	}

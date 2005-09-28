@@ -295,7 +295,15 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (argHasError) {
 			if(actualReceiverType instanceof ReferenceBinding) {
 				// record any selector match, for clients who may still need hint about possible method match
-				this.binding = scope.findMethod((ReferenceBinding)actualReceiverType, selector, new TypeBinding[]{}, this);
+				int resolvedCount = 0;
+				for (int i = 0; i < length; i++)
+					if (argumentTypes[i] != null)
+						resolvedCount++;
+				TypeBinding[] knownArgs = new TypeBinding[resolvedCount];
+				for (int i = length; --i >= 0;)
+					if (argumentTypes[i] != null)
+						knownArgs[--resolvedCount] = argumentTypes[i];
+				this.binding = scope.findMethod((ReferenceBinding)actualReceiverType, selector, knownArgs, this);
 			}			
 			return null;
 		}

@@ -1151,24 +1151,55 @@ public abstract class Scope
 				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			if (interfaceMethod != null) return interfaceMethod;
 			if (problemMethod != null) return problemMethod;
+			if (found.size == 0) return null;
 
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=69471
+			// bad guesses are foo(), when argument types have been supplied
+			// and foo(X, Y), when the argument types are (int, float, Y)
+			// so answer the method with the most argType matches and least parameter type mismatches
+			int bestArgMatches = -1;
+			int bestParamMatches = -1;
+			MethodBinding bestGuess = (MethodBinding) found.elementAt(0); // if no good match so just use the first one found
 			int argLength = argumentTypes.length;
 			foundSize = found.size;
 			nextMethod : for (int i = 0; i < foundSize; i++) {
 				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
 				TypeBinding[] params = methodBinding.parameters;
 				int paramLength = params.length;
-				nextArg: for (int a = 0; a < argLength; a++) {
+				int argMatches = 0;
+				next: for (int a = 0; a < argLength; a++) {
 					TypeBinding arg = argumentTypes[a];
-					for (int p = 0; p < paramLength; p++)
-						if (params[p] == arg)
-							continue nextArg;
-					continue nextMethod;
+					for (int p = a == 0 ? 0 : a - 1; p < paramLength && p < a + 1; p++) { // look one slot before & after to see if the type matches
+						if (params[p] == arg) {
+							argMatches++;
+							continue next;
+						}
+					}
 				}
-				return methodBinding;
+				int paramMatches = 0;
+				next: for (int p = 0; p < paramLength; p++) {
+					TypeBinding param = params[p];
+					for (int a = p == 0 ? 0 : p - 1; a < argLength && a < p + 1; a++) { // look one slot before & after to see if the type matches
+						if (param == argumentTypes[a]) {
+							paramMatches++;
+							continue next;
+						}
+					}
+				}
+				if (argMatches + paramMatches < bestArgMatches + bestParamMatches)
+					continue nextMethod;
+				if (argMatches + paramMatches == bestArgMatches + bestParamMatches) {
+					int diff1 = paramLength < argLength ? 2 * (argLength - paramLength) : paramLength - argLength;
+					int bestLength = bestGuess.parameters.length;
+					int diff2 = bestLength < argLength ? 2 * (argLength - bestLength) : bestLength - argLength;
+					if (diff1 >= diff2)
+						continue nextMethod;
+				}
+				bestArgMatches = argMatches;
+				bestParamMatches = paramMatches;
+				bestGuess = methodBinding;
 			}
-			if (found.size == 0) return null;
-			return (MethodBinding) found.elementAt(0); // no good match so just use the first one found
+			return bestGuess;
 		}
 
 		// check for duplicate parameterized methods
