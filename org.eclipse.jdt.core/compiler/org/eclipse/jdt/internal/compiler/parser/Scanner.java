@@ -913,13 +913,11 @@ public int getNextToken() throws InvalidInputException {
 				} else {
 					offset = this.currentPosition - offset;
 					if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-						if (this.currentLine != null) {
+						if (this.currentLine != null && this.currentLine.size() != 0) {
 							parseTags(false);
 						}
 						if (this.recordLineSeparator) {
 							pushLineSeparator();
-						} else if (this.currentLine != null) {
-							this.currentLine.clear();
 						}
 					}
 					// inline version of:
@@ -1355,8 +1353,6 @@ public int getNextToken() throws InvalidInputException {
 										} else {
 											pushLineSeparator();
 										}
-									} else if (this.currentLine != null) {
-										this.currentLine.clear();
 									}
 								}
 								if (this.tokenizeComments) {
@@ -1400,7 +1396,7 @@ public int getNextToken() throws InvalidInputException {
 									star = true;
 								}
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-									if (this.currentLine != null) {
+									if (this.currentLine != null && this.currentLine.size() != 0) {
 										parseTags(false);
 									}
 									if (this.recordLineSeparator) {
@@ -1409,8 +1405,6 @@ public int getNextToken() throws InvalidInputException {
 										} else {
 											pushLineSeparator();
 										}
-									} else if (currentLine != null){
-										this.currentLine.clear();
 									}
 								}
 								isUnicode = false;
@@ -1436,7 +1430,7 @@ public int getNextToken() throws InvalidInputException {
 								int firstTag = 0;
 								while ((this.currentCharacter != '/') || (!star)) {
 									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-										if (this.currentLine != null) {
+										if (this.currentLine != null && this.currentLine.size() != 0) {
 											parseTags(false);
 										}
 										if (this.recordLineSeparator) {
@@ -1445,8 +1439,6 @@ public int getNextToken() throws InvalidInputException {
 											} else {
 												pushLineSeparator();
 											}
-										} else if (this.currentLine != null) {
-											this.currentLine.clear();
 										}
 									}
 									switch (this.currentCharacter) {
@@ -1638,7 +1630,7 @@ public final void jumpOverMethodBody() {
 				} else {
 					if (this.recordLineSeparator
 							&& ((this.currentCharacter == '\r') || (this.currentCharacter == '\n'))) {
-						if (this.currentLine != null) {
+						if (this.currentLine != null && this.currentLine.size() != 0) {
 							parseTags(false);
 						}
 						pushLineSeparator();
@@ -1863,7 +1855,7 @@ public final void jumpOverMethodBody() {
 									star = true;
 								}
 								if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-									if (this.currentLine != null) {
+									if (this.currentLine != null && this.currentLine.size() != 0) {
 										parseTags(false);
 									}
 									if (this.recordLineSeparator) {
@@ -1872,8 +1864,6 @@ public final void jumpOverMethodBody() {
 										} else {
 											pushLineSeparator();
 										}
-									} else if (this.currentLine != null) {
-										this.currentLine.clear();
 									}
 								}
 								isUnicode = false;
@@ -1898,7 +1888,7 @@ public final void jumpOverMethodBody() {
 								int firstTag = 0;
 								while ((this.currentCharacter != '/') || (!star)) {
 									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
-										if (this.currentLine != null) {
+										if (this.currentLine != null && this.currentLine.size() != 0) {
 											parseTags(false);
 										}
 										if (this.recordLineSeparator) {
@@ -1907,8 +1897,6 @@ public final void jumpOverMethodBody() {
 											} else {
 												pushLineSeparator();
 											}
-										} else if (this.currentLine != null) {
-											this.currentLine.clear();
 										}
 									}
 									switch (this.currentCharacter) {
@@ -2257,14 +2245,12 @@ final char[] optimizedCurrentTokenSource6() {
 }
 
 protected void parseTags(boolean hasLineComment) {
-	final NLSLine line = this.currentLine;
 	if (!hasLineComment) {
-		if (line.size() == 0) return; // nothing to do
 		if (this.nonNLSStrings == null) this.nonNLSStrings = new HashSet();
-		this.nonNLSStrings.addAll(line.elements);
+		this.nonNLSStrings.addAll(this.currentLine.elements);
 	} else {
 		int position = 0;
-		if (linePtr >= 0) {
+		if (this.linePtr >= 0) {
 			position = this.lineEnds[this.linePtr] + 1; 
 		}
 		while (Character.isWhitespace(this.source[position])) {
@@ -2274,33 +2260,51 @@ protected void parseTags(boolean hasLineComment) {
 			// the whole line is commented out
 			return;
 		}
-		char[] s = getCurrentTokenSource();
-		int pos = CharOperation.indexOf(TAG_PREFIX, s, true);
+		final NLSLine line = this.currentLine;
+		char[] s = null;
+		int sourceEnd = this.currentPosition;
+		int sourceStart = this.startPosition;
+		int sourceDelta = 0;
+		if (this.withoutUnicodePtr != 0) {
+			// 0 is used as a fast test flag so the real first char is in position 1
+			System.arraycopy(
+				this.withoutUnicodeBuffer, 
+				1, 
+				s = new char[this.withoutUnicodePtr], 
+				0, 
+				this.withoutUnicodePtr);
+			sourceEnd = this.withoutUnicodePtr;
+			sourceStart = 1;
+			sourceDelta = this.getCurrentTokenStartPosition();
+		} else {
+			s = this.source;
+		}
+		int pos = CharOperation.indexOf(TAG_PREFIX, s, true, sourceStart, sourceEnd);
+		final int lineSize = line.size();
 		if (pos != -1) {
 			if (this.unnecessaryNLSTags == null) this.unnecessaryNLSTags = new HashSet();
 			while (pos != -1) {
 				int start = pos + TAG_PREFIX_LENGTH;
-				int end = CharOperation.indexOf(TAG_POSTFIX, s, start);
+				int end = CharOperation.indexOf(TAG_POSTFIX, s, start, sourceEnd);
 				if (end != -1) {
 					String index = new String(CharOperation.subarray(s, start, end));
-					int i = 0;
 					try {
-						i = Integer.parseInt(index) - 1; // Tags are one based not zero based.
-					} catch (NumberFormatException e) {
-						i = -1; // we don't want to consider this as a valid NLS tag
-					}
-					if (line != null && line.exists(i)) {
-						if (line.get(i) == null) {
-							this.unnecessaryNLSTags.add(new NLSTag(pos + this.getCurrentTokenStartPosition(), this.getCurrentTokenStartPosition() + end));
-						} else {
-							line.set(i, null);
-							final NLSTag tag = new NLSTag(pos + this.getCurrentTokenStartPosition(), this.getCurrentTokenStartPosition() + end, NLSTag.USED);
-							if (!this.unnecessaryNLSTags.add(tag)) {
-								this.unnecessaryNLSTags.remove(tag);
-								this.unnecessaryNLSTags.add(tag);
+						final int i = Integer.parseInt(index) - 1; // Tags are one based not zero based.
+						if (i >= 0 && i < lineSize) {
+							if (line.get(i) == null) {
+								this.unnecessaryNLSTags.add(new NLSTag(pos + sourceDelta, end + sourceDelta));
+							} else {
+								line.set(i, null);
+								final NLSTag tag = new NLSTag(pos + sourceDelta , end + sourceDelta, NLSTag.USED);
+								if (!this.unnecessaryNLSTags.add(tag)) {
+									this.unnecessaryNLSTags.remove(tag);
+									this.unnecessaryNLSTags.add(tag);
+								}
 							}
+						} else {
+							this.unnecessaryNLSTags.add(new NLSTag(pos + sourceDelta, end + sourceDelta));
 						}
-					} else {
+					} catch (NumberFormatException e) {
 						this.unnecessaryNLSTags.add(new NLSTag(pos + this.getCurrentTokenStartPosition(), this.getCurrentTokenStartPosition() + end));
 					}
 				}
@@ -2308,10 +2312,10 @@ protected void parseTags(boolean hasLineComment) {
 			}
 		}
 	
-		if (line.size() != 0) {
+		if (line.remainingElementsSize != 0) {
 			if (this.nonNLSStrings == null) this.nonNLSStrings = new HashSet();
 			for (Iterator iterator = line.iterator(); iterator.hasNext(); ) {
-				StringLiteral literal = (StringLiteral) iterator.next();
+				final StringLiteral literal = (StringLiteral) iterator.next();
 				if (literal != null) {
 					this.nonNLSStrings.add(literal);
 				}
@@ -2324,13 +2328,7 @@ protected void parseTags(boolean hasLineComment) {
 public final void pushLineSeparator() {
 	//see comment on isLineDelimiter(char) for the use of '\n' and '\r'
 	final int INCREMENT = 250;
-	
-	if (this.currentLine != null) {
-		// reinitialize the current line for non externalize strings purpose
-		this.currentLine.clear();
-	}
 	//currentCharacter is at position currentPosition-1
-
 	// cr 000D
 	if (this.currentCharacter == '\r') {
 		int separatorPos = this.currentPosition - 1;
@@ -2370,12 +2368,7 @@ public final void pushLineSeparator() {
 		}
 	}
 }
-public final void pushUnicodeLineSeparator() {
-	if (this.currentLine != null) {
-		// reinitialize the current line for non externalize strings purpose
-		this.currentLine.clear();
-	}
-	
+public final void pushUnicodeLineSeparator() {	
 	// cr 000D
 	if (this.currentCharacter == '\r') {
 		if (this.source[this.currentPosition] == '\n') {

@@ -8030,7 +8030,6 @@ public void goForCompilationUnit(){
 	this.firstToken = TokenNamePLUS_PLUS ;
 	this.scanner.foundTaskCount = 0;
 	this.scanner.recordLineSeparator = true;
-	if (this.scanner.currentLine != null) this.scanner.currentLine.clear();
 }
 public void goForExpression() {
 	//tells the scanner to go for an expression parsing
@@ -8483,7 +8482,59 @@ protected void parse() {
 		} while (act <= NUM_RULES);
 	}
 	endParse(act);
-	reportNonExternalizedStringLiterals();
+	if (this.scanner.currentLine != null) {
+		final Set nonNLSStrings = this.scanner.nonNLSStrings;
+		if (nonNLSStrings != null) {
+			final int nonNLSStringsSize = nonNLSStrings.size();
+			StringLiteral[] literals = new StringLiteral[nonNLSStringsSize];
+			nonNLSStrings.toArray(literals);
+			Arrays.sort(literals, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					StringLiteral literal1 = (StringLiteral) o1;
+					StringLiteral literal2 = (StringLiteral) o2;
+					return literal1.sourceStart - literal2.sourceStart;
+				}
+			});
+			for (int i = 0; i < nonNLSStringsSize; i++) {
+				problemReporter().nonExternalizedStringLiteral(literals[i]);
+			}
+		}
+		final Set unnecessaryNLSTags = this.scanner.unnecessaryNLSTags;
+		if (unnecessaryNLSTags != null) {
+			final int unnecessaryNLSTagsSize = unnecessaryNLSTags.size();
+			if (unnecessaryNLSTagsSize != 0) {
+/*				NLSTag[] tags = new NLSTag[unnecessaryNLSTagsSize];
+				unnecessaryNLSTags.toArray(tags);
+				// filter out all used nls tags
+				ArrayList arrayList = new ArrayList();
+				for (int i = 0; i < unnecessaryNLSTagsSize; i++) {
+					NLSTag tag = tags[i];
+					if ((tag.bits & NLSTag.UNUSED) != 0) {
+						arrayList.add(tag);
+					}
+				}*/
+				ArrayList arrayList = new ArrayList();
+				arrayList.addAll(unnecessaryNLSTags);
+				Collections.sort(arrayList, new Comparator() {
+					public int compare(Object o1, Object o2) {
+						NLSTag tag1 = (NLSTag) o1;
+						NLSTag tag2 = (NLSTag) o1;
+						return tag1.start - tag2.start;
+					}
+				});
+				loop : for (int i = 0, max = arrayList.size(); i < max; i++) {
+					NLSTag tag = (NLSTag) arrayList.get(i); 
+					if (tag.bits != NLSTag.UNUSED) {
+						continue loop;
+					}
+					problemReporter().unnecessaryNLSTags(tag.start, tag.end);
+				}
+			}
+		}
+		this.scanner.nonNLSStrings = null;
+		this.scanner.unnecessaryNLSTags = null;
+		this.scanner.currentLine = null;
+	}
 	if (this.reportSyntaxErrorIsRequired && this.hasError) {
 		reportSyntaxErrors(isDietParse, oldFirstToken);
 	}	
@@ -9102,52 +9153,6 @@ public void recoveryTokenCheck() {
 	}
 	this.ignoreNextOpeningBrace = false;
 }
-protected void reportNonExternalizedStringLiterals() {
-	final Set nonNLSStrings = this.scanner.nonNLSStrings;
-	final int nonNLSStringsSize = nonNLSStrings == null ? 0 : nonNLSStrings.size();
-	if (nonNLSStringsSize != 0) {
-		StringLiteral[] literals = new StringLiteral[nonNLSStringsSize];
-		nonNLSStrings.toArray(literals);
-		Arrays.sort(literals, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				StringLiteral literal1 = (StringLiteral) o1;
-				StringLiteral literal2 = (StringLiteral) o2;
-				return literal1.sourceStart - literal2.sourceStart;
-			}
-		});
-		for (int i = 0; i < nonNLSStringsSize; i++) {
-			problemReporter().nonExternalizedStringLiteral(literals[i]);
-		}
-	}
-	final Set unnecessaryNLSTags = this.scanner.unnecessaryNLSTags;
-	final int unnecessaryNLSTagsSize = unnecessaryNLSTags == null ? 0 : unnecessaryNLSTags.size();
-	if (unnecessaryNLSTagsSize != 0) {
-		NLSTag[] tags = new NLSTag[unnecessaryNLSTagsSize];
-		unnecessaryNLSTags.toArray(tags);
-		// filter out all used nls tags
-		ArrayList arrayList = new ArrayList();
-		for (int i = 0; i < unnecessaryNLSTagsSize; i++) {
-			NLSTag tag = tags[i];
-			if ((tag.bits & NLSTag.UNUSED) != 0) {
-				arrayList.add(tag);
-			}
-		}
-		Collections.sort(arrayList, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				NLSTag tag1 = (NLSTag) o1;
-				NLSTag tag2 = (NLSTag) o1;
-				return tag1.start - tag2.start;
-			}
-		});
-		for (int i = 0, max = arrayList.size(); i < max; i++) {
-			NLSTag tag = (NLSTag) arrayList.get(i); 
-			problemReporter().unnecessaryNLSTags(tag.start, tag.end);
-		}
-	}
-	this.scanner.nonNLSStrings = null;
-	this.scanner.unnecessaryNLSTags = null;
-	this.scanner.currentLine = null;
-}
 // A P I
 protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 	if(this.referenceContext instanceof MethodDeclaration) {
@@ -9241,8 +9246,11 @@ protected void resetStacks() {
 	this.listLength = 0;
 	this.listTypeParameterLength = 0;
 	// Fix for http://dev.eclipse.org/bugs/show_bug.cgi?id=29365
-	if (this.scanner != null && this.scanner.currentLine != null) {
-		this.scanner.currentLine.clear();
+	if (this.scanner != null) {
+		final NLSLine line = this.scanner.currentLine;
+		if (line != null) {
+			line.clear();
+		}
 	}
 	
 	this.genericsIdentifiersLengthPtr = -1;

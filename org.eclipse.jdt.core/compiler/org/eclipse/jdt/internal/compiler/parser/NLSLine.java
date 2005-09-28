@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 public class NLSLine {
 
 	public List elements;
+	public int remainingElementsSize;
 
 	public NLSLine() {
 		this.elements = new ArrayList();
@@ -28,6 +29,7 @@ public class NLSLine {
 	 */
 	public void add(StringLiteral element) {
 		this.elements.add(element);
+		this.remainingElementsSize++;
 	}
 	
 	public StringLiteral get(int index) {
@@ -36,10 +38,7 @@ public class NLSLine {
 	
 	public void set(int index, StringLiteral literal) {
 		this.elements.set(index, literal);
-	}
-	
-	public boolean exists(int index) {
-		return index >= 0 && index < this.elements.size();
+		this.remainingElementsSize--;
 	}
 	
 	public int size(){

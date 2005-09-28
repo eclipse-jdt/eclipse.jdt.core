@@ -15,6 +15,7 @@ public class NLSTag {
 	public int start;
 	public int end;
 	public int bits;
+
 	public static final int USED = 1;
 	public static final int UNUSED = 2;
 	

@@ -1605,6 +1605,53 @@ public final class CharOperation {
 	}
 
 	/**
+	 * Answers the first index in the array for which the corresponding character is
+	 * equal to toBeFound starting the search at index start and before the ending index.
+	 * Answers -1 if no occurrence of this character is found.
+	 * <br>
+	 * <br>
+	 * For example:
+	 * <ol>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    start = 2
+	 *    result => 2
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'c'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    start = 3
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * <li><pre>
+	 *    toBeFound = 'e'
+	 *    array = { ' a', 'b', 'c', 'd' }
+	 *    start = 1
+	 *    result => -1
+	 * </pre>
+	 * </li>
+	 * </ol>
+	 * 
+	 * @param toBeFound the character to search
+	 * @param array the array to be searched
+	 * @param start the starting index (inclusive)
+	 * @param end the ending index (exclusive)
+	 * @return the first index in the array for which the corresponding character is
+	 * equal to toBeFound, -1 otherwise
+	 * @throws NullPointerException if array is null
+	 * @throws ArrayIndexOutOfBoundsException if  start is lower than 0 or ending greater than array length
+	 */
+	public static final int indexOf(char toBeFound, char[] array, int start, int end) {
+		for (int i = start; i < end; i++)
+			if (toBeFound == array[i])
+				return i;
+		return -1;
+	}
+	
+	/**
 	 * Answers the last index in the array for which the corresponding character is
 	 * equal to toBeFound starting from the end of the array.
 	 * Answers -1 if no occurrence of this character is found.
