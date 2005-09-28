@@ -141,13 +141,21 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 			}
 		};
 		root.accept(v);
-		System.out.println("Total visited node classes: " + nodeClasses.size());
-		System.out.println("Total visited properties: " + visitedProperties.size());
-		System.out.println("Total properties hit: "
-				+ simpleProperties.size() + " simple, "
-				+ childProperties.size() + " child, "
-				+ childListProperties.size() + " child list");
-		
+		switch(this.API_LEVEL) {
+			case AST.JLS2 :
+				assertEquals("Wrong number of visited node classes", 67, nodeClasses.size());
+				assertEquals("Wrong number of visited properties", 82, visitedProperties.size());
+				assertEquals("Wrong number of simple properties", 26, simpleProperties.size());
+				assertEquals("Wrong number of child properties", 90, childProperties.size());
+				assertEquals("Wrong number of child list properties", 26, childListProperties.size());
+				break;
+			case AST.JLS3 :
+				assertEquals("Wrong number of visited node classes", 80, nodeClasses.size());
+				assertEquals("Wrong number of visited properties", 104, visitedProperties.size());
+				assertEquals("Wrong number of simple properties", 23, simpleProperties.size());
+				assertEquals("Wrong number of child properties", 115, childProperties.size());
+				assertEquals("Wrong number of child list properties", 52, childListProperties.size());
+		}
 		// visit should rebuild tree
 		ASTNode newRoot = SampleASTs.oneOfEach(ast);
 		assertTrue(root.subtreeMatch(new ASTMatcher(), newRoot));
