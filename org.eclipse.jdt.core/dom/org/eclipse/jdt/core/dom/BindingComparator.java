@@ -197,7 +197,8 @@ class BindingComparator {
 				return CharOperation.equals(parameterizedTypeBinding.compoundName, parameterizedTypeBinding2.compoundName)
 					&& (parameterizedTypeBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
 							== (parameterizedTypeBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
-					&& isEqual(parameterizedTypeBinding.arguments, parameterizedTypeBinding2.arguments, visitedTypes);
+					&& isEqual(parameterizedTypeBinding.arguments, parameterizedTypeBinding2.arguments, visitedTypes)
+					&& isEqual(parameterizedTypeBinding.enclosingType(), parameterizedTypeBinding2.enclosingType(), visitedTypes);
 							
 			case Binding.WILDCARD_TYPE :
 				if (!typeBinding2.isWildcard()) {
@@ -247,8 +248,9 @@ class BindingComparator {
 				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
 					&& (referenceBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
 							== (referenceBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
-					&& isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables(), visitedTypes);
-		
+					&& isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables(), visitedTypes)
+					&& isEqual(referenceBinding.enclosingType(), referenceBinding2.enclosingType(), visitedTypes);
+
 			case Binding.RAW_TYPE :
 			default :
 				if (!(typeBinding2 instanceof ReferenceBinding)) {
@@ -261,8 +263,8 @@ class BindingComparator {
 					&& (!referenceBinding2.isGenericType())
 					&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
 					&& (referenceBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
-							== (referenceBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation));
-				
+							== (referenceBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
+					&& isEqual(referenceBinding.enclosingType(), referenceBinding2.enclosingType(), visitedTypes);
 		}
 	}
 	/**

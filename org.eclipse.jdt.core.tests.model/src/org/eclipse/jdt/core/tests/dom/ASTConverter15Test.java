@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 196 };
+//		TESTS_NUMBERS = new int[] { 198 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -5951,5 +5951,44 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			deleteProject("P");
 		}
 	}
-
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110773
+	 */
+	public void test0198() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			"public class X<E> {\n" +
+			"    class B { }\n" +
+			"    {\n" +
+			"        X<String>.B b;\n" +
+			"    }\n" +
+			"}",
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 1);
+    	assertEquals("Not a initializer", ASTNode.INITIALIZER, node.getNodeType());
+    	Initializer initializer = (Initializer) node;
+    	Block block = initializer.getBody();
+    	assertNotNull("No block", block);
+    	List statements = block.statements();
+    	assertEquals("Wrong size", 1, statements.size());
+    	Statement statement = (Statement) statements.get(0);
+    	assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement.getNodeType());
+    	VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement;
+    	Type type = variableDeclarationStatement.getType();
+    	ITypeBinding typeBinding = type.resolveBinding();
+    	node = getASTNode(compilationUnit, 0, 0);
+    	assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+    	TypeDeclaration typeDeclaration = (TypeDeclaration) node;
+    	ITypeBinding typeBinding2 = typeDeclaration.resolveBinding();
+    	assertTrue("Not a member type", typeDeclaration.isMemberTypeDeclaration());
+    	assertFalse("Binding should not be equals", typeBinding.isEqualTo(typeBinding2));
+    	assertFalse("Binding should not be equals", typeBinding2.isEqualTo(typeBinding));
+    	ITypeBinding typeBinding3 = typeBinding.getTypeDeclaration();
+    	assertFalse("Binding should not be equals", typeBinding.isEqualTo(typeBinding3));
+    	assertFalse("Binding should not be equals", typeBinding3.isEqualTo(typeBinding));
+    }
 }
