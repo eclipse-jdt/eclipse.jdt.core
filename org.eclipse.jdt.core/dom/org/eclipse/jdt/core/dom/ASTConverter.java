@@ -2470,7 +2470,11 @@ class ASTConverter {
 		if (statements != null) {
 			int statementsLength = statements.length;
 			for (int i = 0; i < statementsLength; i++) {
-				switchStatement.statements().add(convert(statements[i]));
+				if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
+					checkAndAddMultipleLocalDeclaration(statements, i, switchStatement.statements());
+				} else {
+					switchStatement.statements().add(convert(statements[i]));
+				}
 			}
 		}
 		return switchStatement;

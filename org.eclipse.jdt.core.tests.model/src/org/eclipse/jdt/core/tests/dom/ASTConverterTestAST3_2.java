@@ -6886,4 +6886,42 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=109963
+	 */
+	public void test0621() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" + 
+				"	public void foo(int y) {\n" +
+				"		switch (y) {\n" +
+				"			case 1:\n" +
+				"				int i,j;\n" +
+				"		}\n" +
+				"	}\n" + 
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", false/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			node = getASTNode(unit, 0, 0, 0);
+			assertNotNull("No node", node);
+			assertEquals("Not a switch statement", ASTNode.SWITCH_STATEMENT, node.getNodeType());
+			SwitchStatement switchStatement = (SwitchStatement) node;
+			List statements = switchStatement.statements();
+			assertEquals("Wrong size", 2, statements.size());
+			Statement statement = (Statement) statements.get(1);
+			assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, statement.getNodeType());
+			VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) statement;
+			assertEquals("Wrong size", 2, variableDeclarationStatement.fragments().size());
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }
