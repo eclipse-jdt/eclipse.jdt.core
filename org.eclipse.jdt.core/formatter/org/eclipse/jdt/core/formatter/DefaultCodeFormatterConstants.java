@@ -2297,6 +2297,27 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_ELLIPSIS  = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_ellipsis";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a space before expression in return statement
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_expression_in_return"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * <p>Note that this option is optional only if this expression is:
+	 * <ul>
+	 * <li>a cast expression</li>
+	 * <li>a parenthesized expression</li>
+	 * <li>a prefix expression</li>
+	 * <li>a string literal</li>
+	 * </ul>
+	 * In all other cases, the space is mandatory.
+	 * </p> 
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.2
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_EXPRESSION_IN_RETURN  = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_expression_in_return";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space before the opening angle bracket in parameterized type reference
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_opening_angle_bracket_in_parameterized_type_reference"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }

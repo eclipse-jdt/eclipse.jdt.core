@@ -2714,7 +2714,18 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		this.scribe.printNextToken(TerminalTokens.TokenNamereturn);
 		final Expression expression = node.getExpression();
 		if (expression != null) {
-			this.scribe.space();
+			switch(expression.getNodeType()) {
+				case ASTNode.CAST_EXPRESSION :
+				case ASTNode.STRING_LITERAL :
+				case ASTNode.PREFIX_EXPRESSION :
+				case ASTNode.PARENTHESIZED_EXPRESSION :
+					if (this.preferences.insert_space_before_expression_in_return) {
+						this.scribe.space();
+					}
+					break;
+				default:
+					this.scribe.space();
+			}
 			expression.accept(this);
 		}
 		this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
