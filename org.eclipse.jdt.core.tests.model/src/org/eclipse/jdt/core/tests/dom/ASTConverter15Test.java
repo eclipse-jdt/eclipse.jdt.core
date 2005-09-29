@@ -6087,4 +6087,45 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	checkSourceRange(parameter, "final byte bs[]", source);
     	assertTrue("not a primitive type", type.isPrimitiveType());
     }
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
+	 */
+	public void test0202() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String source = "public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        byte[] b1 = new byte[0];\n" +
+			"        byte[] b2 = new byte[0];\n" +
+			"        for (@Ann final byte bs[] : new byte[][] { b1, b2 }) {\n" +
+			"			System.out.println(bs);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"@interface Ann {}";
+		ASTNode node = buildAST(
+			source,
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0, 2);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
+    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
+    	final SingleVariableDeclaration parameter = forStatement.getParameter();
+    	final Type type = parameter.getType();
+    	assertEquals("Wrong extended dimension", 1, parameter.getExtraDimensions());
+    	checkSourceRange(type, "byte", source);
+    	checkSourceRange(parameter, "@Ann final byte bs[]", source);
+    	assertTrue("not a primitive type", type.isPrimitiveType());
+    	List modifiers = parameter.modifiers();
+    	assertEquals("Wrong size", 2, modifiers.size());
+    	final ASTNode modifier1 = ((ASTNode) modifiers.get(0));
+		assertEquals("Not an annotation", ASTNode.MARKER_ANNOTATION, modifier1.getNodeType());
+    	final ASTNode modifier2 = ((ASTNode) modifiers.get(1));
+		assertEquals("Not a modifier", ASTNode.MODIFIER, modifier2.getNodeType());
+		checkSourceRange(modifier1, "@Ann", source);
+		checkSourceRange(modifier2, "final", source);
+    }
 }
