@@ -665,9 +665,6 @@ private void buildMoreCompletionContext(Expression expression) {
 							case NOT_EQUAL :
 								operatorExpression = new EqualExpression(left, expression, info);
 								break;
-							case INSTANCEOF :
-								// should never occur
-								break;
 							default :
 								operatorExpression = new BinaryExpression(left, expression, info);
 								break;
@@ -1946,8 +1943,8 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	
 	pushOnElementStack(K_CAST_STATEMENT);
 }
-protected void consumeInstanceOfExpression(int op) {
-	super.consumeInstanceOfExpression(op);
+protected void consumeInstanceOfExpression() {
+	super.consumeInstanceOfExpression();
 	popElement(K_BINARY_OPERATOR);
 	
 	InstanceOfExpression exp = (InstanceOfExpression) expressionStack[expressionPtr];
@@ -1955,8 +1952,8 @@ protected void consumeInstanceOfExpression(int op) {
 		assistNodeParent = exp;
 	}
 }
-protected void consumeInstanceOfExpressionWithName(int op) {
-	super.consumeInstanceOfExpressionWithName(op);
+protected void consumeInstanceOfExpressionWithName() {
+	super.consumeInstanceOfExpressionWithName();
 	popElement(K_BINARY_OPERATOR);
 	
 	InstanceOfExpression exp = (InstanceOfExpression) expressionStack[expressionPtr];

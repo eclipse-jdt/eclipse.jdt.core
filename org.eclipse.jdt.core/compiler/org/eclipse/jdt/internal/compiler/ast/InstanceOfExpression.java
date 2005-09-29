@@ -22,12 +22,11 @@ public class InstanceOfExpression extends OperatorExpression {
 
 	public InstanceOfExpression(
 		Expression expression,
-		TypeReference type,
-		int operator) {
+		TypeReference type) {
 
 		this.expression = expression;
 		this.type = type;
-		this.bits |= operator << OperatorSHIFT;
+		this.bits |= INSTANCEOF << OperatorSHIFT;
 		this.sourceStart = expression.sourceStart;
 		this.sourceEnd = type.sourceEnd;
 	}

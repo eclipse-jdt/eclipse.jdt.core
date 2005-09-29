@@ -3316,7 +3316,7 @@ protected void consumeInsideCastExpressionLL1() {
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	// InsideCastExpressionWithQualifiedGenerics ::= $empty
 }
-protected void consumeInstanceOfExpression(int op) {
+protected void consumeInstanceOfExpression() {
 	// RelationalExpression ::= RelationalExpression 'instanceof' ReferenceType
 	//optimize the push/pop
 
@@ -3325,18 +3325,14 @@ protected void consumeInstanceOfExpression(int op) {
 	this.expressionStack[this.expressionPtr] = exp =
 		new InstanceOfExpression(
 			this.expressionStack[this.expressionPtr],
-			getTypeReference(this.intStack[this.intPtr--]),
-			op);
+			getTypeReference(this.intStack[this.intPtr--]));
 	if (exp.sourceEnd == 0) {
 		//array on base type....
 		exp.sourceEnd = this.scanner.startPosition - 1;
 	}
 	//the scanner is on the next token already....
 }
-/**
- * @param op
- */
-protected void consumeInstanceOfExpressionWithName(int op) {
+protected void consumeInstanceOfExpressionWithName() {
 	// RelationalExpression_NotName ::= Name instanceof ReferenceType
 	//optimize the push/pop
 
@@ -3347,8 +3343,7 @@ protected void consumeInstanceOfExpressionWithName(int op) {
 	this.expressionStack[this.expressionPtr] = exp =
 		new InstanceOfExpression(
 			this.expressionStack[this.expressionPtr],
-			reference,
-			op);
+			reference);
 	if (exp.sourceEnd == 0) {
 		//array on base type....
 		exp.sourceEnd = this.scanner.startPosition - 1;
@@ -5458,7 +5453,7 @@ protected void consumeRule(int act) {
 			break;
  
     case 424 : if (DEBUG) { System.out.println("InstanceofExpression ::= InstanceofExpression instanceof"); }  //$NON-NLS-1$
-		    consumeInstanceOfExpression(OperatorIds.INSTANCEOF);  
+		    consumeInstanceOfExpression();  
 			break;
  
     case 426 : if (DEBUG) { System.out.println("EqualityExpression ::= EqualityExpression EQUAL_EQUAL..."); }  //$NON-NLS-1$
@@ -5982,11 +5977,11 @@ protected void consumeRule(int act) {
 			break;
  
     case 617 : if (DEBUG) { System.out.println("InstanceofExpression_NotName ::= Name instanceof..."); }  //$NON-NLS-1$
-		    consumeInstanceOfExpressionWithName(OperatorIds.INSTANCEOF);  
+		    consumeInstanceOfExpressionWithName();  
 			break;
  
     case 618 : if (DEBUG) { System.out.println("InstanceofExpression_NotName ::=..."); }  //$NON-NLS-1$
-		    consumeInstanceOfExpression(OperatorIds.INSTANCEOF);  
+		    consumeInstanceOfExpression();  
 			break;
  
     case 620 : if (DEBUG) { System.out.println("EqualityExpression_NotName ::=..."); }  //$NON-NLS-1$

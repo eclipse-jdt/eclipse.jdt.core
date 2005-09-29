@@ -532,9 +532,9 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		listLength++;
 	} 	
 }
-protected void consumeInstanceOfExpression(int op) {
+protected void consumeInstanceOfExpression() {
 	if (indexOfAssistIdentifier() < 0) {
-		super.consumeInstanceOfExpression(op);
+		super.consumeInstanceOfExpression();
 	} else {
 		getTypeReference(intStack[intPtr--]);
 		this.isOrphanCompletionNode = true;
@@ -542,9 +542,9 @@ protected void consumeInstanceOfExpression(int op) {
 		this.lastIgnoredToken = -1;
 	}
 }
-protected void consumeInstanceOfExpressionWithName(int op) {
+protected void consumeInstanceOfExpressionWithName() {
 	if (indexOfAssistIdentifier() < 0) {
-		super.consumeInstanceOfExpressionWithName(op);
+		super.consumeInstanceOfExpressionWithName();
 	} else {
 		getTypeReference(intStack[intPtr--]);
 		this.isOrphanCompletionNode = true;
