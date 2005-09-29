@@ -64,11 +64,9 @@ public class ForeachStatement extends Statement {
 	
 	public ForeachStatement(
 		LocalDeclaration elementVariable,
-		Expression collection,
 		int start) {
 
 		this.elementVariable = elementVariable;
-		this.collection = collection;
 		this.sourceStart = start;
 		this.kind = -1;
 	}

@@ -46,7 +46,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	static {
-//		TESTS_NUMBERS = new int[] { 198 };
+//		TESTS_NUMBERS = new int[] { 199, 200, 201 };
 //		TESTS_NAMES = new String[] {"test0189"};
 	}
 	public static Test suite() {
@@ -5990,5 +5990,101 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	ITypeBinding typeBinding3 = typeBinding.getTypeDeclaration();
     	assertFalse("Binding should not be equals", typeBinding.isEqualTo(typeBinding3));
     	assertFalse("Binding should not be equals", typeBinding3.isEqualTo(typeBinding));
+    }
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
+	 */
+	public void test0199() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String source = "public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        byte[] b1 = new byte[0];\n" +
+			"        byte[] b2 = new byte[0];\n" +
+			"        for (byte[] bs : new byte[][] { b1, b2 }) {\n" +
+			"			System.out.println(bs);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}";
+		ASTNode node = buildAST(
+			source,
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0, 2);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
+    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
+    	final SingleVariableDeclaration parameter = forStatement.getParameter();
+    	final Type type = parameter.getType();
+    	checkSourceRange(type, "byte[]", source);
+    	checkSourceRange(parameter, "byte[] bs", source);
+    	assertTrue("not an array type", type.isArrayType());
+    	ArrayType arrayType = (ArrayType) type;
+    	Type elementType = arrayType.getElementType();
+    	assertTrue("not a primitive type", elementType.isPrimitiveType());
+    	checkSourceRange(elementType, "byte", source);
+    }
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
+	 */
+	public void test0200() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String source = "public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        byte[] b1 = new byte[0];\n" +
+			"        byte[] b2 = new byte[0];\n" +
+			"        for (final byte[] bs : new byte[][] { b1, b2 }) {\n" +
+			"			System.out.println(bs);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}";
+		ASTNode node = buildAST(
+			source,
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0, 2);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
+    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
+    	final SingleVariableDeclaration parameter = forStatement.getParameter();
+    	final Type type = parameter.getType();
+    	checkSourceRange(type, "byte[]", source);
+    	checkSourceRange(parameter, "final byte[] bs", source);
+    }
+	
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=110657
+	 */
+	public void test0201() throws CoreException {
+	   	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		final String source = "public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        byte[] b1 = new byte[0];\n" +
+			"        byte[] b2 = new byte[0];\n" +
+			"        for (final byte bs[] : new byte[][] { b1, b2 }) {\n" +
+			"			System.out.println(bs);\n" +
+			"        }\n" +
+			"    }\n" +
+			"}";
+		ASTNode node = buildAST(
+			source,
+			this.workingCopy,
+			false);
+    	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+    	CompilationUnit compilationUnit = (CompilationUnit) node;
+    	assertProblemsSize(compilationUnit, 0);
+    	node = getASTNode(compilationUnit, 0, 0, 2);
+    	assertEquals("Not an enhanced for statement", ASTNode.ENHANCED_FOR_STATEMENT, node.getNodeType());
+    	EnhancedForStatement forStatement = (EnhancedForStatement) node;
+    	final SingleVariableDeclaration parameter = forStatement.getParameter();
+    	final Type type = parameter.getType();
+    	assertEquals("Wrong extended dimension", 1, parameter.getExtraDimensions());
+    	checkSourceRange(type, "byte", source);
+    	checkSourceRange(parameter, "final byte bs[]", source);
+    	assertTrue("not a primitive type", type.isPrimitiveType());
     }
 }
