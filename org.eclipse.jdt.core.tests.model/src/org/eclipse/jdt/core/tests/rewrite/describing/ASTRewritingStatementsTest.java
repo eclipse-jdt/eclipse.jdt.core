@@ -2542,6 +2542,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("        return 1;\n");
 		buf.append("        return 1 + 2;\n");
 		buf.append("        return(1 + 2);\n");
+		buf.append("        return/*com*/ 1;\n");
 		buf.append("    }\n");
 		buf.append("}\n");	
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
@@ -2556,7 +2557,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
 		Block block= methodDecl.getBody();
 		List statements= block.statements();
-		assertTrue("Number of statements not 5", statements.size() == 5);
+		assertTrue("Number of statements not 6", statements.size() == 6);
 		{ // insert expression
 			ReturnStatement statement= (ReturnStatement) statements.get(0);
 			assertTrue("Has expression", statement.getExpression() == null);
@@ -2593,6 +2594,12 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			
 			Expression expression= statement.getExpression();
 			rewrite.replace(expression, ast.newNumberLiteral("9"), null);
+		}
+		{ // replace expression with comment (additional space needed)
+			ReturnStatement statement= (ReturnStatement) statements.get(5);
+			
+			Expression expression= statement.getExpression();
+			rewrite.replace(expression, ast.newNumberLiteral("9"), null);
 		}		
 		
 				
@@ -2607,6 +2614,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("        return;\n");
 		buf.append("        return 9 + 2;\n");
 		buf.append("        return 9;\n");	
+		buf.append("        return 9;\n");
 		buf.append("    }\n");
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());
@@ -2620,6 +2628,10 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
 		buf.append("        assert(true);\n");
+		buf.append("        assert/* comment*/true;\n");
+		buf.append("        assert(true);\n");
+		buf.append("        assert(true) : \"Hello\";\n");
+		buf.append("        assert(true) : \"Hello\";\n");
 		buf.append("    }\n");
 		buf.append("}\n");	
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
@@ -2634,13 +2646,36 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
 		Block block= methodDecl.getBody();
 		List statements= block.statements();
-		assertTrue("Number of statements not 1", statements.size() == 1);
-		{ // insert expression
+		assertTrue("Number of statements not 5", statements.size() == 5);
+		{ // replace expression
 			AssertStatement statement= (AssertStatement) statements.get(0);
 			
 			SimpleName newExpression= ast.newSimpleName("x");	
 			rewrite.set(statement, AssertStatement.EXPRESSION_PROPERTY, newExpression, null);
-		}		
+		}
+		{ // replace expression
+			AssertStatement statement= (AssertStatement) statements.get(1);
+			
+			SimpleName newExpression= ast.newSimpleName("x");	
+			rewrite.set(statement, AssertStatement.EXPRESSION_PROPERTY, newExpression, null);
+		}
+		{ // insert message
+			AssertStatement statement= (AssertStatement) statements.get(2);
+			
+			SimpleName newExpression= ast.newSimpleName("x");	
+			rewrite.set(statement, AssertStatement.MESSAGE_PROPERTY, newExpression, null);
+		}
+		{ // replace message
+			AssertStatement statement= (AssertStatement) statements.get(3);
+			
+			SimpleName newExpression= ast.newSimpleName("x");	
+			rewrite.set(statement, AssertStatement.MESSAGE_PROPERTY, newExpression, null);
+		}
+		{ // remove message
+			AssertStatement statement= (AssertStatement) statements.get(4);
+			
+			rewrite.set(statement, AssertStatement.MESSAGE_PROPERTY, null, null);
+		}	
 				
 		String preview= evaluateRewrite(cu, rewrite);
 		
@@ -2649,6 +2684,10 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
 		buf.append("        assert x;\n");
+		buf.append("        assert x;\n");
+		buf.append("        assert(true) : x;\n");
+		buf.append("        assert(true) : x;\n");
+		buf.append("        assert(true);\n");
 		buf.append("    }\n");
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());

@@ -1520,7 +1520,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			
 			// bug 103970
 			if (getChangeKind(node, ReturnStatement.EXPRESSION_PROPERTY) == RewriteEvent.REPLACED) {
-				if (offset == ((ASTNode) getOriginalValue(node, ReturnStatement.EXPRESSION_PROPERTY)).getStartPosition()) {
+				if (offset == getExtendedOffset((ASTNode) getOriginalValue(node, ReturnStatement.EXPRESSION_PROPERTY))) {
 					doTextInsert(offset, String.valueOf(' '), getEditGroup(node, ReturnStatement.EXPRESSION_PROPERTY));
 				}
 			}
@@ -1712,7 +1712,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			if (getChangeKind(node, AssertStatement.EXPRESSION_PROPERTY) == RewriteEvent.REPLACED) {
 				int offset= getScanner().getNextEndOffset(node.getStartPosition(), true); // assert
 				
-				if (offset == ((ASTNode) getOriginalValue(node, AssertStatement.EXPRESSION_PROPERTY)).getStartPosition()) {
+				if (offset == getExtendedOffset((ASTNode) getOriginalValue(node, AssertStatement.EXPRESSION_PROPERTY))) {
 					doTextInsert(offset, String.valueOf(' '), getEditGroup(node, AssertStatement.EXPRESSION_PROPERTY));
 				}
 			}
