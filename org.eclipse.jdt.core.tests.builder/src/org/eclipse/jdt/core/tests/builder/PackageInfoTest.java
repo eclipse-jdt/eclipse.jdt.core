@@ -77,7 +77,7 @@ public void test001() throws JavaModelException {
     writer.close();
     final String expectedOutput =
         "Syntax error on token \"p1\", ; expected after this token\n" + 
-    	"The declared package does not match the expected package pack"; 
+    	"The declared package \"p1\" does not match the expected package \"pack\""; 
     assertSourceEquals("Different messages", expectedOutput, stringWriter.toString());
 }
 public void test002() throws JavaModelException {
