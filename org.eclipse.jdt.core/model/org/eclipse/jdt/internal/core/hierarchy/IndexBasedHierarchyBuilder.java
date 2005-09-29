@@ -43,10 +43,6 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements Suff
 	 * the region).
 	 */
 	protected Map cuToHandle;
-	/**
-	 * A map from compilation unit handles to working copies.
-	 */
-	protected Map handleToWorkingCopy;
 
 	/**
 	 * The scope this hierarchy builder should restrain results to.
