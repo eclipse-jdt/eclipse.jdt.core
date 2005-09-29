@@ -51,7 +51,7 @@ public void bufferChanged(BufferChangedEvent event) {
 		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().remove(this);
 		getBufferManager().removeBuffer(event.getBuffer());
 	} else {
-		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().put(this, this);
+		JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().add(this);
 	}
 }	
 /**

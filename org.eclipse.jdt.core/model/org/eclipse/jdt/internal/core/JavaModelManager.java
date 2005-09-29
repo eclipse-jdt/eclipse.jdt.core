@@ -664,7 +664,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/**
 	 * Set of elements which are out of sync with their buffers.
 	 */
-	protected Map elementsOutOfSynchWithBuffers = new HashMap(11);
+	protected HashSet elementsOutOfSynchWithBuffers = new HashSet(11);
 	
 	/**
 	 * Holds the state used for delta processing.
@@ -1055,7 +1055,7 @@ public class JavaModelManager implements ISaveParticipant {
 	/** 
 	 * Returns the set of elements which are out of synch with their buffers.
 	 */
-	protected Map getElementsOutOfSynchWithBuffers() {
+	protected HashSet getElementsOutOfSynchWithBuffers() {
 		return this.elementsOutOfSynchWithBuffers;
 	}
 
