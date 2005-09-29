@@ -38,10 +38,10 @@ import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 class JavaProjectElementInfo extends OpenableElementInfo {
 
 	static class ProjectCache {
-		ProjectCache(IPackageFragmentRoot[] allPkgFragmentRootsCache, HashtableOfArrayToObject allPkgFragmentsCache, Map pathToResolvedEntries) {
+		ProjectCache(IPackageFragmentRoot[] allPkgFragmentRootsCache, HashtableOfArrayToObject allPkgFragmentsCache, Map rootToResolvedEntries) {
 			this.allPkgFragmentRootsCache = allPkgFragmentRootsCache;
 			this.allPkgFragmentsCache = allPkgFragmentsCache;
-			this.pathToResolvedEntries = pathToResolvedEntries;
+			this.rootToResolvedEntries = rootToResolvedEntries;
 		}
 		
 		/*
@@ -55,7 +55,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 		 */
 		public HashtableOfArrayToObject allPkgFragmentsCache;
 	
-		public Map pathToResolvedEntries;		
+		public Map rootToResolvedEntries;		
 	}
 	
 	/**
@@ -258,7 +258,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 */
 	NameLookup newNameLookup(JavaProject project, ICompilationUnit[] workingCopies) {
 		ProjectCache cache = getProjectCache(project);
-		return new NameLookup(cache.allPkgFragmentRootsCache, cache.allPkgFragmentsCache, workingCopies, cache.pathToResolvedEntries);
+		return new NameLookup(cache.allPkgFragmentRootsCache, cache.allPkgFragmentsCache, workingCopies, cache.rootToResolvedEntries);
 	}
 	
 	/*
