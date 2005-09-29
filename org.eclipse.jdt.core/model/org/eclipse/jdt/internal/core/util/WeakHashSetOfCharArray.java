@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.internal.compiler.util;
+package org.eclipse.jdt.internal.core.util;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 
