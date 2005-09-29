@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
  */
 public class WeakHashSetOfCharArray {
 	
-	public class HashableWeakReference extends WeakReference {
+	public static class HashableWeakReference extends WeakReference {
 		public int hashCode;
 		public HashableWeakReference(char[] referent, ReferenceQueue queue) {
 			super(referent, queue);

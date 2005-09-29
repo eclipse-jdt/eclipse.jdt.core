@@ -17,7 +17,7 @@ import java.lang.ref.WeakReference;
  */
 public class WeakHashSet {
 	
-	public class HashableWeakReference extends WeakReference {
+	public static class HashableWeakReference extends WeakReference {
 		public int hashCode;
 		public HashableWeakReference(Object referent, ReferenceQueue queue) {
 			super(referent, queue);
