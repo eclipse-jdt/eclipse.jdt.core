@@ -382,25 +382,3 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 }
 }
 
-class ImportMatchLocatorParser extends MatchLocatorParser {
-
-protected ImportMatchLocatorParser(ProblemReporter problemReporter, MatchLocator locator) {
-	super(problemReporter, locator);
-}
-protected void consumeStaticImportOnDemandDeclarationName() {
-	super.consumeStaticImportOnDemandDeclarationName();
-	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
-}
-protected void consumeSingleStaticImportDeclarationName() {
-	super.consumeSingleStaticImportDeclarationName();
-	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
-}
-protected void consumeSingleTypeImportDeclarationName() {
-	super.consumeSingleTypeImportDeclarationName();
-	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
-}
-protected void consumeTypeImportOnDemandDeclarationName() {
-	super.consumeTypeImportOnDemandDeclarationName();
-	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
-}
-}
