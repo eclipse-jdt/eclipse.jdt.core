@@ -25750,5 +25750,26 @@ public void test832() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111014
+public void test833() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"class A<T1> {}\n",
+			"B.java",
+			"class B<T2> extends A<B<T2>.Inner> { class Inner {} }\n",
+			"C.java",
+			"class C { B<Integer> b; }\n",
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"C.java",
+			"class C { B<Integer> b; }\n",
+		},
+		"",
+		null,
+		false,
+		null);
 }
-
+}
