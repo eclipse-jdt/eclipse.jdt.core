@@ -161,7 +161,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 					}
 					return buffer.toString();
 				}
-			};
+			}
 			Requestor requestor = new Requestor();
 			ICompilationUnit[] dummyWorkingCopies = null;
 			try {
