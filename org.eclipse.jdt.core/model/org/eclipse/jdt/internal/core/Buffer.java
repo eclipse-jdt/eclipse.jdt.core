@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -334,6 +335,10 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 		
 	// use a platform operation to update the resource contents
 	try {
+		String stringContents = this.getContents();
+		if (stringContents == null) return;
+
+		// Get encoding
 		String encoding = null;
 		try {
 			encoding = this.file.getCharset();
@@ -341,13 +346,27 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 		catch (CoreException ce) {
 			// use no encoding
 		}
-		String stringContents = this.getContents();
-		if (stringContents == null) return;
+		
+		// Create bytes array
 		byte[] bytes = encoding == null 
 			? stringContents.getBytes() 
 			: stringContents.getBytes(encoding);
-		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 
+		// Special case for UTF-8 BOM files
+		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=110576
+		if (encoding.equals(org.eclipse.jdt.internal.compiler.util.Util.UTF_8)) {
+			IContentDescription description = this.file.getContentDescription();
+			if (description != null && description.getProperty(IContentDescription.BYTE_ORDER_MARK) != null) {
+				int bomLength= IContentDescription.BOM_UTF_8.length;
+				byte[] bytesWithBOM= new byte[bytes.length + bomLength];
+				System.arraycopy(IContentDescription.BOM_UTF_8, 0, bytesWithBOM, 0, bomLength);
+				System.arraycopy(bytes, 0, bytesWithBOM, bomLength, bytes.length);
+				bytes= bytesWithBOM;
+			}
+		}
+		
+		// Set file contents
+		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
 		if (this.file.exists()) {
 			this.file.setContents(
 				stream, 

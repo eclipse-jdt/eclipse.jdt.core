@@ -2113,7 +2113,7 @@ public class JavaProject
 		if (rscFile.exists()) {
 			byte[] bytes = Util.getResourceContentsAsByteArray(rscFile);
 			try {
-				property = new String(bytes, "UTF-8"); //$NON-NLS-1$ // .classpath always encoded with UTF-8
+				property = new String(bytes, org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
 			} catch (UnsupportedEncodingException e) {
 				Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
 				// fallback to default
@@ -2132,7 +2132,7 @@ public class JavaProject
 					return null;
 				}
 				try {
-					property = new String(bytes, "UTF-8"); //$NON-NLS-1$ // .classpath always encoded with UTF-8
+					property = new String(bytes, org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
 				} catch (UnsupportedEncodingException e) {
 					Util.log(e, "Could not read .classpath with UTF-8 encoding"); //$NON-NLS-1$
 					// fallback to default
@@ -2888,7 +2888,7 @@ public class JavaProject
 		IFile rscFile = this.project.getFile(key);
 		byte[] bytes = null;
 		try {
-			bytes = value.getBytes("UTF-8"); //$NON-NLS-1$ // .classpath always encoded with UTF-8
+			bytes = value.getBytes(org.eclipse.jdt.internal.compiler.util.Util.UTF_8); // .classpath always encoded with UTF-8
 		} catch (UnsupportedEncodingException e) {
 			Util.log(e, "Could not write .classpath with UTF-8 encoding "); //$NON-NLS-1$
 			// fallback to default

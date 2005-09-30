@@ -28,6 +28,7 @@ public class Util implements SuffixConstants {
 	}
 
 	private static final int DEFAULT_READING_SIZE = 8192;
+	public final static String UTF_8 = "UTF-8";	//$NON-NLS-1$
 	public static String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 	
 	/**
@@ -219,7 +220,7 @@ public class Util implements SuffixConstants {
 
 			// Do not keep first character for UTF-8 BOM encoding
 			int start = 0;
-			if (contentsLength > 0 && "UTF-8".equals(encoding)) { //$NON-NLS-1$
+			if (contentsLength > 0 && UTF_8.equals(encoding)) {
 				if (contents[0] == 0xFEFF) { // if BOM char then skip
 					contentsLength--;
 					start = 1;
@@ -246,7 +247,7 @@ public class Util implements SuffixConstants {
 			}
 			// Do not keep first character for UTF-8 BOM encoding
 			int start = 0;
-			if (length > 0 && "UTF-8".equals(encoding)) { //$NON-NLS-1$
+			if (length > 0 && UTF_8.equals(encoding)) {
 				if (contents[0] == 0xFEFF) { // if BOM char then skip
 					len--;
 					start = 1;

@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IOpenable;
@@ -56,11 +57,8 @@ public class EncodingTests extends ModifyingResourceTests {
 	// Use this static initializer to specify subset for tests
 	// All specified tests which do not belong to the class are skipped...
 	static {
-		// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testBug66898" };
-		// Numbers of tests to run: "test<number>" will be run for each number of this array
+//		TESTS_NAMES = new String[] { "testBug110576" };
 //		TESTS_NUMBERS = new int[] { 2, 12 };
-		// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
 //		TESTS_RANGE = new int[] { 16, -1 };
 	}
 
@@ -96,6 +94,10 @@ public class EncodingTests extends ModifyingResourceTests {
 	}
 
 	void compareContents(ICompilationUnit cu, String encoding) throws JavaModelException {
+		compareContents(cu, encoding, false);
+	}
+
+	void compareContents(ICompilationUnit cu, String encoding, boolean bom) throws JavaModelException {
 		// Compare source strings
 		String source = cu.getSource();
 		String systemSourceRenamed = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(source);
@@ -112,14 +114,15 @@ public class EncodingTests extends ModifyingResourceTests {
 		}
 		assertNotNull("Unsupported encoding: "+encoding, renamedSourceBytes);
 		byte[] renamedEncodedBytes = Util.getResourceContentsAsByteArray(file);
-		assertEquals("Wrong size of encoded string", renamedEncodedBytes.length, renamedSourceBytes.length);
+		int start = bom ? IContentDescription.BOM_UTF_8.length : 0;
+		assertEquals("Wrong size of encoded string", renamedEncodedBytes.length-start, renamedSourceBytes.length);
 		for (int i = 0, max = renamedSourceBytes.length; i < max; i++) {
-			assertTrue("Wrong size of encoded character at " + i, renamedSourceBytes[i] == renamedEncodedBytes[i]);
+			assertTrue("Wrong size of encoded character at " + i, renamedSourceBytes[i] == renamedEncodedBytes[i+start]);
 		}
 	}
 
 	public boolean convertToIndependantLineDelimiter(File file) {
-		return false; // don't convert to indenpendant line delimiter as this make tests fail on linux
+		return false; // don't convert to independant line delimiter as this make tests fail on linux
 	}
 	/**
 	 * Check that the compilation unit is saved with the proper encoding.
@@ -670,8 +673,8 @@ public class EncodingTests extends ModifyingResourceTests {
 	}
 
 	/**
-	 * Test fix for bug 66898: refactor-rename: encoding is not preserved
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66898">66898</a>
+	 * Bug 66898: refactor-rename: encoding is not preserved
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=66898"
 	 */
 	public void testBug66898() throws JavaModelException, CoreException {
 
@@ -779,8 +782,8 @@ public class EncodingTests extends ModifyingResourceTests {
 	}	
 
 	/**
-	 * Test case for bug 70598: [Encoding] ArrayIndexOutOfBoundsException while testing BOM on *.txt files
-	 * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=70598)
+	 * Bug 70598: [Encoding] ArrayIndexOutOfBoundsException while testing BOM on *.txt files
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=70598"
 	 */
 	public void testBug70598() throws JavaModelException, CoreException, IOException {
 
@@ -798,5 +801,73 @@ public class EncodingTests extends ModifyingResourceTests {
 		
 		// Delete empty file
 		deleteFile(file);
+	}	
+
+	/**
+	 * Bug 110576: [encoding] Rename CU looses encoding for file which charset is determined by contents
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=110576"
+	 */
+	public void testBug110576() throws JavaModelException, CoreException {
+
+		String os = System.getProperty("osgi.os");
+		if (!"win32".equals(os)) {
+			System.out.println("Bug 110576 is not tested under "+os+" os...");
+			return;
+		}
+
+		// Verify file UTF-8 BOM encoding
+		IFile file = (IFile) this.encodingProject.findMember("src/testBug110576/Test.java");
+		verifyUtf8BOM(file);
+
+		String fileName = file.getName();
+		ICompilationUnit testCU = getCompilationUnit(file.getFullPath().toString());
+		createFolder("/Encoding/src/tmp");
+		IPackageFragment tmpPackage = getPackageFragment("Encoding", "src", "tmp");
+		
+		try {
+			// Copy file
+			testCU.copy(tmpPackage, null, null, false, null);
+			ICompilationUnit copiedCU = tmpPackage.getCompilationUnit(fileName);
+			IFile copiedFile = (IFile) copiedCU.getUnderlyingResource();
+			verifyUtf8BOM(copiedFile);
+	
+			// Get source and compare with file contents
+			compareContents(copiedCU, "UTF-8", true/*BOM*/);
+
+			// Rename file
+			copiedCU.rename("TestUTF8.java", false, null);
+			ICompilationUnit renamedCU = tmpPackage.getCompilationUnit("TestUTF8.java");
+			IFile renamedFile = (IFile) renamedCU.getUnderlyingResource();
+			verifyUtf8BOM(renamedFile);
+			fileName = renamedFile.getName();
+			
+			// Compare contents again
+			compareContents(renamedCU, "UTF-8", true/*BOM*/);
+
+			// Move file
+			createFolder("/Encoding/src/tmp/sub");
+			IPackageFragment subPackage = getPackageFragment("Encoding", "src", "tmp.sub");
+			renamedCU.move(subPackage, null, null, false, null);
+			ICompilationUnit movedCU = subPackage.getCompilationUnit(fileName);
+			IFile movedFile = (IFile) movedCU.getUnderlyingResource();
+			verifyUtf8BOM(movedFile);
+	
+			// Get source and compare with file contents
+			compareContents(movedCU, "UTF-8", true/*BOM*/);
+		}
+		finally {
+			// Delete temporary folder
+			//renamedFile.move(this.utf8File.getFullPath(), false, null);
+			//assertEquals("Moved file should keep encoding", encoding, this.utf8File.getCharset());
+			deleteFolder("/Encoding/src/tmp");
+		}
+	}
+
+	private void verifyUtf8BOM(IFile file) throws CoreException {
+		assertNull("File should not have any explicit charset", file.getCharset(false));
+		IContentDescription contentDescription = file.getContentDescription();
+		assertNotNull("File should have a content description", contentDescription);
+		assertEquals("Content description charset should be UTF-8", "UTF-8", contentDescription.getCharset());
+		assertNotNull("File should be UTF-8 BOM!", contentDescription.getProperty(IContentDescription.BYTE_ORDER_MARK));
 	}	
 }
