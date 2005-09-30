@@ -6617,12 +6617,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                           ^^^^\n" + 
 			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
-			"18. WARNING in X.java (at line 11)\n" + 
-			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
-			"	                                    ^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from List to Collection<?>\n" + 
-			"----------\n" + 
-			"19. ERROR in X.java (at line 11)\n" + 
+			"18. ERROR in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
 			"	                                    ^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Collection<capture-of ?> to List\n" + 
@@ -7020,7 +7015,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
 			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from Class to Class<? extends Object>\n" + 
+			"Unnecessary cast from Class to Class<capture-of ? extends Object>\n" + 
 			"----------\n");
 	}		
 	public void test243() {
@@ -7389,20 +7384,15 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	                 ^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The cast from List<capture-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 11)\n" + 
-			"	List<Number> ls2 = (List<? extends Number>)ls;\n" + 
-			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from List<capture-of ? extends Number> to List<? extends Number>\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 11)\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
 			"	List<Number> ls2 = (List<? extends Number>)ls;\n" + 
 			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from List<capture-of ? extends Number> to List<Number>\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 12)\n" + 
+			"3. WARNING in X.java (at line 12)\n" + 
 			"	List<? extends Number> ls3 = (List<? extends Number>) li;\n" + 
 			"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from List<Integer> to List<? extends Number>\n" + 
+			"Unnecessary cast from List<Integer> to List<capture-of ? extends Number>\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70053 missing checkcast in string concatenation
@@ -16733,7 +16723,7 @@ public void test500(){
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	Object o2 = (X<? extends Object>) xs;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from X<String> to X<? extends Object>\n" + 
+			"Unnecessary cast from X<String> to X<capture-of ? extends Object>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	Object o3 = (X2) xo;\n" + 
@@ -16748,7 +16738,7 @@ public void test500(){
 			"6. WARNING in X.java (at line 11)\n" + 
 			"	Object o4 = (X<? extends Object>) x2;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from X2 to X<? extends Object>\n" + 
+			"Unnecessary cast from X2 to X<capture-of ? extends Object>\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 12)\n" + 
 			"	Object o5 = (X3<String>) xo;\n" + 
@@ -18181,17 +18171,12 @@ public void test500(){
 				"abstract class Values<T> {\n" + 
 				"}\n",
             },
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	box.getValues()[1] = (Values<? extends U>) box.getValues()[2];\n" + 
-			"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from Values<capture-of ? extends U> to Values<? extends U>\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	box.getValues()[1] = (Values<? extends U>) box.getValues()[2];\n" + 
-			"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
-			"----------\n");
+    		"----------\n" + 
+    		"1. ERROR in X.java (at line 4)\n" + 
+    		"	box.getValues()[1] = (Values<? extends U>) box.getValues()[2];\n" + 
+    		"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Type mismatch: cannot convert from Values<capture-of ? extends U> to Values<capture-of ? extends U>\n" + 
+    		"----------\n");
 	}		
 	public void test607() {
 	    this.runNegativeTest(
@@ -25736,6 +25721,30 @@ public void test831() {
 		"Unnecessary cast from Object to List<String>\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 8)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106010
+public void test832() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class C1<T> {\n" + 
+			"	class C11 {	}\n" + 
+			"	class C12 {\n" + 
+			"		T t;\n" + 
+			"		C1<T>.C11[] m() {\n" + 
+			"			C1<T>.C11[] ts = (C1<T>.C11[]) new C1<?>.C11[5];\n" + 
+			"			return ts;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	Zork z;\n" +			
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
 		"	Zork z;\n" + 
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
