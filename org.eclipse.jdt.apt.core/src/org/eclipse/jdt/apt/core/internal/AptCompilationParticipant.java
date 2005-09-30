@@ -243,6 +243,9 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	
 	
 	public boolean doesParticipateInProject(IJavaProject project) {
+		if (!AptConfig.isEnabled(project)) {
+			return false;
+		}
 		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( project );
 		if (factories.size() == 0)
 			return false;
