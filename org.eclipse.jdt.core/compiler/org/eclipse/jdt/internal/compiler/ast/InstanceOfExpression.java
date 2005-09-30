@@ -20,12 +20,11 @@ public class InstanceOfExpression extends OperatorExpression {
 	public Expression expression;
 	public TypeReference type;
 
-	public InstanceOfExpression(
-		Expression expression,
-		TypeReference type) {
+	public InstanceOfExpression(Expression expression, TypeReference type) {
 
 		this.expression = expression;
 		this.type = type;
+		type.bits |= IgnoreRawTypeCheck; // no need to worry about raw type usage
 		this.bits |= INSTANCEOF << OperatorSHIFT;
 		this.sourceStart = expression.sourceStart;
 		this.sourceEnd = type.sourceEnd;

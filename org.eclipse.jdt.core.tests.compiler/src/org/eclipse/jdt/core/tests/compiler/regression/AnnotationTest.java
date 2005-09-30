@@ -5700,4 +5700,22 @@ public class AnnotationTest extends AbstractComparableTest {
            },
 		"");
     }        
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=111076
+    public void test178() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+    			"import java.util.*;\n" + 
+    			"public class X {\n" + 
+    			"	private void testme(boolean check) {\n" + 
+    			"		ArrayList<Integer> aList = new ArrayList<Integer>();\n" + 
+    			"		for (@SuppressWarnings(\"unusedLocal\")\n" + 
+    			"		Integer i : aList) {\n" + 
+    			"			System.out.println(\"checking\");\n" + 
+    			"		}\n" + 
+    			"	}\n" + 
+    			"}\n",
+           },
+		"");
+    }      
 }

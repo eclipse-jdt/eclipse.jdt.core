@@ -23,24 +23,24 @@ public class ReturnStatement extends Statement {
 	public boolean isAnySubRoutineEscaping = false;
 	public LocalVariableBinding saveValueVariable;
 	
-	public ReturnStatement(Expression expr, int s, int e ) {
-		sourceStart = s;
-		sourceEnd = e;
-		expression = expr ;
+	public ReturnStatement(Expression expression, int sourceStart, int sourceEnd) {
+		this.sourceStart = sourceStart;
+		this.sourceEnd = sourceEnd;
+		this.expression = expression ;
 	}
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {	// here requires to generate a sequence of finally blocks invocations depending corresponding
 		// to each of the traversed try statements, so that execution will terminate properly.
 	
 		// lookup the label, this should answer the returnContext
 	
-		if (expression != null) {
-			flowInfo = expression.analyseCode(currentScope, flowContext, flowInfo);
+		if (this.expression != null) {
+			flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
 		}
 		// compute the return sequence (running the finally blocks)
 		FlowContext traversedContext = flowContext;
 		int subIndex = 0, maxSub = 5;
 		boolean saveValueNeeded = false;
-		boolean hasValueToSave = expression != null && expression.constant == NotAConstant;
+		boolean hasValueToSave = this.expression != null && this.expression.constant == NotAConstant;
 		do {
 			SubRoutineStatement sub;
 			if ((sub = traversedContext.subRoutine()) != null) {
@@ -112,8 +112,8 @@ public class ReturnStatement extends Statement {
 		}
 		int pc = codeStream.position;
 		// generate the expression
-		if ((expression != null) && (expression.constant == NotAConstant)) {
-			expression.generateCode(currentScope, codeStream, needValue()); // no value needed if non-returning subroutine
+		if ((this.expression != null) && (this.expression.constant == NotAConstant)) {
+			this.expression.generateCode(currentScope, codeStream, needValue()); // no value needed if non-returning subroutine
 			generateStoreSaveValueIfNecessary(codeStream);
 		}
 		
@@ -132,8 +132,8 @@ public class ReturnStatement extends Statement {
 		}
 		if (saveValueVariable != null) codeStream.load(saveValueVariable);
 		
-		if ((expression != null) && (expression.constant != NotAConstant)) {
-			codeStream.generateConstant(expression.constant, expression.implicitConversion);
+		if ((this.expression != null) && (this.expression.constant != NotAConstant)) {
+			codeStream.generateConstant(this.expression.constant, this.expression.implicitConversion);
 			generateStoreSaveValueIfNecessary(codeStream);		
 		}
 		// output the suitable return bytecode or wrap the value inside a descriptor for doits
@@ -163,8 +163,8 @@ public class ReturnStatement extends Statement {
 	public StringBuffer printStatement(int tab, StringBuffer output){
 	
 		printIndent(tab, output).append("return "); //$NON-NLS-1$
-		if (expression != null )
-			expression.printExpression(0, output) ;
+		if (this.expression != null )
+			this.expression.printExpression(0, output) ;
 		return output.append(';');
 	}
 	
@@ -181,18 +181,18 @@ public class ReturnStatement extends Statement {
 		TypeBinding expressionType;
 		if (methodType == VoidBinding) {
 			// the expression should be null
-			if (expression == null)
+			if (this.expression == null)
 				return;
-			if ((expressionType = expression.resolveType(scope)) != null)
+			if ((expressionType = this.expression.resolveType(scope)) != null)
 				scope.problemReporter().attemptToReturnNonVoidExpression(this, expressionType);
 			return;
 		}
-		if (expression == null) {
+		if (this.expression == null) {
 			if (methodType != null) scope.problemReporter().shouldReturn(methodType, this);
 			return;
 		}
-		expression.setExpectedType(methodType); // needed in case of generic method invocation
-		if ((expressionType = expression.resolveType(scope)) == null) return;
+		this.expression.setExpectedType(methodType); // needed in case of generic method invocation
+		if ((expressionType = this.expression.resolveType(scope)) == null) return;
 		if (expressionType == VoidBinding) {
 			scope.problemReporter().attemptToReturnVoidValue(this);
 			return;
@@ -202,24 +202,31 @@ public class ReturnStatement extends Statement {
 	
 		if (methodType != expressionType) // must call before computeConversion() and typeMismatchError()
 			scope.compilationUnitScope().recordTypeConversion(methodType, expressionType);
-		if (expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)
+		if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)
 				|| expressionType.isCompatibleWith(methodType)) {
 
-			expression.computeConversion(scope, methodType, expressionType);
+			this.expression.computeConversion(scope, methodType, expressionType);
 			if (expressionType.needsUncheckedConversion(methodType)) {
 			    scope.problemReporter().unsafeTypeConversion(this.expression, expressionType, methodType);
 			}
+			if (this.expression instanceof CastExpression 
+					&& (this.expression.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+				CastExpression.checkNeedForAssignedCast(scope, methodType, (CastExpression) this.expression);
+			}			
 			return;
 		} else if (scope.isBoxingCompatibleWith(expressionType, methodType)) {
-			expression.computeConversion(scope, methodType, expressionType);
-			return;
+			this.expression.computeConversion(scope, methodType, expressionType);
+			if (this.expression instanceof CastExpression 
+					&& (this.expression.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+				CastExpression.checkNeedForAssignedCast(scope, methodType, (CastExpression) this.expression);
+			}			return;
 		}
-		scope.problemReporter().typeMismatchError(expressionType, methodType, expression);
+		scope.problemReporter().typeMismatchError(expressionType, methodType, this.expression);
 	}
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
-			if (expression != null)
-				expression.traverse(visitor, scope);
+			if (this.expression != null)
+				this.expression.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}

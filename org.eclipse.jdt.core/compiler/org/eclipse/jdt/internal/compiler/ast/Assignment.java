@@ -193,6 +193,10 @@ public class Assignment extends Expression {
 				|| rhsType.isCompatibleWith(lhsType)) {
 			this.expression.computeConversion(scope, lhsType, rhsType);
 			checkAssignment(scope, lhsType, rhsType);
+			if (this.expression instanceof CastExpression 
+					&& (this.expression.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+				CastExpression.checkNeedForAssignedCast(scope, lhsType, (CastExpression) this.expression);
+			}			
 			return this.resolvedType;
 		} else if (scope.isBoxingCompatibleWith(rhsType, lhsType) 
 							|| (rhsType.isBaseType()  // narrowing then boxing ?
@@ -200,6 +204,10 @@ public class Assignment extends Expression {
 									&& !lhsType.isBaseType()
 									&& this.expression.isConstantValueOfTypeAssignableToType(rhsType, scope.environment().computeBoxingType(lhsType)))) {
 			this.expression.computeConversion(scope, lhsType, rhsType);
+			if (this.expression instanceof CastExpression 
+					&& (this.expression.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+				CastExpression.checkNeedForAssignedCast(scope, lhsType, (CastExpression) this.expression);
+			}			
 			return this.resolvedType;
 		} 
 		scope.problemReporter().typeMismatchError(rhsType, lhsType, this.expression);

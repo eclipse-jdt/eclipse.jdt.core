@@ -218,13 +218,21 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 							if (initializationType.needsUncheckedConversion(fieldType)) {
 								    initializationScope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, fieldType);
-							}									
+							}
+							if (this.initialization instanceof CastExpression 
+									&& (this.initialization.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+								CastExpression.checkNeedForAssignedCast(initializationScope, fieldType, (CastExpression) this.initialization);
+							}								
 						} else if (initializationScope.isBoxingCompatibleWith(initializationType, fieldType) 
 											|| (initializationType.isBaseType()  // narrowing then boxing ?
 													&& initializationScope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
 													&& !fieldType.isBaseType()
 													&& initialization.isConstantValueOfTypeAssignableToType(initializationType, initializationScope.environment().computeBoxingType(fieldType)))) {
 							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
+							if (this.initialization instanceof CastExpression 
+									&& (this.initialization.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+								CastExpression.checkNeedForAssignedCast(initializationScope, fieldType, (CastExpression) this.initialization);
+							}							
 						} else {
 							initializationScope.problemReporter().typeMismatchError(initializationType, fieldType, this);
 						}

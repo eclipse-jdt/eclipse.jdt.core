@@ -48,10 +48,17 @@ Eclipse SDK 3.2M3 - ?th September 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Compiler diagnosis for unnecessary cast is now able to recognize situations like:
+  <ul>
+  <li> <code>List l = (ArrayList) someList; </code></li>
+  <li> <code>List foo(List someList) { return (ArrayList) someList;} </code></li>
+  </ul></li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110576">110576</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=70228">70228</a>
+new compiler warning for stuff like Object o = (Integer)(new Object())
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110576">110576</a>
 [encoding] Rename CU looses encoding for file which charset is determined by contents
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110304">110304</a>
 Formatter has no options for 'return'

@@ -3248,23 +3248,13 @@ the right of e1."
 				"class Bar extends Foo {\n" + 
 				"}\n",
 	        },
-	        "----------\n" + 
-			"1. WARNING in X.java (at line 12)\n" + 
-			"	Set<SomeEnum> set1 = EnumSet.of(SomeEnum.A);\n" + 
-			"	                     ^^^^^^^\n" + 
-			"Type safety: EnumSet is a raw type. References to generic type EnumSet<E> should be parameterized\n" + 
 			"----------\n" + 
-			"2. WARNING in X.java (at line 13)\n" + 
-			"	Set<SomeEnum> set2 = EnumSet.of(SomeEnum.foo());\n" + 
-			"	                     ^^^^^^^\n" + 
-			"Type safety: EnumSet is a raw type. References to generic type EnumSet<E> should be parameterized\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 15)\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
 			"	Foo<Bar> foo = null;\n" + 
 			"	    ^^^\n" + 
 			"Bound mismatch: The type Bar is not a valid substitute for the bounded parameter <U extends Foo<U>> of the type Foo<U>\n" + 
 			"----------\n" + 
-			"4. WARNING in X.java (at line 19)\n" + 
+			"2. WARNING in X.java (at line 19)\n" + 
 			"	class Bar extends Foo {\n" + 
 			"	                  ^^^\n" + 
 			"Type safety: Foo is a raw type. References to generic type Foo<U> should be parameterized\n" + 

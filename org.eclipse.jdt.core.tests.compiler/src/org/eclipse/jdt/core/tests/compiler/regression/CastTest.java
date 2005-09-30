@@ -1442,7 +1442,32 @@ public void test038() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
-
+//unnecessary cast warnings in assignment (Object o = (String) something).
+public void test039() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	Object fo = (String) new Object();\n" + 
+			"	void foo(ArrayList al) {\n" + 
+			"		List l = (List) al;\n" + 
+			"		Object o;\n" + 
+			"		o = (ArrayList) al;\n" + 
+			"		Object o2 = (ArrayList) al;\n" + 
+			"		o = (ArrayList) l;\n" + 
+			"		Object o3 = (ArrayList) l;\n" + 
+			"		Zork z;\n" +
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 11)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return CastTest.class;
 }

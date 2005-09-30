@@ -207,12 +207,20 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 						if (initializationType.needsUncheckedConversion(variableType)) {
 						    scope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, variableType);
 						}						
+						if (this.initialization instanceof CastExpression 
+								&& (this.initialization.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+							CastExpression.checkNeedForAssignedCast(scope, variableType, (CastExpression) this.initialization);
+						}	
 					} else if (scope.isBoxingCompatibleWith(initializationType, variableType) 
 										|| (initializationType.isBaseType()  // narrowing then boxing ?
 												&& scope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
 												&& !variableType.isBaseType()
 												&& initialization.isConstantValueOfTypeAssignableToType(initializationType, scope.environment().computeBoxingType(variableType)))) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
+						if (this.initialization instanceof CastExpression 
+								&& (this.initialization.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+							CastExpression.checkNeedForAssignedCast(scope, variableType, (CastExpression) this.initialization);
+						}	
 					} else {
 						scope.problemReporter().typeMismatchError(initializationType, variableType, this.initialization);
 					}

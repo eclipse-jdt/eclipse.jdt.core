@@ -256,6 +256,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		receiverCast = true;
 	}
 	this.actualReceiverType = receiver.resolveType(scope); 
+	boolean receiverIsType = receiver instanceof NameReference && (((NameReference) receiver).bits & Binding.TYPE) != 0;
 	if (receiverCast && this.actualReceiverType != null) {
 		 // due to change of declaring class with receiver type, only identity cast should be notified
 		if (((CastExpression)this.receiver).expression.resolvedType == this.actualReceiverType) { 
@@ -354,9 +355,13 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	if (!binding.isStatic()) {
 		// the "receiver" must not be a type, in other words, a NameReference that the TC has bound to a Type
-		if (receiver instanceof NameReference 
-				&& (((NameReference) receiver).bits & Binding.TYPE) != 0) {
+		if (receiverIsType) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
+			if (this.actualReceiverType.isRawType() 
+					&& (this.receiver.bits & IgnoreRawTypeCheck) == 0 
+					&& scope.compilerOptions().reportRawTypeReference) {
+				scope.problemReporter().rawTypeReference(this.receiver, this.actualReceiverType);
+			}
 		} else {
 			// compute generic cast if necessary
 			TypeBinding receiverErasure = this.actualReceiverType.erasure();
@@ -370,10 +375,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
-		if (!(receiver.isImplicitThis()
-				|| receiver.isSuper()
-				|| (receiver instanceof NameReference 
-					&& (((NameReference) receiver).bits & Binding.TYPE) != 0))) {
+		if (!(receiver.isImplicitThis() || receiver.isSuper() || receiverIsType)) {
 			scope.problemReporter().nonStaticAccessToStaticMethod(this, binding);
 		}
 		if (!receiver.isImplicitThis() && binding.declaringClass != actualReceiverType) {

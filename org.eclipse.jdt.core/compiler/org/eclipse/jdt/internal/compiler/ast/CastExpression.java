@@ -28,19 +28,7 @@ public class CastExpression extends Expression {
 	public CastExpression(Expression expression, Expression type) {
 		this.expression = expression;
 		this.type = type;
-
-		//due to the fact an expression may start with ( and that a cast also start with (
-		//the field is an expression....it can be a TypeReference OR a NameReference Or
-		//an expression <--this last one is invalid.......
-
-		//if (type instanceof TypeReference )
-		//	flag = IsTypeReference ;
-		//else
-		//	if (type instanceof NameReference)
-		//		flag = IsNameReference ;
-		//	else
-		//		flag = IsExpression ;
-
+		type.bits |= IgnoreRawTypeCheck; // no need to worry about raw type usage
 	}
 
 	public FlowInfo analyseCode(
@@ -53,6 +41,21 @@ public class CastExpression extends Expression {
 			.unconditionalInits();
 	}
 
+	/**
+	 * Complain if assigned expression is cast, but not actually used as such, e.g. Object o = (List) object;
+	 */
+	public static void checkNeedForAssignedCast(BlockScope scope, TypeBinding expectedType, CastExpression rhs) {
+	
+		if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
+	
+		TypeBinding castedExpressionType = rhs.expression.resolvedType;
+		if (castedExpressionType == null) return;
+		//if (castedExpressionType.id == T_null) return; // tolerate null expression cast
+		if (castedExpressionType.isCompatibleWith(expectedType)) {
+			scope.problemReporter().unnecessaryCast(rhs); 
+		}
+	}
+	
 	/**
 	 * Casting an enclosing instance will considered as useful if removing it would actually bind to a different type
 	 */
