@@ -2170,7 +2170,7 @@ public abstract class Scope
 		if (binding == null)
 			return new ProblemReferenceBinding(compoundName[0], null, NotFound);
 		if (!binding.isValidBinding())
-			return (ReferenceBinding) binding;
+			return binding;
 
 		if (!(binding instanceof PackageBinding)) return null; // compoundName does not start with a package
 
@@ -2449,7 +2449,7 @@ public abstract class Scope
 							Binding resolvedImport = unitScope.resolveSingleImport(importBinding);
 							if (resolvedImport == null) continue nextImport;
 							if (resolvedImport instanceof MethodBinding) {
-								resolvedImport = (ReferenceBinding) getType(importBinding.compoundName, importBinding.compoundName.length);
+								resolvedImport = getType(importBinding.compoundName, importBinding.compoundName.length);
 								if (!resolvedImport.isValidBinding()) continue nextImport;
 							}
 							if (resolvedImport instanceof TypeBinding) {
@@ -3039,7 +3039,7 @@ public abstract class Scope
 		for (int i = 0; i < count; i++) {
 			TypeBinding mec = commonDim == 0 ? mecs[i] : mecs[i].leafComponentType();
 			if (mec.isInterface()) {
-				otherBounds[rank++] = (ReferenceBinding)mec;
+				otherBounds[rank++] = mec;
 			}
 		}
 		TypeBinding intersectionType = environment().createWildcard(null, 0, firstBound, otherBounds, Wildcard.EXTENDS);

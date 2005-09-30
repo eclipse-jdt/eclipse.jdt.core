@@ -592,7 +592,7 @@ public class DeltaProcessor {
 					} else {
 						// java project may have been been closed or removed (look for
 						// element amongst old java project s list).
-						element =  (Openable) this.manager.getJavaModel().findJavaProject(proj);
+						element =  this.manager.getJavaModel().findJavaProject(proj);
 					}
 				}
 				break;
