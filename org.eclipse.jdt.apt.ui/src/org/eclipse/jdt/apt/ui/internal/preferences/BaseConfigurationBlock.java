@@ -12,6 +12,7 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -96,4 +97,24 @@ public abstract class BaseConfigurationBlock extends OptionsConfigurationBlock {
 	 * @param changedKey Key that changed, or null, if all changed.
 	 */	
 	protected abstract void validateSettings(Key changedKey, String oldValue, String newValue);
+
+	/**
+	 * TODO: this method is a workaround for Bugzilla 111144 and 106111.  When
+	 * 111144 is fixed, remove this method and call hasProjectSpecificOptions() 
+	 * instead.  The difference is that this one does not cause project prefs nodes
+	 * to be cached in the WorkingCopyManager.
+	 * @return true if the project has project-specific options.
+	 */
+	public boolean hasProjectSpecificOptionsNoCache(IProject project) {
+		if (project != null) {
+			IScopeContext projectContext= new ProjectScope(project);
+			Key[] allKeys= fAllKeys;
+			for (int i= 0; i < allKeys.length; i++) {
+				if (allKeys[i].getStoredValue(projectContext, null) != null) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

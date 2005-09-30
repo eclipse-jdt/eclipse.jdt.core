@@ -51,7 +51,9 @@ public abstract class BasePreferencePage extends PropertyAndPreferencePage {
 	}
 	
 	protected boolean hasProjectSpecificOptions(IProject project) {
-		return getConfigurationBlock().hasProjectSpecificOptions(project);
+		// Workaround for bug 106111 / 111144:
+		// See BaseConfigurationBlock.hasProjectSpecificOptionsNoCache() for details.
+		return getConfigurationBlock().hasProjectSpecificOptionsNoCache(project);
 	}
 	
 	/*
