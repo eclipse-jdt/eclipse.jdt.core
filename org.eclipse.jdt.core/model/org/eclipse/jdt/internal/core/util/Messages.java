@@ -313,6 +313,7 @@ public final class Messages extends NLS {
 	public static String classfileformat_exceptiontableentry;
 	public static String classfileformat_linenumbertableentry;
 	public static String classfileformat_localvariabletableentry;
+	public static String classfileformat_versionUnknown;
 
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

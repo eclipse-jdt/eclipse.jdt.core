@@ -2223,7 +2223,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  public abstract long[] longs() default {-9223372036854775808L};\n" + 
 			"  \n" + 
 			"  // Method descriptor #29 ()[Ljava/lang/String;\n" + 
-			"  public abstract String[] strings() default {\"\"};\n" + 
+			"  public abstract java.lang.String[] strings() default {\"\"};\n" + 
 			"  \n" + 
 			"  // Method descriptor #32 ()[Z\n" + 
 			"  public abstract boolean[] booleans() default {true};\n" + 
@@ -2235,7 +2235,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  public abstract double[] doubles() default {1.7976931348623157E308};\n" + 
 			"  \n" + 
 			"  // Method descriptor #41 ()[Ljava/lang/Class;\n" + 
-			"  public abstract Class[] classes() default {I};\n" + 
+			"  public abstract java.lang.Class[] classes() default {I};\n" + 
 			"}"; 
 			
 		int index = actualOutput.indexOf(expectedOutput);
@@ -2325,7 +2325,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  public abstract long _long() default -9223372036854775808L;\n" + 
 			"  \n" + 
 			"  // Method descriptor #29 ()Ljava/lang/String;\n" + 
-			"  public abstract String _string() default \"\";\n" + 
+			"  public abstract java.lang.String _string() default \"\";\n" + 
 			"  \n" + 
 			"  // Method descriptor #32 ()Z\n" + 
 			"  public abstract boolean _boolean() default true;\n" + 
@@ -2337,7 +2337,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"  public abstract double _double() default 1.7976931348623157E308;\n" + 
 			"  \n" + 
 			"  // Method descriptor #41 ()Ljava/lang/Class;\n" + 
-			"  public abstract Class _class() default I;\n" + 
+			"  public abstract java.lang.Class _class() default I;\n" + 
 			"}"; 
 			
 		int index = actualOutput.indexOf(expectedOutput);

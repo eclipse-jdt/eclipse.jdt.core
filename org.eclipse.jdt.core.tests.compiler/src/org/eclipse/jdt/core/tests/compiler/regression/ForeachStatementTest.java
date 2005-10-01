@@ -218,7 +218,7 @@ public void test007() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 7\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  bipush 9\n" + 
 		"     2  newarray int [10]\n" + 
 		"     4  dup\n" + 
@@ -470,7 +470,7 @@ public void test014() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 2\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_1\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
@@ -529,7 +529,7 @@ public void test015() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 2\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_1\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
@@ -589,7 +589,7 @@ public void test016() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_1\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
@@ -681,7 +681,7 @@ public void test018() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 6\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_1\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  dup\n" + 
@@ -764,7 +764,7 @@ public void test019() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_0\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  astore_1 [tab]\n" + 
@@ -846,7 +846,7 @@ public void test020() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_0\n" + 
 		"     1  newarray int [10]\n" + 
 		"     3  astore_1 [tab]\n" + 
@@ -933,7 +933,7 @@ public void test021() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 8\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"      0  bipush 9\n" + 
 		"      2  newarray int [10]\n" + 
 		"      4  dup\n" + 
@@ -1076,7 +1076,7 @@ public void test022() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  new java.util.ArrayList [16]\n" + 
 		"     3  dup\n" + 
 		"     4  invokespecial java.util.ArrayList() [18]\n" + 
@@ -1211,7 +1211,7 @@ public void test024() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 4, Locals: 7\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_1\n" + 
 		"     1  anewarray java.lang.String [16]\n" + 
 		"     4  dup\n" + 
@@ -1364,7 +1364,7 @@ public void test027() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  iconst_0\n" + 
 		"     1  anewarray java.lang.Object [3]\n" + 
 		"     4  astore_1 [array]\n" + 
@@ -1457,7 +1457,7 @@ public void test028() {
 	String expectedOutput =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 5\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"      0  new java.util.ArrayList [16]\n" + 
 		"      3  dup\n" + 
 		"      4  invokespecial java.util.ArrayList() [18]\n" + 
@@ -1918,7 +1918,7 @@ public void test036() {
 		"  // Method descriptor #37 (Ljava/lang/Runnable;)V\n" + 
 		"  // Signature: <T::Ljava/lang/Runnable;:Ljava/lang/Iterable<Ljava/lang/String;>;>(TT;)V\n" + 
 		"  // Stack: 2, Locals: 4\n" + 
-		"  public void foo(Runnable t);\n" + 
+		"  public void foo(java.lang.Runnable t);\n" + 
 		"     0  aload_1 [t]\n" + 
 		"     1  invokeinterface java.lang.Iterable.iterator() : java.util.Iterator [39] [nargs: 1]\n" + 
 		"     6  astore_3\n" + 
@@ -1994,7 +1994,7 @@ public void test037() {
 		"  // Method descriptor #43 (Ljava/util/ArrayList;)V\n" + 
 		"  // Signature: <T:Ljava/util/ArrayList<Ljava/lang/String;>;>(TT;)V\n" + 
 		"  // Stack: 2, Locals: 3\n" + 
-		"  public static void foo(ArrayList t);\n" + 
+		"  public static void foo(java.util.ArrayList t);\n" + 
 		"     0  aload_0 [t]\n" + 
 		"     1  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [45]\n" + 
 		"     4  astore_2\n" + 

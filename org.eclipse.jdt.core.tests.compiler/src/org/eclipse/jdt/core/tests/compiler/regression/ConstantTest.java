@@ -359,7 +359,7 @@ public void test009() {
 	String expectedOutput = 
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 4\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 		"     3  ldc <String \"1\"> [22]\n" + 
 		"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
@@ -424,7 +424,7 @@ public void test009() {
 	String expectedOutput15 =
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 3, Locals: 4\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 		"     3  ldc <String \"1\"> [22]\n" + 
 		"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 
@@ -543,7 +543,7 @@ public void test010() {
 	String expectedOutput = 
 		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 		"  // Stack: 2, Locals: 1\n" + 
-		"  public static void main(String[] args);\n" + 
+		"  public static void main(java.lang.String[] args);\n" + 
 		"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
 		"     3  ldc <String \"SUCCESS\"> [22]\n" + 
 		"     5  invokevirtual java.io.PrintStream.print(java.lang.String) : void [24]\n" + 

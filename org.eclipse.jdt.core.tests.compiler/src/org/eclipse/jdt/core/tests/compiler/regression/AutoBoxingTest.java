@@ -1025,7 +1025,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			new String[] {
 				"X.java",
 				"public class X {\n" +
-				"   public static void main(String[] s) {\n" +
+				"   public static void main(String[] args) {\n" +
 				"      if (new Integer(1) == new Integer(0)) {\n" +
 				"         System.out.println();\n" +
 				"      }\n" +
@@ -1054,7 +1054,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 		String expectedOutput = 
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 1\n" + 
-			"  public static void main(String[] s);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  new java.lang.Integer [16]\n" + 
 			"     3  dup\n" + 
 			"     4  iconst_1\n" + 

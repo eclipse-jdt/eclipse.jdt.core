@@ -43,6 +43,12 @@ public abstract class ClassFileBytesDisassembler {
 	public final static int COMPACT = 8;
 
 	/**
+	 * This mode is used to retrive a pseudo code for working copy purpose.
+	 * @since 3.2
+	 */
+	public final static int WORKING_COPY = 16;
+
+	/**
 	 * Answers back the disassembled string of the classfile bytes using the default
 	 * mode.
 	 * This is an output quite similar to the javap tool, using DEFAULT mode.

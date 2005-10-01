@@ -3054,7 +3054,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		String expectedOutput =
 			"  // Method descriptor #25 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  new X [1]\n" + 
 			"     3  dup\n" + 
 			"     4  new BX [26]\n" + 
@@ -6147,7 +6147,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  aload_0 [args]\n" + 
 			"     1  ifnonnull 9\n" + 
 			"     4  aconst_null\n" + 
@@ -14649,7 +14649,7 @@ public void test500(){
 		String expectedOutput =
 			"  // Method descriptor #25 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  new X [1]\n" + 
 			"     3  dup\n" + 
 			"     4  new BX [26]\n" + 
@@ -14731,7 +14731,7 @@ public void test500(){
 		String expectedOutput =
 			"  // Method descriptor #25 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 4, Locals: 2\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  new X [1]\n" + 
 			"     3  dup\n" + 
 			"     4  new BX [26]\n" + 
@@ -14830,7 +14830,7 @@ public void test500(){
 			"  \n" + 
 			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
 			"     3  new X [1]\n" + 
 			"     6  dup\n" + 
@@ -14944,7 +14944,7 @@ public void test500(){
 			"  \n" + 
 			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 3, Locals: 1\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  getstatic java.lang.System.out : java.io.PrintStream [22]\n" + 
 			"     3  new X [1]\n" + 
 			"     6  dup\n" + 
@@ -15053,7 +15053,7 @@ public void test500(){
 			"  \n" + 
 			"  // Method descriptor #21 ([Ljava/lang/String;)V\n" + 
 			"  // Stack: 2, Locals: 1\n" + 
-			"  public static void main(String[] args);\n" + 
+			"  public static void main(java.lang.String[] args);\n" + 
 			"     0  new X [1]\n" + 
 			"     3  dup\n" + 
 			"     4  invokespecial X() [22]\n" + 
@@ -23464,7 +23464,7 @@ public void test772() {
 		String expectedOutput =
 			"  // Method descriptor #18 ()Ljava/lang/Object;\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
-			"  public bridge synthetic Object getIt();\n" + 
+			"  public bridge synthetic java.lang.Object getIt();\n" + 
 			"    0  aload_0\n" + 
 			"    1  invokevirtual FooImpl.getIt() : java.lang.String [19]\n" + 
 			"    4  areturn\n" + 
@@ -23526,7 +23526,7 @@ public void test773() {
 		String expectedOutput =
 			"  // Method descriptor #18 ()Ljava/lang/Exception;\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
-			"  public bridge synthetic Exception getIt() throws java.lang.Exception;\n" + 
+			"  public bridge synthetic java.lang.Exception getIt() throws java.lang.Exception;\n" + 
 			"    0  aload_0\n" + 
 			"    1  invokevirtual FooImpl.getIt() : java.lang.NullPointerException [22]\n" + 
 			"    4  areturn\n" + 
@@ -23808,7 +23808,7 @@ public void test779() {
 	String expectedOutput =
 		"  // Method descriptor #31 (I)Ljava/lang/Object;\n" + 
 		"  // Stack: 2, Locals: 2\n" + 
-		"  public bridge synthetic Object get(int arg);\n" + 
+		"  public bridge synthetic java.lang.Object get(int arg);\n" + 
 		"    0  aload_0\n" + 
 		"    1  iload_1\n" + 
 		"    2  invokevirtual X$1.get(int) : java.lang.String [36]\n" + 
@@ -25199,7 +25199,7 @@ public void test822() {
 		"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" + 
 		"  // Signature: (TT;)V\n" + 
 		"  // Stack: 1, Locals: 2\n" + 
-		"  void foo(Serializable t);\n" + 
+		"  void foo(java.io.Serializable t);\n" + 
 		"    0  aload_1 [t]\n" + 
 		"    1  invokeinterface java.lang.Runnable.run() : void [20] [nargs: 1]\n" + 
 		"    6  return\n" + 
@@ -25328,7 +25328,7 @@ public void test824() {
 		"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" + 
 		"  // Signature: (TT;)V\n" + 
 		"  // Stack: 1, Locals: 2\n" + 
-		"  void foo(Serializable t);\n" + 
+		"  void foo(java.io.Serializable t);\n" + 
 		"     0  aload_0 [this]\n" + 
 		"     1  ifnonnull 8\n" + 
 		"     4  aload_1 [t]\n" + 
@@ -25400,7 +25400,7 @@ public void test825() {
 		"  // Method descriptor #17 (Ljava/io/Serializable;)V\n" + 
 		"  // Signature: (TT;)V\n" + 
 		"  // Stack: 2, Locals: 5\n" + 
-		"  void foo(Serializable t);\n" + 
+		"  void foo(java.io.Serializable t);\n" + 
 		"     0  aload_1 [t]\n" + 
 		"     1  astore_2 [r1]\n" + 
 		"     2  aload_0 [this]\n" + 

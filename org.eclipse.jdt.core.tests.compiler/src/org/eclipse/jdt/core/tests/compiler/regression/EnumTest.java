@@ -2011,7 +2011,7 @@ public class EnumTest extends AbstractComparableTest {
 		String expectedOutput = 
 			"  // Method descriptor #18 (Ljava/lang/String;I)V\n" + 
 			"  // Stack: 3, Locals: 3\n" + 
-			"  private X(String arg, int arg);\n" + 
+			"  private X(java.lang.String arg, int arg);\n" + 
 			"    0  aload_0 [this]\n" + 
 			"    1  aload_1\n" + 
 			"    2  iload_2\n" + 
@@ -2428,9 +2428,9 @@ public class EnumTest extends AbstractComparableTest {
 		);
 
 		String[] expectedOutputs = new String[] {
-			"  private strictfp X(String arg, int arg);\n",
+			"  private strictfp X(java.lang.String arg, int arg);\n",
 			"  public static final strictfp X[] values();\n",
-			"  public static final strictfp X valueOf(String arg);\n"
+			"  public static final strictfp X valueOf(java.lang.String arg);\n"
 		};
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -2635,7 +2635,7 @@ public class EnumTest extends AbstractComparableTest {
 		String expectedOutput = 
 			"  // Method descriptor #20 (Ljava/lang/String;I)V\n" + 
 			"  // Stack: 3, Locals: 3\n" + 
-			"  private X(String arg, int arg);\n"; 
+			"  private X(java.lang.String arg, int arg);\n"; 
 			
 		int index = actualOutput.indexOf(expectedOutput);
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -2895,7 +2895,7 @@ public class EnumTest extends AbstractComparableTest {
 			"  \n" + 
 			"  // Method descriptor #8 (Ljava/lang/String;I)V\n" + 
 			"  // Stack: 3, Locals: 3\n" + 
-			"  private X(String arg, int arg);\n" + 
+			"  private X(java.lang.String arg, int arg);\n" + 
 			"    0  aload_0 [this]\n" + 
 			"    1  aload_1\n" + 
 			"    2  iload_2\n" + 
@@ -2930,7 +2930,7 @@ public class EnumTest extends AbstractComparableTest {
 			"  \n" + 
 			"  // Method descriptor #27 (Ljava/lang/String;)LX;\n" + 
 			"  // Stack: 3, Locals: 4\n" + 
-			"  public static final X valueOf(String arg);\n" + 
+			"  public static final X valueOf(java.lang.String arg);\n" + 
 			"     0  getstatic X.ENUM$VALUES : X[] [18]\n" + 
 			"     3  dup\n" + 
 			"     4  astore_1\n" + 
