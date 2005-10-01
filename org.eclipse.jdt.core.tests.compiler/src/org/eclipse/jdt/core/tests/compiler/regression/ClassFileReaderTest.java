@@ -27,7 +27,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 72, 73, 74 };
+//		TESTS_NUMBERS = new int[] { 72 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -2804,7 +2804,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	public void test072() {
 		String source =
 			"package p;\n" +
-			"public class X {\n" + 
+			"public abstract class X {\n" + 
 			"	public static final double CONST = Double.POSITIVE_INFINITY;\n" +
 			"	X(X x) {}\n" +
 			"	int foo() { return 0; }\n" +
@@ -2817,10 +2817,12 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"	Object foo8() { return null; }\n" +
 			"	boolean foo9() { return false; }\n" +
 			"	void foo10() {}\n" +
+			"	native void foo11();\n" +
+			"	abstract String foo12();\n" +
 			"}";
 		String expectedOutput =
 			"package p;\n" + 
-			"public class X extends java.lang.Object {\n" + 
+			"public abstract class X extends java.lang.Object {\n" + 
 			"  \n" + 
 			"  public static final double CONST = 1.0 / 0.0;\n" + 
 			"  \n" + 
@@ -2865,6 +2867,10 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"  \n" + 
 			"  void foo10() {\n" + 
 			"  }\n" + 
+			"  \n" + 
+			"  native void foo11();\n" + 
+			"  \n" + 
+			"  abstract java.lang.String foo12();\n" + 
 			"}";
 		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
