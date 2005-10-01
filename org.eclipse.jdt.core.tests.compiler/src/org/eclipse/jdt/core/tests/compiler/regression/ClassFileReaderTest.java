@@ -2807,6 +2807,16 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"public class X {\n" + 
 			"	public static final double CONST = Double.POSITIVE_INFINITY;\n" +
 			"	X(X x) {}\n" +
+			"	int foo() { return 0; }\n" +
+			"	double foo2() { return 0; }\n" +
+			"	byte foo3() { return 0; }\n" +
+			"	char foo4() { return 0; }\n" +
+			"	float foo5() { return 0; }\n" +
+			"	long foo6() { return 0; }\n" +
+			"	short foo7() { return 0; }\n" +
+			"	Object foo8() { return null; }\n" +
+			"	boolean foo9() { return false; }\n" +
+			"	void foo10() {}\n" +
 			"}";
 		String expectedOutput =
 			"package p;\n" + 
@@ -2814,7 +2824,47 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"  \n" + 
 			"  public static final double CONST = 1.0 / 0.0;\n" + 
 			"  \n" + 
-			"  X(p.X x);\n" + 
+			"  X(p.X x) {\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  int foo() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  double foo2() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  byte foo3() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  char foo4() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  float foo5() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  long foo6() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  short foo7() {\n" + 
+			"    return 0;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  java.lang.Object foo8() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  boolean foo9() {\n" + 
+			"    return false;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  void foo10() {\n" + 
+			"  }\n" + 
 			"}";
 		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
@@ -2830,7 +2880,8 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"  \n" + 
 			"  public static final double CONST = 1.0 / 0.0;\n" + 
 			"  \n" + 
-			"  X(X x);\n" + 
+			"  X(X x) {\n" + 
+			"  }\n" + 
 			"}";
 		checkClassFile("1.4", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
@@ -2848,7 +2899,8 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"  \n" + 
 			"  public static final double CONST = 1.0 / 0.0;\n" + 
 			"  \n" + 
-			"  X(X x);\n" + 
+			"  X(X x) {\n" + 
+			"  }\n" + 
 			"}";
 		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
 	}

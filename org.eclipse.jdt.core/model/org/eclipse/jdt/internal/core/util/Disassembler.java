@@ -390,7 +390,46 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				disassembleAsModifier((IAnnotationDefaultAttribute) annotationDefaultAttribute, buffer, lineSeparator, tabNumber);
 			}
 		}
-		buffer.append(Messages.disassembler_endofmethodheader); 
+		if (checkMode(mode, WORKING_COPY)) {
+			if (((accessFlags & IModifierConstants.ACC_NATIVE) == 0)
+					&& ((accessFlags & IModifierConstants.ACC_ABSTRACT) == 0)) {
+				buffer.append(" {"); //$NON-NLS-1$
+				final char[] returnType = Signature.getReturnType(methodDescriptor);
+				if (returnType.length == 1) {
+					switch(returnType[0]) {
+						case 'V' :
+							writeNewLine(buffer, lineSeparator, tabNumber);							
+							break;
+						case 'I' :
+						case 'B' :
+						case 'J' :
+						case 'D' :
+						case 'F' :
+						case 'S' :
+						case 'C' :
+							writeNewLine(buffer, lineSeparator, tabNumber + 1);
+							buffer.append("return 0;"); //$NON-NLS-1$
+							writeNewLine(buffer, lineSeparator, tabNumber);							
+							break;
+						default :
+							// boolean
+							writeNewLine(buffer, lineSeparator, tabNumber + 1);
+							buffer.append("return false;"); //$NON-NLS-1$
+							writeNewLine(buffer, lineSeparator, tabNumber);							
+					}
+				} else {
+					// object
+					writeNewLine(buffer, lineSeparator, tabNumber + 1);
+					buffer.append("return null;"); //$NON-NLS-1$
+					writeNewLine(buffer, lineSeparator, tabNumber);							
+				}
+				buffer.append('}');
+			} else {
+				buffer.append(';');
+			}	
+		} else {
+			buffer.append(Messages.disassembler_endofmethodheader);
+		}
 		
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			if (codeAttribute != null) {
