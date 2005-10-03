@@ -25772,4 +25772,53 @@ public void test833() {
 		false,
 		null);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100809
+public void test834() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Set<Integer> set = new HashSet<Integer>();\n" + 
+			"        set.add(42);\n" + 
+			"        Collection<Number> collection;\n" + 
+			"        collection = (Collection) set;\n" + 
+			"        System.out.println(collection.iterator().next());\n" + 
+			"        Zork z;\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	collection = (Collection) set;\n" + 
+		"	             ^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Collection needs unchecked conversion to conform to Collection<Number>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100809 - variation
+public void test835() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"	void foo(List<String> ls) {\n" + 
+			"		ArrayList<?> als = (ArrayList) ls;\n" + 
+			"	}\n" + 
+			"	Zork z;\n" +			
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
