@@ -402,23 +402,30 @@ public class CastExpression extends Expression {
 		if ((type instanceof TypeReference) || (type instanceof NameReference)
 				&& ((type.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) == 0) { // no extra parenthesis around type: ((A))exp
 
-			this.resolvedType = type.resolveType(scope);
+			TypeBinding castType = this.resolvedType = type.resolveType(scope);
 			//expression.setExpectedType(this.resolvedType); // needed in case of generic method invocation			
 			TypeBinding expressionType = expression.resolveType(scope);
-			if (this.resolvedType != null && expressionType != null) {
-				boolean isLegal = checkCastTypesCompatibility(scope, this.resolvedType, expressionType, this.expression);
-				if (isLegal) {
-					this.expression.computeConversion(scope, this.resolvedType, expressionType);
-					if ((this.bits & UnsafeCastMask) != 0) { // unsafe cast
-						scope.problemReporter().unsafeCast(this, scope);
-					} else if ((this.bits & (UnnecessaryCastMASK|IgnoreNeedForCastCheckMASK)) == UnnecessaryCastMASK) { // unnecessary cast 
-						if (!isIndirectlyUsed()) // used for generic type inference or boxing ?
-							scope.problemReporter().unnecessaryCast(this);
+			if (castType != null) {
+				if (expressionType != null) {
+					boolean isLegal = checkCastTypesCompatibility(scope, castType, expressionType, this.expression);
+					if (isLegal) {
+						this.expression.computeConversion(scope, castType, expressionType);
+						if ((this.bits & UnsafeCastMask) != 0) { // unsafe cast
+							scope.problemReporter().unsafeCast(this, scope);
+						} else {
+//							if (castType.isRawType() && scope.compilerOptions().reportRawTypeReference){
+//								scope.problemReporter().rawTypeReference(this.type, castType);			
+//							}
+							if ((this.bits & (UnnecessaryCastMASK|IgnoreNeedForCastCheckMASK)) == UnnecessaryCastMASK) { // unnecessary cast 
+								if (!isIndirectlyUsed()) // used for generic type inference or boxing ?
+									scope.problemReporter().unnecessaryCast(this);
+							}
+						}
+					} else { // illegal cast
+						scope.problemReporter().typeCastError(this, castType, expressionType);
 					}
-					this.resolvedType = this.resolvedType.capture(scope, this.sourceEnd);
-				} else { // illegal cast
-					scope.problemReporter().typeCastError(this,  this.resolvedType, expressionType);
 				}
+				this.resolvedType = castType.capture(scope, this.sourceEnd);
 			}
 			return this.resolvedType;
 		} else { // expression as a cast
