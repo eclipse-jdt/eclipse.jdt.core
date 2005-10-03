@@ -19,6 +19,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.IFactoryPath;
 import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorAnnotationProcessor;
@@ -26,6 +27,7 @@ import org.eclipse.jdt.apt.tests.external.annotations.classloader.ColorTestCodeE
 import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestAnnotationProcessor;
 import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -34,7 +36,10 @@ import org.eclipse.jdt.core.tests.util.Util;
  */
 public class FactoryLoaderTests extends Tests {
 	
-	private File _extJar = null; // external annotation jar
+	private File _extJar; // external annotation jar
+	private IPath _extVarJar; // external annotation jar, as a classpath-var-relative path
+	
+	private final static String TEMPJARDIR_CPVAR = "FACTORYLOADERTEST_TEMP"; //$NON-NLS-1$
 	
 	public FactoryLoaderTests(String name)
 	{
@@ -64,6 +69,18 @@ public class FactoryLoaderTests extends Tests {
 		
 		_extJar = TestUtil.createAndAddExternalAnnotationJar(
 				env.getJavaProject( projectPath ));
+		// This file will be locked until GC takes care of unloading the
+		// annotation processor classes, so we can't delete it ourselves.
+		_extJar.deleteOnExit();
+		
+		// Create a classpath variable for the same jar file, so we can
+		// refer to it that way.
+		File canonicalJar = _extJar.getCanonicalFile();
+		IPath jarDir = new Path( canonicalJar.getParent() );
+		String extJarName = canonicalJar.getName();
+		IPath varPath = new Path( TEMPJARDIR_CPVAR );
+		_extVarJar = varPath.append( extJarName );
+		JavaCore.setClasspathVariable( TEMPJARDIR_CPVAR, jarDir, null );
 
 		IPath srcRoot = getSourcePath();
 		String code = LoaderTestCodeExample.CODE;
@@ -71,7 +88,7 @@ public class FactoryLoaderTests extends Tests {
 		
 		code = ColorTestCodeExample.CODE;
 		env.addClass(srcRoot, ColorTestCodeExample.CODE_PACKAGE, ColorTestCodeExample.CODE_CLASS_NAME, code);
-}
+	}
 	
 	public static String getProjectName() {
 		return FactoryLoaderTests.class.getName() + "Project"; //$NON-NLS-1$
@@ -94,7 +111,7 @@ public class FactoryLoaderTests extends Tests {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		IFactoryPath ifp = AptConfig.getFactoryPath(jproj);
 		
-		// add _extJar to the factory list and rebuild.
+		// add _extJar to the factory list as an external jar, and rebuild.
 		ifp.addExternalJar(_extJar);
 		AptConfig.setFactoryPath(jproj, ifp);
 		
@@ -117,10 +134,36 @@ public class FactoryLoaderTests extends Tests {
 		expectingNoProblems();
 		assertFalse(LoaderTestAnnotationProcessor.isLoaded());
 		
-		// This file will be locked until GC takes care of unloading
-		// the annotation processor classes.
-		_extJar.deleteOnExit();
+		// add _extJar to the factory list as a class-path-relative jar, and rebuild.
+		ifp.addVarJar(_extVarJar);
+		AptConfig.setFactoryPath(jproj, ifp);
+		
+		// rebuild and verify that the processor was loaded
+		LoaderTestAnnotationProcessor.clearLoaded();
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		assertTrue(LoaderTestAnnotationProcessor.isLoaded());
+		
+		// restore to the original
+		ifp.removeVarJar(_extVarJar);
+		AptConfig.setFactoryPath(jproj, ifp);
+		
+		// rebuild and verify that the processor was not loaded.
+		LoaderTestAnnotationProcessor.clearLoaded();
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		assertFalse(LoaderTestAnnotationProcessor.isLoaded());
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.builder.Tests#tearDown()
+	 */
+	@Override
+	protected void tearDown() throws Exception {
+		JavaCore.removeClasspathVariable( TEMPJARDIR_CPVAR, null );
 		_extJar = null;
+		_extVarJar = null;
+		super.tearDown();
 	}
 	
 
