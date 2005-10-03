@@ -43,6 +43,7 @@ public interface ClassFileConstants extends IConstants {
 	int MAJOR_VERSION_1_3 = 47;
 	int MAJOR_VERSION_1_4 = 48;
 	int MAJOR_VERSION_1_5 = 49; 
+	int MAJOR_VERSION_1_6 = 50; 
 	
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
@@ -56,6 +57,7 @@ public interface ClassFileConstants extends IConstants {
 	long JDK1_3 =  ((long)ClassFileConstants.MAJOR_VERSION_1_3 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK1_4 = ((long)ClassFileConstants.MAJOR_VERSION_1_4 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK1_5 = ((long)ClassFileConstants.MAJOR_VERSION_1_5 << 16) + ClassFileConstants.MINOR_VERSION_0;	
+	long JDK1_6 = ((long)ClassFileConstants.MAJOR_VERSION_1_6 << 16) + ClassFileConstants.MINOR_VERSION_0;	
 	
 	// jdk level used to denote future releases: optional behavior is not enabled for now, but may become so. In order to enable these,
 	// search for references to this constant, and change it to one of the official JDT constants above.

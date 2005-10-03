@@ -123,6 +123,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String VERSION_1_3 = "1.3"; //$NON-NLS-1$
 	public static final String VERSION_1_4 = "1.4"; //$NON-NLS-1$
 	public static final String VERSION_1_5 = "1.5"; //$NON-NLS-1$
+	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$	
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$

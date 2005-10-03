@@ -899,6 +899,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option value.
 	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option value.
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String ABORT = "abort"; //$NON-NLS-1$
