@@ -187,6 +187,20 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	this.typeVariables = NoTypeVariables;
 	this.superInterfaces = NoSuperInterfaces;
 
+	// must retrieve member types in case superclass/interfaces need them
+	this.memberTypes = NoMemberTypes;
+	IBinaryNestedType[] memberTypeStructures = binaryType.getMemberTypes();
+	if (memberTypeStructures != null) {
+		int size = memberTypeStructures.length;
+		if (size > 0) {
+			this.memberTypes = new ReferenceBinding[size];
+			for (int i = 0; i < size; i++)
+				// attempt to find each member type if it exists in the cache (otherwise - resolve it when requested)
+				this.memberTypes[i] = environment.getTypeFromConstantPoolName(memberTypeStructures[i].getName(), 0, -1, false);
+			this.tagBits |= 	HasUnresolvedMemberTypes;
+		}
+	}
+
 	long sourceLevel = environment.globalOptions.sourceLevel;
 	char[] typeSignature = null;
 	if (sourceLevel >= ClassFileConstants.JDK1_5) {
@@ -239,19 +253,6 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			this.superInterfaces = new ReferenceBinding[types.size()];
 			types.toArray(this.superInterfaces);
 			this.tagBits |= 	HasUnresolvedSuperinterfaces;
-		}
-	}
-
-	this.memberTypes = NoMemberTypes;
-	IBinaryNestedType[] memberTypeStructures = binaryType.getMemberTypes();
-	if (memberTypeStructures != null) {
-		int size = memberTypeStructures.length;
-		if (size > 0) {
-			this.memberTypes = new ReferenceBinding[size];
-			for (int i = 0; i < size; i++)
-				// attempt to find each member type if it exists in the cache (otherwise - resolve it when requested)
-				this.memberTypes[i] = environment.getTypeFromConstantPoolName(memberTypeStructures[i].getName(), 0, -1, false);
-			this.tagBits |= 	HasUnresolvedMemberTypes;
 		}
 	}
 

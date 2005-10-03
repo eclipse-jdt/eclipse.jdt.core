@@ -24220,5 +24220,26 @@ public void test827() {
 		"Bound mismatch: The generic method test(V1, V2) of type X<T> is not applicable for the arguments (XA, List<Object>). The inferred type List<Object> is not a valid substitute for the bounded parameter <V2 extends List<String>>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111014
+public void test833() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"class A<T1> {}\n",
+			"B.java",
+			"class B<T2> extends A<B<T2>.Inner> { class Inner {} }\n",
+			"C.java",
+			"class C { B<Integer> b; }\n",
+		},
+		"");
+	this.runConformTest(
+		new String[] {
+			"C.java",
+			"class C { B<Integer> b; }\n",
+		},
+		"",
+		null,
+		false,
+		null);
 }
-
+}
