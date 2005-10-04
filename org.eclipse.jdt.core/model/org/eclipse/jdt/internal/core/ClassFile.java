@@ -755,20 +755,7 @@ public void codeComplete(int offset, final org.eclipse.jdt.core.ICodeCompletionR
 				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
 			}
 			public void acceptError(IProblem error) {
-				if (true) return; // was disabled in 1.0
-
-				try {
-					IMarker marker = ResourcesPlugin.getWorkspace().getRoot().createMarker(IJavaModelMarker.TRANSIENT_PROBLEM);
-					marker.setAttribute(IJavaModelMarker.ID, error.getID());
-					marker.setAttribute(IMarker.CHAR_START, error.getSourceStart());
-					marker.setAttribute(IMarker.CHAR_END, error.getSourceEnd() + 1);
-					marker.setAttribute(IMarker.LINE_NUMBER, error.getSourceLineNumber());
-					marker.setAttribute(IMarker.MESSAGE, error.getMessage());
-					marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-					requestor.acceptError(marker);
-				} catch(CoreException e){
-					// marker could not be created: ignore
-				}
+				// was disabled in 1.0
 			}
 			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 				requestor.acceptField(declaringTypePackageName, declaringTypeName, fieldName, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
