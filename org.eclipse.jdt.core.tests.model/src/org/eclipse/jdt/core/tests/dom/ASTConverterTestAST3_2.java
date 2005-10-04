@@ -6924,4 +6924,44 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
+	
+	/**
+	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=92866
+	 */
+	public void test0622() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println((int) \'\\0\');\n" +
+				"		System.out.println((int) \'\\00\');\n" +
+				"		System.out.println((int) \'\\000\');\n" +
+				"		System.out.println((int) \'\\40\');\n" +
+				"		System.out.println((int) \'\\040\');\n" +
+				"	}\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter/src/X.java", false/*resolve*/);
+			ASTNode node = buildAST(
+				contents,
+				workingCopy,
+				false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			assertProblemsSize(unit, 0);
+			unit.accept(new ASTVisitor() {
+				public boolean visit(CharacterLiteral characterLiteral) {
+					try {
+						characterLiteral.charValue();
+					} catch(IllegalArgumentException e) {
+						assertTrue("Should not happen", false);
+					}
+					return false;
+				}
+			});
+		} finally {
+			if (workingCopy != null)
+				workingCopy.discardWorkingCopy();
+		}
+	}
 }
