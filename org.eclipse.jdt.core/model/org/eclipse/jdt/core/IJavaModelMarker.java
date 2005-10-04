@@ -30,7 +30,11 @@ public interface IJavaModelMarker {
 	 * Java model transient problem marker type (value <code>"org.eclipse.jdt.core.transient_problem"</code>).
 	 * This can be used to recognize those markers in the workspace that flag transient
 	 * problems detected by the Java tooling (such as a problem
-	 * detected by the outliner, or a problem detected during a code completion)
+	 * detected by the outliner, or a problem detected during a code completion).
+	 * Since 1.0, transient problems are reported as <code>IProblem</code> through various API. Only the evaluation API
+	 * is still producing markers for transient problems.
+	 * @see org.eclipse.jdt.core.compiler.IProblem
+	 * @see org.eclipse.jdt.core.eval.ICodeSnippetRequestor#acceptProblem(org.eclipse.core.resources.IMarker, String, int)
 	 */
 	public static final String TRANSIENT_PROBLEM = JavaCore.PLUGIN_ID + ".transient_problem"; //$NON-NLS-1$
 
