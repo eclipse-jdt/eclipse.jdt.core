@@ -25821,4 +25821,58 @@ public void test835() {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111208
+public void _test836() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			" import java.util.Iterator;\n" + 
+			" import java.util.List;\n" + 
+			"\n" + 
+			" public class X<A> {\n" + 
+			"\n" + 
+			" interface Factory<T> {\n" + 
+			" T invoke();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <E> Iterator<E> iterate(Iterable<E> iterable) {\n" + 
+			"		return iterable.iterator();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public Factory<Iterator<? extends A>> factory(final Factory<? extends List<? extends A>> factory) {\n" + 
+			"		return new Factory<Iterator<? extends A>>() {\n" + 
+			"			public Iterator<? extends A> invoke() {\n" + 
+			"				//String s = iterate(factory.invoke());\n" + 
+			"				return iterate(factory.invoke());\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111208 - variation
+public void _test837() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	public void foo(List<? extends List<? extends Number>> l) {\n" + 
+			"		bar(l.get(0));\n" + 
+			"		swap(l.get(0));\n" + 
+			"	}\n" + 
+			"	void bar(String s) {}\n" + 
+			"	private static <T> void swap(List<T> l) {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	bar(l.get(0));\n" + 
+		"	^^^\n" + 
+		"The method bar(String) in the type X is not applicable for the arguments (capture-of ? extends List<? extends Number>)\n" + 
+		"----------\n");
+}
 }

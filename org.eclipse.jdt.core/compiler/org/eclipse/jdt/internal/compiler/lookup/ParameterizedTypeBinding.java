@@ -102,7 +102,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = capturedArguments[i];
 			if (argument.isCapture()) {
-				((CaptureBinding)argument).initializeBounds(capturedParameterizedType);
+				((CaptureBinding)argument).initializeBounds(scope, capturedParameterizedType);
 			}
 		}
 		return capturedParameterizedType;
@@ -110,36 +110,40 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
 	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
+	 * Constraints:
+	 *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., 1)
+	 *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
+	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
 	 */
-	public void collectSubstitutes(Scope scope, TypeBinding otherType, Map substitutes, int constraint) {
+	public void collectSubstitutes(Scope scope, TypeBinding actualType, Map substitutes, int constraint) {
 		
 		if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
-		if (otherType == NullBinding) return;
+		if (actualType == NullBinding) return;
 	
 		if (this.arguments == null) return;
-		if (!(otherType instanceof ReferenceBinding)) return;
-		ReferenceBinding equivalent, otherEquivalent;
+		if (!(actualType instanceof ReferenceBinding)) return;
+		ReferenceBinding formalEquivalent, actualEquivalent;
 		switch (constraint) {
 			case CONSTRAINT_EQUAL :
 			case CONSTRAINT_EXTENDS :
-				equivalent = this;
-		        otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeWithSameErasure(this.type);
-		        if (otherEquivalent == null) return;
+				formalEquivalent = this;
+		        actualEquivalent = ((ReferenceBinding)actualType).findSuperTypeWithSameErasure(this.type);
+		        if (actualEquivalent == null) return;
 		        break;
 			case CONSTRAINT_SUPER :
 	        default:
-		        equivalent = this.findSuperTypeWithSameErasure(otherType);
-		        if (equivalent == null) return;
-		        otherEquivalent = (ReferenceBinding) otherType;
+		        formalEquivalent = this.findSuperTypeWithSameErasure(actualType);
+		        if (formalEquivalent == null) return;
+		        actualEquivalent = (ReferenceBinding) actualType;
 		        break;
 		}
-        TypeBinding[] elements;
-        switch (equivalent.kind()) {
+        TypeBinding[] formalArguments;
+        switch (formalEquivalent.kind()) {
         	case Binding.GENERIC_TYPE :
-        		elements = equivalent.typeVariables();
+        		formalArguments = formalEquivalent.typeVariables();
         		break;
         	case Binding.PARAMETERIZED_TYPE :
-        		elements = ((ParameterizedTypeBinding)equivalent).arguments;
+        		formalArguments = ((ParameterizedTypeBinding)formalEquivalent).arguments;
         		break;
         	case Binding.RAW_TYPE :
         		substitutes.clear(); // clear all variables to indicate raw generic method in the end
@@ -147,13 +151,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         	default :
         		return;
         }
-        TypeBinding[] otherElements;
-        switch (otherEquivalent.kind()) {
+        TypeBinding[] actualArguments;
+        switch (actualEquivalent.kind()) {
         	case Binding.GENERIC_TYPE :
-        		otherElements = otherEquivalent.typeVariables();
+        		actualArguments = actualEquivalent.typeVariables();
         		break;
         	case Binding.PARAMETERIZED_TYPE :
-        		otherElements = ((ParameterizedTypeBinding)otherEquivalent).arguments;
+        		actualArguments = ((ParameterizedTypeBinding)actualEquivalent).arguments;
         		break;
         	case Binding.RAW_TYPE :
         		substitutes.clear(); // clear all variables to indicate raw generic method in the end
@@ -161,9 +165,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         	default :
         		return;
         }
-        for (int i = 0, length = elements.length; i < length; i++) {
-        	TypeBinding element = elements[i];
-            element.collectSubstitutes(scope, otherElements[i], substitutes, element.isWildcard() ? constraint : CONSTRAINT_EQUAL);
+        for (int i = 0, length = formalArguments.length; i < length; i++) {
+        	TypeBinding formalArgument = formalArguments[i];
+            formalArgument.collectSubstitutes(scope, actualArguments[i], substitutes, formalArgument.isWildcard() ? constraint : CONSTRAINT_EQUAL);
         }
 	}
 	

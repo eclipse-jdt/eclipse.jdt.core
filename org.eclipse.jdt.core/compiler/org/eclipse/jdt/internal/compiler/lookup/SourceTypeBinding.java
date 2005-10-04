@@ -513,50 +513,54 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 /**
  * Collect the substitutes into a map for certain type variables inside the receiver type
  * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
+ * Constraints:
+ *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., 1)
+ *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., 0)
+ *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., 2)
  */
-public void collectSubstitutes(Scope currentScope, TypeBinding otherType, Map substitutes, int constraint) {
+public void collectSubstitutes(Scope currentScope, TypeBinding actualType, Map substitutes, int constraint) {
 	
-	if (otherType == NullBinding) return;
-	if (!(otherType instanceof ReferenceBinding)) return;
+	if (actualType == NullBinding) return;
+	if (!(actualType instanceof ReferenceBinding)) return;
 	TypeVariableBinding[] variables = this.typeVariables;
 	if (variables == NoTypeVariables) return;
 	// generic type is acting as parameterized type with its own parameters as arguments
 	
-	ReferenceBinding equivalent, otherEquivalent;
+	ReferenceBinding formalEquivalent, actualEquivalent;
 	switch (constraint) {
 		case CONSTRAINT_EQUAL :
 		case CONSTRAINT_EXTENDS :
-			equivalent = this;
-	        otherEquivalent = ((ReferenceBinding)otherType).findSuperTypeWithSameErasure(this);
-	        if (otherEquivalent == null) return;
+			formalEquivalent = this;
+	        actualEquivalent = ((ReferenceBinding)actualType).findSuperTypeWithSameErasure(this);
+	        if (actualEquivalent == null) return;
 	        break;
 		case CONSTRAINT_SUPER :
         default:
-	        equivalent = this.findSuperTypeWithSameErasure(otherType);
-	        if (equivalent == null) return;
-	        otherEquivalent = (ReferenceBinding) otherType;
+	        formalEquivalent = this.findSuperTypeWithSameErasure(actualType);
+	        if (formalEquivalent == null) return;
+	        actualEquivalent = (ReferenceBinding) actualType;
 	        break;
 	}
-    TypeBinding[] elements;
-    switch (equivalent.kind()) {
+    TypeBinding[] formalArguments;
+    switch (formalEquivalent.kind()) {
     	case Binding.GENERIC_TYPE :
-    		elements = equivalent.typeVariables();
+    		formalArguments = formalEquivalent.typeVariables();
     		break;
     	case Binding.PARAMETERIZED_TYPE :
-    		elements = ((ParameterizedTypeBinding)equivalent).arguments;
+    		formalArguments = ((ParameterizedTypeBinding)formalEquivalent).arguments;
     		break;
     	case Binding.RAW_TYPE :
     		substitutes.clear(); // clear all variables to indicate raw generic method in the end
     	default :
     		return;
     }
-    TypeBinding[] otherElements;
-    switch (otherEquivalent.kind()) {
+    TypeBinding[] actualArguments;
+    switch (actualEquivalent.kind()) {
     	case Binding.GENERIC_TYPE :
-    		otherElements = otherEquivalent.typeVariables();
+    		actualArguments = actualEquivalent.typeVariables();
     		break;
     	case Binding.PARAMETERIZED_TYPE :
-    		otherElements = ((ParameterizedTypeBinding)otherEquivalent).arguments;
+    		actualArguments = ((ParameterizedTypeBinding)actualEquivalent).arguments;
     		break;
     	case Binding.RAW_TYPE :
     		substitutes.clear(); // clear all variables to indicate raw generic method in the end
@@ -564,9 +568,9 @@ public void collectSubstitutes(Scope currentScope, TypeBinding otherType, Map su
     	default :
     		return;
     }
-    for (int i = 0, length = elements.length; i < length; i++) {
-    	TypeBinding otherElement = otherElements[i];
-        elements[i].collectSubstitutes(scope, otherElements[i], substitutes, otherElement.isWildcard() ? constraint : CONSTRAINT_EQUAL);
+    for (int i = 0, length = formalArguments.length; i < length; i++) {
+    	TypeBinding formalArgument = formalArguments[i];
+        formalArgument.collectSubstitutes(scope, actualArguments[i], substitutes, formalArgument.isWildcard() ? constraint : CONSTRAINT_EQUAL);
     }
 }
 public int kind() {
