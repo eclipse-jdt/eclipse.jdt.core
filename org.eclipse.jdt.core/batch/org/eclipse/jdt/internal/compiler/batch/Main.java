@@ -1268,7 +1268,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						StringBuffer buffer = new StringBuffer();
 						String line;
 						while((line = reader.readLine()) != null) {
-							buffer.append(line).append(" "); //$NON-NLS-1$
+							line = line.trim();
+							if (!line.startsWith("#")) { //$NON-NLS-1$
+								buffer.append(line).append(" "); //$NON-NLS-1$
+							}
 						}
 						newArgs = tokenize(buffer.toString());
 					} catch(IOException e) {
