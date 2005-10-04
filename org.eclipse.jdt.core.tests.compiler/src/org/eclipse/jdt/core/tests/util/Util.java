@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 public class Util {
+	private static final boolean DEBUG = false;
 	public static String OUTPUT_DIRECTORY = "comptest";
 
 public static void appendProblem(StringBuffer problems, IProblem problem, char[] source, int problemCount) {
@@ -367,11 +368,11 @@ public static String displayString(String inputString, int indent, boolean shift
 public static String fileContent(String sourceFilePath) {
 	File sourceFile = new File(sourceFilePath);
 	if (!sourceFile.exists()) {
-		System.out.println("File " + sourceFilePath + " does not exists.");
+		if (DEBUG) System.out.println("File " + sourceFilePath + " does not exists.");
 		return null;
 	}
 	if (!sourceFile.isFile()) {
-		System.out.println(sourceFilePath + " is not a file.");
+		if (DEBUG) System.out.println(sourceFilePath + " is not a file.");
 		return null;
 	}
 	StringBuffer sourceContentBuffer = new StringBuffer();
