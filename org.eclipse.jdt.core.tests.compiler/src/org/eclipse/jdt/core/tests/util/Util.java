@@ -195,6 +195,7 @@ public static void createJar(String[] pathsAndContents, String jarPath, String c
 	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
 	createJar(pathsAndContents, options, jarPath);
 }
 public static void createFile(String path, String contents) throws IOException {

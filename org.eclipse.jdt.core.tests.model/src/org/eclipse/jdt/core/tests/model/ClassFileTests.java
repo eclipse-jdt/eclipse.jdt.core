@@ -502,8 +502,7 @@ public void testWorkingCopy09() throws CoreException {
 /*
  * Ensures that a 1.5 class file without source attached can be turned into a working copy and that its source is correct.
  */
-// TODO disable due to bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
-public void _testWorkingCopy10() throws CoreException {
+public void testWorkingCopy10() throws CoreException {
 	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
 	try {
 		attachSource(this.jarRoot, null, null);
@@ -513,12 +512,12 @@ public void _testWorkingCopy10() throws CoreException {
 		assertSourceEquals(
 			"Unexpected source", 
 			"package workingcopy;\n" + 
-			"public class Y<W> extends java.lang.Object {\n" + 
+			"public class Y<W> {\n" + 
 			"  \n" + 
 			"  public Y() {\n" + 
 			"  }\n" + 
 			"  \n" + 
-			"  <T> T foo(T t, java.lang.String... s) {\n" + 
+			"  <T> T foo(T t, java.lang.String... args) {\n" + 
 			"    return null;\n" + 
 			"  }\n" + 
 			"}",

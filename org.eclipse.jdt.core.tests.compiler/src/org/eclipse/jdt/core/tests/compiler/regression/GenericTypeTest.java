@@ -14809,7 +14809,7 @@ public void test500(){
 		String expectedOutput =
 			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
-			"public class X extends java.lang.Object {\n" + 
+			"public class X {\n" + 
 			"  \n" + 
 			"  // Field descriptor #6 LXA;\n" + 
 			"  // Signature: TE;\n" + 
@@ -14914,7 +14914,7 @@ public void test500(){
 		String expectedOutput =
 			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
-			"public class X extends java.lang.Object {\n" + 
+			"public class X {\n" + 
 			"  \n" + 
 			"  // Method descriptor #6 ()V\n" + 
 			"  // Stack: 1, Locals: 1\n" + 
@@ -15032,7 +15032,7 @@ public void test500(){
 		String expectedOutput =
 			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: <E:LXA;:LXB;>Ljava/lang/Object;\n" + 
-			"public class X extends java.lang.Object {\n" + 
+			"public class X {\n" + 
 			"  \n" + 
 			"  // Field descriptor #6 LXA;\n" + 
 			"  // Signature: TE;\n" + 
@@ -23808,7 +23808,7 @@ public void test779() {
 	String expectedOutput =
 		"  // Method descriptor #31 (I)Ljava/lang/Object;\n" + 
 		"  // Stack: 2, Locals: 2\n" + 
-		"  public bridge synthetic java.lang.Object get(int arg);\n" + 
+		"  public bridge synthetic java.lang.Object get(int arg0);\n" + 
 		"    0  aload_0\n" + 
 		"    1  iload_1\n" + 
 		"    2  invokevirtual X$1.get(int) : java.lang.String [36]\n" + 

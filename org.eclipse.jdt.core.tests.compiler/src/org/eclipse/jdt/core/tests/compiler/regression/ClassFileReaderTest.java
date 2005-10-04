@@ -27,7 +27,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 72 };
+//		TESTS_NUMBERS = new int[] { 79 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -2731,7 +2731,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"}";
 		String expectedOutput =
 			"// Compiled from I.java (version 1.2 : 46.0, no super bit)\n" + 
-			"public abstract interface I extends java.lang.Object {\n" + 
+			"public abstract interface I {\n" + 
 			"  Constant pool:\n" + 
 			"    constant #1 class: #2 I\n" + 
 			"    constant #2 utf8: I\n" + 
@@ -2757,7 +2757,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		String expectedOutput =
 			"  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V\n" + 
 			"  // Stack: 0, Locals: 5\n" + 
-			"  public void foo(int i, long l, java.lang.String[][]... arg);\n" + 
+			"  public void foo(int i, long l, java.lang.String[][]... args);\n" + 
 			"    0  return\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 5]\n" + 
@@ -2822,7 +2822,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"}";
 		String expectedOutput =
 			"package p;\n" + 
-			"public abstract class X extends java.lang.Object {\n" + 
+			"public abstract class X {\n" + 
 			"  \n" + 
 			"  public static final double CONST = 1.0 / 0.0;\n" + 
 			"  \n" + 
@@ -2882,7 +2882,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"	X(X x) {}\n" +
 			"}";
 		String expectedOutput =
-			"public class X extends java.lang.Object {\n" + 
+			"public class X {\n" + 
 			"  \n" + 
 			"  public static final double CONST = 1.0 / 0.0;\n" + 
 			"  \n" + 
@@ -2901,7 +2901,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"}";
 		String expectedOutput =
 			"package p;\n" + 
-			"public class X extends Object {\n" + 
+			"public class X {\n" + 
 			"  \n" + 
 			"  public static final double CONST = 1.0 / 0.0;\n" + 
 			"  \n" + 
@@ -2909,5 +2909,146 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"  }\n" + 
 			"}";
 		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
+	public void test075() {
+		String source =
+			"package p;\n" +
+			"public class X {\n" + 
+			"	public static final String CONST = \"\";\n" +
+			"	X(X x) {}\n" +
+			"}";
+		String expectedOutput =
+			"package p;\n" + 
+			"public class X {\n" + 
+			"  \n" + 
+			"  public static final String CONST = \"\";\n" + 
+			"  \n" + 
+			"  X(X x) {\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
+	public void test076() {
+		String source =
+			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" + 
+			"  U field;\n" +
+			"  String field2;\n" +
+			"  <T> Y(T t) {}\n" +
+			"  <T> T foo(T t, String... s) {\n" + 
+			"    return t;\n" + 
+			"  }\n" + 
+			"}";
+		String expectedOutput =
+			"public class Y<W,U extends Reader & Serializable> {\n" + 
+			"  \n" + 
+			"  U field;\n" + 
+			"  \n" + 
+			"  String field2;\n" + 
+			"  \n" + 
+			"  <T> Y(T t) {\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  <T> T foo(T t, String... s) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.5", "", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
+	public void test077() {
+		String source =
+			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" + 
+			"  U field;\n" +
+			"  String field2;\n" +
+			"  <T> Y(T t) {}\n" +
+			"  <T> T foo(T t, String... s) {\n" + 
+			"    return t;\n" + 
+			"  }\n" + 
+			"}";
+		String expectedOutput =
+			"public class Y<W,U extends java.io.Reader & java.io.Serializable> {\n" + 
+			"  \n" + 
+			"  U field;\n" + 
+			"  \n" + 
+			"  java.lang.String field2;\n" + 
+			"  \n" + 
+			"  <T> Y(T t) {\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  <T> T foo(T t, java.lang.String... s) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.5", "", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
+	 */
+	public void test078() {
+		String source =
+			"public class X {\n" +
+			"	X(String s) {\n" +
+			"	}\n" +
+			"	public static void foo(int i, long l, String[][]... args) {\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"  // Method descriptor #18 (IJ[[[Ljava/lang/String;)V\n" + 
+			"  // Stack: 0, Locals: 4\n" + 
+			"  public static void foo(int i, long l, java.lang.String[][]... args);\n" + 
+			"    0  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 5]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 1] local: i index: 0 type: int\n" + 
+			"        [pc: 0, pc: 1] local: l index: 1 type: long\n" + 
+			"        [pc: 0, pc: 1] local: args index: 3 type: java.lang.String[][][]\n" + 
+			"}";
+		checkClassFile("1.5", "X", source, expectedOutput);
+	}
+	/**
+	 * enums
+	 */
+	public void test079() {
+		String source =
+			"public enum X { \n" + 
+			"	\n" + 
+			"	BLEU(10),\n" + 
+			"	BLANC(20),\n" + 
+			"	ROUGE(30);\n" +
+			"	X(int i) {}\n" +
+			"}\n";
+		String expectedOutput =
+			"public final enum X extends java.lang.Enum {\n" + 
+			"  \n" + 
+			"  public static final X BLEU;\n" + 
+			"  \n" + 
+			"  public static final X BLANC;\n" + 
+			"  \n" + 
+			"  public static final X ROUGE;\n" + 
+			"  \n" + 
+			"  private static final X[] ENUM$VALUES;\n" + 
+			"  \n" + 
+			"  static {} {\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  private X(java.lang.String arg0, int arg1, int i) {\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static final X[] values() {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  public static final X valueOf(java.lang.String arg0) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 }

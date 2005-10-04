@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.*;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 /**
  * Disassembler of .class files. It generates an output in the Writer that looks close to
@@ -56,6 +57,20 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 	}	
 
+	private void decodeModifiersForFieldForWorkingCopy(StringBuffer buffer, int accessFlags) {
+		boolean firstModifier = true;
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PROTECTED, "protected", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PRIVATE, "private", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_STATIC, "static", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_FINAL, "final", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_TRANSIENT, "transient", firstModifier); //$NON-NLS-1$
+		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_VOLATILE, "volatile", firstModifier); //$NON-NLS-1$
+		if (!firstModifier) {
+			buffer.append(Messages.disassembler_space); 
+		}
+	}	
+	
 	private final void decodeModifiersForInnerClasses(StringBuffer buffer, int accessFlags) {
 		boolean firstModifier = true;
 		firstModifier = appendModifier(buffer, accessFlags, IModifierConstants.ACC_PUBLIC, "public", firstModifier); //$NON-NLS-1$
@@ -360,12 +375,29 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			buffer.append(Messages.disassembler_space); 
 		}
 		CharOperation.replace(methodDescriptor, '/', '.');
+		final boolean isVarArgs = (accessFlags & IModifierConstants.ACC_VARARGS) != 0;
 		if (methodInfo.isConstructor()) {
-			buffer.append(Signature.toCharArray(methodDescriptor, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, (accessFlags & IModifierConstants.ACC_VARARGS) != 0));
+			if (checkMode(mode, WORKING_COPY) && signatureAttribute != null) {
+				final char[] signature = signatureAttribute.getSignature();
+				CharOperation.replace(signature, '/', '.');
+				disassembleGenericSignature(mode, buffer, signature);
+				buffer.append(' ');
+				buffer.append(Signature.toCharArray(signature, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs));
+			} else {
+				buffer.append(Signature.toCharArray(methodDescriptor, returnClassName(className, '.', COMPACT), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), false, isVarArgs));
+			}
 		} else if (methodInfo.isClinit()) {
 			buffer.append(Messages.bind(Messages.classfileformat_clinitname));
 		} else {
-			buffer.append(Signature.toCharArray(methodDescriptor, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, (accessFlags & IModifierConstants.ACC_VARARGS) != 0));
+			if (checkMode(mode, WORKING_COPY) && signatureAttribute != null) {
+				final char[] signature = signatureAttribute.getSignature();
+				CharOperation.replace(signature, '/', '.');
+				disassembleGenericSignature(mode, buffer, signature);
+				buffer.append(' ');
+				buffer.append(Signature.toCharArray(signature, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, isVarArgs));
+			} else {
+				buffer.append(Signature.toCharArray(methodDescriptor, methodInfo.getName(), getParameterNames(methodDescriptor, codeAttribute, accessFlags) , !checkMode(mode, COMPACT), true, isVarArgs));
+			}
 		}
 		IExceptionAttribute exceptionAttribute = methodInfo.getExceptionAttribute();
 		if (exceptionAttribute != null) {
@@ -609,15 +641,20 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			final int start = lastDotIndexInClassName + 1;
 			buffer.append(className, start, classNameLength - start);
 			className = CharOperation.subarray(className, start, classNameLength);
+			if (signatureAttribute != null) {
+				disassembleGenericSignature(mode, buffer, signatureAttribute.getSignature());
+			}
 		} else {
 			buffer.append(className);
 		}
 		
 		char[] superclassName = classFileReader.getSuperclassName();
 		if (superclassName != null) {
-			buffer.append(" extends "); //$NON-NLS-1$
 			CharOperation.replace(superclassName, '/', '.');
-			buffer.append(returnClassName(superclassName, '.', mode));
+			if (!isJavaLangObject(superclassName)) {
+				buffer.append(" extends "); //$NON-NLS-1$
+				buffer.append(returnClassName(superclassName, '.', mode));
+			}
 		}
 		char[][] superclassInterfaces = classFileReader.getInterfaceNames();
 		int length = superclassInterfaces.length;
@@ -693,6 +730,46 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		writeNewLine(buffer, lineSeparator, 0);
 		buffer.append(Messages.disassembler_closetypedeclaration); 
 		return buffer.toString();
+	}
+
+	private void disassembleGenericSignature(int mode, StringBuffer buffer, final char[] signature) {
+		CharOperation.replace(signature, '/', '.');
+		final char[][] typeParameters = Signature.getTypeParameters(signature);
+		final int typeParametersLength = typeParameters.length;
+		if (typeParametersLength != 0) {
+			buffer.append('<');
+			for (int i = 0; i < typeParametersLength; i++) {
+				// extract the name
+				buffer.append(typeParameters[i], 0, CharOperation.indexOf(':', typeParameters[i]));
+				final char[][] bounds = Signature.getTypeParameterBounds(typeParameters[i]);
+				final int boundsLength = bounds.length;
+				if (boundsLength != 0) {
+					if (boundsLength == 1) {
+						final char[] bound = bounds[0];
+						// check if this is java.lang.Object
+						if (!isJavaLangObject(Signature.toCharArray(bound))) {
+							buffer.append(" extends "); //$NON-NLS-1$
+							buffer.append(returnClassName(Signature.toCharArray(bound), '.', mode));
+						}
+					} else {
+						buffer.append(" extends "); //$NON-NLS-1$
+						for (int j= 0; j < boundsLength - 1; j++) {
+							buffer.append(returnClassName(Signature.toCharArray(bounds[j]), '.', mode));
+							buffer.append(" & "); //$NON-NLS-1$
+							}
+						buffer.append(returnClassName(Signature.toCharArray(bounds[boundsLength - 1]), '.', mode));
+					}
+				}	
+				if (i < typeParametersLength - 1) {
+					buffer.append(',');
+				}
+			}
+			buffer.append('>');
+		}
+	}
+
+	private boolean isJavaLangObject(final char[] className) {
+		return CharOperation.equals(TypeConstants.JAVA_LANG_OBJECT, CharOperation.splitOn('.', className));
 	}
 	
 	private void disassemble(ICodeAttribute codeAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
@@ -1036,12 +1113,21 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				writeNewLine(buffer, lineSeparator, tabNumber);
 			}
 		}
-		decodeModifiersForField(buffer, fieldInfo.getAccessFlags());
-		if (fieldInfo.isSynthetic()) {
-			buffer.append("synthetic"); //$NON-NLS-1$
-			buffer.append(Messages.disassembler_space); 
+		if (checkMode(mode, WORKING_COPY)) {
+			decodeModifiersForFieldForWorkingCopy(buffer, fieldInfo.getAccessFlags());
+			if (signatureAttribute != null) {
+				buffer.append(returnClassName(getSignatureForField(signatureAttribute.getSignature()), '.', mode));
+			} else {
+				buffer.append(returnClassName(getSignatureForField(fieldDescriptor), '.', mode));
+			}
+		} else {
+			decodeModifiersForField(buffer, fieldInfo.getAccessFlags());
+			if (fieldInfo.isSynthetic()) {
+				buffer.append("synthetic"); //$NON-NLS-1$
+				buffer.append(Messages.disassembler_space);
+			}
+			buffer.append(returnClassName(getSignatureForField(fieldDescriptor), '.', mode));
 		}
-		buffer.append(getSignatureForField(fieldDescriptor));
 		buffer.append(' ');
 		buffer.append(new String(fieldInfo.getName()));
 		IConstantValueAttribute constantValueAttribute = fieldInfo.getConstantValueAttribute();
@@ -1473,25 +1559,6 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 		return null;
 	}
-	/**
-	 * Method getEntryFor.
-	 * @param localIndex
-	 * @param entries
-	 * @return ILocalVariableTableEntry
-	 */
-	private ILocalVariableTableEntry getEntryFor(
-		int localIndex,
-		ILocalVariableTableEntry[] entries) {
-			
-			for (int i = 0, max = entries.length; i < max; i++) {
-				ILocalVariableTableEntry entry = entries[i];
-				if (localIndex == entry.getIndex()) {
-					return entry;
-				}
-			}
-			return null;
-	}
-	
 	private IClassFileAttribute getAttribute(final char[] attributeName, final ICodeAttribute codeAttribute) {
 		IClassFileAttribute[] attributes = codeAttribute.getAttributes();
 		for (int i = 0, max = attributes.length; i < max; i++) {
@@ -1510,33 +1577,66 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
 			if (localVariableAttribute != null) {
 				ILocalVariableTableEntry[] entries = localVariableAttribute.getLocalVariableTable();
-				int startingIndex = (accessFlags & IModifierConstants.ACC_STATIC) != 0 ? 0 : 1;
+				final int startingIndex = (accessFlags & IModifierConstants.ACC_STATIC) != 0 ? 0 : 1;
 				for (int i = 0; i < paramCount; i++) {
-					ILocalVariableTableEntry searchedEntry = getEntryFor(startingIndex + i, entries);
+					ILocalVariableTableEntry searchedEntry = getEntryFor(getLocalIndex(startingIndex, i, methodDescriptor), entries);
 					if (searchedEntry != null) {
 						parameterNames[i] = searchedEntry.getName();
 					} else {
-						parameterNames[i] = Messages.disassembler_parametername.toCharArray(); 
+						parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray()); 
 					}
 				}
 			} else {
 				for (int i = 0; i < paramCount; i++) {
-					parameterNames[i] = Messages.disassembler_parametername.toCharArray(); 
+					parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray()); 
 				}
 			}
 		} else {
 			for (int i = 0; i < paramCount; i++) {
-				parameterNames[i] = Messages.disassembler_parametername.toCharArray(); 
+				parameterNames[i] = CharOperation.concat(Messages.disassembler_parametername.toCharArray(), Integer.toString(i).toCharArray()); 
 			}
 		}
 		return parameterNames;
 	}
+	
+	private int getLocalIndex(final int startingSlot, final int index, final char[] methodDescriptor) {
+		int slot = startingSlot;
+		final char[][] types = Signature.getParameterTypes(methodDescriptor);
+		for (int i = 0; i < index; i++) {
+			final char[] type = types[i];
+			switch(type.length) {
+				case 1 :
+					switch(type[0]) {
+						case 'D' :
+						case 'J' :
+							slot += 2;
+							break;
+						default :
+							slot++;
+					}
+					break;
+				default :
+					slot++;
+			}
+		}
+		return slot;
+	}
+
+	private ILocalVariableTableEntry getEntryFor(final int index, final ILocalVariableTableEntry[] entries) {
+		for (int i = 0, max = entries.length; i < max; i++) {
+			ILocalVariableTableEntry entry = entries[i];
+			if (index == entry.getIndex()) {
+				return entry;
+			}
+		}
+		return null;
+	}
 
 	private char[] getSignatureForField(char[] fieldDescriptor) {
 		char[] newFieldDescriptor = CharOperation.replaceOnCopy(fieldDescriptor, '/', '.');
-		newFieldDescriptor = CharOperation.replaceOnCopy(newFieldDescriptor, '$', '~');
+		newFieldDescriptor = CharOperation.replaceOnCopy(newFieldDescriptor, '$', '%');
 		char[] fieldDescriptorSignature = Signature.toCharArray(newFieldDescriptor);
-		CharOperation.replace(fieldDescriptorSignature, '~', '$');
+		CharOperation.replace(fieldDescriptorSignature, '%', '$');
 		return fieldDescriptorSignature;
 	}
 	
