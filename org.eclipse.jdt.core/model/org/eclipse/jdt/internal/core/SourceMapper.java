@@ -777,19 +777,7 @@ public class SourceMapper
 		if (!type.isBinary()) {
 			return null;
 		}
-		BinaryType parent = (BinaryType) type.getDeclaringType();
-		BinaryType declType = (BinaryType) type;
-		while (parent != null) {
-			declType = parent;
-			parent = (BinaryType) declType.getDeclaringType();
-		}
-		IBinaryType info = null;
-		try {
-			info = (IBinaryType) declType.getElementInfo();
-		} catch (JavaModelException e) {
-			return null;
-		}
-		String simpleSourceFileName = declType.sourceFileName(info);
+		String simpleSourceFileName = ((BinaryType) type).getSourceFileName();
 		if (simpleSourceFileName == null) {
 			return null;
 		}

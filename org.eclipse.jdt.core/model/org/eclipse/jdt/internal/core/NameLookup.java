@@ -81,6 +81,8 @@ public class NameLookup implements SuffixConstants {
 	public static final int ACCEPT_ALL = ACCEPT_CLASSES | ACCEPT_INTERFACES | ACCEPT_ENUMS | ACCEPT_ANNOTATIONS;
 
 	public static boolean VERBOSE = false;
+	
+	private static final IType[] NO_TYPES = {};
 
 	/**
 	 * The <code>IPackageFragmentRoot</code>'s associated
@@ -107,10 +109,10 @@ public class NameLookup implements SuffixConstants {
 	protected Map rootToResolvedEntries;
 	
 	/**
-	 * A map from package handles to a map from type name to an IType of an IType[].
+	 * A map from package handles to a map from type name to an IType or an IType[].
 	 * Allows working copies to take precedence over compilation units.
 	 */
-	protected HashMap unitsToLookInside;
+	protected HashMap typesInWorkingCopies;
 	
 	public long timeSpentInSeekTypesInSourcePackage = 0;
 	public long timeSpentInSeekTypesInBinaryPackage = 0;
@@ -131,31 +133,37 @@ public class NameLookup implements SuffixConstants {
 			// ignore (implementation of HashtableOfArrayToObject supports cloning)
 		}
 		if (workingCopies != null) {
-			this.unitsToLookInside = new HashMap();
+			this.typesInWorkingCopies = new HashMap();
 			for (int i = 0, length = workingCopies.length; i < length; i++) {
 				ICompilationUnit workingCopy = workingCopies[i];
 				PackageFragment pkg = (PackageFragment) workingCopy.getParent();
-				HashMap typeMap = (HashMap) this.unitsToLookInside.get(pkg);
+				HashMap typeMap = (HashMap) this.typesInWorkingCopies.get(pkg);
 				if (typeMap == null) {
 					typeMap = new HashMap();
-					this.unitsToLookInside.put(pkg, typeMap);
+					this.typesInWorkingCopies.put(pkg, typeMap);
 				}
 				try {
 					IType[] types = workingCopy.getTypes();
-					for (int j = 0, typeLength = types.length; j < typeLength; j++) {
-						IType type = types[j];
-						String typeName = type.getElementName();
-						Object existing = typeMap.get(typeName);
-						if (existing == null) {
-							typeMap.put(typeName, type);
-						} else if (existing instanceof IType) {
-							typeMap.put(typeName, new IType[] {(IType) existing, type});
-						} else {
-							IType[] existingTypes = (IType[]) existing;
-							int existingTypeLength = existingTypes.length;
-							System.arraycopy(existingTypes, 0, existingTypes = new IType[existingTypeLength+1], 0, existingTypeLength);
-							existingTypes[existingTypeLength] = type;
-							typeMap.put(typeName, existingTypes);
+					int typeLength = types.length;
+					if (typeLength == 0) {
+						String typeName = Util.getNameWithoutJavaLikeExtension(workingCopy.getElementName());
+						typeMap.put(typeName, NO_TYPES);
+					} else {
+						for (int j = 0; j < typeLength; j++) {
+							IType type = types[j];
+							String typeName = type.getElementName();
+							Object existing = typeMap.get(typeName);
+							if (existing == null) {
+								typeMap.put(typeName, type);
+							} else if (existing instanceof IType) {
+								typeMap.put(typeName, new IType[] {(IType) existing, type});
+							} else {
+								IType[] existingTypes = (IType[]) existing;
+								int existingTypeLength = existingTypes.length;
+								System.arraycopy(existingTypes, 0, existingTypes = new IType[existingTypeLength+1], 0, existingTypeLength);
+								existingTypes[existingTypeLength] = type;
+								typeMap.put(typeName, existingTypes);
+							}
 						}
 					}
 				} catch (JavaModelException e) {
@@ -754,15 +762,30 @@ public class NameLookup implements SuffixConstants {
 		}
 		IPackageFragmentRoot root= (IPackageFragmentRoot) pkg.getParent();
 		try {
+
+			// look in working copies first
+			int firstDot = -1;
+			String topLevelTypeName = null;
 			int packageFlavor= root.getKind();
+			if (this.typesInWorkingCopies != null || packageFlavor == IPackageFragmentRoot.K_SOURCE) {
+				matchName= matchName.replace('$', '.');
+				firstDot = matchName.indexOf('.');
+				if (!partialMatch)
+					topLevelTypeName = firstDot == -1 ? matchName : matchName.substring(0, firstDot);
+			}
+			if (this.typesInWorkingCopies != null) {
+				if (seekTypesInWorkingCopies(matchName, pkg, firstDot, partialMatch, topLevelTypeName, acceptFlags, requestor))
+					return;
+			}
+			
+			// look in model
 			switch (packageFlavor) {
 				case IPackageFragmentRoot.K_BINARY :
 					matchName= matchName.replace('.', '$');
 					seekTypesInBinaryPackage(matchName, pkg, partialMatch, acceptFlags, requestor);
 					break;
 				case IPackageFragmentRoot.K_SOURCE :
-					matchName= matchName.replace('$', '.');
-					seekTypesInSourcePackage(matchName, pkg, partialMatch, acceptFlags, requestor);
+					seekTypesInSourcePackage(matchName, pkg, firstDot, partialMatch, topLevelTypeName, acceptFlags, requestor);
 					break;
 				default :
 					return;
@@ -830,41 +853,20 @@ public class NameLookup implements SuffixConstants {
 	/**
 	 * Performs type search in a source package.
 	 */
-	protected void seekTypesInSourcePackage(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
+	protected void seekTypesInSourcePackage(
+			String name, 
+			IPackageFragment pkg, 
+			int firstDot, 
+			boolean partialMatch, 
+			String topLevelTypeName, 
+			int acceptFlags,
+			IJavaElementRequestor requestor) {
 		
 		long start = -1;
 		if (VERBOSE)
 			start = System.currentTimeMillis();
 		try {
 			if (!partialMatch) {
-				int firstDot = name.indexOf('.');
-				String topLevelTypeName = firstDot == -1 ? name : name.substring(0, firstDot);
-				
-				// look in unitsToLookInside first
-				HashMap typeMap = (HashMap) (this.unitsToLookInside == null ? null : this.unitsToLookInside.get(pkg));
-				if (typeMap != null) {
-					Object object = typeMap.get(topLevelTypeName);
-					if (object instanceof IType) {
-						IType type = getMemberType((IType) object, name, firstDot);
-						if (acceptType(type, acceptFlags, true/*a source type*/)) {
-							requestor.acceptType(type);
-							return; // don't continue with compilation unit
-						}
-					} else if (object instanceof IType[]) {
-						IType[] topLevelTypes = (IType[]) object;
-						for (int i = 0, length = topLevelTypes.length; i < length; i++) {
-							if (requestor.isCanceled())
-								return;
-							IType type = getMemberType(topLevelTypes[i], name, firstDot);
-							if (acceptType(type, acceptFlags, true/*a source type*/)) {
-								requestor.acceptType(type);
-								return; // return the first one
-							}
-						}
-					}
-				}
-				
-				// look in compilation units
 				try {
 					ICompilationUnit[] compilationUnits = pkg.getCompilationUnits();
 					for (int i = 0, length = compilationUnits.length; i < length; i++) {
@@ -886,30 +888,8 @@ public class NameLookup implements SuffixConstants {
 					// package doesn't exist -> ignore
 				}
 			} else {
-				String prefix = name.toLowerCase();
-				int firstDot = prefix.indexOf('.');
-				
-				// look in unitsToLookInside first
-				HashMap typeMap = (HashMap) (this.unitsToLookInside == null ? null : this.unitsToLookInside.get(pkg));
-				if (typeMap != null) {
-					Iterator iterator = typeMap.values().iterator();
-					while (iterator.hasNext()) {
-						if (requestor.isCanceled())
-							return;
-						Object object = iterator.next();
-						if (object instanceof IType) {
-							seekTypesInTopLevelType(prefix, firstDot, (IType) object, requestor, acceptFlags);
-						} else if (object instanceof IType[]) {
-							IType[] topLevelTypes = (IType[]) object;
-							for (int i = 0, length = topLevelTypes.length; i < length; i++)
-								seekTypesInTopLevelType(prefix, firstDot, topLevelTypes[i], requestor, acceptFlags);
-						}
-					}
-				}
-				
-				// look in compilation units
 				try {
-					String cuPrefix = firstDot == -1 ? prefix : prefix.substring(0, firstDot);
+					String cuPrefix = firstDot == -1 ? name : name.substring(0, firstDot);
 					ICompilationUnit[] compilationUnits = pkg.getCompilationUnits();
 					for (int i = 0, length = compilationUnits.length; i < length; i++) {
 						if (requestor.isCanceled())
@@ -920,7 +900,7 @@ public class NameLookup implements SuffixConstants {
 						try {
 							IType[] types = cu.getTypes();
 							for (int j = 0, typeLength = types.length; j < typeLength; j++)
-								seekTypesInTopLevelType(prefix, firstDot, types[j], requestor, acceptFlags);
+								seekTypesInTopLevelType(name, firstDot, types[j], requestor, acceptFlags);
 						} catch (JavaModelException e) {
 							// cu doesn't exist -> ignore
 						}
@@ -934,22 +914,22 @@ public class NameLookup implements SuffixConstants {
 				this.timeSpentInSeekTypesInSourcePackage += System.currentTimeMillis()-start;
 		}
 	}
-
+	
 	/**
 	 * Notifies the given requestor of all types (classes and interfaces) in the
 	 * given type with the given (possibly qualified) name. Checks
 	 * the requestor at regular intervals to see if the requestor
 	 * has canceled.
 	 */
-	protected void seekTypesInType(String prefix, int firstDot, IType type, IJavaElementRequestor requestor, int acceptFlags) {
+	protected boolean seekTypesInType(String prefix, int firstDot, IType type, IJavaElementRequestor requestor, int acceptFlags) {
 		IType[] types= null;
 		try {
 			types= type.getTypes();
 		} catch (JavaModelException npe) {
-			return; // the enclosing type is not present
+			return false; // the enclosing type is not present
 		}
 		int length= types.length;
-		if (length == 0) return; 
+		if (length == 0) return false; 
 		
 		String memberPrefix = prefix;
 		boolean isMemberTypePrefix = false;
@@ -959,27 +939,93 @@ public class NameLookup implements SuffixConstants {
 		}
 		for (int i= 0; i < length; i++) {
 			if (requestor.isCanceled())
-				return;
+				return false;
 			IType memberType= types[i];
 			if (memberType.getElementName().toLowerCase().startsWith(memberPrefix))
 				if (isMemberTypePrefix) {
 					String subPrefix = prefix.substring(firstDot + 1, prefix.length());
-					seekTypesInType(subPrefix, subPrefix.indexOf('.'), memberType, requestor, acceptFlags);
+					return seekTypesInType(subPrefix, subPrefix.indexOf('.'), memberType, requestor, acceptFlags);
 				} else {
-					if (acceptType(memberType, acceptFlags, true/*a source type*/)) 
+					if (acceptType(memberType, acceptFlags, true/*a source type*/)) {
 						requestor.acceptMemberType(memberType);
+						return true;
+					}
 				}
 		}
+		return false;
 	}
 	
-	protected void seekTypesInTopLevelType(String prefix, int firstDot, IType topLevelType, IJavaElementRequestor requestor, int acceptFlags) {
+	protected boolean seekTypesInTopLevelType(String prefix, int firstDot, IType topLevelType, IJavaElementRequestor requestor, int acceptFlags) {
 		if (!topLevelType.getElementName().toLowerCase().startsWith(prefix))
-			return;
+			return false;
 		if (firstDot == -1) {
-			if (acceptType(topLevelType, acceptFlags, true/*a source type*/))
+			if (acceptType(topLevelType, acceptFlags, true/*a source type*/)) {
 				requestor.acceptType(topLevelType);
+				return true;
+			}
 		} else {
-			seekTypesInType(prefix, firstDot, topLevelType, requestor, acceptFlags);
+			return seekTypesInType(prefix, firstDot, topLevelType, requestor, acceptFlags);
 		}
+		return false;
 	}
+	
+	/*
+	 * Seeks the type with the given name in the map of types with precedence (coming from working copies)
+	 * Return whether a type has been found.
+	 */
+	protected boolean seekTypesInWorkingCopies(
+			String name, 
+			IPackageFragment pkg, 
+			int firstDot, 
+			boolean partialMatch, 
+			String topLevelTypeName, 
+			int acceptFlags,
+			IJavaElementRequestor requestor) {
+
+		if (!partialMatch) {
+			HashMap typeMap = (HashMap) (this.typesInWorkingCopies == null ? null : this.typesInWorkingCopies.get(pkg));
+			if (typeMap != null) {
+				Object object = typeMap.get(topLevelTypeName);
+				if (object instanceof IType) {
+					IType type = getMemberType((IType) object, name, firstDot);
+					if (acceptType(type, acceptFlags, true/*a source type*/)) {
+						requestor.acceptType(type);
+						return true; // don't continue with compilation unit
+					}
+				} else if (object instanceof IType[]) {
+					if (object == NO_TYPES) return true; // all types where deleted -> type is hidden
+					IType[] topLevelTypes = (IType[]) object;
+					for (int i = 0, length = topLevelTypes.length; i < length; i++) {
+						if (requestor.isCanceled())
+							return false;
+						IType type = getMemberType(topLevelTypes[i], name, firstDot);
+						if (acceptType(type, acceptFlags, true/*a source type*/)) {
+							requestor.acceptType(type);
+							return true; // return the first one
+						}
+					}
+				}
+			}
+		} else {
+			HashMap typeMap = (HashMap) (this.typesInWorkingCopies == null ? null : this.typesInWorkingCopies.get(pkg));
+			if (typeMap != null) {
+				Iterator iterator = typeMap.values().iterator();
+				while (iterator.hasNext()) {
+					if (requestor.isCanceled())
+						return false;
+					Object object = iterator.next();
+					if (object instanceof IType) {
+						seekTypesInTopLevelType(name, firstDot, (IType) object, requestor, acceptFlags);
+					} else if (object instanceof IType[]) {
+						IType[] topLevelTypes = (IType[]) object;
+						for (int i = 0, length = topLevelTypes.length; i < length; i++)
+							seekTypesInTopLevelType(name, firstDot, topLevelTypes[i], requestor, acceptFlags);
+					}
+				}
+			}
+		}
+		return false;
+	}
+		
+	
 }

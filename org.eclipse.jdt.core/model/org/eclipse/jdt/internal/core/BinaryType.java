@@ -472,6 +472,22 @@ public String getSuperclassTypeSignature() throws JavaModelException {
 	}
 }
 
+public String getSourceFileName() {
+		BinaryType typeParent = (BinaryType) getDeclaringType();
+		BinaryType declType = this;
+		while (typeParent != null) {
+			declType = typeParent;
+			typeParent = (BinaryType) declType.getDeclaringType();
+		}
+		IBinaryType info;
+		try {
+			info = (IBinaryType) declType.getElementInfo();
+		} catch (JavaModelException e) {
+			return null;
+		}
+		return declType.sourceFileName(info);
+}
+
 /*
  * @see IType#getSuperclassName()
  */

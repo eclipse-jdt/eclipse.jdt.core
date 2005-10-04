@@ -66,6 +66,25 @@ protected ClassFile(PackageFragment parent, String name) {
 	this.checkAutomaticSourceMapping = false;
 }
 
+/*
+ * @see IClassFile#becomeWorkingCopy(IProblemRequestor, WorkingCopyOwner, IProgressMonitor)
+ */
+public ICompilationUnit becomeWorkingCopy(IProblemRequestor problemRequestor, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	CompilationUnit workingCopy = new ClassFileWorkingCopy(this, owner == null ? DefaultWorkingCopyOwner.PRIMARY : owner);
+	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = manager.getPerWorkingCopyInfo(workingCopy, false/*don't create*/, true /*record usage*/, null/*no problem requestor needed*/);
+	if (perWorkingCopyInfo == null) {
+		// close cu and its children
+		close();
+
+		BecomeWorkingCopyOperation operation = new BecomeWorkingCopyOperation(workingCopy, problemRequestor);
+		operation.runOperation(monitor);
+		
+		return workingCopy;
+	}
+	return perWorkingCopyInfo.workingCopy;
+}
+
 /**
  * Creates the children elements for this class file adding the resulting
  * new handles and info objects to the newElements table. Returns true
@@ -465,24 +484,15 @@ public String getTypeName() {
  * @see IClassFile
  */
 public ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
-	// get the source if possible
-	char[] contents = null;
-	SourceMapper mapper = this.getSourceMapper();
-	if (mapper != null) {
-		contents = mapper.findSource(getType());
+	CompilationUnit workingCopy = new ClassFileWorkingCopy(this, owner == null ? DefaultWorkingCopyOwner.PRIMARY : owner);
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = 
+		manager.getPerWorkingCopyInfo(workingCopy, false/*don't create*/, true/*record usage*/, null/*not used since don't create*/);
+	if (perWorkingCopyInfo != null) {
+		return perWorkingCopyInfo.getWorkingCopy(); // return existing handle instead of the one created above
 	}
-	if (contents == null) {
-		return null;
-	}
-
-	ClassFileWorkingCopy workingCopy = new ClassFileWorkingCopy();
-	IBuffer buffer = owner == null ? this.getBuffer() : owner.createBuffer(workingCopy);
-	workingCopy.buffer = buffer;
-	
-	// set the buffer source
-	if (buffer != null && buffer.getCharacters() == null){
-		buffer.setContents(contents);
-	}
+	BecomeWorkingCopyOperation op = new BecomeWorkingCopyOperation(workingCopy, null);
+	op.runOperation(monitor);
 	return workingCopy;
 }
 /**
