@@ -4176,4 +4176,39 @@ the right of e1."
 			"Cannot refer to the static enum field Foo.t within an initializer\n" + 
 			"----------\n");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=1101417
+	public void test124() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" public enum X {\n" + 
+				"  max {\n" + 
+				"   { \n" + 
+				"     val=3;  \n" + 
+				"   }         \n" + 
+				"   @Override public String toString() {\n" + 
+				"     return Integer.toString(val);\n" + 
+				"   }\n" + 
+				"  }; \n" + 
+				"  {\n" + 
+				"    val=2;\n" + 
+				"  }\n" + 
+				"  private int val; \n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    System.out.println(max); // 3\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	val=3;  \n" + 
+			"	^^^\n" + 
+			"Cannot make a static reference to the non-static field val\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	return Integer.toString(val);\n" + 
+			"	                        ^^^\n" + 
+			"Cannot make a static reference to the non-static field val\n" + 
+			"----------\n");
+	}	
 }
