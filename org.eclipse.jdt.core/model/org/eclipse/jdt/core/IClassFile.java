@@ -149,7 +149,8 @@ ICompilationUnit getWorkingCopy(WorkingCopyOwner owner, IProgressMonitor monitor
  * @since 2.0
  * @deprecated Use getWorkingCopy(WorkingCopyOwner, IProgressMonitor) instead
  */
-IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;/**
+IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory) throws JavaModelException;
+/**
  * Returns whether this type represents a class. This is not guaranteed to be
  * instantaneous, as it may require parsing the underlying file.
  *
