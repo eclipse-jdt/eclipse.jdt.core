@@ -3013,7 +3013,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("1.5", "X", source, expectedOutput);
 	}
 	/**
-	 * enums
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
 	 */
 	public void test079() {
 		String source =
@@ -3025,28 +3025,15 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"	X(int i) {}\n" +
 			"}\n";
 		String expectedOutput =
-			"public final enum X extends java.lang.Enum {\n" + 
+			"public enum X {\n" + 
 			"  \n" + 
-			"  public static final X BLEU;\n" + 
+			"  BLEU(0),\n" + 
 			"  \n" + 
-			"  public static final X BLANC;\n" + 
+			"  BLANC(0),\n" + 
 			"  \n" + 
-			"  public static final X ROUGE;\n" + 
+			"  ROUGE(0),;\n" + 
 			"  \n" + 
-			"  private static final X[] ENUM$VALUES;\n" + 
-			"  \n" + 
-			"  static {} {\n" + 
-			"  }\n" + 
-			"  \n" + 
-			"  private X(java.lang.String arg0, int arg1, int i) {\n" + 
-			"  }\n" + 
-			"  \n" + 
-			"  public static final X[] values() {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"  \n" + 
-			"  public static final X valueOf(java.lang.String arg0) {\n" + 
-			"    return null;\n" + 
+			"  private X(int i) {\n" + 
 			"  }\n" + 
 			"}";
 		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
