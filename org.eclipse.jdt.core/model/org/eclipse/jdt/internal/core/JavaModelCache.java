@@ -57,7 +57,10 @@ public class JavaModelCache {
 	
 public JavaModelCache() {
 	// set the size of the caches in function of the maximum amount of memory available
-	double ratio =  Runtime.getRuntime().maxMemory() / 64000000; // 64000000 is the base memory for most JVM
+	long maxMemory = Runtime.getRuntime().maxMemory();
+	// if max memory is infinite, set the ratio to 4d which corresponds to the 256MB that Eclipse defaults to
+	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=111299)
+	double ratio = maxMemory == Long.MAX_VALUE ? 4d : maxMemory / 64000000; // 64000000 is the base memory for most JVM
 	this.projectCache = new HashMap(DEFAULT_PROJECT_SIZE); // NB: Don't use a LRUCache for projects as they are constantly reopened (e.g. during delta processing)
 	this.rootCache = new ElementCache((int) (DEFAULT_ROOT_SIZE * ratio));
 	this.pkgCache = new ElementCache((int) (DEFAULT_PKG_SIZE * ratio));
