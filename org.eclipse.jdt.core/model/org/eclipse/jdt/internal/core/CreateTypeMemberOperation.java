@@ -123,8 +123,8 @@ private String removeIndentAndNewLines(String code, IDocument document, ICompila
 	IJavaProject project = cu.getJavaProject();
 	Map options = project.getOptions(true/*inherit JavaCore options*/);
 	int tabWidth = Indents.getTabWidth(options);
-	int indentWidth = Indents.getIndentWidth(options, tabWidth);
-	int indent = Indents.computeIndentUnits(code, tabWidth, indentWidth);
+	int indentWidth = Indents.getIndentWidth(options);
+	int indent = Indents.measureIndentUnits(code, tabWidth, indentWidth);
 	int firstNonWhiteSpace = -1;
 	int length = code.length();
 	while (firstNonWhiteSpace < length-1)

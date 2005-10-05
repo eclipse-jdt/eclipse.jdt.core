@@ -139,7 +139,7 @@ import org.eclipse.jdt.core.dom.Statement;
 		this.lineDelimiter= lineDelimiter;
 		
 		this.tabWidth= Indents.getTabWidth(options);
-		this.indentWidth= Indents.getIndentWidth(options, this.tabWidth);
+		this.indentWidth= Indents.getIndentWidth(options);
 	}
 	
 
@@ -233,7 +233,7 @@ import org.eclipse.jdt.core.dom.Statement;
     }
 	
 	public String getIndentString(String currentLine) {
-		return Indents.getIndentString(currentLine, this.tabWidth, this.indentWidth);
+		return Indents.extractIndentString(currentLine, this.tabWidth, this.indentWidth);
 	}
 	
 	public String changeIndent(String code, int codeIndentLevel, String newIndent) {
@@ -241,7 +241,7 @@ import org.eclipse.jdt.core.dom.Statement;
 	}
 	
 	public int computeIndentUnits(String line) {
-		return Indents.computeIndentUnits(line, this.tabWidth, this.indentWidth);
+		return Indents.measureIndentUnits(line, this.tabWidth, this.indentWidth);
 	}
 	
 	/**
