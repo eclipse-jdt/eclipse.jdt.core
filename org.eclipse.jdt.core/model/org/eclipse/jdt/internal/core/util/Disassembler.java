@@ -1706,7 +1706,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 							continue methodLoop;
 						}
 					}
-				} else if (methodInfo.isClinit()) {
+				} else if (methodInfo.isClinit() || methodInfo.isSynthetic()) {
 					continue methodLoop;
 				} else if (methodInfo.isConstructor()) {
 					writeNewLine(buffer, lineSeparator, tabNumber);

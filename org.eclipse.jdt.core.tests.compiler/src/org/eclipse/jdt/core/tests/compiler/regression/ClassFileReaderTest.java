@@ -27,7 +27,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 79 };
+//		TESTS_NUMBERS = new int[] { 81 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -3026,6 +3026,94 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"}\n";
 		String expectedOutput =
 			"public enum X {\n" + 
+			"  \n" + 
+			"  BLEU(0),\n" + 
+			"  \n" + 
+			"  BLANC(0),\n" + 
+			"  \n" + 
+			"  ROUGE(0),;\n" + 
+			"  \n" + 
+			"  private X(int i) {\n" + 
+			"  }\n" + 
+			"}";
+		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
+	 * TODO corner case that doesn't produce the right source
+	 */
+	public void test080() {
+		String source =
+			"public enum X {\n" +
+			"	BLEU(0) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"BLEU\";\n" +
+			"		}\n" +
+			"	},\n" +
+			"	BLANC(1) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"BLANC\";\n" +
+			"		}\n" +
+			"	},\n" +
+			"	ROUGE(2) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"ROUGE\";\n" +
+			"		}\n" +
+			"	},;\n" +
+			"	\n" +
+			"	X(int i) {\n" +
+			"	}\n" +
+			"	abstract public String colorName();\n" +
+			"}";
+		String expectedOutput =
+			"public enum X {\n" +
+			"  \n" +
+			"  BLEU(0),\n" +
+			"  \n" +
+			"  BLANC(0),\n" +
+			"  \n" +
+			"  ROUGE(0),;\n" +
+			"  \n" +
+			"  private X(int i) {\n" +
+			"  }\n" +
+			"  \n" +
+			"  public abstract java.lang.String colorName();\n" +
+			"}";
+		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
+	 * TODO corner case that doesn't produce the right source
+	 */
+	public void test081() {
+		String source =
+			"interface I {\n" +
+			"	String colorName();\n" +
+			"}\n" +
+			"public enum X implements I {\n" +
+			"	BLEU(0) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"BLEU\";\n" +
+			"		}\n" +
+			"	},\n" +
+			"	BLANC(1) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"BLANC\";\n" +
+			"		}\n" +
+			"	},\n" +
+			"	ROUGE(2) {\n" +
+			"		public String colorName() {\n" +
+			"			return \"ROUGE\";\n" +
+			"		}\n" +
+			"	},;\n" +
+			"	\n" +
+			"	X(int i) {\n" +
+			"	}\n" +
+			"}";
+		String expectedOutput =
+			"public enum X implements I {\n" + 
 			"  \n" + 
 			"  BLEU(0),\n" + 
 			"  \n" + 
