@@ -76,7 +76,7 @@ public ClasspathTests(String name) {
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-//	TESTS_NAMES = new String[] {"testEmptyInclusionPattern"};
+	TESTS_NAMES = new String[] {"testEncodeDecodeEntry04"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -126,6 +126,19 @@ protected void assertClasspathEquals(IClasspathEntry[] classpath, String expecte
 	 	System.out.print(Util.displayString(actual, 2));
 	}
 	assertEquals(expected, actual);
+}
+private void assertEncodeDecodeEntry(String projectName, String expectedEncoded, IClasspathEntry entry) {
+	IJavaProject project = getJavaProject(projectName);
+	String encoded = project.encodeClasspathEntry(entry);
+	assertSourceEquals(
+		"Unexpected encoded entry",
+		expectedEncoded,
+		encoded);
+	IClasspathEntry decoded = project.decodeClasspathEntry(encoded);
+	assertEquals(
+		"Unexpected decoded entry",
+		entry,
+		decoded);
 }
 protected void assertMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
 	waitForAutoBuild();
@@ -1964,6 +1977,68 @@ public void testEncoding() throws CoreException {
 	} finally {
 		deleteProject("P");
 	}
+}
+/*
+ * Ensures that a source classpath entry can be encoded and decoded.
+ */
+public void testEncodeDecodeEntry01() {
+	assertEncodeDecodeEntry(
+		"P", 
+		"<classpathentry kind=\"src\" path=\"src\"/>\n", 
+		JavaCore.newSourceEntry(new Path("/P/src"))
+	);
+}
+/*
+ * Ensures that a source classpath entry with all possible attributes can be encoded and decoded.
+ */
+public void testEncodeDecodeEntry02() {
+	assertEncodeDecodeEntry(
+		"P", 
+		"<classpathentry including=\"**/Y.java\" excluding=\"**/X.java\" output=\"bin\" kind=\"src\" path=\"src\">\n" + 
+		"	<attributes>\n" + 
+		"		<attribute value=\"some value\" name=\"attrName\"/>\n" + 
+		"	</attributes>\n" + 
+		"</classpathentry>\n", 
+		JavaCore.newSourceEntry(
+			new Path("/P/src"), 
+			new IPath[] {new Path("**/Y.java")},
+			new IPath[] {new Path("**/X.java")},
+			new Path("/P/bin"),
+			new IClasspathAttribute[] {JavaCore.newClasspathAttribute("attrName", "some value")})
+	);
+}
+/*
+ * Ensures that a project classpath entry can be encoded and decoded.
+ */
+public void testEncodeDecodeEntry03() {
+	assertEncodeDecodeEntry(
+		"P1", 
+		"<classpathentry kind=\"src\" path=\"/P2\"/>\n",
+		JavaCore.newProjectEntry(new Path("/P2"))
+	);
+}
+/*
+ * Ensures that a library classpath entry can be encoded and decoded.
+ */
+public void testEncodeDecodeEntry04() {
+	assertEncodeDecodeEntry(
+		"P", 
+		"<classpathentry exported=\"true\" sourcepath=\"src.zip\" kind=\"lib\" rootpath=\"root\" path=\"lib.jar\">\n" + 
+		"	<attributes>\n" + 
+		"		<attribute value=\"val1\" name=\"attr1\"/>\n" + 
+		"	</attributes>\n" + 
+		"	<accessrules>\n" + 
+		"		<accessrule kind=\"accessible\" pattern=\"**/A*.java\"/>\n" + 
+		"	</accessrules>\n" + 
+		"</classpathentry>\n",	
+		JavaCore.newLibraryEntry(
+			new Path("/P/lib.jar"),
+			new Path("/P/src.zip"),
+			new Path("root"),
+			new IAccessRule[] {JavaCore.newAccessRule(new Path("**/A*.java"), IAccessRule.K_ACCESSIBLE)},
+			new IClasspathAttribute[] {JavaCore.newClasspathAttribute("attr1", "val1")},
+			true)
+	);
 }
 /**
  * Ensures that adding an empty classpath container

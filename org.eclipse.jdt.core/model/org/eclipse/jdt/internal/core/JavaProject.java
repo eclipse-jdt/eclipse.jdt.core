@@ -904,6 +904,52 @@ public class JavaProject
 	protected IPath defaultOutputLocation() {
 		return this.project.getFullPath().append("bin"); //$NON-NLS-1$
 	}
+	
+	public IClasspathEntry decodeClasspathEntry(String encodedEntry) {
+
+		try {
+			if (encodedEntry == null) return null;
+			StringReader reader = new StringReader(encodedEntry);
+			Element node;
+	
+			try {
+				DocumentBuilder parser =
+					DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				node = parser.parse(new InputSource(reader)).getDocumentElement();
+			} catch (SAXException e) {
+				return null;
+			} catch (ParserConfigurationException e) {
+				return null;
+			} finally {
+				reader.close();
+			}
+	
+			if (!node.getNodeName().equalsIgnoreCase("classpathentry") //$NON-NLS-1$
+					|| node.getNodeType() != Node.ELEMENT_NODE) {
+				return null; 
+			}
+			return ClasspathEntry.elementDecode(node, this, null/*not interested in unknown elements*/);
+		} catch (IOException e) {
+			// bad format
+			return null;
+		}
+	}
+	
+	public String encodeClasspathEntry(IClasspathEntry classpathEntry) {
+		try {
+			ByteArrayOutputStream s = new ByteArrayOutputStream();
+			OutputStreamWriter writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
+			XMLWriter xmlWriter = new XMLWriter(writer, this, false/*don't print XML version*/);
+			
+			((ClasspathEntry)classpathEntry).elementEncode(xmlWriter, this.project.getFullPath(), true/*indent*/, true/*insert new line*/, null/*not interested in unknown elements*/);
+	
+			writer.flush();
+			writer.close();
+			return s.toString("UTF8");//$NON-NLS-1$
+		} catch (IOException e) {
+			return null; // never happens since all is done in memory
+		}
+	}
 
 	/**
 	 * Returns the XML String encoding of the class path.

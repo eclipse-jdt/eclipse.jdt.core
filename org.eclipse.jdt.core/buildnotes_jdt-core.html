@@ -48,12 +48,16 @@ Eclipse SDK 3.2M3 - ?th October 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API to encode and decode a classpath entry (<code>IJavaProject#encodeClasspathEntry(IClasspathEntry)
+     and decodeClasspathEntry(String)</code>.
 <li>Added API <code>IClassFile#becomeWorkingCopy(...)</code> that returns an <code>ICompilationUnit</code>
      in working copy mode on the given class file. See its Javadoc for more details.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111511">111511</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110171">110171</a>
+[plan] API to encode/decode a classpath entry into XML form
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111511">111511</a>
 Comments in compiler @arguments file
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111420">111420</a>
 Disassembler doesn't generate type parameters
