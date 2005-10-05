@@ -124,9 +124,9 @@ public void testCompletionFindClass() throws JavaModelException {
     this.wc.codeComplete(cursorLocation, requestor, this.owner);
 
     assertResults(
+    		"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
     		"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}\n" +
-    		"A3[TYPE_REF]{A3, , LA3;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"A3[TYPE_REF]{A3, , LA3;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
 			"A[TYPE_REF]{A, , LA;, null, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
             requestor.getResults());
 }
@@ -3393,8 +3393,8 @@ public void testCompletionKeywordSuper6() throws JavaModelException {
     assertResults(
             "SuperClass[TYPE_REF]{SuperClass, , LSuperClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"SuperInterface[TYPE_REF]{SuperInterface, , LSuperInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"super[METHOD_REF<CONSTRUCTOR>]{super(), Ljava.lang.Object;, ()V, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"super[KEYWORD]{super, null, null, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+"}",
+			"super[KEYWORD]{super, null, null, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+"}\n" +
+			"super[METHOD_REF<CONSTRUCTOR>]{super(), Ljava.lang.Object;, ()V, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordTry1() throws JavaModelException {
@@ -6005,8 +6005,8 @@ public void testCompletionKeywordSuper12() throws JavaModelException {
     assertResults(
             "SuperClass[TYPE_REF]{SuperClass, , LSuperClass;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"SuperInterface[TYPE_REF]{SuperInterface, , LSuperInterface;, null, null, " + (R_DEFAULT + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"super[METHOD_REF<CONSTRUCTOR>]{super(), Ljava.lang.Object;, ()V, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"super[KEYWORD]{super, null, null, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+"}",
+			"super[KEYWORD]{super, null, null, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED)+"}\n" +
+			"super[METHOD_REF<CONSTRUCTOR>]{super(), Ljava.lang.Object;, ()V, super, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testCompletionKeywordTry4() throws JavaModelException {
@@ -10475,21 +10475,266 @@ public void testCompletionExpectedTypeOnEmptyToken4() throws JavaModelException 
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=99811
 public void testBug99811() throws JavaModelException {
-    this.wc = getWorkingCopy(
-            "/Completion/src/test/A.java",
-            "public abstract class A implements I {}");
-    getWorkingCopy(
-            "/Completion/src/test/I.java",
-            "public interface I {\n"+
-            "  public class M extends A {}\n"+
+	ICompilationUnit aType = null;
+    try {
+    	this.wc = getWorkingCopy(
+	            "/Completion/src/test/A.java",
+	            "public abstract class A implements I {}");
+    	
+	    aType = getWorkingCopy(
+	            "/Completion/src/test/I.java",
+	            "public interface I {\n"+
+	            "  public class M extends A {}\n"+
+	            "}");
+	
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "A";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults("", requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
+public void testCompletionImportedType1() throws JavaModelException {
+    ICompilationUnit aType = null;
+    try {
+    	aType = getWorkingCopy(
+	            "/Completion/src/test/imported/ZZZZ.java",
+	            "package test.imported;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	
+    	this.wc = getWorkingCopy(
+            "/Completion/src/test/CompletionImportedType1.java",
+            "package test;"+
+            "public class CompletionImportedType1 {"+
+            "  ZZZ\n"+
             "}");
-
-    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-    String str = this.wc.getSource();
-    String completeBehind = "A";
-    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
-
-	assertResults("", requestor.getResults());
+	
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "ZZZ";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, Ltest.CompletionImportedType1;, ()V, ZZZ, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{test.imported.ZZZZ, test.imported, Ltest.imported.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType != null) {
+			aType.discardWorkingCopy();
+		}
+	}
+}
+public void testCompletionImportedType2() throws JavaModelException {
+    ICompilationUnit aType1 = null;
+    ICompilationUnit aType2 = null;
+    ICompilationUnit aType3 = null;
+    try {
+    	aType1 = getWorkingCopy(
+	            "/Completion/src/test/imported1/ZZZZ.java",
+	            "package test.imported1;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	aType2 = getWorkingCopy(
+	            "/Completion/src/test/imported2/ZZZZ.java",
+	            "package test.imported2;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	aType3 = getWorkingCopy(
+	            "/Completion/src/test/imported3/ZZZZ.java",
+	            "package test.imported3;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	
+    	this.wc = getWorkingCopy(
+            "/Completion/src/test/CompletionImportedType2.java",
+            "package test;"+
+            "import test.imported1.*;"+
+            "import test.imported2.*;"+
+            "import test.imported3.*;"+
+            "public class CompletionImportedType2 {"+
+            "  ZZZ\n"+
+            "}");
+	
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "ZZZ";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, Ltest.CompletionImportedType2;, ()V, ZZZ, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{test.imported1.ZZZZ, test.imported1, Ltest.imported1.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{test.imported2.ZZZZ, test.imported2, Ltest.imported2.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{test.imported3.ZZZZ, test.imported3, Ltest.imported3.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType1 != null) {
+			aType1.discardWorkingCopy();
+		}
+		if(aType2 != null) {
+			aType2.discardWorkingCopy();
+		}
+		if(aType3 != null) {
+			aType3.discardWorkingCopy();
+		}
+	}
+}
+public void testCompletionImportedType3() throws JavaModelException {
+    ICompilationUnit aType1 = null;
+    ICompilationUnit aType2 = null;
+    ICompilationUnit aType3 = null;
+    try {
+    	aType1 = getWorkingCopy(
+	            "/Completion/src/test/imported1/ZZZZ.java",
+	            "package test.imported1;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	aType2 = getWorkingCopy(
+	            "/Completion/src/test/imported2/ZZZZ.java",
+	            "package test.imported2;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	aType3 = getWorkingCopy(
+	            "/Completion/src/test/imported3/ZZZZ.java",
+	            "package test.imported3;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	
+    	this.wc = getWorkingCopy(
+            "/Completion/src/test/CompletionImportedType3.java",
+            "package test;"+
+            "import test.imported2.*;"+
+            "public class CompletionImportedType3 {"+
+            "  ZZZ\n"+
+            "}");
+	
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "ZZZ";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, Ltest.CompletionImportedType3;, ()V, ZZZ, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{test.imported1.ZZZZ, test.imported1, Ltest.imported1.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{test.imported3.ZZZZ, test.imported3, Ltest.imported3.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{ZZZZ, test.imported2, Ltest.imported2.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType1 != null) {
+			aType1.discardWorkingCopy();
+		}
+		if(aType2 != null) {
+			aType2.discardWorkingCopy();
+		}
+		if(aType3 != null) {
+			aType3.discardWorkingCopy();
+		}
+	}
+}
+public void testCompletionImportedType4() throws JavaModelException {
+    ICompilationUnit aType1 = null;
+    ICompilationUnit aType2 = null;
+    try {
+    	aType1 = getWorkingCopy(
+	            "/Completion/src/test/imported1/ZZZZ.java",
+	            "package test.imported1;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	aType2 = getWorkingCopy(
+	            "/Completion/src/test/imported2/ZZZZ.java",
+	            "package test.imported2;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	
+    	this.wc = getWorkingCopy(
+            "/Completion/src/test/CompletionImportedType4.java",
+            "package test;"+
+            "import test.imported1.*;"+
+            "public class CompletionImportedType4 {"+
+            "  ZZZ\n"+
+            "}");
+	
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "ZZZ";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, Ltest.CompletionImportedType4;, ()V, ZZZ, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{test.imported2.ZZZZ, test.imported2, Ltest.imported2.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{ZZZZ, test.imported1, Ltest.imported1.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType1 != null) {
+			aType1.discardWorkingCopy();
+		}
+		if(aType2 != null) {
+			aType2.discardWorkingCopy();
+		}
+	}
+}
+public void testCompletionImportedType5() throws JavaModelException {
+    ICompilationUnit aType1 = null;
+    ICompilationUnit aType2 = null;
+    try {
+    	aType1 = getWorkingCopy(
+	            "/Completion/src/test/imported1/ZZZZ.java",
+	            "package test.imported1;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	aType2 = getWorkingCopy(
+	            "/Completion/src/test/imported2/ZZZZ.java",
+	            "package test.imported2;"+
+	            "public class ZZZZ {\n"+
+	            "  \n"+
+	            "}");
+    	
+    	this.wc = getWorkingCopy(
+            "/Completion/src/test/CompletionImportedType5.java",
+            "package test;"+
+            "import test.imported2.*;"+
+            "public class CompletionImportedType5 {"+
+            "  ZZZ\n"+
+            "}");
+	
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	    String str = this.wc.getSource();
+	    String completeBehind = "ZZZ";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	
+		assertResults(
+				"ZZZ[POTENTIAL_METHOD_DECLARATION]{ZZZ, Ltest.CompletionImportedType5;, ()V, ZZZ, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{test.imported1.ZZZZ, test.imported1, Ltest.imported1.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZZ[TYPE_REF]{ZZZZ, test.imported2, Ltest.imported2.ZZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		if(aType1 != null) {
+			aType1.discardWorkingCopy();
+		}
+		if(aType2 != null) {
+			aType2.discardWorkingCopy();
+		}
+	}
 }
 }

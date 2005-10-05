@@ -494,8 +494,37 @@ public final class CompletionEngine
 								}
 							}
 						}
-					} else {
-						foundType.mustBeQualified = true;
+					} else if(!foundType.mustBeQualified){
+						done : for (int j = 0; j < this.onDemandImportCacheCount; j++) {
+							ImportBinding importBinding = this.onDemandImportsCache[j];
+
+							char[][] importName = importBinding.compoundName;
+							char[] importFlatName = CharOperation.concatWith(importName, '.');
+						
+							if(fullyQualifiedEnclosingTypeOrPackageName == null) {
+								if(enclosingTypeNames != null && enclosingTypeNames.length != 0) {
+									fullyQualifiedEnclosingTypeOrPackageName =
+										CharOperation.concat(
+												packageName,
+												flatEnclosingTypeNames,
+												'.');
+								} else {
+									fullyQualifiedEnclosingTypeOrPackageName =
+										packageName;
+								}
+							}
+							if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
+								if(importBinding.isStatic()) {
+									if((modifiers & IConstants.AccStatic) != 0) {
+										foundType.mustBeQualified = true;
+										break done;
+									}
+								} else {
+									foundType.mustBeQualified = true;
+									break done;
+								}
+							}
+						}
 					}
 					proposeType(
 							packageName,

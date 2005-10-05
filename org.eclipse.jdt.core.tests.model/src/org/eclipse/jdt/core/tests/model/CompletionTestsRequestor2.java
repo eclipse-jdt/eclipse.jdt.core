@@ -245,7 +245,19 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		} else {
 			String name1 = getElementName(proposal1);
 			String name2 = getElementName(proposal2);
-			return name1.compareTo(name2);
+			int nameDif = name1.compareTo(name2);
+			if(nameDif != 0) {
+				return nameDif;
+			} else {
+				int kindDif = proposal1.getKind() - proposal2.getKind();
+				if(kindDif != 0) {
+					return kindDif;
+				} else {
+					String completion1 = new String(proposal1.getCompletion());
+					String completion2 = new String(proposal2.getCompletion());
+					return completion1.compareTo(completion2);
+				}
+			}
 		}
 	}
 	
