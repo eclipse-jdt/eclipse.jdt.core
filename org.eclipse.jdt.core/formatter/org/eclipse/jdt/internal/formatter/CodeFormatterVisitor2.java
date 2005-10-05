@@ -2715,11 +2715,8 @@ public class CodeFormatterVisitor2 extends ASTVisitor {
 		final Expression expression = node.getExpression();
 		if (expression != null) {
 			switch(expression.getNodeType()) {
-				case ASTNode.CAST_EXPRESSION :
-				case ASTNode.STRING_LITERAL :
-				case ASTNode.PREFIX_EXPRESSION :
 				case ASTNode.PARENTHESIZED_EXPRESSION :
-					if (this.preferences.insert_space_before_expression_in_return) {
+					if (this.preferences.insert_space_before_parenthesized_expression_in_return) {
 						this.scribe.space();
 					}
 					break;

@@ -4,7 +4,7 @@ public class X {
 	}
 
 	Object foo2() {
-		return(Object) bar();
+		return (Object) bar();
 	}
 
 	StringBuffer bar() {
@@ -12,10 +12,10 @@ public class X {
 	}
 
 	String foo3() {
-		return"";
+		return "";
 	}
 
 	int foo4(int i) {
-		return++i;
+		return ++i;
 	}
 }

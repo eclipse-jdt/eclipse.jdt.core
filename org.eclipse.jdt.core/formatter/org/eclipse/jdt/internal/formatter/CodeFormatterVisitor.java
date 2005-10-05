@@ -4647,12 +4647,8 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		this.scribe.printNextToken(TerminalTokens.TokenNamereturn);
 		final Expression expression = returnStatement.expression;
 		if (expression != null) {
-			if (expression instanceof CastExpression
-					|| expression instanceof PrefixExpression
-					|| expression instanceof StringLiteral
-					|| expression instanceof StringLiteralConcatenation
-					|| (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0)) {
-				if (this.preferences.insert_space_before_expression_in_return) {
+			if (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
+				if (this.preferences.insert_space_before_parenthesized_expression_in_return) {
 					this.scribe.space();
 				}
 			} else {
