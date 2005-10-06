@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
 /**
  * A Java element delta describes changes in Java element between two discrete
@@ -264,6 +265,15 @@ public interface IJavaElementDelta {
 	public int F_PRIMARY_RESOURCE = 0x40000;
 
 	/**
+	 * Change flag indicating that a reconcile operation has affected the compilation unit AST created in a 
+	 * previous reconcile operation. Use {@link #getCompilationUnitAST()} to retrieve the AST (if any is available).
+	 * This flag is only valid if the element is an <code>ICompilationUnit</code> in working copy mode.
+	 * 
+	 * @since 3.2
+	 */
+	public int F_AST_AFFECTED = 0x80000;
+	
+	/**
 	 * Returns deltas for the children that have been added.
 	 * @return deltas for the children that have been added
 	 */
@@ -274,6 +284,21 @@ public interface IJavaElementDelta {
 	 * @return deltas for the affected (added, removed, or changed) children
 	 */
 	public IJavaElementDelta[] getAffectedChildren();
+	
+	/**
+	 * Returns the compilation unit AST created by the last reconcile operation on this delta's element.
+	 * This returns a non-null value if and only if:
+	 * <ul>
+	 * <li>the last reconcile operation on this working copy requested an AST</li>
+	 * <li>this delta's element is an <code>ICompilationUnit</code> in working copy mode</li>
+	 * <li>the delta comes from a <code>POST_RECONCILE</code> event
+	 * </ul>
+	 * @return the AST created during the last reconcile operation
+	 * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see #F_AST_AFFECTED
+	 * @since 3.2
+	 */
+	public CompilationUnit getCompilationUnitAST();
 
 	/**
 	 * Returns deltas for the children which have changed.

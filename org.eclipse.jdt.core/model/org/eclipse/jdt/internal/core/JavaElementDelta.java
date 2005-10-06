@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
 /**
  * @see IJavaElementDelta
@@ -25,6 +26,15 @@ public class JavaElementDelta extends SimpleDelta implements IJavaElementDelta {
 	 */
 	protected IJavaElementDelta[] affectedChildren = EMPTY_DELTA;
 	
+	/*
+	 * The AST created during the last reconcile operation.
+	 * Non-null only iff:
+	 * - in a POST_RECONCILE event
+	 * - an AST was requested during the last reconcile operation
+	 * - the changed element is an ICompilationUnit in working copy mode
+	 */
+	protected CompilationUnit ast = null;
+
 	/*
 	 * The element that this delta describes the change to.
 	 */
@@ -164,6 +174,7 @@ protected void addAffectedChild(JavaElementDelta child) {
 							existingChild.resourceDeltas = resDeltas;
 							existingChild.resourceDeltasCounter = child.resourceDeltasCounter;
 						}
+						
 						return;
 				}
 				break;
@@ -229,6 +240,13 @@ public JavaElementDelta changed(IJavaElement element, int changeFlag) {
 	changedDelta.changed(changeFlag);
 	insertDeltaTree(element, changedDelta);
 	return changedDelta;
+}
+/*
+ * Records the last changed AST  .
+ */
+public void changedAST(CompilationUnit changedAST) {
+	this.ast = changedAST;
+	changed(F_AST_AFFECTED);
 }
 /**
  * Mark this delta as a content changed delta.
@@ -333,6 +351,9 @@ private ArrayList getAncestors(IJavaElement element) {
 	}
 	parents.trimToSize();
 	return parents;
+}
+public CompilationUnit getCompilationUnitAST() {
+	return this.ast;
 }
 /**
  * @see IJavaElementDelta
@@ -685,6 +706,12 @@ protected boolean toDebugString(StringBuffer buffer, int flags) {
 		if (prev)
 			buffer.append(" | "); //$NON-NLS-1$
 		buffer.append("CLOSED"); //$NON-NLS-1$
+		prev = true;
+	}
+	if ((flags & IJavaElementDelta.F_AST_AFFECTED) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("AST AFFECTED"); //$NON-NLS-1$
 		prev = true;
 	}
 	return prev;

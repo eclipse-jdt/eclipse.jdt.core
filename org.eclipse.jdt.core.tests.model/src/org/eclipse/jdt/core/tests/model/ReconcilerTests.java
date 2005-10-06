@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -63,7 +64,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	// TESTS_NAMES = new String[] { "testTwoProjectsWithDifferentCompliances" };
+	// TESTS_NAMES = new String[] { "testBroadcastAST4" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 	//TESTS_NUMBERS = new int[] { 13 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -175,7 +176,7 @@ private void setUpWorkingCopy(String path, String contents, WorkingCopyOwner own
 	setWorkingCopyContents(contents);
 	this.workingCopy.makeConsistent(null);
 }
-private void setWorkingCopyContents(String contents) throws JavaModelException {
+void setWorkingCopyContents(String contents) throws JavaModelException {
 	this.workingCopy.getBuffer().setContents(contents);
 	this.problemRequestor.initialize(contents.toCharArray());
 }
@@ -491,6 +492,78 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 		"Unexpected delta", 
 		""
 	);
+}
+/*
+ * Ensures that the AST broadcasted during a reconcile operation is correct.
+ * (case of a working copy being reconciled with changes, creating AST and no problem detection)
+ */
+public void testBroadcastAST1() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"}");
+	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	assertASTNodeEquals(
+		"Unexpected ast", 
+		"package p1;\n" + 
+		"import p2.*;\n" + 
+		"public class X {\n" + 
+		"}\n",
+		this.deltaListener.getCompilationUnitAST(this.workingCopy));
+}
+/*
+ * Ensures that the AST broadcasted during a reconcile operation is correct.
+ * (case of a working copy being reconciled with NO changes, creating AST and forcing problem detection)
+ */
+public void testBroadcastAST2() throws JavaModelException {
+	this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	assertASTNodeEquals(
+		"Unexpected ast", 
+		"package p1;\n" + 
+		"import p2.*;\n" + 
+		"public class X {\n" + 
+		"  public void foo(){\n" + 
+		"  }\n" + 
+		"}\n",
+		this.deltaListener.getCompilationUnitAST(this.workingCopy));
+}
+/*
+ * Ensures that the AST broadcasted during a reconcile operation is correct.
+ * (case of a working copy being reconciled with NO changes, creating AST and no problem detection)
+ */
+public void testBroadcastAST3() throws JavaModelException {
+	this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, null/*no progress*/);
+	assertASTNodeEquals(
+		"Unexpected ast", 
+		"null",
+		this.deltaListener.getCompilationUnitAST(this.workingCopy));
+}
+/*
+ * Ensures that the AST broadcasted during a reconcile operation is correct.
+ * (case of a working copy being reconciled twice in a batch operation)
+ */
+public void testBroadcastAST4() throws CoreException {
+	JavaCore.run(
+		new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				ReconcilerTests.this.workingCopy.reconcile(AST.JLS3, true/*force problem detection*/, null/*primary owner*/, monitor);
+				setWorkingCopyContents(
+					"package p1;\n" +
+					"import p2.*;\n" +
+					"public class X {\n" +
+					"}");
+				ReconcilerTests.this.workingCopy.reconcile(AST.JLS3, false/*don't force problem detection*/, null/*primary owner*/, monitor);				
+			}
+		},
+		null/*no progress*/);
+	assertASTNodeEquals(
+		"Unexpected ast", 
+		"package p1;\n" + 
+		"import p2.*;\n" + 
+		"public class X {\n" + 
+		"}\n",
+		this.deltaListener.getCompilationUnitAST(this.workingCopy));
 }
 /*
  * Ensures that reconciling a subclass doesn't close the buffer while resolving its superclass.

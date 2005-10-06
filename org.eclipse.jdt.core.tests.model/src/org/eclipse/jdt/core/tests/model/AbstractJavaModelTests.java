@@ -22,6 +22,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
@@ -97,6 +99,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			deltas= copy;
 			
 			new Throwable("Caller of IElementChangedListener#elementChanged").printStackTrace(new PrintStream(this.stackTraces));
+		}
+		public CompilationUnit getCompilationUnitAST(ICompilationUnit workingCopy) {
+			for (int i=0, length= this.deltas.length; i<length; i++) {
+				CompilationUnit result = getCompilationUnitAST(workingCopy, this.deltas[i]);
+				if (result != null)
+					return result;
+			}
+			return null;
+		}
+		private CompilationUnit getCompilationUnitAST(ICompilationUnit workingCopy, IJavaElementDelta delta) {
+			if ((delta.getFlags() & IJavaElementDelta.F_AST_AFFECTED) != 0 && workingCopy.equals(delta.getElement()))
+				return delta.getCompilationUnitAST();
+			return null;
 		}
 		protected void sortDeltas(IJavaElementDelta[] elementDeltas) {
 			org.eclipse.jdt.internal.core.util.Util.Comparer comparer = new org.eclipse.jdt.internal.core.util.Util.Comparer() {
@@ -321,10 +336,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		actual = org.eclipse.jdt.core.tests.util.Util.convertToIndependantLineDelimiter(actual);
 		if (!actual.equals(expected)) {
-			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 0));
+			System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual.toString(), 2));
 			System.out.println(this.endChar);
 		}
 		assertEquals(message, expected, actual);
+	}
+	/*
+	 * Ensures that the toString() of the given AST node is as expected.
+	 */
+	public void assertASTNodeEquals(String message, String expected, ASTNode actual) {
+		String actualString = actual == null ? "null" : actual.toString();
+		assertSourceEquals(message, expected, actualString);
 	}
 	/**
 	 * Ensures the elements are present after creation.

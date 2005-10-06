@@ -48,6 +48,10 @@ Eclipse SDK 3.2M3 - ?th October 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API <code>IJavaElementDelta#F_AST_AFFECTED</code> and <code>IJavaElementDelta#getCompilationUnitAST()</code>.
+     The Java element delta's flag is set to <code>F_AST_AFFECTED</code> when a reconcile operation affects the AST
+     created in the last reconcile operation. In this case the AST should be re-acquired using <code>getCompilationUnitAST()</code>.
+</li>
 <li>Added API to encode and decode a classpath entry (<code>IJavaProject#encodeClasspathEntry(IClasspathEntry)
      and decodeClasspathEntry(String)</code>.
 <li>Added API <code>IClassFile#becomeWorkingCopy(...)</code> that returns an <code>ICompilationUnit</code>
@@ -55,7 +59,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111767">111767</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110168">110168</a>
+[plan] Broadcast AST when reconciling
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111767">111767</a>
 Disassembler doesn't produce an output that can be compiled for annotation types
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=111299">111299</a>
 JavaModelCache may overflow the memory.
