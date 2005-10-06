@@ -2655,7 +2655,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see JavaCore#DO_NOT_INSERT
 	 * @since 3.2
 	 */
-	public static final String FORMATTER_INSERT_SPACE_BEFORE_PARENTESIZED_EXPRESSION_IN_RETURN  = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_parenthesized_expression_in_return";	//$NON-NLS-1$
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_PARENTHESIZED_EXPRESSION_IN_RETURN  = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_parenthesized_expression_in_return";	//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space before a postfix operator
