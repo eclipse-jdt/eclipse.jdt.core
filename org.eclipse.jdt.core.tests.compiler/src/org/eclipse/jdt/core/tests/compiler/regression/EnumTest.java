@@ -1582,7 +1582,7 @@ public class EnumTest extends AbstractComparableTest {
 		String expectedOutput = 
 			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
-			"public abstract enum X extends java.lang.Enum {\n"; 
+			"public abstract enum X {\n"; 
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String actualOutput = null;
@@ -2888,7 +2888,7 @@ public class EnumTest extends AbstractComparableTest {
 		String expectedOutput = 
 			"// Compiled from X.java (version 1.5 : 49.0, super bit)\n" + 
 			"// Signature: Ljava/lang/Enum<LX;>;\n" + 
-			"public final enum X extends java.lang.Enum {\n" + 
+			"public final enum X {\n" + 
 			"  \n" + 
 			"  // Field descriptor #6 [LX;\n" + 
 			"  private static final synthetic X[] ENUM$VALUES;\n" + 
