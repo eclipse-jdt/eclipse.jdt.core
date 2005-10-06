@@ -25875,4 +25875,21 @@ public void _test837() {
 		"The method bar(String) in the type X is not applicable for the arguments (capture-of ? extends List<? extends Number>)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111208 - variation
+public void test838() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public class CClass<T extends AClass.BClass<T>> {\n" + 
+			"	}\n" + 
+			"}\n",
+			"AClass.java",
+			"public interface AClass<X extends AClass> {\n" + 
+			"	public interface BClass<T extends BClass> extends AClass<T> {\n" + 
+			"	}\n" + 
+			"}\n",		
+		},
+		"");
+}
 }
