@@ -84,7 +84,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
  * <ul>
  * <li> its location (originating source file name, source position, line number), </li>
  * <li> its message description and a predicate to check its severity (warning or error). </li>
- * <li> its ID : an number identifying the very nature of this problem. All possible IDs are listed
+ * <li> its ID : a number identifying the very nature of this problem. All possible IDs are listed
  * as constants on this interface. </li>
  * </ul>
  * 
