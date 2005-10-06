@@ -404,15 +404,14 @@ public class Disassembler extends ClassFileBytesDisassembler {
 	 */
 	private void disassemble(IClassFileReader classFileReader, char[] className, IMethodInfo methodInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
 		writeNewLine(buffer, lineSeparator, tabNumber);
-		ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-		char[] methodDescriptor = methodInfo.getDescriptor();
-		IClassFileAttribute classFileAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.SIGNATURE);
-		ISignatureAttribute signatureAttribute = (ISignatureAttribute) classFileAttribute;
-		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
-		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
-		IClassFileAttribute runtimeVisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS);
-		IClassFileAttribute runtimeInvisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS);
-		IClassFileAttribute annotationDefaultAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.ANNOTATION_DEFAULT);
+		final ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+		final char[] methodDescriptor = methodInfo.getDescriptor();
+		final ISignatureAttribute signatureAttribute = (ISignatureAttribute) Util.getAttribute(methodInfo, IAttributeNamesConstants.SIGNATURE);
+		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeVisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleParameterAnnotationsAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS);
+		final IClassFileAttribute annotationDefaultAttribute = Util.getAttribute(methodInfo, IAttributeNamesConstants.ANNOTATION_DEFAULT);
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			buffer.append(Messages.bind(Messages.classfileformat_methoddescriptor,
 				new String[] {
@@ -502,6 +501,11 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		if (checkMode(mode, WORKING_COPY)) {
+			// put the annotation default attribute if needed
+			if (annotationDefaultAttribute != null) {
+				buffer.append(" default "); //$NON-NLS-1$
+				disassembleAsModifier((IAnnotationDefaultAttribute) annotationDefaultAttribute, buffer, lineSeparator, tabNumber);
+			}
 			if (((accessFlags & IModifierConstants.ACC_NATIVE) == 0)
 					&& ((accessFlags & IModifierConstants.ACC_ABSTRACT) == 0)) {
 				buffer.append(" {"); //$NON-NLS-1$
@@ -709,12 +713,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 		}
 		
+		final boolean isAnnotation = (accessFlags & IModifierConstants.ACC_ANNOTATION) != 0;
 		if (isEnum) {
 			buffer.append("enum "); //$NON-NLS-1$
 		} else if (classFileReader.isClass()) {
 			buffer.append("class "); //$NON-NLS-1$
 		} else {
-			if ((accessFlags & IModifierConstants.ACC_ANNOTATION) != 0) {
+			if (isAnnotation) {
 				buffer.append("@"); //$NON-NLS-1$
 			}
 			buffer.append("interface "); //$NON-NLS-1$
@@ -740,21 +745,23 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer.append(returnClassName(superclassName, '.', mode));
 			}
 		}
-		char[][] superclassInterfaces = classFileReader.getInterfaceNames();
-		int length = superclassInterfaces.length;
-		if (length != 0) {
-			buffer.append(" implements "); //$NON-NLS-1$
-			for (int i = 0; i < length - 1; i++) {
-				char[] superinterface = superclassInterfaces[i];
+		if (!isAnnotation || !checkMode(mode, WORKING_COPY)) {
+			char[][] superclassInterfaces = classFileReader.getInterfaceNames();
+			int length = superclassInterfaces.length;
+			if (length != 0) {
+				buffer.append(" implements "); //$NON-NLS-1$
+				for (int i = 0; i < length - 1; i++) {
+					char[] superinterface = superclassInterfaces[i];
+					CharOperation.replace(superinterface, '/', '.');
+					buffer
+						.append(returnClassName(superinterface, '.', mode))
+						.append(Messages.disassembler_comma)
+						.append(Messages.disassembler_space); 
+				}
+				char[] superinterface = superclassInterfaces[length - 1];
 				CharOperation.replace(superinterface, '/', '.');
-				buffer
-					.append(returnClassName(superinterface, '.', mode))
-					.append(Messages.disassembler_comma)
-					.append(Messages.disassembler_space); 
+				buffer.append(returnClassName(superinterface, '.', mode));
 			}
-			char[] superinterface = superclassInterfaces[length - 1];
-			CharOperation.replace(superinterface, '/', '.');
-			buffer.append(returnClassName(superinterface, '.', mode));
 		}
 		buffer.append(Messages.bind(Messages.disassembler_opentypedeclaration)); 
 		if (checkMode(mode, SYSTEM)) {
@@ -763,7 +770,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		disassembleTypeMembers(classFileReader, className, buffer, lineSeparator, 1, mode, isEnum);
 		if (checkMode(mode, SYSTEM | DETAILED)) {
 			IClassFileAttribute[] attributes = classFileReader.getAttributes();
-			length = attributes.length;
+			int length = attributes.length;
 			IEnclosingMethodAttribute enclosingMethodAttribute = getEnclosingMethodAttribute(classFileReader);
 			int remainingAttributesLength = length;
 			if (innerClassesAttribute != null) {

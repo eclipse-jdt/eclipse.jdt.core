@@ -27,7 +27,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 81 };
+//		TESTS_NUMBERS = new int[] { 82 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -3126,4 +3126,23 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"}";
 		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
+	 */
+	public void test082() {
+		String source =
+			"@interface X {\n" +
+			"	String firstName();\n" +
+			"	String lastName() default \"Smith\";\n" +
+			"}\n";
+		String expectedOutput =
+			"abstract @interface X {\n" + 
+			"  \n" + 
+			"  public abstract java.lang.String firstName();\n" + 
+			"  \n" + 
+			"  public abstract java.lang.String lastName() default \"Smith\";\n" + 
+			"}";
+		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}	
 }
