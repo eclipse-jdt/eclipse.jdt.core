@@ -102,7 +102,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = capturedArguments[i];
 			if (argument.isCapture()) {
-				((CaptureBinding)argument).initializeBounds(capturedParameterizedType);
+				((CaptureBinding)argument).initializeBounds(scope, capturedParameterizedType);
 			}
 		}
 		return capturedParameterizedType;
@@ -203,7 +203,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		        if (typeBinding instanceof CaptureBinding)
 		        	captureSourceType = ((CaptureBinding) typeBinding).sourceType;
 		    }
-		    sig.append('>'); //$NON-NLS-1$
+		    sig.append('>');
 		}
 		sig.append(';');
 		if (captureSourceType != null && captureSourceType != this.type) {
@@ -317,7 +317,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			    for (int i = 0, length = this.arguments.length; i < length; i++) {
 			        sig.append(this.arguments[i].genericTypeSignature());
 			    }
-			    sig.append('>'); //$NON-NLS-1$
+			    sig.append('>');
 			}
 			sig.append(';');
 			int sigLength = sig.length();
@@ -982,7 +982,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (methods != NoMethods) {
 				buffer.append("\n/*   methods   */"); //$NON-NLS-1$
 				for (int i = 0, length = methods.length; i < length; i++)
-					buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$ //$NON-NLS-2$
+					buffer.append('\n').append((methods[i] != null) ? methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$
 			}
 		} else {
 			buffer.append("NULL METHODS"); //$NON-NLS-1$
