@@ -174,7 +174,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long ForbiddenReference = ASTNode.Bit35L;
 	public static final long VarargsArgumentNeedCast = ASTNode.Bit36L;
 	public static final long NullReference = ASTNode.Bit37L;
-	public static final long Autoboxing = ASTNode.Bit38L;
+	public static final long AutoBoxing = ASTNode.Bit38L;
 	public static final long AnnotationSuperInterface = ASTNode.Bit39L;
 	public static final long TypeParameterHiding = ASTNode.Bit40L;
 	public static final long MissingOverrideAnnotation = ASTNode.Bit41L;
@@ -182,14 +182,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long MissingDeprecatedAnnotation = ASTNode.Bit43L;
 	public static final long DiscouragedReference = ASTNode.Bit44L;
 	public static final long UnhandledWarningToken = ASTNode.Bit45L;
-	public static final long UselessNLSTag = ASTNode.Bit46L;
-	
-	// TODO (olivier) remove once http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21540 is fixed
-	private static final int IntMissingSerialVersion = (int) (MissingSerialVersion >>> 32);
-	private static final int IntAutoBoxing = (int) (Autoboxing >>> 32);
-	private static final int IntTypeParameterHiding = (int) (TypeParameterHiding >>> 32);
-	private static final int IntIncompleteEnumSwitch = (int) (IncompleteEnumSwitch >>> 32);
-	private static final int IntMissingDeprecatedAnnotation = (int) (MissingDeprecatedAnnotation >>> 32);
 	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -349,7 +341,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUndocumentedEmptyBlock, getSeverityString(UndocumentedEmptyBlock)); 
 		optionsMap.put(OPTION_ReportUnnecessaryTypeCheck, getSeverityString(UnnecessaryTypeCheck)); 
 		optionsMap.put(OPTION_ReportUnnecessaryElse, getSeverityString(UnnecessaryElse)); 
-		optionsMap.put(OPTION_ReportAutoboxing, getSeverityString(Autoboxing)); 
+		optionsMap.put(OPTION_ReportAutoboxing, getSeverityString(AutoBoxing)); 
 		optionsMap.put(OPTION_ReportAnnotationSuperInterface, getSeverityString(AnnotationSuperInterface)); 
 		optionsMap.put(OPTION_ReportIncompleteEnumSwitch, getSeverityString(IncompleteEnumSwitch)); 
 		optionsMap.put(OPTION_ReportInvalidJavadoc, getSeverityString(InvalidJavadoc));
@@ -626,7 +618,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportDiscouragedReference)) != null) updateSeverity(DiscouragedReference, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportVarargsArgumentNeedCast)) != null) updateSeverity(VarargsArgumentNeedCast, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNullReference)) != null) updateSeverity(NullReference, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportAutoboxing)) != null) updateSeverity(Autoboxing, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportAutoboxing)) != null) updateSeverity(AutoBoxing, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportAnnotationSuperInterface)) != null) updateSeverity(AnnotationSuperInterface, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingOverrideAnnotation)) != null) updateSeverity(MissingOverrideAnnotation, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingDeprecatedAnnotation)) != null) updateSeverity(MissingDeprecatedAnnotation, optionValue);
@@ -788,7 +780,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- forbidden reference to type with access restriction: ").append(getSeverityString(ForbiddenReference)); //$NON-NLS-1$
 		buf.append("\n\t- discouraged reference to type with access restriction: ").append(getSeverityString(DiscouragedReference)); //$NON-NLS-1$
 		buf.append("\n\t- null reference: ").append(getSeverityString(NullReference)); //$NON-NLS-1$
-		buf.append("\n\t- autoboxing: ").append(getSeverityString(Autoboxing)); //$NON-NLS-1$
+		buf.append("\n\t- autoboxing: ").append(getSeverityString(AutoBoxing)); //$NON-NLS-1$
 		buf.append("\n\t- annotation super interface: ").append(getSeverityString(AnnotationSuperInterface)); //$NON-NLS-1$
 		buf.append("\n\t- missing @Override annotation: ").append(getSeverityString(MissingOverrideAnnotation)); //$NON-NLS-1$		
 		buf.append("\n\t- missing @Deprecated annotation: ").append(getSeverityString(MissingDeprecatedAnnotation)); //$NON-NLS-1$		
@@ -821,7 +813,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			return JDK1_4;
 		} else if (VERSION_1_5.equals(versionID)) {
 			return JDK1_5;
-		}
+		} else if (VERSION_1_6.equals(versionID)) {
+			return JDK1_6;		}
 		return 0; // unknown
 	}
 
@@ -836,6 +829,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			return VERSION_1_4;
 		} else if (jdkLevel == JDK1_5) {
 			return VERSION_1_5;
+		} else if (jdkLevel == JDK1_6) {
+			return VERSION_1_6;
 		}
 		return ""; // unknown version //$NON-NLS-1$
 	}
@@ -843,6 +838,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	/**
 	 * Return all warning option names for use as keys in compiler options maps.
 	 * @return all warning option names
+	 * TODO (maxime) revise for ensuring completeness
 	 */
 	public static String[] warningOptionNames() {
 		String[] result = {
@@ -926,17 +922,16 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			}
 		} else {
 			irritantInt = (int)(irritant >>> 32);
-			// TODO (olivier) remove contants once http://gcc.gnu.org/bugzilla/show_bug.cgi?id=21540 is fixed
 			switch (irritantInt) {
-				case IntMissingSerialVersion :
+				case (int)(MissingSerialVersion >>> 32) :
 					return "serial"; //$NON-NLS-1$
-				case IntAutoBoxing :
+				case (int)(AutoBoxing >>> 32) :
 					return "boxing"; //$NON-NLS-1$
-				case IntTypeParameterHiding :
+				case (int)(TypeParameterHiding >>> 32) :
 					return "hiding"; //$NON-NLS-1$
-				case IntIncompleteEnumSwitch :
+				case (int)(IncompleteEnumSwitch >>> 32) :
 					return "incomplete-switch"; //$NON-NLS-1$
-				case IntMissingDeprecatedAnnotation :
+				case (int)(MissingDeprecatedAnnotation >>> 32) :
 					return "dep-ann"; //$NON-NLS-1$
 			}
 		}
@@ -951,7 +946,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				break;
 			case 'b' :
 				if ("boxing".equals(warningToken)) //$NON-NLS-1$
-					return Autoboxing;
+					return AutoBoxing;
 				break;
 			case 'd' :
 				if ("deprecation".equals(warningToken)) //$NON-NLS-1$

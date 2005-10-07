@@ -48,6 +48,30 @@ Eclipse SDK 3.2M3 - ?th October 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API <code>CategorizedProblem</code> to extend <code>IProblem</code> definitions with notion of
+problem category and marker type. This will enable other pluggable tool to participate in various compilation stages
+and report domain specific problems through the existing API (<code>IProblem</code> based). It is recommended that
+clients do not directly implement <code>IProblem</code> but instead do extend the abstract class <code>CategorizedProblem</code>.
+<pre>
+/**
+ * Returns an integer identifying the category of this problem. Categories, like problem IDs are
+ * defined in the context of some marker type. Custom implementations of <code>CategorizedProblem</code>
+ * may choose arbitrary values for problem/category IDs, as long as they are associated with a different
+ * marker type.
+ * @return id - an integer identifying the category of this problem
+ */
+public abstract int getCategoryID();
+</pre><pre>	
+/**
+ * Returns the marker type associated to this problem, if it was persisted into a marker by the JavaBuilder
+ * Standard Java problems are associated to marker type "org.eclipse.jdt.core.problem"), standard tasks 
+ * are associated to marker type "org.eclipse.jdt.core.task".
+ * @return the type of the marker which would be associated to the problem
+ * @see org.eclipse.jdt.core.IJavaModelMarker#JAVA_MODEL_PROBLEM_MARKER
+ * @see org.eclipse.jdt.core.IJavaModelMarker#TASK_MARKER
+ */
+public abstract String getMarkerType(); 
+</pre></li>
 <li>Added API <code>IJavaElementDelta#F_AST_AFFECTED</code> and <code>IJavaElementDelta#getCompilationUnitAST()</code>.
      The Java element delta's flag is set to <code>F_AST_AFFECTED</code> when a reconcile operation affects the AST
      created in the last reconcile operation. In this case the AST should be re-acquired using <code>getCompilationUnitAST()</code>.

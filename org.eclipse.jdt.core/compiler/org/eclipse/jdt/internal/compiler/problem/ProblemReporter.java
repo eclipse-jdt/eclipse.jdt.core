@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.problem;
 
 import java.text.MessageFormat;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.*;
@@ -1371,7 +1372,7 @@ public static long getIrritant(int problemID) {
 			
 		case IProblem.BoxingConversion :
 		case IProblem.UnboxingConversion :
-			return CompilerOptions.Autoboxing;
+			return CompilerOptions.AutoBoxing;
 
 		case IProblem.MissingEnumConstantCase :
 			return CompilerOptions.IncompleteEnumSwitch;
@@ -1452,7 +1453,119 @@ public static long getIrritant(int problemID) {
 			return CompilerOptions.MissingJavadocComments;
 	}
 	return 0;
+}
+
+/**
+ * Compute problem category ID based on problem ID
+ * @param problemID
+ * @return a category ID
+ * @see CategorizedProblem
+ */
+public static int getProblemCategory(int problemID) {
+	long irritant = getIrritant(problemID);
+	int irritantInt = (int) irritant;
+	categorizeOnIrritant: {
+		if (irritantInt == irritant) {
+			switch (irritantInt) {
+				case (int)CompilerOptions.MethodWithConstructorName:
+				case (int)CompilerOptions.AccessEmulation:
+				case (int)CompilerOptions.AssertUsedAsAnIdentifier:
+				case (int)CompilerOptions.NonStaticAccessToStatic:
+				case (int)CompilerOptions.UnqualifiedFieldAccess:
+				case (int)CompilerOptions.UndocumentedEmptyBlock:
+				case (int)CompilerOptions.IndirectStaticAccess:
+				case (int)CompilerOptions.FinalParameterBound:
+					return CategorizedProblem.CAT_CODE_STYLE;
+					
+				case (int)CompilerOptions.MaskedCatchBlock:
+				case (int)CompilerOptions.NoImplicitStringConversion:
+				case (int)CompilerOptions.NoEffectAssignment:
+				case (int)CompilerOptions.AccidentalBooleanAssign:
+				case (int)CompilerOptions.EmptyStatement:
+				case (int)CompilerOptions.FinallyBlockNotCompleting:
+					return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
+		
+				case (int)CompilerOptions.OverriddenPackageDefaultMethod:
+				case (int)CompilerOptions.IncompatibleNonInheritedInterfaceMethod:
+				case (int)CompilerOptions.LocalVariableHiding:
+				case (int)CompilerOptions.FieldHiding:
+					return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;
+					
+				case (int)CompilerOptions.UnusedLocalVariable:
+				case (int)CompilerOptions.UnusedArgument:
+				case (int)CompilerOptions.UnusedImport:
+				case (int)CompilerOptions.UnusedPrivateMember:
+				case (int)CompilerOptions.UnusedDeclaredThrownException:
+				case (int)CompilerOptions.UnnecessaryTypeCheck:
+				case (int)CompilerOptions.UnnecessaryElse:
+				case (int)CompilerOptions.UnhandledWarningToken:
+					return CategorizedProblem.CAT_UNNECESSARY_CODE;
+		
+				case (int)CompilerOptions.UsingDeprecatedAPI:
+					return CategorizedProblem.CAT_DEPRECATION;
+					
+				case (int)CompilerOptions.NonExternalizedString:
+					return CategorizedProblem.CAT_NLS;
+					
+				case (int)CompilerOptions.Task:
+					return CategorizedProblem.CAT_UNSPECIFIED; // TODO may want to improve
+					
+				case (int)CompilerOptions.MissingJavadocComments:
+				case (int)CompilerOptions.MissingJavadocTags:
+				case (int)CompilerOptions.InvalidJavadoc:
+					return CategorizedProblem.CAT_JAVADOC;
+					
+				case (int)CompilerOptions.UncheckedTypeOperation:
+					return CategorizedProblem.CAT_UNCHECKED_RAW;
+					
+				default:
+					break categorizeOnIrritant;
+			}
+		} else {
+			irritantInt = (int)(irritant >>> 32);
+			switch (irritantInt) {
+				case (int)(CompilerOptions.EnumUsedAsAnIdentifier >>> 32):
+				case (int)(CompilerOptions.AnnotationSuperInterface >>> 32):
+				case (int)(CompilerOptions.AutoBoxing >>> 32):
+				case (int)(CompilerOptions.MissingOverrideAnnotation >>> 32):
+				case (int)(CompilerOptions.MissingDeprecatedAnnotation >>> 32):
+					return CategorizedProblem.CAT_CODE_STYLE;
+				
+				case (int)(CompilerOptions.MissingSerialVersion >>> 32):
+				case (int)(CompilerOptions.VarargsArgumentNeedCast >>> 32):
+				case (int)(CompilerOptions.NullReference >>> 32):
+				case (int)(CompilerOptions.IncompleteEnumSwitch >>> 32):
+					return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 	
+				case (int)(CompilerOptions.TypeParameterHiding >>> 32):
+					return CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT;
+					
+				case (int)(CompilerOptions.ForbiddenReference >>> 32):
+				case (int)(CompilerOptions.DiscouragedReference >>> 32):
+					return CategorizedProblem.CAT_BUILDPATH;
+	
+				default:
+					break categorizeOnIrritant;
+			}
+		}	
+	}
+	// categorize non optional problems per ID
+	switch (problemID) {
+		case IProblem.IsClassPathCorrect :
+		case IProblem.CorruptedSignature :
+			return CategorizedProblem.CAT_BUILDPATH;
+			
+		default :
+			if ((problemID & IProblem.Syntax) != 0)
+				return CategorizedProblem.CAT_SYNTAX;
+			if ((problemID & IProblem.ImportRelated) != 0)
+				return CategorizedProblem.CAT_IMPORT;
+			if ((problemID & IProblem.TypeRelated) != 0)
+				return CategorizedProblem.CAT_TYPE;
+			if ((problemID & (IProblem.FieldRelated|IProblem.MethodRelated|IProblem.ConstructorRelated)) != 0)
+				return CategorizedProblem.CAT_MEMBER;
+	}
+	return CategorizedProblem.CAT_UNSPECIFIED;
 }
 
 // use this private API when the compilation unit result can be found through the
