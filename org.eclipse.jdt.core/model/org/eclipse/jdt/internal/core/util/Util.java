@@ -853,7 +853,7 @@ public class Util {
 		String lineSeparator = null;
 		
 		// line delimiter in given text
-		if (text != null) {
+		if (text != null && text.length() != 0) {
 			lineSeparator = findLineSeparator(text.toCharArray());
 			if (lineSeparator != null)
 				return lineSeparator;
