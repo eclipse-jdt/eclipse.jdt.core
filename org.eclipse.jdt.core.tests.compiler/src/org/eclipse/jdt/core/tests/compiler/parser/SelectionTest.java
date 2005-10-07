@@ -2365,7 +2365,7 @@ public void test53() {
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo(String[] stringArray) {\n" + 
-		"    for (<SelectionOnLocalName:String string2>; : stringArray) \n" + 
+		"    for (<SelectionOnLocalName:String string2> : stringArray) \n" + 
 		"      ;\n" + 
 		"  }\n" + 
 		"}\n";
