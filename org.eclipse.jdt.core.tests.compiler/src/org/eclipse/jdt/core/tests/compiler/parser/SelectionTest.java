@@ -10,7 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 public class SelectionTest extends AbstractSelectionTest {
+static {
+//		TESTS_NUMBERS = new int[] { 53 };	
+}
+public static Test suite() {
+	return buildTestSuite(SelectionTest.class);
+}
+	
 public SelectionTest(String testName) {
 	super(testName);
 }
@@ -2365,7 +2374,7 @@ public void test53() {
 		"  public X() {\n" + 
 		"  }\n" + 
 		"  void foo(String[] stringArray) {\n" + 
-		"    for (String string2 : stringArray) \n" + 
+		"    for (<SelectionOnLocalName:String string2> : stringArray) \n" + 
 		"      ;\n" + 
 		"  }\n" + 
 		"}\n";

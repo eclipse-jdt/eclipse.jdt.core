@@ -70,7 +70,16 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	}
 
 	public StringBuffer printStatement(int indent, StringBuffer output) {
-
+		printAsExpression(indent, output);
+		switch(getKind()) {
+			case ENUM_CONSTANT:
+				return output.append(',');
+			default:
+				return output.append(';');
+		}
+	}
+	
+	public StringBuffer printAsExpression(int indent, StringBuffer output) {
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
 		if (this.annotations != null) printAnnotations(this.annotations, output);
@@ -84,14 +93,13 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 				if (initialization != null) {
 					initialization.printExpression(indent, output);
 				}
-				return output.append(',');
 			default:
 				if (initialization != null) {
 					output.append(" = "); //$NON-NLS-1$
 					initialization.printExpression(indent, output);
 				}
-				return output.append(';');
 		}
+		return output;
 	}
 
 	public void resolve(BlockScope scope) {

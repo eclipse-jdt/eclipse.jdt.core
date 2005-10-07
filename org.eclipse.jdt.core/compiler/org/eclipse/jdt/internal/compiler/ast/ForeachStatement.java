@@ -302,18 +302,10 @@ public class ForeachStatement extends Statement {
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
-	public StringBuffer printStatement(int tab, StringBuffer output) {
+	public StringBuffer printStatement(int indent, StringBuffer output) {
 
-		printIndent(tab, output).append("for ("); //$NON-NLS-1$
-		printModifiers(this.elementVariable.modifiers, output);
-		final Annotation[] annotations = this.elementVariable.annotations;
-		if (annotations != null) printAnnotations(annotations, output);
-		
-		final TypeReference type = this.elementVariable.type;
-		if (type != null) {
-			type.print(0, output).append(' ');
-		}
-		output.append(this.elementVariable.name); 
+		printIndent(indent, output).append("for ("); //$NON-NLS-1$
+		this.elementVariable.printAsExpression(0, output); 
 		output.append(" : ");//$NON-NLS-1$
 		this.collection.print(0, output).append(") "); //$NON-NLS-1$
 		//block
@@ -321,7 +313,7 @@ public class ForeachStatement extends Statement {
 			output.append(';');
 		} else {
 			output.append('\n');
-			this.action.printStatement(tab + 1, output);
+			this.action.printStatement(indent + 1, output);
 		}
 		return output;
 	}
