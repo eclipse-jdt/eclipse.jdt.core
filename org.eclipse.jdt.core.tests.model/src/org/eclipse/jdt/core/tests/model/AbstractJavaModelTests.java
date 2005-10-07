@@ -1923,10 +1923,10 @@ protected void assertDeltas(String message, String expected) {
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
-		if (discard) {
-			workingCopies = null;
+		if (this.discard) {
+			this.workingCopies = null;
 		}
-		discard = true;
+		this.discard = true;
 	}
 	protected void sortElements(IJavaElement[] elements) {
 		Util.Comparer comparer = new Util.Comparer() {
@@ -2027,9 +2027,9 @@ protected void assertDeltas(String message, String expected) {
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if (discard && workingCopies != null) {
-			discardWorkingCopies(workingCopies);
-			wcOwner = null;
+		if (this.discard && this.workingCopies != null) {
+			discardWorkingCopies(this.workingCopies);
+			this.wcOwner = null;
 		}
 	}
 	/**
