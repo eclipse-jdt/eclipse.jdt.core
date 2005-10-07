@@ -1442,7 +1442,9 @@ public void test038() {
 		"----------\n" + 
 		"2. ERROR in X.java (at line 23)\n" + 
 		"	static {\n" + 
-		"	       ^\n" + 
+		"                      myTree.addTreeSelectionListener(list);\n" + 
+		"                      }\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot define static initializer in inner type new ActionListener(){}\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 24)\n" + 
