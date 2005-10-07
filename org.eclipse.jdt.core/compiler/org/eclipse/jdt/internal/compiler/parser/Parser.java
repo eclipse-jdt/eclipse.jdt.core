@@ -53,7 +53,6 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Compiler
     
 	public static short check_table[] = null;
 	public static final int CurlyBracket = 2;
-	// TODO remove once testing is done
 	private static final boolean DEBUG = false;
 	private static final String EOF_TOKEN = "$eof" ; //$NON-NLS-1$
 	private static final String ERROR_TOKEN = "$error" ; //$NON-NLS-1$
@@ -918,7 +917,7 @@ protected void checkNonNLSAfterBodyEnd(int declarationEnd){
 		}
 	}
 }
-protected void classInstanceCreation(boolean hasClassBody) {
+protected void classInstanceCreation(boolean isQualified) {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
 
 	// ClassBodyopt produces a null item on the astStak if it produces NO class body
@@ -930,7 +929,7 @@ protected void classInstanceCreation(boolean hasClassBody) {
 		&& (this.astStack[this.astPtr] == null)) {
 		//NO ClassBody
 		this.astPtr--;
-		if (hasClassBody) {
+		if (isQualified) {
 			alloc = new QualifiedAllocationExpression();
 		} else {
 			alloc = new AllocationExpression();
@@ -6671,6 +6670,7 @@ protected void consumeStaticOnly() {
 	jumpOverMethodBody();
 	this.nestedMethod[this.nestedType]++;
 	resetModifiers();
+	this.expressionLengthPtr--; // remove the 0 pushed in consumeToken() for the static modifier
 
 	// recovery
 	if (this.currentElement != null){
