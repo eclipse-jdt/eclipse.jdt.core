@@ -93,6 +93,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 				if (initialization != null) {
 					initialization.printExpression(indent, output);
 				}
+				break;
 			default:
 				if (initialization != null) {
 					output.append(" = "); //$NON-NLS-1$
