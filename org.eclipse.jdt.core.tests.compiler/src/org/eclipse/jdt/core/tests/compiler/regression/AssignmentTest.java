@@ -15,7 +15,6 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class AssignmentTest extends AbstractRegressionTest {
 	
@@ -28,18 +27,17 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_ReportNoEffectAssignment, CompilerOptions.ERROR);
 	return options;
 }
-public static Test suite() {
-
-	if (false) {
-	   	TestSuite ts;
-		//some of the tests depend on the order of this suite.
-		ts = new TestSuite();
-		ts.addTest(new AssignmentTest("test221"));
-		return new RegressionTestSetup(ts, COMPLIANCE_1_4);
-	}
-	return setupSuite(testClass());
+// Static initializer to specify tests subset using TESTS_* static variables
+// All specified tests which does not belong to the class are skipped...
+static {
+//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NUMBERS = new int[] { 38 };
+//	TESTS_RANGE = new int[] { 11, -1 };
 }
-
+public static Test suite() {
+	Test suite = buildTestSuite(testClass());
+	return suite;
+}
 /*
  * no effect assignment bug
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=27235
@@ -1390,6 +1388,73 @@ public void test037() {
 			"}\n",
 		},
 		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111703
+public void test038() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.awt.event.*;\n" +
+			"\n" +
+			"import javax.swing.*;\n" +
+			"import javax.swing.event.*;\n" +
+			"\n" +
+			"public class X {\n" +
+			"    JButton myButton = new JButton();\n" +
+			"    JTree myTree = new JTree();\n" +
+			"    ActionListener action;\n" +
+			"    X() {\n" +
+			"        action = new ActionListener() {\n" +
+			"            public void actionPerformed(ActionEvent e) {\n" +
+			"                if (true) {\n" +
+			"                    // unlock document\n" +
+			"                    final Object document = new Object();\n" +
+			"                    myButton.addActionListener(new ActionListener() {\n" +
+			"                        private static boolean selectionChanged;\n" +
+			"                        static TreeSelectionListener list = new TreeSelectionListener() {\n" +
+			"                            public void valueChanged(TreeSelectionEvent e) {\n" +
+			"                                selectionChanged = true;\n" +
+			"                            }\n" +
+			"                        };\n" +
+			"                      static {\n" +
+			"                      myTree.addTreeSelectionListener(list);\n" +
+			"                      }\n" +
+			"                        public void actionPerformed(ActionEvent e) {\n" +
+			"                            if(!selectionChanged)\n" +
+			"                            myButton.removeActionListener(this);\n" +
+			"                        }\n" +
+			"                    });\n" +
+			"                }\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        new X();\n" +
+			"    }\n" +
+			"\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 19)\n" + 
+		"	public void valueChanged(TreeSelectionEvent e) {\n" + 
+		"	                                            ^\n" + 
+		"The parameter e is hiding another local variable defined in an enclosing type scope\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 23)\n" + 
+		"	static {\n" + 
+		"	       ^\n" + 
+		"Cannot define static initializer in inner type new ActionListener(){}\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 24)\n" + 
+		"	myTree.addTreeSelectionListener(list);\n" + 
+		"	^^^^^^\n" + 
+		"Cannot make a static reference to the non-static field myTree\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 26)\n" + 
+		"	public void actionPerformed(ActionEvent e) {\n" + 
+		"	                                        ^\n" + 
+		"The parameter e is hiding another local variable defined in an enclosing type scope\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return AssignmentTest.class;
