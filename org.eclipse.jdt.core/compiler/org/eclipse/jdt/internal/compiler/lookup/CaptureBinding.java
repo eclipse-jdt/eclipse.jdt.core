@@ -86,11 +86,10 @@ public class CaptureBinding extends TypeVariableBinding {
 			}
 		}
 		// no substitution for wildcard bound (only formal bounds from type variables are to be substituted: 104082)
+		// still need to capture bound supertype as well so as not to expose wildcards to the outside (111208)
 		TypeBinding originalWildcardBound = wildcard.bound;
-		// prevent cyclic capture: given X<T>, capture(X<? extends T> could yield a circular type
-		TypeBinding substitutedWildcardBound = originalWildcardBound;
-//		TypeBinding substitutedWildcardBound = originalWildcardBound == null ? null : originalWildcardBound.capture(scope, this.position);
-//		if (substitutedWildcardBound == this) substitutedWildcardBound = originalWildcardBound;
+		TypeBinding substitutedWildcardBound = originalWildcardBound == null ? null : originalWildcardBound.capture(scope, this.position);
+		if (substitutedWildcardBound == this) substitutedWildcardBound = originalWildcardBound;
 		
 		switch (wildcard.boundKind) {
 			case Wildcard.EXTENDS :

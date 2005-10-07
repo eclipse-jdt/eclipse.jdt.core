@@ -25822,7 +25822,7 @@ public void test835() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111208
-public void _test836() {
+public void test836() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -25852,7 +25852,7 @@ public void _test836() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111208 - variation
-public void _test837() {
+public void test837() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -25875,7 +25875,7 @@ public void _test837() {
 		"The method bar(String) in the type X is not applicable for the arguments (capture-of ? extends List<? extends Number>)\n" + 
 		"----------\n");
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111208 - variation
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111689
 public void test838() {
 	this.runConformTest(
 		new String[] {
