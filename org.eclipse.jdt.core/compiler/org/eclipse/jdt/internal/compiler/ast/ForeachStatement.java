@@ -305,7 +305,15 @@ public class ForeachStatement extends Statement {
 	public StringBuffer printStatement(int tab, StringBuffer output) {
 
 		printIndent(tab, output).append("for ("); //$NON-NLS-1$
-		this.elementVariable.print(0, output); 
+		printModifiers(this.elementVariable.modifiers, output);
+		final Annotation[] annotations = this.elementVariable.annotations;
+		if (annotations != null) printAnnotations(annotations, output);
+		
+		final TypeReference type = this.elementVariable.type;
+		if (type != null) {
+			type.print(0, output).append(' ');
+		}
+		output.append(this.elementVariable.name); 
 		output.append(" : ");//$NON-NLS-1$
 		this.collection.print(0, output).append(") "); //$NON-NLS-1$
 		//block

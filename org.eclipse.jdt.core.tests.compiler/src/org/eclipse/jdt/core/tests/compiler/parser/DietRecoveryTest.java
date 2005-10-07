@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
@@ -30,6 +32,12 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public class DietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$
+static {
+//	TESTS_NUMBERS = new int[] { 113 };	
+}
+public static Test suite() {
+	return buildTestSuite(DietRecoveryTest.class);
+}
 	
 public DietRecoveryTest(String testName){
 	super(testName);
@@ -6257,6 +6265,52 @@ public void test112() {
 		expectedDietUnitToString;
 	
 	String testName = "";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,		
+		expectedCompletionDietUnitToString,
+		testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111618
+public void test113() {
+	String s = 
+		"public class X {\n"+
+		"  public void foo(Object[] tab)\n"+
+		"    for (Object o : tab) {\n"+
+		"		o.toString();\n"+
+		"	 }\n"+
+		"  }\n"+
+		"}\n";
+		
+	String expectedDietUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  public void foo(Object[] tab) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString = 
+		"public class X {\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  public void foo(Object[] tab) {\n" + 
+		"    for (Object o : tab) \n" + 
+		"      {\n" + 
+		"        o.toString();\n" + 
+		"      }\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "test foreach toString";
 	checkParse(
 		s.toCharArray(),
 		expectedDietUnitToString,
