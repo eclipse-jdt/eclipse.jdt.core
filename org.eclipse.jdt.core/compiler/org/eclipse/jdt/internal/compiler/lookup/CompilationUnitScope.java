@@ -430,6 +430,7 @@ private Binding findImport(char[][] compoundName, int length) {
 	}
 
 	while (i < length) {
+		type = (ReferenceBinding)environment.convertToRawType(type); // type imports are necessarily raw for all except last
 		if (!type.canBeSeenBy(fPackage))
 			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), type, NotVisible);
 
