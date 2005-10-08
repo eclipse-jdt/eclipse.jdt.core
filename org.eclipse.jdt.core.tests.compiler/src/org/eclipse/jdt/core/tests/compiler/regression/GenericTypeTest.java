@@ -24296,5 +24296,43 @@ public void test837() {
 		"The method bar(String) in the type X is not applicable for the arguments (capture-of ? extends List<? extends Number>)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=109118
+public void test839() {
+	this.runConformTest(
+		new String[] {
+			"com/test/Tester.java",
+			"package com.test;\n" + 
+			"\n" + 
+			"import com.test.TestClass.MyException;\n" + 
+			"\n" + 
+			"public class Tester {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" + 
+			"			TestClass<String> test = new TestClass<String>();\n" + 
+			"		} catch (MyException e) {\n" + 
+			"			System.out.println(\"SUCCESS\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}",		
+			"com/test/TestClass.java",
+			"package com.test;\n" + 
+			"\n" + 
+			"public class TestClass<T> {\n" + 
+			"	\n" + 
+			"	public TestClass() throws MyException {\n" + 
+			"		throw new MyException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public class MyException extends Exception {\n" + 
+			"		\n" + 
+			"		public MyException() {\n" + 
+			"			super();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"			
+		},
+		"SUCCESS");
+}
 }
 
