@@ -1,0 +1,268 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2005 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.jdt.core.tests.compiler.parser;
+
+import java.util.Locale;
+import java.util.StringTokenizer;
+
+import junit.framework.Test;
+
+import org.eclipse.jdt.internal.codeassist.complete.CompletionJavadoc;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocTag;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+
+public class JavadocCompletionParserTest extends AbstractCompletionTest implements JavadocTagConstants {
+	public static int INLINE_ALL_TAGS_LENGTH = 0;
+	public static int BLOCK_ALL_TAGS_LENGTH = 0;
+	static {
+		for (int i=0; i<INLINE_TAGS_LENGTH; i++) {
+			INLINE_ALL_TAGS_LENGTH += INLINE_TAGS[i].length;
+		}
+		for (int i=0; i<BLOCK_TAGS_LENGTH; i++) {
+			BLOCK_ALL_TAGS_LENGTH += BLOCK_TAGS[i].length;
+		}
+	}
+
+	CompletionJavadoc javadoc;
+
+	public JavadocCompletionParserTest(String testName) {
+		super(testName);
+	}
+
+	static {
+		// org.eclipse.jdt.internal.codeassist.CompletionEngine.DEBUG = true;
+//		TESTS_NUMBERS = new int[] { 5 };
+	}
+
+	public static Test suite() {
+		return buildTestSuite(JavadocCompletionParserTest.class);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.test.performance.PerformanceTestCase#setUp()
+	 */
+	protected void setUp() throws Exception {
+		super.setUp();
+	}
+
+	protected void verifyCompletionInJavadoc(String source, String after) {
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		CompletionParser parser = new CompletionParser(new ProblemReporter(DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+			options,
+			new DefaultProblemFactory(Locale.getDefault())));
+
+		ICompilationUnit sourceUnit = new CompilationUnit(source.toCharArray(), "Test.java", null);
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 0);
+
+		int cursorLocation = source.indexOf(after) + after.length() - 1;
+		parser.dietParse(sourceUnit, compilationResult, cursorLocation);
+
+		assertNotNull("Parser should have an assist node parent", parser.assistNodeParent);
+		assertEquals("Expecting completion in javadoc!", CompletionJavadoc.class, parser.assistNodeParent.getClass());
+		this.javadoc = (CompletionJavadoc) parser.assistNodeParent;
+	}
+
+	protected void verifyCompletionOnJavadocTag(char[] tag, char[][] expectedTags, boolean inline) {
+		assertTrue("Invalid javadoc completion node!", this.javadoc.getCompletionNode() instanceof CompletionOnJavadocTag);
+		CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+		StringBuffer expected = new StringBuffer("<CompleteOnJavadocTag:");
+		if (inline) expected.append('{');
+		expected.append('@');
+		if (tag != null) expected.append(tag);
+		if (inline) expected.append('}');
+		if (expectedTags != null) {
+			expected.append("\npossible tags:");
+			int length = expectedTags.length;
+			for (int i=0; i<length; i++) {
+				expected.append("\n	- ");
+				expected.append(expectedTags[i]);
+			}
+			expected.append('\n');
+		}
+		expected.append(">");
+		if (expectedTags == null) {
+			assertEquals("Invalid completion tag", expected.toString(), completionTag.toString());
+		} else {
+			String completionTagString = completionTag.toString();
+			StringTokenizer completionTagTokenizer = new StringTokenizer(completionTagString, "\n");
+			StringBuffer completionTagBuffer = new StringBuffer(completionTagString.length());
+			boolean possibleLine = false, newLine = false;
+			while (completionTagTokenizer.hasMoreTokens()) {
+				String line = completionTagTokenizer.nextToken();
+				if (line.startsWith("possible")) {
+					if (!possibleLine) {
+						possibleLine = true;
+						completionTagBuffer.append("\npossible tags:");
+					}
+				} else {
+					if (newLine) completionTagBuffer.append('\n');
+					completionTagBuffer.append(line);
+				}
+				newLine = true;
+			}
+			assertEquals("Invalid completion tag", expected.toString(), completionTagBuffer.toString());
+		}
+	}
+
+	protected void verifyAllTagsCompletion() {
+		char[][] allTags = {
+			// Block tags
+			TAG_AUTHOR, TAG_DEPRECATED, TAG_EXCEPTION, TAG_PARAM, TAG_RETURN, TAG_SEE, TAG_VERSION,
+			TAG_SINCE,
+			TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD , TAG_THROWS,
+			// Inline tags
+			TAG_LINK,
+			TAG_DOC_ROOT,
+		};
+		char[][] additionalTags = null;
+		if (complianceLevel.equals(COMPLIANCE_1_4)) {
+			additionalTags = new char[][] {
+				TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
+			};
+		}
+		else if (complianceLevel.equals(COMPLIANCE_1_5)) {
+			additionalTags = new char[][] {
+				TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+				TAG_CODE, TAG_LITERAL
+			};
+		}
+		if (additionalTags != null) {
+			int length = allTags.length;
+			int add = additionalTags.length;
+			System.arraycopy(allTags, 0, allTags = new char[length+add][], 0, length);
+			System.arraycopy(additionalTags, 0, allTags, length, add);
+		}
+		verifyCompletionOnJavadocTag(null, allTags, false);
+	}
+
+	/*
+	 * Test completions for javadoc tag names
+	 */
+	public void test001() {
+		String source = "package javadoc;\n" +
+			"/**\n" +
+			" * Completion on empty tag name:\n" +
+			" * 	@\n" +
+			" */\n" +
+			"public class Test {}\n";
+		verifyCompletionInJavadoc(source, "@");
+		verifyAllTagsCompletion();
+	}
+
+	public void test002() {
+		String source = "package javadoc;\n" +
+			"/**\n" +
+			" * Completion on impossible tag name:\n" +
+			" * 	@none\n" +
+			" */\n" +
+			"public class Test {}\n";
+		verifyCompletionInJavadoc(source, "@none");
+		verifyCompletionOnJavadocTag("none".toCharArray(), null, false);
+	}
+
+	public void test003() {
+		String source = "package javadoc;\n" +
+			"/**\n" +
+			" * Completion on one letter:\n" +
+			" * 	@v\n" +
+			" */\n" +
+			"public class Test {}\n";
+		verifyCompletionInJavadoc(source, "@v");
+		char[][] allTags = this.complianceLevel.equals(COMPLIANCE_1_3) 
+			? new char[][] { TAG_VERSION }
+			: new char[][] { TAG_VERSION, TAG_VALUE };
+		verifyCompletionOnJavadocTag(new char[] { 'v' }, allTags, false);
+	}
+
+	public void test004() {
+		String source = "package javadoc;\n" +
+			"/**\n" +
+			" * Completion with several letters:\n" +
+			" * 	@deprec\n" +
+			" */\n" +
+			"public class Test {}\n";
+		verifyCompletionInJavadoc(source, "@deprec");
+		verifyCompletionOnJavadocTag("deprec".toCharArray(), new char[][] { TAG_DEPRECATED }, false);
+	}
+
+	public void test005() {
+		String source = "package javadoc;\n" +
+			"/**\n" +
+			" * Completion on full tag name:\n" +
+			" * 	@link\n" +
+			" */\n" +
+			"public class Test {}\n";
+		verifyCompletionInJavadoc(source, "@link");
+		char[][] allTags = this.complianceLevel.equals(COMPLIANCE_1_3) 
+			? new char[][] { TAG_LINK }
+			: new char[][] { TAG_LINK, TAG_LINKPLAIN };
+		verifyCompletionOnJavadocTag("link".toCharArray(), allTags, false);
+	}
+
+	public void test006() {
+		String source = "package javadoc;\n" +
+			"/**\n" +
+			" * Completion on empty tag name @ but inside text\n" +
+			" */\n" +
+			"public class Test {}\n";
+		verifyCompletionInJavadoc(source, "@");
+		char[][] allTags = {
+			TAG_LINK,
+			TAG_DOC_ROOT,
+		};
+		char[][] additionalTags = null;
+		if (complianceLevel.equals(COMPLIANCE_1_4)) {
+			additionalTags = new char[][] {
+				TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
+			};
+		}
+		else if (complianceLevel.equals(COMPLIANCE_1_5)) {
+			additionalTags = new char[][] {
+				TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+				TAG_CODE, TAG_LITERAL
+			};
+		}
+		if (additionalTags != null) {
+			int length = allTags.length;
+			int add = additionalTags.length;
+			System.arraycopy(allTags, 0, allTags = new char[length+add][], 0, length);
+			System.arraycopy(additionalTags, 0, allTags, length, add);
+		}
+		verifyCompletionOnJavadocTag(null, allTags, false);
+	}
+
+	public void test007() {
+		String source = "package javadoc;\n" +
+			"/**\n" + 
+			" * Completion on :\n" + 
+			" * 	@\n" + 
+			" * 		- with following lines:\n" + 
+			" * 			+ \"@ {@link }\"\n" + 
+			" * 			+ \"@ {@linkplain }\"\n" + 
+			" * 			+ \"@ {@literal }\"\n" + 
+			" */\n" + 
+			"public class Test {}\n";
+		verifyCompletionInJavadoc(source, "@");
+		verifyAllTagsCompletion();
+	}
+	
+	/*
+	 * Tests completions for types
+	 */
+}

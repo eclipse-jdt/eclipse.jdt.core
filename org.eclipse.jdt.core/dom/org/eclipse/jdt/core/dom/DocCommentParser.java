@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -36,7 +37,7 @@ class DocCommentParser extends AbstractCommentParser {
 		super(null);
 		this.ast = ast;
 		this.scanner = scanner;
-		this.jdk15 = this.ast.apiLevel() >= AST.JLS3;
+		this.sourceLevel = this.ast.apiLevel() >= AST.JLS3 ? ClassFileConstants.JDK1_5 : ClassFileConstants.JDK1_3;
 		this.checkDocComment = check;
 		this.kind = DOM_PARSER;
 	}
@@ -473,7 +474,7 @@ class DocCommentParser extends AbstractCommentParser {
 						}
 					break;
 					case 'v':
-						if (this.jdk15 && CharOperation.equals(tag, TAG_VALUE)) {
+						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && CharOperation.equals(tag, TAG_VALUE)) {
 							this.tagValue = TAG_VALUE_VALUE;
 							if (this.inlineTagStarted) {
 								valid = parseReference();

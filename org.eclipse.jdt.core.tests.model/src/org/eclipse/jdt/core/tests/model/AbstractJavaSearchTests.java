@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.core.SourceRefElement;
  */
 public class AbstractJavaSearchTests extends AbstractJavaModelTests implements IJavaSearchConstants {
 
-	public static List TEST_SUITES = null;
+	public static List JAVA_SEARCH_SUITES = null;
 	protected static IJavaProject JAVA_PROJECT;
 	protected static boolean COPY_DIRS = true;
 	protected static int EXACT_RULE = SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE;

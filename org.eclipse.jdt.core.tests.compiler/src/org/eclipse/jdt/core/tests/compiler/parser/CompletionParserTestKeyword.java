@@ -10,9 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 public class CompletionParserTestKeyword extends AbstractCompletionTest {
 public CompletionParserTestKeyword(String testName) {
 	super(testName);
+}
+public static Test suite() {
+	return buildTestSuite(CompletionParserTestKeyword.class);
 }
 /*
  * Test for 'abstract' keyword.

@@ -438,7 +438,7 @@ protected void assertDeltas(String message, String expected) {
 	protected void assertStringsEqual(String message, String expected, String[] strings) {
 		String actual = toString(strings, true/*add extra new lines*/);
 		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 3) + this.endChar);
+			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
@@ -446,7 +446,7 @@ protected void assertDeltas(String message, String expected) {
 		String expected = toString(expectedStrings, false/*don't add extra new lines*/);
 		String actual = toString(actualStrings, false/*don't add extra new lines*/);
 		if (!expected.equals(actual)) {
-			System.out.println(displayString(actual, 3) + this.endChar);
+			System.out.println(displayString(actual, this.tabs) + this.endChar);
 		}
 		assertEquals(message, expected, actual);
 	}
@@ -1845,10 +1845,10 @@ protected void assertDeltas(String message, String expected) {
 		String sourceWorkspacePath = getSourceWorkspacePath();
 		String targetWorkspacePath = getWorkspaceRoot().getLocation().toFile().getCanonicalPath();
 		copyDirectory(new File(sourceWorkspacePath, projectName), new File(targetWorkspacePath, projectName));
-		
+
 		// ensure variables are set
 		setUpJCLClasspathVariables(compliance);
-	
+
 		// create project
 		final IProject project = getWorkspaceRoot().getProject(projectName);
 		IWorkspaceRunnable populate = new IWorkspaceRunnable() {
@@ -1859,38 +1859,70 @@ protected void assertDeltas(String message, String expected) {
 		};
 		getWorkspace().run(populate, null);
 		IJavaProject javaProject = JavaCore.create(project);
-		if ("1.5".equals(compliance)) {
-			// set options
-			Map options = new HashMap();
-			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);	
-			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);	
-			javaProject.setOptions(options);
-			
-			// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
-			IClasspathEntry[] classpath = javaProject.getRawClasspath();
-			IPath jclLib = new Path("JCL_LIB");
-			for (int i = 0, length = classpath.length; i < length; i++) {
-				IClasspathEntry entry = classpath[i];
-				if (entry.getPath().equals(jclLib)) {
-					classpath[i] = JavaCore.newVariableEntry(
-							new Path("JCL15_LIB"), 
-							new Path("JCL15_SRC"), 
-							entry.getSourceAttachmentRootPath(), 
-							entry.getAccessRules(), 
-							new IClasspathAttribute[0], 
-							entry.isExported());
-					break;
-				}
-			}
-			javaProject.setRawClasspath(classpath, null);
-		}
+		setUpProjectCompliance(javaProject, compliance);
 		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
 		return javaProject;
+	}
+
+	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {
+		// Look for version to set and return if that's already done
+		String version = CompilerOptions.VERSION_1_4;
+		String jclLibString = null;
+		String newJclLibString = null;
+		String newJclSrcString = null;
+		switch (compliance.charAt(2)) {
+			case '5':
+				version = CompilerOptions.VERSION_1_5;
+				if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
+					return;
+				}
+				jclLibString = "JCL_LIB";
+				newJclLibString = "JCL15_LIB";
+				newJclSrcString = "JCL15_SRC";
+				break;
+			case '3':
+				version = CompilerOptions.VERSION_1_3;
+			default:
+				if (version.equals(javaProject.getOption(CompilerOptions.OPTION_Compliance, false))) {
+					return;
+				}
+				jclLibString = "JCL15_LIB";
+				newJclLibString = "JCL_LIB";
+				newJclSrcString = "JCL_SRC";
+				break;
+		}
+		
+		// ensure variables are set
+		setUpJCLClasspathVariables(compliance);
+		
+		// set options
+		Map options = new HashMap();
+		options.put(CompilerOptions.OPTION_Compliance, version);
+		options.put(CompilerOptions.OPTION_Source, version);	
+		options.put(CompilerOptions.OPTION_TargetPlatform, version);	
+		javaProject.setOptions(options);
+		
+		// replace JCL_LIB with JCL15_LIB, and JCL_SRC with JCL15_SRC
+		IClasspathEntry[] classpath = javaProject.getRawClasspath();
+		IPath jclLib = new Path(jclLibString);
+		for (int i = 0, length = classpath.length; i < length; i++) {
+			IClasspathEntry entry = classpath[i];
+			if (entry.getPath().equals(jclLib)) {
+				classpath[i] = JavaCore.newVariableEntry(
+						new Path(newJclLibString), 
+						new Path(newJclSrcString), 
+						entry.getSourceAttachmentRootPath(), 
+						entry.getAccessRules(), 
+						new IClasspathAttribute[0], 
+						entry.isExported());
+				break;
+			}
+		}
+		javaProject.setRawClasspath(classpath, null);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		if ("1.5".equals(compliance)) {
@@ -2032,6 +2064,13 @@ protected void assertDeltas(String message, String expected) {
 			this.wcOwner = null;
 		}
 	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
+	 */
+	public void tearDownSuite() throws Exception {
+		super.tearDownSuite();
+	}
+
 	/**
 	 * Wait for autobuild notification to occur
 	 */
@@ -2048,6 +2087,7 @@ protected void assertDeltas(String message, String expected) {
 			}
 		} while (wasInterrupted);
 	}
+
 	public static void waitUntilIndexesReady() {
 		// dummy query for waiting until the indexes are ready
 		SearchEngine engine = new SearchEngine();
@@ -2072,5 +2112,4 @@ protected void assertDeltas(String message, String expected) {
 		} catch (CoreException e) {
 		}
 	}
-
 }

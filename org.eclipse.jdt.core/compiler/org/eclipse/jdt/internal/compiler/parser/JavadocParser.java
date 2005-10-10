@@ -32,8 +32,6 @@ public class JavadocParser extends AbstractCommentParser {
 
 	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
-		this.checkDocComment = this.sourceParser.options.docCommentSupport;
-		this.jdk15 = this.sourceParser.options.sourceLevel >= ClassFileConstants.JDK1_5;
 		this.kind = COMPIL_PARSER;
 	}
 
@@ -58,7 +56,7 @@ public class JavadocParser extends AbstractCommentParser {
 		}
 		
 		// If there's no tag in javadoc, return without parsing it
-		if (this.firstTagPosition == 0) {
+		if (this.kind == COMPIL_PARSER && this.firstTagPosition == 0) {
 			return false;
 		}
 
@@ -157,7 +155,7 @@ public class JavadocParser extends AbstractCommentParser {
 			return new JavadocArgumentExpression(name, argTypeRef.sourceStart, argEnd, argTypeRef);
 		}
 		catch (ClassCastException ex) {
-				throw new InvalidInputException();
+			throw new InvalidInputException();
 		}
 	}
 	/* (non-Javadoc)
@@ -194,17 +192,9 @@ public class JavadocParser extends AbstractCommentParser {
 			boolean isConstructor = false;
 			if (typeRef == null) {
 				char[] name = this.sourceParser.compilationUnit.getMainTypeName();
-				int ptr = this.sourceParser.astPtr;
-				while (ptr >= 0) {
-					Object node = this.sourceParser.astStack[ptr];
-					if (node instanceof TypeDeclaration) {
-						TypeDeclaration typeDecl = (TypeDeclaration) node;
-						if (typeDecl.bodyEnd == 0) { // type declaration currenly parsed
-							name = typeDecl.name;
-							break;
-						}
-					}
-					ptr--;
+				TypeDeclaration typeDecl = getParsedTypeDeclaration();
+				if (typeDecl != null) {
+					name = typeDecl.name;
 				}
 				isConstructor = CharOperation.equals(this.identifierStack[0], name);
 				typeRef = new JavadocImplicitTypeReference(name, this.memberStart);
@@ -265,6 +255,14 @@ public class JavadocParser extends AbstractCommentParser {
 		return new JavadocReturnStatement(this.scanner.getCurrentTokenStartPosition(),
 					this.scanner.getCurrentTokenEndPosition());
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseTagName()
+	 */
+	protected void createTag() {
+		this.tagValue = TAG_OTHERS_VALUE;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createTypeReference()
 	 */
@@ -289,6 +287,24 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	/*
+	 * Get current parsed type declaration.
+	 */
+	protected TypeDeclaration getParsedTypeDeclaration() {
+		int ptr = this.sourceParser.astPtr;
+		while (ptr >= 0) {
+			Object node = this.sourceParser.astStack[ptr];
+			if (node instanceof TypeDeclaration) {
+				TypeDeclaration typeDecl = (TypeDeclaration) node;
+				if (typeDecl.bodyEnd == 0) { // type declaration currenly parsed
+					return typeDecl;
+				}
+			}
+			ptr--;
+		}
+		return null;
+	}
+
+	/*
 	 * Parse @return tag declaration
 	 */
 	protected boolean parseReturn() {
@@ -307,6 +323,12 @@ public class JavadocParser extends AbstractCommentParser {
 	
 		// Read tag name
 		int token = readTokenAndConsume();
+		if (this.index >= this.scanner.eofPosition) {
+			this.tagSourceStart = previousPosition;
+			this.tagSourceEnd = this.tokenPreviousPosition;
+			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidTag(this.tagSourceStart, this.tagSourceEnd);
+			return false;
+		}
 		this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
 		this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
 	
@@ -410,6 +432,7 @@ public class JavadocParser extends AbstractCommentParser {
 		this.tagValue = NO_TAG_VALUE;
 		switch (token) {
 			case TerminalTokens.TokenNameIdentifier :
+				if (length == 0) break; // may happen for some parser (completion for example)
 				switch (tag[0]) {
 					case 'd':
 						if (CharOperation.equals(tag, TAG_DEPRECATED)) {
@@ -461,7 +484,7 @@ public class JavadocParser extends AbstractCommentParser {
 					case 'l':
 						if (CharOperation.equals(tag, TAG_LINK)) {
 							this.tagValue = TAG_LINK_VALUE;
-							if (this.inlineTagStarted) {
+							if (this.inlineTagStarted || this.kind == COMPLETION_PARSER) {
 								valid= parseReference();
 							} else {
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
@@ -482,7 +505,7 @@ public class JavadocParser extends AbstractCommentParser {
 						}
 					break;
 					case 'v':
-						if (this.jdk15 && CharOperation.equals(tag, TAG_VALUE)) {
+						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && CharOperation.equals(tag, TAG_VALUE)) {
 							this.tagValue = TAG_VALUE_VALUE;
 							if (this.inlineTagStarted) {
 								valid = parseReference();
@@ -516,13 +539,6 @@ public class JavadocParser extends AbstractCommentParser {
 		}
 		this.textStart = this.index;
 		return valid;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseTagName()
-	 */
-	protected void createTag() {
-		this.tagValue = TAG_OTHERS_VALUE;
 	}
 
 	/*
@@ -683,10 +699,10 @@ public class JavadocParser extends AbstractCommentParser {
 		}
 		this.docComment.seeReferences = new Expression[sizes[SEE_TAG_EXPECTED_ORDER]];
 		this.docComment.exceptionReferences = new TypeReference[sizes[THROWS_TAG_EXPECTED_ORDER]];
-		this.docComment.paramReferences = new JavadocSingleNameReference[sizes[PARAM_TAG_EXPECTED_ORDER]];
 		int paramRefPtr = sizes[PARAM_TAG_EXPECTED_ORDER];
-		this.docComment.paramTypeParameters = new JavadocSingleTypeReference[sizes[PARAM_TAG_EXPECTED_ORDER]];
+		this.docComment.paramReferences = new JavadocSingleNameReference[paramRefPtr];
 		int paramTypeParamPtr = sizes[PARAM_TAG_EXPECTED_ORDER];
+		this.docComment.paramTypeParameters = new JavadocSingleTypeReference[paramTypeParamPtr];
 
 		// Store nodes in arrays
 		while (this.astLengthPtr >= 0) {

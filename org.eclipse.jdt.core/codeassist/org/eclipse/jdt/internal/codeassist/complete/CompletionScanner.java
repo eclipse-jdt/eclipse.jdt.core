@@ -703,7 +703,7 @@ public int getNextToken() throws InvalidInputException {
 								}
 								int token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
 								recordComment(token);
-								if (this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition-1){
+								if (!isJavadoc && this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition-1){
 									throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 								}
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);

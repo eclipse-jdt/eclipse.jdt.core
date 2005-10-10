@@ -10,12 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 /**
  * Completion is expected to be in a LabeledStatement.
  */
 public class LabelStatementCompletionTest extends AbstractCompletionTest {
 public LabelStatementCompletionTest(String testName) {
 	super(testName);
+}
+public static Test suite() {
+	return buildTestSuite(LabelStatementCompletionTest.class);
 }
 /*
  * Completion inside an inner class defined inside a labeled statement.

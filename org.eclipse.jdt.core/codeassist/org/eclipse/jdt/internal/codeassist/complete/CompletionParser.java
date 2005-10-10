@@ -129,6 +129,8 @@ public class CompletionParser extends AssistParser {
 public CompletionParser(ProblemReporter problemReporter) {
 	super(problemReporter);
 	this.reportSyntaxErrorIsRequired = false;
+	this.javadocParser = new CompletionJavadocParser(this);
+	this.javadocParser.checkDocComment = true;
 }
 public char[] assistIdentifier(){
 	return ((CompletionScanner)scanner).completionIdentifier;

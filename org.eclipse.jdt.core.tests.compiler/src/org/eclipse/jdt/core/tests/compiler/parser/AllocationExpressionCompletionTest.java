@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 /**
  * Completion is expected to be an AllocationExpression.
  */
@@ -17,7 +19,9 @@ public class AllocationExpressionCompletionTest extends AbstractCompletionTest {
 public AllocationExpressionCompletionTest(String testName) {
 	super(testName);
 }
-
+public static Test suite() {
+	return buildTestSuite(AllocationExpressionCompletionTest.class);
+}
 /*
  * Completion inside an if statement.
  */

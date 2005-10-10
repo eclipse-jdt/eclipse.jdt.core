@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser;
+import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 
 /**
  * Node representing a structured Javadoc comment
@@ -64,7 +64,7 @@ public class Javadoc extends ASTNode {
 		}
 		if (this.seeReferences != null) {
 			for (int i = 0, length = this.seeReferences.length; i < length; i++) {
-				printIndent(indent + 1, output).append(" * @see"); //$NON-NLS-1$		
+				printIndent(indent + 1, output).append(" * @see "); //$NON-NLS-1$		
 				this.seeReferences[i].print(indent, output).append('\n');
 			}
 		}
@@ -233,7 +233,7 @@ public class Javadoc extends ASTNode {
 			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51911
 			if (fieldRef.methodBinding != null) {
 				// cannot refer to method for @value tag
-				if (fieldRef.tagValue == AbstractCommentParser.TAG_VALUE_VALUE) {
+				if (fieldRef.tagValue == JavadocTagConstants.TAG_VALUE_VALUE) {
 					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, modifiers);
 				}
 				else if (fieldRef.receiverType != null) {
@@ -244,7 +244,7 @@ public class Javadoc extends ASTNode {
 
 			// Verify whether field ref should be static or not (for @value tags)
 			else if (verifyValues && fieldRef.binding != null && fieldRef.binding.isValidBinding()) {
-				if (fieldRef.tagValue == AbstractCommentParser.TAG_VALUE_VALUE && !fieldRef.binding.isStatic()) {
+				if (fieldRef.tagValue == JavadocTagConstants.TAG_VALUE_VALUE && !fieldRef.binding.isStatic()) {
 					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, modifiers);
 				}
 			}
@@ -257,7 +257,7 @@ public class Javadoc extends ASTNode {
 		else if (reference instanceof JavadocMessageSend) {
 			JavadocMessageSend msgSend = (JavadocMessageSend) reference;
 			int modifiers = msgSend.binding==null ? -1 : msgSend.binding.modifiers;
-			if (msgSend.tagValue == AbstractCommentParser.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
+			if (msgSend.tagValue == JavadocTagConstants.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
 				scope.problemReporter().javadocInvalidValueReference(msgSend.sourceStart, msgSend.sourceEnd, modifiers);
 			}
 		}
@@ -266,7 +266,7 @@ public class Javadoc extends ASTNode {
 		else if (reference instanceof JavadocAllocationExpression) {
 			JavadocAllocationExpression alloc = (JavadocAllocationExpression) reference;
 			int modifiers = alloc.binding==null ? -1 : alloc.binding.modifiers;
-			if (alloc.tagValue == AbstractCommentParser.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
+			if (alloc.tagValue == JavadocTagConstants.TAG_VALUE_VALUE) { // cannot refer to method for @value tag
 				scope.problemReporter().javadocInvalidValueReference(alloc.sourceStart, alloc.sourceEnd, modifiers);
 			}
 		}

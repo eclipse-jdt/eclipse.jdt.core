@@ -125,16 +125,6 @@ public class SelectionJavadoc extends Javadoc {
 	 * 
 	 * @throws SelectionNodeFound
 	 */
-	public void resolve(CompilationUnitScope scope) {
-		internalResolve(scope);
-	}
-
-	/**
-	 * Resolve selected node if not null and throw exception to let clients know
-	 * that it has been found.
-	 * 
-	 * @throws SelectionNodeFound
-	 */
 	public void resolve(MethodScope scope) {
 		internalResolve(scope);
 	}

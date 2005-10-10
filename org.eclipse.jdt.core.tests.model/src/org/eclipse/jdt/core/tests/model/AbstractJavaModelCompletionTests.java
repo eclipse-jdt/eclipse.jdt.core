@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
+import java.util.List;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -19,6 +20,8 @@ import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import junit.framework.*;
 
 public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModelTests implements RelevanceConstants {
+	public static List COMPLETION_SUITES = null;
+	protected static IJavaProject COMPLETION_PROJECT;
 	protected class CompletionResult {
 		public String proposals;
 		public String context;
@@ -26,12 +29,11 @@ public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModel
 	}
 	Hashtable oldOptions;
 	ICompilationUnit wc = null;
-	WorkingCopyOwner owner = null; 
 public AbstractJavaModelCompletionTests(String name) {
 	super(name);
 }
 public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
-	return super.getWorkingCopy(path, source, this.owner, null);
+	return super.getWorkingCopy(path, source, this.wcOwner, null);
 }
 protected CompletionResult complete(String path, String source, String completeBehind) throws JavaModelException {
 	return this.complete(path, source, false, completeBehind);
@@ -42,7 +44,7 @@ protected CompletionResult complete(String path, String source, boolean showPosi
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, showPositions);
 	String str = this.wc.getSource();
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.wc.codeComplete(cursorLocation, requestor, this.owner);
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 	CompletionResult result =  new CompletionResult();
 	result.proposals = requestor.getResults();
@@ -53,17 +55,23 @@ protected CompletionResult complete(String path, String source, boolean showPosi
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	this.oldOptions = JavaCore.getOptions();
-	
 	waitUntilIndexesReady();
 }
 protected void setUp() throws Exception {
 	super.setUp();
-	
-	this.owner = new WorkingCopyOwner(){};
+	this.wcOwner = new WorkingCopyOwner(){};
 }
 public void tearDownSuite() throws Exception {
 	JavaCore.setOptions(oldOptions);
-	
+		if (COMPLETION_SUITES == null) {
+			deleteProject("Completion");
+		} else {
+			COMPLETION_SUITES.remove(getClass());
+			if (COMPLETION_SUITES.size() == 0) {
+				deleteProject("Completion");
+				COMPLETION_SUITES = null;
+			}
+		}
 	super.tearDownSuite();
 }
 protected void tearDown() throws Exception {

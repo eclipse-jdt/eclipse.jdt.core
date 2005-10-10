@@ -10,11 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 import org.eclipse.jdt.internal.codeassist.complete.*;
 
 public class CompletionParserTest extends AbstractCompletionTest {
 public CompletionParserTest(String testName) {
 	super(testName);
+}
+static {
+//	TESTS_NAMES = new String[] { "testXA_1FGGUQF_1FHSL8H_1" };
+}
+public static Test suite() {
+	return buildTestSuite(CompletionParserTest.class);
 }
 public void testA() {
 	String str =
@@ -7173,7 +7181,8 @@ public void testX_1FGPE8E() {
 		expectedReplacedSource,
 		testName); 
 }
-public void testXA_1FGGUQF_1FHSL8H_1() {
+// Disabled since javadoc completion has been implemented
+public void _testXA_1FGGUQF_1FHSL8H_1() {
 	String str = 
 			"// int\n" + 
 			"package p; \n" + 

@@ -25,13 +25,16 @@ public CompletionTests_1_5(String name) {
 	super(name);
 }
 public void setUpSuite() throws Exception {
-	setUpJavaProject("Completion", "1.5");
+	if (COMPLETION_PROJECT == null)  {
+		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.5");
+	} else {
+		setUpProjectCompliance(COMPLETION_PROJECT, "1.5");
+	}
 	super.setUpSuite();
 }
 
 public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
-	deleteProject("Completion");
 }
 public static Test suite() {
 	TestSuite suite = new Suite(CompletionTests_1_5.class.getName());		
@@ -1149,7 +1152,7 @@ public void test0051() throws JavaModelException {
 		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.wc.codeComplete(cursorLocation, requestor, this.owner);
+		this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 			assertResults(
@@ -1208,7 +1211,7 @@ public void test0052() throws JavaModelException {
 		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.wc.codeComplete(cursorLocation, requestor, this.owner);
+		this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 			assertResults(
@@ -1262,7 +1265,7 @@ public void test0053() throws JavaModelException {
 		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.wc.codeComplete(cursorLocation, requestor, this.owner);
+		this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"QQType1.Inner1[TYPE_REF]{Inner1, pkgstaticimport, Lpkgstaticimport.QQType1$Inner1;, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -1302,7 +1305,7 @@ public void test0054() throws JavaModelException {
 		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.wc.codeComplete(cursorLocation, requestor, this.owner);
+		this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 			assertResults(
@@ -1347,7 +1350,7 @@ public void test0055() throws JavaModelException {
 		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.wc.codeComplete(cursorLocation, requestor, this.owner);
+		this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 			assertResults(
@@ -1392,7 +1395,7 @@ public void test0056() throws JavaModelException {
 		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.wc.codeComplete(cursorLocation, requestor, this.owner);
+		this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 			assertResults(
@@ -1436,7 +1439,7 @@ public void test0057() throws JavaModelException {
 		String str = this.wc.getSource();
 		String completeBehind = "Inner";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.wc.codeComplete(cursorLocation, requestor, this.owner);
+		this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 			assertResults(
@@ -1471,7 +1474,7 @@ public void test0058() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -1515,7 +1518,7 @@ public void test0059() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Ltest0059.QQType5;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -1547,7 +1550,7 @@ public void test0060() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzvarzz1[FIELD_REF]{zzvarzz1, Lpkgstaticimport.QQType4;, I, zzvarzz1, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -1578,7 +1581,7 @@ public void test0061() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -1606,7 +1609,7 @@ public void test0062() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -1634,7 +1637,7 @@ public void test0063() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -1662,7 +1665,7 @@ public void test0064() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzvarzz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzvarzz2[FIELD_REF]{zzvarzz2, Lpkgstaticimport.QQType4;, I, zzvarzz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -1690,7 +1693,7 @@ public void test0065() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzfoozz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -1734,7 +1737,7 @@ public void test0066() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzfoozz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzfoozz2[METHOD_REF]{zzfoozz2(), Ltest0066.QQType8;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -1766,7 +1769,7 @@ public void test0067() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzfoozz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzfoozz1[METHOD_REF]{zzfoozz1(), Lpkgstaticimport.QQType7;, ()V, zzfoozz1, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
@@ -1797,7 +1800,7 @@ public void test0068() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "zzfoozz";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"zzfoozz2[METHOD_REF]{zzfoozz2(), Lpkgstaticimport.QQType7;, ()V, zzfoozz2, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -1844,7 +1847,7 @@ public void test0070() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "test0070";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"test0070.p[PACKAGE_REF]{test0070.p.*;, test0070.p, null, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
@@ -1919,7 +1922,7 @@ public void test0072() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "test0072.p.ImportedClass.ZZ";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"ZZZ1[FIELD_REF]{test0072.p.ImportedClass.ZZZ1;, Ltest0072.p.ImportedClass;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
@@ -1956,7 +1959,7 @@ public void test0073() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "test0073.p.ImportedClass.Inner.ZZ";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"ZZZ1[FIELD_REF]{test0073.p.ImportedClass.Inner.ZZZ1;, Ltest0073.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
@@ -1993,7 +1996,7 @@ public void test0074() throws JavaModelException {
 		String str = cu.getSource();
 		String completeBehind = "test0074.p.ImportedClass.Inner.ZZ";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor, this.owner);
+		cu.codeComplete(cursorLocation, requestor, this.wcOwner);
 	
 		assertResults(
 				"ZZZ1[FIELD_REF]{test0074.p.ImportedClass.Inner.ZZZ1;, Ltest0074.p.ImportedClass$Inner;, I, ZZZ1, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
@@ -7623,7 +7626,7 @@ public void test0245() throws JavaModelException {
     String str = this.wc.getSource();
     String completeBehind = "ProviderImp";
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults("", requestor.getResults());
 }

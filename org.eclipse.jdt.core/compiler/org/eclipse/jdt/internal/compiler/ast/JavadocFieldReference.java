@@ -37,7 +37,7 @@ public class JavadocFieldReference extends FieldReference {
 	/*
 	 * Resolves type on a Block or Class scope.
 	 */
-	private TypeBinding internalResolveType(Scope scope) {
+	protected TypeBinding internalResolveType(Scope scope) {
 
 		this.constant = NotAConstant;
 		if (this.receiver == null) {

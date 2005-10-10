@@ -10,12 +10,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 /**
  * Completion is expected to be in an inner type
  */
 public class InnerTypeCompletionTest extends AbstractCompletionTest {
 public InnerTypeCompletionTest(String testName) {
 	super(testName);
+}
+public static Test suite() {
+	return buildTestSuite(InnerTypeCompletionTest.class);
 }
 /*
  * Test completion in the first method of an anonymous inner class

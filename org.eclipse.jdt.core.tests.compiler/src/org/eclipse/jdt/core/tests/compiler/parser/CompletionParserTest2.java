@@ -10,9 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
+
 public class CompletionParserTest2 extends AbstractCompletionTest {
 public CompletionParserTest2(String testName) {
 	super(testName);
+}
+public static Test suite() {
+	return buildTestSuite(CompletionParserTest2.class);
 }
 public void test0001(){
 	String str = 

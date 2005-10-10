@@ -173,10 +173,10 @@ File createDirectory(File parent, String name) {
 public void testBug29832() throws Exception {
 	try {
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		IFile f = getFile("/Completion/lib.jar");
@@ -289,10 +289,10 @@ public void testBug29832() throws Exception {
 public void testBug33560() throws Exception {
 	try {
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		IFile f = getFile("/Completion/lib.jar");
@@ -412,10 +412,10 @@ public void testBug33560() throws Exception {
 public void testBug79288() throws Exception {
 	try {
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -485,10 +485,10 @@ public void testBug79288() throws Exception {
 public void testBug91772() throws Exception {
 	try {
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -578,10 +578,10 @@ public void testBug93891() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -664,10 +664,10 @@ public void testAccessRestriction1() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -738,10 +738,10 @@ public void testAccessRestriction2() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -819,10 +819,10 @@ public void testAccessRestriction3() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -901,10 +901,10 @@ public void testAccessRestriction4() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -982,10 +982,10 @@ public void testAccessRestriction5() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -1062,10 +1062,10 @@ public void testAccessRestriction6() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -1168,10 +1168,10 @@ public void testAccessRestriction7() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -1266,10 +1266,10 @@ public void testAccessRestriction8() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -1365,10 +1365,10 @@ public void testAccessRestriction9() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -1513,10 +1513,10 @@ public void testAccessRestriction10() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -1663,10 +1663,10 @@ public void testAccessRestriction11() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -1811,10 +1811,10 @@ public void testAccessRestriction12() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -1961,10 +1961,10 @@ public void testAccessRestriction13() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -2041,10 +2041,10 @@ public void testAccessRestriction14() throws Exception {
 		JavaCore.setOptions(options);
 		
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(
@@ -2189,10 +2189,10 @@ public void testAccessRestriction14() throws Exception {
 public void testBug96950() throws Exception {
 	try {
 		// create variable
-		JavaCore.setClasspathVariables(
-			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
-			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
-			null);
+//		JavaCore.setClasspathVariables(
+//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
+//			null);
 
 		// create P1
 		this.createJavaProject(

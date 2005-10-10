@@ -21,6 +21,27 @@ import org.eclipse.jdt.internal.codeassist.InternalCompletionContext;
  * @since 3.1
  */
 public final class CompletionContext extends InternalCompletionContext {
+	private boolean inJavadoc;
+
+	/**
+	 * Tell user whether completion takes place in a javadoc comment or not.
+	 * 
+	 * @return boolean true if completion takes place in a javadoc comment, false otherwise.
+	 * @since 3.2
+	 */
+	public boolean isInJavadoc() {
+		return inJavadoc;
+	}
+
+	/**
+	 * Store whether completion takes place in a javadoc comment or not.
+	 * 
+	 * @param inJavadoc The inJavadoc to set.
+	 */
+	public void setInJavadoc(boolean inJavadoc) {
+		this.inJavadoc = inJavadoc;
+	}
+
 	/**
 	 * Return signatures of expected types of a potential completion proposal at the completion position.
 	 * 

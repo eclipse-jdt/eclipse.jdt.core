@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.Vector;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
@@ -22,10 +23,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private final char[] NULL_LITERAL = "null".toCharArray();//$NON-NLS-1$
 	
 	private CompletionContext context;
-	private Vector proposals = new Vector();
+	public int proposalsPtr = -1;
+	private final static int PROPOSALS_INCREMENT = 10;
+	private CompletionProposal[] proposals = new CompletionProposal[PROPOSALS_INCREMENT];
 	private IProblem problem;
 	
-	private boolean showParamterNames;
+	private boolean showParameterNames;
 	private boolean showUniqueKeys;
 	private boolean showPositions;
 	
@@ -34,14 +37,14 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	public CompletionTestsRequestor2() {
 		this(false, false);
 	}
-	public CompletionTestsRequestor2(boolean showParamterNames) {
-		this(showParamterNames, false, false);
+	public CompletionTestsRequestor2(boolean showParamNames) {
+		this(showParamNames, false, false);
 	}
-	public CompletionTestsRequestor2(boolean showParamterNames, boolean showUniqueKeys) {
-		this(showParamterNames, showUniqueKeys, false);
+	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys) {
+		this(showParamNames, showUniqueKeys, false);
 	}
-	public CompletionTestsRequestor2(boolean showParamterNames, boolean showUniqueKeys, boolean showPositions) {
-		this.showParamterNames = showParamterNames;
+	public CompletionTestsRequestor2(boolean showParamNames, boolean showUniqueKeys, boolean showPositions) {
+		this.showParameterNames = showParamNames;
 		this.showUniqueKeys = showUniqueKeys;
 		this.showPositions = showPositions;
 	}
@@ -49,7 +52,11 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this.context = cc;
 	}
 	public void accept(CompletionProposal proposal) {
-		proposals.add(proposal);
+		int length = this.proposals.length;
+		if (++this.proposalsPtr== length) {
+			System.arraycopy(this.proposals, 0, this.proposals = new CompletionProposal[length+PROPOSALS_INCREMENT], 0, length);
+		}
+		this.proposals[this.proposalsPtr] = proposal;
 	}
 
 	public void completionFailure(IProblem p) {
@@ -97,29 +104,63 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	public String getProblem() {
 		return this.problem == null ? "" : this.problem.getMessage();
 	}
+
+	/*
+	 * Get sorted results in ascending order
+	 */
 	public String getResults() {
-		if(proposals.size() == 0)
-			return "";
-		
-		StringBuffer buffer = new StringBuffer();
-		if(proposals.size() == 1) {
-			appendProposal((CompletionProposal)proposals.elementAt(0), buffer);
-		} else {
-			CompletionProposal[] sortedProposals = (CompletionProposal[])proposals.toArray(new CompletionProposal[proposals.size()]);
-			
-			sortedProposals = quickSort(sortedProposals, 0, sortedProposals.length - 1);
-			
-			for(int i = 0; i < sortedProposals.length; i++) {
-				if(i > 0) 
-					buffer.append('\n');
-				appendProposal(sortedProposals[i], buffer);
+		if(this.proposalsPtr < 0) return "";
+		quickSort(this.proposals, 0, this.proposalsPtr);
+		return getResultsWithoutSorting();
+	}
+
+	/*
+	 * Get sorted results in ascending order
+	 */
+	public String getReversedResults() {
+		if(this.proposalsPtr < 0) return "";
+		Arrays.sort(this.proposals, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				if (o1 instanceof CompletionProposal && o2 instanceof CompletionProposal) {
+					CompletionProposal p1 = (CompletionProposal) o1;
+					CompletionProposal p2 = (CompletionProposal) o2;
+					int relDif = p2.getRelevance() - p1.getRelevance();
+					if(relDif != 0)  return relDif;
+					String name1 = getElementName(p1);
+					String name2 = getElementName(p2);
+					return name1.compareTo(name2);
+				}
+				return -1;
 			}
+		});
+		return getResultsWithoutSorting();
+	}
+	
+	/*
+	 * Get unsorted results (ie. same order as they were accepted by requestor)
+	 */
+	public String getResultsWithoutSorting() {
+		if(this.proposalsPtr < 0) return "";
+		StringBuffer buffer = printProposal(this.proposals[0]);
+		for(int i = 1; i <=this.proposalsPtr; i++) {
+			if(i > 0) buffer.append('\n');
+			buffer.append(printProposal(this.proposals[i]));
 		}
 		return buffer.toString();
 	}
+	public String[] getStringsResult() {
+		if(this.proposalsPtr < 0) {
+			return new String[0];
+		}
+		String[] strings = new String[this.proposalsPtr+1];
+		for (int i=0; i<=this.proposalsPtr; i++) {
+			strings[i] =  printProposal(this.proposals[i]).toString();
+		}
+		return strings;
+	}
 
-	protected void appendProposal(CompletionProposal proposal, StringBuffer buffer) {
-		buffer.append(getElementName(proposal));
+	protected StringBuffer printProposal(CompletionProposal proposal) {
+		StringBuffer buffer = new StringBuffer(getElementName(proposal));
 		buffer.append('[');
 		switch(proposal.getKind()) {
 			case CompletionProposal.ANONYMOUS_CLASS_DECLARATION :
@@ -167,6 +208,27 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.ANNOTATION_ATTRIBUTE_REF :
 				buffer.append("ANNOTATION_ATTRIBUTE_REF"); //$NON-NLS-1$
 				break;
+			case CompletionProposal.JAVADOC_BLOCK_TAG :
+				buffer.append("JAVADOC_BLOCK_TAG"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_INLINE_TAG :
+				buffer.append("JAVADOC_INLINE_TAG"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_FIELD_REF:
+				buffer.append("JAVADOC_FIELD_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_METHOD_REF :
+				buffer.append("JAVADOC_METHOD_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_TYPE_REF :
+				buffer.append("JAVADOC_TYPE_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_PARAM_REF :
+				buffer.append("JAVADOC_PARAM_REF"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.JAVADOC_VALUE_REF :
+				buffer.append("JAVADOC_VALUE_REF"); //$NON-NLS-1$
+				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$
 				break;
@@ -186,7 +248,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		}
 		buffer.append(", ");
 		buffer.append(proposal.getName() == null ? NULL_LITERAL : proposal.getName());
-		if(this.showParamterNames) {
+		if(this.showParameterNames) {
 			char[][] parameterNames = proposal.findParameterNames(null);
 			buffer.append(", ");
 			if(parameterNames == null || parameterNames.length <= 0) {
@@ -210,6 +272,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		buffer.append(", ");
 		buffer.append(proposal.getRelevance());
 		buffer.append('}');
+		return buffer;
 	}
 
 	protected CompletionProposal[] quickSort(CompletionProposal[] collection, int left, int right) {
@@ -266,6 +329,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.ANONYMOUS_CLASS_DECLARATION :
 				return new String(Signature.getSignatureSimpleName(proposal.getDeclarationSignature()));
 			case CompletionProposal.TYPE_REF :
+			case CompletionProposal.JAVADOC_TYPE_REF :
 				return new String(Signature.getSignatureSimpleName(proposal.getSignature()));
 			case CompletionProposal.FIELD_REF :
 			case CompletionProposal.KEYWORD:
@@ -277,6 +341,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.POTENTIAL_METHOD_DECLARATION:
 			case CompletionProposal.METHOD_NAME_REFERENCE:
 			case CompletionProposal.ANNOTATION_ATTRIBUTE_REF:
+			case CompletionProposal.JAVADOC_BLOCK_TAG :
+			case CompletionProposal.JAVADOC_INLINE_TAG :
+			case CompletionProposal.JAVADOC_FIELD_REF:
+			case CompletionProposal.JAVADOC_METHOD_REF :
+			case CompletionProposal.JAVADOC_PARAM_REF :
+			case CompletionProposal.JAVADOC_VALUE_REF :
 				return new String(proposal.getName());
 			case CompletionProposal.PACKAGE_REF:
 				return new String(proposal.getDeclarationSignature());	

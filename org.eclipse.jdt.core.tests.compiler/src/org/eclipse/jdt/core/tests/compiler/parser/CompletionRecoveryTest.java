@@ -11,19 +11,16 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class CompletionRecoveryTest extends AbstractCompletionTest {
 public CompletionRecoveryTest(String testName){
 	super(testName);
 }
+static {
+//	TESTS_NUMBERS = new int[] { 22 };	
+}
 public static Test suite() {
-	if (true) {
-		return new TestSuite(CompletionRecoveryTest.class);
-	}
-	TestSuite suite = new TestSuite(CompletionRecoveryTest.class.getName());
-	suite.addTest(new CompletionRecoveryTest("test22")); //$NON-NLS-1$
-	return suite;
+	return buildTestSuite(CompletionRecoveryTest.class);
 }
 /*
  * Complete on variable behind ill-formed declaration

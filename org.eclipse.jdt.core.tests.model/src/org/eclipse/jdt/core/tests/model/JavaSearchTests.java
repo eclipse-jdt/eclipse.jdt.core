@@ -55,12 +55,12 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 		}
 	}
 	public void tearDownSuite() throws Exception {
-		if (TEST_SUITES == null) {
+		if (JAVA_SEARCH_SUITES == null) {
 			deleteProject("JavaSearch");
 			deleteProject("JavaSearch15");
 		} else {
-			TEST_SUITES.remove(getClass());
-			if (TEST_SUITES.size() == 0) {
+			JAVA_SEARCH_SUITES.remove(getClass());
+			if (JAVA_SEARCH_SUITES.size() == 0) {
 				deleteProject("JavaSearch");
 				deleteProject("JavaSearch15");
 			}

@@ -84,13 +84,10 @@ private static Class[] getAllTestClasses() {
 		// Support for "open on" feature tests
 		ResolveTests.class,
 		ResolveTests_1_5.class,
-		
-		// Support for completion tests
-		CompletionTests.class,
-		CompletionTests2.class,
-		SnippetCompletionTests.class,
-		CompletionTests_1_5.class,
 		SelectionJavadocModelTests.class,
+
+		// Support for completion tests
+		RunCompletionModelTests.class,
 		
 		// Prefix and suffix tests
 		NamingConventionTests.class,
