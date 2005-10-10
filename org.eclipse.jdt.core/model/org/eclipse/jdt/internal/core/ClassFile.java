@@ -360,7 +360,7 @@ public IJavaElement getElementAtConsideringSibling(int position) throws JavaMode
 				classFile.getBuffer();
 				
 				SourceRange range = mapper.getSourceRange(classFile.getType());
-				if (range == SourceMapper.fgUnknownRange) continue; 
+				if (range == SourceMapper.UNKNOWN_RANGE) continue; 
 				int newStart = range.offset;
 				int newEnd = newStart + range.length - 1;
 				if(newStart > start && newEnd < end

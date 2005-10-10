@@ -72,7 +72,7 @@ public ISourceRange getNameRange() throws JavaModelException {
 		
 		return mapper.getNameRange(this);
 	} else {
-		return SourceMapper.fgUnknownRange;
+		return SourceMapper.UNKNOWN_RANGE;
 	}
 }
 /*
@@ -86,7 +86,7 @@ public ISourceRange getSourceRange() throws JavaModelException {
 
 		return mapper.getSourceRange(this);
 	} else {
-		return SourceMapper.fgUnknownRange;
+		return SourceMapper.UNKNOWN_RANGE;
 	}
 }
 /*

@@ -1791,7 +1791,7 @@ protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedName
 }
 protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryMember, Binding binaryMemberBinding, IBinaryType info, int accuracy) throws CoreException {
 	ClassFile classFile = (ClassFile) binaryMember.getClassFile();
-	ISourceRange range = classFile.isOpen() ? binaryMember.getNameRange() : SourceMapper.fgUnknownRange;
+	ISourceRange range = classFile.isOpen() ? binaryMember.getNameRange() : SourceMapper.UNKNOWN_RANGE;
 	if (range.getOffset() == -1) {
 		BinaryType type = (BinaryType) classFile.getType();
 		String sourceFileName = type.sourceFileName(info);
