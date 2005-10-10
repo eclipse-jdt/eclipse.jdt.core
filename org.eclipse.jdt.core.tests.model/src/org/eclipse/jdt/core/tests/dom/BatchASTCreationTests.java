@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -1530,6 +1531,41 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		} finally {
 			deleteProject("P1");
 		}
+	}
+	
+	/*
+	 * Ensures that requesting a CU needing a constant in a previously processed CU doesn't throw an NPE
+	 * (regression test for bug 111822 DOMParser.createASTs() NPE at FieldReference.getConstantFor(FieldReference.java:408))
+	 */
+	public void test069() throws CoreException {
+		this.workingCopies = createWorkingCopies(new String[] {
+			"/P/pkg/RefAnnoAndClassWithAnno.java",
+			"package pkg;\n" +
+			"public class RefMyAnnoAndClassWithAnno {\n" + 
+			"	final Class anno = MyAnno.class;\n" + 
+			"	final Class withAnno = ClassWithAnnotation.class;\n" + 
+			"}",
+			"/P/pkg/MyAnno.java",
+			"package pkg;\n" +
+			"public @interface MyAnno {\n" + 
+			"	public enum EnumColor{\n" + 
+			"		BLUE, RED, WHITE;\n" + 
+			"	}\n" + 
+			"	EnumColor aEnum();\n" + 
+			"}",
+			"/P/pkg/ClassWithAnnotation.java",
+			"package pkg;\n" +
+			"import pkg.MyAnno.EnumColor;\n" + 
+			"@MyAnno(aEnum = EnumColor.BLUE)\n" + 
+			"public class ClassWithAnnotation {}"
+		});
+		String key = BindingKey.createTypeBindingKey("pkg.RefMyAnnoAndClassWithAnno");
+		BindingResolver resolver = new BindingResolver(new MarkerInfo[0]);
+		resolveASTs(new ICompilationUnit[0],  new String[] {key}, resolver, getJavaProject("P"), this.owner);
+		assertStringsEqual(
+			"Unexpected bindings",
+			"Lpkg/RefAnnoAndClassWithAnno~RefMyAnnoAndClassWithAnno;\n",
+			resolver.getFoundKeys());
 	}
 
 }

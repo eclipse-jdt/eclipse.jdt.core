@@ -668,7 +668,8 @@ class CompilationUnitResolver extends Compiler {
 					// only process requested units
 					if (this.requestedKeys.containsKey(fileName) || this.requestedSources.containsKey(fileName)) {
 						super.process(unit, i); // this.process(...) is optimized to not process already known units
-						
+
+						// requested AST
 						ICompilationUnit source = (ICompilationUnit) this.requestedSources.get(fileName);
 						if (source != null) {
 							// convert AST
@@ -693,6 +694,7 @@ class CompilationUnitResolver extends Compiler {
 							worked(1);
 						} 
 						
+						// requested binding
 						Object key = this.requestedKeys.get(fileName);
 						if (key instanceof BindingKeyResolver) {
 							reportBinding(key, astRequestor, owner, unit);
@@ -710,7 +712,40 @@ class CompilationUnitResolver extends Compiler {
 						this.requestedKeys.removeKey(fileName);
 					} else {
 						if (unit.scope != null)
-							unit.scope.faultInTypes(); // still force resolution of signatures, so clients can query DOM AST
+							unit.scope.faultInTypes();// still force resolution of signatures, so clients can query DOM AST
+				
+						// the following ensures that all type, method and field bindings are correctly initialized
+						// as they may be needed by further units
+						// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=111822)
+						unit.resolve();
+						
+						// note that if this has a performance penalty on clients, the above code should be removed
+						// the following patch would workaround bug 111822:
+/*
+Index: FieldReference.java
+===================================================================
+RCS file: /cvsroot/eclipse/org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/ast/FieldReference.java,v
+retrieving revision 1.87
+diff -u -r1.87 FieldReference.java
+--- FieldReference.java	24 Sep 2005 15:23:46 -0000	1.87
++++ FieldReference.java	7 Oct 2005 13:46:12 -0000
+@@ -407,7 +407,14 @@
+ 
+ 		FieldBinding originalField = binding.original();
+ 		SourceTypeBinding sourceType = (SourceTypeBinding) originalField.declaringClass;
+-		TypeDeclaration typeDecl = sourceType.scope.referenceContext;
++		ClassScope classScope = sourceType.scope;
++		if (classScope == null) {
++			// Non compiler clients may not have resolved enough of the unit when processing it, and
++			// scopes got cleaned. Assuming these clients thus do not care about constant info, will simply
++			// pretend it is not a constant.
++			return NotAConstant;
++		}
++		TypeDeclaration typeDecl = classScope.referenceContext;
+ 		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
+ 
+ 		fieldDecl.resolve(originalField.isStatic() //side effect on binding 
+*/					
 					}
 				} finally {
 					// cleanup compilation unit result
