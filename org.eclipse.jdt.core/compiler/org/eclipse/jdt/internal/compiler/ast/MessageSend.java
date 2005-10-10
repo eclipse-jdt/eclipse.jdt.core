@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class MessageSend extends Expression implements InvocationSite {
     
@@ -359,7 +360,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().mustUseAStaticMethod(this, binding);
 			if (this.actualReceiverType.isRawType() 
 					&& (this.receiver.bits & IgnoreRawTypeCheck) == 0 
-					&& scope.compilerOptions().reportRawTypeReference) {
+					&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 				scope.problemReporter().rawTypeReference(this.receiver, this.actualReceiverType);
 			}
 		} else {

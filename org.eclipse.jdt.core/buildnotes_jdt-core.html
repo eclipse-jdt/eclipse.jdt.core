@@ -48,6 +48,18 @@ Eclipse SDK 3.2M3 - ?th October 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Tuned new compiler diagnosis for raw type references. This problem can now be enabled independantly from 
+unchecked type operations, and carries its own severity settings. Removed "Type safety:" prefix from problem description
+as it is not truly fragilizing type integrity. This warning can still be silenced by <code>@SuppressWarnings("unchecked")</code>
+<pre>
+* COMPILER / Reporting Raw Type Reference
+*    When enabled, the compiler will issue an error or a warning when detecting references to raw types. Raw types are 
+*    discouraged, and are intended to help interfacing with legacy code. In the future, the language specification may 
+*    reject raw references to generic types.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.rawTypeReference"
+*     - possible values:   { "error", "warning", "ignore" }
+*     - default:           "ignore"
+</pre></li>
 <li>Added API <code>CategorizedProblem</code> to extend <code>IProblem</code> definitions with notion of
 problem category and marker type. This will enable other pluggable tool to participate in various compilation stages
 and report domain specific problems through the existing API (<code>IProblem</code> based). It is recommended that

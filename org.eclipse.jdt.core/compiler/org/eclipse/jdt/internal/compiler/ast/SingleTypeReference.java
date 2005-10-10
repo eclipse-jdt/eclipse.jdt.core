@@ -11,7 +11,9 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class SingleTypeReference extends TypeReference {
 
@@ -66,7 +68,7 @@ public class SingleTypeReference extends TypeReference {
 		memberType = scope.environment().convertToRawType(memberType);
 		if (memberType.isRawType() 
 				&& (this.bits & IgnoreRawTypeCheck) == 0 
-				&& scope.compilerOptions().reportRawTypeReference){
+				&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore){
 			scope.problemReporter().rawTypeReference(this, memberType);
 		}
 		return this.resolvedType = memberType;

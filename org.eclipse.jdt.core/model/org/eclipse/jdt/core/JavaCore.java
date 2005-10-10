@@ -1900,12 +1900,12 @@ public final class JavaCore extends Plugin {
 	 *     - default:           "warning"
 	 *     
 	 * COMPILER / Reporting Raw Type Reference
-	 *    When enabled, the compiler will signal references to raw types. Raw types are discouraged, and are intended to help interfacing
-	 *    with legacy code. In the future, the language specification may reject raw references to generic types.
-	 *    The severity of the problem is controlled with option "org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation".
+	 *    When enabled, the compiler will issue an error or a warning when detecting references to raw types. Raw types are 
+	 *    discouraged, and are intended to help interfacing with legacy code. In the future, the language specification may 
+	 *    reject raw references to generic types.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.rawTypeReference"
-	 *     - possible values:   { "enabled", "disabled" }
-	 *     - default:           "disabled"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "ignore"
 	 * 
 	 * COMPILER / Reporting final Bound for Type Parameter
 	 *    When enabled, the compiler will issue an error or a warning whenever a generic type parameter is associated with a 

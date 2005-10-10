@@ -13,7 +13,9 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public abstract class TypeReference extends Expression {
 
@@ -133,7 +135,7 @@ public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
 	type = scope.environment().convertToRawType(type);
 	if (type.isRawType() 
 			&& (this.bits & IgnoreRawTypeCheck) == 0 
-			&& scope.compilerOptions().reportRawTypeReference) {	
+			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {	
 		scope.problemReporter().rawTypeReference(this, type);
 	}			
 	return this.resolvedType = type;
@@ -156,7 +158,7 @@ public TypeBinding resolveType(ClassScope scope) {
 	type = scope.environment().convertToRawType(type);
 	if (type.isRawType() 
 			&& (this.bits & IgnoreRawTypeCheck) == 0 
-			&& scope.compilerOptions().reportRawTypeReference) {
+			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 		scope.problemReporter().rawTypeReference(this, type);
 	}			
 	return this.resolvedType = type;	

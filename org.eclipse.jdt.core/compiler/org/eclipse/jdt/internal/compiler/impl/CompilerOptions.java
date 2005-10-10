@@ -182,6 +182,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final long MissingDeprecatedAnnotation = ASTNode.Bit43L;
 	public static final long DiscouragedReference = ASTNode.Bit44L;
 	public static final long UnhandledWarningToken = ASTNode.Bit45L;
+	public static final long RawTypeReference = ASTNode.Bit46L;
 	
 	// Default severity level for handlers
 	public long errorThreshold = 0;
@@ -263,9 +264,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	
 	// constructor/setter parameter hiding
 	public boolean reportSpecialParameterHidingField = false;
-	
-	// unchecked raw type
-	public boolean reportRawTypeReference = false;
 
 	// check javadoc comments tags
 	public int reportInvalidJavadocTagsVisibility = AccPrivate; 
@@ -360,7 +358,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, this.reportUnusedDeclaredThrownExceptionWhenOverriding ? ENABLED : DISABLED); 
 		optionsMap.put(OPTION_ReportUnqualifiedFieldAccess, getSeverityString(UnqualifiedFieldAccess));
 		optionsMap.put(OPTION_ReportUncheckedTypeOperation, getSeverityString(UncheckedTypeOperation));
-		optionsMap.put(OPTION_ReportRawTypeReference, this.reportRawTypeReference ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_ReportRawTypeReference, getSeverityString(RawTypeReference));
 		optionsMap.put(OPTION_ReportFinalParameterBound, getSeverityString(FinalParameterBound));
 		optionsMap.put(OPTION_ReportMissingSerialVersion, getSeverityString(MissingSerialVersion));
 		optionsMap.put(OPTION_ReportForbiddenReference, getSeverityString(ForbiddenReference));
@@ -470,13 +468,6 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				this.reportUnusedDeclaredThrownExceptionWhenOverriding = false;
 			}
 		}
-		if ((optionValue = optionsMap.get(OPTION_ReportRawTypeReference)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.reportRawTypeReference = true;
-			} else if (DISABLED.equals(optionValue)) {
-				this.reportRawTypeReference = false;
-			}
-		}		
 		if ((optionValue = optionsMap.get(OPTION_Compliance)) != null) {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) this.complianceLevel = level;
@@ -612,6 +603,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_ReportUnqualifiedFieldAccess)) != null) updateSeverity(UnqualifiedFieldAccess, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportNoEffectAssignment)) != null) updateSeverity(NoEffectAssignment, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUncheckedTypeOperation)) != null) updateSeverity(UncheckedTypeOperation, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportRawTypeReference)) != null) updateSeverity(RawTypeReference, optionValue);		
 		if ((optionValue = optionsMap.get(OPTION_ReportFinalParameterBound)) != null) updateSeverity(FinalParameterBound, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingSerialVersion)) != null) updateSeverity(MissingSerialVersion, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportForbiddenReference)) != null) updateSeverity(ForbiddenReference, optionValue);
@@ -773,7 +765,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- report constructor/setter parameter hiding existing field : ").append(this.reportSpecialParameterHidingField ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- inline JSR bytecode : ").append(this.inlineJsrBytecode ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unsafe type operation: ").append(getSeverityString(UncheckedTypeOperation)); //$NON-NLS-1$
-		buf.append("\n\t- unsafe raw type: ").append(this.reportRawTypeReference ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- unsafe raw type: ").append(getSeverityString(RawTypeReference)); //$NON-NLS-1$
 		buf.append("\n\t- final bound for type parameter: ").append(getSeverityString(FinalParameterBound)); //$NON-NLS-1$
 		buf.append("\n\t- missing serialVersionUID: ").append(getSeverityString(MissingSerialVersion)); //$NON-NLS-1$
 		buf.append("\n\t- varargs argument need cast: ").append(getSeverityString(VarargsArgumentNeedCast)); //$NON-NLS-1$
@@ -933,6 +925,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 					return "incomplete-switch"; //$NON-NLS-1$
 				case (int)(MissingDeprecatedAnnotation >>> 32) :
 					return "dep-ann"; //$NON-NLS-1$
+				case (int)(RawTypeReference >>> 32):
+					return "unchecked"; //$NON-NLS-1$
 			}
 		}
 		return null;
@@ -981,7 +975,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				if ("unused".equals(warningToken)) //$NON-NLS-1$
 					return UnusedLocalVariable | UnusedArgument | UnusedPrivateMember | UnusedDeclaredThrownException;
 				if ("unchecked".equals(warningToken)) //$NON-NLS-1$
-					return UncheckedTypeOperation;
+					return UncheckedTypeOperation | RawTypeReference;
 				if ("unqualified-field-access".equals(warningToken)) //$NON-NLS-1$
 					return UnqualifiedFieldAccess;
 				break;

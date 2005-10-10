@@ -2822,17 +2822,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
 			"	AX ax = new AX();\n" + 
 			"	^^\n" + 
 			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
+			"2. WARNING in X.java (at line 4)\n" + 
 			"	AX ax = new AX();\n" + 
 			"	            ^^\n" + 
 			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
+			"3. WARNING in X.java (at line 5)\n" + 
 			"	AX ax2 = ax.p;\n" + 
 			"	^^\n" + 
 			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
