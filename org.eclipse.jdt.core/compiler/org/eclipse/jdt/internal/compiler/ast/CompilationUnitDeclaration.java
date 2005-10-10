@@ -257,7 +257,7 @@ public class CompilationUnitDeclaration
 				
 			LocalTypeBinding localType = localTypes[i];
 			// only propagate for reachable local types
-			if ((localType.scope.referenceType().bits & IsReachableMASK) != 0) {
+			if ((localType.scope.referenceType().bits & IsReachable) != 0) {
 				localType.updateInnerEmulationDependents();
 			}
 		}

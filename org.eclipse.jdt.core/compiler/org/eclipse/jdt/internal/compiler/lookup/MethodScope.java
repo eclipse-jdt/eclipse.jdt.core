@@ -230,7 +230,7 @@ public class MethodScope extends BlockScope {
 			// do not report fake used variable
 			if (isReportingUnusedArgument
 					&& local.useFlag == LocalVariableBinding.UNUSED
-					&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
+					&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0)) { // declaration is reachable
 				this.problemReporter().unusedArgument(local.declaration);
 			}
 

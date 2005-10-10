@@ -226,7 +226,7 @@ public class BlockScope extends Scope {
 				// do not report fake used variable
 				if (local.useFlag == LocalVariableBinding.UNUSED
 					&& (local.declaration != null) // unused (and non secret) local
-					&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachableMASK) != 0)) { // declaration is reachable
+					&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0)) { // declaration is reachable
 						
 					if (!(local.declaration instanceof Argument))  // do not report unused catch arguments
 						this.problemReporter().unusedLocalVariable(local.declaration);

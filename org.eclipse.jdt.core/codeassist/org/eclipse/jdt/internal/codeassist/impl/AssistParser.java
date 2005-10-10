@@ -1237,7 +1237,7 @@ public void parseBlockStatements(ConstructorDeclaration cd, CompilationUnitDecla
 	} else {
 		cd.constructorCall = SuperReference.implicitSuperConstructorCall();
 		if (!containsComment(cd.bodyStart, cd.bodyEnd)) {
-			cd.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			cd.bits |= ASTNode.UndocumentedEmptyBlock;
 		}		
 	}
 
@@ -1285,13 +1285,13 @@ public void parseBlockStatements(
 	} else {
 		// check whether this block at least contains some comment in it
 		if (!containsComment(initializer.block.sourceStart, initializer.block.sourceEnd)) {
-			initializer.block.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			initializer.block.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 	}
 	
 	// mark initializer with local type if one was found during parsing
-	if ((type.bits & ASTNode.HasLocalTypeMASK) != 0) {
-		initializer.bits |= ASTNode.HasLocalTypeMASK;
+	if ((type.bits & ASTNode.HasLocalType) != 0) {
+		initializer.bits |= ASTNode.HasLocalType;
 	}	
 }
 /**
@@ -1345,7 +1345,7 @@ public void parseBlockStatements(MethodDeclaration md, CompilationUnitDeclaratio
 			length); 
 	} else {
 		if (!containsComment(md.bodyStart, md.bodyEnd)) {
-			md.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			md.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 	}
 

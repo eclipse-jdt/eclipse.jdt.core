@@ -138,7 +138,7 @@ public class BinaryTypeConverter {
 		TypeDeclaration typeDeclaration = new TypeDeclaration(compilationResult);
 
 		if (type.getDeclaringType() != null) {
-			typeDeclaration.bits |= ASTNode.IsMemberTypeMASK;
+			typeDeclaration.bits |= ASTNode.IsMemberType;
 		}
 		typeDeclaration.name = type.getElementName().toCharArray();
 		typeDeclaration.modifiers = type.getFlags();

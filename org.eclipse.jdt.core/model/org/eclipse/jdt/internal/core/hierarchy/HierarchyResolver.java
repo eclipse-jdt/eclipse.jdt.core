@@ -309,7 +309,7 @@ private void remember(IType type, ReferenceBinding typeBinding) {
 		// simple super class name
 		char[] superclassName = null;
 		TypeReference superclass;
-		if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+		if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 			superclass = typeDeclaration.allocation.type;
 		} else {
 			superclass = typeDeclaration.superclass;

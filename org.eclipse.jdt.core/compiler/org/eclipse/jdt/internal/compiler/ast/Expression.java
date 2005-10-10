@@ -601,7 +601,7 @@ public abstract class Expression extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		generateCode(currentScope, codeStream, false);

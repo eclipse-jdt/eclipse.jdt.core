@@ -410,7 +410,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 		}
 		// only last field is actually a write access if any
-		if (isFieldUseDeprecated((FieldBinding) this.binding, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && this.indexOfFirstFieldBinding == length)) {
+		if (isFieldUseDeprecated((FieldBinding) this.binding, scope, (this.bits & IsStrictlyAssigned) !=0 && this.indexOfFirstFieldBinding == length)) {
 			scope.problemReporter().deprecatedField((FieldBinding) this.binding, this);
 		}
 	}
@@ -459,7 +459,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 		}
 		if (field.isValidBinding()) {
 			// only last field is actually a write access if any
-			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && index+1 == length)) {
+			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssigned) !=0 && index+1 == length)) {
 				scope.problemReporter().deprecatedField(field, this);
 			}
 			Constant someConstant = FieldReference.getConstantFor(field, this, false, scope);

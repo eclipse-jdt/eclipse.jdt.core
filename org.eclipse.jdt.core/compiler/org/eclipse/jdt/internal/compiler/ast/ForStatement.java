@@ -52,7 +52,7 @@ public class ForStatement extends Statement {
 		this.increments = increments;
 		this.action = action;
 		// remember useful empty statement
-		if (action instanceof EmptyStatement) action.bits |= IsUsefulEmptyStatementMASK;
+		if (action instanceof EmptyStatement) action.bits |= IsUsefulEmptyStatement;
 		this.neededScope = neededScope;
 	}
 
@@ -175,7 +175,7 @@ public class ForStatement extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		int pc = codeStream.position;

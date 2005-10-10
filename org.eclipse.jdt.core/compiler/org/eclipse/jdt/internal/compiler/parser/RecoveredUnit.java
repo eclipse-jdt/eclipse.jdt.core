@@ -99,7 +99,7 @@ public RecoveredElement add(ImportReference importReference, int bracketBalanceV
 }
 public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceValue) {
 	
-	if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0){
+	if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0){
 		if (this.typeCount > 0) {
 			// add it to the last type
 			RecoveredType lastType = this.types[this.typeCount-1];
@@ -188,7 +188,7 @@ public CompilationUnitDeclaration updatedCompilationUnitDeclaration(){
 		for (int i = 0; i < this.typeCount; i++){
 			TypeDeclaration typeDecl = this.types[i].updatedTypeDeclaration();
 			// filter out local types (12454)
-			if ((typeDecl.bits & ASTNode.IsLocalTypeMASK) == 0){
+			if ((typeDecl.bits & ASTNode.IsLocalType) == 0){
 				typeDeclarations[actualCount++] = typeDecl;
 			}
 		}

@@ -25,7 +25,7 @@ public class Argument extends LocalDeclaration {
 		this.declarationSourceEnd = (int) posNom;
 		this.modifiers = modifiers;
 		type = tr;
-		this.bits |= IsLocalDeclarationReachableMASK;
+		this.bits |= IsLocalDeclarationReachable;
 	}
 
 	public void bind(MethodScope scope, TypeBinding typeBinding, boolean used) {

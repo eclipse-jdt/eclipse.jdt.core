@@ -208,11 +208,11 @@ protected void consumeClassHeaderName1() {
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
+			typeDecl.bits |= ASTNode.IsMemberType;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
+		typeDecl.bits |= ASTNode.IsLocalType;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
@@ -661,11 +661,11 @@ protected void consumeInterfaceHeaderName1() {
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (nestedMethod[nestedType] == 0) {
 		if (nestedType != 0) {
-			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
+			typeDecl.bits |= ASTNode.IsMemberType;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
+		typeDecl.bits |= ASTNode.IsLocalType;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}

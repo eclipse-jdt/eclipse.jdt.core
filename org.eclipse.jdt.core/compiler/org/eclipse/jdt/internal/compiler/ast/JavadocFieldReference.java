@@ -95,7 +95,7 @@ public class JavadocFieldReference extends FieldReference {
 		}
 		this.binding = (FieldBinding) fieldBinding;
 
-		if (isFieldUseDeprecated(this.binding, scope, (this.bits & IsStrictlyAssignedMASK) != 0)) {
+		if (isFieldUseDeprecated(this.binding, scope, (this.bits & IsStrictlyAssigned) != 0)) {
 			scope.problemReporter().javadocDeprecatedField(this.binding, this, scope.getDeclarationModifiers());
 		}
 		return this.resolvedType = this.binding.type;

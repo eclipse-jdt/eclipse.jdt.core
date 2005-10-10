@@ -31,7 +31,7 @@ public class LabeledStatement extends Statement {
 		
 		this.statement = statement;
 		// remember useful empty statement
-		if (statement instanceof EmptyStatement) statement.bits |= IsUsefulEmptyStatementMASK;
+		if (statement instanceof EmptyStatement) statement.bits |= IsUsefulEmptyStatement;
 		this.label = label;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
@@ -83,7 +83,7 @@ public class LabeledStatement extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}		
 		int pc = codeStream.position;

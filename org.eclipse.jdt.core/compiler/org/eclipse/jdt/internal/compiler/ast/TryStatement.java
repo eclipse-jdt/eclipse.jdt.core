@@ -188,7 +188,7 @@ public class TryStatement extends SubRoutineStatement {
 	 * returnAddress is only allocated if jsr is allowed
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		// in case the labels needs to be reinitialized
@@ -455,7 +455,7 @@ public class TryStatement extends SubRoutineStatement {
 		
 		if (finallyBlock != null) {
 			if (finallyBlock.isEmptyBlock()) {
-				if ((finallyBlock.bits & UndocumentedEmptyBlockMASK) != 0) {
+				if ((finallyBlock.bits & UndocumentedEmptyBlock) != 0) {
 					scope.problemReporter().undocumentedEmptyBlock(finallyBlock.sourceStart, finallyBlock.sourceEnd);
 				}
 			} else {

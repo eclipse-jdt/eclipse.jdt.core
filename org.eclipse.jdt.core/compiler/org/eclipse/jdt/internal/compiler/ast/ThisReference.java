@@ -21,7 +21,7 @@ public class ThisReference extends Reference {
 	public static ThisReference implicitThis(){
 
 		ThisReference implicitThis = new ThisReference(0, 0); 
-		implicitThis.bits |= IsImplicitThisMask;
+		implicitThis.bits |= IsImplicitThis;
 		return implicitThis;
 	}
 		
@@ -68,7 +68,7 @@ public class ThisReference extends Reference {
 		int pc = codeStream.position;
 		if (valueRequired)
 			codeStream.aload_0();
-		if ((this.bits & IsImplicitThisMask) == 0) codeStream.recordPositionsFrom(pc, this.sourceStart);
+		if ((this.bits & IsImplicitThis) == 0) codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
 	/* 
@@ -89,7 +89,7 @@ public class ThisReference extends Reference {
 	
 	public boolean isImplicitThis() {
 		
-		return (this.bits & IsImplicitThisMask) != 0;
+		return (this.bits & IsImplicitThis) != 0;
 	}
 
 	public boolean isThis() {

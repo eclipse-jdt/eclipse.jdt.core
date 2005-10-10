@@ -134,7 +134,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		if (parent == null) return this; // ignore
 		return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
-	if ((typeDeclaration.bits & ASTNode.IsLocalTypeMASK) != 0){
+	if ((typeDeclaration.bits & ASTNode.IsLocalType) != 0){
 		/* method body should have been created */
 		Block block = new Block(0);
 		block.sourceStart = ((Initializer)fieldDeclaration).sourceStart;
@@ -181,7 +181,7 @@ public FieldDeclaration updatedFieldDeclaration(){
 		if (block != null){
 			((Initializer)fieldDeclaration).block = block;
 		}
-		if (this.localTypeCount > 0) fieldDeclaration.bits |= ASTNode.HasLocalTypeMASK;
+		if (this.localTypeCount > 0) fieldDeclaration.bits |= ASTNode.HasLocalType;
 
 	}	
 	if (fieldDeclaration.sourceEnd == 0){

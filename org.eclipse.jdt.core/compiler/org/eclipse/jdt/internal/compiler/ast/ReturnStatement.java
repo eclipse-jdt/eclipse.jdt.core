@@ -92,7 +92,7 @@ public class ReturnStatement extends Statement {
 		} else {
 			this.saveValueVariable = null;
 			if (!isSynchronized && this.expression != null && this.expression.resolvedType == BooleanBinding) {
-				this.expression.bits |= ValueForReturnMASK;
+				this.expression.bits |= IsReturnedValue;
 			}
 		}
 		return FlowInfo.DEAD_END;
@@ -107,7 +107,7 @@ public class ReturnStatement extends Statement {
 	 * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		int pc = codeStream.position;
@@ -210,14 +210,14 @@ public class ReturnStatement extends Statement {
 			    scope.problemReporter().unsafeTypeConversion(this.expression, expressionType, methodType);
 			}
 			if (this.expression instanceof CastExpression 
-					&& (this.expression.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+					&& (this.expression.bits & ASTNode.UnnecessaryCast) == 0) {
 				CastExpression.checkNeedForAssignedCast(scope, methodType, (CastExpression) this.expression);
 			}			
 			return;
 		} else if (scope.isBoxingCompatibleWith(expressionType, methodType)) {
 			this.expression.computeConversion(scope, methodType, expressionType);
 			if (this.expression instanceof CastExpression 
-					&& (this.expression.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+					&& (this.expression.bits & ASTNode.UnnecessaryCast) == 0) {
 				CastExpression.checkNeedForAssignedCast(scope, methodType, (CastExpression) this.expression);
 			}			return;
 		}

@@ -36,16 +36,16 @@ public static MatchLocatorParser createParser(ProblemReporter problemReporter, M
  */
 public class NoClassNoMethodDeclarationVisitor extends ASTVisitor {
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
-		return (constructorDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (constructorDeclaration.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type
 	}
 	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
-		return (fieldDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type;
+		return (fieldDeclaration.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type;
 	}
 	public boolean visit(Initializer initializer, MethodScope scope) {
-		return (initializer.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (initializer.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type
 	}
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
-		return (methodDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (methodDeclaration.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type
 	}
 }
 public class MethodButNoClassDeclarationVisitor extends NoClassNoMethodDeclarationVisitor {
@@ -57,15 +57,15 @@ public class MethodButNoClassDeclarationVisitor extends NoClassNoMethodDeclarati
 public class ClassButNoMethodDeclarationVisitor extends ASTVisitor {
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 		patternLocator.match(constructorDeclaration, nodeSet);
-		return (constructorDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (constructorDeclaration.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type
 	}
 	public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
 		patternLocator.match(fieldDeclaration, nodeSet);
-		return (fieldDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type;
+		return (fieldDeclaration.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type;
 	}
 	public boolean visit(Initializer initializer, MethodScope scope) {
 		patternLocator.match(initializer, nodeSet);
-		return (initializer.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (initializer.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type
 	}
 	public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope) {
 		patternLocator.match(memberTypeDeclaration, nodeSet);
@@ -73,7 +73,7 @@ public class ClassButNoMethodDeclarationVisitor extends ASTVisitor {
 	}
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
 		patternLocator.match(methodDeclaration, nodeSet);
-		return (methodDeclaration.bits & ASTNode.HasLocalTypeMASK) != 0; // continue only if it has local type
+		return (methodDeclaration.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type
 	}
 	public boolean visit(AnnotationMethodDeclaration methodDeclaration, ClassScope scope) {
 		patternLocator.match(methodDeclaration, nodeSet);

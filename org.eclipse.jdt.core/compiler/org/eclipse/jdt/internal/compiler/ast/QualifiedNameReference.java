@@ -680,7 +680,7 @@ public class QualifiedNameReference extends NameReference {
 				}
 			}
 			// only last field is actually a write access if any
-			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && indexOfFirstFieldBinding == length))
+			if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssigned) !=0 && indexOfFirstFieldBinding == length))
 				scope.problemReporter().deprecatedField(field, this);
 		} else {
 			field = null;
@@ -690,7 +690,7 @@ public class QualifiedNameReference extends NameReference {
 		if (index == length) { //	restrictiveFlag == FIELD
 			this.constant = FieldReference.getConstantFor((FieldBinding) binding, this, false, scope);
 			// perform capture conversion if read access
-			return (type != null && (this.bits & IsStrictlyAssignedMASK) == 0)
+			return (type != null && (this.bits & IsStrictlyAssigned) == 0)
 					? type.capture(scope, this.sourceEnd)
 					: type;
 		}
@@ -734,7 +734,7 @@ public class QualifiedNameReference extends NameReference {
 				    }
 			    }
 				// only last field is actually a write access if any
-				if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssignedMASK) !=0 && index+1 == length)) {
+				if (isFieldUseDeprecated(field, scope, (this.bits & IsStrictlyAssigned) !=0 && index+1 == length)) {
 					scope.problemReporter().deprecatedField(field, this);
 				}
 				Constant someConstant = FieldReference.getConstantFor(field, this, false, scope);
@@ -763,7 +763,7 @@ public class QualifiedNameReference extends NameReference {
 		setDepth(firstDepth);
 		type = (otherBindings[otherBindingsLength - 1]).type;
 		// perform capture conversion if read access
-		return (type != null && (this.bits & IsStrictlyAssignedMASK) == 0)
+		return (type != null && (this.bits & IsStrictlyAssigned) == 0)
 				? type.capture(scope, this.sourceEnd)
 				: type;		
 	}

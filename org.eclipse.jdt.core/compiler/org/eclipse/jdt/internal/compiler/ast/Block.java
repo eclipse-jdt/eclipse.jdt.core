@@ -49,7 +49,7 @@ public class Block extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		int pc = codeStream.position;
@@ -89,7 +89,7 @@ public class Block extends Statement {
 
 	public void resolve(BlockScope upperScope) {
 
-		if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
+		if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			upperScope.problemReporter().undocumentedEmptyBlock(this.sourceStart, this.sourceEnd);
 		}
 		if (statements != null) {
@@ -105,7 +105,7 @@ public class Block extends Statement {
 
 	public void resolveUsing(BlockScope givenScope) {
 
-		if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
+		if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			givenScope.problemReporter().undocumentedEmptyBlock(this.sourceStart, this.sourceEnd);
 		}
 		// this optimized resolve(...) is sent only on none empty blocks

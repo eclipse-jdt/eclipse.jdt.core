@@ -154,7 +154,7 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 	
 	this.insideEnumConstantPart = false;
 	
-	if ((memberTypeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0){
+	if ((memberTypeDeclaration.bits & ASTNode.IsAnonymousType) != 0){
 		if (this.methodCount > 0) {
 			// add it to the last method body
 			RecoveredMethod lastMethod = this.methods[this.methodCount-1];
@@ -247,7 +247,7 @@ public int sourceEnd(){
 public String toString(int tab) {
 	StringBuffer result = new StringBuffer(tabString(tab));
 	result.append("Recovered type:\n"); //$NON-NLS-1$
-	if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+	if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 		result.append(tabString(tab));
 		result.append(" "); //$NON-NLS-1$
 	}
@@ -282,12 +282,12 @@ public void updateBodyStart(int bodyStart){
 public Statement updatedStatement(){
 
 	// ignore closed anonymous type
-	if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0 && !this.preserveContent){
+	if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0 && !this.preserveContent){
 		return null;
 	}
 		
 	TypeDeclaration updatedType = this.updatedTypeDeclaration();
-	if ((updatedType.bits & ASTNode.IsAnonymousTypeMASK) != 0){
+	if ((updatedType.bits & ASTNode.IsAnonymousType) != 0){
 		/* in presence of an anonymous type, we want the full allocation expression */
 		return updatedType.allocation;
 	}
@@ -407,9 +407,9 @@ public TypeDeclaration updatedTypeDeclaration(){
 		} 
 	}
 	if (parent instanceof RecoveredType){
-		typeDeclaration.bits |= ASTNode.IsMemberTypeMASK;
+		typeDeclaration.bits |= ASTNode.IsMemberType;
 	} else if (parent instanceof RecoveredMethod){
-		typeDeclaration.bits |= ASTNode.IsLocalTypeMASK;
+		typeDeclaration.bits |= ASTNode.IsLocalType;
 	}
 	return typeDeclaration;
 }

@@ -33,7 +33,7 @@ public class DoStatement extends Statement {
 		this.condition = condition;
 		this.action = action;
 		// remember useful empty statement
-		if (action instanceof EmptyStatement) action.bits |= IsUsefulEmptyStatementMASK;
+		if (action instanceof EmptyStatement) action.bits |= IsUsefulEmptyStatement;
 	}
 
 	public FlowInfo analyseCode(
@@ -103,7 +103,7 @@ public class DoStatement extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		int pc = codeStream.position;

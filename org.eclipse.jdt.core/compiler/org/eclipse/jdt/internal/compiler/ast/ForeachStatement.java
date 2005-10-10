@@ -118,7 +118,7 @@ public class ForeachStatement extends Statement {
 		// element variable is not used
 		if (!(this.action == null
 				|| this.action.isEmptyBlock()
-				|| ((this.action.bits & IsUsefulEmptyStatementMASK) != 0))) {
+				|| ((this.action.bits & IsUsefulEmptyStatement) != 0))) {
 			switch(this.kind) {
 				case ARRAY :
 					this.collectionVariable.useFlag = LocalVariableBinding.USED;
@@ -150,13 +150,13 @@ public class ForeachStatement extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	    
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		int pc = codeStream.position;
 		if (this.action == null
 				|| this.action.isEmptyBlock()
-				|| ((this.action.bits & IsUsefulEmptyStatementMASK) != 0)) {
+				|| ((this.action.bits & IsUsefulEmptyStatement) != 0)) {
 			codeStream.exitUserScope(scope);
 			if (mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, mergedInitStateIndex);

@@ -283,10 +283,10 @@ public class ConditionalExpression extends OperatorExpression {
 		TypeBinding conditionType = condition.resolveTypeExpecting(scope, BooleanBinding);
 		condition.computeConversion(scope, BooleanBinding, conditionType);
 		
-		if (valueIfTrue instanceof CastExpression) valueIfTrue.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		if (valueIfTrue instanceof CastExpression) valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
 		TypeBinding originalValueIfTrueType = valueIfTrue.resolveType(scope);
 
-		if (valueIfFalse instanceof CastExpression) valueIfFalse.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		if (valueIfFalse instanceof CastExpression) valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
 		TypeBinding originalValueIfFalseType = valueIfFalse.resolveType(scope);
 
 		if (conditionType == null || originalValueIfTrueType == null || originalValueIfFalseType == null)

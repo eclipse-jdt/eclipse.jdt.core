@@ -526,7 +526,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		//always ignore receiver cast, since may affect constant pool reference
 		boolean receiverCast = false;
 		if (this.receiver instanceof CastExpression) {
-			this.receiver.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+			this.receiver.bits |= DisableUnnecessaryCastCheck; // will check later on
 			receiverCast = true;
 		}
 		this.receiverType = receiver.resolveType(scope);
@@ -555,7 +555,7 @@ public class FieldReference extends Reference implements InvocationSite {
 			}
 		}
 		this.receiver.computeConversion(scope, this.receiverType, this.receiverType);
-		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0)) {
+		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssigned) !=0)) {
 			scope.problemReporter().deprecatedField(fieldBinding, this);
 		}
 		boolean isImplicitThisRcv = receiver.isImplicitThis();
@@ -576,7 +576,7 @@ public class FieldReference extends Reference implements InvocationSite {
 		}
 		// perform capture conversion if read access
 		return this.resolvedType = 
-			(((this.bits & IsStrictlyAssignedMASK) == 0) 
+			(((this.bits & IsStrictlyAssigned) == 0) 
 				? fieldBinding.type.capture(scope, this.sourceEnd)
 				: fieldBinding.type);
 	}

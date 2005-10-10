@@ -948,7 +948,7 @@ protected void classInstanceCreation(boolean isQualified) {
 			anonymousTypeDeclaration.allocation.sourceEnd = this.endStatementPosition;
 		}
 		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
-			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 		this.astPtr--;
 		this.astLengthPtr--;
@@ -1005,7 +1005,7 @@ protected void consumeAllocationHeader() {
 		// beginning of an anonymous type
 		TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult);
 		anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
-		anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
+		anonymousType.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
 		anonymousType.sourceStart = this.intStack[this.intPtr--];
 		anonymousType.sourceEnd = this.rParenPos; // closing parenthesis
 		QualifiedAllocationExpression alloc = new QualifiedAllocationExpression(anonymousType);
@@ -1053,12 +1053,12 @@ protected void consumeAnnotationTypeDeclaration() {
 	
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= ASTNode.AddAssertionMASK;
+		typeDecl.bits |= ASTNode.ContainsAssertion;
 	}
 	typeDecl.addClinit();
 	typeDecl.bodyEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
-		typeDecl.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+		typeDecl.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
 	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition); 
 }
@@ -1075,11 +1075,11 @@ protected void consumeAnnotationTypeDeclarationHeaderName() {
 	TypeDeclaration annotationTypeDeclaration = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (this.nestedMethod[this.nestedType] == 0) {
 		if (this.nestedType != 0) {
-			annotationTypeDeclaration.bits |= ASTNode.IsMemberTypeMASK;
+			annotationTypeDeclaration.bits |= ASTNode.IsMemberType;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		annotationTypeDeclaration.bits |= ASTNode.IsLocalTypeMASK;
+		annotationTypeDeclaration.bits |= ASTNode.IsLocalType;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
@@ -1511,7 +1511,7 @@ protected void consumeBlock() {
 		block.sourceEnd = this.endStatementPosition;
 		// check whether this block at least contains some comment in it
 		if (!containsComment(block.sourceStart, block.sourceEnd)) {
-			block.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			block.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 		this.realBlockPtr--; // still need to pop the block variable counter
 	} else {
@@ -1710,7 +1710,7 @@ protected void consumeClassBodyDeclaration() {
 	//optimize the push/pop
 	this.nestedMethod[this.nestedType]--;
 	Block block = (Block) this.astStack[this.astPtr];
-	if (this.diet) block.bits &= ~ASTNode.UndocumentedEmptyBlockMASK; // clear bit since was diet
+	if (this.diet) block.bits &= ~ASTNode.UndocumentedEmptyBlock; // clear bit since was diet
 	Initializer initializer = new Initializer(block, 0);
 	this.intPtr--; // pop sourcestart left on the stack by consumeNestedMethod.
 	initializer.bodyStart = this.intStack[this.intPtr--];
@@ -1779,12 +1779,12 @@ protected void consumeClassDeclaration() {
 	}
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= ASTNode.AddAssertionMASK;
+		typeDecl.bits |= ASTNode.ContainsAssertion;
 	}
 	typeDecl.addClinit();
 	typeDecl.bodyEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
-		typeDecl.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+		typeDecl.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
 
 	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition); 
@@ -1844,11 +1844,11 @@ protected void consumeClassHeaderName1() {
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (this.nestedMethod[this.nestedType] == 0) {
 		if (this.nestedType != 0) {
-			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
+			typeDecl.bits |= ASTNode.IsMemberType;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
+		typeDecl.bits |= ASTNode.IsLocalType;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
@@ -1972,7 +1972,7 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 		anonymousTypeDeclaration.declarationSourceEnd = this.endStatementPosition;
 		anonymousTypeDeclaration.bodyEnd = this.endStatementPosition;
 		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
-			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 		this.astPtr--;
 		this.astLengthPtr--;
@@ -2035,7 +2035,7 @@ protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 		anonymousTypeDeclaration.declarationSourceEnd = this.endStatementPosition;
 		anonymousTypeDeclaration.bodyEnd = this.endStatementPosition;
 		if (length == 0 && !containsComment(anonymousTypeDeclaration.bodyStart, anonymousTypeDeclaration.bodyEnd)) {
-			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			anonymousTypeDeclaration.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 		this.astPtr--;
 		this.astLengthPtr--;
@@ -2186,7 +2186,7 @@ protected void consumeConstructorDeclaration() {
 
 	if (!this.diet && (statements == null && constructorCall.isImplicitSuper())) {
 		if (!containsComment(cd.bodyStart, this.endPosition)) {
-			cd.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			cd.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 	}
 
@@ -2543,7 +2543,7 @@ protected void consumeEnhancedForStatement() {
 	ForeachStatement foreachStatement = (ForeachStatement) this.astStack[this.astPtr];
 	foreachStatement.action = statement;
 	// remember useful empty statement
-	if (statement instanceof EmptyStatement) statement.bits |= ASTNode.IsUsefulEmptyStatementMASK;
+	if (statement instanceof EmptyStatement) statement.bits |= ASTNode.IsUsefulEmptyStatement;
 	
 	foreachStatement.sourceEnd = this.endStatementPosition;
 }
@@ -2553,7 +2553,7 @@ protected void consumeEnterAnonymousClassBody() {
 
 	TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult); 
 	anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
-	anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
+	anonymousType.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
 	QualifiedAllocationExpression alloc = new QualifiedAllocationExpression(anonymousType); 
 	markEnclosingMemberWithLocalType();
 	pushOnAstStack(anonymousType);
@@ -2761,7 +2761,7 @@ protected void consumeEnumConstantHeader() {
       // qualified allocation expression
       TypeDeclaration anonymousType = new TypeDeclaration(this.compilationUnit.compilationResult);
       anonymousType.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
-      anonymousType.bits |= ASTNode.AnonymousAndLocalMask;
+      anonymousType.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
       final int start = this.scanner.startPosition;
       anonymousType.declarationSourceStart = start;
       anonymousType.sourceStart = start;
@@ -2877,12 +2877,12 @@ protected void consumeEnumDeclaration() {
 
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		enumDeclaration.bits |= ASTNode.AddAssertionMASK;
+		enumDeclaration.bits |= ASTNode.ContainsAssertion;
 	}
 	enumDeclaration.addClinit();
 	enumDeclaration.bodyEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(enumDeclaration.bodyStart, enumDeclaration.bodyEnd)) {
-		enumDeclaration.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+		enumDeclaration.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
 
 	enumDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition); 
@@ -2908,7 +2908,7 @@ protected void consumeEnumHeaderName() {
 	TypeDeclaration enumDeclaration = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (this.nestedMethod[this.nestedType] == 0) {
 		if (this.nestedType != 0) {
-			enumDeclaration.bits |= ASTNode.IsMemberTypeMASK;
+			enumDeclaration.bits |= ASTNode.IsMemberType;
 		}		
 	} else {
 		// Record that the block has a declaration for local types
@@ -3369,12 +3369,12 @@ protected void consumeInterfaceDeclaration() {
 	
 	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= ASTNode.AddAssertionMASK;
+		typeDecl.bits |= ASTNode.ContainsAssertion;
 	}
 	typeDecl.addClinit();
 	typeDecl.bodyEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
-		typeDecl.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+		typeDecl.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
 	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition); 
 }
@@ -3419,11 +3419,11 @@ protected void consumeInterfaceHeaderName1() {
 
 	if (this.nestedMethod[this.nestedType] == 0) {
 		if (this.nestedType != 0) {
-			typeDecl.bits |= ASTNode.IsMemberTypeMASK;
+			typeDecl.bits |= ASTNode.IsMemberType;
 		}
 	} else {
 		// Record that the block has a declaration for local types
-		typeDecl.bits |= ASTNode.IsLocalTypeMASK;
+		typeDecl.bits |= ASTNode.IsLocalType;
 		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
@@ -3768,7 +3768,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	} else {
 		if (!this.diet && statements == null) {
 			if (!containsComment(md.bodyStart, this.endPosition)) {
-				md.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+				md.bits |= ASTNode.UndocumentedEmptyBlock;
 			}
 		}
 	}
@@ -6496,7 +6496,7 @@ protected void consumeStatementSwitch() {
 	switchStatement.sourceStart = this.intStack[this.intPtr--];
 	switchStatement.sourceEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(switchStatement.blockStart, switchStatement.sourceEnd)) {
-		switchStatement.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+		switchStatement.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
 }
 protected void consumeStatementSynchronized() {
@@ -6620,7 +6620,7 @@ protected void consumeStaticInitializer() {
 	//push an Initializer
 	//optimize the push/pop
 	Block block = (Block) this.astStack[this.astPtr];
-	if (this.diet) block.bits &= ~ASTNode.UndocumentedEmptyBlockMASK; // clear bit set since was diet
+	if (this.diet) block.bits &= ~ASTNode.UndocumentedEmptyBlock; // clear bit set since was diet
 	Initializer initializer = new Initializer(block, AccStatic);
 	this.astStack[this.astPtr] = initializer;
 	initializer.sourceEnd = this.endStatementPosition;	
@@ -8203,22 +8203,22 @@ protected void markEnclosingMemberWithLocalType() {
 		if (node instanceof AbstractMethodDeclaration 
 				|| node instanceof FieldDeclaration
 				|| node instanceof TypeDeclaration) { // mark type for now: all initializers will be marked when added to this type
-			node.bits |= ASTNode.HasLocalTypeMASK;
+			node.bits |= ASTNode.HasLocalType;
 			return;
 		}
 	}
 	// default to reference context (case of parse method body)
 	if (this.referenceContext instanceof AbstractMethodDeclaration
 			|| this.referenceContext instanceof TypeDeclaration) {
-		((ASTNode)this.referenceContext).bits |= ASTNode.HasLocalTypeMASK;
+		((ASTNode)this.referenceContext).bits |= ASTNode.HasLocalType;
 	}
 }
 protected void markInitializersWithLocalType(TypeDeclaration type) {
-	if (type.fields == null || (type.bits & ASTNode.HasLocalTypeMASK) == 0) return;
+	if (type.fields == null || (type.bits & ASTNode.HasLocalType) == 0) return;
 	for (int i = 0, length = type.fields.length; i < length; i++) {
 		FieldDeclaration field = type.fields[i];
 		if (field instanceof Initializer) {
-			field.bits |= ASTNode.HasLocalTypeMASK;
+			field.bits |= ASTNode.HasLocalType;
 		}
 	}
 }
@@ -8602,7 +8602,7 @@ public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, bo
 	} else {
 		cd.constructorCall = SuperReference.implicitSuperConstructorCall();
 		if (!containsComment(cd.bodyStart, cd.bodyEnd)) {
-			cd.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			cd.bits |= ASTNode.UndocumentedEmptyBlock;
 		}		
 	}
 
@@ -8646,8 +8646,8 @@ public void parse(
 	field.initialization = this.expressionStack[this.expressionPtr];
 	
 	// mark field with local type if one was found during parsing
-	if ((type.bits & ASTNode.HasLocalTypeMASK) != 0) {
-		field.bits |= ASTNode.HasLocalTypeMASK;
+	if ((type.bits & ASTNode.HasLocalType) != 0) {
+		field.bits |= ASTNode.HasLocalType;
 	}	
 }
 // A P I
@@ -8743,13 +8743,13 @@ public void parse(
 	} else {
 		// check whether this block at least contains some comment in it
 		if (!containsComment(initializer.block.sourceStart, initializer.block.sourceEnd)) {
-			initializer.block.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			initializer.block.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 	}
 	
 	// mark initializer with local type if one was found during parsing
-	if ((type.bits & ASTNode.HasLocalTypeMASK) != 0) {
-		initializer.bits |= ASTNode.HasLocalTypeMASK;
+	if ((type.bits & ASTNode.HasLocalType) != 0) {
+		initializer.bits |= ASTNode.HasLocalType;
 	}	
 }
 // A P I
@@ -8802,7 +8802,7 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 			length); 
 	} else {
 		if (!containsComment(md.bodyStart, md.bodyEnd)) {
-			md.bits |= ASTNode.UndocumentedEmptyBlockMASK;
+			md.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 	}
 }

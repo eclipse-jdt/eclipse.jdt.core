@@ -72,7 +72,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		// in case the labels needs to be reinitialized

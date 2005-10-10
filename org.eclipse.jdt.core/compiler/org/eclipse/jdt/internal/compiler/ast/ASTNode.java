@@ -53,7 +53,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static int Bit28 = 0x8000000; 			// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000; 		// parenthesis count (expression)
 	public final static int Bit30 = 0x20000000; 		// assignment with no effect (assignment) | elseif (if statement)
-	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl) | ignore raw type check (type ref)
+	public final static int Bit31 = 0x40000000; 		// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment)
 	public final static int Bit32 = 0x80000000; 		// reachable (statement)
 
 	public final static long Bit32L = 0x80000000L; 		
@@ -82,7 +82,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public final static long Bit55L = 0x40000000000000L;
 	public final static long Bit56L = 0x80000000000000L;
 
-	public int bits = IsReachableMASK; 				// reachable by default
+	public int bits = IsReachable; 				// reachable by default
 
 	// for operators 
 	public static final int ReturnTypeIDMASK = Bit1|Bit2|Bit3|Bit4; 
@@ -90,57 +90,56 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	public static final int OperatorMASK = Bit7|Bit8|Bit9|Bit10|Bit11|Bit12; // 6 bits for operator ID
 
 	// for binary expressions
-	public static final int ValueForReturnMASK = Bit5; 
-	public static final int OnlyValueRequiredMASK = Bit6; 
+	public static final int IsReturnedValue = Bit5; 
+	public static final int OnlyValueRequired = Bit6; 
 
 	// for cast expressions
-	public static final int UnnecessaryCastMASK = Bit15;
-	public static final int IgnoreNeedForCastCheckMASK = Bit6;
-	public static final int NeedRuntimeCheckCastMASK = Bit7;
-	public static final int UnsafeCastMask = Bit8;
+	public static final int UnnecessaryCast = Bit15;
+	public static final int DisableUnnecessaryCastCheck = Bit6;
+	public static final int GenerateCheckcast = Bit7;
+	public static final int UnsafeCast = Bit8;
 	
 	// for name references 
 	public static final int RestrictiveFlagMASK = Bit1|Bit2|Bit3;	
-	public static final int FirstAssignmentToLocalMASK = Bit4;
+	public static final int FirstAssignmentToLocal = Bit4;
 	
 	// for this reference
-	public static final int IsImplicitThisMask = Bit3; 
+	public static final int IsImplicitThis = Bit3; 
 
 	// for single name references
 	public static final int DepthSHIFT = 5;	// Bit6 -> Bit13
 	public static final int DepthMASK = Bit6|Bit7|Bit8|Bit9|Bit10|Bit11|Bit12|Bit13; // 8 bits for actual depth value (max. 255)
 
 	// for statements 
-	public static final int IsReachableMASK = Bit32; 
-	public static final int IsLocalDeclarationReachableMASK = Bit31; 
+	public static final int IsReachable = Bit32; 
+	public static final int IsLocalDeclarationReachable = Bit31; 
 
 	// for type declaration
-	public static final int AddAssertionMASK = Bit1;
-	public static final int IsLocalTypeMASK = Bit9;
-	public static final int IsAnonymousTypeMASK = Bit10; // used to test for anonymous 
-	public static final int AnonymousAndLocalMask = IsAnonymousTypeMASK | IsLocalTypeMASK; // used to set anonymous marker
-	public static final int IsMemberTypeMASK = Bit11; // local member do not know it is local at parse time (need to look at binding)
+	public static final int ContainsAssertion = Bit1;
+	public static final int IsLocalType = Bit9;
+	public static final int IsAnonymousType = Bit10; // used to test for anonymous 
+	public static final int IsMemberType = Bit11; // local member do not know it is local at parse time (need to look at binding)
 	public static final int HasAbstractMethods = Bit12; // used to promote abstract enums
 	
 	// for type, method and field declarations 
-	public static final int HasLocalTypeMASK = Bit2; // cannot conflict with AddAssertionMASK
+	public static final int HasLocalType = Bit2; // cannot conflict with AddAssertionMASK
 
 	// for expression 
 	public static final int ParenthesizedSHIFT = 21; // Bit22 -> Bit29
 	public static final int ParenthesizedMASK = Bit22|Bit23|Bit24|Bit25|Bit26|Bit27|Bit28|Bit29; // 8 bits for parenthesis count value (max. 255)
 
 	// for assignment
-	public static final int IsAssignmentWithNoEffectMASK = Bit30;	
+	public static final int AssignmentHasNoEffect = Bit30;
 	
 	// for references on lhs of assignment
-	public static final int IsStrictlyAssignedMASK = Bit14; // set only for true assignments, as opposed to compound ones
-	public static final int IsCompoundAssignedMASK = Bit17; // set only for compound assignments, as opposed to other ones
+	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones
+	public static final int IsCompoundAssigned = Bit17; // set only for compound assignments, as opposed to other ones
 
 	// for empty statement
-	public static final int IsUsefulEmptyStatementMASK = Bit1;
+	public static final int IsUsefulEmptyStatement = Bit1;
 
 	// for block and method declaration
-	public static final int UndocumentedEmptyBlockMASK = Bit4;
+	public static final int UndocumentedEmptyBlock = Bit4;
 
 	// for compilation unit
 	public static final int HasAllMethodBodies = Bit5;

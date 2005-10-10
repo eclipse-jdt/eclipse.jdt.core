@@ -26,7 +26,7 @@ public class Assignment extends Expression {
 		//but is build as an expression ==> the checkcast cannot fail
 
 		this.lhs = lhs;
-		lhs.bits |= IsStrictlyAssignedMASK; // tag lhs as assigned
+		lhs.bits |= IsStrictlyAssigned; // tag lhs as assigned
 		
 		this.expression = expression;
 
@@ -68,7 +68,7 @@ public class Assignment extends Expression {
 		Binding left = getDirectBinding(this.lhs);
 		if (left != null && left == getDirectBinding(this.expression)) {
 			scope.problemReporter().assignmentHasNoEffect(this, left.shortReadableName());
-			this.bits |= IsAssignmentWithNoEffectMASK; // record assignment has no effect
+			this.bits |= AssignmentHasNoEffect; // record assignment has no effect
 		}
 	}
 
@@ -94,9 +94,14 @@ public class Assignment extends Expression {
 		// just a local variable.
 
 		int pc = codeStream.position;
-		if ((this.bits & IsAssignmentWithNoEffectMASK) != 0) {
+		if ((this.bits & AssignmentHasNoEffect) != 0) {
 			if (valueRequired) {
+//				if (this.expression instanceof PostfixExpression) {
+//					// discard entire assignment and rhs for cases like: "b = b++"
+//					this.lhs.generateCode(currentScope, codeStream, true);
+//				} else {
 				this.expression.generateCode(currentScope, codeStream, true);
+//				}
 			}
 		} else {
 			 ((Reference) lhs).generateAssignment(currentScope, codeStream, this, valueRequired);
@@ -114,8 +119,9 @@ public class Assignment extends Expression {
 			if (fieldRef.receiver.isThis() && !(fieldRef.receiver instanceof QualifiedThisReference)) {
 				return fieldRef.binding;
 			}			
-		} else if (someExpression instanceof PostfixExpression) { // recurse for postfix: i++ --> i
-			return getDirectBinding(((PostfixExpression) someExpression).lhs);
+//		} else if (someExpression instanceof PostfixExpression) { // recurse for postfix: i++ --> i
+//			// note: "b = b++" is equivalent to doing nothing, not to "b++"
+//			return getDirectBinding(((PostfixExpression) someExpression).lhs);
 		}
 		return null;
 	}
@@ -194,7 +200,7 @@ public class Assignment extends Expression {
 			this.expression.computeConversion(scope, lhsType, rhsType);
 			checkAssignment(scope, lhsType, rhsType);
 			if (this.expression instanceof CastExpression 
-					&& (this.expression.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+					&& (this.expression.bits & ASTNode.UnnecessaryCast) == 0) {
 				CastExpression.checkNeedForAssignedCast(scope, lhsType, (CastExpression) this.expression);
 			}			
 			return this.resolvedType;
@@ -205,7 +211,7 @@ public class Assignment extends Expression {
 									&& this.expression.isConstantValueOfTypeAssignableToType(rhsType, scope.environment().computeBoxingType(lhsType)))) {
 			this.expression.computeConversion(scope, lhsType, rhsType);
 			if (this.expression instanceof CastExpression 
-					&& (this.expression.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+					&& (this.expression.bits & ASTNode.UnnecessaryCast) == 0) {
 				CastExpression.checkNeedForAssignedCast(scope, lhsType, (CastExpression) this.expression);
 			}			
 			return this.resolvedType;
@@ -227,7 +233,7 @@ public class Assignment extends Expression {
 		// signal possible accidental boolean assignment (instead of using '==' operator)
 		if (expectedType == BooleanBinding 
 				&& lhsType == BooleanBinding 
-				&& (this.lhs.bits & IsStrictlyAssignedMASK) != 0) {
+				&& (this.lhs.bits & IsStrictlyAssigned) != 0) {
 			scope.problemReporter().possibleAccidentalBooleanAssignment(this);
 		}
 		checkAssignment(scope, lhsType, rhsType);

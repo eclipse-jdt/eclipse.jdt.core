@@ -2003,7 +2003,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		boolean insertNewLine = memberLength > 0;
 		
 		if (!insertNewLine) {
-			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 				insertNewLine = this.preferences.insert_new_line_in_empty_enum_constant;
 			}
 		}
@@ -2029,7 +2029,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (!insertNewLine) {
 			if (TypeDeclaration.kind(typeDeclaration.modifiers) == TypeDeclaration.ENUM_DECL) {
 				insertNewLine = this.preferences.insert_new_line_in_empty_enum_declaration;
-			} else if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+			} else if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 				insertNewLine = this.preferences.insert_new_line_in_empty_anonymous_type_declaration;
 			} else {
 				insertNewLine = this.preferences.insert_new_line_in_empty_type_declaration;

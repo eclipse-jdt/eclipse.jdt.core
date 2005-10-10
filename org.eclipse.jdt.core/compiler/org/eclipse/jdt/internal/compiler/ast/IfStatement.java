@@ -37,7 +37,7 @@ public class IfStatement extends Statement {
 		this.condition = condition;
 		this.thenStatement = thenStatement;
 		// remember useful empty statement
-		if (thenStatement instanceof EmptyStatement) thenStatement.bits |= IsUsefulEmptyStatementMASK;
+		if (thenStatement instanceof EmptyStatement) thenStatement.bits |= IsUsefulEmptyStatement;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
@@ -47,7 +47,7 @@ public class IfStatement extends Statement {
 		this.condition = condition;
 		this.thenStatement = thenStatement;
 		// remember useful empty statement
-		if (thenStatement instanceof EmptyStatement) thenStatement.bits |= IsUsefulEmptyStatementMASK;
+		if (thenStatement instanceof EmptyStatement) thenStatement.bits |= IsUsefulEmptyStatement;
 		this.elseStatement = elseStatement;
 		if (elseStatement instanceof IfStatement) elseStatement.bits |= IsElseIfStatement;
 		this.sourceStart = sourceStart;
@@ -124,7 +124,7 @@ public class IfStatement extends Statement {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((this.bits & IsReachableMASK) == 0) {
+		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
 		int pc = codeStream.position;

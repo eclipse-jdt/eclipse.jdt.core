@@ -94,7 +94,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((this.bits & IsReachableMASK) == 0) {
+		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
 		// do not generate initialization code if final and static (constant is then
@@ -220,7 +220,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 								    initializationScope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, fieldType);
 							}
 							if (this.initialization instanceof CastExpression 
-									&& (this.initialization.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+									&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
 								CastExpression.checkNeedForAssignedCast(initializationScope, fieldType, (CastExpression) this.initialization);
 							}								
 						} else if (initializationScope.isBoxingCompatibleWith(initializationType, fieldType) 
@@ -230,7 +230,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 													&& initialization.isConstantValueOfTypeAssignableToType(initializationType, initializationScope.environment().computeBoxingType(fieldType)))) {
 							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 							if (this.initialization instanceof CastExpression 
-									&& (this.initialization.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+									&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
 								CastExpression.checkNeedForAssignedCast(initializationScope, fieldType, (CastExpression) this.initialization);
 							}							
 						} else {

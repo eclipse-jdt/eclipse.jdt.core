@@ -101,9 +101,9 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 			case Binding.LOCAL : // assigning to a local variable 
 				LocalVariableBinding localBinding = (LocalVariableBinding) binding;
 				if (!flowInfo.isDefinitelyAssigned(localBinding)){// for local variable debug attributes
-					bits |= FirstAssignmentToLocalMASK;
+					bits |= FirstAssignmentToLocal;
 				} else {
-					bits &= ~FirstAssignmentToLocalMASK;
+					bits &= ~FirstAssignmentToLocal;
 				}
 				if (localBinding.isFinal()) {
 					if ((bits & DepthMASK) == 0) {
@@ -190,10 +190,10 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 		}
 		this.constant = FieldReference.getConstantFor(fieldBinding, this, true, scope);
 	
-		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssignedMASK) !=0))
+		if (isFieldUseDeprecated(fieldBinding, scope, (this.bits & IsStrictlyAssigned) !=0))
 			scope.problemReporter().deprecatedField(fieldBinding, this);
 	
-		if ((this.bits & IsStrictlyAssignedMASK) == 0
+		if ((this.bits & IsStrictlyAssigned) == 0
 			&& methodScope.enclosingSourceType() == fieldBinding.declaringClass
 			&& methodScope.lastVisibleFieldID >= 0
 			&& fieldBinding.id >= methodScope.lastVisibleFieldID) {
@@ -315,7 +315,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 				
 				// normal local assignment (since cannot store in outer local which are final locations)
 				codeStream.store(localBinding, valueRequired);
-				if ((bits & FirstAssignmentToLocalMASK) != 0) { // for local variable debug attributes
+				if ((bits & FirstAssignmentToLocal) != 0) { // for local variable debug attributes
 					localBinding.recordInitializationStartPC(codeStream.position);
 				}
 				// implicit conversion
@@ -715,7 +715,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 								scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)variable, this);
 							}
 							TypeBinding fieldType = variable.type;
-							if ((this.bits & IsStrictlyAssignedMASK) == 0) {
+							if ((this.bits & IsStrictlyAssigned) == 0) {
 								constant = variable.constant();
 								if (fieldType != null) 
 									fieldType = fieldType.capture(scope, this.sourceEnd); // perform capture conversion if read access
@@ -732,7 +732,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 						// perform capture conversion if read access
 						TypeBinding fieldType = checkFieldAccess(scope);
 						return this.resolvedType = 
-							(((this.bits & IsStrictlyAssignedMASK) == 0) 
+							(((this.bits & IsStrictlyAssigned) == 0) 
 								? fieldType.capture(scope, this.sourceEnd)
 								: fieldType);
 					}

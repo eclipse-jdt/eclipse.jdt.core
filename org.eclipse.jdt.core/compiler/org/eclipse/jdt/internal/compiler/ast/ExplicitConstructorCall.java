@@ -94,7 +94,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 	 */
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		try {
@@ -310,7 +310,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 				for (int i = 0; i < length; i++) {
 					Expression argument = this.arguments[i];
 					if (argument instanceof CastExpression) {
-						argument.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+						argument.bits |= DisableUnnecessaryCastCheck; // will check later on
 						argsContainCast = true;
 					}
 					if ((argumentTypes[i] = argument.resolveType(scope)) == null) {

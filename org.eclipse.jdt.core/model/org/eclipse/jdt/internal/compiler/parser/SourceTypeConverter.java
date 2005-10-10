@@ -176,7 +176,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 			for (int i = 0; i < typesLength; i++) {
 				SourceType type = (SourceType) children[i];
 				TypeDeclaration localType = convert(type, compilationResult);
-				if ((localType.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+				if ((localType.bits & ASTNode.IsAnonymousType) != 0) {
 					QualifiedAllocationExpression expression = new QualifiedAllocationExpression(localType);
 					expression.type = localType.superclass;
 					localType.superclass = null;
@@ -377,7 +377,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 				for (int i = 0; i < typesLength; i++) {
 					SourceType type = (SourceType) children[i];
 					TypeDeclaration localType = convert(type, compilationResult);
-					if ((localType.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+					if ((localType.bits & ASTNode.IsAnonymousType) != 0) {
 						QualifiedAllocationExpression expression = new QualifiedAllocationExpression(localType);
 						expression.type = localType.superclass;
 						localType.superclass = null;
@@ -405,16 +405,16 @@ public class SourceTypeConverter implements CompilerModifiers {
 		if (typeInfo.getEnclosingType() == null) {
 			if (typeHandle.isAnonymous()) {
 				type.name = TypeDeclaration.ANONYMOUS_EMPTY_NAME;
-				type.bits |= ASTNode.AnonymousAndLocalMask;
+				type.bits |= (ASTNode.IsAnonymousType|ASTNode.IsLocalType);
 			} else {
 				if (typeHandle.isLocal()) {
-					type.bits |= ASTNode.IsLocalTypeMASK;
+					type.bits |= ASTNode.IsLocalType;
 				}
 			}
 		}  else {
-			type.bits |= ASTNode.IsMemberTypeMASK;
+			type.bits |= ASTNode.IsMemberType;
 		}
-		if ((type.bits & ASTNode.IsAnonymousTypeMASK) == 0) {
+		if ((type.bits & ASTNode.IsAnonymousType) == 0) {
 			type.name = typeInfo.getName();
 		}
 		type.name = typeInfo.getName();

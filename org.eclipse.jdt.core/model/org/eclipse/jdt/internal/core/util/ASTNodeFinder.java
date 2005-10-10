@@ -121,7 +121,7 @@ public class ASTNodeFinder {
 			int count = 0;
 			public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
 				if (result != null) return false;
-				if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+				if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 					if (findAnonymous && ++count == occurenceCount) {
 						result = typeDeclaration;
 					}

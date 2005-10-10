@@ -38,7 +38,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 
 		// record variable initialization if any
 		if (flowInfo.isReachable()) {
-			bits |= IsLocalDeclarationReachableMASK; // only set if actually reached
+			bits |= IsLocalDeclarationReachable; // only set if actually reached
 		}
 		if (this.initialization == null) 
 			return flowInfo;
@@ -82,7 +82,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		if (binding.resolvedPosition != -1) {
 			codeStream.addVisibleLocalVariable(binding);
 		}
-		if ((bits & IsReachableMASK) == 0) {
+		if ((bits & IsReachable) == 0) {
 			return;
 		}
 		int pc = codeStream.position;
@@ -208,7 +208,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 						    scope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, variableType);
 						}						
 						if (this.initialization instanceof CastExpression 
-								&& (this.initialization.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+								&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
 							CastExpression.checkNeedForAssignedCast(scope, variableType, (CastExpression) this.initialization);
 						}	
 					} else if (scope.isBoxingCompatibleWith(initializationType, variableType) 
@@ -218,7 +218,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 												&& initialization.isConstantValueOfTypeAssignableToType(initializationType, scope.environment().computeBoxingType(variableType)))) {
 						this.initialization.computeConversion(scope, variableType, initializationType);
 						if (this.initialization instanceof CastExpression 
-								&& (this.initialization.bits & ASTNode.UnnecessaryCastMASK) == 0) {
+								&& (this.initialization.bits & ASTNode.UnnecessaryCast) == 0) {
 							CastExpression.checkNeedForAssignedCast(scope, variableType, (CastExpression) this.initialization);
 						}	
 					} else {

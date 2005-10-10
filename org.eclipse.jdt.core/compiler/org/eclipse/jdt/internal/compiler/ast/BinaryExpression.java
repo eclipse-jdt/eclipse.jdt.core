@@ -92,7 +92,7 @@ public class BinaryExpression extends OperatorExpression {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 			return;
 		}
-		bits |= OnlyValueRequiredMASK;
+		bits |= OnlyValueRequired;
 		switch ((bits & OperatorMASK) >> OperatorSHIFT) {
 			case PLUS :
 				switch (bits & ReturnTypeIDMASK) {
@@ -305,7 +305,7 @@ public class BinaryExpression extends OperatorExpression {
 						if (falseLabel.hasForwardReferences()) {
 							if (valueRequired) {
 								codeStream.iconst_1();
-								if ((bits & ValueForReturnMASK) != 0) {
+								if ((bits & IsReturnedValue) != 0) {
 									codeStream.generateImplicitConversion(this.implicitConversion);
 									codeStream.generateReturnBytecode(this);
 									falseLabel.place();
@@ -377,7 +377,7 @@ public class BinaryExpression extends OperatorExpression {
 						if (falseLabel.hasForwardReferences()) {
 							if (valueRequired) {
 								codeStream.iconst_1();
-								if ((bits & ValueForReturnMASK) != 0) {
+								if ((bits & IsReturnedValue) != 0) {
 									codeStream.generateImplicitConversion(this.implicitConversion);
 									codeStream.generateReturnBytecode(this);
 									falseLabel.place();
@@ -449,7 +449,7 @@ public class BinaryExpression extends OperatorExpression {
 						if (falseLabel.hasForwardReferences()) {
 							if (valueRequired) {
 								codeStream.iconst_1();
-								if ((bits & ValueForReturnMASK) != 0) {
+								if ((bits & IsReturnedValue) != 0) {
 									codeStream.generateImplicitConversion(this.implicitConversion);
 									codeStream.generateReturnBytecode(this);
 									falseLabel.place();
@@ -521,7 +521,7 @@ public class BinaryExpression extends OperatorExpression {
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
-					if ((bits & ValueForReturnMASK) != 0) {
+					if ((bits & IsReturnedValue) != 0) {
 						codeStream.generateImplicitConversion(this.implicitConversion);
 						codeStream.generateReturnBytecode(this);
 						falseLabel.place();
@@ -544,7 +544,7 @@ public class BinaryExpression extends OperatorExpression {
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
-					if ((bits & ValueForReturnMASK) != 0) {
+					if ((bits & IsReturnedValue) != 0) {
 						codeStream.generateImplicitConversion(this.implicitConversion);
 						codeStream.generateReturnBytecode(this);
 						falseLabel.place();
@@ -567,7 +567,7 @@ public class BinaryExpression extends OperatorExpression {
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
-					if ((bits & ValueForReturnMASK) != 0) {
+					if ((bits & IsReturnedValue) != 0) {
 						codeStream.generateImplicitConversion(this.implicitConversion);
 						codeStream.generateReturnBytecode(this);
 						falseLabel.place();
@@ -590,7 +590,7 @@ public class BinaryExpression extends OperatorExpression {
 					valueRequired);
 				if (valueRequired) {
 					codeStream.iconst_1();
-					if ((bits & ValueForReturnMASK) != 0) {
+					if ((bits & IsReturnedValue) != 0) {
 						codeStream.generateImplicitConversion(this.implicitConversion);
 						codeStream.generateReturnBytecode(this);
 						falseLabel.place();
@@ -1169,7 +1169,7 @@ public class BinaryExpression extends OperatorExpression {
 						trueLabel,
 						falseLabel,
 						false);
-					if ((bits & OnlyValueRequiredMASK) != 0) {
+					if ((bits & OnlyValueRequired) != 0) {
 						right.generateCode(currentScope, codeStream, valueRequired);
 					} else {
 						right.generateOptimizedBoolean(
@@ -1196,7 +1196,7 @@ public class BinaryExpression extends OperatorExpression {
 						false);
 					internalTrueLabel.place();
 					if (valueRequired) {
-						if ((bits & OnlyValueRequiredMASK) != 0) {
+						if ((bits & OnlyValueRequired) != 0) {
 							codeStream.iconst_0();
 						} else {
 							if (falseLabel != null) {
@@ -1213,7 +1213,7 @@ public class BinaryExpression extends OperatorExpression {
 			if ((condConst = right.optimizedBooleanConstant()) != NotAConstant) {
 				if (condConst.booleanValue() == true) {
 					// x & <something equivalent to true>
-					if ((bits & OnlyValueRequiredMASK) != 0) {
+					if ((bits & OnlyValueRequired) != 0) {
 						left.generateCode(currentScope, codeStream, valueRequired);
 					} else {
 						left.generateOptimizedBoolean(
@@ -1246,7 +1246,7 @@ public class BinaryExpression extends OperatorExpression {
 						falseLabel,
 						false);
 					if (valueRequired) {
-						if ((bits & OnlyValueRequiredMASK) != 0) {
+						if ((bits & OnlyValueRequired) != 0) {
 							codeStream.iconst_0();
 						} else {
 							if (falseLabel != null) {
@@ -1266,7 +1266,7 @@ public class BinaryExpression extends OperatorExpression {
 		right.generateCode(currentScope, codeStream, valueRequired);
 		if (valueRequired) {
 			codeStream.iand();
-			if ((bits & OnlyValueRequiredMASK) == 0) {
+			if ((bits & OnlyValueRequired) == 0) {
 				if (falseLabel == null) {
 					if (trueLabel != null) {
 						// implicit falling through the FALSE case
@@ -1316,7 +1316,7 @@ public class BinaryExpression extends OperatorExpression {
 						false);
 					internalFalseLabel.place();
 					if (valueRequired) {
-						if ((bits & OnlyValueRequiredMASK) != 0) {
+						if ((bits & OnlyValueRequired) != 0) {
 							codeStream.iconst_1();
 						} else {
 							if (trueLabel != null) {
@@ -1334,7 +1334,7 @@ public class BinaryExpression extends OperatorExpression {
 						trueLabel,
 						falseLabel,
 						false);
-					if ((bits & OnlyValueRequiredMASK) != 0) {
+					if ((bits & OnlyValueRequired) != 0) {
 						right.generateCode(currentScope, codeStream, valueRequired);
 					} else {
 						right.generateOptimizedBoolean(
@@ -1365,7 +1365,7 @@ public class BinaryExpression extends OperatorExpression {
 						falseLabel,
 						false);
 					if (valueRequired) {
-						if ((bits & OnlyValueRequiredMASK) != 0) {
+						if ((bits & OnlyValueRequired) != 0) {
 							codeStream.iconst_1();
 						} else {
 							if (trueLabel != null) {
@@ -1377,7 +1377,7 @@ public class BinaryExpression extends OperatorExpression {
 					codeStream.updateLastRecordedEndPC(currentScope, codeStream.position);					
 				} else {
 					// x | <something equivalent to false>
-					if ((bits & OnlyValueRequiredMASK) != 0) {
+					if ((bits & OnlyValueRequired) != 0) {
 						left.generateCode(currentScope, codeStream, valueRequired);
 					} else {
 						left.generateOptimizedBoolean(
@@ -1402,7 +1402,7 @@ public class BinaryExpression extends OperatorExpression {
 		right.generateCode(currentScope, codeStream, valueRequired);
 		if (valueRequired) {
 			codeStream.ior();
-			if ((bits & OnlyValueRequiredMASK) == 0) {
+			if ((bits & OnlyValueRequired) == 0) {
 				if (falseLabel == null) {
 					if (trueLabel != null) {
 						// implicit falling through the FALSE case
@@ -1457,7 +1457,7 @@ public class BinaryExpression extends OperatorExpression {
 						trueLabel,
 						falseLabel,
 						false);
-					if ((bits & OnlyValueRequiredMASK) != 0) {
+					if ((bits & OnlyValueRequired) != 0) {
 						right.generateCode(currentScope, codeStream, valueRequired);
 					} else {
 						right.generateOptimizedBoolean(
@@ -1487,7 +1487,7 @@ public class BinaryExpression extends OperatorExpression {
 						false);
 				} else {
 					// x ^ <something equivalent to false>
-					if ((bits & OnlyValueRequiredMASK) != 0) {
+					if ((bits & OnlyValueRequired) != 0) {
 						left.generateCode(currentScope, codeStream, valueRequired);
 					} else {
 						left.generateOptimizedBoolean(
@@ -1512,7 +1512,7 @@ public class BinaryExpression extends OperatorExpression {
 		right.generateCode(currentScope, codeStream, valueRequired);
 		if (valueRequired) {
 			codeStream.ixor();
-			if ((bits & OnlyValueRequiredMASK) == 0) {
+			if ((bits & OnlyValueRequired) == 0) {
 				if (falseLabel == null) {
 					if (trueLabel != null) {
 						// implicit falling through the FALSE case
@@ -1666,10 +1666,10 @@ public class BinaryExpression extends OperatorExpression {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		boolean leftIsCast, rightIsCast;
-		if ((leftIsCast = left instanceof CastExpression) == true) left.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		if ((leftIsCast = left instanceof CastExpression) == true) left.bits |= DisableUnnecessaryCastCheck; // will check later on
 		TypeBinding leftType = left.resolveType(scope);
 
-		if ((rightIsCast = right instanceof CastExpression) == true) right.bits |= IgnoreNeedForCastCheckMASK; // will check later on
+		if ((rightIsCast = right instanceof CastExpression) == true) right.bits |= DisableUnnecessaryCastCheck; // will check later on
 		TypeBinding rightType = right.resolveType(scope);
 
 		// use the id of the type to navigate into the table

@@ -140,7 +140,7 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 	public boolean visit(TypeDeclaration typeDeclaration, BlockScope unused) {
 		try {
 			char[] simpleName;
-			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {				
 				simpleName = CharOperation.NO_CHAR;
 			} else {
 				simpleName = typeDeclaration.name;
@@ -152,7 +152,7 @@ public class LocalDeclarationVisitor extends ASTVisitor {
 				occurrenceCount = occurrenceCount + 1;
 			}
 			occurrencesCounts.put(simpleName, occurrenceCount);
-			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {				
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {				
 				reportMatching(typeDeclaration, this.enclosingElement, -1, nodeSet, occurrenceCount);
 			} else {
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeDeclaration);
@@ -1295,9 +1295,9 @@ public SearchMatch newFieldReferenceMatch(
 		int length,
 		ASTNode reference) {
 	int bits = reference.bits;
-	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssignedMASK) != 0;
-	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) == 0;
-	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) != 0;
+	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssigned) != 0;
+	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) == 0;
+	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) != 0;
 	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
@@ -1313,9 +1313,9 @@ public SearchMatch newLocalVariableReferenceMatch(
 		int length,
 		ASTNode reference) {
 	int bits = reference.bits;
-	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssignedMASK) != 0;
-	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) == 0;
-	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssignedMASK) != 0;
+	boolean isCoupoundAssigned = (bits & ASTNode.IsCompoundAssigned) != 0;
+	boolean isReadAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) == 0;
+	boolean isWriteAccess = isCoupoundAssigned || (bits & ASTNode.IsStrictlyAssigned) != 0;
 	boolean insideDocComment = (bits & ASTNode.InsideJavadoc) != 0;
 	SearchParticipant participant = getParticipant(); 
 	IResource resource = this.currentPossibleMatch.resource;
@@ -1837,7 +1837,7 @@ protected void reportMatching(AbstractMethodDeclaration method, IJavaElement par
 	}
 
 	// handle nodes for the local type first
-	if ((method.bits & ASTNode.HasLocalTypeMASK) != 0) {
+	if ((method.bits & ASTNode.HasLocalType) != 0) {
 		if (enclosingElement == null)
 			enclosingElement = createHandle(method, parent);
 		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, method.binding, nodeSet);
@@ -2045,7 +2045,7 @@ protected void reportMatching(FieldDeclaration field, TypeDeclaration type, IJav
 	}
 
 	// handle the nodes for the local type first
-	if ((field.bits & ASTNode.HasLocalTypeMASK) != 0) {
+	if ((field.bits & ASTNode.HasLocalType) != 0) {
 		if (enclosingElement == null)
 			enclosingElement = createHandle(field, type, parent);
 		LocalDeclarationVisitor localDeclarationVisitor = new LocalDeclarationVisitor(enclosingElement, field.binding, nodeSet);
@@ -2178,7 +2178,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	}
 	
 	// super types
-	if ((type.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+	if ((type.bits & ASTNode.IsAnonymousType) != 0) {
 		TypeReference superType =type.allocation.type;
 		if (superType != null) {
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(superType);

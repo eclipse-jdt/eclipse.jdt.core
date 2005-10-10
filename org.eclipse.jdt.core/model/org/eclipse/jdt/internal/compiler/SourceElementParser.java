@@ -1157,7 +1157,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			superInterfacesLength = superInterfaces.length;
 			interfaceNames = new char[superInterfacesLength][];
 		} else {
-			if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+			if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 				// see PR 3442
 				QualifiedAllocationExpression alloc = typeDeclaration.allocation;
 				if (alloc != null && alloc.type != null) {
@@ -1274,7 +1274,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 	}
 }
 private int sourceEnd(TypeDeclaration typeDeclaration) {
-	if ((typeDeclaration.bits & ASTNode.IsAnonymousTypeMASK) != 0) {
+	if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 		QualifiedAllocationExpression allocation = typeDeclaration.allocation;
 		if (allocation.type == null) // case of enum constant body
 			return typeDeclaration.sourceEnd;
@@ -1485,7 +1485,7 @@ public void addUnknownRef(NameReference nameRef) {
 
 private void visitIfNeeded(AbstractMethodDeclaration method) {
 	if (this.localDeclarationVisitor != null 
-		&& (method.bits & ASTNode.HasLocalTypeMASK) != 0) {
+		&& (method.bits & ASTNode.HasLocalType) != 0) {
 			if (method instanceof ConstructorDeclaration) {
 				ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) method;
 				if (constructorDeclaration.constructorCall != null) {
@@ -1502,7 +1502,7 @@ private void visitIfNeeded(AbstractMethodDeclaration method) {
 
 private void visitIfNeeded(FieldDeclaration field, TypeDeclaration declaringType) {
 	if (this.localDeclarationVisitor != null 
-		&& (field.bits & ASTNode.HasLocalTypeMASK) != 0) {
+		&& (field.bits & ASTNode.HasLocalType) != 0) {
 			if (field.initialization != null) {
 				try {
 					this.localDeclarationVisitor.pushDeclaringType(declaringType);
@@ -1516,7 +1516,7 @@ private void visitIfNeeded(FieldDeclaration field, TypeDeclaration declaringType
 
 private void visitIfNeeded(Initializer initializer) {
 	if (this.localDeclarationVisitor != null 
-		&& (initializer.bits & ASTNode.HasLocalTypeMASK) != 0) {
+		&& (initializer.bits & ASTNode.HasLocalType) != 0) {
 			if (initializer.block != null) {
 				initializer.block.traverse(this.localDeclarationVisitor, null);
 			}

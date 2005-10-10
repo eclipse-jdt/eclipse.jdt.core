@@ -202,7 +202,7 @@ public class TypeDeclaration
 			return flowInfo;
 		try {
 			if (flowInfo.isReachable()) {
-				bits |= IsReachableMASK;
+				bits |= IsReachable;
 				LocalTypeBinding localType = (LocalTypeBinding) binding;
 				localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
 			}
@@ -245,7 +245,7 @@ public class TypeDeclaration
 			return;
 		try {
 			if (flowInfo.isReachable()) {
-				bits |= IsReachableMASK;
+				bits |= IsReachable;
 				LocalTypeBinding localType = (LocalTypeBinding) binding;
 				localType.setConstantPoolName(currentScope.compilationUnitScope().computeConstantPoolName(localType));
 			}
@@ -333,7 +333,7 @@ public class TypeDeclaration
 		constructor.selector = this.name;
 		if (modifiers != AccDefault) {
 			constructor.modifiers =
-				(((this.bits & ASTNode.IsMemberTypeMASK) != 0) && (modifiers & AccPrivate) != 0)
+				(((this.bits & ASTNode.IsMemberType) != 0) && (modifiers & AccPrivate) != 0)
 					? AccDefault
 					: modifiers & AccVisibilityMASK;
 		}
@@ -598,7 +598,7 @@ public class TypeDeclaration
 	 */
 	public void generateCode(BlockScope blockScope, CodeStream codeStream) {
 
-		if ((this.bits & IsReachableMASK) == 0) {
+		if ((this.bits & IsReachable) == 0) {
 			return;
 		}		
 		if (hasBeenGenerated) return;
@@ -651,7 +651,7 @@ public class TypeDeclaration
 				FieldDeclaration field = fields[i];
 				if (field.isStatic()) {
 					if (!staticFieldInfo.isReachable())
-						field.bits &= ~ASTNode.IsReachableMASK;
+						field.bits &= ~ASTNode.IsReachable;
 					
 					/*if (field.isField()){
 						staticInitializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
@@ -671,7 +671,7 @@ public class TypeDeclaration
 					}
 				} else {
 					if (!nonStaticFieldInfo.isReachable())
-						field.bits &= ~ASTNode.IsReachableMASK;
+						field.bits &= ~ASTNode.IsReachable;
 					
 					/*if (field.isField()){
 						initializerContext.handledExceptions = NoExceptions; // no exception is allowed jls8.3.2
@@ -812,7 +812,7 @@ public class TypeDeclaration
 	public final boolean needClassInitMethod() {
 
 		// always need a <clinit> when assertions are present
-		if ((this.bits & AddAssertionMASK) != 0)
+		if ((this.bits & ContainsAssertion) != 0)
 			return true;
 		if (fields == null)
 			return false;
@@ -873,7 +873,7 @@ public class TypeDeclaration
 		if (this.javadoc != null) {
 			this.javadoc.print(indent, output);
 		}
-		if ((this.bits & IsAnonymousTypeMASK) == 0) {
+		if ((this.bits & IsAnonymousType) == 0) {
 			printIndent(indent, output);
 			printHeader(0, output);
 		}
@@ -983,7 +983,7 @@ public class TypeDeclaration
 				this.staticInitializerScope.insideTypeAnnotation = old;
 			}
 			
-			if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
+			if ((this.bits & UndocumentedEmptyBlock) != 0) {
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd);
 			}
 			boolean needSerialVersion = 
@@ -1101,7 +1101,7 @@ public class TypeDeclaration
 		// local type declaration
 
 		// need to build its scope first and proceed with binding's creation
-		if ((this.bits & IsAnonymousTypeMASK) == 0) blockScope.addLocalType(this);
+		if ((this.bits & IsAnonymousType) == 0) blockScope.addLocalType(this);
 
 		if (binding != null) {
 			// remember local types binding for innerclass emulation propagation

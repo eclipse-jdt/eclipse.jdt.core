@@ -205,7 +205,7 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		}
 		return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
-	if ((typeDeclaration.bits & ASTNode.IsLocalTypeMASK) != 0){
+	if ((typeDeclaration.bits & ASTNode.IsLocalType) != 0){
 		if (methodBody == null){
 			Block block = new Block(0);
 			block.sourceStart = methodDeclaration.bodyStart;
@@ -311,7 +311,7 @@ public AbstractMethodDeclaration updatedMethodDeclaration(){
 			}
 		}
 	}
-	if (localTypeCount > 0) methodDeclaration.bits |= ASTNode.HasLocalTypeMASK;
+	if (localTypeCount > 0) methodDeclaration.bits |= ASTNode.HasLocalType;
 	return methodDeclaration;
 }
 /*

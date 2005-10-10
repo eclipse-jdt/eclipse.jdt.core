@@ -417,7 +417,7 @@ public abstract class AbstractMethodDeclaration
 			for (int i = 0, length = this.statements.length; i < length; i++) {
 				this.statements[i].resolve(this.scope);
 			}
-		} else if ((this.bits & UndocumentedEmptyBlockMASK) != 0) {
+		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 		}
 	}

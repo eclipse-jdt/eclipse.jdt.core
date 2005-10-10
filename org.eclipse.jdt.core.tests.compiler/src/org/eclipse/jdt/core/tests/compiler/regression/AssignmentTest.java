@@ -1315,6 +1315,7 @@ public void test034() {
 /*
  * Check scenario:  i = i++
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=84480
+ * disabled: https://bugs.eclipse.org/bugs/show_bug.cgi?id=111898
  */
 public void test035() {
 	this.runNegativeTest(
@@ -1327,19 +1328,15 @@ public void test035() {
 			"		i = ++i;\n" + 
 			"		f = f++;\n" + 
 			"		f = ++f;\n" + 
+			"		Zork z;" +
 			"	}\n" + 
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	i = i++;\n" + 
-		"	^^^^^^^\n" + 
-		"The assignment to variable i has no effect\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	f = f++;\n" + 
-		"	^^^^^^^\n" + 
-		"The assignment to variable f has no effect\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	Zork z;	}\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
 public void test036() {
@@ -1455,6 +1452,25 @@ public void test038() {
 		"	                                        ^\n" + 
 		"The parameter e is hiding another local variable defined in an enclosing type scope\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=111898
+public void test039() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int a = 1;\n" + 
+			"	    a = a++;\n" + 
+			"		System.out.print(\"a=\"+a);\n" + 
+			"		\n" + 
+			"		int b = 1;\n" + 
+			"		System.out.print(b = b++);\n" + 
+			"		System.out.println(\"b=\"+b);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"a=11b=1");
 }
 public static Class testClass() {
 	return AssignmentTest.class;
