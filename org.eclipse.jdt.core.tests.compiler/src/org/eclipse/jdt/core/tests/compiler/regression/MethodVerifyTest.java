@@ -4236,4 +4236,34 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107045
+	public void test071() {
+		this.runNegativeTest(
+			new String[] {
+				"D.java",
+				"class D extends B<Integer> {\n" +
+				"	@Override void m(Number t) {}\n" + 
+				"	@Override void m(Integer t) {}\n" + 
+				"}\n" + 
+				"class A<T extends Number> { void m(T t) {} }\n" +
+				"class B<S extends Integer> extends A<S> { @Override void m(S t) {} }"
+			},
+			"----------\n" + 
+			"1. ERROR in D.java (at line 2)\r\n" + 
+			"	@Override void m(Number t) {}\r\n" + 
+			"	               ^^^^^^^^^^^\n" + 
+			"Name clash: The method m(Number) of type D has the same erasure as m(T) of type A<T> but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in D.java (at line 2)\r\n" + 
+			"	@Override void m(Number t) {}\r\n" + 
+			"	               ^^^^^^^^^^^\n" + 
+			"The method m(Number) of type D must override a superclass method\n" + 
+			"----------\n" + 
+			"3. WARNING in D.java (at line 6)\r\n" + 
+			"	class B<S extends Integer> extends A<S> { @Override void m(S t) {} }\r\n" + 
+			"	                  ^^^^^^^\n" + 
+			"The type parameter S should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+			"----------\n"
+		);
+	}
 }
