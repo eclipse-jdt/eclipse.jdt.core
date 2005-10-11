@@ -185,9 +185,6 @@ public final class CharOperation {
 	 * The pattern may contain trailing lowercase characters, which will be match in a case sensitive way. These characters must
 	 * appear in sequence in the name, after the last matching capital of the pattern. For instance, 'NPExcep' will match
 	 * 'NullPointerException', but not 'NullPointerExCEPTION'.
-	 * <br>
-	 * Note: in the event no portion of the pattern can be matched using CamelCase rules, then the matching algorithm will revert
-	 * to a case insensitive prefix matching. Thus 'npe' will still be able to match 'NPending'.
 	 * 
 	 * For example:
 	 * <ol>
@@ -235,9 +232,6 @@ public final class CharOperation {
 	 * The pattern may contain trailing lowercase characters, which will be match in a case sensitive way. These characters must
 	 * appear in sequence in the name, after the last matching capital of the pattern. For instance, 'NPExcep' will match
 	 * 'NullPointerException', but not 'NullPointerExCEPTION'.
-	 * <br>
-	 * Note: in the event no portion of the pattern can be matched using CamelCase rules, then the matching algorithm will revert
-	 * to a case insensitive prefix matching. Thus 'npe' will still be able to match 'NPending'.
 	 * 
 	 * For example:
 	 * <ol>
@@ -318,14 +312,10 @@ public final class CharOperation {
 			continue checkCamelCase;
 		}
 			
-		// check trailing part
-		//	case insensitive if no portion of pattern did match: npe --> NPExtension, or if pattern was lowercased
-		boolean isCaseSensitive = iPattern > 0 && Character.isUpperCase(pattern[0]);
+		// check trailing part in case sensitive way
 		while (iPattern < patternEnd && iName < nameEnd) {
-			if ((patternChar = pattern[iPattern]) != (nameChar = name[iName])) {
-				if (isCaseSensitive || Character.toLowerCase(nameChar) != Character.toLowerCase(patternChar)) {
-					return false;
-				}
+			if (pattern[iPattern] != name[iName]) {
+				return false;
 			}
 			iPattern++;
 			iName++;

@@ -64,9 +64,6 @@ codeassist and search.
 * The pattern may contain trailing lowercase characters, which will be match in a case sensitive way. These characters must
 * appear in sequence in the name, after the last matching capital of the pattern. For instance, 'NPExcep' will match
 * 'NullPointerException', but not 'NullPointerExCEPTION'.
-*
-* Note: in the event no portion of the pattern can be matched using CamelCase rules, then the matching algorithm will revert
-* to a case insensitive prefix matching. Thus 'npe' will still be able to match 'NPending'.
 public static final boolean camelCaseMatch(char[] pattern, char[] name)
 public static final boolean camelCaseMatch(char[] pattern, int patternStart, int patternEnd, char[] name, int nameStart, int nameEnd)
 </pre>

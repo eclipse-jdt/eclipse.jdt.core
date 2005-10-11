@@ -447,7 +447,7 @@ public void test63() {
 	assertTrue("Camel pattern matching failure-3",
 			!CharOperation.camelCaseMatch("npe".toCharArray(), "NullPointerException".toCharArray()));
 	assertTrue("Camel pattern matching failure-4",
-			CharOperation.camelCaseMatch("npe".toCharArray(), "NPException".toCharArray()));
+			!CharOperation.camelCaseMatch("npe".toCharArray(), "NPException".toCharArray()));
 	assertTrue("Camel pattern matching failure-5",
 			CharOperation.camelCaseMatch("NPointerE".toCharArray(), "NullPointerException".toCharArray()));
 }
@@ -471,7 +471,7 @@ public void test65() {
 	assertTrue("Camel pattern matching failure-1",
 			CharOperation.camelCaseMatch("iSCDCo".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
 	assertTrue("Camel pattern matching failure-2",
-			CharOperation.camelCaseMatch("inVOke".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
+			!CharOperation.camelCaseMatch("inVOke".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
 	assertTrue("Camel pattern matching failure-3",
 			CharOperation.camelCaseMatch("i".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
 	assertTrue("Camel pattern matching failure-4",
