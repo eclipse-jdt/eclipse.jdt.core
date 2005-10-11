@@ -483,7 +483,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	Class value() default X.clazz();\n" + 
 			"	^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 2)\n" + 
 			"	Class value() default X.clazz();\n" + 
@@ -498,7 +498,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 8)\n" + 
 			"	static Class clazz() { return X.class; }\n" + 
 			"	       ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n");
 	}			
 	
@@ -1091,7 +1091,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 4)\n" + 
 			"	Class cls() default new Object();\n" + 
 			"	^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 4)\n" + 
 			"	Class cls() default new Object();\n" + 
@@ -3480,7 +3480,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"8. WARNING in X.java (at line 30)\n" + 
     		"	Class c = SubKlass.class;\n" + 
     		"	^^^^^\n" + 
-    		"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
     		"----------\n");
     }            
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=86291
@@ -3546,7 +3546,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"1. WARNING in X.java (at line 2)\n" + 
     		"	Class foo();\n" + 
     		"	^^^^^\n" + 
-    		"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
     		"----------\n" + 
     		"2. ERROR in X.java (at line 4)\n" + 
     		"	@Annot( foo = M.class )\n" + 
@@ -3579,7 +3579,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"1. WARNING in X.java (at line 2)\n" + 
     		"	Class foo();\n" + 
     		"	^^^^^\n" + 
-    		"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
     		"----------\n" + 
     		"2. ERROR in X.java (at line 5)\n" + 
     		"	@Annot(foo = M.class, bar = baz()+s)\n" + 
@@ -3983,7 +3983,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"1. WARNING in X.java (at line 4)\n" + 
     		"	void foo(List list) {\n" + 
     		"	         ^^^^\n" + 
-    		"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+    		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
     		"----------\n" + 
     		"2. WARNING in X.java (at line 5)\n" + 
     		"	List<String> ls1 = list;\n" + 
@@ -4119,7 +4119,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"3. WARNING in X.java (at line 8)\n" + 
     		"	List<X> l = new Vector();\n" + 
     		"	                ^^^^^^\n" + 
-    		"Type safety: Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
+    		"Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
     		"----------\n" + 
     		"4. WARNING in X.java (at line 12)\n" + 
     		"	} finally {\n" + 
@@ -4350,7 +4350,7 @@ public class AnnotationTest extends AbstractComparableTest {
     		"5. WARNING in X.java (at line 9)\n" + 
     		"	List<X> l = new Vector();\n" + 
     		"	                ^^^^^^\n" + 
-    		"Type safety: Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
+    		"Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
     		"----------\n" + 
     		"6. ERROR in X.java (at line 16)\n" + 
     		"	Zork z;\n" + 
@@ -4611,12 +4611,12 @@ public class AnnotationTest extends AbstractComparableTest {
     		"4. WARNING in X.java (at line 50)\n" + 
     		"	TestIntrospector(Class c) {}\n" + 
     		"	                 ^^^^^\n" + 
-    		"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
     		"----------\n" + 
     		"5. WARNING in X.java (at line 51)\n" + 
     		"	List validateTestMethods() { return null; }\n" + 
     		"	^^^^\n" + 
-    		"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+    		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
     		"----------\n");
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=89937

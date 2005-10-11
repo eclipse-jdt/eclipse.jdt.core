@@ -1009,7 +1009,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 4)\n" + 
 			"	void foo(L l){}\n" + 
 			"	         ^\n" + 
-			"Type safety: L is a raw type. References to generic type L<E> should be parameterized\n" + 
+			"L is a raw type. References to generic type L<E> should be parameterized\n" + 
 			"----------\n");
 	}
 	
@@ -1192,12 +1192,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 10)\n" + 
 			"	new X<X>(this) {\n" + 
 			"	      ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 14)\n" + 
 			"	X x = t;\n" + 
 			"	^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 14)\n" + 
 			"	X x = t;\n" + 
@@ -1266,7 +1266,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 3)\n" + 
 			"	class Y <T extends Y.M> extends Super {}\n" + 
 			"	                   ^^^\n" + 
-			"Type safety: Y.M is a raw type. References to generic type Super.M should be parameterized\n" + 
+			"Y.M is a raw type. References to generic type Super.M should be parameterized\n" + 
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=98504
@@ -1408,7 +1408,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 10)\n" + 
 			"	new X<X>(this) {\n" + 
 			"	      ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 14)\n" + 
 			"	print(X.this.t);\n" + 
@@ -1677,7 +1677,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	X x = new X(args);\n" + 
 			"	^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	X x = new X(args);\n" + 
@@ -1687,7 +1687,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	X x = new X(args);\n" + 
 			"	          ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 8)\n" + 
 			"	X<String> xs = new X<String>(args);\n" + 
@@ -1732,12 +1732,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	X x = new X();\n" + 
 			"	^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	X x = new X();\n" + 
 			"	          ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 10)\n" + 
 			"	x.t.foo();\n" + 
@@ -1768,17 +1768,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	X x = new X();\n" + 
 			"	^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 6)\n" + 
 			"	X x = new X();\n" + 
 			"	          ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	X x2 = xioe;\n" + 
 			"	^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	X<IOException> xioe2 = x; // unsafe\n" + 
@@ -2059,7 +2059,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X <T extends Object & p.A> extends p.A<T> {\n" + 
 			"	                                   ^^^\n" + 
-			"Type safety: A is a raw type. References to generic type A<P> should be parameterized\n" + 
+			"A is a raw type. References to generic type A<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X <T extends Object & p.A> extends p.A<T> {\n" + 
@@ -2108,17 +2108,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 12)\n" + 
 			"	X x = new X();\n" + 
 			"	^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 12)\n" + 
 			"	X x = new X();\n" + 
 			"	          ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 13)\n" + 
 			"	X x1 = new X(args);\n" + 
 			"	^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 13)\n" + 
 			"	X x1 = new X(args);\n" + 
@@ -2128,12 +2128,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"6. WARNING in X.java (at line 13)\n" + 
 			"	X x1 = new X(args);\n" + 
 			"	           ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 14)\n" + 
 			"	X x2 = new X(x);\n" + 
 			"	^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"8. WARNING in X.java (at line 14)\n" + 
 			"	X x2 = new X(x);\n" + 
@@ -2143,7 +2143,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"9. WARNING in X.java (at line 14)\n" + 
 			"	X x2 = new X(x);\n" + 
 			"	           ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"10. ERROR in X.java (at line 15)\n" + 
 			"	X<String> xs = new X<String>(args);\n" + 
@@ -2199,7 +2199,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	A a = new A((A)null);\n" + 
 			"	^\n" + 
-			"Type safety: A is a raw type. References to generic type A<P> should be parameterized\n" + 
+			"A is a raw type. References to generic type A<P> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
 			"	A a = new A((A)null);\n" + 
@@ -2209,7 +2209,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. WARNING in X.java (at line 9)\n" + 
 			"	A a = new A((A)null);\n" + 
 			"	          ^\n" + 
-			"Type safety: A is a raw type. References to generic type A<P> should be parameterized\n" + 
+			"A is a raw type. References to generic type A<P> should be parameterized\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 10)\n" + 
 			"	x.foo(a);\n" + 
@@ -2423,7 +2423,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	AX a = new AX((AX)null);\n" + 
 			"	^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 8)\n" + 
 			"	AX a = new AX((AX)null);\n" + 
@@ -2433,12 +2433,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. WARNING in X.java (at line 8)\n" + 
 			"	AX a = new AX((AX)null);\n" + 
 			"	           ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 9)\n" + 
 			"	AX a2 = new AX(null);\n" + 
 			"	^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 9)\n" + 
 			"	AX a2 = new AX(null);\n" + 
@@ -2448,7 +2448,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"8. WARNING in X.java (at line 9)\n" + 
 			"	AX a2 = new AX(null);\n" + 
 			"	            ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"9. WARNING in X.java (at line 10)\n" + 
 			"	x.foo(a);\n" + 
@@ -2478,7 +2478,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"14. WARNING in X.java (at line 22)\n" + 
 			"	void foo(AX rawAx){}\n" + 
 			"	         ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n");
 	}		
 
@@ -2526,17 +2526,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	AX ax = new AX();\n" + 
 			"	^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	AX ax = new AX();\n" + 
 			"	            ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	AX ax2 = ax.p;\n" + 
 			"	^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 6)\n" + 
 			"	ax.p = new AX<String>();\n" + 
@@ -2825,17 +2825,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	AX ax = new AX();\n" + 
 			"	^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	AX ax = new AX();\n" + 
 			"	            ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	AX ax2 = ax.p;\n" + 
 			"	^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 6)\n" + 
 			"	ax.p = new AX<String>();\n" + 
@@ -2911,7 +2911,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<? extends AX>(new AX<String>());\n" + 
 			"	            ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<? extends AX>(new AX<String>());\n" + 
@@ -2921,7 +2921,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<? extends AX>(new AX<String>());\n" + 
 			"	                                    ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n");	
 	}		
 
@@ -2962,7 +2962,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
 			"	            ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<String>>(new AX<String>());\n" + 
@@ -3008,7 +3008,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X <T extends AX> {\n" + 
 			"	                          ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	x.t.foo(\"SUCC\");\n" + 
@@ -3136,12 +3136,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X <T extends AX> {\n" + 
 			"	                          ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	X<? extends BX> x = new X<AX<String>>(new AX<String>());\n" + 
 			"	            ^^\n" + 
-			"Type safety: BX is a raw type. References to generic type BX<Q> should be parameterized\n" + 
+			"BX is a raw type. References to generic type BX<Q> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends BX> x = new X<AX<String>>(new AX<String>());\n" + 
@@ -3239,7 +3239,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	Iterable<String> is = new ArrayList();\n" + 
 			"	                          ^^^^^^^^^\n" + 
-			"Type safety: ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n",
 			null,
 			true,
@@ -3308,7 +3308,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X implements AX {}\n" + 
 			"	                          ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 2)\n" + 
 			"	class Y extends X implements AX<Thread> {}\n" + 
@@ -3334,7 +3334,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 2)\n" + 
 			"	class Y extends X implements AX {}\n" + 
 			"	                             ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n");		
 	}		
 	// test member types
@@ -3353,7 +3353,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
 			"	                            ^^^^^^^^\n" + 
-			"Type safety: X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
+			"X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
@@ -3368,7 +3368,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 2)\n" + 
 			"	void foo(X<Thread>.MX<String>.MMX<X> mx) {}\n" + 
 			"	                                  ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n");		
 		this.runNegativeTest(
 			new String[] {
@@ -3383,7 +3383,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
 			"	                            ^^^^^^^^\n" + 
-			"Type safety: X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
+			"X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
@@ -3398,7 +3398,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 2)\n" + 
 			"	class MX <MT extends Comparable> {\n" + 
 			"	                     ^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
@@ -3413,7 +3413,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
 			"	                            ^^^^^^^^\n" + 
-			"Type safety: X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
+			"X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
@@ -3428,7 +3428,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 3)\n" + 
 			"	class MMX <MMT extends Comparable> {}\n" + 
 			"	                       ^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n");
 	}			
 	public void test113() {
@@ -3528,7 +3528,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
 			"	                            ^^^^^^^^\n" + 
-			"Type safety: X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
+			"X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X <T extends X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>{\n" + 
@@ -3543,12 +3543,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 4)\n" + 
 			"	new X<X<X.MX.MMX>.MX<Runnable>.MMX<Iterable<String>>>().new MX<Exception>();\n" + 
 			"	        ^^^^^^^^\n" + 
-			"Type safety: X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
+			"X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 7)\n" + 
 			"	void foo(X<X.MX.MMX>.MX<X>.MMX<X> mx) {\n" + 
 			"	           ^^^^^^^^\n" + 
-			"Type safety: X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
+			"X.MX.MMX is a raw type. References to generic type X<T>.MX<MT>.MMX<MMT> should be parameterized\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 7)\n" + 
 			"	void foo(X<X.MX.MMX>.MX<X>.MMX<X> mx) {\n" + 
@@ -3558,12 +3558,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"7. WARNING in X.java (at line 7)\n" + 
 			"	void foo(X<X.MX.MMX>.MX<X>.MMX<X> mx) {\n" + 
 			"	                        ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"8. WARNING in X.java (at line 7)\n" + 
 			"	void foo(X<X.MX.MMX>.MX<X>.MMX<X> mx) {\n" + 
 			"	                               ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n");		
 	}				
 	// test generic method with recursive parameter bound <T extends Comparable<? super T>>
@@ -3808,7 +3808,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	Class c1 = x.getClass();\n" + 
 			"	^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	Class<? extends X> c3 = s.getClass();\n" + 
@@ -3843,7 +3843,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	Class c1 = xy.getClass();\n" + 
 			"	^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	Class<? extends XY> c3 = s.getClass();\n" + 
@@ -4227,7 +4227,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	void bar(X<? extends X> x) {\n" + 
 			"	                     ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 10)\n" + 
 			"	x = identity(x);\n" + 
@@ -4444,7 +4444,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	<T extends X> X(T[] ta, List<T> lt) {\n" + 
 			"	           ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<E> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 8)\n" + 
 			"	new X<Object>(args, new ArrayList<String>());\n" + 
@@ -4892,7 +4892,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	           ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<E,F> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<E,F> should be parameterized\n" + 
 			"----------\n");
 	}		
 	public void test169() {
@@ -4935,7 +4935,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	return new AX(\"SUCCESS\");\n" + 
 			"	           ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<E> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<E> should be parameterized\n" + 
 			"----------\n");
 	}
 	// Expected type inference for cast operation
@@ -5142,7 +5142,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	return new Vector();\n" + 
 			"	           ^^^^^^\n" + 
-			"Type safety: Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
+			"Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 10)\n" + 
 			"	Vector<Object> v = (Vector<Object>) data.elementAt(0);\n" + 
@@ -5418,7 +5418,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"9. WARNING in X.java (at line 24)\n" + 
 			"	abstract class Z3 extends Hashtable {\n" + 
 			"	                          ^^^^^^^^^\n" + 
-			"Type safety: Hashtable is a raw type. References to generic type Hashtable<K,V> should be parameterized\n" + 
+			"Hashtable is a raw type. References to generic type Hashtable<K,V> should be parameterized\n" + 
 			"----------\n" + 
 			"10. WARNING in X.java (at line 27)\n" + 
 			"	Object a7 = (Hashtable<String,Integer>) z3;\n" + 
@@ -6392,17 +6392,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	= new HashMap<String, Class>();\n" + 
 			"	                      ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 17)\n" + 
 			"	MX<Class> mx2 = new MX<Class>();\n" + 
 			"	   ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 17)\n" + 
 			"	MX<Class> mx2 = new MX<Class>();\n" + 
 			"	                       ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 18)\n" + 
 			"	mx1.foo(mx2.get());\n" + 
@@ -6437,7 +6437,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in test\\cheetah\\NG.java (at line 2)\n" + 
 			"	public class NG extends G {\n" + 
 			"	                        ^\n" + 
-			"Type safety: G is a raw type. References to generic type G<E> should be parameterized\n" + 
+			"G is a raw type. References to generic type G<E> should be parameterized\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. ERROR in test\\cheetah\\G.java (at line 2)\n" + 
@@ -6535,7 +6535,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	List list() { return null; }\n" + 
 			"	^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	void m() { List<X> l = (List<X>)list(); } // unsafe cast\n" + 
@@ -6565,12 +6565,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"7. WARNING in X.java (at line 8)\n" + 
 			"	void m3() { Collection c = null; List l = (List<X>)c; } // unsafe cast\n" + 
 			"	            ^^^^^^^^^^\n" + 
-			"Type safety: Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n" + 
 			"8. WARNING in X.java (at line 8)\n" + 
 			"	void m3() { Collection c = null; List l = (List<X>)c; } // unsafe cast\n" + 
 			"	                                 ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"9. WARNING in X.java (at line 8)\n" + 
 			"	void m3() { Collection c = null; List l = (List<X>)c; } // unsafe cast\n" + 
@@ -6580,22 +6580,22 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"10. WARNING in X.java (at line 9)\n" + 
 			"	void m4() { Collection c = null; List l = (List<?>)c; } // ok\n" + 
 			"	            ^^^^^^^^^^\n" + 
-			"Type safety: Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n" + 
 			"11. WARNING in X.java (at line 9)\n" + 
 			"	void m4() { Collection c = null; List l = (List<?>)c; } // ok\n" + 
 			"	                                 ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"12. WARNING in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
 			"	            ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"13. WARNING in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
 			"	                           ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"14. WARNING in X.java (at line 10)\n" + 
 			"	void m5() { List c = null; List l = (Collection<X>)c; } // type mismatch\n" + 
@@ -6610,12 +6610,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"16. WARNING in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
 			"	            ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"17. WARNING in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
 			"	                           ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"18. ERROR in X.java (at line 11)\n" + 
 			"	void m6() { List c = null; List l = (Collection<?>)c; } // type mismatch\n" + 
@@ -7005,12 +7005,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	private static final Map<String, Class> classes = new HashMap<String, Class>();\n" + 
 			"	                                 ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	private static final Map<String, Class> classes = new HashMap<String, Class>();\n" + 
 			"	                                                                      ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
@@ -7109,12 +7109,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	X rx = new X();\n" + 
 			"	^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	X rx = new X();\n" + 
 			"	           ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	rx.foo(\"hello\");\n" + 
@@ -7142,12 +7142,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	X rx = new X();\n" + 
 			"	^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	X rx = new X();\n" + 
 			"	           ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	rx.<String>foo(\"hello\");\n" + 
@@ -7177,7 +7177,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	MX<Class<? extends Object>> mx2 = new MX<Class>();\n" + 
 			"	                                         ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n");
 	}		
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69320 variation
@@ -7209,7 +7209,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 3)\n" + 
 			"	MX<Class<? extends Object>> mx2 = new MX<Class>(); // wrong\n" + 
 			"	                                         ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 4)\n" + 
 			"	MX<Class<? extends Object>> mx3 = new MX<Class<? extends String>>(); // wrong\n" + 
@@ -7224,27 +7224,27 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. WARNING in X.java (at line 6)\n" + 
 			"	MX<? extends Class> mx5 = new MX<Class>(); // ok\n" + 
 			"	             ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 6)\n" + 
 			"	MX<? extends Class> mx5 = new MX<Class>(); // ok\n" + 
 			"	                                 ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 7)\n" + 
 			"	MX<? super Class> mx6 = new MX<Class>(); // ok\n" + 
 			"	           ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"8. WARNING in X.java (at line 7)\n" + 
 			"	MX<? super Class> mx6 = new MX<Class>(); // ok\n" + 
 			"	                               ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"9. WARNING in X.java (at line 8)\n" + 
 			"	MX<Class<? extends Class>> mx7 = new MX<Class<Class>>(); // wrong\n" + 
 			"	                   ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"10. ERROR in X.java (at line 8)\n" + 
 			"	MX<Class<? extends Class>> mx7 = new MX<Class<Class>>(); // wrong\n" + 
@@ -7254,12 +7254,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"11. WARNING in X.java (at line 8)\n" + 
 			"	MX<Class<? extends Class>> mx7 = new MX<Class<Class>>(); // wrong\n" + 
 			"	                                              ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"12. WARNING in X.java (at line 9)\n" + 
 			"	MX<MX<? extends Class>> mx8 = new MX<MX<Class>>(); // wrong\n" + 
 			"	                ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"13. ERROR in X.java (at line 9)\n" + 
 			"	MX<MX<? extends Class>> mx8 = new MX<MX<Class>>(); // wrong\n" + 
@@ -7269,7 +7269,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"14. WARNING in X.java (at line 9)\n" + 
 			"	MX<MX<? extends Class>> mx8 = new MX<MX<Class>>(); // wrong\n" + 
 			"	                                        ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n");
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70247 check type variable is bound during super type resolution
@@ -7631,7 +7631,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 5)\n" + 
 			"	XC<?> xcu2 = (XC<? extends X>) new X<E>();						\n" + 
 			"	                           ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<E> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<E> should be parameterized\n" + 
 			"----------\n");
 	}		
 	public void test266() {
@@ -7679,7 +7679,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	ArrayList<X> list = new ArrayList();\n" + 
 			"	          ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	ArrayList<X> list = new ArrayList();\n" + 
@@ -7689,7 +7689,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 4)\n" + 
 			"	ArrayList<X> list = new ArrayList();\n" + 
 			"	                        ^^^^^^^^^\n" + 
-			"Type safety: ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70975 - test compilation against binary generic method
@@ -7816,12 +7816,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public List useList(List l) {\n" + 
 			"	       ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 3)\n" + 
 			"	public List useList(List l) {\n" + 
 			"	                    ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 4)\n" + 
 			"	l.add(\"asdf\");\n" + 
@@ -7862,7 +7862,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	public List useList(List l) {\n" + 
 			"	       ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	public List useList(List l) {\n" + 
@@ -7872,7 +7872,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	public List useList(List l) {\n" + 
 			"	                    ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 10)\n" + 
 			"	l.add(\"asdf\");\n" + 
@@ -7899,7 +7899,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public void useList(List l) {}\n" + 
 			"	                    ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	public void useList(List<String> l) {\n" + 
@@ -7931,7 +7931,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 6)\n" + 
 			"	public void useList(List l) {\n" + 
 			"	                    ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	super.useList(l);\n" + 
@@ -7978,7 +7978,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 2)\n" + 
 			"	public Class getSomething() { return null; }\n" + 
 			"	       ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=62822
@@ -8009,7 +8009,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 2)\n" + 
 			"	interface Y<T3 extends Comparable> {}\n" + 
 			"	                       ^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n");
 	}	
 	public void test282() {
@@ -8236,12 +8236,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X <T extends Iterable>{\n" + 
 			"	                          ^^^^^^^^\n" + 
-			"Type safety: Iterable is a raw type. References to generic type Iterable<T> should be parameterized\n" + 
+			"Iterable is a raw type. References to generic type Iterable<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 2)\n" + 
 			"	class MX<U extends Iterable> {\n" + 
 			"	                   ^^^^^^^^\n" + 
-			"Type safety: Iterable is a raw type. References to generic type Iterable<T> should be parameterized\n" + 
+			"Iterable is a raw type. References to generic type Iterable<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
 			"	class SX extends X<Thread>.MX<Object> {\n" + 
@@ -8256,7 +8256,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. WARNING in X.java (at line 6)\n" + 
 			"	SX(X x){\n" + 
 			"	   ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n");
 	}		
 	public void test292() {
@@ -8367,12 +8367,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
 			"	    ^\n" + 
-			"Type safety: B is a raw type. References to generic type B<X> should be parameterized\n" + 
+			"B is a raw type. References to generic type B<X> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
 			"	                        ^\n" + 
-			"Type safety: B is a raw type. References to generic type B<X> should be parameterized\n" + 
+			"B is a raw type. References to generic type B<X> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
@@ -8382,13 +8382,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. WARNING in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
 			"	                                             ^\n" + 
-			"Type safety: B is a raw type. References to generic type B<X> should be parameterized\n" + 
+			"B is a raw type. References to generic type B<X> should be parameterized\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. WARNING in B.java (at line 3)\n" + 
 			"	B<B<D>> start() { return null; }\n" + 
 			"	    ^\n" + 
-			"Type safety: D is a raw type. References to generic type D<Y> should be parameterized\n" + 
+			"D is a raw type. References to generic type D<Y> should be parameterized\n" + 
 			"----------\n");
 	}
 	// static method #start() gets its type does not get substituted when accessed through raw type
@@ -8419,7 +8419,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
 			"	    ^\n" + 
-			"Type safety: B is a raw type. References to generic type B<X> should be parameterized\n" + 
+			"B is a raw type. References to generic type B<X> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
@@ -8429,7 +8429,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
 			"	                        ^\n" + 
-			"Type safety: B is a raw type. References to generic type B<X> should be parameterized\n" + 
+			"B is a raw type. References to generic type B<X> should be parameterized\n" + 
 			"----------\n" + 
 			"5. ERROR in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
@@ -8444,13 +8444,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"7. WARNING in C.java (at line 4)\n" + 
 			"	new B().start().get(new B().start()).get(new B().start());\n" + 
 			"	                                             ^\n" + 
-			"Type safety: B is a raw type. References to generic type B<X> should be parameterized\n" + 
+			"B is a raw type. References to generic type B<X> should be parameterized\n" + 
 			"----------\n" + 
 			"----------\n" + 
 			"1. WARNING in B.java (at line 3)\n" + 
 			"	static B<B<D>> start() { return null; }\n" + 
 			"	           ^\n" + 
-			"Type safety: D is a raw type. References to generic type D<Y> should be parameterized\n" + 
+			"D is a raw type. References to generic type D<Y> should be parameterized\n" + 
 			"----------\n");
 	}
 	public void test297() {
@@ -8934,7 +8934,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public class X <E extends List & Runnable> {\n" + 
 			"	                          ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	xe.element().add(this);\n" + 
@@ -8954,7 +8954,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. WARNING in X.java (at line 19)\n" + 
 			"	abstract class XM implements List, Runnable {}\n" + 
 			"	                             ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 20)\n" + 
 			"	Zork z;\n" + 
@@ -8992,7 +8992,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public class X <E extends List & Runnable> {\n" + 
 			"	                          ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	xe.element().add(this);\n" + 
@@ -9160,12 +9160,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	G<String> g = new G();\n" + 
 			"	                  ^\n" + 
-			"Type safety: G is a raw type. References to generic type G<T> should be parameterized\n" + 
+			"G is a raw type. References to generic type G<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	G.Member gm = null;\n" + 
 			"	^^^^^^^^\n" + 
-			"Type safety: G.Member is a raw type. References to generic type G<T>.Member should be parameterized\n" + 
+			"G.Member is a raw type. References to generic type G<T>.Member should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 8)\n" + 
 			"	G<Thread>.Member gtm = gm;\n" + 
@@ -9246,17 +9246,17 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	X.Item k = new X.Item();\n" + 
 			"	^^^^^^\n" + 
-			"Type safety: X.Item is a raw type. References to generic type X<T>.Item<E> should be parameterized\n" + 
+			"X.Item is a raw type. References to generic type X<T>.Item<E> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	X.Item k = new X.Item();\n" + 
 			"	               ^^^^^^\n" + 
-			"Type safety: X.Item is a raw type. References to generic type X<T>.Item<E> should be parameterized\n" + 
+			"X.Item is a raw type. References to generic type X<T>.Item<E> should be parameterized\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 12)\n" + 
 			"	X.Item k = new X.Item();\n" + 
 			"	^^^^^^\n" + 
-			"Type safety: X.Item is a raw type. References to generic type X<T>.Item<E> should be parameterized\n" + 
+			"X.Item is a raw type. References to generic type X<T>.Item<E> should be parameterized\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 12)\n" + 
 			"	X.Item k = new X.Item();\n" + 
@@ -9266,7 +9266,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"7. WARNING in X.java (at line 12)\n" + 
 			"	X.Item k = new X.Item();\n" + 
 			"	               ^^^^^^\n" + 
-			"Type safety: X.Item is a raw type. References to generic type X<T>.Item<E> should be parameterized\n" + 
+			"X.Item is a raw type. References to generic type X<T>.Item<E> should be parameterized\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75400
@@ -9666,12 +9666,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	public <Type> Type myMethod(Object obj, Class type) {\n" + 
 			"	                                        ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	public static <Type> Type myStaticMethod(Object obj, Class type) {\n" + 
 			"	                                                     ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 15)\n" + 
 			"	return new MyClass().myMethod(this, IMyInterface.class);\n" + 
@@ -9681,7 +9681,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"5. WARNING in X.java (at line 15)\n" + 
 			"	return new MyClass().myMethod(this, IMyInterface.class);\n" + 
 			"	           ^^^^^^^\n" + 
-			"Type safety: MyClass is a raw type. References to generic type MyClass<Type> should be parameterized\n" + 
+			"MyClass is a raw type. References to generic type MyClass<Type> should be parameterized\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=77078
@@ -9891,7 +9891,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 7)\n" + 
 			"	static void foo(X x) {\n" + 
 			"	                ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	x.<Exception>bar(null);\n" + 
@@ -10034,7 +10034,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	static void foo(X x) {\n" + 
 			"	                ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
 			"	x.<Exception>bar(null);\n" + 
@@ -10456,7 +10456,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	void foo1(MX<Class<? extends Object>> target, MX<Class> value) {\n" + 
 			"	                                                 ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	target= value; // foo1 - wrong\n" + 
@@ -10481,32 +10481,32 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"6. WARNING in X.java (at line 15)\n" + 
 			"	void foo5(MX<? extends Class> target, MX<Class> value) {\n" + 
 			"	                       ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 15)\n" + 
 			"	void foo5(MX<? extends Class> target, MX<Class> value) {\n" + 
 			"	                                         ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"8. WARNING in X.java (at line 18)\n" + 
 			"	void foo6(MX<? super Class> target, MX<Class> value) {\n" + 
 			"	                     ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"9. WARNING in X.java (at line 18)\n" + 
 			"	void foo6(MX<? super Class> target, MX<Class> value) {\n" + 
 			"	                                       ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"10. WARNING in X.java (at line 21)\n" + 
 			"	void foo7(MX<Class<? extends Class>> target, MX<Class<Class>> value) {\n" + 
 			"	                             ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"11. WARNING in X.java (at line 21)\n" + 
 			"	void foo7(MX<Class<? extends Class>> target, MX<Class<Class>> value) {\n" + 
 			"	                                                      ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"12. ERROR in X.java (at line 22)\n" + 
 			"	target= value; // foo7 - wrong\n" + 
@@ -10516,12 +10516,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"13. WARNING in X.java (at line 24)\n" + 
 			"	void foo8(MX<MX<? extends Class>> target, MX<MX<Class>> value) {\n" + 
 			"	                          ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"14. WARNING in X.java (at line 24)\n" + 
 			"	void foo8(MX<MX<? extends Class>> target, MX<MX<Class>> value) {\n" + 
 			"	                                                ^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"15. ERROR in X.java (at line 25)\n" + 
 			"	target= value; // foo8 - wrong\n" + 
@@ -11571,7 +11571,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<Math>>(new AX<String>());\n" + 
 			"	            ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<Math>>(new AX<String>());\n" + 
@@ -11601,7 +11601,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<Math>>(new X<AX<String>>(null));\n" + 
 			"	            ^^\n" + 
-			"Type safety: AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
+			"AX is a raw type. References to generic type AX<P> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 7)\n" + 
 			"	X<? extends AX> x = new X<AX<Math>>(new X<AX<String>>(null));\n" + 
@@ -12123,7 +12123,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 3)\n" + 
 			"	return new X();\n" + 
 			"	           ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n");
 	}
 	
@@ -12352,7 +12352,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X5.java (at line 1)\n" + 
 			"	class X5 <T extends Y & Comparable<X5>> {}\n" + 
 			"	                                   ^^\n" + 
-			"Type safety: X5 is a raw type. References to generic type X5<T> should be parameterized\n" + 
+			"X5 is a raw type. References to generic type X5<T> should be parameterized\n" + 
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <X5> and <Y>
 		);
@@ -12372,7 +12372,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X6.java (at line 1)\n" + 
 			"	class X6 <T extends Y & Comparable<X6>> {}\n" + 
 			"	                                   ^^\n" + 
-			"Type safety: X6 is a raw type. References to generic type X6<T> should be parameterized\n" + 
+			"X6 is a raw type. References to generic type X6<T> should be parameterized\n" + 
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <X6> and <Y>
 		);
@@ -12392,7 +12392,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X7.java (at line 1)\n" + 
 			"	class X7 <T extends Comparable<Z> & Comparable<X7>> {}\n" + 
 			"	                                               ^^\n" + 
-			"Type safety: X7 is a raw type. References to generic type X7<T> should be parameterized\n" + 
+			"X7 is a raw type. References to generic type X7<T> should be parameterized\n" + 
 			"----------\n"
 			// Comparable cannot be inherited with different arguments: <Z> and <X7>
 		);
@@ -12637,7 +12637,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in orders\\impl\\IntegerOrder2.java (at line 10)\n" + 
 			"	public Comparable previous(Comparable arg0) {\n" + 
 			"	       ^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in orders\\impl\\IntegerOrder2.java (at line 10)\n" + 
 			"	public Comparable previous(Comparable arg0) {\n" + 
@@ -12647,12 +12647,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in orders\\impl\\IntegerOrder2.java (at line 10)\n" + 
 			"	public Comparable previous(Comparable arg0) {\n" + 
 			"	                           ^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in orders\\impl\\IntegerOrder2.java (at line 14)\n" + 
 			"	public Comparable next(Comparable arg0) {\n" + 
 			"	       ^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n" + 
 			"5. ERROR in orders\\impl\\IntegerOrder2.java (at line 14)\n" + 
 			"	public Comparable next(Comparable arg0) {\n" + 
@@ -12662,7 +12662,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"6. WARNING in orders\\impl\\IntegerOrder2.java (at line 14)\n" + 
 			"	public Comparable next(Comparable arg0) {\n" + 
 			"	                       ^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n"
 			// "*** public void Test.test1(): success*** public void Test.test2(): success*** public void Test.test3(): success*** public void Test.test4(): success"
 			// name clash: next(java.lang.Comparable) in orders.impl.IntegerOrder2 and next(E) in orders.DiscreteOrder<java.lang.Integer> have the same erasure, yet neither overrides the other
@@ -12793,7 +12793,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	class Concrete extends Composite {\n" + 
 			"	                       ^^^^^^^^^\n" + 
-			"Type safety: Composite is a raw type. References to generic type Composite<E> should be parameterized\n" + 
+			"Composite is a raw type. References to generic type Composite<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	Composite<Node> comp = new Concrete(); // unchecked cast\n" + 
@@ -13017,12 +13017,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 6)\n" + 
 			"	X.Inner d2 = new X.Inner();\n" + 
 			"	^^^^^^^\n" + 
-			"Type safety: X.Inner is a raw type. References to generic type X<A>.Inner<B> should be parameterized\n" + 
+			"X.Inner is a raw type. References to generic type X<A>.Inner<B> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 6)\n" + 
 			"	X.Inner d2 = new X.Inner();\n" + 
 			"	                 ^^^^^^^\n" + 
-			"Type safety: X.Inner is a raw type. References to generic type X<A>.Inner<B> should be parameterized\n" + 
+			"X.Inner is a raw type. References to generic type X<A>.Inner<B> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 7)\n" + 
 			"	X.Inner<Integer> d3 = new X.Inner<Integer>();\n" + 
@@ -13209,7 +13209,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X<T, U extends X> {\n" + 
 			"	                            ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T,U> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T,U> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	T x1= (T) objectArr;\n" + 
@@ -13339,12 +13339,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 16)\n" + 
 			"	void foo(A a, B b, C c){\n" + 
 			"	         ^\n" + 
-			"Type safety: A is a raw type. References to generic type A<E> should be parameterized\n" + 
+			"A is a raw type. References to generic type A<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 16)\n" + 
 			"	void foo(A a, B b, C c){\n" + 
 			"	              ^\n" + 
-			"Type safety: B is a raw type. References to generic type B<T> should be parameterized\n" + 
+			"B is a raw type. References to generic type B<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 18)\n" + 
 			"	Number n1= b.getOne(); // fails\n" + 
@@ -13418,12 +13418,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	Class<? extends Collection> c = param.getClass(); // ok\n" + 
 			"	                ^^^^^^^^^^\n" + 
-			"Type safety: Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	Class<? extends Collection> d = getClazz(); // ko\n" + 
 			"	                ^^^^^^^^^^\n" + 
-			"Type safety: Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 8)\n" + 
 			"	Class<? extends Collection> d = getClazz(); // ko\n" + 
@@ -13433,7 +13433,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"4. WARNING in X.java (at line 17)\n" + 
 			"	Class<? extends Collection> c = getClass(); // ok\n" + 
 			"	                ^^^^^^^^^^\n" + 
-			"Type safety: Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n");
 	}
 	
@@ -13687,12 +13687,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	Comparable s1 = choose(true, \"string\", new Integer(1));\n" + 
 			"	^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 11)\n" + 
 			"	Comparable s3 = choose(true, new Integer(1), new Float(2));\n" + 
 			"	^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 12)\n" + 
 			"	Cloneable s4 = choose(true, new Integer(1), new Float(2));\n" + 
@@ -14507,7 +14507,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	take(new A());\n" + 
 			"	         ^\n" + 
-			"Type safety: Super.A is a raw type. References to generic type Super<S>.A<E> should be parameterized\n" + 
+			"Super.A is a raw type. References to generic type Super<S>.A<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 14)\n" + 
 			"	Zork z;\n" + 
@@ -15143,17 +15143,17 @@ public void test500(){
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	public void test(List list,final Comparator comparator, X x) {\n" + 
 			"	                 ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 6)\n" + 
 			"	public void test(List list,final Comparator comparator, X x) {\n" + 
 			"	                                 ^^^^^^^^^^\n" + 
-			"Type safety: Comparator is a raw type. References to generic type Comparator<T> should be parameterized\n" + 
+			"Comparator is a raw type. References to generic type Comparator<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 6)\n" + 
 			"	public void test(List list,final Comparator comparator, X x) {\n" + 
 			"	                                                        ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<E> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<E> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 7)\n" + 
 			"	foo(list, comparator);\n" + 
@@ -15305,27 +15305,27 @@ public void test500(){
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	List<MyTigerSimpleObject> list = new ArrayList<MyTigerSimpleObject>();\n" + 
 			"	     ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: MyTigerSimpleObject is a raw type. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
+			"MyTigerSimpleObject is a raw type. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	List<MyTigerSimpleObject> list = new ArrayList<MyTigerSimpleObject>();\n" + 
 			"	                                               ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: MyTigerSimpleObject is a raw type. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
+			"MyTigerSimpleObject is a raw type. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	list.add(new MyTigerSimpleObject(\"a\"));\n" + 
 			"	             ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: MyTigerSimpleObject is a raw type. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
+			"MyTigerSimpleObject is a raw type. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 6)\n" + 
 			"	list.add(new MyTigerSimpleObject(\"b\"));\n" + 
 			"	             ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: MyTigerSimpleObject is a raw type. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
+			"MyTigerSimpleObject is a raw type. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 8)\n" + 
 			"	for (MyTigerSimpleObject so : list)\n" + 
 			"	     ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: MyTigerSimpleObject is a raw type. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
+			"MyTigerSimpleObject is a raw type. References to generic type MyTigerSimpleObject<E> should be parameterized\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 17)\n" + 
 			"	class TigerList<MyTigerSimpleObject> extends ArrayList<MyTigerSimpleObject> {\n" + 
@@ -15468,7 +15468,7 @@ public void test500(){
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	new X().new M(null) {\n" + 
 			"	            ^\n" + 
-			"Type safety: X.M is a raw type. References to generic type X.M<E> should be parameterized\n" + 
+			"X.M is a raw type. References to generic type X.M<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 4)\n" + 
 			"	new X().new M(null) {\n" + 
@@ -15708,7 +15708,7 @@ public void test500(){
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	static public <T extends Collection> void addAll(T a, T b) {\n" + 
 			"	                         ^^^^^^^^^^\n" + 
-			"Type safety: Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	a.addAll(b);\n" + 
@@ -15743,12 +15743,12 @@ public void test500(){
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	M m = new M();\n" + 
 			"	^\n" + 
-			"Type safety: X.M is a raw type. References to generic type X.M<T> should be parameterized\n" + 
+			"X.M is a raw type. References to generic type X.M<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 4)\n" + 
 			"	M m = new M();\n" + 
 			"	          ^\n" + 
-			"Type safety: X.M is a raw type. References to generic type X.M<T> should be parameterized\n" + 
+			"X.M is a raw type. References to generic type X.M<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	List<String> ls = m.list(); // rawified even though wasn\'t using T parameter\n" + 
@@ -15905,7 +15905,7 @@ public void test500(){
 			"1. WARNING in X.java (at line 2)\n" + 
 			"	public class X<T extends List> {\n" + 
 			"	                         ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	T t = new ArrayList(); // BUG!!!\n" + 
@@ -15915,7 +15915,7 @@ public void test500(){
 			"3. WARNING in X.java (at line 4)\n" + 
 			"	T t = new ArrayList(); // BUG!!!\n" + 
 			"	          ^^^^^^^^^\n" + 
-			"Type safety: ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
 	}	
 	
@@ -15948,17 +15948,17 @@ public void test500(){
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	abstract class Foo<T extends List>\n" + 
 			"	                             ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	List l = new LinkedList();\n" + 
 			"	^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 8)\n" + 
 			"	List l = new LinkedList();\n" + 
 			"	             ^^^^^^^^^^\n" + 
-			"Type safety: LinkedList is a raw type. References to generic type LinkedList<E> should be parameterized\n" + 
+			"LinkedList is a raw type. References to generic type LinkedList<E> should be parameterized\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 9)\n" + 
 			"	foo(l); // BUG!!!\n" + 
@@ -15968,7 +15968,7 @@ public void test500(){
 			"5. WARNING in X.java (at line 13)\n" + 
 			"	public class X extends Foo<ArrayList>\n" + 
 			"	                           ^^^^^^^^^\n" + 
-			"Type safety: ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n" + 
 			"6. WARNING in X.java (at line 15)\n" + 
 			"	void foo(ArrayList l)\n" + 
@@ -15978,7 +15978,7 @@ public void test500(){
 			"7. WARNING in X.java (at line 15)\n" + 
 			"	void foo(ArrayList l)\n" + 
 			"	         ^^^^^^^^^\n" + 
-			"Type safety: ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
 	}		
 	
@@ -16062,12 +16062,12 @@ public void test500(){
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	Class c = Foo.class;\n" + 
 			"	^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
 			"	        ^^^^\n" + 
-			"Type safety: Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
+			"Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 10)\n" + 
 			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
@@ -16176,7 +16176,7 @@ public void test500(){
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	Class c = Foo.class;\n" + 
 			"	^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<?> eSet = EnumSet.allOf(c);\n" + 
@@ -16216,7 +16216,7 @@ public void test500(){
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	Class c = Foo.class;\n" + 
 			"	^^^^^\n" + 
-			"Type safety: Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	EnumSet<Enum<?>> eSet = EnumSet.allOf(c);\n" + 
@@ -16275,12 +16275,12 @@ public void test500(){
 			"2. WARNING in X.java (at line 13)\n" + 
 			"	B b = new B();\n" + 
 			"	^\n" + 
-			"Type safety: X.B is a raw type. References to generic type X.B<C> should be parameterized\n" + 
+			"X.B is a raw type. References to generic type X.B<C> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 13)\n" + 
 			"	B b = new B();\n" + 
 			"	          ^\n" + 
-			"Type safety: X.B is a raw type. References to generic type X.B<C> should be parameterized\n" + 
+			"X.B is a raw type. References to generic type X.B<C> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 14)\n" + 
 			"	I2 v = b.willBe(I2.class);\n" + 
@@ -16401,12 +16401,12 @@ public void test500(){
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	Vector b = new Vector();\n" + 
 			"	^^^^^^\n" + 
-			"Type safety: Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
+			"Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 6)\n" + 
 			"	Vector b = new Vector();\n" + 
 			"	               ^^^^^^\n" + 
-			"Type safety: Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
+			"Vector is a raw type. References to generic type Vector<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	b.add(new Object());\n" + 
@@ -16920,12 +16920,12 @@ public void test500(){
 			"2. WARNING in X.java (at line 14)\n" + 
 			"	Cell c= new Cell();\n" + 
 			"	^^^^\n" + 
-			"Type safety: Cell is a raw type. References to generic type Cell<T> should be parameterized\n" + 
+			"Cell is a raw type. References to generic type Cell<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 14)\n" + 
 			"	Cell c= new Cell();\n" + 
 			"	            ^^^^\n" + 
-			"Type safety: Cell is a raw type. References to generic type Cell<T> should be parameterized\n" + 
+			"Cell is a raw type. References to generic type Cell<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 15)\n" + 
 			"	c.setT(Boolean.FALSE); //javac: warning: [unchecked] unchecked\n" + 
@@ -17291,7 +17291,7 @@ public void test500(){
 			"4. WARNING in X.java (at line 8)\n" + 
 			"	doWithEnumClass((Class<Enum>) cl);\n" + 
 			"	                       ^^^^\n" + 
-			"Type safety: Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
+			"Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
 			"----------\n");	
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
@@ -17658,7 +17658,7 @@ public void test500(){
     		"1. WARNING in X.java (at line 6)\n" + 
     		"	boolean c = X.class == Long.class;\n" + 
     		"	            ^\n" + 
-    		"Type safety: X is a raw type. References to generic type X<S> should be parameterized\n" + 
+    		"X is a raw type. References to generic type X<S> should be parameterized\n" + 
     		"----------\n" + 
     		"2. ERROR in X.java (at line 6)\n" + 
     		"	boolean c = X.class == Long.class;\n" + 
@@ -17942,7 +17942,7 @@ public void test500(){
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	public class X implements Comparable {\n" + 
 			"	                          ^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	Zork z;\n" + 
@@ -17967,7 +17967,7 @@ public void test500(){
 			"6. WARNING in X.java (at line 21)\n" + 
 			"	static <T extends Comparable> void sort5(List<T> list) {}\n" + 
 			"	                  ^^^^^^^^^^\n" + 
-			"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 			"----------\n");
 	}		
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=90879 - variation
@@ -18003,7 +18003,7 @@ public void test500(){
     		"1. WARNING in X.java (at line 3)\n" + 
     		"	public class X implements Comparable {\n" + 
     		"	                          ^^^^^^^^^^\n" + 
-    		"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+    		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
     		"----------\n" + 
     		"2. ERROR in X.java (at line 5)\n" + 
     		"	Zork z;\n" + 
@@ -18013,7 +18013,7 @@ public void test500(){
     		"3. WARNING in X.java (at line 7)\n" + 
     		"	List<MyEnum> le = null;\n" + 
     		"	     ^^^^^^\n" + 
-    		"Type safety: MyEnum is a raw type. References to generic type MyEnum<E> should be parameterized\n" + 
+    		"MyEnum is a raw type. References to generic type MyEnum<E> should be parameterized\n" + 
     		"----------\n" + 
     		"4. WARNING in X.java (at line 8)\n" + 
     		"	sort6(le);\n" + 
@@ -18033,7 +18033,7 @@ public void test500(){
     		"7. WARNING in X.java (at line 21)\n" + 
     		"	static <T extends MyEnum> void sort10(List<T> list) {}\n" + 
     		"	                  ^^^^^^\n" + 
-    		"Type safety: MyEnum is a raw type. References to generic type MyEnum<E> should be parameterized\n" + 
+    		"MyEnum is a raw type. References to generic type MyEnum<E> should be parameterized\n" + 
     		"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=85281 - variation
@@ -18204,12 +18204,12 @@ public void test500(){
     		"1. WARNING in X.java (at line 10)\n" + 
     		"	List<Comparable> lComp = new ArrayList<Comparable> ();\n" + 
     		"	     ^^^^^^^^^^\n" + 
-    		"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+    		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
     		"----------\n" + 
     		"2. WARNING in X.java (at line 10)\n" + 
     		"	List<Comparable> lComp = new ArrayList<Comparable> ();\n" + 
     		"	                                       ^^^^^^^^^^\n" + 
-    		"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+    		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
     		"----------\n" + 
     		"3. WARNING in X.java (at line 11)\n" + 
     		"	Collections.sort (lComp);		\n" + 
@@ -18245,7 +18245,7 @@ public void test500(){
     		"1. WARNING in Ball.java (at line 2)\n" + 
     		"	class Ball implements Comparable {\n" + 
     		"	                      ^^^^^^^^^^\n" + 
-    		"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+    		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
     		"----------\n" + 
     		"2. WARNING in Ball.java (at line 10)\n" + 
     		"	Collections.sort(foo);\n" + 
@@ -18413,7 +18413,7 @@ public void test500(){
     		"3. WARNING in Map.java (at line 10)\n" + 
     		"	void b(Entry e) { } // OK\n" + 
     		"	       ^^^^^\n" + 
-    		"Type safety: Map.Entry is a raw type. References to generic type Map<M>.Entry<E> should be parameterized\n" + 
+    		"Map.Entry is a raw type. References to generic type Map<M>.Entry<E> should be parameterized\n" + 
     		"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
@@ -18492,7 +18492,7 @@ public void test500(){
     		"2. WARNING in Map.java (at line 10)\n" + 
     		"	void b(Entry e) { } // OK\n" + 
     		"	       ^^^^^\n" + 
-    		"Type safety: Map.Entry is a raw type. References to generic type Map<M>.Entry<E> should be parameterized\n" + 
+    		"Map.Entry is a raw type. References to generic type Map<M>.Entry<E> should be parameterized\n" + 
     		"----------\n");
 	}
 public void test617() {
@@ -18565,7 +18565,7 @@ public void test617() {
     		"5. WARNING in Map.java (at line 12)\n" + 
     		"	void b(Entry e) { } // OK\n" + 
     		"	       ^^^^^\n" + 
-    		"Type safety: Map.Entry is a raw type. References to generic type Map<M>.Entry<E> should be parameterized\n" + 
+    		"Map.Entry is a raw type. References to generic type Map<M>.Entry<E> should be parameterized\n" + 
     		"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89440	
@@ -19305,7 +19305,7 @@ public void test617() {
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	void bar(X x) {\n" + 
 			"	         ^\n" + 
-			"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	String str = x.foo(\"hello\");\n" + 
@@ -19374,17 +19374,17 @@ public void test617() {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	Outer.Inner inner = new Outer().new Inner();\n" + 
 			"	^^^^^^^^^^^\n" + 
-			"Type safety: Outer.Inner is a raw type. References to generic type Outer<T>.Inner should be parameterized\n" + 
+			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 3)\n" + 
 			"	Outer.Inner inner = new Outer().new Inner();\n" + 
 			"	                        ^^^^^\n" + 
-			"Type safety: Outer is a raw type. References to generic type Outer<T> should be parameterized\n" + 
+			"Outer is a raw type. References to generic type Outer<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 3)\n" + 
 			"	Outer.Inner inner = new Outer().new Inner();\n" + 
 			"	                                    ^^^^^\n" + 
-			"Type safety: Outer.Inner is a raw type. References to generic type Outer<T>.Inner should be parameterized\n" + 
+			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 4)\n" + 
 			"	X x = inner.setOuterT(new X());\n" + 
@@ -19429,17 +19429,17 @@ public void test617() {
 			"1. WARNING in X.java (at line 3)\n" + 
 			"	Outer.Inner inner = new Outer().new Inner();\n" + 
 			"	^^^^^^^^^^^\n" + 
-			"Type safety: Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
+			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 3)\n" + 
 			"	Outer.Inner inner = new Outer().new Inner();\n" + 
 			"	                        ^^^^^\n" + 
-			"Type safety: Outer is a raw type. References to generic type Outer<T> should be parameterized\n" + 
+			"Outer is a raw type. References to generic type Outer<T> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 3)\n" + 
 			"	Outer.Inner inner = new Outer().new Inner();\n" + 
 			"	                                    ^^^^^\n" + 
-			"Type safety: Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
+			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 4)\n" + 
 			"	X x = inner.set(new X());\n" + 
@@ -19481,7 +19481,7 @@ public void test617() {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	Outer.Inner inner = new Sub().get();\n" + 
 			"	^^^^^^^^^^^\n" + 
-			"Type safety: Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
+			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	Zork z;\n" + 
@@ -19491,12 +19491,12 @@ public void test617() {
 			"3. WARNING in X.java (at line 12)\n" + 
 			"	class Sub extends Outer {\n" + 
 			"	                  ^^^^^\n" + 
-			"Type safety: Outer is a raw type. References to generic type Outer<T> should be parameterized\n" + 
+			"Outer is a raw type. References to generic type Outer<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 13)\n" + 
 			"	Inner get() { return null; }\n" + 
 			"	^^^^^\n" + 
-			"Type safety: Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
+			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" + 
 			"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644 - variation	
@@ -19533,12 +19533,12 @@ public void test617() {
 			"3. WARNING in X.java (at line 12)\n" + 
 			"	class Sub extends Outer {\n" + 
 			"	                  ^^^^^\n" + 
-			"Type safety: Outer is a raw type. References to generic type Outer<T> should be parameterized\n" + 
+			"Outer is a raw type. References to generic type Outer<T> should be parameterized\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 13)\n" + 
 			"	Inner get() { return null; }\n" + 
 			"	^^^^^\n" + 
-			"Type safety: Outer.Inner is a raw type. References to generic type Outer<T>.Inner should be parameterized\n" + 
+			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner should be parameterized\n" + 
 			"----------\n");
 	}
 	
@@ -19655,7 +19655,7 @@ public void test617() {
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	static public <T extends Collection> void workaround(T a, T b) {\n" + 
 			"	                         ^^^^^^^^^^\n" + 
-			"Type safety: Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	a.addAll(b);\n" + 
@@ -19691,12 +19691,12 @@ public void test617() {
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	Map myMap = new HashMap();\n" + 
 			"	^^^\n" + 
-			"Type safety: Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
+			"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 5)\n" + 
 			"	Map myMap = new HashMap();\n" + 
 			"	                ^^^^^^^\n" + 
-			"Type safety: HashMap is a raw type. References to generic type HashMap<K,V> should be parameterized\n" + 
+			"HashMap is a raw type. References to generic type HashMap<K,V> should be parameterized\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 6)\n" + 
 			"	myMap.put(\"key1\", \"1\");\n" + 
@@ -19706,7 +19706,7 @@ public void test617() {
 			"4. WARNING in X.java (at line 8)\n" + 
 			"	for (Map.Entry e : myMap.entrySet())\n" + 
 			"	     ^^^^^^^^^\n" + 
-			"Type safety: Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
 			"----------\n" + 
 			"5. ERROR in X.java (at line 8)\n" + 
 			"	for (Map.Entry e : myMap.entrySet())\n" + 
@@ -19716,7 +19716,7 @@ public void test617() {
 			"6. WARNING in X.java (at line 10)\n" + 
 			"	Set<Map.Entry> set = myMap.entrySet();\n" + 
 			"	    ^^^^^^^^^\n" + 
-			"Type safety: Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 10)\n" + 
 			"	Set<Map.Entry> set = myMap.entrySet();\n" + 
@@ -19726,7 +19726,7 @@ public void test617() {
 			"8. WARNING in X.java (at line 11)\n" + 
 			"	for (Map.Entry e : set)\n" + 
 			"	     ^^^^^^^^^\n" + 
-			"Type safety: Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+			"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
 			"----------\n");
 	}			
 // javac incorrectly rejects the cast
@@ -20018,7 +20018,7 @@ public void test663() {
 		"2. WARNING in X.java (at line 8)\n" + 
 		"	List l = (List<U>) lv;\n" + 
 		"	^^^^\n" + 
-		"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 8)\n" + 
 		"	List l = (List<U>) lv;\n" + 
@@ -20033,7 +20033,7 @@ public void test663() {
 		"5. WARNING in X.java (at line 11)\n" + 
 		"	List l = (List<List<U>>) lv;\n" + 
 		"	^^^^\n" + 
-		"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
 		"6. WARNING in X.java (at line 11)\n" + 
 		"	List l = (List<List<U>>) lv;\n" + 
@@ -20123,7 +20123,7 @@ public void test666() {
 		"1. WARNING in X.java (at line 4)\n" + 
 		"	void foo(List<Object> objects, List raw) {\n" + 
 		"	                               ^^^^\n" + 
-		"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 9)\n" + 
 		"	numbers= (List<Number>) objects; // correct - cast error\n" + 
@@ -20759,12 +20759,12 @@ public void test672() {
 		"2. WARNING in X.java (at line 11)\n" + 
 		"	Bar<Foo> bar = new Bar<Foo>();\n" + 
 		"	    ^^^\n" + 
-		"Type safety: Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
+		"Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 11)\n" + 
 		"	Bar<Foo> bar = new Bar<Foo>();\n" + 
 		"	                       ^^^\n" + 
-		"Type safety: Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
+		"Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 12)\n" + 
 		"	read(bar, \"sadasd\");\n" + 
@@ -21568,7 +21568,7 @@ public void test705() {
 		"2. WARNING in X.java (at line 7)\n" + 
 		"	Map.Entry me= (Map.Entry)o; \n" + 
 		"	^^^^^^^^^\n" + 
-		"Type safety: Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+		"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 8)\n" + 
 		"	me.setValue(\"ok\");\n" + 
@@ -21630,7 +21630,7 @@ public void test706a() {
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	AA res3 = bb.test();\n" + 
 		"	^^\n" + 
-		"Type safety: AA is a raw type. References to generic type AA<T> should be parameterized\n" + 
+		"AA is a raw type. References to generic type AA<T> should be parameterized\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 5)\n" + 
 		"	AA res3 = bb.test();\n" + 
@@ -22012,22 +22012,22 @@ public void test718() {
 		"1. WARNING in X.java (at line 13)\n" + 
 		"	public class ActionImpl<T extends Base> extends Action<T> implements Comparable<ActionImpl> {\n" + 
 		"	                                                                                ^^^^^^^^^^\n" + 
-		"Type safety: X.ActionImpl is a raw type. References to generic type X.ActionImpl<T> should be parameterized\n" + 
+		"X.ActionImpl is a raw type. References to generic type X.ActionImpl<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 14)\n" + 
 		"	public int compareTo(ActionImpl o) {\n" + 
 		"	                     ^^^^^^^^^^\n" + 
-		"Type safety: X.ActionImpl is a raw type. References to generic type X.ActionImpl<T> should be parameterized\n" + 
+		"X.ActionImpl is a raw type. References to generic type X.ActionImpl<T> should be parameterized\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 20)\n" + 
 		"	Set<ActionImpl> set = new TreeSet<ActionImpl>();\n" + 
 		"	    ^^^^^^^^^^\n" + 
-		"Type safety: X.ActionImpl is a raw type. References to generic type X.ActionImpl<T> should be parameterized\n" + 
+		"X.ActionImpl is a raw type. References to generic type X.ActionImpl<T> should be parameterized\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 20)\n" + 
 		"	Set<ActionImpl> set = new TreeSet<ActionImpl>();\n" + 
 		"	                                  ^^^^^^^^^^\n" + 
-		"Type safety: X.ActionImpl is a raw type. References to generic type X.ActionImpl<T> should be parameterized\n" + 
+		"X.ActionImpl is a raw type. References to generic type X.ActionImpl<T> should be parameterized\n" + 
 		"----------\n" + 
 		"5. WARNING in X.java (at line 21)\n" + 
 		"	Collections.max(set);\n" + 
@@ -22056,7 +22056,7 @@ public void test719() {
 		"1. WARNING in X.java (at line 4)\n" + 
 		"	interface IntegerIterator extends Iterator {}\n" + 
 		"	                                  ^^^^^^^^\n" + 
-		"Type safety: Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
+		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 5)\n" + 
 		"	interface IntegerListIterator extends ListIterator<Integer>, IntegerIterator {}\n" + 
@@ -22087,12 +22087,12 @@ public void test720() {
 		"2. WARNING in X.java (at line 3)\n" + 
 		"	interface Baz extends Bar, Foo {}\n" + 
 		"	                           ^^^\n" + 
-		"Type safety: Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
+		"Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 5)\n" + 
 		"	class XSuper implements Foo {}\n" + 
 		"	                        ^^^\n" + 
-		"Type safety: Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
+		"Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 6)\n" + 
 		"	class XSub extends XSuper implements Foo<Integer> {}\n" + 
@@ -22107,7 +22107,7 @@ public void test720() {
 		"6. WARNING in X.java (at line 8)\n" + 
 		"	public class X implements Bar, Foo {}\n" + 
 		"	                               ^^^\n" + 
-		"Type safety: Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
+		"Foo is a raw type. References to generic type Foo<T> should be parameterized\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98561
@@ -22374,7 +22374,7 @@ public void test730() {
 		"2. WARNING in X.java (at line 11)\n" + 
 		"	private SuperInterface< ? extends SuperInterface> x = null;\n" + 
 		"	                                  ^^^^^^^^^^^^^^\n" + 
-		"Type safety: X.SuperInterface is a raw type. References to generic type X.SuperInterface<A> should be parameterized\n" + 
+		"X.SuperInterface is a raw type. References to generic type X.SuperInterface<A> should be parameterized\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 14)\n" + 
 		"	((SubInterface) this.x).getString();\n" + 
@@ -22836,7 +22836,7 @@ public void test749() {
 		"1. WARNING in X.java (at line 5)\n" + 
 		"	void foo(X x) {\n" + 
 		"	         ^\n" + 
-		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 6)\n" + 
 		"	String s = x.get();\n" + 
@@ -22863,7 +22863,7 @@ public void test750() {
 		"1. WARNING in X.java (at line 5)\n" + 
 		"	void foo(X x) {\n" + 
 		"	         ^\n" + 
-		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 6)\n" + 
 		"	List<Object> l = x.get();\n" + 
@@ -22981,7 +22981,7 @@ public void test754() {
 		"1. WARNING in X.java (at line 14)\n" + 
 		"	public void method(bugClass bc){\n" + 
 		"	                   ^^^^^^^^\n" + 
-		"Type safety: bugClass is a raw type. References to generic type bugClass<T> should be parameterized\n" + 
+		"bugClass is a raw type. References to generic type bugClass<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 15)\n" + 
 		"	bugElement be = bc.getData();   //<< here\n" + 
@@ -23052,7 +23052,7 @@ public void test757() {
 		"1. WARNING in X.java (at line 7)\n" + 
 		"	EntryMap.Entry internalGet(Object key) {\n" + 
 		"	^^^^^^^^^^^^^^\n" + 
-		"Type safety: X.EntryMap.Entry is a raw type. References to generic type X<K,V>.EntryMap<K,V>.Entry should be parameterized\n" + 
+		"X.EntryMap.Entry is a raw type. References to generic type X<K,V>.EntryMap<K,V>.Entry should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 12)\n" + 
 		"	EntryMap<K,V>.Entry entry = internalGet(key);\n" + 
@@ -23090,7 +23090,7 @@ public void test758() {
 		"1. WARNING in X.java (at line 7)\n" + 
 		"	EntryMap.Entry internalGet(Object key) {\n" + 
 		"	^^^^^^^^^^^^^^\n" + 
-		"Type safety: X.EntryMap.Entry is a raw type. References to generic type X<K,V>.EntryMap<K,V>.Entry should be parameterized\n" + 
+		"X.EntryMap.Entry is a raw type. References to generic type X<K,V>.EntryMap<K,V>.Entry should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 12)\n" + 
 		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\n" + 
@@ -23713,7 +23713,7 @@ public void test777() {
 		"1. WARNING in X.java (at line 6)\n" + 
 		"	public interface C extends B {\n" + 
 		"	                           ^\n" + 
-		"Type safety: X.B is a raw type. References to generic type X.B<T> should be parameterized\n" + 
+		"X.B is a raw type. References to generic type X.B<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 16)\n" + 
 		"	public class E implements B<Integer>, C {\n" + 
@@ -23733,7 +23733,7 @@ public void test777() {
 		"5. WARNING in X.java (at line 33)\n" + 
 		"	public interface H extends G {\n" + 
 		"	                           ^\n" + 
-		"Type safety: X.G is a raw type. References to generic type X.G<T> should be parameterized\n" + 
+		"X.G is a raw type. References to generic type X.G<T> should be parameterized\n" + 
 		"----------\n" + 
 		"6. ERROR in X.java (at line 43)\n" + 
 		"	public class J extends I implements G {\n" + 
@@ -23743,7 +23743,7 @@ public void test777() {
 		"7. WARNING in X.java (at line 43)\n" + 
 		"	public class J extends I implements G {\n" + 
 		"	                                    ^\n" + 
-		"Type safety: X.G is a raw type. References to generic type X.G<T> should be parameterized\n" + 
+		"X.G is a raw type. References to generic type X.G<T> should be parameterized\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103472 - variation
@@ -23767,7 +23767,7 @@ public void test778() {
 		"1. WARNING in X.java (at line 4)\n" + 
 		"	interface C extends B {}\n" + 
 		"	                    ^\n" + 
-		"Type safety: X.B is a raw type. References to generic type X.B<T> should be parameterized\n" + 
+		"X.B is a raw type. References to generic type X.B<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 8)\n" + 
 		"	class F extends D implements C {}\n" + 
@@ -24135,12 +24135,12 @@ public void test790() {
 		"3. WARNING in X.java (at line 18)\n" + 
 		"	Comparable c1= i;\n" + 
 		"	^^^^^^^^^^\n" + 
-		"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 19)\n" + 
 		"	Comparable c2= d;\n" + 
 		"	^^^^^^^^^^\n" + 
-		"Type safety: Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
+		"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" + 
 		"----------\n" + 
 		"5. WARNING in X.java (at line 20)\n" + 
 		"	isGreater(c1, c2);\n" + 
@@ -24367,12 +24367,12 @@ public void test799() {
 		"1. WARNING in X.java (at line 2)\n" + 
 		"	Y first;\n" + 
 		"	^\n" + 
-		"Type safety: Y is a raw type. References to generic type Y<E> should be parameterized\n" + 
+		"Y is a raw type. References to generic type Y<E> should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 3)\n" + 
 		"	Y first2;\n" + 
 		"	^\n" + 
-		"Type safety: Y is a raw type. References to generic type Y<E> should be parameterized\n" + 
+		"Y is a raw type. References to generic type Y<E> should be parameterized\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 9)\n" + 
 		"	String s = foo(ref, first);\n" + 
@@ -24426,7 +24426,7 @@ public void test800() {
 		"1. WARNING in X.java (at line 7)\n" + 
 		"	for (Constructor constructor  : constrs) {\n" + 
 		"	     ^^^^^^^^^^^\n" + 
-		"Type safety: Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
+		"Constructor is a raw type. References to generic type Constructor<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 8)\n" + 
 		"	final String message = constructor.getAnnotation(AnnClass).message();\n" + 
@@ -24483,7 +24483,7 @@ public void test802() {
 		"1. WARNING in X.java (at line 2)\n" + 
 		"	void bar(Y y, X<ZZ> x) {\n" + 
 		"	         ^\n" + 
-		"Type safety: Y is a raw type. References to generic type Y<V> should be parameterized\n" + 
+		"Y is a raw type. References to generic type Y<V> should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 3)\n" + 
 		"	y.foo(x).zz();\n" + 
@@ -24753,7 +24753,7 @@ public void test809() {
 		"1. WARNING in X.java (at line 21)\n" + 
 		"	void f1(Set1 s) {\n" + 
 		"	        ^^^^\n" + 
-		"Type safety: Set1 is a raw type. References to generic type Set1<N> should be parameterized\n" + 
+		"Set1 is a raw type. References to generic type Set1<N> should be parameterized\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 22)\n" + 
 		"	Node n_ = s.iterator().next();\n" + 
@@ -24768,7 +24768,7 @@ public void test809() {
 		"4. WARNING in X.java (at line 35)\n" + 
 		"	void f3(Set3 s) {\n" + 
 		"	        ^^^^\n" + 
-		"Type safety: Set3 is a raw type. References to generic type Set3<N> should be parameterized\n" + 
+		"Set3 is a raw type. References to generic type Set3<N> should be parameterized\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 38)\n" + 
 		"	for (Node n : s) {\n" + 
@@ -24862,7 +24862,7 @@ public void test812() {
 		"4. WARNING in X.java (at line 7)\n" + 
 		"	this.inner = new X.Inner();\n" + 
 		"	                 ^^^^^^^\n" + 
-		"Type safety: X.Inner is a raw type. References to generic type X<T>.Inner should be parameterized\n" + 
+		"X.Inner is a raw type. References to generic type X<T>.Inner should be parameterized\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 9)\n" + 
 		"	Zork z;\n" + 
@@ -25042,7 +25042,7 @@ public void test817() {
 			"4. WARNING in X.java (at line 14)\n" + 
 			"	void foo(List l) {\n" + 
 			"	         ^^^^\n" + 
-			"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 15)\n" + 
 			"	if (l instanceof List<?>) {}\n" + 
@@ -25490,12 +25490,12 @@ public void test826() {
 		"1. WARNING in X.java (at line 9)\n" + 
 		"	X t1 = new X();\n" + 
 		"	^\n" + 
-		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 9)\n" + 
 		"	X t1 = new X();\n" + 
 		"	           ^\n" + 
-		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 10)\n" + 
 		"	t1.test(a, b); //this gives an error but should be OK\n" + 
@@ -25534,12 +25534,12 @@ public void test827() {
 		"1. WARNING in X.java (at line 7)\n" + 
 		"	X t1 = new X();\n" + 
 		"	^\n" + 
-		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 7)\n" + 
 		"	X t1 = new X();\n" + 
 		"	           ^\n" + 
-		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 8)\n" + 
 		"	t1.test(a, b); //this gives an error but should be OK\n" + 
@@ -25580,22 +25580,22 @@ public void test828() {
 		"1. WARNING in X.java (at line 1)\n" + 
 		"	interface Transformable<T extends Transformable>\n" + 
 		"	                                  ^^^^^^^^^^^^^\n" + 
-		"Type safety: Transformable is a raw type. References to generic type Transformable<T> should be parameterized\n" + 
+		"Transformable is a raw type. References to generic type Transformable<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	interface Volume<V extends Volume> extends Transformable<V>\n" + 
 		"	                           ^^^^^^\n" + 
-		"Type safety: Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
+		"Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n" + 
 		"3. WARNING in X.java (at line 11)\n" + 
 		"	Volume v1 = null;\n" + 
 		"	^^^^^^\n" + 
-		"Type safety: Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
+		"Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n" + 
 		"4. WARNING in X.java (at line 12)\n" + 
 		"	Volume v2 = v1.transform();\n" + 
 		"	^^^^^^\n" + 
-		"Type safety: Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
+		"Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 12)\n" + 
 		"	Volume v2 = v1.transform();\n" + 
@@ -25605,12 +25605,12 @@ public void test828() {
 		"6. WARNING in X.java (at line 15)\n" + 
 		"	Volume<Volume> v1 = null;\n" + 
 		"	       ^^^^^^\n" + 
-		"Type safety: Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
+		"Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n" + 
 		"7. WARNING in X.java (at line 16)\n" + 
 		"	Volume v2 = v1.transform();\n" + 
 		"	^^^^^^\n" + 
-		"Type safety: Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
+		"Volume is a raw type. References to generic type Volume<V> should be parameterized\n" + 
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=109249 - variation
@@ -25661,7 +25661,7 @@ public void test830() {
 		"1. WARNING in X.java (at line 5)\r\n" + 
 		"	X x = (X) o;\r\n" + 
 		"	^\n" + 
-		"Type safety: X is a raw type. References to generic type X<T> should be parameterized\n" + 
+		"X is a raw type. References to generic type X<T> should be parameterized\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 6)\r\n" + 
 		"	X<String> xs = (X<String>)o;\r\n" + 
@@ -25676,7 +25676,7 @@ public void test830() {
 		"4. WARNING in X.java (at line 10)\r\n" + 
 		"	List l = (List) al;\r\n" + 
 		"	^^^^\n" + 
-		"Type safety: List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
 		"----------\n" + 
 		"5. WARNING in X.java (at line 10)\r\n" + 
 		"	List l = (List) al;\r\n" + 

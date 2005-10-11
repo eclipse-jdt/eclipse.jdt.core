@@ -980,7 +980,7 @@ public class EnumTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 1)\n" + 
 			"	public class X extends Enum {\n" + 
 			"	                       ^^^^\n" + 
-			"Type safety: Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
+			"Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 1)\n" + 
 			"	public class X extends Enum {\n" + 
@@ -2681,7 +2681,7 @@ public class EnumTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 15)\n" + 
 			"	void foo3(Test1 t1, Enum t2) {\n" + 
 			"	                    ^^^^\n" + 
-			"Type safety: Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
+			"Enum is a raw type. References to generic type Enum<E> should be parameterized\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 19)\n" + 
 			"	boolean booleanTest = (Test1.test11 == Test2.test22);\n" + 
@@ -3048,7 +3048,7 @@ public class EnumTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 5)\n" + 
 			"	interface I { void foo(A a); }\n" + 
 			"	                       ^\n" + 
-			"Type safety: A is a raw type. References to generic type A<T> should be parameterized\n" + 
+			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
 			"----------\n");
 	}
 
@@ -3257,7 +3257,7 @@ the right of e1."
 			"2. WARNING in X.java (at line 19)\n" + 
 			"	class Bar extends Foo {\n" + 
 			"	                  ^^^\n" + 
-			"Type safety: Foo is a raw type. References to generic type Foo<U> should be parameterized\n" + 
+			"Foo is a raw type. References to generic type Foo<U> should be parameterized\n" + 
 			"----------\n");
 	}		
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93396
@@ -4029,7 +4029,7 @@ the right of e1."
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	static ArrayList someList;\n" + 
 			"	       ^^^^^^^^^\n" + 
-			"Type safety: ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
 			"	if (someList == null) {\n" + 
@@ -4044,7 +4044,7 @@ the right of e1."
 			"4. WARNING in X.java (at line 11)\n" + 
 			"	someList = new ArrayList();\n" + 
 			"	               ^^^^^^^^^\n" + 
-			"Type safety: ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
 	}		
 	public void test119() {
