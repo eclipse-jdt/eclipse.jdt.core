@@ -20,6 +20,8 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.core.util.PublicScanner;
+
 public class ScannerTest extends AbstractRegressionTest {
 
 	public ScannerTest(String name) {
@@ -29,7 +31,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test000" };
-//		TESTS_NUMBERS = new int[] { 41 };
+//		TESTS_NUMBERS = new int[] { 42, 43, 44 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
 	
@@ -861,5 +863,90 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertTrue("Should not happen", false);
 		}
 	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=112223
+	public void test042() {
+		IScanner scanner = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
+		final char[] source = "\"a\\u000D\"".toCharArray();
+		scanner.setSource(source);
+		final StringBuffer buffer = new StringBuffer();
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				try {
+					switch(token) {
+						case ITerminalSymbols.TokenNameEOF :
+							break;
+						default :
+							buffer.append(scanner.getCurrentTokenSource());
+							break;
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+			assertTrue("Should have failed", false);
+		} catch (InvalidInputException e) {
+			buffer.append(scanner.getRawTokenSource());
+			assertEquals("Unexpected contents", "\"a\\u000D\"", String.valueOf(buffer));
+			assertEquals("Wrong exception", PublicScanner.INVALID_CHAR_IN_STRING, e.getMessage());
+		}
+	}
+	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=112223
+	public void test043() {
+		IScanner scanner = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
+		final char[] source = "\"\\u004Ca\\u000D\"".toCharArray();
+		scanner.setSource(source);
+		final StringBuffer buffer = new StringBuffer();
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				try {
+					switch(token) {
+						case ITerminalSymbols.TokenNameEOF :
+							break;
+						default :
+							buffer.append(scanner.getCurrentTokenSource());
+							break;
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+			assertTrue("Should have failed", false);
+		} catch (InvalidInputException e) {
+			buffer.append(scanner.getRawTokenSource());
+			assertEquals("Unexpected contents", "\"\\u004Ca\\u000D\"", String.valueOf(buffer));
+			assertEquals("Wrong exception", PublicScanner.INVALID_CHAR_IN_STRING, e.getMessage());
+		}
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=112223
+	public void test044() {
+		IScanner scanner = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
+		final char[] source = "\"\\u004Ca\\u000D\\u0022".toCharArray();
+		scanner.setSource(source);
+		final StringBuffer buffer = new StringBuffer();
+		try {
+			int token;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				try {
+					switch(token) {
+						case ITerminalSymbols.TokenNameEOF :
+							break;
+						default :
+							buffer.append(scanner.getCurrentTokenSource());
+							break;
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+			assertTrue("Should have failed", false);
+		} catch (InvalidInputException e) {
+			buffer.append(scanner.getRawTokenSource());
+			assertEquals("Unexpected contents", "\"\\u004Ca\\u000D\\u0022", String.valueOf(buffer));
+			assertEquals("Wrong exception", PublicScanner.INVALID_CHAR_IN_STRING, e.getMessage());
+		}
+	}
 }
-

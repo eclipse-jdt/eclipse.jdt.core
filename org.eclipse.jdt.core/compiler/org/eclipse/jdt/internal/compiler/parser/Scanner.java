@@ -984,22 +984,6 @@ public int getNextToken() throws InvalidInputException {
 					if (getNextCharAsDigit()) {
 						return scanNumber(true);
 					}
-/*					if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
-						int temp = this.currentPosition;
-						if (getNextChar('.')) {
-							if (getNextChar('.')) {
-								return TokenNameELLIPSIS;
-							} else {
-								this.currentPosition = temp;
-								return TokenNameDOT;
-							}
-						} else {
-							this.currentPosition = temp;
-							return TokenNameDOT;
-						}
-					} else {
-						return TokenNameDOT;
-					}*/
 					int temp = this.currentPosition;
 					if (getNextChar('.')) {
 						if (getNextChar('.')) {
@@ -1240,7 +1224,10 @@ public int getNextToken() throws InvalidInputException {
 									this.unicodeAsBackSlash = false;
 									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
 										getNextUnicodeChar();
+										isUnicode = true;
 										this.withoutUnicodePtr--;
+									} else {
+										isUnicode = false;
 									}
 								} else {
 									if (this.withoutUnicodePtr == 0) {
@@ -1260,7 +1247,9 @@ public int getNextToken() throws InvalidInputException {
 							if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 								&& (this.source[this.currentPosition] == 'u')) {
 								getNextUnicodeChar();
+								isUnicode = true;
 							} else {
+								isUnicode = false;
 								if (this.withoutUnicodePtr != 0) {
 									unicodeStore();
 								}
@@ -2368,7 +2357,7 @@ public final void pushLineSeparator() {
 		}
 	}
 }
-public final void pushUnicodeLineSeparator() {	
+public final void pushUnicodeLineSeparator() {
 	// cr 000D
 	if (this.currentCharacter == '\r') {
 		if (this.source[this.currentPosition] == '\n') {
