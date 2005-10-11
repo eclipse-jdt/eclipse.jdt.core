@@ -4022,87 +4022,34 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100869
-	public void _test071() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"	Object foo1(Comparable<String> value) {System.out.print(1);return null;}\n" +
-				"	void foo1(Comparable<Object> value) {System.out.print(2);}\n" +
-				"	void foo1(X x) { x.foo1(\"test\"); }\n" +
-				"	Object foo2(Comparable<String> value) {System.out.print(1);return null;}\n" +
-				"	<T> void foo2(Comparable<T> value) {System.out.print(2);}\n" +
-				"	void foo2(X x) { x.foo2(\"test\"); }\n" +
-				"	<T> T foo3(Comparable<T> value) {System.out.print(1);return null;}\n" +
-				"	void foo3(Comparable<Object> value) {System.out.print(2);}\n" +
-				"	void foo3(X x) { x.foo3(\"test\"); }\n" +
-				"	<T> T foo3(Comparable<T> value) {System.out.print(1);return null;}\n" +
-				"	void foo3(Comparable<Object> value) {System.out.print(2);}\n" +
-				"	void foo3(X x) { x.foo3(\"test\"); }\n" +
-				"	<T> T foo4(Comparable value) {System.out.print(1);return null;}\n" +
-				"	void foo4(Comparable<Object> value) {System.out.print(2);}\n" +
-				"	void foo4(X x) { x.foo4(\"test\"); }\n" +
-				"	Object foo5(Comparable<String> value) {System.out.print(1);return null;}\n" +
-				"	<T> void foo5(Comparable value) {System.out.print(2);}\n" +
-				"	void foo5(X x) { x.foo5(\"test\"); }\n" +
-				"	<T extends Comparable<T>> T a1(T value) {System.out.print(1);return null;}\n" +
-				"	<T> void a1(Comparable<T> value) {System.out.print(2);}\n" +
-				"	void a1(X x) { x.a1(\"test\"); }\n" +
-				"	<T> T a2(Comparable<String> value) {System.out.print(1);return null;}\n" +
-				"	<T> void a2(Comparable<T> value) {System.out.print(2);}\n" +
-				"	void a2(X x) { x.a2(\"test\"); }\n" +
-				"\n" +
-				"	public static void main(String[] s) {" +
-				"		X x = new X();\n" +
-				"		x.foo1(x);\n" +
-				"		x.foo2(x);\n" +
-				"		x.foo3(x);\n" +
-				"		x.foo4(x);\n" +
-				"		x.foo5(x);\n" +
-				"		x.a1(x);\n" +
-				"		x.a2(x);\n" +
-				"	}\n" +
-				"}\n"
-			},
-			"1111111"
-		);
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107045
+	public void test071() {
 		this.runNegativeTest(
 			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"	<T> T a3(Comparable<String> value) {return null;}\n" +
-				"	<T extends Comparable<T>> void a3(T value) {}\n" +
-				"	void a3(X x) { x.a3(\"test\"); }\n" +
-				"}\n"
+				"D.java",
+				"class D extends B<Integer> {\n" +
+				"	@Override void m(Number t) {}\n" + 
+				"	@Override void m(Integer t) {}\n" + 
+				"}\n" + 
+				"class A<T extends Number> { void m(T t) {} }\n" +
+				"class B<S extends Integer> extends A<S> { @Override void m(S t) {} }"
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	void a3(X x) { x.a3(\"test\"); }\n" + 
-			"	                 ^^\n" + 
-			"The method a3(Comparable<String>) is ambiguous for the type X\n" + 
+			"1. ERROR in D.java (at line 2)\r\n" + 
+			"	@Override void m(Number t) {}\r\n" + 
+			"	               ^^^^^^^^^^^\n" + 
+			"Name clash: The method m(Number) of type D has the same erasure as m(T) of type A<T> but does not override it\n" + 
+			"----------\n" + 
+			"2. ERROR in D.java (at line 2)\r\n" + 
+			"	@Override void m(Number t) {}\r\n" + 
+			"	               ^^^^^^^^^^^\n" + 
+			"The method m(Number) of type D must override a superclass method\n" + 
+			"----------\n" + 
+			"3. WARNING in D.java (at line 6)\r\n" + 
+			"	class B<S extends Integer> extends A<S> { @Override void m(S t) {} }\r\n" + 
+			"	                  ^^^^^^^\n" + 
+			"The type parameter S should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
 			"----------\n"
 		);
 	}
-	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100869 - variation
-	public void _test072() {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"	<T> Object foo12(Comparable value) {System.out.print(1);return null;}\n" + 
-				"	<T> void foo12(Comparable<T> value) {System.out.print(2);}\n" + 
-				"	void foo12(X x) { Object o = x.foo12(\"test\"); x.foo12(\"test\"); }\n" + 
-				"	\n" + 
-				"\n" + 
-				"\n" + 
-				"	public static void main(String[] s) {\n" + 
-				"		X x = new X();\n" + 
-				"		x.foo12(x);\n" + 
-				"	}\n" + 
-				"}\n"
-			},
-			"11"
-		);
-	}	
 }
