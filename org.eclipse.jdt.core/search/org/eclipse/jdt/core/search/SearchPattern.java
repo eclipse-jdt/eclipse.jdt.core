@@ -57,8 +57,9 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	public static final int R_PREFIX_MATCH = 1;
 
 	/**
-	 * Match rule: The search pattern contains one or more wild cards ('*') where a 
-	 * wild-card can replace 0 or more characters in the search result.
+	 * Match rule: The search pattern contains one or more wild cards ('*' or '?'). 
+	 * A '*' wild-card can replace 0 or more characters in the search result.
+	 * A '?' wild-card replaces exactly 1 character in the search result.
 	 */
 	public static final int R_PATTERN_MATCH = 2;
 
