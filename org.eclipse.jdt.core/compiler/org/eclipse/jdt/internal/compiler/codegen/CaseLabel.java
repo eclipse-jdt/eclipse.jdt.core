@@ -11,8 +11,10 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 public class CaseLabel extends Label {
+	
 	public int instructionPosition = POS_NOT_SET;
 	public int backwardsBranch = POS_NOT_SET;
+	
 /**
  * CaseLabel constructor comment.
  * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
@@ -20,6 +22,7 @@ public class CaseLabel extends Label {
 public CaseLabel(CodeStream codeStream) {
 	super(codeStream);
 }
+
 /*
 * Put down  a refernece to the array at the location in the codestream.
 */
@@ -33,6 +36,7 @@ void branch() {
 		codeStream.writeSignedWord(position - codeStream.position + 1);
 	}
 }
+
 /*
 * Put down  a refernece to the array at the location in the codestream.
 */
@@ -45,9 +49,11 @@ void branchWide() {
 		codeStream.writeSignedWord(position - codeStream.position + 1);
 	}
 }
+
 public boolean isStandardLabel(){
 	return false;
 }
+
 /*
 * Put down  a reference to the array at the location in the codestream.
 */
@@ -64,6 +70,7 @@ public void place() {
 		codeStream.addLabel(this);
 	}
 }
+
 /*
 * Put down  a refernece to the array at the location in the codestream.
 */
