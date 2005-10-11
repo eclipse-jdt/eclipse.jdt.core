@@ -48,6 +48,29 @@ Eclipse SDK 3.2M3 - ?th October 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added CharOperation API to perform CamelCase matching. This new matching mode will be leveraged into
+codeassist and search.
+<pre>
+* Answers true if the pattern matches the given name using CamelCase rules, or false otherwise. 
+* char[] CamelCase matching does NOT accept explicit wild-cards '*' and '?'. 
+*
+* CamelCase denotes the convention of writing compound names without spaces, and capitalizing every term.
+* This function recognizes both upper and lower CamelCase, depending whether the leading character is capitalized
+* or not. The leading part of an upper CamelCase pattern is assumed to contain a sequence of capitals which are appearing
+* in the matching name; e.g. 'NPE' will match 'NullPointerException', but not 'NewPerfData'. A lower CamelCase pattern
+* uses a lowercase first character. In Java, type names follow the upper CamelCase convention, whereas method or field
+* names follow the lower CamelCase convention.
+*
+* The pattern may contain trailing lowercase characters, which will be match in a case sensitive way. These characters must
+* appear in sequence in the name, after the last matching capital of the pattern. For instance, 'NPExcep' will match
+* 'NullPointerException', but not 'NullPointerExCEPTION'.
+*
+* Note: in the event no portion of the pattern can be matched using CamelCase rules, then the matching algorithm will revert
+* to a case insensitive prefix matching. Thus 'npe' will still be able to match 'NPending'.
+public static final boolean camelCaseMatch(char[] pattern, char[] name)
+public static final boolean camelCaseMatch(char[] pattern, int patternStart, int patternEnd, char[] name, int nameStart, int nameEnd)
+</pre>
+</li>
 <li>Tuned new compiler diagnosis for raw type references. This problem can now be enabled independantly from 
 unchecked type operations, and carries its own severity settings. Removed "Type safety:" prefix from problem description
 as it is not truly fragilizing type integrity. This warning can still be silenced by <code>@SuppressWarnings("unchecked")</code>
