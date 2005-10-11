@@ -25930,4 +25930,63 @@ public void test839() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=109118
+public void test840() {
+	this.runNegativeTest(
+		new String[] {
+			"generics/NodeList.java",
+			"package generics;\n" + 
+			"public class NodeList<E> {\n" + 
+			"    public class Cursor { }\n" + 
+			"}",
+			"generics/user/User.java",
+			"package generics.user;\n" + 
+			"import generics.NodeList;\n" + 
+			"import generics.NodeList.Cursor;\n" + 
+			"public class User {\n" + 
+			"    Cursor raw;\n" + 
+			"    NodeList.Cursor rawQualified;\n" + 
+			"    NodeList<String>.Cursor parameterized;\n" + 
+			"\n" + 
+			"    void foo() {\n" + 
+			"        parameterized= rawQualified; //unchecked warning (OK)\n" + 
+			"        rawQualified= parameterized;\n" + 
+			"\n" + 
+			"        parameterized= raw; //should just give unchecked warning, but errors\n" + 
+			"        raw= parameterized; //should not error\n" + 
+			"\n" + 
+			"        raw= rawQualified; //should not error\n" + 
+			"        rawQualified= raw;\n" + 
+			"    }\n" + 
+			"    Zork z;\n" +
+			"}"
+
+		},
+		"----------\n" + 
+		"1. WARNING in generics\\user\\User.java (at line 5)\n" + 
+		"	Cursor raw;\n" + 
+		"	^^^^^^\n" + 
+		"NodeList.Cursor is a raw type. References to generic type NodeList<E>.Cursor should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in generics\\user\\User.java (at line 6)\n" + 
+		"	NodeList.Cursor rawQualified;\n" + 
+		"	^^^^^^^^^^^^^^^\n" + 
+		"NodeList.Cursor is a raw type. References to generic type NodeList<E>.Cursor should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in generics\\user\\User.java (at line 10)\n" + 
+		"	parameterized= rawQualified; //unchecked warning (OK)\n" + 
+		"	               ^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type NodeList.Cursor needs unchecked conversion to conform to NodeList<String>.Cursor\n" + 
+		"----------\n" + 
+		"4. WARNING in generics\\user\\User.java (at line 13)\n" + 
+		"	parameterized= raw; //should just give unchecked warning, but errors\n" + 
+		"	               ^^^\n" + 
+		"Type safety: The expression of type NodeList.Cursor needs unchecked conversion to conform to NodeList<String>.Cursor\n" + 
+		"----------\n" + 
+		"5. ERROR in generics\\user\\User.java (at line 19)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+}
 }
