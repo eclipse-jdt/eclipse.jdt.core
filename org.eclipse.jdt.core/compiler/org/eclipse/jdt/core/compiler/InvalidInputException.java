@@ -18,17 +18,18 @@ public class InvalidInputException extends Exception {
 
 	private static final long serialVersionUID = 2909732853499731592L; // backward compatible
 	
-	/**
-	 * Creates a new exception with no detail message.
-	 */
-	public InvalidInputException() {
-		super();
-	}
-	/**
-	 * Creates a new exception with the given detail message.
-	 * @param message the detail message
-	 */
-	public InvalidInputException(String message) {
-		super(message);
-	}
+/**
+ * Creates a new exception with no detail message.
+ */
+public InvalidInputException() {
+	super();
+}
+
+/**
+ * Creates a new exception with the given detail message.
+ * @param message the detail message
+ */
+public InvalidInputException(String message) {
+	super(message);
+}
 }

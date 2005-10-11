@@ -77,24 +77,24 @@ public abstract class CategorizedProblem implements IProblem {
 //	 */
 //	public abstract String getCategory();
 	
-	/** 
-	 * Returns an integer identifying the category of this problem. Categories, like problem IDs are
-	 * defined in the context of some marker type. Custom implementations of <code>CategorizedProblem</code>
-	 * may choose arbitrary values for problem/category IDs, as long as they are associated with a different
-	 * marker type.
-	 * @return id - an integer identifying the category of this problem
-	 */
-	public abstract int getCategoryID();
-	
-	/**
-	 * Returns the marker type associated to this problem, if it was persisted into a marker by the JavaBuilder
-	 * Standard Java problems are associated to marker type "org.eclipse.jdt.core.problem"), standard tasks 
-	 * are associated to marker type "org.eclipse.jdt.core.task".
-	 * 
-	 * @return the type of the marker which would be associated to the problem
-	 * 
-	 * @see org.eclipse.jdt.core.IJavaModelMarker#JAVA_MODEL_PROBLEM_MARKER
-	 * @see org.eclipse.jdt.core.IJavaModelMarker#TASK_MARKER
-	 */
-	public abstract String getMarkerType();
+/** 
+ * Returns an integer identifying the category of this problem. Categories, like problem IDs are
+ * defined in the context of some marker type. Custom implementations of <code>CategorizedProblem</code>
+ * may choose arbitrary values for problem/category IDs, as long as they are associated with a different
+ * marker type.
+ * @return id - an integer identifying the category of this problem
+ */
+public abstract int getCategoryID();
+
+/**
+ * Returns the marker type associated to this problem, if it was persisted into a marker by the JavaBuilder
+ * Standard Java problems are associated to marker type "org.eclipse.jdt.core.problem"), standard tasks 
+ * are associated to marker type "org.eclipse.jdt.core.task".
+ * 
+ * @return the type of the marker which would be associated to the problem
+ * 
+ * @see org.eclipse.jdt.core.IJavaModelMarker#JAVA_MODEL_PROBLEM_MARKER
+ * @see org.eclipse.jdt.core.IJavaModelMarker#TASK_MARKER
+ */
+public abstract String getMarkerType();
 }
