@@ -1724,16 +1724,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportUncheckedTypeOperation,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("raw")) {//$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportRawTypeReference,
-							CompilerOptions.DISABLED);						
-					} else if (token.equals("allUnchecked")) {//$NON-NLS-1$
-						this.options.put(
-							CompilerOptions.OPTION_ReportUncheckedTypeOperation,
-							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
-						this.options.put(
-							CompilerOptions.OPTION_ReportRawTypeReference,
-							isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);						
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);						
 					} else if (token.equals("finalBound")) {//$NON-NLS-1$ 
 						this.options.put(
 							CompilerOptions.OPTION_ReportFinalParameterBound,
