@@ -42,7 +42,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	public static Test suite() {
         Test suite = buildSuite(testClass());
         TESTS_COUNT = suite.countTestCases();
-        createPrintStream(testClass().getName(), LOG_STREAMS, TESTS_COUNT, null);
+        createPrintStream(testClass(), LOG_STREAMS, TESTS_COUNT, null);
         return suite;
     }
 
