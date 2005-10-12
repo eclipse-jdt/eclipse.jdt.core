@@ -133,10 +133,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			}
 			
 			// Create Log dir
-			String[] subdirs = new String[] {
-				(PATCH_ID == null) ? LOG_VERSION : PATCH_ID,
-				RUN_ID
-			};
+			String[] subdirs = (PATCH_ID == null) 
+				? new String[] {LOG_VERSION, RUN_ID }
+				: new String[] {LOG_VERSION, PATCH_ID, RUN_ID };
 			for (int i=0; i<subdirs.length; i++) {
 				dir = new File(dir, subdirs[i]);
 				if (dir.exists()) {
