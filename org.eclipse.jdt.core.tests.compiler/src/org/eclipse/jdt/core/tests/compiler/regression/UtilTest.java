@@ -478,6 +478,10 @@ public void test65() {
 			!CharOperation.camelCaseMatch("I".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
 	assertTrue("Camel pattern matching failure-5",
 			!CharOperation.camelCaseMatch("iStringCD".toCharArray(), "invokeStringConcatenationDefaultConstructor".toCharArray()));
+	assertTrue("Camel pattern matching failure-6",
+			CharOperation.camelCaseMatch("NPE".toCharArray(), "NullPointerException/java.lang".toCharArray()));
+	assertTrue("Camel pattern matching failure-6",
+			!CharOperation.camelCaseMatch("NPE".toCharArray(), "NullPointer/lang.Exception".toCharArray()));
 }
 public static Class testClass() {
 	return UtilTest.class;

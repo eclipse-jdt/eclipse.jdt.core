@@ -293,13 +293,13 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		}
 		checkName: while (iName < nameEnd) {
 			if ((nameChar = name[iName]) != patternChar) {
-				if (Character.isUpperCase(nameChar)) {
-					// mismatch, but uppercase in name --> reject
-					return false;
+				if (Character.isLowerCase(nameChar)) {
+					// lowercase name char is ignored
+					iName++;
+					continue checkName;
 				}
-				// lowercase name char is ignored
-				iName++;
-				continue checkName;
+				// mismatch, either uppercase in name or non case char ('/' etc)--> reject
+				return false;
 			} else {
 				// pattern char == name char (uppercase)
 				iName++;
