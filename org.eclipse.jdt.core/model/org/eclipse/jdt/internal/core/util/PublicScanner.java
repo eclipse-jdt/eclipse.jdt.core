@@ -148,57 +148,6 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 		new char[] {'\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000'}; 
 	static final int TableSize = 30, InternalTableSize = 6; //30*6 =210 entries
 	
-	public final static int MAX_OBVIOUS = 128;
-	static final int[] ObviousIdentCharNatures = new int[MAX_OBVIOUS];
-	public final static int C_LETTER = 4;
-	public final static int C_DIGIT = 3;
-	public final static int C_SEPARATOR = 2;
-	public final static int C_SPACE = 1;
-	static {
-		for (int i = '0'; i <= '9'; i++) 
-			ObviousIdentCharNatures[i] = C_DIGIT;
-		
-		for (int i = 'a'; i <= 'z'; i++) 
-			ObviousIdentCharNatures[i] = C_LETTER;
-		for (int i = 'A'; i <= 'Z'; i++) 
-			ObviousIdentCharNatures[i] = C_LETTER;
-		ObviousIdentCharNatures['_'] = C_LETTER;
-		ObviousIdentCharNatures['$'] = C_LETTER;
-		
-		ObviousIdentCharNatures[10] = C_SPACE; // \ u000a: LINE FEED
-		ObviousIdentCharNatures[12] = C_SPACE; // \ u000c: FORM FEED
-		ObviousIdentCharNatures[13] = C_SPACE; //  \ u000d: CARRIAGE RETURN
-		ObviousIdentCharNatures[32] = C_SPACE; //  \ u0020: SPACE
-		ObviousIdentCharNatures[ 9] = C_SPACE; // \ u0009: HORIZONTAL TABULATION
-		
-		ObviousIdentCharNatures['.'] = C_SEPARATOR;
-		ObviousIdentCharNatures[':'] = C_SEPARATOR;
-		ObviousIdentCharNatures[';'] = C_SEPARATOR;
-		ObviousIdentCharNatures[','] = C_SEPARATOR;
-		ObviousIdentCharNatures['['] = C_SEPARATOR;
-		ObviousIdentCharNatures[']'] = C_SEPARATOR;
-		ObviousIdentCharNatures['('] = C_SEPARATOR;
-		ObviousIdentCharNatures[')'] = C_SEPARATOR;
-		ObviousIdentCharNatures['{'] = C_SEPARATOR;
-		ObviousIdentCharNatures['}'] = C_SEPARATOR;
-		ObviousIdentCharNatures['+'] = C_SEPARATOR;
-		ObviousIdentCharNatures['-'] = C_SEPARATOR;
-		ObviousIdentCharNatures['*'] = C_SEPARATOR;
-		ObviousIdentCharNatures['/'] = C_SEPARATOR;
-		ObviousIdentCharNatures['='] = C_SEPARATOR;
-		ObviousIdentCharNatures['&'] = C_SEPARATOR;
-		ObviousIdentCharNatures['|'] = C_SEPARATOR;
-		ObviousIdentCharNatures['?'] = C_SEPARATOR;
-		ObviousIdentCharNatures['<'] = C_SEPARATOR;
-		ObviousIdentCharNatures['>'] = C_SEPARATOR;
-		ObviousIdentCharNatures['!'] = C_SEPARATOR;
-		ObviousIdentCharNatures['%'] = C_SEPARATOR;
-		ObviousIdentCharNatures['^'] = C_SEPARATOR;
-		ObviousIdentCharNatures['~'] = C_SEPARATOR;
-		ObviousIdentCharNatures['"'] = C_SEPARATOR;
-		ObviousIdentCharNatures['\''] = C_SEPARATOR;
-	}
-	
 	public static final int OptimizedLength = 7;
 	public /*static*/ final char[][][][] charArray_length = 
 		new char[OptimizedLength][TableSize][InternalTableSize][]; 
@@ -1486,11 +1435,13 @@ public int getNextToken() throws InvalidInputException {
 					throw new InvalidInputException("Ctrl-Z"); //$NON-NLS-1$
 				default :
 					char c = this.currentCharacter;
-					if (c < MAX_OBVIOUS) {
-						switch (ObviousIdentCharNatures[c]) {
-							case C_LETTER :
+					if (c < ScannerHelper.MAX_OBVIOUS) {
+						switch (ScannerHelper.ObviousIdentCharNatures[c]) {
+							case ScannerHelper.C_UPPER_LETTER :
+							case ScannerHelper.C_LOWER_LETTER :
+							case ScannerHelper.C_LETTER :
 								return scanIdentifierOrKeyword();
-							case C_DIGIT :
+							case ScannerHelper.C_DIGIT :
 								return scanNumber(false);
 						}
 					}
@@ -1927,12 +1878,14 @@ public final void jumpOverMethodBody() {
 				default :
 					try {
 						char c = this.currentCharacter;
-						if (c < MAX_OBVIOUS) {
-							switch (ObviousIdentCharNatures[c]) {
-								case C_LETTER :
+						if (c < ScannerHelper.MAX_OBVIOUS) {
+							switch (ScannerHelper.ObviousIdentCharNatures[c]) {
+								case ScannerHelper.C_UPPER_LETTER :
+								case ScannerHelper.C_LOWER_LETTER :
+								case ScannerHelper.C_LETTER :
 									scanIdentifierOrKeyword();
 									break NextToken;
-								case C_DIGIT :
+								case ScannerHelper.C_DIGIT :
 									scanNumber(false);
 									break NextToken;
 							}
@@ -2502,10 +2455,12 @@ public int scanIdentifierOrKeyword() {
 			if ((pos = this.currentPosition) >= srcLength) // handle the obvious case upfront
 				break identLoop;
 			char c = src[pos];
-			if (c < MAX_OBVIOUS) {
-				switch (ObviousIdentCharNatures[c]) {
-					case C_LETTER :
-					case C_DIGIT :
+			if (c < ScannerHelper.MAX_OBVIOUS) {
+				switch (ScannerHelper.ObviousIdentCharNatures[c]) {
+					case ScannerHelper.C_UPPER_LETTER :
+					case ScannerHelper.C_LOWER_LETTER :
+					case ScannerHelper.C_LETTER :
+					case ScannerHelper.C_DIGIT :
 		               if (this.withoutUnicodePtr != 0) {
 							this.currentCharacter = c;
 							unicodeStore();
@@ -2513,8 +2468,8 @@ public int scanIdentifierOrKeyword() {
 						this.currentPosition++;
 						break;						
 						
-					case C_SEPARATOR :
-					case C_SPACE :
+					case ScannerHelper.C_SEPARATOR :
+					case ScannerHelper.C_SPACE :
 						this.currentCharacter = c;
 						break identLoop;	
 

@@ -482,6 +482,8 @@ public void test65() {
 			CharOperation.camelCaseMatch("NPE".toCharArray(), "NullPointerException/java.lang".toCharArray()));
 	assertTrue("Camel pattern matching failure-6",
 			!CharOperation.camelCaseMatch("NPE".toCharArray(), "NullPointer/lang.Exception".toCharArray()));
+	assertTrue("Camel pattern matching failure-7",
+			CharOperation.camelCaseMatch("NPE".toCharArray(), "Null_Pointer$Exception".toCharArray()));
 }
 public static Class testClass() {
 	return UtilTest.class;

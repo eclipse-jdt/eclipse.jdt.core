@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
+import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+
 /**
  * This class is a collection of helper methods to manipulate char arrays.
  * 
@@ -281,7 +283,10 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		nameEnd = name.length;
 	char patternChar, nameChar;
 	checkCamelCase: while (iPattern < patternEnd) {
-		if (Character.isLowerCase(patternChar = pattern[iPattern])) {
+					
+		if ((patternChar = pattern[iPattern]) < ScannerHelper.MAX_OBVIOUS
+				? ScannerHelper.ObviousIdentCharNatures[patternChar] == ScannerHelper.C_LOWER_LETTER
+				: Character.isLowerCase(patternChar)) {
 			if (iPattern == 0 && name[iName] == patternChar) {
 				// pattern char == name char (lowercase first char)
 				iName++;
@@ -293,7 +298,15 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		}
 		checkName: while (iName < nameEnd) {
 			if ((nameChar = name[iName]) != patternChar) {
-				if (Character.isLowerCase(nameChar)) {
+				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
+					switch (ScannerHelper.ObviousIdentCharNatures[nameChar]) {
+						case ScannerHelper.C_LOWER_LETTER :
+						case ScannerHelper.C_LETTER :
+							// lowercase name char is ignored
+							iName++;
+							continue checkName;
+					}
+				} else if (Character.isLowerCase(nameChar)) {
 					// lowercase name char is ignored
 					iName++;
 					continue checkName;
