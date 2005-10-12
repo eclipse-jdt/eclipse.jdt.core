@@ -2129,4 +2129,26 @@ public class JavadocTest_1_5 extends JavadocTest {
 			}
 		);
 	}
+
+	/**
+	 * Bug 112346: [javadoc] {@inheritedDoc} should be inactive for non-overridden method
+	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=112346"
+	 */
+	public void testBug112346() {
+		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"/**\n" + 
+				" * Test references\n" + 
+				" * @see Test#field\n" + 
+				" * @see Test#foo()\n" + 
+				" */\n" + 
+				"public class Test<T> {\n" + 
+				"	T field;\n" + 
+				"	T foo() { return null; }\n" + 
+				"}\n"
+			}
+		);
+	}
 }

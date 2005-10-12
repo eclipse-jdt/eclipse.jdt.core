@@ -248,6 +248,9 @@ public class Javadoc extends ASTNode {
 					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, modifiers);
 				}
 			}
+			
+			// That's it for field references
+			return;
 		}
 
 		// If not 1.5 level, verification is finished
