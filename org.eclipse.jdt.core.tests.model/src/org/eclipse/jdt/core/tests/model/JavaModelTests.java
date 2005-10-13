@@ -11,15 +11,9 @@
 package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.resources.*;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 
 import junit.framework.Test;
 /**
@@ -28,8 +22,18 @@ import junit.framework.Test;
 public class JavaModelTests extends ModifyingResourceTests {
 
 public static Test suite() {
-	return new Suite(JavaModelTests.class);
+	return buildTestSuite(JavaModelTests.class);
 }
+
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+//	TESTS_PREFIX =  "testBug100772_ProjectScope";
+//	TESTS_NAMES = new String[] { "testPreProcessingResourceChangedListener03" };
+//	TESTS_NUMBERS = new int[] { 100772 };
+//	TESTS_RANGE = new int[] { 83304, -1 };
+}
+
 public JavaModelTests(String name) {
 	super(name);
 }
@@ -431,6 +435,89 @@ public void testGetSchedulingRule4() {
 public void testInitializeAfterLoad() throws CoreException {
 	simulateExitRestart();
 	JavaCore.initializeAfterLoad(null);
+}
+
+/*
+ * Ensures that a registered pre-processing resource changed listener is correctly called.
+ */
+public void testPreProcessingResourceChangedListener01() throws CoreException {
+	final int[] eventType = new int[] {0};
+	IResourceChangeListener listener = new IResourceChangeListener(){
+		public void resourceChanged(IResourceChangeEvent event) {
+			eventType[0] |= event.getType();
+		}
+	};
+	try {
+		JavaCore.addPreProcessingResourceChangedListener(listener);
+		createProject("Test");
+		assertEquals("Unexpected event type", IResourceChangeEvent.POST_CHANGE, eventType[0]);
+	} finally {
+		JavaCore.removePreProcessingResourceChangedListener(listener);
+		deleteProject("Test");
+	}
+}
+
+/*
+ * Ensures that a registered PRE_BUILD pre-processing resource changed listener is correctly called.
+ */
+public void testPreProcessingResourceChangedListener02() throws CoreException {
+	final int[] eventType = new int[] {0};
+	IResourceChangeListener listener = new IResourceChangeListener(){
+		public void resourceChanged(IResourceChangeEvent event) {
+			eventType[0] |= event.getType();
+		}
+	};
+	try {
+		JavaCore.addPreProcessingResourceChangedListener(listener, IResourceChangeEvent.PRE_BUILD);
+		createProject("Test");
+		waitForAutoBuild();
+		assertEquals("Unexpected event type", IResourceChangeEvent.PRE_BUILD, eventType[0]);
+	} finally {
+		JavaCore.removePreProcessingResourceChangedListener(listener);
+		deleteProject("Test");
+	}
+}
+
+/*
+ * Ensures that a registered POST_BUILD pre-processing resource changed listener is correctly called.
+ */
+public void testPreProcessingResourceChangedListener03() throws CoreException {
+	final int[] eventType = new int[] {0};
+	IResourceChangeListener listener = new IResourceChangeListener(){
+		public void resourceChanged(IResourceChangeEvent event) {
+			eventType[0] |= event.getType();
+		}
+	};
+	try {
+		JavaCore.addPreProcessingResourceChangedListener(listener, IResourceChangeEvent.POST_BUILD);
+		createProject("Test");
+		waitForAutoBuild();
+		assertEquals("Unexpected event type", IResourceChangeEvent.POST_BUILD, eventType[0]);
+	} finally {
+		JavaCore.removePreProcessingResourceChangedListener(listener);
+		deleteProject("Test");
+	}
+}
+
+/*
+ * Ensures that a registered POST_CHANGE | PRE_BUILD pre-processing resource changed listener is correctly called.
+ */
+public void testPreProcessingResourceChangedListener04() throws CoreException {
+	final int[] eventType = new int[] {0};
+	IResourceChangeListener listener = new IResourceChangeListener(){
+		public void resourceChanged(IResourceChangeEvent event) {
+			eventType[0] |= event.getType();
+		}
+	};
+	try {
+		JavaCore.addPreProcessingResourceChangedListener(listener, IResourceChangeEvent.POST_CHANGE | IResourceChangeEvent.POST_BUILD);
+		createProject("Test");
+		waitForAutoBuild();
+		assertEquals("Unexpected event type", IResourceChangeEvent.POST_CHANGE | IResourceChangeEvent.POST_BUILD, eventType[0]);
+	} finally {
+		JavaCore.removePreProcessingResourceChangedListener(listener);
+		deleteProject("Test");
+	}
 }
 }
 

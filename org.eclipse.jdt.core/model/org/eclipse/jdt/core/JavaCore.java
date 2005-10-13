@@ -1115,7 +1115,27 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener) {
-		JavaModelManager.getJavaModelManager().deltaState.addPreResourceChangedListener(listener);
+		addPreProcessingResourceChangedListener(listener, IResourceChangeEvent.POST_CHANGE);
+	}
+	
+	/**
+	 * Adds the given listener for resource change events of the given types to the Java core. 
+	 * The listener is guarantied to be notified of the resource change event before
+	 * the Java core starts processing the resource change event itself.
+	 * <p>
+	 * If an identical listener is already registered, the given event types are added to the event types 
+	 * of interest to the listener.
+	 * </p>
+	 * 
+	 * @param listener the listener
+	 * @param eventMask the bit-wise OR of all event types of interest to the
+	 * listener
+	 * @see #removePreProcessingResourceChangedListener(IResourceChangeListener)
+	 * @see IResourceChangeEvent
+	 * @since 3.2
+	 */
+	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener, int eventMask) {
+		JavaModelManager.getJavaModelManager().deltaState.addPreResourceChangedListener(listener, eventMask);
 	}
 	
 	/**
