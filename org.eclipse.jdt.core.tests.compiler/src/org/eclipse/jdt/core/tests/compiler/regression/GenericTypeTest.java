@@ -24334,5 +24334,24 @@ public void test839() {
 		},
 		"SUCCESS");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112268
+public void test841() {
+	this.runConformTest(
+		new String[] {
+			"X.java ", // =================
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  List<? extends Comparator> bar() {\n" + 
+			"	  List<? extends Comparator> l = foo();\n" + 
+			"	  return foo();\n" + 
+			"  }\n" + 
+			"  <T> List<T> foo() {\n" + 
+			"	  return null;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
+}
 }
 
