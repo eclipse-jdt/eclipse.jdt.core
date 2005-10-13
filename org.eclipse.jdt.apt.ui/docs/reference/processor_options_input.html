@@ -10,6 +10,15 @@
     <h1>
       Processor Option Input Dialog
     </h1>
-    <p>(To do: helpful information about the processor option input dialog.)
+    <p>The Processor Option input dialog is reached from the <a href="apt_config.html">Annotation Processing
+    preferences pane</a>.  It allows processor options to be added or modified.  
+    <p>Options entered here will be presented to the processors through the AnnotationProcessorEnvironment
+    interface.  Each option will be presented in two forms: as a key/value pair, and as a combined
+    key corresponding to the command-line form of the option, namely &quot;-Akey=value&quot;.
+    For instance, an option with key &quot;foo&quot; and value &quot;bar&quot; would be presented
+    both that way and as key &quot;-Afoo=bar&quot;, value null.
+    <p>Certain options are automatically provided to the processors; entering them in this dialog
+    will have no effect, since the automatically provided values will override any values set here.  
+    The automatic options are described <a href="automatic_processor_options.html">here</a>.
   </body>
 </html>

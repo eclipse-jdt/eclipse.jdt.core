@@ -10,6 +10,22 @@
     <h1>
       Advanced Factory Path Options Dialog
     </h1>
-    <p>(To do: helpful information about the factory path advanced options dialog.)
+    <p>The Advanced Factory Path Options dialog is reached from the <a href="factorypath.html">Factory Path</a>
+    preferences pane.  It is used to view the individual processor factories within a plugin or jar file
+    and to configure additional options.  Options on this dialog do not normally need to be changed from
+    the default.
+    <p>
+    <dl>
+    <dt><strong>Run this container's processors in batch mode</strong></dt>
+    <dd>
+    When this option is selected, the processors and processor factories in this jar will be run in  
+    a mode that enhances compatibility with the Sun&trade; command-line tool apt.  In this mode, 
+    processor classes are loaded at the beginning of a build, executed over the full set of Java types,
+    and then unloaded, as they would be when running apt at the command line.  Processors run in this
+    mode are only run during a full build, not during incremental builds.
+    This option is only configurable for jar files; for plugins it is always set to false.  
+    </dd>
+    </dl>
+    
   </body>
 </html>
