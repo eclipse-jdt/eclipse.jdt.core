@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.*;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
