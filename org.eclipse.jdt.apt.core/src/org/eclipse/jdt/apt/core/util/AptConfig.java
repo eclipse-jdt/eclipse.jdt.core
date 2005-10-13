@@ -123,6 +123,7 @@ public class AptConfig {
      * most of its command line options to the processor environment.  The
      * programmatically set options are:
      *  -classpath [set to Java build path]
+     *  -sourcepath [set to Java source path]
      *  -s [set to generated src dir]
      *  -d [set to binary output dir]
      *  -target [set to compiler target version]
@@ -173,7 +174,10 @@ public class AptConfig {
     				sourcepathSB.append(workspaceRootPath.append(sourcepath).toOSString());
     			}
     		}
-    		// if you add options here, also add them in isAutomaticProcessorOption()
+    		// if you add options here, also add them in isAutomaticProcessorOption(),
+    		// and document them in docs/reference/automatic_processor_options.html.
+    		
+    		// Classpath and sourcepath
     		options.put("-classpath",classpathSB.toString()); //$NON-NLS-1$
     		options.put("-sourcepath", sourcepathSB.toString()); //$NON-NLS-1$
     		
