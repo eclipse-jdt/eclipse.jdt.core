@@ -302,11 +302,13 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 					switch (ScannerHelper.ObviousIdentCharNatures[nameChar]) {
 						case ScannerHelper.C_LOWER_LETTER :
 						case ScannerHelper.C_LETTER :
-							// lowercase name char is ignored
+						case ScannerHelper.C_DIGIT :
+							// lowercase/digit char is ignored
 							iName++;
 							continue checkName;
 					}
-				} else if (Character.isLowerCase(nameChar)) {
+				} else if (Character.isJavaIdentifierPart(nameChar) 
+								&& !Character.isUpperCase(nameChar)) {
 					// lowercase name char is ignored
 					iName++;
 					continue checkName;
