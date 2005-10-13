@@ -2517,6 +2517,7 @@ public class JavaModelManager implements ISaveParticipant {
 			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			workspace.addResourceChangeListener(
 				this.deltaState,
+				/* update spec in JavaCore#addPreProcessingResourceChangedListener(...) if adding more event types */
 				IResourceChangeEvent.PRE_BUILD
 					| IResourceChangeEvent.POST_BUILD
 					| IResourceChangeEvent.POST_CHANGE

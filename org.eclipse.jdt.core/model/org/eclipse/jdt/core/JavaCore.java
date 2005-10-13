@@ -1113,6 +1113,7 @@ public final class JavaCore extends Plugin {
 	 * @param listener the listener
 	 * @see #removePreProcessingResourceChangedListener(IResourceChangeListener)
 	 * @since 3.0
+	 * @deprecated use addPreProcessingResourceChangedListener(listener, IResourceChangeEvent.POST_CHANGE) instead
 	 */
 	public static void addPreProcessingResourceChangedListener(IResourceChangeListener listener) {
 		addPreProcessingResourceChangedListener(listener, IResourceChangeEvent.POST_CHANGE);
@@ -1125,6 +1126,17 @@ public final class JavaCore extends Plugin {
 	 * <p>
 	 * If an identical listener is already registered, the given event types are added to the event types 
 	 * of interest to the listener.
+	 * </p>
+	 * <p>
+	 * Supported event types are:
+	 * <ul>
+	 * <li>{@link IResourceChangeEvent#PRE_BUILD}</li>
+	 * <li>{@link IResourceChangeEvent#POST_BUILD}</li>
+	 * <li>{@link IResourceChangeEvent#POST_CHANGE}</li>
+	 * <li>{@link IResourceChangeEvent#PRE_DELETE}</li>
+	 * <li>{@link IResourceChangeEvent#PRE_CLOSE}</li>
+	 * </ul>
+	 * This list may increase in the future.
 	 * </p>
 	 * 
 	 * @param listener the listener

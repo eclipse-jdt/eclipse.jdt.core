@@ -437,8 +437,9 @@ public void testInitializeAfterLoad() throws CoreException {
 	JavaCore.initializeAfterLoad(null);
 }
 
-/*
+/**
  * Ensures that a registered pre-processing resource changed listener is correctly called.
+ * @deprecated since using deprecated API
  */
 public void testPreProcessingResourceChangedListener01() throws CoreException {
 	final int[] eventType = new int[] {0};
