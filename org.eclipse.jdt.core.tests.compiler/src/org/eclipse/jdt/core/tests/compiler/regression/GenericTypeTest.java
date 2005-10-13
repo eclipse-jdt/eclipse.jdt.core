@@ -25997,4 +25997,32 @@ public void test841() {
 		},
 		"");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112500
+public void test842() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	static <T> List<T> merge(List<? extends T> a, List<? extends T> b) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<String> list1 = null;\n" + 
+			"		List<StringBuilder> list2 = null;\n" + 
+			"		List<? extends CharSequence> result = merge(list1, list2);\n" + 
+			"		List<? extends String> result2 = merge(list1, list2);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	List<? extends String> result2 = merge(list1, list2);\n" + 
+		"	                                 ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
+		"----------\n");
+}
+
 }

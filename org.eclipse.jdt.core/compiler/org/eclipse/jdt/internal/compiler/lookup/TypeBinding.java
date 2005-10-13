@@ -341,6 +341,8 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 					WildcardBinding wildcard = (WildcardBinding) this;
 					switch(wildcard.boundKind) {
 						case Wildcard.EXTENDS :
+							if (wildcard.otherBounds != null) // intersection type
+								break;
 							upperBound = wildcard.bound;
 							lowerBound = null;
 							break;
