@@ -285,17 +285,30 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 	
 	nextPatternChar: while (iPattern < patternEnd) {
 					
-		if ((patternChar = pattern[iPattern]) < ScannerHelper.MAX_OBVIOUS
-				? ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] == ScannerHelper.C_LOWER_LETTER
-				: Character.isLowerCase(patternChar)) {
-			if (iPattern == 0 && name[iName] == patternChar) {
+		patternChar = pattern[iPattern];
+		if (iPattern == 0) {
+			if (name[iName] == patternChar) {
 				// pattern char == name char (lowercase first char)
 				iName++;
 				iPattern++;
 				continue nextPatternChar;
 			}
-			// end of uppercase part of pattern
-			break nextPatternChar;
+			// first char must strictly match (upper/lower)
+			return false;
+		} else {
+			// check patternChar, keep camelCasing only if uppercase
+			if (patternChar < ScannerHelper.MAX_OBVIOUS) {
+				switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar]) {
+					case ScannerHelper.C_UPPER_LETTER :
+						// still uppercase
+						break;
+					default:
+						// end of camelCase part of pattern
+						break nextPatternChar;				}
+			} else if (Character.isJavaIdentifierPart(patternChar) 
+							&& !Character.isUpperCase(patternChar)) {
+				// end of camelCase part of pattern
+				break nextPatternChar;			}
 		}
 		nextNameChar: while (iName < nameEnd) {
 			if ((nameChar = name[iName]) != patternChar) {
