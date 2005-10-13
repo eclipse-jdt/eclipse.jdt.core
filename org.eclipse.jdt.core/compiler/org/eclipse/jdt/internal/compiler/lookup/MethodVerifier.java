@@ -49,7 +49,7 @@ MethodVerifier(LookupEnvironment environment) {
 	this.environment = environment;
 }
 boolean areMethodsEqual(MethodBinding one, MethodBinding two) {
-	return areParametersEqual(one, two);
+	return doesMethodOverride(one, two) && areReturnTypesEqual(one, two);
 }
 boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	TypeBinding[] oneArgs = one.parameters;
@@ -111,11 +111,8 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 			problemReporter(currentMethod).staticAndInstanceConflict(currentMethod, inheritedMethod);
 			continue nextMethod;
 		}
-		if (!areReturnTypesEqual(currentMethod, inheritedMethod)) {
-			problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
-			continue nextMethod;
-		}
 
+		// want to tag currentMethod even if return types are not equal
 		if (inheritedMethod.isAbstract()) {
 			if (inheritedMethod.declaringClass.isInterface()) {
 				currentMethod.modifiers |= CompilerModifiers.AccImplementing;
@@ -128,6 +125,11 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 //				currentMethod.modifiers |= CompilerModifiers.AccImplementing;
 		} else {
 			currentMethod.modifiers |= CompilerModifiers.AccOverriding;
+		}
+
+		if (!areReturnTypesEqual(currentMethod, inheritedMethod)) {
+			problemReporter(currentMethod).incompatibleReturnType(currentMethod, inheritedMethod);
+			continue nextMethod;
 		}
 
 		if (currentMethod.thrownExceptions != NoExceptions)
@@ -271,7 +273,7 @@ void checkMethods() {
 				for (int j = 0, length2 = inherited.length; j < length2; j++) {
 					MethodBinding inheritedMethod = computeSubstituteMethod(inherited[j], currentMethod);
 					if (inheritedMethod != null) {
-						if (areMethodsEqual(currentMethod, inheritedMethod)) {
+						if (doesMethodOverride(currentMethod, inheritedMethod)) {
 							matchingInherited[++index] = inheritedMethod;
 							inherited[j] = null; // do not want to find it again
 						}
@@ -295,7 +297,7 @@ void checkMethods() {
 					continue;
 				otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
 				if (otherInheritedMethod != null) {
-					if (areMethodsEqual(inheritedMethod, otherInheritedMethod)) {
+					if (doesMethodOverride(inheritedMethod, otherInheritedMethod)) {
 						matchingInherited[++index] = otherInheritedMethod;
 						inherited[j] = null; // do not want to find it again
 					}
@@ -327,7 +329,7 @@ void checkPackagePrivateAbstractMethod(MethodBinding abstractMethod) {
 				MethodBinding method = methods[m];
 				if (method.isPrivate() || method.isConstructor() || method.isDefaultAbstract())
 					continue nextMethod;
-				if (doesMethodOverride(method, abstractMethod))
+				if (areMethodsEqual(method, abstractMethod))
 					return; // found concrete implementation of abstract method in same package
 			}
 		}
@@ -391,7 +393,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 			MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(inheritedMethod.selector);
 			if (existingMethods != null) {
 				for (int i = 0, length = existingMethods.length; i < length; i++) {
-					if (existingMethods[i].declaringClass != inheritedMethod.declaringClass && doesMethodOverride(existingMethods[i], inheritedMethod)) {
+					if (existingMethods[i].declaringClass != inheritedMethod.declaringClass && areMethodsEqual(existingMethods[i], inheritedMethod)) {
 						if (inheritedMethod.isDefault() && inheritedMethod.isAbstract())
 							checkPackagePrivateAbstractMethod(inheritedMethod);
 						continue nextMethod;
@@ -401,7 +403,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 			MethodBinding[] nonVisible = (MethodBinding[]) nonVisibleDefaultMethods.get(inheritedMethod.selector);
 			if (nonVisible != null)
 				for (int i = 0, l = nonVisible.length; i < l; i++)
-					if (doesMethodOverride(nonVisible[i], inheritedMethod))
+					if (areMethodsEqual(nonVisible[i], inheritedMethod))
 						continue nextMethod;
 
 			if (!inheritedMethod.isDefault() || inheritedMethod.declaringClass.fPackage == type.fPackage) {
@@ -429,7 +431,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 				MethodBinding[] current = (MethodBinding[]) this.currentMethods.get(inheritedMethod.selector);
 				if (current != null) { // non visible methods cannot be overridden so a warning is issued
 					foundMatch : for (int i = 0, length = current.length; i < length; i++) {
-						if (doesMethodOverride(current[i], inheritedMethod)) {
+						if (areMethodsEqual(current[i], inheritedMethod)) {
 							problemReporter().overridesPackageDefaultMethod(current[i], inheritedMethod);
 							break foundMatch;
 						}
@@ -506,7 +508,7 @@ MethodBinding computeSubstituteMethod(MethodBinding inheritedMethod, MethodBindi
 	return inheritedMethod;
 }
 public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
-	return areMethodsEqual(method, inheritedMethod) && areReturnTypesEqual(method, inheritedMethod);
+	return areParametersEqual(method, inheritedMethod);
 }
 boolean isAsVisible(MethodBinding newMethod, MethodBinding inheritedMethod) {
 	if (inheritedMethod.modifiers == newMethod.modifiers) return true;

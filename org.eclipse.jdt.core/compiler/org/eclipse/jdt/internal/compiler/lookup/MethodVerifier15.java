@@ -17,8 +17,9 @@ class MethodVerifier15 extends MethodVerifier {
 MethodVerifier15(LookupEnvironment environment) {
 	super(environment);
 }
-boolean areMethodsEqual(MethodBinding one, MethodBinding substituteTwo) {
-	return areParametersEqual(one, substituteTwo) && !doTypeVariablesClash(one, substituteTwo);
+boolean areMethodsEqual(MethodBinding one, MethodBinding two) {
+	MethodBinding sub = computeSubstituteMethod(two, one);
+	return sub != null && super.areMethodsEqual(one, sub);
 }
 boolean areParametersEqual(MethodBinding one, MethodBinding two) {
 	TypeBinding[] oneArgs = one.parameters;
@@ -151,7 +152,7 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 		for (int i = 0, l = allInheritedMethods.length; i < l; i++) {
 			MethodBinding otherInheritedMethod = allInheritedMethods[i];
 			MethodBinding otherOriginal = otherInheritedMethod.original();
-			if (otherOriginal == otherInheritedMethod || areMethodsEqual(inheritedMethod, otherInheritedMethod)) continue;
+			if (otherOriginal == otherInheritedMethod || doesMethodOverride(inheritedMethod, otherInheritedMethod)) continue;
 			if (detectInheritedMethodClash(originalInherited, otherOriginal))
 				return;
 		}
@@ -233,7 +234,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 			MethodBinding[] methods = superType.getMethods(currentMethod.selector);
 			for (int m = 0, n = methods.length; m < n; m++)
 				if (currentMethod.parameters.length == methods[m].parameters.length)
-					if (!areMethodsEqual(currentMethod, methods[m]) && detectNameClash(currentMethod, methods[m]))
+					if (!doesMethodOverride(currentMethod, methods[m]) && detectNameClash(currentMethod, methods[m]))
 						return;
 			if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
 				if (++lastPosition == interfacesToVisit.length)
@@ -251,7 +252,7 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 					MethodBinding[] methods = superType.getMethods(currentMethod.selector);
 					for (int m = 0, n = methods.length; m < n; m++)
 						if (currentMethod.parameters.length == methods[m].parameters.length)
-							if (!areMethodsEqual(currentMethod, methods[m]) && detectNameClash(currentMethod, methods[m]))
+							if (!doesMethodOverride(currentMethod, methods[m]) && detectNameClash(currentMethod, methods[m]))
 								return;
 					if ((itsInterfaces = superType.superInterfaces()) != NoSuperInterfaces) {
 						if (++lastPosition == interfacesToVisit.length)
@@ -268,7 +269,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 	nextMethod : for (int i = 0, l = length - 1; i < l;) {
 		MethodBinding method = methods[i++];
 		for (int j = i; j <= l; j++) {
-			if (method.declaringClass == methods[j].declaringClass && doesMethodOverride(method, methods[j])) {
+			if (method.declaringClass == methods[j].declaringClass && areMethodsEqual(method, methods[j])) {
 				// found an inherited ParameterizedType that defines duplicate methods
 				problemReporter().duplicateInheritedMethods(this.type, method, methods[j]);
 				count--;
@@ -316,7 +317,7 @@ void checkMethods() {
 				for (int j = 0, length2 = inherited.length; j < length2; j++) {
 					MethodBinding inheritedMethod = computeSubstituteMethod(inherited[j], currentMethod);
 					if (inheritedMethod != null) {
-						if (foundMatch[j] == 0 && areMethodsEqual(currentMethod, inheritedMethod)) {
+						if (foundMatch[j] == 0 && doesMethodOverride(currentMethod, inheritedMethod)) {
 							matchingInherited[++index] = inheritedMethod;
 							foundMatch[j] = 1; // cannot null out inherited methods
 						} else {
@@ -342,7 +343,7 @@ void checkMethods() {
 					continue;
 				otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
 				if (otherInheritedMethod != null) {
-					if (areMethodsEqual(inheritedMethod, otherInheritedMethod)) {
+					if (doesMethodOverride(inheritedMethod, otherInheritedMethod)) {
 						matchingInherited[++index] = otherInheritedMethod;
 						foundMatch[j] = 1; // cannot null out inherited methods
 					} else {
@@ -379,7 +380,7 @@ void checkTypeVariableMethods() {
 					if (canSkipInheritedMethods(inheritedMethod, otherInheritedMethod))
 						continue;
 					otherInheritedMethod = computeSubstituteMethod(otherInheritedMethod, inheritedMethod);
-					if (otherInheritedMethod != null && areMethodsEqual(inheritedMethod, otherInheritedMethod)) {
+					if (otherInheritedMethod != null && doesMethodOverride(inheritedMethod, otherInheritedMethod)) {
 						matchingInherited[++index] = otherInheritedMethod;
 						inherited[j] = null; // do not want to find it again
 					}
@@ -437,9 +438,27 @@ boolean detectNameClash(MethodBinding current, MethodBinding inherited) {
 	}
 	return false;
 }
-public boolean doesMethodOverride(MethodBinding one, MethodBinding two) {
-	MethodBinding sub = computeSubstituteMethod(two, one);
-	return sub != null && super.doesMethodOverride(one, sub);
+public boolean doesMethodOverride(MethodBinding method, MethodBinding inheritedMethod) {
+	if (doTypeVariablesClash(method, inheritedMethod)) return false;
+	if (areParametersEqual(method, inheritedMethod)) return true;
+	if (method.declaringClass == inheritedMethod.declaringClass) return false;
+
+	TypeBinding[] params = method.parameters;
+	TypeBinding[] inheritedParams = inheritedMethod.parameters;
+	int length = params.length;
+	if (length != inheritedParams.length)
+		return false;
+
+	// also allow a method such as Number foo(Number) to override <U> T foo(T) where T extends Number
+	if (method.typeVariables != NoTypeVariables || !inheritedMethod.hasSubstitutedParameters())
+		return false;
+	if (method.declaringClass.findSuperTypeWithSameErasure(inheritedMethod.declaringClass) == null)
+		return false;
+
+	for (int i = 0; i < length; i++)
+		if (params[i] != inheritedParams[i].erasure())
+			return false;
+	return true;
 }
 boolean doParametersClash(MethodBinding one, MethodBinding substituteTwo) {
 	// must check each parameter pair to see if parameterized types are compatible
