@@ -22,7 +22,7 @@
 
 <target name="export plug-in [_1.0.0]">
 	<antcall target="zz_internal_export">
-		<param name="plugin_version" value="1.0.0"/>
+		<param name="plugin_version" value="3.1.0.apt02"/>
 	</antcall>
 </target>
 
@@ -48,8 +48,8 @@
         <fileset dir="bin" />
 	</zip>
 	
-	<echo message="UPDATE aptui_src.zip" />
-	<zip zipfile="${plugin-dir}/aptui_src.zip">
+	<echo message="UPDATE aptui src.zip" />
+	<zip zipfile="${plugin-dir}/src.zip">
 	    <fileset dir="src" />
 	</zip>		
 

@@ -22,7 +22,7 @@
 
 <target name="export plug-in [_1.0.0]">
 	<antcall target="zz_internal_export">
-		<param name="plugin_version" value="1.0.0"/>
+		<param name="plugin_version" value="3.1.0.apt02"/>
 	</antcall>
 </target>
 
@@ -57,14 +57,14 @@
 	</zip>
 
 	<echo message="UPDATE ${plugin}_${plugin_version}.jar with aptcore.jar" />
-	<zip zipfile="${plugin-dir}/aptcore_src.zip">
+	<zip zipfile="${plugin-dir}/aptcoresrc.zip">
 	    <fileset dir="src" />
 	</zip>		
 
 		
 
-	<echo message="UPDATE aptcore_src.zip" />
-	<zip zipfile="${plugin-dir}/aptcore_src.zip">
+	<echo message="UPDATE aptcoresrc.zip" />
+	<zip zipfile="${plugin-dir}/aptcoresrc.zip">
 	    <fileset dir="src" />
 	</zip>		
 
