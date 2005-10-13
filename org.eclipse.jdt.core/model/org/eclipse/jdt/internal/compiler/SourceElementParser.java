@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -54,6 +55,7 @@ public class SourceElementParser extends CommentRecorderParser {
 	LocalDeclarationVisitor localDeclarationVisitor = null;
 	CompilerOptions options;
 	HashtableOfObjectToInt sourceEnds = new HashtableOfObjectToInt();
+	HashMap nodesToCategories = new HashMap(); // a map from ASTNode to char[][]
 	
 /**
  * An ast visitor that visits local type declarations.
@@ -111,6 +113,8 @@ public SourceElementParser(
 	if (reportLocalDeclarations) {
 		this.localDeclarationVisitor = new LocalDeclarationVisitor();
 	}
+	// set specific javadoc parser
+	this.javadocParser = new SourceJavadocParser(this);
 }
 
 public void checkComment() {
@@ -251,6 +255,18 @@ protected void consumeClassInstanceCreationExpressionQualifiedWithTypeArguments(
 			alloc.sourceStart);
 	}
 }
+protected void consumeAnnotationTypeDeclarationHeaderName() {
+	int currentAstPtr = this.astPtr;
+	super.consumeAnnotationTypeDeclarationHeaderName();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		rememberCategories();
+}
+protected void consumeClassHeaderName1() {
+	int currentAstPtr = this.astPtr;
+	super.consumeClassHeaderName1();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		rememberCategories();
+}
 protected void consumeClassInstanceCreationExpressionWithTypeArguments() {
 	boolean previousFlag = reportReferenceInfo;
 	reportReferenceInfo = false; // not to see the type reference reported in super call to getTypeReference(...)
@@ -272,22 +288,27 @@ protected void consumeConstructorHeaderName() {
 	int selectorSourceEnd = (int) selectorSourcePositions;
 	int currentAstPtr = this.astPtr;
 	super.consumeConstructorHeaderName();
-	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+	if (this.astPtr > currentAstPtr) { // if ast node was pushed on the ast stack
 		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
+		rememberCategories();
+	}
 }
 protected void consumeConstructorHeaderNameWithTypeParameters() {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
 	int selectorSourceEnd = (int) selectorSourcePositions;
 	int currentAstPtr = this.astPtr;
 	super.consumeConstructorHeaderNameWithTypeParameters();
-	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+	if (this.astPtr > currentAstPtr) { // if ast node was pushed on the ast stack
 		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
+		rememberCategories();
+	}
 }
 protected void consumeEnumConstantWithClassBody() {
 	super.consumeEnumConstantWithClassBody();
 	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
 			&& astStack[astPtr] instanceof FieldDeclaration) {
 		this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
+		rememberCategories();
 	}
 }
 protected void consumeEnumConstantNoClassBody() {
@@ -295,7 +316,14 @@ protected void consumeEnumConstantNoClassBody() {
 	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
 			&& this.astStack[this.astPtr] instanceof FieldDeclaration) {
 		this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
+		rememberCategories();
 	}
+}
+protected void consumeEnumHeaderName() {
+	int currentAstPtr = this.astPtr;
+	super.consumeEnumHeaderName();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		rememberCategories();
 }
 protected void consumeExitVariableWithInitialization() {
 	// ExitVariableWithInitialization ::= $empty
@@ -305,6 +333,7 @@ protected void consumeExitVariableWithInitialization() {
 	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
 			&& this.astStack[this.astPtr] instanceof FieldDeclaration) {
 		this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
+		rememberCategories();
 	}
 }
 protected void consumeExitVariableWithoutInitialization() {
@@ -314,6 +343,7 @@ protected void consumeExitVariableWithoutInitialization() {
 	if ((currentToken == TokenNameCOMMA || currentToken == TokenNameSEMICOLON)
 			&& astStack[astPtr] instanceof FieldDeclaration) {
 		this.sourceEnds.put(this.astStack[this.astPtr], this.scanner.currentPosition - 1);
+		rememberCategories();
 	}
 }
 /*
@@ -328,6 +358,12 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 	if (reportReferenceInfo) {
 		requestor.acceptFieldReference(fr.token, fr.sourceStart);
 	}
+}
+protected void consumeInterfaceHeaderName1() {
+	int currentAstPtr = this.astPtr;
+	super.consumeInterfaceHeaderName1();
+	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+		rememberCategories();
 }
 protected void consumeMemberValuePair() {
 	super.consumeMemberValuePair();
@@ -348,9 +384,12 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 	int selectorSourceEnd = (int) selectorSourcePositions;
 	int currentAstPtr = this.astPtr;
 	super.consumeMethodHeaderName(isAnnotationMethod);
-	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
+	if (this.astPtr > currentAstPtr) { // if ast node was pushed on the ast stack
 		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
+		rememberCategories();
+	}
 }
+
 protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMethod) {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
 	int selectorSourceEnd = (int) selectorSourcePositions;
@@ -358,6 +397,7 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 	super.consumeMethodHeaderNameWithTypeParameters(isAnnotationMethod);
 	if (this.astPtr > currentAstPtr) // if ast node was pushed on the ast stack
 		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
+		rememberCategories();
 }
 /*
  *
@@ -525,6 +565,10 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	int selectorSourceEnd = this.sourceEnds.removeKey(c);
 	if (selectorSourceEnd != -1)
 		this.sourceEnds.put(methodDeclaration, selectorSourceEnd);
+	char[][] categories =  (char[][]) this.nodesToCategories.remove(c);
+	if (categories != null)
+		this.nodesToCategories.put(methodDeclaration, categories);
+	
 	return methodDeclaration;
 }
 protected CompilationUnitDeclaration endParse(int act) {
@@ -927,6 +971,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 			methodInfo.exceptionTypes = thrownExceptionTypes;
 			methodInfo.typeParameters = getTypeParameterInfos(methodDeclaration.typeParameters());
 			methodInfo.annotationPositions = collectAnnotationPositions(methodDeclaration.annotations);
+			methodInfo.categories = (char[][]) this.nodesToCategories.get(methodDeclaration);
 			requestor.enterConstructor(methodInfo);
 		}
 		if (reportReferenceInfo) {
@@ -978,6 +1023,7 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		methodInfo.exceptionTypes = thrownExceptionTypes;
 		methodInfo.typeParameters = getTypeParameterInfos(methodDeclaration.typeParameters());
 		methodInfo.annotationPositions = collectAnnotationPositions(methodDeclaration.annotations);
+		methodInfo.categories = (char[][]) this.nodesToCategories.get(methodDeclaration);
 		requestor.enterMethod(methodInfo);
 	}		
 		
@@ -1079,6 +1125,7 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 				fieldInfo.nameSourceStart = fieldDeclaration.sourceStart;
 				fieldInfo.nameSourceEnd = fieldDeclaration.sourceEnd;
 				fieldInfo.annotationPositions = collectAnnotationPositions(fieldDeclaration.annotations);
+				fieldInfo.categories = (char[][]) this.nodesToCategories.get(fieldDeclaration);
 				requestor.enterField(fieldInfo);
 			}
 			this.visitIfNeeded(fieldDeclaration, declaringType);
@@ -1197,6 +1244,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			typeInfo.superinterfaces = interfaceNames;
 			typeInfo.typeParameters = getTypeParameterInfos(typeDeclaration.typeParameters);
 			typeInfo.annotationPositions = collectAnnotationPositions(typeDeclaration.annotations);
+			typeInfo.categories = (char[][]) this.nodesToCategories.get(typeDeclaration);
 			requestor.enterType(typeInfo);
 			switch (kind) {
 				case TypeDeclaration.CLASS_DECL :
@@ -1271,6 +1319,14 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			requestor.exitType(typeDeclaration.declarationSourceEnd);
 		}
 		nestedTypeIndex--;
+	}
+}
+private void rememberCategories() {
+	SourceJavadocParser sourceJavadocParser = (SourceJavadocParser) this.javadocParser;
+	char[][] categories =  sourceJavadocParser.categories;
+	if (categories.length > 0) {
+		this.nodesToCategories.put(this.astStack[this.astPtr], categories);
+		sourceJavadocParser.categories = CharOperation.NO_CHAR_CHAR;
 	}
 }
 private int sourceEnd(TypeDeclaration typeDeclaration) {

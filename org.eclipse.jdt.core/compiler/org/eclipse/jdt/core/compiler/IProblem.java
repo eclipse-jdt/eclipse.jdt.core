@@ -840,6 +840,7 @@ void setSourceStart(int sourceStart);
 	int JavadocMalformedSeeReference = Javadoc + Internal + 513;
 	/** @since 3.0 */
 	int JavadocMessagePrefix = Internal + 514;
+
 	/** @since 3.1 */
 	int JavadocMissingHashCharacter = Javadoc + Internal + 515;
 	/** @since 3.1 */
@@ -852,8 +853,11 @@ void setSourceStart(int sourceStart);
 	int JavadocInvalidParamTagName = Javadoc + Internal + 519;
 	/** @since 3.1 */
 	int JavadocInvalidParamTagTypeParameter = Javadoc + Internal + 469;
+
 	/** @since 3.2 */
 	int JavadocNonStaticTypeFromStaticInvocation = Javadoc + Internal + 468;
+	/** @since 3.2 */
+	int JavadocMissingIdentifier = Javadoc + Internal + 467;
 
 	/**
 	 * Generics

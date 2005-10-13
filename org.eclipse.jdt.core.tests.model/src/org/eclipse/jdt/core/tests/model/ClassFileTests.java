@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.*;
@@ -20,6 +22,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 	
 	IPackageFragmentRoot jarRoot;
 	ICompilationUnit workingCopy;
+	IClassFile classFile;
 	
 public ClassFileTests(String name) {
 	super(name);
@@ -29,7 +32,7 @@ public ClassFileTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX = "testBug";
-//	TESTS_NAMES = new String[] { "testWorkingCopy08"};
+//	TESTS_NAMES = new String[] { "testGetChildrenForCategory01"};
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -108,7 +111,18 @@ public void tearDownSuite() throws Exception {
 protected void tearDown() throws Exception {
 	if (this.workingCopy != null)
 		this.workingCopy.discardWorkingCopy();
+	if (this.classFile != null) {
+		removeLibrary(getJavaProject("P"), "lib2.jar", "src2.zip");
+		this.classFile = null;
+	}
 	super.tearDown();
+}
+
+private IClassFile createClassFile(String contents) throws CoreException, IOException {
+	IJavaProject project = getJavaProject("P");
+	addLibrary(project, "lib2.jar", "src2.zip", new String[] {"p/X.java", contents}, "1.5");
+	this.classFile =  project.getPackageFragmentRoot(getFile("/P/lib2.jar")).getPackageFragment("p").getClassFile("X.class");
+	return this.classFile;
 }
 
 /*
@@ -134,6 +148,99 @@ public void testExceptionTypes2() throws JavaModelException {
 		"Ljava.lang.RuntimeException;\n" + 
 		"TU;\n",
 		method.getExceptionTypes());
+}
+
+/*
+ * Ensure that the categories for a class are correct.
+ */
+public void testGetCategories01() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"/**\n" +
+		" * @category test\n" +
+		" */\n" +
+		"public class X {\n" +
+		"}"
+	);
+	String[] categories = this.classFile.getType().getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensure that the categories for a field are correct.
+ */
+public void testGetCategories02() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  int field;\n" +
+		"}"
+	);
+	String[] categories = this.classFile.getType().getField("field").getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensure that the categories for a method are correct.
+ */
+public void testGetCategories03() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  void foo() {}\n" +
+		"}"
+	);
+	String[] categories = this.classFile.getType().getMethod("foo", new String[0]).getCategories();
+	assertStringsEqual(
+		"Unexpected categories",
+		"test\n",
+		categories);
+}
+
+/*
+ * Ensures that the children of a type for a given category are correct.
+ */
+public void testGetChildrenForCategory01() throws CoreException, IOException {
+	createClassFile(
+		"package p;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  int field;\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  void foo1() {}\n" +
+		"  /**\n" +
+		"   * @category test\n" +
+		"   */\n" +
+		"  void foo2() {}\n" +
+		"  /**\n" +
+		"   * @category other\n" +
+		"   */\n" +
+		"  void foo3() {}\n" +
+		"}"
+	);
+	IJavaElement[] children = this.classFile.getType().getChildrenForCategory("test");
+	assertElementsEqual(
+		"Unexpected children",
+		"field [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"foo1() [in X [in X.class [in p [in lib2.jar [in P]]]]]\n" + 
+		"foo2() [in X [in X.class [in p [in lib2.jar [in P]]]]]",
+		children);
 }
 
 /*
@@ -261,9 +368,9 @@ public void testReturnType2() throws JavaModelException {
  * (regression test for bug 101228 JME on code assist)
  */
 public void testTypeParameter() throws CoreException {
-	IClassFile classFile = this.jarRoot.getPackageFragment("generic").getClassFile("X.class");
-	ITypeParameter typeParameter = classFile.getType().getTypeParameter("T");
-	classFile.close();
+	IClassFile clazz = this.jarRoot.getPackageFragment("generic").getClassFile("X.class");
+	ITypeParameter typeParameter = clazz.getType().getTypeParameter("T");
+	clazz.close();
 	assertStringsEqual(
 		"Unexpected bounds", 
 		"java.lang.Object\n",
@@ -283,8 +390,8 @@ public void testVarargs() throws JavaModelException {
  * Ensures that a class file can be turned into a working copy and that its children are correct.
  */
 public void testWorkingCopy01() throws CoreException {
-	IClassFile classFile = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-	this.workingCopy = classFile.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
 	assertElementDescendants(
 		"Unexpected children", 
 		"[Working copy] X.class\n" + 
@@ -301,9 +408,9 @@ public void testWorkingCopy02() throws CoreException {
 	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
 	try {
 		attachSource(this.jarRoot, null, null);
-		IClassFile classFile = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-		assertNull("Should not have source attached", classFile.getSource());
-		this.workingCopy = classFile.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+		IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+		assertNull("Should not have source attached", clazz.getSource());
+		this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
 		assertElementDescendants(
 			"Unexpected children", 
 			"[Working copy] X.class\n" + 
@@ -321,8 +428,8 @@ public void testWorkingCopy02() throws CoreException {
  * Ensures that a class file can be turned into a working copy, modified and that its children are correct.
  */
 public void testWorkingCopy03() throws CoreException {
-	IClassFile classFile = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-	this.workingCopy = classFile.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
 		"package workingcopy;\n" +
 		"public class X {\n" + 
@@ -344,8 +451,8 @@ public void testWorkingCopy03() throws CoreException {
  * Ensures that a class file working copy cannot be commited
  */
 public void testWorkingCopy04() throws CoreException {
-	IClassFile classFile = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-	this.workingCopy = classFile.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
 		"package workingcopy;\n" +
 		"public class X {\n" + 
@@ -369,8 +476,8 @@ public void testWorkingCopy04() throws CoreException {
  * Ensures that a type can be created in class file working copy.
  */
 public void testWorkingCopy05() throws CoreException {
-	IClassFile classFile = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
-	this.workingCopy = classFile.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
 	this.workingCopy.createType(
 		"class Y {\n" + 
 		"}",
@@ -391,9 +498,9 @@ public void testWorkingCopy05() throws CoreException {
  * Ensures that the primary compilation unit of class file working copy is correct.
  */
 public void testWorkingCopy06() throws CoreException {
-	IClassFile classFile = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
-	this.workingCopy = classFile.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
+	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
 	ICompilationUnit primary = this.workingCopy.getPrimary();
 	assertEquals("Unexpected owner of primary working copy", null, primary.getOwner());
 }
@@ -402,9 +509,9 @@ public void testWorkingCopy06() throws CoreException {
  * Ensures that a class file working copy can be restored from the original source.
  */
 public void testWorkingCopy07() throws CoreException {
-	IClassFile classFile = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
-	this.workingCopy = classFile.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
+	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
 		"package workingcopy;\n" +
 		"public class X {\n" + 
@@ -427,9 +534,9 @@ public void testWorkingCopy07() throws CoreException {
  * Ensures that a class file working copy can be reconciled against.
  */
 public void testWorkingCopy08() throws CoreException {
-	IClassFile classFile = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
-	this.workingCopy = classFile.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
+	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
 		"package workingcopy;\n" +
 		"public class X {\n" + 
@@ -468,9 +575,9 @@ public void testWorkingCopy08() throws CoreException {
  * Ensures that types in a class file are hidden if the class file working copy is empty.
  */
 public void testWorkingCopy09() throws CoreException {
-	IClassFile classFile = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
-	this.workingCopy = classFile.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
+	this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, owner, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(	"");
 	this.workingCopy.makeConsistent(null);
 	
@@ -506,9 +613,9 @@ public void testWorkingCopy10() throws CoreException {
 	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
 	try {
 		attachSource(this.jarRoot, null, null);
-		IClassFile classFile = this.jarRoot.getPackageFragment("workingcopy").getClassFile("Y.class");
-		assertNull("Should not have source attached", classFile.getSource());
-		this.workingCopy = classFile.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
+		IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("Y.class");
+		assertNull("Should not have source attached", clazz.getSource());
+		this.workingCopy = clazz.becomeWorkingCopy(null/*no problem requestor*/, null/*primary owner*/, null/*no progress*/);
 		assertSourceEquals(
 			"Unexpected source", 
 			"package workingcopy;\n" + 

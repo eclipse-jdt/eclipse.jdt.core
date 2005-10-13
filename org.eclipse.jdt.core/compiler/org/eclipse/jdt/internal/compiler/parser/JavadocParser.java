@@ -56,8 +56,12 @@ public class JavadocParser extends AbstractCommentParser {
 		}
 		
 		// If there's no tag in javadoc, return without parsing it
-		if (this.kind == COMPIL_PARSER && this.firstTagPosition == 0) {
-			return false;
+		if (this.firstTagPosition == 0) {
+			switch (this.kind) {
+				case COMPIL_PARSER:
+				case SOURCE_PARSER:
+					return false;
+			}
 		}
 
 		// Parse
@@ -77,6 +81,7 @@ public class JavadocParser extends AbstractCommentParser {
 				this.index = javadocStart +3;
 	
 				// scan line per line, since tags must be at beginning of lines only
+				this.deprecated = false;
 				nextLine : for (int line = firstLineNumber; line <= lastLineNumber; line++) {
 					int lineStart = line == firstLineNumber
 							? javadocStart + 3 // skip leading /**
@@ -97,35 +102,20 @@ public class JavadocParser extends AbstractCommentParser {
 								// do nothing for space or '*' characters
 						        continue nextCharacter;
 						    case '@' :
-						        if ((readChar() == 'd') && (readChar() == 'e') &&
-										(readChar() == 'p') && (readChar() == 'r') &&
-										(readChar() == 'e') && (readChar() == 'c') &&
-										(readChar() == 'a') && (readChar() == 't') &&
-										(readChar() == 'e') && (readChar() == 'd')) {
-									// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
-									c = readChar();
-									if (Character.isWhitespace(c) || c == '*') {
-										return true;
-									}
-						        }
+						    	parseSimpleTag();
+						    	if (this.tagValue == TAG_DEPRECATED_VALUE) {
+						    		if (this.abort) break nextCharacter;
+						    	}
 						}
 			        	continue nextLine;
 					}
 				}
-				return false;
+				return this.deprecated;
 			}
 		} finally {
 			this.source = null; // release source as soon as finished
 		}
 		return this.deprecated;
-	}
-
-	public String toString() {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("check javadoc: ").append(this.checkDocComment).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
-		buffer.append("javadoc: ").append(this.docComment).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
-		buffer.append(super.toString());
-		return buffer.toString();
 	}
 
 	/* (non-Javadoc)
@@ -318,6 +308,47 @@ public class JavadocParser extends AbstractCommentParser {
 		return false;
 	}
 
+
+	protected void parseSimpleTag() {
+		
+		// Read first char
+		// readChar() code is inlined to balance additional method call in checkDeprectation(int)
+		char first = this.source[this.index++];
+		if (first == '\\' && this.source[this.index] == 'u') {
+			int c1, c2, c3, c4;
+			int pos = this.index;
+			this.index++;
+			while (this.source[this.index] == 'u')
+				this.index++;
+			if (!(((c1 = Character.getNumericValue(this.source[this.index++])) > 15 || c1 < 0)
+					|| ((c2 = Character.getNumericValue(this.source[this.index++])) > 15 || c2 < 0)
+					|| ((c3 = Character.getNumericValue(this.source[this.index++])) > 15 || c3 < 0) || ((c4 = Character.getNumericValue(this.source[this.index++])) > 15 || c4 < 0))) {
+				first = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+			} else {
+				this.index = pos;
+			}
+		}
+
+		// switch on first tag char
+		switch (first) {
+			case 'd':
+		        if ((readChar() == 'e') &&
+						(readChar() == 'p') && (readChar() == 'r') &&
+						(readChar() == 'e') && (readChar() == 'c') &&
+						(readChar() == 'a') && (readChar() == 't') &&
+						(readChar() == 'e') && (readChar() == 'd')) {
+					// ensure the tag is properly ended: either followed by a space, a tab, line end or asterisk.
+					char c = readChar();
+					if (Character.isWhitespace(c) || c == '*') {
+						this.abort = true;
+			    		this.deprecated = true;
+						this.tagValue = TAG_DEPRECATED_VALUE;
+					}
+		        }
+				break;
+		}
+	}
+
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
 		boolean valid = false;
 	
@@ -434,13 +465,25 @@ public class JavadocParser extends AbstractCommentParser {
 			case TerminalTokens.TokenNameIdentifier :
 				if (length == 0) break; // may happen for some parser (completion for example)
 				switch (tag[0]) {
+					case 'c':
+						if (CharOperation.equals(tag, TAG_CATEGORY)) {
+							valid = parseIdentifierTag();
+							this.tagValue = TAG_CATEGORY_VALUE;
+						}
+						break;
 					case 'd':
 						if (CharOperation.equals(tag, TAG_DEPRECATED)) {
 							this.deprecated = true;
 							valid = true;
 							this.tagValue = TAG_DEPRECATED_VALUE;
 						}
-					break;
+						break;
+					case 'e':
+						if (CharOperation.equals(tag, TAG_EXCEPTION)) {
+							this.tagValue = TAG_EXCEPTION_VALUE;
+							valid = parseThrows();
+						}
+						break;
 					case 'i':
 						if (CharOperation.equals(tag, TAG_INHERITDOC)) {
 							// inhibits inherited flag when tags have been already stored
@@ -454,33 +497,7 @@ public class JavadocParser extends AbstractCommentParser {
 							valid = true;
 							this.tagValue = TAG_INHERITDOC_VALUE;
 						}
-					break;
-					case 'p':
-						if (CharOperation.equals(tag, TAG_PARAM)) {
-							this.tagValue = TAG_PARAM_VALUE;
-							valid = parseParam();
-						}
-					break;
-					case 'e':
-						if (CharOperation.equals(tag, TAG_EXCEPTION)) {
-							this.tagValue = TAG_EXCEPTION_VALUE;
-							valid = parseThrows();
-						}
-					break;
-					case 's':
-						if (CharOperation.equals(tag, TAG_SEE)) {
-							if (this.inlineTagStarted) {
-								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
-								// Cannot have @see inside inline comment
-								valid = false;
-								if (this.sourceParser != null)
-									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
-							} else {
-								this.tagValue = TAG_SEE_VALUE;
-								valid = parseReference();
-							}
-						}
-					break;
+						break;
 					case 'l':
 						if (CharOperation.equals(tag, TAG_LINK)) {
 							this.tagValue = TAG_LINK_VALUE;
@@ -503,7 +520,27 @@ public class JavadocParser extends AbstractCommentParser {
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 							}
 						}
-					break;
+						break;
+					case 'p':
+						if (CharOperation.equals(tag, TAG_PARAM)) {
+							this.tagValue = TAG_PARAM_VALUE;
+							valid = parseParam();
+						}
+						break;
+					case 's':
+						if (CharOperation.equals(tag, TAG_SEE)) {
+							if (this.inlineTagStarted) {
+								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
+								// Cannot have @see inside inline comment
+								valid = false;
+								if (this.sourceParser != null)
+									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+							} else {
+								this.tagValue = TAG_SEE_VALUE;
+								valid = parseReference();
+							}
+						}
+						break;
 					case 'v':
 						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && CharOperation.equals(tag, TAG_VALUE)) {
 							this.tagValue = TAG_VALUE_VALUE;
@@ -517,7 +554,10 @@ public class JavadocParser extends AbstractCommentParser {
 						} else {
 							createTag();
 						}
-					break;
+						break;
+					default:
+						createTag();
+						break;
 				}
 				break;
 			case TerminalTokens.TokenNamereturn :
@@ -666,6 +706,14 @@ public class JavadocParser extends AbstractCommentParser {
 	 */
 	protected void refreshReturnStatement() {
 		((JavadocReturnStatement) this.returnStatement).empty = false;
+	}
+
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("check javadoc: ").append(this.checkDocComment).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append("javadoc: ").append(this.docComment).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
+		buffer.append(super.toString());
+		return buffer.toString();
 	}
 
 	/*

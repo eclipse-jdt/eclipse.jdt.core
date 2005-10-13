@@ -11,17 +11,10 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -31,7 +24,7 @@ import org.eclipse.jdt.internal.core.util.MementoTokenizer;
  */
 
 public abstract class Member extends SourceRefElement implements IMember {
-
+	
 protected Member(JavaElement parent) {
 	super(parent);
 }
@@ -122,6 +115,20 @@ public static IMethod[] findMethods(IMethod method, IMethod[] methods) {
 		IMethod[] result = new IMethod[size];
 		list.toArray(result);
 		return result;
+	}
+}
+public String[] getCategories() throws JavaModelException {
+	IType type = (IType) getAncestor(IJavaElement.TYPE);
+	if (type == null) return CharOperation.NO_STRINGS;
+	if (type.isBinary()) {
+		return CharOperation.NO_STRINGS;
+	} else {
+		SourceTypeElementInfo info = (SourceTypeElementInfo) ((SourceType) type).getElementInfo();
+		HashMap map = info.getCategories();
+		if (map == null) return CharOperation.NO_STRINGS;
+		String[] categories = (String[]) map.get(this);
+		if (categories == null) return CharOperation.NO_STRINGS;
+		return categories;
 	}
 }
 /**

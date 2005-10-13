@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
  * Common functionality for Binary member handles.
@@ -48,6 +49,17 @@ protected void generateInfos(Object info, HashMap newElements, IProgressMonitor 
 	}
 	if (openableParentInfo == null) return;
 	openableParentInfo.getBinaryChildren(newElements); // forces the initialization
+}
+public String[] getCategories() throws JavaModelException {
+	SourceMapper mapper= getSourceMapper();
+	if (mapper != null) {
+		// ensure the class file's buffer is open so that categories are computed
+		((ClassFile)getClassFile()).getBuffer();
+		
+		if (mapper.categories != null) 
+			return (String[]) mapper.categories.get(this);
+	}
+	return CharOperation.NO_STRINGS;	
 }
 public String getKey() {
 	try {

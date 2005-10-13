@@ -20,6 +20,17 @@ package org.eclipse.jdt.core;
  */
 public interface IMember extends IJavaElement, ISourceReference, ISourceManipulation, IParent {
 /**
+ * Returns the categories defined by this member's Javadoc. A category is the identifier
+ * following the tag <code>@category</code> in the member's Javadoc.
+ * Returns an empty array if no category is defined in this member's Javadoc.
+ * 
+ * @return the categories defined by this member's doc
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ *  @since 3.2
+ */
+String[] getCategories() throws JavaModelException;
+/**
  * Returns the class file in which this member is declared, or <code>null</code>
  * if this member is not declared in a class file (for example, a source type).
  * This is a handle-only method.

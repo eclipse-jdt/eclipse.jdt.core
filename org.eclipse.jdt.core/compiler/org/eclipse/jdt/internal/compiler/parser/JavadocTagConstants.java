@@ -38,6 +38,7 @@ public interface JavadocTagConstants {
 	public static final char[] TAG_SERIAL_FIELD = "serialField".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_SINCE = "since".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_VERSION = "version".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_CATEGORY = "category".toCharArray(); //$NON-NLS-1$
 
 	// tags value
 	public static final int NO_TAG_VALUE = 0;
@@ -51,7 +52,8 @@ public interface JavadocTagConstants {
 	public static final int TAG_LINKPLAIN_VALUE = 8;
 	public static final int TAG_INHERITDOC_VALUE = 9;
 	public static final int TAG_VALUE_VALUE = 10;
-	public static final int TAG_OTHERS_VALUE = 11;
+	public static final int TAG_CATEGORY_VALUE = 11;
+	public static final int TAG_OTHERS_VALUE = 100;
 	
 	// tags expected positions
 	public final static int ORDERED_TAGS_NUMBER = 3;
@@ -81,6 +83,8 @@ public interface JavadocTagConstants {
 		{},
 		// since 1.5
 		{},
+		// since 1.6
+		{ TAG_CATEGORY },
 	};
 	public static final char[][][] INLINE_TAGS = {
 		// since 1.0
@@ -109,6 +113,7 @@ public interface JavadocTagConstants {
 		TAG_SERIAL,
 		TAG_AUTHOR,
 		TAG_VERSION,
+		TAG_CATEGORY,
 		TAG_LINK,
 		TAG_LINKPLAIN,
 		TAG_DOC_ROOT,
@@ -120,6 +125,7 @@ public interface JavadocTagConstants {
 		TAG_SERIAL,
 		TAG_AUTHOR,
 		TAG_VERSION,
+		TAG_CATEGORY,
 		TAG_LINK,
 		TAG_LINKPLAIN,
 		TAG_DOC_ROOT,
@@ -132,6 +138,7 @@ public interface JavadocTagConstants {
 		TAG_DEPRECATED,
 		TAG_SERIAL,
 		TAG_SERIAL_FIELD,
+		TAG_CATEGORY,
 		TAG_LINK,
 		TAG_LINKPLAIN,
 		TAG_DOC_ROOT,
@@ -148,6 +155,7 @@ public interface JavadocTagConstants {
 		TAG_THROWS,
 		TAG_EXCEPTION,
 		TAG_SERIAL_DATA,
+		TAG_CATEGORY,
 		TAG_LINK,
 		TAG_LINKPLAIN,
 		TAG_INHERITDOC,

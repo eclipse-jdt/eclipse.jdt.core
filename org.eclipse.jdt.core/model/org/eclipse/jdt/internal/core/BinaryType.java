@@ -183,6 +183,38 @@ public IJavaElement[] getChildren() throws JavaModelException {
 	}
 	return cfi.binaryChildren;
 }
+public IJavaElement[] getChildrenForCategory(String category) throws JavaModelException {
+	IJavaElement[] children = getChildren();
+	int length = children.length;
+	if (length == 0) return children;
+	SourceMapper mapper= getSourceMapper();
+	if (mapper != null) {
+		// ensure the class file's buffer is open so that categories are computed
+		((ClassFile)getClassFile()).getBuffer();
+		
+		HashMap categories = mapper.categories;
+		IJavaElement[] result = new IJavaElement[length];
+		int index = 0;
+		if (categories != null) {
+			for (int i = 0; i < length; i++) {
+				IJavaElement child = children[i];
+				String[] cats = (String[]) categories.get(child);
+				if (cats != null) {
+					for (int j = 0, length2 = cats.length; j < length2; j++) {
+						if (cats[j].equals(category)) {
+							result[index++] = child;
+							break;
+						}
+					}
+				}
+			}
+		}
+		if (index < length)
+			System.arraycopy(result, 0, result = new IJavaElement[index], 0, index);
+		return result;
+	}
+	return NO_ELEMENTS;	
+}
 protected ClassFileInfo getClassFileInfo() throws JavaModelException {
 	ClassFile cf = (ClassFile)this.parent;
 	return (ClassFileInfo) cf.getElementInfo();

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
@@ -166,6 +167,29 @@ public IMethod[] findMethods(IMethod method) {
 		// if type doesn't exist, no matching method can exist
 		return null;
 	}
+}
+public IJavaElement[] getChildrenForCategory(String category) throws JavaModelException {
+	IJavaElement[] children = getChildren();
+	int length = children.length;
+	if (length == 0) return NO_ELEMENTS;
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	HashMap categories = info.getCategories();
+	if (categories == null) return NO_ELEMENTS;
+	IJavaElement[] result = new IJavaElement[length];
+	int index = 0;
+	for (int i = 0; i < length; i++) {
+		IJavaElement child = children[i];
+		String[] elementCategories = (String[]) categories.get(child);
+		if (elementCategories != null) 
+			for (int j = 0, length2 = elementCategories.length; j < length2; j++) {
+				if (elementCategories[j].equals(category))
+					result[index++] = child;
+			}
+	}
+	if (index == 0) return NO_ELEMENTS;
+	if (index < length)
+		System.arraycopy(result, 0, result = new IJavaElement[index], 0, index);
+	return result;
 }
 /**
  * @see IMember

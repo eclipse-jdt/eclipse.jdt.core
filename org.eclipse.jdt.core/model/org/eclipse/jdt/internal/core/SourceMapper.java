@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
@@ -114,6 +115,11 @@ public class SourceMapper
 	 * being name range.
 	 */
 	protected HashMap sourceRanges;
+	
+	/*
+	 * A map from IJavaElement to String[]
+	 */
+	protected HashMap categories;
 	
 
 	/**
@@ -269,6 +275,13 @@ public class SourceMapper
 		//do nothing
 	}
 	
+	private void addCategories(IJavaElement element, char[][] elementCategories) {
+		if (elementCategories == null) return;
+		if (this.categories == null)
+			this.categories = new HashMap();
+		this.categories.put(element, CharOperation.toStrings(elementCategories));
+	}
+
 	/**
 	 * Closes this <code>SourceMapper</code>'s zip file. Once this is done, this
 	 * <code>SourceMapper</code> cannot be used again.
@@ -595,11 +608,13 @@ public class SourceMapper
 			new SourceRange(typeInfo.nameSourceStart, typeInfo.nameSourceEnd - typeInfo.nameSourceStart + 1);
 		this.typeDeclarationStarts[typeDepth] = typeInfo.declarationStart;
 
+		IType currentType = this.types[typeDepth];
+		
+		// type parameters
 		if (typeInfo.typeParameters != null) {
-			final IType currentType = this.types[typeDepth];
 			for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
-				final TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
-				final ITypeParameter typeParameter = currentType.getTypeParameter(new String(typeParameterInfo.name));
+				TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
+				ITypeParameter typeParameter = currentType.getTypeParameter(new String(typeParameterInfo.name));
 				setSourceRange(
 					typeParameter,
 					new SourceRange(
@@ -610,6 +625,9 @@ public class SourceMapper
 						typeParameterInfo.nameSourceEnd - typeParameterInfo.nameSourceStart + 1));
 			}
 		}
+		
+		// categories
+		addCategories(currentType, typeInfo.categories);
 	}
 
 	/**
@@ -634,7 +652,13 @@ public class SourceMapper
 			this.memberDeclarationStart[typeDepth] = fieldInfo.declarationStart;
 			this.memberNameRange[typeDepth] =
 				new SourceRange(fieldInfo.nameSourceStart, fieldInfo.nameSourceEnd - fieldInfo.nameSourceStart + 1);
-			this.memberName[typeDepth] = new String(fieldInfo.name);
+			String fieldName = new String(fieldInfo.name);
+			this.memberName[typeDepth] = fieldName;
+			
+			// categories
+			IType currentType = this.types[typeDepth];
+			IField field = currentType.getField(fieldName);
+			addCategories(field, fieldInfo.categories);
 		}
 	}
 	
@@ -662,16 +686,16 @@ public class SourceMapper
 			this.methodParameterTypes[typeDepth] = methodInfo.parameterTypes;
 			this.methodParameterNames[typeDepth] = methodInfo. parameterNames;
 			
+			IType currentType = this.types[typeDepth];
+			IMethod method = currentType.getMethod(
+					this.memberName[typeDepth],
+					convertTypeNamesToSigs(this.methodParameterTypes[typeDepth]));
+			
+			// type parameters
 			if (methodInfo.typeParameters != null) {
-				final IType currentType = this.types[typeDepth];
-				IMethod method = currentType.getMethod(
-						this.memberName[typeDepth],
-						convertTypeNamesToSigs(this.methodParameterTypes[typeDepth]));
-				if (method == null) return;
-				
 				for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
-					final TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
-					final ITypeParameter typeParameter = method.getTypeParameter(new String(typeParameterInfo.name));
+					TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
+					ITypeParameter typeParameter = method.getTypeParameter(new String(typeParameterInfo.name));
 					setSourceRange(
 						typeParameter,
 						new SourceRange(
@@ -682,6 +706,9 @@ public class SourceMapper
 							typeParameterInfo.nameSourceEnd - typeParameterInfo.nameSourceStart + 1));
 				}
 			}	
+			
+			// categories
+			addCategories(method, methodInfo.categories);
 		}
 	}
 	

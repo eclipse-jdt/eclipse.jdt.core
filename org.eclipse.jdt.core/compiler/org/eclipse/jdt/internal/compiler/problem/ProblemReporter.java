@@ -556,6 +556,7 @@ public int computeSeverity(int problemID){
 		case IProblem.JavadocInvalidParamName:
 		case IProblem.JavadocDuplicateParamName:
 		case IProblem.JavadocMissingParamName:
+		case IProblem.JavadocMissingIdentifier:
 		case IProblem.JavadocInvalidThrowsClassName:
 		case IProblem.JavadocDuplicateThrowsClassName:
 		case IProblem.JavadocMissingThrowsClassName:
@@ -1402,6 +1403,7 @@ public static long getIrritant(int problemID) {
 		case IProblem.JavadocInvalidParamName:
 		case IProblem.JavadocDuplicateParamName:
 		case IProblem.JavadocMissingParamName:
+		case IProblem.JavadocMissingIdentifier:
 		case IProblem.JavadocInvalidThrowsClassName:
 		case IProblem.JavadocDuplicateThrowsClassName:
 		case IProblem.JavadocMissingThrowsClassName:
@@ -3832,6 +3834,10 @@ public void javadocMissing(int sourceStart, int sourceEnd, int modifiers){
 public void javadocMissingHashCharacter(int sourceStart, int sourceEnd, String ref){
 	String[] arguments = new String[] { ref };
 	this.handle(IProblem.JavadocMissingHashCharacter, arguments, arguments, sourceStart, sourceEnd);
+}
+public void javadocMissingIdentifier(int sourceStart, int sourceEnd, int modifiers){
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))
+		this.handle(IProblem.JavadocMissingIdentifier, NoArgument, NoArgument, sourceStart, sourceEnd);
 }
 public void javadocMissingParamName(int sourceStart, int sourceEnd, int modifiers){
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers))

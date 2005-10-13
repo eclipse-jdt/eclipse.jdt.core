@@ -345,6 +345,17 @@ public interface IType extends IMember {
 	IMethod[] findMethods(IMethod method);
 	
 	/**
+	 * Returns the children of this type that have the given category as a <code>@category</code> tag.
+	 * Returns an empty array if no children with this category exist.
+	 * 
+	 * @return the children for the given category.
+	 * @exception JavaModelException if this element does not exist or if an
+	 *      exception occurs while accessing its corresponding resource.
+	 *  @since 3.2
+	 */
+	IJavaElement[] getChildrenForCategory(String category) throws JavaModelException;
+
+	/**
 	 * Returns the simple name of this type, unqualified by package or enclosing type.
 	 * This is a handle-only method.
 	 * 

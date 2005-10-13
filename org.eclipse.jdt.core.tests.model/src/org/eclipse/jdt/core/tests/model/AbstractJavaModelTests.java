@@ -1502,6 +1502,30 @@ protected void assertDeltas(String message, String expected) {
 		description.setNatureIds(new String[] {});
 		project.setDescription(description, null);
 	}
+	protected void removeLibrary(IJavaProject javaProject, String jarName, String sourceZipName) throws CoreException, IOException {
+		IProject project = javaProject.getProject();
+		String projectPath = '/' + project.getName() + '/';
+		removeLibraryEntry(javaProject, new Path(projectPath + jarName));
+		project.getFile(jarName).delete(false, null);
+		project.getFile(sourceZipName).delete(false, null);
+	}
+	protected void removeLibraryEntry(IJavaProject project, Path path) throws JavaModelException {
+		IClasspathEntry[] entries = project.getRawClasspath();
+		int length = entries.length;
+		IClasspathEntry[] newEntries = new IClasspathEntry[length-1];
+		for (int i = 0; i < length; i++) {
+			IClasspathEntry entry = entries[i];
+			if (entry.getPath().equals(path)) {
+				if (i > 0)
+					System.arraycopy(entries, 0, newEntries, 0, i);
+				if (i < length-1)
+				System.arraycopy(entries, i+1, newEntries, i+1, length-i);
+				break;
+			}	
+		}
+		project.setRawClasspath(newEntries, null);
+	}
+
 	/**
 	 * Returns a delta for the given element in the delta tree
 	 */
@@ -2049,6 +2073,7 @@ protected void assertDeltas(String message, String expected) {
 		return toString(strings, false/*don't add extra new line*/);
 	}
 	protected String toString(String[] strings, boolean addExtraNewLine) {
+		if (strings == null) return "null";
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0, length = strings.length; i < length; i++){
 			buffer.append(strings[i]);

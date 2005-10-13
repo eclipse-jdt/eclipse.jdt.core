@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.HashMap;
+
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
 import org.eclipse.jdt.internal.compiler.env.ISourceImport;
@@ -55,6 +54,25 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	 * The type parameters of this source type. Empty if none.
 	 */
 	protected ITypeParameter[] typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
+	
+	/*
+	 * A map from an IJavaElement (this type or a child of this type) to a String[] (the categories of thie element)
+	 */
+	protected HashMap categories;
+	
+protected void addCategories(IJavaElement element, char[][] elementCategories) {
+	if (elementCategories == null) return;
+	if (this.categories == null)
+		this.categories = new HashMap();
+	this.categories.put(element, CharOperation.toStrings(elementCategories));
+}
+
+/*
+ * Return a map from an IJavaElement (this type or a child of this type) to a String[] (the categories of thie element)
+ */
+public HashMap getCategories() {
+	return this.categories;
+}
 
 /**
  * Returns the ISourceType that is the enclosing type for this

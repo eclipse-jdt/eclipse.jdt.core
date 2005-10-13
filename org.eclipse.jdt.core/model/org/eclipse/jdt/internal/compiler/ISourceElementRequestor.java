@@ -48,6 +48,7 @@ public interface ISourceElementRequestor {
 		public char[][] superinterfaces;
 		public TypeParameterInfo[] typeParameters;
 		public long[] annotationPositions;
+		public char[][] categories;
 	}
 	
 	public static class TypeParameterInfo {
@@ -74,6 +75,7 @@ public interface ISourceElementRequestor {
 		public char[][] exceptionTypes;
 		public TypeParameterInfo[] typeParameters;
 		public long[] annotationPositions;
+		public char[][] categories;
 	}
 	
 	public static class FieldInfo {
@@ -84,6 +86,7 @@ public interface ISourceElementRequestor {
 		public int nameSourceStart; 
 		public int nameSourceEnd;
 		public long[] annotationPositions;
+		public char[][] categories;
 	}
 	
 	void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition);

@@ -23,10 +23,11 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 	// Kind of comment parser
-	public final static int COMPIL_PARSER = 0x00000001;
-	public final static int DOM_PARSER = 0x00000002;
-	public final static int SELECTION_PARSER = 0x00000003;
-	public final static int COMPLETION_PARSER = 0x00000004;
+	public final static int COMPIL_PARSER = 1;
+	public final static int DOM_PARSER = 2;
+	public final static int SELECTION_PARSER = 3;
+	public final static int COMPLETION_PARSER = 4;
+	public final static int SOURCE_PARSER = 5;
 	
 	// Parser invalid syntax states
 	protected final static int INVALID_QUALIFIED_NAME = 1;
@@ -125,6 +126,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			// Init local variables
 			this.astLengthPtr = -1;
 			this.astPtr = -1;
+			this.identifierPtr = -1;
 			this.currentTokenType = -1;
 			this.inlineTagStarted = false;
 			this.inlineTagStart = -1;
@@ -616,6 +618,22 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// Signal syntax error
 		if (this.tagValue != TAG_VALUE_VALUE) { // do not report error for @value tag, this will be done after...
 			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeUrlReference(start, this.lineEnd);
+		}
+		return false;
+	}
+
+	/* 
+	 * Parse tag followed by an identifier
+	 */
+	protected boolean parseIdentifierTag() {
+		int token = readTokenSafely();
+		switch (token) {
+			case TerminalTokens.TokenNameIdentifier:
+				pushIdentifier(true);
+				return true;
+		}
+		if (this.reportProblems) {
+			this.sourceParser.problemReporter().javadocMissingIdentifier(this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
 		}
 		return false;
 	}
