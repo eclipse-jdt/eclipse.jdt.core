@@ -1437,7 +1437,7 @@ public int getNextToken() throws InvalidInputException {
 				default :
 					char c = this.currentCharacter;
 					if (c < ScannerHelper.MAX_OBVIOUS) {
-						switch (ScannerHelper.ObviousIdentCharNatures[c]) {
+						switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
 							case ScannerHelper.C_UPPER_LETTER :
 							case ScannerHelper.C_LOWER_LETTER :
 							case ScannerHelper.C_IDENT_PART :
@@ -1880,7 +1880,7 @@ public final void jumpOverMethodBody() {
 					try {
 						char c = this.currentCharacter;
 						if (c < ScannerHelper.MAX_OBVIOUS) {
-							switch (ScannerHelper.ObviousIdentCharNatures[c]) {
+							switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
 								case ScannerHelper.C_UPPER_LETTER :
 								case ScannerHelper.C_LOWER_LETTER :
 								case ScannerHelper.C_IDENT_PART :
@@ -2457,7 +2457,7 @@ public int scanIdentifierOrKeyword() {
 				break identLoop;
 			char c = src[pos];
 			if (c < ScannerHelper.MAX_OBVIOUS) {
-				switch (ScannerHelper.ObviousIdentCharNatures[c]) {
+				switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[c]) {
 					case ScannerHelper.C_UPPER_LETTER :
 					case ScannerHelper.C_LOWER_LETTER :
 					case ScannerHelper.C_IDENT_PART :

@@ -95,7 +95,7 @@ public class ScannerHelper {
 	private static long[][][] Tables;
 
 	public final static int MAX_OBVIOUS = 128;
-	public final static int[] ObviousIdentCharNatures = new int[MAX_OBVIOUS];
+	public final static int[] OBVIOUS_IDENT_CHAR_NATURES = new int[MAX_OBVIOUS];
 	public final static int C_UPPER_LETTER = 6;
 	public final static int C_LOWER_LETTER = 5;
 	public final static int C_IDENT_PART = 4;
@@ -104,47 +104,47 @@ public class ScannerHelper {
 	public final static int C_SPACE = 1;
 	static {
 		for (int i = '0'; i <= '9'; i++) 
-			ObviousIdentCharNatures[i] = C_DIGIT;
+			OBVIOUS_IDENT_CHAR_NATURES[i] = C_DIGIT;
 		
 		for (int i = 'a'; i <= 'z'; i++) 
-			ObviousIdentCharNatures[i] = C_LOWER_LETTER;
+			OBVIOUS_IDENT_CHAR_NATURES[i] = C_LOWER_LETTER;
 		for (int i = 'A'; i <= 'Z'; i++) 
-			ObviousIdentCharNatures[i] = C_UPPER_LETTER;
-		ObviousIdentCharNatures['_'] = C_IDENT_PART;
-		ObviousIdentCharNatures['$'] = C_IDENT_PART;
+			OBVIOUS_IDENT_CHAR_NATURES[i] = C_UPPER_LETTER;
+		OBVIOUS_IDENT_CHAR_NATURES['_'] = C_IDENT_PART;
+		OBVIOUS_IDENT_CHAR_NATURES['$'] = C_IDENT_PART;
 		
-		ObviousIdentCharNatures[10] = C_SPACE; // \ u000a: LINE FEED
-		ObviousIdentCharNatures[12] = C_SPACE; // \ u000c: FORM FEED
-		ObviousIdentCharNatures[13] = C_SPACE; //  \ u000d: CARRIAGE RETURN
-		ObviousIdentCharNatures[32] = C_SPACE; //  \ u0020: SPACE
-		ObviousIdentCharNatures[ 9] = C_SPACE; // \ u0009: HORIZONTAL TABULATION
+		OBVIOUS_IDENT_CHAR_NATURES[10] = C_SPACE; // \ u000a: LINE FEED
+		OBVIOUS_IDENT_CHAR_NATURES[12] = C_SPACE; // \ u000c: FORM FEED
+		OBVIOUS_IDENT_CHAR_NATURES[13] = C_SPACE; //  \ u000d: CARRIAGE RETURN
+		OBVIOUS_IDENT_CHAR_NATURES[32] = C_SPACE; //  \ u0020: SPACE
+		OBVIOUS_IDENT_CHAR_NATURES[ 9] = C_SPACE; // \ u0009: HORIZONTAL TABULATION
 		
-		ObviousIdentCharNatures['.'] = C_SEPARATOR;
-		ObviousIdentCharNatures[':'] = C_SEPARATOR;
-		ObviousIdentCharNatures[';'] = C_SEPARATOR;
-		ObviousIdentCharNatures[','] = C_SEPARATOR;
-		ObviousIdentCharNatures['['] = C_SEPARATOR;
-		ObviousIdentCharNatures[']'] = C_SEPARATOR;
-		ObviousIdentCharNatures['('] = C_SEPARATOR;
-		ObviousIdentCharNatures[')'] = C_SEPARATOR;
-		ObviousIdentCharNatures['{'] = C_SEPARATOR;
-		ObviousIdentCharNatures['}'] = C_SEPARATOR;
-		ObviousIdentCharNatures['+'] = C_SEPARATOR;
-		ObviousIdentCharNatures['-'] = C_SEPARATOR;
-		ObviousIdentCharNatures['*'] = C_SEPARATOR;
-		ObviousIdentCharNatures['/'] = C_SEPARATOR;
-		ObviousIdentCharNatures['='] = C_SEPARATOR;
-		ObviousIdentCharNatures['&'] = C_SEPARATOR;
-		ObviousIdentCharNatures['|'] = C_SEPARATOR;
-		ObviousIdentCharNatures['?'] = C_SEPARATOR;
-		ObviousIdentCharNatures['<'] = C_SEPARATOR;
-		ObviousIdentCharNatures['>'] = C_SEPARATOR;
-		ObviousIdentCharNatures['!'] = C_SEPARATOR;
-		ObviousIdentCharNatures['%'] = C_SEPARATOR;
-		ObviousIdentCharNatures['^'] = C_SEPARATOR;
-		ObviousIdentCharNatures['~'] = C_SEPARATOR;
-		ObviousIdentCharNatures['"'] = C_SEPARATOR;
-		ObviousIdentCharNatures['\''] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['.'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES[':'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES[';'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES[','] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['['] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES[']'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['('] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES[')'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['{'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['}'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['+'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['-'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['*'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['/'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['='] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['&'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['|'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['?'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['<'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['>'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['!'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['%'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['^'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['~'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['"'] = C_SEPARATOR;
+		OBVIOUS_IDENT_CHAR_NATURES['\''] = C_SEPARATOR;
 	}
 	
 static {

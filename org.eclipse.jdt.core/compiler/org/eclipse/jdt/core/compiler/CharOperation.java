@@ -286,7 +286,7 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 	nextPatternChar: while (iPattern < patternEnd) {
 					
 		if ((patternChar = pattern[iPattern]) < ScannerHelper.MAX_OBVIOUS
-				? ScannerHelper.ObviousIdentCharNatures[patternChar] == ScannerHelper.C_LOWER_LETTER
+				? ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar] == ScannerHelper.C_LOWER_LETTER
 				: Character.isLowerCase(patternChar)) {
 			if (iPattern == 0 && name[iName] == patternChar) {
 				// pattern char == name char (lowercase first char)
@@ -300,7 +300,7 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		nextNameChar: while (iName < nameEnd) {
 			if ((nameChar = name[iName]) != patternChar) {
 				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
-					switch (ScannerHelper.ObviousIdentCharNatures[nameChar]) {
+					switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[nameChar]) {
 						case ScannerHelper.C_LOWER_LETTER :
 						case ScannerHelper.C_IDENT_PART :
 						case ScannerHelper.C_DIGIT :
