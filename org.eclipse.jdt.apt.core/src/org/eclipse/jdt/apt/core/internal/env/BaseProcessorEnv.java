@@ -79,6 +79,8 @@ import com.sun.mirror.util.Types;
 public class BaseProcessorEnv implements AnnotationProcessorEnvironment 
 {
 	public static final ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
+	public static final CompilationUnit[] NO_AST_UNITs = new CompilationUnit[0];
+	public static final String[] NO_KEYS = new String[0];
 
 	private static final int BOOLEAN_INDEX = 0;
 	private static final int BYTE_INDEX = 1;
@@ -638,22 +640,76 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	}
 	
 	/**
-	 *  This should create an AST without imports or method-body statements
+	 * Parse and fully resolve all files. 
+	 * @param javaProject
+	 * @param files the files to be parsed and resolved.
+	 * @return the array of ast units parallel to <code>files</code>
+	 * Any entry in the returned array may be <code>null</code>. 
+	 * This indicates an error while reading the file. 
 	 */
-	public static ASTNode createDietAST( String unitName, IJavaProject javaProject, ICompilationUnit compilationUnit, char[] source )
+	public static CompilationUnit[] createDietASTs(
+			final IJavaProject javaProject, 
+			final ICompilationUnit[] parseUnits)
 	{
+		if( parseUnits == null ) return null;
+		final int len = parseUnits.length;
+		if( len == 0 )
+			return NO_AST_UNITs;
+		
+		class CompilationUnitsRequestor extends ASTRequestor
+		{	
+			CompilationUnit[] domUnits = new CompilationUnit[len];
+			CompilationUnitsRequestor(){
+				for( int i=0; i<len; i++ )
+					domUnits[i] = null;
+			}
+			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+				for( int i=0; i<len; i++ ){
+					if( source == parseUnits[i] ){
+						domUnits[i] = ast;
+						break;
+					}
+				}
+			}
+		}
+		CompilationUnitsRequestor requestor = new CompilationUnitsRequestor();
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
-		if ( compilationUnit != null )
-			p.setSource( compilationUnit );
-		else
-			p.setSource( source );
 		p.setResolveBindings( true );
 		p.setProject( javaProject );
-		p.setUnitName( unitName );
 		p.setFocalPosition( 0 );
 		p.setKind( ASTParser.K_COMPILATION_UNIT );
-		ASTNode node = p.createAST( null );
-		return node;
+		p.createASTs( parseUnits, NO_KEYS,  requestor, null);
+		
+		return requestor.domUnits;
+	}
+	
+	/**
+	 *  This should create an AST without imports or method-body statements
+	 */
+	public static CompilationUnit createDietAST(
+			IJavaProject javaProject, 
+			final ICompilationUnit compilationUnit)
+	{	
+		if(compilationUnit == null)
+			return null;
+		
+		class CompilationUnitRequestor extends ASTRequestor
+		{	
+			CompilationUnit domUnit = null;
+			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+				if( source == compilationUnit )
+					domUnit = ast;			}
+		}
+		
+		CompilationUnitRequestor requestor = new CompilationUnitRequestor();
+		ASTParser p = ASTParser.newParser( AST.JLS3 );
+		p.setResolveBindings( true );
+		p.setProject( javaProject );		
+		p.setFocalPosition( 0 );
+		p.setKind( ASTParser.K_COMPILATION_UNIT );
+		p.createASTs( new ICompilationUnit[]{compilationUnit}, NO_KEYS,  requestor, null);
+		
+		return requestor.domUnit;
 	}
 	
 	/**

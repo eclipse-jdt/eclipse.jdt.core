@@ -53,6 +53,10 @@ public class MarkerInfo {
 		throw new IllegalStateException("Unhandled severity level: " + severity); //$NON-NLS-1$
 	}
 	
+	public boolean isError(){
+		return severity == Severity.ERROR;
+	}
+	
 	/**
 	 * Copy this info into the provided marker
 	 */

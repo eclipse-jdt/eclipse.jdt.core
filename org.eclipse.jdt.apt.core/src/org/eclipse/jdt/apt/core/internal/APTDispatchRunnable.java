@@ -32,6 +32,7 @@ import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
 import org.eclipse.jdt.apt.core.internal.env.EclipseRoundCompleteEvent;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.util.ScannerUtil;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -48,28 +49,20 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 {
 	public static final APTResult EMPTY_APT_RESULT = new APTResult();
 	public static final IFile[] NO_FILES = new IFile[0];
-	// TODO: until we get the UI in place, we will just hard code a few known factories.
-	private static final Set<String> BATCH_FACTORY_PREFIX;
 	// The files that requires processing.
 	private IFile[] _allFilesRequireProcessing = null;
 	// the original list of files before any filtering.
 	private final IFile[] _originalFiles;
 	private final ICompilationUnit _compilationUnit;
 	private final IJavaProject _javaProject;
-	private final List<AnnotationProcessorFactory> _factories;
+	private final Map<AnnotationProcessorFactory, FactoryPath.Attributes> _factories;
 	private  APTResult _result;
 	private final boolean _isFullBuild;
-	
-	static{
-		BATCH_FACTORY_PREFIX = new HashSet<String>(2);
-		BATCH_FACTORY_PREFIX.add("com.sun.istack.ws"); //$NON-NLS-1$
-		BATCH_FACTORY_PREFIX.add("com.sun.tools.ws.processor.modeler.annotation"); //$NON-NLS-1$
-	}
 	
 	/*package*/ APTDispatchRunnable( 
 			IFile[] files, 
 			IJavaProject javaProject, 
-			List<AnnotationProcessorFactory> factories,
+			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			boolean isFullBuild)
 	{
 		assert files != null : "missing files"; //$NON-NLS-1$
@@ -80,7 +73,10 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		_factories = factories;
 		_isFullBuild = isFullBuild;
 	}	
-	/*package*/ APTDispatchRunnable( ICompilationUnit cu, IJavaProject javaProject, List<AnnotationProcessorFactory> factories)
+	/*package*/ APTDispatchRunnable( 
+			ICompilationUnit cu, 
+			IJavaProject javaProject, 
+			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories)
 	{
 		_compilationUnit = cu;
 		final IFile file = (IFile)cu.getResource();
@@ -197,59 +193,43 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	 * @param factories
 	 * @return <code>true</code> iff there are factories that can only be run in batch mode.
 	 */
-	public static boolean hasBatchFactory(List<AnnotationProcessorFactory> factories)
+	public static boolean hasBatchFactory(final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories)
 	{
 		
-		for( AnnotationProcessorFactory factory : factories ){
-			if( isBatchFactory(factory) )
+		for( FactoryPath.Attributes attr : factories.values() ){
+			if( attr.runInBatchMode() )
 				return true;
 		}
 		return false;
 		
-	}
-	
-	/**
-	 * @param factory
-	 * @return <code>true</code> iff the given factory can only be run in batch mode.
-	 */
-	public static boolean isBatchFactory(AnnotationProcessorFactory factory)
-	{
-		// TODO: (theodora)handle the switch between file-based and batch processor properly
-		//       Waiting on UI support. Default is file base.	
-		final String factoryName = factory.getClass().getName();
-		for(String prefix : BATCH_FACTORY_PREFIX ){
-			if( factoryName.startsWith(prefix) )
-				return true;
-		}
-		return false;
 	}
 	
 	private static void addFileWithMissingTypeError(
 			final IFile file, 
 			final List<IFile> filesWithMissingType,
-			final List<char[]> sourceForFilesWithMissingType,
+			final List<ICompilationUnit> unitsForFilesWithMissingType,
 			final ProcessorEnvImpl processorEnv)
 	{
 		if( processorEnv.getPhase() != Phase.BUILD )
 			return;
-		final CompilationUnit unit = processorEnv.getAstCompilationUnit(file);
-		assert unit != null : "cannot locate compilation unit for " + file.getName(); //$NON-NLS-1$
-		final IProblem[] problems = unit.getProblems();
+		final CompilationUnit domUnit = processorEnv.getAstCompilationUnit(file);
+		assert domUnit != null : "cannot locate compilation unit for " + file.getName(); //$NON-NLS-1$
+		final IProblem[] problems = domUnit.getProblems();
 		if(problems == null)
 			return;
 		for( IProblem problem : problems ){
 			if( problem.getID() == IProblem.UndefinedType ){						
 				filesWithMissingType.add(file);
-				final char[] src = processorEnv.getSourceForFile(file);
-				assert src != null : "cannot locate source for file " + file.getName(); //$NON-NLS-1$
-				sourceForFilesWithMissingType.add(src);
+				final ICompilationUnit unit = processorEnv.getICompilationUnitForFile(file);
+				assert unit != null : "cannot locate ICompilationUnit for file " + file.getName(); //$NON-NLS-1$
+				unitsForFilesWithMissingType.add(unit);
 			}
 		}	
 	}
 	
 	private static void addAllFilesWithMissingTypeError(
 			final List<IFile> filesWithMissingType,
-			final List<char[]> sourceForFilesWithMissingType,
+			final List<ICompilationUnit> unitsForFilesWithMissingType,
 			final ProcessorEnvImpl processorEnv)
 	{
 		if( processorEnv.getPhase() != Phase.BUILD )
@@ -257,7 +237,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		final IFile[] files = processorEnv.getFiles();
 		for( int i=0, len=files.length; i<len; i++ ){
 			final IFile file = files[i];
-			addFileWithMissingTypeError(file, filesWithMissingType, sourceForFilesWithMissingType, processorEnv);
+			addFileWithMissingTypeError(file, filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
 		}
 	}
 	
@@ -269,25 +249,25 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	 * Return <code>false</code> otherwise. Return <code>false</code> if
 	 * there are no batch processors.
 	 */
-	private boolean shouldDispatchToBatchProcessor(final List<AnnotationProcessorFactory> factories,
+	private boolean shouldDispatchToBatchProcessor(final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 										 		   final ProcessorEnvImpl processorEnv )
 	{	
 		return ( _isFullBuild && processorEnv.getPhase() == Phase.BUILD && hasBatchFactory(factories) );
 	}
 	
 	private void runAPTInFileBasedMode(
-			final List<AnnotationProcessorFactory> factories,
+			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			final ProcessorEnvImpl processorEnv,
 			final List<IFile> filesWithMissingType,
-			final List<char[]> sourceForFilesWithMissingType)
+			final List<ICompilationUnit> unitsForFilesWithMissingType)
 	{
 		final IFile[] files = processorEnv.getFiles();
 		for (IFile curFile : files ) {
 			processorEnv.setFileProcessing(curFile);
 			Map<String, AnnotationTypeDeclaration> annotationDecls = processorEnv.getAnnotationTypesInFile();
-			for (int factoryIndex = 0, numFactories = factories.size(); factoryIndex < numFactories; factoryIndex++) {
-				final AnnotationProcessorFactory factory = factories.get(factoryIndex);
-				if( isBatchFactory(factory) ) continue;
+			for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : factories.entrySet() ){
+				if( entry.getValue().runInBatchMode() ) continue;
+				AnnotationProcessorFactory factory = entry.getKey();
 				Set<AnnotationTypeDeclaration> factoryDecls = getFactorySupportedAnnotations(factory, annotationDecls);
 				if( factoryDecls != null ){
 					if(factoryDecls.size() == 0 ){
@@ -307,7 +287,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 						}
 	                    processorEnv.setLatestProcessor(processor);
 						processor.process();
-						addFileWithMissingTypeError(curFile, filesWithMissingType, sourceForFilesWithMissingType, processorEnv);
+						addFileWithMissingTypeError(curFile, filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
 					}
 				}
 	
@@ -324,19 +304,24 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	 * mixed mode - allow batch processor to be run as well as filed based ones.
 	 * @param factories
 	 * @param processorEnv
+	 * @param filesWithMissingType at return contains files (<code>IFile</code>) that has 
+	 * missing types.
+	 * @param sourceForFilesWithMissingType at return contains source (<code>char[]</code>)
+	 * for files that has missing types. Parallel to entries in <code>filesWithMissingType</code> 
+	 * @param round the current round number, 0-based.
 	 */
 	private void runAPTInMixedMode(
-			final List<AnnotationProcessorFactory> factories,
+			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			final ProcessorEnvImpl processorEnv,
 			final List<IFile> filesWithMissingType,
-			final List<char[]> sourceForFilesWithMissingType)
+			final List<ICompilationUnit> unitsForFilesWithMissingType,
+			final int round)
 	{
 		final IFile[] files = processorEnv.getFiles();
 		final Map<IFile, Set<AnnotationTypeDeclaration>> file2AnnotationDecls = 
 			new HashMap<IFile, Set<AnnotationTypeDeclaration>>(files.length * 4/3 + 1);
 		final Map<String, AnnotationTypeDeclaration> annotationDecls = 
-			processorEnv.getAllAnnotationTypes(file2AnnotationDecls);	
-		addAllFilesWithMissingTypeError(filesWithMissingType, sourceForFilesWithMissingType, processorEnv);
+			processorEnv.getAllAnnotationTypes(file2AnnotationDecls);
 		
 		if (annotationDecls.isEmpty())
 		{
@@ -346,6 +331,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			return;
 		}
 		
+		addAllFilesWithMissingTypeError(filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
+		
 		// file based processing factory to the set of annotations that it 'claims'
 		final Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>> fileFactory2Annos =
 			new HashMap<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>>( factories.size() * 4/3 + 1 );
@@ -354,12 +341,12 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		final Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>> batchFactory2Annos =
 			new HashMap<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>>( factories.size() * 4/3 + 1 );		
 		
-		for( int i=0, size=factories.size(); i<size; i++ ){
-			final AnnotationProcessorFactory factory = factories.get(i);
+		for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : factories.entrySet() ){
+			AnnotationProcessorFactory factory = entry.getKey();
 			Set<AnnotationTypeDeclaration> annotationTypes = getFactorySupportedAnnotations(factory, annotationDecls);
 			if( annotationTypes != null ){
 				
-				boolean batch = isBatchFactory(factory);
+				boolean batch = entry.getValue().runInBatchMode();
 				Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration> > factory2Annos = 
 					batch ? batchFactory2Annos : fileFactory2Annos;
 				if( annotationTypes.size() == 0 ){
@@ -381,15 +368,15 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			; // TODO: (theodora) log unclaimed annotations.
 		
 		// Dispatch to the batch process factories first.
-		// Batch processors only get executed on a full/clean build.
-		if( !batchFactory2Annos.isEmpty() ){
+		// Batch processors only get executed on a full/clean build and only get called once
+		// within one round APT dispatch.
+		if( !batchFactory2Annos.isEmpty() && round == 0){
 			processorEnv.setBatchProcessing();
 			// Once we figure out which factory claims what annotation,
 			// the order of the factory doesn't matter.
 			// But in order to make things consists between runs, will 
 			// dispatch base on factory order.
-			for( int i=0, size=factories.size(); i<size; i++ ){
-				final AnnotationProcessorFactory factory = factories.get(i);
+			for(AnnotationProcessorFactory factory : factories.keySet() ){			
 				final Set<AnnotationTypeDeclaration> annotationTypes = batchFactory2Annos.get(factory);
 				if( annotationTypes == null ) continue;
 				final AnnotationProcessor processor = 
@@ -410,8 +397,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				final Set<AnnotationTypeDeclaration> annotationTypesInFile = file2AnnotationDecls.get(files[fileIndex]);
 				if( annotationTypesInFile == null || annotationTypesInFile.isEmpty() )
 					continue;
-				for( int i=0, size=factories.size(); i<size; i++ ){
-					final AnnotationProcessorFactory factory = factories.get(i);
+				for(AnnotationProcessorFactory factory : factories.keySet() ){
 					final Set<AnnotationTypeDeclaration> annotationTypesForFactory = fileFactory2Annos.get(factory);
 					if( annotationTypesForFactory == null || annotationTypesForFactory.isEmpty() ) 
 						continue;
@@ -434,23 +420,24 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	}
 	
 	private APTResult runAPT(
-			final List<AnnotationProcessorFactory> factories,
+			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			final ProcessorEnvImpl processorEnv) 
 	{
 		final List<IFile> filesWithMissingType = new ArrayList<IFile>();
-		final List<char[]> sourceForFiles = new ArrayList<char[]>();
-		final APTResult result = runAPT(factories, processorEnv, filesWithMissingType, sourceForFiles);
+		final List<ICompilationUnit> unitsForFiles = new ArrayList<ICompilationUnit>();
+		final APTResult result = runAPT(factories, processorEnv, filesWithMissingType, unitsForFiles, 0);
 	
 		//APTResult lastResult = result;
 		if( processorEnv.getPhase() == Phase.BUILD )
 		{	
 			boolean generatedTypes = result.hasGeneratedTypes();
+			int round = 1;
 			while( generatedTypes && !filesWithMissingType.isEmpty() ){
 				// compile all generated files and try to satisfy the missing generated types.
 				//recompileGeneratedFiles(result.getNewFiles());
 				
 				final int numFiles = filesWithMissingType.size();
-				assert numFiles == sourceForFiles.size() :
+				assert numFiles == unitsForFiles.size() :
 					"size mismatch"; //$NON-NLS-1$			
 				// we are about to re-process the file, wipe out the problems and
 				// type dependencies recorded from the previous run.
@@ -460,17 +447,17 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				}
 				
 				final IFile[] files = new IFile[numFiles];
-				final char[][] sources = new char[numFiles][];
+				final ICompilationUnit[] units = new ICompilationUnit[numFiles];
 				for(int i=0; i<numFiles; i++ ){
 					files[i] = filesWithMissingType.get(i);
-					sources[i] = sourceForFiles.get(i);
+					units[i] = unitsForFiles.get(i);
 				}
 				ProcessorEnvImpl newEnv = ProcessorEnvImpl.newProcessorEnvironmentForBuild(
-						files, sources, processorEnv.getJavaProject() );
+						files, units, processorEnv.getJavaProject() );
 
 				filesWithMissingType.clear();
-				sourceForFiles.clear();
-				APTResult newResult = runAPT(factories, newEnv, filesWithMissingType, sourceForFiles);
+				unitsForFiles.clear();
+				APTResult newResult = runAPT(factories, newEnv, filesWithMissingType, unitsForFiles, round++);
 				// Only have generated types if there are *new* generated files
 				generatedTypes = hasNewFiles(result, newResult);
 				
@@ -498,10 +485,11 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	}
 	
 	private APTResult runAPT(
-			final List<AnnotationProcessorFactory> factories,
+			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			final ProcessorEnvImpl processorEnv,
 			final List<IFile> filesWithMissingType,
-			final List<char[]> sourceForFiles) 
+			final List<ICompilationUnit> unitsForFiles,
+			final int round) 
 	{
 		try {
 			if (factories.size() == 0)
@@ -531,9 +519,9 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			
 			boolean mixedModeDispatch = shouldDispatchToBatchProcessor(factories, processorEnv);
 			if( mixedModeDispatch )
-				runAPTInMixedMode(factories, processorEnv, filesWithMissingType, sourceForFiles);
+				runAPTInMixedMode(factories, processorEnv, filesWithMissingType, unitsForFiles, round);
 			else
-				runAPTInFileBasedMode(factories, processorEnv, filesWithMissingType, sourceForFiles);
+				runAPTInFileBasedMode(factories, processorEnv, filesWithMissingType, unitsForFiles);
 			
 
 			// notify the processor listeners
@@ -781,4 +769,6 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			return sb.toString();
 		}
 	}
+	
+	
 }

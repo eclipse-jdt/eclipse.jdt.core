@@ -219,7 +219,8 @@ public class FactoryPath implements IFactoryPath {
 		for (Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet()) {
 			Attributes attr = entry.getValue();
 			if (attr.isEnabled()) {
-				map.put(entry.getKey(), attr);
+				Attributes attrClone = new Attributes(attr);
+				map.put(entry.getKey(), attrClone);
 			}
 		}
 		return map;
@@ -230,7 +231,9 @@ public class FactoryPath implements IFactoryPath {
 	 */
 	public Map<FactoryContainer, Attributes> getAllContainers() {
 		Map<FactoryContainer, Attributes> map = new LinkedHashMap<FactoryContainer, Attributes>(_path.size());
-		map.putAll(_path);
+		for( Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet() ){
+			map.put( entry.getKey(), new Attributes(entry.getValue()) );
+		}
 		return map;
 	}
 

@@ -73,7 +73,11 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	/** path variable meaning "workspace root" */
 	private static final String PATHVAR_ROOT = "%ROOT%"; //$NON-NLS-1$
     
-    private final ICompilationUnit _compilationUnit;       
+	/**
+	 * The compilation unit of the file that is being processed in reconcile 
+	 * or in file-based mode of build.  
+	 */
+    private ICompilationUnit _unit;       
     private Map<IFile, List<IProblem>> _allProblems;
     
 	// Stores the generated files and whether or not they were modified. In this case,
@@ -112,28 +116,24 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	 */ 
 	private IFile[] _files = null;
 	/** 
-	 * This is only non-null when <code>#_batchMode</code> is <code>true</code>
-	 * If we are not in batch mode, <code>super._astRoot</code> holds the current ast 
-	 * being processed at the time.
+	 * This is intialized when <code>_batchMode</code> is set to be <code>true</code> or
+	 * when batch processing is expected. @see #getAllAnnotationTypes(Map)
 	 */
 	private CompilationUnit[] _astUnits = null;
-	
-	private List<IFile> _filesWithMissingType = null;
-	private List<char[]> _sourceFileFileWithMissingType = null;
-	
-	/** 
-	 * The source to all of the compilation units in <code>_astUnits</code>
+	/**
+	 * <code>ICompilationUnit</code> parallel to the <code>CompilationUnit</code>s in 
+	 * <code>_astUnits</code>
 	 */
-	private char[][] _sources = null;
+	private ICompilationUnit[] _units = null;
 	private List<MarkerInfo> _markerInfos = null;
 
 	public static ProcessorEnvImpl newProcessorEnvironmentForReconcile(ICompilationUnit compilationUnit, IJavaProject javaProj)
     {	
-    	String unitName =  compilationUnit.getResource().getProjectRelativePath().toString();
-		ASTNode node = createDietAST( unitName, javaProj, compilationUnit, null );
+    	//String unitName =  compilationUnit.getResource().getProjectRelativePath().toString();
+		CompilationUnit domUnit = createDietAST( javaProj, compilationUnit );
        	return new ProcessorEnvImpl( 
-       			(org.eclipse.jdt.core.dom.CompilationUnit)node, 
-       			compilationUnit, null /*source*/, 
+       			domUnit, 
+       			compilationUnit, 
        			(IFile)compilationUnit.getResource(), 
        			javaProj, Phase.RECONCILE );
     }
@@ -144,10 +144,10 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	 * @param javaProj
 	 * @return a new processor environment.
 	 */
-	public static ProcessorEnvImpl newProcessorEnvironmentForBuild(IFile[] files, char[][] sources, IJavaProject javaProj)
+	public static ProcessorEnvImpl newProcessorEnvironmentForBuild(IFile[] files, ICompilationUnit[] units, IJavaProject javaProj)
 	{
 		assert files != null : "missing files"; //$NON-NLS-1$  
-		return new ProcessorEnvImpl(files, sources, javaProj, Phase.BUILD);
+		return new ProcessorEnvImpl(files, units, javaProj, Phase.BUILD);
 	}
     
     public static ProcessorEnvImpl newProcessorEnvironmentForBuild(IFile[] files, IJavaProject javaProj )
@@ -161,7 +161,6 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     private ProcessorEnvImpl(
     		final CompilationUnit astCompilationUnit,
     		final ICompilationUnit compilationUnit,
-    		final char[] source,
     		final IFile file,
     		final IJavaProject javaProj,
     		final Phase phase)
@@ -174,22 +173,16 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	assert( (phase == Phase.RECONCILE && compilationUnit != null) || 
     			(phase == Phase.BUILD && compilationUnit == null && file != null ) ) :
     			"Unexpected phase value " + phase ; //$NON-NLS-1$
-    	
-    	assert (source == null && compilationUnit != null) ||
-			   (source != null && compilationUnit == null) : 
-	           "Unexpected values for _compilationUnit and _source!"; //$NON-NLS-1$
 			   
-	   _compilationUnit = compilationUnit;
-	   _curSource = source;
+	   _unit = compilationUnit;	
 	   _filer = new FilerImpl(this);
-	   _allProblems = new HashMap<IFile, List<IProblem>>();
-	   _markerInfos = new ArrayList<MarkerInfo>();
+	   _allProblems = new HashMap<IFile, List<IProblem>>();	   
 	   initOptions(javaProj);
     }
     
     private ProcessorEnvImpl(
 			final IFile[] files,
-			final char[][] sources,
+			final ICompilationUnit[] units,
 			final IJavaProject javaProj,
 			final Phase phase) {
     	
@@ -197,11 +190,12 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	assert( phase == Phase.BUILD && files != null  ) :
     		"Unexpected phase value " + phase; //$NON-NLS-1$
 		
-		_compilationUnit = null;
-		_sources = sources;
+		_unit = null;
+		_units = units;
 		_filer = new FilerImpl(this);
 		_files = files;
 		_allProblems = new HashMap<IFile, List<IProblem>>();
+		_markerInfos = new ArrayList<MarkerInfo>();
 		initOptions(javaProj);
 	}
     
@@ -399,7 +393,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		_generatedFiles.put( f, contentsChanged );
 	}
 
-    public ICompilationUnit getCompilationUnit(){ return _compilationUnit; }
+    public ICompilationUnit getCompilationUnit(){ return _unit; }
     public Map<IFile, Boolean> getGeneratedFiles(){ return _generatedFiles; }
 
 	/**
@@ -429,7 +423,12 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 			}		
 		}
 		
-		// TODO: also include markers
+		if( _markerInfos != null ){
+			for(MarkerInfo markerInfo : _markerInfos){
+				if( markerInfo.isError() )
+					return true;
+			}
+		}
 		return false;
 	}  
 
@@ -487,7 +486,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	_file = null;
     	_astUnits = null;
     	_files = null;
-    	_sources = null;
+    	_units = null;
     	_allProblems = null;
         _modelCompUnit2astCompUnit.clear();		
 		_generatedFiles = null;
@@ -547,16 +546,16 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
             String msg, 
             int line,
             String[] arguments)
-    {
-    	 
+    {	 
+    	// end-1 since IProblem ending offsets are inclusive but DOM layer
+    	// ending offsets are exclusive.
     	final APTProblem newProblem = 
-        	new APTProblem(msg, severity, resource, start, end, line, arguments);
+        	new APTProblem(msg, severity, resource, start, end-1, line, arguments);
     	List<IProblem> problems = _allProblems.get(resource);
     	if( problems == null ){
     		problems = new ArrayList<IProblem>(4);
     		_allProblems.put(resource, problems);    		
     	}
-   //System.err.println(_phase + "------ added " + newProblem ); //$NON-NLS-1$
     	problems.add(newProblem);
     }
     
@@ -622,7 +621,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	checkValid();
     	if( _files == null )  
     		return getAnnotationTypesInFile();
-    	readFiles();
+    	createDomASTs();
     	
 		final List<Annotation> instances = new ArrayList<Annotation>();
 		final Map<String, AnnotationTypeDeclaration> decls = 
@@ -818,126 +817,68 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	 * read and parsed.
 	 */
 	public void setBatchProcessing(){
-		if( _phase == Phase.RECONCILE )
-			throw new IllegalStateException("No batch processing during reconcile."); //$NON-NLS-1$
+		if( _phase != Phase.BUILD )
+			throw new IllegalStateException("No batch processing outside build."); //$NON-NLS-1$
 		
 		checkValid();
-		readFiles();
+		createDomASTs();
 		
 		_batchMode = true;
 		_file = null;
 		_astRoot = null;
 	}
 	
-	private void readFiles()
+	private void createDomASTs()
 	{
-		if( _astUnits != null || _files == null || _sources != null) return;
-		final int numFiles = _files.length;
-		_astUnits = new CompilationUnit[numFiles]; 
-		_sources = new char[numFiles][];
-		for( int i=0; i<numFiles; i++){	
-			try{
-				_sources[i] = ProcessorEnvImpl.getFileContents( _files[i] );
-				_astUnits[i] = (CompilationUnit)createDietAST(_files[i].toString(), _javaProject, null, _sources[i] );
-			}
-			catch( Exception e ){
-				// TODO:  propagate these exceptions out of APTDispatch
-				e.printStackTrace();
-			}
-		}
+		if( _astUnits != null || _files == null || _units != null) return;
+		createICompilationUnits();		
+		_astUnits = createDietASTs(_javaProject, _units);
 	}
 	
 	public void setFileProcessing(IFile file){		
 		if( file == null )
 			throw new IllegalStateException("missing file"); //$NON-NLS-1$
-		// already in per-file mode.
-		if( !_batchMode ){
-			// this is a no-op
-			if(  file.equals(_file) )
-				return;
-			
-			_astRoot = null;
-			_file = null;
-			_curSource = null;
-			
-			// need to match up the file with the ast.
-			if( _files != null ){
-				for( int i=0, len=_files.length; i<len; i++ ){
-					if( file.equals(_files[i]) ){
-						_file = file;
-						if( _astUnits != null ){
-							_astRoot = _astUnits[i];		
-							_curSource = _sources[i];
-						}
-						else{
-							try{
-								_curSource = ProcessorEnvImpl.getFileContents( _files[i] );
-							}
-							catch( Exception e ){
-								// TODO:  propagate these exceptions out of APTDispatch
-								e.printStackTrace();
-							}
-							_astRoot = (CompilationUnit)createDietAST(_files[i].toString(), _javaProject, null, _curSource );
-						}
+		_batchMode = false;
+		if( file.equals(_file) ) // this is a no-op
+			return;
+		
+		_astRoot = null;
+		_file = null;
+		_unit = null;
+		
+		// need to match up the file with the ast.
+		if( _files != null ){
+			for( int i=0, len=_files.length; i<len; i++ ){
+				if( file.equals(_files[i]) ){
+					_file = file;
+					if( _astUnits != null ){
+						_astRoot = _astUnits[i];		
+						_unit = _units[i];
+					}
+					else{
+						_unit = JavaCore.createCompilationUnitFrom(_files[i]);
+						_astRoot = createDietAST(_javaProject, _unit);
 					}
 				}
 			}
- 
-			if( _file == null )
-				throw new IllegalStateException(
-						"file " +  //$NON-NLS-1$
-						file.getName() + 
-						" is not in the list to be processed."); //$NON-NLS-1$
 		}
-		else{
-			_batchMode = false;
-			if( _files != null ){
-				for( int i=0, len=_files.length; i<len; i++ ){
-					if( _files[i] == file ){
-						try{
-							_curSource = ProcessorEnvImpl.getFileContents( _files[i] );
-						}
-						catch( Exception e ){
-							// TODO:  propagate these exceptions out of APTDispatch
-							e.printStackTrace();
-						}	
-						_astRoot = (CompilationUnit)createDietAST(_files[i].toString(), _javaProject, null, _curSource );
-						_file = file;
-					}
-				}
-			}
-			if( _astRoot == null )
-				throw new IllegalStateException(
-						"file " +  //$NON-NLS-1$
-						file.getName() + 
-						" is not in the list to be processed."); //$NON-NLS-1$
-		}
+		
+		if( _file == null || _astRoot == null)
+			throw new IllegalStateException(
+					"file " +  //$NON-NLS-1$
+					file.getName() + 
+					" is not in the list to be processed."); //$NON-NLS-1$
 	}
 	
 	// Implementation for EclipseAnnotationProcessorEnvironment
 	public CompilationUnit getAST()
 	{
 		if( _batchMode ) return null;
-		if( _compilationUnit != null )
-		{
-			final ASTParser parser =  ASTParser.newParser(AST.JLS3);
-            parser.setResolveBindings(false);
-            parser.setSource(_compilationUnit);
-            CompilationUnit resultUnit = (CompilationUnit)parser.createAST(null);
-            return resultUnit;
-		}
-		else{
-			// this is a fully-flushed out DOM/AST unlike the one that's current in the environment.
-			// also this copy will not contain any binding information nor pointers to java element.
-			ASTParser p = ASTParser.newParser( AST.JLS3 );
-			p.setSource( _curSource );
-			p.setResolveBindings( false );
-			p.setProject( _javaProject );
-			p.setUnitName( _files[0].getProjectRelativePath().toString() );
-			p.setKind( ASTParser.K_COMPILATION_UNIT );
-			ASTNode node = p.createAST( null );
-			return (CompilationUnit)node;
-		}
+		final ASTParser parser =  ASTParser.newParser(AST.JLS3);
+        parser.setResolveBindings(false);
+        parser.setSource(_unit);
+        CompilationUnit resultUnit = (CompilationUnit)parser.createAST(null);
+        return resultUnit;
 	}
 
 	public void addTypeDependency(final String fullyQualifiedTypeName )
@@ -1026,16 +967,15 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 		return null;
 	}
 	
-	public char[] getSourceForFile(final IFile file)
-	{
+	public ICompilationUnit getICompilationUnitForFile(final IFile file){
 		if( file == null ) 
     		return null;
     	else if( file.equals(_file) )
-    		return _curSource;
+    		return _unit;
     	else if( _batchMode ){
     		for( int i=0, len=_files.length; i<len; i++ ){
         		if( file.equals(_files[i]) )
-        			return _sources[i];
+        			return _units[i];
         	}
     	}
     	return null;
@@ -1123,5 +1063,38 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 			return _files;
 		else
 			return new IFile[]{_file};
+	}
+	
+	/**
+	 * Build <code>ICompilationUnit</code> from the files in this environment.
+	 * If a compilation unit cannot be created from a file, the file will be 
+	 * dropped from the file list.
+	 */
+	private void createICompilationUnits(){		
+		final int len = _files.length;
+		_units = new ICompilationUnit[len];		
+		int count = 0;
+		for( int i=0; i<len; i++ ){
+			_units[i] = JavaCore.createCompilationUnitFrom(_files[i]);
+			if( _units[i] != null )
+				count ++;
+		}
+		
+		// drop files that doesn't have an ICompilationUnit from the list 
+		// and shrink the list of ICompilationUnits.
+		if(count != len){
+			final IFile[] newFiles = new IFile[count];
+			final ICompilationUnit[] newUnits = new ICompilationUnit[count];
+			int newIndex = 0;
+			for( int i=0; i<len; i++ ){
+				if( _units[i] != null ){
+					newFiles[newIndex] = _files[i];
+					newUnits[newIndex] = _units[i];
+					newIndex ++;
+				}
+			}
+			_files = newFiles;
+			_units = newUnits;
+		}
 	}
 }

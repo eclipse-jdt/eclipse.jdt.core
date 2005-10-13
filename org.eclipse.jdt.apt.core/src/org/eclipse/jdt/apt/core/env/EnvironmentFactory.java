@@ -16,7 +16,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
@@ -36,12 +35,10 @@ public class EnvironmentFactory {
 	 * @return the created environment.
 	 */
 	public static AnnotationProcessorEnvironment getEnvironment(ICompilationUnit compilationUnit, IJavaProject javaProject )
-	{
-		//return ProcessorEnvImpl.newProcessorEnvironmentForReconcile( compilationUnit, javaProject );
-		String unitName =  compilationUnit.getResource().getProjectRelativePath().toString();
-		ASTNode node = BaseProcessorEnv.createDietAST( unitName, javaProject, compilationUnit, null );
+	{	
+		CompilationUnit node = BaseProcessorEnv.createDietAST( javaProject, compilationUnit);
        	BaseProcessorEnv env = new BaseProcessorEnv(
-       			(CompilationUnit)node,
+       			node,
        			(IFile)compilationUnit.getResource(),
        			javaProject,
        			Phase.OTHER

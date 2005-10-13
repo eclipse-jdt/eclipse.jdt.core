@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.core.internal;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.APTDispatch.APTResult;
 import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -116,19 +118,21 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		}
 
 	
-		List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject );	
+		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = _factoryLoader.getFactoriesAndAttributesForProject( javaProject );	
 	
 		APTResult result = APTDispatch.runAPTDuringBuild(factories, buildFiles, javaProject, pbce.isFullBuild());
 		Set<IFile> newFiles = result.getNewFiles();			
-		Set<IFile> deletedFiles = result.getDeletedFiles();
+		Set<IFile> deletedFiles = new HashSet<IFile>();
 		
 		// see if APT updated a project's source path
 		boolean sourcePathChanged = result.getSourcePathChanged();
 		
 		// for apt, new files will always trump deleted files
-		for ( IFile df : deletedFiles )
-			if ( newFiles.contains( df ) )
-				deletedFiles.remove( df );
+		for ( IFile df : result.getDeletedFiles() ){
+			if ( !newFiles.contains( df ) ){
+				deletedFiles.add(df);
+			}
+		}
 
 		return new PreBuildCompilationResult( 
 				newFiles.toArray( new IFile[ newFiles.size() ] ), 
@@ -176,7 +180,8 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			if ( cu == null || javaProject == null  )
 				return GENERIC_COMPILATION_RESULT;
 			
-			List<AnnotationProcessorFactory> factories = _factoryLoader.getFactoriesForProject( javaProject );
+			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = 
+				_factoryLoader.getFactoriesAndAttributesForProject( javaProject );
 			APTResult result = APTDispatch.runAPTDuringReconcile( factories, cu, javaProject );
 			Map<IFile, List<IProblem>> allproblems = result.getProblems();			
 			

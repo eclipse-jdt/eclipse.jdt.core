@@ -24,6 +24,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -37,8 +38,16 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
  */
 public class APTDispatch 
 {	
+	/**  
+	 * This is only used for testing!
+	 * Contains the list of names or name prefixes of annotation processor factories
+	 * that need to be executed in batch mode. This is to separate testing configuration
+	 * from regular execution.
+	 */
+	private static List<String> _batchFactoryForTestingOnly = null;
+	
 	public static APTResult runAPTDuringBuild(
-			final List<AnnotationProcessorFactory> factories,
+			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			final IFile[] files,
 			final IJavaProject javaProj,
 			final boolean isFullBuild)
@@ -52,8 +61,9 @@ public class APTDispatch
 	 * @return the set of files that need to be compiled.
 	 */
 	public static APTResult runAPTDuringReconcile(
-			final List<AnnotationProcessorFactory> factories,
-			ICompilationUnit compilationUnit, IJavaProject javaProj) 
+			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
+			final ICompilationUnit compilationUnit, 
+			final IJavaProject javaProj) 
 	{
 		return runAPT( factories, javaProj, null, compilationUnit, false /* does not matter*/ );
 	}
@@ -61,7 +71,8 @@ public class APTDispatch
 	/**
 	 * If files is null, we are reconciling. If compilation unit is null, we are building
 	 */
-	private static APTResult runAPT(final List<AnnotationProcessorFactory> factories,
+	private static APTResult runAPT(
+			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			IJavaProject javaProj,
 			IFile[] files,
 			ICompilationUnit compilationUnit,
@@ -207,7 +218,22 @@ public class APTDispatch
 						throw new IllegalStateException("keys collided"); //$NON-NLS-1$
 				}
 			}
-		}
-		
+		}		
 	}	
+	
+	/**
+	 * This is for testing only!!!!
+	 * Do not ever call this outside the org.eclipse.jdt.apt.test plugin.
+	 * 
+	 * Allow test case to change the list of factories to be executed in batch mode
+	 * on a per test basis. 
+	 * @param batchFactoryNames
+	 */
+	public static void runInBatchMode_testingOnly(final List<String> batchFactoryNames){
+		_batchFactoryForTestingOnly = batchFactoryNames;
+	}
+	
+	public static void resetBatchMode_testingOnly(){
+		_batchFactoryForTestingOnly = null;
+	}
 }

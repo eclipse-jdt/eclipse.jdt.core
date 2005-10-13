@@ -195,8 +195,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl implemen
     
     public String toString()
     {		
-    	final ITypeBinding binding = getTypeBinding();
-		return binding.getQualifiedName();    
+    	return getQualifiedName();
     }
 
     public boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }

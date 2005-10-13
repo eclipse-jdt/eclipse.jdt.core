@@ -17,7 +17,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,8 +45,8 @@ public class AnnotationProcessorFactoryLoader {
 	
 	// Members -- workspace and project data	
 	
-	private final Map<IJavaProject, List<AnnotationProcessorFactory>> _project2Factories = 
-		new HashMap<IJavaProject, List<AnnotationProcessorFactory>>();
+	private final Map<IJavaProject, Map<AnnotationProcessorFactory, FactoryPath.Attributes>> _project2Factories = 
+		new HashMap<IJavaProject, Map<AnnotationProcessorFactory, FactoryPath.Attributes>>();
     
     
 	/** 
@@ -67,36 +69,56 @@ public class AnnotationProcessorFactoryLoader {
     	_project2Factories.clear();
     }
     
-    public synchronized List<AnnotationProcessorFactory> getFactoriesForProject( IJavaProject jproj ) {
+    /**
+     * @param jproj
+     * @return order preserving map of annotation processor factories to their attributes.
+     * The order the annotation processor factories respect the order of factory containers in 
+     * <code>jproj</code>
+     */
+    public synchronized Map<AnnotationProcessorFactory, FactoryPath.Attributes> 
+    	getFactoriesAndAttributesForProject(IJavaProject jproj){
     	
-    	List<AnnotationProcessorFactory> factories = _project2Factories.get(jproj);
-		if (factories != null) {
-			return factories;
-		}
-		
-		// Load the project
+    	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = _project2Factories.get(jproj);
+    	if( factories != null )
+    		return Collections.unmodifiableMap(factories);
+    	
+    	// Load the project
 		FactoryPath fp = FactoryPathUtil.getFactoryPath(jproj);
 		Map<FactoryContainer, FactoryPath.Attributes> containers = fp.getEnabledContainers(jproj);
 		factories = loadFactories(containers, jproj);
 		_project2Factories.put(jproj, factories);
-		return factories;
+		return Collections.unmodifiableMap(factories);
     	
+    }
+
+    @Deprecated
+    public synchronized List<AnnotationProcessorFactory> getFactoriesForProject( IJavaProject jproj ) {
+    	
+    	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factoriesAndAttrs = 
+    		getFactoriesAndAttributesForProject(jproj);
+    	final List<AnnotationProcessorFactory> factories = 
+    		new ArrayList<AnnotationProcessorFactory>(factoriesAndAttrs.keySet());
+    	return Collections.unmodifiableList(factories);
     }
     
 	/**
 	 * @param containers an ordered map.
+	 * @return order preserving map of annotation processor factories to their attributes. 
+	 * The order of the factories respect the order of the containers.
 	 */
-	private List<AnnotationProcessorFactory> loadFactories( Map<FactoryContainer, FactoryPath.Attributes> containers, IJavaProject project )
+	private Map<AnnotationProcessorFactory, FactoryPath.Attributes> loadFactories( Map<FactoryContainer, FactoryPath.Attributes> containers, IJavaProject project )
 	{
-		List<AnnotationProcessorFactory> factories = new ArrayList(containers.size());
+		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factoriesAndAttrs = 
+			new LinkedHashMap<AnnotationProcessorFactory, FactoryPath.Attributes>(containers.size() * 4 / 3 + 1);
 		ClassLoader classLoader = _createClassLoader( containers );
-
-		for ( FactoryContainer fc : containers.keySet() )
+		
+		for ( Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet() )
 		{
 			try {
+				final FactoryContainer fc = entry.getKey();
 				List<AnnotationProcessorFactory> f = loadFactoryClasses( fc, classLoader );
 				for ( AnnotationProcessorFactory apf : f )
-					factories.add( apf  );
+					factoriesAndAttrs.put( apf, entry.getValue() );
 			}
 			catch (FileNotFoundException fnfe) {
 				AptPlugin.log(fnfe, Messages.AnnotationProcessorFactoryLoader_jarNotFound + fnfe.getLocalizedMessage());
@@ -105,7 +127,7 @@ public class AnnotationProcessorFactoryLoader {
 				AptPlugin.log(ioe, Messages.AnnotationProcessorFactoryLoader_ioError + ioe.getLocalizedMessage());
 			}
 		}
-		return factories;
+		return factoriesAndAttrs;
 	}
 	
 	private List<AnnotationProcessorFactory> loadFactoryClasses( 
@@ -181,5 +203,4 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		return cl;
 	}
-	
 }
