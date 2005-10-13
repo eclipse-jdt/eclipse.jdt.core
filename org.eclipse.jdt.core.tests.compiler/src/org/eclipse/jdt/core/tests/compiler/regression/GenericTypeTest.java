@@ -7057,35 +7057,30 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n",
 				"SubTypes.java",
 				"class A extends X {\n" +
-				"    public A foo() { return this; }\n" +
+				"    @Override public A foo() { return this; }\n" +
 				"}\n" +
 				"class B extends X {\n" +
-				"    public X foo() { return new X(); }\n" +
-				"    public B foo() { return this; }\n" +
+				"    @Override public X foo() { return new X(); }\n" +
+				"    @Override public B foo() { return this; }\n" +
 				"}\n" +
 				"class C extends A {\n" +
-				"    public X foo() { return new X(); }\n" +
+				"    @Override public X foo() { return new X(); }\n" +
 				"}\n"
 			},
 			"----------\n" + 
-			"1. WARNING in SubTypes.java (at line 2)\n" + 
-			"	public A foo() { return this; }\n" + 
-			"	         ^^^^^\n" + 
-			"The method foo() of type A should be tagged with @Override since it actually overrides a superclass method\n" + 
-			"----------\n" + 
-			"2. ERROR in SubTypes.java (at line 5)\n" + 
-			"	public X foo() { return new X(); }\n" + 
-			"	         ^^^^^\n" + 
+			"1. ERROR in SubTypes.java (at line 5)\n" + 
+			"	@Override public X foo() { return new X(); }\n" + 
+			"	                   ^^^^^\n" + 
 			"Duplicate method foo() in type B\n" + 
 			"----------\n" + 
-			"3. ERROR in SubTypes.java (at line 6)\n" + 
-			"	public B foo() { return this; }\n" + 
-			"	         ^^^^^\n" + 
+			"2. ERROR in SubTypes.java (at line 6)\n" + 
+			"	@Override public B foo() { return this; }\n" + 
+			"	                   ^^^^^\n" + 
 			"Duplicate method foo() in type B\n" + 
 			"----------\n" + 
-			"4. ERROR in SubTypes.java (at line 9)\n" + 
-			"	public X foo() { return new X(); }\n" + 
-			"	         ^^^^^\n" + 
+			"3. ERROR in SubTypes.java (at line 9)\n" + 
+			"	@Override public X foo() { return new X(); }\n" + 
+			"	                   ^^^^^\n" + 
 			"The return type is incompatible with A.foo()\n" + 
 			"----------\n");
 	}
@@ -11020,8 +11015,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			new String[] {
 				"X.java",
 				"public class X extends Y {\n" + 
-				"	Class<? extends String> foo() { return null; }\n" + 
-				"	Class<? extends String>[] foo2() { return null; }\n" + 
+				"	@Override Class<? extends String> foo() { return null; }\n" + 
+				"	@Override Class<? extends String>[] foo2() { return null; }\n" + 
 				"}\n" + 
 				"class Y {\n" +
 				"	Class<String> foo() { return null; }\n" + 
@@ -11030,13 +11025,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 2)\n" + 
-			"	Class<? extends String> foo() { return null; }\n" + 
-			"	                        ^^^^^\n" + 
+			"	@Override Class<? extends String> foo() { return null; }\n" + 
+			"	                                  ^^^^^\n" + 
 			"The return type is incompatible with Y.foo()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
-			"	Class<? extends String>[] foo2() { return null; }\n" + 
-			"	                          ^^^^^^\n" + 
+			"	@Override Class<? extends String>[] foo2() { return null; }\n" + 
+			"	                                    ^^^^^^\n" + 
 			"The return type is incompatible with Y.foo2()\n" + 
 			"----------\n");
 	}
@@ -22712,11 +22707,6 @@ public void test743() {
 		"	@Override public Nested<B> getNested3() { // sub\n" + 
 		"	                           ^^^^^^^^^^^^\n" + 
 		"The return type is incompatible with TestGeneric3<B>.getNested3()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 15)\n" + 
-		"	@Override public Nested<B> getNested3() { // sub\n" + 
-		"	                           ^^^^^^^^^^^^\n" + 
-		"The method getNested3() of type TestGeneric3<A>.Nested<B> must override a superclass method\n" + 
 		"----------\n");
 }
 public void test744() {
