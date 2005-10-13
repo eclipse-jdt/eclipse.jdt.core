@@ -63,8 +63,9 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
     	if( annoInstances == null || annoInstances.length == 0 || annotationClass == null ) 
     		return null;
     	
-        final String annoTypeName = annotationClass.getName();
+        String annoTypeName = annotationClass.getName();
 		if( annoTypeName == null ) return null;
+        annoTypeName = annoTypeName.replace('$', '.');
 		final int len = annoInstances == null ? 0 : annoInstances.length;
         if( len == 0 ) return null;
         for( IResolvedAnnotation annoInstance :  annoInstances){
