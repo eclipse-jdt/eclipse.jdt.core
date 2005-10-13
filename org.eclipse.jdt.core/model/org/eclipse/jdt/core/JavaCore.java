@@ -1104,7 +1104,7 @@ public final class JavaCore extends Plugin {
 	
 	/**
 	 * Adds the given listener for POST_CHANGE resource change events to the Java core. 
-	 * The listener is guarantied to be notified of the POST_CHANGE resource change event before
+	 * The listener is guaranteed to be notified of the POST_CHANGE resource change event before
 	 * the Java core starts processing the resource change event itself.
 	 * <p>
 	 * Has no effect if an identical listener is already registered.
@@ -1120,7 +1120,7 @@ public final class JavaCore extends Plugin {
 	
 	/**
 	 * Adds the given listener for resource change events of the given types to the Java core. 
-	 * The listener is guarantied to be notified of the resource change event before
+	 * The listener is guaranteed to be notified of the resource change event before
 	 * the Java core starts processing the resource change event itself.
 	 * <p>
 	 * If an identical listener is already registered, the given event types are added to the event types 
