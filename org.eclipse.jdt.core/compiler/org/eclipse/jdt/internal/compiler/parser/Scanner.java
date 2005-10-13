@@ -1440,7 +1440,7 @@ public int getNextToken() throws InvalidInputException {
 						switch (ScannerHelper.ObviousIdentCharNatures[c]) {
 							case ScannerHelper.C_UPPER_LETTER :
 							case ScannerHelper.C_LOWER_LETTER :
-							case ScannerHelper.C_LETTER :
+							case ScannerHelper.C_IDENT_PART :
 								return scanIdentifierOrKeyword();
 							case ScannerHelper.C_DIGIT :
 								return scanNumber(false);
@@ -1883,7 +1883,7 @@ public final void jumpOverMethodBody() {
 							switch (ScannerHelper.ObviousIdentCharNatures[c]) {
 								case ScannerHelper.C_UPPER_LETTER :
 								case ScannerHelper.C_LOWER_LETTER :
-								case ScannerHelper.C_LETTER :
+								case ScannerHelper.C_IDENT_PART :
 									scanIdentifierOrKeyword();
 									break NextToken;
 								case ScannerHelper.C_DIGIT :
@@ -2460,7 +2460,7 @@ public int scanIdentifierOrKeyword() {
 				switch (ScannerHelper.ObviousIdentCharNatures[c]) {
 					case ScannerHelper.C_UPPER_LETTER :
 					case ScannerHelper.C_LOWER_LETTER :
-					case ScannerHelper.C_LETTER :
+					case ScannerHelper.C_IDENT_PART :
 					case ScannerHelper.C_DIGIT :
 		               if (this.withoutUnicodePtr != 0) {
 							this.currentCharacter = c;
