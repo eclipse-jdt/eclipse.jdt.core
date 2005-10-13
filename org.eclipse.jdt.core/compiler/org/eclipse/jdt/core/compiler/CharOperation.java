@@ -282,7 +282,8 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 	if (nameEnd < 0)
 		nameEnd = name.length;
 	char patternChar, nameChar;
-	checkCamelCase: while (iPattern < patternEnd) {
+	
+	nextPatternChar: while (iPattern < patternEnd) {
 					
 		if ((patternChar = pattern[iPattern]) < ScannerHelper.MAX_OBVIOUS
 				? ScannerHelper.ObviousIdentCharNatures[patternChar] == ScannerHelper.C_LOWER_LETTER
@@ -291,12 +292,12 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 				// pattern char == name char (lowercase first char)
 				iName++;
 				iPattern++;
-				continue checkCamelCase;
+				continue nextPatternChar;
 			}
 			// end of uppercase part of pattern
-			break checkCamelCase;
+			break nextPatternChar;
 		}
-		checkName: while (iName < nameEnd) {
+		nextNameChar: while (iName < nameEnd) {
 			if ((nameChar = name[iName]) != patternChar) {
 				if (nameChar < ScannerHelper.MAX_OBVIOUS) {
 					switch (ScannerHelper.ObviousIdentCharNatures[nameChar]) {
@@ -305,13 +306,13 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 						case ScannerHelper.C_DIGIT :
 							// lowercase/digit char is ignored
 							iName++;
-							continue checkName;
+							continue nextNameChar;
 					}
 				} else if (Character.isJavaIdentifierPart(nameChar) 
 								&& !Character.isUpperCase(nameChar)) {
 					// lowercase name char is ignored
 					iName++;
-					continue checkName;
+					continue nextNameChar;
 				}
 				// mismatch, either uppercase in name or non case char ('/' etc)--> reject
 				return false;
@@ -319,12 +320,12 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 				// pattern char == name char (uppercase)
 				iName++;
 				iPattern++;
-				continue checkCamelCase;
+				continue nextPatternChar;
 			}	
 		}
 		if (iPattern == patternEnd) return true;
 		if (iName == nameEnd) return false;
-		continue checkCamelCase;
+		continue nextPatternChar;
 	}
 		
 	// check trailing part in case sensitive way

@@ -98,7 +98,7 @@ public class ScannerHelper {
 	public final static int[] ObviousIdentCharNatures = new int[MAX_OBVIOUS];
 	public final static int C_UPPER_LETTER = 6;
 	public final static int C_LOWER_LETTER = 5;
-	public final static int C_LETTER = 4;
+	public final static int C_IDENT_PART = 4;
 	public final static int C_DIGIT = 3;
 	public final static int C_SEPARATOR = 2;
 	public final static int C_SPACE = 1;
@@ -110,8 +110,8 @@ public class ScannerHelper {
 			ObviousIdentCharNatures[i] = C_LOWER_LETTER;
 		for (int i = 'A'; i <= 'Z'; i++) 
 			ObviousIdentCharNatures[i] = C_UPPER_LETTER;
-		ObviousIdentCharNatures['_'] = C_LETTER;
-		ObviousIdentCharNatures['$'] = C_LETTER;
+		ObviousIdentCharNatures['_'] = C_IDENT_PART;
+		ObviousIdentCharNatures['$'] = C_IDENT_PART;
 		
 		ObviousIdentCharNatures[10] = C_SPACE; // \ u000a: LINE FEED
 		ObviousIdentCharNatures[12] = C_SPACE; // \ u000c: FORM FEED
