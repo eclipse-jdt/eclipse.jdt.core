@@ -37,7 +37,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 176 };
+//		TESTS_NUMBERS = new int[] { 179 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -5717,5 +5717,22 @@ public class AnnotationTest extends AbstractComparableTest {
     			"}\n",
            },
 		"");
-    }      
+    }
+    // https://bugs.eclipse.org/bugs/show_bug.cgi?id=112433
+    public void test179() {
+    	this.runConformTest(
+    		new String[] {
+    			"X.java",
+    			"import static java.lang.annotation.ElementType.*;\n" +
+    			"import static java.lang.annotation.RetentionPolicy.*;\n" +
+    			"import java.lang.annotation.Retention;\n" +
+    			"import java.lang.annotation.Target;\n" +
+    			"@Target({TYPE, FIELD, METHOD,\r\n" + 
+    			"         PARAMETER, CONSTRUCTOR,\r\n" + 
+    			"         LOCAL_VARIABLE, PACKAGE,})\r\n" + 
+    			"@Retention(CLASS)\r\n" + 
+    			"public @interface X {}"
+    		},
+    		"");
+    }
 }
