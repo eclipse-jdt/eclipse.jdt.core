@@ -25959,8 +25959,7 @@ public void test840() {
 			"        rawQualified= raw;\n" + 
 			"    }\n" + 
 			"    Zork z;\n" +
-			"}"
-
+			"}",
 		},
 		"----------\n" + 
 		"1. WARNING in generics\\user\\User.java (at line 5)\n" + 
@@ -25988,5 +25987,24 @@ public void test840() {
 		"	^^^^\n" + 
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112268
+public void test841() {
+	this.runConformTest(
+		new String[] {
+			"X.java ", // =================
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"  List<? extends Comparator> bar() {\n" + 
+			"	  List<? extends Comparator> l = foo();\n" + 
+			"	  return foo();\n" + 
+			"  }\n" + 
+			"  <T> List<T> foo() {\n" + 
+			"	  return null;\n" + 
+			"  }\n" + 
+			"}\n",
+		},
+		"");
 }
 }

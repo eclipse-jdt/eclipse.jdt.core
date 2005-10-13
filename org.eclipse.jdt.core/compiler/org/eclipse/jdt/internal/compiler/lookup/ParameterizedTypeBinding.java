@@ -167,7 +167,31 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         }
         for (int i = 0, length = formalArguments.length; i < length; i++) {
         	TypeBinding formalArgument = formalArguments[i];
-            formalArgument.collectSubstitutes(scope, actualArguments[i], substitutes, formalArgument.isWildcard() ? constraint : CONSTRAINT_EQUAL);
+        	TypeBinding actualArgument = actualArguments[i];
+        	if (formalArgument.isWildcard()) {
+                formalArgument.collectSubstitutes(scope, actualArgument, substitutes, constraint);
+                continue;
+        	} else if (actualArgument.isWildcard()){
+    			WildcardBinding actualWildcardArgument = (WildcardBinding) actualArgument;
+    			if (actualWildcardArgument.otherBounds == null) {
+    				if (constraint == CONSTRAINT_SUPER) { // JLS 15.12.7, p.459
+						switch(actualWildcardArgument.boundKind) {
+		    				case Wildcard.EXTENDS :
+		    					formalArgument.collectSubstitutes(scope, actualWildcardArgument.bound, substitutes, CONSTRAINT_SUPER);
+		    					continue;
+		    				case Wildcard.SUPER :
+		    					formalArgument.collectSubstitutes(scope, actualWildcardArgument.bound, substitutes, CONSTRAINT_EXTENDS);
+		    					continue;
+		    				default :
+		    					continue; // cannot infer anything further from unbound wildcard
+		    			}
+    				} else {
+    					continue; // cannot infer anything further from wildcard
+    				}
+    			}
+        	}
+        	// by default, use EQUAL constraint
+            formalArgument.collectSubstitutes(scope, actualArgument, substitutes, CONSTRAINT_EQUAL);
         }
 	}
 	
