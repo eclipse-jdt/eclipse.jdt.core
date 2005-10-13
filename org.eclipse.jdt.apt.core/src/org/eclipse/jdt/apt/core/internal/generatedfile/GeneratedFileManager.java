@@ -34,12 +34,16 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -105,6 +109,18 @@ public class GeneratedFileManager {
 	private GeneratedFileManager(final IProject project) {
 		_project = project;
 		_javaProject = JavaCore.create( _project );
+		
+		// register a preference listener so that we can watch for changes to the gen src dir
+		ProjectScope projScope = new ProjectScope(project);
+		IEclipsePreferences projPrefs = projScope.getNode(AptPlugin.PLUGIN_ID);
+		IPreferenceChangeListener listener = new IPreferenceChangeListener() {
+			public void preferenceChange(PreferenceChangeEvent event) {
+				if (AptPreferenceConstants.APT_GENSRCDIR.equals(event.getKey())) {
+					setGeneratedSourceFolderName( (String)event.getNewValue() );
+				}
+			}
+		};
+		projPrefs.addPreferenceChangeListener(listener);
 		
 		// get generated source dir from config 
 		// default value is set in org.eclipse.jdt.apt.core.internal.util.AptCorePreferenceInitializer

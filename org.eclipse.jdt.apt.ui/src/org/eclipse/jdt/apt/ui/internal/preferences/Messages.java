@@ -103,4 +103,6 @@ public class Messages extends NLS {
 	public static String AdvancedFactoryPathOptionsDialog_advancedOptions;
 
 	public static String AdvancedFactoryPathOptionsDialog_batchMode;
+
+	public static String AdvancedFactoryPathOptionsDialog_label_processorsInThisContainer;
 }

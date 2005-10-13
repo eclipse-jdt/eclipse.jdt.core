@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jdt.internal.ui.preferences.PropertyAndPreferencePage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Base class for APT preference and property pages.
@@ -25,6 +26,15 @@ public abstract class BasePreferencePage extends PropertyAndPreferencePage {
 
 	protected Control createPreferenceContent(Composite composite) {
 		return getConfigurationBlock().createContents(composite);
+	}
+	
+	@Override
+	public void createControl(Composite parent) {
+		super.createControl(parent);
+		String contextId = getContextHelpId();
+		if (contextId != null) {
+			PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), contextId);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -48,6 +58,15 @@ public abstract class BasePreferencePage extends PropertyAndPreferencePage {
 
 	protected BaseConfigurationBlock getConfigurationBlock() {
 		return fConfigurationBlock;
+	}
+	
+	/**
+	 * Derived classes should override by returning a string that refers
+	 * to a context topic entry in docs/contexts_APT.xml.  The default
+	 * implementation returns null, which causes context help to be disabled.
+	 */
+	protected String getContextHelpId() {
+		return null;
 	}
 	
 	protected boolean hasProjectSpecificOptions(IProject project) {

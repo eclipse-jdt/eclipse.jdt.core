@@ -11,17 +11,25 @@
 
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
+import java.io.IOException;
+
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
+import org.eclipse.jdt.apt.ui.internal.util.ExceptionHandler;
+import org.eclipse.jdt.apt.ui.internal.util.IAptHelpContextIds;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogField;
-import org.eclipse.jface.dialogs.StatusDialog;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Dialog to display "advanced options" on a FactoryPathEntry,
@@ -30,7 +38,10 @@ import org.eclipse.swt.widgets.Shell;
  * be configured, and which may require deeper-than-usual
  * understanding of the annotation processing architecture.
  */
-public class AdvancedFactoryPathOptionsDialog extends StatusDialog {
+public class AdvancedFactoryPathOptionsDialog extends Dialog {
+	
+	private final static int LIST_WIDTH= 70; // width (in chars) of factory list
+	private final static int LIST_HEIGHT= 10; // number of lines in factory list
 	
 	private class FieldAdapter implements IDialogFieldListener {
 		public void dialogFieldChanged(DialogField field) {
@@ -41,42 +52,68 @@ public class AdvancedFactoryPathOptionsDialog extends StatusDialog {
 	private final FactoryContainer _fc;
 	private final FactoryPath.Attributes _attr;
 	
+	// Dialog controls
 	private SelectionButtonDialogField _batchModeField;
+	private Text _contentsLabelField;
+	private ListViewer _contentsField;
 	
 	public AdvancedFactoryPathOptionsDialog(
 			Shell parent, FactoryContainer fc, FactoryPath.Attributes attr) {
 		super(parent);
+		setShellStyle(getShellStyle() | SWT.RESIZE);
 		_fc= fc;
 		_attr= attr;
+	}
+	
+    protected void configureShell(Shell shell) {
+        super.configureShell(shell);
+        shell.setText(Messages.AdvancedFactoryPathOptionsDialog_advancedOptions);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(shell, IAptHelpContextIds.ADVANCED_FACTORYPATH_OPTIONS_DIALOG);
+    }
+    
+	protected Control createDialogArea(Composite parent) {
+		Composite dlgArea= (Composite) super.createDialogArea(parent);
 		
-		setTitle(Messages.AdvancedFactoryPathOptionsDialog_advancedOptions);
-		
+		// Set up "batch mode" checkbox.
 		FieldAdapter adapter = new FieldAdapter();
-		
 		_batchModeField = new SelectionButtonDialogField(SWT.CHECK);
 		_batchModeField.setSelection(_attr.runInBatchMode());
 		_batchModeField.setLabelText(Messages.AdvancedFactoryPathOptionsDialog_batchMode);
 		_batchModeField.setDialogFieldListener(adapter);
-	}
-
-	protected Control createDialogArea(Composite parent) {
-		Composite composite= (Composite) super.createDialogArea(parent);
-		
-		Composite inner= new Composite(composite, SWT.NONE);
-		GridLayout layout= new GridLayout();
-		layout.marginHeight= 0;
-		layout.marginWidth= 0;
-		layout.numColumns= 2;
-		inner.setLayout(layout);
-		
-		_batchModeField.doFillIntoGrid(inner, 2);
-		
-		// Plugins can't run in APT compatibility mode.
+		_batchModeField.doFillIntoGrid(dlgArea, 2);
+			// Plugins can't run in APT compatibility mode.
 		boolean isPlugin = _fc.getType() == FactoryContainer.FactoryType.PLUGIN;
 		_batchModeField.setEnabled(!isPlugin);
 		
-		applyDialogFont(composite);		
-		return composite;
+		DialogField.createEmptySpace(dlgArea, 1);
+
+		// Set up label for processor contents list
+		Label description= new Label(dlgArea, SWT.WRAP);
+		description.setText(Messages.AdvancedFactoryPathOptionsDialog_label_processorsInThisContainer); 
+		GridData gdLabel= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		gdLabel.horizontalSpan= 2;
+		description.setLayoutData(gdLabel);
+
+		// Set up processor contents list
+		_contentsField= new ListViewer(dlgArea, SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+        data.heightHint = convertHeightInCharsToPixels(LIST_HEIGHT);
+        data.widthHint = convertWidthInCharsToPixels(LIST_WIDTH);
+        _contentsField.getList().setLayoutData(data);
+        _contentsField.getList().setFont(parent.getFont());
+        try {
+	        for (String name : _fc.getFactoryNames()) {
+	        	_contentsField.add(name);
+	        }
+        }
+        catch (IOException e) {
+			final String message = "Unable to load factory names from container [" + _fc.getId() + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+			ExceptionHandler.log(e, message);
+        }
+        _contentsField.setSelection(null, false);
+        
+		applyDialogFont(dlgArea);		
+		return dlgArea;
 	}
 		
 	/**

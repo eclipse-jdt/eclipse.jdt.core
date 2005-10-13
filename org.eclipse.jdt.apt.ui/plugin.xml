@@ -2,6 +2,10 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension-point id="aptQuickFixProvider" name="APT Quick Fix Provider" schema="schema/aptQuickFixProvider.exsd"/>
+
+<!-- =================================================================================== -->
+<!-- Extension: Preferences                                                              -->
+<!-- =================================================================================== -->
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
@@ -67,6 +71,12 @@
 <extension
       point="org.eclipse.help.toc">
    <toc file="toc.xml" primary="true"/>
+</extension>
+<extension
+      point="org.eclipse.help.contexts">
+   <contexts
+         file="docs/contexts_APT.xml"
+         plugin="org.eclipse.jdt.apt.ui"/>
 </extension>
 
 <!-- =================================================================================== -->

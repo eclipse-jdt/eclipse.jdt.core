@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.ui.internal.preferences;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.ui.AptUIPlugin;
+import org.eclipse.jdt.apt.ui.internal.util.IAptHelpContextIds;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
@@ -31,8 +32,7 @@ public class FactoryPathPreferencePage extends BasePreferencePage {
 	 */
 	public FactoryPathPreferencePage() {
 		setPreferenceStore(AptUIPlugin.getDefault().getPreferenceStore());
-		//TODO: real names
-		setDescription(Messages.FactoryPathPreferencePage_factoryPath);
+		//setDescription(Messages.FactoryPathPreferencePage_factoryPath);
 		
 		// only used when page is shown programatically
 		setTitle(Messages.FactoryPathPreferencePage_preferences);
@@ -46,8 +46,6 @@ public class FactoryPathPreferencePage extends BasePreferencePage {
 		setConfigurationBlock(new FactoryPathConfigurationBlock(getNewStatusChangedListener(), getProject(), container));
 		
 		super.createControl(parent);
-		//TODO: enable Help
-		//PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IJavaHelpContextIds.ORGANIZE_IMPORTS_PREFERENCE_PAGE);
 	}
 
 	protected boolean hasProjectSpecificOptions(IProject project) {
@@ -67,6 +65,11 @@ public class FactoryPathPreferencePage extends BasePreferencePage {
 	 */
 	protected String getPropertyPageID() {
 		return PROP_ID;
+	}
+
+	@Override
+	protected String getContextHelpId() {
+		return IAptHelpContextIds.FACTORYPATH_PREFERENCE_PAGE;
 	}
 
 }

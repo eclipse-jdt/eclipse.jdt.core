@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.ui.internal.preferences.AptConfigurationBlock.ProcessorOption;
+import org.eclipse.jdt.apt.ui.internal.util.IAptHelpContextIds;
 import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
@@ -27,6 +28,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Dialog to edit or add an APT processor option
@@ -128,7 +130,6 @@ public class ProcessorOptionInputDialog extends StatusDialog {
 	 */
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		//TODO: enable help
-		//PlatformUI.getWorkbench().getHelpSystem().setHelp(newShell, IJavaHelpContextIds.TODO_TASK_INPUT_DIALOG);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(newShell, IAptHelpContextIds.PROCESSOR_OPTION_INPUT_DIALOG);
 	}
 }

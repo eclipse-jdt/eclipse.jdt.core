@@ -12,6 +12,7 @@
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
 import org.eclipse.jdt.apt.ui.AptUIPlugin;
+import org.eclipse.jdt.apt.ui.internal.util.IAptHelpContextIds;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
@@ -25,7 +26,7 @@ public class AptPreferencePage extends BasePreferencePage {
 
 	public AptPreferencePage() {
 		setPreferenceStore(AptUIPlugin.getDefault().getPreferenceStore());
-		setDescription(Messages.AptPreferencePage_preferences);
+		//setDescription(Messages.AptPreferencePage_preferences);
 		
 		// only used when page is shown programatically
 		setTitle(Messages.AptPreferencePage_preferencesTitle);
@@ -39,8 +40,11 @@ public class AptPreferencePage extends BasePreferencePage {
 		setConfigurationBlock(new AptConfigurationBlock(getNewStatusChangedListener(), getProject(), container));
 		
 		super.createControl(parent);
-		//TODO: enable Help
-		//PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IJavaHelpContextIds.ORGANIZE_IMPORTS_PREFERENCE_PAGE);
+	}
+
+	@Override
+	protected String getContextHelpId() {
+		return IAptHelpContextIds.APTCONFIGURATION_PREFERENCE_PAGE;
 	}
 
 	/* (non-Javadoc)

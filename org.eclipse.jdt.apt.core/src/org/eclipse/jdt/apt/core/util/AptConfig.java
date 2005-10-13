@@ -15,27 +15,18 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.INodeChangeListener;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.NodeChangeEvent;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
-import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -53,9 +44,6 @@ import org.osgi.service.prefs.BackingStoreException;
  * 
  * Helpful information about the Eclipse preferences mechanism can be found at:
  * http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/platform-core-home/documents/user_settings/faq.html
- * 
- * TODO: check synchronization of maps
- * TODO: optimize performance on projects that do not have project-specific settings.
  */
 public class AptConfig {
 	
@@ -63,19 +51,6 @@ public class AptConfig {
 	 * Hide constructor; this is a static object
 	 */
 	private AptConfig() {}
-	
-	/**
-	 * Holds the options maps for each project.  Use a WeakHashMap so that
-	 * we don't hold on to projects after they've been removed.
-	 * 
-	 * The key is IProject rather than IJavaProject because we need to
-	 * listen for project nodes being removed from the Eclipse preferences 
-	 * tree.  By the time a node is removed, it might not have a valid
-	 * IJavaProject associated with it any more.
-	 */
-	private static Map<IProject, Map<String, String>> _optionsMaps = 
-		new WeakHashMap<IProject, Map<String, String>>();
-	
 	
 	/**
      * Add the equivalent of -Akey=val to the list of processor options.
@@ -86,31 +61,53 @@ public class AptConfig {
      * remove the key; for that functionality, @see #removeProcessorOption(IJavaProject, String).
      * @return the old value, or null if the option was not previously set.
      */
-    public static synchronized String addProcessorOption(IJavaProject jproj, String key, String val) {
+    public static String addProcessorOption(IJavaProject jproj, String key, String val) {
     	if (key == null || key.length() < 1) {
     		return null;
     	}
-    	Map<String, String> options = getRawProcessorOptions(jproj);
-    	String old = options.get(key);
-    	options.put(key, val);
-    	String serializedOptions = serializeProcessorOptions(options);
-    	setString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS, serializedOptions);
+    	String old;
+    	IEclipsePreferences node;
+    	synchronized (AptConfig.class) {
+	    	Map<String, String> options = getRawProcessorOptions(jproj);
+	    	old = options.get(key);
+	    	options.put(key, val);
+	    	String serializedOptions = serializeProcessorOptions(options);
+			IScopeContext context = (null != jproj) ? 
+					new ProjectScope(jproj.getProject()) : new InstanceScope();
+			node = context.getNode(AptPlugin.PLUGIN_ID);
+			node.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, serializedOptions);
+    	}
+    	// Do the flush outside of the synchronized block to avoid deadlock:
+    	// flush causes a file write, which will block if the workspace is locked.
+    	flushPreference(AptPreferenceConstants.APT_PROCESSOROPTIONS, node);
     	return old;
     }
 	
 	/**
      * Remove an option from the list of processor options.
+     * This method is not synchronized.  If two threads simultaneously try 
+     * to modify the processor options, one of the requests may be ignored.
      * @param jproj a project, or null to remove the option workspace-wide.
      * @param key must be a nonempty string.  It should only include the key;
      * that is, it should not start with "-A".
      * @return the old value, or null if the option was not previously set.
      */
-    public static synchronized String removeProcessorOption(IJavaProject jproj, String key) {
-    	Map<String, String> options = getRawProcessorOptions(jproj);
-    	String old = options.get(key);
-    	options.remove(key);
-    	String serializedOptions = serializeProcessorOptions(options);
-    	setString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS, serializedOptions);
+    public static String removeProcessorOption(IJavaProject jproj, String key) {
+    	String old;
+    	IEclipsePreferences node;
+    	synchronized (AptConfig.class) {
+	    	Map<String, String> options = getRawProcessorOptions(jproj);
+	    	old = options.get(key);
+	    	options.remove(key);
+	    	String serializedOptions = serializeProcessorOptions(options);
+			IScopeContext context = (null != jproj) ? 
+					new ProjectScope(jproj.getProject()) : new InstanceScope();
+			node = context.getNode(AptPlugin.PLUGIN_ID);
+			node.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, serializedOptions);
+    	}
+    	// Do the flush outside of the synchronized block to avoid deadlock:
+    	// flush causes a file write, which will block if the workspace is locked.
+    	flushPreference(AptPreferenceConstants.APT_PROCESSOROPTIONS, node);
     	return old;
     }
     
@@ -401,7 +398,7 @@ public class AptConfig {
 	 */
 	public static void initialize() {
 		// If we cached workspace-level preferences, we would want to install
-		// some change listeners here.  (Cf. per-project code in getOptions()).
+		// some change listeners here. 
 	}
 	
 	/**
@@ -422,53 +419,18 @@ public class AptConfig {
 		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled);
 	}
 	
-	private static synchronized boolean getBoolean(IJavaProject jproject, String optionName) {
-		return "true".equals(getOptions(jproject).get(optionName)); //$NON-NLS-1$
-	}
-	
-    /**
-	 * Return the apt settings for this project, or the workspace settings
-	 * if they are not overridden by project settings.
-	 * TODO: efficiently handle the case of projects that don't have per-project settings
-	 * (e.g., only cache one workspace-wide map, not a separate copy for each project).
-	 * @param jproject
-	 * @return
-	 */
-	private static Map<String,String> getOptions(IJavaProject jproject) {
-		IProject project = jproject.getProject();
-		assert(null != project);
-		Map<String,String> options = _optionsMaps.get(project);
-		if (options != null) {
-			return options;
-		}
-		// We didn't already have an options map for this project, so create one.
+	private static boolean getBoolean(IJavaProject jproject, String optionName) {
 		IPreferencesService service = Platform.getPreferencesService();
 		// Don't need to do this, because it's the default-default already:
 		//service.setDefaultLookupOrder(AptPlugin.PLUGIN_ID, null, lookupOrder);
-		options = new HashMap(AptPreferenceConstants.NSETTINGS);
-		
-		_optionsMaps.put(project, options);
-		// Load project values into the map
-		ProjectScope projScope = new ProjectScope(project);
+
+		ProjectScope projScope = new ProjectScope(jproject.getProject());
 		IScopeContext[] contexts = new IScopeContext[] { projScope };
-		for (String optionName : AptPreferenceConstants.OPTION_NAMES) {
-			String val = service.getString(
-					AptPlugin.PLUGIN_ID, 
-					optionName, 
-					AptPreferenceConstants.DEFAULT_OPTIONS_MAP.get(optionName), 
-					contexts);
-			if (val != null) {
-				options.put(optionName, val);
-			}
-		}
-		// Add change listener for this project, so we can update the map later on
-		IEclipsePreferences projPrefs = projScope.getNode(AptPlugin.PLUGIN_ID);
-		ChangeListener listener = new ChangeListener(project);
-		projPrefs.addPreferenceChangeListener(listener);
-		((IEclipsePreferences)projPrefs.parent()).addNodeChangeListener(listener);
-        AptPlugin.getPlugin().getPluginPreferences().addPropertyChangeListener(listener);
-		
-		return options;
+		return service.getBoolean(
+				AptPlugin.PLUGIN_ID, 
+				optionName, 
+				Boolean.parseBoolean(AptPreferenceConstants.DEFAULT_OPTIONS_MAP.get(optionName)),  
+				contexts);
 	}
 	
 	/**
@@ -523,49 +485,6 @@ public class AptConfig {
 		return FactoryPathUtil.doesFactoryPathFileExist(jproj);
 	}
 
-	private static class ChangeListener implements IPreferenceChangeListener, INodeChangeListener, IPropertyChangeListener {
-		private final IProject _proj;
-		public ChangeListener(IProject proj) {
-			_proj = proj;
-		}
-		public void preferenceChange(PreferenceChangeEvent event) {
-            changePreference(event.getKey(), (String)event.getNewValue(), (String)event.getOldValue());
-		}
-        
-        public void propertyChange(PropertyChangeEvent event) {
-            changePreference(event.getProperty(), (String)event.getNewValue(), (String)event.getOldValue());
-            
-        }
-        
-        private void changePreference(String key, String newValue, String oldValue)
-        {
-            
-            // update the changed value in the options map.
-            Map<String, String> options = _optionsMaps.get(_proj);
-            if (null == options) {
-                return;
-            }
-            options.put(key, newValue);
-            
-            // handle change to generated source directory
-            if ( AptPreferenceConstants.APT_GENSRCDIR.equals( key ) ) {
-
-                if ( newValue != null && ! newValue.equals( oldValue)) {
-                    GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _proj );
-                    gfm.setGeneratedSourceFolderName( newValue );
-                }
-            }  
-        }
-        
-		public void added(NodeChangeEvent event) {
-			// do nothing
-		}
-		public void removed(NodeChangeEvent event) {
-			// clear out the cached options for this project.
-			_optionsMaps.remove(_proj);
-		}
-	}
-	
 	/**
 	 * Helper method to get a single preference setting, e.g., APT_GENSRCDIR.    
 	 * This is a different level of abstraction than the processor -A settings!
@@ -579,8 +498,17 @@ public class AptConfig {
 	 * @param optionName a preference constant from @see AptPreferenceConstants.
 	 * @return
 	 */
-    public static synchronized String getString(IJavaProject jproject, String optionName) {
-		return getOptions(jproject).get(optionName);
+    public static String getString(IJavaProject jproject, String optionName) {
+		IPreferencesService service = Platform.getPreferencesService();
+		// Don't need to do this, because it's the default-default already:
+		//service.setDefaultLookupOrder(AptPlugin.PLUGIN_ID, null, lookupOrder);
+		ProjectScope projScope = new ProjectScope(jproject.getProject());
+		IScopeContext[] contexts = new IScopeContext[] { projScope };
+		return service.getString(
+				AptPlugin.PLUGIN_ID, 
+				optionName, 
+				AptPreferenceConstants.DEFAULT_OPTIONS_MAP.get(optionName), 
+				contexts);
 	}
     
     public static String getGenSrcDir(IJavaProject jproject) {
@@ -593,10 +521,9 @@ public class AptConfig {
     
     public static void setGenSrcDir(IJavaProject jproject, String dirString) {
     	if (dirString == null) {
-    		throw new IllegalStateException("Cannot set the Generated Source Directory to null"); //$NON-NLS-1$
+    		throw new IllegalArgumentException("Cannot set the Generated Source Directory to null"); //$NON-NLS-1$
     	}
     	setString(jproject, AptPreferenceConstants.APT_GENSRCDIR, dirString);
-    	
     }
 	
     /**
@@ -625,31 +552,17 @@ public class AptConfig {
     	return sb.toString();
     }
 	
-	private static synchronized void setBoolean(IJavaProject jproject, String optionName, boolean value) {
-		// TODO: should we try to determine whether a project has no per-project settings,
-		// and if so, set the workspace settings?  Or, do we want the caller to tell us
-		// explicitly by setting jproject == null in that case?
-		
-		IScopeContext context;
-		if (null != jproject) {
-			context = new ProjectScope(jproject.getProject());
-		}
-		else {
-			context = new InstanceScope();
-		}
+	private static void setBoolean(IJavaProject jproject, String optionName, boolean value) {
+		IScopeContext context = (null != jproject) ? 
+				new ProjectScope(jproject.getProject()) : new InstanceScope();
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
 		node.putBoolean(optionName, value);
 		flushPreference(optionName, node);
 	}
 	
-	private static synchronized void setString(IJavaProject jproject, String optionName, String value) {
-		IScopeContext context;
-		if (null != jproject) {
-			context = new ProjectScope(jproject.getProject());
-		}
-		else {
-			context = new InstanceScope();
-		}
+	private static void setString(IJavaProject jproject, String optionName, String value) {
+		IScopeContext context = (null != jproject) ? 
+				new ProjectScope(jproject.getProject()) : new InstanceScope();
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
 		node.put(optionName, value);
 		flushPreference(optionName, node);
