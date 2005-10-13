@@ -25,23 +25,21 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 
 	public final static List COMPLETION_SUITES = new ArrayList();
 	static {
-		if (AbstractJavadocCompletionModelTest.WRITE_DIR == null && !ONLY_JAVADOC) {
+		if (!ONLY_JAVADOC) {
 			COMPLETION_SUITES.add(CompletionTests.class);
 			COMPLETION_SUITES.add(CompletionTests_1_5.class);
 		}
 		COMPLETION_SUITES.add(JavadocTypeCompletionModelTest.class);
 		COMPLETION_SUITES.add(JavadocFieldCompletionModelTest.class);
 		COMPLETION_SUITES.add(JavadocMethodCompletionModelTest.class);
-		if (AbstractJavadocCompletionModelTest.WRITE_DIR == null) {
-			COMPLETION_SUITES.add(JavadocPackageCompletionModelTest.class);
-		}
+		COMPLETION_SUITES.add(JavadocPackageCompletionModelTest.class);
 		COMPLETION_SUITES.add(JavadocTextCompletionModelTest.class);
 		COMPLETION_SUITES.add(JavadocBugsCompletionModelTest.class);
 	}
 
 	public static Class[] getTestClasses() {
 		int size = COMPLETION_SUITES.size();
-		if (AbstractJavadocCompletionModelTest.WRITE_DIR == null && !ONLY_JAVADOC) {
+		if (!ONLY_JAVADOC) {
 			Class[] testClasses = new Class[size+2];
 			COMPLETION_SUITES.toArray(testClasses);
 			testClasses[size] = CompletionTests2.class;
