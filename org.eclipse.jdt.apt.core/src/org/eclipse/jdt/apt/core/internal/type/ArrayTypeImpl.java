@@ -61,7 +61,16 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorImpl
         return mirror;
     }
 
-    public String toString(){ return _arrayBinding.toString(); }
+    public String toString(){ 
+    	final ITypeBinding elementType = _arrayBinding.getElementType();
+    	final StringBuilder buffer = new StringBuilder();
+    	String name = elementType.getQualifiedName();
+    	buffer.append(name);
+		for( int i=0, dim = _arrayBinding.getDimensions(); i<dim; i++ )
+			buffer.append("[]"); //$NON-NLS-1$
+		
+		return buffer.toString();
+    }
 
     public boolean equals(Object obj)
     {
