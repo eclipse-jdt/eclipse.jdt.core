@@ -24338,7 +24338,7 @@ public void test839() {
 public void test841() {
 	this.runConformTest(
 		new String[] {
-			"X.java ", // =================
+			"X.java", // =================
 			"import java.util.*;\n" + 
 			"\n" + 
 			"public class X {\n" + 
