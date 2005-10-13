@@ -13,15 +13,12 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -181,6 +178,9 @@ public class Parser implements  ParserBasicInformation, TerminalTokens, Compiler
 	protected int synchronizedBlockSourceStart;
 	protected int[] variablesCounter;
 
+	protected boolean checkExternalizeStrings;
+	protected boolean recordStringLiterals;
+	
 	// javadoc
 	public Javadoc javadoc;
 	public JavadocParser javadocParser;
@@ -1034,6 +1034,7 @@ protected void consumeAnnotationName() {
 		int end = (int) (this.identifierPositionStack[this.identifierPtr] & 0x00000000FFFFFFFFL);
 		annotationRecoveryCheckPoint(start, end);
 	}
+	this.recordStringLiterals = false;
 }
 protected void consumeAnnotationTypeDeclaration() {
 	int length;
@@ -2410,6 +2411,7 @@ protected void consumeEmptyMethodHeaderDefaultValue() {
 	if(method.isAnnotationMethod()) { //'method' can be a MethodDeclaration when recovery is started
 		pushOnExpressionStackLengthStack(0);
 	}
+	this.recordStringLiterals = true;
 }
 protected void consumeEmptyDimsopt() {
 	// Dimsopt ::= $empty
@@ -3687,6 +3689,7 @@ protected void consumeMarkerAnnotation() {
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		this.problemReporter().invalidUsageOfAnnotation(markerAnnotation);
 	}
+	this.recordStringLiterals = true;
 }
 protected void consumeMemberValueArrayInitializer() {
 	// MemberValueArrayInitializer ::= '{' MemberValues ',' '}'
@@ -3822,6 +3825,7 @@ protected void consumeMethodHeaderDefaultValue() {
 			md.modifiers |=  AccAnnotationDefault;
 		}
 		this.expressionPtr--;
+		this.recordStringLiterals = true;
 	}
 
 	if(this.currentElement != null) {
@@ -3859,6 +3863,7 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 	MethodDeclaration md = null;
 	if(isAnnotationMethod) {
 		md = new AnnotationMethodDeclaration(this.compilationUnit.compilationResult);
+		this.recordStringLiterals = false;
 	} else {
 		md = new MethodDeclaration(this.compilationUnit.compilationResult);
 	}
@@ -3915,6 +3920,7 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 	MethodDeclaration md = null;
 	if(isAnnotationMethod) {
 		md = new AnnotationMethodDeclaration(this.compilationUnit.compilationResult);
+		this.recordStringLiterals = false;
 	} else {
 		md = new MethodDeclaration(this.compilationUnit.compilationResult);
 	}
@@ -4195,6 +4201,7 @@ protected void consumeNormalAnnotation() {
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		this.problemReporter().invalidUsageOfAnnotation(normalAnnotation);
 	}
+	this.recordStringLiterals = true;
 }
 protected void consumeOneDimLoop() {
 	// OneDimLoop ::= '[' ']'
@@ -6205,6 +6212,7 @@ protected void consumeSingleMemberAnnotation() {
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		this.problemReporter().invalidUsageOfAnnotation(singleMemberAnnotation);
 	}
+	this.recordStringLiterals = true;
 }
 protected void consumeSingleStaticImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
@@ -6847,10 +6855,21 @@ protected void consumeToken(int type) {
 					this.scanner.currentPosition - 1)); 
 			break;
 		case TokenNameStringLiteral :
-			StringLiteral stringLiteral = new StringLiteral(
+			StringLiteral stringLiteral;
+			if (this.recordStringLiterals && this.checkExternalizeStrings) {
+				stringLiteral = new StringLiteral(
 					this.scanner.getCurrentTokenSourceString(), 
 					this.scanner.startPosition, 
-					this.scanner.currentPosition - 1); 
+					this.scanner.currentPosition - 1,
+					this.scanner.getLineNumber(this.scanner.startPosition));
+				this.compilationUnit.recordStringLiteral(stringLiteral);
+			} else {
+				stringLiteral = new StringLiteral(
+					this.scanner.getCurrentTokenSourceString(), 
+					this.scanner.startPosition, 
+					this.scanner.currentPosition - 1,
+					0);
+			}
 			pushOnExpressionStack(stringLiteral); 
 			break;
 		case TokenNamefalse :
@@ -8146,11 +8165,10 @@ public void initialize(boolean initializeNLS) {
 	this.scanner.commentPtr = -1;
 	this.scanner.foundTaskCount = 0;
 	this.scanner.eofPosition = Integer.MAX_VALUE;
-	this.scanner.unnecessaryNLSTags = null;
-	this.scanner.nonNLSStrings = null;
-	if (initializeNLS && this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore /*nls*/) {
-		this.scanner.currentLine = new NLSLine();
-	}
+	this.recordStringLiterals = true;
+	final boolean checkNLS = this.options.getSeverity(CompilerOptions.NonExternalizedString) != ProblemSeverities.Ignore;
+	this.checkExternalizeStrings = checkNLS;
+	this.scanner.checkNonExternalizedStringLiterals = initializeNLS && checkNLS;
 
 	resetModifiers();
 
@@ -8239,7 +8257,6 @@ protected boolean moveRecoveryCheckpoint() {
 	/* if about to restart, then no need to shift token */
 	if (this.restartRecovery){
 		this.lastIgnoredToken = -1;
-		if (this.scanner.currentLine != null) this.scanner.currentLine.clear();
 		this.scanner.insideRecovery = true;		
 		return true;
 	}
@@ -8262,7 +8279,6 @@ protected boolean moveRecoveryCheckpoint() {
 	
 	if (this.nextIgnoredToken == TokenNameEOF) { // no more recovery after this point
 		if (this.currentToken == TokenNameEOF) { // already tried one iteration on EOF
-			if (this.scanner.currentLine != null) this.scanner.currentLine.clear();
 			return false;
 		}
 	}
@@ -8273,8 +8289,6 @@ protected boolean moveRecoveryCheckpoint() {
 	this.scanner.currentPosition = pos;
 	this.scanner.commentPtr = -1;
 	this.scanner.foundTaskCount = 0;
-	if (this.scanner.currentLine != null) this.scanner.currentLine.clear();
-
 	return true;
 
 /*
@@ -8481,59 +8495,12 @@ protected void parse() {
 		} while (act <= NUM_RULES);
 	}
 	endParse(act);
-	if (this.scanner.currentLine != null) {
-		final Set nonNLSStrings = this.scanner.nonNLSStrings;
-		if (nonNLSStrings != null) {
-			final int nonNLSStringsSize = nonNLSStrings.size();
-			StringLiteral[] literals = new StringLiteral[nonNLSStringsSize];
-			nonNLSStrings.toArray(literals);
-			Arrays.sort(literals, new Comparator() {
-				public int compare(Object o1, Object o2) {
-					StringLiteral literal1 = (StringLiteral) o1;
-					StringLiteral literal2 = (StringLiteral) o2;
-					return literal1.sourceStart - literal2.sourceStart;
-				}
-			});
-			for (int i = 0; i < nonNLSStringsSize; i++) {
-				problemReporter().nonExternalizedStringLiteral(literals[i]);
-			}
-		}
-		final Set unnecessaryNLSTags = this.scanner.unnecessaryNLSTags;
-		if (unnecessaryNLSTags != null) {
-			final int unnecessaryNLSTagsSize = unnecessaryNLSTags.size();
-			if (unnecessaryNLSTagsSize != 0) {
-/*				NLSTag[] tags = new NLSTag[unnecessaryNLSTagsSize];
-				unnecessaryNLSTags.toArray(tags);
-				// filter out all used nls tags
-				ArrayList arrayList = new ArrayList();
-				for (int i = 0; i < unnecessaryNLSTagsSize; i++) {
-					NLSTag tag = tags[i];
-					if ((tag.bits & NLSTag.UNUSED) != 0) {
-						arrayList.add(tag);
-					}
-				}*/
-				ArrayList arrayList = new ArrayList();
-				arrayList.addAll(unnecessaryNLSTags);
-				Collections.sort(arrayList, new Comparator() {
-					public int compare(Object o1, Object o2) {
-						NLSTag tag1 = (NLSTag) o1;
-						NLSTag tag2 = (NLSTag) o1;
-						return tag1.start - tag2.start;
-					}
-				});
-				loop : for (int i = 0, max = arrayList.size(); i < max; i++) {
-					NLSTag tag = (NLSTag) arrayList.get(i); 
-					if (tag.bits != NLSTag.UNUSED) {
-						continue loop;
-					}
-					problemReporter().unnecessaryNLSTags(tag.start, tag.end);
-				}
-			}
-		}
-		this.scanner.nonNLSStrings = null;
-		this.scanner.unnecessaryNLSTags = null;
-		this.scanner.currentLine = null;
+	// record all nls tags in the corresponding compilation unit
+	final NLSTag[] tags = this.scanner.getNLSTags();
+	if (tags != null) {
+		this.compilationUnit.nlsTags = tags;
 	}
+	this.scanner.checkNonExternalizedStringLiterals = false;
 	if (this.reportSyntaxErrorIsRequired && this.hasError) {
 		reportSyntaxErrors(isDietParse, oldFirstToken);
 	}	
@@ -9244,13 +9211,6 @@ protected void resetStacks() {
 	this.recoveredStaticInitializerStart = 0;
 	this.listLength = 0;
 	this.listTypeParameterLength = 0;
-	// Fix for http://dev.eclipse.org/bugs/show_bug.cgi?id=29365
-	if (this.scanner != null) {
-		final NLSLine line = this.scanner.currentLine;
-		if (line != null) {
-			line.clear();
-		}
-	}
 	
 	this.genericsIdentifiersLengthPtr = -1;
 	this.genericsLengthPtr = -1;
@@ -9284,7 +9244,8 @@ protected boolean resumeAfterRecovery() {
 	return false;
 }
 protected boolean resumeOnSyntaxError() {
-
+	this.checkExternalizeStrings = false;
+	this.scanner.checkNonExternalizedStringLiterals = false;
 	/* request recovery initialization */
 	if (this.currentElement == null){
 		// Reset javadoc before restart parsing after recovery

@@ -10,15 +10,38 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
+import java.util.Arrays;
+import java.util.Comparator;
+
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.parser.NLSTag;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.problem.AbortType;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class CompilationUnitDeclaration
 	extends ASTNode
 	implements ProblemSeverities, ReferenceContext {
+	
+	private static final Comparator STRING_LITERAL_COMPARATOR = new Comparator() {
+		public int compare(Object o1, Object o2) {
+			StringLiteral literal1 = (StringLiteral) o1;
+			StringLiteral literal2 = (StringLiteral) o2;
+			return literal1.sourceStart - literal2.sourceStart;
+		}
+	};
+	private static final int STRING_LITERALS_INCREMENT = 10;
 
 	public ImportReference currentPackage;
 	public ImportReference[] imports;
@@ -38,6 +61,10 @@ public class CompilationUnitDeclaration
 
 	public Javadoc javadoc; // 1.5 addition for package-info.java
 	
+	public NLSTag[] nlsTags;
+	private StringLiteral[] stringLiterals;
+	private int stringLiteralsPtr;
+	
 	public CompilationUnitDeclaration(
 		ProblemReporter problemReporter,
 		CompilationResult compilationResult,
@@ -49,7 +76,6 @@ public class CompilationUnitDeclaration
 		//by definition of a compilation unit....
 		sourceStart = 0;
 		sourceEnd = sourceLength - 1;
-
 	}
 
 	/*
@@ -263,6 +289,24 @@ public class CompilationUnitDeclaration
 		}
 	}
 
+	public void recordStringLiteral(StringLiteral literal) {
+		if (this.stringLiterals == null) {
+			this.stringLiterals = new StringLiteral[STRING_LITERALS_INCREMENT];
+			this.stringLiteralsPtr = 0;
+		} else {
+			int stackLength = this.stringLiterals.length;
+			if (this.stringLiteralsPtr == stackLength) {
+				System.arraycopy(
+					this.stringLiterals,
+					0,
+					this.stringLiterals = new StringLiteral[stackLength + STRING_LITERALS_INCREMENT],
+					0,
+					stackLength);
+			}
+		}
+		this.stringLiterals[this.stringLiteralsPtr++] = literal;		
+	}
+
 	/*
 	 * Keep track of all local types, so as to update their innerclass
 	 * emulation later on.
@@ -306,6 +350,102 @@ public class CompilationUnitDeclaration
 				}
 			}
 			if (!this.compilationResult.hasErrors()) checkUnusedImports();
+			if (this.nlsTags != null || this.stringLiterals != null) {
+				final int stringLiteralsLength = this.stringLiteralsPtr;
+				final int nlsTagsLength = this.nlsTags == null ? 0 : this.nlsTags.length;
+				if (stringLiteralsLength == 0) {
+					if (nlsTagsLength != 0) {
+						for (int i = 0; i < nlsTagsLength; i++) {
+							NLSTag tag = this.nlsTags[i];
+							if (tag != null) {
+								scope.problemReporter().unnecessaryNLSTags(tag.start, tag.end);
+							}
+						}
+					}
+				} else if (nlsTagsLength == 0) {
+					// resize string literals
+					if (this.stringLiterals.length != stringLiteralsLength) {
+						System.arraycopy(this.stringLiterals, 0, (stringLiterals = new StringLiteral[stringLiteralsLength]), 0, stringLiteralsLength);
+					}
+					Arrays.sort(this.stringLiterals, STRING_LITERAL_COMPARATOR);
+					for (int i = 0; i < stringLiteralsLength; i++) {
+						scope.problemReporter().nonExternalizedStringLiteral(this.stringLiterals[i]);
+					}
+				} else {
+					// need to iterate both arrays to find non matching elements
+					if (this.stringLiterals.length != stringLiteralsLength) {
+						System.arraycopy(this.stringLiterals, 0, (stringLiterals = new StringLiteral[stringLiteralsLength]), 0, stringLiteralsLength);
+					}
+					Arrays.sort(this.stringLiterals, STRING_LITERAL_COMPARATOR);
+					int indexInLine = 1;
+					int lastLineNumber = -1;
+					StringLiteral literal = null;
+					int index = 0;
+					int i = 0;
+					stringLiteralsLoop: for (; i < stringLiteralsLength; i++) {
+						literal = this.stringLiterals[i];
+						final int literalLineNumber = literal.lineNumber;
+						if (lastLineNumber != literalLineNumber) {
+							indexInLine = 1;
+							lastLineNumber = literalLineNumber;
+						} else {
+							indexInLine++;
+						}
+						if (index < nlsTagsLength) {
+							nlsTagsLoop: for (; index < nlsTagsLength; index++) {
+								NLSTag tag = this.nlsTags[index];
+								if (tag == null) continue nlsTagsLoop;
+								int tagLineNumber = tag.lineNumber;
+								if (literalLineNumber < tagLineNumber) {
+									scope.problemReporter().nonExternalizedStringLiteral(literal);
+									continue stringLiteralsLoop;
+								} else if (literalLineNumber == tagLineNumber) {
+									if (tag.index == indexInLine) {
+										this.nlsTags[index] = null;
+										index++;
+										continue stringLiteralsLoop;
+									} else {
+										nlsTagsLoop2: for (int index2 = index + 1; index2 < nlsTagsLength; index2++) {
+											NLSTag tag2 = this.nlsTags[index2];
+											if (tag == null) continue nlsTagsLoop2;
+											int tagLineNumber2 = tag2.lineNumber;
+											if (literalLineNumber == tagLineNumber2) {
+												if (tag2.index == indexInLine) {
+													this.nlsTags[index2] = null;
+													continue stringLiteralsLoop;
+												} else {
+													continue nlsTagsLoop2;
+												}
+											} else {
+												scope.problemReporter().nonExternalizedStringLiteral(literal);
+												continue stringLiteralsLoop;
+											}
+										}
+										scope.problemReporter().nonExternalizedStringLiteral(literal);
+										continue stringLiteralsLoop;
+									}
+								} else {
+									scope.problemReporter().unnecessaryNLSTags(tag.start, tag.end);
+									continue nlsTagsLoop;
+								}
+							}
+						} else {
+							break stringLiteralsLoop;
+						}
+					}
+					for (; i < stringLiteralsLength; i++) {
+						scope.problemReporter().nonExternalizedStringLiteral(this.stringLiterals[i]);
+					}
+					if (index < nlsTagsLength) {
+						for (; index < nlsTagsLength; index++) {
+							NLSTag tag = this.nlsTags[index];
+							if (tag != null) {
+								scope.problemReporter().unnecessaryNLSTags(tag.start, tag.end);
+							}
+						}						
+					}
+				}
+			}
 		} catch (AbortCompilationUnit e) {
 			this.ignoreFurtherInvestigation = true;
 			return;

@@ -4299,7 +4299,7 @@ public class AnnotationTest extends AbstractComparableTest {
     			"import java.util.List;\n" + 
     			"import java.util.Vector;\n" + 
     			"\n" + 
-    			"@SuppressWarnings(\"all\")//$NON-NLS-1$\n" + 
+    			"@SuppressWarnings(\"all\")\n" + 
     			"public class X {\n" + 
     			"	public static void main(String[] args) {\n" + 
     			"		W.deprecated();\n" + 
@@ -5567,7 +5567,7 @@ public class AnnotationTest extends AbstractComparableTest {
             new String[] {
                 "X.java",
     			"@interface Annot {\n" +
-    			"    String value() default \"NONE\"; //$NON-NLS-1$\n" +
+    			"    String value() default \"NONE\";\n" +
     			"}\n" +
     			"@Annot(\"serial\")\n" + 
     			"public class X extends Exception {\n" +

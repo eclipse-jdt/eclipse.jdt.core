@@ -20,7 +20,7 @@ public class ExtendedStringLiteral extends StringLiteral {
 	 */
 	public ExtendedStringLiteral(StringLiteral str, CharLiteral character) {
 
-		super(str.source, str.sourceStart, str.sourceEnd);
+		super(str.source, str.sourceStart, str.sourceEnd, str.lineNumber);
 		extendWith(character);
 	}
 
@@ -29,7 +29,7 @@ public class ExtendedStringLiteral extends StringLiteral {
 	 * */
 	public ExtendedStringLiteral(StringLiteral str1, StringLiteral str2) {
 
-		super(str1.source, str1.sourceStart, str1.sourceEnd);
+		super(str1.source, str1.sourceStart, str1.sourceEnd, str1.lineNumber);
 		extendWith(str2);
 	}
 

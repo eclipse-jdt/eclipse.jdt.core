@@ -14,37 +14,17 @@ public class NLSTag {
 
 	public int start;
 	public int end;
-	public int bits;
-
-	public static final int USED = 1;
-	public static final int UNUSED = 2;
+	public int lineNumber;
+	public int index;
 	
-	public NLSTag(int start, int end) {
-		this(start, end, UNUSED);
-	}
-
-	public NLSTag(int start, int end, int bits) {
+	public NLSTag(int start, int end, int lineNumber, int index) {
 		this.start = start;
 		this.end = end;
-		this.bits = bits;
+		this.lineNumber = lineNumber;
+		this.index = index;
 	}
-	
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj instanceof NLSTag) {
-			NLSTag tag = (NLSTag) obj;
-			return (tag.start == this.start) && (tag.end == this.end);
-		}
-		return false;
-	}
-	
-	public int hashCode() {
-		return this.start;
-	}
-	
+
 	public String toString() {
-		return "NLSTag(" + this.start + "," + this.end + "," + this.bits + ")"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		return "NLSTag(" + this.start + "," + this.end + "," + this.lineNumber + ")"; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	}
 }

@@ -88,6 +88,7 @@ public static Test suite() {
 		tests_1_5.add(InternalHexFloatTest.class);
 		tests_1_5.add(JavadocTest_1_5.class);
 		tests_1_5.add(BatchCompilerTest.class);
+		tests_1_5.add(ExternalizeStringLiterals15Test.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;

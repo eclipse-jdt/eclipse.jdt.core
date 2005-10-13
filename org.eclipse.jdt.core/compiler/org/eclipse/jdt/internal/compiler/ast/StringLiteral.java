@@ -19,11 +19,13 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class StringLiteral extends Literal {
 
 	char[] source;
+	int lineNumber;
 
-	public StringLiteral(char[] token, int s, int e) {
+	public StringLiteral(char[] token, int start, int end, int lineNumber) {
 
-		this(s,e);
-		source = token;
+		this(start,end);
+		this.source = token;
+		this.lineNumber = lineNumber - 1; // line number is 1 based 
 	}
 
 	public StringLiteral(int s, int e) {

@@ -131,11 +131,18 @@ public class CompilationResult {
 		int removed = 0;
 		nextProblem: for (int i = 0, length = this.problemCount; i < length; i++) {
 			IProblem problem = this.problems[i];
-			if (!problem.isWarning()) 
-				continue nextProblem;
+			int problemID = problem.getID();
+			if (!problem.isWarning()) {
+				switch (problemID) {
+					case IProblem.NonExternalizedStringLiteral :
+					case IProblem.UnnecessaryNLSTag :
+						break;
+					default :
+						continue nextProblem;
+				}
+			}
 			int start = problem.getSourceStart();
 			int end = problem.getSourceEnd();
-			int problemID = problem.getID();
 			nextSuppress: for (int j = 0, max = this.suppressWarningsCount; j < max; j++) {
 				long position = this.suppressWarningScopePositions[j];
 				int startSuppress = (int) (position >>> 32);

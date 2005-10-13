@@ -19,9 +19,9 @@ import junit.framework.Test;
 public class ExternalizeStringLiteralsTest extends AbstractRegressionTest {
 
 static {
-//		TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 2 };
-//		TESTS_RANGE = new int[] { 11, -1 };
+//	TESTS_RANGE = new int[] { 11, -1 };
 }
 public ExternalizeStringLiteralsTest(String name) {
 	super(name);
@@ -72,7 +72,7 @@ public void test002() {
 			"	void foo() {\n" +
 			"		String s4 = null; //$NON-NLS-1$\n" +
 			"		String s5 = \"\"; //$NON-NLS-1$\n" +
-			"		String s6 = \"\"; //$NON-NLS-1$//$NON-NLS-2$\n" +
+			"		String s6 = \"\"; //$NON-NLS-2$//$NON-NLS-1$\n" +
 			"		System.out.println(\"foo\");//$NON-NLS-1$//$NON-NLS-2$\n" +
 			"	} //$NON-NLS-1$\n" +
 			"	//$NON-NLS-1$\n" +
@@ -95,8 +95,8 @@ public void test002() {
 		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n" + 
 		"4. ERROR in X.java (at line 9)\n" + 
-		"	String s6 = \"\"; //$NON-NLS-1$//$NON-NLS-2$\n" + 
-		"	                             ^^^^^^^^^^^^^\n" + 
+		"	String s6 = \"\"; //$NON-NLS-2$//$NON-NLS-1$\n" + 
+		"	                ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 10)\n" + 
@@ -237,6 +237,193 @@ public void test007() {
 		"	String s = null; //$NON-NLS-1$//$NON-NLS-1$\n" + 
 		"	                              ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
+public void test008() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\r\n" + 
+			"	public static void main(String[] args) {\r\n" + 
+			"		String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\r\n" + 
+			"    }\r\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	           ^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	                   ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	                                ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
+public void test009() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"p/Foo.java",
+			"package p;\n" + 
+			"public class Foo { \n" + 
+			"    public void foo(int i) {\n" + 
+			"		System.out.println(\"test1\" + i + \"test2\"); //$NON-NLS-2$//$NON-NLS-1$\r\n" + 
+			"	 };\n" + 
+			"}",
+		}, 
+		"",
+		null,
+		true,
+		null,
+		customOptions,
+		null);	
+}
+public void test010() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
+			"		int i = s;\n" +
+			"		System.out.println(s);\n" +
+			"    }\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	           ^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	                   ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	                                ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	int i = s;\n" + 
+		"	        ^\n" + 
+		"Type mismatch: cannot convert from String to int\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
+public void test011() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = null;\n" +
+			"		String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" +
+			"		System.out.println(s + i);\n" +
+			"    }\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	int i = null;\n" + 
+		"	        ^^^^\n" + 
+		"Type mismatch: cannot convert from null to int\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	           ^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	                   ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	String s = \"test\"; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	                                ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
+public void test012() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int i = null;\n" +
+			"		String s = null; //$NON-NLS-2$//$NON-NLS-3$\n" +
+			"		System.out.println(s + i);\n" +
+			"    }\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	int i = null;\n" + 
+		"	        ^^^^\n" + 
+		"Type mismatch: cannot convert from null to int\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	String s = null; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	                 ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 4)\n" + 
+		"	String s = null; //$NON-NLS-2$//$NON-NLS-3$\n" + 
+		"	                              ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
+public void test013() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = \"test1\";\n" +
+			"		System.out.println(s);\n" +
+			"    }\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"test1\";\n" + 
+		"	           ^^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
 		null,
 		true,
