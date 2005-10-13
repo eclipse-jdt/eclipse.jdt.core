@@ -1024,9 +1024,6 @@ public class GeneratedFileManager {
 			if (derivedFiles == null)
 				throw new RuntimeException(
 					"derivedFiles is null and it shouldn't be"); //$NON-NLS-1$
-			if (!derivedFiles.contains(generatedFile))
-				throw new RuntimeException(
-					"derivedFiles does not contain fileToDelete"); //$NON-NLS-1$
 
 			derivedFiles.remove(generatedFile);
 		
