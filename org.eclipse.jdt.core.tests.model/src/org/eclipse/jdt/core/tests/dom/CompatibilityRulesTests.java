@@ -670,4 +670,39 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 			});	
 		assertTrue("Y#foo(String) should override X#foo(T)", bindings[0].overrides(bindings[1]));
 	}
+	
+	/*
+	 * Ensures that a method in a subtype overrides the corresponding method in the super type
+	 * even if the two methods have different return types.
+	 * (regression test for bug 105808 [1.5][dom] MethodBinding#overrides(..) should not consider return types)
+	 */
+	public void test032() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
+			IMethodBinding[] bindings = createMethodBindings(
+				new String[] {
+					"/P/p1/X.java",
+					"package p1;\n" +
+					"public class X {\n" +
+					"  Object foo() {\n" +
+					"  }\n" +
+					"}",
+					"/P/p1/Y.java",
+					"package p1;\n" +
+					"public class Y extends X {\n" +
+					"  String foo() {\n" +
+					"  }\n" +
+					"}",
+				},
+				new String[] {
+					"Lp1/Y;.foo()Ljava/lang/String;",
+					"Lp1/X;.foo()Ljava/lang/Object;"
+				},
+				project);	
+			assertTrue("Y#foo() should override X#foo()", bindings[0].overrides(bindings[1]));
+		} finally {
+			deleteProject("P2");
+		}
+	}
+
 }
