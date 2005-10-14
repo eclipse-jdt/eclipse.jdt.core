@@ -26053,11 +26053,6 @@ public void test843() {
 		"2. WARNING in X.java (at line 12)\n" + 
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 12)\n" + 
-		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
-		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: The cast from List<Object&Serializable&CharSequence> to List<? extends String> is actually checking against the erased type List\n" + 
 		"----------\n");
 }
