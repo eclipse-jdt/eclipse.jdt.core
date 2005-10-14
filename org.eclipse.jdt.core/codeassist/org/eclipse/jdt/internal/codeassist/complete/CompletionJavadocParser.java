@@ -122,7 +122,7 @@ public class CompletionJavadocParser extends JavadocParser {
 	protected Object createFieldReference(Object receiver) throws InvalidInputException {
 		int refStart = (int) (this.identifierPositionStack[0] >>> 32);
 		int refEnd = (int) this.identifierPositionStack[0];
-		boolean inCompletion = (refStart <= this.cursorLocation && this.cursorLocation <= refEnd) // completion cursor is between first and last stacked identifiers
+		boolean inCompletion = (refStart <= (this.cursorLocation+1) && this.cursorLocation <= refEnd) // completion cursor is between first and last stacked identifiers
 			|| ((refStart == (refEnd+1) && refEnd == this.cursorLocation)) // or it's a completion on empty token
 			|| (this.memberStart == this.cursorLocation); // or it's a completion just after the member separator with an identifier after the cursor
 		if (inCompletion) {
@@ -136,6 +136,7 @@ public class CompletionJavadocParser extends JavadocParser {
 			if (CompletionEngine.DEBUG) {
 				System.out.println("	completion field="+completionNode); //$NON-NLS-1$
 			}
+			return this.completionNode;
 		}
 		return super.createFieldReference(receiver);
 	}
@@ -362,7 +363,7 @@ public class CompletionJavadocParser extends JavadocParser {
 				endPosition = completionScanner.completedIdentifierEnd;
 			}
 		}
-		boolean inCompletion = (startPosition <= this.cursorLocation && this.cursorLocation <= endPosition) // completion cursor is between first and last stacked identifiers
+		boolean inCompletion = (startPosition <= (this.cursorLocation+1) && this.cursorLocation <= endPosition) // completion cursor is between first and last stacked identifiers
 			|| ((startPosition == (endPosition+1) && endPosition == this.cursorLocation)); // or it's a completion on empty token
 		if (inCompletion) {
 			if (this.completionNode == null) {
@@ -469,7 +470,7 @@ public class CompletionJavadocParser extends JavadocParser {
 		if (super.pushParamName(isTypeParam)) {
 			Expression expression = (Expression) astStack[astPtr];
 			// See if expression is concerned by completion
-			if (expression.sourceStart <= this.cursorLocation && this.cursorLocation <= expression.sourceEnd) {
+			if (expression.sourceStart <= (this.cursorLocation+1) && this.cursorLocation <= expression.sourceEnd) {
 				if (isTypeParam) {
 					this.completionNode = new CompletionOnJavadocTypeParamReference((JavadocSingleTypeReference)expression);
 				} else {

@@ -1575,6 +1575,24 @@ public void test102() throws JavaModelException {
 	assertSortedResults("");
 }
 
+public void test103() throws JavaModelException {
+	setUpProjectOptions(CompilerOptions.VERSION_1_4);
+	String source =
+		"package javadoc.methods.tags;\n" + 
+		"public class BasicTestMethods {\n" +
+		"	/**\n" + 
+		"	 * Completion after:\n" + 
+		"	 * 	@param ab\n" + 
+		"	 */\n" + 
+		"	void foo(Object ab1, Object ab2) {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0);
+	assertSortedResults(
+		"ab1[JAVADOC_PARAM_REF]{ab1, null, null, ab1, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING+1)+"}\n" + 
+		"ab2[JAVADOC_PARAM_REF]{ab2, null, null, ab2, null, "+this.positions+(JAVADOC_RELEVANCE+R_INTERESTING)+"}"
+	);
+}
+
 /**
  * @category Tests for constructors completion
  */
