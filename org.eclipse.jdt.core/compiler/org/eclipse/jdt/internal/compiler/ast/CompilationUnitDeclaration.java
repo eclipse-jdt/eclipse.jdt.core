@@ -407,7 +407,7 @@ public class CompilationUnitDeclaration
 									} else {
 										nlsTagsLoop2: for (int index2 = index + 1; index2 < nlsTagsLength; index2++) {
 											NLSTag tag2 = this.nlsTags[index2];
-											if (tag == null) continue nlsTagsLoop2;
+											if (tag2 == null) continue nlsTagsLoop2;
 											int tagLineNumber2 = tag2.lineNumber;
 											if (literalLineNumber == tagLineNumber2) {
 												if (tag2.index == indexInLine) {
