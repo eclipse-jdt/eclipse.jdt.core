@@ -24370,5 +24370,38 @@ public void test842() {
 		"Type mismatch: cannot convert from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112500 - variation
+public void test843() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	static <T> List<T> merge(List<? extends T> a, List<? extends T> b) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<String> list1 = null;\n" + 
+			"		List<StringBuilder> list2 = null;\n" + 
+			"		Object result3 = (List<? extends CharSequence>)merge(list1, list2);\n" + 
+			"		Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 11)\n" + 
+		"	Object result3 = (List<? extends CharSequence>)merge(list1, list2);\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends CharSequence>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from List<Object&Serializable&CharSequence> to List<? extends String> is actually checking against the erased type List\n" + 
+		"----------\n");
+}
+
 }
 
