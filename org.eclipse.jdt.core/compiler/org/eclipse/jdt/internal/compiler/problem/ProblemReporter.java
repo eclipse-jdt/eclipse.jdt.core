@@ -5308,8 +5308,8 @@ public void unnecessaryCast(CastExpression castExpression) {
 	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
 	this.handle(
 		IProblem.UnnecessaryCast,
-		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.resolvedType.readableName())},
-		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.resolvedType.shortReadableName())},
+		new String[]{ new String(castedExpressionType.readableName()), new String(castExpression.type.resolvedType.readableName())},
+		new String[]{ new String(castedExpressionType.shortReadableName()), new String(castExpression.type.resolvedType.shortReadableName())},
 		castExpression.sourceStart,
 		castExpression.sourceEnd);
 }

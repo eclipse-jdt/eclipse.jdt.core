@@ -7015,7 +7015,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 7)\n" + 
 			"	final Class<? extends Object> clazz = (Class<? extends Object>) classes.get(\"test\");\n" + 
 			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from Class to Class<capture-of ? extends Object>\n" + 
+			"Unnecessary cast from Class to Class<? extends Object>\n" + 
 			"----------\n");
 	}		
 	public void test243() {
@@ -7387,7 +7387,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. WARNING in X.java (at line 12)\n" + 
 			"	List<? extends Number> ls3 = (List<? extends Number>) li;\n" + 
 			"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from List<Integer> to List<capture-of ? extends Number>\n" + 
+			"Unnecessary cast from List<Integer> to List<? extends Number>\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=70053 missing checkcast in string concatenation
@@ -16549,7 +16549,7 @@ public void test500(){
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	Object o = (DC<?>) (DA<?>) null;\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from DA<capture-of ?> to DC<capture-of ?>\n" + 
+			"Unnecessary cast from DA<capture-of ?> to DC<?>\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	Object o = (DC<?>) (DA<?>) null;\n" + 
@@ -16718,7 +16718,7 @@ public void test500(){
 			"3. WARNING in X.java (at line 9)\n" + 
 			"	Object o2 = (X<? extends Object>) xs;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from X<String> to X<capture-of ? extends Object>\n" + 
+			"Unnecessary cast from X<String> to X<? extends Object>\n" + 
 			"----------\n" + 
 			"4. WARNING in X.java (at line 10)\n" + 
 			"	Object o3 = (X2) xo;\n" + 
@@ -16733,7 +16733,7 @@ public void test500(){
 			"6. WARNING in X.java (at line 11)\n" + 
 			"	Object o4 = (X<? extends Object>) x2;\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unnecessary cast from X2 to X<capture-of ? extends Object>\n" + 
+			"Unnecessary cast from X2 to X<? extends Object>\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 12)\n" + 
 			"	Object o5 = (X3<String>) xo;\n" + 
@@ -26022,6 +26022,43 @@ public void test842() {
 		"	List<? extends String> result2 = merge(list1, list2);\n" + 
 		"	                                 ^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112500 - variation
+public void test843() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	static <T> List<T> merge(List<? extends T> a, List<? extends T> b) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<String> list1 = null;\n" + 
+			"		List<StringBuilder> list2 = null;\n" + 
+			"		Object result3 = (List<? extends CharSequence>)merge(list1, list2);\n" + 
+			"		Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 11)\n" + 
+		"	Object result3 = (List<? extends CharSequence>)merge(list1, list2);\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends CharSequence>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 12)\n" + 
+		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 12)\n" + 
+		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from List<Object&Serializable&CharSequence> to List<? extends String> is actually checking against the erased type List\n" + 
 		"----------\n");
 }
 
