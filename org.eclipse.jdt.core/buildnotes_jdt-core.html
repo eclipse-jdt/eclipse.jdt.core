@@ -48,6 +48,9 @@ Eclipse SDK 3.2M3 - ?th October 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API <code>org.eclipse.jdt.core.ToolFactory#createDefaultClassFileReader(java.io.InputStream,int)</code>
+     that allows to the creation of an org.eclipse.jdt.core.util.IClassFileReader object using an input stream.
+</li>
 <li>Added API <code>JavaCore#addPreProcessingResourceChangedListener(IResourceChangeListener,int)</code>
      that allows to register an <code>IResourceChangedListener</code> for a given event type that runs
      before JDT Core.</li>
@@ -57,7 +60,9 @@ What's new in this drop</h2>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=112518">112518</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=112617">112617</a>
+[API] Add ToolFactory.createDefaultClassFileReader(InputStream,int)
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=112518">112518</a>
 [performance] NLS detection should be faster
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=107814">107814</a>
 @SuppressWarnings("unused") requires additional //$NON-NLS-1$

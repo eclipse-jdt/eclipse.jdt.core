@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -21,13 +23,14 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.IClassFileReader;
 
 public class ClassFileReaderTest extends AbstractComparableTest {
 	private static final String EVAL_DIRECTORY = Util.getOutputDirectory()  + File.separator + "eval";
 	private static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 	static {
 //		TESTS_NAMES = new String[] { "test127" };
-//		TESTS_NUMBERS = new int[] { 82 };
+//		TESTS_NUMBERS = new int[] { 83 };
 //		TESTS_RANGE = new int[] { 169, 180 };
 	}
 
@@ -64,6 +67,43 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		} catch (IOException e) {
 			assertTrue(false);
 		} finally {
+			removeTempClass(className);
+		}
+	}
+	
+	/**
+	 * @deprecated
+	 */
+	private void checkClassFileUsingInputStream(String compliance, String directoryName, String className, String source, String expectedOutput, int mode) {
+		compileAndDeploy(compliance, source, directoryName, className);
+		BufferedInputStream inputStream = null;
+		try {
+			File directory = new File(EVAL_DIRECTORY, directoryName);
+			if (!directory.exists()) {
+				assertTrue(".class file not generated properly in " + directory, false);
+			}
+			File f = new File(directory, className + ".class");
+			inputStream = new BufferedInputStream(new FileInputStream(f));
+			IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(inputStream, IClassFileReader.ALL);
+			assertNotNull(classFileReader);
+			String result = ToolFactory.createDefaultClassFileDisassembler().disassemble(classFileReader, "\n", mode);
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} catch (IOException e) {
+			assertTrue(false);
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
 			removeTempClass(className);
 		}
 	}
@@ -3144,5 +3184,25 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			"  public abstract java.lang.String lastName() default \"Smith\";\n" + 
 			"}";
 		checkClassFile("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
-	}	
+	}
+	
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
+	 * @deprecated Using deprecated API
+	 */
+	public void test083() {
+		String source =
+			"@interface X {\n" +
+			"	String firstName();\n" +
+			"	String lastName() default \"Smith\";\n" +
+			"}\n";
+		String expectedOutput =
+			"abstract @interface X {\n" + 
+			"  \n" + 
+			"  public abstract java.lang.String firstName();\n" + 
+			"  \n" + 
+			"  public abstract java.lang.String lastName() default \"Smith\";\n" + 
+			"}";
+		checkClassFileUsingInputStream("1.5", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+	}
 }
