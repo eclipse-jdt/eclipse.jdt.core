@@ -21,8 +21,7 @@ import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 
 public class BatchProcessor implements AnnotationProcessor {
-
-	private boolean _succeed = false;
+	
 	private final AnnotationProcessorEnvironment _env;
 	BatchProcessor(AnnotationProcessorEnvironment env){
 		_env = env;
