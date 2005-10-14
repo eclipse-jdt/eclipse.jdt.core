@@ -26060,5 +26060,66 @@ public void test843() {
 		"Type safety: The cast from List<Object&Serializable&CharSequence> to List<? extends String> is actually checking against the erased type List\n" + 
 		"----------\n");
 }
-
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112595
+public void test844() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"public class X {\n" + 
+			"    public Set< ? extends X> getModifiers()\n" + 
+			"    {\n" + 
+			"        return Collections.emptySet();\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112595
+public void test845() {
+	this.runConformTest(
+		new String[] {
+			"Generic.java", // =================
+			"public class Generic<T> {\n" + 
+			"	public int size() {\n" + 
+			"		return 0;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}", // =================
+		},
+		"SUCCESS");
+	this.runNegativeTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public void testList(ArrayList aList) {\n" + 
+				"		aList.size();\n" + 
+				"	}\n" + 
+				"	public void testGeneric(Generic aGeneric) {\n" + 
+				"		aGeneric.size();\n" + 
+				"	}\n" + 
+				"	Zork z;\n" +
+				"}\n", // =================
+			},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	public void testList(ArrayList aList) {\n" + 
+			"	                     ^^^^^^^^^\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	public void testGeneric(Generic aGeneric) {\n" + 
+			"	                        ^^^^^^^\n" + 
+			"Generic cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	Zork z;\n" + 
+			"	^^^^\n" + 
+			"Zork cannot be resolved to a type\n" + 
+			"----------\n");
+	}
 }
