@@ -490,6 +490,10 @@ public void test65() {
 			!CharOperation.camelCaseMatch("NPE".toCharArray(), "Null.Pointer.Exception".toCharArray()));
 	assertTrue("Camel pattern matching failure-11",
 			!CharOperation.camelCaseMatch("NPE".toCharArray(), "aNullPointerException".toCharArray()));
+	assertTrue("Camel pattern matching failure-12",
+			CharOperation.camelCaseMatch("nullP".toCharArray(), "nullPointerException".toCharArray()));
+	assertTrue("Camel pattern matching failure-13",
+			CharOperation.camelCaseMatch("nP".toCharArray(), "nullPointerException".toCharArray()));
 }
 public static Class testClass() {
 	return UtilTest.class;

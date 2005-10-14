@@ -273,42 +273,33 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		return false; // null name cannot match
 	if (pattern == null)
 		return true; // null pattern is equivalent to '*'
-	int iPattern = patternStart;
-	int iName = nameStart;
-	if (patternEnd <= 0) {
-		patternEnd = pattern.length;
-		if (patternEnd == 0) return nameEnd == 0;
+	if (patternEnd < 0) 	patternEnd = pattern.length;
+	if (nameEnd < 0) nameEnd = name.length;
+
+	if (patternEnd <= patternStart) return nameEnd <= nameStart;
+	if (nameEnd <= nameStart) return false;
+	// check first pattern char
+	if (name[nameStart] != pattern[patternStart]) {
+		// first char must strictly match (upper/lower)
+		return false;
 	}
-	if (nameEnd < 0)
-		nameEnd = name.length;
 	char patternChar, nameChar;
-	
+	int iPattern = patternStart+1;
+	int iName = nameStart+1;
 	nextPatternChar: while (iPattern < patternEnd) {
-					
-		patternChar = pattern[iPattern];
-		if (iPattern == 0) {
-			if (name[iName] == patternChar) {
-				// pattern char == name char (lowercase first char)
-				iName++;
-				iPattern++;
-				continue nextPatternChar;
-			}
-			// first char must strictly match (upper/lower)
-			return false;
-		} else {
-			// check patternChar, keep camelCasing only if uppercase
-			if (patternChar < ScannerHelper.MAX_OBVIOUS) {
-				switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar]) {
-					case ScannerHelper.C_UPPER_LETTER :
-						// still uppercase
-						break;
-					default:
-						// end of camelCase part of pattern
-						break nextPatternChar;				}
-			} else if (Character.isJavaIdentifierPart(patternChar) 
-							&& !Character.isUpperCase(patternChar)) {
-				// end of camelCase part of pattern
-				break nextPatternChar;			}
+		// check patternChar, keep camelCasing only if uppercase
+		if ((patternChar = pattern[iPattern]) < ScannerHelper.MAX_OBVIOUS) {
+			switch (ScannerHelper.OBVIOUS_IDENT_CHAR_NATURES[patternChar]) {
+				case ScannerHelper.C_UPPER_LETTER :
+					// still uppercase
+					break;
+				default:
+					// end of camelCase part of pattern
+					break nextPatternChar;				}
+		} else if (Character.isJavaIdentifierPart(patternChar) 
+						&& !Character.isUpperCase(patternChar)) {
+			// end of camelCase part of pattern
+			break nextPatternChar;
 		}
 		nextNameChar: while (iName < nameEnd) {
 			if ((nameChar = name[iName]) != patternChar) {
