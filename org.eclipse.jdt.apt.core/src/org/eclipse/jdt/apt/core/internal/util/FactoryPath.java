@@ -12,6 +12,7 @@
 package org.eclipse.jdt.apt.core.internal.util;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -87,17 +88,15 @@ public class FactoryPath implements IFactoryPath {
 	}
 	
 	/**
-	 * The factory path.  We never set this equal to a map somebody else
-	 * created, because there would be no way to synchronize access to it;
-	 * instead, we either create a new map ourselves, or change the contents
-	 * of this one.
+	 * The factory path.  
 	 */
-	private Map<FactoryContainer, Attributes> _path = new LinkedHashMap<FactoryContainer, Attributes>();
+	private final Map<FactoryContainer, Attributes> _path = Collections.synchronizedMap(
+			new LinkedHashMap<FactoryContainer, Attributes>());
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#addExternalJar(java.io.File)
 	 */
-	public synchronized void addExternalJar(File jar) {
+	public void addExternalJar(File jar) {
 		FactoryContainer fc = FactoryPathUtil.newExtJarFactoryContainer(jar);
 		Attributes a = new Attributes(true, false);
 		internalAdd(fc, a);
@@ -114,7 +113,7 @@ public class FactoryPath implements IFactoryPath {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#addVarJar(org.eclipse.core.runtime.IPath)
 	 */
-	public synchronized void addVarJar(IPath jarPath) {
+	public void addVarJar(IPath jarPath) {
 		FactoryContainer fc = FactoryPathUtil.newVarJarFactoryContainer(jarPath);
 		Attributes a = new Attributes(true, false);
 		internalAdd(fc, a);
@@ -131,7 +130,7 @@ public class FactoryPath implements IFactoryPath {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#addWkspJar(org.eclipse.core.runtime.IPath)
 	 */
-	public synchronized void addWkspJar(IPath jarPath) {
+	public void addWkspJar(IPath jarPath) {
 		FactoryContainer fc = FactoryPathUtil.newWkspJarFactoryContainer(jarPath);
 		Attributes a = new Attributes(true, false);
 		internalAdd(fc, a);
@@ -148,7 +147,7 @@ public class FactoryPath implements IFactoryPath {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#enablePlugin(java.lang.String)
 	 */
-	public synchronized void enablePlugin(String pluginId) throws CoreException {
+	public void enablePlugin(String pluginId) throws CoreException {
 		FactoryContainer fc = FactoryPathUtil.getPluginFactoryContainer(pluginId);
 		Attributes a = _path.get(fc);
 		if (a == null) {
@@ -181,7 +180,7 @@ public class FactoryPath implements IFactoryPath {
 	 * null for workspace settings.
 	 * @param must not be null.
 	 */
-	public synchronized void addEntryToHead(FactoryContainer fc, boolean enabled, boolean runInBatchMode) {
+	public void addEntryToHead(FactoryContainer fc, boolean enabled, boolean runInBatchMode) {
 		Attributes a = new Attributes(enabled, runInBatchMode);
 		internalAdd(fc, a);
 	}
@@ -191,9 +190,11 @@ public class FactoryPath implements IFactoryPath {
 	 * @param map should be an ordered map, such as LinkedHashMap; should contain no
 	 * nulls; and should contain no duplicate FactoryContainers.
 	 */
-	public synchronized void setContainers(Map<FactoryContainer, Attributes> map) {
-		_path.clear();
-		_path.putAll(map);
+	public void setContainers(Map<FactoryContainer, Attributes> map) {
+		synchronized(_path) {
+			_path.clear();
+			_path.putAll(map);
+		}
 	}
 	
 	/**
@@ -201,26 +202,33 @@ public class FactoryPath implements IFactoryPath {
 	 * If it already existed in the list, remove the old instance before
 	 * adding the new one.
 	 * <p>
-	 * This method should only be called within a synchronized() block.
 	 * @param fc must not be null
 	 * @param a must not be null
 	 */
 	private void internalAdd(FactoryContainer fc, Attributes a) {
-		_path.remove(fc);
-		Map<FactoryContainer, Attributes> newPath = 
-			new LinkedHashMap<FactoryContainer, Attributes>(_path.size() + 1);
-		newPath.put(fc, a);
-		newPath.putAll(_path);
-		_path = newPath;
+		synchronized(_path) {
+			_path.remove(fc);
+			// LinkedHashMap doesn't have any way to add to the head,
+			// so we're forced to do two copies.  Make the new map
+			// large enough that we don't have to rehash midway through the putAll().
+			Map<FactoryContainer, Attributes> newPath = 
+				new LinkedHashMap<FactoryContainer, Attributes>(1 + 4*(_path.size() + 1)/3);
+			newPath.put(fc, a);
+			newPath.putAll(_path);
+			_path.clear();
+			_path.putAll(newPath);
+		}
 	}
 
 	public Map<FactoryContainer, Attributes> getEnabledContainers(IJavaProject jproj) {
 		Map<FactoryContainer, Attributes> map = new LinkedHashMap<FactoryContainer, Attributes>();
-		for (Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet()) {
-			Attributes attr = entry.getValue();
-			if (attr.isEnabled()) {
-				Attributes attrClone = new Attributes(attr);
-				map.put(entry.getKey(), attrClone);
+		synchronized(_path) {
+			for (Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet()) {
+				Attributes attr = entry.getValue();
+				if (attr.isEnabled()) {
+					Attributes attrClone = new Attributes(attr);
+					map.put(entry.getKey(), attrClone);
+				}
 			}
 		}
 		return map;
@@ -231,8 +239,10 @@ public class FactoryPath implements IFactoryPath {
 	 */
 	public Map<FactoryContainer, Attributes> getAllContainers() {
 		Map<FactoryContainer, Attributes> map = new LinkedHashMap<FactoryContainer, Attributes>(_path.size());
-		for( Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet() ){
-			map.put( entry.getKey(), new Attributes(entry.getValue()) );
+		synchronized(_path) {
+			for( Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet() ){
+				map.put( entry.getKey(), new Attributes(entry.getValue()) );
+			}
 		}
 		return map;
 	}
