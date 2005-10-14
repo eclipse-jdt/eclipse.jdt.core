@@ -6454,12 +6454,12 @@ protected void consumeStatementLabel() {
 	// LabeledStatementNoShortIf ::= 'Identifier' ':' StatementNoShortIf
 
 	//optimize push/pop
-	Statement stmt = (Statement) this.astStack[this.astPtr];
+	Statement statement = (Statement) this.astStack[this.astPtr];
 	this.astStack[this.astPtr] = 
 		new LabeledStatement(
 			this.identifierStack[this.identifierPtr], 
-			stmt, 
-			(int) (this.identifierPositionStack[this.identifierPtr--] >>> 32), 
+			statement, 
+			this.identifierPositionStack[this.identifierPtr--], 
 			this.endStatementPosition); 
 	this.identifierLengthPtr--;
 }

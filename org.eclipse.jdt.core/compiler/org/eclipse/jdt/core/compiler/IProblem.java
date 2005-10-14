@@ -453,6 +453,8 @@ void setSourceStart(int sourceStart);
 	int IllegalUsageOfQualifiedTypeReference = Internal + Syntax + 198;
 
 	// miscellaneous
+	/** @since 3.2 */
+	int UnusedLabel = Internal + 199;
 	int ThisInStaticContext = Internal + 200;
 	int StaticMethodRequested = Internal + MethodRelated + 201;
 	int IllegalDimension = Internal + 202;

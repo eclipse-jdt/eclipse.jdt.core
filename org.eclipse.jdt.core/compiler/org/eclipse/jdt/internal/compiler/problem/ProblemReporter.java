@@ -1386,6 +1386,9 @@ public static long getIrritant(int problemID) {
 		case IProblem.UnhandledWarningToken :
 			return CompilerOptions.UnhandledWarningToken;
 			
+		case IProblem.UnusedLabel :
+			return CompilerOptions.UnusedLabel;
+
 		case IProblem.JavadocUnexpectedTag:
 		case IProblem.JavadocDuplicateReturnTag:
 		case IProblem.JavadocInvalidThrowsClass:
@@ -5607,6 +5610,15 @@ public void unusedImport(ImportReference importRef) {
 		importRef.sourceStart,
 		importRef.sourceEnd); 
 }
+public void unusedLabel(LabeledStatement statement) {
+	String[] arguments = new String[] {new String(statement.label)};
+	this.handle(
+		IProblem.UnusedLabel,
+		arguments,
+		arguments,
+		statement.sourceStart,
+		statement.labelEnd);
+}
 public void unusedLocalVariable(LocalDeclaration localDecl) {
 	String[] arguments = new String[] {new String(localDecl.name)};
 	this.handle(
@@ -5723,7 +5735,6 @@ public void unusedPrivateMethod(AbstractMethodDeclaration methodDecl) {
 		methodDecl.sourceEnd);
 }
 public void unusedPrivateType(TypeDeclaration typeDecl) {
-	
 	if (computeSeverity(IProblem.UnusedPrivateType) == Ignore) return;
 
 	ReferenceBinding type = typeDecl.binding;

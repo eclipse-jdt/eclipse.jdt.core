@@ -1659,6 +1659,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportUnusedPrivateMember,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+					} else if (token.equals("unusedLabel")) { //$NON-NLS-1$
+						this.options.put(
+							CompilerOptions.OPTION_ReportUnusedLabel,
+							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else if (token.equals("localHiding")) { //$NON-NLS-1$
 						this.options.put(
 							CompilerOptions.OPTION_ReportLocalVariableHiding,

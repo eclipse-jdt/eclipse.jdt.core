@@ -20,6 +20,7 @@ public class LabeledStatement extends Statement {
 	public Statement statement;
 	public char[] label;
 	public Label targetLabel;
+	public int labelEnd;
 
 	// for local variables table attributes
 	int mergedInitStateIndex = -1;
@@ -27,13 +28,14 @@ public class LabeledStatement extends Statement {
 	/**
 	 * LabeledStatement constructor comment.
 	 */
-	public LabeledStatement(char[] label, Statement statement, int sourceStart, int sourceEnd) {
+	public LabeledStatement(char[] label, Statement statement, long labelPosition, int sourceEnd) {
 		
 		this.statement = statement;
 		// remember useful empty statement
 		if (statement instanceof EmptyStatement) statement.bits |= IsUsefulEmptyStatement;
 		this.label = label;
-		this.sourceStart = sourceStart;
+		this.sourceStart = (int)(labelPosition >>> 32);
+		this.labelEnd = (int) labelPosition;
 		this.sourceEnd = sourceEnd;
 	}
 	
@@ -63,6 +65,9 @@ public class LabeledStatement extends Statement {
 					.mergedWith(labelContext.initsOnBreak);
 			mergedInitStateIndex =
 				currentScope.methodScope().recordInitializationStates(mergedInfo);
+			if ((this.bits & ASTNode.LabelUsed) == 0) {
+				currentScope.problemReporter().unusedLabel(this);
+			}
 			return mergedInfo;
 		}
 	}

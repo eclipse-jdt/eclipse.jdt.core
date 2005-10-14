@@ -17,22 +17,29 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
  * This type is a port of smalltalks JavaLabel
  */
 public class Label {
+	
 	public CodeStream codeStream;
-	final static int POS_NOT_SET = -1;
+	public final static int POS_NOT_SET = -1;
 	public int position = POS_NOT_SET; // position=POS_NOT_SET Then it's pos is not set.
 	public int[] forwardReferences = new int[10]; // Add an overflow check here.
 	public int forwardReferenceCount = 0;
-	private boolean isWide = false;
+	
+	// Label tagbits
+	public int tagBits;
+	public final static int WIDE = 1;
+
 	
 public Label() {
 	// for creating labels ahead of code generation
 }
+
 /**
  * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
  */
 public Label(CodeStream codeStream) {
 	this.codeStream = codeStream;
 }
+
 /**
  * Add a forward refrence for the array.
  */
@@ -42,6 +49,7 @@ void addForwardReference(int iPos) {
 		System.arraycopy(forwardReferences, 0, (forwardReferences = new int[2*length]), 0, length);
 	forwardReferences[forwardReferenceCount++] = iPos;
 }
+
 /**
  * Add a forward refrence for the array.
  */
@@ -57,6 +65,7 @@ public void appendForwardReferencesFrom(Label otherLabel) {
 	System.arraycopy(otherLabel.forwardReferences, 0, forwardReferences, forwardReferenceCount, otherCount);
 	forwardReferenceCount = neededSpace;
 }
+
 /*
 * Put down  a reference to the array at the location in the codestream.
 */
@@ -77,6 +86,7 @@ void branch() {
 		codeStream.writeSignedShort(offset);
 	}
 }
+
 /*
 * No support for wide branches yet
 */
@@ -84,19 +94,21 @@ void branchWide() {
 	if (position == POS_NOT_SET) {
 		addForwardReference(codeStream.position);
 		// Leave 4 bytes free to generate the jump offset afterwards
-		isWide = true;
+		this.tagBits |= WIDE;
 		codeStream.position += 4;
 		codeStream.classFileOffset += 4;
 	} else { //Position is set. Write it!
 		codeStream.writeSignedWord(position - codeStream.position + 1);
 	}
 }
+
 /**
  * @return boolean
  */
 public boolean hasForwardReferences() {
 	return forwardReferenceCount != 0;
 }
+
 /*
  * Some placed labels might be branching to a goto bytecode which we can optimize better.
  */
@@ -130,14 +142,17 @@ public void inlineForwardReferencesFromLabelsTargeting(int gotoLocation) {
 		}
 	}
 }
+
 public void initialize(CodeStream stream) {
     this.codeStream = stream;
    	this.position = POS_NOT_SET;
 	this.forwardReferenceCount = 0; 
 }
+
 public boolean isStandardLabel(){
 	return true;
 }
+
 /*
 * Place the label. If we have forward references resolve them.
 */
@@ -196,7 +211,7 @@ public void place() { // Currently lacking wide support.
 				throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE, null);
 			}
 			if (this.codeStream.wideMode) {
-				if (this.isWide) {
+				if ((this.tagBits & WIDE) != 0) {
 					codeStream.writeSignedWord(forwardReferences[i], offset);
 				} else {
 					codeStream.writeSignedShort(forwardReferences[i], offset);
@@ -227,7 +242,7 @@ public void place() { // Currently lacking wide support.
 								throw new AbortMethod(CodeStream.RESTART_IN_WIDE_MODE, null);
 							}
 							if (this.codeStream.wideMode) {
-								if (this.isWide) {
+								if ((this.tagBits & WIDE) != 0) {
 									codeStream.writeSignedWord(forwardPosition, offset);
 								} else {
 									codeStream.writeSignedShort(forwardPosition, offset);
@@ -242,6 +257,7 @@ public void place() { // Currently lacking wide support.
 		}
 	}
 }
+
 /**
  * Print out the receiver
  */

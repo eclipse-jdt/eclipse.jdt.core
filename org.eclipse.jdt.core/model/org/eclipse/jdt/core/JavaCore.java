@@ -461,6 +461,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String COMPILER_PB_UNUSED_LABEL = PLUGIN_ID + ".compiler.problem.unusedLabel"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 3.0
 	 */
 	public static final String COMPILER_PB_INVALID_JAVADOC = PLUGIN_ID + ".compiler.problem.invalidJavadoc"; //$NON-NLS-1$
@@ -2151,6 +2157,14 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning when encountering a token
 	 *    it cannot handle inside a @SuppressWarnings annotation.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"
+	 *     - possible values:   { "error", "warning", "ignore" }
+	 *     - default:           "warning"
+	 *
+	 * COMPILER / Reporting Unreferenced Label
+	 *    When enabled, the compiler will issue an error or a warning when encountering a labeled statement which label
+	 *    is never explicitly referenced. A label is considered to be referenced if its name explicitly appears behind a break
+	 *    or continue statement; for instance the following label would be considered unreferenced;   LABEL: { break; }
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.unusedLabel"
 	 *     - possible values:   { "error", "warning", "ignore" }
 	 *     - default:           "warning"
 	 *
