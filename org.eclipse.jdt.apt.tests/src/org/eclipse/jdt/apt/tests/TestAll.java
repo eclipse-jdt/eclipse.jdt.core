@@ -47,6 +47,7 @@ public class TestAll extends TestCase {
 		suite.addTest(JavaVersionTests.suite());
 		suite.addTest(RegressionTests.suite());
 		suite.addTest(FileGenerationTests.suite());
+		suite.addTest(MixedModeTesting.suite());
 	
 		return suite;
 		

@@ -830,7 +830,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	
 	private void createDomASTs()
 	{
-		if( _astUnits != null || _files == null || _units != null) return;
+		if( _astUnits != null || _files == null) return;
 		createICompilationUnits();		
 		_astUnits = createDietASTs(_javaProject, _units);
 	}
@@ -972,7 +972,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     		return null;
     	else if( file.equals(_file) )
     		return _unit;
-    	else if( _batchMode ){
+    	else if( _units != null ){
     		for( int i=0, len=_files.length; i<len; i++ ){
         		if( file.equals(_files[i]) )
         			return _units[i];
@@ -993,7 +993,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     		return null;
     	else if( file.equals(_file) )
     		return _astRoot;
-    	else if( _batchMode ){
+    	else if( _astUnits != null ){
     		for( int i=0, len=_files.length; i<len; i++ ){
         		if( file.equals(_files[i]) )
         			return _astUnits[i];
@@ -1070,7 +1070,9 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	 * If a compilation unit cannot be created from a file, the file will be 
 	 * dropped from the file list.
 	 */
-	private void createICompilationUnits(){		
+	private void createICompilationUnits(){
+		if(_units != null) 
+			return;
 		final int len = _files.length;
 		_units = new ICompilationUnit[len];		
 		int count = 0;

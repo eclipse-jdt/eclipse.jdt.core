@@ -96,8 +96,6 @@ public class AptBuilderTests extends Tests
 			return srcRoot;
 		}
 	}
-	
-	
 	public void testGeneratedFileInBuilder() throws Exception
 	{
 		_testGeneratedFileInBuilder( getProjectName() );
@@ -106,11 +104,12 @@ public class AptBuilderTests extends Tests
 	/**
 	 *  Regresses Buzilla 103745 & 95661
 	 */
+
 	public void testGeneratedFileInBuilder_ProjectRootAsSourceDir() throws Exception
 	{
 		_testGeneratedFileInBuilder( getProjectName_ProjectRootAsSrcDir() );
 	}
-	
+
 	@SuppressWarnings("nls")
 	private void _testGeneratedFileInBuilder( String projectName )
 	{
@@ -154,6 +153,7 @@ public class AptBuilderTests extends Tests
 	/**
 	 *  This test makes sure we run apt on generated files during build
 	 */
+
 	@SuppressWarnings("nls")
 	public void testNestedGeneratedFileInBuilder() throws Exception
 	{
@@ -193,8 +193,7 @@ public class AptBuilderTests extends Tests
 
 		expectingOnlyProblemsFor( new IPath[0] );
 	}
-	
-	
+		
 	
 	/**
 	 *   This test makes sure that our extra-dependency stuff is hooked up in the build.  
@@ -202,7 +201,8 @@ public class AptBuilderTests extends Tests
 	 *   an annotation processor looks up a type by name.  We also test that expected
 	 *   build output is there because of the dependency.
 	 */
-	@SuppressWarnings("nls")
+
+	@SuppressWarnings("nls")	
 	public void testExtraDependencies()
 	{
 		String codeA = "package p1.p2.p3.p4;\n"
@@ -319,11 +319,12 @@ public class AptBuilderTests extends Tests
 		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A" }); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A", "p1.p2.p3.p4.A" }); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	/**
 	 *   Test that we do not recompile generated files that are
 	 *   not changed even as their parent is modified.
 	 */
+
 	@SuppressWarnings("nls")
 	public void testCaching()
 	{
@@ -386,6 +387,7 @@ public class AptBuilderTests extends Tests
 	 * This test makes sure that we delete generated files when the parent file 
 	 * is deleted.  We also make sure that multi-parent support is working.
 	 */
+
 	@SuppressWarnings("nls")
 	public void testDeletedParentFile() throws Exception
 	{
@@ -524,6 +526,29 @@ public class AptBuilderTests extends Tests
 
 		expectingOnlySpecificProblemFor( p1aPath, 
 					new Problem( "A", expectedError, p1aPath ) ); //$NON-NLS-1$ 
+	}
+	
+	public void testAPTRounding()
+	{
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath( getProjectName()  );
+		
+		String codeA = "package p1;\n"
+			+ "\n import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;"
+			+ "\n@GenBean\n"
+			+ "public class A {}\n";
+		
+		env.addClass( srcRoot, "p1", "A", codeA );
+		
+		String codeB = "package p1;\n"
+			+ "\n import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;"
+			+ "public class B { @GenBean2 test.Bean _bean = null; }\n";
+		
+		env.addClass( srcRoot, "p1", "B", codeB );
+
+		fullBuild( project.getFullPath() );
+		
+		expectingNoProblems();
 	}
 	
 	private static void sleep( long millis )

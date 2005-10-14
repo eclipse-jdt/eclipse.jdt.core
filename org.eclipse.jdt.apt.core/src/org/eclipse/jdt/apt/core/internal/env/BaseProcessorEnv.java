@@ -651,7 +651,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			final IJavaProject javaProject, 
 			final ICompilationUnit[] parseUnits)
 	{
-		if( parseUnits == null ) return null;
+		if( parseUnits == null ) 
+			return null;
 		final int len = parseUnits.length;
 		if( len == 0 )
 			return NO_AST_UNITs;
@@ -672,6 +673,10 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 				}
 			}
 		}
+		
+for( int index=0; index<len; index++ )
+	if(parseUnits[index] == null )
+		System.err.println();
 		CompilationUnitsRequestor requestor = new CompilationUnitsRequestor();
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
 		p.setResolveBindings( true );

@@ -68,6 +68,15 @@
 	      <factory
 	         class="org.eclipse.jdt.apt.tests.annotations.filegen.SecondGenAnnotationProcessorFactory">
 	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.aptrounding.Round1GenAnnotationFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.aptrounding.Round2GenAnnotationFactory">
+	      </factory>
+	      <factory
+	         class="org.eclipse.jdt.apt.tests.annotations.mirrortest.DefaultConstantAnnotationFactory">
+	      </factory>
 	   </factories>
    </extension>
 

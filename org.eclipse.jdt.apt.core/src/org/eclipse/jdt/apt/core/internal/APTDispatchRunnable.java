@@ -195,7 +195,6 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	 */
 	public static boolean hasBatchFactory(final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories)
 	{
-		
 		for( FactoryPath.Attributes attr : factories.values() ){
 			if( attr.runInBatchMode() )
 				return true;
@@ -331,8 +330,6 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			return;
 		}
 		
-		addAllFilesWithMissingTypeError(filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
-		
 		// file based processing factory to the set of annotations that it 'claims'
 		final Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>> fileFactory2Annos =
 			new HashMap<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>>( factories.size() * 4/3 + 1 );
@@ -366,6 +363,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		
 		if( ! annotationDecls.isEmpty() )
 			; // TODO: (theodora) log unclaimed annotations.
+		
+		addAllFilesWithMissingTypeError(filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
 		
 		// Dispatch to the batch process factories first.
 		// Batch processors only get executed on a full/clean build and only get called once
@@ -499,14 +498,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 							processorEnv );
 				return EMPTY_APT_RESULT;
 			}
-			// TODO: put the short circuit back in!!! (theodora)
-			/*			
-			if ( ! processorEnv.getFile().exists() )
-			{
-				if ( AptPlugin.DEBUG ) trace( "runAPT: leaving early because file doesn't exist"); //$NON-NLS-1$
-				return EMPTY_APT_RESULT;
-			}				
-			*/
+		
 			final IFile[] files = processorEnv.getFiles();
 			GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( processorEnv.getJavaProject().getProject() );
 			final Set<IFile> lastGeneratedFiles = new HashSet<IFile>();

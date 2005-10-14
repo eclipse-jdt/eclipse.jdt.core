@@ -80,4 +80,38 @@ public class MirrorDeclarationTests extends Tests {
 	{
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
+	
+	public void testDefaultAndConstant() throws Exception
+	{	
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		String codeTrigger =
+			"package test;\n" +
+			"public @interface Trigger{}";
+		
+		env.addClass(srcRoot, "test", "Trigger", codeTrigger);
+		
+		String codeEntryPoint = "package test;\n" +
+								"@Trigger\n" +
+								"public class EntryPoint {\n" +
+								"    ClassWithNestedAnnotation nestedAnno;\n}";
+		
+		env.addClass(srcRoot, "test", "EntryPoint", codeEntryPoint);	
+		
+		String codeClassWithNestedAnnotation = 
+			"package test; \n" +
+			"public class ClassWithNestedAnnotation {\n" +
+			"	public final int FOUR = 4; \n " +
+			"	public @interface NestedAnnotation{\n" +
+			"		public enum Character{ \n" +
+			"			Winnie, Tiger, Piglet, Eore; \n" +
+			"		}\n"+
+			"		Character value() default Character.Eore; \n" +
+			"	}\n" +
+			"}";
+		
+		env.addClass(srcRoot, "test", "ClassWithNestedAnnotation", codeClassWithNestedAnnotation);
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+	}
 }
