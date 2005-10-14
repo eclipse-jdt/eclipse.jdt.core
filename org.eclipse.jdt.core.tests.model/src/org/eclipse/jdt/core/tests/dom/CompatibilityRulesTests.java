@@ -35,7 +35,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		TESTS_PREFIX =  "testBug86380";
-//		TESTS_NAMES = new String[] { "test031" };
+//		TESTS_NAMES = new String[] { "test032" };
 //		TESTS_NUMBERS = new int[] { 83230 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -696,5 +696,38 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 		assertFalse("Y#foo() should not be a subsignature of X#foo()", bindings[1].isSubsignature(bindings[0]));
 	}
 	
+	/*
+	 * Ensures that a method in a subtype overrides the corresponding method in the super type
+	 * even if the two methods have different return types.
+	 * (regression test for bug 105808 [1.5][dom] MethodBinding#overrides(..) should not consider return types)
+	 */
+	public void test032() throws CoreException {
+		try {
+			IJavaProject project = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
+			IMethodBinding[] bindings = createMethodBindings(
+				new String[] {
+					"/P/p1/X.java",
+					"package p1;\n" +
+					"public class X {\n" +
+					"  Object foo() {\n" +
+					"  }\n" +
+					"}",
+					"/P/p1/Y.java",
+					"package p1;\n" +
+					"public class Y extends X {\n" +
+					"  String foo() {\n" +
+					"  }\n" +
+					"}",
+				},
+				new String[] {
+					"Lp1/Y;.foo()Ljava/lang/String;",
+					"Lp1/X;.foo()Ljava/lang/Object;"
+				},
+				project);	
+			assertTrue("Y#foo() should override X#foo()", bindings[0].overrides(bindings[1]));
+		} finally {
+			deleteProject("P2");
+		}
+	}
 	
 }
