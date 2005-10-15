@@ -90,8 +90,26 @@ public class AnnotationProcessorFactoryLoader {
 		return Collections.unmodifiableMap(factories);
     	
     }
-
-    @Deprecated
+    
+    /**
+     * @param javaProj
+     * @return <code>true</code> iff there are Annotation Processor Factories associated with 
+     * the given project
+     */
+    public synchronized boolean hasFactoriesForProject(IJavaProject javaProj){
+    	
+    	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = _project2Factories.get(javaProj);
+    	if( factories != null && !factories.isEmpty() )
+    		return true;
+    	
+    	// Load the project
+		FactoryPath fp = FactoryPathUtil.getFactoryPath(javaProj);
+		Map<FactoryContainer, FactoryPath.Attributes> containers = fp.getEnabledContainers(javaProj);
+		factories = loadFactories(containers, javaProj);
+		_project2Factories.put(javaProj, factories);
+		return factories != null && !factories.isEmpty();
+    }
+    
     public synchronized List<AnnotationProcessorFactory> getFactoriesForProject( IJavaProject jproj ) {
     	
     	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factoriesAndAttrs = 
