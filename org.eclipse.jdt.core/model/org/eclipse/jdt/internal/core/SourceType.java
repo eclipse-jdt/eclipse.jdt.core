@@ -585,7 +585,14 @@ public boolean isAnnotation() throws JavaModelException {
  * @see IType#isLocal()
  */
 public boolean isLocal() {
-	return this.parent instanceof IMethod || this.parent instanceof IInitializer;
+	switch (this.parent.getElementType()) {
+		case IJavaElement.METHOD:
+		case IJavaElement.INITIALIZER:
+		case IJavaElement.FIELD:
+			return true;
+		default:
+			return false;
+	}
 }
 /**
  * @see IType#isMember()
