@@ -422,7 +422,7 @@ public final class CompletionEngine
 					this.initializeImportCaches();
 				}
 			
-				found : for (int j = 0; j < this.importCacheCount; j++) {
+				for (int j = 0; j < this.importCacheCount; j++) {
 					char[][] importName = this.importsCache[j];
 					if(CharOperation.equals(typeName, importName[0])) {
 						proposeType(
@@ -6098,7 +6098,7 @@ public final class CompletionEngine
 			TypeVariableBinding[] typeVariables = ((ReferenceBinding)ref.resolvedType).typeVariables();
 			TypeReference[][] arguments = ref.typeArguments;
 			int iLength = arguments == null ? 0 : arguments.length;
-			done: for (int i = 0; i < iLength; i++) {
+			for (int i = 0; i < iLength; i++) {
 				int jLength = arguments[i] == null ? 0 : arguments[i].length;
 				for (int j = 0; j < jLength; j++) {
 					if(arguments[i][j] == node && (typeVariables == null || typeVariables.length <= j)) {
@@ -6132,7 +6132,7 @@ public final class CompletionEngine
 		
 		int depth = 0;
 		int length = name.length;
-		lastDotLookup: for (int i = length -1; i >= 0; i--) {
+		for (int i = length -1; i >= 0; i--) {
 			switch (name[i]) {
 				case '.':
 					if (depth == 0 && name[i - 1] != '>') {

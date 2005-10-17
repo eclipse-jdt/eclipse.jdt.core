@@ -8488,7 +8488,8 @@ protected void parse() {
 			break ProcessTerminals;
 		}
 			
-		ProcessNonTerminals : do { /* reduce */
+		// ProcessNonTerminals : 
+		do { /* reduce */
 			consumeRule(act);
 			this.stateStackTop -= (rhs[act] - 1);
 			act = ntAction(this.stack[this.stateStackTop], lhs[act]);
