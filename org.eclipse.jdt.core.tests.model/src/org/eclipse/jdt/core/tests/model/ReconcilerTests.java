@@ -63,12 +63,12 @@ public ReconcilerTests(String name) {
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
 static {
-	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-	// TESTS_NAMES = new String[] { "testBroadcastAST4" };
-	// Numbers of tests to run: "test<number>" will be run for each number of this array
-	//TESTS_NUMBERS = new int[] { 13 };
-	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
-	//TESTS_RANGE = new int[] { 16, -1 };
+// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
+// TESTS_NAMES = new String[] { "testRawUsage" };
+// Numbers of tests to run: "test<number>" will be run for each number of this array
+//TESTS_NUMBERS = new int[] { 13 };
+// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
+//TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
 	return buildTestSuite(ReconcilerTests.class);
@@ -1654,6 +1654,40 @@ public void testNoChanges2() throws JavaModelException {
 		"Unexpected delta",
 		""
 	);
+}
+/*
+ * Ensures that using a non-generic method with no parametera and with a raw receiver type doesn't create a type safety warning
+ * (regression test for bug 105756 [1.5][model] Incorrect warning on using raw types)
+ */
+public void testRawUsage() throws CoreException {
+	ICompilationUnit otherCopy = null;
+	try {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		otherCopy = getWorkingCopy(
+			"Reconciler15/src/Generic105756.java", 
+			"public class Generic105756<T> {\n" +
+			"  void foo() {}\n" +
+			"}",
+			owner,
+			false/*don't compute problems*/);
+		setUp15WorkingCopy("/Reconciler15/src/X.java", owner);
+		setWorkingCopyContents(
+			"public class X {\n" +
+			"  void bar(Generic105756 g) {\n" +
+			"    g.foo();\n" +
+			"  }\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (otherCopy != null)
+			otherCopy.discardWorkingCopy();
+	}
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current
