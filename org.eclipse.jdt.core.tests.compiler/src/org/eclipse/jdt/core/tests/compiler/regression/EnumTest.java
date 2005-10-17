@@ -4103,5 +4103,27 @@ the right of e1."
 			"	^^^^^\n" + 
 			"Cannot refer to the static enum field X.error within an initializer\n" + 
 			"----------\n");
-	}				
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112231
+	public void test125() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"\n" + 
+				"public class X {\n" + 
+				"	interface I {\n" + 
+				"		int values();\n" + 
+				"		enum E implements I {\n" + 
+				"			A, B, C;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	enum E implements I {\n" + 
+			"	     ^\n" + 
+			"This static method cannot hide the instance method from X.I\n" + 
+			"----------\n");
+	}
 }

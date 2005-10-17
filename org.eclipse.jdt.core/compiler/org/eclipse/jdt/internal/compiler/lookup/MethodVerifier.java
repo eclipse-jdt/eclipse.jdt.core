@@ -557,7 +557,7 @@ ProblemReporter problemReporter() {
 }
 ProblemReporter problemReporter(MethodBinding currentMethod) {
 	ProblemReporter reporter = problemReporter();
-	if (currentMethod.declaringClass == type)	// only report against the currentMethod if its implemented by the type
+	if (currentMethod.declaringClass == type && currentMethod.sourceMethod() != null)	// only report against the currentMethod if its implemented by the type
 		reporter.referenceContext = currentMethod.sourceMethod();
 	return reporter;
 }

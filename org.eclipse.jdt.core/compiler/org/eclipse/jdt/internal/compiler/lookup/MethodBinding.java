@@ -691,8 +691,11 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 }
 public final int sourceEnd() {
 	AbstractMethodDeclaration method = sourceMethod();
-	if (method == null)
+	if (method == null) {
+		if (this.declaringClass instanceof SourceTypeBinding)
+			return ((SourceTypeBinding) this.declaringClass).sourceEnd();
 		return 0;
+	}
 	return method.sourceEnd;
 }
 public AbstractMethodDeclaration sourceMethod() {
@@ -711,8 +714,11 @@ public AbstractMethodDeclaration sourceMethod() {
 }
 public final int sourceStart() {
 	AbstractMethodDeclaration method = sourceMethod();
-	if (method == null)
+	if (method == null) {
+		if (this.declaringClass instanceof SourceTypeBinding)
+			return ((SourceTypeBinding) this.declaringClass).sourceStart();
 		return 0;
+	}
 	return method.sourceStart;
 }
 
