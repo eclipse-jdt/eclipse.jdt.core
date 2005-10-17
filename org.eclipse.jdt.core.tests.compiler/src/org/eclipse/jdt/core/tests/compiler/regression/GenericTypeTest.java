@@ -26122,4 +26122,42 @@ public void test845() {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n");
 	}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112666
+public void test846() {
+	this.runConformTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.Collection;\n" + 
+			"public class X {\n" + 
+			"	void m() {\n" + 
+			"		Collection<? super Collection<? super Number>> col = null;\n" + 
+			"		java.util.List<java.lang.Number> n = null;\n" + 
+			"		col.add(n);\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112666
+public void test847() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.Collection;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void m() {\n" + 
+			"		Collection<? extends Collection<? super Number>> col = null;\n" + 
+			"		java.util.List<java.lang.Number> n = null;\n" + 
+			"		col.add(n);\n" + 
+			"	}\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	col.add(n);\n" + 
+		"	    ^^^\n" + 
+		"The method add(capture-of ? extends Collection<? super Number>) in the type Collection<capture-of ? extends Collection<? super Number>> is not applicable for the arguments (List<Number>)\n" + 
+		"----------\n");
+}
 }

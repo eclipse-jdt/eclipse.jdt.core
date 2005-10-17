@@ -86,13 +86,12 @@ public class CaptureBinding extends TypeVariableBinding {
 			}
 		}
 		// no substitution for wildcard bound (only formal bounds from type variables are to be substituted: 104082)
-		// still need to capture bound supertype as well so as not to expose wildcards to the outside (111208)
 		TypeBinding originalWildcardBound = wildcard.bound;
-		TypeBinding substitutedWildcardBound = originalWildcardBound == null ? null : originalWildcardBound.capture(scope, this.position);
-		if (substitutedWildcardBound == this) substitutedWildcardBound = originalWildcardBound;
 		
 		switch (wildcard.boundKind) {
 			case Wildcard.EXTENDS :
+				// still need to capture bound supertype as well so as not to expose wildcards to the outside (111208)
+				TypeBinding substitutedWildcardBound = originalWildcardBound.capture(scope, this.position);
 				if (wildcard.bound.isInterface()) {
 					this.superclass = substitutedVariableSuperclass;
 					// merge wildcard bound into variable superinterfaces using glb
@@ -106,11 +105,11 @@ public class CaptureBinding extends TypeVariableBinding {
 					}
 				} else {
 					// per construction the wildcard bound is a subtype of variable superclass
-					this.superclass = wildcard.bound.isArrayType() ? substitutedVariableSuperclass : (ReferenceBinding)substitutedWildcardBound;
+					this.superclass = wildcard.bound.isArrayType() ? substitutedVariableSuperclass : (ReferenceBinding) substitutedWildcardBound;
 					this.superInterfaces = substitutedVariableInterfaces;
 				}
 				this.firstBound =  substitutedWildcardBound;
-				if ((originalWildcardBound.tagBits & HasTypeVariable) == 0)
+				if ((substitutedWildcardBound.tagBits & HasTypeVariable) == 0)
 					this.tagBits &= ~HasTypeVariable;
 				break;
 			case Wildcard.UNBOUND :
@@ -120,12 +119,12 @@ public class CaptureBinding extends TypeVariableBinding {
 				break;
 			case Wildcard.SUPER :
 				this.superclass = substitutedVariableSuperclass;
-				if (wildcardVariable.firstBound == substitutedVariableSuperclass || substitutedWildcardBound == substitutedVariableSuperclass) {
+				if (wildcardVariable.firstBound == substitutedVariableSuperclass || originalWildcardBound == substitutedVariableSuperclass) {
 					this.firstBound = substitutedVariableSuperclass;
 				}
 				this.superInterfaces = substitutedVariableInterfaces;
-				this.lowerBound = substitutedWildcardBound;
-				if ((substitutedWildcardBound.tagBits & HasTypeVariable) == 0)
+				this.lowerBound = originalWildcardBound;
+				if ((originalWildcardBound.tagBits & HasTypeVariable) == 0)
 					this.tagBits &= ~HasTypeVariable;
 				break;
 		}		
