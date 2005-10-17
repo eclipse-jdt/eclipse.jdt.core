@@ -378,7 +378,7 @@ public class Util implements SuffixConstants {
 		if (isFolderPath) {
 			path = CharOperation.concat(path, new char[] {'*'}, '/');
 		}
-		exclusionCheck: if (exclusionPatterns != null) {
+		if (exclusionPatterns != null) {
 			for (int i = 0, length = exclusionPatterns.length; i < length; i++) {
 				if (CharOperation.pathMatch(exclusionPatterns[i], path, true, '/')) {
 					return true;

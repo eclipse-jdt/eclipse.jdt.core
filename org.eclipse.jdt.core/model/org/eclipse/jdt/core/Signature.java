@@ -1409,7 +1409,7 @@ public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws Il
 			if (i < 0 || i >= length) 
 				throw new IllegalArgumentException();
 			// iterate over bounds
-			nextBound: while (methodOrTypeSignature[i] == ':') {
+			while (methodOrTypeSignature[i] == ':') {
 				i++; // skip colon
 				switch (methodOrTypeSignature[i]) {
 					case ':':

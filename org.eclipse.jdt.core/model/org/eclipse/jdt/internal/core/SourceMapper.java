@@ -404,7 +404,7 @@ public class SourceMapper
 						IPath path = new Path(entryName);
 						int segmentCount = path.segmentCount();
 						if (segmentCount > 1) {
-							loop: for (int i = 0, max = path.segmentCount() - 1; i < max; i++) {
+							for (int i = 0, max = path.segmentCount() - 1; i < max; i++) {
 								if (firstLevelPackageNames.contains(path.segment(i))) {
 									tempRoots.add(path.uptoSegment(i));
 									// don't break here as this path could contain other first level package names (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=74014)

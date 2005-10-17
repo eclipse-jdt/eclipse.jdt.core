@@ -97,7 +97,7 @@ public static IMethod[] findMethods(IMethod method, IMethod[] methods) {
 		simpleNames[i] = Signature.getSimpleName(Signature.toString(erasure));
 	}
 	ArrayList list = new ArrayList();
-	next: for (int i = 0, length = methods.length; i < length; i++) {
+	for (int i = 0, length = methods.length; i < length; i++) {
 		IMethod existingMethod = methods[i];
 		if (areSimilarMethods(
 				elementName,
