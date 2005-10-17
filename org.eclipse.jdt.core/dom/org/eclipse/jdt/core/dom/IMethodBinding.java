@@ -267,8 +267,8 @@ public interface IMethodBinding extends IBinding {
 	
 	/**
 	 * Returns whether this method overrides the given method,
-	 * as specified in section 6.4.2 of <em>The Java Language 
-	 * Specification, Second Edition</em> (JLS2).
+	 * as specified in section 8.4.8.1 of <em>The Java Language 
+	 * Specification, Third Edition</em> (JLS3).
 	 * 
 	 * @param method the method that is possibly overriden
 	 * @return <code>true</code> if this method overrides the given method,
