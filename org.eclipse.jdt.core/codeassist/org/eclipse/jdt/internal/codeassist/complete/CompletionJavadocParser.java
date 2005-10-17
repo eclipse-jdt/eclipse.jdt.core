@@ -501,7 +501,7 @@ public class CompletionJavadocParser extends JavadocParser {
 				this.pushText = true;
 
 				// Get reference tokens
-				nextToken : while (!this.scanner.atEnd() && this.completionNode == null && !this.abort) {
+				while (!this.scanner.atEnd() && this.completionNode == null && !this.abort) {
 					int token = readTokenSafely();
 					switch (token) {
 						case TerminalTokens.TokenNameStringLiteral :
