@@ -1909,6 +1909,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						this.options.put(
 							CompilerOptions.OPTION_ReportUnusedDeclaredThrownException,
 							isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
+						this.options.put(
+								CompilerOptions.OPTION_ReportUnusedLabel,
+								isEnabling ? CompilerOptions.WARNING : CompilerOptions.IGNORE);
 					} else {
 						throw new InvalidInputException(Main.bind("configure.invalidWarning", token)); //$NON-NLS-1$
 					}
