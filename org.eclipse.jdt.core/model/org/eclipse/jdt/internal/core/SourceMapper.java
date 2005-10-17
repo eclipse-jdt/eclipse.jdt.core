@@ -318,7 +318,11 @@ public class SourceMapper
 		return typeSigs;
 	}
 	
-	private void computeAllRootPaths(IPackageFragmentRoot root) {
+	private synchronized void computeAllRootPaths(IType type) {
+		if (this.areRootPathsComputed) {
+			return;
+		}
+		IPackageFragmentRoot root = (IPackageFragmentRoot) type.getPackageFragment().getParent();
 		final HashSet tempRoots = new HashSet();
 		long time = 0;
 		if (VERBOSE) {
@@ -828,13 +832,7 @@ public class SourceMapper
 		}
 
 		if (source == null) {
-			if (!areRootPathsComputed) {
-				computeAllRootPaths((IPackageFragmentRoot) type.getPackageFragment().getParent());
-			}
-			/*
-			 * We should try all existing root paths. If none works, try to recompute it.
-			 * If it still doesn't work, then return null
-			 */
+			computeAllRootPaths(type);
 			if (this.rootPaths != null) {
 				loop: for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext(); ) {
 					String currentRootPath = (String) iterator.next();
