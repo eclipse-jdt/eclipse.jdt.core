@@ -33,7 +33,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 
 	static {
 //		TESTS_NAMES = new String[] {"test0602"};
-//		TESTS_NUMBERS =  new int[] { 618 };
+//		TESTS_NUMBERS =  new int[] { 368, 369 };
 	}
 	public static Test suite() {
 		return buildTestSuite(ASTConverterAST3Test.class);
@@ -8980,7 +8980,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertProblemsSize(compilationUnit, 1, "The label test is never explicitly referenced"); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.LABELED_STATEMENT); //$NON-NLS-1$
@@ -9001,7 +9001,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("errors found", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertProblemsSize(compilationUnit, 1, "The label test is never explicitly referenced"); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a labeled statement", node.getNodeType() == ASTNode.LABELED_STATEMENT); //$NON-NLS-1$
