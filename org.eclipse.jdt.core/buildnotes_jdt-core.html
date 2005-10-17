@@ -47,10 +47,15 @@ Eclipse SDK 3.1.2 - ?th September 2005 <!-- - 3.1.2 RELEASE -->
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>In 5.0 compliant mode, the classfile name for an anonymous class is now correctly referring to its 
+innermost enclosing type name, e.g. "X$1$1" for an anonymous nested inside another anonymous; where 
+it was "X$2" before 5.0.</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=105756">105756</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=108856">108856</a>
+[1.5][compiler] Inner inner classes have illegal names
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=105756">105756</a>
 [1.5][model] Incorrect warning on using raw types
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=112666">112666</a>
 [1.5][compiler] Compiler rejects valid assignment to complex capture
