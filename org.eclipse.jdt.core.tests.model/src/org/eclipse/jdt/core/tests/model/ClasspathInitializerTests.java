@@ -136,7 +136,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testContainerInitializer11" };
+//		TESTS_NAMES = new String[] { "testVariableInitializer9" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -840,6 +840,30 @@ public void testVariableInitializer8() throws CoreException {
 		VariablesInitializer.reset();
 	}
 }
+
+/*
+ * Ensure that removing a classpath variable while initializing it doesn't throw a StackOverFlowError
+ * (regression test for bug 112609 StackOverflow when initializing Java Core)
+ */
+public void testVariableInitializer9() throws CoreException {
+	try {
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {"TEST_LIB", "/P1/lib.jar"}) {
+			public void initialize(String variable) throws JavaModelException {
+				JavaCore.removeClasspathVariable("TEST_LIB", null);
+			}
+		});
+		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"TEST_LIB"}, "");
+		IClasspathEntry[] resolvedClasspath = p1.getResolvedClasspath(true);
+		assertClasspathEquals(
+			resolvedClasspath, 
+			""
+		);
+	} finally {
+		deleteProject("P1");
+		VariablesInitializer.reset();
+	}
+}
+
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=61872
  */

@@ -113,20 +113,6 @@ protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] 
 	computed.append("}");
 	assertEquals("Invalid cycle detection after setting classpath for: "+project.getElementName(), expected.toString(), computed.toString());
 }
-protected void assertClasspathEquals(IClasspathEntry[] classpath, String expected) {
-	StringBuffer buffer = new StringBuffer();
-	int length = classpath == null ? 0 : classpath.length;
-	for (int i=0; i<length; i++) {
-		buffer.append(classpath[i]);
-		if (i < length-1)
-			buffer.append('\n');
-	}
-	String actual = buffer.toString();
-	if (!actual.equals(expected)) {
-	 	System.out.print(Util.displayString(actual, 2));
-	}
-	assertEquals(expected, actual);
-}
 private void assertEncodeDecodeEntry(String projectName, String expectedEncoded, IClasspathEntry entry) {
 	IJavaProject project = getJavaProject(projectName);
 	String encoded = project.encodeClasspathEntry(entry);

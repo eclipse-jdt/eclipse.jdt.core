@@ -357,6 +357,20 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			assertTrue("Element should be present after creation", newElement.exists());
 		}
 	}
+	protected void assertClasspathEquals(IClasspathEntry[] classpath, String expected) {
+		StringBuffer buffer = new StringBuffer();
+		int length = classpath == null ? 0 : classpath.length;
+		for (int i=0; i<length; i++) {
+			buffer.append(classpath[i]);
+			if (i < length-1)
+				buffer.append('\n');
+		}
+		String actual = buffer.toString();
+		if (!actual.equals(expected)) {
+		 	System.out.print(org.eclipse.jdt.core.tests.util.Util.displayString(actual, 2));
+		}
+		assertEquals(expected, actual);
+	}
 	/**
 	 * Ensures the element is present after creation.
 	 */
