@@ -1848,12 +1848,13 @@ class ASTConverter {
 	
 	public LabeledStatement convert(org.eclipse.jdt.internal.compiler.ast.LabeledStatement statement) {
 		LabeledStatement labeledStatement = new LabeledStatement(this.ast);
-		labeledStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);	
+		final int sourceStart = statement.sourceStart;
+		labeledStatement.setSourceRange(sourceStart, statement.sourceEnd - sourceStart + 1);	
 		org.eclipse.jdt.internal.compiler.ast.Statement body = statement.statement;
 		labeledStatement.setBody(convert(body));
 		final SimpleName name = new SimpleName(this.ast);
 		name.internalSetIdentifier(new String(statement.label));
-		retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
+		name.setSourceRange(sourceStart, statement.labelEnd - sourceStart + 1);
 		labeledStatement.setLabel(name);
 		return labeledStatement;
 	}
