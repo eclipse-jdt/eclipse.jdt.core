@@ -92,6 +92,8 @@ class ResolvedMemberValuePair implements IResolvedMemberValuePair
 	}
 	
 	public String getName() {
+		if (this.internalPair == null)
+			return null;
 		final char[] membername = this.internalPair.getMemberName();
 		return membername == null ? null : new String(membername);
 	}

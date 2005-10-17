@@ -207,6 +207,12 @@ public final int getAccessFlags() {
 public long getAnnotationTagBits() {
 	FieldBinding originalField = this.original();
 	if ((originalField.tagBits & TagBits.AnnotationResolved) == 0 && originalField.declaringClass instanceof SourceTypeBinding) {
+		// synthetic field like the one for inconsistent type hierachy will not have a scope	
+		// and don't have annotations.
+		if( ((SourceTypeBinding)originalField.declaringClass).scope == null ){
+			this.annotations = NoAnnotations;
+			return 0;
+		}
 		TypeDeclaration typeDecl = ((SourceTypeBinding)originalField.declaringClass).scope.referenceContext;
 		FieldDeclaration fieldDecl = typeDecl.declarationOf(originalField);
 		if (fieldDecl != null) {
@@ -233,11 +239,10 @@ private boolean isBinary()
 
 public IAnnotationInstance[] getAnnotations()
 {	
-	getAnnotationTagBits();
+	final long annotationTagBits = getAnnotationTagBits();
 	// binary annotations can be encoded in tag bits.
 	if( isBinary() ){
 		final int current = this.annotations.length;		
-		final long annotationTagBits = getAnnotationTagBits();
 		final int numStandardAnnos = AnnotationUtils.getNumberOfStandardAnnotations(annotationTagBits);		
 		if( numStandardAnnos == 0 )
 			return this.annotations;

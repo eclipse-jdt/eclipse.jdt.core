@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -136,6 +137,7 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 				MemberValuePair pair = new MemberValuePair(this.selector, this.sourceStart, this.sourceEnd, this.defaultValue);
 				pair.binding = this.binding;
 				pair.resolveTypeExpecting(scope, returnTypeBinding);
+				((AnnotationMethodBinding)this.binding).setDefaultValue();
 			}
 		}
 	}

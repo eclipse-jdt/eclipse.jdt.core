@@ -38,10 +38,9 @@ public class AnnotationMethodBinding extends MethodBinding
 	{
 		super(modifiers, selector, returnType, NoParameters, NoExceptions, declaringClass );
 		this.defaultValue = defaultValue;
-		setDefaultValue();	
 	}
 	
-	private void setDefaultValue()
+	public void setDefaultValue()
 	{			
 		if (this.declaringClass instanceof SourceTypeBinding) {
 			TypeDeclaration typeDecl = ((SourceTypeBinding)this.declaringClass).scope.referenceContext;
