@@ -3458,6 +3458,28 @@ public void test101() {
 		""
 	);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108856
+public void test102() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void main(String[] s) {\n" + 
+			"		new Object() {\n" + 
+			"			{\n" + 
+			"				new Object() {\n" + 
+			"					{\n" + 
+			"						System.out.println(this.getClass().getName());\n" + 
+			"						System.out.println(this.getClass().getSimpleName());\n" + 
+			"					}\n" + 
+			"				};\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"X$1$1");
+}
 public static Class testClass() {
 	return Compliance_1_5.class;
 }
