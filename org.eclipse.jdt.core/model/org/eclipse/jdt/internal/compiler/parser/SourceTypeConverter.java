@@ -342,30 +342,34 @@ public class SourceTypeConverter implements CompilerModifiers {
 		String[] argumentTypeSignatures = methodHandle.getParameterTypes();
 		char[][] argumentNames = methodInfo.getArgumentNames();
 		int argumentCount = argumentTypeSignatures == null ? 0 : argumentTypeSignatures.length;
-		long position = ((long) start << 32) + end;
-		method.arguments = new Argument[argumentCount];
-		for (int i = 0; i < argumentCount; i++) {
-			char[] typeName = Signature.toCharArray(argumentTypeSignatures[i].toCharArray());
-			TypeReference typeReference = createTypeReference(typeName, start, end);
-			if (isVarargs && i == argumentCount-1) {
-				typeReference.bits |= ASTNode.IsVarArgs;
+		if (argumentCount > 0) {
+			long position = ((long) start << 32) + end;
+			method.arguments = new Argument[argumentCount];
+			for (int i = 0; i < argumentCount; i++) {
+				char[] typeName = Signature.toCharArray(argumentTypeSignatures[i].toCharArray());
+				TypeReference typeReference = createTypeReference(typeName, start, end);
+				if (isVarargs && i == argumentCount-1) {
+					typeReference.bits |= ASTNode.IsVarArgs;
+				}
+				method.arguments[i] =
+					new Argument(
+						argumentNames[i],
+						position,
+						typeReference,
+						AccDefault);
+				// do not care whether was final or not
 			}
-			method.arguments[i] =
-				new Argument(
-					argumentNames[i],
-					position,
-					typeReference,
-					AccDefault);
-			// do not care whether was final or not
 		}
 
 		/* convert thrown exceptions */
 		char[][] exceptionTypeNames = methodInfo.getExceptionTypeNames();
 		int exceptionCount = exceptionTypeNames == null ? 0 : exceptionTypeNames.length;
-		method.thrownExceptions = new TypeReference[exceptionCount];
-		for (int i = 0; i < exceptionCount; i++) {
-			method.thrownExceptions[i] =
-				createTypeReference(exceptionTypeNames[i], start, end);
+		if (exceptionCount > 0) {
+			method.thrownExceptions = new TypeReference[exceptionCount];
+			for (int i = 0; i < exceptionCount; i++) {
+				method.thrownExceptions[i] =
+					createTypeReference(exceptionTypeNames[i], start, end);
+			}
 		}
 		
 		/* convert local and anonymous types */

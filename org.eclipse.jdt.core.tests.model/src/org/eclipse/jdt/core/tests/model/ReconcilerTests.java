@@ -1582,6 +1582,40 @@ public void testNoChanges2() throws JavaModelException {
 		""
 	);
 }
+/*
+ * Ensures that using a non-generic method with no parametera and with a raw receiver type doesn't create a type safety warning
+ * (regression test for bug 105756 [1.5][model] Incorrect warning on using raw types)
+ */
+public void testRawUsage() throws CoreException {
+	ICompilationUnit otherCopy = null;
+	try {
+		WorkingCopyOwner owner = new WorkingCopyOwner() {};
+		otherCopy = getWorkingCopy(
+			"Reconciler15/src/Generic105756.java", 
+			"public class Generic105756<T> {\n" +
+			"  void foo() {}\n" +
+			"}",
+			owner,
+			false/*don't compute problems*/);
+		setUp15WorkingCopy("/Reconciler15/src/X.java", owner);
+		setWorkingCopyContents(
+			"public class X {\n" +
+			"  void bar(Generic105756 g) {\n" +
+			"    g.foo();\n" +
+			"  }\n" +
+			"}"
+		);
+		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (otherCopy != null)
+			otherCopy.discardWorkingCopy();
+	}
+}
 /**
  * Ensures that the reconciler reconciles the new contents with the current
  * contents, updating the structure of this reconciler's compilation
