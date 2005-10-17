@@ -804,10 +804,8 @@ public class GeneratedFileManager {
 	 * If the generated-source folder is not configured (i.e., not created or not added to
 	 * the project's source path, then this method will return the default binary output
 	 * location for the project. 
-	 * 
-	 * TODO - change this to return an IFolder
 	 *
-	 * @return the java.io.File corresponding to the binary output location for the
+	 * @return the IPath corresponding to the binary output location for the
 	 * generated source folder.  
 	 * 
 	 * @throws JavaModelException
@@ -816,34 +814,32 @@ public class GeneratedFileManager {
 	 * @see #isGeneratedSourceFolderConfigured()
 	 * @see #ensureGeneratedSourceFolder(IProgressMonitor)
 	 */
-	public java.io.File getGeneratedSourceFolderOutputLocation()
+	public IPath getGeneratedSourceFolderOutputLocation()
 		 throws JavaModelException 
 	{
-		IPath outputRoot = null;
-		IFolder f = getGeneratedSourceFolder();
-		if ( f != null && f.exists() )
+		IPath outputRootPath = null;
+		IFolder generatedSourceFolder = getGeneratedSourceFolder();
+		if ( generatedSourceFolder != null && generatedSourceFolder.exists() )
 		{
-			IClasspathEntry cpe = findProjectSourcePath( _javaProject, f );
+			IClasspathEntry cpe = findProjectSourcePath( _javaProject, generatedSourceFolder );
 			if ( cpe != null )
-				outputRoot = cpe.getOutputLocation();
+				outputRootPath = cpe.getOutputLocation();
 		}
 		
 		// no output root, so get project's default output location
-		if ( outputRoot == null )
-			outputRoot = _javaProject.getOutputLocation();
+		if ( outputRootPath == null )
+			outputRootPath = _javaProject.getOutputLocation();
 
 		// output location is relative to the workspace, we want to make it relative to project
-		int segments = outputRoot.matchingFirstSegments( _javaProject.getPath() );
-		outputRoot = outputRoot.removeFirstSegments( segments );
+		int segments = outputRootPath.matchingFirstSegments( _javaProject.getPath() );
+		outputRootPath = outputRootPath.removeFirstSegments( segments );
 		
-		// TODO - use getRawLocation() or getLocation()?  sometimes getRawLocation() returns null.  Investigate
-		IPath projectRoot = _javaProject.getProject().getRawLocation();
-		if ( projectRoot == null )
-			projectRoot = _javaProject.getProject().getLocation();
+		// Now get the absolute path by prepending the project's path
+		IProject project = _javaProject.getProject();
+		IPath projectRoot = project.getLocation();
+		outputRootPath = projectRoot.append(outputRootPath);
 		
-		java.io.File file = projectRoot.toFile();
-		file = new java.io.File( file, outputRoot.toFile().getPath() );
-		return file;	
+		return outputRootPath;
 	}
 	
 	//

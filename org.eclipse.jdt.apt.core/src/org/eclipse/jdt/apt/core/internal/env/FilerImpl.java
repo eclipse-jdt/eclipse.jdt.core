@@ -12,12 +12,12 @@
 package org.eclipse.jdt.apt.core.internal.env;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
@@ -66,11 +66,10 @@ public class FilerImpl implements Filer {
     	_env.checkValid();
 		_generatedClassFiles = true;
     	GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _env.getProject() );
-    	File f = null;
-    	
+    	IPath path;
     	try 
     	{
-    		f = gfm.getGeneratedSourceFolderOutputLocation();
+    		 path = gfm.getGeneratedSourceFolderOutputLocation();
     	}
     	catch ( Exception e )
     	{
@@ -79,14 +78,14 @@ public class FilerImpl implements Filer {
     		throw new IOException();
     	}
     	
-    	f = new File( f, name.replace( '.', File.separatorChar ) + ".class" ); //$NON-NLS-1$
-  
-        // REVIEW: for no apparent reason it is sometimes necessary to create the
-        // parent dir, else an IOException occurs creating f..
-        File p = f.getParentFile();
-        FileSystemUtil.mkdirs( p );
+    	path = path.append(name.replace('.', File.separatorChar) + ".class"); //$NON-NLS-1$
     	
-        return new FileOutputStream( f );
+        // It is sometimes necessary to create the
+        // parent dir, else an IOException occurs creating f..
+        File parentFile = path.toFile().getParentFile();
+        FileSystemUtil.mkdirs( parentFile );
+    	
+        return new RefreshingFileOutputStream( path, _env.getProject() );
     }
 	
 	public boolean hasGeneratedClassFile(){ return _generatedClassFiles; }
@@ -112,8 +111,9 @@ public class FilerImpl implements Filer {
         throws IOException 
     {
     	_env.checkValid();
-    	File f = getOutputFileForLocation( loc, pkg, relPath );
-        return charsetName == null ? new PrintWriter( f ) : new PrintWriter( f, charsetName );
+    	IPath path = getOutputFileForLocation( loc, pkg, relPath );
+        return charsetName == null ? new RefreshingPrintWriter( path, _env.getProject() ) : 
+        	new RefreshingPrintWriter( path, _env.getProject(), charsetName );
     }
 
     /**
@@ -133,20 +133,20 @@ public class FilerImpl implements Filer {
         throws IOException 
     {
     	_env.checkValid();
-    	File f = getOutputFileForLocation( loc, pkg, relPath );
-    	return new FileOutputStream( f );
+    	IPath path = getOutputFileForLocation( loc, pkg, relPath );
+    	return new RefreshingFileOutputStream( path, _env.getProject() );
     }
 	
-    private File getOutputFileForLocation( Filer.Location loc, String pkg, File relPath )
+    private IPath getOutputFileForLocation( Filer.Location loc, String pkg, File relPath )
     	throws IOException
     {
     	GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _env.getProject() );
-    	File f = null;
+    	IPath path = null;
     	if ( loc == Filer.Location.CLASS_TREE )
     	{
     		try 
     		{
-    			f = gfm.getGeneratedSourceFolderOutputLocation();
+    			path = gfm.getGeneratedSourceFolderOutputLocation();
     		}
     		catch ( Exception e )
     		{
@@ -156,19 +156,17 @@ public class FilerImpl implements Filer {
     		}
     	}
     	else if ( loc == Filer.Location.SOURCE_TREE )
-    		f = gfm.getGeneratedSourceFolder().getRawLocation().toFile();
+    		path = gfm.getGeneratedSourceFolder().getRawLocation();
     	
         if( pkg != null )
-            f = new File( f, pkg.replace('.', File.separatorChar) );
+            path = path.append(pkg.replace('.', File.separatorChar) );
 
-        f = new File( f, relPath.getPath() );
+        path = path.append(relPath.getPath() );
     	
-        // REVIEW: for no apparent reason it is sometimes necessary to create the
-        // parent dir, else an IOException occurs creating f..
-        File p = f.getParentFile();
-        FileSystemUtil.mkdirs( p );
+        File parentFile = path.toFile().getParentFile();
+        FileSystemUtil.mkdirs( parentFile );
         
-    	return f;
+    	return path;
     }
     
     
