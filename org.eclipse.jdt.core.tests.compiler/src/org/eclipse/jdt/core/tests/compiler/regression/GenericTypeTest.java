@@ -22539,14 +22539,14 @@ public void test779() {
 			"  public bridge synthetic Object get(int arg);\n" + 
 			"    0  aload_0\n" + 
 			"    1  iload_1\n" + 
-			"    2  invokevirtual X$1.get(int) : java.lang.String  [37]\n" + 
+			"    2  invokevirtual X$Entry$1.get(int) : java.lang.String  [37]\n" + 
 			"    5  areturn\n" + 
 			"      Line numbers:\n" + 
 			"        [pc: 0, line: 1]\n";
 	
 	// check no unnecessary checkcast on bridge method for X$1
 	try {
-		File f = new File(OUTPUT_DIR + File.separator + "X$1.class");
+		File f = new File(OUTPUT_DIR + File.separator + "X$Entry$1.class");
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);

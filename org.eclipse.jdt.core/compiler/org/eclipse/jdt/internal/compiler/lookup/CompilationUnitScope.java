@@ -221,10 +221,18 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 					localType.sourceName);
 			}
 		} else if (localType.isAnonymousType()){
+			if (isCompliant15) {
+				// from 1.5 on, use immediately enclosing type name
+				candidateName = CharOperation.concat(
+					localType.enclosingType.constantPoolName(),
+					String.valueOf(index+1).toCharArray(),
+					'$');
+			} else {
 				candidateName = CharOperation.concat(
 					outerMostEnclosingType.constantPoolName(),
 					String.valueOf(index+1).toCharArray(),
 					'$');
+			}
 		} else {
 			// local type
 			if (isCompliant15) {
