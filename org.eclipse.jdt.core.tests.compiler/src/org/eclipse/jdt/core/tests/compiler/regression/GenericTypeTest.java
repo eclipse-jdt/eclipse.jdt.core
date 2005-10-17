@@ -26160,4 +26160,187 @@ public void test847() {
 		"The method add(capture-of ? extends Collection<? super Number>) in the type Collection<capture-of ? extends Collection<? super Number>> is not applicable for the arguments (List<Number>)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106451
+public void test848() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X<E> {\n" + 
+			"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" + 
+			"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
+			"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
+			"	Zork z;\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The cast from Collection<capture-of ? extends Number> to List<Number> is actually checking against the erased type List\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");
+	
+	this.runConformTest(
+			new String[] {
+				"X.java", // =================
+				"import java.util.*;\n" + 
+				"\n" + 
+				"public class X<E> {\n" + 
+				"	Collection<? extends Number> asList= Arrays.asList(1, 2.2);\n" + 
+				"	List<Number> nums= (List<Number>) asList; // correct warning\n" + 
+				"	List<Number> numz= (LinkedList<Number>) asList; // type safety warning missing\n" + 
+				"}\n", // =================
+			},
+			"");
+	// 	ensure proper declaring class for #run() invocation
+	String expectedOutput =
+		"  // Method descriptor #14 ()V\n" + 
+		"  // Stack: 6, Locals: 1\n" + 
+		"  public X();\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [16]\n" + 
+		"     4  aload_0 [this]\n" + 
+		"     5  iconst_2\n" + 
+		"     6  anewarray java.lang.Number [18]\n" + 
+		"     9  dup\n" + 
+		"    10  iconst_0\n" + 
+		"    11  iconst_1\n" + 
+		"    12  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [20]\n" + 
+		"    15  aastore\n" + 
+		"    16  dup\n" + 
+		"    17  iconst_1\n" + 
+		"    18  ldc2_w <Double 2.2> [26]\n" + 
+		"    21  invokestatic java.lang.Double.valueOf(double) : java.lang.Double [28]\n" + 
+		"    24  aastore\n" + 
+		"    25  invokestatic java.util.Arrays.asList(java.lang.Object[]) : java.util.List [33]\n" + 
+		"    28  checkcast java.util.Collection [38]\n" + 
+		"    31  putfield X.asList : java.util.Collection [40]\n" + 
+		"    34  aload_0 [this]\n" + 
+		"    35  aload_0 [this]\n" + 
+		"    36  getfield X.asList : java.util.Collection [40]\n" + 
+		"    39  checkcast java.util.List [42]\n" + 
+		"    42  putfield X.nums : java.util.List [44]\n" + 
+		"    45  aload_0 [this]\n" + 
+		"    46  aload_0 [this]\n" + 
+		"    47  getfield X.asList : java.util.Collection [40]\n" + 
+		"    50  checkcast java.util.LinkedList [46]\n" + // <--- checkcast must appear
+		"    53  putfield X.numz : java.util.List [48]\n" + 
+		"    56  return\n";
+	
+	try {
+		File f = new File(OUTPUT_DIR + File.separator + "X.class");
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
+		assertTrue(false);
+	} catch (IOException e) {
+		assertTrue(false);
+	}			
+}
+//ensure no unsafe cast is diagnosed
+public void test849() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"    static <T, U extends T> T[] cast(U[] a) { return (T[]) a; }\n" + 
+			"    Zork z;\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 2)\n" + 
+		"	static <T, U extends T> T[] cast(U[] a) { return (T[]) a; }\n" + 
+		"	                                                 ^^^^^^^\n" + 
+		"Unnecessary cast from U[] to T[]\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");	
+}
+public void test850() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public class X {\n" + 
+			"    <T> T f(Object o) {\n" + 
+			"	return (T) o; // OK\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    <U, T extends U> T g(Object o) {\n" + 
+			"	return (T) o; // bug???\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    <U, T extends U> T h(Object o) {\n" + 
+			"	return X.<T>castTo(o); // workaround\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static <T> T castTo(Object o) {\n" + 
+			"	return (T) o;\n" + 
+			"    }\n" + 
+			"    Zork z;\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	return (T) o; // OK\n" + 
+		"	       ^^^^^\n" + 
+		"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 7)\n" + 
+		"	return (T) o; // bug???\n" + 
+		"	       ^^^^^\n" + 
+		"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 15)\n" + 
+		"	return (T) o;\n" + 
+		"	       ^^^^^\n" + 
+		"Type safety: The cast from Object to T is actually checking against the erased type Object\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 17)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");	
+}
+public void test851() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"interface Foo {}\n" + 
+			"interface Bar<T> {}\n" + 
+			"public class X {\n" + 
+			"    Object m(Foo f) {\n" + 
+			"        return (Bar<Object>)f;\n" + 
+			"    }\n" + 
+			"    Zork z;\n" + 
+			"}\n", // =================
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 5)\n" + 
+		"	return (Bar<Object>)f;\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from Foo to Bar<Object>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	Zork z;\n" + 
+		"	^^^^\n" + 
+		"Zork cannot be resolved to a type\n" + 
+		"----------\n");	
+}
 }
