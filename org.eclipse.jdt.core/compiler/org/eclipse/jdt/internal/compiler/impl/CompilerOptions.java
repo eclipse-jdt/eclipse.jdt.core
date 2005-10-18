@@ -812,7 +812,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		} else if (VERSION_1_5.equals(versionID)) {
 			return JDK1_5;
 		} else if (VERSION_1_6.equals(versionID)) {
-			return JDK1_6;		}
+			return JDK1_6;
+		}
 		return 0; // unknown
 	}
 
