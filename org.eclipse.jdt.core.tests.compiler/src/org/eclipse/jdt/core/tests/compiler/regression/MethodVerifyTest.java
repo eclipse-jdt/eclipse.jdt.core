@@ -4345,4 +4345,57 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"----------\n"
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100970
+	public void test074() {
+		this.runNegativeTest(
+			new String[] {
+				"I.java",
+				"interface I { @Override void clone(); }\n" +
+				"interface J extends I {}"
+			},
+			"----------\n" + 
+			"1. ERROR in I.java (at line 1)\n" + 
+			"	interface I { @Override void clone(); }\n" + 
+			"	                             ^^^^^^^\n" + 
+			"The method clone() of type I must override a superclass method\n" + 
+			"----------\n" + 
+			"2. WARNING in I.java (at line 1)\n" + 
+			"	interface I { @Override void clone(); }\n" + 
+			"	                             ^^^^^^^\n" + 
+			"The return type is incompatible with Object.clone(), thus this interface cannot be implemented\n" + 
+			"----------\n"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"A.java",
+				"interface I {\n" +
+				"	int finalize();\n" +
+				"	float hashCode();\n" +
+				"}\n" +
+				"interface J extends I {}\n" +
+				"abstract class A implements J {}"
+			},
+			"----------\n" + 
+			"1. WARNING in A.java (at line 2)\n" + 
+			"	int finalize();\n" + 
+			"	    ^^^^^^^^^^\n" + 
+			"The return type is incompatible with Object.finalize(), thus this interface cannot be implemented\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 3)\n" + 
+			"	float hashCode();\n" + 
+			"	      ^^^^^^^^^^\n" + 
+			"The return type is incompatible with Object.hashCode()\n" + 
+			"----------\n" + 
+			"3. ERROR in A.java (at line 6)\n" + 
+			"	abstract class A implements J {}\n" + 
+			"	               ^\n" + 
+			"The return type is incompatible with I.finalize(), Object.finalize()\n" + 
+			"----------\n" + 
+			"4. ERROR in A.java (at line 6)\n" + 
+			"	abstract class A implements J {}\n" + 
+			"	               ^\n" + 
+			"The return type is incompatible with I.hashCode(), Object.hashCode()\n" + 
+			"----------\n"
+		);
+	}
 }

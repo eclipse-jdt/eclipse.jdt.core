@@ -361,13 +361,16 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 	// if an inheritedMethod has been 'replaced' by a supertype's method then skip it
 
 	this.inheritedMethods = new HashtableOfObject(51); // maps method selectors to an array of methods... must search to match paramaters & return type
+	ReferenceBinding superType = superclass;
 	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[3][];
 	int lastPosition = -1;
 	ReferenceBinding[] itsInterfaces = superInterfaces;
-	if (itsInterfaces != NoSuperInterfaces)
+	if (itsInterfaces != NoSuperInterfaces) {
 		interfacesToVisit[++lastPosition] = itsInterfaces;
+		if (this.type.isInterface())
+			superType = null; // do not need to find Object's methods when its an interface extending another interface
+	}
 
-	ReferenceBinding superType = superclass;
 	HashtableOfObject nonVisibleDefaultMethods = new HashtableOfObject(3); // maps method selectors to an array of methods
 	boolean allSuperclassesAreAbstract = true;
 
