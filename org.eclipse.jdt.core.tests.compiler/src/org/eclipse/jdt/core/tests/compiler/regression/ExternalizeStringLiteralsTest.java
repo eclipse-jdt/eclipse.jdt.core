@@ -20,7 +20,7 @@ public class ExternalizeStringLiteralsTest extends AbstractRegressionTest {
 
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 2 };
+//	TESTS_NUMBERS = new int[] { 14};
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public ExternalizeStringLiteralsTest(String name) {
@@ -424,6 +424,35 @@ public void test013() {
 		"	String s = \"test1\";\n" + 
 		"	           ^^^^^^^\n" + 
 		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=112973
+public void test014() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s = \"test1\"; //$NON-NLS-?$\n" +
+			"		System.out.println(s);\n" +
+			"    }\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"test1\"; //$NON-NLS-?$\n" + 
+		"	           ^^^^^^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	String s = \"test1\"; //$NON-NLS-?$\n" + 
+		"	                    ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
 		"----------\n",
 		null,
 		true,
