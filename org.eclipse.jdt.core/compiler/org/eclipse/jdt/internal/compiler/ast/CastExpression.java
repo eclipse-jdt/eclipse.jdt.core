@@ -140,6 +140,8 @@ public class CastExpression extends Expression {
 					scope.problemReporter().unnecessaryCast((CastExpression)argument);
 				} else if (castedExpressionType == NullBinding){
 					continue; // tolerate null argument cast
+				} else if ((argument.implicitConversion & BOXING) != 0) {
+					continue; // boxing has a side effect: (int) char   is not boxed as simple char
 				} else {
 					if (rawArgumentTypes == argumentTypes) {
 						System.arraycopy(rawArgumentTypes, 0, rawArgumentTypes = new TypeBinding[length], 0, length);
