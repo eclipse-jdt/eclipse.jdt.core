@@ -56,7 +56,7 @@ public class SourceTypeElementInfo extends MemberElementInfo implements ISourceT
 	protected ITypeParameter[] typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
 	
 	/*
-	 * A map from an IJavaElement (this type or a child of this type) to a String[] (the categories of thie element)
+	 * A map from an IJavaElement (this type or a child of this type) to a String[] (the categories of this element)
 	 */
 	protected HashMap categories;
 	
