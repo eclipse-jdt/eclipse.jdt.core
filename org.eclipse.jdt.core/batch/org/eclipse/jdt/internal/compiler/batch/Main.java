@@ -2395,7 +2395,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 		if (didSpecifySource) {
 			Object version = this.options.get(CompilerOptions.OPTION_Source);
-			 if (CompilerOptions.VERSION_1_4.equals(version)) {
+			// default is source 1.3 target 1.2 and compliance 1.4
+			if (CompilerOptions.VERSION_1_4.equals(version)) {
 				if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
 				if (!didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 			} else if (CompilerOptions.VERSION_1_5.equals(version)) {
@@ -2408,67 +2409,70 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		}
 
 		// check and set compliance/source/target compatibilities
+		final Object sourceVersion = this.options.get(CompilerOptions.OPTION_Source);
+		final Object compliance = this.options.get(CompilerOptions.OPTION_Compliance);
 		if (didSpecifyTarget) {
 			// target must be 1.6 if source is 1.6
-			if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_6
-					&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_6){ 
+			final Object targetVersion = this.options.get(CompilerOptions.OPTION_TargetPlatform); 
+			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_6
+					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_6){ 
 				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
 			}
 			// target must be 1.5 if source is 1.5
-			if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_5
-					&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_5){ 
+			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_5
+					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_5){ 
 				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
 			}
 	   		 // target must be 1.4 if source is 1.4
-	   		if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Source)) >= ClassFileConstants.JDK1_4
-					&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform)) < ClassFileConstants.JDK1_4){ 
+	   		if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4
+					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_4){ 
 				throw new InvalidInputException(Main.bind("configure.incompatibleTargetForSource", (String)this.options.get(CompilerOptions.OPTION_TargetPlatform), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 	   		}
 			// target cannot be greater than compliance level
-			if (CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_TargetPlatform))){ 
+			if (CompilerOptions.versionToJdkLevel(compliance) < CompilerOptions.versionToJdkLevel(targetVersion)){ 
 				throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForTarget", (String)this.options.get(CompilerOptions.OPTION_Compliance), (String)this.options.get(CompilerOptions.OPTION_TargetPlatform))); //$NON-NLS-1$
 			}
 		}
 
-		if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_6)
-				&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_6) {
+		if (sourceVersion.equals(CompilerOptions.VERSION_1_6)
+				&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_6) {
 			// compliance must be 1.6 if source is 1.6
 			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
-		} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_5)
-				&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_5) {
+		} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)
+				&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_5) {
 			// compliance must be 1.5 if source is 1.5
 			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
-		} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)
-				&& CompilerOptions.versionToJdkLevel(this.options.get(CompilerOptions.OPTION_Compliance)) < ClassFileConstants.JDK1_4) {
+		} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)
+				&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_4) {
 			// compliance must be 1.4 if source is 1.4
 			throw new InvalidInputException(Main.bind("configure.incompatibleComplianceForSource", (String)this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 		}
 		// set default target according to compliance & sourcelevel.
 		if (!didSpecifyTarget) {
-			if (this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_3)) {
+			if (compliance.equals(CompilerOptions.VERSION_1_3)) {
 				this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-			} else if (this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_4)) {
-				if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_3)) {
+			} else if (compliance.equals(CompilerOptions.VERSION_1_4)) {
+				if (sourceVersion.equals(CompilerOptions.VERSION_1_3)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)) {
+				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 				}
-			} else if (this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_5)) {
-				if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_3)) {
+			} else if (compliance.equals(CompilerOptions.VERSION_1_5)) {
+				if (sourceVersion.equals(CompilerOptions.VERSION_1_3)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)) {
+				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_5)) {
+				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 				}
-			} else if (this.options.get(CompilerOptions.OPTION_Compliance).equals(CompilerOptions.VERSION_1_6)) {
-				if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_3)) {
+			} else if (compliance.equals(CompilerOptions.VERSION_1_6)) {
+				if (sourceVersion.equals(CompilerOptions.VERSION_1_3)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_4)) {
+				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_5)) {
+				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-				} else if (this.options.get(CompilerOptions.OPTION_Source).equals(CompilerOptions.VERSION_1_6)) {
+				} else if (sourceVersion.equals(CompilerOptions.VERSION_1_6)) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 				}
 			}
