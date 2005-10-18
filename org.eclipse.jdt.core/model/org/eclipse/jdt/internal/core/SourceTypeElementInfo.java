@@ -68,7 +68,7 @@ protected void addCategories(IJavaElement element, char[][] elementCategories) {
 }
 
 /*
- * Return a map from an IJavaElement (this type or a child of this type) to a String[] (the categories of thie element)
+ * Return a map from an IJavaElement (this type or a child of this type) to a String[] (the categories of this element)
  */
 public HashMap getCategories() {
 	return this.categories;
