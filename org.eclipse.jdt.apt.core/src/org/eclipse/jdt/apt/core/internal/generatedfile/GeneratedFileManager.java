@@ -45,6 +45,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.env.ProcessorEnvImpl;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
@@ -190,6 +191,7 @@ public class GeneratedFileManager {
 			IFile parentFile,
 			String typeName, 
 			String contents, 
+			ProcessorEnvImpl env,
 			IProgressMonitor progressMonitor)
 	throws CoreException
 	{
@@ -255,14 +257,22 @@ public class GeneratedFileManager {
 				}
 			}
 			
-			if( contentsDiffer )
+			if( contentsDiffer ){
 				unit = pkgFrag.createCompilationUnit(cuName, contents, true, progressMonitor);
+			}
 			
-			if( unit == null ) {
+			if( unit == null ) {				
 				IStatus status = AptPlugin.createStatus(new IllegalStateException("Unable to create unit for " + cuName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
 				throw new CoreException(status);
 			}
 			else{
+				if( contentsDiffer ){		
+					// make sure the change is commited to disk. 
+					if( unit.isWorkingCopy() )			
+						unit.commitWorkingCopy(true, progressMonitor);			
+					else			
+						unit.save(progressMonitor, true);
+				}
 				final IFile file = (IFile)unit.getResource();
 				file.setDerived( true );
 				// We used to also make the file read-only. This is a bad idea,
@@ -270,14 +280,21 @@ public class GeneratedFileManager {
 				// than allowing a user to modify a generated file.
 				
 				// during a batch build
-				if( parentFile != null )
+				if( parentFile != null ){
+					// generating self with the same contents. No-op.
+					// Will return null to avoid spining. Buzilla #110888 
+					if( parentFile.equals(file) && !contentsDiffer )
+						return null;
+				
 					addEntryToFileMaps( parentFile, file );
+				}
 				return new FileGenerationResult(file, contentsDiffer, updatededSourcePath);
 			}
 			
 		}
 		catch(Exception e){
 			AptPlugin.log(e, "failed to generate type " + typeName); //$NON-NLS-1$
+			e.printStackTrace();
 		}
 		IStatus status = AptPlugin.createStatus(new IllegalStateException("Failed to generate type " + typeName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
 		throw new CoreException(status);
@@ -317,7 +334,7 @@ public class GeneratedFileManager {
 	 * copy of the type, the IFile for the generated type may not exist on disk.  Likewise, the
 	 * corresponding package directories of type-name may not exist on disk.   
 	 * 
-	 * TODO:  figure out how to create a working copy with a client-specified character se
+	 * TODO:  figure out how to create a working copy with a client-specified character set
 	 * 
 	 * @param parentCompilationUnit - the parent compilation unit. 
 	 * @param typeName - the dot-separated java type name for the new type

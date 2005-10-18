@@ -213,7 +213,7 @@ public class MessagerImpl implements Messager, EclipseMessager
     	else
     		resource = null;
     	 
-    	int offset = 0;
+    	int offset = -1;
     	if( resource != null ){
     		final CompilationUnit unit = _env.getAstCompilationUnit(resource);
     		if( unit != null )
@@ -224,7 +224,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 
     private void print(Severity severity, String msg, String[] arguments)
     {
-     	_env.addMessage(null, 0, -1, severity, msg, 1, arguments );  
+     	_env.addMessage(null, -1, -1, severity, msg, 1, arguments );  
 		
     }
   

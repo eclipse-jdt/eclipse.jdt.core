@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.SimpleName;
 
 import com.sun.mirror.apt.AnnotationProcessorListener;
 import com.sun.mirror.apt.Filer;
@@ -653,22 +654,73 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	}
     
     /**
-     * Determine the ending offset of any problems on the current resource that doesn't have one by
-     * traversing the ast for the. We will only walk the ast once to determine the ending 
-     * offsets of all the marker infos that do not have the information set.
+     * @param file
+     * @return length 3 int array with the following information.
+     * at index 0: contains the starting offset, always >= 0
+     * at index 1: contains the ending offset, may be a negative number.
+     * at index 2: the line number
+     * 
+     */
+    private int[] getClassNameRange(final IFile file){
+    	final CompilationUnit astUnit = getAstCompilationUnit(file);
+    	int[] startAndEnd = null;
+    	if( astUnit != null){
+    		@SuppressWarnings({"unchecked", "nls"})
+    		final List<AbstractTypeDeclaration> topTypes = astUnit.types();
+    		if( topTypes != null && topTypes.size() > 0 ){
+    			final AbstractTypeDeclaration topType = topTypes.get(0);
+    			startAndEnd = new int[3];
+    			final SimpleName typename = topType.getName();
+    			if( typename != null ){
+    				startAndEnd[0] = typename.getStartPosition();
+    				// ending offsets need to be exclusive.
+    				startAndEnd[1] = startAndEnd[0] + typename.getLength() - 1;
+    				startAndEnd[2] = astUnit.lineNumber(typename.getStartPosition());
+    			}
+    			else{
+    				startAndEnd[0] = topType.getStartPosition();
+    				// let case 2 in updateProblemLength() kicks in. 
+    				startAndEnd[1] = -2;
+    				startAndEnd[2] = astUnit.lineNumber(topType.getStartPosition());
+    			}
+    		}
+    	}
+    	if( startAndEnd == null )
+    		// let case 2 in updateProblemLength() kicks in.
+    		return new int[]{0, -2, 1};
+    
+    	return startAndEnd;
+    }
+    
+    /**
+     * Handling the following 2 cases
+     * 1) For IProblems that does not have a starting and ending offset, 
+     * place the problem at the class name. 
+     * 
+     * 2) For IProblems that does not have an ending offset, place the ending
+     * offset at the end of the tightest ast node. 
+     * We will only walk the ast once to determine the ending 
+     * offsets of all the problems that do not have the information set. 
      */
     private void updateProblemLength()
-    {
+    {	
     	// for those problems that doesn't have an ending offset, figure it out by
     	// traversing the ast.
     	// we do it once just before we post the marker so we only have to walk the ast 
     	// once.
-    	
     	for( Map.Entry<IFile, List<IProblem>> entry : _allProblems.entrySet() ){
     		int count = 0;
     		final IFile file = entry.getKey();
+    		int[] classNameRange = null;
     		for( IProblem problem : entry.getValue() ){
-    			if( problem.getSourceEnd() == -1 ){
+    			if( problem.getSourceStart() < 0 ){
+    				if( classNameRange == null )
+    					classNameRange = getClassNameRange(file);
+    				problem.setSourceStart(classNameRange[0]);
+    				problem.setSourceEnd(classNameRange[1]);
+    				problem.setSourceLineNumber(classNameRange[2]);
+    			}
+    			if( problem.getSourceEnd() < 0 ){
     				count ++;
     			}
     		}
@@ -680,7 +732,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     				final int[] startingOffsets = new int[count];
     		    	int index = 0;
 	    			for( IProblem problem : entry.getValue() ){
-	    				if( problem.getSourceEnd() == -1 )
+	    				if( problem.getSourceEnd() < 0 )
 	    					startingOffsets[index++] = problem.getSourceStart();
 	    			}
 	    			
@@ -689,12 +741,12 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
 	    			astUnit.accept( lfinder );
 	    	    	
 	    	    	for(IProblem problem : entry.getValue() ){
-	    				if( problem.getSourceEnd() == -1 ){
+	    				if( problem.getSourceEnd() < 0 ){
 	    					int startingOffset = problem.getSourceStart();
 	    					int endingOffset = lfinder.getEndingOffset(startingOffset);
 	    	    			if( endingOffset == 0 )
 	    	    				endingOffset = startingOffset;
-	    	    			problem.setSourceEnd(endingOffset);	    	    			
+	    	    			problem.setSourceEnd(endingOffset-1);
 	    				}
 	    			}
     			}
