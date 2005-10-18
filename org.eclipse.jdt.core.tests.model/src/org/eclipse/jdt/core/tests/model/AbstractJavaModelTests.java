@@ -1413,10 +1413,11 @@ protected void assertDeltas(String message, String expected) {
 		return getWorkingCopy(path, "", computeProblems);
 	}	
 	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
-		return getWorkingCopy(path, source, new WorkingCopyOwner() {}, null/*don't compute problems*/);
+		return getWorkingCopy(path, source, false);
 	}	
 	public ICompilationUnit getWorkingCopy(String path, String source, boolean computeProblems) throws JavaModelException {
-		return getWorkingCopy(path, source, new WorkingCopyOwner() {}, computeProblems);
+		if (this.wcOwner == null) this.wcOwner = new WorkingCopyOwner() {};
+		return getWorkingCopy(path, source, this.wcOwner, computeProblems);
 	}
 	public ICompilationUnit getWorkingCopy(String path, String source, WorkingCopyOwner owner, boolean computeProblems) throws JavaModelException {
 		IProblemRequestor problemRequestor = computeProblems
@@ -1993,9 +1994,6 @@ protected void assertDeltas(String message, String expected) {
 	}
 	protected void setUp () throws Exception {
 		super.setUp();
-		if (this.discard) {
-			this.workingCopies = null;
-		}
 		this.discard = true;
 	}
 	protected void sortElements(IJavaElement[] elements) {
@@ -2098,8 +2096,11 @@ protected void assertDeltas(String message, String expected) {
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
-		if (this.discard && this.workingCopies != null) {
-			discardWorkingCopies(this.workingCopies);
+		if (this.discard) {
+			if (this.workingCopies != null) {
+				discardWorkingCopies(this.workingCopies);
+				this.workingCopies = null;
+			}
 			this.wcOwner = null;
 		}
 	}

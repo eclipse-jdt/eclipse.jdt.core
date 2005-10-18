@@ -54,10 +54,41 @@ What's new in this drop</h2>
 <ul>
 <li>Added <code>IJavaElementDelta#F_CATEGORIES</code>. This flag is set when one or more categories of an element 
      are added/changed/removed.</li>
+<li>
+Java search engine is now able to perform search using Camel Case pattern while using new match rule flag
+defined on <code>SearchPattern</code> (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110060">110060</a>):
+<pre>
+	/**
+	 * Match rule: The search pattern contains a Camel Case expression.
+	 * For example, <code>NPE</code> type string pattern will match
+	 * <code>NullPointerException</code> type.
+	 * @see CharOperation#camelCaseMatch(char[], char[]) for a detailed explanation
+	 * of Camel Case matching.
+	 *
+	 * Can be combined to {@link #R_PREFIX_MATCH} match rule. For example,
+	 * when prefix match rule is combined with Camel Case match rule,
+	 * <code>"nPE"</code> pattern will match <code>nPException</code>.
+	 *
+	 * Match rule {@link #R_PATTERN_MATCH} may also be combined but both rules
+	 * will not be used simultaneously as they are mutually exclusive.
+	 * Used match rule depends on whether string pattern contains specific pattern 
+	 * characters (e.g. '*' or '?') or not. If it does, then only Pattern match rule
+	 * will be used, otherwise only Camel Case match will be used.
+	 * For example, with <code>"NPE"</code> string pattern, search will only use
+	 * Camel Case match rule, but with <code>N*P*E*</code> string pattern, it will 
+	 * use only Pattern match rule.
+	 * 
+	 * @since 3.2
+	 */
+	public static final int R_CAMELCASE_MATCH = 0x0080;
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=100182">100182</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110060">110060</a>
+[plan][search] Add support for Camel Case search pattern
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=100182">100182</a>
 [1.5][compiler] unecessary cast in case of boxing
 
 

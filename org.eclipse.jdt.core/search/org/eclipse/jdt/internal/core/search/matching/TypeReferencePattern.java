@@ -34,7 +34,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 		this(matchRule);
 	
 		this.qualification = isCaseSensitive() ? qualification : CharOperation.toLowerCase(qualification);
-		this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
+		this.simpleName = (isCaseSensitive() || isCamelCase())  ? simpleName : CharOperation.toLowerCase(simpleName);
 	
 		if (simpleName == null)
 			this.segments = this.qualification == null ? ONE_STAR_CHAR : CharOperation.splitOn('.', this.qualification);

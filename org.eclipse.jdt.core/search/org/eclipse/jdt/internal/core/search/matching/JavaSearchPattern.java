@@ -30,12 +30,19 @@ public class JavaSearchPattern extends SearchPattern {
 	boolean isCaseSensitive;
 
 	/*
-	 * Whether this pattern is erasure match.
+	 * Whether this pattern is camel case.
 	 */
-//	boolean isErasureMatch;
+	boolean isCamelCase;
 
 	/**
-	 * One of {@link #R_EXACT_MATCH}, {@link #R_PREFIX_MATCH}, {@link #R_PATTERN_MATCH}, {@link #R_REGEXP_MATCH}.
+	 * One of following pattern value:
+	 * <ul>
+	 * 	<li>{@link #R_EXACT_MATCH}</li>
+	 *		<li>{@link #R_PREFIX_MATCH}</li>
+	 *		<li>{@link #R_PATTERN_MATCH}</li>
+	 *		<li>{@link #R_REGEXP_MATCH}</li>
+	 *		<li>{@link #R_CAMELCASE_MATCH}</li>
+	 * </ul>
 	 */
 	int matchMode;
 
@@ -67,6 +74,7 @@ public class JavaSearchPattern extends SearchPattern {
 		// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=81377
 		int rule = getMatchRule();
 		this.isCaseSensitive = (rule & R_CASE_SENSITIVE) != 0;
+		this.isCamelCase = (rule & R_CAMELCASE_MATCH) != 0;
 		this.matchCompatibility = rule & MATCH_COMPATIBILITY_MASK;
 		this.matchMode = rule & MATCH_MODE_MASK;
 	}
@@ -77,6 +85,10 @@ public class JavaSearchPattern extends SearchPattern {
 
 	int getMatchMode() {
 		return this.matchMode;
+	}
+
+	boolean isCamelCase() {
+		return this.isCamelCase;
 	}
 
 	boolean isCaseSensitive () {
@@ -165,35 +177,15 @@ public class JavaSearchPattern extends SearchPattern {
 		return !hasSignatures() && hasTypeArguments();
 	}
 	
-	/*
-	 * Optimization of implementation above (uses cached matchMode and isCaseSenistive)
-	 */
-	public boolean matchesName(char[] pattern, char[] name) {
-		if (pattern == null) return true; // null is as if it was "*"
-		if (name != null) {
-			switch (this.matchMode) {
-				case R_EXACT_MATCH :
-					return CharOperation.equals(pattern, name, this.isCaseSensitive);
-				case R_PREFIX_MATCH :
-					return CharOperation.prefixEquals(pattern, name, this.isCaseSensitive);
-				case R_PATTERN_MATCH :
-					if (!this.isCaseSensitive)
-						 // TODO do we really need to this? should we add a 'fast' method when we know its already been done?
-						pattern = CharOperation.toLowerCase(pattern);
-					return CharOperation.match(pattern, name, this.isCaseSensitive);
-				case R_REGEXP_MATCH :
-					// TODO (frederic) implement regular expression match
-					return true;
-			}
-		}
-		return false;
-	}
 	protected StringBuffer print(StringBuffer output) {
 		output.append(", "); //$NON-NLS-1$
 		if (hasTypeArguments() && hasSignatures()) {
 			output.append("signature:\""); //$NON-NLS-1$
 			output.append(this.typeSignatures[0]);
 			output.append("\", "); //$NON-NLS-1$
+		}
+		if (this.isCamelCase) {
+			output.append("camel case + "); //$NON-NLS-1$
 		}
 		switch(getMatchMode()) {
 			case R_EXACT_MATCH : 
@@ -204,6 +196,9 @@ public class JavaSearchPattern extends SearchPattern {
 				break;
 			case R_PATTERN_MATCH :
 				output.append("pattern match,"); //$NON-NLS-1$
+				break;
+			case R_REGEXP_MATCH :
+				output.append("regexp match, "); //$NON-NLS-1$
 				break;
 		}
 		if (isCaseSensitive())

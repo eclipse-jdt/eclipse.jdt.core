@@ -140,7 +140,7 @@ public TypeDeclarationPattern(
 		for (int i = 0; i < length; i++)
 			this.enclosingTypeNames[i] = CharOperation.toLowerCase(enclosingTypeNames[i]);
 	}
-	this.simpleName = isCaseSensitive() ? simpleName : CharOperation.toLowerCase(simpleName);
+	this.simpleName = (isCaseSensitive() || isCamelCase())  ? simpleName : CharOperation.toLowerCase(simpleName);
 	this.typeSuffix = typeSuffix;
 
 	((InternalSearchPattern)this).mustResolve = (this.pkg != null && this.enclosingTypeNames != null) || typeSuffix != TYPE_SUFFIX;
@@ -283,6 +283,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// do a prefix query with the simpleName
 			break;
 		case R_EXACT_MATCH :
+			if (this.isCamelCase) break;
 			if (this.simpleName != null) {
 				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
 				key = this.pkg == null
@@ -313,6 +314,9 @@ EntryResult[] queryIn(Index index) throws IOException {
 			// must decode to check enclosingTypeNames due to the encoding of local types
 			key = CharOperation.concat(
 				this.simpleName == null ? ONE_STAR : this.simpleName, SEPARATOR, this.pkg, SEPARATOR, ONE_STAR);
+			break;
+		case R_REGEXP_MATCH :
+			// TODO (frederic) implement regular expression match
 			break;
 	}
 

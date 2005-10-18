@@ -44,8 +44,8 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //		org.eclipse.jdt.internal.codeassist.SelectionEngine.DEBUG = true;
-//		TESTS_PREFIX =  "testBug100772_ProjectScope";
-//		TESTS_NAMES = new String[] { "testBug100772_ClassAndSubclass04" };
+//		TESTS_PREFIX =  "testCamelCaseType";
+//		TESTS_NAMES = new String[] { "testBug82208" };
 //		TESTS_NUMBERS = new int[] { 100772 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
@@ -4454,6 +4454,501 @@ public class JavaSearchBugsTests extends AbstractJavaSearchTests implements IJav
 			"src/b100772/X.java void b100772.X.foo(T) [foo] EXACT_MATCH\n" + 
 			"src/b100772/IX.java void b100772.IX.foo(U) [foo] EXACT_MATCH\n" + 
 			"src/b100772/XX.java void b100772.XX.foo(String) [foo] EXACT_MATCH"
+		);
+	}
+
+	/**
+	 * @test Bug 110060: [plan][search] Add support for Camel Case search pattern
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
+	 */
+	// Types search
+	public void testBug110060_TypePattern01() throws CoreException {
+		workingCopies = new ICompilationUnit[5];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/AA.java",
+			"package b110060;\n" + 
+			"public class AA {\n" +
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b110060/AAxx.java",
+			"package b110060;\n" + 
+			"public class AAxx {\n" +
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b110060/AxxAyy.java",
+			"package b110060;\n" + 
+			"public class AxxAyy {\n" +
+			"}\n"
+		);
+		workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b110060/AxA.java",
+			"package b110060;\n" + 
+			"public class AxA {\n" +
+			"}\n"
+		);
+		workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
+			"package b110060;\n" + 
+			"public class Test {\n" +
+			"	AA aa;\n" + 
+			"	AAxx aaxx;\n" + 
+			"	AxA axa;\n" + 
+			"	AxxAyy axxayy;\n" + 
+			"}\n"
+		);
+		search("AA", TYPE, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_TypePattern02() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("AA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
+			"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" + 
+			"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_TypePattern03() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("AAx", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_TypePattern04() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("Axx", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_TypePattern05() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("Ax", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" + 
+			"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_TypePattern06() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("A*A*", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
+			"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" + 
+			"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH\n" + 
+			""+ getExternalJCLPathString("1.5") + " java.lang.annotation.Annotation EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_TypePattern07() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("aa", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults("");
+	}
+
+	public void testBug110060_TypePattern08() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("aa", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
+			"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_TypePattern09() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("AA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CASE_SENSITIVE);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AA.java b110060.AA [AA] EXACT_MATCH\n" + 
+			"src/b110060/AAxx.java b110060.AAxx [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/AxA.java b110060.AxA [AxA] EXACT_MATCH\n" + 
+			"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aa [AA] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aaxx [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axa [AxA] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_TypePattern10() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("AxAx", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults("");
+	}
+
+	public void testBug110060_TypePattern11() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("AxxA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AxxAyy.java b110060.AxxAyy [AxxAyy] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [AxxAyy] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_TypePattern12() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("AxXA", TYPE, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		assertSearchResults("");
+	}
+
+	// Constructor search
+	public void testBug110060_ConstructorPattern01() throws CoreException {
+		workingCopies = new ICompilationUnit[5];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/AA.java",
+			"package b110060;\n" + 
+			"public class AA {\n" +
+			"	AA() {}\n" +
+			"}\n"
+		);
+		workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b110060/AAxx.java",
+			"package b110060;\n" + 
+			"public class AAxx {\n" +
+			"	AAxx() {}\n" +
+			"}\n"
+		);
+		workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b110060/AxxAyy.java",
+			"package b110060;\n" + 
+			"public class AxxAyy {\n" +
+			"	AxxAyy() {}\n" +
+			"}\n"
+		);
+		workingCopies[3] = getWorkingCopy("/JavaSearchBugs/src/b110060/AxA.java",
+			"package b110060;\n" + 
+			"public class AxA {\n" +
+			"	AxA() {}\n" +
+			"}\n"
+		);
+		workingCopies[4] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
+			"package b110060;\n" + 
+			"public class Test {\n" +
+			"	AA aa = new AA();\n" + 
+			"	AAxx aaxx = new AAxx();\n" + 
+			"	AxA axa = new AxA();\n" + 
+			"	AxxAyy axxayy = new AxxAyy();\n" + 
+			"}\n"
+		);
+		search("AA", CONSTRUCTOR, REFERENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_ConstructorPattern02() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("AA", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AA.java b110060.AA() [AA] EXACT_MATCH\n" + 
+			"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" + 
+			"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_ConstructorPattern03() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("AAx", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_ConstructorPattern04() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("Axx", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_ConstructorPattern05() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("Ax", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" + 
+			"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_ConstructorPattern06() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 5, workingCopies.length);
+		search("A*A*", CONSTRUCTOR, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		assertSearchResults(
+			"src/b110060/AA.java b110060.AA() [AA] EXACT_MATCH\n" + 
+			"src/b110060/AAxx.java b110060.AAxx() [AAxx] EXACT_MATCH\n" + 
+			"src/b110060/AxA.java b110060.AxA() [AxA] EXACT_MATCH\n" + 
+			"src/b110060/AxxAyy.java b110060.AxxAyy() [AxxAyy] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aa [new AA()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aaxx [new AAxx()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axa [new AxA()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.axxayy [new AxxAyy()] EXACT_MATCH"
+		);
+	}
+
+	// Methods search
+	public void testBug110060_MethodPattern01() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
+			"package b110060;\n" + 
+			"public class Test {\n" +
+			"	void aMethodWithNothingSpecial() {}\n" + 
+			"	void aMethodWith1Digit() {}\n" + 
+			"	void aMethodWith1DigitAnd_AnUnderscore() {}\n" + 
+			"	void aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() {}\n" + 
+			"	void otherMethodWhichStartsWithAnotherLetter() {}\n" + 
+			"	void testReferences() {\n" + 
+			"		aMethodWith1Digit();\n" + 
+			"		aMethodWith1DigitAnd_AnUnderscore();\n" + 
+			"		aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores();\n" + 
+			"		aMethodWithNothingSpecial();\n" + 
+			"		otherMethodWhichStartsWithAnotherLetter();\n" + 
+			"	}\n" + 
+			"}\n"
+		);
+		search("MWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults("");
+	}
+
+	public void testBug110060_MethodPattern02() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("AMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults("");
+	}
+
+	public void testBug110060_MethodPattern03() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("aMWD", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_MethodPattern04() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("aMW", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWithNothingSpecial()] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_MethodPattern05() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("aMethod", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWithNothingSpecial()] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_MethodPattern06() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("aMethodWith1", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/Test.java void b110060.Test.aMethodWith1Digit() [aMethodWith1Digit] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Digit()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_MethodPattern07() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("*Method*With*A*", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/Test.java void b110060.Test.aMethodWithNothingSpecial() [aMethodWithNothingSpecial] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1DigitAnd_AnUnderscore() [aMethodWith1DigitAnd_AnUnderscore] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.otherMethodWhichStartsWithAnotherLetter() [otherMethodWhichStartsWithAnotherLetter] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1DigitAnd_AnUnderscore()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWithNothingSpecial()] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [otherMethodWhichStartsWithAnotherLetter()] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_MethodPattern08() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("aMW1D", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults("");
+	}
+
+	public void testBug110060_MethodPattern09() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("aMWOOODASU", METHOD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		assertSearchResults(
+			"src/b110060/Test.java void b110060.Test.aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aMethodWith1Or2_Or_3_Or__4__DigitsAnd_Several_Underscores()] EXACT_MATCH"
+		);
+	}
+
+	// Fields search
+	public void testBug110060_FieldPattern01() throws CoreException {
+		workingCopies = new ICompilationUnit[1];
+		workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b110060/Test.java",
+			"package b110060;\n" + 
+			"public class Test {\n" +
+			"	Object aFieldWithNothingSpecial;\n" + 
+			"	Object aFieldWithS$Dollar;\n" + 
+			"	Object aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore;\n" + 
+			"	Object aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars;\n" + 
+			"	Object otherFieldWhichStartsWithAnotherLetter;\n" + 
+			"	void testReferences() {\n" + 
+			"		Object o0 = aFieldWithNothingSpecial;\n" + 
+			"		Object o1 = aFieldWithS$Dollar;\n" + 
+			"		Object o2 = aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore;\n" + 
+			"		Object o3 = aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars;\n" + 
+			"	}\n" + 
+			"	Object oF = otherFieldWhichStartsWithAnotherLetter;\n" + 
+			"}\n"
+		);
+		search("aFWSD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/Test.java b110060.Test.aFieldWithS$Dollar [aFieldWithS$Dollar] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore [aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWithS$Dollar] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWith$Several$DollarslAnd1DigitAnd_1Underscore] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_FieldPattern02() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("afwsd", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults("");
+	}
+
+	public void testBug110060_FieldPattern03() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("aFWS$", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/Test.java b110060.Test.aFieldWithS$Dollar [aFieldWithS$Dollar] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aFieldWithS$Dollar] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_FieldPattern04() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("aSFWSCD", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		this.discard = false;
+		assertSearchResults(
+			"src/b110060/Test.java b110060.Test.aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars [aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars] EXACT_MATCH\n" + 
+			"src/b110060/Test.java void b110060.Test.testReferences() [aStrangeFieldWith$$$$$$$$$$$$$$$SeveraContiguousDollars] EXACT_MATCH"
+		);
+	}
+
+	public void testBug110060_FieldPattern05() throws CoreException {
+		assertNotNull("There should be working copies!", workingCopies);
+		assertEquals("Invalid number of working copies kept between tests!", 1, workingCopies.length);
+		search("oF", FIELD, ALL_OCCURRENCES, SearchPattern.R_CAMELCASE_MATCH);
+		assertSearchResults(
+			"src/b110060/Test.java b110060.Test.otherFieldWhichStartsWithAnotherLetter [otherFieldWhichStartsWithAnotherLetter] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.oF [oF] EXACT_MATCH\n" + 
+			"src/b110060/Test.java b110060.Test.oF [otherFieldWhichStartsWithAnotherLetter] EXACT_MATCH"
 		);
 	}
 }

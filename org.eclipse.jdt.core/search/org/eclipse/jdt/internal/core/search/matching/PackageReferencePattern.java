@@ -31,7 +31,7 @@ public PackageReferencePattern(char[] pkgName, int matchRule) {
 		this.segments = new char[][] {CharOperation.NO_CHAR};
 		((InternalSearchPattern)this).mustResolve = false;
 	} else {
-		this.pkgName = isCaseSensitive() ? pkgName : CharOperation.toLowerCase(pkgName);
+		this.pkgName = (isCaseSensitive() || isCamelCase())  ? pkgName : CharOperation.toLowerCase(pkgName);
 		this.segments = CharOperation.splitOn('.', this.pkgName);
 		((InternalSearchPattern)this).mustResolve = true;
 	}

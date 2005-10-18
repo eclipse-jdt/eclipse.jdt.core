@@ -75,7 +75,7 @@ public ConstructorPattern(
 	this.findReferences = findReferences;
 
 	this.declaringQualification = isCaseSensitive() ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
-	this.declaringSimpleName = isCaseSensitive() ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
+	this.declaringSimpleName = (isCaseSensitive() || isCamelCase()) ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	if (parameterSimpleNames != null) {
 		this.parameterCount = parameterSimpleNames.length;
 		this.parameterQualifications = new char[this.parameterCount][];
@@ -248,6 +248,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
+			if (this.isCamelCase) break;
 			if (shouldCountParameter() && this.declaringSimpleName != null && this.parameterCount >= 0)
 				key = createIndexKey(this.declaringSimpleName, this.parameterCount);
 			else // do a prefix query with the declaringSimpleName
@@ -262,6 +263,9 @@ EntryResult[] queryIn(Index index) throws IOException {
 			else if (this.declaringSimpleName != null && this.declaringSimpleName[this.declaringSimpleName.length - 1] != '*')
 				key = CharOperation.concat(this.declaringSimpleName, ONE_STAR, SEPARATOR);
 			// else do a pattern query with just the declaringSimpleName
+			break;
+		case R_REGEXP_MATCH :
+			// TODO (frederic) implement regular expression match
 			break;
 	}
 

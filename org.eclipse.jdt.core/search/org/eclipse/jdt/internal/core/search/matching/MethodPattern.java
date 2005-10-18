@@ -84,7 +84,7 @@ public MethodPattern(
 	this.findDeclarations = findDeclarations;
 	this.findReferences = findReferences;
 
-	this.selector = isCaseSensitive() ? selector : CharOperation.toLowerCase(selector);
+	this.selector = (isCaseSensitive() || isCamelCase())  ? selector : CharOperation.toLowerCase(selector);
 	this.declaringQualification = isCaseSensitive() ? declaringQualification : CharOperation.toLowerCase(declaringQualification);
 	this.declaringSimpleName = isCaseSensitive() ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	this.returnQualification = isCaseSensitive() ? returnQualification : CharOperation.toLowerCase(returnQualification);
@@ -298,6 +298,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
+			if (this.isCamelCase) break;
 			if (shouldCountParameter() && this.selector != null && this.parameterCount >= 0)
 				key = createIndexKey(this.selector, this.parameterCount);
 			else // do a prefix query with the selector
@@ -312,6 +313,9 @@ EntryResult[] queryIn(Index index) throws IOException {
 			else if (this.selector != null && this.selector[this.selector.length - 1] != '*')
 				key = CharOperation.concat(this.selector, ONE_STAR, SEPARATOR);
 			// else do a pattern query with just the selector
+			break;
+		case R_REGEXP_MATCH :
+			// TODO (frederic) implement regular expression match
 			break;
 	}
 

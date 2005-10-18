@@ -49,7 +49,7 @@ public MultiTypeDeclarationPattern(
 	}
 	if (simpleNames == null) {
 		this.simpleNames = CharOperation.NO_CHAR_CHAR;
-	} else if (isCaseSensitive()) {
+	} else if ((isCaseSensitive() || isCamelCase()) ) {
 		this.simpleNames = simpleNames;
 	} else {
 		int length = simpleNames.length;
@@ -155,12 +155,18 @@ EntryResult[] queryIn(Index index) throws IOException {
 				// do a prefix query with the simpleName
 				break;
 			case R_EXACT_MATCH :
-				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
-				key = CharOperation.append(key, SEPARATOR);
-				break; // do a prefix query with the simpleName
+				if (!this.isCamelCase) {
+					// do a prefix query with the simpleName
+					matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
+					key = CharOperation.append(key, SEPARATOR);
+				}
+				break;
 			case R_PATTERN_MATCH :
 				if (key[key.length - 1] != '*')
 					key = CharOperation.concat(key, ONE_STAR, SEPARATOR);
+				break;
+			case R_REGEXP_MATCH :
+				// TODO (frederic) implement regular expression match
 				break;
 		}
 

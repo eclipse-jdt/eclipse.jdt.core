@@ -37,11 +37,20 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 	// All specified tests which do not belong to the class are skipped...
 	static {
 //		org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//		TESTS_PREFIX =  "testStaticImport";
+//		TESTS_PREFIX =  "testCamelCase";
 //		TESTS_NAMES = new String[] { "testMethodDeclaration11" };
 	//	TESTS_NUMBERS = new int[] { 79860, 79803, 73336 };
 	//	TESTS_RANGE = new int[] { 16, -1 };
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#copyDirectory(java.io.File, java.io.File)
+	 */
+	protected void copyDirectory(File sourceDir, File targetDir) throws IOException {
+		if (!targetDir.exists()) {
+			super.copyDirectory(sourceDir, targetDir);
 		}
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#setUpSuite()
@@ -3373,6 +3382,7 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 			"src/g5/c/def/Multiple.java g5.c.def.Multiple(U1, U2, U3, Multiple<T1,T2,T3>) [U2]"
 		);
 	}
+
 	/**
 	 * Test static import
 	 */
@@ -3508,5 +3518,125 @@ public class JavaSearchTests extends AbstractJavaSearchTests implements IJavaSea
 			"src/s2/C.java [s2.pack.age]\n" + 
 			"src/s2/D.java [s2.pack.age]"
 		);
+	}
+
+	/**
+	 * @test Bug 110060: [plan][search] Add support for Camel Case search pattern
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
+	 *
+	 * These tests are not really duplicates of {@link JavaSearchBugsTests} ones
+	 * as they also test camel case in indexes...
+	 */
+	public void testCamelCaseTypePattern01() throws CoreException {
+		search("RE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
+		assertSearchResults(
+			""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+		);
+	}
+
+	public void testCamelCaseTypePattern02() throws CoreException {
+		search("RException", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
+		assertSearchResults(
+			""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+		);
+	}
+
+	public void testCamelCaseTypePattern03() throws CoreException {
+		search("RuntimeException", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
+		assertSearchResults(
+			""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+		);
+	}
+
+	public void testCamelCaseTypePattern04() throws CoreException {
+		search("RUNTIMEEXCEPTION", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
+		assertSearchResults("");
+	}
+
+	public void testCamelCaseTypePattern05() throws CoreException {
+		search("R*E*", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH, getJavaSearchScope());
+		assertSearchResults(
+			"src/a3/References.java a3.References [References]\n" + 
+			""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+		);
+	}
+
+	public void testCamelCaseTypePattern06() throws CoreException {
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			"CNS".toCharArray(),
+			SearchPattern.R_CAMELCASE_MATCH,
+			TYPE,
+			getJavaSearchScope(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"java.lang.CloneNotSupportedException",
+			requestor);
+	}
+
+	public void testCamelCaseTypePattern07() throws CoreException {
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			"AA".toCharArray(),
+			SearchPattern.R_CAMELCASE_MATCH,
+			TYPE,
+			getJavaSearchScope(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"AA\n" + 
+			"c9.AbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyzAbcdefghijklmnopqrstuvwxyz\n" + 
+			"d8.AA\n" + 
+			"p6.AA\n" + 
+			"q1.AA",
+			requestor);
+	}
+
+	public void testCamelCaseTypePattern08() throws CoreException {
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			"aa".toCharArray(),
+			SearchPattern.R_CAMELCASE_MATCH,
+			TYPE,
+			getJavaSearchScope(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"",
+			requestor);
+	}
+
+	public void testCamelCaseTypePattern09() throws CoreException {
+		TypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
+		new SearchEngine().searchAllTypeNames(
+			null,
+			"aa".toCharArray(),
+			SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_PREFIX_MATCH,
+			TYPE,
+			getJavaSearchScope(),
+			requestor,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null
+		);
+		assertSearchResults(
+			"Unexpected all type names",
+			"AA\n" + 
+			"d8.AA\n" + 
+			"p6.AA\n" + 
+			"q1.AA",
+			requestor);
 	}
 }

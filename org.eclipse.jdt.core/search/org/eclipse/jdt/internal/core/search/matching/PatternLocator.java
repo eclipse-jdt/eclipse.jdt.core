@@ -23,6 +23,7 @@ public abstract class PatternLocator implements IIndexConstants {
 // store pattern info
 protected int matchMode;
 protected boolean isCaseSensitive;
+protected boolean isCamelCase;
 protected boolean isEquivalentMatch;
 protected boolean isErasureMatch;
 protected boolean mustResolve;
@@ -37,6 +38,16 @@ public static final int INACCURATE_MATCH = 1;
 public static final int POSSIBLE_MATCH = 2;
 public static final int ACCURATE_MATCH = 3;
 public static final int ERASURE_MATCH = 4;
+
+// Possible rule match flavors
+// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=79866
+protected static final int POSSIBLE_FULL_MATCH = POSSIBLE_MATCH + (SearchPattern.R_FULL_MATCH<<16);
+protected static final int POSSIBLE_PREFIX_MATCH = POSSIBLE_MATCH + (SearchPattern.R_PREFIX_MATCH<<16);
+protected static final int POSSIBLE_PATTERN_MATCH = POSSIBLE_MATCH + (SearchPattern.R_PATTERN_MATCH<<16);
+protected static final int POSSIBLE_REGEXP_MATCH = POSSIBLE_MATCH + (SearchPattern.R_REGEXP_MATCH<<16);
+protected static final int POSSIBLE_CAMELCASE_MATCH = POSSIBLE_MATCH + (SearchPattern.R_CAMELCASE_MATCH<<16);
+protected static final int NODE_SET_MASK = 0xFF;
+protected static final int POSSIBLE_MATCH_MASK = ~NODE_SET_MASK;
 
 /* match container */
 public static final int COMPILATION_UNIT_CONTAINER = 1;
@@ -102,6 +113,7 @@ public static char[] qualifiedSourceName(TypeBinding binding) {
 public PatternLocator(SearchPattern pattern) {
 	int matchRule = pattern.getMatchRule();
 	this.isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
+	this.isCamelCase = (matchRule & SearchPattern.R_CAMELCASE_MATCH) != 0;
 	this.isErasureMatch = (matchRule & SearchPattern.R_ERASURE_MATCH) != 0;
 	this.isEquivalentMatch = (matchRule & SearchPattern.R_EQUIVALENT_MATCH) != 0;
 	this.matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
@@ -228,19 +240,73 @@ protected int matchContainer() {
  */
 protected boolean matchesName(char[] pattern, char[] name) {
 	if (pattern == null) return true; // null is as if it was "*"
-	if (name != null) {
-		switch (this.matchMode) {
-			case SearchPattern.R_EXACT_MATCH :
-				return CharOperation.equals(pattern, name, this.isCaseSensitive);
-			case SearchPattern.R_PREFIX_MATCH :
-				return CharOperation.prefixEquals(pattern, name, this.isCaseSensitive);
-			case SearchPattern.R_PATTERN_MATCH :
-				if (!this.isCaseSensitive)
-					pattern = CharOperation.toLowerCase(pattern);
-				return CharOperation.match(pattern, name, this.isCaseSensitive);
+	if (name == null) return false; // cannot match null name
+	return matchNameValue(pattern, name) != IMPOSSIBLE_MATCH;
+}
+/**
+ * Return how the given name matches the given pattern.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=79866"
+ * 
+ * @param pattern
+ * @param name
+ * @return Possible values are:
+ * <ul>
+ * 	<li>{@link #POSSIBLE_FULL_MATCH}: Given name is equals to pattern</li>
+ * 	<li>{@link #POSSIBLE_PREFIX_MATCH}: Given name prefix equals to pattern</li>
+ * 	<li>{@link #POSSIBLE_CAMELCASE_MATCH}: Given name matches pattern as Camel Case</li>
+ * 	<li>{@link #POSSIBLE_PATTERN_MATCH}: Given name matches pattern as Pattern (ie. using '*' and '?' characters)</li>
+ * </ul>
+ */
+protected int matchNameValue(char[] pattern, char[] name) {
+	if (pattern == null) return ACCURATE_MATCH; // null is as if it was "*"
+	if (name == null) return IMPOSSIBLE_MATCH; // cannot match null name
+	if (name.length == 0) { // empty name
+		if (pattern.length == 0) { // can only matches empty pattern
+			return ACCURATE_MATCH;
 		}
+		return IMPOSSIBLE_MATCH;
 	}
-	return false;
+	boolean matchFirstChar = !this.isCaseSensitive || pattern[0] == name[0];
+	boolean sameLength = pattern.length == name.length;
+	boolean canBePrefix = name.length > pattern.length;
+	switch (this.matchMode) {
+		case SearchPattern.R_EXACT_MATCH:
+			if (sameLength && matchFirstChar && 	CharOperation.equals(pattern, name, this.isCaseSensitive)) {
+				return POSSIBLE_FULL_MATCH;
+			}
+			if (this.isCamelCase) {
+				if (canBePrefix && matchFirstChar && CharOperation.prefixEquals(pattern, name, this.isCaseSensitive)) {
+					return POSSIBLE_PREFIX_MATCH;
+				}
+				if (matchFirstChar && CharOperation.camelCaseMatch(pattern, name)) {
+					return POSSIBLE_CAMELCASE_MATCH;
+				}
+			}
+			break;
+		case SearchPattern.R_PREFIX_MATCH:
+			if (sameLength && matchFirstChar && 	CharOperation.equals(pattern, name, this.isCaseSensitive)) {
+				return POSSIBLE_FULL_MATCH;
+			}
+			if (canBePrefix && matchFirstChar && CharOperation.prefixEquals(pattern, name, this.isCaseSensitive)) {
+				return POSSIBLE_PREFIX_MATCH;
+			}
+			if (this.isCamelCase && matchFirstChar && CharOperation.camelCaseMatch(pattern, name)) {
+				return POSSIBLE_CAMELCASE_MATCH;
+			}
+			break;
+		case SearchPattern.R_PATTERN_MATCH:
+			if (!this.isCaseSensitive) {
+				pattern = CharOperation.toLowerCase(pattern);
+			}
+			if (CharOperation.match(pattern, name, this.isCaseSensitive)) {
+				return POSSIBLE_MATCH;
+			}
+			break;
+		case SearchPattern.R_REGEXP_MATCH :
+			// TODO (frederic) implement regular expression match
+			break;
+	}
+	return IMPOSSIBLE_MATCH;
 }
 /**
  * Returns whether the given type reference matches the given pattern.
@@ -599,17 +665,31 @@ protected int resolveLevelForType(char[] simpleNamePattern, char[] qualification
 	char[] qualifiedPattern = getQualifiedPattern(simpleNamePattern, qualificationPattern);
 	int level = resolveLevelForType(qualifiedPattern, binding);
 	if (level == ACCURATE_MATCH || binding == null) return level;
-	boolean matchPattern = false;
 	TypeBinding type = binding instanceof ArrayBinding ? ((ArrayBinding)binding).leafComponentType : binding;
+	char[] sourceName = null;
 	if (type.isMemberType() || type.isLocalType()) {
 		if (qualificationPattern != null) {
-			matchPattern = CharOperation.match(qualifiedPattern, getQualifiedSourceName(binding), this.isCaseSensitive);
+			sourceName =  getQualifiedSourceName(binding);
 		} else {
-			matchPattern = CharOperation.match(qualifiedPattern, binding.sourceName(), this.isCaseSensitive); // need to keep binding to get source name
+			sourceName =  binding.sourceName();
 		}
 	} else if (qualificationPattern == null) {
-		matchPattern = CharOperation.match(qualifiedPattern, getQualifiedSourceName(binding), this.isCaseSensitive);
+		sourceName =  getQualifiedSourceName(binding);
 	}
+	if (sourceName == null) return IMPOSSIBLE_MATCH;
+	if (this.isCamelCase) {
+		if (!this.isCaseSensitive || (qualifiedPattern.length>0 && sourceName.length>0 && qualifiedPattern[0] == sourceName[0])) {
+			if (CharOperation.camelCaseMatch(qualifiedPattern, sourceName)) {
+				return ACCURATE_MATCH;
+			}
+			if (!this.isCaseSensitive && (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0) {
+				if (CharOperation.prefixEquals(qualifiedPattern, sourceName, this.isCaseSensitive)) {
+					return ACCURATE_MATCH;
+				}
+			}
+		}
+	}
+	boolean matchPattern = CharOperation.match(qualifiedPattern, sourceName, this.isCaseSensitive);
 	return matchPattern ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
 
 }
@@ -634,6 +714,18 @@ protected int resolveLevelForType(char[] qualifiedPattern, TypeBinding type) {
 	char[] fullyQualifiedTypeName = qualifiedPackageName.length == 0
 		? qualifiedSourceName
 		: CharOperation.concat(qualifiedPackageName, qualifiedSourceName, '.');
+	if (this.isCamelCase) {
+		if (!this.isCaseSensitive || (qualifiedPattern.length>0 && fullyQualifiedTypeName.length>0 && qualifiedPattern[0] == fullyQualifiedTypeName[0])) {
+			if (CharOperation.camelCaseMatch(qualifiedPattern, fullyQualifiedTypeName)) {
+				return ACCURATE_MATCH;
+			}
+			if (!this.isCaseSensitive && (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0) {
+				if (CharOperation.prefixEquals(qualifiedPattern, fullyQualifiedTypeName, this.isCaseSensitive)) {
+					return ACCURATE_MATCH;
+				}
+			}
+		}
+	}
 	return CharOperation.match(qualifiedPattern, fullyQualifiedTypeName, this.isCaseSensitive)
 		? ACCURATE_MATCH
 		: IMPOSSIBLE_MATCH;

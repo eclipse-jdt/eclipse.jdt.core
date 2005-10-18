@@ -148,7 +148,7 @@ public SuperTypeReferencePattern(
 	this(matchRule);
 
 	this.superQualification = isCaseSensitive() ? superQualification : CharOperation.toLowerCase(superQualification);
-	this.superSimpleName = isCaseSensitive() ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
+	this.superSimpleName = (isCaseSensitive() || isCamelCase())  ? superSimpleName : CharOperation.toLowerCase(superSimpleName);
 	((InternalSearchPattern)this).mustResolve = superQualification != null;
 	this.superRefKind = superRefKind;
 }
@@ -226,6 +226,7 @@ EntryResult[] queryIn(Index index) throws IOException {
 	// cannot include the superQualification since it may not exist in the index
 	switch(getMatchMode()) {
 		case R_EXACT_MATCH :
+			if (this.isCamelCase) break;
 			// do a prefix query with the superSimpleName
 			matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
 			if (this.superSimpleName != null)
@@ -236,6 +237,9 @@ EntryResult[] queryIn(Index index) throws IOException {
 			break;
 		case R_PATTERN_MATCH :
 			// do a pattern query with the superSimpleName
+			break;
+		case R_REGEXP_MATCH :
+			// TODO (frederic) implement regular expression match
 			break;
 	}
 

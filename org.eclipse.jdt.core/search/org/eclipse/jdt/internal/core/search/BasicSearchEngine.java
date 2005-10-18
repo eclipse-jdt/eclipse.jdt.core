@@ -226,6 +226,51 @@ public class BasicSearchEngine {
 		return new JavaSearchParticipant();
 	}
 
+
+	/**
+	 * @param matchRule
+	 */
+	private String getMatchRuleString(final int matchRule) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i=1; i<=7; i++) {
+			int bit = matchRule & (1<<i);
+			switch (bit) {
+				case SearchPattern.R_PREFIX_MATCH:
+					buffer.append("R_PREFIX_MATCH"); //$NON-NLS-1$
+					break;
+				case SearchPattern.R_CASE_SENSITIVE:
+					if (buffer.length()>0) buffer.append('+');
+					buffer.append("R_CASE_SENSITIVE"); //$NON-NLS-1$
+					break;
+				case SearchPattern.R_EQUIVALENT_MATCH:
+					if (buffer.length()>0) buffer.append('+');
+					buffer.append("R_EQUIVALENT_MATCH"); //$NON-NLS-1$
+					break;
+				case SearchPattern.R_ERASURE_MATCH:
+					if (buffer.length()>0) buffer.append('+');
+					buffer.append("R_ERASURE_MATCH"); //$NON-NLS-1$
+					break;
+				case SearchPattern.R_FULL_MATCH:
+					if (buffer.length()>0) buffer.append('+');
+					buffer.append("R_FULL_MATCH"); //$NON-NLS-1$
+					break;
+				case SearchPattern.R_PATTERN_MATCH:
+					if (buffer.length()>0) buffer.append('+');
+					buffer.append("R_PATTERN_MATCH"); //$NON-NLS-1$
+					break;
+				case SearchPattern.R_REGEXP_MATCH:
+					if (buffer.length()>0) buffer.append('+');
+					buffer.append("R_REGEXP_MATCH"); //$NON-NLS-1$
+					break;
+				case SearchPattern.R_CAMELCASE_MATCH:
+					if (buffer.length()>0) buffer.append('+');
+					buffer.append("R_CAMELCASE_MATCH"); //$NON-NLS-1$
+					break;
+			}
+		}
+		return buffer.toString();
+	}
+
 	private Parser getParser() {
 		if (this.parser == null) {
 			this.compilerOptions = new CompilerOptions(JavaCore.getOptions());
@@ -383,17 +428,26 @@ public class BasicSearchEngine {
 				return false;
 		
 		if (patternTypeName != null) {
-			int matchMode = matchRule - (isCaseSensitive ? SearchPattern.R_CASE_SENSITIVE : 0);
+			boolean isCamelCase = (matchRule & SearchPattern.R_CAMELCASE_MATCH) != 0;
+			int matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
 			if (!isCaseSensitive) {
 				patternTypeName = CharOperation.toLowerCase(patternTypeName);
 			}
+			boolean matchFirstChar = !isCaseSensitive || patternTypeName[0] == typeName[0];
+			if (isCamelCase && matchFirstChar && CharOperation.camelCaseMatch(patternTypeName, typeName)) {
+				return true;
+			}
 			switch(matchMode) {
 				case SearchPattern.R_EXACT_MATCH :
-					return CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
+					if (isCamelCase) return false;
+					return matchFirstChar && CharOperation.equals(patternTypeName, typeName, isCaseSensitive);
 				case SearchPattern.R_PREFIX_MATCH :
-					return CharOperation.prefixEquals(patternTypeName, typeName, isCaseSensitive);
+					return matchFirstChar && CharOperation.prefixEquals(patternTypeName, typeName, isCaseSensitive);
 				case SearchPattern.R_PATTERN_MATCH :
 					return CharOperation.match(patternTypeName, typeName, isCaseSensitive);
+				case SearchPattern.R_REGEXP_MATCH :
+					// TODO (frederic) implement regular expression match
+					break;
 			}
 		}
 		return true;
@@ -405,16 +459,8 @@ public class BasicSearchEngine {
 	 * methods (from a String pattern or a Java element) and encapsulate the description of what is
 	 * being searched (for example, search method declarations in a case sensitive way).
 	 *
-	 * @param pattern the pattern to search
-	 * @param participants the particpants in the search
-	 * @param scope the search scope
-	 * @param requestor the requestor to report the matches to
-	 * @param monitor the progress monitor used to report progress
-	 * @exception CoreException if the search failed. Reasons include:
-	 *	<ul>
-	 *		<li>the classpath is incorrectly set</li>
-	 *	</ul>
-	 *@since 3.0
+	 * @see SearchEngine#search(SearchPattern, SearchParticipant[], IJavaSearchScope, SearchRequestor, IProgressMonitor)
+	 * 	for detailed comment
 	 */
 	public void search(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
 		if (VERBOSE) {
@@ -428,49 +474,8 @@ public class BasicSearchEngine {
 	 * The search can be selecting specific types (given a package or a type name
 	 * prefix and match modes). 
 	 * 
-	 * @param packageName the full name of the package of the searched types, or a prefix for this
-	 *						package, or a wild-carded string for this package.
-	 * @param typeName the dot-separated qualified name of the searched type (the qualification include
-	 *					the enclosing types if the searched type is a member type), or a prefix
-	 *					for this type, or a wild-carded string for this type.
-	 * @param matchRule one of
-	 * <ul>
-	 *		<li><code>SearchPattern.R_EXACT_MATCH</code> if the package name and type name are the full names
-	 *			of the searched types.</li>
-	 *		<li><code>SearchPattern.R_PREFIX_MATCH</code> if the package name and type name are prefixes of the names
-	 *			of the searched types.</li>
-	 *		<li><code>SearchPattern.R_PATTERN_MATCH</code> if the package name and type name contain wild-cards.</li>
-	 * </ul>
-	 * combined with <code>SearchPattern.R_CASE_SENSITIVE</code>,
-	 *   e.g. <code>R_EXACT_MATCH | R_CASE_SENSITIVE</code> if an exact and case sensitive match is requested, 
-	 *   or <code>R_PREFIX_MATCH</code> if a prefix non case sensitive match is requested.
-	 * @param searchFor determines the nature of the searched elements
-	 *	<ul>
-	 * 	<li>{@link IJavaSearchConstants#CLASS}: only look for classes</li>
-	 *		<li>{@link IJavaSearchConstants#INTERFACE}: only look for interfaces</li>
-	 * 	<li>{@link IJavaSearchConstants#ENUM}: only look for enumeration</li>
-	 *		<li>{@link IJavaSearchConstants#ANNOTATION_TYPE}: only look for annotation type</li>
-	 * 	<li>{@link IJavaSearchConstants#CLASS_AND_ENUM}: only look for classes and enumerations</li>
-	 *		<li>{@link IJavaSearchConstants#CLASS_AND_INTERFACE}: only look for classes and interfaces</li>
-	 * 	<li>{@link IJavaSearchConstants#TYPE}: look for all types (ie. classes, interfaces, enum and annotation types)</li>
-	 *	</ul>
-	 * @param scope the scope to search in
-	 * @param nameRequestor the requestor that collects the results of the search
-	 * @param waitingPolicy one of
-	 * <ul>
-	 *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately</li>
-	 *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be cancelled if the
-	 *			underlying indexer has not finished indexing the workspace</li>
-	 *		<li><code>IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH</code> if the search should wait for the
-	 *			underlying indexer to finish indexing the workspace</li>
-	 * </ul>
-	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
-	 *							monitor is provided
-	 * @exception JavaModelException if the search failed. Reasons include:
-	 *	<ul>
-	 *		<li>the classpath is incorrectly set</li>
-	 *	</ul>
-	 * @since 3.0
+	 * @see SearchEngine#searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, TypeNameRequestor, int, IProgressMonitor)
+	 * 	for detailed comment
 	 */
 	public void searchAllTypeNames(
 		final char[] packageName, 
@@ -486,7 +491,7 @@ public class BasicSearchEngine {
 			System.out.println("BasicSearchEngine.searchAllTypeNames(char[], char[], int, int, IJavaSearchScope, IRestrictedAccessTypeRequestor, int, IProgressMonitor)"); //$NON-NLS-1$
 			System.out.println("	- package name: "+(packageName==null?"null":new String(packageName))); //$NON-NLS-1$ //$NON-NLS-2$
 			System.out.println("	- type name: "+(typeName==null?"null":new String(typeName))); //$NON-NLS-1$ //$NON-NLS-2$
-			System.out.println("	- match rule: "+matchRule); //$NON-NLS-1$
+			System.out.println("	- match rule: "+getMatchRuleString(matchRule)); //$NON-NLS-1$
 			System.out.println("	- search for: "+searchFor); //$NON-NLS-1$
 			System.out.println("	- scope: "+scope); //$NON-NLS-1$
 		}
@@ -682,25 +687,8 @@ public class BasicSearchEngine {
 	 * Searches for all top-level types and member types in the given scope using  a case sensitive exact match
 	 * with the given qualified names and type names.
 	 * 
-	 * @param qualifications the qualified name of the package/enclosing type of the searched types
-	 * @param typeNames the simple names of the searched types
-	 * @param scope the scope to search in
-	 * @param nameRequestor the requestor that collects the results of the search
-	 * @param waitingPolicy one of
-	 * <ul>
-	 *		<li><code>IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH</code> if the search should start immediately</li>
-	 *		<li><code>IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH</code> if the search should be cancelled if the
-	 *			underlying indexer has not finished indexing the workspace</li>
-	 *		<li><code>IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH</code> if the search should wait for the
-	 *			underlying indexer to finish indexing the workspace</li>
-	 * </ul>
-	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
-	 *							monitor is provided
-	 * @exception JavaModelException if the search failed. Reasons include:
-	 *	<ul>
-	 *		<li>the classpath is incorrectly set</li>
-	 *	</ul>
-	 * @since 3.0
+	 * @see SearchEngine#searchAllTypeNames(char[][], char[][], IJavaSearchScope, TypeNameRequestor, int, IProgressMonitor)
+	 * 	for detailed comment
 	 */
 	public void searchAllTypeNames(
 		final char[][] qualifications, 
@@ -955,38 +943,9 @@ public class BasicSearchEngine {
 	 * Searches for all declarations of the fields accessed in the given element.
 	 * The element can be a compilation unit, a source type, or a source method.
 	 * Reports the field declarations using the given requestor.
-	 * <p>
-	 * Consider the following code:
-	 * <code>
-	 * <pre>
-	 *		class A {
-	 *			int field1;
-	 *		}
-	 *		class B extends A {
-	 *			String value;
-	 *		}
-	 *		class X {
-	 *			void test() {
-	 *				B b = new B();
-	 *				System.out.println(b.value + b.field1);
-	 *			};
-	 *		}
-	 * </pre>
-	 * </code>
-	 * then searching for declarations of accessed fields in method 
-	 * <code>X.test()</code> would collect the fields
-	 * <code>B.value</code> and <code>A.field1</code>.
-	 * </p>
 	 *
-	 * @param enclosingElement the method, type, or compilation unit to be searched in
-	 * @param requestor a callback object to which each match is reported
-	 * @param monitor the progress monitor used to report progress
-	 * @exception JavaModelException if the search failed. Reasons include:
-	 *	<ul>
-	 *		<li>the element doesn't exist</li>
-	 *		<li>the classpath is incorrectly set</li>
-	 *	</ul>
-	 * @since 3.0
+	 * @see SearchEngine#searchDeclarationsOfAccessedFields(IJavaElement, SearchRequestor, IProgressMonitor)
+	 * 	for detailed comment
 	 */	
 	public void searchDeclarationsOfAccessedFields(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
 		if (VERBOSE) {
@@ -1000,38 +959,9 @@ public class BasicSearchEngine {
 	 * Searches for all declarations of the types referenced in the given element.
 	 * The element can be a compilation unit, a source type, or a source method.
 	 * Reports the type declarations using the given requestor.
-	 * <p>
-	 * Consider the following code:
-	 * <code>
-	 * <pre>
-	 *		class A {
-	 *		}
-	 *		class B extends A {
-	 *		}
-	 *		interface I {
-	 *		  int VALUE = 0;
-	 *		}
-	 *		class X {
-	 *			void test() {
-	 *				B b = new B();
-	 *				this.foo(b, I.VALUE);
-	 *			};
-	 *		}
-	 * </pre>
-	 * </code>
-	 * then searching for declarations of referenced types in method <code>X.test()</code>
-	 * would collect the class <code>B</code> and the interface <code>I</code>.
-	 * </p>
-	 *
-	 * @param enclosingElement the method, type, or compilation unit to be searched in
-	 * @param requestor a callback object to which each match is reported
-	 * @param monitor the progress monitor used to report progress
-	 * @exception JavaModelException if the search failed. Reasons include:
-	 *	<ul>
-	 *		<li>the element doesn't exist</li>
-	 *		<li>the classpath is incorrectly set</li>
-	 *	</ul>
-	 * @since 3.0
+	 * 
+	 * @see SearchEngine#searchDeclarationsOfReferencedTypes(IJavaElement, SearchRequestor, IProgressMonitor)
+	 * 	for detailed comment
 	 */	
 	public void searchDeclarationsOfReferencedTypes(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
 		if (VERBOSE) {
@@ -1045,41 +975,9 @@ public class BasicSearchEngine {
 	 * Searches for all declarations of the methods invoked in the given element.
 	 * The element can be a compilation unit, a source type, or a source method.
 	 * Reports the method declarations using the given requestor.
-	 * <p>
-	 * Consider the following code:
-	 * <code>
-	 * <pre>
-	 *		class A {
-	 *			void foo() {};
-	 *			void bar() {};
-	 *		}
-	 *		class B extends A {
-	 *			void foo() {};
-	 *		}
-	 *		class X {
-	 *			void test() {
-	 *				A a = new B();
-	 *				a.foo();
-	 *				B b = (B)a;
-	 *				b.bar();
-	 *			};
-	 *		}
-	 * </pre>
-	 * </code>
-	 * then searching for declarations of sent messages in method 
-	 * <code>X.test()</code> would collect the methods
-	 * <code>A.foo()</code>, <code>B.foo()</code>, and <code>A.bar()</code>.
-	 * </p>
-	 *
-	 * @param enclosingElement the method, type, or compilation unit to be searched in
-	 * @param requestor a callback object to which each match is reported
-	 * @param monitor the progress monitor used to report progress
-	 * @exception JavaModelException if the search failed. Reasons include:
-	 *	<ul>
-	 *		<li>the element doesn't exist</li>
-	 *		<li>the classpath is incorrectly set</li>
-	 *	</ul>
-	 * @since 3.0
+	 * 
+	 * @see SearchEngine#searchDeclarationsOfSentMessages(IJavaElement, SearchRequestor, IProgressMonitor)
+	 * 	for detailed comment
 	 */	
 	public void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
 		if (VERBOSE) {
