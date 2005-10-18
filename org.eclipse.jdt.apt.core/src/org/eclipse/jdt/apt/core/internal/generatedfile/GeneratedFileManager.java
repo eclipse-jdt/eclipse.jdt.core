@@ -281,11 +281,6 @@ public class GeneratedFileManager {
 				
 				// during a batch build
 				if( parentFile != null ){
-					// generating self with the same contents. No-op.
-					// Will return null to avoid spining. Buzilla #110888 
-					if( parentFile.equals(file) && !contentsDiffer )
-						return null;
-				
 					addEntryToFileMaps( parentFile, file );
 				}
 				return new FileGenerationResult(file, contentsDiffer, updatededSourcePath);
