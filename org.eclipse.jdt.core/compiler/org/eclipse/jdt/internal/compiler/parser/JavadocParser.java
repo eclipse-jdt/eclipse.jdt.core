@@ -467,8 +467,8 @@ public class JavadocParser extends AbstractCommentParser {
 				switch (tag[0]) {
 					case 'c':
 						if (CharOperation.equals(tag, TAG_CATEGORY)) {
-							valid = parseIdentifierTag();
 							this.tagValue = TAG_CATEGORY_VALUE;
+							valid = parseIdentifierTag();
 						}
 						break;
 					case 'd':

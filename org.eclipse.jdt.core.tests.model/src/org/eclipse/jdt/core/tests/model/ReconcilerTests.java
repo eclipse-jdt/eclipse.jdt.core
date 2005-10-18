@@ -64,7 +64,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 // Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-// TESTS_NAMES = new String[] { "testRawUsage" };
+// TESTS_NAMES = new String[] { "testCategories3" };
 // Numbers of tests to run: "test<number>" will be run for each number of this array
 //TESTS_NUMBERS = new int[] { 13 };
 // Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -622,6 +622,95 @@ public void testCancel() throws JavaModelException {
 	
 	// last should not throw an OperationCanceledException
 	this.workingCopy.reconcile(AST.JLS2, true, null, new Canceler(counter.count));
+}
+/**
+ * Ensures that the delta is correct when adding a category
+ */
+public void testCategories1() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category cat1\n" +
+		"   */\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {CATEGORIES}"
+	);
+}
+/**
+ * Ensures that the delta is correct when removing a category
+ */
+public void testCategories2() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category cat1\n" +
+		"   */\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.makeConsistent(null);
+	
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {CATEGORIES}"
+	);
+}
+/**
+ * Ensures that the delta is correct when changing a category
+ */
+public void testCategories3() throws JavaModelException {
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category cat1\n" +
+		"   */\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.makeConsistent(null);
+	
+	setWorkingCopyContents(
+		"package p1;\n" +
+		"import p2.*;\n" +
+		"public class X {\n" +
+		"  /**\n" +
+		"   * @category cat2\n" +
+		"   */\n" +
+		"  public void foo() {\n" +
+		"  }\n" +
+		"}"
+	);
+	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
+	assertDeltas(
+		"Unexpected delta", 
+		"X[*]: {CHILDREN | FINE GRAINED}\n" + 
+		"	foo()[*]: {CATEGORIES}"
+	);
 }
 /**
  * Ensures that the reconciler reconciles the new contents with the current

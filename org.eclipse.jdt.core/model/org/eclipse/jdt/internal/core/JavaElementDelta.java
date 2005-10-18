@@ -714,6 +714,12 @@ protected boolean toDebugString(StringBuffer buffer, int flags) {
 		buffer.append("AST AFFECTED"); //$NON-NLS-1$
 		prev = true;
 	}
+	if ((flags & IJavaElementDelta.F_CATEGORIES) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("CATEGORIES"); //$NON-NLS-1$
+		prev = true;
+	}
 	return prev;
 }
 /** 
