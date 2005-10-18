@@ -1677,7 +1677,7 @@ public class JavaProject
 			case IResource.FOLDER:
 				return new PackageFragmentRoot(resource, this);
 			case IResource.PROJECT:
-				return new PackageFragmentRoot(resource, this); //$NON-NLS-1$
+				return new PackageFragmentRoot(resource, this);
 			default:
 				return null;
 		}

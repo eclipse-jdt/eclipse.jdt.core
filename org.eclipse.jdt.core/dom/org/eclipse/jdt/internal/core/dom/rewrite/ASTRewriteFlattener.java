@@ -1218,8 +1218,8 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		visitList(node, EnumDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, String.valueOf(','), "implements ", EMPTY); //$NON-NLS-1$
 
 		this.result.append('{');
-		visitList(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY, String.valueOf(','), EMPTY, EMPTY); //$NON-NLS-1$
-		visitList(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY, EMPTY, String.valueOf(';'), EMPTY); //$NON-NLS-1$
+		visitList(node, EnumDeclaration.ENUM_CONSTANTS_PROPERTY, String.valueOf(','), EMPTY, EMPTY);
+		visitList(node, EnumDeclaration.BODY_DECLARATIONS_PROPERTY, EMPTY, String.valueOf(';'), EMPTY);
 		this.result.append('}');
 		return false;
 	}

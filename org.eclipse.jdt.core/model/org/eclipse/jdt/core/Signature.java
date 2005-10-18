@@ -2411,7 +2411,7 @@ private static int appendCaptureTypeSignature(char[] string, int start, boolean 
 		throw new IllegalArgumentException();
 	}
 	char c = string[start];
-	if (c != C_CAPTURE) { //$NON-NLS-1$
+	if (c != C_CAPTURE) {
 		throw new IllegalArgumentException();
 	}
 	buffer.append(CAPTURE).append(' ');
@@ -2440,7 +2440,7 @@ private static int appendArrayTypeSignature(char[] string, int start, boolean fu
 		throw new IllegalArgumentException();
 	}
 	char c = string[start];
-	if (c != C_ARRAY) { //$NON-NLS-1$
+	if (c != C_ARRAY) {
 		throw new IllegalArgumentException();
 	}
 	

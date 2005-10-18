@@ -30,7 +30,7 @@ public class CompletionOnMethodTypeParameter extends MethodDeclaration {
 	
 	public StringBuffer print(int tab, StringBuffer output) {
 		printIndent(tab, output);
-		output.append('<');//$NON-NLS-1$
+		output.append('<');
 		int max = typeParameters.length - 1;
 		for (int j = 0; j < max; j++) {
 			typeParameters[j].print(0, output);

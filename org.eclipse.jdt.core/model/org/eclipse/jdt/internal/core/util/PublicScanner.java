@@ -1289,7 +1289,7 @@ public int getNextToken() throws InvalidInputException {
 						}
 						throw e; // rethrow
 					}
-					if (this.checkNonExternalizedStringLiterals){ // check for presence of	NLS tags //$NON-NLS-?$ where ? is an int.
+					if (this.checkNonExternalizedStringLiterals){ // check for presence of	NLS tags // $NON-NLS-?$ where ? is an int.
 						if (this.currentLine == null) {
 							this.currentLine = new NLSLine();
 						}

@@ -550,7 +550,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.printEmptyLines(newLinesBeforeField);
 			}
 		}
-		Alignment memberAlignment = this.scribe.getMemberAlignment();	//$NON-NLS-1$
+		Alignment memberAlignment = this.scribe.getMemberAlignment();
 	
         this.scribe.printComment();
 		this.scribe.printModifiers(fieldDeclaration.annotations, this);
@@ -619,7 +619,7 @@ public class CodeFormatterVisitor extends ASTVisitor {
 				this.scribe.printEmptyLines(newLinesBeforeField);
 			}
 		}
-		Alignment fieldAlignment = this.scribe.getMemberAlignment();	//$NON-NLS-1$
+		Alignment fieldAlignment = this.scribe.getMemberAlignment();
 	
         this.scribe.printComment();
 		this.scribe.printModifiers(multiFieldDeclaration.annotations, this);

@@ -91,7 +91,7 @@ public final class NodeInfoStore {
 				    ((VariableDeclarationStatement) node).fragments().add(this.ast.newVariableDeclarationFragment());
 		    		break;
 				case ASTNode.PARAMETERIZED_TYPE :
-				    ((ParameterizedType) node).typeArguments().add(this.ast.newWildcardType()); //$NON-NLS-1$
+				    ((ParameterizedType) node).typeArguments().add(this.ast.newWildcardType());
 		    		break;
 			}
 		    return node;

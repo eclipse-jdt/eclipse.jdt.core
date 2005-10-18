@@ -328,7 +328,7 @@ private static void buildFileForCompliance(
 			}
 		}
 
-		buildFileForTable(file, result); //$NON-NLS-1$
+		buildFileForTable(file, result);
 	}
 private final static void buildFileForTable(String filename, byte[] bytes) throws java.io.IOException {
 	java.io.FileOutputStream stream = new java.io.FileOutputStream(filename);

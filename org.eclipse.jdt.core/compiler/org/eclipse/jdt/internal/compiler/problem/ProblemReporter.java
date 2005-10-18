@@ -4412,7 +4412,7 @@ public void parseError(
 	}
 	//extract the literal when it's a literal  
 	if (isLiteral(currentToken) ||
-		isIdentifier(currentToken)) { //$NON-NLS-1$
+		isIdentifier(currentToken)) {
 			errorTokenName = new String(currentTokenSource);
 	}
 
@@ -4927,7 +4927,7 @@ private void syntaxError(
 	String eTokenName;
 	if (isKeyword(currentKind) ||
 		isLiteral(currentKind) ||
-		isIdentifier(currentKind)) { //$NON-NLS-1$
+		isIdentifier(currentKind)) {
 			eTokenName = new String(currentTokenSource);
 	} else {
 		eTokenName = errorTokenName;

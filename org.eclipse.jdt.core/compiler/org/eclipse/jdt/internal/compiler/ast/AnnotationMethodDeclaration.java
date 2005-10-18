@@ -59,7 +59,7 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 		
 		TypeParameter[] typeParams = typeParameters();
 		if (typeParams != null) {
-			output.append('<');//$NON-NLS-1$
+			output.append('<');
 			int max = typeParams.length - 1;
 			for (int j = 0; j < max; j++) {
 				typeParams[j].print(0, output);

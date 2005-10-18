@@ -119,7 +119,7 @@ public class Scribe {
 			// resize
 			resize();
 		}
-		addOptimizedReplaceEdit(start, end - start + 1, EMPTY_STRING); //$NON-NLS-1$
+		addOptimizedReplaceEdit(start, end - start + 1, EMPTY_STRING);
 	}
 
 	public final void addInsertEdit(int insertPosition, String insertedString) {

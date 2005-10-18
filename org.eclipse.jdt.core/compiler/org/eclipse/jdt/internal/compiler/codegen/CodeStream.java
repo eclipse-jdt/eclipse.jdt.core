@@ -2181,7 +2181,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangByteConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.byteByteSignature); //$NON-NLS-1$
+				ConstantPool.byteByteSignature);
 			break;
 		case T_short :
 			// invokestatic: Short.valueOf(short)
@@ -2191,7 +2191,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangShortConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.shortShortSignature); //$NON-NLS-1$
+				ConstantPool.shortShortSignature);
 			break;
 		case T_char :
 			// invokestatic: Character.valueOf(char)
@@ -2201,7 +2201,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangCharacterConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.charCharacterSignature); //$NON-NLS-1$
+				ConstantPool.charCharacterSignature);
 			break;
 		case T_int :
 			// invokestatic: Integer.valueOf(int)
@@ -2211,7 +2211,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangIntegerConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.IntIntegerSignature); //$NON-NLS-1$
+				ConstantPool.IntIntegerSignature);
 			break;
 		case T_long :
 			// invokestatic: Long.valueOf(long)
@@ -2221,7 +2221,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangLongConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.longLongSignature); //$NON-NLS-1$
+				ConstantPool.longLongSignature);
 			break;
 		case T_float :
 			// invokestatic: Float.valueOf(float)
@@ -2231,7 +2231,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangFloatConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.floatFloatSignature); //$NON-NLS-1$
+				ConstantPool.floatFloatSignature);
 			break;
 		case T_double :
 			// invokestatic: Double.valueOf(double)
@@ -2241,7 +2241,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangDoubleConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.doubleDoubleSignature); //$NON-NLS-1$
+				ConstantPool.doubleDoubleSignature);
 			break;
 		case T_boolean :
 			// invokestatic: Boolean.valueOf(boolean)
@@ -2251,7 +2251,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 				1, // return type size
 				ConstantPool.JavaLangBooleanConstantPoolName,
 				ConstantPool.ValueOf,
-				ConstantPool.booleanBooleanSignature); //$NON-NLS-1$
+				ConstantPool.booleanBooleanSignature);
 	}
 }
 public void generateUnboxingConversion(int unboxedTypeID) {

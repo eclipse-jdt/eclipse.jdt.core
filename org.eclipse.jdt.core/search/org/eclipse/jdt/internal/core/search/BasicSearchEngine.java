@@ -173,7 +173,7 @@ public class BasicSearchEngine {
 			monitor.beginTask(Messages.engine_searching, 100); 
 		if (BasicSearchEngine.VERBOSE) {
 			System.out.println("Searching for pattern: " + pattern.toString()); //$NON-NLS-1$
-			System.out.println(scope); //$NON-NLS-1$
+			System.out.println(scope);
 		}
 	
 		IndexManager indexManager = JavaModelManager.getJavaModelManager().getIndexManager();

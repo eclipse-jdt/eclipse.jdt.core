@@ -156,7 +156,7 @@ public class UserLibrary {
 			reader.close();
 		}
 		
-		if (!cpElement.getNodeName().equalsIgnoreCase(TAG_USERLIBRARY)) { //$NON-NLS-1$
+		if (!cpElement.getNodeName().equalsIgnoreCase(TAG_USERLIBRARY)) {
 			throw new IOException(Messages.file_badFormat); 
 		}
 		// String version= cpElement.getAttribute(TAG_VERSION);
