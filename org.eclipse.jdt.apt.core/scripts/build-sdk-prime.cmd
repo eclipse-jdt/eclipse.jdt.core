@@ -43,7 +43,7 @@ if NOT EXIST "%2" (
 @set ROOT=%1
 @set FULL_SDK_ZIP=%2
 
-@set APT_VERSION=3.1.0.apt02
+@set APT_VERSION=3.1.1.apt02
 
 @set TEMPDIR=\temp\eclipse_sdk_mod
 
