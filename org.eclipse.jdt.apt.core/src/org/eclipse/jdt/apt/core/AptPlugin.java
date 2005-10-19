@@ -81,12 +81,15 @@ public class AptPlugin extends Plugin {
 	}
 	
 	/**
-	 * Convenience wrapper around log(IStatus), to log an exception.
+	 * Convenience wrapper around log(IStatus), to log an exception
+	 * with severity of ERROR.
 	 */
 	public static void log(Throwable e, String message) {
 		// TODO: before ship, remove this printing. Instead just log
 		System.err.println(message);
-		e.printStackTrace();
+		if (e != null) {
+			e.printStackTrace();
+		}
 		
 		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e)); 
 	}
@@ -105,6 +108,14 @@ public class AptPlugin extends Plugin {
 	 */
 	public static Status createWarningStatus(Throwable e, String message) {
 		return new Status(IStatus.WARNING, PLUGIN_ID, STATUS_EXCEPTION, message, e);
+	}
+	
+	/**
+	 * Convenience wrapper for rethrowing exceptions as CoreExceptions,
+	 * with severity of INFO.
+	 */
+	public static Status createInfoStatus(Throwable e, String message) {
+		return new Status(IStatus.INFO, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
 	
 	private void initDebugTracing() {		

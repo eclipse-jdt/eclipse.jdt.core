@@ -27,10 +27,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
@@ -43,7 +50,10 @@ import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotatedNodeVisitor;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.BindingKey;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -528,7 +538,39 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	// not going to post any markers to resource outside of the one we are currently 
     	// processing during reconcile phase.
     	if( _phase == Phase.RECONCILE && resource != null && !resource.equals( getFile() ) )
-    		return;   
+    		return;
+    	
+    	// Eclipse doesn't support INFO-level IProblems, so we send them to the log instead.
+    	if ( _phase != Phase.RECONCILE && severity == Severity.INFO) {
+    		StringBuilder sb = new StringBuilder();
+    		sb.append("Informational message reported by annotation processor:\n"); //$NON-NLS-1$
+    		sb.append(msg);
+    		sb.append("\n"); //$NON-NLS-1$
+    		if (resource != null) {
+    			sb.append("Resource="); //$NON-NLS-1$
+    			sb.append(resource.getName());
+    			sb.append("; "); //$NON-NLS-1$
+    		}
+    		sb.append("starting offset="); //$NON-NLS-1$
+    		sb.append(start);
+    		sb.append("; ending offset="); //$NON-NLS-1$
+    		sb.append(end);
+    		sb.append("; line="); //$NON-NLS-1$
+    		sb.append(line);
+    		if (arguments != null) {
+    			sb.append("; arguments:"); //$NON-NLS-1$
+    			for (String s : arguments) {
+    				sb.append("\n"); //$NON-NLS-1$
+    				sb.append(s);
+    			}
+    		}
+    		else {
+    			sb.append("\n"); //$NON-NLS-1$
+    		}
+    		IStatus status = AptPlugin.createInfoStatus(null, sb.toString());
+    		AptPlugin.log(status);
+    		return;
+    	}
     		
     	if( resource == null ){
     		assert _batchMode : "not in batch mode but don't know about current resource"; //$NON-NLS-1$
@@ -539,7 +581,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	
     }
     
-    void addProblem(
+    private void addProblem(
     		IFile resource, 
 		    int start, 
 			int end,
@@ -560,7 +602,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     	problems.add(newProblem);
     }
     
-    void addMarker(
+    private void addMarker(
     		int start, 
 			int end,
             Severity severity, 

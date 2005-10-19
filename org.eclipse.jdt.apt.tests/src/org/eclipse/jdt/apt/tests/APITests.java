@@ -12,23 +12,50 @@
 
 package org.eclipse.jdt.apt.tests;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.util.AptUtil;
 import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;
 import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotationProcessorFactory;
 import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldWildcardAnnotationProcessorFactory;
+import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotationProcessor;
+import org.eclipse.jdt.apt.tests.annotations.messager.MessagerCodeExample;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.builder.Tests;
 import org.eclipse.jdt.core.tests.util.Util;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 public class APITests extends Tests {
+	
+	private class LogListener implements ILogListener {
+		private final List<IStatus> _messages = new ArrayList<IStatus>();
+		
+		public void logging(IStatus status, String plugin) {
+			_messages.add(status);
+		}
+		
+		public void clear() {
+			_messages.clear();
+		}
+		
+		public List<IStatus> getList() {
+			return _messages;
+		}
+	}
+	
+	private LogListener _logListener;
 	
 	public APITests(final String name) {
 		super( name );
@@ -38,8 +65,12 @@ public class APITests extends Tests {
 		return new TestSuite( APITests.class );
 	}
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
+		
+		_logListener = new LogListener();
+		AptPlugin.getPlugin().getLog().addLogListener(_logListener);
 		
 		// project will be deleted by super-class's tearDown() method
 		IPath projectPath = env.addProject( getProjectName(), "1.5" ); //$NON-NLS-1$
@@ -56,6 +87,13 @@ public class APITests extends Tests {
 			.getJavaProject( projectPath ) );
 	}
 	
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		AptPlugin.getPlugin().getLog().removeLogListener(_logListener);
+		_logListener = null;
+	}
+
 	public static String getProjectName() {
 		return APITests.class.getName() + "Project"; //$NON-NLS-1$
 	}
@@ -80,5 +118,111 @@ public class APITests extends Tests {
 			AptUtil.getFactoryForAnnotation(HelloWorldAnnotation.class.getName() + "qwerty", jproj); //$NON-NLS-1$
 		assertEquals(factory.getClass(), HelloWorldWildcardAnnotationProcessorFactory.class);
 	}
+	
+	public void testMessagerAPI() throws Exception {
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		IPath code = env.addClass(srcRoot, MessagerCodeExample.CODE_PACKAGE, MessagerCodeExample.CODE_CLASS_NAME, MessagerCodeExample.CODE1);
+		Problem prob1 = new Problem("", MessagerAnnotationProcessor.PROBLEM_TEXT_WARNING, code, //$NON-NLS-1$ 
+				MessagerCodeExample.WARNING_START,
+				MessagerCodeExample.WARNING_END); 
+		Problem prob2 = new Problem("", MessagerAnnotationProcessor.PROBLEM_TEXT_ERROR, code, //$NON-NLS-1$
+				MessagerCodeExample.ERROR_START,
+				MessagerCodeExample.ERROR_END); 
+		Problem[] problems = new Problem[] { prob1, prob2 };
+		
+		// Code example with info, warning, and error messages
+		_logListener.clear();
+		fullBuild( project.getFullPath() );
+		expectingOnlySpecificProblemsFor(code, problems, true);
+		checkMessagerAnnotationLogEntry(
+				MessagerAnnotationProcessor.PROBLEM_TEXT_INFO, 
+				MessagerCodeExample.INFO_START,
+				MessagerCodeExample.INFO_END);
+
+		// Code example with info and warning messages
+		env.removeClass(code, MessagerCodeExample.CODE_CLASS_NAME);
+		code = env.addClass(srcRoot, MessagerCodeExample.CODE_PACKAGE, MessagerCodeExample.CODE_CLASS_NAME, MessagerCodeExample.CODE2);
+		_logListener.clear();
+		fullBuild( project.getFullPath() );
+		problems = new Problem[] { prob1 };
+		expectingOnlySpecificProblemsFor(code, problems, true);
+		checkMessagerAnnotationLogEntry(
+				MessagerAnnotationProcessor.PROBLEM_TEXT_INFO, 
+				MessagerCodeExample.INFO_START,
+				MessagerCodeExample.INFO_END);
+		
+		// Code example with only a warning message
+		env.removeClass(code, MessagerCodeExample.CODE_CLASS_NAME);
+		code = env.addClass(srcRoot, MessagerCodeExample.CODE_PACKAGE, MessagerCodeExample.CODE_CLASS_NAME, MessagerCodeExample.CODE3);
+		_logListener.clear();
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		checkMessagerAnnotationLogEntry(
+				MessagerAnnotationProcessor.PROBLEM_TEXT_INFO, 
+				MessagerCodeExample.INFO_START,
+				MessagerCodeExample.INFO_END);
+		
+		// Code example with no problems
+		env.removeClass(code, MessagerCodeExample.CODE_CLASS_NAME);
+		code = env.addClass(srcRoot, MessagerCodeExample.CODE_PACKAGE, MessagerCodeExample.CODE_CLASS_NAME, MessagerCodeExample.CODE4);
+		_logListener.clear();
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		assertTrue(_logListener.getList().isEmpty());
+	}
+	
+	/**
+	 * Check that there are exactly [targetCount] messages in the log that contain
+	 * [targetMsg] and also contain "starting offset=[start]; ending offset=[end]".
+	 */
+	private void checkMessagerAnnotationLogEntry(String targetMsg, int start, int end) {
+		int count = 0;
+		final String offsetMsg = "starting offset=" + start + "; ending offset=" + end;
+		for (IStatus status : _logListener.getList()) {
+			String logMessage = status.getMessage();
+			if (logMessage.contains(targetMsg) && logMessage.contains(offsetMsg)) {
+				++count;
+			}
+		}
+		assertEquals(1, count);
+	}
+	
+	/** 
+	 * Verifies that the given element has specifics problems and
+	 * only the given problems.
+	 * @see Tests#expectingOnlySpecificProblemsFor(IPath, Problem[]), and
+	 * @see Tests#expectingSpecificProblemsFor(IPath, Problem[], boolean).
+	 * Unfortunately this variant isn't implemented there.
+	 */
+	protected void expectingOnlySpecificProblemsFor(IPath root, Problem[] expectedProblems, boolean storeRange) {
+		if (DEBUG)
+			printProblemsFor(root);
+
+		Problem[] rootProblems = env.getProblemsFor(root, storeRange);
+	
+		for (int i = 0; i < expectedProblems.length; i++) {
+			Problem expectedProblem = expectedProblems[i];
+			boolean found = false;
+			for (int j = 0; j < rootProblems.length; j++) {
+				if(expectedProblem.equals(rootProblems[j])) {
+					found = true;
+					rootProblems[j] = null;
+					break;
+				}
+			}
+			if (!found) {
+				printProblemsFor(root);
+			}
+			assertTrue("problem not found: " + expectedProblem.toString(), found); //$NON-NLS-1$
+		}
+		for (int i = 0; i < rootProblems.length; i++) {
+			if(rootProblems[i] != null) {
+				printProblemsFor(root);
+				assertTrue("unexpected problem: " + rootProblems[i].toString(), false); //$NON-NLS-1$
+			}
+		}
+	}
+
 	
 }
