@@ -136,7 +136,7 @@ public static Test suite() {
 // All specified tests which do not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "testVariableInitializer9" };
+//		TESTS_NAMES = new String[] { "testVariableInitializer10" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -633,7 +633,7 @@ public void testContainerInitializer11() throws CoreException {
 		deleteProject("P");
 	}
 }
-public void testVariableInitializer1() throws CoreException {
+public void testVariableInitializer01() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
@@ -647,7 +647,7 @@ public void testVariableInitializer1() throws CoreException {
 		VariablesInitializer.reset();
 	}
 }
-public void testVariableInitializer2() throws CoreException {
+public void testVariableInitializer02() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
@@ -667,7 +667,7 @@ public void testVariableInitializer2() throws CoreException {
 		VariablesInitializer.reset();
 	}
 }
-public void testVariableInitializer3() throws CoreException {
+public void testVariableInitializer03() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
@@ -699,7 +699,7 @@ public void testVariableInitializer3() throws CoreException {
 		VariablesInitializer.reset();
 	}
 }
-public void testVariableInitializer4() throws CoreException {
+public void testVariableInitializer04() throws CoreException {
 	try {
 		final StringBuffer buffer = new StringBuffer();
 		VariablesInitializer.setInitializer(new VariablesInitializer.ITestInitializer() {
@@ -720,7 +720,7 @@ public void testVariableInitializer4() throws CoreException {
 		VariablesInitializer.reset();
 	}
 }
-public void testVariableInitializer5() throws CoreException {
+public void testVariableInitializer05() throws CoreException {
 	try {
 		final StringBuffer buffer = new StringBuffer();
 		VariablesInitializer.setInitializer(new VariablesInitializer.ITestInitializer() {
@@ -748,7 +748,7 @@ public void testVariableInitializer5() throws CoreException {
  * Ensures that if the initializer doesn't initialize a variable, it can be
  * initialized later on.
  */
-public void testVariableInitializer6() throws CoreException {
+public void testVariableInitializer06() throws CoreException {
 	try {
 		final StringBuffer buffer = new StringBuffer();
 		VariablesInitializer.setInitializer(new VariablesInitializer.ITestInitializer() {
@@ -773,7 +773,7 @@ public void testVariableInitializer6() throws CoreException {
 		VariablesInitializer.reset();
 	}
 }
-public void testVariableInitializer7() throws CoreException {
+public void testVariableInitializer07() throws CoreException {
 	try {
 		createProject("P1");
 		createFile("/P1/lib.jar", "");
@@ -820,7 +820,7 @@ public void testVariableInitializer7() throws CoreException {
  * (regression test for bug 59363 Should surface cancellation exceptions)
  */
 
-public void testVariableInitializer8() throws CoreException {
+public void testVariableInitializer08() throws CoreException {
 	try {
 		boolean gotException = false;
 		try {
@@ -845,7 +845,7 @@ public void testVariableInitializer8() throws CoreException {
  * Ensure that removing a classpath variable while initializing it doesn't throw a StackOverFlowError
  * (regression test for bug 112609 StackOverflow when initializing Java Core)
  */
-public void testVariableInitializer9() throws CoreException {
+public void testVariableInitializer09() throws CoreException {
 	try {
 		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {"TEST_LIB", "/P1/lib.jar"}) {
 			public void initialize(String variable) throws JavaModelException {
@@ -858,6 +858,26 @@ public void testVariableInitializer9() throws CoreException {
 			resolvedClasspath, 
 			""
 		);
+	} finally {
+		deleteProject("P1");
+		VariablesInitializer.reset();
+	}
+}
+/*
+ * Ensures that not initializing a classpath variable and asking for its value returns null
+ * (regression test for bug 113110 TestFailures in DebugSuite)
+ */
+public void testVariableInitializer10() throws CoreException {
+	try {
+		VariablesInitializer.setInitializer(new DefaultVariableInitializer(new String[] {"TEST_LIB", "/P1/lib.jar"}) {
+			public void initialize(String variable) throws JavaModelException {
+				// don't initialize
+			}
+		});
+		// force resolution
+		JavaCore.getClasspathVariable("TEST_LIB");
+		// second call should still be null
+		assertEquals("TEST_LIB should be null", null, JavaCore.getClasspathVariable("TEST_LIB"));
 	} finally {
 		deleteProject("P1");
 		VariablesInitializer.reset();

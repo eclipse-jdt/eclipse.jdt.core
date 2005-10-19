@@ -1471,6 +1471,8 @@ public final class JavaCore extends Plugin {
 		}
 		
 		if (variablePath != null) {
+			if (JavaModelManager.CP_ENTRY_IGNORE.equals(variablePath.toString()))
+				return null;
 			return variablePath;
 		}
 
