@@ -625,14 +625,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	/* 
 	 * Parse tag followed by an identifier
 	 */
-	protected boolean parseIdentifierTag() {
+	protected boolean parseIdentifierTag(boolean report) {
 		int token = readTokenSafely();
 		switch (token) {
 			case TerminalTokens.TokenNameIdentifier:
 				pushIdentifier(true);
 				return true;
 		}
-		if (this.reportProblems) {
+		if (report) {
 			this.sourceParser.problemReporter().javadocMissingIdentifier(this.tagSourceStart, this.tagSourceEnd, this.sourceParser.modifiers);
 		}
 		return false;

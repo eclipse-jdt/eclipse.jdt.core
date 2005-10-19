@@ -1449,6 +1449,19 @@ public class JavadocTest_1_3 extends JavadocTest {
 		);
 	}
 
+	public void test040() {
+		runConformReferenceTest(
+			new String[] {
+				"X.java",
+				"/**\n" +
+				" * @category\n" +
+				" */\n" +
+				"public class X {\n" +
+				"}\n"
+			}
+		);
+	}
+
 	/**
 	 * Test fix for bug 80257: [javadoc] Invalid missing reference warning on @see or @link tags
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80257"

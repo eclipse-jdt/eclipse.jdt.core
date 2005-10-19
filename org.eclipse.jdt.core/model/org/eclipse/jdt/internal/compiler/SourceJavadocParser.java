@@ -39,8 +39,8 @@ public boolean checkDeprecation(int commentPtr) {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseIdentifierTag()
  */
-protected boolean parseIdentifierTag() {
-	if (super.parseIdentifierTag()) {
+protected boolean parseIdentifierTag(boolean report) {
+	if (super.parseIdentifierTag(report)) {
 		if (this.tagValue == TAG_CATEGORY_VALUE) {
 			int length = this.categories.length;
 			if (++this.categoriesPtr >= length) {
@@ -106,7 +106,7 @@ protected void parseSimpleTag() {
 					}
 					this.scanner.resetTo(this.index, this.scanner.eofPosition);
 					while (this.index < this.lineEnd) {
-						parseIdentifierTag();
+						parseIdentifierTag(false); // Do not report missing identifier
 						consumeToken();
 					}
 				}
