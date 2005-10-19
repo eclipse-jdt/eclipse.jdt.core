@@ -150,7 +150,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	return false;
 }
 /*
- * declaringUniqueKey dot fieldName
+ * declaringUniqueKey dot fieldName ) returnTypeUniqueKey
  * p.X { X<T> x} --> Lp/X;.x)p/X<TT;>;
  */
 public char[] computeUniqueKey(boolean isLeaf) {
