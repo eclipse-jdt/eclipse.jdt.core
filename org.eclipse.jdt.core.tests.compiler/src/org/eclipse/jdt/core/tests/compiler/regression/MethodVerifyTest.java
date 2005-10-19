@@ -4350,6 +4350,24 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"I.java",
+				"interface I {}\n" +
+				"interface J extends I { @Override void clone(); }"
+			},
+			"----------\n" + 
+			"1. ERROR in I.java (at line 2)\r\n" + 
+			"	interface J extends I { @Override void clone(); }\r\n" + 
+			"	                                       ^^^^^^^\n" + 
+			"The method clone() of type J must override a superclass method\n" + 
+			"----------\n" + 
+			"2. WARNING in I.java (at line 2)\r\n" + 
+			"	interface J extends I { @Override void clone(); }\r\n" + 
+			"	                                       ^^^^^^^\n" + 
+			"The return type is incompatible with Object.clone(), thus this interface cannot be implemented\n" + 
+			"----------\n"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"I.java",
 				"interface I { @Override void clone(); }\n" +
 				"interface J extends I {}"
 			},
