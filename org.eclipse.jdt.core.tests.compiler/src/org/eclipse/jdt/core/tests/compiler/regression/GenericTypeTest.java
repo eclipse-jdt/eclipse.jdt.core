@@ -26354,4 +26354,16 @@ public void test852() {
 		},
 		"");	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112109
+public void test853() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<C extends I> {\n" + 
+			"	void test(java.util.List<C> list) { list.get(0).notify(null); }\n" + 
+			"}\n" +
+			"interface I { Object notify(Object o); }",
+		},
+		"");	
+}
 }
