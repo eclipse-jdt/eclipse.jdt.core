@@ -24440,5 +24440,17 @@ public void test847() {
 		"The method add(capture-of ? extends Collection<? super Number>) in the type Collection<capture-of ? extends Collection<? super Number>> is not applicable for the arguments (List<Number>)\n" + 
 		"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=112109
+public void test853() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<C extends I> {\n" + 
+			"	void test(java.util.List<C> list) { list.get(0).notify(null); }\n" + 
+			"}\n" +
+			"interface I { Object notify(Object o); }",
+		},
+		"");	
+}
 }
 

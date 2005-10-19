@@ -1137,7 +1137,7 @@ public abstract class Scope
 				}
 			}
 			// when receiverType is abstract then need to find possible matches in interfaces
-			if (receiverType.isAbstract())
+			if (receiverType.isAbstract() || receiverType.isTypeVariable())
 				matchingMethod =
 					findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, matchingMethod, found);
 			if (matchingMethod != null) return matchingMethod;
