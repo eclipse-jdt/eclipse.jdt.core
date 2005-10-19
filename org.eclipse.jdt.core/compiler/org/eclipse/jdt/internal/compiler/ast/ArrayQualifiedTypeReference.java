@@ -51,12 +51,12 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		
 		if (this.resolvedType != null)
 			return this.resolvedType;
-		if (dimensions > 255) {
+		if (this.dimensions > 255) {
 			scope.problemReporter().tooManyDimensions(this);
 		}
 		try {
-			TypeBinding leafComponentType = scope.getType(this.tokens, this.tokens.length);
-			return scope.createArrayType(leafComponentType, dimensions);
+			TypeBinding leafComponentType = super.getTypeBinding(scope);
+			return this.resolvedType = scope.createArrayType(leafComponentType, dimensions);
 		} catch (AbortCompilation e) {
 			e.updateContext(this, scope.referenceCompilationUnit().compilationResult);
 			throw e;

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -24,8 +25,16 @@ public class ClassFileTests extends ModifyingResourceTests {
 		super(name);
 	}
 	
+	// Use this static initializer to specify subset for tests
+	// All specified tests which do not belong to the class are skipped...
+	static {
+	//	TESTS_PREFIX = "testBug";
+	//	TESTS_NAMES = new String[] { "testTypeParameter" };
+	//	TESTS_NUMBERS = new int[] { 13 };
+	//	TESTS_RANGE = new int[] { 16, -1 };
+	}
 	public static Test suite() {
-		return new Suite(ClassFileTests.class);
+		return buildTestSuite(ClassFileTests.class);
 	}
 
 	public void setUpSuite() throws Exception {
@@ -227,6 +236,21 @@ public class ClassFileTests extends ModifyingResourceTests {
 			method.getReturnType());
 	}
 	
+	/*
+	 * Ensure that opening a binary type parameter when its parent has not been open yet
+	 * doesn't throw a JavaModelException
+	 * (regression test for bug 101228 JME on code assist)
+	 */
+	public void testTypeParameter() throws CoreException {
+		IClassFile classFile = this.jarRoot.getPackageFragment("generic").getClassFile("X.class");
+		ITypeParameter typeParameter = classFile.getType().getTypeParameter("T");
+		classFile.close();
+		assertStringsEqual(
+			"Unexpected bounds", 
+			"java.lang.Object\n",
+			typeParameter.getBounds());
+	}
+
 	/*
 	 * Ensure that a method with varargs has the AccVarargs flag set.
 	 */

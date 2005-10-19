@@ -2342,7 +2342,11 @@ class ASTConverter {
 		if (statements != null) {
 			int statementsLength = statements.length;
 			for (int i = 0; i < statementsLength; i++) {
-				switchStatement.statements().add(convert(statements[i]));
+				if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
+					checkAndAddMultipleLocalDeclaration(statements, i, switchStatement.statements());
+				} else {
+					switchStatement.statements().add(convert(statements[i]));
+				}
 			}
 		}
 		return switchStatement;
@@ -3905,14 +3909,15 @@ class ASTConverter {
 			int token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameRBRACKET://166 
+					case TerminalTokens.TokenNameLBRACKET:
+					case TerminalTokens.TokenNameCOMMENT_BLOCK:
+					case TerminalTokens.TokenNameCOMMENT_JAVADOC:
+					case TerminalTokens.TokenNameCOMMENT_LINE:
+						break;
+					case TerminalTokens.TokenNameRBRACKET://166
 						dimensions++;
 						break;
-					case TerminalTokens.TokenNameLBRACE ://90						
-					case TerminalTokens.TokenNameCOMMA ://90
-					case TerminalTokens.TokenNameEQUAL ://167
-					case TerminalTokens.TokenNameSEMICOLON ://64
-					case TerminalTokens.TokenNameRPAREN : //86
+					default:
 						return dimensions;
 				}
 			}

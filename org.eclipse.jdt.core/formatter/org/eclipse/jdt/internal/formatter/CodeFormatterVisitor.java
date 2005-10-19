@@ -3813,7 +3813,12 @@ public class CodeFormatterVisitor extends ASTVisitor {
 		if (this.preferences.insert_space_after_colon_in_labeled_statement) {
 			this.scribe.space();
 		}
-		labeledStatement.statement.traverse(this, scope);
+		final Statement statement = labeledStatement.statement;
+		statement.traverse(this, scope);
+		if (statement instanceof Expression) {
+			this.scribe.printNextToken(TerminalTokens.TokenNameSEMICOLON, this.preferences.insert_space_before_semicolon);
+			this.scribe.printTrailingComment();
+		}
 		return false;
 	}
 

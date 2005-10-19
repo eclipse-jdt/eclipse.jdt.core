@@ -1067,8 +1067,7 @@ public MethodBinding[] methods() {
 							int index = pLength;
 							for (; --index >= 0;) {
 								if (params1[index] != params2[index].erasure())
-									if (!params1[index].isRawType() || params1[index].erasure() != params2[index].erasure()) // want X#RAW to match X#RAW and X<T>
-										break;
+									break;
 								if (params1[index] == params2[index]) {
 									TypeBinding type = params1[index].leafComponentType();
 									if (type instanceof SourceTypeBinding && type.typeVariables() != NoTypeVariables) {
@@ -1080,8 +1079,7 @@ public MethodBinding[] methods() {
 							if (index >= 0 && index < pLength) {
 								for (index = pLength; --index >= 0;)
 									if (params1[index].erasure() != params2[index])
-										if (!params2[index].isRawType() || params1[index].erasure() != params2[index].erasure()) // want X#RAW to match X#RAW and X<T>
-											break;
+										break;
 							}
 							if (index >= 0)
 								continue nextMethod;

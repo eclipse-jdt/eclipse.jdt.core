@@ -6927,11 +6927,12 @@ protected void consumeToken(int type) {
 			this.endPosition = this.scanner.startPosition;
 			this.endStatementPosition = this.scanner.currentPosition - 1;
 			break;
+		case TokenNameLBRACE :
+			this.endStatementPosition = this.scanner.currentPosition - 1;
 		case TokenNamePLUS :
 		case TokenNameMINUS :
 		case TokenNameNOT :
 		case TokenNameTWIDDLE :
-		case TokenNameLBRACE :
 			this.endPosition = this.scanner.startPosition;
 			break;
 		case TokenNamePLUS_PLUS :

@@ -3808,4 +3808,301 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			// 21: method does not override a method from its superclass
 		);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104551
+	public void test063() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface IStructuredContentProvider<I, E extends I> {\n" + 
+				"    public E[] getElements(I inputElement);\n" + 
+				"    public E[] getChildren(E parent);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X implements IStructuredContentProvider {\n" + 
+				"// eclipse error: The type X must implement the inherited\n" + 
+				"// abstract method IStructuredContentProvider.getChildren(I)\n" + 
+				"\n" + 
+				"    public Object[] getElements(Object inputElement) {\n" + 
+				"        // eclipse error: The return type is incompatible with\n" + 
+				"        // IStructuredContentProvider.getElements(Object)\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public Object[] getChildren(Object parent) {\n" + 
+				"        // eclipse error: Name clash: The method getChildren(Object) of type\n" + 
+				"        // X has the same erasure as getChildren(E) of type\n" + 
+				"        // IStructuredContentProvider<I,E> but does not override it\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104551 - variation
+	public void test064() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface IStructuredContentProvider<I, E extends I> {\n" + 
+				"    public E[] getElements(I inputElement);\n" + 
+				"    public E[] getChildren(E parent);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X implements IStructuredContentProvider<Object,Object> {\n" + 
+				"// eclipse error: The type X must implement the inherited\n" + 
+				"// abstract method IStructuredContentProvider.getChildren(I)\n" + 
+				"\n" + 
+				"    public Object[] getElements(Object inputElement) {\n" + 
+				"        // eclipse error: The return type is incompatible with\n" + 
+				"        // IStructuredContentProvider.getElements(Object)\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public Object[] getChildren(Object parent) {\n" + 
+				"        // eclipse error: Name clash: The method getChildren(Object) of type\n" + 
+				"        // X has the same erasure as getChildren(E) of type\n" + 
+				"        // IStructuredContentProvider<I,E> but does not override it\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=104551 - variation
+	public void test065() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" + 
+				"\n" + 
+				"interface IStructuredContentProvider<I, E extends List<String>> {\n" + 
+				"    public E[] getElements(I inputElement);\n" + 
+				"    public E[] getChildren(E parent);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X implements IStructuredContentProvider {\n" + 
+				"// eclipse error: The type X must implement the inherited\n" + 
+				"// abstract method IStructuredContentProvider.getChildren(I)\n" + 
+				"\n" + 
+				"    public List[] getElements(Object inputElement) {\n" + 
+				"        // eclipse error: The return type is incompatible with\n" + 
+				"        // IStructuredContentProvider.getElements(Object)\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public List[] getChildren(List parent) {\n" + 
+				"        // eclipse error: Name clash: The method getChildren(Object) of type\n" + 
+				"        // X has the same erasure as getChildren(E) of type\n" + 
+				"        // IStructuredContentProvider<I,E> but does not override it\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=103849
+	public void test066() {
+		this.runConformTest(
+			new String[] {
+				"JukeboxImpl.java",
+				"public class JukeboxImpl implements Jukebox {\n" + 
+				"    public <M extends Music,A extends Artist<M>> A getArtist (M music){return null;}\n" + 
+				"    void test () { getArtist(new Rock()); }\n" + 
+				"}\n" + 
+				"interface Jukebox {\n" + 
+				"	<M extends Music, A extends Artist<M>> A getArtist (M music);\n" + 
+				"}\n" + 
+				"interface Music {}\n" + 
+				"class Rock implements Music {}\n" + 
+				"interface Artist<M extends Music> {}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107098
+	public void test067() {
+		this.runConformTest(
+			new String[] {
+				"NoErrors.java",
+				"public class NoErrors {\n" + 
+				"    public static void main(String[] args) { new B().foo2(1, 10); }\n" + 
+				"}\n" + 
+				"class A<T> {\n" + 
+				"	<S1 extends T> void foo2(Number t, S1 s) { System.out.print(false); }\n" + 
+				"}\n" + 
+				"class B extends A<Number> {\n" + 
+				"	<S2 extends Number> void foo2(Number t, S2 s) { System.out.print(true); }\n" + 
+				"}\n"
+			},
+			"true");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=107681
+	public void test068() {
+		this.runConformTest(
+			new String[] {
+				"ReflectionNavigator.java",
+				"import java.lang.reflect.Type;\n" +
+				"public class ReflectionNavigator implements Navigator<Type> {\n" + 
+				"    public <T> Class<T> erasure(Type t) { return null; }\n" + 
+				"}\n" + 
+				"interface Navigator<TypeT> {\n" + 
+				"	<T> TypeT erasure(TypeT x);\n" + 
+				"}\n" + 
+				"class Usage {\n" + 
+				"	public void foo(ReflectionNavigator r, Type t) { r.erasure(t); }\n" + 
+				"}\n"
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=108203
+	public void test069() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Type;\n" +
+				"public class X implements I<A> {\n" + 
+				"    public <N extends A> void x1() {}\n" + 
+				"    public <N extends Number> void x2() {}\n" + 
+				"    public <N extends Number> void x3() {}\n" + 
+				"}\n" + 
+				"interface I<V> {\n" + 
+				"	<N extends V> void x1();\n" + 
+				"	<N extends String> void x2();\n" + 
+				"	<N extends Object> void x3();\n" + 
+				"}\n" + 
+				"class A {}\n" + 
+				"class B<T> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 2)\r\n" + 
+			"	public class X implements I<A> {\r\n" + 
+			"	             ^\n" + 
+			"The type X must implement the inherited abstract method I<A>.x3()\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\r\n" + 
+			"	public class X implements I<A> {\r\n" + 
+			"	             ^\n" + 
+			"The type X must implement the inherited abstract method I<A>.x2()\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\r\n" + 
+			"	public <N extends Number> void x2() {}\r\n" + 
+			"	                               ^^^^\n" + 
+			"Name clash: The method x2() of type X has the same erasure as x2() of type I<V> but does not override it\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\r\n" + 
+			"	public <N extends Number> void x3() {}\r\n" + 
+			"	                               ^^^^\n" + 
+			"Name clash: The method x3() of type X has the same erasure as x3() of type I<V> but does not override it\n" + 
+			"----------\n" + 
+			"5. WARNING in X.java (at line 9)\r\n" + 
+			"	<N extends String> void x2();\r\n" + 
+			"	           ^^^^^^\n" + 
+			"The type parameter N should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n"
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101049
+	public void test070() {
+		this.runNegativeTest(
+			new String[] {
+				"BooleanFactory.java",
+				"interface Factory<T> {\n" +
+				"	<U extends T> U create(Class<U> c);\n" + 
+				"}\n" + 
+				"public class BooleanFactory implements Factory<Boolean> {\n" + 
+				"	public <U extends Boolean> U create(Class<U> c) {\n" + 
+				"		try { return c.newInstance(); } catch(Exception e) { return null; }\n" +
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in BooleanFactory.java (at line 5)\n" + 
+			"	public <U extends Boolean> U create(Class<U> c) {\n" + 
+			"	                  ^^^^^^^\n" + 
+			"The type parameter U should not be bounded by the final type Boolean. Final types cannot be further extended\n" + 
+			"----------\n"
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100869
+	public void _test071() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	Object foo1(Comparable<String> value) {System.out.print(1);return null;}\n" +
+				"	void foo1(Comparable<Object> value) {System.out.print(2);}\n" +
+				"	void foo1(X x) { x.foo1(\"test\"); }\n" +
+				"	Object foo2(Comparable<String> value) {System.out.print(1);return null;}\n" +
+				"	<T> void foo2(Comparable<T> value) {System.out.print(2);}\n" +
+				"	void foo2(X x) { x.foo2(\"test\"); }\n" +
+				"	<T> T foo3(Comparable<T> value) {System.out.print(1);return null;}\n" +
+				"	void foo3(Comparable<Object> value) {System.out.print(2);}\n" +
+				"	void foo3(X x) { x.foo3(\"test\"); }\n" +
+				"	<T> T foo3(Comparable<T> value) {System.out.print(1);return null;}\n" +
+				"	void foo3(Comparable<Object> value) {System.out.print(2);}\n" +
+				"	void foo3(X x) { x.foo3(\"test\"); }\n" +
+				"	<T> T foo4(Comparable value) {System.out.print(1);return null;}\n" +
+				"	void foo4(Comparable<Object> value) {System.out.print(2);}\n" +
+				"	void foo4(X x) { x.foo4(\"test\"); }\n" +
+				"	Object foo5(Comparable<String> value) {System.out.print(1);return null;}\n" +
+				"	<T> void foo5(Comparable value) {System.out.print(2);}\n" +
+				"	void foo5(X x) { x.foo5(\"test\"); }\n" +
+				"	<T extends Comparable<T>> T a1(T value) {System.out.print(1);return null;}\n" +
+				"	<T> void a1(Comparable<T> value) {System.out.print(2);}\n" +
+				"	void a1(X x) { x.a1(\"test\"); }\n" +
+				"	<T> T a2(Comparable<String> value) {System.out.print(1);return null;}\n" +
+				"	<T> void a2(Comparable<T> value) {System.out.print(2);}\n" +
+				"	void a2(X x) { x.a2(\"test\"); }\n" +
+				"\n" +
+				"	public static void main(String[] s) {" +
+				"		X x = new X();\n" +
+				"		x.foo1(x);\n" +
+				"		x.foo2(x);\n" +
+				"		x.foo3(x);\n" +
+				"		x.foo4(x);\n" +
+				"		x.foo5(x);\n" +
+				"		x.a1(x);\n" +
+				"		x.a2(x);\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"1111111"
+		);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	<T> T a3(Comparable<String> value) {return null;}\n" +
+				"	<T extends Comparable<T>> void a3(T value) {}\n" +
+				"	void a3(X x) { x.a3(\"test\"); }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	void a3(X x) { x.a3(\"test\"); }\n" + 
+			"	                 ^^\n" + 
+			"The method a3(Comparable<String>) is ambiguous for the type X\n" + 
+			"----------\n"
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=100869 - variation
+	public void _test072() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	<T> Object foo12(Comparable value) {System.out.print(1);return null;}\n" + 
+				"	<T> void foo12(Comparable<T> value) {System.out.print(2);}\n" + 
+				"	void foo12(X x) { Object o = x.foo12(\"test\"); x.foo12(\"test\"); }\n" + 
+				"	\n" + 
+				"\n" + 
+				"\n" + 
+				"	public static void main(String[] s) {\n" + 
+				"		X x = new X();\n" + 
+				"		x.foo12(x);\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"11"
+		);
+	}	
 }

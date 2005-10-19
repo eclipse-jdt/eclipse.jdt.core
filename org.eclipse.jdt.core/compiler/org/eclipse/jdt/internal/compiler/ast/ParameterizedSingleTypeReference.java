@@ -45,8 +45,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#copyDims(int)
 	 */
 	public TypeReference copyDims(int dim) {
-		this.dimensions = dim;
-		return this;
+		return new ParameterizedSingleTypeReference(this.token, this.typeArguments, dim, (((long)this.sourceStart)<<32) + this.sourceEnd);
 	}
 
 	/**
@@ -122,6 +121,11 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 
 		// check generic and arity
 	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
+	    TypeReference keep = null;
+	    if (isClassScope) {
+	    	keep = ((ClassScope) scope).superTypeReference;
+	    	((ClassScope) scope).superTypeReference = null;
+	    }
 		ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 		int argLength = this.typeArguments.length;
 		TypeBinding[] argTypes = new TypeBinding[argLength];
@@ -138,9 +142,11 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		     }
 		}
 		if (argHasError) return null;
-		if (isClassScope)
+		if (isClassScope) {
+	    	((ClassScope) scope).superTypeReference = keep;
 			if (((ClassScope) scope).detectHierarchyCycle(currentType, this, argTypes))
 				return null;
+		}
 
 		TypeVariableBinding[] typeVariables = currentType.typeVariables();
 		if (typeVariables == NoTypeVariables) { // check generic

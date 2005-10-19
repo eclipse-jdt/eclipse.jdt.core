@@ -99,7 +99,7 @@ public class UserLibrary {
 	/* package */  String serialize() throws IOException {
 		ByteArrayOutputStream s = new ByteArrayOutputStream();
 		OutputStreamWriter writer = new OutputStreamWriter(s, "UTF8"); //$NON-NLS-1$
-		XMLWriter xmlWriter = new XMLWriter(writer, null/*use the workspace line delimiter*/);
+		XMLWriter xmlWriter = new XMLWriter(writer, null/*use the workspace line delimiter*/, true/*print XML version*/);
 		
 		HashMap library = new HashMap();
 		library.put(TAG_VERSION, String.valueOf(CURRENT_VERSION));
@@ -134,10 +134,10 @@ public class UserLibrary {
 
 			// write archive end tag if necessary
 			if (hasExtraAttributes || hasRestrictions) {
-				xmlWriter.endTag(TAG_ARCHIVE, true);
+				xmlWriter.endTag(TAG_ARCHIVE, true/*insert tab*/, true/*insert new line*/);
 			}
 		}	
-		xmlWriter.endTag(TAG_USERLIBRARY, true);
+		xmlWriter.endTag(TAG_USERLIBRARY, true/*insert tab*/, true/*insert new line*/);
 		writer.flush();
 		writer.close();
 		return s.toString("UTF8");//$NON-NLS-1$
@@ -177,8 +177,12 @@ public class UserLibrary {
 					String path = element.getAttribute(TAG_PATH);
 					IPath sourceAttach= element.hasAttribute(TAG_SOURCEATTACHMENT) ? new Path(element.getAttribute(TAG_SOURCEATTACHMENT)) : null;
 					IPath sourceAttachRoot= element.hasAttribute(TAG_SOURCEATTACHMENTROOT) ? new Path(element.getAttribute(TAG_SOURCEATTACHMENTROOT)) : null;
-					IClasspathAttribute[] extraAttributes = ClasspathEntry.decodeExtraAttributes(element);
-					IAccessRule[] accessRules = ClasspathEntry.decodeAccessRules(element);
+					NodeList children = element.getElementsByTagName("*"); //$NON-NLS-1$
+					boolean[] foundChildren = new boolean[children.getLength()];
+					NodeList attributeList = ClasspathEntry.getChildAttributes(ClasspathEntry.TAG_ATTRIBUTES, children, foundChildren);
+					IClasspathAttribute[] extraAttributes = ClasspathEntry.decodeExtraAttributes(attributeList);
+					attributeList = ClasspathEntry.getChildAttributes(ClasspathEntry.TAG_ACCESS_RULES, children, foundChildren);
+					IAccessRule[] accessRules = ClasspathEntry.decodeAccessRules(attributeList);
 					IClasspathEntry entry = JavaCore.newLibraryEntry(new Path(path), sourceAttach, sourceAttachRoot, accessRules, extraAttributes, false/*not exported*/);
 					res.add(entry);
 				}

@@ -56,10 +56,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		}
 	}
 	public TypeReference copyDims(int dim){
-		//return a type reference copy of me with some dimensions
-		//warning : the new type ref has a null binding
-		this.dimensions = dim;
-		return this;
+		return new ParameterizedQualifiedTypeReference(this.tokens, this.typeArguments, dim, this.sourcePositions);
 	}	
 	
 	/**
@@ -150,6 +147,11 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			// check generic and arity
 		    TypeReference[] args = this.typeArguments[i];
 		    if (args != null) {
+			    TypeReference keep = null;
+			    if (isClassScope) {
+			    	keep = ((ClassScope) scope).superTypeReference;
+			    	((ClassScope) scope).superTypeReference = null;
+			    }
 				int argLength = args.length;
 				TypeBinding[] argTypes = new TypeBinding[argLength];
 				boolean argHasError = false;
@@ -163,13 +165,15 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					} else {
 						argTypes[j] = argType;
 					}			    
-				}
+				}				
 				if (argHasError) {
 					return null;
 				}
-				if (isClassScope)
+				if (isClassScope) {
+					((ClassScope) scope).superTypeReference = keep;
 					if (((ClassScope) scope).detectHierarchyCycle(currentType, this, argTypes))
 						return null;
+				}
 
 			    TypeVariableBinding[] typeVariables = currentType.typeVariables();
 				if (typeVariables == NoTypeVariables) { // check generic

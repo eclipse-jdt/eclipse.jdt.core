@@ -1198,5 +1198,5 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		} catch (IOException e) {
 			assertTrue(false);
 		}
-	}		
+	}
 }

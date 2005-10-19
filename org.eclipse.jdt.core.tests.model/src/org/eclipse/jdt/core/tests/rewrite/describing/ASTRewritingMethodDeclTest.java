@@ -235,6 +235,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    <X> void gee(int p1) {}\n");
 		buf.append("    <X> void hee(int p1, int p2) {}\n");
 		buf.append("    public <X> void hee(int p1, byte p2) {}\n");
+		buf.append("    public<X>void hee(int p1, byte p2) {}\n");
 		buf.append("}\n");	
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);	
 		
@@ -266,6 +267,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("     */\n");
 		buf.append("    void gee(int p1) {}\n");
 		buf.append("    void hee(int p1, int p2) {}\n");
+		buf.append("    public void hee(int p1, byte p2) {}\n");
 		buf.append("    public void hee(int p1, byte p2) {}\n");
 		buf.append("}\n");	
 		assertEqualString(preview, buf.toString());

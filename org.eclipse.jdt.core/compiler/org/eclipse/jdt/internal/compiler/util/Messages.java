@@ -223,7 +223,12 @@ public final class Messages {
 		final String[] variants = buildVariants(bundleName);
 		// search the dirs in reverse order so the cascading defaults is set correctly
 		for (int i = variants.length; --i >= 0;) {
-			final InputStream input = loader.getResourceAsStream(variants[i]);
+			InputStream input = null;
+			if (loader == null) {
+				input = ClassLoader.getSystemResourceAsStream(variants[i]);
+			} else {
+				input = loader.getResourceAsStream(variants[i]);
+			}
 			if (input == null)
 				continue;
 			try {

@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -120,6 +121,9 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	}
 	return null;
 }
+public void initialize() throws IOException {
+	// nothing to do
+}
 public boolean isPackage(String qualifiedPackageName) {
 	return directoryList(qualifiedPackageName) != null;
 }
@@ -130,6 +134,9 @@ public String toString() {
 	return "ClasspathDirectory " + this.path; //$NON-NLS-1$
 }
 public String normalizedPath() {
+	return this.path;
+}
+public String getPath() {
 	return this.path;
 }
 }

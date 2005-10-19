@@ -79,6 +79,17 @@ boolean areTypesEqual(TypeBinding one, TypeBinding two) {
 	//		return ((UnresolvedReferenceBinding) two).resolvedType == one;
 	return false; // all other type bindings are identical
 }
+boolean areTypeVariablesInterchangeable(MethodBinding one, MethodBinding two) {
+	TypeVariableBinding[] vars = one.typeVariables;
+	TypeVariableBinding[] vars2 = two.typeVariables;
+	if (vars.length != vars2.length)
+		return false;
+	
+	for (int v = vars.length; --v >= 0;)
+		if (!vars[v].isInterchangeableWith(this.environment, vars2[v]))
+			return false;
+	return true;
+}
 boolean canSkipInheritedMethods() {
 	if (this.type.superclass() != null)
 		if (this.type.superclass().isAbstract() || this.type.superclass().isParameterizedType())
@@ -379,7 +390,11 @@ boolean doParametersClash(MethodBinding one, MethodBinding substituteTwo) {
 	return false;
 }
 boolean doTypeVariablesClash(MethodBinding one, MethodBinding substituteTwo) {
-	return one.typeVariables != NoTypeVariables && !one.areTypeVariableErasuresEqual(substituteTwo.original());
+	if (one.typeVariables == NoTypeVariables) return false;
+	MethodBinding subTwo = substituteTwo instanceof ParameterizedGenericMethodBinding
+		? ((ParameterizedGenericMethodBinding) substituteTwo).originalMethod
+		: substituteTwo;
+	return !one.areTypeVariableErasuresEqual(subTwo);
 }
 boolean isInterfaceMethodImplemented(MethodBinding inheritedMethod, MethodBinding existingMethod, ReferenceBinding superType) {
 	if (inheritedMethod.original() != inheritedMethod && existingMethod.declaringClass.isInterface())

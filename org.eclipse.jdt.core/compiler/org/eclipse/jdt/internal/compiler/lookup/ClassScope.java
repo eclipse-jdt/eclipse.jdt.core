@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 public class ClassScope extends Scope {
 	
 	public TypeDeclaration referenceContext;
-	private TypeReference superTypeReference;
+	public TypeReference superTypeReference;
 
 	private final static char[] IncompleteHierarchy = new char[] {'h', 'a', 's', ' ', 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', ' ', 'h', 'i', 'e', 'r', 'a', 'r', 'c', 'h', 'y'};
 
@@ -181,9 +181,11 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < size; i++) {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				if (memberContext.kind() == IGenericType.INTERFACE_DECL) {
-					problemReporter().nestedClassCannotDeclareInterface(memberContext);
-					continue nextMember;
+				switch(memberContext.kind()) {
+					case IGenericType.INTERFACE_DECL :
+					case IGenericType.ANNOTATION_TYPE_DECL :
+						problemReporter().illegalLocalTypeDeclaration(memberContext);
+						continue nextMember;
 				}
 				ReferenceBinding type = localType;
 				// check that the member does not conflict with an enclosing type
@@ -232,12 +234,16 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < length; i++) {
 				TypeDeclaration memberContext = referenceContext.memberTypes[i];
-				if (memberContext.kind() == IGenericType.INTERFACE_DECL
-					&& sourceType.isNestedType()
-					&& sourceType.isClass() // no need to check for enum, since implicitly static
-					&& !sourceType.isStatic()) {
-					problemReporter().nestedClassCannotDeclareInterface(memberContext);
-					continue nextMember;
+				switch(memberContext.kind()) {
+					case IGenericType.INTERFACE_DECL :
+					case IGenericType.ANNOTATION_TYPE_DECL :
+						if (sourceType.isNestedType()
+								&& sourceType.isClass() // no need to check for enum, since implicitly static
+								&& !sourceType.isStatic()) {
+							problemReporter().illegalLocalTypeDeclaration(memberContext);
+							continue nextMember;
+						}
+					break;						
 				}
 				ReferenceBinding type = sourceType;
 				// check that the member does not conflict with an enclosing type
@@ -696,7 +702,7 @@ public class ClassScope extends Scope {
 		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & HasNoMemberTypes) == 0);
 	}
 	// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
-	private void  checkParameterizedTypeBounds() {
+	public void  checkParameterizedTypeBounds() {
 		TypeReference superclass = referenceContext.superclass;
 		if (superclass != null) {
 			superclass.checkBounds(this);
@@ -713,6 +719,12 @@ public class ClassScope extends Scope {
 				typeParameters[i].checkBounds(this);
 			}
 		}
+		// propagate to member types
+		ReferenceBinding[] memberTypes = referenceContext.binding.memberTypes;
+		if (memberTypes != null && memberTypes != NoMemberTypes) {
+			for (int i = 0, size = memberTypes.length; i < size; i++)
+				 ((SourceTypeBinding) memberTypes[i]).scope.checkParameterizedTypeBounds();
+		}		
 	}
 
 	private void connectMemberTypes() {
@@ -813,6 +825,7 @@ public class ClassScope extends Scope {
 	*/
 	private boolean connectSuperInterfaces() {
 		SourceTypeBinding sourceType = referenceContext.binding;
+		sourceType.superInterfaces = NoSuperInterfaces;
 		if (referenceContext.superInterfaces == null) {
 			if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
 				ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
@@ -820,13 +833,10 @@ public class ClassScope extends Scope {
 				sourceType.superInterfaces = new ReferenceBinding[] { annotationType };
 				return !foundCycle;
 			}
-			sourceType.superInterfaces = NoSuperInterfaces;
 			return true;
 		}
-		if (sourceType.id == T_JavaLangObject) { // already handled the case of redefining java.lang.Object
-			sourceType.superInterfaces = NoSuperInterfaces;
+		if (sourceType.id == T_JavaLangObject) // already handled the case of redefining java.lang.Object
 			return true;
-		}
 
 		boolean noProblems = true;
 		int length = referenceContext.superInterfaces.length;
@@ -874,13 +884,25 @@ public class ClassScope extends Scope {
 				ReferenceBinding superInterface =  interfaceBindings[i];
 				// check against superclass
 				if (!sourceType.isInterface()) {
-					ReferenceBinding match = sourceType.superclass.findSuperTypeWithSameErasure(superInterface);
-					if (match != null && match != superInterface) {
-						problemReporter().superinterfacesCollide(superInterface.erasure(), referenceContext, superInterface, match);
-						sourceType.tagBits |= HierarchyHasProblems;
-						noProblems = false;
-						continue nextInterface;
-					}
+					types[0] = sourceType.superclass;
+					types[1] = superInterface;
+					TypeBinding[] mecs = minimalErasedCandidates(types, invocations);
+					if (mecs != null) {
+						nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
+							TypeBinding mec = mecs[k];
+							if (mec == null) continue nextCandidate;
+							Set invalidInvocations = (Set)invocations.get(mec);
+							int invalidSize = invalidInvocations.size();
+							if (invalidSize > 1) {
+								TypeBinding[] collisions;
+								invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
+								problemReporter().superinterfacesCollide(collisions[0].erasure(), referenceContext, collisions[0], collisions[1]);
+								sourceType.tagBits |= HierarchyHasProblems;
+								noProblems = false;
+								continue nextInterface;
+							}
+						}					
+					}					
 				}
 				// check against other super-interfaces
 				types[0] = superInterface;
@@ -914,8 +936,6 @@ public class ClassScope extends Scope {
 			if (count != length)
 				System.arraycopy(interfaceBindings, 0, interfaceBindings = new ReferenceBinding[count], 0, count);
 			sourceType.superInterfaces = interfaceBindings;
-		} else {
-			sourceType.superInterfaces = NoSuperInterfaces;
 		}
 		return noProblems;
 	}
@@ -931,8 +951,6 @@ public class ClassScope extends Scope {
 			if (noProblems && sourceType.isHierarchyInconsistent())
 				problemReporter().hierarchyHasProblems(sourceType);
 		}
-		// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
-		checkParameterizedTypeBounds();
 		connectMemberTypes();
 		try {
 			checkForInheritedMemberTypes(sourceType);
@@ -1007,17 +1025,18 @@ public class ClassScope extends Scope {
 			return true;
 		}
 
-		if (superType.isMemberType()) {
-			ReferenceBinding current = superType.enclosingType();
-			do {
-				if (current.isHierarchyBeingConnected()) {
-					problemReporter().hierarchyCircularity(sourceType, current, reference);
-					sourceType.tagBits |= HierarchyHasProblems;
-					current.tagBits |= HierarchyHasProblems;
-					return true;
-				}
-			} while ((current = current.enclosingType()) != null);
-		}
+// No longer believe this code is necessary, since we changed supertype lookup to use TypeReference resolution
+//		if (superType.isMemberType()) {
+//			ReferenceBinding current = superType.enclosingType();
+//			do {
+//				if (current.isHierarchyBeingConnected()) {
+//					problemReporter().hierarchyCircularity(sourceType, current, reference);
+//					sourceType.tagBits |= HierarchyHasProblems;
+//					current.tagBits |= HierarchyHasProblems;
+//					return true;
+//				}
+//			} while ((current = current.enclosingType()) != null);
+//		}
 
 		if (superType.isBinaryBinding()) {
 			// force its superclass & superinterfaces to be found... 2 possibilities exist - the source type is included in the hierarchy of:

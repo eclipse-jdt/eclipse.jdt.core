@@ -613,6 +613,19 @@ protected IJavaElement createImportHandle(ImportReference importRef) {
 	return createTypeHandle(typeName.substring(0, lastDollar));
 }
 /**
+ * Creates an IImportDeclaration from the given import statement
+ */
+protected IJavaElement createPackageDeclarationHandle(CompilationUnitDeclaration unit) {
+	if (unit.isPackageInfo()) {
+		char[] packName = CharOperation.concatWith(unit.currentPackage.getImportName(), '.');
+		Openable openable = this.currentPossibleMatch.openable;
+		if (openable instanceof CompilationUnit) {
+			return ((CompilationUnit) openable).getPackageDeclaration(new String(packName));
+		}
+	}
+	return createTypeHandle(new String(unit.getMainTypeName()));
+}
+/**
  * Creates an IType from the given simple top level type name. 
  */
 protected IType createTypeHandle(String simpleTypeName) {
@@ -790,7 +803,7 @@ public MethodBinding getMethodBinding(MethodPattern methodPattern) {
 				boolean found = false;
 				if (paramLength == paramTypeslength) {
 					for (int p=0; p<paramLength; p++) {
-						if (CharOperation.equals(methodParameters[p].erasure().shortReadableName(), parameterTypes[p])) {
+						if (CharOperation.equals(methodParameters[p].sourceName(), parameterTypes[p])) {
 							// param erasure match
 							found = true;
 						} else {
@@ -1113,6 +1126,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			this.nameEnvironment.cleanup();
 		manager.flushZipFiles();
 		this.bindings = null;
+		this.patternLocator.clear();
 	}
 }
 /**
@@ -1912,13 +1926,18 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
  */
 protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResolve) throws CoreException {
 	MatchingNodeSet nodeSet = this.currentPossibleMatch.nodeSet;
-	if (BasicSearchEngine.VERBOSE) {
-		System.out.println("Report matching: "); //$NON-NLS-1$
-		System.out.println("	- node set:\n"+nodeSet); //$NON-NLS-1$
-		System.out.println("	- must resolve: "+mustResolve); //$NON-NLS-1$
-	}
 	boolean locatorMustResolve = this.patternLocator.mustResolve;
 	if (nodeSet.mustResolve) this.patternLocator.mustResolve = true;
+	if (BasicSearchEngine.VERBOSE) {
+		System.out.println("Report matching: "); //$NON-NLS-1$
+		int size = nodeSet.matchingNodes==null ? 0 : nodeSet.matchingNodes.elementSize;
+		System.out.print("	- node set: accurate="+ size); //$NON-NLS-1$
+		size = nodeSet.possibleMatchingNodesSet==null ? 0 : nodeSet.possibleMatchingNodesSet.elementSize;
+		System.out.println(", possible="+size); //$NON-NLS-1$
+		System.out.print("	- must resolve: "+mustResolve); //$NON-NLS-1$
+		System.out.print(" (locator: "+this.patternLocator.mustResolve); //$NON-NLS-1$
+		System.out.println(", nodeSet: "+nodeSet.mustResolve+')'); //$NON-NLS-1$
+	}
 	if (mustResolve) {
 		this.unitScope= unit.scope.compilationUnitScope();
 		// move the possible matching nodes that exactly match the search pattern to the matching nodes set
@@ -1941,7 +1960,10 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		}
 		nodeSet.possibleMatchingNodesSet = new SimpleSet(3);
 		if (BasicSearchEngine.VERBOSE) {
-			System.out.println("	- resolved node set:\n"+nodeSet); //$NON-NLS-1$
+			int size = nodeSet.matchingNodes==null ? 0 : nodeSet.matchingNodes.elementSize;
+			System.out.print("	- node set: accurate="+size); //$NON-NLS-1$
+			size = nodeSet.possibleMatchingNodesSet==null ? 0 : nodeSet.possibleMatchingNodesSet.elementSize;
+			System.out.println(", possible="+size); //$NON-NLS-1$
 		}
 	} else {
 		this.unitScope = null;
@@ -1960,7 +1982,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 				for (int i = 0, l = nodes.length; i < l; i++)
 					nodeSet.matchingNodes.removeKey(nodes[i]);
 			} else {
-				IJavaElement element = createTypeHandle(new String(unit.getMainTypeName()));
+				IJavaElement element = createPackageDeclarationHandle(unit);
 				for (int i = 0, l = nodes.length; i < l; i++) {
 					ASTNode node = nodes[i];
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
@@ -1974,7 +1996,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	if (matchedUnitContainer) {
 		ImportReference pkg = unit.currentPackage;
 		if (pkg != null && pkg.annotations != null) {
-			IJavaElement element = createTypeHandle(new String(unit.getMainTypeName()));
+			IJavaElement element = createPackageDeclarationHandle(unit);
 			if (element != null) {
 				reportMatching(pkg.annotations, element, null, nodeSet, true, encloses(element));
 			}
@@ -2004,7 +2026,6 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	
 	// Clear handle cache
 	this.methodHandles = null;
-	this.bindings.removeKey(this.pattern);
 	this.patternLocator.mustResolve = locatorMustResolve;
 }
 /**

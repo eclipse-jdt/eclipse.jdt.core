@@ -22,13 +22,6 @@
 	        </fileset>
 	        <fileset dir="bin" includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**"/>
 		</zip>
-<!--		<jar 
-			jarfile="${dest}/jdtcom.jar"
-			basedir="bin"
-			includes="org/eclipse/jdt/internal/compiler/**,org/eclipse/jdt/core/compiler/**"
-			manifest="META-INF/MANIFEST.MF"
-			index="true"/> -->
-		
 		<echo message="UPDATE jdtcomsrc.zip" />
 		<zip zipfile="${dest}/jdtcomsrc.zip">
 		    <zipfileset dir="batch" />

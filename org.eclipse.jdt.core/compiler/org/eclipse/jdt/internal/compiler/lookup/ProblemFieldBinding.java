@@ -18,8 +18,8 @@ public class ProblemFieldBinding extends FieldBinding {
 		
 // NOTE: must only answer the subset of the name related to the problem
 
-public ProblemFieldBinding(ReferenceBinding declaringClass, char[][] compoundName, int problemId) {
-	this(null, declaringClass, CharOperation.concatWith(compoundName, '.'), problemId);
+public ProblemFieldBinding(FieldBinding closestMatch, char[][] compoundName, int problemId) {
+	this(closestMatch, closestMatch == null ? null : closestMatch.declaringClass, CharOperation.concatWith(compoundName, '.'), problemId);
 }
 public ProblemFieldBinding(ReferenceBinding declaringClass, char[] name, int problemId) {
 	this(null, declaringClass, name, problemId);

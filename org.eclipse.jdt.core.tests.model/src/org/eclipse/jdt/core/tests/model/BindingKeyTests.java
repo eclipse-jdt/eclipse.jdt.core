@@ -129,7 +129,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test009() {
 		assertBindingKeySignatureEquals(
-			"<T:>Lp1.X;",
+			"<T:Ljava/lang/Object;>Lp1.X;",
 			"Lp1/X<TT;>;"
 		);
 	}
@@ -139,7 +139,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test010() {
 		assertBindingKeySignatureEquals(
-			"<T:U:>Lp1.X;",
+			"<T:Ljava/lang/Object;U:Ljava/lang/Object;>Lp1.X;",
 			"Lp1/X<TT;TU;>;"
 		);
 	}
@@ -330,7 +330,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test029() {
 		assertBindingKeySignatureEquals(
-			"-<E:>Ljava.util.List;",
+			"-<E:Ljava/lang/Object;>Ljava.util.List;",
 			"Lp1/X;-Ljava/util/List<TE;>;"
 		);
 	}
@@ -360,7 +360,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test032() {
 		assertBindingKeySignatureEquals(
-			"-<E:>Ljava.util.List;",
+			"-<E:Ljava/lang/Object;>Ljava.util.List;",
 			"Ljava/util/List;&!Lp1/X;-Ljava/util/List<TE;>;123;"
 		);
 	}
@@ -424,7 +424,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	 */
 	public void test038() {
 		assertBindingKeySignatureEquals(
-			"<T:U:>Lp1.Y;",
+			"<T:Ljava/lang/Object;U:Ljava/lang/Object;>Lp1.Y;",
 			"Lp1/X~Y<TT;TU;>;"
 		);
 	}
@@ -483,5 +483,13 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Lp1/X~Y<Lp1/X;:40TT;>;"
 		);
 	}
-
+	/*
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=102710
+	 */
+	public void test044() {
+		assertBindingKeySignatureEquals(
+			"<SM:Ljava/lang/Object;LM:Ljava/lang/Object;>LX;",
+			"LX<TSM;TLM;>;"
+		);
+	}
 }

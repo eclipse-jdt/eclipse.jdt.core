@@ -130,28 +130,35 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			// record the return type binding
 		}
 		// check if method with constructor name
-		if (CharOperation.equals(scope.enclosingSourceType().sourceName, selector)) {
-			scope.problemReporter().methodWithConstructorName(this);
+		if (CharOperation.equals(this.scope.enclosingSourceType().sourceName, selector)) {
+			this.scope.problemReporter().methodWithConstructorName(this);
+		}
+		
+		if (this.typeParameters != null) {
+			for (int i = 0, length = this.typeParameters.length; i < length; i++) {
+				this.typeParameters[i].resolve(this.scope);
+			}
 		}
 		
 		// check @Override annotation
-		if (this.binding != null) {
+		checkOverride: {
+			if (this.binding == null) break checkOverride;
+			if (this.scope.compilerOptions().sourceLevel < JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;
-			if ((this.binding.tagBits & TagBits.AnnotationOverride) != 0 
-					&& (bindingModifiers & AccOverriding) == 0) {
-				// claims to override, and doesn't actually do so
-				scope.problemReporter().methodMustOverride(this);
-			} else	if ((this.binding.tagBits & TagBits.AnnotationOverride) == 0 
-						&& (this.binding.declaringClass.modifiers & AccInterface) == 0
-						&& (bindingModifiers & (AccStatic|AccOverriding)) == AccOverriding
-						&& scope.compilerOptions().sourceLevel >= JDK1_5) {
+			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
+			boolean isInterfaceMethod = this.binding.declaringClass.isInterface();
+			if (hasOverrideAnnotation) {
+				if ((bindingModifiers & AccOverriding) == 0 || isInterfaceMethod)
+					// claims to override, and doesn't actually do so
+					this.scope.problemReporter().methodMustOverride(this);					
+			} else if (!isInterfaceMethod 	&& (bindingModifiers & (AccStatic|AccOverriding)) == AccOverriding) {
 				// actually overrides, but did not claim to do so
-				scope.problemReporter().missingOverrideAnnotation(this);
+				this.scope.problemReporter().missingOverrideAnnotation(this);
 			}
 		}
 				
 		// by grammatical construction, interface methods are always abstract
-		switch (scope.referenceType().kind()) {
+		switch (this.scope.referenceType().kind()) {
 			case IGenericType.ENUM_DECL :
 				if (this.selector == TypeConstants.VALUES) break;
 				if (this.selector == TypeConstants.VALUEOF) break;
@@ -161,11 +168,11 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				if ((this.modifiers & AccSemicolonBody) != 0) {
 					if ((this.modifiers & AccNative) == 0)
 						if ((this.modifiers & AccAbstract) == 0)
-							scope.problemReporter().methodNeedBody(this);
+							this.scope.problemReporter().methodNeedBody(this);
 				} else {
 					// the method HAS a body --> abstract native modifiers are forbiden
 					if (((this.modifiers & AccNative) != 0) || ((this.modifiers & AccAbstract) != 0))
-						scope.problemReporter().methodNeedingNoBody(this);
+						this.scope.problemReporter().methodNeedingNoBody(this);
 				}
 		}
 		super.resolveStatements(); 

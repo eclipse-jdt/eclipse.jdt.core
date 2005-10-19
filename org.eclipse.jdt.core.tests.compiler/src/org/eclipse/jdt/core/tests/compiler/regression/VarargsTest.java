@@ -1163,4 +1163,221 @@ public class VarargsTest extends AbstractComparableTest {
 			"class java.lang.Float\n" + 
 			"class java.awt.Point");
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102181
+	public void test031() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		Test<String> t = new Tester();\n" + 
+				"		t.method(\"SUCCESS\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static abstract class Test<A> {\n" + 
+				"		abstract void method(A... args);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static class Tester extends Test<String> {\n" + 
+				"\n" + 
+				"		@Override void method(String... args) {\n" + 
+				"			call(args);\n" + 
+				"		}\n" + 
+				"\n" + 
+				"		void call(String[] args) {\n" + 
+				"			for (String str : args)\n" + 
+				"				System.out.println(str);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"SUCCESS");
+	}	
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102278
+	public void test032() {
+		this.runConformTest(
+			new String[] {
+				"Functor.java",
+				"public class Functor<T> {\n" + 
+				"	public void func(T... args) {\n" + 
+				"		// do noting;\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public static void main(String... args) {\n" + 
+				"		Functor<String> functor = new Functor<String>() {\n" + 
+				"			public void func(String... args) {\n" + 
+				"				System.out.println(args.length);\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		functor.func(\"Hello!\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"1");
+	}		
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=102631
+	public void test033() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void a(boolean b, Object... o) {System.out.print(1);}\n" + 
+				"	void a(Object... o) {System.out.print(2);}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X x = new X();\n" + 
+				"		x.a(true);\n" + 
+				"		x.a(true, \"foobar\");\n" + 
+				"		x.a(\"foo\", \"bar\");\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"112");
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	void b(boolean b, Object... o) {}\n" + 
+				"	void b(Boolean... o) {}\n" + 
+				"	void c(boolean b, boolean b2, Object... o) {}\n" + 
+				"	void c(Boolean b, Object... o) {}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X x = new X();\n" + 
+				"		x.b(true);\n" + 
+				"		x.b(true, false);\n" + 
+				"		x.c(true, true, true);\n" + 
+				"		x.c(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);\n" + 
+				"	}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\r\n" + 
+			"	x.b(true);\r\n" + 
+			"	  ^\n" + 
+			"The method b(boolean, Object[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\r\n" + 
+			"	x.b(true, false);\r\n" + 
+			"	  ^\n" + 
+			"The method b(boolean, Object[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\r\n" + 
+			"	x.c(true, true, true);\r\n" + 
+			"	  ^\n" + 
+			"The method c(boolean, boolean, Object[]) is ambiguous for the type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 11)\r\n" + 
+			"	x.c(Boolean.TRUE, Boolean.TRUE, Boolean.TRUE);\r\n" + 
+			"	  ^\n" + 
+			"The method c(boolean, boolean, Object[]) is ambiguous for the type X\n" + 
+			"----------\n"
+		);
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=106106
+	public void test034() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*; \n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"  public static void main(String[] args) {\n" + 
+				"    double[][] d = { { 1 } , { 2 } }; \n" + 
+				"    List<double[]> l = Arrays.asList(d); // <T> List<T> asList(T... a)\n" + 
+				"    System.out.println(\"List size: \" + l.size());\n" + 
+				"  }\n" + 
+				"}\n",
+			},
+			"List size: 2");
+	}
+	//	https://bugs.eclipse.org/bugs/show_bug.cgi?id=108095
+	public void test035() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static <T> void foo(T ... values) {\n" +
+				"      System.out.print(values.getClass());\n" +
+				"  }\n" +
+				"	public static void main(String args[]) {\n" +
+				"	   X.<String>foo(\"monkey\", \"cat\");\n" +
+				"      X.<String>foo(new String[] { \"monkey\", \"cat\" });\n" +
+				"	}\n" +
+				"}",
+			},
+			"class [Ljava.lang.String;class [Ljava.lang.String;");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110563
+	public void test036() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" + 
+				"public class X {\n" + 
+				"    public void testBreak() {\n" + 
+				"        Collection<Class> classes = new ArrayList<Class>();\n" + 
+				"        classes.containsAll(Arrays.asList(String.class, Integer.class, Long.class));\n" + 
+				"    }\n" + 
+				"}\n",
+			},
+			"");
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=110783
+	public void test037() {
+		this.runConformTest(
+			new String[] {
+				"V.java",
+				"public class V {\n" + 
+				"    public static void main(String[] s) {\n" + 
+				"        V v = new V();\n" + 
+				"        v.foo(\"\", v, null, \"\");\n" + 
+				"        v.foo(\"\", v, null, \"\", 1);\n" + 
+				"        v.foo2(\"\");\n" + 
+				"        v.foo2(\"\", null);\n" + 
+				"        v.foo2(\"\", null, null);\n" + 
+				"        v.foo3(\"\", v, null, \"\", null);\n" + 
+				"    }\n" + 
+				"    void foo(String s, V v, Object... obs) {System.out.print(1);}\n" + 
+				"    void foo(String s, V v, String r, Object o, Object... obs) {System.out.print(2);}\n" + 
+				"    void foo2(Object... a) {System.out.print(1);}\n" + 
+				"    void foo2(String s, Object... a) {System.out.print(2);}\n" + 
+				"    void foo2(String s, Object o, Object... a) {System.out.print(3);}\n" + 
+				"    void foo3(String s, V v, String... obs) {System.out.print(1);}\n" + 
+				"    void foo3(String s, V v, String r, Object o, Object... obs) {System.out.print(2);}\n" + 
+				"}\n",
+			},
+			"222232");
+		this.runNegativeTest(
+			new String[] {
+				"V.java",
+				"public class V {\n" + 
+				"    public static void main(String[] s) {\n" + 
+				"        V v = new V();\n" + 
+				"        v.foo2(null, \"\");\n" + 
+				"        v.foo2(null, \"\", \"\");\n" + 
+				"        v.foo3(\"\", v, null, \"\");\n" + 
+				"    }\n" + 
+				"    void foo2(String s, Object... a) {System.out.print(2);}\n" + 
+				"    void foo2(String s, Object o, Object... a) {System.out.print(3);}\n" + 
+				"    void foo3(String s, V v, String... obs) {System.out.print(1);}\n" + 
+				"    void foo3(String s, V v, String r, Object o, Object... obs) {System.out.print(2);}\n" + 
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in V.java (at line 4)\r\n" + 
+			"	v.foo2(null, \"\");\r\n" + 
+			"	  ^^^^\n" + 
+			"The method foo2(String, Object[]) is ambiguous for the type V\n" + 
+			"----------\n" + 
+			"2. ERROR in V.java (at line 5)\r\n" + 
+			"	v.foo2(null, \"\", \"\");\r\n" + 
+			"	  ^^^^\n" + 
+			"The method foo2(String, Object[]) is ambiguous for the type V\n" + 
+			"----------\n" + 
+			"3. ERROR in V.java (at line 6)\r\n" + 
+			"	v.foo3(\"\", v, null, \"\");\r\n" + 
+			"	  ^^^^\n" + 
+			"The method foo3(String, V, String[]) is ambiguous for the type V\n" + 
+			"----------\n");
+	}
 }

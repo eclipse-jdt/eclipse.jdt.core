@@ -254,6 +254,8 @@ public void test0002() {
 		"public @interface X {\n" + 
 		"  {\n" + 
 		"  }\n" + 
+		"  <clinit>() {\n" + 
+		"  }\n" + 
 		"}\n";
 	
 	String expectedDietPlusBodyUnitToString = 
@@ -521,6 +523,52 @@ public void test0009() {
 		"  List<Test> l;\n" + 
 		"  public X() {\n" + 
 		"    super();\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString = expectedDietUnitToString;
+	
+	String expectedCompletionDietUnitToString = 
+		expectedDietUnitToString;
+	
+	String testName = "<generic type recovery>";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString,	
+		testName);
+}
+public void test0010() {
+
+	String s = 
+		"package a;											\n"
+			+ "public class X {							\n"
+			+ "  String foo() {							\n"
+			+ "       @interface Y {						\n"; 	
+
+	String expectedDietUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  @interface Y {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"  }\n" + 
+		"  String foo() {\n" + 
+		"  }\n" + 
+		"}\n";
+	
+	
+	String expectedDietPlusBodyUnitToString = 
+		"package a;\n" + 
+		"public class X {\n" + 
+		"  @interface Y {\n" + 
+		"  }\n" + 
+		"  public X() {\n" + 
+		"    super();\n" + 
+		"  }\n" + 
+		"  String foo() {\n" + 
 		"  }\n" + 
 		"}\n";
 

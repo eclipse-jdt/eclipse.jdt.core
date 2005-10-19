@@ -214,13 +214,15 @@ public RecoveredElement add(TypeDeclaration typeDeclaration, int bracketBalanceV
 		}
 		return methodBody.add(typeDeclaration, bracketBalanceValue, true);	
 	}
-	if (typeDeclaration.kind() == IGenericType.INTERFACE_DECL) {
-		this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));
-		if (this.parent == null) {
-			return this; // ignore
-		}
-		// close the constructor
-		return this.parent.add(typeDeclaration, bracketBalanceValue);
+	switch (typeDeclaration.kind()) {
+		case IGenericType.INTERFACE_DECL :
+		case IGenericType.ANNOTATION_TYPE_DECL :
+			this.updateSourceEndIfNecessary(this.previousAvailableLineEnd(typeDeclaration.declarationSourceStart - 1));
+			if (this.parent == null) {
+				return this; // ignore
+			}
+			// close the constructor
+			return this.parent.add(typeDeclaration, bracketBalanceValue);
 	}
 	if (localTypes == null) {
 		localTypes = new RecoveredType[5];
@@ -318,8 +320,8 @@ public AbstractMethodDeclaration updatedMethodDeclaration(){
  * is about to disappear because of restarting recovery
  */
 public void updateFromParserState(){
-
-	if(this.bodyStartsAtHeaderEnd()){
+	// if parent is null then recovery already occured in diet parser.
+	if(this.bodyStartsAtHeaderEnd() && this.parent != null){
 		Parser parser = this.parser();
 		/* might want to recover arguments or thrown exceptions */
 		if (parser.listLength > 0 && parser.astLengthPtr > 0){ // awaiting interface type references
@@ -375,19 +377,28 @@ public void updateFromParserState(){
 				// to compute bodyStart, and thus used to set next checkpoint.
 				int count;
 				for (count = 0; count < argLength; count++){
-					Argument argument = (Argument)parser.astStack[argStart+count];
-					/* cannot be an argument if non final */
-					char[][] argTypeName = argument.type.getTypeName();
-					if ((argument.modifiers & ~AccFinal) != 0
-						|| (argTypeName.length == 1
-							&& CharOperation.equals(argTypeName[0], VoidBinding.sourceName()))){
+					ASTNode aNode = parser.astStack[argStart+count];
+					if(aNode instanceof Argument) {
+						Argument argument = (Argument)aNode;
+						/* cannot be an argument if non final */
+						char[][] argTypeName = argument.type.getTypeName();
+						if ((argument.modifiers & ~AccFinal) != 0
+							|| (argTypeName.length == 1
+								&& CharOperation.equals(argTypeName[0], VoidBinding.sourceName()))){
+							parser.astLengthStack[parser.astLengthPtr] = count; 
+							parser.astPtr = argStart+count-1; 
+							parser.listLength = count;
+							parser.currentToken = 0;
+							break;
+						}
+						if (needUpdateRParenPos) parser.rParenPos = argument.sourceEnd + 1;
+					} else {
 						parser.astLengthStack[parser.astLengthPtr] = count; 
 						parser.astPtr = argStart+count-1; 
 						parser.listLength = count;
 						parser.currentToken = 0;
 						break;
 					}
-					if (needUpdateRParenPos) parser.rParenPos = argument.sourceEnd + 1;
 				}
 				if (parser.listLength > 0 && parser.astLengthPtr > 0){
 					

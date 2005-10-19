@@ -63,18 +63,16 @@ public void addInnerEmulationDependent(BlockScope dependentScope, boolean wasEnc
 	//  System.out.println("Adding dependency: "+ new String(scope.enclosingType().readableName()) + " --> " + new String(this.readableName()));
 }
 public char[] computeUniqueKey(boolean isLeaf) {
-	StringBuffer buffer = new StringBuffer();
-	buffer.append(outermostEnclosingType().computeUniqueKey(isLeaf));
+	char[] outerKey = outermostEnclosingType().computeUniqueKey(isLeaf);
+	int semicolon = CharOperation.lastIndexOf(';', outerKey);
 	
-	// innsert $sourceStart
-	int semicolon = buffer.lastIndexOf(";"); //$NON-NLS-1$
-	buffer.insert(semicolon, '$');
-	semicolon = buffer.lastIndexOf(";"); //$NON-NLS-1$
-	buffer.insert(semicolon, this.sourceStart);
-	int length = buffer.length();
-	char[] uniqueKey = new char[length];
-	buffer.getChars(0, length, uniqueKey, 0);
-	return uniqueKey;
+	// insert $sourceStart
+	return CharOperation.concat(
+			CharOperation.concat(
+					CharOperation.subarray(outerKey, 0, semicolon),
+					String.valueOf(this.sourceStart).toCharArray(),
+					'$'),
+			CharOperation.subarray(outerKey, semicolon, outerKey.length));
 }
 
 public char[] constantPoolName() /* java/lang/Object */ {
@@ -177,7 +175,20 @@ public void setAsMemberType() {
 public void setConstantPoolName(char[] computedConstantPoolName) /* java/lang/Object */ {
 	this.constantPoolName = computedConstantPoolName;
 }
-
+/*
+ * Overriden for code assist. In this case, the constantPoolName() has not been computed yet.
+ * Slam the source name so that the signature is syntactically correct.
+ * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=102284)
+ */
+public char[] signature() {
+	if (this.signature == null && constantPoolName() == null) {
+		if (isAnonymousType())
+			setConstantPoolName(superclass().sourceName());
+		else
+			setConstantPoolName(sourceName());
+	}
+	return super.signature();
+}
 public char[] sourceName() {
 	if (isAnonymousType()) {
 		if (superInterfaces == NoSuperInterfaces)

@@ -2010,6 +2010,9 @@ public class JavaModelManager implements ISaveParticipant {
 		} catch (IOException e) {
 			if (file.exists())
 				Util.log(e, "Unable to read variable and containers file"); //$NON-NLS-1$
+		} catch (RuntimeException e) {
+			if (file.exists())
+				Util.log(e, "Unable to read variable and containers file (file is corrupt)"); //$NON-NLS-1$
 		} finally {
 			if (in != null) {
 				try {
@@ -2408,7 +2411,8 @@ public class JavaModelManager implements ISaveParticipant {
 							containerString = ((JavaProject)project).encodeClasspath(
 									entries, 
 									null, 
-									false);
+									false,
+									null/*not interested in unknown elements*/);
 						}
 					} catch(JavaModelException e){
 						// could not encode entry: will not persist

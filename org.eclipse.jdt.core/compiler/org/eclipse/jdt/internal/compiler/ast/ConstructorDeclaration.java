@@ -408,13 +408,16 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	 */
 	public void resolveStatements() {
 
-		if (!CharOperation.equals(scope.enclosingSourceType().sourceName, selector)){
-			scope.problemReporter().missingReturnType(this);
+		if (!CharOperation.equals(this.scope.enclosingSourceType().sourceName, selector)){
+			this.scope.problemReporter().missingReturnType(this);
 		}
 
-		if (this.binding != null && this.binding.declaringClass.isAnnotationType()) {
-			scope.problemReporter().annotationTypeDeclarationCannotHaveConstructor(this);
+		if (this.typeParameters != null) {
+			for (int i = 0, length = this.typeParameters.length; i < length; i++) {
+				this.typeParameters[i].resolve(this.scope);
+			}
 		}
+		
 		// if null ==> an error has occurs at parsing time ....
 		if (this.constructorCall != null) {
 			// e.g. using super() in java.lang.Object
@@ -422,7 +425,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 				&& this.binding.declaringClass.id == T_JavaLangObject
 				&& this.constructorCall.accessMode != ExplicitConstructorCall.This) {
 					if (this.constructorCall.accessMode == ExplicitConstructorCall.Super) {
-						scope.problemReporter().cannotUseSuperInJavaLangObject(this.constructorCall);
+						this.scope.problemReporter().cannotUseSuperInJavaLangObject(this.constructorCall);
 					}
 					this.constructorCall = null;
 			} else {
@@ -430,7 +433,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 			}
 		}
 		if ((modifiers & AccSemicolonBody) != 0) {
-			scope.problemReporter().methodNeedBody(this);		
+			this.scope.problemReporter().methodNeedBody(this);		
 		}
 		super.resolveStatements();
 	}

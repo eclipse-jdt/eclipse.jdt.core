@@ -325,7 +325,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.printTag(CLASSPATHS, null, true, false);
 					for (int i = 0; i < length; i++) {
 						this.parameters.clear();
-						String classpath = classpaths[i].normalizedPath();
+						String classpath = classpaths[i].getPath();
 						parameters.put(PATH, classpath);
 						File f = new File(classpath);
 						String id = null;
@@ -2049,6 +2049,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					token = tokenizer.nextToken();
 					if (token.equals(File.pathSeparator)) {
 						switch (state) {
+						case start:
+							break;						
 						case readyToClose:
 						case readyToCloseEndingWithRules:
 						case readyToCloseOrOtherEntry:
@@ -2530,6 +2532,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					// exit?
 					if (Main.this.systemExitWhenFinished && !Main.this.proceedOnError && (localErrorCount > 0)) {
 						Main.this.logger.endLoggingSource();
+						Main.this.logger.endLoggingSources();
 						Main.this.logger.printStats(Main.this);
 						Main.this.logger.flush();
 						Main.this.logger.close();

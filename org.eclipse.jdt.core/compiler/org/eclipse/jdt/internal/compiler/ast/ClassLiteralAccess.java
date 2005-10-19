@@ -91,7 +91,7 @@ public class ClassLiteralAccess extends Expression {
 			if (targetType.id == T_void) {
 				boxedType = scope.environment().getType(JAVA_LANG_VOID);
 				if (boxedType == null) {
-					boxedType = new ProblemReferenceBinding(JAVA_LANG_VOID, ProblemReasons.NotFound);
+					boxedType = new ProblemReferenceBinding(JAVA_LANG_VOID, null, ProblemReasons.NotFound);
 				}
 			} else {
 				boxedType = scope.boxing(targetType);

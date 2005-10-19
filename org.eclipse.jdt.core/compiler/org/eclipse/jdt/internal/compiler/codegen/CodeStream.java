@@ -34,7 +34,7 @@ public class CodeStream implements OperatorIds, ClassFileConstants, Opcodes, Bas
 	public byte[] bCodeStream;
 	public int pcToSourceMapSize;
 	public int[] pcToSourceMap = new int[24];
-	public int lastEntryPC; // last entry recorded
+	public int lastEntryPC; // last entry recorded 
 	public int[] lineSeparatorPositions;
 	public int position; // So when first set can be incremented
 	public int classFileOffset;
@@ -1798,7 +1798,7 @@ public void generateSyntheticEnclosingInstanceValues(
 		ASTNode invocationSite) {
 
 	// supplying enclosing instance for the anonymous type's superclass
-	ReferenceBinding checkedTargetType = targetType.isAnonymousType() ? targetType.superclass() : targetType;
+	ReferenceBinding checkedTargetType = targetType.isAnonymousType() ? (ReferenceBinding)targetType.superclass().erasure() : targetType;
 	boolean hasExtraEnclosingInstance = enclosingInstance != null;
 	if (hasExtraEnclosingInstance 
 			&& (!checkedTargetType.isNestedType() || checkedTargetType.isStatic())) {
@@ -2165,8 +2165,9 @@ public void generateSyntheticBodyForMethodAccess(SyntheticMethodBinding accessMe
 			this.dreturn();
 			break;
 		default :
-			if (targetMethod.returnType != accessMethod.returnType)
-				this.checkcast(accessMethod.returnType); // for bridge methods
+			TypeBinding accessErasure = accessMethod.returnType.erasure();
+			if (!targetMethod.returnType.isCompatibleWith(accessErasure))
+				this.checkcast(accessErasure); // for bridge methods
 			this.areturn();
 	}
 }

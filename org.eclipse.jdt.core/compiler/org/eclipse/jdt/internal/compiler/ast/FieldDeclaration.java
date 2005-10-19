@@ -75,17 +75,6 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 				this);
 		}
 
-		checkAnnotationField: {
-			if (!this.binding.declaringClass.isAnnotationType())
-				break checkAnnotationField;
-			if (this.initialization != null) {
-				if (this.binding.type.isArrayType() && (this.initialization instanceof ArrayInitializer))
-					break checkAnnotationField;
-				if (this.initialization.constant != NotAConstant)
-					break checkAnnotationField;
-			}
-			initializationScope.problemReporter().annotationFieldNeedConstantInitialization(this);
-		}
 		if (this.initialization != null) {
 			flowInfo =
 				this.initialization
@@ -230,12 +219,11 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 							if (initializationType.needsUncheckedConversion(fieldType)) {
 								    initializationScope.problemReporter().unsafeTypeConversion(this.initialization, initializationType, fieldType);
 							}									
-						} else if (initializationScope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
-										&& (initializationScope.isBoxingCompatibleWith(initializationType, fieldType) 
-												|| (initializationType.isBaseType()  // narrowing then boxing ?
-														&& initializationType != null 
-														&& !fieldType.isBaseType()
-														&& initialization.isConstantValueOfTypeAssignableToType(initializationType, initializationScope.environment().computeBoxingType(fieldType))))) {
+						} else if (initializationScope.isBoxingCompatibleWith(initializationType, fieldType) 
+											|| (initializationType.isBaseType()  // narrowing then boxing ?
+													&& initializationScope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
+													&& !fieldType.isBaseType()
+													&& initialization.isConstantValueOfTypeAssignableToType(initializationType, initializationScope.environment().computeBoxingType(fieldType)))) {
 							this.initialization.computeConversion(initializationScope, fieldType, initializationType);
 						} else {
 							initializationScope.problemReporter().typeMismatchError(initializationType, fieldType, this);

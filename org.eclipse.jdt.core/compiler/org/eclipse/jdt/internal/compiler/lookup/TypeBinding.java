@@ -200,6 +200,12 @@ public boolean isInterface() {
 public boolean isIntersectingWith(TypeBinding otherType) {
     return this == otherType;
 }
+/**
+ * Returns true if the current type denotes an intersection type: Number & Comparable<?>
+ */
+public boolean isIntersectionType() {
+	return false;
+}
 public final boolean isLocalType() {
 	return (tagBits & IsLocalType) != 0;
 }
@@ -286,7 +292,8 @@ public boolean isRawType() {
 }
 
 /**
- * JLS(3) 4.7
+ * JLS(3) 4.7. 
+ * Note: Foo<?>.Bar is also reifiable
  */
 public boolean isReifiable() {
 	
@@ -303,7 +310,7 @@ public boolean isReifiable() {
 				return false;
 				
 			case Binding.PARAMETERIZED_TYPE :
-				if (isBoundParameterizedType()) 
+				if (current.isBoundParameterizedType()) 
 					return false;
 				break;
 				
@@ -485,6 +492,7 @@ public boolean isTypeArgumentIntersecting(TypeBinding otherArgument) {
 							return true;
 						}
 					} else if (upperBound1 != null) {
+						if (upperBound1.isTypeVariable()) return true;
 						if (lowerBound2 != null) {
 							return lowerBound2.isCompatibleWith(upperBound1);
 				
@@ -496,9 +504,13 @@ public boolean isTypeArgumentIntersecting(TypeBinding otherArgument) {
 									return upperBound2.isCompatibleWith(upperBound1);
 								}
 								return true;
-							} else if (upperBound2.isInterface()) {
-								if (upperBound1.isArrayType() || ((upperBound1 instanceof ReferenceBinding) && ((ReferenceBinding)upperBound1).isFinal())) {
-									return upperBound1.isCompatibleWith(upperBound2);
+							} else {
+								if (upperBound2.isInterface()) {
+									if (upperBound1.isArrayType() || ((upperBound1 instanceof ReferenceBinding) && ((ReferenceBinding)upperBound1).isFinal())) {
+										return upperBound1.isCompatibleWith(upperBound2);
+									}
+								} else {
+									return upperBound1.isCompatibleWith(upperBound2);									
 								}
 							}
 							return true;
@@ -549,12 +561,14 @@ public boolean isTypeArgumentIntersecting(TypeBinding otherArgument) {
 			}
 	}
 }
+
 /**
  * Returns true if the type was declared as a type variable
  */
 public boolean isTypeVariable() {
     return false;
 }
+
 /**
  * Returns true if wildcard type of the form '?' (no bound)
  */
@@ -595,9 +609,9 @@ public boolean needsUncheckedConversion(TypeBinding targetType) {
 		return false;
 
 	while (compatible.isRawType()) {
-		if (targetType.isBoundParameterizedType() || targetType.isGenericType()) {
-			return true;
-		}
+		if (targetType.isGenericType()) return true;
+		if (targetType.isBoundParameterizedType()) return true;
+
 		if (compatible.isStatic()) break;
 		if ((compatible = compatible.enclosingType()) == null) break;
 		if ((targetType = targetType.enclosingType()) == null) break;

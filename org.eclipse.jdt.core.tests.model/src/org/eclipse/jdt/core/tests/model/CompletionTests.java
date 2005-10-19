@@ -8714,6 +8714,31 @@ public void testCompletionEmptyToken1() throws JavaModelException {
 			requestor.getResultsWithPosition());
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100808
+public void testCompletionEmptyToken2() throws JavaModelException {
+    this.wc = getWorkingCopy(
+            "/Completion/src/testCompletionEmptyToken2/Test.java",
+            "package testCompletionEmptyToken2.");
+    
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true);
+    
+    String str = this.wc.getSource();
+    String completeBehind = "testCompletionEmptyToken2.";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.wc.codeComplete(cursorLocation, requestor, this.owner);
+
+    int start = str.lastIndexOf(completeBehind);
+    int end = start + completeBehind.length();
+    
+    assertResults(
+            "expectedTypesSignatures=null\n"+
+            "expectedTypesKeys=null",
+            requestor.getContext());
+    
+	assertResults(
+            "testCompletionEmptyToken2[PACKAGE_REF]{testCompletionEmptyToken2, testCompletionEmptyToken2, null, null, null, ["+start+", "+end+"], " + (R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
+            requestor.getResults());
+}
 public void testCompletionFindSecondaryType1() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionFindSecondaryType1.java");
@@ -9610,7 +9635,7 @@ public void testCompletionInsideExtends10() throws JavaModelException {
 
 	if(CompletionEngine.PROPOSE_MEMBER_TYPES) {
 		assertResults(
-//				"CompletionInsideExtends10.CompletionInsideExtends10Inner.CompletionInsideExtends10InnerInner[TYPE_REF]{test.CompletionInsideExtends10.CompletionInsideExtends10Inner.CompletionInsideExtends10InnerInner, test, Ltest.CompletionInsideExtends10$CompletionInsideExtends10Inner$CompletionInsideExtends10InnerInner;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"CompletionInsideExtends10.CompletionInsideExtends10Inner.CompletionInsideExtends10InnerInner[TYPE_REF]{test.CompletionInsideExtends10.CompletionInsideExtends10Inner.CompletionInsideExtends10InnerInner, test, Ltest.CompletionInsideExtends10$CompletionInsideExtends10Inner$CompletionInsideExtends10InnerInner;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_NON_RESTRICTED) + "}\n" +
 				"CompletionInsideExtends10[TYPE_REF]{CompletionInsideExtends10, test, Ltest.CompletionInsideExtends10;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"CompletionInsideExtends10TopLevel[TYPE_REF]{CompletionInsideExtends10TopLevel, test, Ltest.CompletionInsideExtends10TopLevel;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CLASS + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());

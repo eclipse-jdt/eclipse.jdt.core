@@ -43,7 +43,7 @@ public class QualifiedTypeReference extends TypeReference {
 					ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) this.resolvedType;
 					this.resolvedType = new ProblemReferenceBinding(
 						org.eclipse.jdt.core.compiler.CharOperation.subarray(this.tokens, 0, tokenIndex + 1),
-						problemBinding.original,
+						problemBinding.closestMatch,
 						this.resolvedType.problemId());
 				}
 			}

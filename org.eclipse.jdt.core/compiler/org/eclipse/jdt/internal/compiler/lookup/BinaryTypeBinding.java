@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IClassReference;
 import org.eclipse.jdt.internal.compiler.env.IEnumConstantReference;
-import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
@@ -130,8 +129,6 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	}
 
 	this.modifiers = binaryType.getModifiers();
-	if (binaryType.getKind() == IGenericType.INTERFACE_DECL)
-		this.modifiers |= AccInterface;
 		
 	if (binaryType.isAnonymous()) {
 		this.tagBits |= AnonymousTypeMask;

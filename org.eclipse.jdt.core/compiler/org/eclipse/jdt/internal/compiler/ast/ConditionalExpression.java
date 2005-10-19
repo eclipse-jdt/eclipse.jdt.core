@@ -294,23 +294,41 @@ public class ConditionalExpression extends OperatorExpression {
 
 		TypeBinding valueIfTrueType = originalValueIfTrueType;
 		TypeBinding valueIfFalseType = originalValueIfFalseType;
-		if (use15specifics) {
-			if (valueIfTrueType != valueIfFalseType) {
-				TypeBinding unboxedIfTrueType = valueIfTrueType.isBaseType() ? valueIfTrueType : env.computeBoxingType(valueIfTrueType);
-				TypeBinding unboxedIfFalseType = valueIfFalseType.isBaseType() ? valueIfFalseType : env.computeBoxingType(valueIfFalseType);
-				if (unboxedIfTrueType.isNumericType() && unboxedIfFalseType.isNumericType()) {
-					valueIfTrueType = unboxedIfTrueType;
-					valueIfFalseType = unboxedIfFalseType;
-				} else if (valueIfTrueType.isBaseType()) {
-					if ((valueIfTrueType == NullBinding) == valueIfFalseType.isBaseType()) {  // bool ? null : 12 --> Integer
-						valueIfFalseType = env.computeBoxingType(valueIfFalseType);
+		if (use15specifics && valueIfTrueType != valueIfFalseType) {
+			if (valueIfTrueType.isBaseType()) {
+				if (valueIfFalseType.isBaseType()) {
+					// bool ? baseType : baseType
+					if (valueIfTrueType == NullBinding) {  // bool ? null : 12 --> Integer
+						valueIfFalseType = env.computeBoxingType(valueIfFalseType); // boxing
+					} else if (valueIfFalseType == NullBinding) {  // bool ? 12 : null --> Integer
+						valueIfTrueType = env.computeBoxingType(valueIfTrueType); // boxing
 					}
-				} else if (valueIfFalseType.isBaseType()) {
-					if ((valueIfFalseType == NullBinding) == valueIfTrueType.isBaseType()) {  // bool ? 12 : null --> Integer
-						valueIfTrueType = env.computeBoxingType(valueIfTrueType);
+				} else {
+					// bool ? baseType : nonBaseType
+					TypeBinding unboxedIfFalseType = valueIfFalseType.isBaseType() ? valueIfFalseType : env.computeBoxingType(valueIfFalseType);
+					if (valueIfTrueType.isNumericType() && unboxedIfFalseType.isNumericType()) {
+						valueIfFalseType = unboxedIfFalseType; // unboxing
+					} else if (valueIfTrueType != NullBinding) {  // bool ? 12 : new Integer(12) --> int
+						valueIfFalseType = env.computeBoxingType(valueIfFalseType); // unboxing
 					}
 				}
-			}
+			} else if (valueIfFalseType.isBaseType()) {
+					// bool ? nonBaseType : baseType
+					TypeBinding unboxedIfTrueType = valueIfTrueType.isBaseType() ? valueIfTrueType : env.computeBoxingType(valueIfTrueType);
+					if (unboxedIfTrueType.isNumericType() && valueIfFalseType.isNumericType()) {
+						valueIfTrueType = unboxedIfTrueType; // unboxing
+					} else if (valueIfFalseType != NullBinding) {  // bool ? new Integer(12) : 12 --> int
+						valueIfTrueType = env.computeBoxingType(valueIfTrueType); // unboxing
+					}					
+			} else {
+					// bool ? nonBaseType : nonBaseType
+					TypeBinding unboxedIfTrueType = env.computeBoxingType(valueIfTrueType);
+					TypeBinding unboxedIfFalseType = env.computeBoxingType(valueIfFalseType);
+					if (unboxedIfTrueType.isNumericType() && unboxedIfFalseType.isNumericType()) {
+						valueIfTrueType = unboxedIfTrueType;
+						valueIfFalseType = unboxedIfFalseType;
+					}
+			} 
 		}
 		// Propagate the constant value from the valueIfTrue and valueIFFalse expression if it is possible
 		Constant condConstant, trueConstant, falseConstant;
@@ -395,31 +413,46 @@ public class ConditionalExpression extends OperatorExpression {
 			return this.resolvedType = DoubleBinding;
 		}
 		// Type references (null null is already tested)
-		if ((valueIfTrueType.isBaseType() && valueIfTrueType != NullBinding)
-				|| (valueIfFalseType.isBaseType() && valueIfFalseType != NullBinding)) {
-			scope.problemReporter().conditionalArgumentsIncompatibleTypes(
-				this,
-				valueIfTrueType,
-				valueIfFalseType);
-			return null;
+		if (valueIfTrueType.isBaseType() && valueIfTrueType != NullBinding) {
+			if (use15specifics) {
+				valueIfTrueType = env.computeBoxingType(valueIfTrueType);
+			} else {
+				scope.problemReporter().conditionalArgumentsIncompatibleTypes(this, valueIfTrueType, valueIfFalseType);
+				return null;
+			}
+		} else if (valueIfFalseType.isBaseType() && valueIfFalseType != NullBinding) {
+			if (use15specifics) {
+				valueIfFalseType = env.computeBoxingType(valueIfFalseType);
+			} else {
+				scope.problemReporter().conditionalArgumentsIncompatibleTypes(this, valueIfTrueType, valueIfFalseType);
+				return null;
+			}
 		}
-		if (valueIfFalseType.isCompatibleWith(valueIfTrueType)) {
-			valueIfTrue.computeConversion(scope, valueIfTrueType, originalValueIfTrueType);
-			valueIfFalse.computeConversion(scope, valueIfTrueType, originalValueIfFalseType);
-			return this.resolvedType = valueIfTrueType;
-		}
-		if (valueIfTrueType.isCompatibleWith(valueIfFalseType)) {
-			valueIfTrue.computeConversion(scope, valueIfFalseType, originalValueIfTrueType);
-			valueIfFalse.computeConversion(scope, valueIfFalseType, originalValueIfFalseType);
-			return this.resolvedType = valueIfFalseType;
-		}
-		// 1.5 addition: allow most common supertype 
 		if (use15specifics) {
-			TypeBinding commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
+			// >= 1.5 : LUB(operand types) must exist
+			TypeBinding commonType = null;
+			if (valueIfTrueType == NullBinding) {
+				commonType = valueIfFalseType;
+			} else if (valueIfFalseType == NullBinding) {
+				commonType = valueIfTrueType;
+			} else {
+				commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
+			}
 			if (commonType != null) {
-				valueIfTrue.computeConversion(scope, commonType, valueIfTrueType);
-				valueIfFalse.computeConversion(scope, commonType, valueIfFalseType);
+				valueIfTrue.computeConversion(scope, commonType, originalValueIfTrueType);
+				valueIfFalse.computeConversion(scope, commonType, originalValueIfFalseType);
 				return this.resolvedType = commonType.capture(scope, this.sourceEnd);
+			}
+		} else {
+			// < 1.5 : one operand must be convertible to the other
+			if (valueIfFalseType.isCompatibleWith(valueIfTrueType)) {
+				valueIfTrue.computeConversion(scope, valueIfTrueType, originalValueIfTrueType);
+				valueIfFalse.computeConversion(scope, valueIfTrueType, originalValueIfFalseType);
+				return this.resolvedType = valueIfTrueType;
+			} else if (valueIfTrueType.isCompatibleWith(valueIfFalseType)) {
+				valueIfTrue.computeConversion(scope, valueIfFalseType, originalValueIfTrueType);
+				valueIfFalse.computeConversion(scope, valueIfFalseType, originalValueIfFalseType);
+				return this.resolvedType = valueIfFalseType;
 			}
 		}
 		scope.problemReporter().conditionalArgumentsIncompatibleTypes(

@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -103,15 +104,18 @@ class TypeBinding implements ITypeBinding {
 	 * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
 	 */
 	private IClassFile getClassFile(char[] fileName) {
+		int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
 		int lastSlash = CharOperation.lastIndexOf('/', fileName);
 		if (lastSlash == -1) 
 			lastSlash = CharOperation.lastIndexOf(File.separatorChar, fileName);
+		if (jarSeparator != -1 && lastSlash < jarSeparator) // if in a jar and no slash, it is a default package -> lastSlash should be jarSeparator+1
+			lastSlash = jarSeparator+1;
 		if (lastSlash == -1)
 			return null;
-		IPackageFragment pkg = getPackageFragment(fileName, lastSlash);
+		IPackageFragment pkg = getPackageFragment(fileName, lastSlash, jarSeparator);
 		if (pkg == null) return null;
-		int start;
-		return pkg.getClassFile(new String(fileName, start = lastSlash+1, fileName.length - start));
+		int start = lastSlash == jarSeparator+1 ? lastSlash : lastSlash+1;
+		return pkg.getClassFile(new String(fileName, start, fileName.length - start));
 	}
 	
 	/*
@@ -122,7 +126,7 @@ class TypeBinding implements ITypeBinding {
 		char[] slashSeparatedFileName = CharOperation.replaceOnCopy(fileName, File.separatorChar, '/');
 		int lastSlash = CharOperation.lastIndexOf('/', slashSeparatedFileName);
 		if (lastSlash == -1) return null;
-		IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, lastSlash);
+		IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, lastSlash, -1/*no jar separator for .java files*/);
 		if (pkg == null) return null;
 		int start;
 		ICompilationUnit cu = pkg.getCompilationUnit(new String(slashSeparatedFileName, start =  lastSlash+1, slashSeparatedFileName.length - start));
@@ -396,13 +400,28 @@ class TypeBinding implements ITypeBinding {
 		else
 			referenceBinding = (ReferenceBinding) typeBinding;
 		char[] fileName = referenceBinding.getFileName();
-		if (Util.isClassFileName(fileName)) {
-			ClassFile classFile = (ClassFile) getClassFile(fileName);
-			if (classFile == null) return null;
-			return (JavaElement) classFile.getType();
-		}
 		if (referenceBinding.isLocalType() || referenceBinding.isAnonymousType()) {
 			// local or anonymous type
+			if (Util.isClassFileName(fileName)) {
+				int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
+				int lastSlash = CharOperation.lastIndexOf('/', fileName);
+				if (lastSlash == -1) 
+					lastSlash = CharOperation.lastIndexOf(File.separatorChar, fileName);
+				if (jarSeparator != -1 && lastSlash < jarSeparator) // if in a jar and no slash, it is a default package -> lastSlash should be jarSeparator+1
+					lastSlash = jarSeparator+1;
+				if (lastSlash == -1)
+					return null;
+				IPackageFragment pkg = getPackageFragment(fileName, lastSlash, jarSeparator);
+				char[] constantPoolName = referenceBinding.constantPoolName();
+				if (constantPoolName == null) {
+					ClassFile classFile = (ClassFile) getClassFile(fileName);
+					return classFile == null ? null : (JavaElement) classFile.getType();
+				}
+				lastSlash = CharOperation.lastIndexOf('/', constantPoolName);
+				char[] classFileName = CharOperation.subarray(constantPoolName, lastSlash+1, constantPoolName.length);
+				ClassFile classFile = (ClassFile) pkg.getClassFile(new String(classFileName) + SuffixConstants.SUFFIX_STRING_class);
+				return (JavaElement) classFile.getType();
+			}
 			ICompilationUnit cu = getCompilationUnit(fileName);
 			if (cu == null) return null;
 			if (!(this.resolver instanceof DefaultBindingResolver)) return null;
@@ -435,6 +454,11 @@ class TypeBinding implements ITypeBinding {
 			ITypeBinding declaringTypeBinding = getDeclaringClass();
 			if (declaringTypeBinding == null) {
 				// top level type
+				if (Util.isClassFileName(fileName)) {
+					ClassFile classFile = (ClassFile) getClassFile(fileName);
+					if (classFile == null) return null;
+					return (JavaElement) classFile.getType();
+				}
 				ICompilationUnit cu = getCompilationUnit(fileName);
 				if (cu == null) return null;
 				return (JavaElement) cu.getType(new String(referenceBinding.sourceName()));
@@ -589,8 +613,7 @@ class TypeBinding implements ITypeBinding {
 	 * Returns the package that includes the given file name, or null if not found.
 	 * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
 	 */
-	private IPackageFragment getPackageFragment(char[] fileName, int lastSlash) {
-		int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
+	private IPackageFragment getPackageFragment(char[] fileName, int lastSlash, int jarSeparator) {
 		if (jarSeparator != -1) {
 			String jarMemento = new String(fileName, 0, jarSeparator);
 			IPackageFragmentRoot root = (IPackageFragmentRoot) JavaCore.create(jarMemento);
@@ -988,6 +1011,28 @@ class TypeBinding implements ITypeBinding {
 			} else {
 				return !referenceBinding.isBinaryBinding();
 			}
+		} else if (isTypeVariable()) {
+			final TypeVariableBinding typeVariableBinding = (TypeVariableBinding) this.binding;
+			final Binding declaringElement = typeVariableBinding.declaringElement;
+			if (declaringElement instanceof MethodBinding) {
+				MethodBinding methodBinding = (MethodBinding) declaringElement;
+				return !methodBinding.declaringClass.isBinaryBinding();
+			} else {
+				final org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) declaringElement;
+				if (typeBinding instanceof ReferenceBinding) {
+					return !((ReferenceBinding) typeBinding).isBinaryBinding();
+				} else if (typeBinding instanceof ArrayBinding) {
+					final ArrayBinding arrayBinding = (ArrayBinding) typeBinding;
+					final org.eclipse.jdt.internal.compiler.lookup.TypeBinding leafComponentType = arrayBinding.leafComponentType;
+					if (leafComponentType instanceof ReferenceBinding) {
+						return !((ReferenceBinding) leafComponentType).isBinaryBinding();
+					}
+				}
+			}
+			
+		} else if (isCapture()) {
+			CaptureBinding captureBinding = (CaptureBinding) this.binding;
+			return !captureBinding.sourceType.isBinaryBinding();
 		}
 		return false;
 	}
