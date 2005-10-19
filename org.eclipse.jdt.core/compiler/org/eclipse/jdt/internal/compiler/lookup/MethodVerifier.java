@@ -191,6 +191,10 @@ void checkInheritedMethods(MethodBinding[] methods, int length) {
 	int index = length;
 	while (--index > 0 && areReturnTypesEqual(first, methods[index])){/*empty*/}
 	if (index > 0) {  // All inherited methods do NOT have the same vmSignature
+		if (this.type.isInterface())
+			for (int i = length; --i >= 0;)
+				if (methods[i].declaringClass.id == TypeIds.T_JavaLangObject)
+					return; // do not complain since the super interface already got blamed
 		problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, methods, length);
 		return;
 	}
@@ -361,16 +365,13 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 	// if an inheritedMethod has been 'replaced' by a supertype's method then skip it
 
 	this.inheritedMethods = new HashtableOfObject(51); // maps method selectors to an array of methods... must search to match paramaters & return type
-	ReferenceBinding superType = superclass;
 	ReferenceBinding[][] interfacesToVisit = new ReferenceBinding[3][];
 	int lastPosition = -1;
 	ReferenceBinding[] itsInterfaces = superInterfaces;
-	if (itsInterfaces != NoSuperInterfaces) {
+	if (itsInterfaces != NoSuperInterfaces)
 		interfacesToVisit[++lastPosition] = itsInterfaces;
-		if (this.type.isInterface())
-			superType = null; // do not need to find Object's methods when its an interface extending another interface
-	}
 
+	ReferenceBinding superType = superclass;
 	HashtableOfObject nonVisibleDefaultMethods = new HashtableOfObject(3); // maps method selectors to an array of methods
 	boolean allSuperclassesAreAbstract = true;
 
