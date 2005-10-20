@@ -55,6 +55,6 @@ public class BatchProcessor implements AnnotationProcessor {
 			msger.printError("failed to find annotated type " + expectedAnnotated );			
 		}
 		
-		msger.printNotice("CompletedSuccessfully");
+		msger.printWarning("CompletedSuccessfully");
 	}
 }

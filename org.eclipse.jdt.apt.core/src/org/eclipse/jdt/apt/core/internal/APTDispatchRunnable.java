@@ -609,7 +609,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		IFile parentFile, 
 		ICompilationUnit parentCompilationUnit, 
 		Set<IFile> lastGeneratedFiles, Set<IFile> newGeneratedFiles,
-		GeneratedFileManager gfm,
+		GeneratedFileManager gfm,		
 		ProcessorEnvImpl processorEnv)
 	{
 		HashSet<IFile> deletedFiles = new HashSet<IFile>();
@@ -626,13 +626,16 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 							processorEnv );
 				try
 				{
-					if ( parentCompilationUnit == null )
+					// _compialtionUnit == null means we are in a build phase. 
+					if ( (processorEnv != null && processorEnv.getPhase() == Phase.BUILD) || 
+						  _compilationUnit == null )
 					{
 						if ( gfm.deleteGeneratedFile( f, parentFile, null ) )
 							deletedFiles.add( f );
 					}
 					else 
-					{
+					{  
+						assert parentCompilationUnit != null : "missing compilation unit"; //$NON-NLS-1$
 						if ( gfm.deleteGeneratedTypeInMemory( f, parentCompilationUnit, null ) )
 							deletedFiles.add( f );
 					}

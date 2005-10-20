@@ -62,7 +62,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 
-
 /**
  * This class is used for managing generated files.  
  *   
@@ -232,14 +231,15 @@ public class GeneratedFileManager {
 			final String cuName = typeSimpleName + ".java"; //$NON-NLS-1$
 			
 			ICompilationUnit unit = pkgFrag.getCompilationUnit(cuName);
+			IFile file = (IFile)unit.getResource();
 			boolean contentsDiffer = true;
-			
-			if( unit.exists() ){
+
+			if (unit.exists()) {
 				InputStream oldData = null;
 				InputStream is = null;
 				try {
 					is = new ByteArrayInputStream( contents.getBytes() );
-					oldData = new BufferedInputStream( ((IFile)unit.getResource() ).getContents());
+					oldData = new BufferedInputStream( ((IFile)unit.getResource()).getContents());
 					contentsDiffer = !compareStreams(oldData, is);
 				}
 				catch (CoreException ce) {
@@ -255,37 +255,39 @@ public class GeneratedFileManager {
 						{}
 					}
 				}
-			}
+			}	
 			
-			if( contentsDiffer ){
-				unit = pkgFrag.createCompilationUnit(cuName, contents, true, progressMonitor);
-			}
-			
-			if( unit == null ) {				
-				IStatus status = AptPlugin.createStatus(new IllegalStateException("Unable to create unit for " + cuName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
-				throw new CoreException(status);
-			}
-			else{
-				if( contentsDiffer ){		
-					// make sure the change is commited to disk. 
-					if( unit.isWorkingCopy() )			
-						unit.commitWorkingCopy(true, progressMonitor);			
-					else			
-						unit.save(progressMonitor, true);
-				}
-				final IFile file = (IFile)unit.getResource();
-				file.setDerived( true );
-				// We used to also make the file read-only. This is a bad idea,
-				// as refactorings then fail in the future, which is worse
-				// than allowing a user to modify a generated file.
+			if( contentsDiffer ){	
 				
-				// during a batch build
-				if( parentFile != null ){
-					addEntryToFileMaps( parentFile, file );
+				if( unit.exists() && unit.isOpen() ){
+					IBuffer buffer = unit.getBuffer();
+					if (buffer == null){
+						IStatus status = AptPlugin.createStatus(new IllegalStateException("Unable to update unit for " + cuName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
+						throw new CoreException(status);
+					}
+					buffer.setContents(contents.toCharArray());
+					buffer.save(progressMonitor, true);
 				}
-				return new FileGenerationResult(file, contentsDiffer, updatededSourcePath);
-			}
+				else{
+					ICompilationUnit newUnit = null;
+					newUnit = pkgFrag.createCompilationUnit(cuName, contents, true,
+							progressMonitor);
+					if( newUnit == null ) {				
+						IStatus status = AptPlugin.createStatus(new IllegalStateException("Unable to create unit for " + cuName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
+						throw new CoreException(status);
+					}
+				}
+			}			
+			file.setDerived(true);
+			// We used to also make the file read-only. This is a bad idea,
+			// as refactorings then fail in the future, which is worse
+			// than allowing a user to modify a generated file.
 			
+			// during a batch build
+			if( parentFile != null ){
+				addEntryToFileMaps( parentFile, file );
+			}
+			return new FileGenerationResult(file, contentsDiffer, updatededSourcePath);
 		}
 		catch(Exception e){
 			AptPlugin.log(e, "failed to generate type " + typeName); //$NON-NLS-1$
