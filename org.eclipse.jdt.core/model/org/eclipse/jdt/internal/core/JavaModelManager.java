@@ -101,6 +101,7 @@ public class JavaModelManager implements ISaveParticipant {
 	public final static String CP_VARIABLE_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathVariable."; //$NON-NLS-1$
 	public final static String CP_CONTAINER_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".classpathContainer."; //$NON-NLS-1$
 	public final static String CP_ENTRY_IGNORE = "##<cp entry ignore>##"; //$NON-NLS-1$
+	public final static IPath CP_ENTRY_IGNORE_PATH = new Path(CP_ENTRY_IGNORE);
 	
 	private final static int VARIABLES_AND_CONTAINERS_FILE_VERSION = 1;
 
@@ -2796,7 +2797,7 @@ public class JavaModelManager implements ISaveParticipant {
 			if (variablePath == null) {
 				// if path is null, record that the variable was removed to avoid asking the initializer to initialize it again
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=112609
-				this.variables.put(variableName, new Path(CP_ENTRY_IGNORE));
+				this.variables.put(variableName, CP_ENTRY_IGNORE_PATH);
 			} else {
 				this.variables.put(variableName, variablePath);
 			}
