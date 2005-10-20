@@ -26455,4 +26455,26 @@ public void test855() {
 		},
 		"true");	
 }
+public void test856() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	static class MX<T> {\n" + 
+			"		T t = null;\n" + 
+			"	}\n" + 
+			"	static <T> T getT() {\n" + 
+			"		return (new MX<T>()).t;\n" + 
+			"	}\n" + 
+			"	public static void test() {\n" + 
+			"		getT().getClass(); // error: java.lang.Object cannot be dereferenced\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"SUCCESS\");\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"SUCCESS");	
+}
 }
