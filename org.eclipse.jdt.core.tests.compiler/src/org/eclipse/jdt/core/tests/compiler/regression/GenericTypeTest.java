@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 87 };
+//		TESTS_NUMBERS = new int[] { 854 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -26365,5 +26365,38 @@ public void test853() {
 			"interface I { Object notify(Object o); }",
 		},
 		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113236
+public void test854() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Field field = new Field();\n" +
+			"		Form form = new Form(field);\n" +
+			"		String result = form.getField().toString();\n" +
+			"		System.out.print(result);\n" +
+			"	}\n" +
+			"}",
+			"Form.java",
+			"public class Form {\n" +
+			"	private final Field field;\n" +
+			"	public Form(Field field) {\n" +
+			"		this.field = field;\n" +
+			"	}\n" +
+			"	public <T extends Field> T getField() {\n" +
+			"		return (T) field;\n" +
+			"	}\n" +
+			"}",
+			"Field.java",
+			"public class Field {\n" +
+			"	@Override\n" +
+			"	public String toString() {\n" +
+			"		return \"SUCCESS\";\n" +
+			"	}\n" +
+			"}",
+		},
+		"SUCCESS");	
 }
 }
