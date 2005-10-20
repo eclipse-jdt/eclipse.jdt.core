@@ -28,6 +28,7 @@ import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPath.Attributes;
 import org.eclipse.jdt.core.IJavaProject;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
@@ -48,6 +49,11 @@ public class AnnotationProcessorFactoryLoader {
 	private final Map<IJavaProject, Map<AnnotationProcessorFactory, FactoryPath.Attributes>> _project2Factories = 
 		new HashMap<IJavaProject, Map<AnnotationProcessorFactory, FactoryPath.Attributes>>();
     
+	// Caches the iterative classloaders so that iterative processors
+	// are not reloaded on every clean build, unlike batch processors 
+	// which are.
+	private final Map<IJavaProject, ClassLoader> _project2IterativeClassloaders = 
+		new HashMap<IJavaProject, ClassLoader>();
     
 	/** 
 	 * Singleton
@@ -65,8 +71,32 @@ public class AnnotationProcessorFactoryLoader {
     /**
      * Called when underlying preferences change
      */
-    public synchronized void reset() {
+    public synchronized void resetAll() {
     	_project2Factories.clear();
+    	_project2IterativeClassloaders.clear();
+    }
+    
+    /**
+     * Called when doing a clean build -- resets
+     * the classloaders for the batch processors
+     */
+    public synchronized void resetBatchProcessors(IJavaProject javaProj) {
+    	// Only need to do a reset if we have batch processors
+    	Map<AnnotationProcessorFactory, Attributes> factories = _project2Factories.get(javaProj);
+    	if (factories == null) {
+    		// Already empty
+    		return;
+    	}
+    	boolean batchProcsFound = false;
+    	for (Attributes attr : factories.values()) {
+    		if (attr.runInBatchMode()) {
+    			batchProcsFound = true;
+    			break;
+    		}
+    	}
+    	if (batchProcsFound) {
+    		_project2Factories.remove(javaProj);
+    	}
     }
     
     /**
@@ -128,14 +158,29 @@ public class AnnotationProcessorFactoryLoader {
 	{
 		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factoriesAndAttrs = 
 			new LinkedHashMap<AnnotationProcessorFactory, FactoryPath.Attributes>(containers.size() * 4 / 3 + 1);
-		ClassLoader classLoader = _createClassLoader( containers );
+		
+		// Need to use the cached classloader if we have one
+		ClassLoader iterativeClassLoader = _project2IterativeClassloaders.get(project);
+		if (iterativeClassLoader == null) {
+			iterativeClassLoader = _createIterativeClassLoader(containers);
+			_project2IterativeClassloaders.put(project, iterativeClassLoader);
+		}
+		
+		ClassLoader batchClassLoader = _createBatchClassLoader(containers, iterativeClassLoader);
 		
 		for ( Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet() )
 		{
 			try {
 				final FactoryContainer fc = entry.getKey();
-				List<AnnotationProcessorFactory> f = loadFactoryClasses( fc, classLoader );
-				for ( AnnotationProcessorFactory apf : f )
+				final FactoryPath.Attributes attr = entry.getValue();
+				List<AnnotationProcessorFactory> factories;
+				if (attr.runInBatchMode()) {
+					factories = loadFactoryClasses(fc, batchClassLoader);
+				}
+				else {
+					factories = loadFactoryClasses(fc, iterativeClassLoader);
+				}
+				for ( AnnotationProcessorFactory apf : factories )
 					factoriesAndAttrs.put( apf, entry.getValue() );
 			}
 			catch (FileNotFoundException fnfe) {
@@ -193,32 +238,69 @@ public class AnnotationProcessorFactoryLoader {
 	/**
 	 * @param containers an ordered map.
 	 */
-	private ClassLoader _createClassLoader( Map<FactoryContainer, FactoryPath.Attributes> containers )
+	private ClassLoader _createIterativeClassLoader( Map<FactoryContainer, FactoryPath.Attributes> containers )
 	{
 		ArrayList<URL> urlList = new ArrayList<URL>( containers.size() );
-		for ( FactoryContainer fc : containers.keySet() ) 
-		{
-			if ( fc instanceof JarFactoryContainer  )
-			{
-				JarFactoryContainer jfc = (JarFactoryContainer) fc;
+		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet()) {
+			FactoryPath.Attributes attr = entry.getValue();
+			FactoryContainer fc = entry.getKey();
+			if (!attr.runInBatchMode() && fc instanceof JarFactoryContainer) {
 				try
 				{
+					JarFactoryContainer jfc = (JarFactoryContainer)fc;
 					URL u = jfc.getJarFileURL();
 					urlList.add( u );
 				}
 				catch ( MalformedURLException mue )
 				{
-					AptPlugin.log(mue, "Could not create ClassLoader for " + jfc); //$NON-NLS-1$
+					AptPlugin.log(mue, "Could not create ClassLoader for " + fc); //$NON-NLS-1$
 				}
 			}
 		}
 		
-		ClassLoader cl = null;
-		if ( urlList.size() > 0 )
-		{
+		ClassLoader cl;
+		if ( urlList.size() > 0 ) {
 			URL[] urls = urlList.toArray(new URL[urlList.size()]);
 			cl = new URLClassLoader( urls, AnnotationProcessorFactoryLoader.class.getClassLoader() );
 		}
+		else {
+			cl = AnnotationProcessorFactoryLoader.class.getClassLoader();
+		}
 		return cl;
+	}
+	
+	private ClassLoader _createBatchClassLoader( 
+			Map<FactoryContainer, FactoryPath.Attributes> containers, 
+			ClassLoader iterativeClassLoader) {
+		
+		ArrayList<URL> urlList = new ArrayList<URL>( containers.size() );
+		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet()) {
+			FactoryPath.Attributes attr = entry.getValue();
+			FactoryContainer fc = entry.getKey();
+			if (attr.runInBatchMode() && fc instanceof JarFactoryContainer) {
+				try
+				{
+					JarFactoryContainer jfc = (JarFactoryContainer)fc;
+					URL u = jfc.getJarFileURL();
+					urlList.add( u );
+				}
+				catch ( MalformedURLException mue )
+				{
+					AptPlugin.log(mue, "Could not create ClassLoader for " + fc); //$NON-NLS-1$
+				}
+			}
+		}
+		
+		ClassLoader cl;
+		if ( urlList.size() > 0 ) {
+			URL[] urls = urlList.toArray(new URL[urlList.size()]);
+			// This needs to be a child of the iterative class loader
+			cl = new URLClassLoader( urls, iterativeClassLoader );
+		}
+		else {
+			cl = iterativeClassLoader;
+		}
+		return cl;
+		
 	}
 }

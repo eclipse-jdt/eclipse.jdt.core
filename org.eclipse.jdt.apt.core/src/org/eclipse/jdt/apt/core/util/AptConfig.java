@@ -472,7 +472,7 @@ public class AptConfig {
 		FactoryPathUtil.setFactoryPath(jproj, fp);
 		// The factory path isn't saved to the Eclipse preference store,
 		// so we can't rely on the ChangeListener mechanism.
-		AnnotationProcessorFactoryLoader.getLoader().reset();
+		AnnotationProcessorFactoryLoader.getLoader().resetAll();
 	}
 
 	/**

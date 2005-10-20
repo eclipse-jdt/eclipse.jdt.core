@@ -16,6 +16,8 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
@@ -86,7 +88,7 @@ public class MixedModeTesting extends APTTestBase{
 		expectingMarkers(new String[]{"CompletedSuccessfully"});
 	}
 	
-	public void testAPTRoundingInMixedMode()
+	public void testAPTRoundingInMixedMode() throws CoreException
 	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
@@ -124,6 +126,12 @@ public class MixedModeTesting extends APTTestBase{
 		
 		env.addClass( srcRoot, "p1", "C", codeC );
 
+		fullBuild( project.getFullPath() );
+		expectingMarkers(new String[]{"CompletedSuccessfully"});
+		
+		expectingNoProblems();
+		
+		// Now run it again to verify that the classloader was successfully bounced
 		fullBuild( project.getFullPath() );
 		expectingMarkers(new String[]{"CompletedSuccessfully"});
 		

@@ -200,6 +200,8 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	{		
 		IProject p = cpe.getJavaProject().getProject();
 		
+		AnnotationProcessorFactoryLoader.getLoader().resetBatchProcessors(cpe.getJavaProject());
+		
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
 		gfm.projectClean( true );
 		try{

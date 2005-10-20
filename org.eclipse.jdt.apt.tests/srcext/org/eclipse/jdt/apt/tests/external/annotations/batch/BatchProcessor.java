@@ -22,12 +22,24 @@ import com.sun.mirror.declaration.TypeDeclaration;
 
 public class BatchProcessor implements AnnotationProcessor {
 	
+	// Store how often we've been called in order to 
+	// test classloader resetting
+	private static int TIMES_CALLED = 0;
+	
 	private final AnnotationProcessorEnvironment _env;
 	BatchProcessor(AnnotationProcessorEnvironment env){
 		_env = env;
 	}
 	public void process() {
+		TIMES_CALLED++;
+		
 		final Messager msger = _env.getMessager();
+		
+		// Since we're a batch processor, we should never be called more than once
+		if (TIMES_CALLED > 1) {
+			msger.printError("BatchProcessor called more than once: " + TIMES_CALLED);
+		}
+		
 		final Collection<String> expectedList = new HashSet<String>();
 		expectedList.add("p1.A");
 		expectedList.add("p1.B");
