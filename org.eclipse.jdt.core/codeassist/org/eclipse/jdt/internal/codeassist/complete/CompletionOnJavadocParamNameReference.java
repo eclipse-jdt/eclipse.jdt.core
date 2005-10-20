@@ -19,8 +19,12 @@ public class CompletionOnJavadocParamNameReference extends JavadocSingleNameRefe
 	public char[][] missingParams;
 	public char[][] missingTypeParams;
 
-	public CompletionOnJavadocParamNameReference(long pos, int start, int end) {
-		super(null, pos, start, end);
+	public CompletionOnJavadocParamNameReference(char[] name, long pos, int start, int end) {
+		super(name, pos, start, end);
+	}
+
+	public CompletionOnJavadocParamNameReference(JavadocSingleNameReference nameRef) {
+		super(nameRef.token, (((long)nameRef.sourceStart)<<32)+nameRef.sourceEnd, nameRef.tagSourceStart, nameRef.tagSourceStart);
 	}
 
 	/**
@@ -28,10 +32,6 @@ public class CompletionOnJavadocParamNameReference extends JavadocSingleNameRefe
 	 */
 	public void addCompletionFlags(int flags) {
 		this.completionFlags |= flags;
-	}
-
-	public CompletionOnJavadocParamNameReference(JavadocSingleNameReference nameRef) {
-		super(nameRef.token, (((long)nameRef.sourceStart)<<32)+nameRef.sourceEnd, nameRef.tagSourceStart, nameRef.tagSourceStart);
 	}
 
 	/* (non-Javadoc)

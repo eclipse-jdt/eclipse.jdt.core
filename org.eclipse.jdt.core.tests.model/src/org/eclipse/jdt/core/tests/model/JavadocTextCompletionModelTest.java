@@ -1025,7 +1025,8 @@ public void test080() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/text/BasicTestTextIns.java", source, true, "BasicTestTextIns#BasicTestTextIns(");
 	assertSortedResults(
-		"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
+			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns(int, float, Class) }, Ljavadoc.text.BasicTestTextIns;, (IFLjava.lang.Class;)V, BasicTestTextIns, (xxx, real, clazz), "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}\n" + 
+			"BasicTestTextIns[JAVADOC_METHOD_REF]{{@link BasicTestTextIns#BasicTestTextIns() }, Ljavadoc.text.BasicTestTextIns;, ()V, BasicTestTextIns, null, "+this.positions+(JAVADOC_RELEVANCE+R_INLINE_TAG)+"}"
 	);
 }
 

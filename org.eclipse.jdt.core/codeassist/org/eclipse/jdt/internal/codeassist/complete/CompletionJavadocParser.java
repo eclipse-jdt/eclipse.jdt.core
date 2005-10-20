@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -142,6 +143,32 @@ public class CompletionJavadocParser extends JavadocParser {
 	}
 
 	/*
+	 * Verify if method identifier positions include completion location.
+	 * If so, create method reference and store it.
+	 * Otherwise return null as we do not need this reference.
+	 */
+	protected Object createMethodReference(Object receiver, List arguments) throws InvalidInputException {
+		int refStart = (int) (this.identifierPositionStack[0] >>> 32);
+		int refEnd = (int) this.identifierPositionStack[0];
+		boolean inCompletion = (refStart <= (this.cursorLocation+1) && this.cursorLocation <= refEnd) // completion cursor is between first and last stacked identifiers
+			|| ((refStart == (refEnd+1) && refEnd == this.cursorLocation)) // or it's a completion on empty token
+			|| (this.memberStart == this.cursorLocation); // or it's a completion just after the member separator with an identifier after the cursor
+		if (inCompletion) {
+			ASTNode node = (ASTNode) super.createMethodReference(receiver, arguments);
+			if (node instanceof JavadocMessageSend) {
+				this.completionNode = new CompletionOnJavadocMessageSend((JavadocMessageSend)node, this.memberStart);
+			} else if (node instanceof JavadocAllocationExpression) {
+				this.completionNode = new CompletionOnJavadocAllocationExpression((JavadocAllocationExpression)node, this.memberStart);
+			}
+			if (CompletionEngine.DEBUG) {
+				System.out.println("	completion method="+completionNode); //$NON-NLS-1$
+			}
+			return this.completionNode;
+		}
+		return super.createMethodReference(receiver, arguments);
+	}
+
+	/*
 	 * Create type reference. If it includes completion location, create and store completion node.
 	 */
 	protected Object createTypeReference(int primitiveToken) {
@@ -263,146 +290,232 @@ public class CompletionJavadocParser extends JavadocParser {
 			System.arraycopy(this.levelTags[INLINE_IDX], 0, this.levelTags[INLINE_IDX] = new char[this.levelTagsLength[INLINE_IDX]][], 0, this.levelTagsLength[INLINE_IDX]);
 		}
 	}
-
-	/* 
-	 * Entry point for javadoc recovery.
+	/*
+	 * Parse argument in @see tag method reference
 	 */
-	protected Object invalidSyntax(int context, Object[] infos) throws InvalidInputException {
-		switch (context) {
-			case INVALID_QUALIFIED_NAME:
-				int idLength = this.identifierLengthStack[this.identifierLengthPtr--];
-				char[][] tokens = new char[idLength][];
-				int startPtr = this.identifierPtr-idLength+1;
-				System.arraycopy(this.identifierStack, startPtr, tokens, 0, idLength);
-				long[] positions = new long[idLength+1];
-				System.arraycopy(this.identifierPositionStack, startPtr, positions, 0, idLength);
-				positions[idLength] = (((long)this.tokenPreviousPosition)<<32) + this.tokenPreviousPosition;
-				this.completionNode = new CompletionOnJavadocQualifiedTypeReference(tokens, CharOperation.NO_CHAR, positions, this.tagSourceStart, this.tagSourceEnd);
-				this.identifierPtr -= idLength;
-		
-				if (CompletionEngine.DEBUG) {
-					System.out.println("	completion partial qualified type="+completionNode); //$NON-NLS-1$
-				}
-				break;
-			case INVALID_ARGUMENTS:
-				if (infos.length == 3 && (this.cursorLocation+1) <= this.index) {
-					Object receiver = infos[0];
-					List arguments = (List) infos[1];
-					Object argument = infos[2];
-					if (this.completionNode != null && !this.pushText) {
-						this.completionNode.addCompletionFlags(CompletionOnJavadoc.BASE_TYPES);
-						if (this.completionNode instanceof CompletionOnJavadocSingleTypeReference) {
-							char[] token = ((CompletionOnJavadocSingleTypeReference)this.completionNode).token;
-							if (token != null && token.length > 0) {
-								return this.completionNode;
-							}
-						} else {
-							return this.completionNode;
-						}
-					}
-					arguments.add(argument);
-					Object methodRef = createMethodReference(receiver, arguments);
-					if (methodRef instanceof JavadocMessageSend) {
-						JavadocMessageSend msgSend = (JavadocMessageSend) methodRef;
-						msgSend.sourceEnd = this.tokenPreviousPosition-1;
-						this.completionNode = new CompletionOnJavadocMessageSend(msgSend, this.memberStart);
-					} else if (methodRef instanceof JavadocAllocationExpression) {
-						JavadocAllocationExpression allocExp = (JavadocAllocationExpression) methodRef;
-						allocExp.sourceEnd = this.tokenPreviousPosition-1;
-						this.completionNode = new CompletionOnJavadocAllocationExpression(allocExp, this.memberStart);
-					}
-					if (CompletionEngine.DEBUG) {
-						System.out.println("	completion method="+completionNode); //$NON-NLS-1$
-					}
-				}
-				break;
-			case INVALID_NO_ARGUMENT:
-				if ((this.cursorLocation+1) <= this.index) {
-					Object ref = infos[0];
-					if (ref instanceof JavadocMessageSend) {
-						JavadocMessageSend msgSend = (JavadocMessageSend) ref;
-						msgSend.sourceEnd = this.tokenPreviousPosition-1;
-						this.completionNode = new CompletionOnJavadocMessageSend(msgSend, this.memberStart);
-					} else if (ref instanceof JavadocAllocationExpression) {
-						JavadocAllocationExpression alloc = (JavadocAllocationExpression) ref;
-						alloc.sourceEnd = this.tokenPreviousPosition-1;
-						this.completionNode = new CompletionOnJavadocAllocationExpression(alloc, this.memberStart);
-					}
-					if (CompletionEngine.DEBUG) {
-						System.out.println("	completion method="+completionNode); //$NON-NLS-1$
-					}
-				}
-				break;
-		}
-		return this.completionNode;
-	}
+	protected Object parseArguments(Object receiver) throws InvalidInputException {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseParam()
-	 */
-	protected boolean parseParam() throws InvalidInputException {
-		int startPosition = this.index;
-		int endPosition = this.index;
-		long namePosition = (((long)startPosition)<<32) + endPosition;
-		this.identifierPtr = -1;
-		boolean valid = super.parseParam();
-		// See if expression is concerned by completion
+		// Init
+		int modulo = 0; // should be 2 for (Type,Type,...) or 3 for (Type arg,Type arg,...)
+		int iToken = 0;
+		char[] argName = null;
+		List arguments = new ArrayList(10);
+		Object typeRef = null;
+		int dim = 0;
+		boolean isVarargs = false;
+		long[] dimPositions = new long[20]; // assume that there won't be more than 20 dimensions...
 		char[] name = null;
-		if (this.identifierPtr >= 0) {
-			if (this.identifierPtr >= 1) { // type param, identifier is second one: <ID>
-				name = this.identifierStack[1];
-				namePosition = this.identifierPositionStack[1];
+		long argNamePos = -1;
+		
+		// Parse arguments declaration if method reference
+		nextArg : while (this.index < this.scanner.eofPosition) {
+
+			// Read argument type reference
+			try {
+				typeRef = parseQualifiedName(false);
+				if (this.abort) return null; // May be aborted by specialized parser
+			} catch (InvalidInputException e) {
+				break nextArg;
 			}
-			startPosition = (int)(this.identifierPositionStack[0]>>32);
-			endPosition = (int)this.identifierPositionStack[this.identifierPtr];
-		} else {
-			CompletionScanner completionScanner = (CompletionScanner) this.scanner;
-			if (completionScanner.getCurrentIdentifierSource() == CompletionScanner.EmptyCompletionIdentifier) {
-				namePosition = completionScanner.completedIdentifierStart;
-				startPosition = completionScanner.completedIdentifierStart;
-				endPosition = completionScanner.completedIdentifierEnd;
+			boolean firstArg = modulo == 0;
+			if (firstArg) { // verify position
+				if (iToken != 0)
+					break nextArg;
+			} else if ((iToken % modulo) != 0) {
+					break nextArg;
+			}
+			if (typeRef == null) {
+				if (firstArg && getCurrentTokenType() == TerminalTokens.TokenNameRPAREN) {
+					this.lineStarted = true;
+					return createMethodReference(receiver, null);
+				}
+				Object methodRef = createMethodReference(receiver, arguments);
+				return syntaxRecoverEmptyArgumentType(methodRef);
+			}
+			if (this.index >= this.scanner.eofPosition) {
+				Object argument = createArgumentReference(this.scanner.getCurrentIdentifierSource(), 0, false, typeRef, null, (((long)this.scanner.getCurrentTokenStartPosition())<<32)+this.scanner.getCurrentTokenEndPosition());
+				return syntaxRecoverArgumentType(receiver, arguments, argument);
+			}
+			if (this.index >= this.cursorLocation) {
+				if (this.completionNode instanceof CompletionOnJavadocSingleTypeReference) {
+					CompletionOnJavadocSingleTypeReference singleTypeReference = (CompletionOnJavadocSingleTypeReference) this.completionNode;
+					if (singleTypeReference.token == null || singleTypeReference.token.length == 0) {
+						Object methodRef = createMethodReference(receiver, arguments);
+						return syntaxRecoverEmptyArgumentType(methodRef);
+					}
+				}
+				if (this.completionNode instanceof CompletionOnJavadocQualifiedTypeReference) {
+					CompletionOnJavadocQualifiedTypeReference qualifiedTypeReference = (CompletionOnJavadocQualifiedTypeReference) this.completionNode;
+					if (qualifiedTypeReference.tokens == null || qualifiedTypeReference.tokens.length < qualifiedTypeReference.sourcePositions.length) {
+						Object methodRef = createMethodReference(receiver, arguments);
+						return syntaxRecoverEmptyArgumentType(methodRef);
+					}
+				}
+			}
+			iToken++;
+
+			// Read possible additional type info
+			dim = 0;
+			isVarargs = false;
+			if (readToken() == TerminalTokens.TokenNameLBRACKET) {
+				// array declaration
+				int dimStart = this.scanner.getCurrentTokenStartPosition();
+				while (readToken() == TerminalTokens.TokenNameLBRACKET) {
+					consumeToken();
+					if (readToken() != TerminalTokens.TokenNameRBRACKET) {
+						break nextArg;
+					}
+					consumeToken();
+					dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
+				}
+			} else if (readToken() == TerminalTokens.TokenNameELLIPSIS) {
+				// ellipsis declaration
+				int dimStart = this.scanner.getCurrentTokenStartPosition();
+				dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
+				consumeToken();
+				isVarargs = true;
+			}
+
+			// Read argument name
+			argNamePos = -1;
+			if (readToken() == TerminalTokens.TokenNameIdentifier) {
+				consumeToken();
+				if (firstArg) { // verify position
+					if (iToken != 1)
+						break nextArg;
+				} else if ((iToken % modulo) != 1) {
+						break nextArg;
+				}
+				if (argName == null) { // verify that all arguments name are declared
+					if (!firstArg) {
+						break nextArg;
+					}
+				}
+				argName = this.scanner.getCurrentIdentifierSource();
+				argNamePos = (((long)this.scanner.getCurrentTokenStartPosition())<<32)+this.scanner.getCurrentTokenEndPosition();
+				iToken++;
+			} else if (argName != null) { // verify that no argument name is declared
+				break nextArg;
+			}
+			
+			// Verify token position
+			if (firstArg) {
+				modulo = iToken + 1;
+			} else {
+				if ((iToken % modulo) != (modulo - 1)) {
+					break nextArg;
+				}
+			}
+
+			// Read separator or end arguments declaration
+			int token = readToken();
+			name = argName == null ? CharOperation.NO_CHAR : argName;
+			if (token == TerminalTokens.TokenNameCOMMA) {
+				// Create new argument
+				Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
+				if (this.abort) return null; // May be aborted by specialized parser
+				arguments.add(argument);
+				consumeToken();
+				iToken++;
+			} else if (token == TerminalTokens.TokenNameRPAREN) {
+				// Create new argument
+				Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
+				if (this.abort) return null; // May be aborted by specialized parser
+				arguments.add(argument);
+				consumeToken();
+				return createMethodReference(receiver, arguments);
+			} else {
+				Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
+				return syntaxRecoverArgumentType(receiver, arguments, argument);
 			}
 		}
-		boolean inCompletion = (startPosition <= (this.cursorLocation+1) && this.cursorLocation <= endPosition) // completion cursor is between first and last stacked identifiers
-			|| ((startPosition == (endPosition+1) && endPosition == this.cursorLocation)); // or it's a completion on empty token
-		if (inCompletion) {
-			if (this.completionNode == null) {
-				if (this.identifierPtr < 0) {
-					this.completionNode = new CompletionOnJavadocParamNameReference(namePosition, startPosition, endPosition);
-				} else {
-					this.completionNode = new CompletionOnJavadocTypeParamReference(name, namePosition, startPosition, endPosition);
-				}
-				if (CompletionEngine.DEBUG) {
-					System.out.println("	completion param="+completionNode); //$NON-NLS-1$
-				}
-			} else if (this.completionNode instanceof CompletionOnJavadocParamNameReference) {
-				CompletionOnJavadocParamNameReference paramNameRef = (CompletionOnJavadocParamNameReference)this.completionNode;
-				int nameStart = (int) (namePosition>>32);
-				paramNameRef.sourceStart = nameStart;
-				int nameEnd = (int) namePosition;
-				if (nameStart<this.cursorLocation && this.cursorLocation<nameEnd) {
-					paramNameRef.sourceEnd = this.cursorLocation + 1;
-				} else {
-					paramNameRef.sourceEnd = nameEnd;
-				}
-				paramNameRef.tagSourceStart = startPosition;
-				paramNameRef.tagSourceEnd = endPosition;
-			} else if (this.completionNode instanceof CompletionOnJavadocTypeParamReference) {
-				CompletionOnJavadocTypeParamReference typeParamRef = (CompletionOnJavadocTypeParamReference)this.completionNode;
-				int nameStart = (int) (namePosition>>32);
-				typeParamRef.sourceStart = nameStart;
-				int nameEnd = (int) namePosition;
-				if (nameStart<this.cursorLocation && this.cursorLocation<nameEnd) {
-					typeParamRef.sourceEnd = this.cursorLocation + 1;
-				} else {
-					typeParamRef.sourceEnd = nameEnd;
-				}
-				typeParamRef.tagSourceStart = startPosition;
-				typeParamRef.tagSourceEnd = endPosition;
-			}
-		}
-		return valid;
+
+		// Something wrong happened => Invalid input
+		throw new InvalidInputException();
 	}
+
+		protected boolean parseParam() throws InvalidInputException {
+			int startPosition = this.index;
+			int endPosition = this.index;
+			long namePosition = (((long)startPosition)<<32) + endPosition;
+			this.identifierPtr = -1;
+			boolean valid = super.parseParam();
+			if (this.identifierPtr > 2) return valid;
+			// See if expression is concerned by completion
+			char[] name = null;
+			CompletionScanner completionScanner = (CompletionScanner) this.scanner;
+			boolean isTypeParam = false;
+			if (this.identifierPtr < 0) {
+				// workaround, empty token should set an empty identifier by scanner and so identifierPtr should be == 0
+				if (completionScanner.getCurrentIdentifierSource() == CompletionScanner.EmptyCompletionIdentifier) {
+					namePosition = completionScanner.completedIdentifierStart;
+					startPosition = completionScanner.completedIdentifierStart;
+					endPosition = completionScanner.completedIdentifierEnd;
+				}
+			} else {
+				char[] identifier = null;
+				switch (this.identifierPtr) {
+					case 2:
+						if (!valid && completionScanner.getCurrentIdentifierSource() == CompletionScanner.EmptyCompletionIdentifier) {
+							valid = pushParamName(true);
+						}
+					case 1:
+						isTypeParam = true;
+						identifier = this.identifierStack[1];
+						namePosition = this.identifierPositionStack[1];
+						break;
+					case 0:
+						identifier = this.identifierStack[0];
+						namePosition = this.identifierPositionStack[0];
+						isTypeParam = identifier.length > 0 && identifier[0] == '<';
+						break;
+				}
+				if (identifier.length > 0 && Character.isJavaIdentifierPart(identifier[0])) {
+					name = identifier;
+				}
+				startPosition = (int)(this.identifierPositionStack[0]>>32);
+				endPosition = (int)this.identifierPositionStack[this.identifierPtr];
+			}
+			boolean inCompletion = (startPosition <= (this.cursorLocation+1) && this.cursorLocation <= endPosition) // completion cursor is between first and last stacked identifiers
+				|| ((startPosition == (endPosition+1) && endPosition == this.cursorLocation)); // or it's a completion on empty token
+			if (inCompletion) {
+				if (this.completionNode == null) {
+					if (isTypeParam) {
+						this.completionNode = new CompletionOnJavadocTypeParamReference(name, namePosition, startPosition, endPosition);
+					} else {
+						this.completionNode = new CompletionOnJavadocParamNameReference(name, namePosition, startPosition, endPosition);
+					}
+					if (CompletionEngine.DEBUG) {
+						System.out.println("	completion param="+completionNode); //$NON-NLS-1$
+					}
+				} else if (this.completionNode instanceof CompletionOnJavadocParamNameReference) {
+					CompletionOnJavadocParamNameReference paramNameRef = (CompletionOnJavadocParamNameReference)this.completionNode;
+					int nameStart = (int) (namePosition>>32);
+					paramNameRef.sourceStart = nameStart;
+					int nameEnd = (int) namePosition;
+					if (nameStart<this.cursorLocation && this.cursorLocation<nameEnd) {
+						paramNameRef.sourceEnd = this.cursorLocation + 1;
+					} else {
+						paramNameRef.sourceEnd = nameEnd;
+					}
+					paramNameRef.tagSourceStart = startPosition;
+					paramNameRef.tagSourceEnd = endPosition;
+				} else if (this.completionNode instanceof CompletionOnJavadocTypeParamReference) {
+					CompletionOnJavadocTypeParamReference typeParamRef = (CompletionOnJavadocTypeParamReference)this.completionNode;
+					int nameStart = (int) (namePosition>>32);
+					typeParamRef.sourceStart = nameStart;
+					int nameEnd = (int) namePosition;
+					if (nameStart<this.cursorLocation && this.cursorLocation<nameEnd) {
+						typeParamRef.sourceEnd = this.cursorLocation + 1;
+					} else {
+						typeParamRef.sourceEnd = nameEnd;
+					}
+					typeParamRef.tagSourceStart = startPosition;
+					typeParamRef.tagSourceEnd = endPosition;
+				}
+			}
+			return valid;
+		}
 
 	/*(non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseTag(int)
@@ -636,6 +749,95 @@ public class CompletionJavadocParser extends JavadocParser {
 				this.completionNode.addCompletionFlags(CompletionOnJavadoc.TEXT);
 			}
 		}
+	}
+
+	/* 
+	 * Recover syntax on invalid qualified name.
+	 */
+	protected Object syntaxRecoverQualifiedName() throws InvalidInputException {
+		int idLength = this.identifierLengthStack[this.identifierLengthPtr--];
+		char[][] tokens = new char[idLength][];
+		int startPtr = this.identifierPtr-idLength+1;
+		System.arraycopy(this.identifierStack, startPtr, tokens, 0, idLength);
+		long[] positions = new long[idLength+1];
+		System.arraycopy(this.identifierPositionStack, startPtr, positions, 0, idLength);
+		positions[idLength] = (((long)this.tokenPreviousPosition)<<32) + this.tokenPreviousPosition;
+		this.completionNode = new CompletionOnJavadocQualifiedTypeReference(tokens, CharOperation.NO_CHAR, positions, this.tagSourceStart, this.tagSourceEnd);
+		this.identifierPtr -= idLength;
+
+		if (CompletionEngine.DEBUG) {
+			System.out.println("	completion partial qualified type="+completionNode); //$NON-NLS-1$
+		}
+		return this.completionNode;
+	}
+
+	/* 
+	 * Recover syntax on type argument in invalid method/constructor reference
+	 */
+	protected Object syntaxRecoverArgumentType(Object receiver, List arguments, Object argument) throws InvalidInputException {
+		if (this.completionNode != null && !this.pushText) {
+			this.completionNode.addCompletionFlags(CompletionOnJavadoc.BASE_TYPES);
+			if (this.completionNode instanceof CompletionOnJavadocSingleTypeReference) {
+				char[] token = ((CompletionOnJavadocSingleTypeReference)this.completionNode).token;
+				if (token != null && token.length > 0) {
+					return this.completionNode;
+				}
+			} else {
+				return this.completionNode;
+			}
+		}
+		if (this.completionNode instanceof CompletionOnJavadocSingleTypeReference) {
+			CompletionOnJavadocSingleTypeReference singleTypeReference = (CompletionOnJavadocSingleTypeReference) this.completionNode;
+			if (singleTypeReference.token != null && singleTypeReference.token.length > 0) {
+				arguments.add(argument);
+			}
+		} else if (this.completionNode instanceof CompletionOnJavadocQualifiedTypeReference) {
+			CompletionOnJavadocQualifiedTypeReference qualifiedTypeReference = (CompletionOnJavadocQualifiedTypeReference) this.completionNode;
+			if (qualifiedTypeReference.tokens != null && qualifiedTypeReference.tokens.length == qualifiedTypeReference.sourcePositions.length) {
+				arguments.add(argument);
+			}
+		}
+		Object methodRef = createMethodReference(receiver, arguments);
+		if (methodRef instanceof JavadocMessageSend) {
+			JavadocMessageSend msgSend = (JavadocMessageSend) methodRef;
+			if (this.index > this.cursorLocation) {
+				msgSend.sourceEnd = this.tokenPreviousPosition-1;
+			}
+			this.completionNode = new CompletionOnJavadocMessageSend(msgSend, this.memberStart);
+		} else if (methodRef instanceof JavadocAllocationExpression) {
+			JavadocAllocationExpression allocExp = (JavadocAllocationExpression) methodRef;
+			if (this.index > this.cursorLocation) {
+				allocExp.sourceEnd = this.tokenPreviousPosition-1;
+			}
+			this.completionNode = new CompletionOnJavadocAllocationExpression(allocExp, this.memberStart);
+		}
+		if (CompletionEngine.DEBUG) {
+			System.out.println("	completion method="+completionNode); //$NON-NLS-1$
+		}
+		return this.completionNode;
+	}
+
+	/*
+	 * Recover syntax on empty type argument in invalid method/constructor reference
+	 */
+	protected Object syntaxRecoverEmptyArgumentType(Object methodRef) throws InvalidInputException {
+		if (methodRef instanceof JavadocMessageSend) {
+			JavadocMessageSend msgSend = (JavadocMessageSend) methodRef;
+			if (this.index > this.cursorLocation) {
+				msgSend.sourceEnd = this.tokenPreviousPosition-1;
+			}
+			this.completionNode = new CompletionOnJavadocMessageSend(msgSend, this.memberStart);
+		} else if (methodRef instanceof JavadocAllocationExpression) {
+			JavadocAllocationExpression allocExp = (JavadocAllocationExpression) methodRef;
+			if (this.index > this.cursorLocation) {
+				allocExp.sourceEnd = this.tokenPreviousPosition-1;
+			}
+			this.completionNode = new CompletionOnJavadocAllocationExpression(allocExp, this.memberStart);
+		}
+		if (CompletionEngine.DEBUG) {
+			System.out.println("	completion method="+completionNode); //$NON-NLS-1$
+		}
+		return this.completionNode;
 	}
 
 	/*

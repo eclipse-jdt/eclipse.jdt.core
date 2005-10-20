@@ -1238,11 +1238,6 @@ public final class CompletionEngine
 
 					if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)
 							|| !this.requestor.isIgnored(CompletionProposal.JAVADOC_FIELD_REF)) {
-						findClassField(this.completionToken, (TypeBinding) qualifiedBinding, scope);
-					}
-
-					if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)
-							|| !this.requestor.isIgnored(CompletionProposal.JAVADOC_FIELD_REF)) {
 						findFields(this.completionToken,
 							receiverType,
 							scope,
@@ -1281,7 +1276,7 @@ public final class CompletionEngine
 			} else if (astNode instanceof CompletionOnJavadocMessageSend) {
 
 				CompletionOnJavadocMessageSend messageSend = (CompletionOnJavadocMessageSend) astNode;
-				TypeBinding[] argTypes = computeTypes(messageSend.arguments);
+				TypeBinding[] argTypes = null; //computeTypes(messageSend.arguments);
 				this.completionToken = messageSend.selector;
 				this.assistNodeInJavadoc = messageSend.completionFlags;
 				this.javadocTagPosition = messageSend.tagSourceStart;
@@ -1308,7 +1303,7 @@ public final class CompletionEngine
 						scope,
 						new ObjectVector(),
 						false,
-						true,
+						false/* prefix match */,
 						false,
 						messageSend,
 						scope,
@@ -1868,8 +1863,7 @@ public final class CompletionEngine
 
 	private void findClassField(char[] token, TypeBinding receiverType, Scope scope) {
 
-		if (token == null || (token.length == 0 && receiverType == null))
-			return;
+		if (token == null) return;
 
 		if (token.length <= classField.length
 			&& CharOperation.prefixEquals(token, classField, false /* ignore case */
@@ -2087,9 +2081,10 @@ public final class CompletionEngine
 					if (minArgLength > paramLength)
 						continue next;
 					for (int a = minArgLength; --a >= 0;)
-						if (argTypes[a] != null && argTypes[a].isValidBinding()) // can be null if it could not be resolved properly
+						if (argTypes[a] != null) { // can be null if it could not be resolved properly
 							if (!argTypes[a].isCompatibleWith(constructor.parameters[a]))
 								continue next;
+						}
 	
 					char[][] parameterPackageNames = new char[paramLength][];
 					char[][] parameterTypeNames = new char[paramLength][];
@@ -2154,14 +2149,12 @@ public final class CompletionEngine
 							} else if (invocationSite instanceof CompletionOnJavadocFieldReference) {
 								CompletionOnJavadocFieldReference fieldRef = (CompletionOnJavadocFieldReference) invocationSite;
 								receiver = fieldRef.receiver;
-//								 if (fieldRef.completeTypeWithDefaultContructor()) relevance--;
 							}
 							StringBuffer javadocCompletion = new StringBuffer();
 							if (receiver.isThis()) {
 								selector = (((JavadocImplicitTypeReference)receiver).token);
 								if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
 									javadocCompletion.append('#');
-//									javadocCompletion.append(((JavadocImplicitTypeReference)receiver).token);
 								}
 							} else if (receiver instanceof JavadocSingleTypeReference) {
 								JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) receiver;
@@ -2274,6 +2267,7 @@ public final class CompletionEngine
 		// Inherited fields which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 		
+		int fieldLength = fieldName.length;
 		next : for (int f = fields.length; --f >= 0;) {			
 			FieldBinding field = fields[f];
 
@@ -2281,10 +2275,9 @@ public final class CompletionEngine
 
 			if (onlyStaticFields && !field.isStatic()) continue next;
 
-			if (fieldName != null) {
-				if (fieldName.length > field.name.length) continue next;
-				if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */))	continue next;
-			}
+			if (fieldLength > field.name.length) continue next;
+
+			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */))	continue next;
 
 			if (this.options.checkVisibility
 				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
@@ -3639,6 +3632,7 @@ public final class CompletionEngine
 		// Inherited methods which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 
+		int methodLength = methodName.length;
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
 
 		next : for (int f = methods.length; --f >= 0;) {
@@ -3663,25 +3657,21 @@ public final class CompletionEngine
 				continue next;
 			}
 
-			if (methodName != null) {
-				if (exactMatch) {
-					if (!CharOperation.equals(methodName, method.selector, false /* ignore case */)) {
-						continue next;
-					}
-				} else {
-					if (methodName.length > method.selector.length) {
-						continue next;
-					}
-					if (!CharOperation.prefixEquals(methodName, method.selector, false	/* ignore case */)) {
-						continue next;
-					}
+			if (exactMatch) {
+				if (!CharOperation.equals(methodName, method.selector, false /* ignore case */)) {
+					continue next;
+				}
+			} else {
+				if (methodLength > method.selector.length) continue next;
+				if (!CharOperation.prefixEquals(methodName, method.selector, false /* ignore case */)) {
+					continue next;
 				}
 			}
 			if (minArgLength > method.parameters.length)
 				continue next;
 
 			for (int a = minArgLength; --a >= 0;){
-				if (argTypes[a] != null && argTypes[a].isValidBinding()) { // can be null if it could not be resolved properly
+				if (argTypes[a] != null) { // can be null if it could not be resolved properly
 					if (!argTypes[a].isCompatibleWith(method.parameters[a])) {
 						continue next;
 					}

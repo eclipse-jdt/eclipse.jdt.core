@@ -54,7 +54,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 
 	public AbstractJavadocCompletionModelTest(String name) {
 		super(name);
-		this.tabs = 3;
+		this.tabs = 2;
 		this.displayName = true;
 		this.endChar = "";
 	}
@@ -201,10 +201,11 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 			this.completionStart = this.cursorLocation;
 		}
 		int endPosition = this.cursorLocation;
-		if (!Character.isWhitespace(source.charAt(this.cursorLocation))) {
+		char ch = source.charAt(endPosition);
+		if (Character.isJavaIdentifierPart(ch) || ch == '>' || ch == '}' || ch == '(' || ch == ')') {
 			do {
-				endPosition++;
-			} while (!Character.isWhitespace(source.charAt(endPosition)));
+				ch = source.charAt(++endPosition);
+			} while (Character.isJavaIdentifierPart(ch) || ch == '>' || ch == '}' || ch == '(' || ch == ')');
 		}
 		this.positions = "["+this.completionStart+", "+endPosition+"], ";
 	}

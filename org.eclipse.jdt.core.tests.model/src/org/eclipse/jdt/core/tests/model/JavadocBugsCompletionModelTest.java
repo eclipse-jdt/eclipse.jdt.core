@@ -97,12 +97,13 @@ public void testBug22043() throws JavaModelException {
 	String source =
 		"package javadoc.bugs;\n" + 
 		"/**\n" + 
-		" * @see #thisIsAMethod(S\n" + 
+		" * Complete after (S:\n" + 
+		" * 	@see #thisIsAMethod(S\n" + 
 		" */\n" + 
 		"public class BasicTestBugs {\n" + 
 		"	public void thisIsAMethod(String param) {}\n" + 
 		"}\n";
-	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "S");
+	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "S", 2); // 2nd occurence
 	assertSortedResults(
 		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+"21}\n" +
 		"Serializable[TYPE_REF]{java.io.Serializable, java.io, Ljava.io.Serializable;, null, null, "+this.positions+"18}\n" + 
@@ -114,12 +115,13 @@ public void testBug22043a() throws JavaModelException {
 	String source =
 		"package javadoc.bugs;\n" + 
 		"/**\n" + 
-		" * @see #thisIsAMethod(S\n" + 
+		" * Complete after thisIsAMethod:\n" + 
+		" * 	@see #thisIsAMethod(S\n" + 
 		" */\n" + 
 		"public class BasicTestBugs {\n" + 
 		"	public void thisIsAMethod(String param) {}\n" + 
 		"}\n";
-	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod");
+	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod", 2); // 2nd occurence
 	assertResults(
 		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+"25}"
 	);
@@ -129,12 +131,13 @@ public void testBug22043b() throws JavaModelException {
 	String source =
 		"package javadoc.bugs;\n" + 
 		"/**\n" + 
-		" * @see #thisIsAMethod(S\n" + 
+		" * Complete after thisIsAMethod(:\n" + 
+		" * 	@see #thisIsAMethod(S\n" + 
 		" */\n" + 
 		"public class BasicTestBugs {\n" + 
 		"	public void thisIsAMethod(String param) {}\n" + 
 		"}\n";
-	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod(");
+	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod(", 2); // 2nd occurence
 	assertResults(
 		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+"25}"
 	);
@@ -144,13 +147,16 @@ public void testBug22043c() throws JavaModelException {
 	String source =
 		"package javadoc.bugs;\n" + 
 		"/**\n" + 
-		" * @see #thisIsAMethod(Object\n" + 
+		" * Complete after thisIsAMethod(:\n" + 
+		" * 	@see #thisIsAMethod(Object\n" + 
 		" */\n" + 
 		"public class BasicTestBugs {\n" + 
 		"	public void thisIsAMethod(String param) {}\n" + 
+		"	public void thisIsAMethod(Object str) {}\n" + 
 		"}\n";
-	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod(");
+	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "thisIsAMethod(", 2); // 2nd occurence
 	assertResults(
+		"thisIsAMethod[METHOD_REF]{thisIsAMethod(Object), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.Object;)V, thisIsAMethod, (str), "+this.positions+"25}\n" + 
 		"thisIsAMethod[METHOD_REF]{thisIsAMethod(String), Ljavadoc.bugs.BasicTestBugs;, (Ljava.lang.String;)V, thisIsAMethod, (param), "+this.positions+"25}"
 	);
 }
