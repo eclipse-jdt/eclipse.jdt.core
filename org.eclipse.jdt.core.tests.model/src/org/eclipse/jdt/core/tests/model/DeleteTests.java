@@ -43,7 +43,14 @@ public void setUpSuite() throws Exception {
 	createJavaProject("P");
 }
 public static Test suite() {
-	return new Suite(DeleteTests.class);
+	return buildTestSuite(DeleteTests.class);
+}
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+//		TESTS_NAMES = new String[] { "testDeleteField4" };
+//		TESTS_NUMBERS = new int[] { 2, 12 };
+//		TESTS_RANGE = new int[] { 16, -1 };
 }
 public void tearDownSuite() throws Exception {
 	deleteProject("P");
@@ -423,6 +430,30 @@ public void testDeleteField3() throws CoreException {
 		);
 	} finally {
 		stopDeltas();
+		deleteFile("P/X.java");
+	}
+}
+/*
+ * Ensures that a field with initializer can be deleted.
+ * (regression test for bug 112935 IField.delete is not deleting the value of the variable.)
+ */
+public void testDeleteField4() throws CoreException {
+	try {
+		createFile(
+			"P/X.java",
+			"public class X {\n" +
+			"  private String t = \"sample test\";\n" +
+			"}"
+		);
+		ICompilationUnit cu = getCompilationUnit("P/X.java");
+		IField field = cu.getType("X").getField("t");
+		field.delete(false, null);
+		assertSourceEquals(
+			"Unexpected source", 
+			"public class X {\n" + 
+			"}",
+			cu.getSource());
+	} finally {
 		deleteFile("P/X.java");
 	}
 }
