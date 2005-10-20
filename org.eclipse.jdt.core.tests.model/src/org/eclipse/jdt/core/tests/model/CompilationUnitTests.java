@@ -82,7 +82,7 @@ public void setUpSuite() throws Exception {
 // All specified tests which do not belong to the class are skipped...
 static {
 //	TESTS_PREFIX = "testBug";
-//	TESTS_NAMES = new String[] { "testGetChildrenForCategory02" };
+//	TESTS_NAMES = new String[] { "test110172" };
 //	TESTS_NUMBERS = new int[] { 13 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -1002,6 +1002,139 @@ public void testBug78275() throws CoreException {
 		IInitializer[] initializers = type.getInitializers();
 		assertEquals("Invalid number of initializers", 1, initializers.length);
 		assertTrue("Invalid length for initializer", initializers[0].getSourceRange().getLength() > 0);
+	} finally {
+		deleteFile("/P/src/X.java");
+	}
+}
+public void test110172() throws CoreException {
+	try {
+		String source =
+			"/**\n" +
+			" * Class X javadoc \n" +
+			" */\n" +
+			"public class X {\n" +
+			"	/**\n" +
+			"	 * Javadoc for initializer\n" +
+			"	 */\n" +
+			"	static {\n" +
+			"	}\n" +
+			"	\n" +
+			"	 /**\n" +
+			"	  * Javadoc for field f \n" +
+			"	  */\n" +
+			"	public int f;\n" +
+			"	\n" +
+			"	/**\n" +
+			"	 * Javadoc for method foo\n" +
+			"	 */\n" +
+			"	public void foo(int i, long l, String s) {\n" +
+			"	}\n" +
+			"	\n" +
+			"	/**\n" +
+			"	 * Javadoc for member type A\n" +
+			"	 */\n" +
+			"	public class A {\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Javadoc for constructor X(int)\n" +
+			"	 */\n" +
+			"	X(int i) {\n" +
+			"	}\n" +
+			"	\n" +
+			"	/**\n" +
+			"	 * Javadoc for f3\n" +
+			"	 */\n" +
+			"	/*\n" +
+			"	 * Not a javadoc comment\n" +
+			"	 */\n" +
+			"	/**\n" +
+			"	 * Real javadoc for f3\n" +
+			"	 */\n" +
+			"	public String f3;\n" +
+			"	\n" +
+			"	public int f2;\n" +
+			"	\n" +
+			"	public void foo2() {\n" +
+			"	}\n" +
+			"	\n" +
+			"	public class B {\n" +
+			"	}\n" +
+			"\n" +
+			"	X() {\n" +
+			"	}\n" +
+			"	\n" +
+			"	{\n" +
+			"	}\n" +
+			"}";
+		createFile("/P/src/X.java", source);
+		IType type = getCompilationUnit("/P/src/X.java").getType("X");
+		IJavaElement[] members = type.getChildren();
+		final int length = members.length;
+		assertEquals("Wrong number", 11, length);
+		for (int i = 0; i < length; i++) {
+			final IJavaElement element = members[i];
+			assertTrue(element instanceof IMember);
+			final ISourceRange javadocRange = ((IMember) element).getJavadocRange();
+			final String elementName = element.getElementName();
+			if ("f".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("field f") != -1);
+			} else if ("foo".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("method foo") != -1);
+			} else if ("A".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("member type A") != -1);
+			} else if ("X".equals(elementName)) {
+				// need treatment for the two constructors
+				assertTrue("Not an IMethod", element instanceof IMethod);
+				IMethod method = (IMethod) element;
+				switch(method.getNumberOfParameters()) {
+					case 0 :
+						assertNull("Has a javadoc source range", javadocRange);
+						break;
+					case 1:
+						assertNotNull("No javadoc source range", javadocRange);
+						final int start = javadocRange.getOffset();
+						final int end = javadocRange.getLength() + start - 1;
+						String javadocSource = source.substring(start, end);
+						assertTrue("Wrong javadoc", javadocSource.indexOf("constructor") != -1);
+				}
+			} else if ("f3".equals(elementName)) {
+				assertNotNull("No javadoc source range", javadocRange);
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("Real") != -1);
+			} else if ("f2".equals(elementName)) {
+				assertNull("Has a javadoc source range", javadocRange);
+			} else if ("foo2".equals(elementName)) {
+				assertNull("Has a javadoc source range", javadocRange);
+			} else if ("B".equals(elementName)) {
+				assertNull("Has a javadoc source range", javadocRange);
+			} else if (element instanceof IInitializer) {
+				IInitializer initializer = (IInitializer) element;
+				if (Flags.isStatic(initializer.getFlags())) {
+					assertNotNull("No javadoc source range", javadocRange);
+					final int start = javadocRange.getOffset();
+					final int end = javadocRange.getLength() + start - 1;
+					String javadocSource = source.substring(start, end);
+					assertTrue("Wrong javadoc", javadocSource.indexOf("initializer") != -1);
+				} else {
+					assertNull("Has a javadoc source range", javadocRange);
+				}
+			}
+		}
 	} finally {
 		deleteFile("/P/src/X.java");
 	}
