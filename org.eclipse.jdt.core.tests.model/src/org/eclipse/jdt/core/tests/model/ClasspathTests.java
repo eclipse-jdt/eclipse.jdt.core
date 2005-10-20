@@ -25,6 +25,8 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -76,7 +78,7 @@ public ClasspathTests(String name) {
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
 //	TESTS_PREFIX = "testClasspathDuplicateExtraAttribute";
-	TESTS_NAMES = new String[] {"testEncodeDecodeEntry04"};
+//	TESTS_NAMES = new String[] {"testCycleDetection4"};
 //	TESTS_NUMBERS = new int[] { 23, 28, 38 };
 //	TESTS_RANGE = new int[] { 21, 38 };
 }
@@ -3081,6 +3083,44 @@ public void testCycleDetection3() throws CoreException {
 	} finally {
 		//this.stopDeltas();
 		this.deleteProjects(projectNames);
+	}
+}
+/*
+ * Ensures that a cycle is detected if introduced during a post-change event.
+ * (regression test for bug 113051 No classpath marker produced when cycle through PDE container)
+ */
+public void testCycleDetection4() throws CoreException {
+	IResourceChangeListener listener = new IResourceChangeListener() {
+		boolean containerNeedUpdate = true;
+		public void resourceChanged(IResourceChangeEvent event) {
+			if (containerNeedUpdate) {
+				TestContainer container = new TestContainer(
+					new Path("org.eclipse.jdt.core.tests.model.container/default"), 
+					new IClasspathEntry[] { JavaCore.newProjectEntry(new Path("/P1")) });
+				try {
+					JavaCore.setClasspathContainer(container.getPath(), new IJavaProject[] {getJavaProject("P2")}, new IClasspathContainer[] {container}, null);
+				} catch (JavaModelException e) {
+					e.printStackTrace();
+				}
+				containerNeedUpdate = false;
+			}
+		}
+	};
+	try {
+		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {}, new String[] {"/P2"}, "");
+		TestContainer container = new TestContainer(
+			new Path("org.eclipse.jdt.core.tests.model.container/default"), 
+			new IClasspathEntry[] {});
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {container.getPath().toString()}, "");
+		JavaCore.setClasspathContainer(container.getPath(), new IJavaProject[] {p2}, new IClasspathContainer[] {container}, null);
+		waitForAutoBuild();
+		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
+		createFile("/P1/test.txt", "");
+		waitForAutoBuild();
+		assertCycleMarkers(p1, new IJavaProject[] {p1, p2}, new int[] {1, 1});
+	} finally {
+		getWorkspace().removeResourceChangeListener(listener);
+		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
 public void testPerfDenseCycleDetection1() throws CoreException {
