@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 854 };
+//		TESTS_NUMBERS = new int[] { 855 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -26398,5 +26398,61 @@ public void test854() {
 			"}",
 		},
 		"SUCCESS");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113218
+public void test855() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		FieldManager manager = new FieldManagerImpl();\n" +
+			"		FieldMeta<FieldImpl> meta = new FieldMeta<FieldImpl>(manager);\n" +
+			"		Field<? extends Field> field = new FieldImpl(meta);\n" +
+			"		FieldMeta<? extends Field> meta2 = field.getFieldMeta();\n" +
+			"		System.out.print(meta2.getFieldManager() instanceof ExtFieldManager);\n" +
+			"	}\n" +
+			"}",
+			"FieldMeta.java",
+			"public class FieldMeta<F extends Field> {\n" +
+			"	private final FieldManager<F> fieldManager;\n" +
+			"	public FieldMeta(FieldManager<F> fieldManager) {\n" +
+			"		this.fieldManager = fieldManager;\n" +
+			"	}\n" +
+			"	public <FB extends FieldManager<F>> FB getFieldManager() {\n" +
+			"		return (FB) fieldManager;\n" +
+			"	}\n" +
+			"}",
+			"FieldManagerImpl.java",
+			"public class FieldManagerImpl extends FieldManager<FieldImpl> implements\n" +
+			"	ExtFieldManager<FieldImpl> {\n" +
+			"}",
+			"FieldManager.java",
+			"public abstract class FieldManager<F extends Field> {}",
+			"FieldImpl.java",
+			"public class FieldImpl extends Field<FieldImpl> {\n" +
+			"	public FieldImpl(FieldMeta<FieldImpl> fieldMeta) {\n" +
+			"		super(fieldMeta);\n" +
+			"	}\n" +
+			"}",
+			"Field.java",
+			"public class Field<F extends Field> {\n" +
+			"	private final FieldManager<F> fieldManager;\n" +
+			"	private final FieldMeta<F> fieldMeta;\n" +
+			"	public FieldMeta<F> getFieldMeta() {\n" +
+			"		return fieldMeta;\n" +
+			"	}\n" +
+			"	public Field(FieldMeta<F> fieldMeta) {\n" +
+			"		this.fieldMeta = fieldMeta;\n" +
+			"		this.fieldManager = fieldMeta.getFieldManager();\n" +
+			"	}\n" +
+			"	public FieldManager<F> getFieldManager() {\n" +
+			"		return fieldManager;\n" +
+			"	}\n" +
+			"}",
+			"ExtFieldManager.java",
+			"public interface ExtFieldManager<F extends Field> {}"
+		},
+		"true");	
 }
 }
