@@ -52,6 +52,9 @@ Eclipse SDK 3.2M3 - ?th October 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added API <code>org.eclipse.jdt.core.IMember#ISourceRange getJavadocRange() throws JavaModelException</code>. This API can be used
+to retrieve the source range of a javadoc comment attached to the corresponding member.
+</li>
 <li>Added compiler option so as to specify whether optional errors should be fatal or not. By default, an optional error is 
 treated as fatal as a normal language error (as defined by the language spec book), when disabling this option, clients will
 be able to treat optional errors as severe warnings only, which will be rendered as errors, but no longer prevent from running

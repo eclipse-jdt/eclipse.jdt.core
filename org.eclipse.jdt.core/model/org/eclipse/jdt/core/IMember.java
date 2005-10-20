@@ -72,6 +72,22 @@ IType getDeclaringType();
  */
 int getFlags() throws JavaModelException;
 /**
+ * Returns the Javadoc range if this element is from source or if this element
+ * is a binary element with an attached source, null otherwise.
+ * 
+ * <p>If this element is from source, the javadoc range is 
+ * extracted from the corresponding source.</p>
+ * <p>If this element is from a binary, the javadoc is extracted from the
+ * attached source if present.</p>
+ *
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ * @return a source range corresponding to the javadoc source or <code>null</code>
+ * if no source is available or the element has no javadoc comment.
+ * @since 3.2
+ */
+ISourceRange getJavadocRange() throws JavaModelException;
+/**
  * Returns the source range of this member's simple name,
  * or <code>null</code> if this member does not have a name
  * (for example, an initializer), or if this member does not have
