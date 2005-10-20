@@ -92,9 +92,6 @@ public abstract int getCategoryID();
  * are associated to marker type "org.eclipse.jdt.core.task".
  * 
  * @return the type of the marker which would be associated to the problem
- * 
- * @see org.eclipse.jdt.core.IJavaModelMarker#JAVA_MODEL_PROBLEM_MARKER
- * @see org.eclipse.jdt.core.IJavaModelMarker#TASK_MARKER
  */
 public abstract String getMarkerType();
 }
