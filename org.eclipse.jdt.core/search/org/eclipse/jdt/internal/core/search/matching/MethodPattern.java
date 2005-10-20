@@ -301,8 +301,10 @@ EntryResult[] queryIn(Index index) throws IOException {
 			if (this.isCamelCase) break;
 			if (shouldCountParameter() && this.selector != null && this.parameterCount >= 0)
 				key = createIndexKey(this.selector, this.parameterCount);
-			else // do a prefix query with the selector
-				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
+			else { // do a prefix query with the selector
+				matchRule &= ~R_EXACT_MATCH;
+				matchRule |= R_PREFIX_MATCH;
+			}
 			break;
 		case R_PREFIX_MATCH :
 			// do a prefix query with the selector

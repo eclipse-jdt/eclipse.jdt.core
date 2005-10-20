@@ -157,7 +157,8 @@ EntryResult[] queryIn(Index index) throws IOException {
 			case R_EXACT_MATCH :
 				if (!this.isCamelCase) {
 					// do a prefix query with the simpleName
-					matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
+					matchRule &= ~R_EXACT_MATCH;
+					matchRule |= R_PREFIX_MATCH;
 					key = CharOperation.append(key, SEPARATOR);
 				}
 				break;

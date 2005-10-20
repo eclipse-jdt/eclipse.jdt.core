@@ -57,7 +57,7 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 	// results maps a word -> EntryResult
 	Object[] paths = this.docsToReferences.keyTable;
 	Object[] referenceTables = this.docsToReferences.valueTable;
-	if (matchRule == (SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE) && key != null) {
+	if (matchRule == (SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE) && key != null) {
 		nextPath : for (int i = 0, l = referenceTables.length; i < l; i++) {
 			HashtableOfObject categoryToWords = (HashtableOfObject) referenceTables[i];
 			if (categoryToWords != null) {

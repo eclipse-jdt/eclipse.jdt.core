@@ -283,14 +283,15 @@ EntryResult[] queryIn(Index index) throws IOException {
 			break;
 		case R_EXACT_MATCH :
 			if (this.isCamelCase) break;
+			matchRule &= ~R_EXACT_MATCH;
 			if (this.simpleName != null) {
-				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
+				matchRule |= R_PREFIX_MATCH;
 				key = this.pkg == null
 					? CharOperation.append(this.simpleName, SEPARATOR)
 					: CharOperation.concat(this.simpleName, SEPARATOR, this.pkg, SEPARATOR, CharOperation.NO_CHAR);
 				break; // do a prefix query with the simpleName and possibly the pkg
 			}
-			matchRule = matchRule - R_EXACT_MATCH + R_PATTERN_MATCH;
+			matchRule |= R_PATTERN_MATCH;
 			// fall thru to encode the key and do a pattern query
 		case R_PATTERN_MATCH :
 			if (this.pkg == null) {

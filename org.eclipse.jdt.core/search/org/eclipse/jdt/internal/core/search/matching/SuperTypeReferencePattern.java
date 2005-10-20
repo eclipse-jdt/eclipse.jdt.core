@@ -228,7 +228,8 @@ EntryResult[] queryIn(Index index) throws IOException {
 		case R_EXACT_MATCH :
 			if (this.isCamelCase) break;
 			// do a prefix query with the superSimpleName
-			matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
+			matchRule &= ~R_EXACT_MATCH;
+			matchRule |= R_PREFIX_MATCH;
 			if (this.superSimpleName != null)
 				key = CharOperation.append(this.superSimpleName, SEPARATOR);
 			break;

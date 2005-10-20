@@ -37,11 +37,12 @@ protected MemoryIndex memoryIndex;
 /**
  * Mask used on match rule for indexing.
  */
-static final int MATCH_RULE_INDEX_MASK = SearchPattern.R_EXACT_MATCH + 
-	SearchPattern.R_PREFIX_MATCH +
-	SearchPattern.R_PATTERN_MATCH +
-	SearchPattern.R_REGEXP_MATCH +
-	SearchPattern.R_CASE_SENSITIVE +
+static final int MATCH_RULE_INDEX_MASK =
+	SearchPattern.R_EXACT_MATCH |
+	SearchPattern.R_PREFIX_MATCH |
+	SearchPattern.R_PATTERN_MATCH |
+	SearchPattern.R_REGEXP_MATCH |
+	SearchPattern.R_CASE_SENSITIVE |
 	SearchPattern.R_CAMELCASE_MATCH;
 
 public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
@@ -63,12 +64,12 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 			return CharOperation.prefixEquals(pattern, word, false);
 		case SearchPattern.R_PATTERN_MATCH :
 			return CharOperation.match(pattern, word, false);
-		case SearchPattern.R_EXACT_MATCH + SearchPattern.R_CASE_SENSITIVE :
+		case SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE :
 			if (isCamelCase) return false;
 			return pattern[0] == word[0] && CharOperation.equals(pattern, word);
-		case SearchPattern.R_PREFIX_MATCH + SearchPattern.R_CASE_SENSITIVE :
+		case SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE :
 			return pattern[0] == word[0] && CharOperation.prefixEquals(pattern, word);
-		case SearchPattern.R_PATTERN_MATCH + SearchPattern.R_CASE_SENSITIVE :
+		case SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE :
 			return CharOperation.match(pattern, word, true);
 	}
 	return false;

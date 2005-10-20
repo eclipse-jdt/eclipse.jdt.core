@@ -251,8 +251,10 @@ EntryResult[] queryIn(Index index) throws IOException {
 			if (this.isCamelCase) break;
 			if (shouldCountParameter() && this.declaringSimpleName != null && this.parameterCount >= 0)
 				key = createIndexKey(this.declaringSimpleName, this.parameterCount);
-			else // do a prefix query with the declaringSimpleName
-				matchRule = matchRule - R_EXACT_MATCH + R_PREFIX_MATCH;
+			else { // do a prefix query with the declaringSimpleName
+				matchRule &= ~R_EXACT_MATCH;
+				matchRule |= R_PREFIX_MATCH;
+			}
 			break;
 		case R_PREFIX_MATCH :
 			// do a prefix query with the declaringSimpleName

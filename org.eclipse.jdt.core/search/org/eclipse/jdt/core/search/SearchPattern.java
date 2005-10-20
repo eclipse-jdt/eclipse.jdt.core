@@ -162,7 +162,7 @@ public abstract class SearchPattern extends InternalSearchPattern {
 	 */
 	public static final int R_CAMELCASE_MATCH = 0x0080;
 
-	private static final int MODE_MASK = R_EXACT_MATCH + R_PREFIX_MATCH + R_PATTERN_MATCH + R_REGEXP_MATCH;
+	private static final int MODE_MASK = R_EXACT_MATCH | R_PREFIX_MATCH | R_PATTERN_MATCH | R_REGEXP_MATCH;
 
 	private int matchRule;
 

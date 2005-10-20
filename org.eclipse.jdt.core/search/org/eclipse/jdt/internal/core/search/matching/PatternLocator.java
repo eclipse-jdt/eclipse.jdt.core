@@ -41,11 +41,11 @@ public static final int ERASURE_MATCH = 4;
 
 // Possible rule match flavors
 // see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=79866
-protected static final int POSSIBLE_FULL_MATCH = POSSIBLE_MATCH + (SearchPattern.R_FULL_MATCH<<16);
-protected static final int POSSIBLE_PREFIX_MATCH = POSSIBLE_MATCH + (SearchPattern.R_PREFIX_MATCH<<16);
-protected static final int POSSIBLE_PATTERN_MATCH = POSSIBLE_MATCH + (SearchPattern.R_PATTERN_MATCH<<16);
-protected static final int POSSIBLE_REGEXP_MATCH = POSSIBLE_MATCH + (SearchPattern.R_REGEXP_MATCH<<16);
-protected static final int POSSIBLE_CAMELCASE_MATCH = POSSIBLE_MATCH + (SearchPattern.R_CAMELCASE_MATCH<<16);
+protected static final int POSSIBLE_FULL_MATCH = POSSIBLE_MATCH | (SearchPattern.R_FULL_MATCH<<16);
+protected static final int POSSIBLE_PREFIX_MATCH = POSSIBLE_MATCH | (SearchPattern.R_PREFIX_MATCH<<16);
+protected static final int POSSIBLE_PATTERN_MATCH = POSSIBLE_MATCH | (SearchPattern.R_PATTERN_MATCH<<16);
+protected static final int POSSIBLE_REGEXP_MATCH = POSSIBLE_MATCH | (SearchPattern.R_REGEXP_MATCH<<16);
+protected static final int POSSIBLE_CAMELCASE_MATCH = POSSIBLE_MATCH | (SearchPattern.R_CAMELCASE_MATCH<<16);
 protected static final int NODE_SET_MASK = 0xFF;
 protected static final int POSSIBLE_MATCH_MASK = ~NODE_SET_MASK;
 
@@ -58,7 +58,7 @@ public static final int ALL_CONTAINER =
 	COMPILATION_UNIT_CONTAINER | CLASS_CONTAINER | METHOD_CONTAINER | FIELD_CONTAINER;
 
 /* match rule */
-public static final int RAW_MASK = SearchPattern.R_EQUIVALENT_MATCH + SearchPattern.R_ERASURE_MATCH;
+public static final int RAW_MASK = SearchPattern.R_EQUIVALENT_MATCH | SearchPattern.R_ERASURE_MATCH;
 public static final int RULE_MASK = RAW_MASK; // no other values for the while...
 
 public static PatternLocator patternLocator(SearchPattern pattern) {
