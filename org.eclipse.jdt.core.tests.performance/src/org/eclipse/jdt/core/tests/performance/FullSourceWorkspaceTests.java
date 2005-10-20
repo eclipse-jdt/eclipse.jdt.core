@@ -41,6 +41,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	// Final static variables
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
+	final static Hashtable INITIAL_OPTIONS = JavaCore.getOptions();
 	
 	// Garbage collect constants
 	final static int MAX_GC = 10; // Max gc iterations
@@ -156,9 +157,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	// Standard deviation threshold. Statistic should not be take into account when it's reached
 	protected final static double STDDEV_THRESHOLD = 0.1; // default is 10%
-	
-	// JavaCore options management
-	protected boolean resetOptions = false;
 
 	/**
 	 * @param name
@@ -406,9 +404,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		
 		// Increment test position
 		TEST_POSITION++;
-		
-		// Options will not be reset by default
-		this.resetOptions = false;
 	}
 	/**
 	 * @deprecated Use {@link #tagAsGlobalSummary(String,Dimension,boolean)} instead
@@ -464,9 +459,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		ALL_TESTS_COUNT--;
 		if (ALL_TESTS_COUNT == 0) {
 			ENV.resetWorkspace();
-		}
-		if (this.resetOptions) {
-			JavaCore.setOptions(JavaCore.getDefaultOptions());
+			JavaCore.setOptions(INITIAL_OPTIONS);
 		}
 		super.tearDown();
 	}
@@ -937,13 +930,10 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled); 
 			optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
 		}
-		
+
 		// Ignore 3.1 options
 		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE); 
 		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE); 
-
-		// Options should be reset while tear down test
-		this.resetOptions = true;
 
 		// Return created options map
 		return optionsMap;
