@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -467,14 +468,14 @@ public class TryStatement extends SubRoutineStatement {
 				// the type does not matter as long as it is not a base type
 				if (!upperScope.compilerOptions().inlineJsrBytecode) {
 					this.returnAddressVariable =
-						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), AccDefault, false);
+						new LocalVariableBinding(SecretReturnName, upperScope.getJavaLangObject(), ClassFileConstants.AccDefault, false);
 					finallyScope.addLocalVariable(returnAddressVariable);
 					this.returnAddressVariable.setConstant(NotAConstant); // not inlinable
 				}
 				this.subRoutineStartLabel = new Label();
 	
 				this.anyExceptionVariable =
-					new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), AccDefault, false);
+					new LocalVariableBinding(SecretAnyHandlerName, scope.getJavaLangThrowable(), ClassFileConstants.AccDefault, false);
 				finallyScope.addLocalVariable(this.anyExceptionVariable);
 				this.anyExceptionVariable.setConstant(NotAConstant); // not inlinable
 	
@@ -488,7 +489,7 @@ public class TryStatement extends SubRoutineStatement {
 								new LocalVariableBinding(
 									SecretLocalDeclarationName,
 									methodReturnType,
-									AccDefault,
+									ClassFileConstants.AccDefault,
 									false);
 							finallyScope.addLocalVariable(this.secretReturnValue);
 							this.secretReturnValue.setConstant(NotAConstant); // not inlinable

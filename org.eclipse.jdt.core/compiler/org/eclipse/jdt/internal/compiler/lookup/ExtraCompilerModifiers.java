@@ -13,17 +13,17 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
-public interface CompilerModifiers extends ClassFileConstants { // modifier constant
+// TODO (philippe) these should be moved to tagbits
+public interface ExtraCompilerModifiers { // modifier constant
 	// those constants are depending upon ClassFileConstants (relying that classfiles only use the 16 lower bits)
-	final int AccDefault = 0;
 	final int AccJustFlag = 0xFFFF;// 16 lower bits
 
 	// bit17 - free
-	// bit18 - IConstants.AccAnnotationDefault
+	// bit18 - use by ClassFileConstants.AccAnnotationDefault
 	final int AccRestrictedAccess = ASTNode.Bit19; 
 	final int AccFromClassFile = ASTNode.Bit20; 
 	final int AccDefaultAbstract = ASTNode.Bit20; 
-	// bit21 - IConstants.AccDeprecated
+	// bit21 - use by ClassFileConstants.AccDeprecated
 	final int AccDeprecatedImplicitly = ASTNode.Bit22; // record whether deprecated itself or contained by a deprecated type
 	final int AccAlternateModifierProblem = ASTNode.Bit23; 
 	final int AccModifierProblem = ASTNode.Bit24; 
@@ -33,7 +33,7 @@ public interface CompilerModifiers extends ClassFileConstants { // modifier cons
 	final int AccBlankFinal = ASTNode.Bit27; // for blank final variables
 	final int AccIsDefaultConstructor = ASTNode.Bit27; // for default constructor
 	final int AccLocallyUsed = ASTNode.Bit28; // used to diagnose unused private/local members
-	final int AccVisibilityMASK = AccPublic | AccProtected | AccPrivate;
+	final int AccVisibilityMASK = ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate;
 	
 	final int AccOverriding = ASTNode.Bit29; // record fact a method overrides another one
 	final int AccImplementing = ASTNode.Bit30; // record fact a method implements another one (it is concrete and overrides an abstract one)

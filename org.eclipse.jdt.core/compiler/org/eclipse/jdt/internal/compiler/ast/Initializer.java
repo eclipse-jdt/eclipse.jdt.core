@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -66,7 +67,7 @@ public class Initializer extends FieldDeclaration {
 	
 	public boolean isStatic() {
 
-		return (modifiers & AccStatic) != 0;
+		return (this.modifiers & ClassFileConstants.AccStatic) != 0;
 	}
 	
 	public void parseStatements(

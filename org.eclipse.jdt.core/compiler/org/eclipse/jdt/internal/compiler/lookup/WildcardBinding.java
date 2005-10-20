@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /*
  * A wildcard acts as an argument for parameterized types, allowing to
@@ -39,7 +40,7 @@ public class WildcardBinding extends ReferenceBinding {
 		this.genericType = genericType;
 		this.rank = rank;
 	    this.boundKind = boundKind;
-		this.modifiers = AccPublic | AccGenericSignature; // treat wildcard as public
+		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat wildcard as public
 		this.environment = environment;
 		initialize(genericType, bound, otherBounds);
 

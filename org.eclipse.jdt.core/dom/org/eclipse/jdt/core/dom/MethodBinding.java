@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
@@ -75,12 +75,12 @@ class MethodBinding implements IMethodBinding {
 			if (rawTypeBinding.type.isBinaryBinding()) {
 				return false;
 			}
-			return (this.binding.modifiers & CompilerModifiers.AccIsDefaultConstructor) != 0;
+			return (this.binding.modifiers & ExtraCompilerModifiers.AccIsDefaultConstructor) != 0;
 		}
 		if (declaringClassBinding.isBinaryBinding()) {
 			return false;
 		}
-		return (this.binding.modifiers & CompilerModifiers.AccIsDefaultConstructor) != 0;
+		return (this.binding.modifiers & ExtraCompilerModifiers.AccIsDefaultConstructor) != 0;
 	}	
 
 	/*

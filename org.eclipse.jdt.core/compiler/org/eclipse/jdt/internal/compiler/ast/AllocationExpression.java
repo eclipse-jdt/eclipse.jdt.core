@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -244,7 +245,7 @@ public class AllocationExpression extends Expression implements InvocationSite {
 					if (currentType == null) return null;
 					do {
 						// isStatic() is answering true for toplevel types
-						if ((currentType.modifiers & AccStatic) != 0) break checkParameterizedAllocation;
+						if ((currentType.modifiers & ClassFileConstants.AccStatic) != 0) break checkParameterizedAllocation;
 						if (currentType.isRawType()) break checkParameterizedAllocation;
 					} while ((currentType = currentType.enclosingType())!= null);
 					ParameterizedQualifiedTypeReference qRef = (ParameterizedQualifiedTypeReference) this.type;

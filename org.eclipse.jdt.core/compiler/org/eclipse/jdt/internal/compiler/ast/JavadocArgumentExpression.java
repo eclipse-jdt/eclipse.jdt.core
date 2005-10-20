@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class JavadocArgumentExpression extends Expression {
@@ -23,7 +23,7 @@ public class JavadocArgumentExpression extends Expression {
 		this.sourceStart = startPos;
 		this.sourceEnd = endPos;
 		long pos = (((long) startPos) << 32) + endPos;
-		this.argument = new Argument(name, pos, typeRef, IConstants.AccDefault);
+		this.argument = new Argument(name, pos, typeRef, ClassFileConstants.AccDefault);
 		this.bits |= InsideJavadoc;
 	}
 

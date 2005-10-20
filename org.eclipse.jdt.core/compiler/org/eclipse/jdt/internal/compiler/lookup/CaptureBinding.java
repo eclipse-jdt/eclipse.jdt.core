@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class CaptureBinding extends TypeVariableBinding {
 	
@@ -25,7 +26,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int position) {
 		super(WILDCARD_CAPTURE_NAME, null, 0);
 		this.wildcard = wildcard;
-		this.modifiers = AccPublic | AccGenericSignature; // treat capture as public
+		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
 		this.fPackage = wildcard.fPackage;
 		this.sourceType = sourceType;
 		this.position = position;

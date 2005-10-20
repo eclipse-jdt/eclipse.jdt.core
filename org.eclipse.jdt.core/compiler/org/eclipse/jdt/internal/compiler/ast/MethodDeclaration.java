@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
@@ -46,7 +47,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				
 			if (!this.binding.isUsed() && 
 					(this.binding.isPrivate() 
-						|| (((this.binding.modifiers & (AccOverriding|AccImplementing)) == 0) && this.binding.declaringClass.isLocalType()))) {
+						|| (((this.binding.modifiers & (ExtraCompilerModifiers.AccOverriding|ExtraCompilerModifiers.AccImplementing)) == 0) && this.binding.declaringClass.isLocalType()))) {
 				if (!classScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
 					scope.problemReporter().unusedPrivateMethod(this);
 				}
@@ -142,15 +143,15 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		// check @Override annotation
 		checkOverride: {
 			if (this.binding == null) break checkOverride;
-			if (this.scope.compilerOptions().sourceLevel < JDK1_5) break checkOverride;
+			if (this.scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;
 			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
 			boolean isInterfaceMethod = this.binding.declaringClass.isInterface();
 			if (hasOverrideAnnotation) {
-				if ((bindingModifiers & AccOverriding) == 0 || isInterfaceMethod)
+				if ((bindingModifiers & ExtraCompilerModifiers.AccOverriding) == 0 || isInterfaceMethod)
 					// claims to override, and doesn't actually do so
 					this.scope.problemReporter().methodMustOverride(this);					
-			} else if (!isInterfaceMethod 	&& (bindingModifiers & (AccStatic|AccOverriding)) == AccOverriding) {
+			} else if (!isInterfaceMethod 	&& (bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
 				// actually overrides, but did not claim to do so
 				this.scope.problemReporter().missingOverrideAnnotation(this);
 			}
@@ -164,13 +165,13 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			case TypeDeclaration.CLASS_DECL :
 				// if a method has an semicolon body and is not declared as abstract==>error
 				// native methods may have a semicolon body 
-				if ((this.modifiers & AccSemicolonBody) != 0) {
-					if ((this.modifiers & AccNative) == 0)
-						if ((this.modifiers & AccAbstract) == 0)
+				if ((this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) {
+					if ((this.modifiers & ClassFileConstants.AccNative) == 0)
+						if ((this.modifiers & ClassFileConstants.AccAbstract) == 0)
 							this.scope.problemReporter().methodNeedBody(this);
 				} else {
 					// the method HAS a body --> abstract native modifiers are forbiden
-					if (((this.modifiers & AccNative) != 0) || ((this.modifiers & AccAbstract) != 0))
+					if (((this.modifiers & ClassFileConstants.AccNative) != 0) || ((this.modifiers & ClassFileConstants.AccAbstract) != 0))
 						this.scope.problemReporter().methodNeedingNoBody(this);
 				}
 		}

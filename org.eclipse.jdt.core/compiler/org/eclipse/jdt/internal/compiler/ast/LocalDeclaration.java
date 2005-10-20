@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -64,12 +65,12 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 	public void checkModifiers() {
 
 		//only potential valid modifier is <<final>>
-		if (((modifiers & AccJustFlag) & ~AccFinal) != 0)
+		if (((modifiers & ExtraCompilerModifiers.AccJustFlag) & ~ClassFileConstants.AccFinal) != 0)
 			//AccModifierProblem -> other (non-visibility problem)
 			//AccAlternateModifierProblem -> duplicate modifier
 			//AccModifierProblem | AccAlternateModifierProblem -> visibility problem"
 
-			modifiers = (modifiers & ~AccAlternateModifierProblem) | AccModifierProblem;
+			modifiers = (modifiers & ~ExtraCompilerModifiers.AccAlternateModifierProblem) | ExtraCompilerModifiers.AccModifierProblem;
 	}
 
 	/**
@@ -170,8 +171,8 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 		}
 				
 		if (shouldInsertInScope) {
-			if ((modifiers & AccFinal)!= 0 && this.initialization == null) {
-				modifiers |= AccBlankFinal;
+			if ((modifiers & ClassFileConstants.AccFinal)!= 0 && this.initialization == null) {
+				modifiers |= ExtraCompilerModifiers.AccBlankFinal;
 			}
 			this.binding = new LocalVariableBinding(this, variableType, modifiers, false);
 			scope.addLocalVariable(binding);
@@ -213,7 +214,7 @@ public class LocalDeclaration extends AbstractVariableDeclaration {
 						}	
 					} else if (scope.isBoxingCompatibleWith(initializationType, variableType) 
 										|| (initializationType.isBaseType()  // narrowing then boxing ?
-												&& scope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
+												&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
 												&& !variableType.isBaseType()
 												&& initialization.isConstantValueOfTypeAssignableToType(initializationType, scope.environment().computeBoxingType(variableType)))) {
 						this.initialization.computeConversion(scope, variableType, initializationType);

@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -47,9 +48,9 @@ public abstract class Engine implements ITypeRequestor {
 		this.options = new AssistOptions(settings);
 		this.compilerOptions = new CompilerOptions(settings);
 		this.forbiddenReferenceIsError =
-			this.compilerOptions.getSeverity(CompilerOptions.ForbiddenReference) == ProblemSeverities.Error;
+			(this.compilerOptions.getSeverity(CompilerOptions.ForbiddenReference) & ProblemSeverities.Error) != 0;
 		this.discouragedReferenceIsError =
-			this.compilerOptions.getSeverity(CompilerOptions.DiscouragedReference) == ProblemSeverities.Error;
+			(this.compilerOptions.getSeverity(CompilerOptions.DiscouragedReference) & ProblemSeverities.Error) != 0;
 	}
 	
 	/**
@@ -189,7 +190,7 @@ public abstract class Engine implements ITypeRequestor {
 					}
 					if(CharOperation.equals(fullyQualifiedEnclosingTypeName, importFlatName)) {
 						if(importBinding.isStatic()) {
-							isFound = (modifiers & IConstants.AccStatic) != 0;
+							isFound = (modifiers & ClassFileConstants.AccStatic) != 0;
 						} else {
 							isFound = true;
 						}
@@ -199,7 +200,7 @@ public abstract class Engine implements ITypeRequestor {
 				if(enclosingTypeNames == null || enclosingTypeNames.length == 0) {
 					if(CharOperation.equals(packageName, importFlatName)) {
 						if(importBinding.isStatic()) {
-							isFound = (modifiers & IConstants.AccStatic) != 0;
+							isFound = (modifiers & ClassFileConstants.AccStatic) != 0;
 						} else {
 							isFound = true;
 						}
@@ -327,7 +328,7 @@ public abstract class Engine implements ITypeRequestor {
 			MethodBinding methodBinding = (MethodBinding)binding;
 			int oldMod = methodBinding.modifiers;
 			//TODO remove the next line when method from binary type will be able to generate generic siganute
-			methodBinding.modifiers |= CompilerModifiers.AccGenericSignature;
+			methodBinding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 			result = methodBinding.genericSignature(); 
 			if(result == null) {
 				result = methodBinding.signature();

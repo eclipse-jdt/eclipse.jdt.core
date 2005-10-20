@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class SyntheticMethodBinding extends MethodBinding {
 
@@ -38,7 +39,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	
 	public SyntheticMethodBinding(FieldBinding targetField, boolean isReadAccess, ReferenceBinding declaringClass) {
 
-		this.modifiers = AccDefault | AccStatic | AccSynthetic;
+		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
 		this.tagBits |= TagBits.AnnotationResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
@@ -131,7 +132,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	}
 
 	public SyntheticMethodBinding(FieldBinding targetField, ReferenceBinding declaringClass, TypeBinding enumBinding, char[] selector) {
-		this.modifiers = AccDefault | AccStatic | AccSynthetic;
+		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
 		this.tagBits |= TagBits.AnnotationResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
@@ -147,7 +148,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.declaringClass = declaringSourceType;
   
 		if (declaringSourceType.isStrictfp()) {
-			this.modifiers |= AccStrictfp;
+			this.modifiers |= ClassFileConstants.AccStrictfp;
 		}
 		// check for method collision
 		boolean needRename;
@@ -200,7 +201,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.declaringClass = declaringClass;
 	    this.selector = overridenMethodToBridge.selector;
 	    // amongst other, clear the AccGenericSignature, so as to ensure no remains of original inherited persist (101794)
-	    this.modifiers = (overridenMethodToBridge.modifiers | AccBridge | AccSynthetic) & ~(AccAbstract | AccNative | AccGenericSignature);
+	    this.modifiers = (overridenMethodToBridge.modifiers | ClassFileConstants.AccBridge | ClassFileConstants.AccSynthetic) & ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccNative | ExtraCompilerModifiers.AccGenericSignature);
 		this.tagBits |= TagBits.AnnotationResolved;
 	    this.returnType = overridenMethodToBridge.returnType;
 	    this.parameters = overridenMethodToBridge.parameters;
@@ -218,7 +219,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public SyntheticMethodBinding(SourceTypeBinding declaringEnum, char[] selector) {
 	    this.declaringClass = declaringEnum;
 	    this.selector = selector;
-	    this.modifiers = AccFinal | AccPublic | AccStatic;
+	    this.modifiers = ClassFileConstants.AccFinal | ClassFileConstants.AccPublic | ClassFileConstants.AccStatic;
 		this.tagBits |= TagBits.AnnotationResolved;
 	    this.thrownExceptions = NoExceptions;
 		if (selector == TypeConstants.VALUES) {
@@ -234,7 +235,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;	    
 		if (declaringEnum.isStrictfp()) {
-			this.modifiers |= AccStrictfp;
+			this.modifiers |= ClassFileConstants.AccStrictfp;
 		}
 	}
 
@@ -245,7 +246,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	 public void initializeConstructorAccessor(MethodBinding accessedConstructor) {
 	
 		this.targetMethod = accessedConstructor;
-		this.modifiers = AccDefault | AccSynthetic;
+		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccSynthetic;
 		this.tagBits |= TagBits.AnnotationResolved;
 		SourceTypeBinding sourceType = (SourceTypeBinding) accessedConstructor.declaringClass; 
 		SyntheticMethodBinding[] knownSyntheticMethods = 
@@ -325,7 +326,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public void initializeMethodAccessor(MethodBinding accessedMethod, boolean isSuperAccess, ReferenceBinding receiverType) {
 		
 		this.targetMethod = accessedMethod;
-		this.modifiers = AccDefault | AccStatic | AccSynthetic;
+		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
 		this.tagBits |= TagBits.AnnotationResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) receiverType;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();

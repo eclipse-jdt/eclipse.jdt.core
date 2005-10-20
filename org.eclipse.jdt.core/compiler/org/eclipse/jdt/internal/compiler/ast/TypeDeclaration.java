@@ -32,7 +32,7 @@ public class TypeDeclaration
 	public static final int ENUM_DECL = 3;	
 	public static final int ANNOTATION_TYPE_DECL = 4;
 	
-	public int modifiers = AccDefault;
+	public int modifiers = ClassFileConstants.AccDefault;
 	public int modifiersSourceStart;
 	public Annotation[] annotations;
 	public char[] name;
@@ -134,13 +134,13 @@ public class TypeDeclaration
 		methodDeclaration.selector = methodBinding.selector;
 		methodDeclaration.sourceStart = sourceStart;
 		methodDeclaration.sourceEnd = sourceEnd;
-		methodDeclaration.modifiers = methodBinding.getAccessFlags() & ~AccAbstract;
+		methodDeclaration.modifiers = methodBinding.getAccessFlags() & ~ClassFileConstants.AccAbstract;
 
 		if (argumentsLength > 0) {
 			String baseName = "arg";//$NON-NLS-1$
 			Argument[] arguments = (methodDeclaration.arguments = new Argument[argumentsLength]);
 			for (int i = argumentsLength; --i >= 0;) {
-				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault);
+				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, ClassFileConstants.AccDefault);
 			}
 		}
 
@@ -331,11 +331,11 @@ public class TypeDeclaration
 		ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
 		constructor.isDefaultConstructor = true;
 		constructor.selector = this.name;
-		if (modifiers != AccDefault) {
+		if (modifiers != ClassFileConstants.AccDefault) {
 			constructor.modifiers =
-				(((this.bits & ASTNode.IsMemberType) != 0) && (modifiers & AccPrivate) != 0)
-					? AccDefault
-					: modifiers & AccVisibilityMASK;
+				(((this.bits & ASTNode.IsMemberType) != 0) && (modifiers & ClassFileConstants.AccPrivate) != 0)
+					? ClassFileConstants.AccDefault
+					: modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
 		}
 
 		//if you change this setting, please update the 
@@ -383,9 +383,9 @@ public class TypeDeclaration
 		cd.selector = new char[] { 'x' }; //no maining
 		cd.sourceStart = sourceStart;
 		cd.sourceEnd = sourceEnd;
-		int newModifiers = modifiers & AccVisibilityMASK;
+		int newModifiers = modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
 		if (inheritedConstructorBinding.isVarargs()) {
-			newModifiers |= AccVarargs;
+			newModifiers |= ClassFileConstants.AccVarargs;
 		}
 		cd.modifiers = newModifiers;
 		cd.isDefaultConstructor = true;
@@ -393,7 +393,7 @@ public class TypeDeclaration
 		if (argumentsLength > 0) {
 			Argument[] arguments = (cd.arguments = new Argument[argumentsLength]);
 			for (int i = argumentsLength; --i >= 0;) {
-				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, AccDefault);
+				arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, ClassFileConstants.AccDefault);
 			}
 		}
 
@@ -726,12 +726,12 @@ public class TypeDeclaration
 	}
 
 	public final static int kind(int flags) {
-		switch (flags & (AccInterface|AccAnnotation|AccEnum)) {
-			case AccInterface :
+		switch (flags & (ClassFileConstants.AccInterface|ClassFileConstants.AccAnnotation|ClassFileConstants.AccEnum)) {
+			case ClassFileConstants.AccInterface :
 				return TypeDeclaration.INTERFACE_DECL;
-			case AccInterface|AccAnnotation :
+			case ClassFileConstants.AccInterface|ClassFileConstants.AccAnnotation :
 				return TypeDeclaration.ANNOTATION_TYPE_DECL;
-			case AccEnum :
+			case ClassFileConstants.AccEnum :
 				return TypeDeclaration.ENUM_DECL;
 			default : 
 				return TypeDeclaration.CLASS_DECL;
@@ -825,7 +825,7 @@ public class TypeDeclaration
 		for (int i = fields.length; --i >= 0;) {
 			FieldDeclaration field = fields[i];
 			//need to test the modifier directly while there is no binding yet
-			if ((field.modifiers & AccStatic) != 0)
+			if ((field.modifiers & ClassFileConstants.AccStatic) != 0)
 				return true; // TODO (philippe) shouldn't it check whether field is initializer or has some initial value ?
 			if (field.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT)
 				return true;
@@ -1027,7 +1027,7 @@ public class TypeDeclaration
 								continue;
 							}
 							if (needSerialVersion
-									&& ((fieldBinding.modifiers & (AccStatic | AccFinal)) == (AccStatic | AccFinal))
+									&& ((fieldBinding.modifiers & (ClassFileConstants.AccStatic | ClassFileConstants.AccFinal)) == (ClassFileConstants.AccStatic | ClassFileConstants.AccFinal))
 									&& CharOperation.equals(TypeConstants.SERIALVERSIONUID, fieldBinding.name)
 									&& BaseTypes.LongBinding == fieldBinding.type) {
 								needSerialVersion = false;

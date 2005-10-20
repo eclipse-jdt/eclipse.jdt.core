@@ -43,9 +43,8 @@ import org.eclipse.jdt.internal.compiler.ast.StringLiteralConcatenation;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -2737,13 +2736,13 @@ class ASTConverter {
 		importDeclaration.setSourceRange(importReference.declarationSourceStart, importReference.declarationEnd - importReference.declarationSourceStart + 1);
 		importDeclaration.setOnDemand(onDemand);
 		int modifiers = importReference.modifiers;
-		if (modifiers != IConstants.AccDefault) {
+		if (modifiers != ClassFileConstants.AccDefault) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2_INTERNAL :
 					importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
 					break;
 				case AST.JLS3 :
-					if (modifiers == IConstants.AccStatic) {
+					if (modifiers == ClassFileConstants.AccStatic) {
 						importDeclaration.setStatic(true);
 					} else {
 						importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
@@ -4390,7 +4389,7 @@ class ASTConverter {
 	protected void setModifiers(EnumConstantDeclaration enumConstantDeclaration, org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
-				enumConstantDeclaration.internalSetModifiers(fieldDeclaration.modifiers & CompilerModifiers.AccJustFlag);
+				enumConstantDeclaration.internalSetModifiers(fieldDeclaration.modifiers & ExtraCompilerModifiers.AccJustFlag);
 				if (fieldDeclaration.annotations != null) {
 					enumConstantDeclaration.setFlags(enumConstantDeclaration.getFlags() | ASTNode.MALFORMED);
 				}
@@ -4408,7 +4407,7 @@ class ASTConverter {
 	protected void setModifiers(FieldDeclaration fieldDeclaration, org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDecl) {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
-				fieldDeclaration.internalSetModifiers(fieldDecl.modifiers & CompilerModifiers.AccJustFlag);
+				fieldDeclaration.internalSetModifiers(fieldDecl.modifiers & ExtraCompilerModifiers.AccJustFlag);
 				if (fieldDecl.annotations != null) {
 					fieldDeclaration.setFlags(fieldDeclaration.getFlags() | ASTNode.MALFORMED);
 				}
@@ -4426,7 +4425,7 @@ class ASTConverter {
 	protected void setModifiers(Initializer initializer, org.eclipse.jdt.internal.compiler.ast.Initializer oldInitializer) {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL: 
-				initializer.internalSetModifiers(oldInitializer.modifiers & CompilerModifiers.AccJustFlag);
+				initializer.internalSetModifiers(oldInitializer.modifiers & ExtraCompilerModifiers.AccJustFlag);
 				if (oldInitializer.annotations != null) {
 					initializer.setFlags(initializer.getFlags() | ASTNode.MALFORMED);
 				}
@@ -4443,7 +4442,7 @@ class ASTConverter {
 	protected void setModifiers(MethodDeclaration methodDecl, AbstractMethodDeclaration methodDeclaration) {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
-				methodDecl.internalSetModifiers(methodDeclaration.modifiers & CompilerModifiers.AccJustFlag);
+				methodDecl.internalSetModifiers(methodDeclaration.modifiers & ExtraCompilerModifiers.AccJustFlag);
 				if (methodDeclaration.annotations != null) {
 					methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
 				}
@@ -4461,7 +4460,7 @@ class ASTConverter {
 	protected void setModifiers(SingleVariableDeclaration variableDecl, Argument argument) {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
-				variableDecl.internalSetModifiers(argument.modifiers & CompilerModifiers.AccJustFlag);
+				variableDecl.internalSetModifiers(argument.modifiers & ExtraCompilerModifiers.AccJustFlag);
 				if (argument.annotations != null) {
 					variableDecl.setFlags(variableDecl.getFlags() | ASTNode.MALFORMED);
 				}
@@ -4536,7 +4535,7 @@ class ASTConverter {
 	protected void setModifiers(SingleVariableDeclaration variableDecl, LocalDeclaration localDeclaration) {
 		switch(this.ast.apiLevel) {
 		case AST.JLS2_INTERNAL :
-			variableDecl.internalSetModifiers(localDeclaration.modifiers & CompilerModifiers.AccJustFlag);
+			variableDecl.internalSetModifiers(localDeclaration.modifiers & ExtraCompilerModifiers.AccJustFlag);
 			if (localDeclaration.annotations != null) {
 				variableDecl.setFlags(variableDecl.getFlags() | ASTNode.MALFORMED);
 			}
@@ -4616,8 +4615,8 @@ class ASTConverter {
 		switch(this.ast.apiLevel) { 
 			case AST.JLS2_INTERNAL :
 				int modifiers = typeDeclaration.modifiers;
-				modifiers &= ~IConstants.AccInterface; // remove AccInterface flags
-				modifiers &= CompilerModifiers.AccJustFlag;
+				modifiers &= ~ClassFileConstants.AccInterface; // remove AccInterface flags
+				modifiers &= ExtraCompilerModifiers.AccJustFlag;
 				typeDecl.internalSetModifiers(modifiers);
 				if (typeDeclaration.annotations != null) {
 					typeDecl.setFlags(typeDecl.getFlags() | ASTNode.MALFORMED);
@@ -4636,8 +4635,8 @@ class ASTConverter {
 	protected void setModifiers(VariableDeclarationExpression variableDeclarationExpression, LocalDeclaration localDeclaration) {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
-				int modifiers = localDeclaration.modifiers & CompilerModifiers.AccJustFlag;
-				modifiers &= ~CompilerModifiers.AccBlankFinal;
+				int modifiers = localDeclaration.modifiers & ExtraCompilerModifiers.AccJustFlag;
+				modifiers &= ~ExtraCompilerModifiers.AccBlankFinal;
 				variableDeclarationExpression.internalSetModifiers(modifiers);
 				if (localDeclaration.annotations != null) {
 					variableDeclarationExpression.setFlags(variableDeclarationExpression.getFlags() | ASTNode.MALFORMED);
@@ -4717,8 +4716,8 @@ class ASTConverter {
 	protected void setModifiers(VariableDeclarationStatement variableDeclarationStatement, LocalDeclaration localDeclaration) {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
-				int modifiers = localDeclaration.modifiers & CompilerModifiers.AccJustFlag;
-				modifiers &= ~CompilerModifiers.AccBlankFinal;
+				int modifiers = localDeclaration.modifiers & ExtraCompilerModifiers.AccJustFlag;
+				modifiers &= ~ExtraCompilerModifiers.AccBlankFinal;
 				variableDeclarationStatement.internalSetModifiers(modifiers);
 				if (localDeclaration.annotations != null) {
 					variableDeclarationStatement.setFlags(variableDeclarationStatement.getFlags() | ASTNode.MALFORMED);

@@ -44,7 +44,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				// explicit type arguments got supplied
 				if (substitutes.length != typeVariables.length) {
 			        // incompatible due to wrong arity
-			        return new ProblemMethodBinding(originalMethod, originalMethod.selector, substitutes, TypeParameterArityMismatch);
+			        return new ProblemMethodBinding(originalMethod, originalMethod.selector, substitutes, ProblemReasons.TypeParameterArityMismatch);
 				}
 				methodSubstitute = new ParameterizedGenericMethodBinding(originalMethod, substitutes, scope.environment());
 				break computeSubstitutes;
@@ -95,7 +95,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 						System.arraycopy(arguments, 0, augmentedArguments, 0, argLength);
 						augmentedArguments[argLength] = substitute;
 						augmentedArguments[argLength+1] = typeVariable;
-				        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, augmentedArguments, ParameterBoundMismatch);
+				        return new ProblemMethodBinding(methodSubstitute, originalMethod.selector, augmentedArguments, ProblemReasons.ParameterBoundMismatch);
 					case TypeConstants.UNCHECKED :
 						// tolerate unchecked bounds
 						methodSubstitute.isUnchecked = true;

@@ -17,11 +17,11 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 import org.eclipse.jdt.internal.codeassist.select.*;
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SelectionRequestor;
@@ -146,10 +146,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							CharOperation.concatWith(enclosingTypeNames, '.');
 			if(mustQualifyType(packageName, simpleTypeName, flatEnclosingTypeNames, modifiers)) {
 				int length = 0;
-				int kind = modifiers & (IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation);
+				int kind = modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
 				switch (kind) {
-					case IConstants.AccAnnotation:
-					case IConstants.AccAnnotation | IConstants.AccInterface:
+					case ClassFileConstants.AccAnnotation:
+					case ClassFileConstants.AccAnnotation | ClassFileConstants.AccInterface:
 						char[][] acceptedAnnotation = new char[2][];
 						acceptedAnnotation[0] = packageName;
 						acceptedAnnotation[1] = typeName;
@@ -168,7 +168,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.acceptedAnnotationsModifiers[this.acceptedAnnotationsCount] = modifiers;
 						this.acceptedAnnotations[this.acceptedAnnotationsCount++] = acceptedAnnotation;
 						break;
-					case IConstants.AccEnum:
+					case ClassFileConstants.AccEnum:
 						char[][] acceptedEnum = new char[2][];
 						acceptedEnum[0] = packageName;
 						acceptedEnum[1] = typeName;
@@ -187,7 +187,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.acceptedEnumsModifiers[this.acceptedEnumsCount] = modifiers;
 						this.acceptedEnums[this.acceptedEnumsCount++] = acceptedEnum;
 						break;
-					case IConstants.AccInterface:
+					case ClassFileConstants.AccInterface:
 						char[][] acceptedInterface= new char[2][];
 						acceptedInterface[0] = packageName;
 						acceptedInterface[1] = typeName;

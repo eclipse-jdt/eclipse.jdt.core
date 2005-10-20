@@ -115,16 +115,16 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		// want to tag currentMethod even if return types are not equal
 		if (inheritedMethod.isAbstract()) {
 			if (inheritedMethod.declaringClass.isInterface()) {
-				currentMethod.modifiers |= CompilerModifiers.AccImplementing;
+				currentMethod.modifiers |= ExtraCompilerModifiers.AccImplementing;
 			} else {
-				currentMethod.modifiers |= CompilerModifiers.AccImplementing | CompilerModifiers.AccOverriding;
+				currentMethod.modifiers |= ExtraCompilerModifiers.AccImplementing | ExtraCompilerModifiers.AccOverriding;
 			}
 // with the above change an abstract method is tagged as implementing the inherited abstract method
 //		if (!currentMethod.isAbstract() && inheritedMethod.isAbstract()) {
 //			if ((currentMethod.modifiers & CompilerModifiers.AccOverriding) == 0)
 //				currentMethod.modifiers |= CompilerModifiers.AccImplementing;
 		} else {
-			currentMethod.modifiers |= CompilerModifiers.AccOverriding;
+			currentMethod.modifiers |= ExtraCompilerModifiers.AccOverriding;
 		}
 
 		if (!areReturnTypesEqual(currentMethod, inheritedMethod)) {
@@ -567,7 +567,7 @@ ProblemReporter problemReporter(MethodBinding currentMethod) {
 }
 ReferenceBinding[] resolvedExceptionTypesFor(MethodBinding method) {
 	ReferenceBinding[] exceptions = method.thrownExceptions;
-	if ((method.modifiers & CompilerModifiers.AccUnresolved) == 0)
+	if ((method.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return exceptions;
 
 	if (!(method.declaringClass instanceof BinaryTypeBinding))

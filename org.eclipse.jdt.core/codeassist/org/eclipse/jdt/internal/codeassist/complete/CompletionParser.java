@@ -20,6 +20,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
  *  n  means completion behind the n-th character
  */
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -113,7 +114,7 @@ public class CompletionParser extends AssistParser {
 	int qualifier;
 
 	// last modifiers info
-	int lastModifiers = AccDefault;
+	int lastModifiers = ClassFileConstants.AccDefault;
 	int lastModifiersStart = -1;
 	
 	// depth of '(', '{' and '[]'
@@ -1031,22 +1032,22 @@ private boolean checkKeyword() {
 			char[][] keywords = new char[Keywords.COUNT][];
 			int count = 0;
 			if(unit.typeCount == 0
-				&& lastModifiers == AccDefault
+				&& lastModifiers == ClassFileConstants.AccDefault
 				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.IMPORT)) {
 				keywords[count++] = Keywords.IMPORT;
 			}
 			if(unit.typeCount == 0
 				&& unit.importCount == 0
-				&& lastModifiers == AccDefault
+				&& lastModifiers == ClassFileConstants.AccDefault
 				&& compilationUnit.currentPackage == null
 				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.PACKAGE)) {
 				keywords[count++] = Keywords.PACKAGE;
 			}
-			if((lastModifiers & AccPublic) == 0
+			if((lastModifiers & ClassFileConstants.AccPublic) == 0
 				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.PUBLIC)) {
 				boolean hasNoPublicType = true;
 				for (int i = 0; i < unit.typeCount; i++) {
-					if((unit.types[i].typeDeclaration.modifiers & AccPublic) != 0) {
+					if((unit.types[i].typeDeclaration.modifiers & ClassFileConstants.AccPublic) != 0) {
 						hasNoPublicType = false;
 					}
 				}
@@ -1054,20 +1055,20 @@ private boolean checkKeyword() {
 					keywords[count++] = Keywords.PUBLIC;
 				}
 			}
-			if((lastModifiers & AccAbstract) == 0
-				&& (lastModifiers & AccFinal) == 0
+			if((lastModifiers & ClassFileConstants.AccAbstract) == 0
+				&& (lastModifiers & ClassFileConstants.AccFinal) == 0
 				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.ABSTRACT)) {
 				keywords[count++] = Keywords.ABSTRACT;
 			}
-			if((lastModifiers & AccAbstract) == 0
-				&& (lastModifiers & AccFinal) == 0
+			if((lastModifiers & ClassFileConstants.AccAbstract) == 0
+				&& (lastModifiers & ClassFileConstants.AccFinal) == 0
 				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.FINAL)) {
 				keywords[count++] = Keywords.FINAL;
 			}
 			if(CharOperation.prefixEquals(identifierStack[ptr], Keywords.CLASS)) {
 				keywords[count++] = Keywords.CLASS;
 			}
-			if((lastModifiers & AccFinal) == 0
+			if((lastModifiers & ClassFileConstants.AccFinal) == 0
 				&& CharOperation.prefixEquals(identifierStack[ptr], Keywords.INTERFACE)) {
 				keywords[count++] = Keywords.INTERFACE;
 			}
@@ -1872,7 +1873,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 				identifierName, 
 				namePositions, 
 				type, 
-				intStack[intPtr + 1] & ~AccDeprecated); // modifiers
+				intStack[intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
 		// consume annotations
 		int length;
 		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -2837,7 +2838,7 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 	super.consumeTypeHeaderNameWithTypeParameters();
 	
 	TypeDeclaration typeDecl = (TypeDeclaration)this.astStack[this.astPtr];
-	classHeaderExtendsOrImplements((typeDecl.modifiers & AccInterface) != 0);
+	classHeaderExtendsOrImplements((typeDecl.modifiers & ClassFileConstants.AccInterface) != 0);
 }
 protected void consumeTypeParameters() {
 	super.consumeTypeParameters();
@@ -3059,7 +3060,7 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 			char[][] keywords = new char[Keywords.COUNT][];
 			int count = 0;
 			
-			if((lastModifiers & AccStatic) == 0) {
+			if((lastModifiers & ClassFileConstants.AccStatic) == 0) {
 				keywords[count++]= Keywords.SUPER;
 				keywords[count++]= Keywords.THIS;
 			}

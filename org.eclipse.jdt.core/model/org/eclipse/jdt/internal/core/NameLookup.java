@@ -30,8 +30,8 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -553,16 +553,16 @@ public class NameLookup implements SuffixConstants {
 			TypeNameRequestor nameRequestor = new TypeNameRequestor() {
 				public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
 					if (enclosingTypeNames == null || enclosingTypeNames.length == 0) { // accept only top level types
-						int kind = modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
+						int kind = modifiers & (ClassFileConstants.AccInterface|ClassFileConstants.AccEnum|ClassFileConstants.AccAnnotation);
 						switch (kind) {
-							case IConstants.AccAnnotation:
-							case IConstants.AccAnnotation+IConstants.AccInterface:
+							case ClassFileConstants.AccAnnotation:
+							case ClassFileConstants.AccAnnotation|ClassFileConstants.AccInterface:
 								if ((acceptFlags & ACCEPT_ANNOTATIONS) != 0) paths.add(path);
 								break;
-							case IConstants.AccEnum:
+							case ClassFileConstants.AccEnum:
 								if ((acceptFlags & ACCEPT_ENUMS) != 0) paths.add(path);
 								break;
-							case IConstants.AccInterface:
+							case ClassFileConstants.AccInterface:
 								if ((acceptFlags & ACCEPT_INTERFACES) != 0) paths.add(path);
 								break;
 							default:

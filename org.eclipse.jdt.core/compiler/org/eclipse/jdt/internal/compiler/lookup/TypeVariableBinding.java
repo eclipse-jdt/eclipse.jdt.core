@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
  * Binding for a type parameter, held by source/binary type or method.
@@ -37,7 +38,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.sourceName = sourceName;
 		this.declaringElement = declaringElement;
 		this.rank = rank;
-		this.modifiers = AccPublic | AccGenericSignature; // treat type var as public
+		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
 		this.tagBits |= HasTypeVariable;
 	}
 
@@ -399,7 +400,7 @@ public class TypeVariableBinding extends ReferenceBinding {
     }
    
 	ReferenceBinding resolve(LookupEnvironment environment) {
-		if ((this.modifiers & AccUnresolved) == 0)
+		if ((this.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 			return this;
 
 		TypeBinding oldSuperclass = this.superclass, oldFirstInterface = null;
@@ -413,7 +414,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				interfaces[i] = BinaryTypeBinding.resolveUnresolvedType(interfaces[i], environment, true);
 			}
 		}
-		this.modifiers &= ~AccUnresolved;
+		this.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 	
 		// finish resolving the types
 		if (this.superclass != null)

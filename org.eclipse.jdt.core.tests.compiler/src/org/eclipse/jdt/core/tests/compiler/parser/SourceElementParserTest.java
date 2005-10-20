@@ -19,12 +19,12 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
-public class SourceElementParserTest extends AbstractCompilerTest implements ISourceElementRequestor, IConstants {
+public class SourceElementParserTest extends AbstractCompilerTest implements ISourceElementRequestor {
 	private SourceType currentType;
 	private SourceMethod currentMethod;
 	private SourceField currentField;
@@ -161,21 +161,21 @@ public void dietParse(String s, String testName) {
 public static String displayModifiers(int modifiers) {
 	StringBuffer buffer = new StringBuffer();
 	
-	if ((modifiers & AccPublic) != 0)
+	if ((modifiers & ClassFileConstants.AccPublic) != 0)
 		buffer.append("public ");
-	if ((modifiers & AccProtected) != 0)
+	if ((modifiers & ClassFileConstants.AccProtected) != 0)
 		buffer.append("protected ");
-	if ((modifiers & AccPrivate) != 0)
+	if ((modifiers & ClassFileConstants.AccPrivate) != 0)
 		buffer.append("private ");
-	if ((modifiers & AccFinal) != 0)
+	if ((modifiers & ClassFileConstants.AccFinal) != 0)
 		buffer.append("final ");
-	if ((modifiers & AccStatic) != 0)
+	if ((modifiers & ClassFileConstants.AccStatic) != 0)
 		buffer.append("static ");
-	if ((modifiers & AccAbstract) != 0)
+	if ((modifiers & ClassFileConstants.AccAbstract) != 0)
 		buffer.append("abstract ");
-	if ((modifiers & AccNative) != 0)
+	if ((modifiers & ClassFileConstants.AccNative) != 0)
 		buffer.append("native ");
-	if ((modifiers & AccSynchronized) != 0)
+	if ((modifiers & ClassFileConstants.AccSynchronized) != 0)
 		buffer.append("synchronized ");
 	return buffer.toString();
 }

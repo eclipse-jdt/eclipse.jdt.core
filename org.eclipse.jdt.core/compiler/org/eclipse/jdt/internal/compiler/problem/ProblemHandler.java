@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
  *	first error, and if should proceed (persist) with problems.
  */
 
-public class ProblemHandler implements ProblemSeverities {
+public class ProblemHandler {
 
 	public final static String[] NoArgument = new String[0];
 	
@@ -51,7 +51,7 @@ public ProblemHandler(IErrorHandlingPolicy policy, CompilerOptions options, IPro
  */
 public int computeSeverity(int problemId){
 	
-	return Error; // by default all problems are errors
+	return ProblemSeverities.Error; // by default all problems are errors
 }
 public IProblem createProblem(
 	char[] fileName, 
@@ -83,12 +83,12 @@ public void handle(
 	ReferenceContext referenceContext, 
 	CompilationResult unitResult) {
 
-	if (severity == Ignore)
+	if (severity == ProblemSeverities.Ignore)
 		return;
 
 	// if no reference context, we need to abort from the current compilation process
 	if (referenceContext == null) {
-		if ((severity & Error) != 0) { // non reportable error is fatal
+		if ((severity & ProblemSeverities.Error) != 0) { // non reportable error is fatal
 			IProblem problem = this.createProblem(null, 	problemId, 	problemArguments, messageArguments, severity, 0, 0, 0);			
 			throw new AbortCompilation(null, problem);
 		} else {
@@ -104,26 +104,25 @@ public void handle(
 			messageArguments,
 			severity, 
 			problemStartPosition, 
-			problemEndPosition, 
+			problemEndPosition,
 			problemStartPosition >= 0
 				? searchLineNumber(unitResult.getLineSeparatorPositions(), problemStartPosition)
 				: 0);
 	if (problem == null) return; // problem couldn't be created, ignore
 	
-	switch (severity & Error) {
-		case Error :
+	switch (severity & ProblemSeverities.Error) {
+		case ProblemSeverities.Error :
 			this.record(problem, unitResult, referenceContext);
-			referenceContext.tagAsHavingErrors();
-
-			// should abort ?
-			int abortLevel;
-			if ((abortLevel = 
-				(this.policy.stopOnFirstError() ? AbortCompilation : severity & Abort)) != 0) {
-
-				referenceContext.abort(abortLevel, problem);
+			if ((severity & ProblemSeverities.Optional) == 0 || options.treatOptionalErrorAsFatal) {
+				referenceContext.tagAsHavingErrors();
+				// should abort ?
+				int abortLevel;
+				if ((abortLevel = 	this.policy.stopOnFirstError() ? ProblemSeverities.AbortCompilation : severity & ProblemSeverities.Abort) != 0) {
+					referenceContext.abort(abortLevel, problem);
+				}
 			}
 			break;
-		case Warning :
+		case ProblemSeverities.Warning :
 			this.record(problem, unitResult, referenceContext);
 			break;
 	}

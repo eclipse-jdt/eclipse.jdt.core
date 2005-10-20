@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 
 /*
@@ -49,7 +50,7 @@ public MethodBinding[] availableMethods() {
 */
 
 public boolean canBeInstantiated() {
-	return (this.modifiers & (AccAbstract | AccInterface | AccEnum | AccAnnotation)) == 0;
+	return (this.modifiers & (ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation)) == 0;
 }
 /* Answer true if the receiver is visible to the invocationPackage.
 */
@@ -200,7 +201,7 @@ public final boolean canBeSeenBy(Scope scope) {
 }
 public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 
-	boolean isMemberOfGeneric = isMemberType() && (enclosingType().modifiers & AccGenericSignature) != 0;
+	boolean isMemberOfGeneric = isMemberType() && (enclosingType().modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0;
 	if (typeVariables == NoTypeVariables && !isMemberOfGeneric) {
 		return signature();
 	}
@@ -445,7 +446,7 @@ public int enumConstantCount() {
 	int count = 0;
 	FieldBinding[] fields = fields();
 	for (int i = 0, length = fields.length; i < length; i++) {
-		if ((fields[i].modifiers & AccEnum) != 0) count++;
+		if ((fields[i].modifiers & ClassFileConstants.AccEnum) != 0) count++;
 	}
 	return count;
 }
@@ -548,7 +549,7 @@ public ReferenceBinding findSuperTypeWithSameErasure(TypeBinding otherType) {
 }
 
 public final int getAccessFlags() {
-	return modifiers & AccJustFlag;
+	return modifiers & ExtraCompilerModifiers.AccJustFlag;
 }
 
 /**
@@ -606,7 +607,7 @@ public int hashCode() {
 }
 
 public final boolean hasRestrictedAccess() {
-	return (modifiers & AccRestrictedAccess) != 0;
+	return (modifiers & ExtraCompilerModifiers.AccRestrictedAccess) != 0;
 }
 
 /**
@@ -709,16 +710,16 @@ boolean implementsMethod(MethodBinding method) {
 */
 
 public final boolean isAbstract() {
-	return (modifiers & AccAbstract) != 0;
+	return (modifiers & ClassFileConstants.AccAbstract) != 0;
 }
 public boolean isAnnotationType() {
-	return (modifiers & AccAnnotation) != 0;
+	return (modifiers & ClassFileConstants.AccAnnotation) != 0;
 }
 public final boolean isBinaryBinding() {
 	return (tagBits & IsBinaryBinding) != 0;
 }
 public boolean isClass() {
-	return (modifiers & (AccInterface | AccAnnotation | AccEnum)) == 0;
+	return (modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation | ClassFileConstants.AccEnum)) == 0;
 }
 /*
  * Returns true if the type hierarchy is being connected
@@ -775,61 +776,61 @@ public boolean isCompatibleWith(TypeBinding otherType) {
 /* Answer true if the receiver has default visibility
 */
 public final boolean isDefault() {
-	return (modifiers & (AccPublic | AccProtected | AccPrivate)) == 0;
+	return (modifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate)) == 0;
 }
 
 /* Answer true if the receiver is a deprecated type
 */
 public final boolean isDeprecated() {
-	return (modifiers & AccDeprecated) != 0;
+	return (modifiers & ClassFileConstants.AccDeprecated) != 0;
 }
 public boolean isEnum() {
-	return (modifiers & AccEnum) != 0;
+	return (modifiers & ClassFileConstants.AccEnum) != 0;
 }
 /* Answer true if the receiver is final and cannot be subclassed
 */
 public final boolean isFinal() {
-	return (modifiers & AccFinal) != 0;
+	return (modifiers & ClassFileConstants.AccFinal) != 0;
 }
 public boolean isInterface() {
 	// consider strict interfaces and annotation types
-	return (modifiers & AccInterface) != 0;
+	return (modifiers & ClassFileConstants.AccInterface) != 0;
 }
 	
 /* Answer true if the receiver has private visibility
 */
 public final boolean isPrivate() {
-	return (modifiers & AccPrivate) != 0;
+	return (modifiers & ClassFileConstants.AccPrivate) != 0;
 }
 /* Answer true if the receiver has private visibility and is used locally
 */
 
 public final boolean isUsed() {
-	return (modifiers & AccLocallyUsed) != 0;
+	return (modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
 }
 /* Answer true if the receiver has protected visibility
 */
 
 public final boolean isProtected() {
-	return (modifiers & AccProtected) != 0;
+	return (modifiers & ClassFileConstants.AccProtected) != 0;
 }
 /* Answer true if the receiver has public visibility
 */
 
 public final boolean isPublic() {
-	return (modifiers & AccPublic) != 0;
+	return (modifiers & ClassFileConstants.AccPublic) != 0;
 }
 /* Answer true if the receiver is a static member type (or toplevel)
  */
 
 public final boolean isStatic() {
-	return (modifiers & (AccStatic | AccInterface)) != 0 || (tagBits & IsNestedType) == 0;
+	return (modifiers & (ClassFileConstants.AccStatic | ClassFileConstants.AccInterface)) != 0 || (tagBits & IsNestedType) == 0;
 }
 /* Answer true if all float operations must adher to IEEE 754 float/double rules
 */
 
 public final boolean isStrictfp() {
-	return (modifiers & AccStrictfp) != 0;
+	return (modifiers & ClassFileConstants.AccStrictfp) != 0;
 }
 /* Answer true if the receiver is in the superclass hierarchy of aType
 *
@@ -877,7 +878,7 @@ public boolean isUncheckedException(boolean includeSupertype) {
 /* Answer true if the receiver is deprecated (or any of its enclosing types)
 */
 public final boolean isViewedAsDeprecated() {
-	return (modifiers & (AccDeprecated | AccDeprecatedImplicitly)) != 0;
+	return (modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0;
 }
 public ReferenceBinding[] memberTypes() {
 	return NoMemberTypes;

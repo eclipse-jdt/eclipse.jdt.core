@@ -63,7 +63,7 @@ public class ClassScope extends Scope {
 			if (hierarchyIsInconsistent) { // 72468
 				referenceContext.binding.fields = new FieldBinding[1];
 				referenceContext.binding.fields[0] =
-					new FieldBinding(IncompleteHierarchy, IntBinding, AccPrivate, referenceContext.binding, null);
+					new FieldBinding(IncompleteHierarchy, IntBinding, ClassFileConstants.AccPrivate, referenceContext.binding, null);
 			} else {
 				referenceContext.binding.fields = NoFields;
 			}
@@ -94,7 +94,7 @@ public class ClassScope extends Scope {
 				if (referenceContext.binding.isInterface())
 					problemReporter().interfaceCannotHaveInitializers(referenceContext.binding, field);
 			} else {
-				FieldBinding fieldBinding = new FieldBinding(field, null, field.modifiers | AccUnresolved, referenceContext.binding);
+				FieldBinding fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, referenceContext.binding);
 				// field's type will be resolved when needed for top level types
 				checkAndSetModifiersForField(fieldBinding, field);
 
@@ -136,7 +136,7 @@ public class ClassScope extends Scope {
 			fieldBindings = newFieldBindings;
 		}
 		if (hierarchyIsInconsistent)
-			fieldBindings[count++] = new FieldBinding(IncompleteHierarchy, IntBinding, AccPrivate, referenceContext.binding, null);
+			fieldBindings[count++] = new FieldBinding(IncompleteHierarchy, IntBinding, ClassFileConstants.AccPrivate, referenceContext.binding, null);
 
 		if (count != fieldBindings.length)
 			System.arraycopy(fieldBindings, 0, fieldBindings = new FieldBinding[count], 0, count);
@@ -354,26 +354,26 @@ public class ClassScope extends Scope {
 			return; 
 		}
 		sourceType.typeVariables = createTypeVariables(typeParameters, sourceType);
-		sourceType.modifiers |= AccGenericSignature;
+		sourceType.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 	}
 	
 	private void checkAndSetModifiers() {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		int modifiers = sourceType.modifiers;
-		if ((modifiers & AccAlternateModifierProblem) != 0)
+		if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForType(sourceType);
 		ReferenceBinding enclosingType = sourceType.enclosingType();
 		boolean isMemberType = sourceType.isMemberType();
 		if (isMemberType) {
-			modifiers |= (enclosingType.modifiers & (AccGenericSignature|AccStrictfp));
+			modifiers |= (enclosingType.modifiers & (ExtraCompilerModifiers.AccGenericSignature|ClassFileConstants.AccStrictfp));
 			// checks for member types before local types to catch local members
 			if (enclosingType.isInterface())
-				modifiers |= AccPublic;
+				modifiers |= ClassFileConstants.AccPublic;
 			if (sourceType.isEnum()) {
 				if (!enclosingType.isStatic())
 					problemReporter().nonStaticContextForEnumMemberType(sourceType);
 				else
-					modifiers |= AccStatic;
+					modifiers |= ClassFileConstants.AccStatic;
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
@@ -382,10 +382,10 @@ public class ClassScope extends Scope {
 				return;
 			}
 			if (sourceType.isAnonymousType()) {
-			    modifiers |= AccFinal;
+			    modifiers |= ClassFileConstants.AccFinal;
 			    // set AccEnum flag for anonymous body of enum constants
 			    if (referenceContext.allocation.type == null)
-			    	modifiers |= AccEnum;
+			    	modifiers |= ClassFileConstants.AccEnum;
 			}
 			Scope scope = this;
 			do {
@@ -399,29 +399,29 @@ public class ClassScope extends Scope {
 							if (methodScope.initializedField != null) {
 									// currently inside this field initialization
 								if (methodScope.initializedField.isViewedAsDeprecated() && !sourceType.isDeprecated())
-									modifiers |= AccDeprecatedImplicitly;
+									modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 							} else {
 								if (type.isStrictfp())
-									modifiers |= AccStrictfp;
+									modifiers |= ClassFileConstants.AccStrictfp;
 								if (type.isViewedAsDeprecated() && !sourceType.isDeprecated()) 
-									modifiers |= AccDeprecatedImplicitly;
+									modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 							}					
 						} else {
 							MethodBinding method = ((AbstractMethodDeclaration) methodScope.referenceContext).binding;
 							if (method != null) {
 								if (method.isStrictfp())
-									modifiers |= AccStrictfp;
+									modifiers |= ClassFileConstants.AccStrictfp;
 								if (method.isViewedAsDeprecated() && !sourceType.isDeprecated())
-									modifiers |= AccDeprecatedImplicitly;
+									modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 							}
 						}
 						break;
 					case CLASS_SCOPE :
 						// local member
 						if (enclosingType.isStrictfp())
-							modifiers |= AccStrictfp;
+							modifiers |= ClassFileConstants.AccStrictfp;
 						if (enclosingType.isViewedAsDeprecated() && !sourceType.isDeprecated())
-							modifiers |= AccDeprecatedImplicitly;
+							modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 						break;
 				}
 				scope = scope.parent;
@@ -429,15 +429,15 @@ public class ClassScope extends Scope {
 		}
 
 		// after this point, tests on the 16 bits reserved.
-		int realModifiers = modifiers & AccJustFlag;
+		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
 
-		if ((realModifiers & AccInterface) != 0) { // interface and annotation type
+		if ((realModifiers & ClassFileConstants.AccInterface) != 0) { // interface and annotation type
 			// detect abnormal cases for interfaces
 			if (isMemberType) {
 				int unexpectedModifiers =
-					~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccInterface | AccStrictfp | AccAnnotation);
+					~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
 				if ((realModifiers & unexpectedModifiers) != 0) {
-					if ((realModifiers & AccAnnotation) != 0)
+					if ((realModifiers & ClassFileConstants.AccAnnotation) != 0)
 						problemReporter().illegalModifierForAnnotationMemberType(sourceType);
 					else
 						problemReporter().illegalModifierForMemberInterface(sourceType);
@@ -449,34 +449,34 @@ public class ClassScope extends Scope {
 						problemReporter().illegalModifierForLocalInterface(sourceType);
 				*/
 			} else {
-				int unexpectedModifiers = ~(AccPublic | AccAbstract | AccInterface | AccStrictfp | AccAnnotation);
+				int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
 				if ((realModifiers & unexpectedModifiers) != 0) {
-					if ((realModifiers & AccAnnotation) != 0)
+					if ((realModifiers & ClassFileConstants.AccAnnotation) != 0)
 						problemReporter().illegalModifierForAnnotationType(sourceType);
 					else
 						problemReporter().illegalModifierForInterface(sourceType);
 				}
 			}
-			modifiers |= AccAbstract;
-		} else if ((realModifiers & AccEnum) != 0) {
+			modifiers |= ClassFileConstants.AccAbstract;
+		} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
-				int unexpectedModifiers = ~(AccPublic | AccPrivate | AccProtected | AccStatic | AccStrictfp | AccEnum);
+				int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForMemberEnum(sourceType);
 			} else if (sourceType.isLocalType()) { // each enum constant is an anonymous local type
-				int unexpectedModifiers = ~(AccStrictfp | AccFinal | AccEnum); // add final since implicitly set for anonymous type
+				int unexpectedModifiers = ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum); // add final since implicitly set for anonymous type
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForLocalEnum(sourceType);
 			} else {
-				int unexpectedModifiers = ~(AccPublic | AccStrictfp | AccEnum);
+				int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
 
 			// what about inherited interface methods?
 			if ((referenceContext.bits & ASTNode.HasAbstractMethods) != 0) {
-				modifiers |= AccAbstract;
+				modifiers |= ClassFileConstants.AccAbstract;
 			} else if (!sourceType.isAnonymousType()) {
 				// body of enum constant must implement any inherited abstract methods
 				// enum type needs to implement abstract methods if one of its constants does not supply a body
@@ -500,64 +500,64 @@ public class ClassScope extends Scope {
 					}
 					// tag this enum as abstract since an abstract method must be implemented AND all enum constants define an anonymous body
 					// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method					
-					modifiers |= AccAbstract;
+					modifiers |= ClassFileConstants.AccAbstract;
 				}
 			}
-			modifiers |= AccFinal;
+			modifiers |= ClassFileConstants.AccFinal;
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
-				int unexpectedModifiers = ~(AccPublic | AccPrivate | AccProtected | AccStatic | AccAbstract | AccFinal | AccStrictfp);
+				int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForMemberClass(sourceType);
 			} else if (sourceType.isLocalType()) {
-				int unexpectedModifiers = ~(AccAbstract | AccFinal | AccStrictfp);
+				int unexpectedModifiers = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
-				int unexpectedModifiers = ~(AccPublic | AccAbstract | AccFinal | AccStrictfp);
+				int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
 				if ((realModifiers & unexpectedModifiers) != 0)
 					problemReporter().illegalModifierForClass(sourceType);
 			}
 
 			// check that Final and Abstract are not set together
-			if ((realModifiers & (AccFinal | AccAbstract)) == (AccFinal | AccAbstract))
+			if ((realModifiers & (ClassFileConstants.AccFinal | ClassFileConstants.AccAbstract)) == (ClassFileConstants.AccFinal | ClassFileConstants.AccAbstract))
 				problemReporter().illegalModifierCombinationFinalAbstractForClass(sourceType);
 		}
 
 		if (isMemberType) {
 			// test visibility modifiers inconsistency, isolate the accessors bits
 			if (enclosingType.isInterface()) {
-				if ((realModifiers & (AccProtected | AccPrivate)) != 0) {
+				if ((realModifiers & (ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate)) != 0) {
 					problemReporter().illegalVisibilityModifierForInterfaceMemberType(sourceType);
 
 					// need to keep the less restrictive
-					if ((realModifiers & AccProtected) != 0)
-						modifiers &= ~AccProtected;
-					if ((realModifiers & AccPrivate) != 0)
-						modifiers &= ~AccPrivate;
+					if ((realModifiers & ClassFileConstants.AccProtected) != 0)
+						modifiers &= ~ClassFileConstants.AccProtected;
+					if ((realModifiers & ClassFileConstants.AccPrivate) != 0)
+						modifiers &= ~ClassFileConstants.AccPrivate;
 				}
 			} else {
-				int accessorBits = realModifiers & (AccPublic | AccProtected | AccPrivate);
+				int accessorBits = realModifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate);
 				if ((accessorBits & (accessorBits - 1)) > 1) {
 					problemReporter().illegalVisibilityModifierCombinationForMemberType(sourceType);
 
 					// need to keep the less restrictive so disable Protected/Private as necessary
-					if ((accessorBits & AccPublic) != 0) {
-						if ((accessorBits & AccProtected) != 0)
-							modifiers &= ~AccProtected;
-						if ((accessorBits & AccPrivate) != 0)
-							modifiers &= ~AccPrivate;
-					} else if ((accessorBits & AccProtected) != 0 && (accessorBits & AccPrivate) != 0) {
-						modifiers &= ~AccPrivate;
+					if ((accessorBits & ClassFileConstants.AccPublic) != 0) {
+						if ((accessorBits & ClassFileConstants.AccProtected) != 0)
+							modifiers &= ~ClassFileConstants.AccProtected;
+						if ((accessorBits & ClassFileConstants.AccPrivate) != 0)
+							modifiers &= ~ClassFileConstants.AccPrivate;
+					} else if ((accessorBits & ClassFileConstants.AccProtected) != 0 && (accessorBits & ClassFileConstants.AccPrivate) != 0) {
+						modifiers &= ~ClassFileConstants.AccPrivate;
 					}
 				}
 			}
 
 			// static modifier test
-			if ((realModifiers & AccStatic) == 0) {
+			if ((realModifiers & ClassFileConstants.AccStatic) == 0) {
 				if (enclosingType.isInterface())
-					modifiers |= AccStatic;
+					modifiers |= ClassFileConstants.AccStatic;
 			} else if (!enclosingType.isStatic()) {
 				// error the enclosing type of a static field must be static or a top-level type
 				problemReporter().illegalStaticModifierForMemberType(sourceType);
@@ -577,17 +577,17 @@ public class ClassScope extends Scope {
 	private void checkAndSetModifiersForField(FieldBinding fieldBinding, FieldDeclaration fieldDecl) {
 		int modifiers = fieldBinding.modifiers;
 		final ReferenceBinding declaringClass = fieldBinding.declaringClass;
-		if ((modifiers & AccAlternateModifierProblem) != 0)
+		if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForField(declaringClass, fieldDecl);
 
 		if (declaringClass.isInterface()) {
-			int expectedValue = AccPublic | AccStatic | AccFinal;
+			int expectedValue = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal;
 			// set the modifiers
 			modifiers |= expectedValue;
 
 			// and then check that they are the only ones
-			if ((modifiers & AccJustFlag) != expectedValue) {
-				if ((declaringClass.modifiers  & AccAnnotation) != 0)
+			if ((modifiers & ExtraCompilerModifiers.AccJustFlag) != expectedValue) {
+				if ((declaringClass.modifiers  & ClassFileConstants.AccAnnotation) != 0)
 					problemReporter().illegalModifierForAnnotationField(fieldDecl);
 				else
 					problemReporter().illegalModifierForInterfaceField(fieldDecl);
@@ -596,45 +596,45 @@ public class ClassScope extends Scope {
 			return;
 		} else if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 			// check that they are not modifiers in source
-			if ((modifiers & AccJustFlag) != 0)
+			if ((modifiers & ExtraCompilerModifiers.AccJustFlag) != 0)
 				problemReporter().illegalModifierForEnumConstant(declaringClass, fieldDecl);
 		
 			// set the modifiers
-			int implicitValue = AccPublic | AccStatic | AccFinal | AccEnum;
+			int implicitValue = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum;
 			if (fieldDecl.initialization instanceof QualifiedAllocationExpression)
-				declaringClass.modifiers &= ~AccFinal;
+				declaringClass.modifiers &= ~ClassFileConstants.AccFinal;
 			fieldBinding.modifiers|= implicitValue;
 			return;
 		}
 
 		// after this point, tests on the 16 bits reserved.
-		int realModifiers = modifiers & AccJustFlag;
-		int unexpectedModifiers = ~(AccPublic | AccPrivate | AccProtected | AccFinal | AccStatic | AccTransient | AccVolatile);
+		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
+		int unexpectedModifiers = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccFinal | ClassFileConstants.AccStatic | ClassFileConstants.AccTransient | ClassFileConstants.AccVolatile);
 		if ((realModifiers & unexpectedModifiers) != 0) {
 			problemReporter().illegalModifierForField(declaringClass, fieldDecl);
-			modifiers &= ~AccJustFlag | ~unexpectedModifiers;
+			modifiers &= ~ExtraCompilerModifiers.AccJustFlag | ~unexpectedModifiers;
 		}
 
-		int accessorBits = realModifiers & (AccPublic | AccProtected | AccPrivate);
+		int accessorBits = realModifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate);
 		if ((accessorBits & (accessorBits - 1)) > 1) {
 			problemReporter().illegalVisibilityModifierCombinationForField(declaringClass, fieldDecl);
 
 			// need to keep the less restrictive so disable Protected/Private as necessary
-			if ((accessorBits & AccPublic) != 0) {
-				if ((accessorBits & AccProtected) != 0)
-					modifiers &= ~AccProtected;
-				if ((accessorBits & AccPrivate) != 0)
-					modifiers &= ~AccPrivate;
-			} else if ((accessorBits & AccProtected) != 0 && (accessorBits & AccPrivate) != 0) {
-				modifiers &= ~AccPrivate;
+			if ((accessorBits & ClassFileConstants.AccPublic) != 0) {
+				if ((accessorBits & ClassFileConstants.AccProtected) != 0)
+					modifiers &= ~ClassFileConstants.AccProtected;
+				if ((accessorBits & ClassFileConstants.AccPrivate) != 0)
+					modifiers &= ~ClassFileConstants.AccPrivate;
+			} else if ((accessorBits & ClassFileConstants.AccProtected) != 0 && (accessorBits & ClassFileConstants.AccPrivate) != 0) {
+				modifiers &= ~ClassFileConstants.AccPrivate;
 			}
 		}
 
-		if ((realModifiers & (AccFinal | AccVolatile)) == (AccFinal | AccVolatile))
+		if ((realModifiers & (ClassFileConstants.AccFinal | ClassFileConstants.AccVolatile)) == (ClassFileConstants.AccFinal | ClassFileConstants.AccVolatile))
 			problemReporter().illegalModifierCombinationFinalVolatileForField(declaringClass, fieldDecl);
 
-		if (fieldDecl.initialization == null && (modifiers & AccFinal) != 0)
-			modifiers |= AccBlankFinal;
+		if (fieldDecl.initialization == null && (modifiers & ClassFileConstants.AccFinal) != 0)
+			modifiers |= ExtraCompilerModifiers.AccBlankFinal;
 		fieldBinding.modifiers = modifiers;
 	}
 
@@ -659,7 +659,7 @@ public class ClassScope extends Scope {
 					System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[lastPosition * 2][], 0, lastPosition);
 				interfacesToVisit[lastPosition] = itsInterfaces;
 			}
-		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & HasNoMemberTypes) == 0);
+		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & TagBits.HasNoMemberTypes) == 0);
 
 		if (interfacesToVisit != null) {
 			// contains the interfaces between the sourceType and any superclass, which was tagged as having no member types
@@ -668,7 +668,7 @@ public class ClassScope extends Scope {
 				ReferenceBinding[] interfaces = interfacesToVisit[i];
 				for (int j = 0, length = interfaces.length; j < length; j++) {
 					ReferenceBinding anInterface = interfaces[j];
-					if ((anInterface.tagBits & HasNoMemberTypes) == 0) { // skip interface if it already knows it has no member types
+					if ((anInterface.tagBits & TagBits.HasNoMemberTypes) == 0) { // skip interface if it already knows it has no member types
 						if (anInterface.hasMemberTypes()) // avoid resolving member types eagerly
 							return;
 
@@ -689,7 +689,7 @@ public class ClassScope extends Scope {
 				for (int i = 0; i <= lastPosition; i++) {
 					ReferenceBinding[] interfaces = interfacesToVisit[i];
 					for (int j = 0, length = interfaces.length; j < length; j++)
-						interfaces[j].tagBits |= HasNoMemberTypes;
+						interfaces[j].tagBits |= TagBits.HasNoMemberTypes;
 				}
 			}
 		}
@@ -697,8 +697,8 @@ public class ClassScope extends Scope {
 		// tag the sourceType and all of its superclasses, unless they have already been tagged
 		currentType = sourceType;
 		do {
-			currentType.tagBits |= HasNoMemberTypes;
-		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & HasNoMemberTypes) == 0);
+			currentType.tagBits |= TagBits.HasNoMemberTypes;
+		} while ((currentType = currentType.superclass()) != null && (currentType.tagBits & TagBits.HasNoMemberTypes) == 0);
 	}
 	// Perform deferred bound checks for parameterized type references (only done after hierarchy is connected)
 	public void  checkParameterizedTypeBounds() {
@@ -757,7 +757,7 @@ public class ClassScope extends Scope {
 			return true; // do not propagate Object's hierarchy problems down to every subtype
 		}
 		if (referenceContext.superclass == null) {
-			if (sourceType.isEnum() && compilerOptions().sourceLevel >= JDK1_5) // do not connect if source < 1.5 as enum already got flagged as syntax error
+			if (sourceType.isEnum() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) // do not connect if source < 1.5 as enum already got flagged as syntax error
 				return connectEnumSuperclass();
 			sourceType.superclass = getJavaLangObject();
 			return !detectHierarchyCycle(sourceType, sourceType.superclass, null);
@@ -779,9 +779,9 @@ public class ClassScope extends Scope {
 				return true;
 			}
 		}
-		sourceType.tagBits |= HierarchyHasProblems;
+		sourceType.tagBits |= TagBits.HierarchyHasProblems;
 		sourceType.superclass = getJavaLangObject();
-		if ((sourceType.superclass.tagBits & BeginHierarchyCheck) == 0)
+		if ((sourceType.superclass.tagBits & TagBits.BeginHierarchyCheck) == 0)
 			detectHierarchyCycle(sourceType, sourceType.superclass, null);
 		return false; // reported some error against the source type
 	}
@@ -826,7 +826,7 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = referenceContext.binding;
 		sourceType.superInterfaces = NoSuperInterfaces;
 		if (referenceContext.superInterfaces == null) {
-			if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
+			if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
 				ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
 				boolean foundCycle = detectHierarchyCycle(sourceType, annotationType, null);
 				sourceType.superInterfaces = new ReferenceBinding[] { annotationType };
@@ -845,7 +845,7 @@ public class ClassScope extends Scope {
 		    TypeReference superInterfaceRef = referenceContext.superInterfaces[i];
 			ReferenceBinding superInterface = findSupertype(superInterfaceRef);
 			if (superInterface == null) { // detected cycle
-				sourceType.tagBits |= HierarchyHasProblems;
+				sourceType.tagBits |= TagBits.HierarchyHasProblems;
 				noProblems = false;
 				continue nextInterface;
 			}
@@ -860,7 +860,7 @@ public class ClassScope extends Scope {
 			}
 			if (!superInterface.isInterface()) {
 				problemReporter().superinterfaceMustBeAnInterface(sourceType, superInterfaceRef, superInterface);
-				sourceType.tagBits |= HierarchyHasProblems;
+				sourceType.tagBits |= TagBits.HierarchyHasProblems;
 				noProblems = false;
 				continue nextInterface;
 			} else if (superInterface.isAnnotationType()){
@@ -868,7 +868,7 @@ public class ClassScope extends Scope {
 			}
 			if ((superInterface.tagBits & TagBits.HasDirectWildcard) != 0) {
 				problemReporter().superTypeCannotUseWildcard(sourceType, superInterfaceRef, superInterface);
-				sourceType.tagBits |= HierarchyHasProblems;
+				sourceType.tagBits |= TagBits.HierarchyHasProblems;
 				noProblems = false;
 				continue nextInterface;
 			}
@@ -896,7 +896,7 @@ public class ClassScope extends Scope {
 								TypeBinding[] collisions;
 								invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
 								problemReporter().superinterfacesCollide(collisions[0].erasure(), referenceContext, collisions[0], collisions[1]);
-								sourceType.tagBits |= HierarchyHasProblems;
+								sourceType.tagBits |= TagBits.HierarchyHasProblems;
 								noProblems = false;
 								continue nextInterface;
 							}
@@ -921,7 +921,7 @@ public class ClassScope extends Scope {
 								TypeBinding[] collisions;
 								invalidInvocations.toArray(collisions = new TypeBinding[invalidSize]);
 								problemReporter().superinterfacesCollide(collisions[0].erasure(), referenceContext, collisions[0], collisions[1]);
-								sourceType.tagBits |= HierarchyHasProblems;
+								sourceType.tagBits |= TagBits.HierarchyHasProblems;
 								noProblems = false;
 								continue nextInterface;
 							}
@@ -941,12 +941,12 @@ public class ClassScope extends Scope {
 	
 	void connectTypeHierarchy() {
 		SourceTypeBinding sourceType = referenceContext.binding;
-		if ((sourceType.tagBits & BeginHierarchyCheck) == 0) {
-			sourceType.tagBits |= BeginHierarchyCheck;
+		if ((sourceType.tagBits & TagBits.BeginHierarchyCheck) == 0) {
+			sourceType.tagBits |= TagBits.BeginHierarchyCheck;
 			boolean noProblems = connectSuperclass();
 			noProblems &= connectSuperInterfaces();
 			noProblems &= connectTypeVariables(referenceContext.typeParameters);
-			sourceType.tagBits |= EndHierarchyCheck;
+			sourceType.tagBits |= TagBits.EndHierarchyCheck;
 			if (noProblems && sourceType.isHierarchyInconsistent())
 				problemReporter().hierarchyHasProblems(sourceType);
 		}
@@ -971,14 +971,14 @@ public class ClassScope extends Scope {
 
 		// double check that the hierarchy search has not already begun...
 		SourceTypeBinding sourceType = referenceContext.binding;
-		if ((sourceType.tagBits & BeginHierarchyCheck) != 0)
+		if ((sourceType.tagBits & TagBits.BeginHierarchyCheck) != 0)
 			return;
 
-		sourceType.tagBits |= BeginHierarchyCheck;
+		sourceType.tagBits |= TagBits.BeginHierarchyCheck;
 		boolean noProblems = connectSuperclass();
 		noProblems &= connectSuperInterfaces();
 		noProblems &= connectTypeVariables(referenceContext.typeParameters);
-		sourceType.tagBits |= EndHierarchyCheck;
+		sourceType.tagBits |= TagBits.EndHierarchyCheck;
 		if (noProblems && sourceType.isHierarchyInconsistent())
 			problemReporter().hierarchyHasProblems(sourceType);
 	}
@@ -989,7 +989,7 @@ public class ClassScope extends Scope {
 		if (argTypes != null) {
 			for (int i = 0, l = argTypes.length; i < l; i++) {
 				TypeBinding argType = argTypes[i].leafComponentType();
-				if ((argType.tagBits & BeginHierarchyCheck) == 0 && argType instanceof SourceTypeBinding)
+				if ((argType.tagBits & TagBits.BeginHierarchyCheck) == 0 && argType instanceof SourceTypeBinding)
 			    	// ensure if this is a source argument type that it has already been checked
 			    	((SourceTypeBinding) argType).scope.connectTypeHierarchyWithoutMembers();
 			}
@@ -1006,7 +1006,7 @@ public class ClassScope extends Scope {
 			return detectHierarchyCycle(referenceContext.binding, (ReferenceBinding) superType, reference);
 		}
 
-		if ((superType.tagBits & BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
+		if ((superType.tagBits & TagBits.BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
 			// ensure if this is a source superclass that it has already been checked
 			((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
 		return false;
@@ -1020,7 +1020,7 @@ public class ClassScope extends Scope {
 
 		if (sourceType == superType) {
 			problemReporter().hierarchyCircularity(sourceType, superType, reference);
-			sourceType.tagBits |= HierarchyHasProblems;
+			sourceType.tagBits |= TagBits.HierarchyHasProblems;
 			return true;
 		}
 
@@ -1030,8 +1030,8 @@ public class ClassScope extends Scope {
 //			do {
 //				if (current.isHierarchyBeingConnected()) {
 //					problemReporter().hierarchyCircularity(sourceType, current, reference);
-//					sourceType.tagBits |= HierarchyHasProblems;
-//					current.tagBits |= HierarchyHasProblems;
+//					sourceType.tagBits |= TagBits.HierarchyHasProblems;
+//					current.tagBits |= TagBits.HierarchyHasProblems;
 //					return true;
 //				}
 //			} while ((current = current.enclosingType()) != null);
@@ -1046,16 +1046,16 @@ public class ClassScope extends Scope {
 			if (parentType != null) {
 				if (sourceType == parentType) {
 					problemReporter().hierarchyCircularity(sourceType, superType, reference);
-					sourceType.tagBits |= HierarchyHasProblems;
-					superType.tagBits |= HierarchyHasProblems;
+					sourceType.tagBits |= TagBits.HierarchyHasProblems;
+					superType.tagBits |= TagBits.HierarchyHasProblems;
 					return true;
 				}
 				if (parentType.isParameterizedType())
 					parentType = ((ParameterizedTypeBinding) parentType).type;
 				hasCycle |= detectHierarchyCycle(sourceType, parentType, reference);
-				if ((parentType.tagBits & HierarchyHasProblems) != 0) {
-					sourceType.tagBits |= HierarchyHasProblems;
-					parentType.tagBits |= HierarchyHasProblems; // propagate down the hierarchy
+				if ((parentType.tagBits & TagBits.HierarchyHasProblems) != 0) {
+					sourceType.tagBits |= TagBits.HierarchyHasProblems;
+					parentType.tagBits |= TagBits.HierarchyHasProblems; // propagate down the hierarchy
 				}
 			}
 
@@ -1065,16 +1065,16 @@ public class ClassScope extends Scope {
 					ReferenceBinding anInterface = itsInterfaces[i];
 					if (sourceType == anInterface) {
 						problemReporter().hierarchyCircularity(sourceType, superType, reference);
-						sourceType.tagBits |= HierarchyHasProblems;
-						superType.tagBits |= HierarchyHasProblems;
+						sourceType.tagBits |= TagBits.HierarchyHasProblems;
+						superType.tagBits |= TagBits.HierarchyHasProblems;
 						return true;
 					}
 					if (anInterface.isParameterizedType())
 						anInterface = ((ParameterizedTypeBinding) anInterface).type;
 					hasCycle |= detectHierarchyCycle(sourceType, anInterface, reference);
-					if ((anInterface.tagBits & HierarchyHasProblems) != 0) {
-						sourceType.tagBits |= HierarchyHasProblems;
-						superType.tagBits |= HierarchyHasProblems;
+					if ((anInterface.tagBits & TagBits.HierarchyHasProblems) != 0) {
+						sourceType.tagBits |= TagBits.HierarchyHasProblems;
+						superType.tagBits |= TagBits.HierarchyHasProblems;
 					}
 				}
 			}
@@ -1085,16 +1085,16 @@ public class ClassScope extends Scope {
 			org.eclipse.jdt.internal.compiler.ast.TypeReference ref = ((SourceTypeBinding) superType).scope.superTypeReference;
 			if (ref != null && ref.resolvedType != null && ((ReferenceBinding) ref.resolvedType).isHierarchyBeingConnected()) { // if null then its connecting its type variables
 				problemReporter().hierarchyCircularity(sourceType, superType, reference);
-				sourceType.tagBits |= HierarchyHasProblems;
-				superType.tagBits |= HierarchyHasProblems;
+				sourceType.tagBits |= TagBits.HierarchyHasProblems;
+				superType.tagBits |= TagBits.HierarchyHasProblems;
 				return true;
 			}
 		}
-		if ((superType.tagBits & BeginHierarchyCheck) == 0)
+		if ((superType.tagBits & TagBits.BeginHierarchyCheck) == 0)
 			// ensure if this is a source superclass that it has already been checked
 			((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
-		if ((superType.tagBits & HierarchyHasProblems) != 0)
-			sourceType.tagBits |= HierarchyHasProblems;
+		if ((superType.tagBits & TagBits.HierarchyHasProblems) != 0)
+			sourceType.tagBits |= TagBits.HierarchyHasProblems;
 		return false;
 	}
 

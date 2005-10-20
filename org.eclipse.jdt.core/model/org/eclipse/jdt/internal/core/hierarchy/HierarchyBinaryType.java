@@ -13,11 +13,11 @@ package org.eclipse.jdt.internal.core.hierarchy;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class HierarchyBinaryType implements IBinaryType {
@@ -186,7 +186,7 @@ public void recordSuperType(char[] superTypeName, char[] superQualification, cha
 }
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	if (this.modifiers == IConstants.AccPublic) {
+	if (this.modifiers == ClassFileConstants.AccPublic) {
 		buffer.append("public "); //$NON-NLS-1$
 	}
 	switch (TypeDeclaration.kind(this.modifiers)) {

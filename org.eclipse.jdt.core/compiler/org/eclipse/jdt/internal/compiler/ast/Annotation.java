@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -266,7 +267,7 @@ public abstract class Annotation extends Expression {
 					}
 				}
 			}
-			if (!foundValue && (method.modifiers & AccAnnotationDefault) == 0) {
+			if (!foundValue && (method.modifiers & ClassFileConstants.AccAnnotationDefault) == 0) {
 				scope.problemReporter().missingValueForAnnotationMember(this, selector);
 			}
 		}

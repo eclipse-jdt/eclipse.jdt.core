@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -165,7 +166,7 @@ public class SynchronizedStatement extends SubRoutineStatement {
 				break; 
 		}
 		//continue even on errors in order to have the TC done into the statements
-		synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, AccDefault, false);
+		synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, ClassFileConstants.AccDefault, false);
 		scope.addLocalVariable(synchroVariable);
 		synchroVariable.setConstant(NotAConstant); // not inlinable
 		expression.computeConversion(scope, type, type);

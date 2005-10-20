@@ -77,7 +77,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		} 	else if (this.actualReceiverType.isArrayType() 
 						&& runtimeTimeType.id != T_JavaLangObject
 						&& this.binding.parameters == NoParameters 
-						&& scope.compilerOptions().complianceLevel >= JDK1_5 
+						&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5 
 						&& CharOperation.equals(this.binding.selector, CLONE)) {
 					// from 1.5 compliant mode on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
 			this.valueCast = runtimeTimeType;			
@@ -349,7 +349,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.binding = closestMatch;
 			if ((closestMatch.isPrivate() || closestMatch.declaringClass.isLocalType()) && !scope.isDefinedInMethod(closestMatch)) {
 				// ignore cases where method is used from within inside itself (e.g. direct recursions)
-				closestMatch.original().modifiers |= AccLocallyUsed;
+				closestMatch.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 			}
 		}
 		return this.resolvedType;
@@ -398,7 +398,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	// from 1.5 compliance on, array#clone() returns the array type (but binding still shows Object)
 	if (actualReceiverType.isArrayType() 
 			&& this.binding.parameters == NoParameters 
-			&& scope.compilerOptions().complianceLevel >= JDK1_5 
+			&& scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5 
 			&& CharOperation.equals(this.binding.selector, CLONE)) {
 		this.resolvedType = actualReceiverType;
 	} else {

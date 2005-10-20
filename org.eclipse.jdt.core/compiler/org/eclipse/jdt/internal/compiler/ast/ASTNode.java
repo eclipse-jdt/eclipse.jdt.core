@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 
-public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConstants, TypeIds {
+public abstract class ASTNode implements BaseTypes, TypeConstants, TypeIds {
 	
 	public int sourceStart, sourceEnd;
 
@@ -266,7 +267,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 	
 		if (!isStrictlyAssigned && (field.isPrivate() || (field.declaringClass != null && field.declaringClass.isLocalType())) && !scope.isDefinedInField(field)) {
 			// ignore cases where field is used from within inside itself 
-			field.original().modifiers |= AccLocallyUsed;
+			field.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 	
 		if (!field.isViewedAsDeprecated()) return false;
@@ -291,7 +292,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		if ((method.isPrivate() || method.declaringClass.isLocalType()) && !scope.isDefinedInMethod(method)) {
 			// ignore cases where method is used from within inside itself (e.g. direct recursions)
-			method.original().modifiers |= AccLocallyUsed;
+			method.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 		
 		if (!method.isViewedAsDeprecated()) return false;
@@ -328,7 +329,7 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 		if ((refType.isPrivate() /*|| refType.isLocalType()*/) && !scope.isDefinedInType(refType)) {
 			// ignore cases where type is used from within inside itself 
-			((ReferenceBinding)refType.erasure()).modifiers |= AccLocallyUsed;
+			((ReferenceBinding)refType.erasure()).modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
 		
 		if (refType.hasRestrictedAccess()) {
@@ -367,25 +368,25 @@ public abstract class ASTNode implements BaseTypes, CompilerModifiers, TypeConst
 
 	public static StringBuffer printModifiers(int modifiers, StringBuffer output) {
 
-		if ((modifiers & AccPublic) != 0)
+		if ((modifiers & ClassFileConstants.AccPublic) != 0)
 			output.append("public "); //$NON-NLS-1$
-		if ((modifiers & AccPrivate) != 0)
+		if ((modifiers & ClassFileConstants.AccPrivate) != 0)
 			output.append("private "); //$NON-NLS-1$
-		if ((modifiers & AccProtected) != 0)
+		if ((modifiers & ClassFileConstants.AccProtected) != 0)
 			output.append("protected "); //$NON-NLS-1$
-		if ((modifiers & AccStatic) != 0)
+		if ((modifiers & ClassFileConstants.AccStatic) != 0)
 			output.append("static "); //$NON-NLS-1$
-		if ((modifiers & AccFinal) != 0)
+		if ((modifiers & ClassFileConstants.AccFinal) != 0)
 			output.append("final "); //$NON-NLS-1$
-		if ((modifiers & AccSynchronized) != 0)
+		if ((modifiers & ClassFileConstants.AccSynchronized) != 0)
 			output.append("synchronized "); //$NON-NLS-1$
-		if ((modifiers & AccVolatile) != 0)
+		if ((modifiers & ClassFileConstants.AccVolatile) != 0)
 			output.append("volatile "); //$NON-NLS-1$
-		if ((modifiers & AccTransient) != 0)
+		if ((modifiers & ClassFileConstants.AccTransient) != 0)
 			output.append("transient "); //$NON-NLS-1$
-		if ((modifiers & AccNative) != 0)
+		if ((modifiers & ClassFileConstants.AccNative) != 0)
 			output.append("native "); //$NON-NLS-1$
-		if ((modifiers & AccAbstract) != 0)
+		if ((modifiers & ClassFileConstants.AccAbstract) != 0)
 			output.append("abstract "); //$NON-NLS-1$
 		return output;
 	}

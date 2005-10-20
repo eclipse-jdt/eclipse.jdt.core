@@ -13,10 +13,10 @@ package org.eclipse.jdt.core.dom;
 import java.util.HashSet;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -122,7 +122,7 @@ class BindingComparator {
 	}
 
 	static boolean isEqual(VariableBinding variableBinding, VariableBinding variableBinding2) {
-		return (variableBinding.modifiers & CompilerModifiers.AccJustFlag) == (variableBinding2.modifiers & CompilerModifiers.AccJustFlag)
+		return (variableBinding.modifiers & ExtraCompilerModifiers.AccJustFlag) == (variableBinding2.modifiers & ExtraCompilerModifiers.AccJustFlag)
 				&& CharOperation.equals(variableBinding.name, variableBinding2.name)
 				&& isEqual(variableBinding.type, variableBinding2.type)
 				&& (variableBinding.id == variableBinding2.id);
@@ -130,7 +130,7 @@ class BindingComparator {
 
 	static boolean isEqual(FieldBinding fieldBinding, FieldBinding fieldBinding2) {
 		HashSet visitedTypes = new HashSet();
-		return (fieldBinding.modifiers & CompilerModifiers.AccJustFlag) == (fieldBinding2.modifiers & CompilerModifiers.AccJustFlag)
+		return (fieldBinding.modifiers & ExtraCompilerModifiers.AccJustFlag) == (fieldBinding2.modifiers & ExtraCompilerModifiers.AccJustFlag)
 				&& CharOperation.equals(fieldBinding.name, fieldBinding2.name)
 				&& isEqual(fieldBinding.type, fieldBinding2.type, visitedTypes)
 				&& isEqual(fieldBinding.declaringClass, fieldBinding2.declaringClass, visitedTypes);
@@ -195,8 +195,8 @@ class BindingComparator {
 				ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) typeBinding;
 				ParameterizedTypeBinding parameterizedTypeBinding2 = (ParameterizedTypeBinding) typeBinding2;
 				return CharOperation.equals(parameterizedTypeBinding.compoundName, parameterizedTypeBinding2.compoundName)
-					&& (parameterizedTypeBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
-							== (parameterizedTypeBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
+					&& (parameterizedTypeBinding.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
+							== (parameterizedTypeBinding2.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
 					&& isEqual(parameterizedTypeBinding.arguments, parameterizedTypeBinding2.arguments, visitedTypes)
 					&& isEqual(parameterizedTypeBinding.enclosingType(), parameterizedTypeBinding2.enclosingType(), visitedTypes);
 							
@@ -246,8 +246,8 @@ class BindingComparator {
 				ReferenceBinding referenceBinding = (ReferenceBinding) typeBinding;
 				ReferenceBinding referenceBinding2 = (ReferenceBinding) typeBinding2;
 				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
-					&& (referenceBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
-							== (referenceBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
+					&& (referenceBinding.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
+							== (referenceBinding2.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
 					&& isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables(), visitedTypes)
 					&& isEqual(referenceBinding.enclosingType(), referenceBinding2.enclosingType(), visitedTypes);
 
@@ -262,8 +262,8 @@ class BindingComparator {
 					&& CharOperation.equals(referenceBinding.constantPoolName(), referenceBinding2.constantPoolName())
 					&& (!referenceBinding2.isGenericType())
 					&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
-					&& (referenceBinding.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
-							== (referenceBinding2.modifiers & (CompilerModifiers.AccJustFlag | IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation))
+					&& (referenceBinding.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
+							== (referenceBinding2.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
 					&& isEqual(referenceBinding.enclosingType(), referenceBinding2.enclosingType(), visitedTypes);
 		}
 	}

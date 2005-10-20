@@ -33,7 +33,8 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -49,7 +50,7 @@ public class BinaryTypeConverter {
 		char[][] packageName = Util.toCharArrays(pkg.names);
 		
 		if (packageName.length > 0) { 
-			compilationUnit.currentPackage = new ImportReference(packageName, new long[]{0}, false, CompilerModifiers.AccDefault);
+			compilationUnit.currentPackage = new ImportReference(packageName, new long[]{0}, false, ClassFileConstants.AccDefault);
 		}
 	
 		/* convert type */
@@ -116,7 +117,7 @@ public class BinaryTypeConverter {
 				argumentNames[i].toCharArray(),
 				0,
 				typeReference,
-				CompilerModifiers.AccDefault);
+				ClassFileConstants.AccDefault);
 			// do not care whether was final or not
 		}
 
@@ -202,7 +203,7 @@ public class BinaryTypeConverter {
 			AbstractMethodDeclaration method =convert(methods[i], type, compilationResult);
 			boolean isAbstract;
 			if ((isAbstract = method.isAbstract()) || isInterface) { // fix-up flag 
-				method.modifiers |= CompilerModifiers.AccSemicolonBody;
+				method.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
 			}
 			if (isAbstract) {
 				hasAbstractMethods = true;

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -38,7 +39,7 @@ public class CodeSnippetCodeStream extends CodeStream {
  * @param classFile org.eclipse.jdt.internal.compiler.ClassFile
  */
 public CodeSnippetCodeStream(org.eclipse.jdt.internal.compiler.ClassFile classFile) {
-	super(classFile, JDK1_4);
+	super(classFile, ClassFileConstants.JDK1_4);
 }
 protected void checkcast(int baseId) {
 	this.countLabels = 0;

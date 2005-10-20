@@ -26,7 +26,6 @@ package org.eclipse.jdt.internal.compiler.parser;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
@@ -38,12 +37,12 @@ import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.*;
 
-public class SourceTypeConverter implements CompilerModifiers {
+public class SourceTypeConverter {
 	
 	public static final int FIELD = 0x01;
 	public static final int CONSTRUCTOR = 0x02;
@@ -123,7 +122,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 		if (packageName.length > 0)
 			// if its null then it is defined in the default package
 			this.unit.currentPackage =
-				createImportReference(packageName, start, end, false, AccDefault);
+				createImportReference(packageName, start, end, false, ClassFileConstants.AccDefault);
 		IImportDeclaration[] importDeclarations = topLevelTypeInfo.getHandle().getCompilationUnit().getImports();
 		int importCount = importDeclarations.length;
 		this.unit.imports = new ImportReference[importCount];
@@ -159,7 +158,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 	private Initializer convert(InitializerElementInfo initializerInfo, CompilationResult compilationResult) throws JavaModelException {
 
 		Block block = new Block(0);
-		Initializer initializer = new Initializer(block, IConstants.AccDefault);
+		Initializer initializer = new Initializer(block, ClassFileConstants.AccDefault);
 
 		int start = initializerInfo.getDeclarationSourceStart();
 		int end = initializerInfo.getDeclarationSourceEnd();
@@ -210,9 +209,9 @@ public class SourceTypeConverter implements CompilerModifiers {
 		field.declarationSourceStart = fieldInfo.getDeclarationSourceStart();
 		field.declarationSourceEnd = fieldInfo.getDeclarationSourceEnd();
 		int modifiers = fieldInfo.getModifiers();
-		boolean isEnumConstant = (modifiers & AccEnum) != 0;
+		boolean isEnumConstant = (modifiers & ClassFileConstants.AccEnum) != 0;
 		if (isEnumConstant) {
-			field.modifiers = modifiers & ~Flags.AccEnum; // clear AccEnum bit onto AST (binding will add it)
+			field.modifiers = modifiers & ~ClassFileConstants.AccEnum; // clear AccEnum bit onto AST (binding will add it)
 		} else {
 			field.modifiers = modifiers;
 			field.type = createTypeReference(fieldInfo.getTypeName(), start, end);
@@ -252,7 +251,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 					anonymousLocalTypeDeclaration.superclass = null;
 					anonymousLocalTypeDeclaration.superInterfaces = null;
 					anonymousLocalTypeDeclaration.allocation = expression;
-					anonymousLocalTypeDeclaration.modifiers &= ~AccEnum; // remove tag in case this is the init of an enum constant
+					anonymousLocalTypeDeclaration.modifiers &= ~ClassFileConstants.AccEnum; // remove tag in case this is the init of an enum constant
 					expressions[i] = expression;
 				}
 			}
@@ -307,7 +306,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 						Expression expression =  parseMemberValue(defaultValueSource);
 						if (expression != null) {
 							annotationMethodDeclaration.defaultValue = expression;
-							modifiers |= AccAnnotationDefault;
+							modifiers |= ClassFileConstants.AccAnnotationDefault;
 						}
 					}
 				}
@@ -325,8 +324,8 @@ public class SourceTypeConverter implements CompilerModifiers {
 			method = decl;
 		}
 		method.selector = methodHandle.getElementName().toCharArray();
-		boolean isVarargs = (modifiers & AccVarargs) != 0;
-		method.modifiers = modifiers & ~AccVarargs;
+		boolean isVarargs = (modifiers & ClassFileConstants.AccVarargs) != 0;
+		method.modifiers = modifiers & ~ClassFileConstants.AccVarargs;
 		method.sourceStart = start;
 		method.sourceEnd = end;
 		method.declarationSourceStart = methodInfo.getDeclarationSourceStart();
@@ -356,7 +355,7 @@ public class SourceTypeConverter implements CompilerModifiers {
 						argumentNames[i],
 						position,
 						typeReference,
-						AccDefault);
+						ClassFileConstants.AccDefault);
 				// do not care whether was final or not
 			}
 		}
@@ -534,13 +533,13 @@ public class SourceTypeConverter implements CompilerModifiers {
 			for (int i = 0; i < sourceMethodCount; i++) {
 				SourceMethod sourceMethod = sourceMethods[i];
 				boolean isConstructor = sourceMethod.isConstructor();
-				if ((sourceMethod.getFlags() & Flags.AccAbstract) != 0) {
+				if ((sourceMethod.getFlags() & ClassFileConstants.AccAbstract) != 0) {
 					hasAbstractMethods = true;
 				}
 				if ((isConstructor && needConstructor) || (!isConstructor && needMethod)) {
 					AbstractMethodDeclaration method = convert(sourceMethod, compilationResult);
 					if (isAbstract || method.isAbstract()) { // fix-up flag 
-						method.modifiers |= AccSemicolonBody;
+						method.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
 					}
 					type.methods[extraConstructor + index++] = method;
 				}

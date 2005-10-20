@@ -988,7 +988,7 @@ public void reset() {
  */
 public void setAccessRestriction(ReferenceBinding type, AccessRestriction accessRestriction) {
 	if (accessRestriction == null) return;
-	type.modifiers |= CompilerModifiers.AccRestrictedAccess;
+	type.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 	this.accessRestrictions.put(type, accessRestriction);
 }
 

@@ -329,7 +329,7 @@ public class ExplicitConstructorCall extends Statement implements InvocationSite
 					scope.problemReporter().deprecatedMethod(binding, this);
 				checkInvocationArguments(scope, null, receiverType, binding, this.arguments, argumentTypes, argsContainCast, this);
 				if (binding.isPrivate() || receiverType.isLocalType()) {
-					binding.original().modifiers |= AccLocallyUsed;
+					binding.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 				}				
 			} else {
 				if (binding.declaringClass == null)

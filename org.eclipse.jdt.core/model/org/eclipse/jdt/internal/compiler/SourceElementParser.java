@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.compiler;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.core.compiler.*;
@@ -140,7 +141,7 @@ public void checkComment() {
 			// do not report problem before last parsed comment while recovering code...
 			this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
 			if (this.javadocParser.checkDeprecation(lastComment)) {
-				checkAndSetModifiers(AccDeprecated);
+				checkAndSetModifiers(ClassFileConstants.AccDeprecated);
 			}
 			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated
 			if (currentElement == null) this.lastJavadocEnd = commentEnd;
@@ -957,12 +958,12 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 		if (isInRange){
 			int currentModifiers = methodDeclaration.modifiers;
 			if (isVarArgs)
-				currentModifiers |= AccVarargs;
-			boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+				currentModifiers |= ClassFileConstants.AccVarargs;
+			boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0; // remember deprecation so as to not lose it below
 			ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
 			methodInfo.isConstructor = true;
 			methodInfo.declarationStart = methodDeclaration.declarationSourceStart;
-			methodInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
+			methodInfo.modifiers = deprecated ? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated : currentModifiers & ExtraCompilerModifiers.AccJustFlag;
 			methodInfo.name = methodDeclaration.selector;
 			methodInfo.nameSourceStart = methodDeclaration.sourceStart;
 			methodInfo.nameSourceEnd = selectorSourceEnd;
@@ -1005,15 +1006,15 @@ public void notifySourceElementRequestor(AbstractMethodDeclaration methodDeclara
 	if (isInRange) {
 		int currentModifiers = methodDeclaration.modifiers;
 		if (isVarArgs)
-			currentModifiers |= AccVarargs;
-		boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+			currentModifiers |= ClassFileConstants.AccVarargs;
+		boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0; // remember deprecation so as to not lose it below
 		TypeReference returnType = methodDeclaration instanceof MethodDeclaration
 			? ((MethodDeclaration) methodDeclaration).returnType
 			: null;
 		ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
 		methodInfo.isAnnotation = methodDeclaration instanceof AnnotationMethodDeclaration;
 		methodInfo.declarationStart = methodDeclaration.declarationSourceStart;
-		methodInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
+		methodInfo.modifiers = deprecated ? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated : currentModifiers & ExtraCompilerModifiers.AccJustFlag;
 		methodInfo.returnType = returnType == null ? null : CharOperation.concatWith(returnType.getParameterizedTypeName(), '.');
 		methodInfo.name = methodDeclaration.selector;
 		methodInfo.nameSourceStart = methodDeclaration.sourceStart;
@@ -1107,12 +1108,12 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 			}
 			if (isInRange) {
 				int currentModifiers = fieldDeclaration.modifiers;
-				boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+				boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0; // remember deprecation so as to not lose it below
 				char[] typeName = null;
 				if (fieldDeclaration.type == null) {
 					// enum constant
 					typeName = declaringType.name;
-					currentModifiers |= AccEnum;
+					currentModifiers |= ClassFileConstants.AccEnum;
 				} else {
 					// regular field
 					typeName = CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.');
@@ -1120,7 +1121,7 @@ public void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, Type
 				ISourceElementRequestor.FieldInfo fieldInfo = new ISourceElementRequestor.FieldInfo();
 				fieldInfo.declarationStart = fieldDeclaration.declarationSourceStart;
 				fieldInfo.name = fieldDeclaration.name;
-				fieldInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
+				fieldInfo.modifiers = deprecated ? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated : currentModifiers & ExtraCompilerModifiers.AccJustFlag;
 				fieldInfo.type = typeName;
 				fieldInfo.nameSourceStart = fieldDeclaration.sourceStart;
 				fieldInfo.nameSourceEnd = fieldDeclaration.sourceEnd;
@@ -1224,11 +1225,11 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 		char[] implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_OBJECT;
 		if (isInRange) {
 			int currentModifiers = typeDeclaration.modifiers;
-			boolean deprecated = (currentModifiers & AccDeprecated) != 0; // remember deprecation so as to not lose it below
+			boolean deprecated = (currentModifiers & ClassFileConstants.AccDeprecated) != 0; // remember deprecation so as to not lose it below
 			boolean isEnumInit = typeDeclaration.allocation != null && typeDeclaration.allocation.enumConstant != null;
 			char[] superclassName;
 			if (isEnumInit) {
-				currentModifiers |= AccEnum;
+				currentModifiers |= ClassFileConstants.AccEnum;
 				superclassName = declaringType.name;
 			} else {
 				TypeReference superclass = typeDeclaration.superclass;
@@ -1236,7 +1237,7 @@ public void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boolea
 			}
 			ISourceElementRequestor.TypeInfo typeInfo = new ISourceElementRequestor.TypeInfo();
 			typeInfo.declarationStart = typeDeclaration.declarationSourceStart;
-			typeInfo.modifiers = deprecated ? (currentModifiers & AccJustFlag) | AccDeprecated : currentModifiers & AccJustFlag;
+			typeInfo.modifiers = deprecated ? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated : currentModifiers & ExtraCompilerModifiers.AccJustFlag;
 			typeInfo.name = typeDeclaration.name;
 			typeInfo.nameSourceStart = typeDeclaration.sourceStart;
 			typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);

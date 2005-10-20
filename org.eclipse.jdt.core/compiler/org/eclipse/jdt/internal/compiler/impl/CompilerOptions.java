@@ -20,10 +20,9 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public class CompilerOptions implements ProblemReasons, ProblemSeverities, ClassFileConstants {
+public class CompilerOptions {
 	
 	/**
 	 * Option IDs
@@ -103,6 +102,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public static final String OPTION_SuppressWarnings =  "org.eclipse.jdt.core.compiler.problem.suppressWarnings"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnhandledWarningToken =  "org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLabel =  "org.eclipse.jdt.core.compiler.problem.unusedLabel"; //$NON-NLS-1$
+	public static final String OPTION_FatalOptionalError =  "org.eclipse.jdt.core.compiler.problem.fatalOptionalError"; //$NON-NLS-1$
 	
 	// Backward compatibility
 	public static final String OPTION_ReportInvalidAnnotation = "org.eclipse.jdt.core.compiler.problem.invalidAnnotation"; //$NON-NLS-1$
@@ -224,9 +224,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	// By default only lines and source attributes are generated.
 	public int produceDebugAttributes = Lines | Source;
 
-	public long complianceLevel = JDK1_4; // by default be compliant with 1.4
-	public long sourceLevel = JDK1_3; //1.3 source behavior by default
-	public long targetJDK = JDK1_2; // default generates for JVM1.2
+	public long complianceLevel = ClassFileConstants.JDK1_4; // by default be compliant with 1.4
+	public long sourceLevel = ClassFileConstants.JDK1_3; //1.3 source behavior by default
+	public long targetJDK = ClassFileConstants.JDK1_2; // default generates for JVM1.2
 
 	// toggle private access emulation for 1.2 (constr. accessor has extra arg on constructor) or 1.3 (make private constructor default access when access needed)
 	public boolean isPrivateConstructorAccessChangingVisibility = false; // by default, follows 1.2
@@ -269,17 +269,17 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	public boolean reportSpecialParameterHidingField = false;
 
 	// check javadoc comments tags
-	public int reportInvalidJavadocTagsVisibility = AccPrivate; 
+	public int reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPrivate; 
 	public boolean reportInvalidJavadocTags = true;
 	public boolean reportInvalidJavadocTagsDeprecatedRef = true;
 	public boolean reportInvalidJavadocTagsNotVisibleRef = true;
 
 	// check missing javadoc tags
-	public int reportMissingJavadocTagsVisibility = AccPrivate; 
+	public int reportMissingJavadocTagsVisibility = ClassFileConstants.AccPrivate; 
 	public boolean reportMissingJavadocTagsOverriding = false;
 
 	// check missing javadoc comments
-	public int reportMissingJavadocCommentsVisibility = AccPublic; 
+	public int reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic; 
 	public boolean reportMissingJavadocCommentsOverriding = false; 
 
 	// JSR bytecode inlining
@@ -290,6 +290,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	
 	// suppress warning annotation
 	public boolean suppressWarnings = true;
+	
+	// treat optional error as fatal or just like warning?
+	public boolean treatOptionalErrorAsFatal = true;
 	
 	/** 
 	 * Initializing the compiler options with defaults
@@ -374,6 +377,8 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel)); 
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel)); 
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK)); 
+		optionsMap.put(OPTION_FatalOptionalError, this.treatOptionalErrorAsFatal ? ENABLED : DISABLED); 
+		
 		if (this.defaultEncoding != null) {
 			optionsMap.put(OPTION_Encoding, this.defaultEncoding); 
 		}
@@ -393,10 +398,10 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	
 	public int getSeverity(long irritant) {
 		if((this.errorThreshold & irritant) != 0)
-			return Error;
+			return ProblemSeverities.Error | ProblemSeverities.Optional;
 		if((this.warningThreshold & irritant) != 0)
-			return Warning;
-		return Ignore;
+			return ProblemSeverities.Warning | ProblemSeverities.Optional;
+		return ProblemSeverities.Ignore;
 	}
 
 	public String getSeverityString(long irritant) {
@@ -409,11 +414,11 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	
 	public String getVisibilityString(int level) {
 		switch (level) {
-			case AccPublic:
+			case ClassFileConstants.AccPublic:
 				return PUBLIC;
-			case AccProtected:
+			case ClassFileConstants.AccProtected:
 				return PROTECTED;
-			case AccPrivate:
+			case ClassFileConstants.AccPrivate:
 				return PRIVATE;
 			default:
 				return DEFAULT;
@@ -483,7 +488,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) this.targetJDK = level;
-			if (this.targetJDK >= JDK1_5) this.inlineJsrBytecode = true; // forced in 1.5 mode
+			if (this.targetJDK >= ClassFileConstants.JDK1_5) this.inlineJsrBytecode = true; // forced in 1.5 mode
 		}
 		if ((optionValue = optionsMap.get(OPTION_Encoding)) != null) {
 			if (optionValue instanceof String) {
@@ -501,7 +506,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 		if ((optionValue = optionsMap.get(OPTION_PrivateConstructorAccess)) != null) {
 			long level = versionToJdkLevel(optionValue);
-			if (level >= JDK1_3) this.isPrivateConstructorAccessChangingVisibility = true;
+			if (level >= ClassFileConstants.JDK1_3) this.isPrivateConstructorAccessChangingVisibility = true;
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedParameterWhenImplementingAbstract)) != null) {
 			if (ENABLED.equals(optionValue)) {
@@ -563,7 +568,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_InlineJsr)) != null) {
-			if (this.targetJDK < JDK1_5) { // only optional if target < 1.5 (inlining on from 1.5 on)
+			if (this.targetJDK < ClassFileConstants.JDK1_5) { // only optional if target < 1.5 (inlining on from 1.5 on)
 				if (ENABLED.equals(optionValue)) {
 					this.inlineJsrBytecode = true;
 				} else if (DISABLED.equals(optionValue)) {
@@ -576,6 +581,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				this.suppressWarnings = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.suppressWarnings = false;
+			}
+		}		
+		if ((optionValue = optionsMap.get(OPTION_FatalOptionalError)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.treatOptionalErrorAsFatal = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.treatOptionalErrorAsFatal = false;
 			}
 		}		
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
@@ -635,13 +647,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 		if ( (optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTagsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = AccPublic;
+				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPublic;
 			} else if (PROTECTED.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = AccProtected;
+				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccProtected;
 			} else if (DEFAULT.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = AccDefault;
+				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccDefault;
 			} else if (PRIVATE.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = AccPrivate;
+				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPrivate;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTags)) != null) {
@@ -670,13 +682,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = AccPublic;
+				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccPublic;
 			} else if (PROTECTED.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = AccProtected;
+				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccProtected;
 			} else if (DEFAULT.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = AccDefault;
+				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccDefault;
 			} else if (PRIVATE.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = AccPrivate;
+				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccPrivate;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagsOverriding)) != null) {
@@ -691,13 +703,13 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocCommentsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = AccPublic;
+				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic;
 			} else if (PROTECTED.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = AccProtected;
+				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccProtected;
 			} else if (DEFAULT.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = AccDefault;
+				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccDefault;
 			} else if (PRIVATE.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = AccPrivate;
+				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPrivate;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocCommentsOverriding)) != null) {
@@ -785,6 +797,7 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 		buf.append("\n\t- suppress warnings: ").append(this.suppressWarnings ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unhandled warning token: ").append(getSeverityString(UnhandledWarningToken)); //$NON-NLS-1$
 		buf.append("\n\t- unused label: ").append(getSeverityString(UnusedLabel)); //$NON-NLS-1$
+		buf.append("\n\t- treat optional error as fatal: ").append(this.treatOptionalErrorAsFatal ? ENABLED : DISABLED); //$NON-NLS-1$
 		return buf.toString();
 	}
 
@@ -802,33 +815,33 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 	}				
 	public static long versionToJdkLevel(Object versionID) {
 		if (VERSION_1_1.equals(versionID)) {
-			return JDK1_1;
+			return ClassFileConstants.JDK1_1;
 		} else if (VERSION_1_2.equals(versionID)) {
-			return JDK1_2;
+			return ClassFileConstants.JDK1_2;
 		} else if (VERSION_1_3.equals(versionID)) {
-			return JDK1_3;
+			return ClassFileConstants.JDK1_3;
 		} else if (VERSION_1_4.equals(versionID)) {
-			return JDK1_4;
+			return ClassFileConstants.JDK1_4;
 		} else if (VERSION_1_5.equals(versionID)) {
-			return JDK1_5;
+			return ClassFileConstants.JDK1_5;
 		} else if (VERSION_1_6.equals(versionID)) {
-			return JDK1_6;
+			return ClassFileConstants.JDK1_6;
 		}
 		return 0; // unknown
 	}
 
 	public static String versionFromJdkLevel(long jdkLevel) {
-		if (jdkLevel == JDK1_1) {
+		if (jdkLevel == ClassFileConstants.JDK1_1) {
 			return VERSION_1_1;
-		} else if (jdkLevel == JDK1_2) {
+		} else if (jdkLevel == ClassFileConstants.JDK1_2) {
 			return VERSION_1_2;
-		} else if (jdkLevel == JDK1_3) {
+		} else if (jdkLevel == ClassFileConstants.JDK1_3) {
 			return VERSION_1_3;
-		} else if (jdkLevel == JDK1_4) {
+		} else if (jdkLevel == ClassFileConstants.JDK1_4) {
 			return VERSION_1_4;
-		} else if (jdkLevel == JDK1_5) {
+		} else if (jdkLevel == ClassFileConstants.JDK1_5) {
 			return VERSION_1_5;
-		} else if (jdkLevel == JDK1_6) {
+		} else if (jdkLevel == ClassFileConstants.JDK1_6) {
 			return VERSION_1_6;
 		}
 		return ""; // unknown version //$NON-NLS-1$

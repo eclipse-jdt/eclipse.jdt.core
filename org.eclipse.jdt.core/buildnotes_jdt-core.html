@@ -52,6 +52,21 @@ Eclipse SDK 3.2M3 - ?th October 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>Added compiler option so as to specify whether optional errors should be fatal or not. By default, an optional error is 
+treated as fatal as a normal language error (as defined by the language spec book), when disabling this option, clients will
+be able to treat optional errors as severe warnings only, which will be rendered as errors, but no longer prevent from running
+the code. There is some work planned on UI side so as to better distinguish amongst mandatory vs. optional errors.
+<pre>
+* COMPILER / Treating Optional Error as Fatal
+*    When enabled, optional errors (i.e. optional problems which severity is set to "error") will be treated as standard
+*    compiler errors, yielding problem methods/types preventing from running offending code until the issue got resolved.
+*    When disabled, optional errors are only considered as warnings, still carrying an error indication to make them more
+*    severe. Note that by default, errors are fatal, whether they are optional or not.
+*     - option id:         "org.eclipse.jdt.core.compiler.problem.fatalOptionalError"
+*     - possible values:   { "enabled", "disabled" }
+*     - default:           "enabled"
+</pre>	 
+</li>
 <li>Added <code>IJavaElementDelta#F_CATEGORIES</code>. This flag is set when one or more categories of an element 
      are added/changed/removed.</li>
 <li>
@@ -86,9 +101,11 @@ defined on <code>SearchPattern</code> (see bug <a href="http://bugs.eclipse.org/
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52840">52840</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=107282">107282</a>
+[plan][compiler] Non mandatory JLS errors should not end up in problem methods
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=52840">52840</a>
 Howto generate the parser: LPG 2.30 is which version of JikesPG?
-<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113051">113051</a>
+<br><br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113051">113051</a>
 No classpath marker produced when cycle through PDE container
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113110">113110</a>
 TestFailures in DebugSuite

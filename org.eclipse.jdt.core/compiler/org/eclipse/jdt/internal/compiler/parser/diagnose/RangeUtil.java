@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 
 public class RangeUtil {
 	
@@ -195,6 +195,6 @@ public class RangeUtil {
 	public static boolean containsIgnoredBody(AbstractMethodDeclaration method){
 		return !method.isDefaultConstructor()
 			&& !method.isClinit()
-			&& (method.modifiers & CompilerModifiers.AccSemicolonBody) == 0;
+			&& (method.modifiers & ExtraCompilerModifiers.AccSemicolonBody) == 0;
 	}
 }

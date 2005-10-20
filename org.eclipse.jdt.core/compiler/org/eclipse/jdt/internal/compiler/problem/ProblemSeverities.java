@@ -21,5 +21,6 @@ public interface ProblemSeverities {
 	final int AbortType = 8;
 	final int AbortMethod = 16;
 	final int Abort = 30; // 2r11110
+	final int Optional = 32; // when bit is set: problem was configurable
 	final int SecondaryError = 64;
 }

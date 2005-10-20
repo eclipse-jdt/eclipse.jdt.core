@@ -171,12 +171,12 @@ public class BlockScope extends Scope {
 	private void checkAndSetModifiersForVariable(LocalVariableBinding varBinding) {
 
 		int modifiers = varBinding.modifiers;
-		if ((modifiers & AccAlternateModifierProblem) != 0 && varBinding.declaration != null){
+		if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0 && varBinding.declaration != null){
 			problemReporter().duplicateModifierForVariable(varBinding.declaration, this instanceof MethodScope);
 		}
-		int realModifiers = modifiers & AccJustFlag;
+		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
 		
-		int unexpectedModifiers = ~AccFinal;
+		int unexpectedModifiers = ~ClassFileConstants.AccFinal;
 		if ((realModifiers & unexpectedModifiers) != 0 && varBinding.declaration != null){ 
 			problemReporter().illegalModifierForVariable(varBinding.declaration, this instanceof MethodScope);
 		}
@@ -402,11 +402,11 @@ public class BlockScope extends Scope {
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
 							null,
-							NotFound);
+							ProblemReasons.NotFound);
 					}
 					return new ProblemBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
-						NotFound);
+						ProblemReasons.NotFound);
 				}
 				if (binding instanceof ReferenceBinding) {
 					if (!binding.isValidBinding())
@@ -418,7 +418,7 @@ public class BlockScope extends Scope {
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
 							(ReferenceBinding) binding,
-							NotVisible);
+							ProblemReasons.NotVisible);
 					break foundType;
 				}
 				packageBinding = (PackageBinding) binding;
@@ -428,7 +428,7 @@ public class BlockScope extends Scope {
 			return new ProblemReferenceBinding(
 				CharOperation.subarray(compoundName, 0, currentIndex),
 				null,
-				NotFound);
+				ProblemReasons.NotFound);
 		}
 
 		// know binding is now a ReferenceBinding
@@ -451,12 +451,12 @@ public class BlockScope extends Scope {
 					return new ProblemBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
 						typeBinding,
-						NotFound);
+						ProblemReasons.NotFound);
 				} 
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
 					typeBinding,
-					NotFound);
+					ProblemReasons.NotFound);
 			}
 			if (!binding.isValidBinding())
 				return new ProblemReferenceBinding(
@@ -471,7 +471,7 @@ public class BlockScope extends Scope {
 				return new ProblemFieldBinding(
 					field,
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					NonStaticReferenceInStaticContext);
+					ProblemReasons.NonStaticReferenceInStaticContext);
 			return binding;
 		}
 		if ((mask & Binding.TYPE) != 0 && (binding instanceof ReferenceBinding)) {
@@ -482,7 +482,7 @@ public class BlockScope extends Scope {
 		// handle the case when a field or type was asked for but we resolved the compoundName to a type or field
 		return new ProblemBinding(
 			CharOperation.subarray(compoundName, 0, currentIndex),
-			NotFound);
+			ProblemReasons.NotFound);
 	}
 
 	// Added for code assist... NOT Public API
@@ -510,11 +510,11 @@ public class BlockScope extends Scope {
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
 							null,
-							NotFound);
+							ProblemReasons.NotFound);
 					}
 					return new ProblemBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
-						NotFound);
+						ProblemReasons.NotFound);
 				}
 				if (binding instanceof ReferenceBinding) {
 					if (!binding.isValidBinding())
@@ -526,7 +526,7 @@ public class BlockScope extends Scope {
 						return new ProblemReferenceBinding(
 							CharOperation.subarray(compoundName, 0, currentIndex),
 							(ReferenceBinding) binding, 
-							NotVisible);
+							ProblemReasons.NotVisible);
 					break foundType;
 				}
 			}
@@ -547,14 +547,14 @@ public class BlockScope extends Scope {
 						return new ProblemFieldBinding(
 							(FieldBinding) binding,
 							CharOperation.subarray(compoundName, 0, currentIndex),
-							NonStaticReferenceInStaticContext);
+							ProblemReasons.NonStaticReferenceInStaticContext);
 					break foundField; // binding is now a field
 				}
 				if ((binding = findMemberType(nextName, typeBinding)) == null)
 					return new ProblemBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
 						typeBinding,
-						NotFound);
+						ProblemReasons.NotFound);
 				if (!binding.isValidBinding())
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
@@ -571,14 +571,14 @@ public class BlockScope extends Scope {
 				return new ProblemFieldBinding(
 					null,
 					CharOperation.subarray(compoundName, 0, currentIndex + 1),
-					NotFound);
+					ProblemReasons.NotFound);
 			variableBinding =
 				findField(typeBinding, compoundName[currentIndex++], invocationSite, true /*resolve*/);
 			if (variableBinding == null)
 				return new ProblemFieldBinding(
 					null,
 					CharOperation.subarray(compoundName, 0, currentIndex),
-					NotFound);
+					ProblemReasons.NotFound);
 			if (!variableBinding.isValidBinding())
 				return variableBinding;
 		}

@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
@@ -176,16 +176,15 @@ protected void decodeModifiers(char value) {
 	this.modifiers = value; // implicit cast to int type
 
 	// Extract suffix from modifiers instead of index key
-	int kind = this.modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
-	switch (kind) {
-		case IConstants.AccAnnotation:
-		case IConstants.AccAnnotation+IConstants.AccInterface:
+	switch (this.modifiers & (ClassFileConstants.AccInterface|ClassFileConstants.AccEnum|ClassFileConstants.AccAnnotation)) {
+		case ClassFileConstants.AccAnnotation:
+		case ClassFileConstants.AccAnnotation+ClassFileConstants.AccInterface:
 			this.typeSuffix = ANNOTATION_TYPE_SUFFIX;
 			break;
-		case IConstants.AccEnum:
+		case ClassFileConstants.AccEnum:
 			this.typeSuffix = ENUM_SUFFIX;
 			break;
-		case IConstants.AccInterface:
+		case ClassFileConstants.AccInterface:
 			this.typeSuffix = INTERFACE_SUFFIX;
 			break;
 		default:

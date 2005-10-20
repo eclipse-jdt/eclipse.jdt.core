@@ -182,7 +182,7 @@ public class ForeachStatement extends Statement {
 				// declaringClass.iterator();
 				MethodBinding iteratorMethodBinding =
 					new MethodBinding(
-							AccPublic,
+							ClassFileConstants.AccPublic,
 							"iterator".toCharArray(),//$NON-NLS-1$
 							scope.getJavaUtilIterator(),
 							TypeConstants.NoParameters,
@@ -425,23 +425,23 @@ public class ForeachStatement extends Statement {
 			switch(this.kind) {
 				case ARRAY :
 					// allocate #index secret variable (of type int)
-					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, AccDefault, false);
+					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, IntBinding, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.indexVariable);
 					this.indexVariable.setConstant(NotAConstant); // not inlinable
 					
 					// allocate #max secret variable
-					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, AccDefault, false);
+					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, IntBinding, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.maxVariable);
 					this.maxVariable.setConstant(NotAConstant); // not inlinable
 					// add #array secret variable (of collection type)
-					this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, AccDefault, false);
+					this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.collectionVariable);
 					this.collectionVariable.setConstant(NotAConstant); // not inlinable
 					break;
 				case RAW_ITERABLE :
 				case GENERIC_ITERABLE :
 					// allocate #index secret variable (of type Iterator)
-					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, scope.getJavaUtilIterator(), AccDefault, false);
+					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, scope.getJavaUtilIterator(), ClassFileConstants.AccDefault, false);
 					scope.addLocalVariable(this.indexVariable);
 					this.indexVariable.setConstant(NotAConstant); // not inlinable
 					break;

@@ -29,7 +29,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.diagnose.DiagnoseParser;
@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class Parser implements  ParserBasicInformation, TerminalTokens, CompilerModifiers, OperatorIds, TypeIds {
+public class Parser implements  ParserBasicInformation, TerminalTokens, OperatorIds, TypeIds {
 	protected static final int THIS_CALL = ExplicitConstructorCall.This;
 	protected static final int SUPER_CALL = ExplicitConstructorCall.Super;
 
@@ -858,7 +858,7 @@ protected void checkAndSetModifiers(int flag){
 	onto the this.astStack. */
 
 	if ((this.modifiers & flag) != 0){ // duplicate modifier
-		this.modifiers |= AccAlternateModifierProblem;
+		this.modifiers |= ExtraCompilerModifiers.AccAlternateModifierProblem;
 	}
 	this.modifiers |= flag;
 			
@@ -888,7 +888,7 @@ public void checkComment() {
 			// do not report problem before last parsed comment while recovering code...
 			this.javadocParser.reportProblems = this.currentElement == null || commentEnd > this.lastJavadocEnd;
 			if (this.javadocParser.checkDeprecation(lastComment)) {
-				checkAndSetModifiers(AccDeprecated);
+				checkAndSetModifiers(ClassFileConstants.AccDeprecated);
 			}
 			this.javadoc = this.javadocParser.docComment;	// null if check javadoc is not activated
 			if (currentElement == null) this.lastJavadocEnd = commentEnd;
@@ -1100,7 +1100,7 @@ protected void consumeAnnotationTypeDeclarationHeaderName() {
 	this.intPtr--; // remove the end position of the interface token
 
 	annotationTypeDeclaration.modifiersSourceStart = this.intStack[this.intPtr--];
-	annotationTypeDeclaration.modifiers = this.intStack[this.intPtr--] | AccAnnotation | AccInterface;
+	annotationTypeDeclaration.modifiers = this.intStack[this.intPtr--] | ClassFileConstants.AccAnnotation | ClassFileConstants.AccInterface;
 	if (annotationTypeDeclaration.modifiersSourceStart >= 0) {
 		annotationTypeDeclaration.declarationSourceStart = annotationTypeDeclaration.modifiersSourceStart;
 		this.intPtr--; // remove the position of the '@' token as we have modifiers
@@ -1140,7 +1140,7 @@ protected void consumeAnnotationTypeDeclarationHeaderName() {
 protected void consumeAnnotationTypeMemberDeclaration() {
 	// AnnotationTypeMemberDeclaration ::= AnnotationTypeMemberDeclarationHeader AnnotationTypeMemberHeaderExtendedDims DefaultValueopt ';'
 	AnnotationMethodDeclaration annotationTypeMemberDeclaration = (AnnotationMethodDeclaration) this.astStack[this.astPtr];
-	annotationTypeMemberDeclaration.modifiers |= AccSemicolonBody;
+	annotationTypeMemberDeclaration.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
 	// store the this.endPosition (position just before the '}') in case there is
 	// a trailing comment behind the end of the method
 	int declarationEndPosition = flushCommentsDefinedPriorTo(this.endStatementPosition);
@@ -2208,7 +2208,7 @@ protected void consumeConstructorHeader() {
 	// recovery
 	if (this.currentElement != null){
 		if (this.currentToken == TokenNameSEMICOLON){ // for invalid constructors
-			method.modifiers |= AccSemicolonBody;			
+			method.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;			
 			method.declarationSourceEnd = this.scanner.currentPosition-1;
 			method.bodyEnd = this.scanner.currentPosition-1;
 			if (this.currentElement.parseTree() == method && this.currentElement.parent != null) {
@@ -2932,7 +2932,7 @@ protected void consumeEnumHeaderName() {
 	this.intPtr--; // remove the end position of the class token
 
 	enumDeclaration.modifiersSourceStart = this.intStack[this.intPtr--];
-	enumDeclaration.modifiers = this.intStack[this.intPtr--] | AccEnum;
+	enumDeclaration.modifiers = this.intStack[this.intPtr--] | ClassFileConstants.AccEnum;
 	if (enumDeclaration.modifiersSourceStart >= 0) {
 		enumDeclaration.declarationSourceStart = enumDeclaration.modifiersSourceStart;
 	}
@@ -3239,7 +3239,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			identifierName, 
 			namePositions, 
 			type, 
-			this.intStack[this.intPtr + 1] & ~AccDeprecated); // modifiers
+			this.intStack[this.intPtr + 1] & ~ClassFileConstants.AccDeprecated); // modifiers
 	arg.declarationSourceStart = modifierPositions;
 	// consume annotations
 	int length;
@@ -3444,7 +3444,7 @@ protected void consumeInterfaceHeaderName1() {
 	typeDecl.declarationSourceStart = this.intStack[this.intPtr--];
 	this.intPtr--; // remove the end position of the class token
 	typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
-	typeDecl.modifiers = this.intStack[this.intPtr--] | AccInterface;
+	typeDecl.modifiers = this.intStack[this.intPtr--] | ClassFileConstants.AccInterface;
 	if (typeDecl.modifiersSourceStart >= 0) {
 		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart;
 	}
@@ -3499,7 +3499,7 @@ protected void consumeInternalCompilationUnit() {
 		// create a fake interface declaration
 		TypeDeclaration declaration = new TypeDeclaration(compilationUnit.compilationResult);
 		declaration.name = TypeConstants.PACKAGE_INFO_NAME;
-		declaration.modifiers = AccDefault | AccInterface;
+		declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
 		this.compilationUnit.types[0] = declaration;
 	}
 }
@@ -3518,7 +3518,7 @@ protected void consumeInternalCompilationUnitWithTypes() {
 			// create a fake interface declaration
 			TypeDeclaration declaration = new TypeDeclaration(compilationUnit.compilationResult);
 			declaration.name = TypeConstants.PACKAGE_INFO_NAME;
-			declaration.modifiers = AccDefault | AccInterface;
+			declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
 			this.compilationUnit.types[0] = declaration;
 		} else {
 			this.compilationUnit.types = new TypeDeclaration[length];
@@ -3545,7 +3545,7 @@ protected void consumeInvalidConstructorDeclaration() {
 	cd.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition); 
 	// report the problem and continue the parsing - narrowing the problem onto the method
 	
-	cd.modifiers |= AccSemicolonBody; // remember semi-colon body
+	cd.modifiers |= ExtraCompilerModifiers.AccSemicolonBody; // remember semi-colon body
 }
 protected void consumeInvalidConstructorDeclaration(boolean hasBody) {
 	// InvalidConstructorDeclaration ::= ConstructorHeader ConstructorBody ==> true
@@ -3576,7 +3576,7 @@ protected void consumeInvalidConstructorDeclaration(boolean hasBody) {
 	constructorDeclaration.bodyEnd = this.endStatementPosition;
 	constructorDeclaration.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 	if (!hasBody) {
-		constructorDeclaration.modifiers |= AccSemicolonBody;
+		constructorDeclaration.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
 	}
 }
 protected void consumeInvalidInterfaceDeclaration() {
@@ -3767,7 +3767,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract) {
 	// cannot be done in consumeMethodHeader because we have no idea whether or not there
 	// is a body when we reduce the method header
 	if (!isNotAbstract) { //remember the fact that the method has a semicolon body
-		md.modifiers |= AccSemicolonBody;
+		md.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;
 	} else {
 		if (!this.diet && statements == null) {
 			if (!containsComment(md.bodyStart, this.endPosition)) {
@@ -3801,7 +3801,7 @@ protected void consumeMethodHeader() {
 //			this.currentElement = this.currentElement.parent;
 //		} else 
 		if (this.currentToken == TokenNameSEMICOLON /*&& !method.isAnnotationMethod()*/){
-			method.modifiers |= AccSemicolonBody;			
+			method.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;			
 			method.declarationSourceEnd = this.scanner.currentPosition-1;
 			method.bodyEnd = this.scanner.currentPosition-1;
 			if (this.currentElement.parseTree() == method && this.currentElement.parent != null) {
@@ -3822,7 +3822,7 @@ protected void consumeMethodHeaderDefaultValue() {
 		intPtr--; // we get rid of the position of the default keyword
 		if(md.isAnnotationMethod()) {
 			((AnnotationMethodDeclaration)md).defaultValue = this.expressionStack[this.expressionPtr];
-			md.modifiers |=  AccAnnotationDefault;
+			md.modifiers |=  ClassFileConstants.AccAnnotationDefault;
 		}
 		this.expressionPtr--;
 		this.recordStringLiterals = true;
@@ -4276,7 +4276,7 @@ protected void consumePackageDeclarationName() {
 		0, 
 		length);
 	
-	impt = new ImportReference(tokens, positions, true, AccDefault);
+	impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccDefault);
 	this.compilationUnit.currentPackage = impt; 
 
 	if (this.currentToken == TokenNameSEMICOLON){
@@ -4486,11 +4486,11 @@ protected void consumeRecoveryMethodHeaderName() {
 	// this method is call only inside recovery
 	boolean isAnnotationMethod = false;
 	if(this.currentElement instanceof RecoveredType) {
-		isAnnotationMethod = (((RecoveredType)this.currentElement).typeDeclaration.modifiers & AccAnnotation) != 0;
+		isAnnotationMethod = (((RecoveredType)this.currentElement).typeDeclaration.modifiers & ClassFileConstants.AccAnnotation) != 0;
 	} else {
 		RecoveredType recoveredType = this.currentElement.enclosingType();
 		if(recoveredType != null) {
-			isAnnotationMethod = (recoveredType.typeDeclaration.modifiers & AccAnnotation) != 0;
+			isAnnotationMethod = (recoveredType.typeDeclaration.modifiers & ClassFileConstants.AccAnnotation) != 0;
 		}
 	}
 	this.consumeMethodHeaderName(isAnnotationMethod);
@@ -4499,11 +4499,11 @@ protected void consumeRecoveryMethodHeaderNameWithTypeParameters() {
 	// this method is call only inside recovery
 	boolean isAnnotationMethod = false;
 	if(this.currentElement instanceof RecoveredType) {
-		isAnnotationMethod = (((RecoveredType)this.currentElement).typeDeclaration.modifiers & AccAnnotation) != 0;
+		isAnnotationMethod = (((RecoveredType)this.currentElement).typeDeclaration.modifiers & ClassFileConstants.AccAnnotation) != 0;
 	} else {
 		RecoveredType recoveredType = this.currentElement.enclosingType();
 		if(recoveredType != null) {
-			isAnnotationMethod = (recoveredType.typeDeclaration.modifiers & AccAnnotation) != 0;
+			isAnnotationMethod = (recoveredType.typeDeclaration.modifiers & ClassFileConstants.AccAnnotation) != 0;
 		}
 	}
 	this.consumeMethodHeaderNameWithTypeParameters(isAnnotationMethod);
@@ -6226,9 +6226,9 @@ protected void consumeSingleStaticImportDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccStatic));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, false, ClassFileConstants.AccStatic));
 
-	this.modifiers = AccDefault;
+	this.modifiers = ClassFileConstants.AccDefault;
 	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
 	
 	if (this.currentToken == TokenNameSEMICOLON){
@@ -6242,7 +6242,7 @@ protected void consumeSingleStaticImportDeclarationName() {
 
 	if(this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = AccDefault; // convert the static import reference to a non-static importe reference
+		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
 		this.problemReporter().invalidUsageOfStaticImports(impt);
 	}
 	
@@ -6266,7 +6266,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, false, AccDefault));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, false, ClassFileConstants.AccDefault));
 
 	if (this.currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
@@ -6595,9 +6595,9 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, true, AccStatic));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccStatic));
 
-	this.modifiers = AccDefault;
+	this.modifiers = ClassFileConstants.AccDefault;
 	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
 	
 	if (this.currentToken == TokenNameSEMICOLON){
@@ -6611,7 +6611,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 
 	if(options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = AccDefault; // convert the static import reference to a non-static importe reference
+		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
 		this.problemReporter().invalidUsageOfStaticImports(impt);
 	}
 	
@@ -6629,7 +6629,7 @@ protected void consumeStaticInitializer() {
 	//optimize the push/pop
 	Block block = (Block) this.astStack[this.astPtr];
 	if (this.diet) block.bits &= ~ASTNode.UndocumentedEmptyBlock; // clear bit set since was diet
-	Initializer initializer = new Initializer(block, AccStatic);
+	Initializer initializer = new Initializer(block, ClassFileConstants.AccStatic);
 	this.astStack[this.astPtr] = initializer;
 	initializer.sourceEnd = this.endStatementPosition;	
 	initializer.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
@@ -6725,48 +6725,48 @@ protected void consumeToken(int type) {
 			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNameabstract :
-			checkAndSetModifiers(AccAbstract);
+			checkAndSetModifiers(ClassFileConstants.AccAbstract);
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNamestrictfp :
-			checkAndSetModifiers(AccStrictfp);
+			checkAndSetModifiers(ClassFileConstants.AccStrictfp);
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNamefinal :
-			checkAndSetModifiers(AccFinal);
+			checkAndSetModifiers(ClassFileConstants.AccFinal);
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNamenative :
-			checkAndSetModifiers(AccNative);
+			checkAndSetModifiers(ClassFileConstants.AccNative);
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNameprivate :
-			checkAndSetModifiers(AccPrivate);
+			checkAndSetModifiers(ClassFileConstants.AccPrivate);
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNameprotected :
-			checkAndSetModifiers(AccProtected);
+			checkAndSetModifiers(ClassFileConstants.AccProtected);
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNamepublic :
-			checkAndSetModifiers(AccPublic);
+			checkAndSetModifiers(ClassFileConstants.AccPublic);
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNametransient :
-			checkAndSetModifiers(AccTransient);
+			checkAndSetModifiers(ClassFileConstants.AccTransient);
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNamevolatile :
-			checkAndSetModifiers(AccVolatile);
+			checkAndSetModifiers(ClassFileConstants.AccVolatile);
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNamestatic :
-			checkAndSetModifiers(AccStatic);
+			checkAndSetModifiers(ClassFileConstants.AccStatic);
 			pushOnExpressionStackLengthStack(0);
 			break;
 		case TokenNamesynchronized :
 			this.synchronizedBlockSourceStart = this.scanner.startPosition;	
-			checkAndSetModifiers(AccSynchronized);
+			checkAndSetModifiers(ClassFileConstants.AccSynchronized);
 			pushOnExpressionStackLengthStack(0);
 			break;
 			//==============================
@@ -7064,7 +7064,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, true, AccDefault));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccDefault));
 
 	if (this.currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
@@ -8731,7 +8731,7 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 		return;
 	if (md.isNative())
 		return;
-	if ((md.modifiers & AccSemicolonBody) != 0)
+	if ((md.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0)
 		return;
 
 	initialize();
@@ -9189,7 +9189,7 @@ private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
 	}
 }
 protected void resetModifiers() {
-	this.modifiers = AccDefault;
+	this.modifiers = ClassFileConstants.AccDefault;
 	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
 	this.scanner.commentPtr = -1;
 }

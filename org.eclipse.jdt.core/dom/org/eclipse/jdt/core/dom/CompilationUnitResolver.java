@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -624,14 +624,14 @@ class CompilationUnitResolver extends Compiler {
 				removeUnresolvedBindings(memberTypes[i]);
 			}
 		}
-		if (type.binding != null && (type.binding.modifiers & CompilerModifiers.AccUnresolved) != 0) {
+		if (type.binding != null && (type.binding.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
 			type.binding = null;
 		}
 		
 		final org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = type.fields;
 		if (fields != null) {
 			for (int i = 0, max = fields.length; i < max; i++){
-				if (fields[i].binding != null && (fields[i].binding.modifiers & CompilerModifiers.AccUnresolved) != 0) {
+				if (fields[i].binding != null && (fields[i].binding.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
 					fields[i].binding = null;
 				}
 			}
@@ -640,7 +640,7 @@ class CompilationUnitResolver extends Compiler {
 		final AbstractMethodDeclaration[] methods = type.methods;
 		if (methods != null) {
 			for (int i = 0, max = methods.length; i < max; i++){
-				if (methods[i].binding !=  null && (methods[i].binding.modifiers & CompilerModifiers.AccUnresolved) != 0) {
+				if (methods[i].binding !=  null && (methods[i].binding.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
 					methods[i].binding = null;
 				}
 			}

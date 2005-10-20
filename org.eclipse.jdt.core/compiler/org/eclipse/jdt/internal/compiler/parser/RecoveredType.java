@@ -20,13 +20,13 @@ import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
  * Internal type structure for parsing recovery 
  */
 
-public class RecoveredType extends RecoveredStatement implements TerminalTokens, CompilerModifiers {
+public class RecoveredType extends RecoveredStatement implements TerminalTokens {
 	public TypeDeclaration typeDeclaration;
 
 	public RecoveredType[] memberTypes;
@@ -92,9 +92,9 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 	return this;
 }
 public RecoveredElement add(Block nestedBlockDeclaration,int bracketBalanceValue) {
-	int modifiers = AccDefault;
+	int modifiers = ClassFileConstants.AccDefault;
 	if(this.parser().recoveredStaticInitializerStart != 0) {
-		modifiers = AccStatic;
+		modifiers = ClassFileConstants.AccStatic;
 	}
 	return this.add(new Initializer(nestedBlockDeclaration, modifiers), bracketBalanceValue);
 }
@@ -514,9 +514,9 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 		block.sourceStart = parser.scanner.startPosition;
 		Initializer init;
 		if (parser.recoveredStaticInitializerStart == 0){
-			init = new Initializer(block, AccDefault);
+			init = new Initializer(block, ClassFileConstants.AccDefault);
 		} else {
-			init = new Initializer(block, AccStatic);
+			init = new Initializer(block, ClassFileConstants.AccStatic);
 			init.declarationSourceStart = parser.recoveredStaticInitializerStart;
 		}
 		init.bodyStart = parser.scanner.currentPosition;

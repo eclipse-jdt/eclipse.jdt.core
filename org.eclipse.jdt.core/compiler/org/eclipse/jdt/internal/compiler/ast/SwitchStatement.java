@@ -323,7 +323,7 @@ public class SwitchStatement extends Statement {
 					FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
 					for (int i = 0, max = enumFields.length; i <max; i++) {
 						FieldBinding enumConstant = enumFields[i];
-						if ((enumConstant.modifiers & AccEnum) == 0) continue;
+						if ((enumConstant.modifiers & ClassFileConstants.AccEnum) == 0) continue;
 						findConstant : {
 							for (int j = 0; j < caseCount; j++) {
 								if (enumConstant.id == this.constants[j]) break findConstant;

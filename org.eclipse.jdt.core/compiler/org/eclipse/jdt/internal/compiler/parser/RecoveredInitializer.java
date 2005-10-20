@@ -21,10 +21,10 @@ import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
 
-public class RecoveredInitializer extends RecoveredField implements CompilerModifiers, TerminalTokens, BaseTypes {
+public class RecoveredInitializer extends RecoveredField implements TerminalTokens, BaseTypes {
 
 	public RecoveredType[] localTypes;
 	public int localTypeCount;
@@ -68,7 +68,7 @@ public RecoveredElement add(FieldDeclaration newFieldDeclaration, int bracketBal
 
 	/* local variables inside initializer can only be final and non void */
 	char[][] fieldTypeName;
-	if ((newFieldDeclaration.modifiers & ~AccFinal) != 0 /* local var can only be final */
+	if ((newFieldDeclaration.modifiers & ~ClassFileConstants.AccFinal) != 0 /* local var can only be final */
 			|| (newFieldDeclaration.type == null) // initializer
 			|| ((fieldTypeName = newFieldDeclaration.type.getTypeName()).length == 1 // non void
 				&& CharOperation.equals(fieldTypeName[0], VoidBinding.sourceName()))){ 

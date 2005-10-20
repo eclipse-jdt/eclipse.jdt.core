@@ -545,6 +545,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String COMPILER_PB_FATAL_OPTIONAL_ERROR = PLUGIN_ID + ".compiler.problem.fatalOptionalError"; //$NON-NLS-1$	
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String COMPILER_SOURCE = PLUGIN_ID + ".compiler.source"; //$NON-NLS-1$
@@ -2100,11 +2106,20 @@ public final class JavaCore extends Plugin {
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
 	 * 
-	 * COMPILER / Maximum number of problems reported per compilation unit
+	 * COMPILER / Maximum Number of Problems Reported per Compilation Unit
 	 *    Specify the maximum number of problems reported on each compilation unit.
 	 *     - option id:         "org.eclipse.jdt.core.compiler.maxProblemPerUnit"
 	 *     - possible values:	"&lt;n&gt;" where &lt;n&gt; is zero or a positive integer (if zero then all problems are reported).
 	 *     - default:           "100"
+	 * 
+	 * COMPILER / Treating Optional Error as Fatal
+	 *    When enabled, optional errors (i.e. optional problems which severity is set to "error") will be treated as standard
+	 *    compiler errors, yielding problem methods/types preventing from running offending code until the issue got resolved.
+	 *    When disabled, optional errors are only considered as warnings, still carrying an error indication to make them more
+	 *    severe. Note that by default, errors are fatal, whether they are optional or not.
+	 *     - option id:         "org.eclipse.jdt.core.compiler.problem.fatalOptionalError"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
 	 * 
 	 * COMPILER / Defining the Automatic Task Tags
 	 *    When the tag list is not empty, the compiler will issue a task marker whenever it encounters

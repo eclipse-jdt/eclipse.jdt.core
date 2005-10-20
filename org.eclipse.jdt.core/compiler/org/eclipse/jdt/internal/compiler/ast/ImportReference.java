@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ImportReference extends ASTNode {
@@ -40,7 +41,7 @@ public class ImportReference extends ASTNode {
 	}
 	
 	public boolean isStatic() {
-		return (this.modifiers & AccStatic) != 0;
+		return (this.modifiers & ClassFileConstants.AccStatic) != 0;
 	}
 
 	/**

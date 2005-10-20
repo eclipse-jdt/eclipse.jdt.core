@@ -27,7 +27,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -130,16 +130,16 @@ protected void acceptBinaryMethod(IType type, char[] selector, char[][] paramete
  */
 public void acceptType(char[] packageName, char[] typeName, int modifiers, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 	int acceptFlags = 0;
-	int kind = modifiers & (IConstants.AccInterface+IConstants.AccEnum+IConstants.AccAnnotation);
+	int kind = modifiers & (ClassFileConstants.AccInterface|ClassFileConstants.AccEnum|ClassFileConstants.AccAnnotation);
 	switch (kind) {
-		case IConstants.AccAnnotation:
-		case IConstants.AccAnnotation+IConstants.AccInterface:
+		case ClassFileConstants.AccAnnotation:
+		case ClassFileConstants.AccAnnotation|ClassFileConstants.AccInterface:
 			acceptFlags = NameLookup.ACCEPT_ANNOTATIONS;
 			break;
-		case IConstants.AccEnum:
+		case ClassFileConstants.AccEnum:
 			acceptFlags = NameLookup.ACCEPT_ENUMS;
 			break;
-		case IConstants.AccInterface:
+		case ClassFileConstants.AccInterface:
 			acceptFlags = NameLookup.ACCEPT_INTERFACES;
 			break;
 		default:

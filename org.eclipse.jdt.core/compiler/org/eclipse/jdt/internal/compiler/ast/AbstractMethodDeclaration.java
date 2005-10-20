@@ -15,6 +15,7 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -264,7 +265,7 @@ public abstract class AbstractMethodDeclaration
 
 		if (this.binding != null)
 			return this.binding.isAbstract();
-		return (this.modifiers & AccAbstract) != 0;
+		return (this.modifiers & ClassFileConstants.AccAbstract) != 0;
 	}
 
 	public boolean isAnnotationMethod() {
@@ -301,14 +302,14 @@ public abstract class AbstractMethodDeclaration
 
 		if (this.binding != null)
 			return this.binding.isNative();
-		return (this.modifiers & AccNative) != 0;
+		return (this.modifiers & ClassFileConstants.AccNative) != 0;
 	}
 
 	public boolean isStatic() {
 
 		if (this.binding != null)
 			return this.binding.isStatic();
-		return (this.modifiers & AccStatic) != 0;
+		return (this.modifiers & ClassFileConstants.AccStatic) != 0;
 	}
 
 	/**
@@ -362,7 +363,7 @@ public abstract class AbstractMethodDeclaration
 
 	public StringBuffer printBody(int indent, StringBuffer output) {
 
-		if (isAbstract() || (this.modifiers & AccSemicolonBody) != 0) 
+		if (isAbstract() || (this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) 
 			return output.append(';');
 
 		output.append(" {"); //$NON-NLS-1$

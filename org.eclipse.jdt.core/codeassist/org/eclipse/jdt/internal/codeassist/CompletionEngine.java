@@ -325,8 +325,8 @@ public final class CompletionEngine
 		AccessRestriction accessRestriction) {
 
 		if (this.options.checkVisibility) {
-			if((modifiers & IConstants.AccPublic) == 0) {
-				if((modifiers & IConstants.AccPrivate) != 0) return;
+			if((modifiers & ClassFileConstants.AccPublic) == 0) {
+				if((modifiers & ClassFileConstants.AccPrivate) != 0) return;
 				
 				char[] currentPackage = CharOperation.concatWith(this.unitScope.fPackage.compoundName, '.');
 				if(!CharOperation.equals(packageName, currentPackage)) return;
@@ -395,7 +395,7 @@ public final class CompletionEngine
 				if(this.resolvingStaticImports) {
 					if(enclosingTypeNames == null || enclosingTypeNames.length == 0) {
 						completionName = CharOperation.concat(fullyQualifiedName, new char[] { '.' });
-					} else if ((modifiers & IConstants.AccStatic) == 0) {
+					} else if ((modifiers & ClassFileConstants.AccStatic) == 0) {
 						continue next;
 					} else {
 						completionName = CharOperation.concat(fullyQualifiedName, new char[] { ';' });
@@ -473,7 +473,7 @@ public final class CompletionEngine
 							}
 							if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
 								if(importBinding.isStatic()) {
-									if((modifiers & IConstants.AccStatic) != 0) {
+									if((modifiers & ClassFileConstants.AccStatic) != 0) {
 										acceptedType.qualifiedTypeName = typeName;
 										acceptedType.fullyQualifiedName = fullyQualifiedName;
 										onDemandFound.put(
@@ -512,7 +512,7 @@ public final class CompletionEngine
 							}
 							if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
 								if(importBinding.isStatic()) {
-									if((modifiers & IConstants.AccStatic) != 0) {
+									if((modifiers & ClassFileConstants.AccStatic) != 0) {
 										foundType.mustBeQualified = true;
 										break done;
 									}
@@ -558,11 +558,11 @@ public final class CompletionEngine
 	private void proposeType(char[] packageName, char[] simpleTypeName, int modifiers, int accessibility, char[] typeName, char[] fullyQualifiedName, boolean isQualified) {
 		if(PROPOSE_MEMBER_TYPES) {
 			if(this.assistNodeIsClass) {
-				if((modifiers & (IConstants.AccInterface | IConstants.AccAnnotation | IConstants.AccEnum)) != 0 ) return;
+				if((modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation | ClassFileConstants.AccEnum)) != 0 ) return;
 			} else if(this.assistNodeIsInterface) {
-				if((modifiers & (IConstants.AccInterface | IConstants.AccAnnotation)) == 0) return;
+				if((modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation)) == 0) return;
 			} else if (this.assistNodeIsAnnotation) {
-				if((modifiers & IConstants.AccAnnotation) == 0) return;
+				if((modifiers & ClassFileConstants.AccAnnotation) == 0) return;
 			}
 		}
 		
@@ -582,17 +582,17 @@ public final class CompletionEngine
 		relevance += computeRelevanceForExpectingType(packageName, simpleTypeName);
 		relevance += computeRelevanceForQualification(isQualified);
 		
-		int kind = modifiers & (IConstants.AccInterface | IConstants.AccEnum | IConstants.AccAnnotation);
+		int kind = modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
 		switch (kind) {
-			case IConstants.AccAnnotation:
-			case IConstants.AccAnnotation | IConstants.AccInterface:
+			case ClassFileConstants.AccAnnotation:
+			case ClassFileConstants.AccAnnotation | ClassFileConstants.AccInterface:
 				relevance += computeRelevanceForAnnotation();
 				relevance += computeRelevanceForInterface();
 				break;
-			case IConstants.AccEnum:
+			case ClassFileConstants.AccEnum:
 				relevance += computeRelevanceForEnum();
 				break;
-			case IConstants.AccInterface:
+			case ClassFileConstants.AccInterface:
 				relevance += computeRelevanceForInterface();
 				break;
 			default:
@@ -692,7 +692,7 @@ public final class CompletionEngine
 				findKeywordsForMember(this.completionToken, field.modifiers);
 			}
 			
-			if (!field.isLocalVariable && field.modifiers == CompilerModifiers.AccDefault) {
+			if (!field.isLocalVariable && field.modifiers == ClassFileConstants.AccDefault) {
 				SourceTypeBinding enclosingType = scope.enclosingSourceType();
 				if (!enclosingType.isAnnotationType()) {
 					if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
@@ -714,7 +714,7 @@ public final class CompletionEngine
 				findKeywordsForMember(this.completionToken, method.modifiers);
 			}
 
-			if (method.modifiers == CompilerModifiers.AccDefault) {
+			if (method.modifiers == ClassFileConstants.AccDefault) {
 				SourceTypeBinding enclosingType = scope.enclosingSourceType();
 				if (!enclosingType.isAnnotationType()) {
 					if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
@@ -3036,73 +3036,73 @@ public final class CompletionEngine
 		int count = 0;
 				
 		// visibility
-		if((modifiers & IConstants.AccPrivate) == 0
-			&& (modifiers & IConstants.AccProtected) == 0
-			&& (modifiers & IConstants.AccPublic) == 0) {
+		if((modifiers & ClassFileConstants.AccPrivate) == 0
+			&& (modifiers & ClassFileConstants.AccProtected) == 0
+			&& (modifiers & ClassFileConstants.AccPublic) == 0) {
 			keywords[count++] = Keywords.PROTECTED;
 			keywords[count++] = Keywords.PUBLIC;
-			if((modifiers & IConstants.AccAbstract) == 0) {
+			if((modifiers & ClassFileConstants.AccAbstract) == 0) {
 				keywords[count++] = Keywords.PRIVATE;
 			}
 		}
 		
-		if((modifiers & IConstants.AccAbstract) == 0) {
+		if((modifiers & ClassFileConstants.AccAbstract) == 0) {
 			// abtract
-			if((modifiers & ~(CompilerModifiers.AccVisibilityMASK | IConstants.AccStatic)) == 0) {
+			if((modifiers & ~(ExtraCompilerModifiers.AccVisibilityMASK | ClassFileConstants.AccStatic)) == 0) {
 				keywords[count++] = Keywords.ABSTRACT;
 			}
 			
 			// final
-			if((modifiers & IConstants.AccFinal) == 0) {
+			if((modifiers & ClassFileConstants.AccFinal) == 0) {
 				keywords[count++] = Keywords.FINAL;
 			}
 			
 			// static
-			if((modifiers & IConstants.AccStatic) == 0) {
+			if((modifiers & ClassFileConstants.AccStatic) == 0) {
 				keywords[count++] = Keywords.STATIC;
 			}
 			
 			boolean canBeField = true;
 			boolean canBeMethod = true;
 			boolean canBeType = true;
-			if((modifiers & IConstants.AccNative) != 0
-				|| (modifiers & IConstants.AccStrictfp) != 0
-				|| (modifiers & IConstants.AccSynchronized) != 0) {
+			if((modifiers & ClassFileConstants.AccNative) != 0
+				|| (modifiers & ClassFileConstants.AccStrictfp) != 0
+				|| (modifiers & ClassFileConstants.AccSynchronized) != 0) {
 				canBeField = false;
 				canBeType = false;
 			}
 			
-			if((modifiers & IConstants.AccTransient) != 0
-				|| (modifiers & IConstants.AccVolatile) != 0) {
+			if((modifiers & ClassFileConstants.AccTransient) != 0
+				|| (modifiers & ClassFileConstants.AccVolatile) != 0) {
 				canBeMethod = false;
 				canBeType = false;
 			}
 			
 			if(canBeField) {
 				// transient
-				if((modifiers & IConstants.AccTransient) == 0) {
+				if((modifiers & ClassFileConstants.AccTransient) == 0) {
 					keywords[count++] = Keywords.TRANSIENT;
 				}
 				
 				// volatile
-				if((modifiers & IConstants.AccVolatile) == 0) {
+				if((modifiers & ClassFileConstants.AccVolatile) == 0) {
 					keywords[count++] = Keywords.VOLATILE;
 				}
 			}
 			
 			if(canBeMethod) {
 				// native
-				if((modifiers & IConstants.AccNative) == 0) {
+				if((modifiers & ClassFileConstants.AccNative) == 0) {
 					keywords[count++] = Keywords.NATIVE;
 				}
 	
 				// strictfp
-				if((modifiers & IConstants.AccStrictfp) == 0) {
+				if((modifiers & ClassFileConstants.AccStrictfp) == 0) {
 					keywords[count++] = Keywords.STRICTFP;
 				}
 				
 				// synchronized
-				if((modifiers & IConstants.AccSynchronized) == 0) {
+				if((modifiers & ClassFileConstants.AccSynchronized) == 0) {
 					keywords[count++] = Keywords.SYNCHRONIZED;
 				}
 			}
@@ -4307,8 +4307,8 @@ public final class CompletionEngine
 	private void createMethod(MethodBinding method, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, StringBuffer completion) {
 		//// Modifiers
 		// flush uninteresting modifiers
-		int insertedModifiers = method.modifiers & ~(IConstants.AccNative | IConstants.AccAbstract);	
-		if(insertedModifiers != CompilerModifiers.AccDefault){
+		int insertedModifiers = method.modifiers & ~(ClassFileConstants.AccNative | ClassFileConstants.AccAbstract);	
+		if(insertedModifiers != ClassFileConstants.AccDefault){
 			ASTNode.printModifiers(insertedModifiers, completion);
 		}
 		

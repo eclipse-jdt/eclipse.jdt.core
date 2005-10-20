@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.jdom;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.internal.compiler.env.IConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 /**
  * DOMMember provides an implementation of IDOMMember.
@@ -283,10 +283,10 @@ public void setComment(String comment) {
 	setHasComment(comment != null);
 	/* see 1FVIJAH */
 	if (comment != null && comment.indexOf("@deprecated") >= 0) { //$NON-NLS-1$
-		fFlags= fFlags | IConstants.AccDeprecated;
+		fFlags= fFlags | ClassFileConstants.AccDeprecated;
 		return;
 	}
-	fFlags= fFlags & (~IConstants.AccDeprecated);
+	fFlags= fFlags & (~ClassFileConstants.AccDeprecated);
 }
 /**
  * @see IDOMMember#setFlags(int)
@@ -294,9 +294,9 @@ public void setComment(String comment) {
 public void setFlags(int flags) {
 	becomeDetailed();
 	if (Flags.isDeprecated(fFlags)) {
-		fFlags= flags | IConstants.AccDeprecated;
+		fFlags= flags | ClassFileConstants.AccDeprecated;
 	} else {
-		fFlags= flags & (~IConstants.AccDeprecated);
+		fFlags= flags & (~ClassFileConstants.AccDeprecated);
 	}
 	fragment();
 	fModifiers= generateFlags();

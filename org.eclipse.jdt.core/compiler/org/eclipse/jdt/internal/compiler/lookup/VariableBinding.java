@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 public abstract class VariableBinding extends Binding {
@@ -33,7 +34,7 @@ public abstract class VariableBinding extends Binding {
 	}
 	
 	public final boolean isBlankFinal(){
-		return (modifiers & AccBlankFinal) != 0;
+		return (modifiers & ExtraCompilerModifiers.AccBlankFinal) != 0;
 	}
 	/* Answer true if the receiver is final and cannot be changed
 	*/
@@ -43,7 +44,7 @@ public abstract class VariableBinding extends Binding {
 	}
 	
 	public final boolean isFinal() {
-		return (modifiers & AccFinal) != 0;
+		return (modifiers & ClassFileConstants.AccFinal) != 0;
 	}
 	public char[] readableName() {
 		return name;

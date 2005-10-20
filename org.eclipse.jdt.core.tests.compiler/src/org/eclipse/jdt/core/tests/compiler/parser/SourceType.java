@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import org.eclipse.jdt.internal.compiler.env.IConstants;
-import org.eclipse.jdt.internal.compiler.lookup.CompilerModifiers;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
-public final class SourceType implements CompilerModifiers, IConstants {
+public final class SourceType {
 	private int modifiers;
 	private int declarationStart;
 	private int declarationEnd;
@@ -105,21 +104,21 @@ public String displayModifiers() {
 
 	if (this.modifiers == 0)
 		return null;
-	if ((this.modifiers & AccPublic) != 0)
+	if ((this.modifiers & ClassFileConstants.AccPublic) != 0)
 		buffer.append("public ");
-	if ((this.modifiers & AccProtected) != 0)
+	if ((this.modifiers & ClassFileConstants.AccProtected) != 0)
 		buffer.append("protected ");
-	if ((this.modifiers & AccPrivate) != 0)
+	if ((this.modifiers & ClassFileConstants.AccPrivate) != 0)
 		buffer.append("private ");
-	if ((this.modifiers & AccFinal) != 0)
+	if ((this.modifiers & ClassFileConstants.AccFinal) != 0)
 		buffer.append("final ");
-	if ((this.modifiers & AccStatic) != 0)
+	if ((this.modifiers & ClassFileConstants.AccStatic) != 0)
 		buffer.append("static ");
-	if ((this.modifiers & AccAbstract) != 0)
+	if ((this.modifiers & ClassFileConstants.AccAbstract) != 0)
 		buffer.append("abstract ");
-	if ((this.modifiers & AccNative) != 0)
+	if ((this.modifiers & ClassFileConstants.AccNative) != 0)
 		buffer.append("native ");
-	if ((this.modifiers & AccSynchronized) != 0)
+	if ((this.modifiers & ClassFileConstants.AccSynchronized) != 0)
 		buffer.append("synchronized ");
 	return buffer.toString().trim();
 }
@@ -207,10 +206,10 @@ public boolean isBinaryType() {
 	return false;
 }
 public boolean isClass() {
-	return (modifiers & AccInterface) == 0;
+	return (modifiers & ClassFileConstants.AccInterface) == 0;
 }
 public boolean isInterface() {
-	return (modifiers & AccInterface) == AccInterface;
+	return (modifiers & ClassFileConstants.AccInterface) == ClassFileConstants.AccInterface;
 }
 public void setDeclarationSourceEnd(int position) {
 	declarationEnd = position;

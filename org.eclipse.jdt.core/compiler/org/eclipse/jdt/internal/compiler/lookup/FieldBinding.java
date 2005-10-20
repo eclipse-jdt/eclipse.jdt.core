@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 public class FieldBinding extends VariableBinding {
@@ -183,12 +184,12 @@ public char[] computeUniqueKey(boolean isLeaf) {
  * X<T> t   -->  LX<TT;>;
  */
 public char[] genericSignature() {
-    if ((this.modifiers & AccGenericSignature) == 0) return null;
+    if ((this.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0) return null;
     return this.type.genericTypeSignature();
 }
 
 public final int getAccessFlags() {
-	return modifiers & AccJustFlag;
+	return modifiers & ExtraCompilerModifiers.AccJustFlag;
 }
 
 /**
@@ -228,61 +229,61 @@ public final boolean isDefault() {
 */
 
 public final boolean isDeprecated() {
-	return (modifiers & AccDeprecated) != 0;
+	return (modifiers & ClassFileConstants.AccDeprecated) != 0;
 }
 /* Answer true if the receiver has private visibility
 */
 
 public final boolean isPrivate() {
-	return (modifiers & AccPrivate) != 0;
+	return (modifiers & ClassFileConstants.AccPrivate) != 0;
 }
 /* Answer true if the receiver has private visibility and is used locally
 */
 
 public final boolean isUsed() {
-	return (modifiers & AccLocallyUsed) != 0;
+	return (modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
 }
 /* Answer true if the receiver has protected visibility
 */
 
 public final boolean isProtected() {
-	return (modifiers & AccProtected) != 0;
+	return (modifiers & ClassFileConstants.AccProtected) != 0;
 }
 /* Answer true if the receiver has public visibility
 */
 
 public final boolean isPublic() {
-	return (modifiers & AccPublic) != 0;
+	return (modifiers & ClassFileConstants.AccPublic) != 0;
 }
 /* Answer true if the receiver is a static field
 */
 
 public final boolean isStatic() {
-	return (modifiers & AccStatic) != 0;
+	return (modifiers & ClassFileConstants.AccStatic) != 0;
 }
 /* Answer true if the receiver is not defined in the source of the declaringClass
 */
 
 public final boolean isSynthetic() {
-	return (modifiers & AccSynthetic) != 0;
+	return (modifiers & ClassFileConstants.AccSynthetic) != 0;
 }
 /* Answer true if the receiver is a transient field
 */
 
 public final boolean isTransient() {
-	return (modifiers & AccTransient) != 0;
+	return (modifiers & ClassFileConstants.AccTransient) != 0;
 }
 /* Answer true if the receiver's declaring type is deprecated (or any of its enclosing types)
 */
 
 public final boolean isViewedAsDeprecated() {
-	return (modifiers & (AccDeprecated | AccDeprecatedImplicitly)) != 0;
+	return (modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0;
 }
 /* Answer true if the receiver is a volatile field
 */
 
 public final boolean isVolatile() {
-	return (modifiers & AccVolatile) != 0;
+	return (modifiers & ClassFileConstants.AccVolatile) != 0;
 }
 /**
  * Returns the original field (as opposed to parameterized instances)

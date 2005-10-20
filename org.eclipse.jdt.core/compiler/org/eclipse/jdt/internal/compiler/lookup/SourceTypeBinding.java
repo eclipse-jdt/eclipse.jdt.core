@@ -64,7 +64,7 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 }
 private void addDefaultAbstractMethod(MethodBinding abstractMethod) {
 	MethodBinding defaultAbstract = new MethodBinding(
-		abstractMethod.modifiers | AccDefaultAbstract,
+		abstractMethod.modifiers | ExtraCompilerModifiers.AccDefaultAbstract,
 		abstractMethod.selector,
 		abstractMethod.returnType,
 		abstractMethod.parameters,
@@ -124,7 +124,7 @@ public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOu
 		synthField = new SyntheticFieldBinding(
 			CharOperation.concat(TypeConstants.SYNTHETIC_OUTER_LOCAL_PREFIX, actualOuterLocalVariable.name), 
 			actualOuterLocalVariable.type, 
-			AccPrivate | AccFinal | AccSynthetic, 
+			ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic, 
 			this, 
 			Constant.NotAConstant,
 			synthetics[FIELD_EMUL].size());
@@ -170,7 +170,7 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 				TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX,
 				String.valueOf(enclosingType.depth()).toCharArray()),
 			enclosingType,
-			AccDefault | AccFinal | AccSynthetic,
+			ClassFileConstants.AccDefault | ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic,
 			this,
 			Constant.NotAConstant,
 			synthetics[FIELD_EMUL].size());
@@ -218,7 +218,7 @@ public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, Blo
 				TypeConstants.SYNTHETIC_CLASS,
 				String.valueOf(synthetics[CLASS_LITERAL_EMUL].size()).toCharArray()),
 			blockScope.getJavaLangClass(),
-			AccDefault | AccStatic | AccSynthetic,
+			ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic,
 			this,
 			Constant.NotAConstant,
 			synthetics[CLASS_LITERAL_EMUL].size());
@@ -252,7 +252,7 @@ public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 		synthField = new SyntheticFieldBinding(
 			TypeConstants.SYNTHETIC_ASSERT_DISABLED,
 			BooleanBinding,
-			AccDefault | AccStatic | AccSynthetic | AccFinal,
+			ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ClassFileConstants.AccFinal,
 			this,
 			Constant.NotAConstant,
 			synthetics[FIELD_EMUL].size());
@@ -295,7 +295,7 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 		synthField = new SyntheticFieldBinding(
 			TypeConstants.SYNTHETIC_ENUM_VALUES,
 			scope.createArrayType(this,1),
-			AccPrivate | AccStatic | AccSynthetic | AccFinal,
+			ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ClassFileConstants.AccFinal,
 			this,
 			Constant.NotAConstant,
 			synthetics[FIELD_EMUL].size());
@@ -384,7 +384,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 		synthField = new SyntheticFieldBinding(
 			fieldName,
 			scope.createArrayType(BaseTypes.IntBinding,1),
-			AccPrivate | AccStatic | AccSynthetic,
+			ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic,
 			this,
 			Constant.NotAConstant,
 			synthetics[FIELD_EMUL].size());
@@ -614,13 +614,13 @@ public char[] computeUniqueKey(boolean isLeaf) {
 void faultInTypesForFieldsAndMethods() {
 	// check @Deprecated annotation
 	if ((this.getAnnotationTagBits() & AnnotationDeprecated) != 0) {
-		this.modifiers |= AccDeprecated;
-	} else if ((this.modifiers & AccDeprecated) != 0 && scope != null && scope.compilerOptions().sourceLevel >= JDK1_5) {
+		this.modifiers |= ClassFileConstants.AccDeprecated;
+	} else if ((this.modifiers & ClassFileConstants.AccDeprecated) != 0 && scope != null && scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		scope.problemReporter().missingDeprecatedAnnotationForType(scope.referenceContext);
 	}
 	ReferenceBinding enclosingType = this.enclosingType();
 	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !this.isDeprecated())
-		modifiers |= AccDeprecatedImplicitly;
+		modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 	fields();
 	methods();
 
@@ -1142,17 +1142,17 @@ public MethodBinding[] methods() {
 	return methods;
 }
 private FieldBinding resolveTypeFor(FieldBinding field) {
-	if ((field.modifiers & AccUnresolved) == 0)
+	if ((field.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return field;
 
 	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		if ((field.getAnnotationTagBits() & AnnotationDeprecated) != 0)
-			field.modifiers |= AccDeprecated;
-		else if ((field.modifiers & AccDeprecated) != 0)
+			field.modifiers |= ClassFileConstants.AccDeprecated;
+		else if ((field.modifiers & ClassFileConstants.AccDeprecated) != 0)
 			this.scope.problemReporter().missingDeprecatedAnnotationForField(field.sourceField());
 	}
 	if (isViewedAsDeprecated() && !field.isDeprecated())
-		field.modifiers |= AccDeprecatedImplicitly;	
+		field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;	
 	FieldDeclaration[] fieldDecls = scope.referenceContext.fields;
 	for (int f = 0, length = fieldDecls.length; f < length; f++) {
 		if (fieldDecls[f].binding != field)
@@ -1170,7 +1170,7 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 						? initializationScope.environment().convertToRawType(this) // enum constant is implicitly of declaring enum type
 						: fieldDecl.type.resolveType(initializationScope, true /* check bounds*/);
 				field.type = fieldType;
-				field.modifiers &= ~AccUnresolved;
+				field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 				if (fieldType == null) {
 					fieldDecls[f].binding = null;
 					return null;
@@ -1186,8 +1186,8 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 					return null;
 				}
 				TypeBinding leafType = fieldType.leafComponentType();
-				if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & AccGenericSignature) != 0) {
-					field.modifiers |= AccGenericSignature;
+				if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
+					field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				}				
 			} finally {
 			    initializationScope.initializedField = previousField;
@@ -1197,17 +1197,17 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	return null; // should never reach this point
 }
 private MethodBinding resolveTypesFor(MethodBinding method) {
-	if ((method.modifiers & AccUnresolved) == 0)
+	if ((method.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return method;
 
 	if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 		if ((method.getAnnotationTagBits() & AnnotationDeprecated) != 0)
-			method.modifiers |= AccDeprecated;
-		else if ((method.modifiers & AccDeprecated) != 0)
+			method.modifiers |= ClassFileConstants.AccDeprecated;
+		else if ((method.modifiers & ClassFileConstants.AccDeprecated) != 0)
 			this.scope.problemReporter().missingDeprecatedAnnotationForMethod(method.sourceMethod());
 	}
 	if (isViewedAsDeprecated() && !method.isDeprecated())
-		method.modifiers |= AccDeprecatedImplicitly;
+		method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 
 	AbstractMethodDeclaration methodDecl = method.sourceMethod();
 	if (methodDecl == null) return null; // method could not be resolved in previous iteration
@@ -1238,8 +1238,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				methodDecl.scope.problemReporter().cannotThrowType(this, methodDecl, exceptionTypes[i], resolvedExceptionType);
 				continue;
 			}
-		    if ((resolvedExceptionType.modifiers & AccGenericSignature) != 0)
-				method.modifiers |= AccGenericSignature;
+		    if ((resolvedExceptionType.modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+				method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 			method.thrownExceptions[count++] = resolvedExceptionType;
 		}
 		if (count < size)
@@ -1264,8 +1264,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 				foundArgProblem = true;
 			} else {
 				TypeBinding leafType = parameterType.leafComponentType();
-			    if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & AccGenericSignature) != 0)
-					method.modifiers |= AccGenericSignature;
+			    if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				method.parameters[i] = parameterType;
 			}
 		}
@@ -1290,8 +1290,8 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 			} else {
 				method.returnType = methodType;
 				TypeBinding leafType = methodType.leafComponentType();
-				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & AccGenericSignature) != 0)
-					method.modifiers |= AccGenericSignature;
+				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 			}
 		}
 	}
@@ -1308,7 +1308,7 @@ private MethodBinding resolveTypesFor(MethodBinding method) {
 	if (foundReturnTypeProblem)
 		return method; // but its still unresolved with a null return type & is still connected to its method declaration
 
-	method.modifiers &= ~AccUnresolved;
+	method.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 	return method;
 }
 public final int sourceEnd() {

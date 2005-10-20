@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
 /**
  */
 public class JavadocImportReference extends ImportReference {
@@ -23,7 +25,7 @@ public class JavadocImportReference extends ImportReference {
 	 * @param tagEnd
 	 */
 	public JavadocImportReference(char[][] tokens, long[] sourcePositions, int tagStart, int tagEnd) {
-		super(tokens, sourcePositions, false, AccDefault);
+		super(tokens, sourcePositions, false, ClassFileConstants.AccDefault);
 		this.tagSourceStart = tagStart;
 		this.tagSourceEnd = tagEnd;
 		this.bits |= InsideJavadoc;

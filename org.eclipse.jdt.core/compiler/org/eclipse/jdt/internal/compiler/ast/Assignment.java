@@ -12,6 +12,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -206,7 +207,7 @@ public class Assignment extends Expression {
 			return this.resolvedType;
 		} else if (scope.isBoxingCompatibleWith(rhsType, lhsType) 
 							|| (rhsType.isBaseType()  // narrowing then boxing ?
-									&& scope.compilerOptions().sourceLevel >= JDK1_5 // autoboxing
+									&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5 // autoboxing
 									&& !lhsType.isBaseType()
 									&& this.expression.isConstantValueOfTypeAssignableToType(rhsType, scope.environment().computeBoxingType(lhsType)))) {
 			this.expression.computeConversion(scope, lhsType, rhsType);

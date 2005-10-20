@@ -22,6 +22,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
  */
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class SyntheticArgumentBinding extends LocalVariableBinding {
 
@@ -40,7 +41,7 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 		super(
 			CharOperation.concat(TypeConstants.SYNTHETIC_OUTER_LOCAL_PREFIX, actualOuterLocalVariable.name), 
 			actualOuterLocalVariable.type, 
-			AccFinal,
+			ClassFileConstants.AccFinal,
 			true);
 		this.actualOuterLocalVariable = actualOuterLocalVariable;
 	}
@@ -52,7 +53,7 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 				TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX,
 				String.valueOf(enclosingType.depth()).toCharArray()),
 			enclosingType, 
-			AccFinal,
+			ClassFileConstants.AccFinal,
 			true);
 	}
 }

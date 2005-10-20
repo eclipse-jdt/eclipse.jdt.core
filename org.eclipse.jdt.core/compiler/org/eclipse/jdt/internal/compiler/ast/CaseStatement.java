@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -111,7 +112,7 @@ public class CaseStatement extends Statement {
 						&& (constantExpression.bits & RestrictiveFlagMASK) == Binding.FIELD) {
 					NameReference reference = (NameReference) constantExpression;
 					FieldBinding field = reference.fieldBinding();
-					if ((field.modifiers & AccEnum) == 0) {
+					if ((field.modifiers & ClassFileConstants.AccEnum) == 0) {
 						 scope.problemReporter().enumSwitchCannotTargetField(reference, field);
 					} else 	if (reference instanceof QualifiedNameReference) {
 						 scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
