@@ -26,9 +26,9 @@ public class MessagerCodeExample {
 	public static final int INFO_START = 219;
 	public static final int INFO_END = 222;
 	public static final int WARNING_START = 319;
-	public static final int WARNING_END = 323;
+	public static final int WARNING_END = 322;
 	public static final int ERROR_START = 417;
-	public static final int ERROR_END = 422;
+	public static final int ERROR_END = 421;
 
 	private static final String HEADER_CHUNK = 
 		"package messagertestpackage;\n" +
