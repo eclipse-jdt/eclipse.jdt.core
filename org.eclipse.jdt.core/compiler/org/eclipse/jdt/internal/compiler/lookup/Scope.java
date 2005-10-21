@@ -408,7 +408,8 @@ public abstract class Scope
 				problemReporter().boundCannotBeArray(typeRef, superType);
 				continue nextVariable;
 			}
-			if (superType.isTypeVariable()) {
+			boolean isTypeVariableFirstBound =  superType.isTypeVariable();
+			if (isTypeVariableFirstBound) {
 				TypeVariableBinding varSuperType = (TypeVariableBinding) superType;
 				if (varSuperType.rank >= typeVariable.rank && varSuperType.declaringElement == typeVariable.declaringElement) {
 					problemReporter().forwardTypeVariableReference(typeParameter, varSuperType);
@@ -440,6 +441,9 @@ public abstract class Scope
 					}
 					typeRef.resolvedType = superType; // hold onto the problem type
 					types[0] = superType;
+					if (isTypeVariableFirstBound && j == 0) {
+						problemReporter().noAdditionalBoundAfterTypeVariable(typeRef);
+					}
 					if (superType.isArrayType()) {
 						problemReporter().boundCannotBeArray(typeRef, superType);
 						continue nextVariable;

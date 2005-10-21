@@ -32,6 +32,8 @@ public class ProblemReporter extends ProblemHandler implements ProblemReasons {
 	private final static int JavadocNonStaticTypeFromStaticInvocation = IProblem.Javadoc + IProblem.Internal + 468;
 	/** @since 3.2 */ 
 	private final static int EnumStaticFieldInInInitializerContext = IProblem.FieldRelated + 762;
+	/** @since 3.2 */
+	private final static int NoAdditionalBoundAfterTypeVariable = IProblem.TypeRelated + 573;
 	
 	public ReferenceContext referenceContext;
 	
@@ -4225,6 +4227,14 @@ public void notCompatibleTypesErrorInForeach(Expression expression, TypeBinding 
 		new String[] {leftShortName, rightShortName },
 		expression.sourceStart,
 		expression.sourceEnd);
+}
+public void noAdditionalBoundAfterTypeVariable(TypeReference boundReference) {
+	this.handle(
+		NoAdditionalBoundAfterTypeVariable,
+		new String[] { new String(boundReference.resolvedType.readableName()) },
+		new String[] { new String(boundReference.resolvedType.shortReadableName()) },
+		boundReference.sourceStart,
+		boundReference.sourceEnd);
 }
 public void objectCannotBeGeneric(TypeDeclaration typeDecl) {
 	this.handle(
