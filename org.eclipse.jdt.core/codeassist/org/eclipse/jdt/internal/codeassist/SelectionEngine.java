@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
 
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
