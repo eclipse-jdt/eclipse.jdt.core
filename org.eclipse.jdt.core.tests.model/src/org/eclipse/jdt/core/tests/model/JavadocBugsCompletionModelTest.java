@@ -323,4 +323,82 @@ public void testBug87868() throws JavaModelException {
 		"method[METHOD_REF]{method(Object), Ljavadoc.bugs.BasicTestBugs<TS;>;, (TS;)V, method, (s), "+this.positions+"29}"
 	);
 }
+
+/**
+ * Bug 113374: [javadoc][assist] do not propose anything if the prefix is preceded by a special character
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113374"
+ */
+public void testBug113374a() throws JavaModelException {
+	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	String source =
+		"package javadoc.bugs;\n" + 
+		"/** \n" + 
+		" * <co\n" + 
+		" */\n" + 
+		"public class BasicTestBugs {\n" + 
+		"}";
+	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "co");
+	assertSortedResults("");
+}
+public void testBug113374b() throws JavaModelException {
+	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	String source =
+		"package javadoc.bugs;\n" + 
+		"/** \n" + 
+		" * &un\n" + 
+		" */\n" + 
+		"public class BasicTestBugs {\n" + 
+		"}";
+	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "un");
+	assertSortedResults("");
+}
+
+/**
+ * Bug 113376: [javadoc][assist] wrong overwrite range on completion followed by a tag
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113376"
+ */
+public void testBug113376a() throws JavaModelException {
+	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	String[] sources = {
+		"/Completion/src/javadoc/bugs/BasicTestFields.java",
+			"package javadoc.bugs;\n" + 
+			"/**\n" + 
+			" * @see javadoc.util.Collection\n" + 
+			" * @see javadoc.util.List#add(Object)\n" + 
+			" */public class BasicTestBugs<A> {\n" + 
+			"}",
+		"/Completion/src/javadoc/util/Collection.java",
+			"package javadoc.util;\n" + 
+			"public interface Collection<E> {}\n" + 
+			"public interface List<E> {}\n" + 
+			"	public void add(E e);\n" + 
+			"}"
+	};
+	completeInJavadoc(sources, true, "javadoc.util.Collection");
+	assertSortedResults(
+		"Collection[TYPE_REF]{javadoc.util.Collection, javadoc.util, Ljavadoc.util.Collection;, null, null, "+this.positions+"24}"
+	);
+}
+public void testBug113376b() throws JavaModelException {
+	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	String[] sources = {
+		"/Completion/src/javadoc/bugs/BasicTestFields.java",
+			"package javadoc.bugs;\n" + 
+			"/**\n" + 
+			" * {@link String.}\n" + 
+			" * \n" + 
+			" * @see javadoc.util.Collection\n" + 
+			" * @see javadoc.util.List#add(Object)\n" + 
+			" */public class BasicTestBugs<A> {\n" + 
+			"}",
+		"/Completion/src/javadoc/util/Collection.java",
+			"package javadoc.util;\n" + 
+			"public interface Collection<E> {}\n" + 
+			"public interface List<E> {}\n" + 
+			"	public void add(E e);\n" + 
+			"}"
+	};
+	completeInJavadoc(sources, true, "String.", 0); // empty token
+	assertSortedResults("");
+}
 }

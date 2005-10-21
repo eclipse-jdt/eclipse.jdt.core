@@ -646,7 +646,7 @@ public final class CompletionEngine
 		}
 	}
 		
-	private void buildContext(int astNodeBits) {
+	private void buildContext(ASTNode astNode) {
 		CompletionContext context = new CompletionContext();
 		
 		// build expected types context
@@ -663,7 +663,10 @@ public final class CompletionEngine
 		}
 		
 		// Set javadoc info
-		context.setInJavadoc((astNodeBits & ASTNode.InsideJavadoc) != 0);
+		if (astNode instanceof CompletionOnJavadoc) {
+			this.assistNodeInJavadoc = ((CompletionOnJavadoc)astNode).getCompletionFlags();
+			context.setJavadoc(this.assistNodeInJavadoc);
+		}
 		this.requestor.acceptContext(context);
 	}
 	
@@ -678,7 +681,7 @@ public final class CompletionEngine
 			computeExpectedTypes(astNodeParent, astNode, scope);
 		}
 
-		buildContext(astNode.bits);
+		buildContext(astNode);
 
 		if (astNode instanceof CompletionOnFieldType) {
 
@@ -1183,7 +1186,6 @@ public final class CompletionEngine
 
 				CompletionOnJavadocSingleTypeReference typeRef = (CompletionOnJavadocSingleTypeReference) astNode;
 				this.completionToken = typeRef.token;
-				this.assistNodeInJavadoc = typeRef.completionFlags;
 				this.javadocTagPosition = typeRef.tagSourceStart;
 				setSourceRange(typeRef.sourceStart, typeRef.sourceEnd);
 				findTypesAndPackages(this.completionToken, scope);
@@ -1193,7 +1195,6 @@ public final class CompletionEngine
 				this.insideQualifiedReference = true;
 
 				CompletionOnJavadocQualifiedTypeReference typeRef = (CompletionOnJavadocQualifiedTypeReference) astNode;
-				this.assistNodeInJavadoc = typeRef.completionFlags;
 				this.completionToken = typeRef.completionIdentifier;
 				long completionPosition = typeRef.sourcePositions[typeRef.tokens.length];
 				this.javadocTagPosition = typeRef.tagSourceStart;
@@ -1220,7 +1221,6 @@ public final class CompletionEngine
 				this.insideQualifiedReference = true;
 				CompletionOnJavadocFieldReference fieldRef = (CompletionOnJavadocFieldReference) astNode;
 				this.completionToken = fieldRef.token;
-				this.assistNodeInJavadoc = fieldRef.completionFlags;
 				long completionPosition = fieldRef.nameSourcePosition;
 				this.javadocTagPosition = fieldRef.tagSourceStart;
 
@@ -1278,7 +1278,6 @@ public final class CompletionEngine
 				CompletionOnJavadocMessageSend messageSend = (CompletionOnJavadocMessageSend) astNode;
 				TypeBinding[] argTypes = null; //computeTypes(messageSend.arguments);
 				this.completionToken = messageSend.selector;
-				this.assistNodeInJavadoc = messageSend.completionFlags;
 				this.javadocTagPosition = messageSend.tagSourceStart;
 
 				// Set source range
@@ -1315,7 +1314,6 @@ public final class CompletionEngine
 //				setSourceRange(astNode.sourceStart, astNode.sourceEnd, false);
 
 				CompletionOnJavadocAllocationExpression allocExpression = (CompletionOnJavadocAllocationExpression) astNode;
-				this.assistNodeInJavadoc = allocExpression.completionFlags;
 				this.javadocTagPosition = allocExpression.tagSourceStart;
 				int rangeStart = astNode.sourceStart;
 				if (allocExpression.type.isThis()) {
@@ -1335,7 +1333,6 @@ public final class CompletionEngine
 			} else if (astNode instanceof CompletionOnJavadocParamNameReference) {
 				if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_PARAM_REF)) {
 					CompletionOnJavadocParamNameReference paramRef = (CompletionOnJavadocParamNameReference) astNode;
-					this.assistNodeInJavadoc = paramRef.completionFlags;
 					setSourceRange(paramRef.tagSourceStart, paramRef.tagSourceEnd);
 					findJavadocParamNames(paramRef.token, paramRef.missingParams, false);
 					findJavadocParamNames(paramRef.token, paramRef.missingTypeParams, true);
@@ -1343,7 +1340,6 @@ public final class CompletionEngine
 			} else if (astNode instanceof CompletionOnJavadocTypeParamReference) {
 				if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_PARAM_REF)) {
 					CompletionOnJavadocTypeParamReference paramRef = (CompletionOnJavadocTypeParamReference) astNode;
-					this.assistNodeInJavadoc = paramRef.completionFlags;
 					setSourceRange(paramRef.tagSourceStart, paramRef.tagSourceEnd);
 					findJavadocParamNames(paramRef.token, paramRef.missingParams, true);
 				}

@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
@@ -31,6 +32,15 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 	 */
 	public void addCompletionFlags(int flags) {
 		this.completionFlags |= flags;
+	}
+
+	/**
+	 * Get completion node flags.
+	 * 
+	 * @return int Flags of the javadoc completion node.
+	 */
+	public int getCompletionFlags() {
+		return this.completionFlags;
 	}
 
 	/* (non-Javadoc)
@@ -100,7 +110,13 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 				char[] possibleTag = this.possibleTags[k][i];
 				for (int j=0; j<specLenth; j++) {
 					if (possibleTag[0] == specifiedTags[j][0] && CharOperation.equals(possibleTag, specifiedTags[j])) {
-						filteredTags[size++] = possibleTag;
+						if (scope.kind == Scope.CLASS_SCOPE && possibleTag == TAG_PARAM) {
+							if (((ClassScope)scope).referenceContext.binding.isGenericType()) {
+								filteredTags[size++] = possibleTag;
+							}
+						} else {
+							filteredTags[size++] = possibleTag;
+						}
 						break;
 					}
 				}

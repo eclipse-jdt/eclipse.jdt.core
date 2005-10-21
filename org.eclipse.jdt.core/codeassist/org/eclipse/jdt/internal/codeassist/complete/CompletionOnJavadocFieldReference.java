@@ -59,6 +59,15 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 		return (this.completionFlags & BASE_TYPES) != 0;
 	}
 
+	/**
+	 * Get completion node flags.
+	 * 
+	 * @return int Flags of the javadoc completion node.
+	 */
+	public int getCompletionFlags() {
+		return this.completionFlags;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference#internalResolveType(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */

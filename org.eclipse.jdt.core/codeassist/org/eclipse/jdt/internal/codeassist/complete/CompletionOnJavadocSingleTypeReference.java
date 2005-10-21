@@ -19,11 +19,6 @@ public class CompletionOnJavadocSingleTypeReference extends JavadocSingleTypeRef
 		super(source, pos, tagStart, tagEnd);
 	}
 
-	public CompletionOnJavadocSingleTypeReference(char[] source, long pos, int tagStart, int tagEnd, int flags) {
-		this(source, pos, tagStart, tagEnd);
-		addCompletionFlags(flags);
-	}
-
 	public CompletionOnJavadocSingleTypeReference(JavadocSingleTypeReference typeRef) {
 		super(typeRef.token, (((long)typeRef.sourceStart)<<32)+typeRef.sourceEnd, typeRef.tagSourceStart, typeRef.tagSourceStart);
 	}
@@ -45,6 +40,15 @@ public class CompletionOnJavadocSingleTypeReference extends JavadocSingleTypeRef
 
 	public boolean completeBaseTypes() {
 		return (this.completionFlags & BASE_TYPES) != 0;
+	}
+
+	/**
+	 * Get completion node flags.
+	 * 
+	 * @return int Flags of the javadoc completion node.
+	 */
+	public int getCompletionFlags() {
+		return this.completionFlags;
 	}
 
 	/* (non-Javadoc)
@@ -73,12 +77,5 @@ public class CompletionOnJavadocSingleTypeReference extends JavadocSingleTypeRef
 			output.append('\n');
 		}
 		return output.append('>');
-	}
-
-	/**
-	 * @return Returns the completionFlags.
-	 */
-	public int getCompletionFlags() {
-		return completionFlags;
 	}
 }

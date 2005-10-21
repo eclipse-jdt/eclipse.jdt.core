@@ -52,6 +52,86 @@ Eclipse SDK 3.2M3 - ?th October 2005
 <h2>
 What's new in this drop</h2>
 <ul>
+<li>
+Completion engine now supports completion inside Javadoc. User can complete after any word
+in Javadoc and get most appropriate proposal depending on area of completion.<br>
+Here is a breaf summary of code assist functionality in javadoc:
+<ul>
+<li>Completion of javadoc tag now only gives valid proposals.<br>
+Some examples:
+<ul>
+<li>complete <code>@pa|</code> will give <code>@param</code> proposal only in javadoc of method or generic type declarations,</li>
+<li>complete <code>{@co|</code> will give <code>{@code }</code> proposal only if your compiler compliance has been set to 1.5 or over,</li>
+<li>etc.</li>
+</ul>
+</li>
+<li>Completion in "formal reference" of <code>@see</code>, <code>@throws</code>, <code>@exception</code>, <code>{@link}</code>,
+<code>{@linplain}</code> or <code>{@value}</code> tags will behave like completion in java code. Type qualification for
+types will be inserted depending on "Add import instead of qualified name" Code Assist preferences.
+</li>
+<li>Completion is now available in text area of javadoc comment.<br>
+Some examples:
+<ul>
+<li>complete at caret in following code:
+<pre>
+/**
+ * This is an example of completion inside text area: S|
+ */
+public class Sample {}
+</pre>
+will propose both <code>String</code> and <code>Sample</code>, but also <code>{@link String }</code> and
+<code>{@link Sample }</code>.
+Currently each proposal is available either as java code type name or direclty inserted as a {@link} tag.
+This part is still under work and final behavior should depend on a new JDT/UI preferences...<br>
+<br>
+</li>
+<li>complete at caret in following code:
+<pre>
+/**
+ * This is an example of completion inside text area: #m|
+ */
+public class Sample {
+  void method() {}
+}
+</pre>
+will propose <code>{@link #method() }</code>.
+</li>
+</ul>
+</li>
+</ul>
+<br>
+New API methods have also been added to <code>CompletionContext</code>:
+<pre>
+/**
+ * Tell user whether completion takes place in a javadoc comment or not.
+ * 
+ * @return boolean true if completion takes place in a javadoc comment, false otherwise.
+ * @since 3.2
+ */
+public boolean isInJavadoc() {...}
+/**
+ * Tell user whether completion takes place in text area of a javadoc comment or not.
+ * 
+ * @return boolean true if completion takes place in a text area of a javadoc comment, false otherwise.
+ * @since 3.2
+ */
+public boolean isInJavadocText() {...}
+/**
+ * Tell user whether completion takes place in a formal reference of a javadoc tag or not.
+ * Tags with formal reference are:
+ * 	- @see
+ * 	- @throws
+ * 	- @exception
+ * 	- {@link Object}
+ * 	- {@linkplain Object}
+ * 	- {@value} when compiler compliance is set at leats to 1.5
+ * 
+ * @return boolean true if completion takes place in formal reference of a javadoc tag, false otherwise.
+ * @since 3.2
+ */
+public boolean isInJavadocFormalReference() {...}
+</pre>
+</li>
 <li>Added API <code>org.eclipse.jdt.core.IMember#ISourceRange getJavadocRange() throws JavaModelException</code>. This API can be used
 to retrieve the source range of a javadoc comment attached to the corresponding member.
 </li>
@@ -76,35 +156,39 @@ the code. There is some work planned on UI side so as to better distinguish amon
 Java search engine is now able to perform search using Camel Case pattern while using new match rule flag
 defined on <code>SearchPattern</code> (see bug <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110060">110060</a>):
 <pre>
-	/**
-	 * Match rule: The search pattern contains a Camel Case expression.
-	 * For example, <code>NPE</code> type string pattern will match
-	 * <code>NullPointerException</code> type.
-	 * @see CharOperation#camelCaseMatch(char[], char[]) for a detailed explanation
-	 * of Camel Case matching.
-	 *
-	 * Can be combined to {@link #R_PREFIX_MATCH} match rule. For example,
-	 * when prefix match rule is combined with Camel Case match rule,
-	 * <code>"nPE"</code> pattern will match <code>nPException</code>.
-	 *
-	 * Match rule {@link #R_PATTERN_MATCH} may also be combined but both rules
-	 * will not be used simultaneously as they are mutually exclusive.
-	 * Used match rule depends on whether string pattern contains specific pattern 
-	 * characters (e.g. '*' or '?') or not. If it does, then only Pattern match rule
-	 * will be used, otherwise only Camel Case match will be used.
-	 * For example, with <code>"NPE"</code> string pattern, search will only use
-	 * Camel Case match rule, but with <code>N*P*E*</code> string pattern, it will 
-	 * use only Pattern match rule.
-	 * 
-	 * @since 3.2
-	 */
-	public static final int R_CAMELCASE_MATCH = 0x0080;
+/**
+ * Match rule: The search pattern contains a Camel Case expression.
+ * For example, <code>NPE</code> type string pattern will match
+ * <code>NullPointerException</code> type.
+ * @see CharOperation#camelCaseMatch(char[], char[]) for a detailed explanation
+ * of Camel Case matching.
+ *
+ * Can be combined to {@link #R_PREFIX_MATCH} match rule. For example,
+ * when prefix match rule is combined with Camel Case match rule,
+ * <code>"nPE"</code> pattern will match <code>nPException</code>.
+ *
+ * Match rule {@link #R_PATTERN_MATCH} may also be combined but both rules
+ * will not be used simultaneously as they are mutually exclusive.
+ * Used match rule depends on whether string pattern contains specific pattern 
+ * characters (e.g. '*' or '?') or not. If it does, then only Pattern match rule
+ * will be used, otherwise only Camel Case match will be used.
+ * For example, with <code>"NPE"</code> string pattern, search will only use
+ * Camel Case match rule, but with <code>N*P*E*</code> string pattern, it will 
+ * use only Pattern match rule.
+ * 
+ * @since 3.2
+ */
+public static final int R_CAMELCASE_MATCH = 0x0080;
 </pre>
 </li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106466">106466</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113376">113376</a>
+[javadoc][assist] wrong overwrite range on completion followed by a tag
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113374">113374</a>
+[javadoc][assist] do not propose anything if the prefix is preceded by a special character
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=106466">106466</a>
 [1.5][compiler] Type parameter followed by other types in bound - rejected by javac, accepted by Eclipse
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=110172">110172</a>
 [plan] API to extract the Javadoc on org.eclipse.jdt.core.IMember

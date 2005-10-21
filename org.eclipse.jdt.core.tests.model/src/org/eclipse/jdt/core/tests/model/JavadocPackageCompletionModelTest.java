@@ -139,7 +139,8 @@ public void test001() throws JavaModelException {
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -203,7 +204,8 @@ public void test006() throws JavaModelException {
 	assertResults(
 		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 

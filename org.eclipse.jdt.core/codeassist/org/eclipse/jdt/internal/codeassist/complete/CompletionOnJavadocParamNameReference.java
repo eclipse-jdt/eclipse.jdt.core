@@ -34,6 +34,15 @@ public class CompletionOnJavadocParamNameReference extends JavadocSingleNameRefe
 		this.completionFlags |= flags;
 	}
 
+	/**
+	 * Get completion node flags.
+	 * 
+	 * @return int Flags of the javadoc completion node.
+	 */
+	public int getCompletionFlags() {
+		return this.completionFlags;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.AllocationExpression#printExpression(int, java.lang.StringBuffer)
 	 */

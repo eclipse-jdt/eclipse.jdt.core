@@ -61,7 +61,8 @@ public void test001() throws JavaModelException {
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
-		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -87,7 +88,8 @@ public void test003() throws JavaModelException {
 		"public class Test {}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/Test.java", source, true, "@v");
 	assertResults(
-		"version[JAVADOC_BLOCK_TAG]{@version, null, null, version, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"version[JAVADOC_BLOCK_TAG]{@version, null, null, version, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -143,6 +145,7 @@ public void test007() throws JavaModelException {
 		" * Completion on empty tag name:\n" +
 		" * 	@\n" +
 		" */\n" +
+		"// Note: this test should be done using compliance 1.3\n" +
 		"public class Test {}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/Test.java", source, true, "@");
 	assertResults(
@@ -165,11 +168,13 @@ public void test008() throws JavaModelException {
 		" * Completion on empty tag name:\n" +
 		" * 	@\n" +
 		" */\n" +
-		"public class Test {}\n";
+		"// Note: this test should be done using compliance 1.5\n" +
+		"public class Test<T> {}\n";
 	completeInJavadoc("/Completion/src/javadoc/types/Test.java", source, true, "@");
 	assertResults(
 		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"param[JAVADOC_BLOCK_TAG]{@param, null, null, param, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"version[JAVADOC_BLOCK_TAG]{@version, null, null, version, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
@@ -177,6 +182,7 @@ public void test008() throws JavaModelException {
 		"link[JAVADOC_INLINE_TAG]{{@link }, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot }, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain }, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
+		"value[JAVADOC_INLINE_TAG]{{@value }, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"code[JAVADOC_INLINE_TAG]{{@code }, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" + 
 		"literal[JAVADOC_INLINE_TAG]{{@literal }, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);

@@ -19,7 +19,15 @@ public interface CompletionOnJavadoc {
 	int BASE_TYPES = 0x0008;
 	int ONLY_INLINE_TAG = 0x0010;
 	int REPLACE_TAG = 0x0020;
-	
+	int FORMAL_REFERENCE = 0x0040;
+
+	/**
+	 * Get completion node flags.
+	 * 
+	 * @return int Flags of the javadoc completion node.
+	 */
+	public int getCompletionFlags();
+
 	/**
 	 * @param flags The completionFlags to add.
 	 */

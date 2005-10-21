@@ -11,6 +11,7 @@
 package org.eclipse.jdt.core;
 
 import org.eclipse.jdt.internal.codeassist.InternalCompletionContext;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadoc;
 
 /**
  * Completion context.
@@ -29,7 +30,36 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * @since 3.2
 	 */
 	public boolean isInJavadoc() {
-		return this.inJavadoc;
+		return this.javadoc != 0;
+	}
+
+	/**
+	 * Tell user whether completion takes place in text area of a javadoc comment or not.
+	 * 
+	 * @return boolean true if completion takes place in a text area of a javadoc comment, false otherwise.
+	 * @since 3.2
+	 */
+	public boolean isInJavadocText() {
+		return (this.javadoc & CompletionOnJavadoc.TEXT) != 0;
+	}
+
+	/**
+	 * Tell user whether completion takes place in a formal reference of a javadoc tag or not.
+	 * Tags with formal reference are:
+	 * <ul>
+	 * 	<li>@see</li>
+	 * 	<li>@throws</li>
+	 * 	<li>@exception</li>
+	 * 	<li>{@link Object}</li>
+	 * 	<li>{@linkplain Object}</li>
+	 * 	<li>{@value} when compiler compliance is set at leats to 1.5</li>
+	 * </ul>
+	 * 
+	 * @return boolean true if completion takes place in formal reference of a javadoc tag, false otherwise.
+	 * @since 3.2
+	 */
+	public boolean isInJavadocFormalReference() {
+		return (this.javadoc & CompletionOnJavadoc.FORMAL_REFERENCE) != 0;
 	}
 
 	/**

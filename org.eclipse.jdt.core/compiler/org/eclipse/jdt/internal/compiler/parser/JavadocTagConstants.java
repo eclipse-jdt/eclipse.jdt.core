@@ -117,6 +117,7 @@ public interface JavadocTagConstants {
 		TAG_LINK,
 		TAG_LINKPLAIN,
 		TAG_DOC_ROOT,
+		TAG_VALUE,
 	};
 	public static final char[][] CLASS_TAGS = {
 		TAG_SEE,
@@ -125,10 +126,12 @@ public interface JavadocTagConstants {
 		TAG_SERIAL,
 		TAG_AUTHOR,
 		TAG_VERSION,
+		TAG_PARAM,
 		TAG_CATEGORY,
 		TAG_LINK,
 		TAG_LINKPLAIN,
 		TAG_DOC_ROOT,
+		TAG_VALUE,
 		TAG_CODE,
 		TAG_LITERAL
 	};
@@ -160,6 +163,7 @@ public interface JavadocTagConstants {
 		TAG_LINKPLAIN,
 		TAG_INHERITDOC,
 		TAG_DOC_ROOT,
+		TAG_VALUE,
 		TAG_CODE,
 		TAG_LITERAL
 	};

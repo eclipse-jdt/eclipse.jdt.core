@@ -294,6 +294,10 @@ public class CompletionJavadocParser extends JavadocParser {
 	 * Parse argument in @see tag method reference
 	 */
 	protected Object parseArguments(Object receiver) throws InvalidInputException {
+		
+		if (this.tagSourceStart>this.cursorLocation) {
+			return super.parseArguments(receiver);
+		}
 
 		// Init
 		int modulo = 0; // should be 2 for (Type,Type,...) or 3 for (Type arg,Type arg,...)
@@ -517,6 +521,18 @@ public class CompletionJavadocParser extends JavadocParser {
 			return valid;
 		}
 
+	/* (non-Javadoc)
+		 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseReference()
+		 */
+		protected boolean parseReference() throws InvalidInputException {
+			boolean completed = this.completionNode == null;
+			boolean valid = super.parseReference();
+			if (!completed && this.completionNode != null) {
+				this.completionNode.addCompletionFlags(CompletionOnJavadoc.FORMAL_REFERENCE);
+			}
+			return valid;
+		}
+
 	/*(non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseTag(int)
 	 */
@@ -614,6 +630,7 @@ public class CompletionJavadocParser extends JavadocParser {
 				this.pushText = true;
 
 				// Get reference tokens
+				int previousToken = TerminalTokens.TokenNameWHITESPACE;
 				while (!this.scanner.atEnd() && this.completionNode == null && !this.abort) {
 					int token = readTokenSafely();
 					switch (token) {
@@ -658,13 +675,20 @@ public class CompletionJavadocParser extends JavadocParser {
 							}
 							break;
 						case TerminalTokens.TokenNameIdentifier :
-								try {
-									this.scanner.tokenizeWhiteSpace = false;
-									typeRef = parseQualifiedName(true);
-								} catch (InvalidInputException e) {
-									consumeToken();
-								}
+							try {
+								this.scanner.tokenizeWhiteSpace = false;
+								typeRef = parseQualifiedName(true);
+							}
+							catch (InvalidInputException e) {
+								consumeToken();
+							}
+							finally {
 								this.scanner.tokenizeWhiteSpace = true;
+							}
+							if (previousToken != TerminalTokens.TokenNameWHITESPACE) {
+								typeRef = null;
+								this.completionNode = null;
+							}
 							break;
 						case TerminalTokens.TokenNameAT:
 							consumeToken();
@@ -733,6 +757,7 @@ public class CompletionJavadocParser extends JavadocParser {
 							typeRef = null;
 							break;
 					}
+					previousToken = token;
 				}
 			}
 			finally {
