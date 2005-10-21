@@ -519,9 +519,9 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			return null;
 		}
 		IWorkspaceRoot root= fJProj.getProject().getWorkspace().getRoot();
-		IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.WKSPJAR, original._fc);
+		
 		if (original == null) {
-			IPath[] results= BuildPathDialogAccess.chooseJAREntries(getShell(), fJProj.getPath(), existingPaths);
+			IPath[] results= BuildPathDialogAccess.chooseJAREntries(getShell(), fJProj.getPath(), new IPath[0]);
 			if (results == null) {
 				return null;
 			}
@@ -540,6 +540,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			return res.toArray(new FactoryPathEntry[res.size()]);
 		}
 		else {
+			IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.WKSPJAR, original._fc);
 			IPath result= BuildPathDialogAccess.configureJAREntry(getShell(), new Path(original._fc.getId()), existingPaths);
 			if (result == null) {
 				return null;
@@ -600,9 +601,8 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * @return a list of additional factory path entries to be added
 	 */
 	private FactoryPathEntry[] openVariableSelectionDialog(FactoryPathEntry original) {
-		IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.VARJAR, original._fc);
 		if (original == null) {
-			IPath[] selected= BuildPathDialogAccess.chooseVariableEntries(getShell(), existingPaths);
+			IPath[] selected= BuildPathDialogAccess.chooseVariableEntries(getShell(), new IPath[0]);
 			if (selected == null) {
 				return null;
 			}
@@ -617,6 +617,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			return res.toArray(new FactoryPathEntry[res.size()]);
 		}
 		else {
+			IPath[] existingPaths = getExistingPaths(FactoryContainer.FactoryType.VARJAR, original._fc);
 			IPath result= BuildPathDialogAccess.configureVariableEntry(getShell(), new Path(original._fc.getId()), existingPaths);
 			if (result == null) {
 				return null;
