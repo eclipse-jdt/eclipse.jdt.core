@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.core.util.IClassFileReader;
 
 public class ClassFileReaderTest extends AbstractComparableTest {
@@ -44,7 +45,8 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	public ClassFileReaderTest(String name) {
 		super(name);
 	}
-	private void checkClassFile(String compliance, String directoryName, String className, String source, String expectedOutput, int mode) {
+	private void checkClassFile(String compliance, String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+		if (compliance.compareTo(this.complianceLevel) > 0) return; // don't run if compliance is more than running VM compliance
 		compileAndDeploy(compliance, source, directoryName, className);
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
@@ -62,10 +64,6 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			if (index == -1) {
 				assertEquals("Wrong contents", expectedOutput, result);
 			}
-		} catch (org.eclipse.jdt.core.util.ClassFormatException e) {
-			assertTrue(false);
-		} catch (IOException e) {
-			assertTrue(false);
 		} finally {
 			removeTempClass(className);
 		}
@@ -74,7 +72,8 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * @deprecated
 	 */
-	private void checkClassFileUsingInputStream(String compliance, String directoryName, String className, String source, String expectedOutput, int mode) {
+	private void checkClassFileUsingInputStream(String compliance, String directoryName, String className, String source, String expectedOutput, int mode) throws IOException {
+		if (compliance.compareTo(this.complianceLevel) > 0) return; // don't run if compliance is more than running VM compliance
 		compileAndDeploy(compliance, source, directoryName, className);
 		BufferedInputStream inputStream = null;
 		try {
@@ -94,8 +93,6 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			if (index == -1) {
 				assertEquals("Wrong contents", expectedOutput, result);
 			}
-		} catch (IOException e) {
-			assertTrue(false);
 		} finally {
 			if (inputStream != null) {
 				try {
@@ -107,10 +104,10 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 			removeTempClass(className);
 		}
 	}
-	private void checkClassFile(String compliance, String className, String source, String expectedOutput) {
+	private void checkClassFile(String compliance, String className, String source, String expectedOutput) throws ClassFormatException, IOException {
 		this.checkClassFile(compliance, "", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	private void checkClassFile(String className, String source, String expectedOutput) {
+	private void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
 		checkClassFile("1.4", className, source, expectedOutput);
 	}
 	
@@ -196,7 +193,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=15051
 	 */
-	public void test001() {
+	public void test001() throws ClassFormatException, IOException {
 		String source =
 			"public class A001 {\n" +
 			"	private int i = 6;\n" +
@@ -229,7 +226,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=25188
 	 */
-	public void test002() {
+	public void test002() throws ClassFormatException, IOException {
 		String source =
 			"public class A002 {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -258,7 +255,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26098
 	 */
-	public void test003() {
+	public void test003() throws ClassFormatException, IOException {
 		String source =
 			"public class A003 {\n" +
 			"\n" +
@@ -300,7 +297,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test004() {
+	public void test004() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -346,7 +343,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test005() {
+	public void test005() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -384,7 +381,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test006() {
+	public void test006() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -414,7 +411,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test007() {
+	public void test007() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -450,7 +447,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test008() {
+	public void test008() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -480,7 +477,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test009() {
+	public void test009() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -526,7 +523,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test010() {
+	public void test010() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -564,7 +561,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test011() {
+	public void test011() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -602,7 +599,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test012() {
+	public void test012() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -635,7 +632,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test013() {
+	public void test013() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -671,7 +668,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test014() {
+	public void test014() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -724,7 +721,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test015() {
+	public void test015() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -762,7 +759,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test016() {
+	public void test016() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -800,7 +797,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test017() {
+	public void test017() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -836,7 +833,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test018() {
+	public void test018() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -873,7 +870,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 * http:  //bugs.eclipse.org/bugs/show_bug.cgi?id=26881
 	 */
-	public void test019() {
+	public void test019() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -922,7 +919,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test020() {
+	public void test020() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -961,7 +958,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test021() {
+	public void test021() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -998,7 +995,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test022() {
+	public void test022() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1035,7 +1032,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test023() {
+	public void test023() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1072,7 +1069,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test024() {
+	public void test024() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1109,7 +1106,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test025() {
+	public void test025() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1149,7 +1146,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test026() {
+	public void test026() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1187,7 +1184,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test027() {
+	public void test027() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1224,7 +1221,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test028() {
+	public void test028() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1263,7 +1260,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test029() {
+	public void test029() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1301,7 +1298,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test030() {
+	public void test030() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1338,7 +1335,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test031() {
+	public void test031() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1377,7 +1374,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test032() {
+	public void test032() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1416,7 +1413,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test033() {
+	public void test033() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1470,7 +1467,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test034() {
+	public void test034() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1508,7 +1505,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test035() {
+	public void test035() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1538,7 +1535,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test036() {
+	public void test036() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1574,7 +1571,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test037() {
+	public void test037() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1604,7 +1601,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test038() {
+	public void test038() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1658,7 +1655,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test039() {
+	public void test039() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1692,7 +1689,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test040() {
+	public void test040() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1730,7 +1727,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test041() {
+	public void test041() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1763,7 +1760,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test042() {
+	public void test042() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1799,7 +1796,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test043() {
+	public void test043() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1853,7 +1850,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test044() {
+	public void test044() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1891,7 +1888,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test045() {
+	public void test045() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1929,7 +1926,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test046() {
+	public void test046() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1965,7 +1962,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=26753
 	 */
-	public void test047() {
+	public void test047() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1998,7 +1995,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("A", source, expectedOutput);
 	}
 
-	public void test048() {
+	public void test048() throws ClassFormatException, IOException {
 		String source =
 			"public class A {\n" +
 			"\n" +
@@ -2060,7 +2057,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("A", source, expectedOutput);
 	}
 	
-	public void test049() {
+	public void test049() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2088,7 +2085,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test050() {
+	public void test050() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2125,7 +2122,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test051() {
+	public void test051() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2154,7 +2151,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test052() {
+	public void test052() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2190,7 +2187,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test053() {
+	public void test053() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2227,7 +2224,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test054() {
+	public void test054() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2269,7 +2266,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test055() {
+	public void test055() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2307,7 +2304,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test056() {
+	public void test056() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2348,7 +2345,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test057() {
+	public void test057() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2376,7 +2373,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test058() {
+	public void test058() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2409,7 +2406,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test059() {
+	public void test059() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2438,7 +2435,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test060() {
+	public void test060() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2470,7 +2467,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test061() {
+	public void test061() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2501,7 +2498,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test062() {
+	public void test062() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2537,7 +2534,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test063() {
+	public void test063() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2569,7 +2566,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test064() {
+	public void test064() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2604,7 +2601,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test065() {
+	public void test065() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2641,7 +2638,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 	
-	public void test066() {
+	public void test066() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2683,7 +2680,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test067() {
+	public void test067() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2721,7 +2718,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("X", source, expectedOutput);
 	}
 
-	public void test068() {
+	public void test068() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	static boolean boom() { \n" + 
@@ -2765,7 +2762,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47886
 	 */
-	public void test069() {
+	public void test069() throws ClassFormatException, IOException {
 		String source =
 			"public interface I {\n" + 
 			"}";
@@ -2786,7 +2783,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
 	 */
-	public void test070() {
+	public void test070() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" +
 			"	X(String s) {\n" +
@@ -2813,7 +2810,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76472
 	 */
-	public void test071() {
+	public void test071() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static void main(String[] args) {\n" + 
@@ -2841,7 +2838,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("1.5", "X", source, expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
-	public void test072() {
+	public void test072() throws ClassFormatException, IOException {
 		String source =
 			"package p;\n" +
 			"public abstract class X {\n" + 
@@ -2915,7 +2912,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("1.4", "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
-	public void test073() {
+	public void test073() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" + 
 			"	public static final double CONST = Double.POSITIVE_INFINITY;\n" +
@@ -2932,7 +2929,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 		checkClassFile("1.4", "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
-	public void test074() {
+	public void test074() throws ClassFormatException, IOException {
 		String source =
 			"package p;\n" +
 			"public class X {\n" + 
@@ -2952,7 +2949,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
-	public void test075() {
+	public void test075() throws ClassFormatException, IOException {
 		String source =
 			"package p;\n" +
 			"public class X {\n" + 
@@ -2972,7 +2969,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
-	public void test076() {
+	public void test076() throws ClassFormatException, IOException {
 		String source =
 			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" + 
 			"  U field;\n" +
@@ -3000,7 +2997,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	}
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
-	public void test077() {
+	public void test077() throws ClassFormatException, IOException {
 		String source =
 			"public class Y<W, U extends java.io.Reader & java.io.Serializable> {\n" + 
 			"  U field;\n" +
@@ -3030,7 +3027,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76440
 	 */
-	public void test078() {
+	public void test078() throws ClassFormatException, IOException {
 		String source =
 			"public class X {\n" +
 			"	X(String s) {\n" +
@@ -3055,7 +3052,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
 	 */
-	public void test079() {
+	public void test079() throws ClassFormatException, IOException {
 		String source =
 			"public enum X { \n" + 
 			"	\n" + 
@@ -3083,7 +3080,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
 	 * TODO corner case that doesn't produce the right source
 	 */
-	public void test080() {
+	public void test080() throws ClassFormatException, IOException {
 		String source =
 			"public enum X {\n" +
 			"	BLEU(0) {\n" +
@@ -3127,7 +3124,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
 	 * TODO corner case that doesn't produce the right source
 	 */
-	public void test081() {
+	public void test081() throws ClassFormatException, IOException {
 		String source =
 			"interface I {\n" +
 			"	String colorName();\n" +
@@ -3170,7 +3167,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
 	 */
-	public void test082() {
+	public void test082() throws ClassFormatException, IOException {
 		String source =
 			"@interface X {\n" +
 			"	String firstName();\n" +
@@ -3190,7 +3187,7 @@ public class ClassFileReaderTest extends AbstractComparableTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111767
 	 * @deprecated Using deprecated API
 	 */
-	public void test083() {
+	public void test083() throws ClassFormatException, IOException {
 		String source =
 			"@interface X {\n" +
 			"	String firstName();\n" +
