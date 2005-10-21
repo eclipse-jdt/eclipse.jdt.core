@@ -20902,12 +20902,17 @@ public void test678() {
 			"}\n",
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public class X<T, T2 extends T & Serializable > {\n" + 
+		"	                                 ^^^^^^^^^^^^\n" + 
+		"Cannot specify any additional bound Serializable when first bound is a type parameter\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
 		"	X<String, Serializable> wrong1;\n" + 
 		"	          ^^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type Serializable is not a valid substitute for the bounded parameter <T2 extends T & Serializable> of the type X<T,T2>\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 9)\n" + 
+		"3. WARNING in X.java (at line 9)\n" + 
 		"	static class Y implements Serializable {\n" + 
 		"	             ^\n" + 
 		"The serializable class Y does not declare a static final serialVersionUID field of type long\n" + 
@@ -22778,7 +22783,7 @@ public void test746() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99983
 public void test747() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X<T> {\n" +
@@ -22787,7 +22792,12 @@ public void test747() {
 			"  }\n" +
 			"}",
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\r\n" + 
+		"	class Y<U extends T & I> {\r\n" + 
+		"	                      ^\n" + 
+		"Cannot specify any additional bound X.I when first bound is a type parameter\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100007
 public void test748() {
@@ -23342,7 +23352,12 @@ public void test768() {
 		"	                                    ^\n" + 
 		"The interface Y cannot be implemented more than once with different arguments: Y<Object> and Y<String>\n" + 
 		"----------\n" + 
-		"4. ERROR in X.java (at line 5)\n" + 
+		"4. ERROR in X.java (at line 4)\n" + 
+		"	<T extends Y<Object>, U extends T & Z>  T foo3() { return null; }\n" + 
+		"	                                    ^\n" + 
+		"Cannot specify any additional bound Z when first bound is a type parameter\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 5)\n" + 
 		"	<T extends Y<Object>, U extends W & Z>  T foo4() { return null; }\n" + 
 		"	                                    ^\n" + 
 		"The interface Y cannot be implemented more than once with different arguments: Y<String> and Y<Object>\n" + 
@@ -23847,7 +23862,7 @@ public void test780() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104109
 public void test781() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -23861,7 +23876,12 @@ public void test781() {
 			"    }\n" + 
 			"}\n",
 		},
-		"");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\r\n" + 
+		"	public static <E, T extends E & Comparable<? super T>> Foo<E> doIt(T t) {\r\n" + 
+		"	                                ^^^^^^^^^^\n" + 
+		"Cannot specify any additional bound Comparable<? super T> when first bound is a type parameter\n" + 
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104082
 public void test782() {
@@ -26345,14 +26365,19 @@ public void test851() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106466
 public void test852() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
 			"public class X {\n" + 
 			"	<T extends Runnable, U extends T & Runnable>  T foo() { return null; }\n" + 
 			"}\n", // =================
 		},
-		"");	
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\r\n" + 
+		"	<T extends Runnable, U extends T & Runnable>  T foo() { return null; }\r\n" + 
+		"	                                   ^^^^^^^^\n" + 
+		"Cannot specify any additional bound Runnable when first bound is a type parameter\n" + 
+		"----------\n");	
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112109
 public void test853() {
@@ -26476,5 +26501,22 @@ public void test856() {
 			"}\n",
 		},
 		"SUCCESS");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113070
+public void test857() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public <U, T extends U & Cloneable & Runnable> void m(T t) {\n" + 
+			"	}\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public <U, T extends U & Cloneable & Runnable> void m(T t) {\n" + 
+		"	                         ^^^^^^^^^\n" + 
+		"Cannot specify any additional bound Cloneable when first bound is a type parameter\n" + 
+		"----------\n");	
 }
 }

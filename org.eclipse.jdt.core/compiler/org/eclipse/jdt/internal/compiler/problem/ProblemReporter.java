@@ -4367,6 +4367,14 @@ public void notCompatibleTypesErrorInForeach(Expression expression, TypeBinding 
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void noAdditionalBoundAfterTypeVariable(TypeReference boundReference) {
+	this.handle(
+		IProblem.NoAdditionalBoundAfterTypeVariable,
+		new String[] { new String(boundReference.resolvedType.readableName()) },
+		new String[] { new String(boundReference.resolvedType.shortReadableName()) },
+		boundReference.sourceStart,
+		boundReference.sourceEnd);
+}
 public void objectCannotBeGeneric(TypeDeclaration typeDecl) {
 	this.handle(
 		IProblem.ObjectCannotBeGeneric,

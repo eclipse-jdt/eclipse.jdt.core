@@ -970,6 +970,8 @@ void setSourceStart(int sourceStart);
 	int TypeParameterHidingType = TypeRelated + 571;
 	/** @since 3.2 */
 	int RawTypeReference = TypeRelated + 572;
+	/** @since 3.2 */
+	int NoAdditionalBoundAfterTypeVariable = TypeRelated + 573;
 	
 	/**
 	 * Foreach
