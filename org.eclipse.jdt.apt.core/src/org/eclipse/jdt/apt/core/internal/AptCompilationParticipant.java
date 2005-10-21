@@ -120,7 +120,12 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	
 		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = _factoryLoader.getFactoriesAndAttributesForProject( javaProject );	
 	
-		APTResult result = APTDispatch.runAPTDuringBuild(factories, buildFiles, javaProject, pbce.isFullBuild());
+		boolean isFullBuild = pbce.isFullBuild();
+		if (isFullBuild) {
+			AnnotationProcessorFactoryLoader.getLoader().resetBatchProcessors(pbce.getJavaProject());
+		}
+		
+		APTResult result = APTDispatch.runAPTDuringBuild(factories, buildFiles, javaProject, isFullBuild);
 		Set<IFile> newFiles = result.getNewFiles();			
 		Set<IFile> deletedFiles = new HashSet<IFile>();
 		
@@ -199,8 +204,6 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	private CompilationParticipantResult cleanNotify( CompilationParticipantEvent cpe )
 	{		
 		IProject p = cpe.getJavaProject().getProject();
-		
-		AnnotationProcessorFactoryLoader.getLoader().resetBatchProcessors(cpe.getJavaProject());
 		
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
 		gfm.projectClean( true );

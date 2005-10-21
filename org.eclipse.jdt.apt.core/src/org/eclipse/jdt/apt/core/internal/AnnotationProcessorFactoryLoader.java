@@ -50,7 +50,7 @@ public class AnnotationProcessorFactoryLoader {
 		new HashMap<IJavaProject, Map<AnnotationProcessorFactory, FactoryPath.Attributes>>();
     
 	// Caches the iterative classloaders so that iterative processors
-	// are not reloaded on every clean build, unlike batch processors 
+	// are not reloaded on every batch build, unlike batch processors 
 	// which are.
 	private final Map<IJavaProject, ClassLoader> _project2IterativeClassloaders = 
 		new HashMap<IJavaProject, ClassLoader>();
