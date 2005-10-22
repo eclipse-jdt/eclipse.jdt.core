@@ -47,12 +47,12 @@ public final class CompletionContext extends InternalCompletionContext {
 	 * Tell user whether completion takes place in a formal reference of a javadoc tag or not.
 	 * Tags with formal reference are:
 	 * <ul>
-	 * 	<li>@see</li>
-	 * 	<li>@throws</li>
-	 * 	<li>@exception</li>
-	 * 	<li>{@link Object}</li>
-	 * 	<li>{@linkplain Object}</li>
-	 * 	<li>{@value} when compiler compliance is set at leats to 1.5</li>
+	 * 	<li>&#64;see</li>
+	 * 	<li>&#64;throws</li>
+	 * 	<li>&#64;exception</li>
+	 * 	<li>{&#64;link Object}</li>
+	 * 	<li>{&#64;linkplain Object}</li>
+	 * 	<li>{&#64;value} when compiler compliance is set at leats to 1.5</li>
 	 * </ul>
 	 * 
 	 * @return boolean true if completion takes place in formal reference of a javadoc tag, false otherwise.
