@@ -202,7 +202,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	}
 
 	private CompilationParticipantResult cleanNotify( CompilationParticipantEvent cpe )
-	{		
+	{
 		IProject p = cpe.getJavaProject().getProject();
 		
 		GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( p );
@@ -216,7 +216,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			}
 		}
 		catch(CoreException e){
-			e.printStackTrace();
+			AptPlugin.log(e, "Unable to delete annotation processor problem markers"); //$NON-NLS-1$
 		}
 		
 		return GENERIC_COMPILATION_RESULT;

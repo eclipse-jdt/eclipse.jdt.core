@@ -13,16 +13,25 @@ package org.eclipse.jdt.apt.core.internal;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
@@ -35,7 +44,7 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 /**
  * Stores annotation processor factories, and handles mapping from projects
- * to them.
+ * to them.  This is a singleton object, created by the first call to getLoader().
  */
 public class AnnotationProcessorFactoryLoader {
 	
@@ -72,6 +81,7 @@ public class AnnotationProcessorFactoryLoader {
      * Called when underlying preferences change
      */
     public synchronized void resetAll() {
+    	removeAptBuildProblemMarkers( null );
     	_project2Factories.clear();
     	_project2IterativeClassloaders.clear();
     }
@@ -159,6 +169,10 @@ public class AnnotationProcessorFactoryLoader {
 		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factoriesAndAttrs = 
 			new LinkedHashMap<AnnotationProcessorFactory, FactoryPath.Attributes>(containers.size() * 4 / 3 + 1);
 		
+		// Clear existing problem markers; we'll add them back if there are still problems.
+		removeAptBuildProblemMarkers( project );
+		removeMissingFactoryJars( project, containers );
+		
 		// Need to use the cached classloader if we have one
 		ClassLoader iterativeClassLoader = _project2IterativeClassloaders.get(project);
 		if (iterativeClassLoader == null) {
@@ -175,15 +189,16 @@ public class AnnotationProcessorFactoryLoader {
 				final FactoryPath.Attributes attr = entry.getValue();
 				List<AnnotationProcessorFactory> factories;
 				if (attr.runInBatchMode()) {
-					factories = loadFactoryClasses(fc, batchClassLoader);
+					factories = loadFactoryClasses(fc, batchClassLoader, project);
 				}
 				else {
-					factories = loadFactoryClasses(fc, iterativeClassLoader);
+					factories = loadFactoryClasses(fc, iterativeClassLoader, project);
 				}
 				for ( AnnotationProcessorFactory apf : factories )
 					factoriesAndAttrs.put( apf, entry.getValue() );
 			}
 			catch (FileNotFoundException fnfe) {
+				// it would be bizarre to get this, given that we already checked for file existence up above.
 				AptPlugin.log(fnfe, Messages.AnnotationProcessorFactoryLoader_jarNotFound + fnfe.getLocalizedMessage());
 			}
 			catch (IOException ioe) {
@@ -192,9 +207,9 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		return factoriesAndAttrs;
 	}
-	
+
 	private List<AnnotationProcessorFactory> loadFactoryClasses( 
-			FactoryContainer fc, ClassLoader classLoader )
+			FactoryContainer fc, ClassLoader classLoader, IJavaProject jproj )
 			throws IOException
 	{
 		List<String> factoryNames = fc.getFactoryNames();
@@ -205,7 +220,7 @@ public class AnnotationProcessorFactoryLoader {
 			if ( fc.getType() == FactoryType.PLUGIN )
 				factory = FactoryPathUtil.getFactoryFromPlugin( factoryName );
 			else
-				factory = loadFactoryFromClassLoader( factoryName, classLoader );
+				factory = loadFactoryFromClassLoader( factoryName, classLoader, jproj );
 			
 			if ( factory != null )
 				factories.add( factory );
@@ -213,7 +228,7 @@ public class AnnotationProcessorFactoryLoader {
 		return factories;
 	}
 	
-	private AnnotationProcessorFactory loadFactoryFromClassLoader( String factoryName, ClassLoader cl )
+	private AnnotationProcessorFactory loadFactoryFromClassLoader( String factoryName, ClassLoader cl, IJavaProject jproj )
 	{
 		AnnotationProcessorFactory f = null;
 		try
@@ -223,16 +238,133 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		catch( Exception e )
 		{
-			AptPlugin.log(e, "Could not load annotation processor factory " + factoryName); //$NON-NLS-1$
+			reportFailureToLoadFactory(factoryName, jproj);
 		}
 		catch ( NoClassDefFoundError ncdfe )
 		{
 			// **DO NOT REMOVE THIS CATCH BLOCK***
 			// This error indicates a problem with the factory path specified 
 			// by the project, and it needs to be caught and reported!
-			AptPlugin.log(ncdfe, "Could not load annotation processor factory " + factoryName); //$NON-NLS-1$
+			reportFailureToLoadFactory(factoryName, jproj);
 		}
 		return f;
+	}
+	
+	/**
+	 * Remove APT build problem markers, e.g., "missing factory jar".
+	 * @param jproj if null, remove markers from all projects that have
+	 * factory paths associated with them.
+	 */
+	private void removeAptBuildProblemMarkers( IJavaProject jproj ) {
+		Set<IJavaProject> jprojects = (jproj == null) ? _project2Factories.keySet() : Collections.singleton(jproj);
+		try {
+			for (IJavaProject jp : jprojects) {
+				if (jp.exists()) {
+					IProject p = jp.getProject();
+					IMarker[] markers = p.findMarkers(AptPlugin.APT_BUILD_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+					if( markers != null ){
+						for( IMarker marker : markers )
+							marker.delete();
+					}
+				}
+			}
+		}
+		catch(CoreException e){
+			AptPlugin.log(e, "Unable to delete APT build problem marker"); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Remove from the containers list any jar factory containers that cannot
+	 * be loaded, and report them as Markers.  
+	 * @param jproj must not be null
+	 * @param containers will be modified by removing any invalid containers.
+	 */
+	private void removeMissingFactoryJars(IJavaProject jproj, Map<FactoryContainer, Attributes> containers) {
+		Iterator<Entry<FactoryContainer, Attributes>> i = containers.entrySet().iterator(); 
+		while (i.hasNext()) {
+			FactoryContainer fc = i.next().getKey();
+			if (fc instanceof JarFactoryContainer) {
+				URL url = null;
+				try {
+					url = ((JarFactoryContainer)fc).getJarFileURL();
+					// Open the jar to see if it exists - else we'll enter a build marker.
+					// TODO: we might want to move the "exists()" method into JarFactoryContainer,
+					// and implement it more like ClasspathEntry.validateClasspathEntry().
+					InputStream is = url.openStream();
+					is.close();
+				} catch (IOException e) {
+					// Remove the jar from the list
+					i.remove();
+					// Add a marker
+					String jarName = (url != null) ? url.toString() : fc.getId();
+					reportMissingFactoryJar( jarName, jproj );
+				}
+			}
+		}
+	}
+
+	/** 
+	 * Enter a marker for a jar file that is specified on the factory path
+	 * but cannot be found on disk.  
+	 * These markers are removed during a clean and whenever the factory path 
+	 * is reset.
+	 */
+	private void reportMissingFactoryJar(String jarName, IJavaProject jproj) {
+		IProject project = jproj.getProject();
+		try {
+			String message = Messages.bind(
+					Messages.AnnotationProcessorFactoryLoader_factorypath_missingLibrary, 
+					new String[] {jarName, project.getName()});
+			IMarker marker = project.createMarker(AptPlugin.APT_BUILD_PROBLEM_MARKER);
+			marker.setAttributes(
+					new String[] {
+						IMarker.MESSAGE, 
+						IMarker.SEVERITY,
+						IMarker.LOCATION
+					},
+					new Object[] {
+						message,
+						IMarker.SEVERITY_ERROR,
+						Messages.AnnotationProcessorFactoryLoader_factorypath
+					}
+				);
+		} catch (CoreException e) {
+			AptPlugin.log(e, "Unable to create build problem marker"); //$NON-NLS-1$
+		}
+	}
+	
+	/** 
+	 * Enter a marker for a factory class that could not be loaded.
+	 * Note that if a jar is missing, we won't be able to load its factory
+	 * names, and thus we won't even try loading its factory classes; but
+	 * we can still fail to load a factory class if, for instance, the
+	 * jar is corrupted or the factory constructor throws an exception.  
+	 * These markers are removed during a clean and whenever the factory path
+	 * is reset.
+	 */
+	private void reportFailureToLoadFactory(String factoryName, IJavaProject jproj) {
+		IProject project = jproj.getProject();
+		try {
+			String message = Messages.bind(
+					Messages.AnnotationProcessorFactoryLoader_unableToLoadFactoryClass, 
+					new String[] {factoryName, project.getName()});
+			IMarker marker = project.createMarker(AptPlugin.APT_BUILD_PROBLEM_MARKER);
+			marker.setAttributes(
+					new String[] {
+						IMarker.MESSAGE, 
+						IMarker.SEVERITY,
+						IMarker.LOCATION
+					},
+					new Object[] {
+						message,
+						IStatus.ERROR,
+						Messages.AnnotationProcessorFactoryLoader_factorypath
+					}
+				);
+		} catch (CoreException e) {
+			AptPlugin.log(e, "Unable to create build problem marker"); //$NON-NLS-1$
+		}
 	}
 	
 	/**

@@ -27,4 +27,10 @@ public class Messages extends NLS {
 	public static String AnnotationProcessorFactoryLoader_jarNotFound;
 
 	public static String AnnotationProcessorFactoryLoader_ioError;
+
+	public static String AnnotationProcessorFactoryLoader_factorypath_missingLibrary;
+
+	public static String AnnotationProcessorFactoryLoader_factorypath;
+
+	public static String AnnotationProcessorFactoryLoader_unableToLoadFactoryClass;
 }
