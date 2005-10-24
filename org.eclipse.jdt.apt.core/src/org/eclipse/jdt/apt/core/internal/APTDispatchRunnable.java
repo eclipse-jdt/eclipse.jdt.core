@@ -567,7 +567,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 			// log unclaimed annotations.
 		} catch (Throwable t) {
-			AptPlugin.log(t, "Unexpected failure running APT " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
+			AptPlugin.log(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
 		}
 		return EMPTY_APT_RESULT;
 	}
