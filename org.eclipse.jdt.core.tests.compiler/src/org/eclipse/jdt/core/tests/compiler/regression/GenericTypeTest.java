@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 855 };
+//		TESTS_NUMBERS = new int[] { 858 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -26518,5 +26518,27 @@ public void test857() {
 		"	                         ^^^^^^^^^\n" + 
 		"Cannot specify any additional bound Cloneable when first bound is a type parameter\n" + 
 		"----------\n");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113560
+public void test858() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface ExtCloneable extends Cloneable {\n" +
+			"	public ExtCloneable clone( String arg) throws CloneNotSupportedException;\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static <V extends ExtCloneable> ExtCloneable cloneItem1( V value) throws CloneNotSupportedException {\n" +
+			"		return value.clone( \"\");\n" +
+			"	}\n" +
+			"	public static <V extends ExtCloneable> ExtCloneable cloneItem2( ExtCloneable value) throws CloneNotSupportedException {\n" +
+			"		return value.clone( \"\");\n" +
+			"	}\n" +
+			"	public static <V extends ExtCloneable> ExtCloneable cloneItem3( V value) throws CloneNotSupportedException {\n" +
+			"		return ((ExtCloneable)value).clone( \"\");\n" +
+			"	}\n" +
+			"}",
+		},
+		"");	
 }
 }
