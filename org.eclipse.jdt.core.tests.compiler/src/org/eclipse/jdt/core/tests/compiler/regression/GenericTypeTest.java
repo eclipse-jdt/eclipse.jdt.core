@@ -31,7 +31,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// All specified tests which does not belong to the class are skipped...
 	static {
 //		TESTS_NAMES = new String[] { "test788" };
-//		TESTS_NUMBERS = new int[] { 858 };
+//		TESTS_NUMBERS = new int[] { 119 };
 //		TESTS_RANGE = new int[] { 821, -1 };
 	}
 	public static Test suite() {
@@ -17290,7 +17290,7 @@ public void test500(){
 			"----------\n");	
 	}			
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
-	public void _test574() {
+	public void test574() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -17307,7 +17307,22 @@ public void test500(){
 				"	}\n" + 
 				"}\n"
 			},
-			"complain about ambiguity");
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	<T extends Integer> T foo(Object o) {  return null; } // ok\n" + 
+			"	           ^^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 7)\n" + 
+			"	<T extends String> T foo(Object o) {  return null; } // ok\n" + 
+			"	           ^^^^^^\n" + 
+			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
+			"	new X().new C2().foo((List<String>) null);\n" + 
+			"	                 ^^^\n" + 
+			"The method foo(Object) is ambiguous for the type X.C2\n" + 
+			"----------\n");
 	}	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84496 - variation with field ref
 	public void test575() {
@@ -18439,7 +18454,7 @@ public void test500(){
 			"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
-	public void _test615() {
+	public void test615() {
 	    this.runNegativeTest(
             new String[] {
                 "X1.java",
@@ -18455,10 +18470,19 @@ public void test500(){
 				"			X3<String> x;\n" + 
 				"		}\n" + 
 				"	}\n" + 
-				"	Zork z;\n" + 
 				"}\n",
             },
-			"should complain about raw enclosing type + parameterized member");
+            "----------\n" + 
+    		"1. WARNING in X1.java (at line 8)\n" + 
+    		"	class Y2 extends X1.X2 {\n" + 
+    		"	                 ^^^^^\n" + 
+    		"X1.X2 is a raw type. References to generic type X1.X2<T> should be parameterized\n" + 
+    		"----------\n" + 
+    		"2. ERROR in X1.java (at line 10)\n" + 
+    		"	X3<String> x;\n" + 
+    		"	^^\n" + 
+    		"The member type X1.X2.X3<String> must be qualified with a parameterized type, since it is not static\n" + 
+    		"----------\n");
 	}			
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation	
 	public void test616() {
@@ -22877,8 +22901,7 @@ public void test750() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100153
-// TODO (philippe) reenable once addressed
-public void _test751() {
+public void test751() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22892,7 +22915,7 @@ public void _test751() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	X<T> x2 = x;\n" + 
-		"	     ^^\n" + 
+		"	          ^\n" + 
 		"Type mismatch: cannot convert from X<capture-of ? extends T> to X<T>\n" + 
 		"----------\n");
 }
