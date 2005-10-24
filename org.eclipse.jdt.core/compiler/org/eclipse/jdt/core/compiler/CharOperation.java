@@ -295,7 +295,8 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 					break;
 				default:
 					// end of camelCase part of pattern
-					break nextPatternChar;				}
+					break nextPatternChar;
+			}
 		} else if (Character.isJavaIdentifierPart(patternChar) 
 						&& !Character.isUpperCase(patternChar)) {
 			// end of camelCase part of pattern
