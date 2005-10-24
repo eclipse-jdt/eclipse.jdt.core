@@ -454,38 +454,37 @@ public class JavadocParser extends AbstractCommentParser {
 			return false;
 		}
 		int length = this.tagSourceEnd-this.tagSourceStart+1;
-		char[] tag = new char[length];
-		System.arraycopy(this.source, this.tagSourceStart, tag, 0, length);
+		if (length == 0) return false; // may happen for some parser (completion for example)
 		this.index = this.tagSourceEnd+1;
 		this.scanner.currentPosition = this.tagSourceEnd+1;
 
 		// Decide which parse to perform depending on tag name
 		this.tagValue = NO_TAG_VALUE;
+		char firstChar = this.source[this.tagSourceStart];
 		switch (token) {
 			case TerminalTokens.TokenNameIdentifier :
-				if (length == 0) break; // may happen for some parser (completion for example)
-				switch (tag[0]) {
+				switch (firstChar) {
 					case 'c':
-						if (CharOperation.equals(tag, TAG_CATEGORY)) {
+						if (length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
 							this.tagValue = TAG_CATEGORY_VALUE;
 							valid = parseIdentifierTag(false); // TODO (frederic) reconsider parameter value when @category will be significant in spec
 						}
 						break;
 					case 'd':
-						if (CharOperation.equals(tag, TAG_DEPRECATED)) {
+						if (length == TAG_DEPRECATED_LENGTH && CharOperation.equals(TAG_DEPRECATED, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
 							this.deprecated = true;
 							valid = true;
 							this.tagValue = TAG_DEPRECATED_VALUE;
 						}
 						break;
 					case 'e':
-						if (CharOperation.equals(tag, TAG_EXCEPTION)) {
+						if (length == TAG_EXCEPTION_LENGTH && CharOperation.equals(TAG_EXCEPTION, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
 							this.tagValue = TAG_EXCEPTION_VALUE;
 							valid = parseThrows();
 						}
 						break;
 					case 'i':
-						if (CharOperation.equals(tag, TAG_INHERITDOC)) {
+						if (length == TAG_INHERITDOC_LENGTH && CharOperation.equals(TAG_INHERITDOC, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
 							// inhibits inherited flag when tags have been already stored
 							// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51606
 							// Note that for DOM_PARSER, nodes stack may be not empty even no '@' tag
@@ -499,7 +498,7 @@ public class JavadocParser extends AbstractCommentParser {
 						}
 						break;
 					case 'l':
-						if (CharOperation.equals(tag, TAG_LINK)) {
+						if (length == TAG_LINK_LENGTH && CharOperation.equals(TAG_LINK, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
 							this.tagValue = TAG_LINK_VALUE;
 							if (this.inlineTagStarted || this.kind == COMPLETION_PARSER) {
 								valid= parseReference();
@@ -510,7 +509,7 @@ public class JavadocParser extends AbstractCommentParser {
 								if (this.sourceParser != null)
 									this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
 							}
-						} else if (CharOperation.equals(tag, TAG_LINKPLAIN)) {
+						} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
 							this.tagValue = TAG_LINKPLAIN_VALUE;
 							if (this.inlineTagStarted) {
 								valid = parseReference();
@@ -522,13 +521,13 @@ public class JavadocParser extends AbstractCommentParser {
 						}
 						break;
 					case 'p':
-						if (CharOperation.equals(tag, TAG_PARAM)) {
+						if (length == TAG_PARAM_LENGTH && CharOperation.equals(TAG_PARAM, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
 							this.tagValue = TAG_PARAM_VALUE;
 							valid = parseParam();
 						}
 						break;
 					case 's':
-						if (CharOperation.equals(tag, TAG_SEE)) {
+						if (length == TAG_SEE_LENGTH && this.source[this.tagSourceStart+1] == TAG_SEE[1] &&  this.source[this.tagSourceEnd] == TAG_SEE[2]) {
 							if (this.inlineTagStarted) {
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
 								// Cannot have @see inside inline comment
@@ -542,7 +541,7 @@ public class JavadocParser extends AbstractCommentParser {
 						}
 						break;
 					case 'v':
-						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && CharOperation.equals(tag, TAG_VALUE)) {
+						if (this.sourceLevel >= ClassFileConstants.JDK1_5 && length == TAG_VALUE_LENGTH && CharOperation.equals(TAG_VALUE, this.source, this.tagSourceStart, this.tagSourceEnd+1)) {
 							this.tagValue = TAG_VALUE_VALUE;
 							if (this.inlineTagStarted) {
 								valid = parseReference();

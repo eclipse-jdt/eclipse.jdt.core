@@ -40,6 +40,20 @@ public interface JavadocTagConstants {
 	public static final char[] TAG_VERSION = "version".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_CATEGORY = "category".toCharArray(); //$NON-NLS-1$
 
+	// tags lengthes
+	public static final int TAG_DEPRECATED_LENGTH = TAG_DEPRECATED.length;
+	public static final int TAG_PARAM_LENGTH = TAG_PARAM.length;;
+	public static final int TAG_RETURN_LENGTH = TAG_RETURN.length;;
+	public static final int TAG_THROWS_LENGTH = TAG_THROWS.length;;
+	public static final int TAG_EXCEPTION_LENGTH = TAG_EXCEPTION.length;;
+	public static final int TAG_SEE_LENGTH = TAG_SEE.length;;
+	public static final int TAG_LINK_LENGTH = TAG_LINK.length;;
+	public static final int TAG_LINKPLAIN_LENGTH = TAG_LINKPLAIN.length;;
+	public static final int TAG_INHERITDOC_LENGTH = TAG_INHERITDOC.length;;
+	public static final int TAG_VALUE_LENGTH = TAG_VALUE.length;;
+	public static final int TAG_CATEGORY_LENGTH = TAG_CATEGORY.length;;
+
+
 	// tags value
 	public static final int NO_TAG_VALUE = 0;
 	public static final int TAG_DEPRECATED_VALUE = 1;
