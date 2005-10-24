@@ -286,6 +286,8 @@ public void test007() {
 
 /**
  * @tests Tests to verify completion node flags
+ * @bug 113506: [javadoc][assist] No tag proposals when there is a prefix on a line
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113506"
  */
 public void test010() {
 	String source = "package javadoc;\n" +
