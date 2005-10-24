@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
-public class MethodInfo extends ClassFileStruct implements IBinaryMethod, AttributeNamesConstants, Comparable {
+public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Comparable {
 	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
 	private int accessFlags;
 	private int attributeBytes;
@@ -52,7 +52,7 @@ public MethodInfo (byte classFileBytes[], int offsets[], int offset) {
 					}
 					break;
 				case 'R' :
-					if (CharOperation.equals(attributeName, RuntimeVisibleAnnotationsName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
 						decodeStandardAnnotations(readOffset);
 					}
 			}
@@ -252,7 +252,7 @@ private void readExceptionAttributes() {
 	for (int i = 0; i < attributesCount; i++) {
 		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		if (CharOperation.equals(attributeName, ExceptionsName)) {
+		if (CharOperation.equals(attributeName, AttributeNamesConstants.ExceptionsName)) {
 			// read the number of exception entries
 			int entriesNumber = u2At(readOffset + 6);
 			// place the readOffset at the beginning of the exceptions table
@@ -288,15 +288,15 @@ private void readModifierRelatedAttributes() {
 		if (attributeName.length != 0) {
 			switch(attributeName[0]) {
 				case 'D' :
-					if (CharOperation.equals(attributeName, DeprecatedName))
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.DeprecatedName))
 						this.accessFlags |= AccDeprecated;
 					break;
 				case 'S' :
-					if (CharOperation.equals(attributeName, SyntheticName))
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName))
 						this.accessFlags |= AccSynthetic;
 					break;
 				case 'A' :
-					if (CharOperation.equals(attributeName, AnnotationDefaultName))
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.AnnotationDefaultName))
 						this.accessFlags |= AccAnnotationDefault;
 					break;
 			}

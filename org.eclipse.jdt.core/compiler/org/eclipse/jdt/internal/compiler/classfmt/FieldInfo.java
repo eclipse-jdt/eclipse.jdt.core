@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class FieldInfo extends ClassFileStruct implements AttributeNamesConstants, IBinaryField, Comparable, TypeIds {
+public class FieldInfo extends ClassFileStruct implements IBinaryField, Comparable, TypeIds {
 	private int accessFlags;
 	private int attributeBytes;
 	private Constant constant;
@@ -63,7 +63,7 @@ public FieldInfo (byte classFileBytes[], int offsets[], int offset) {
 					}
 					break;
 				case 'R' :
-					if (CharOperation.equals(attributeName, RuntimeVisibleAnnotationsName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
 						decodeStandardAnnotations(readOffset);
 					}
 			}
@@ -287,7 +287,7 @@ private void readConstantAttribute() {
 		int utf8Offset = constantPoolOffsets[u2At(readOffset)] - structOffset;
 		char[] attributeName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 		if (CharOperation
-			.equals(attributeName, ConstantValueName)) {
+			.equals(attributeName, AttributeNamesConstants.ConstantValueName)) {
 			isConstant = true;
 			// read the right constant
 			int relativeOffset = constantPoolOffsets[u2At(readOffset + 6)] - structOffset;
@@ -351,11 +351,11 @@ private void readModifierRelatedAttributes() {
 		if (attributeName.length != 0) {
 			switch(attributeName[0]) {
 				case 'D' :
-					if (CharOperation.equals(attributeName, DeprecatedName))
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.DeprecatedName))
 						this.accessFlags |= AccDeprecated;
 					break;
 				case 'S' :
-					if (CharOperation.equals(attributeName, SyntheticName))
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName))
 						this.accessFlags |= AccSynthetic;
 					break;
 			}

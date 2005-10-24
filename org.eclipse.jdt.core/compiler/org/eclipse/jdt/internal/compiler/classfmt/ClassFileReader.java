@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class ClassFileReader extends ClassFileStruct implements AttributeNamesConstants, IBinaryType {
+public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 public static ClassFileReader read(File file) throws ClassFormatException, IOException {
 	return read(file, false);
 }
@@ -236,12 +236,12 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 			}
 			switch(attributeName[0] ) {
 				case 'D' :
-					if (CharOperation.equals(attributeName, DeprecatedName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.DeprecatedName)) {
 						this.accessFlags |= AccDeprecated;
 					}
 					break;
 				case 'I' :
-					if (CharOperation.equals(attributeName, InnerClassName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.InnerClassName)) {
 						int innerOffset = readOffset + 6;
 						int number_of_classes = u2At(innerOffset);
 						if (number_of_classes != 0) {
@@ -263,18 +263,18 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 					if (attributeName.length > 2) {
 						switch(attributeName[1]) {
 							case 'o' :
-								if (CharOperation.equals(attributeName, SourceName)) {
+								if (CharOperation.equals(attributeName, AttributeNamesConstants.SourceName)) {
 									utf8Offset = this.constantPoolOffsets[u2At(readOffset + 6)];
 									this.sourceFileName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 								}
 								break;
 							case 'y' :
-								if (CharOperation.equals(attributeName, SyntheticName)) {
+								if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName)) {
 									this.accessFlags |= AccSynthetic;
 								}
 								break;
 							case 'i' :
-								if (CharOperation.equals(attributeName, SignatureName)) {
+								if (CharOperation.equals(attributeName, AttributeNamesConstants.SignatureName)) {
 									utf8Offset = this.constantPoolOffsets[u2At(readOffset + 6)];
 									this.signature = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));				
 								}
@@ -282,7 +282,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 					}
 					break;
 				case 'R' :
-					if (CharOperation.equals(attributeName, RuntimeVisibleAnnotationsName)) {
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeVisibleAnnotationsName)) {
 						decodeStandardAnnotations(readOffset);
 					}
 					break;

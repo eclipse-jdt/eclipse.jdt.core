@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
  *      such as DietClassFileReader
  */
 public class ClassFile
-	implements AttributeNamesConstants, TypeConstants, TypeIds {
+	implements TypeConstants, TypeIds {
 	public static final int INITIAL_CONTENTS_SIZE = 400;
 	public static final int INITIAL_HEADER_SIZE = 1500;
 	public static final int INNER_CLASSES_SIZE = 5;
