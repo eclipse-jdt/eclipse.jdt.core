@@ -224,15 +224,15 @@ public class CompletionJavadocParser extends JavadocParser {
 	/*
 	 * Get possible tags for a given prefix.
 	 */
-	private char[][][] possibleTags(char[] prefix, boolean lnStarted) {
+	private char[][][] possibleTags(char[] prefix, boolean newLine) {
 		char[][][] possibleTags = new char[2][][];
-		if (lnStarted) {
-			possibleTags[BLOCK_IDX] = new char[0][];
-		} else {
+		if (newLine) {
 			System.arraycopy(this.levelTags[BLOCK_IDX], 0, possibleTags[BLOCK_IDX] = new char[this.levelTagsLength[BLOCK_IDX]][], 0, this.levelTagsLength[BLOCK_IDX]);
+		} else {
+			possibleTags[BLOCK_IDX] = new char[0][];
 		}
 		System.arraycopy(this.levelTags[INLINE_IDX], 0, possibleTags[INLINE_IDX] = new char[this.levelTagsLength[INLINE_IDX]][], 0, this.levelTagsLength[INLINE_IDX]);
-		if (prefix == null) return possibleTags;
+		if (prefix == null || prefix.length == 0) return possibleTags;
 		if (possibleTags != null) {
 			int kinds = levelTags.length;
 			for (int k=0; k<kinds; k++) {
@@ -537,43 +537,26 @@ public class CompletionJavadocParser extends JavadocParser {
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseTag(int)
 	 */
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
-		char current = peekChar();
 		int startPosition = this.inlineTagStarted ? this.inlineTagStart : previousPosition;
-		switch (current) {
-			case '*' :
-			case '\u000c' :
-			case ' ' :
-			case '\t' :
-			case '\r' :
-			case '\n' :
-				int end = this.index - 1;
-				if (startPosition <= this.cursorLocation && this.cursorLocation <= end) {
-					// completion on empty '@' => all tags
-					long position = (((long)end)<<32) + end;
-					char[][][] tags = possibleTags(null, this.lineStarted);
-					if (tags != null) {
-						this.completionNode = new CompletionOnJavadocTag(null, position, startPosition, end, tags);
-					}
-				}
-				break;
-			default:
-				boolean ls = this.lineStarted;
-				readTokenSafely();
-				end = this.index - 1;
-				if (startPosition <= this.cursorLocation && this.cursorLocation <= end) {
-					if (this.inlineTagStarted && this.scanner.currentCharacter == '}') {
-						end = this.scanner.currentPosition;
-					}
-					long position = (((long)this.scanner.getCurrentTokenStartPosition())<<32) + end;
-					char[] prefix = this.scanner.getCurrentIdentifierSource();
-					char[][][] tags = possibleTags(prefix, ls);
-					if (tags != null) {
-						this.completionNode = new CompletionOnJavadocTag(prefix, position, startPosition, end, tags);
-					}
-				}
-				break;
+		boolean newLine = !this.lineStarted;
+		boolean valid = super.parseTag(previousPosition);
+		boolean inCompletion = (this.tagSourceStart <= (this.cursorLocation+1) && this.cursorLocation <= this.tagSourceEnd) // completion cursor is between first and last stacked identifiers
+			|| ((this.tagSourceStart == (this.tagSourceEnd+1) && this.tagSourceEnd == this.cursorLocation)); // or it's a completion on empty token
+		if (inCompletion) {
+			int end = this.tagSourceEnd;
+			if (this.inlineTagStarted && this.scanner.currentCharacter == '}') {
+				end = this.scanner.currentPosition;
+			}
+			long position = (((long)startPosition)<<32) + end;
+			int length = this.tagSourceEnd-this.tagSourceStart+1;
+			char[] tag = new char[length];
+			System.arraycopy(this.source, this.tagSourceStart, tag, 0, length);
+			char[][][] tags = possibleTags(tag, newLine);
+			if (tags != null) {
+				this.completionNode = new CompletionOnJavadocTag(tag, position, startPosition, end, tags);
+			}
 		}
-		return super.parseTag(previousPosition);
+		return valid;
 	}
 
 	/* (non-Javadoc)
