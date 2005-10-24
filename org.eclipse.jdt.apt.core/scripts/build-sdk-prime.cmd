@@ -44,6 +44,7 @@ if NOT EXIST "%2" (
 @set FULL_SDK_ZIP=%2
 
 @set APT_VERSION=3.1.1.apt02
+@set JDT_VERSION=3.1.1
 
 @set TEMPDIR=\temp\eclipse_sdk_mod
 
@@ -100,8 +101,8 @@ REM
 
 @echo Copying org.eclipse.jdt.apt.ui plugin jar and source zip...
 copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.ui_%APT_VERSION%\org.eclipse.jdt.apt.ui_%APT_VERSION%.jar %TEMPDIR%\eclipse\plugins\
-mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.apt.ui_%APT_VERSION%\
-copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.ui_%APT_VERSION%\src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.apt.ui_%APT_VERSION%\
+mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_%JDT_VERSION%\src\org.eclipse.jdt.apt.ui_%APT_VERSION%\
+copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.ui_%APT_VERSION%\src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_%JDT_VERSION%\src\org.eclipse.jdt.apt.ui_%APT_VERSION%\
 @echo ...Done
 
 REM
@@ -110,8 +111,8 @@ REM
 
 @echo Copying org.eclipse.jdt.core plugin jar and source zip...
 copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.core_%APT_VERSION%\org.eclipse.jdt.core_%APT_VERSION%.jar %TEMPDIR%\eclipse\plugins\
-mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.core_%APT_VERSION%\
-copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.core_%APT_VERSION%\src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.core_%APT_VERSION%\
+mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_%JDT_VERSION%\src\org.eclipse.jdt.core_%APT_VERSION%\
+copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.core_%APT_VERSION%\src.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_%JDT_VERSION%\src\org.eclipse.jdt.core_%APT_VERSION%\
 @echo ...Done
 
 REM
@@ -119,15 +120,15 @@ REM copy apt-core src.zip to SDK's directory
 REM
 
 @echo Copying aptcore_src.zip...
-mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.apt.core_%APT_VERSION%\
-copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.core_%APT_VERSION%\aptcoresrc.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_3.1.0\src\org.eclipse.jdt.apt.core_%APT_VERSION%\
+mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_%JDT_VERSION%\src\org.eclipse.jdt.apt.core_%APT_VERSION%\
+copy /Y %ROOT%\..\plugin-export\org.eclipse.jdt.apt.core_%APT_VERSION%\aptcoresrc.zip %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.source_%JDT_VERSION%\src\org.eclipse.jdt.apt.core_%APT_VERSION%\
 @echo ...done.
 
 REM
 REM explode the apt-core .zip file into the SDK directory
 REM
 
-@echo Exploding org.eclipse.jdt.apt.core_1.0.0.jar into SDK...
+@echo Exploding org.eclipse.jdt.apt.core_%APT_VERSION%.jar into SDK...
 mkdir %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.apt.core_%APT_VERSION%
 cd  %TEMPDIR%\eclipse\plugins\org.eclipse.jdt.apt.core_%APT_VERSION%
 jar xf %ROOT%\..\plugin-export\org.eclipse.jdt.apt.core_%APT_VERSION%\org.eclipse.jdt.apt.core_%APT_VERSION%.jar
