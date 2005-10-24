@@ -49,6 +49,10 @@ public class CompletionOnJavadocAllocationExpression extends JavadocAllocationEx
 		return (this.completionFlags & BASE_TYPES) != 0;
 	}
 
+	public boolean completeFormalReference() {
+		return (this.completionFlags & FORMAL_REFERENCE) != 0;
+	}
+
 	/**
 	 * Get completion node flags.
 	 * 
@@ -64,8 +68,11 @@ public class CompletionOnJavadocAllocationExpression extends JavadocAllocationEx
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<CompleteOnJavadocAllocationExpression:"); //$NON-NLS-1$
 		super.printExpression(indent, output);
+		indent++;
 		if (this.completionFlags > 0) {
-			output.append("\nflags:"); //$NON-NLS-1$
+			output.append('\n');
+			for (int i=0; i<indent; i++) output.append('\t');
+			output.append("infos:"); //$NON-NLS-1$
 			char separator = 0;
 			if (completeAnException()) {
 				output.append("exception"); //$NON-NLS-1$
@@ -81,8 +88,15 @@ public class CompletionOnJavadocAllocationExpression extends JavadocAllocationEx
 				output.append("base types"); //$NON-NLS-1$
 				separator = ',';
 			}
+			if (completeFormalReference()) {
+				if (separator != 0) output.append(separator);
+				output.append("formal reference"); //$NON-NLS-1$
+				separator = ',';
+			}
 			output.append('\n');
 		}
+		indent--;
+		for (int i=0; i<indent; i++) output.append('\t');
 		return output.append('>');
 	}
 }

@@ -59,6 +59,10 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 		return (this.completionFlags & BASE_TYPES) != 0;
 	}
 
+	public boolean completeFormalReference() {
+		return (this.completionFlags & FORMAL_REFERENCE) != 0;
+	}
+
 	/**
 	 * Get completion node flags.
 	 * 
@@ -89,13 +93,16 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.AllocationExpression#printExpression(int, java.lang.StringBuffer)
+	 * @see org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference#printExpression(int, java.lang.StringBuffer)
 	 */
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<CompleteOnJavadocFieldReference:"); //$NON-NLS-1$
-		if (this.token != null) super.printExpression(indent, output);
+		super.printExpression(indent, output);
+		indent++;
 		if (this.completionFlags > 0) {
-			output.append("\nflags:"); //$NON-NLS-1$
+			output.append('\n');
+			for (int i=0; i<indent; i++) output.append('\t');
+			output.append("infos:"); //$NON-NLS-1$
 			char separator = 0;
 			if (completeAnException()) {
 				output.append("exception"); //$NON-NLS-1$
@@ -111,8 +118,15 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 				output.append("base types"); //$NON-NLS-1$
 				separator = ',';
 			}
+			if (completeFormalReference()) {
+				if (separator != 0) output.append(separator);
+				output.append("formal reference"); //$NON-NLS-1$
+				separator = ',';
+			}
 			output.append('\n');
 		}
+		indent--;
+		for (int i=0; i<indent; i++) output.append('\t');
 		return output.append('>');
 	}
 }
