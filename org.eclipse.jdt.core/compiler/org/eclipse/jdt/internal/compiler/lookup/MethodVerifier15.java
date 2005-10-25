@@ -386,8 +386,15 @@ void checkTypeVariableMethods() {
 					}
 				}
 			}
-			if (index > 0)
-				checkInheritedMethods(matchingInherited, index + 1); // pass in the length of matching
+			if (index > 0) {
+				MethodBinding first = matchingInherited[0];
+				int count = index + 1;
+				while (--count > 0 && areReturnTypesEqual(first, matchingInherited[count])){/*empty*/}
+				if (count > 0) {  // All inherited methods do NOT have the same vmSignature
+					problemReporter().inheritedMethodsHaveIncompatibleReturnTypes(this.type, matchingInherited, index + 1);
+					continue nextSelector;
+				}
+			}
 		}
 	}
 }

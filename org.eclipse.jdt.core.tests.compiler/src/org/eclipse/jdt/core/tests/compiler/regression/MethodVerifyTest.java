@@ -1772,10 +1772,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80736
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=80736 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=113273
 	public void test032() {
 		// NOTE: javac only reports these errors when the problem type follows the bounds
 		// if the type X is defined first, then no errors are reported
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface I { Integer foo(); }\n" +
+				"interface J { Integer foo(); }\n" +
+				"public class X<T extends I&J> implements I {\n" +
+				"	public Integer foo() { return null; }\n" +
+				"}"
+			},
+			""
+		);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
