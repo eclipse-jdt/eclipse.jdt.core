@@ -16,10 +16,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.core.AptPlugin;
 
 public class RefreshingPrintWriter extends PrintWriter {
 
@@ -27,7 +24,7 @@ public class RefreshingPrintWriter extends PrintWriter {
 	private final IProject _project;
 	
 	public RefreshingPrintWriter(final IPath path, final IProject project) throws FileNotFoundException {
-		super(path.toFile());
+		super(project.getLocation().append(path).toFile());
 		_path = path;
 		_project = project;
 	}
@@ -35,18 +32,13 @@ public class RefreshingPrintWriter extends PrintWriter {
 	public RefreshingPrintWriter(final IPath path, final IProject project, String charsetName) 
 		throws FileNotFoundException, UnsupportedEncodingException 
 	{
-		super(path.toFile(), charsetName);
+		super(project.getLocation().append(path).toFile(), charsetName);
 		_path = path;
 		_project = project;
 	}
 	
 	public void close() {
 		super.close();
-		try {
-			_project.getFile(_path).refreshLocal(IResource.DEPTH_ZERO, null);
-		}
-		catch (CoreException ce) {
-			AptPlugin.log(ce, "Could not close print writer for ifile: " + _path); //$NON-NLS-1$
-		}
+		new FileRefreshJob(_project.getFile(_path)).schedule();
 	}
 }

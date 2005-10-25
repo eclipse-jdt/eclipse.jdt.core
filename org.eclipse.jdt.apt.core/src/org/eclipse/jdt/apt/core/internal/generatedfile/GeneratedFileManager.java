@@ -820,7 +820,7 @@ public class GeneratedFileManager {
 	 * location for the project. 
 	 *
 	 * @return the IPath corresponding to the binary output location for the
-	 * generated source folder.  
+	 * generated source folder. This is relative to the project.
 	 * 
 	 * @throws JavaModelException
 	 * 
@@ -847,11 +847,6 @@ public class GeneratedFileManager {
 		// output location is relative to the workspace, we want to make it relative to project
 		int segments = outputRootPath.matchingFirstSegments( _javaProject.getPath() );
 		outputRootPath = outputRootPath.removeFirstSegments( segments );
-		
-		// Now get the absolute path by prepending the project's path
-		IProject project = _javaProject.getProject();
-		IPath projectRoot = project.getLocation();
-		outputRootPath = projectRoot.append(outputRootPath);
 		
 		return outputRootPath;
 	}

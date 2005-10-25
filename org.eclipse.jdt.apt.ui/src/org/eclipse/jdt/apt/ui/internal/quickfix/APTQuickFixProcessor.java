@@ -164,7 +164,7 @@ public class APTQuickFixProcessor implements IQuickFixProcessor {
         public List<V> get(K key)
         {
             List<V> list = fData.get(key);
-            return list != null ? list : Collections.EMPTY_LIST;
+            return list != null ? list : Collections.<V>emptyList();
         } 
         
         public Set<K> keySet()

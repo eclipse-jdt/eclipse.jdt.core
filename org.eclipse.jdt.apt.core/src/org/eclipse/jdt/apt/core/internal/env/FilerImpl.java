@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
+import org.eclipse.jdt.core.JavaModelException;
 
 import com.sun.mirror.apt.Filer;
 
@@ -137,6 +138,9 @@ public class FilerImpl implements Filer {
     	return new RefreshingFileOutputStream( path, _env.getProject() );
     }
 	
+    /**
+     * Return a project-relative path
+     */
     private IPath getOutputFileForLocation( Filer.Location loc, String pkg, File relPath )
     	throws IOException
     {
@@ -148,22 +152,24 @@ public class FilerImpl implements Filer {
     		{
     			path = gfm.getGeneratedSourceFolderOutputLocation();
     		}
-    		catch ( Exception e )
+    		catch ( JavaModelException e )
     		{
-    			// TODO - stop throwing this exception
     			AptPlugin.log(e, "Failure getting the output file"); //$NON-NLS-1$
     			throw new IOException();
     		}
     	}
-    	else if ( loc == Filer.Location.SOURCE_TREE )
-    		path = gfm.getGeneratedSourceFolder().getRawLocation();
+    	else if ( loc == Filer.Location.SOURCE_TREE ) {
+    		path = gfm.getGeneratedSourceFolder().getProjectRelativePath();
+    	}
     	
         if( pkg != null )
             path = path.append(pkg.replace('.', File.separatorChar) );
 
         path = path.append(relPath.getPath() );
     	
-        File parentFile = path.toFile().getParentFile();
+        // Create the parent folder (need an absolute path temporarily)
+        IPath absolutePath = _env.getProject().getLocation().append(path);
+        File parentFile = absolutePath.toFile().getParentFile();
         FileSystemUtil.mkdirs( parentFile );
         
     	return path;
