@@ -153,7 +153,7 @@ public static Test suite() {
 		return new Suite(SortCompilationUnitElementsTests.class);
 	}
 	TestSuite suite = new Suite(SortCompilationUnitElementsTests.class.getName());
-	suite.addTest(new SortCompilationUnitElementsTests("test027")); //$NON-NLS-1$
+	suite.addTest(new SortCompilationUnitElementsTests("test031")); //$NON-NLS-1$
 	return suite;
 }
 public void tearDownSuite() throws Exception {
@@ -906,6 +906,9 @@ public void test012() throws CoreException {
 		String expectedSource = "package p;\n" + //$NON-NLS-1$
 			"public class X {\n" + //$NON-NLS-1$
 			"	\n" + //$NON-NLS-1$
+			"	Object bar3() {\n" + //$NON-NLS-1$
+			"		return null;\n" + //$NON-NLS-1$
+			"	}\n" + //$NON-NLS-1$
 			"	bar() {\n" + //$NON-NLS-1$
 			"		System.out.println();\n" + //$NON-NLS-1$
 			"		Object o = new Object() {    };\n" + //$NON-NLS-1$
@@ -916,9 +919,6 @@ public void test012() throws CoreException {
 			"			void bar6() {}\n" + //$NON-NLS-1$
 			"		}\n" + //$NON-NLS-1$
 			"		return new C();\n" + //$NON-NLS-1$
-			"	}\n" + //$NON-NLS-1$
-			"	Object bar3() {\n" + //$NON-NLS-1$
-			"		return null;\n" + //$NON-NLS-1$
 			"	}\n" + //$NON-NLS-1$
 			"}"; //$NON-NLS-1$
 		sortUnit(this.getCompilationUnit("/P/src/p/X.java"), expectedSource); //$NON-NLS-1$
@@ -1902,6 +1902,88 @@ public void test029() throws CoreException {
 				return sourceStart1 - sourceStart2;
 			}
 		});
+	} finally {
+		this.deleteFile("/P/src/X.java");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113722
+public void test030() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/I.java",
+			"public interface I<T> {\n" +
+			"	public I<T> foo(A<T> A);\n" +
+			"	public <S> I<S> foo2(C<T,S> c);\n" +
+			"	public <S> I<S> foo3(C<T,I<S>> c);\n" +
+			"	public <K> J<T> bar(C<T,K> c);\n" +
+			"	public <K> J<T> bar2(C<T,K> c);\n" +
+			"	public <K> I<K<K,T> bar3(C<T,K> c);\n" +
+			"	public <K,E> I<K<K,E> bar3(C<T,K> c, C<T,E> c2);\n" +
+			"}"
+		);
+		String expectedResult = 
+			"public interface I<T> {\n" +
+			"	public I<T> foo(A<T> A);\n" +
+			"	public <S> I<S> foo2(C<T,S> c);\n" +
+			"	public <S> I<S> foo3(C<T,I<S>> c);\n" +
+			"	public <K> J<T> bar(C<T,K> c);\n" +
+			"	public <K> J<T> bar2(C<T,K> c);\n" +
+			"	public <K> I<K<K,T> bar3(C<T,K> c);\n" +
+			"	public <K,E> I<K<K,E> bar3(C<T,K> c, C<T,E> c2);\n" +
+			"}";
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/I.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/I.java");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113722
+public void test031() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/I.java",
+			"public interface I<T> {\n" +
+			"	public I<T> foo(A<T> A);\n" +
+			"	public <S> I<S> foo2(C<T,S> c);\n" +
+			"	public <S> I<S> foo3(C<T,I<S>> c);\n" +
+			"	public <K> J<T> bar(C<T,K> c);\n" +
+			"	public <K> J<T> bar2(C<T,K> c);\n" +
+			"	public <K> I<K<K,T>> bar3(C<T,K> c);\n" +
+			"	public <K,E> I<K<K,E>> bar3(C<T,K> c, C<T,E> c2);\n" +
+			"}"
+		);
+		String expectedResult = 
+			"public interface I<T> {\n" +
+			"	public <K> J<T> bar2(C<T,K> c);\n" +
+			"	public <K> I<K<K,T>> bar3(C<T,K> c);\n" +
+			"	public <K,E> I<K<K,E>> bar3(C<T,K> c, C<T,E> c2);\n" +
+			"	public <K> J<T> bar(C<T,K> c);\n" +
+			"	public <S> I<S> foo2(C<T,S> c);\n" +
+			"	public <S> I<S> foo3(C<T,I<S>> c);\n" +
+			"	public I<T> foo(A<T> A);\n" +
+			"}";
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/I.java"), expectedResult);
+	} finally {
+		this.deleteFile("/P/src/I.java");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113722
+public void test032() throws CoreException {
+	try {
+		this.createFile(
+			"/P/src/X.java",
+			"import java.util.*;\n" +
+			"public interface X<T> {\n" +
+			"	<K> List<Map<K,T> foo(Map<T,K> m);\n" +
+			"	<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);\n" +
+			"}"
+		);
+		String expectedResult = 
+			"import java.util.*;\n" +
+			"public interface X<T> {\n" +
+			"	<K> List<Map<K,T> foo(Map<T,K> m);\n" +
+			"	<K,E> List<Map<K,E> bar(Map<T,K> m, Map<T,E> e);\n" +
+			"}";
+		sortUnit(AST.JLS3, this.getCompilationUnit("/P/src/X.java"), expectedResult);
 	} finally {
 		this.deleteFile("/P/src/X.java");
 	}
