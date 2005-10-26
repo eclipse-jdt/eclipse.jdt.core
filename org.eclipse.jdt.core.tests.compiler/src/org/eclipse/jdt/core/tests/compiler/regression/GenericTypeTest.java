@@ -26564,4 +26564,33 @@ public void test858() {
 		},
 		"");	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=113710
+public void test859() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.awt.Graphics2D;\n" +
+			"import java.awt.Shape;\n" +
+			"public class X<V extends DrawObject> {\n" +
+			"   /** Base object for wrapping */\n" +
+			"   protected V draw;\n" +
+			"   /**\n" +
+			"    * Draw the object with its attached text\n" +
+			"    * \n" +
+			"    * @param graphics the graphics object to draw into\n" +
+			"    */\n" +
+			"   public void draw( Graphics2D graphics ) {\n" +
+			"      draw.draw(graphics);\n" +
+			"   }\n" +
+			"}\n" +
+			"abstract class DrawObject implements Drawable {\n" +
+			"   protected void draw( Graphics2D graphics, Shape shape ) {\n" +
+			"   }\n" +
+			"}\n" +
+			"interface Drawable {\n" +
+			"   void draw( Graphics2D graphics );\n" +
+			"}",
+		},
+		"");	
+}
 }
