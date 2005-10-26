@@ -340,7 +340,7 @@ public class AbstractJavaSearchTests extends AbstractJavaModelTests implements I
 	protected JavaSearchResultCollector resultCollector;
 
 	public AbstractJavaSearchTests(String name) {
-		this(name, 3);
+		this(name, 2);
 	}
 	public AbstractJavaSearchTests(String name, int tabs) {
 		super(name, tabs);

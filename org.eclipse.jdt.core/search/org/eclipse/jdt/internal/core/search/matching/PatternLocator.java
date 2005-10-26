@@ -677,15 +677,15 @@ protected int resolveLevelForType(char[] simpleNamePattern, char[] qualification
 		sourceName =  getQualifiedSourceName(binding);
 	}
 	if (sourceName == null) return IMPOSSIBLE_MATCH;
+	if ((this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0) {
+		if (CharOperation.prefixEquals(qualifiedPattern, sourceName, this.isCaseSensitive)) {
+			return ACCURATE_MATCH;
+		}
+	}
 	if (this.isCamelCase) {
 		if (!this.isCaseSensitive || (qualifiedPattern.length>0 && sourceName.length>0 && qualifiedPattern[0] == sourceName[0])) {
 			if (CharOperation.camelCaseMatch(qualifiedPattern, sourceName)) {
 				return ACCURATE_MATCH;
-			}
-			if (!this.isCaseSensitive && (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0) {
-				if (CharOperation.prefixEquals(qualifiedPattern, sourceName, this.isCaseSensitive)) {
-					return ACCURATE_MATCH;
-				}
 			}
 		}
 	}
@@ -714,18 +714,6 @@ protected int resolveLevelForType(char[] qualifiedPattern, TypeBinding type) {
 	char[] fullyQualifiedTypeName = qualifiedPackageName.length == 0
 		? qualifiedSourceName
 		: CharOperation.concat(qualifiedPackageName, qualifiedSourceName, '.');
-	if (this.isCamelCase) {
-		if (!this.isCaseSensitive || (qualifiedPattern.length>0 && fullyQualifiedTypeName.length>0 && qualifiedPattern[0] == fullyQualifiedTypeName[0])) {
-			if (CharOperation.camelCaseMatch(qualifiedPattern, fullyQualifiedTypeName)) {
-				return ACCURATE_MATCH;
-			}
-			if (!this.isCaseSensitive && (this.matchMode & SearchPattern.R_PREFIX_MATCH) != 0) {
-				if (CharOperation.prefixEquals(qualifiedPattern, fullyQualifiedTypeName, this.isCaseSensitive)) {
-					return ACCURATE_MATCH;
-				}
-			}
-		}
-	}
 	return CharOperation.match(qualifiedPattern, fullyQualifiedTypeName, this.isCaseSensitive)
 		? ACCURATE_MATCH
 		: IMPOSSIBLE_MATCH;

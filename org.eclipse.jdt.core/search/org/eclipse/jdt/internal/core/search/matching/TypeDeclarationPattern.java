@@ -303,7 +303,8 @@ EntryResult[] queryIn(Index index) throws IOException {
 						case ANNOTATION_TYPE_SUFFIX :
 						case CLASS_AND_INTERFACE_SUFFIX :
 						case CLASS_AND_ENUM_SUFFIX :
-							key = new char[] {ONE_STAR[0],  SEPARATOR, ONE_STAR[0]};
+							// null key already returns all types
+							// key = new char[] {ONE_STAR[0],  SEPARATOR, ONE_STAR[0]};
 							break;
 					}
 				} else if (this.simpleName[this.simpleName.length - 1] != '*') {

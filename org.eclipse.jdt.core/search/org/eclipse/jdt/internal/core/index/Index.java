@@ -47,6 +47,8 @@ static final int MATCH_RULE_INDEX_MASK =
 
 public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	if (pattern == null) return true;
+	if (pattern.length == 0) return matchRule != SearchPattern.R_EXACT_MATCH;
+	if (word.length == 0) return (matchRule & SearchPattern.R_PATTERN_MATCH) != 0 && pattern.length == 1 && pattern[0] == '*';
 
 	// First test camel case if necessary
 	boolean isCamelCase = (matchRule & SearchPattern.R_CAMELCASE_MATCH) != 0;
