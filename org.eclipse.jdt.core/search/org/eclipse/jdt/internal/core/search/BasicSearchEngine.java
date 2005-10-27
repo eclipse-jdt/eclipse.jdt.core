@@ -235,7 +235,7 @@ public class BasicSearchEngine {
 		StringBuffer buffer = new StringBuffer();
 		for (int i=1; i<=8; i++) {
 			int bit = matchRule & (1<<(i-1));
-			if (buffer.length()>0) buffer.append(" | "); //$NON-NLS-1$
+			if (bit != 0 && buffer.length()>0) buffer.append(" | "); //$NON-NLS-1$
 			switch (bit) {
 				case SearchPattern.R_PREFIX_MATCH:
 					buffer.append("R_PREFIX_MATCH"); //$NON-NLS-1$
