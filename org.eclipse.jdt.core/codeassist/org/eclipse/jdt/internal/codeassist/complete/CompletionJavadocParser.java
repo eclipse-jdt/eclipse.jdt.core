@@ -548,7 +548,7 @@ public class CompletionJavadocParser extends JavadocParser {
 				end = this.scanner.currentPosition;
 			}
 			long position = (((long)startPosition)<<32) + end;
-			int length = this.tagSourceEnd-this.tagSourceStart+1;
+			int length = this.cursorLocation+1-tagSourceStart;
 			char[] tag = new char[length];
 			System.arraycopy(this.source, this.tagSourceStart, tag, 0, length);
 			char[][][] tags = possibleTags(tag, newLine);

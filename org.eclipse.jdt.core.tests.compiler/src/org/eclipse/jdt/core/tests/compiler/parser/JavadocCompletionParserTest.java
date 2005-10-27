@@ -49,7 +49,7 @@ public JavadocCompletionParserTest(String testName) {
 static {
 	// org.eclipse.jdt.internal.codeassist.CompletionEngine.DEBUG = true;
 //	TESTS_NUMBERS = new int[] { 8 };
-//	TESTS_RANGE = new int[] { 10, -1 };
+//	TESTS_RANGE = new int[] { 20, -1 };
 }
 
 public static Test suite() {
@@ -369,5 +369,75 @@ public void test015() {
 		"	infos:text,formal reference\n" + 
 		">"
 	);
+}
+
+/**
+ * @test Bug 113469: CompletionOnJavadocTag token is not correct
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113649"
+ *
+ */
+public void test020() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * @see\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "@s");
+	verifyCompletionOnJavadocTag("s".toCharArray(), new char[][] { TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD }, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	assertEquals("Invalid tag start position", 24, completionTag.tagSourceStart);
+	assertEquals("Invalid tag end position", 28, completionTag.tagSourceEnd+1);
+}
+
+public void test021() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * @see\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "@se");
+	verifyCompletionOnJavadocTag("se".toCharArray(), new char[][] { TAG_SEE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD }, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	assertEquals("Invalid tag start position", 24, completionTag.tagSourceStart);
+	assertEquals("Invalid tag end position", 28, completionTag.tagSourceEnd+1);
+}
+
+public void test022() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * @see\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "@see");
+	verifyCompletionOnJavadocTag("see".toCharArray(), new char[][] { TAG_SEE }, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	assertEquals("Invalid tag start position", 24, completionTag.tagSourceStart);
+	assertEquals("Invalid tag end position", 28, completionTag.tagSourceEnd+1);
+}
+
+public void test023() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * @ebj-tag\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "ebj");
+	verifyCompletionOnJavadocTag("ebj".toCharArray(), null, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	assertEquals("Invalid tag start position", 24, completionTag.tagSourceStart);
+	assertEquals("Invalid tag end position", 32, completionTag.tagSourceEnd+1);
+}
+
+public void test024() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * @ebj-tag\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "tag");
+	verifyCompletionOnJavadocTag("ebj-tag".toCharArray(), null, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	assertEquals("Invalid tag start position", 24, completionTag.tagSourceStart);
+	assertEquals("Invalid tag end position", 32, completionTag.tagSourceEnd+1);
 }
 }

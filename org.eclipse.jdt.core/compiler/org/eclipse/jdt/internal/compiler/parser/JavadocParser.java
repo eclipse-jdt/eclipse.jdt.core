@@ -434,17 +434,22 @@ public class JavadocParser extends AbstractCommentParser {
 				case '\'':
 				case '"':
 				case ':':
-				// case '-': allowed in tag names as this character is often used in doclets (bug 68087)
 				case '<':
 				case '>':
 					readChar();
 					this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
 					validTag = false;
 					break;
+				case '-': // allowed in tag names as this character is often used in doclets (bug 68087)
+					readChar();
+					this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+					this.scanner.currentPosition = this.index;
+					break;
 				default:
 					if (pc == ' ' || Character.isWhitespace(pc)) break tagNameToken;
-					this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
 					token = readTokenAndConsume();
+					this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
+					break;
 			}
 			pc = peekChar();
 		}
