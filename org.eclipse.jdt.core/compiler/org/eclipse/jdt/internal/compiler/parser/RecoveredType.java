@@ -41,6 +41,9 @@ public class RecoveredType extends RecoveredStatement implements TerminalTokens 
 	
 	public boolean insideEnumConstantPart = false;
 	
+	public TypeParameter[] pendingTypeParameters;
+	public int pendingTypeParametersStart;
+	
 public RecoveredType(TypeDeclaration typeDeclaration, RecoveredElement parent, int bracketBalance){
 	super(typeDeclaration, parent, bracketBalance);
 	this.typeDeclaration = typeDeclaration;
@@ -61,6 +64,7 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 		it must be belonging to an enclosing type */
 	if (typeDeclaration.declarationSourceEnd != 0 
 		&& methodDeclaration.declarationSourceStart > typeDeclaration.declarationSourceEnd){
+		this.pendingTypeParameters = null;
 		return this.parent.add(methodDeclaration, bracketBalanceValue);
 	}
 
@@ -80,6 +84,11 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 	RecoveredMethod element = new RecoveredMethod(methodDeclaration, this, bracketBalanceValue, this.recoveringParser);
 	methods[methodCount++] = element;
 	
+	if(this.pendingTypeParameters != null) {
+		element.attach(this.pendingTypeParameters, this.pendingTypeParametersStart);
+		this.pendingTypeParameters = null;
+	}
+	
 	this.insideEnumConstantPart = false;
 
 	/* consider that if the opening brace was not found, it is there */
@@ -92,6 +101,8 @@ public RecoveredElement add(AbstractMethodDeclaration methodDeclaration, int bra
 	return this;
 }
 public RecoveredElement add(Block nestedBlockDeclaration,int bracketBalanceValue) {
+	this.pendingTypeParameters = null;
+	
 	int modifiers = ClassFileConstants.AccDefault;
 	if(this.parser().recoveredStaticInitializerStart != 0) {
 		modifiers = ClassFileConstants.AccStatic;
@@ -99,6 +110,7 @@ public RecoveredElement add(Block nestedBlockDeclaration,int bracketBalanceValue
 	return this.add(new Initializer(nestedBlockDeclaration, modifiers), bracketBalanceValue);
 }
 public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanceValue) {
+	this.pendingTypeParameters = null;
 	
 	/* do not consider a field starting passed the type end (if set)
 	it must be belonging to an enclosing type */
@@ -144,7 +156,8 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	return this;
 }
 public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBalanceValue) {
-
+	this.pendingTypeParameters = null;
+	
 	/* do not consider a type starting passed the type end (if set)
 		it must be belonging to an enclosing type */
 	if (typeDeclaration.declarationSourceEnd != 0 
@@ -192,6 +205,10 @@ public RecoveredElement add(TypeDeclaration memberTypeDeclaration, int bracketBa
 	/* if member type not finished, then member type becomes current */
 	if (memberTypeDeclaration.declarationSourceEnd == 0) return element;
 	return this;
+}
+public void add(TypeParameter[] parameters, int startPos) {
+	this.pendingTypeParameters = parameters;
+	this.pendingTypeParametersStart = startPos;
 }
 /*
  * Answer the body end of the corresponding parse node

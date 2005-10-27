@@ -20,9 +20,11 @@ import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypes;
@@ -483,6 +485,26 @@ public void updateSourceEndIfNecessary(int braceStart, int braceEnd){
 			this.methodDeclaration.declarationSourceEnd = braceEnd;
 			this.methodDeclaration.bodyEnd  = braceStart - 1;
 		}
+	}
+}
+void attach(TypeParameter[] parameters, int startPos) {
+	if(methodDeclaration.modifiers != ClassFileConstants.AccDefault) return;
+	
+	int lastParameterEnd = parameters[parameters.length - 1].sourceEnd;
+	
+	Parser parser = this.parser();
+	if(parser.scanner.getLineNumber(methodDeclaration.declarationSourceStart)
+			!= parser.scanner.getLineNumber(lastParameterEnd)) return;
+	
+	if(parser.modifiersSourceStart > lastParameterEnd
+			&& parser.modifiersSourceStart < methodDeclaration.declarationSourceStart) return;
+	
+	if (this.methodDeclaration instanceof MethodDeclaration) {
+		((MethodDeclaration)this.methodDeclaration).typeParameters = parameters;
+		this.methodDeclaration.declarationSourceStart = startPos;
+	} else if (this.methodDeclaration instanceof ConstructorDeclaration){
+		((ConstructorDeclaration)this.methodDeclaration).typeParameters = parameters;
+		this.methodDeclaration.declarationSourceStart = startPos;
 	}
 }
 }

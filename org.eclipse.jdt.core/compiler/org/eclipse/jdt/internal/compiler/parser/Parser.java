@@ -1912,6 +1912,9 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 	this.listTypeParameterLength = 0;
 	
 	if (this.currentElement != null) { // is recovering
+		RecoveredType recoveredType = (RecoveredType) this.currentElement;
+		recoveredType.pendingTypeParameters = null;
+		
 		this.lastCheckPoint = typeDecl.bodyStart;
 	}
 }
@@ -3962,10 +3965,14 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 	
 	// recovery
 	if (this.currentElement != null){
-		if (this.currentElement instanceof RecoveredType 
+		boolean isType;
+		if ((isType = this.currentElement instanceof RecoveredType) 
 			//|| md.modifiers != 0
 			|| (this.scanner.getLineNumber(md.returnType.sourceStart)
 					== this.scanner.getLineNumber(md.sourceStart))){
+			if(isType) {
+				((RecoveredType) this.currentElement).pendingTypeParameters = null;
+			}
 			this.lastCheckPoint = md.bodyStart;
 			this.currentElement = this.currentElement.add(md, 0);
 			this.lastIgnoredToken = -1;
@@ -7137,7 +7144,20 @@ protected void consumeTypeParameterList1() {
 	concatGenericsLists();
 }
 protected void consumeTypeParameters() {
-	intPtr--;
+	int startPos = this.intStack[this.intPtr--];
+	
+	if(this.currentElement != null) {
+		if(this.currentElement instanceof RecoveredType) {
+			RecoveredType recoveredType =(RecoveredType) this.currentElement;
+			int length = this.genericsLengthStack[this.genericsLengthPtr];
+			TypeParameter[] typeParameters = new TypeParameter[length];
+			System.arraycopy(this.genericsStack, genericsPtr - length + 1, typeParameters, 0, length);
+			
+			recoveredType.add(typeParameters, startPos);
+		}
+	}
+	
+	
 	if(options.sourceLevel < ClassFileConstants.JDK1_5&&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
 		int length = this.genericsLengthStack[this.genericsLengthPtr];
