@@ -117,13 +117,14 @@ public class AptCompilationParticipant implements ICompilationParticipant
 			return EMPTY_PRE_BUILD_COMPILATION_RESULT;
 		}
 
-	
-		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = _factoryLoader.getFactoriesAndAttributesForProject( javaProject );	
-	
+		// If we're in batch mode, we need to reset the classloaders
+		// for the batch processors before we begin
 		boolean isFullBuild = pbce.isFullBuild();
 		if (isFullBuild) {
 			AnnotationProcessorFactoryLoader.getLoader().resetBatchProcessors(pbce.getJavaProject());
 		}
+		
+		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = _factoryLoader.getFactoriesAndAttributesForProject( javaProject );	
 		
 		APTResult result = APTDispatch.runAPTDuringBuild(factories, buildFiles, javaProject, isFullBuild);
 		Set<IFile> newFiles = result.getNewFiles();			
