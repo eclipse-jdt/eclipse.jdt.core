@@ -126,22 +126,27 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
 			for (int i=0, length= this.deltas.length; i<length; i++) {
-				IJavaElementDelta[] projects = this.deltas[i].getAffectedChildren();
-				sortDeltas(projects);
-				for (int j=0, projectsLength=projects.length; j<projectsLength; j++) {
-					buffer.append(projects[j]);
-					if (j != projectsLength-1) {
-						buffer.append("\n");
+				IJavaElementDelta delta = this.deltas[i];
+				IJavaElementDelta[] children = delta.getAffectedChildren();
+				int childrenLength=children.length;
+				IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
+				int resourceDeltasLength = resourceDeltas == null ? 0 : resourceDeltas.length;
+				if (childrenLength == 0 && resourceDeltasLength == 0) {
+					buffer.append(delta);
+				} else {
+					sortDeltas(children);
+					for (int j=0; j<childrenLength; j++) {
+						buffer.append(children[j]);
+						if (j != childrenLength-1) {
+							buffer.append("\n");
+						}
 					}
-				}
-				IResourceDelta[] nonJavaProjects = this.deltas[i].getResourceDeltas();
-				if (nonJavaProjects != null) {
-					for (int j=0, nonJavaProjectsLength=nonJavaProjects.length; j<nonJavaProjectsLength; j++) {
+					for (int j=0; j<resourceDeltasLength; j++) {
 						if (j == 0 && buffer.length() != 0) {
 							buffer.append("\n");
 						}
-						buffer.append(nonJavaProjects[j]);
-						if (j != nonJavaProjectsLength-1) {
+						buffer.append(resourceDeltas[j]);
+						if (j != resourceDeltasLength-1) {
 							buffer.append("\n");
 						}
 					}

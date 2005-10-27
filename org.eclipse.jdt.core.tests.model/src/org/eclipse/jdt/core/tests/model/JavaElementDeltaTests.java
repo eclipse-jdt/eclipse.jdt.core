@@ -35,7 +35,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * These test ensure that modifications in Java projects are correctly reported as
@@ -87,111 +86,17 @@ public class JavaElementDeltaTests extends ModifyingResourceTests {
 	}
 
 
-
 public static Test suite() {
-	TestSuite suite = new Suite(JavaElementDeltaTests.class.getName());
-	
-	// add/remove/open/close projects
-	suite.addTest(new JavaElementDeltaTests("testAddJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveAddJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveAddBinaryProject"));
-	suite.addTest(new JavaElementDeltaTests("testAddJavaNature"));
-	suite.addTest(new JavaElementDeltaTests("testAddJavaNatureAndClasspath"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveJavaNature"));
-	suite.addTest(new JavaElementDeltaTests("testOpenJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testCloseJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testAddTwoJavaProjects"));
-	suite.addTest(new JavaElementDeltaTests("testAddTwoJavaProjectsWithExtraSetClasspath"));
-	suite.addTest(new JavaElementDeltaTests("testDeleteProjectSetCPAnotherProject"));
+	return buildTestSuite(JavaElementDeltaTests.class);
+}
 
-	suite.addTest(new JavaElementDeltaTests("testRenameJavaProject"));
-
-	// non-java projects
-	suite.addTest(new JavaElementDeltaTests("testAddNonJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveNonJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveNonJavaProjectUpdateDependent1"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveNonJavaProjectUpdateDependent2"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveNonJavaProjectUpdateDependent3"));
-	suite.addTest(new JavaElementDeltaTests("testOpenNonJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testCloseNonJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testCloseNonJavaProjectUpdateDependent"));
-	suite.addTest(new JavaElementDeltaTests("testRenameNonJavaProject"));
-	
-	// package fragment roots
-	suite.addTest(new JavaElementDeltaTests("testDeleteInnerJar"));
-	suite.addTest(new JavaElementDeltaTests("testNestedRootParentMove"));
-	suite.addTest(new JavaElementDeltaTests("testPackageFragmentRootRemoveAndAdd"));
-	
-	// packages
-	suite.addTest(new JavaElementDeltaTests("testAddPackageSourceIsBin"));
-	suite.addTest(new JavaElementDeltaTests("testRenameOuterPkgFragment"));
-	suite.addTest(new JavaElementDeltaTests("testPackageFragmentAddAndRemove"));
-	suite.addTest(new JavaElementDeltaTests("testPackageFragmentMove"));
-	suite.addTest(new JavaElementDeltaTests("testCopyAndOverwritePackage"));
-	
-	// compilation units
-	suite.addTest(new JavaElementDeltaTests("testAddCuInDefaultPkg1"));
-	suite.addTest(new JavaElementDeltaTests("testAddCuInDefaultPkg2"));
-	suite.addTest(new JavaElementDeltaTests("testMoveCuInEnclosingPkg"));
-	suite.addTest(new JavaElementDeltaTests("testCompilationUnitRemoveAndAdd"));
-	suite.addTest(new JavaElementDeltaTests("testAddCuAfterProjectOpen"));
-	
-	// commit/save working copies
-	suite.addTest(new JavaElementDeltaTests("testModifyMethodBodyAndSave"));
-	suite.addTest(new JavaElementDeltaTests("testRenameMethodAndSave"));
-	suite.addTest(new JavaElementDeltaTests("testSaveWorkingCopy"));
-	suite.addTest(new JavaElementDeltaTests("testWorkingCopyCommit"));
-//	suite.addTest(new JavaElementDeltaTests("testAddCommentAndCommit"));
-	
-	// managed working copies
-	suite.addTest(new JavaElementDeltaTests("testCreateWorkingCopy"));
-	suite.addTest(new JavaElementDeltaTests("testDestroyWorkingCopy"));
-	suite.addTest(new JavaElementDeltaTests("testCreateSharedWorkingCopy"));
-	suite.addTest(new JavaElementDeltaTests("testDestroySharedWorkingCopy"));
-	
-	// non-java resources
-	suite.addTest(new JavaElementDeltaTests("testMoveResInDotNamedFolder"));
-	suite.addTest(new JavaElementDeltaTests("testMoveTwoResInRoot"));
-	suite.addTest(new JavaElementDeltaTests("testMergeResourceDeltas"));
-	suite.addTest(new JavaElementDeltaTests("testAddFileToNonJavaProject"));
-	suite.addTest(new JavaElementDeltaTests("testDeleteNonJavaFolder"));
-	suite.addTest(new JavaElementDeltaTests("testAddInvalidSubfolder"));
-	suite.addTest(new JavaElementDeltaTests("testCUNotOnClasspath"));
-	suite.addTest(new JavaElementDeltaTests("testNonJavaResourceRemoveAndAdd"));
-	
-	// listeners
-//	suite.addTest(new JavaElementDeltaTests("testListenerAutoBuild"));
-	suite.addTest(new JavaElementDeltaTests("testListenerReconcile"));
-	suite.addTest(new JavaElementDeltaTests("testListenerPostChange"));
-	
-	// classpath
-	suite.addTest(new JavaElementDeltaTests("testSetClasspathVariable1"));
-	suite.addTest(new JavaElementDeltaTests("testSetClasspathVariable2"));
-	suite.addTest(new JavaElementDeltaTests("testChangeRootKind"));
-	suite.addTest(new JavaElementDeltaTests("testOverwriteClasspath"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot1"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot2"));
-	suite.addTest(new JavaElementDeltaTests("testRemoveCPEntryAndRoot3"));
-	suite.addTest(new JavaElementDeltaTests("testAddDotClasspathFile"));
-	suite.addTest(new JavaElementDeltaTests("testSetClasspathOnFreshProject"));
-	suite.addTest(new JavaElementDeltaTests("testChangeExportFlag"));
-	
-	// batch operations
-	suite.addTest(new JavaElementDeltaTests("testBatchOperation"));
-	suite.addTest(new JavaElementDeltaTests("testModifyProjectDescriptionAndRemoveFolder"));
-	
-	// build
-	suite.addTest(new JavaElementDeltaTests("testBuildProjectUsedAsLib"));
-	
-	// output locations
-	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation1"));
-	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation2"));
-	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation3"));
-	suite.addTest(new JavaElementDeltaTests("testModifyOutputLocation4"));
-	suite.addTest(new JavaElementDeltaTests("testChangeCustomOutput"));
-	
-	return suite;
+// Use this static initializer to specify subset for tests
+// All specified tests which do not belong to the class are skipped...
+static {
+//	TESTS_PREFIX =  "testBug100772_ProjectScope";
+//	TESTS_NAMES = new String[] { "testAddInvalidSubfolder" };
+//	TESTS_NUMBERS = new int[] { 100772 };
+//	TESTS_RANGE = new int[] { 83304, -1 };
 }
 
 public JavaElementDeltaTests(String name) {
@@ -224,7 +129,10 @@ public void testAddCommentAndCommit() throws CoreException {
 		copy.commitWorkingCopy(true, null);
 		assertEquals(
 			"Unexpected delta after committing working copy", 
-			"X.java[*]: {CONTENT | FINE GRAINED}",
+			"P[*]: {CHILDREN}\n" + 
+			"	<project root>[*]: {CHILDREN}\n" + 
+			"		<default>[*]: {CHILDREN}\n" + 
+			"			X.java[*]: {CONTENT | FINE GRAINED | PRIMARY RESOURCE}",
 			listener.toString());
 	} finally {
 		JavaCore.removeElementChangedListener(listener);

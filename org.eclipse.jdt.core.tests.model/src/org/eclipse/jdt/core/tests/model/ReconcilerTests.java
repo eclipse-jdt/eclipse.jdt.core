@@ -64,7 +64,7 @@ public ReconcilerTests(String name) {
 // All specified tests which do not belong to the class are skipped...
 static {
 // Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-// TESTS_NAMES = new String[] { "testCategories3" };
+// TESTS_NAMES = new String[] { "testNoChanges1" };
 // Numbers of tests to run: "test<number>" will be run for each number of this array
 //TESTS_NUMBERS = new int[] { 13 };
 // Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -490,7 +490,7 @@ public void testAddPartialMethod1and2() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta", 
-		""
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
 	);
 }
 /*
@@ -1721,7 +1721,7 @@ public void testNoChanges1() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		""
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
 	);
 }
 /**
@@ -1741,7 +1741,7 @@ public void testNoChanges2() throws JavaModelException {
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 	assertDeltas(
 		"Unexpected delta",
-		""
+		"[Working copy] X.java[*]: {CONTENT | FINE GRAINED | AST AFFECTED}"
 	);
 }
 /*
