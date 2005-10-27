@@ -410,7 +410,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		fFactoryPathList.removeAllElements();
 		for (FactoryPathEntry originalFpe : fOriginalPath) {
 			// clone, because we may later modify it and we want to compare with the original.
-			FactoryPathEntry fpe = new FactoryPathEntry(originalFpe._fc, originalFpe._attr);
+			FactoryPathEntry fpe = new FactoryPathEntry(originalFpe._fc, new Attributes(originalFpe._attr));
 			fFactoryPathList.addElement(fpe);
 			fFactoryPathList.setChecked(fpe, fpe._attr.isEnabled());
 		}
