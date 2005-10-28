@@ -149,6 +149,11 @@ public int getNextToken() throws InvalidInputException {
 					&& (this.cursorLocation < this.startPosition)
 					&& !Character.isJavaIdentifierStart(this.currentCharacter)){
 					this.currentPosition = this.startPosition; // for next token read
+					/* Warning:
+					 * Above statement reset scanner position at token start which can make
+					 * scanner enter in an infinite loop if completionIdentifier is still null!
+					 * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=114115)
+					 */
 					return TokenNameIdentifier;
 				}
 			} while (isWhiteSpace);

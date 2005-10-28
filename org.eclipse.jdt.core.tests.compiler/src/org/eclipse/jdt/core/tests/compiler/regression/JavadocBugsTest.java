@@ -2322,7 +2322,7 @@ public class JavadocBugsTest extends JavadocTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	*	@return#\n" + 
-			"	 	 ^^^^^^\n" + 
+			"	 	 ^^^^^^^\n" + 
 			"Javadoc: Invalid tag\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 

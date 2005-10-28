@@ -374,7 +374,6 @@ public void test015() {
 /**
  * @test Bug 113469: CompletionOnJavadocTag token is not correct
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113649"
- *
  */
 public void test020() {
 	String source = "package javadoc;\n" +
@@ -439,5 +438,158 @@ public void test024() {
 	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
 	assertEquals("Invalid tag start position", 24, completionTag.tagSourceStart);
 	assertEquals("Invalid tag end position", 32, completionTag.tagSourceEnd+1);
+}
+
+/**
+ * @test Bug 113469: CompletionOnJavadocTag token is not correct
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113649"
+ */
+public void test025() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * {@</code>\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "{@");
+	char[][] allTags = {
+		TAG_LINK,
+		TAG_DOC_ROOT,
+	};
+	char[][] additionalTags = null;
+	if (complianceLevel.equals(COMPLIANCE_1_4)) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
+		};
+	}
+	else if (complianceLevel.equals(COMPLIANCE_1_5)) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+			TAG_CODE, TAG_LITERAL
+		};
+	}
+	if (additionalTags != null) {
+		int length = allTags.length;
+		int add = additionalTags.length;
+		System.arraycopy(allTags, 0, allTags = new char[length+add][], 0, length);
+		System.arraycopy(additionalTags, 0, allTags, length, add);
+	}
+	verifyCompletionOnJavadocTag("".toCharArray(), allTags, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	int start = source.indexOf("{@");
+	assertEquals("Invalid tag start position", start, completionTag.tagSourceStart);
+	int end = source.indexOf('>');
+	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
+}
+
+public void test026() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * {@li</code>\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "{@li");
+	char[][] allTags = complianceLevel.equals(COMPLIANCE_1_3)
+		? new char[][] { TAG_LINK }
+		: (complianceLevel.equals(COMPLIANCE_1_4)
+				? new char[][] { TAG_LINK, TAG_LINKPLAIN }
+				: new char[][] { TAG_LINK, TAG_LINKPLAIN, TAG_LITERAL });
+	verifyCompletionOnJavadocTag("li".toCharArray(), allTags, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	int start = source.indexOf("{@");
+	assertEquals("Invalid tag start position", start, completionTag.tagSourceStart);
+	int end = source.indexOf('>');
+	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
+}
+
+public void test027() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * {@link</code>\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "{@link");
+	char[][] allTags = complianceLevel.equals(COMPLIANCE_1_3)
+		? new char[][] { TAG_LINK }
+		: new char[][] { TAG_LINK, TAG_LINKPLAIN  };
+	verifyCompletionOnJavadocTag("link".toCharArray(), allTags, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	int start = source.indexOf("{@");
+	assertEquals("Invalid tag start position", start, completionTag.tagSourceStart);
+	int end = source.indexOf('>');
+	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
+}
+public void test028() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * {@|\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "{@");
+	char[][] allTags = {
+		TAG_LINK,
+		TAG_DOC_ROOT,
+	};
+	char[][] additionalTags = null;
+	if (complianceLevel.equals(COMPLIANCE_1_4)) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
+		};
+	}
+	else if (complianceLevel.equals(COMPLIANCE_1_5)) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+			TAG_CODE, TAG_LITERAL
+		};
+	}
+	if (additionalTags != null) {
+		int length = allTags.length;
+		int add = additionalTags.length;
+		System.arraycopy(allTags, 0, allTags = new char[length+add][], 0, length);
+		System.arraycopy(additionalTags, 0, allTags, length, add);
+	}
+	verifyCompletionOnJavadocTag("".toCharArray(), allTags, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	int start = source.indexOf("{@");
+	assertEquals("Invalid tag start position", start, completionTag.tagSourceStart);
+	int end = source.indexOf('|');
+	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
+}
+
+public void test029() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * {@li/\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "{@li");
+	char[][] allTags = complianceLevel.equals(COMPLIANCE_1_3)
+		? new char[][] { TAG_LINK }
+		: (complianceLevel.equals(COMPLIANCE_1_4)
+				? new char[][] { TAG_LINK, TAG_LINKPLAIN }
+				: new char[][] { TAG_LINK, TAG_LINKPLAIN, TAG_LITERAL });
+	verifyCompletionOnJavadocTag("li".toCharArray(), allTags, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	int start = source.indexOf("{@");
+	assertEquals("Invalid tag start position", start, completionTag.tagSourceStart);
+	int end = source.indexOf("/\n");
+	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
+}
+
+public void test030() {
+	String source = "package javadoc;\n" +
+		"/**\n" + 
+		" * {@link+\n" + 
+		" */\n" + 
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "{@link");
+	char[][] allTags = complianceLevel.equals(COMPLIANCE_1_3)
+		? new char[][] { TAG_LINK }
+		: new char[][] { TAG_LINK, TAG_LINKPLAIN  };
+	verifyCompletionOnJavadocTag("link".toCharArray(), allTags, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	int start = source.indexOf("{@");
+	assertEquals("Invalid tag start position", start, completionTag.tagSourceStart);
+	int end = source.indexOf('+');
+	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 }

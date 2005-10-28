@@ -436,10 +436,8 @@ public class JavadocParser extends AbstractCommentParser {
 				case ':':
 				case '<':
 				case '>':
-					readChar();
-					this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();
 					validTag = false;
-					break;
+					// fall thru next case to read character and resynch scanner
 				case '-': // allowed in tag names as this character is often used in doclets (bug 68087)
 					readChar();
 					this.tagSourceEnd = this.scanner.getCurrentTokenEndPosition();

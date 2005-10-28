@@ -767,6 +767,20 @@ public class CompletionJavadocParser extends JavadocParser {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#readTokenAndConsume()
+	 * TODO (frederic) remove when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=114115 will be fixed
+	 */
+	protected int readTokenAndConsume() throws InvalidInputException {
+		int token = super.readTokenAndConsume();
+		if (token == TerminalTokens.TokenNameIdentifier) {
+			if (this.scanner.currentPosition == this.scanner.startPosition) {
+				this.scanner.getCurrentIdentifierSource();
+			}
+		}
+		return token;
+	}
+
 	/* 
 	 * Recover syntax on invalid qualified name.
 	 */
