@@ -843,7 +843,17 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if (binding instanceof MethodBinding) {
 				MethodBinding methodBinding = (MethodBinding) binding;
 				this.noProposal = false;
-				if(!methodBinding.isSynthetic()) {
+				
+				boolean isValuesOrValueOf = false;
+				if(binding instanceof SyntheticMethodBinding) {
+					SyntheticMethodBinding syntheticMethodBinding = (SyntheticMethodBinding) binding;
+					if(syntheticMethodBinding.kind  == SyntheticMethodBinding.EnumValues
+							|| syntheticMethodBinding.kind  == SyntheticMethodBinding.EnumValueOf) {
+						isValuesOrValueOf =  true;
+					}
+				}
+						
+				if(!isValuesOrValueOf && !methodBinding.isSynthetic()) {
 					TypeBinding[] parameterTypes = methodBinding.original().parameters;
 					int length = parameterTypes.length;
 					char[][] parameterPackageNames = new char[length][];

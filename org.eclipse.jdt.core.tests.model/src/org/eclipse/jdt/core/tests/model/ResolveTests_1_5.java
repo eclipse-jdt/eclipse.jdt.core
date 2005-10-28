@@ -2184,10 +2184,10 @@ public void test0098() throws JavaModelException {
 				"/Resolve/src2/test0098/Test.java",
 				"public class Test<\n" +
 				"	void foo() {\n" +
-				"		Color.valueof(\"RED\");\n" +
+				"		Color.valueOf(\"RED\");\n" +
 				"	}\n" +
 				"}\n",
-				"valueof");
+				"valueOf");
 		
 		assertElementsEqual(
 			"Unexpected elements",
