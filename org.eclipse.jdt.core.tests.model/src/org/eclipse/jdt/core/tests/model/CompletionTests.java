@@ -10700,264 +10700,345 @@ public void testCompletionImportedType5() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseType1() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[3];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"public class Test {\n"+
-		"  FF\n"+
-		"}");
-
-	this.workingCopies[1] = getWorkingCopy(
-		"/Completion/src/camelcase/FoFoFo.java",
-		"package camelcase;"+
-		"public class FoFoFo {\n"+
-		"}");
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  FF\n"+
+			"}");
 	
-	this.workingCopies[2] = getWorkingCopy(
-		"/Completion/src/camelcase/FFFTest.java",
-		"package camelcase;"+
-		"public class FFFTest {\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "FF";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/FoFoFo.java",
+			"package camelcase;"+
+			"public class FoFoFo {\n"+
+			"}");
+		
+		this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/camelcase/FFFTest.java",
+			"package camelcase;"+
+			"public class FFFTest {\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "FF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseType2() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[3];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"public class Test {\n"+
-		"  camelcase.FF\n"+
-		"}");
-
-	this.workingCopies[1] = getWorkingCopy(
-		"/Completion/src/camelcase/FoFoFo.java",
-		"package camelcase;"+
-		"public class FoFoFo {\n"+
-		"}");
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  camelcase.FF\n"+
+			"}");
 	
-	this.workingCopies[2] = getWorkingCopy(
-		"/Completion/src/camelcase/FFFTest.java",
-		"package camelcase;"+
-		"public class FFFTest {\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "FF";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
-			"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/FoFoFo.java",
+			"package camelcase;"+
+			"public class FoFoFo {\n"+
+			"}");
+		
+		this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/camelcase/FFFTest.java",
+			"package camelcase;"+
+			"public class FFFTest {\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "FF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
+				"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseType3() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"public class Test {\n"+
-		"  /**/FF\n"+
-		"}\n"+
-		"class FoFoFo {\n"+
-		"}\n"+
-		"class FFFTest {\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "/**/FF";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+			
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  /**/FF\n"+
+			"}\n"+
+			"class FoFoFo {\n"+
+			"}\n"+
+			"class FFFTest {\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "/**/FF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseType4() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[3];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"public class Test {\n"+
-		"  FF\n"+
-		"}");
-
-	this.workingCopies[1] = getWorkingCopy(
-		"/Completion/src/camelcase/Member1.java",
-		"package camelcase;"+
-		"public class Member1 {\n"+
-		"  public class FoFoFo {\n"+
-		"  }\n"+
-		"}");
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  FF\n"+
+			"}");
 	
-	this.workingCopies[2] = getWorkingCopy(
-		"/Completion/src/camelcase/Member2.java",
-		"package camelcase;"+
-		"public class Member2 {\n"+
-		"  public class FFFTest {\n"+
-		"  }\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "FF";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Member1.FoFoFo[TYPE_REF]{camelcase.Member1.FoFoFo, camelcase, Lcamelcase.Member1$FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
-			"Member2.FFFTest[TYPE_REF]{camelcase.Member2.FFFTest, camelcase, Lcamelcase.Member2$FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/Member1.java",
+			"package camelcase;"+
+			"public class Member1 {\n"+
+			"  public class FoFoFo {\n"+
+			"  }\n"+
+			"}");
+		
+		this.workingCopies[2] = getWorkingCopy(
+			"/Completion/src/camelcase/Member2.java",
+			"package camelcase;"+
+			"public class Member2 {\n"+
+			"  public class FFFTest {\n"+
+			"  }\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "FF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Member1.FoFoFo[TYPE_REF]{camelcase.Member1.FoFoFo, camelcase, Lcamelcase.Member1$FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
+				"Member2.FFFTest[TYPE_REF]{camelcase.Member2.FFFTest, camelcase, Lcamelcase.Member2$FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseType5() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"public class Test {\n"+
-		"  public class FoFoFo {\n"+
-		"    public class FFFTest {\n"+
-		"      FF\n"+
-		"    }\n"+
-		"  }\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "FF";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test$FoFoFo$FFFTest;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Test.FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.Test$FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"Test.FoFoFo.FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.Test$FoFoFo$FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  public class FoFoFo {\n"+
+			"    public class FFFTest {\n"+
+			"      FF\n"+
+			"    }\n"+
+			"  }\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "FF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"FF[POTENTIAL_METHOD_DECLARATION]{FF, Lcamelcase.Test$FoFoFo$FFFTest;, ()V, FF, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Test.FoFoFo[TYPE_REF]{FoFoFo, camelcase, Lcamelcase.Test$FoFoFo;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"Test.FoFoFo.FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.Test$FoFoFo$FFFTest;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseMethod1() throws JavaModelException {
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
 	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"public class Test {\n"+
-		"  void oneTwoThree(){}\n"+
-		"  void oTTMethod(){}\n"+
-		"  void foo() {\n"+
-		"    oTT\n"+
-		"  }\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "oTT";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"oneTwoThree[METHOD_REF]{oneTwoThree(), Lcamelcase.Test;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"oTTMethod[METHOD_REF]{oTTMethod(), Lcamelcase.Test;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  void oneTwoThree(){}\n"+
+			"  void oTTMethod(){}\n"+
+			"  void foo() {\n"+
+			"    oTT\n"+
+			"  }\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oneTwoThree[METHOD_REF]{oneTwoThree(), Lcamelcase.Test;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTMethod[METHOD_REF]{oTTMethod(), Lcamelcase.Test;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseField1() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"public class Test {\n"+
-		"  int oneTwoThree;\n"+
-		"  int oTTField;\n"+
-		"  void foo() {\n"+
-		"    oTT\n"+
-		"  }\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "oTT";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"oneTwoThree[FIELD_REF]{oneTwoThree, Lcamelcase.Test;, I, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"oTTField[FIELD_REF]{oTTField, Lcamelcase.Test;, I, oTTField, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  int oneTwoThree;\n"+
+			"  int oTTField;\n"+
+			"  void foo() {\n"+
+			"    oTT\n"+
+			"  }\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oneTwoThree[FIELD_REF]{oneTwoThree, Lcamelcase.Test;, I, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTField[FIELD_REF]{oTTField, Lcamelcase.Test;, I, oTTField, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseLocalVariable1() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"public class Test {\n"+
-		"  void foo() {\n"+
-		"    int oneTwoThree;\n"+
-		"    int oTTLocal;\n"+
-		"    oTT\n"+
-		"  }\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "oTT";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"oneTwoThree[LOCAL_VARIABLE_REF]{oneTwoThree, null, I, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"oTTLocal[LOCAL_VARIABLE_REF]{oTTLocal, null, I, oTTLocal, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test {\n"+
+			"  void foo() {\n"+
+			"    int oneTwoThree;\n"+
+			"    int oTTLocal;\n"+
+			"    oTT\n"+
+			"  }\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oneTwoThree[LOCAL_VARIABLE_REF]{oneTwoThree, null, I, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTLocal[LOCAL_VARIABLE_REF]{oTTLocal, null, I, oTTLocal, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseMethodDeclaration1() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[2];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"public class Test extends SuperClass {\n"+
-		"  oTT\n"+
-		"}");
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"public class Test extends SuperClass {\n"+
+			"  oTT\n"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/SuperClass.java",
+			"package camelcase;"+
+			"public class SuperClass {\n"+
+			"  public void oneTwoThree(){}\n"+
+			"  public void oTTMethod(){}\n"+
+			"}");
 	
-	this.workingCopies[1] = getWorkingCopy(
-		"/Completion/src/camelcase/SuperClass.java",
-		"package camelcase;"+
-		"public class SuperClass {\n"+
-		"  public void oneTwoThree(){}\n"+
-		"  public void oTTMethod(){}\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "oTT";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"oTT[POTENTIAL_METHOD_DECLARATION]{oTT, Lcamelcase.Test;, ()V, oTT, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"oneTwoThree[METHOD_DECLARATION]{public void oneTwoThree(), Lcamelcase.SuperClass;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"oTTMethod[METHOD_DECLARATION]{public void oTTMethod(), Lcamelcase.SuperClass;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oTT[POTENTIAL_METHOD_DECLARATION]{oTT, Lcamelcase.Test;, ()V, oTT, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"oneTwoThree[METHOD_DECLARATION]{public void oneTwoThree(), Lcamelcase.SuperClass;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTMethod[METHOD_DECLARATION]{public void oTTMethod(), Lcamelcase.SuperClass;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 }

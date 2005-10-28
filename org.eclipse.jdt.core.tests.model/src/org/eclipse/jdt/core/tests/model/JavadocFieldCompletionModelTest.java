@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.Hashtable;
+
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -451,20 +454,29 @@ public void test028() throws JavaModelException {
  * @tests Tests for camel case completion
  */
 public void test030() throws JavaModelException {
-	String source =
-		"package javadoc.fields.tags;\n" + 
-		"public class BasicTestFields {\n" + 
-		"	Object oneTwoThree;\n" + 
-		"	/**\n" + 
-		"	 * Completion after:\n" + 
-		"	 * 	@see #oTT\n" + 
-		"	 */\n" + 
-		"	int foo;\n" + 
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
 		
-		"}";
-	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "oTT");
-	assertResults(
-		"oneTwoThree[FIELD_REF]{oneTwoThree, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, oneTwoThree, null, "+this.positions+"24}"
-	);
+		String source =
+			"package javadoc.fields.tags;\n" + 
+			"public class BasicTestFields {\n" + 
+			"	Object oneTwoThree;\n" + 
+			"	/**\n" + 
+			"	 * Completion after:\n" + 
+			"	 * 	@see #oTT\n" + 
+			"	 */\n" + 
+			"	int foo;\n" + 
+			
+			"}";
+		completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "oTT");
+		assertResults(
+			"oneTwoThree[FIELD_REF]{oneTwoThree, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, oneTwoThree, null, "+this.positions+"24}"
+		);
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 }

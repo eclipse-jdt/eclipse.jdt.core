@@ -7728,124 +7728,160 @@ public void test0247() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void test0248() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[2];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"import static camelcase.ImportedType.*;"+
-		"public class Test {\n"+
-		"  void foo() {\n"+
-		"    oTT\n"+
-		"  }\n"+
-		"}");
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"import static camelcase.ImportedType.*;"+
+			"public class Test {\n"+
+			"  void foo() {\n"+
+			"    oTT\n"+
+			"  }\n"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/ImportedType.java",
+			"package camelcase;"+
+			"public class ImportedType {\n"+
+			"  public static void oneTwoThree(){}\n"+
+			"  public static void oTTMethod(){}\n"+
+			"}");
 	
-	this.workingCopies[1] = getWorkingCopy(
-		"/Completion/src/camelcase/ImportedType.java",
-		"package camelcase;"+
-		"public class ImportedType {\n"+
-		"  public static void oneTwoThree(){}\n"+
-		"  public static void oTTMethod(){}\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "oTT";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"oneTwoThree[METHOD_REF]{oneTwoThree(), Lcamelcase.ImportedType;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"oTTMethod[METHOD_REF]{oTTMethod(), Lcamelcase.ImportedType;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oneTwoThree[METHOD_REF]{oneTwoThree(), Lcamelcase.ImportedType;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTMethod[METHOD_REF]{oTTMethod(), Lcamelcase.ImportedType;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void test0249() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[2];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"import static camelcase.ImportedType.*;"+
-		"public class Test {\n"+
-		"  void foo() {\n"+
-		"    oTT\n"+
-		"  }\n"+
-		"}");
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"import static camelcase.ImportedType.*;"+
+			"public class Test {\n"+
+			"  void foo() {\n"+
+			"    oTT\n"+
+			"  }\n"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/ImportedType.java",
+			"package camelcase;"+
+			"public class ImportedType {\n"+
+			"  public static int oneTwoThree;\n"+
+			"  public static int oTTField;\n"+
+			"}");
 	
-	this.workingCopies[1] = getWorkingCopy(
-		"/Completion/src/camelcase/ImportedType.java",
-		"package camelcase;"+
-		"public class ImportedType {\n"+
-		"  public static int oneTwoThree;\n"+
-		"  public static int oTTField;\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "oTT";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"oneTwoThree[FIELD_REF]{oneTwoThree, Lcamelcase.ImportedType;, I, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"oTTField[FIELD_REF]{oTTField, Lcamelcase.ImportedType;, I, oTTField, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oneTwoThree[FIELD_REF]{oneTwoThree, Lcamelcase.ImportedType;, I, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTField[FIELD_REF]{oTTField, Lcamelcase.ImportedType;, I, oTTField, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void test0250() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[2];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"import static camelcase.ImportedType.oTT;"+
-		"public class Test {\n"+
-		"}");
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
 	
-	this.workingCopies[1] = getWorkingCopy(
-		"/Completion/src/camelcase/ImportedType.java",
-		"package camelcase;"+
-		"public class ImportedType {\n"+
-		"  public static void oneTwoThree(){}\n"+
-		"  public static void oTTMethod(){}\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "oTT";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"oneTwoThree[METHOD_IMPORT]{camelcase.ImportedType.oneTwoThree;, Lcamelcase.ImportedType;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
-			"oTTMethod[METHOD_IMPORT]{camelcase.ImportedType.oTTMethod;, Lcamelcase.ImportedType;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"import static camelcase.ImportedType.oTT;"+
+			"public class Test {\n"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/ImportedType.java",
+			"package camelcase;"+
+			"public class ImportedType {\n"+
+			"  public static void oneTwoThree(){}\n"+
+			"  public static void oTTMethod(){}\n"+
+			"}");
+	
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oneTwoThree[METHOD_IMPORT]{camelcase.ImportedType.oneTwoThree;, Lcamelcase.ImportedType;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
+				"oTTMethod[METHOD_IMPORT]{camelcase.ImportedType.oTTMethod;, Lcamelcase.ImportedType;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void test0260() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[2];
-	this.workingCopies[0] = getWorkingCopy(
-		"/Completion/src/camelcase/Test.java",
-		"package camelcase;"+
-		"@Annot(oTT)"+
-		"public class Test {\n"+
-		"}");
+	this.oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+		JavaCore.setOptions(options);
+		
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/camelcase/Test.java",
+			"package camelcase;"+
+			"@Annot(oTT)"+
+			"public class Test {\n"+
+			"}");
+		
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/camelcase/Annot.java",
+			"package camelcase;"+
+			"public @interface Annot {\n"+
+			"  String oneTwoThree() default \"\";\n"+
+			"  String oTTAttribute() default \"\";\n"+
+			"}");
 	
-	this.workingCopies[1] = getWorkingCopy(
-		"/Completion/src/camelcase/Annot.java",
-		"package camelcase;"+
-		"public @interface Annot {\n"+
-		"  String oneTwoThree() default \"\";\n"+
-		"  String oTTAttribute() default \"\";\n"+
-		"}");
-
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "oTT";
-	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-	assertResults(
-			"oneTwoThree[ANNOTATION_ATTRIBUTE_REF]{oneTwoThree, Lcamelcase.Annot;, Ljava.lang.String;, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"oTTAttribute[ANNOTATION_ATTRIBUTE_REF]{oTTAttribute, Lcamelcase.Annot;, Ljava.lang.String;, oTTAttribute, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "oTT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	
+		assertResults(
+				"oneTwoThree[ANNOTATION_ATTRIBUTE_REF]{oneTwoThree, Lcamelcase.Annot;, Ljava.lang.String;, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTAttribute[ANNOTATION_ATTRIBUTE_REF]{oTTAttribute, Lcamelcase.Annot;, Ljava.lang.String;, oTTAttribute, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		JavaCore.setOptions(oldOptions);
+	}
 }
 }
