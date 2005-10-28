@@ -429,9 +429,9 @@ public class CompilationUnitDeclaration
 									continue nlsTagsLoop;
 								}
 							}
-						} else {
-							break stringLiteralsLoop;
 						}
+						// all nls tags have been processed, so remaining string literals are not externalized
+						break stringLiteralsLoop;
 					}
 					for (; i < stringLiteralsLength; i++) {
 						scope.problemReporter().nonExternalizedStringLiteral(this.stringLiterals[i]);

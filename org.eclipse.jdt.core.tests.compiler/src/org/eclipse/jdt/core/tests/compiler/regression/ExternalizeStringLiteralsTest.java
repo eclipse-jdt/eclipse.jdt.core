@@ -20,7 +20,7 @@ public class ExternalizeStringLiteralsTest extends AbstractRegressionTest {
 
 static {
 //	TESTS_NAMES = new String[] { "test000" };
-//	TESTS_NUMBERS = new int[] { 14};
+//	TESTS_NUMBERS = new int[] { 16 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public ExternalizeStringLiteralsTest(String name) {
@@ -453,6 +453,65 @@ public void test014() {
 		"	String s = \"test1\"; //$NON-NLS-?$\n" + 
 		"	                    ^^^^^^^^^^^^^\n" + 
 		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114077
+public void test015() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		String s1= null; //$NON-NLS-1$\n" +
+			"		String s2= \"\";\n" +
+			"	}\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	String s1= null; //$NON-NLS-1$\n" + 
+		"	                 ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	String s2= \"\";\n" + 
+		"	           ^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114077
+public void test016() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	private String s1= null; //$NON-NLS-1$\n" +
+			"	\n" +
+			"	public void foo() {\n" +
+			"		String s2= \"\";\n" +
+			"	}\n" +
+			"}",
+		}, 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	private String s1= null; //$NON-NLS-1$\n" + 
+		"	                         ^^^^^^^^^^^^^\n" + 
+		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	String s2= \"\";\n" + 
+		"	           ^^\n" + 
+		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
 		"----------\n",
 		null,
 		true,
