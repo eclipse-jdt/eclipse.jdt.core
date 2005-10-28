@@ -794,6 +794,12 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Possible  configurable option ID.
 	 * @see #getDefaultOptions()
+	 * @since 3.2
+	 */
+	public static final String CODEASSIST_CAMEL_CASE_MATCH = PLUGIN_ID + ".codeComplete.camelCaseMatch"; //$NON-NLS-1$
+	/**
+	 * Possible  configurable option ID.
+	 * @see #getDefaultOptions()
 	 * @since 2.0
 	 */
 	public static final String CODEASSIST_IMPLICIT_QUALIFICATION = PLUGIN_ID + ".codeComplete.forceImplicitQualification"; //$NON-NLS-1$
@@ -2410,6 +2416,12 @@ public final class JavaCore extends Plugin {
 	 *     - option id:         "org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"
 	 *     - possible values:   { "enabled", "disabled" }
 	 *     - default:           "disabled"
+	 *     
+	 *	CODEASSIST / Activate Camel Case Sensitive Completion
+	 *    When active, completion show proposals whose name match to the CamelCase pattern.
+	 *     - option id:         "org.eclipse.jdt.core.codeComplete.camelCaseMatch"
+	 *     - possible values:   { "enabled", "disabled" }
+	 *     - default:           "enabled"
 	 * </pre>
 	 * 
 	 * @return a mutable table containing the default settings of all known options

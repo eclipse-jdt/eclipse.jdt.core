@@ -613,7 +613,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							char[][] tokens = ((SelectionOnImportReference) importReference).tokens;
 							this.noProposal = false;
 							this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
-							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), false, this);
+							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), false, false,this);
 							
 							this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 							if ((this.unitScope = parsedUnit.scope) != null) {
@@ -638,7 +638,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							if(!this.acceptedAnswer) {
 								acceptQualifiedTypes();
 								if (!this.acceptedAnswer) {
-									this.nameEnvironment.findTypes(this.selectedIdentifier, false, this);
+									this.nameEnvironment.findTypes(this.selectedIdentifier, false, false,this);
 									// try with simple type name
 									if(!this.acceptedAnswer) {
 										acceptQualifiedTypes();
@@ -687,7 +687,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// only reaches here if no selection could be derived from the parsed tree
 			// thus use the selected source and perform a textual type search
 			if (!this.acceptedAnswer) {
-				this.nameEnvironment.findTypes(this.selectedIdentifier, false, this);
+				this.nameEnvironment.findTypes(this.selectedIdentifier, false, false,this);
 				
 				// accept qualified types only if no unqualified type was accepted
 				if(!this.acceptedAnswer) {
@@ -1110,7 +1110,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			// thus use the selected source and perform a textual type search
 			if (!this.acceptedAnswer && searchInEnvironment) {
 				if (this.selectedIdentifier != null) {
-					this.nameEnvironment.findTypes(typeName, false, this);
+					this.nameEnvironment.findTypes(typeName, false, false,this);
 					
 					// accept qualified types only if no unqualified type was accepted
 					if(!this.acceptedAnswer) {

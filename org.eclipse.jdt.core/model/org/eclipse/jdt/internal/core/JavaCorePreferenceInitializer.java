@@ -85,6 +85,7 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		defaultOptionsMap.put(JavaCore.CODEASSIST_ARGUMENT_SUFFIXES, ""); //$NON-NLS-1$
 		defaultOptionsMap.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		defaultOptionsMap.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+		defaultOptionsMap.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		
 		// Store default values to default preferences
 	 	IEclipsePreferences defaultPreferences = new DefaultScope().getNode(JavaCore.PLUGIN_ID);

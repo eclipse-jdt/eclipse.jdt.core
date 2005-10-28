@@ -2376,4 +2376,41 @@ public void test157() throws JavaModelException {
 		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+"25}"
 	);
 }
+/**
+ * @tests Tests for camel case completion
+ */
+public void test160() throws JavaModelException {
+	String source =
+		"package javadoc.methods.tags;\n" + 
+		"public class BasicTestMethods {\n" + 
+		"	void foo() {}\n" + 
+		"	/**\n" + 
+		"	 * Completion after:\n" + 
+		"	 * 	@see #BTM\n" + 
+		"	 * \n" + 
+		"	 */\n" + 
+		"	BasicTestMethods(int xxx, float real, Class clazz) {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BTM");
+	assertResults(
+		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(int, float, Class), Ljavadoc.methods.tags.BasicTestMethods;, (IFLjava.lang.Class;)V, BasicTestMethods, (xxx, real, clazz), "+this.positions+JAVADOC_RELEVANCE+"}"
+	);
+}
+public void test161() throws JavaModelException {
+	String source =
+		"package javadoc.methods.tags;\n" + 
+		"public class BasicTestMethods {\n" + 
+		"	void oneTwoThree(int i) {}\n" + 
+		"	/**\n" + 
+		"	 * Completion after:\n" + 
+		"	 * 	@see #oTT\n" + 
+		"	 * \n" + 
+		"	 */\n" + 
+		"	BasicTestMethods() {}\n" + 
+		"}\n";
+	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "oTT");
+	assertResults(
+		"oneTwoThree[METHOD_REF]{oneTwoThree(int), Ljavadoc.methods.tags.BasicTestMethods;, (I)V, oneTwoThree, (i), "+this.positions+"24}"
+	);
+}
 }

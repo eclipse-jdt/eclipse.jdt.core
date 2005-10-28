@@ -1267,7 +1267,9 @@ public final class CompletionEngine
 							true);
 						if (fieldRef.receiverType instanceof ReferenceBinding) {
 							ReferenceBinding refBinding = (ReferenceBinding)fieldRef.receiverType;
-							if (this.completionToken == null || CharOperation.prefixEquals(this.completionToken, refBinding.sourceName)) {
+							if (this.completionToken == null
+									|| CharOperation.prefixEquals(this.completionToken, refBinding.sourceName)
+									|| (this.options.camelCaseMatch && CharOperation.camelCaseMatch(this.completionToken, refBinding.sourceName))) {
 								findConstructors(refBinding, null, scope, fieldRef, false);
 							}
 						}
@@ -1734,7 +1736,8 @@ public final class CompletionEngine
 		nextAttribute: for (int i = 0; i < methods.length; i++) {
 			MethodBinding method = methods[i];
 			
-			if(!CharOperation.prefixEquals(token, method.selector, false)) continue nextAttribute;
+			if(!CharOperation.prefixEquals(token, method.selector, false)
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, method.selector))) continue nextAttribute;
 			
 			int length = attributesFound == null ? 0 : attributesFound.length;
 			for (int j = 0; j < length; j++) {
@@ -1934,7 +1937,8 @@ public final class CompletionEngine
 
 				if (enumConstantLength > field.name.length) continue next;
 
-				if (!CharOperation.prefixEquals(enumConstantName, field.name, false /* ignore case */))	continue next;
+				if (!CharOperation.prefixEquals(enumConstantName, field.name, false /* ignore case */)
+						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(enumConstantName, field.name)))	continue next;
 				
 				char[] completion = field.name;
 				
@@ -2273,7 +2277,8 @@ public final class CompletionEngine
 
 			if (fieldLength > field.name.length) continue next;
 
-			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */))	continue next;
+			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */)
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))	continue next;
 
 			if (this.options.checkVisibility
 				&& !field.canBeSeenBy(receiverType, invocationSite, scope))	continue next;
@@ -2586,8 +2591,8 @@ public final class CompletionEngine
 			}
 			if (proposeMethod
 				&& token.length <= cloneMethod.length
-				&& CharOperation.prefixEquals(token, cloneMethod, false /* ignore case */
-			)) {
+				&& CharOperation.prefixEquals(token, cloneMethod, false /* ignore case */)
+			) {
 				ReferenceBinding objectRef = scope.getJavaLangObject();
 				
 				int relevance = computeBaseRelevance();
@@ -2692,7 +2697,11 @@ public final class CompletionEngine
 			this.nameEnvironment.findPackages(importName, this);
 		}
 		if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-			this.nameEnvironment.findTypes(importName, findMembers && PROPOSE_MEMBER_TYPES, this);
+			this.nameEnvironment.findTypes(
+					importName,
+					findMembers && PROPOSE_MEMBER_TYPES, 
+					this.options.camelCaseMatch,
+					this);
 			acceptTypes();
 		}
 	}
@@ -2712,9 +2721,8 @@ public final class CompletionEngine
 			if (typeLength > memberType.sourceName.length)
 				continue next;
 
-			if (!CharOperation.prefixEquals(typeName, memberType.sourceName, false
-				/* ignore case */
-				))
+			if (!CharOperation.prefixEquals(typeName, memberType.sourceName, false/* ignore case */)
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, memberType.sourceName)))
 				continue next;
 
 			if (this.options.checkVisibility
@@ -2763,9 +2771,8 @@ public final class CompletionEngine
 			if (!field.isStatic())
 				continue next;
 
-			if (!CharOperation.prefixEquals(fieldName, field.name, false
-				/* ignore case */
-				))
+			if (!CharOperation.prefixEquals(fieldName, field.name, false/* ignore case */)
+				&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))
 				continue next;
 
 			if (this.options.checkVisibility
@@ -2829,9 +2836,8 @@ public final class CompletionEngine
 			if (methodLength > method.selector.length)
 				continue next;
 
-			if (!CharOperation.prefixEquals(methodName, method.selector, false
-				/* ignore case */
-				))
+			if (!CharOperation.prefixEquals(methodName, method.selector, false/* ignore case */)
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector)))
 				continue next;
 			
 			int length = method.parameters.length;
@@ -3136,9 +3142,8 @@ public final class CompletionEngine
 			if (typeLength > memberType.sourceName.length)
 				continue next;
 
-			if (!CharOperation.prefixEquals(typeName, memberType.sourceName, false
-				/* ignore case */
-				))
+			if (!CharOperation.prefixEquals(typeName, memberType.sourceName, false/* ignore case */)
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, memberType.sourceName)))
 				continue next;
 
 			if (this.options.checkVisibility) {
@@ -3659,7 +3664,8 @@ public final class CompletionEngine
 				}
 			} else {
 				if (methodLength > method.selector.length) continue next;
-				if (!CharOperation.prefixEquals(methodName, method.selector, false /* ignore case */)) {
+				if (!CharOperation.prefixEquals(methodName, method.selector, false /* ignore case */)
+						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector))) {
 					continue next;
 				}
 			}
@@ -3893,7 +3899,8 @@ public final class CompletionEngine
 			if (this.options.checkVisibility
 				&& !method.canBeSeenBy(receiverType, invocationSite, scope)) continue next;
 
-			if (!CharOperation.equals(methodName, method.selector, false /* ignore case */))
+			if (!CharOperation.equals(methodName, method.selector, false /* ignore case */)
+					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector)))
 				continue next;
 
 			int length = method.parameters.length;
@@ -3958,18 +3965,26 @@ public final class CompletionEngine
 		}
 	}
 	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
-		if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
+		if (this.options.camelCaseMatch) {
+			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
+				return R_CASE + R_EXACT_NAME;
+			} else if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
+				return R_CASE;
+			} else if (CharOperation.camelCaseMatch(token, proposalName)){
+				return R_CAMEL_CASE;
+			} else if(CharOperation.equals(token, proposalName, false /* ignore case */)) {
+				return R_EXACT_NAME;
+			}
+		} else if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
 			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
 				return R_CASE + R_EXACT_NAME;
 			} else {
 				return R_CASE;
 			}
-		} else {
-			if(CharOperation.equals(token, proposalName, false /* ignore case */)) {
-				return R_EXACT_NAME;
-			}
-			return 0;
+		} else if(CharOperation.equals(token, proposalName, false /* ignore case */)) {
+			return R_EXACT_NAME;
 		}
+		return 0;
 	}
 	private int computeRelevanceForAnnotation(){
 		if(this.assistNodeIsAnnotation) {
@@ -4120,9 +4135,8 @@ public final class CompletionEngine
 				if (methodLength > method.selector.length)
 					continue next;
 
-				if (!CharOperation.prefixEquals(methodName, method.selector, false
-					/* ignore case */
-					))
+				if (!CharOperation.prefixEquals(methodName, method.selector, false/* ignore case */)
+						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector)))
 					continue next;
 			}
 
@@ -4614,9 +4628,8 @@ public final class CompletionEngine
 								
 								if (typeLength > localType.sourceName.length)
 									continue next;
-								if (!CharOperation.prefixEquals(typeName, localType.sourceName, false
-									/* ignore case */
-									))
+								if (!CharOperation.prefixEquals(typeName, localType.sourceName, false/* ignore case */)
+										&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, localType.sourceName)))
 									continue next;
 								
 								if(PROPOSE_MEMBER_TYPES) {
@@ -4742,7 +4755,8 @@ public final class CompletionEngine
 					
 					if (typeLength > typeParameter.name.length) continue;
 					
-					if (!CharOperation.prefixEquals(token, typeParameter.name, false)) continue;
+					if (!CharOperation.prefixEquals(token, typeParameter.name, false)
+							&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeParameter.name))) continue;
 	
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForInterestingProposal();
@@ -4824,10 +4838,11 @@ public final class CompletionEngine
 				if (sourceType.sourceName == CompletionParser.FAKE_TYPE_NAME) continue;
 				if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) continue;
 
-				if (typeLength > sourceType.sourceName.length)	continue;
+				if (typeLength > sourceType.sourceName.length) continue;
 				
-				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false))	continue;
-				
+				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false)
+						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, sourceType.sourceName))) continue;
+	
 				this.knownTypes.put(CharOperation.concat(sourceType.qualifiedPackageName(), sourceType.sourceName(), '.'), this);
 				
 				if(PROPOSE_MEMBER_TYPES) {
@@ -4981,7 +4996,11 @@ public final class CompletionEngine
 								'.');
 					this.knownTypes.put(fullyQualifiedTypeName, this);
 				}
-				this.nameEnvironment.findTypes(token, proposeAllMemberTypes, this);
+				this.nameEnvironment.findTypes(
+						token,
+						proposeAllMemberTypes,
+						this.options.camelCaseMatch,
+						this);
 				acceptTypes();
 			}
 			if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
@@ -5025,7 +5044,9 @@ public final class CompletionEngine
 				if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) continue;
 				if (typeLength > qualifiedSourceTypeName.length) continue;
 				if (!(packageBinding == sourceType.getPackage())) continue;
-				if (!CharOperation.prefixEquals(qualifiedName, qualifiedSourceTypeName, false))	continue;
+
+				if (!CharOperation.prefixEquals(qualifiedName, qualifiedSourceTypeName, false)
+						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, sourceType.sourceName)))	continue;
 				
 				int accessibility = IAccessRule.K_ACCESSIBLE;
 				if(sourceType.hasRestrictedAccess()) {
@@ -5074,7 +5095,11 @@ public final class CompletionEngine
 		}
 		
 		if(proposeType) {
-			this.nameEnvironment.findTypes(qualifiedName, false, this);
+			this.nameEnvironment.findTypes(
+					qualifiedName,
+					false,
+					this.options.camelCaseMatch,
+					this);
 			acceptTypes();
 		}
 		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
@@ -5112,7 +5137,8 @@ public final class CompletionEngine
 							
 							if (typeLength > typeBinding.sourceName.length)	continue;
 							
-							if (!CharOperation.prefixEquals(token, typeBinding.sourceName, false))	continue;
+							if (!CharOperation.prefixEquals(token, typeBinding.sourceName, false)
+									&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeBinding.sourceName)))	continue;
 							
 							if (typesFound.contains(typeBinding))  continue;
 							
@@ -5212,8 +5238,8 @@ public final class CompletionEngine
 							if (tokenLength > local.name.length)
 								continue next;
 	
-							if (!CharOperation.prefixEquals(token, local.name, false /* ignore case */
-								))
+							if (!CharOperation.prefixEquals(token, local.name, false /* ignore case */)
+									&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, local.name)))
 								continue next;
 	
 							if (local.isSecret())

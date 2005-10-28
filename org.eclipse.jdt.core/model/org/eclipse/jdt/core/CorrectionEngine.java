@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import java.util.Hashtable;
 import java.util.Map;
 
 import org.eclipse.core.resources.*;
@@ -273,11 +274,19 @@ public class CorrectionEngine implements ProblemReasons {
 					break;
 				}
 			}
-			
-			this.compilationUnit.codeComplete(
-				completionPosition,
-				this.completionRequestor
-			);
+			Hashtable oldOptions = JavaCore.getOptions();
+			try {
+				Hashtable options = new Hashtable(oldOptions);
+				options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.DISABLED);
+				JavaCore.setOptions(options);
+				
+				this.compilationUnit.codeComplete(
+					completionPosition,
+					this.completionRequestor
+				);
+			} finally {
+				JavaCore.setOptions(oldOptions);
+			}
 		} catch (JavaModelException e) {
 			return;
 		} catch (InvalidInputException e) {

@@ -160,10 +160,29 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
 public static int validateMatchRule(String stringPattern, int matchRule) {
 </pre>
 </li>
+<li>Added Camel Case support in completion.
+When you perform code complete, the proposals list contains proposals whose name match with the camel case pattern.
+<br>
+eg. a possible proposal for TT| is ToTo.
+</li>
+<li>Added option to control Camel Case completion.
+<pre>
+/**
+ * CODEASSIST / Activate Camel Case Sensitive Completion
+ *    When active, completion show proposals whose name match to the CamelCase pattern.
+ *     - option id:         "org.eclipse.jdt.core.codeComplete.camelCaseMatch"
+ *     - possible values:   { "enabled", "disabled" }
+ *     - default:           "enabled"
+ */
+JavaCore#CODEASSIST_CAMEL_CASE_MATCH
+</pre>
+</li>
 </ul>
 
 <h3>Problem Reports Fixed</h3>
-<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113649">113649</a>
+<a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=102572">102572</a>
+[plan] Add CamelHumps completion
+<br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113649">113649</a>
 [javadoc][assist] CompletionOnJavadocTag token is not correct
 <br><a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=113765">113765</a>
 [1.5] Insufficient recovery in generic method

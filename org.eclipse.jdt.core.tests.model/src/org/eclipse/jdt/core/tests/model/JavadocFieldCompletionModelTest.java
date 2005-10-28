@@ -447,4 +447,24 @@ public void test028() throws JavaModelException {
 		"FIELD[FIELD_REF]{FIELD, Lorg.eclipse.jdt.core.tests.BasicTestReferences;, I, FIELD, null, "+this.positions+"18}"
 	);
 }
+/**
+ * @tests Tests for camel case completion
+ */
+public void test030() throws JavaModelException {
+	String source =
+		"package javadoc.fields.tags;\n" + 
+		"public class BasicTestFields {\n" + 
+		"	Object oneTwoThree;\n" + 
+		"	/**\n" + 
+		"	 * Completion after:\n" + 
+		"	 * 	@see #oTT\n" + 
+		"	 */\n" + 
+		"	int foo;\n" + 
+		
+		"}";
+	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "oTT");
+	assertResults(
+		"oneTwoThree[FIELD_REF]{oneTwoThree, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, oneTwoThree, null, "+this.positions+"24}"
+	);
+}
 }

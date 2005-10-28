@@ -560,32 +560,65 @@ public void test0020() throws JavaModelException {
             result.proposals);
 }
 public void test0021() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0021", "Test.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0021/Test.java",
+		"package test0021;\n" +
+		"\n" +
+		"public class Test {\n" +
+		"	<T extends Z0021Z> void foo() {\n" +
+		"		this.<Z0021>foo();\n" +
+		"	}\n" +
+		"}\n" +
+		"class Z0021Z {\n" +
+		"	\n" +
+		"}\n" +
+		"class Z0021ZZ {\n" +
+		"	\n" +
+		"}");
 	
-	String str = cu.getSource();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "<Z0021";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	assertEquals("should have one class",
-		"element:Z0021Z    completion:Z0021Z    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n"+
-		"element:Z0021ZZ    completion:Z0021ZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
-		requestor.getResults());
+	assertResults(
+			"Z0021Z[TYPE_REF]{Z0021Z, test0021, Ltest0021.Z0021Z;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"Z0021ZZ[TYPE_REF]{Z0021ZZ, test0021, Ltest0021.Z0021ZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
 }
 public void test0022() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0022", "Test.java");
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0022/Test.java",
+		"package test0022;\n" +
+		"\n" +
+		"public class Test {\n" +
+		"	void foo() {\n" +
+		"		new Z0022<Z0022Z>foo();\n" +
+		"	}\n" +
+		"}\n" +
+		"class Z0022<T extends Z0022ZZ> {\n" +
+		"	\n" +
+		"}\n" +
+		"class Z0022ZZ {\n" +
+		"	\n" +
+		"}\n" +
+		"class Z0022ZZZ {\n" +
+		"	\n" +
+		"}");
 	
-	String str = cu.getSource();
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "<Z0022Z";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	assertEquals("should have one class",
-		"element:Z0022ZZ    completion:Z0022ZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED)+"\n"+
-		"element:Z0022ZZZ    completion:Z0022ZZZ    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
-		requestor.getResults());
+	assertResults(
+			"Z0022ZZZ[TYPE_REF]{Z0022ZZZ, test0022, Ltest0022.Z0022ZZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"Z0022ZZ[TYPE_REF]{Z0022ZZ, test0022, Ltest0022.Z0022ZZ;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
 }
 public void test0023() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -627,30 +660,60 @@ public void test0025() throws JavaModelException {
 		requestor.getResults());
 }
 public void test0026() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0026", "Test.java");
-	
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0026/Test.java",
+		"package test0026;\n" +
+		"\n" +
+		"public class Test {\n" +
+		"	Z0026<String, String>.Z0026Z.Z0026ZZ<St, String> var;\n" +
+		"}\n" +
+		"class Z0026 <T1 extends String, T2 extends String>{\n" +
+		"	public class Z0026Z {\n" +
+		"		public class Z0026ZZ <T3, T4 extends String>{\n" +
+		"			\n" +
+		"		}\n" +
+		"	} \n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "Z<St";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
-		requestor.getResults());
+	assertResults(
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
 }
 public void test0027() throws JavaModelException {
-	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	ICompilationUnit cu = getCompilationUnit("Completion", "src3", "test0027", "Test.java");
-	
-	String str = cu.getSource();
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0026/Test.java",
+		"package test0027;\n" +
+		"\n" +
+		"public class Test {\n" +
+		"	Z0027<St, String>.Z0027Z.Z0027ZZ<String, String> var;\n" +
+		"}\n" +
+		"class Z0027 <T1, T2 extends String>{\n" +
+		"	public class Z0027Z {\n" +
+		"		public class Z0027ZZ <T3 extends String, T4 extends String>{\n" +
+		"			\n" +
+		"		}\n" +
+		"	} \n" +
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
 	String completeBehind = "7<St";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	cu.codeComplete(cursorLocation, requestor);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	
-	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED),
-		requestor.getResults());
+	assertResults(
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+	
+	
 }
 public void test0028() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -7662,5 +7725,127 @@ public void test0247() throws JavaModelException {
 			"Type[METHOD_REF<CONSTRUCTOR>]{, LType<Ljava.lang.String;Ljava.lang.String;>;, ()V, Type, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
 			"Type<java.lang.String,java.lang.String>[ANONYMOUS_CLASS_DECLARATION]{, LType<Ljava.lang.String;Ljava.lang.String;>;, ()V, null, null, " + (R_DEFAULT + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			result.proposals);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void test0248() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/camelcase/Test.java",
+		"package camelcase;"+
+		"import static camelcase.ImportedType.*;"+
+		"public class Test {\n"+
+		"  void foo() {\n"+
+		"    oTT\n"+
+		"  }\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/camelcase/ImportedType.java",
+		"package camelcase;"+
+		"public class ImportedType {\n"+
+		"  public static void oneTwoThree(){}\n"+
+		"  public static void oTTMethod(){}\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "oTT";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"oneTwoThree[METHOD_REF]{oneTwoThree(), Lcamelcase.ImportedType;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"oTTMethod[METHOD_REF]{oTTMethod(), Lcamelcase.ImportedType;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void test0249() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/camelcase/Test.java",
+		"package camelcase;"+
+		"import static camelcase.ImportedType.*;"+
+		"public class Test {\n"+
+		"  void foo() {\n"+
+		"    oTT\n"+
+		"  }\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/camelcase/ImportedType.java",
+		"package camelcase;"+
+		"public class ImportedType {\n"+
+		"  public static int oneTwoThree;\n"+
+		"  public static int oTTField;\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "oTT";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"oneTwoThree[FIELD_REF]{oneTwoThree, Lcamelcase.ImportedType;, I, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"oTTField[FIELD_REF]{oTTField, Lcamelcase.ImportedType;, I, oTTField, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void test0250() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/camelcase/Test.java",
+		"package camelcase;"+
+		"import static camelcase.ImportedType.oTT;"+
+		"public class Test {\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/camelcase/ImportedType.java",
+		"package camelcase;"+
+		"public class ImportedType {\n"+
+		"  public static void oneTwoThree(){}\n"+
+		"  public static void oTTMethod(){}\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "oTT";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"oneTwoThree[METHOD_IMPORT]{camelcase.ImportedType.oneTwoThree;, Lcamelcase.ImportedType;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
+			"oTTMethod[METHOD_IMPORT]{camelcase.ImportedType.oTTMethod;, Lcamelcase.ImportedType;, ()V, oTTMethod, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
+public void test0260() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/camelcase/Test.java",
+		"package camelcase;"+
+		"@Annot(oTT)"+
+		"public class Test {\n"+
+		"}");
+	
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/camelcase/Annot.java",
+		"package camelcase;"+
+		"public @interface Annot {\n"+
+		"  String oneTwoThree() default \"\";\n"+
+		"  String oTTAttribute() default \"\";\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "oTT";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"oneTwoThree[ANNOTATION_ATTRIBUTE_REF]{oneTwoThree, Lcamelcase.Annot;, Ljava.lang.String;, oneTwoThree, null, " + (R_DEFAULT + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"oTTAttribute[ANNOTATION_ATTRIBUTE_REF]{oTTAttribute, Lcamelcase.Annot;, Ljava.lang.String;, oTTAttribute, null, " + (R_DEFAULT + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			requestor.getResults());
 }
 }

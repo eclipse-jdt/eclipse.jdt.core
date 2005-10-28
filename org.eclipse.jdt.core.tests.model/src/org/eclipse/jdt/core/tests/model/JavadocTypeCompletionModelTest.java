@@ -1000,4 +1000,19 @@ public void test071() throws JavaModelException {
 	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "** 	@param ", 0); // empty token
 	assertResults("");
 }
+
+/**
+ * @tests Tests for camel case completion
+ */
+public void test080() throws JavaModelException {
+	String source =
+		"package javadoc.types.tags;\n" + 
+		"/**\n" + 
+		" * Completion after:\n" + 
+		" * 	@see BTT\n" + 
+		" */\n" + 
+		"public class BasicTestTypes {}\n";
+	completeInJavadoc("/Completion/src/javadoc/types/tags/BasicTestTypes.java", source, true, "BTT"); // empty token
+	assertResults("BasicTestTypes[TYPE_REF]{BasicTestTypes, javadoc.types.tags, Ljavadoc.types.tags.BasicTestTypes;, null, null, "+this.positions+"16}");
+}
 }
