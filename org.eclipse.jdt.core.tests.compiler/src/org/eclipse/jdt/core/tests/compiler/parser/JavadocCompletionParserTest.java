@@ -441,8 +441,8 @@ public void test024() {
 }
 
 /**
- * @test Bug 113469: CompletionOnJavadocTag token is not correct
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113649"
+ * @test Bug 114091: [assist][javadoc] eternal loop 
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114091"
  */
 public void test025() {
 	String source = "package javadoc;\n" +
