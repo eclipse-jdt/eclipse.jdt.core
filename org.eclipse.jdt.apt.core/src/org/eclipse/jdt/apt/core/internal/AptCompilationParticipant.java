@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +54,13 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
  */
 public class AptCompilationParticipant implements ICompilationParticipant
 {
+	/** 
+	 * Batch factories that claimed some annotation in a previous round of APT processing.
+	 * This currently only apply to the build case since are only generating types during build
+	 * and hence cause APT rounding.
+	 * The set is an order preserving. The order is determined by their first invocation.
+	 */
+	private Set<AnnotationProcessorFactory> _previousRoundsBatchFactories = new LinkedHashSet<AnnotationProcessorFactory>();
 	private static AptCompilationParticipant INSTANCE;
 	
 	public static AptCompilationParticipant getInstance() {
@@ -66,8 +74,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 	 */
 	public AptCompilationParticipant()
 	{
-        _factoryLoader = AnnotationProcessorFactoryLoader.getLoader();
-        INSTANCE = this;
+		INSTANCE = this;
 	}
 
 	public CompilationParticipantResult notify( CompilationParticipantEvent cpe )
@@ -115,20 +122,23 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		// is a possibility
 		if ("1.3".equals(javaVersion) || "1.4".equals(javaVersion)) { //$NON-NLS-1$ //$NON-NLS-2$
 			return EMPTY_PRE_BUILD_COMPILATION_RESULT;
-		}
-
+		}			
+	
 		// If we're in batch mode, we need to reset the classloaders
 		// for the batch processors before we begin
 		boolean isFullBuild = pbce.isFullBuild();
-		if (isFullBuild) {
+		if (isFullBuild && pbce.getRound() == 0) {
 			AnnotationProcessorFactoryLoader.getLoader().resetBatchProcessors(pbce.getJavaProject());
+			_previousRoundsBatchFactories.clear();
 		}
 		
-		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = _factoryLoader.getFactoriesAndAttributesForProject( javaProject );	
+		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories =
+			AnnotationProcessorFactoryLoader.getLoader().getFactoriesAndAttributesForProject(javaProject);
 		
-		APTResult result = APTDispatch.runAPTDuringBuild(factories, buildFiles, javaProject, isFullBuild);
+		APTResult result = APTDispatch.runAPTDuringBuild(factories, _previousRoundsBatchFactories, buildFiles, javaProject, isFullBuild);
 		Set<IFile> newFiles = result.getNewFiles();			
 		Set<IFile> deletedFiles = new HashSet<IFile>();
+		_previousRoundsBatchFactories.addAll(result.getDispatchedBatchFactory());
 		
 		// see if APT updated a project's source path
 		boolean sourcePathChanged = result.getSourcePathChanged();
@@ -187,7 +197,7 @@ public class AptCompilationParticipant implements ICompilationParticipant
 				return GENERIC_COMPILATION_RESULT;
 			
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = 
-				_factoryLoader.getFactoriesAndAttributesForProject( javaProject );
+				AnnotationProcessorFactoryLoader.getLoader().getFactoriesAndAttributesForProject( javaProject );
 			APTResult result = APTDispatch.runAPTDuringReconcile( factories, cu, javaProject );
 			Map<IFile, List<IProblem>> allproblems = result.getProblems();			
 			
@@ -257,11 +267,11 @@ public class AptCompilationParticipant implements ICompilationParticipant
 		if (!AptConfig.isEnabled(project)) {
 			return false;
 		}		
-		return _factoryLoader.hasFactoriesForProject(project);				
+		return AnnotationProcessorFactoryLoader.getLoader().hasFactoriesForProject(project);				
 		//TODO: use config to decide which projects we support
 	}
 
-    private AnnotationProcessorFactoryLoader _factoryLoader;
+    
     private final static String DOT_JAVA = ".java"; //$NON-NLS-1$
 	
 	private final static PreBuildCompilationResult EMPTY_PRE_BUILD_COMPILATION_RESULT = 

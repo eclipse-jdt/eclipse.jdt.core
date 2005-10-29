@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,16 +47,17 @@ import com.sun.mirror.apt.RoundCompleteListener;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 /*package*/ class APTDispatchRunnable implements IWorkspaceRunnable
-{
+{	
 	public static final APTResult EMPTY_APT_RESULT = new APTResult();
 	public static final IFile[] NO_FILES = new IFile[0];
 	// The files that requires processing.
-	private IFile[] _allFilesRequireProcessing = null;
-	// the original list of files before any filtering.
-	private final IFile[] _originalFiles;
+	private IFile[] /*final*/ _allFilesRequireProcessing = null;
+	// The original set of files - <code>_allFilesRequireProcessing</code> 
+	private /*final*/ IFile[] _remainingFiles = null;
 	private final ICompilationUnit _compilationUnit;
 	private final IJavaProject _javaProject;
 	private final Map<AnnotationProcessorFactory, FactoryPath.Attributes> _factories;
+	private final Set<AnnotationProcessorFactory> _dispatchedBatchFactories;
 	private  APTResult _result;
 	private final boolean _isFullBuild;
 	
@@ -63,14 +65,15 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			IFile[] files, 
 			IJavaProject javaProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
+			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
 			boolean isFullBuild)
 	{
 		assert files != null : "missing files"; //$NON-NLS-1$
 		_compilationUnit = null;
-		_allFilesRequireProcessing = getFilesToProcess(files);
-		_originalFiles = files;
+		filterFilesForProcessing(files);
 		_javaProject = javaProject;
 		_factories = factories;
+		_dispatchedBatchFactories = dispatchedBatchFactories;
 		_isFullBuild = isFullBuild;
 	}	
 	/*package*/ APTDispatchRunnable( 
@@ -80,21 +83,28 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	{
 		_compilationUnit = cu;
 		final IFile file = (IFile)cu.getResource();
-		_allFilesRequireProcessing = ScannerUtil.hasAnnotationInstance(file) ?
+		final boolean hasAnnotation = ScannerUtil.hasAnnotationInstance(file);
+		_allFilesRequireProcessing = hasAnnotation ?
 				new IFile[]{file} : NO_FILES;
-		_originalFiles = new IFile[]{file};
+		_remainingFiles = hasAnnotation ? NO_FILES : new IFile[]{file};
 		_javaProject = javaProject;
 		_factories = factories;
 		_isFullBuild = false;
+		// does not apply in reconcile case. we don't generate file during
+		// reconcile and no apt rounding ever occur as a result.
+		_dispatchedBatchFactories = Collections.emptySet();
 	}
 	
 	public APTResult getResult() { return _result; }
 	
-	private static IFile[] getFilesToProcess(final IFile[] orig)
+	private void filterFilesForProcessing(final IFile[] orig)
 	{			
 		int numFiles = orig.length;
-		if( numFiles == 0 )
-			return NO_FILES;
+		if( numFiles == 0 ){
+			_allFilesRequireProcessing = NO_FILES;
+			_remainingFiles = orig;
+			return;
+		}
 		int count = 0;
 		boolean[] needProcess = new boolean[numFiles];
 		for( int i=0; i<numFiles; i++ ){
@@ -106,55 +116,67 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				needProcess[i] = false;
 			}
 		}
-		if( count == 0 )
-			return NO_FILES;
+		if( count == 0 ){
+			_allFilesRequireProcessing = NO_FILES;
+			_remainingFiles = orig;
+			return;
+		}
 		
-		IFile[] filesToProcess = new IFile[count];
-		int index = 0;
+		_allFilesRequireProcessing = new IFile[count];
+		_remainingFiles = count == numFiles ? NO_FILES : new IFile[numFiles-count];
+		int pIndex = 0;
+		int rIndex = 0;
 		for( int i=0; i<numFiles; i++ ){
 			if( needProcess[i] )
-				filesToProcess[index++] = orig[i];
+				_allFilesRequireProcessing[pIndex++] = orig[i];
+			else
+				_remainingFiles[rIndex++] = orig[i];
 		}
-		return filesToProcess;
 	}
 	
 	/**
-	 * Determine whether there are files to be processed. 
-	 * This call also make sure that the list of files contains exactly the list of 
-	 * files to be processed. The size of the list is the number of files to 
-	 * be processed.
-	 * @return
+	 * Determine whether there are files to be processed.
+	 * @return <code>true</code> iff APT processing should occur, return <code>false</code>
+	 * otherwise.
+	 * 
+	 * APT should should run one of the following is true
+	 * 1) There are files with annotations 
+	 * 2) There are factories dispatched in an earlier round
 	 */
 	private boolean shouldProcess()
 	{
-		if(_factories == null | _factories.size() == 0 )
+		if( (_factories == null || _factories.size() == 0) && _dispatchedBatchFactories.isEmpty() )
 			return false;
-		return _allFilesRequireProcessing.length > 0;
+		return _allFilesRequireProcessing.length > 0 || !_dispatchedBatchFactories.isEmpty() ;
 	}
 	
 	public void run(IProgressMonitor monitor) 
 	{	
-		//
-		//  bail-out early if there aren't factories, or if there aren't any annotation instances
-		// 
 		if ( !shouldProcess() )
 		{
 			// tracing
 			if ( AptPlugin.DEBUG ) 
 			{			
 				String msg;
-				if ( _factories == null || _factories.size() == 0 )
+				if ( (_factories == null || _factories.size() == 0) && _dispatchedBatchFactories.isEmpty() )
 					msg = "no AnnotationProcessoryFactory instances registered."; //$NON-NLS-1$
 				else
-					msg = "no annotation instances in file."; //$NON-NLS-1$
+					msg = "no files to dispatch to."; //$NON-NLS-1$
 				trace( "run():  leaving early because there are " + msg, //$NON-NLS-1$
 					   null);
 			}
 
 			Set<IFile> allDeletedFiles = new HashSet<IFile>();
 			if( !_isFullBuild ){
-				for( int i=0, len = _originalFiles.length; i<len; i++ ){
-					IFile f = _originalFiles[i];
+				for( int i=0, len = _allFilesRequireProcessing.length; i<len; i++ ){
+					IFile f = _allFilesRequireProcessing[i];
+					final Set<IFile> deletedFiles = 
+						cleanupAllGeneratedFilesForParent( f, _compilationUnit, null );
+					if( deletedFiles != null )
+						allDeletedFiles.addAll(deletedFiles);
+				}
+				for( int i=0, len=_remainingFiles.length; i<len; i++ ){
+					IFile f = _remainingFiles[i];
 					final Set<IFile> deletedFiles = 
 						cleanupAllGeneratedFilesForParent( f, _compilationUnit, null );
 					if( deletedFiles != null )
@@ -166,7 +188,8 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				_result =  EMPTY_APT_RESULT;
 			else
 				_result = new APTResult( Collections.<IFile>emptySet(), 
-										 allDeletedFiles, 
+										 allDeletedFiles,
+										 Collections.<AnnotationProcessorFactory>emptySet(),
 										 Collections.<IFile, Set<String>>emptyMap(),
 										 Collections.<IFile, List<IProblem>>emptyMap(), 
 										 false, false );
@@ -178,12 +201,12 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			if ( _compilationUnit != null )
 			{
 				processorEnv = ProcessorEnvImpl
-					.newProcessorEnvironmentForReconcile(_compilationUnit, _javaProject);
+					.newReconcileEnv(_compilationUnit, _javaProject);
 			}
 			else
 			{
 				processorEnv = ProcessorEnvImpl
-					.newProcessorEnvironmentForBuild( _allFilesRequireProcessing, _javaProject);
+					.newBuildEnv( _allFilesRequireProcessing, _remainingFiles, _javaProject);
 			}
 			_result = runAPT(_factories, processorEnv);
 		}
@@ -222,6 +245,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 				final ICompilationUnit unit = processorEnv.getICompilationUnitForFile(file);
 				assert unit != null : "cannot locate ICompilationUnit for file " + file.getName(); //$NON-NLS-1$
 				unitsForFilesWithMissingType.add(unit);
+				break;
 			}
 		}	
 	}
@@ -282,9 +306,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 						if ( AptPlugin.DEBUG ) {
 							trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + curFile, //$NON-NLS-1$ //$NON-NLS-2$ 
 									processorEnv); 
-							
 						}
-	                    processorEnv.setLatestProcessor(processor);
 						processor.process();
 						addFileWithMissingTypeError(curFile, filesWithMissingType, unitsForFilesWithMissingType, processorEnv);
 					}
@@ -305,16 +327,19 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 	 * @param processorEnv
 	 * @param filesWithMissingType at return contains files (<code>IFile</code>) that has 
 	 * missing types.
+	 * @param currentRoundDispatchedBatchFactories output parameter. At return contains the 
+	 * set of batch factories that has been dispatched.
 	 * @param sourceForFilesWithMissingType at return contains source (<code>char[]</code>)
 	 * for files that has missing types. Parallel to entries in <code>filesWithMissingType</code> 
-	 * @param round the current round number, 0-based.
+	 * @param internalRound the current round number, 0-based.
 	 */
 	private void runAPTInMixedMode(
 			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
+			final Set<AnnotationProcessorFactory> currentRoundDispatchedBatchFactories,
 			final ProcessorEnvImpl processorEnv,
 			final List<IFile> filesWithMissingType,
 			final List<ICompilationUnit> unitsForFilesWithMissingType,
-			final int round)
+			final int internalRound)
 	{
 		final IFile[] files = processorEnv.getFiles();
 		final Map<IFile, Set<AnnotationTypeDeclaration>> file2AnnotationDecls = 
@@ -322,7 +347,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		final Map<String, AnnotationTypeDeclaration> annotationDecls = 
 			processorEnv.getAllAnnotationTypes(file2AnnotationDecls);
 		
-		if (annotationDecls.isEmpty())
+		if (annotationDecls.isEmpty() && _dispatchedBatchFactories.isEmpty() )
 		{
 			if ( AptPlugin.DEBUG ) 
 				trace( "runAPT:  leaving early because annotationDecls is empty", //$NON-NLS-1$
@@ -330,6 +355,9 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			return;
 		}
 		
+		if( AptPlugin.DEBUG )
+			trace( "annotations found " + annotationDecls.keySet(), processorEnv); //$NON-NLS-1$
+
 		// file based processing factory to the set of annotations that it 'claims'
 		final Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>> fileFactory2Annos =
 			new HashMap<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>>( factories.size() * 4/3 + 1 );
@@ -368,23 +396,38 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		
 		// Dispatch to the batch process factories first.
 		// Batch processors only get executed on a full/clean build and only get called once
-		// within one round APT dispatch.
-		if( !batchFactory2Annos.isEmpty() && round == 0){
+		// within one round APT dispatch.		
+		if( internalRound == 0 ){
+			if( !batchFactory2Annos.isEmpty()){
+				processorEnv.setBatchProcessing();
+				// Once we figure out which factory claims what annotation,
+				// the order of the factory doesn't matter.
+				// But in order to make things consists between runs, will 
+				// dispatch base on factory order.
+				for(AnnotationProcessorFactory factory : factories.keySet() ){			
+					final Set<AnnotationTypeDeclaration> annotationTypes = batchFactory2Annos.get(factory);
+					if( annotationTypes == null ) continue;
+					final AnnotationProcessor processor = 
+						factory.getProcessorFor(annotationTypes, processorEnv);
+					if( processor != null ){
+						if ( AptPlugin.DEBUG ) 
+							trace( "runAPT: invoking batch processor " + processor.getClass().getName(), //$NON-NLS-1$
+									processorEnv);
+						currentRoundDispatchedBatchFactories.add(factory);
+						processor.process();
+					}
+				}			
+			}
 			processorEnv.setBatchProcessing();
-			// Once we figure out which factory claims what annotation,
-			// the order of the factory doesn't matter.
-			// But in order to make things consists between runs, will 
-			// dispatch base on factory order.
-			for(AnnotationProcessorFactory factory : factories.keySet() ){			
-				final Set<AnnotationTypeDeclaration> annotationTypes = batchFactory2Annos.get(factory);
-				if( annotationTypes == null ) continue;
+			for( AnnotationProcessorFactory prevRoundFactory : _dispatchedBatchFactories ){
+				if(currentRoundDispatchedBatchFactories.contains(prevRoundFactory))
+					continue;
 				final AnnotationProcessor processor = 
-					factory.getProcessorFor(annotationTypes, processorEnv);
+					prevRoundFactory.getProcessorFor(Collections.<AnnotationTypeDeclaration>emptySet(), processorEnv);
 				if( processor != null ){
 					if ( AptPlugin.DEBUG ) 
 						trace( "runAPT: invoking batch processor " + processor.getClass().getName(), //$NON-NLS-1$
-								processorEnv); 
-                    processorEnv.setLatestProcessor(processor);
+								processorEnv);
 					processor.process();
 				}
 			}
@@ -409,7 +452,6 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 							if ( AptPlugin.DEBUG ) 
 								trace( "runAPT: invoking file-based processor " + processor.getClass().getName(), //$NON-NLS-1$
 										processorEnv );
-		                    processorEnv.setLatestProcessor(processor);
 							processor.process();
 						}
 					}
@@ -430,7 +472,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 		if( processorEnv.getPhase() == Phase.BUILD )
 		{	
 			boolean generatedTypes = result.hasGeneratedTypes();
-			int round = 1;
+			int internalRound = 1;
 			while( generatedTypes && !filesWithMissingType.isEmpty() ){
 				// compile all generated files and try to satisfy the missing generated types.
 				//recompileGeneratedFiles(result.getNewFiles());
@@ -451,12 +493,12 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 					files[i] = filesWithMissingType.get(i);
 					units[i] = unitsForFiles.get(i);
 				}
-				ProcessorEnvImpl newEnv = ProcessorEnvImpl.newProcessorEnvironmentForBuild(
+				ProcessorEnvImpl newEnv = ProcessorEnvImpl.newBuildEnvInternalRounding(
 						files, units, processorEnv.getJavaProject() );
 
 				filesWithMissingType.clear();
 				unitsForFiles.clear();
-				APTResult newResult = runAPT(factories, newEnv, filesWithMissingType, unitsForFiles, round++);
+				APTResult newResult = runAPT(factories, newEnv, filesWithMissingType, unitsForFiles, internalRound++);
 				// Only have generated types if there are *new* generated files
 				generatedTypes = hasNewFiles(result, newResult);
 				
@@ -488,7 +530,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			final ProcessorEnvImpl processorEnv,
 			final List<IFile> filesWithMissingType,
 			final List<ICompilationUnit> unitsForFiles,
-			final int round) 
+			final int internalRound) 
 	{
 		try {
 			if (factories.size() == 0)
@@ -508,12 +550,16 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 					lastGeneratedFiles.addAll(genFiles);
 			}
 			
-			
 			boolean mixedModeDispatch = shouldDispatchToBatchProcessor(factories, processorEnv);
-			if( mixedModeDispatch )
-				runAPTInMixedMode(factories, processorEnv, filesWithMissingType, unitsForFiles, round);
-			else
+			final Set<AnnotationProcessorFactory> currentRoundDispatchedBatchFactories;
+			if( mixedModeDispatch ){
+				currentRoundDispatchedBatchFactories = new LinkedHashSet<AnnotationProcessorFactory>();
+				runAPTInMixedMode(factories, currentRoundDispatchedBatchFactories, processorEnv, filesWithMissingType, unitsForFiles, internalRound);
+			}
+			else{
+				currentRoundDispatchedBatchFactories = Collections.emptySet();
 				runAPTInFileBasedMode(factories, processorEnv, filesWithMissingType, unitsForFiles);
+			}
 			
 
 			// notify the processor listeners
@@ -558,6 +604,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			
 			APTResult result = new APTResult( modifiedFiles, 
 											  allDeletedFiles, 
+											  currentRoundDispatchedBatchFactories,
 											  processorEnv.getTypeDependencies(), 
 											  processorEnv.getProblems(), 
 											  processorEnv.getSourcePathChanged(),
@@ -764,6 +811,4 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 			return sb.toString();
 		}
 	}
-	
-	
 }

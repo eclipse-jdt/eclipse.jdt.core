@@ -56,7 +56,9 @@ public class MixedModeTesting extends APTTestBase{
 	
 	/**
 	 * Only one batch processor is involved 
-	 */
+	 * This test the processor environment and that it returns the correct
+	 * set of declared types.
+	 */	
 	public void testSimpleBatchProcessing() throws Exception
 	{	
 		IProject project = env.getProject( getProjectName() );
@@ -81,13 +83,22 @@ public class MixedModeTesting extends APTTestBase{
 			+ "public class C {}\n";
 		
 		env.addClass( srcRoot, "p1", "C", codeC );
+		
+		// This one doesn't have annotations.
+		String codeD = "package p1; public class D{}";
+		env.addClass( srcRoot, "p1", "D", codeD );
 
 		fullBuild( project.getFullPath() );		
 		expectingNoProblems();
 		expectingMarkers(new String[]{"CompletedSuccessfully"});
 	}
 	
-	public void testAPTRoundingInMixedMode() throws CoreException
+	/**
+	 * What this tests test.
+	 * This makes sure the internal apt rounding occurs correctly in batch mode.
+	 * @throws CoreException
+	 */
+	public void testAPTRoundingInMixedMode0() throws CoreException
 	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
@@ -124,16 +135,57 @@ public class MixedModeTesting extends APTTestBase{
 			+ "public class C {}\n";
 		
 		env.addClass( srcRoot, "p1", "C", codeC );
+		
+		// This one doesn't have annotations.
+		String codeD = "package p1; public class D{}";
+		env.addClass( srcRoot, "p1", "D", codeD );
 
 		fullBuild( project.getFullPath() );
-		expectingMarkers(new String[]{"CompletedSuccessfully"});
+		expectingMarkers(new String[]{"CompletedSuccessfully", "Called 2 times."});
 		
 		expectingNoProblems();
 		
 		// Now run it again to verify that the classloader was successfully bounced
 		fullBuild( project.getFullPath() );
-		expectingMarkers(new String[]{"CompletedSuccessfully"});
+		expectingMarkers(new String[]{"CompletedSuccessfully", "Called 2 times."});
 		
 		expectingNoProblems();
+	}
+	
+	/* 
+	 * What this test tests.
+	 * There should be a total of 3 rounds. 
+	 * -The first round starts because of the "BatchGen" annotations.
+	 *  This round creates the gen.Class0 type
+	 * -The second round starts because of a batch processor being dispatched in a previous round
+	 * and a new type is generated. 
+	 *  This round creates the gen.Class1 type
+	 * -The third round starts for the exact same reason as round 2.
+	 *  This is a no-op round.
+	 */
+
+	public void testAPTRoundingInMixedMode1() throws CoreException
+	{
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+		
+		String codeA = "package p1;\n"
+			+ "\n import org.eclipse.jdt.apt.tests.external.annotations.batch.*;"
+			+ "\n@BatchGen\n"
+			+ "public class A {" 
+			+ "   gen.Class0 clazz0;\n"
+			+ "   gen.Class1 clazz1;\n" 
+			+ "}\n";
+		
+		env.addClass( srcRoot, "p1", "A", codeA );
+		
+		// drop something to possibily fire off an incremental build
+		String codeB = "package p1;\n"
+			+ "public class B {}\n";
+		
+		env.addClass( srcRoot, "p1", "B", codeB );
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+		expectingMarkers(new String[]{"Called the third time."});
 	}
 }

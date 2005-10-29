@@ -38,21 +38,14 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
  */
 public class APTDispatch 
 {	
-	/**  
-	 * This is only used for testing!
-	 * Contains the list of names or name prefixes of annotation processor factories
-	 * that need to be executed in batch mode. This is to separate testing configuration
-	 * from regular execution.
-	 */
-	private static List<String> _batchFactoryForTestingOnly = null;
-	
 	public static APTResult runAPTDuringBuild(
 			final Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
+			final Set<AnnotationProcessorFactory> previousRoundsBatchFactories,
 			final IFile[] files,
 			final IJavaProject javaProj,
 			final boolean isFullBuild)
 	{	
-		return runAPT( factories, javaProj, files, null, isFullBuild );
+		return runAPT( factories, previousRoundsBatchFactories, javaProj, files, null, isFullBuild );
 	}
 	
 	/**
@@ -65,7 +58,7 @@ public class APTDispatch
 			final ICompilationUnit compilationUnit, 
 			final IJavaProject javaProj) 
 	{
-		return runAPT( factories, javaProj, null, compilationUnit, false /* does not matter*/ );
+		return runAPT( factories, Collections.<AnnotationProcessorFactory>emptySet(), javaProj, null, compilationUnit, false /* does not matter*/ );
 	}
 		
 	/**
@@ -73,6 +66,7 @@ public class APTDispatch
 	 */
 	private static APTResult runAPT(
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
+			Set<AnnotationProcessorFactory> previousRoundsFactories,
 			IJavaProject javaProj,
 			IFile[] files,
 			ICompilationUnit compilationUnit,
@@ -91,7 +85,7 @@ public class APTDispatch
 		{
 			// If we're building, types can be generated, so we
 			// want to run this as an atomic workspace operation
-			 runnable = new APTDispatchRunnable( files, javaProj, factories, isFullBuild );
+			 runnable = new APTDispatchRunnable( files, javaProj, factories, previousRoundsFactories, isFullBuild );
 			 schedulingRule = javaProj.getResource();
 			 IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			 try {
@@ -126,12 +120,14 @@ public class APTDispatch
 			_deletedFiles = Collections.emptySet();
 			_newDependencies = Collections.emptyMap();
 			_newProblems = Collections.emptyMap();
+			_dispatchedBatchFactories = Collections.emptySet();
 			_sourcePathChanged = false;
 			_hasGeneratedTypes = false;
 		}
 		APTResult( 
 				Set<IFile> newFiles, 
-				Set<IFile> deletedFiles, 
+				Set<IFile> deletedFiles,
+				Set<AnnotationProcessorFactory> dispatchedBatchFactories,
 				Map<IFile, Set<String>> deps, 
 				Map<IFile, List<IProblem>> problems, 
 				boolean sourcePathChanged,
@@ -141,6 +137,7 @@ public class APTDispatch
 			_newDependencies = deps;
 			_deletedFiles = deletedFiles;
 			_newProblems = problems;
+			_dispatchedBatchFactories = dispatchedBatchFactories;
 			_sourcePathChanged = sourcePathChanged;
 			_hasGeneratedTypes = hasGeneratedTypes;
 		}
@@ -149,12 +146,14 @@ public class APTDispatch
 		private final Set<IFile> _deletedFiles;
 		private final Map<IFile, Set<String>> _newDependencies;
 		private final Map<IFile, List<IProblem>> _newProblems;
+		private final Set<AnnotationProcessorFactory> _dispatchedBatchFactories;
 		private boolean _sourcePathChanged;
 		private boolean _hasGeneratedTypes;
 		private boolean _mutable = true;
 		
 		Set<IFile> getNewFiles() { return Collections.unmodifiableSet(_newFiles); }
 		Set<IFile> getDeletedFiles() { return Collections.unmodifiableSet(_deletedFiles); }
+		Set<AnnotationProcessorFactory> getDispatchedBatchFactory(){ return Collections.unmodifiableSet(_dispatchedBatchFactories); }
 		Map<IFile, Set<String>> getNewDependencies() { return Collections.unmodifiableMap(_newDependencies); }
 		void removeDependenciesFrom(IFile file){
 			mutate();
@@ -183,6 +182,7 @@ public class APTDispatch
 			mutate();
 			_newFiles.addAll(otherResult._newFiles);
 			_deletedFiles.addAll(otherResult._deletedFiles);
+			_dispatchedBatchFactories.addAll(otherResult._dispatchedBatchFactories);
 			mergeMaps(_newDependencies, otherResult._newDependencies);
 			mergeMaps(_newProblems, otherResult._newProblems);
 			_sourcePathChanged |= otherResult._sourcePathChanged;
@@ -219,21 +219,5 @@ public class APTDispatch
 				}
 			}
 		}		
-	}	
-	
-	/**
-	 * This is for testing only!!!!
-	 * Do not ever call this outside the org.eclipse.jdt.apt.test plugin.
-	 * 
-	 * Allow test case to change the list of factories to be executed in batch mode
-	 * on a per test basis. 
-	 * @param batchFactoryNames
-	 */
-	public static void runInBatchMode_testingOnly(final List<String> batchFactoryNames){
-		_batchFactoryForTestingOnly = batchFactoryNames;
-	}
-	
-	public static void resetBatchMode_testingOnly(){
-		_batchFactoryForTestingOnly = null;
 	}
 }

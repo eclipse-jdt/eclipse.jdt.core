@@ -11,10 +11,12 @@
 package org.eclipse.jdt.apt.tests.annotations.aptrounding;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collection;
 
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
+import com.sun.mirror.apt.Messager;
 import com.sun.mirror.declaration.TypeDeclaration;
 
 public class Round1GenAnnotationProcessor implements AnnotationProcessor{
@@ -37,5 +39,15 @@ public class Round1GenAnnotationProcessor implements AnnotationProcessor{
 			}
 			catch(IOException io){}
 		}
+		
+		final Collection<TypeDeclaration> typeDecls = _env.getTypeDeclarations();
+		final Messager msger = _env.getMessager();
+		if( typeDecls.size() == 1 ){
+			final TypeDeclaration type = typeDecls.iterator().next();
+			if( !type.getQualifiedName().equals( "p1.X") )
+				msger.printError("Expected to find p1.X but got " + type.getQualifiedName() ); 
+		}
+		else
+			msger.printError("expected one type declaration but got " + typeDecls );	
 	}
 }

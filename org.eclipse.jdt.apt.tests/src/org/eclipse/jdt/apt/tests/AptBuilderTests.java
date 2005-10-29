@@ -533,18 +533,18 @@ public class AptBuilderTests extends Tests
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath( getProjectName()  );
 		
-		String codeA = "package p1;\n"
+		String codeX = "package p1;\n"
 			+ "\n import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;"
 			+ "\n@GenBean\n"
-			+ "public class A {}\n";
+			+ "public class X {}\n";
 		
-		env.addClass( srcRoot, "p1", "A", codeA );
+		env.addClass( srcRoot, "p1", "X", codeX );
 		
-		String codeB = "package p1;\n"
+		String codeY = "package p1;\n"
 			+ "\n import org.eclipse.jdt.apt.tests.annotations.aptrounding.*;"
-			+ "public class B { @GenBean2 test.Bean _bean = null; }\n";
+			+ "public class Y { @GenBean2 test.Bean _bean = null; }\n";
 		
-		env.addClass( srcRoot, "p1", "B", codeB );
+		env.addClass( srcRoot, "p1", "Y", codeY );
 
 		fullBuild( project.getFullPath() );
 		

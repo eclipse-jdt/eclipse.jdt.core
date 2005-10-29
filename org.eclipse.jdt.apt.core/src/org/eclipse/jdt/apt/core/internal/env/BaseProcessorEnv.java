@@ -58,7 +58,6 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.AnnotationProcessorListener;
 import com.sun.mirror.apt.Filer;
@@ -111,7 +110,6 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	// is outside of the workspace.
 	private VoidTypeImpl _voidType;
 	private PrimitiveTypeImpl[] _primitives;
-    private AnnotationProcessor _latestProcessor;
 	
 	public BaseProcessorEnv(CompilationUnit astCompilationUnit,
 						    IFile file,
@@ -126,17 +124,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		_modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
 		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
 	}
-    
-    public AnnotationProcessor getLatestProcessor()
-    {
-        return _latestProcessor;
-    }
-    
-    public void setLatestProcessor(AnnotationProcessor latestProcessor)
-    {
-        _latestProcessor = latestProcessor;
-    }
-	
+  
 	public Types getTypeUtils()
     {
 		return new TypesUtil(this);
@@ -674,9 +662,6 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			}
 		}
 		
-for( int index=0; index<len; index++ )
-	if(parseUnits[index] == null )
-		System.err.println();
 		CompilationUnitsRequestor requestor = new CompilationUnitsRequestor();
 		ASTParser p = ASTParser.newParser( AST.JLS3 );
 		p.setResolveBindings( true );

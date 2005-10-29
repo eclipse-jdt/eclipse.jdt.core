@@ -31,42 +31,44 @@ public class BatchProcessor implements AnnotationProcessor {
 		_env = env;
 	}
 	public void process() {
-		TIMES_CALLED++;
 		
 		final Messager msger = _env.getMessager();
-		
-		// Since we're a batch processor, we should never be called more than once
-		if (TIMES_CALLED > 1) {
-			msger.printError("BatchProcessor called more than once: " + TIMES_CALLED);
+		if( TIMES_CALLED == 0 ){
+			
+			final Collection<String> expectedList = new HashSet<String>();
+			expectedList.add("p1.A");
+			expectedList.add("p1.B");
+			expectedList.add("p1.C");
+			expectedList.add("p1.D");
+			final Collection<TypeDeclaration> allTypes = _env.getSpecifiedTypeDeclarations();
+			for( TypeDeclaration type : allTypes ){
+				expectedList.remove(type.getQualifiedName());
+			}
+			
+			if( !expectedList.isEmpty() ){
+				msger.printError("failed to find type " + expectedList);
+			}
+			
+			final Collection<String> expectedAnnotated = new HashSet<String>();
+			expectedList.add("p1.A");
+			expectedList.add("p1.C");
+			final AnnotationTypeDeclaration batchAnnoDecl = 
+				(AnnotationTypeDeclaration)_env.getTypeDeclaration(Batch.class.getName());
+			final Collection<Declaration> decls = _env.getDeclarationsAnnotatedWith(batchAnnoDecl);
+			for( Declaration decl : decls  ){
+				if( decl instanceof TypeDeclaration )
+					expectedAnnotated.remove( ((TypeDeclaration)decl).getQualifiedName() );
+			}
+			if( !expectedAnnotated.isEmpty() ){
+				msger.printError("failed to find annotated type " + expectedAnnotated );			
+			}
+			
+			msger.printWarning("CompletedSuccessfully");
+		}
+		else{
+			msger.printWarning("Called " + (TIMES_CALLED + 1) + " times.");
 		}
 		
-		final Collection<String> expectedList = new HashSet<String>();
-		expectedList.add("p1.A");
-		expectedList.add("p1.B");
-		expectedList.add("p1.C");
-		final Collection<TypeDeclaration> allTypes = _env.getSpecifiedTypeDeclarations();
-		for( TypeDeclaration type : allTypes ){
-			expectedList.remove(type.getQualifiedName());
-		}
-		
-		if( !expectedList.isEmpty() ){
-			msger.printError("failed to find type " + expectedList);
-		}
-		
-		final Collection<String> expectedAnnotated = new HashSet<String>();
-		expectedList.add("p1.A");
-		expectedList.add("p1.C");
-		final AnnotationTypeDeclaration batchAnnoDecl = 
-			(AnnotationTypeDeclaration)_env.getTypeDeclaration(Batch.class.getName());
-		final Collection<Declaration> decls = _env.getDeclarationsAnnotatedWith(batchAnnoDecl);
-		for( Declaration decl : decls  ){
-			if( decl instanceof TypeDeclaration )
-				expectedAnnotated.remove( ((TypeDeclaration)decl).getQualifiedName() );
-		}
-		if( !expectedAnnotated.isEmpty() ){
-			msger.printError("failed to find annotated type " + expectedAnnotated );			
-		}
-		
-		msger.printWarning("CompletedSuccessfully");
+		TIMES_CALLED++;
 	}
 }

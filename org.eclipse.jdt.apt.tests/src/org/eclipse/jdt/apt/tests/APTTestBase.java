@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -101,7 +104,28 @@ public abstract class APTTestBase extends Tests{
 	protected void expectingMarkers(String[] messages)
 	{	
 		final IMarker[] markers = getAPTBuildMarkerFor(env.getWorkspaceRootPath());
-		assertEquals(concate(messages), concate(markers));
+		final Set<String> expectedMessages = new HashSet<String>();
+		for(String msg : messages ){
+			expectedMessages.add(msg);
+		}
+		boolean fail = false;
+		try{
+			for( IMarker marker : markers ){
+				final String markerMsg = (String)marker.getAttribute(IMarker.MESSAGE);
+				if( expectedMessages.contains(markerMsg) )
+					expectedMessages.remove(markerMsg);
+				else{
+					fail = true;
+					break;
+				}
+			}
+			if( !expectedMessages.isEmpty() )
+				fail = true;
+		}catch(CoreException ce){
+			assertTrue("unexpected core exception" + ce.getMessage(), false); //$NON-NLS-1$
+		}
+		if( fail )
+			assertEquals(concate(messages), concate(markers));
 	}
 	
 	protected void expectingNoMarkers() {
