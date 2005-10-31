@@ -66,7 +66,6 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.SimpleName;
 
-import com.sun.corba.se.spi.activation._ServerStub;
 import com.sun.mirror.apt.AnnotationProcessorListener;
 import com.sun.mirror.apt.Filer;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
