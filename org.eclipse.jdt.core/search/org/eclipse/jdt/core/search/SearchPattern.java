@@ -227,6 +227,7 @@ public SearchPattern(int matchRule) {
  * @param pattern the given pattern
  * @param name the given name
  * @return true if the pattern matches the given name, false otherwise
+ * @since 3.2
  */
 public static final boolean camelCaseMatch(String pattern, String name) {
 	if (pattern == null)
@@ -289,6 +290,7 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  * @param nameStart the given name start
  * @param nameEnd the given name end
  * @return true if a sub-pattern matches the subpart of the given name, false otherwise
+ * @since 3.2
  */
 public static final boolean camelCaseMatch(String pattern, int patternStart, int patternEnd, String name, int nameStart, int nameEnd) {
 	if (name == null)
@@ -1778,6 +1780,7 @@ public boolean matchesName(char[] pattern, char[] name) {
  * @param stringPattern The string pattern
  * @param matchRule The match rule
  * @return Optimized valid match rule or -1 if an incompatibility was detected.
+ * @since 3.2
  */
 public static int validateMatchRule(String stringPattern, int matchRule) {
 
