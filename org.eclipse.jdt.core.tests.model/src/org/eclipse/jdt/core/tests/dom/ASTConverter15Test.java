@@ -4330,6 +4330,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	ITypeBinding typeBinding = type.resolveBinding();
     	assertNotNull("No binding", typeBinding);
     	assertTrue("Not an array", typeBinding.isArray());
+    	final IResolvedAnnotation[] annotations = typeBinding.getAnnotations();
+		assertNotNull("Should not be null", annotations);
+		assertEquals("Wrong size", 0, annotations.length);
     	assertEquals("wrong dimensions", 1, typeBinding.getDimensions());
     	ArrayType arrayType = (ArrayType) type;
     	assertEquals("Wrong dimension", 1, arrayType.getDimensions());

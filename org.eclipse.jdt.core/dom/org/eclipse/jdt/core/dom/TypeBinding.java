@@ -1160,6 +1160,7 @@ class TypeBinding implements ITypeBinding {
 	}
 	
 	public IResolvedAnnotation[] getAnnotations(){ 
+		IResolvedAnnotation[] domInstances = ResolvedAnnotation.NoAnnotations;
 		if( this.binding.isAnnotationType() || this.binding.isClass() ||
 		    this.binding.isEnum() || this.binding.isInterface() ){
 			final org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding refType = 
@@ -1168,7 +1169,6 @@ class TypeBinding implements ITypeBinding {
 				internalAnnotations = refType.getAnnotations();
 			
 			final int len = internalAnnotations == null ? 0 : internalAnnotations.length;
-			IResolvedAnnotation[] domInstances = ResolvedAnnotation.NoAnnotations;
 			if( len > 0 ){
 				domInstances = new ResolvedAnnotation[len];
 				for( int i=0; i<len; i++ ){
@@ -1177,7 +1177,7 @@ class TypeBinding implements ITypeBinding {
 			}
 			return domInstances;
 		}
-		return null;
+		return domInstances;
 	}
 	
 	/* 
