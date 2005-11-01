@@ -66,6 +66,7 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 			FileSystemUtil.makeDerivedParentFolders(_file.getParent());
 			if (create) {
 				_file.create(toSave, true, null);
+				_file.setDerived(true);
 			}
 			else {
 				_file.setContents(toSave, true, false, null);
