@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+	<meta name="copyright" content="Copyright (c) 2005 BEA Systems, Inc. All rights reserved. This program and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html" >
+    <title>
+      Automatic Processor Options
+    </title>
+  </head>
+  <body>
+    <h1>
+      Automatic Processor Options
+    </h1>
+    <p>Annotation processor options are configured in the 
+    <a href="apt_config.html">Annotation Processing preference dialog</a>.  Certain options 
+    are automatically provided to the processors; entering them in the Annotation Processing 
+    preference dialog will have no effect, since the automatically provided values will 
+    override any values set there.  The automatic options include the following:
+    <dl>
+    	<dt><strong>-classpath</strong></dt>
+    	<dd>
+    		The compiler classpath.  All entries are absolute paths, not workspace-relative.
+    	</dd>
+    	<dt><strong>-sourcepath</strong></dt>
+    	<dd>
+    		The compiler source path.  All entries are absolute paths, not workspace-relative.
+    	</dd>
+    	<dt><strong>-d</strong></dt>
+    	<dd>
+    		The absolute path of the compiler binary output directory, into which .class files are 
+    		built.
+    	</dd>
+    	<dt><strong>-s</strong></dt>
+    	<dd>
+    		The absolute path of the generated source directory, into which annotation processors 
+    		will generate files.
+    	</dd>
+    	<dt><strong>-source</strong></dt>
+    	<dd>
+    		The compiler -source option.  Typically a string such as &quot;5.0&quot;.
+    	</dd>
+    	<dt><strong>-target</strong></dt>
+    	<dd>
+    		The compiler -target option.  Typically a string such as &quot;5.0&quot;.
+    	</dd>
+    </dl>
+  </body>
+</html>
+

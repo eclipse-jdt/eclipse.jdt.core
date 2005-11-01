@@ -1,0 +1,83 @@
+<html>
+<head>
+<title>Getting started with APT in Eclipse</title>
+</head>
+
+<body>
+<h1>Getting Started</h2>
+<h2>APT in Eclipse</h3>
+
+<p>
+The APT plugin adds Java 5 annotation processing support to Eclipse, by running annotation
+processors written to use the 
+<a href="http://java.sun.com/j2se/1.5.0/docs/guide/apt/mirror/index.html">Mirror APIs</a>
+inside Eclipse.
+<p>
+These annotation processors will then get triggered as you type inside Eclipse, provide
+errors and warnings directly inside the editor, and producing normal build artifacts
+just as if you were running Sun's apt tool from the commandline.
+
+<p>
+For more detailed information about how the plugin works, 
+you can view the <a href="http://www.eclipse.org/jdt/apt/index.html">JDT-APT project web site</a>.
+</p>
+
+<h3>Turning on Annotation Processing</h3>
+You must have your project's compiler configured to use Java 5.0-level compliance
+in the preferences, under Java->Compiler:
+<p>
+<img src="compiler_dialog.png">
+<p>
+Next you need to enable annotation processing under Java->Compiler->Annotation Processing:
+<p>
+<img src="annotation_processing.gif">
+<p>
+In this dialog you can also specify the generated source directory if desired,
+and provide any processor options that are necessary.
+<p>
+<b>Note: "-Aclasspath" and "-Asourcepath" options are automatically passed
+to all your processors by eclipse, so it is unnecessary to provide those.</b>
+
+<h3>Adding Annotation Processors</h3>
+You can add annotation processors to your project under Java->Compiler->Annotation Processing->Factory Path:
+
+<p>
+<img src="factory_path.gif">
+<p>
+
+<h3>Factory Path and Source Control</h3>
+
+The factory path is similar to the classpath in the way it interacts with source control.
+In order to avoid hard-coding paths to factory jars, you can either use project-relative jars
+via the "Add Jars..." button, or use a classpath variable via the "Add Variable..." button.
+<p>
+
+<h3>Processor Options and Source Control</h3>
+
+You may need to use paths as some of the options passed to your annotation processors.
+Again, by avoiding hard-coding of absolute paths you'll be able to share your configuration
+in source control.
+
+<p>
+To do this, we support classpath variables inside of processor options.
+Variables must be delimited on both sides by %, and must be the 
+first segment of a path.
+<p>
+
+So, if FOO is a classpath variable that points to d:/foo, then %FOO%/bar.txt 
+will resolve to d:/foo/bar.txt.  Classpath resolution depends on the existence 
+of the classpath variable; if it doesn't exist, the raw string will be added to 
+the environment options.  However, bar.txt (in this example) does not need to 
+exist.
+<p>
+
+The reserved variable ROOT is given special meaning: it is the workspace root, 
+and introduces a project resource.  So, for instance, if quux is the name of a 
+project, then %ROOT%/quux will resolve to the absolute path of quux and %
+ROOT%/quux/.classpath will resolve to the absolute path to quux/.classpath.  When 
+using ROOT, the first segment of the path must actually exist: in the example, 
+the project quux must exist, but .classpath need not.
+
+
+
+

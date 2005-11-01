@@ -1,0 +1,72 @@
+<html>
+<head>
+<title>Quick Assist with APT</title>
+</head>
+
+<body>
+<h1>Creating a Quick-Fix processor for APT</h2>
+<h2>Instructions for creating an Eclipse Quick Fix Processor</h3>
+
+<p>
+It is possible to write quick-fix processors to fix errors that your APT processor
+detects. To do that, you must do two things:
+
+<ol>
+<li>Print errors indicating that they are fixable</li>
+<li>Write an APT quick fix processor and register it with APT</li>
+</ol> 
+</p>
+
+<h3>1. Print errors indicating that they are fixable</h3>
+
+When running inside Eclipse, you may downcast the Messager object that you get from
+the AnnotationProcessorEnvironment's <code>getMessager()</code> method. Inside Eclipse,
+that object will also be an <code>org.eclipse.jdt.apt.core.util.EclipseMessager</code>, which
+declares some additional methods over the standard Messager, like the following:
+
+<code>
+<ul>
+<li>printFixableError(SourcePosition pos, String msg, String pluginId, String errorId)</li>
+<li>printFixableError(String msg, String pluginId, String errorId)</li>
+</ul>
+</code>
+
+The pluginId should be the ID of the plugin within which you will be creating your
+quick fix processor. The errorId should be a String that will make sense in the context of
+your quick fix processor, say, "requiredAnnotationValueMissing", or whatever will provide
+the necessary information to provide your quick fix.
+
+<p>
+
+<h3>2. Create an APT Quick Fix Processor</h3>
+
+Begin by creating a class that implements <code>org.eclipse.jdt.apt.ui.quickfix.IAPTQuickFixProvider</code>, 
+which has only one method:
+
+<code>
+<ul>
+<li>public IJavaCompletionProposal [] getProposals(IInvocationContext context, 
+IProblemLocation [] locations) throws CoreException;
+</ul>
+</code>
+
+You'll notice this is very similar to the standard Eclipse quick fix processor API,
+but you will only get called for problems that you created.</p>
+
+Once you've created your quick fix processor implementation, you can register it with an extension
+point on the APT UI plugin, aptQuickFixProvider. Here is an example of what to put in your
+plugin's plugin.xml:
+
+<pre>
+&lt;extension
+         point="org.eclipse.jdt.apt.ui.aptQuickFixProvider">
+      &lt;quickFixProvider
+            className="com.foo.MyAptQuickFixProvider"
+            errorCode="com.foo.AptErrors"
+            pluginId="com.foo.Apt"/>
+&lt;/extension>
+</pre>
+
+That's it! Once your plugin is running inside Eclipse, your APT Quick Fix Provider
+will get called each time the user attempts to quick-fix one of the errors
+your processor created.
