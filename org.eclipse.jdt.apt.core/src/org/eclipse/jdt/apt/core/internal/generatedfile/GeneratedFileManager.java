@@ -40,7 +40,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
@@ -221,6 +220,7 @@ public class GeneratedFileManager {
 				pkgName = typeName.substring(0, separatorIndex);
 				typeSimpleName = typeName.substring(separatorIndex + 1, typeName.length());
 			}
+			createFoldersForPackage(pkgName, genFolder);
 			IPackageFragment pkgFrag = genFragRoot.createPackageFragment(pkgName, true, progressMonitor);
 			if( pkgFrag == null ){
 				IStatus status = AptPlugin.createStatus(
@@ -257,9 +257,10 @@ public class GeneratedFileManager {
 				}
 			}	
 			
-			if( contentsDiffer ){	
-				
+			if( contentsDiffer ){
 				if( unit.exists() && unit.isOpen() ){
+					// directly modify the content of the working copy
+					// so that UI will pick up the change.
 					IBuffer buffer = unit.getBuffer();
 					if (buffer == null){
 						IStatus status = AptPlugin.createStatus(new IllegalStateException("Unable to update unit for " + cuName), "Failure generating file"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -577,7 +578,9 @@ public class GeneratedFileManager {
 			final IFolder genFolder = getGeneratedSourceFolder();
 			IContainer parent = generatedFile.getParent();
 			generatedFile.delete(true, true, progressMonitor);
-			while( !genFolder.equals(parent) && parent != null ){
+			// not deleting the generated source folder and only 
+			// delete generated folders containing the generated file.
+			while( !genFolder.equals(parent) && parent != null && parent.isDerived() ){				
 				final IResource[] members = parent.members();
 				IContainer grandParent = parent.getParent();
 				// last one turns the light off.
@@ -727,26 +730,35 @@ public class GeneratedFileManager {
 		return file;
 	}
 	
-	/** 
-	 * given an IFile, this will make sure that the intermediate folders
-	 * are created. 
+	/**
+	 * Create all the folders corresponding to specified package name
+	 * and mark all newly created ones as derived.
+	 * @param pkgName dot-separated package name
+	 * @param parent the parent folder of the folder to be created
+	 * @throws CoreException when the folder creation fails.
 	 */
-	private void createFoldersForFile( IFile f )
-	    throws CoreException
+	private void createFoldersForPackage(String pkgName, IFolder parent)
+		throws CoreException
 	{
-		String[] parts = f.getProjectRelativePath().segments();
-		IContainer c = f.getProject();
-
-		IFolder folder = c.getFolder( new Path( parts[0] ) );
-		if ( !folder.exists() )
-			folder.create( true, false, null );
-		
-		for ( int i = 1; i < parts.length - 1; i++ )
-		{
-			folder = folder.getFolder( parts[i] );
-			if ( !folder.exists() )
-				folder.create( true, false, null );
-		}
+	    StringBuilder buffer = new StringBuilder();
+	    for( int i=0, len=pkgName.length(); i<len; i++ ){
+	    	final char c = pkgName.charAt(i);
+	    	if( c != '.')
+	    		buffer.append(c);
+	    	// create a folder when we see a dot or when we are at the end.
+	    	if( c == '.' || i == len - 1){
+	    		if( buffer.length() > 0 ){
+	    			final IFolder folder = parent.getFolder(buffer.toString());
+	    			if( !folder.exists()){
+	    				folder.create(true, true, null);
+	    				folder.setDerived(true);
+	    			}
+	    			parent = folder;
+	    			// reset the buffer
+	    			buffer.setLength(0);
+	    		}
+	    	}
+	    }
 	}
 	
 	/**
@@ -1306,10 +1318,11 @@ public class GeneratedFileManager {
 				// the generated source folder because that will cause a classpath change,
 				// which will force the next build to be a full build.
 				try
-				{
+				{	
 					IResource[] members = f.members();
-					for ( int i = 0; i<members.length; i++ )
-						members[i].delete( true, null );
+					for ( int i = 0; i<members.length; i++ ){
+						deleteDerivedResources(members[i]);
+					}
 				}
 				catch ( CoreException ce )
 				{
@@ -1317,6 +1330,43 @@ public class GeneratedFileManager {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * If the given resource is a folder, then recursively deleted all derived  
+	 * files and folders contained within it. Delete the folder if it becomes empty
+	 * and if itself is also a derived resource.
+	 * If the given resource is a file, delete it iff it is a derived resource.
+	 * The resource is left untouched if it is no a folder or a file.
+	 * @param resource
+	 * @return <code>true</code> iff the resource has been deleted.
+	 * @throws CoreException
+	 */
+	private boolean deleteDerivedResources(final IResource resource)
+		throws CoreException
+	{		
+		if( resource.getType() == IResource.FOLDER ){
+			boolean deleteFolder = resource.isDerived();
+			IResource[] members = ((IFolder)resource).members();
+			for( int i=0, len=members.length; i<len; i++ ){	
+				deleteFolder &= deleteDerivedResources(members[i]);
+			}
+			if( deleteFolder ){
+				resource.delete(true, null);
+				return true;
+			}
+			return false; 
+		}
+		else if( resource.getType() == IResource.FILE ){
+			if( resource.isDerived() ){
+				resource.delete(true, null);
+				return true;
+			}
+			return false;
+		}
+		// will skip pass everything else.
+		else
+			return false;
 	}
 	
 	/**
