@@ -14,11 +14,14 @@ package org.eclipse.jdt.apt.core.internal.env;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.AptPlugin;
+import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.core.JavaModelException;
@@ -66,6 +69,12 @@ public class FilerImpl implements Filer {
     {
     	_env.checkValid();
 		_generatedClassFiles = true;
+		
+		// We do not want to write to disk during reconcile
+		if (_env.getPhase() == Phase.RECONCILE) {
+			return new NoOpOutputStream();
+		}
+		
     	GeneratedFileManager gfm = GeneratedFileManager.getGeneratedFileManager( _env.getProject() );
     	IPath path;
     	try 
@@ -81,12 +90,8 @@ public class FilerImpl implements Filer {
     	
     	path = path.append(name.replace('.', File.separatorChar) + ".class"); //$NON-NLS-1$
     	
-        // It is sometimes necessary to create the
-        // parent dir, else an IOException occurs creating f..
-        File parentFile = path.toFile().getParentFile();
-        FileSystemUtil.mkdirs( parentFile );
-    	
-        return new RefreshingFileOutputStream( path, _env.getProject() );
+        IFile file = _env.getProject().getFile(path);
+        return new BinaryFileOutputStream(file);
     }
 	
 	public boolean hasGeneratedClassFile(){ return _generatedClassFiles; }
@@ -112,9 +117,23 @@ public class FilerImpl implements Filer {
         throws IOException 
     {
     	_env.checkValid();
+    	
+    	// If we're reconciling, we do not want to actually create the text file
+    	if (_env.getPhase() == Phase.RECONCILE) {
+    		return new NoOpPrintWriter();
+    	}
+    	
     	IPath path = getOutputFileForLocation( loc, pkg, relPath );
-        return charsetName == null ? new RefreshingPrintWriter( path, _env.getProject() ) : 
-        	new RefreshingPrintWriter( path, _env.getProject(), charsetName );
+    	IFile file = _env.getProject().getFile(path);
+    	OutputStream binaryOut = new BinaryFileOutputStream(file);
+ 
+    	if (charsetName == null) {
+    		return new PrintWriter(binaryOut);
+    	}
+    	else {
+    		OutputStreamWriter outWriter = new OutputStreamWriter(binaryOut, charsetName);
+    		return new PrintWriter(outWriter);
+    	}
     }
 
     /**
@@ -134,8 +153,15 @@ public class FilerImpl implements Filer {
         throws IOException 
     {
     	_env.checkValid();
+    	
+    	// We do not want to write to disk during reconcile
+		if (_env.getPhase() == Phase.RECONCILE) {
+			return new NoOpOutputStream();
+		}
+    	
     	IPath path = getOutputFileForLocation( loc, pkg, relPath );
-    	return new RefreshingFileOutputStream( path, _env.getProject() );
+    	IFile file = _env.getProject().getFile(path);
+    	return new BinaryFileOutputStream(file);
     }
 	
     /**

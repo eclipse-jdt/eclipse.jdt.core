@@ -54,10 +54,11 @@ public final class FileSystemUtil
      * Eclipse doesn't seem 
      * @param target
      */
-    public static void mkdirs (IContainer folder) throws CoreException {
+    public static void makeDerivedParentFolders (IContainer folder) throws CoreException {
 		if (!folder.exists()) {
-			mkdirs(folder.getParent());
+			makeDerivedParentFolders(folder.getParent());
 			((IFolder) folder).create(true, true, null);
+			folder.setDerived(true);
 		}
     }
     
@@ -123,4 +124,30 @@ public final class FileSystemUtil
     		try {out.close();} catch (IOException ioe) {}
     	}
     }
+    
+    /**
+	 * Return true if the content of the streams is identical, 
+	 * false if not.
+	 */
+	public static boolean compareStreams(InputStream is1, InputStream is2) {
+		try {
+			int b1 = is1.read();
+	        while(b1 != -1) {
+	            int b2 = is2.read();
+	            if(b1 != b2) {
+	                return false;
+	            }
+	            b1 = is1.read();
+	        }
+
+	        int b2 = is2.read();
+	        if(-1 != b2) {
+	            return false;
+	        }
+	        return true;
+		}
+		catch (IOException ioe) {
+			return false;
+		}
+	}
 }

@@ -91,7 +91,7 @@ public class ProcessorEnvImpl extends BaseProcessorEnv implements EclipseAnnotat
     private ICompilationUnit _unit;       
     private Map<IFile, List<IProblem>> _allProblems;
     
-	// Stores the generated files and whether or not they were modified. In this case,
+	// Stores the generated java files and whether or not they were modified. In this case,
 	// new files will be considered "modified".
     private Map<IFile, Boolean> _generatedFiles = new HashMap<IFile, Boolean>();
 	private Set<AnnotationProcessorListener> _listeners = null;

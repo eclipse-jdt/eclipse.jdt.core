@@ -240,7 +240,7 @@ public class GeneratedFileManager {
 				try {
 					is = new ByteArrayInputStream( contents.getBytes() );
 					oldData = new BufferedInputStream( ((IFile)unit.getResource()).getContents());
-					contentsDiffer = !compareStreams(oldData, is);
+					contentsDiffer = !FileSystemUtil.compareStreams(oldData, is);
 				}
 				catch (CoreException ce) {
 					// Do nothing. Assume the new content is different
@@ -298,31 +298,6 @@ public class GeneratedFileManager {
 		throw new CoreException(status);
 	}	
 	
-	/**
-	 * Return true if the content of the streams is identical, 
-	 * false if not.
-	 */
-	private static boolean compareStreams(InputStream is1, InputStream is2) {
-		try {
-			int b1 = is1.read();
-	        while(b1 != -1) {
-	            int b2 = is2.read();
-	            if(b1 != b2) {
-	                return false;
-	            }
-	            b1 = is1.read();
-	        }
-
-	        int b2 = is2.read();
-	        if(-1 != b2) {
-	            return false;
-	        }
-	        return true;
-		}
-		catch (IOException ioe) {
-			return false;
-		}
-	}
 		
 	/**
 	 * This function generates a type "in-memory" by creating or updating a working copy with the
@@ -790,9 +765,7 @@ public class GeneratedFileManager {
 		IFolder srcFolder = getGeneratedSourceFolder();
 		srcFolder.refreshLocal( IResource.DEPTH_INFINITE, progressMonitor );
 		if (!srcFolder.exists()) {
-			FileSystemUtil.mkdirs(srcFolder);
-			// Since we've created it, mark it as derived
-			srcFolder.setDerived(true);
+			FileSystemUtil.makeDerivedParentFolders(srcFolder);
 		}
 			
 		//

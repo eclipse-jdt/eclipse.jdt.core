@@ -11,27 +11,27 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.env;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
-
-public class RefreshingFileOutputStream extends FileOutputStream {
-
-	private final IPath _path;
-	private final IProject _project;
+/**
+ * Dummy output stream for filer operations 
+ */
+public class NoOpOutputStream extends OutputStream {
 	
-	public RefreshingFileOutputStream(final IPath path, final IProject project) throws FileNotFoundException {
-		super(project.getLocation().append(path).toFile());
-		_path = path;
-		_project = project;
-	}
-	
-	public void close() throws IOException {
-		super.close();
-		new FileRefreshJob(_project.getFile(_path)).schedule();
+	public NoOpOutputStream() {
+		super();
 	}
 
+	@Override
+	public void write(byte[] b, int off, int len) throws IOException {
+	}
+
+	@Override
+	public void write(byte[] b) throws IOException {
+	}
+
+	@Override
+	public void write(int b) throws IOException {
+	}
 }
