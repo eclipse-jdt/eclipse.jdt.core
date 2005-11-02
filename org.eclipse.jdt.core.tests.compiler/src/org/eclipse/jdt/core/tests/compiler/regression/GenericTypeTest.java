@@ -24505,5 +24505,128 @@ public void test857() {
 		"Cannot specify any additional bound Cloneable when first bound is a type parameter\n" + 
 		"----------\n");	
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304
+public void test860() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    A.I foo();\n" + 
+			"    interface I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { }\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test861() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    A.I foo();\n" + 
+			"    interface I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { }\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"    interface J extends A.I { }\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test862() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test863() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    B.J foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test864() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"interface A {\n" + 
+			"    interface I<T> { }\n" + 
+			"\n" + 
+			"    A.I<Object> foo();\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface B<T> extends A { \n" + 
+			"    interface J<E> extends B.I<E> { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface C extends B<Object> {\n" + 
+			"    C.J<Object> foo();\n" + 
+			"}\n",
+		},
+		"");	
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
+public void test865() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"class A {\n" + 
+			"    interface I { }\n" + 
+			"\n" + 
+			"    A.I foo() { return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class B<T> extends A { \n" + 
+			"    interface J extends B.I { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class C extends B<Object> {\n" + 
+			"	@Override\n" + 
+			"    C.J foo() { return (B.J)super.foo(); }\n" + 
+			"}\n",
+		},
+		"");	
+}
 }
 
