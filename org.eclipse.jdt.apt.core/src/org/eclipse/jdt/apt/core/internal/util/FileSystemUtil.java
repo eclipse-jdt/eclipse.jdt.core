@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 
 /**
@@ -99,6 +100,10 @@ public final class FileSystemUtil
     	byte[] data = contents.getBytes("UTF8"); //$NON-NLS-1$
     	ByteArrayInputStream input = new ByteArrayInputStream(data);
     	if (file.exists()) {
+    		if (file.isReadOnly()) {
+				// provide opportunity to checkout read-only .factorypath file
+				ResourcesPlugin.getWorkspace().validateEdit(new IFile[]{file}, null);
+			}
     		file.setContents(input, true, false, null);
     	}
     	else {
