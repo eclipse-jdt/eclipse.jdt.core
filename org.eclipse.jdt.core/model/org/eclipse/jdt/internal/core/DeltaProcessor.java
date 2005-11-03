@@ -1179,17 +1179,6 @@ public class DeltaProcessor {
 	public void flush() {
 		this.javaModelDeltas = new ArrayList();
 	}
-	/* Returns the list of Java projects in the workspace.
-	 * 
-	 */
-	IJavaProject[] getJavaProjects() {
-		try {
-			return this.manager.getJavaModel().getJavaProjects();
-		} catch (JavaModelException e) {
-			// java model doesn't exist
-			return new IJavaProject[0];
-		}
-	}
 	/*
 	 * Finds the root info this path is included in.
 	 * Returns null if not found.
